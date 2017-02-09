@@ -1,0 +1,5 @@
+<apex:page controller="RunBatchCheckController" action="{!run}">
+  <h1>Auto-Running Apex Code</h1>
+  You tried running the batch check from a button.  If you are seeing this page then something 
+  went wrong.  You should have been redirected to a success page.
+</apex:page>
