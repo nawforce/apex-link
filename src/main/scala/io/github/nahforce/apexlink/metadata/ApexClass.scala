@@ -2,10 +2,10 @@ package io.github.nahforce.apexlink.metadata
 
 import java.io.{File, FileInputStream}
 
-import org.antlr.v4.runtime.CommonTokenStream
 import io.github.nahforce.apexlink.antlr.{ApexLexer, ApexParser}
 import io.github.nahforce.apexlink.cst.{CST, CompilationUnit}
 import io.github.nahforce.apexlink.utils._
+import org.antlr.v4.runtime.CommonTokenStream
 
 case class ApexClass(location: Location, fullName: String, compilationUnit: CompilationUnit) extends Symbol {
   val scopedName : String = fullName
@@ -31,8 +31,6 @@ object ApexClass {
       parser.addErrorListener(listener)
 
       val cu = CompilationUnit.construct(parser.compilationUnit())
-      println("Loaded " + path + " with CST  " + collect(cu).length)
-
       Some(new ApexClass(new Location(path, 0), fullName, cu))
     } catch {
       case se: SyntaxException =>
