@@ -1,0 +1,144 @@
+<apex:page tabStyle="Goal__c" title="The Chatter Game: Goal Setup Wizard" controller="ChatterGameGoalSetupWizardController">
+    <script>
+        var previousOnload = window.onload;        
+        window.onload = function() { 
+            if (previousOnload) { 
+                previousOnload();
+            }
+            hideAll();
+            // Defaults to the first radio selection
+            document.getElementById('j_id0:j_id2:j_id30:step1Options:0').checked = true;
+        } 
+           
+       function hideAll(value) {
+            document.getElementById('batchWarning').style.display = 'none';
+    
+            if (value == 'FollowUser' || value == 'FollowItem' || value == 'Likes') {
+                document.getElementById('batchWarning').style.display = 'block';
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="{!URLFOR($Resource.Gamification, 'jquery.css')}" type="text/css" />
+    <link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/ui.all.css" />
+    <link type="text/css" href="{!URLFOR($Resource.Gamification, 'multiselect.css')}" rel="stylesheet" />
+    <script type="text/javascript" src="{!URLFOR($Resource.Gamification, 'jquery.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Gamification, 'jquery_UI.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Gamification, 'scrollTo.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Gamification, 'multiselect.js')}"></script>
+    <script type="text/javascript">
+        $(function(){
+            $(".multiselect").multiselect();
+            $(".multiselect").multiselect({sortable: false});
+            $('#switcher').themeswitcher();
+        });
+    </script>
+    <style type="text/css">
+        h2.mainTitle {
+            white-space: nowrap;
+        }
+    </style>
+            
+   <div class="bPageTitle">
+       <div class="ptBody secondaryPalette">
+           <div class="content"><img src="/s.gif" alt="Goal Setup Wizard"  class="pageTitleIcon" title="Chatter Game Goal Setup Wizard"/>
+               <h1 class="pageType">The Chatter Game<span  class="titleSeparatingColon">:</span></h1>
+               <h2 class="pageDescription"> New Goal Setup Wizard</h2>
+               <div class="blank">&nbsp;</div>
+           </div>
+       </div>
+   </div>
+
+    <apex:form >
+        <apex:pageBlock id="theBlock" mode="">
+            <apex:pageMessages ></apex:pageMessages>
+        </apex:pageBlock>
+
+        <apex:pageBlock title="Step 1: What type of behaviour do you want to reward?">
+
+            <div id="radioDiv"><apex:selectRadio id="step1Options" value="{!step1}" onclick="hideAll(this.value)" layout="pageDirection" required="true">
+                <apex:selectOption itemValue="Post" itemLabel="Any Chatter post except status updates" />
+                <apex:selectOption itemValue="PostFile" itemLabel="Uploading a file on a Chatter feed" />
+                <apex:selectOption itemValue="PostLink" itemLabel="Adding a link on a Chatter feed" />
+                <apex:selectOption itemValue="Comment" itemLabel="Commenting on a Chatter post" />
+                <apex:selectOption itemValue="Likes" itemLabel="Having someone Like your Chatter post" />
+                <apex:selectOption itemValue="FollowUser" itemLabel="Following another Chatter user" />
+                <apex:selectOption itemValue="FollowItem" itemLabel="Following a record of any type in Chatter" />
+            </apex:selectRadio></div>
+            <div id="batchWarning" style="color: red; display: none;">
+                <br/><br/><b>Note:</b> The goal type you have selected is not real-time.  It will be scheduled to
+                run automatically on a scheduled basis (e.g. every night) and award all achievements 
+                since the previous run.  To award points at any given time, go to the Goals tab, click
+                the Go button to go to a List View, and click the Run All Scheduled Batch Checks button
+                at the top of the page.
+            </div>
+        </apex:pageBlock>
+
+        <apex:pageBlock title="Step 2: How many points will participants recieve for achieving this Goal?">
+            <apex:inputText id="rewardAmount" value="{!rewardAmount}" /> points
+        </apex:pageBlock>
+
+        <apex:pageBlock title="Step 3: How would you like to describe this Goal to your team?">
+            <table>
+                <tr>
+                    <td>Goal Name:&nbsp;&nbsp; </td>
+                    <td><apex:inputText id="name" value="{!name}"/></td>
+                </tr>
+                <tr>
+                    <td>Description:&nbsp;&nbsp; </td>
+                    <td><apex:inputTextArea id="description" value="{!description}" rows="3" cols="80" /></td>
+                </tr>
+            </table>
+        </apex:pageBlock>
+
+        <apex:pageBlock title="Step 4: How long with this Goal be active?">
+           <table>
+                <tr>
+                    <td>Start Date:&nbsp;&nbsp; </td>
+                    <td><apex:inputText id="startDate" value="{!startDate}"/> (leave blank for no start date)</td>
+                </tr>
+                <tr>
+                    <td>End Date:&nbsp;&nbsp; </td>
+                    <td><apex:inputText id="endDate" value="{!endDate}"/> (leave blank for no end date)</td>
+                </tr>
+                <tr>
+                    <td>Status:&nbsp;&nbsp; </td>
+                    <td><apex:selectList value="{!status}" multiselect="false" size="1">
+                    <apex:selectOptions value="{!statusOptions}"/></apex:selectList></td>
+                </tr>
+            </table>
+                
+        </apex:pageBlock>
+
+        <apex:pageBlock title="Step 5: Who do you want to participate in this Goal?">
+        
+            <apex:selectList value="{!usersSelected}" multiselect="true" styleClass="multiselect">
+                    <apex:selectOptions value="{!userOptions.0}"/>
+                    <apex:selectOptions value="{!userOptions.1}"/>
+                    <apex:selectOptions value="{!userOptions.2}"/>
+                    <apex:selectOptions value="{!userOptions.3}"/>
+                    <apex:selectOptions value="{!userOptions.4}"/>
+                    <apex:selectOptions value="{!userOptions.5}"/>
+                    <apex:selectOptions value="{!userOptions.6}"/>
+                    <apex:selectOptions value="{!userOptions.7}"/>
+                    <apex:selectOptions value="{!userOptions.8}"/>
+                    <apex:selectOptions value="{!userOptions.9}"/>
+                    <apex:selectOptions value="{!userOptions.10}"/>
+                    <apex:selectOptions value="{!userOptions.11}"/>
+                    <apex:selectOptions value="{!userOptions.12}"/>
+                    <apex:selectOptions value="{!userOptions.13}"/>
+                    <apex:selectOptions value="{!userOptions.14}"/>
+                    <apex:selectOptions value="{!userOptions.15}"/>
+                    <apex:selectOptions value="{!userOptions.16}"/>
+                    <apex:selectOptions value="{!userOptions.17}"/>
+                    <apex:selectOptions value="{!userOptions.18}"/>
+                    <apex:selectOptions value="{!userOptions.19}"/>
+            </apex:selectList>
+
+            <p><div align="center"><apex:commandButton value="Save" action="{!action}" rerender="theBlock"/></div></p>
+        </apex:pageBlock>
+    </apex:form>
+
+    <script type="text/javascript" src="http://jqueryui.com/themeroller/themeswitchertool/"></script>
+    <div id="switcher" style="visibility: hidden;"></div>
+</apex:page>

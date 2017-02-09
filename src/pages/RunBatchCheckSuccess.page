@@ -1,0 +1,18 @@
+<apex:page title="Batch Achievement Check Running">
+    <div class="message confirmM3">
+        <table border="0" cellpadding="0" cellspacing="0" class="messageTable" style="padding:0px;margin:0px;">
+            <tr valign="top">
+                <td>
+                    <img alt="Error" class="msgIcon" src="/s.gif" title="Error"/>
+                </td>
+                <td class="messageCell">
+                    <div id="goalSetupSuccessMessage" class="messageText">
+                        Your batch achievement check is now scheduled to run shortly.  
+                        It should be done in a few minutes and points will be awarded if there are
+                        successful achievements of goals.  
+                     </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</apex:page>

@@ -1,0 +1,131 @@
+<apex:page >
+
+<style type="text/css">
+#content {
+    font-family:        Helvetica, Arial, Sans-serif;
+    color:              #000000;
+}
+
+#content img {
+    border:             0;
+}
+
+#content h1, #content h2 {
+    font-weight:        bold;
+    padding-top:        5px;
+    display:            block;
+}
+
+#content h1 {
+    font-size:          18pt;
+    color:              #D30000;
+}
+
+#content h2 {
+    font-size:          12pt;
+    color:              #46B4EE;
+}
+</style>
+
+<div id="content">
+<h1>Getting Started with The Chatter Game</h1>
+
+<apex:image url="{!$Resource.The_Chatter_Game_Logo}" alt="The Chatter Game Logo" width="256" height="256" style="float: right; padding: 0 0 15px 15px;"/>
+<h2 name="quick_start">Quick Start</h2>
+<ol>
+    <li><b>Create Some Goals.</b>  First, you should decide what kind of Chatter-related behaviour 
+    that you want to incent within your organization (see <a href="game_design_tips">tips for Game Design</a>.)  Do 
+    you want to reward more Chatter posting?  Or encourage people to follow others or records in 
+    Salesforce?  Use the Goal Setup Wizard tab to guide you through setting up Goals and setting 
+    the rules.  Goals are the actions in Chatter that your participating users must do to earn 
+    points.  Participants in each goal define which Salesforce users can earn points for 
+    completing which goals.</li>
+
+    <li><b>Spread the Word.</b>  Let your participants know clearly <i>what they need to do</i> and <i>why 
+    they should do it</i>.  They need to know the rules and the rewards.  Make sure they know that 
+    they can get updates on who is winning on the Leaderboard Dashboard.  Offer <u>tangible</u> weekly 
+    and monthly rewards for top point earners.  These incentives are the &quot;carrot on the 
+    stick&quot; to drive interest in the game.  After all, who wouldn't enjoy free coffee for a 
+    week or dinner and a night out at the movies?</li>
+
+    <li><b>Be Social.</b>  Enjoy as Chatter adoption skyrockets and your participants become 
+    Chatter advocates in your organization. (a.k.a. &quot;Chatterati&quot;)  <i>That's the power of 
+    incentives!</i></li>
+</ol>
+
+<h2 name="game_design_tips">Game Design Tips</h2>
+<ul>
+    <li><b>Don't create too many goals at first.</b>  You want keep it simple, so begin with so your users 
+    focused on 2-3 goals until your participants have played the game for a while.</li>
+    <li><b>Keep people updated on who is winning the game.</b>  Send Chatter updates to your entire organization 
+    and use <a href="/help/doc/en/dashboards_schedule_refresh.htm#topic-title" target="_blank">Scheduled 
+    Dashboards</a> to publicly recognize top point earners and update participants on their progress.</li>
+    <li><b>Change the game once in a while.</b>  Keep participants engaged and frequently tweak reward levels 
+    for goals or add new goals for whatever needs to be rewarded more at that time. You won't get it 
+    perfect the first time.</li>
+    <li><b>Don't use batch updated goals at first.</b>  Most points are rewarded instantly for achievements 
+    (well... it might take up to a couple of seconds) but achievements for some goals must be evaluated on a 
+    batch basis once a day or more.  You'll see a red note when selecting these goal types in the Goal Setup 
+    Wizard (see <a href="#scheduled_batch_updates">Scheduled Batch Update section</a>.)  Get your participants 
+    used to getting points immediately at first and let them know when you add goals where point rewards 
+    will be delayed.</li>
+    <li><b>Make it Fun!</b>  If you do, you will create a culture of rewards at your organization.  After 
+    all, games are made to be fun!</li>
+</ul>
+
+<h2 name="setting_permissions">Setting Permissions</h2>
+
+<p>You'll typically have two types of user groups for The Chatter Game:</p>
+
+<ol>
+    <li><b>Game Administrators.</b>  This is a subset group of users that can add and edit goals.  To 
+    give them proper access, make sure their <a href="/help/doc/en/admin_userprofiles.htm" target="_blank">Profile</a> 
+    allows them at least Read, Create, and Edit permissions on the Goal, Participant, and Achievement objects and Delete
+    on Participants if you want them to be able to remove participants from goals.  Make sure their 
+    <a href="/help/doc/en/admin_roles.htm" target="_blank">Role</a> allows them Public Read/Write access to these objects.</li>
+    <li><b>Participants.</b>  These users only need Read access to Goals and Participants and Read and Create for Achievements 
+    in their Profile.   You can hide the Getting Started and Goal Setup Wizard tabs for these users too.  Also make sure 
+    their role allow them Public Read/Write access.</li>
+</ol>
+
+<h2 name="scheduled_batch_updates">Scheduled Batch Update</h2>
+
+<p>Three types of goals <u><b>do not</b></u> have points awarded instantly:</p>
+
+<ul>
+    <li>Having someone Like your Chatter post</li>
+    <li>Following another Chatter user</li>
+    <li>Following a record of any type in Chatter</li>
+</ul>
+
+<p>By setting up Scheduled Apex Jobs (Enterprise, Unlimited, and Developer Editions only), the data 
+for the previous day will be evaluated these types of goals to see which participants have completed 
+the desired actions in that period.  Anyone who has achieved these goals in that period will be 
+awarded their points for that period all at once.</p>
+
+<p>Here is how to set up a Scheduled Apex Job to have this happen automatically: (you must be a 
+System Administrator to do this)</p>
+
+<ol>
+    <li>Go to Your Name | Setup | App Setup | Develop | Apex Classes.</li>
+    <li>Click on the Schedule Apex button.</li>
+    <li>Enter a job name (e.g. &quot;Chatter Game Batch Run&quot;).</li>
+    <li>Choose RunBatchCheckController for your Apex Class.</li>
+    <li>Pick the frequency you want the batch check to run and enter an extremely far out End 
+    Time (e.g. 2099) and Save.</li>
+</ol>
+
+<p>You will now see your scheduled job under Your Name | Setup | Administration Setup | Monitoring | 
+Scheduled Jobs and can make any changes to your scheduled batch updates there.</p>
+
+<h2 name="feedback">Feedback</h2>
+
+<p>If you like The Chatter Game, I would really appreciate you 
+<a href="https://sites.secure.force.com/appexchange/writeReview?listingId=a0N30000004fqdKEAQ" target="_blank">leaving 
+a positive review on the AppExhange listing</a>.  Suggestions, questions, and feedback are always welcome at 
+<a href="mailto:chris.kemp@thechattergame.com">chris.kemp@thechattergame.com</a>.  If you need a 
+response, I can't guarantee an instant reply, but the experts on the 
+<a href="http://boards.developerforce.com/t5/Force-com-Labs-Development-and/bd-p/labs" target="_blank">Force.com 
+Labs Discussion Boards</a> are always an excellent resource for getting answers quickly.</p>
+</div>
+</apex:page>
