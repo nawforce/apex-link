@@ -1,0 +1,89 @@
+<project name="FormulaForce" default="deploy" xmlns:sf="antlib:com.salesforce" basedir=".">
+	
+	<!-- Salesforce server, use test.salesforce.com for Sandbox -->
+	<property name="sf.server" value="https://login.salesforce.com"/>
+
+	<!--  Downloaded from Salesforce Tools page under Setup -->
+	<typedef 
+		uri="antlib:com.salesforce" 
+		resource="com/salesforce/antlib.xml" 
+		classpath="${basedir}/lib/ant-salesforce.jar"/>
+
+	<!-- Import macros to install/uninstall packages -->
+	<import file="${basedir}/lib/ant-salesforce.xml"/>
+	
+	<!-- Import deployment tools -->
+	<import file="${basedir}/lib/exec_anon.xml"/>
+	<import file="${basedir}/lib/undeploy.xml"/>	
+	
+	<!-- Demo uninstall and install target -->
+	<target name="package.installdemo">
+		<uninstallPackage
+			namespace="fforce"
+			username="${sf.username}"
+			password="${sf.password}"/>
+		<installPackage
+			namespace="fforce"
+			version="1.0"
+			username="${sf.username}"
+			password="${sf.password}"/>			
+	</target>
+
+	<!-- Retrieve package contents locally from packaging org -->
+	<target name="retrieve.package"> 
+    	<sf:retrieve  
+        	username="${sf.username}"  
+        	password="${sf.password}"  
+        	retrieveTarget="${basedir}/src"  
+        	packageNames="FormulaForce"/>  
+	</target> 
+	
+	<!-- Retrieve org contents from developer org -->
+	<target name="retrieve">
+		<sf:retrieve
+			username="${sf.username}"
+			password="${sf.password}"
+			serverurl="${sf.server}"
+			retrieveTarget="${basedir}/src"
+			unpackaged="${basedir}/src/package.xml"/>
+	</target>	
+	
+	<!-- Deploy to Developer Org -->
+	<target name="deploy" depends="undeploy">
+    	<sf:deploy  
+        	username="${sf.username}"  
+        	password="${sf.password}"  
+        	deployRoot="${basedir}/src"/>  	
+		<executeApex username="${sf.username}" password="${sf.password}">
+		SeasonService.createTestSeason();
+		</executeApex>        	
+	</target>
+	
+	<!-- Deploy from Jenkins -->
+	<target name="deploy.jenkins" depends="undeploy">
+		<sf:deploy
+			username="${sf.username}"
+			password="${sf.password}"
+			serverurl="${sf.server}"
+			runAllTests="true"
+			deployRoot="${basedir}/src"/>
+		<sf:deploy
+			username="${sf.package.username}"
+			password="${sf.package.password}"
+			serverurl="${sf.server}"
+			checkOnly="true"
+			runAllTests="true"
+			deployRoot="${basedir}/src"/>
+	</target>
+
+	<!-- Deploy to Packaging org -->
+	<target name="deploy.package">
+		<sf:deploy
+			username="${sf.username}"
+			password="${sf.password}"
+			serverurl="${sf.server}"
+			runAllTests="true"
+			deployRoot="${basedir}/src"/>
+	</target>
+
+</project>
