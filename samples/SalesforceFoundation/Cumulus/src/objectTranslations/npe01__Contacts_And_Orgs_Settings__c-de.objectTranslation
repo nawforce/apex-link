@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value><!-- Contacts And Orgs Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value><!-- Contacts And Orgs Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>false</plural>
+        <value><!-- Contacts And Orgs Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>true</plural>
+        <value><!-- Contacts And Orgs Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>false</plural>
+        <value><!-- Contacts And Orgs Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>true</plural>
+        <value><!-- Contacts And Orgs Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>false</plural>
+        <value><!-- Contacts And Orgs Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>true</plural>
+        <value><!-- Contacts And Orgs Settings --></value>
+    </caseValues>
+    <fields>
+        <help>Erstellt automatisch ein Kampagnenmitglied, wenn Sie eine Opportunity erstellen, der ein Hauptansprechpartner und eine Primärkampagnenquelle zugeordnet ist, oder wenn Sie diese Opportunity mit der Phase &quot;Geschlossen/Gewonnen&quot; aktualisieren.</help>
+        <label>Autom. Verwaltung d. Kampagnenmitglieder</label>
+        <name>Automatic_Campaign_Member_Management__c</name>
+    </fields>
+    <fields>
+        <help>Der autom. Status eines Kamp.mitglieds für Opportunities mit dem Status &quot;Offen&quot; oder &quot;Geschlossen/Verloren&quot; sowie einem Hauptansprechpartner und einer Primärkampagnenquelle. Erfolgt kein Eintrag, verwendet Salesforce den ersten Status &quot;Nicht geantwortet&quot;.</help>
+        <label>Kamp.mitgl.status &quot;Nicht geantwortet&quot;</label>
+        <name>Campaign_Member_Non_Responded_Status__c</name>
+    </fields>
+    <fields>
+        <help>Der autom. Status eines Kampagnenmitglieds für Opportunities mit dem Status &quot;Geschlossen/Gewonnen&quot;, denen ein Hauptansprechpartner und eine Primärkampagnenquelle zugeordnet ist. Erfolgt kein Eintrag, verwendet Salesforce den ersten Status &quot;Geantwortet&quot;.</help>
+        <label>Kampagnenmitgliederstatus &quot;Geantwortet&quot;</label>
+        <name>Campaign_Member_Responded_Status__c</name>
+    </fields>
+    <fields>
+        <help>Mit dieser Einstellung wird automatisch eine Kontaktrolle für Opportunities mit einem Kontakt des Begünstigten erstellt. Wenn dieses Feld leer bleibt, wird die automatische Erstellung einer Kontaktrolle für den Begünstigten deaktiviert.</help>
+        <label>Kontaktrolle für Begünstigten-Opport.</label>
+        <name>Honoree_Opportunity_Contact_Role__c</name>
+    </fields>
+    <fields>
+        <help>Deaktiviert bei Auswahl die Adressenverwaltung für Haushalt-Accounts.</help>
+        <label>Haushalt-Account-Adressen deaktiviert</label>
+        <name>Household_Account_Addresses_Disabled__c</name>
+    </fields>
+    <fields>
+        <help>Legt die maximale Anzahl der Zahlungen fest, die im Zahlungserstellungsassistenten verfügbar sind.</help>
+        <label>Maximale Zahlungen</label>
+        <name>Max_Payments__c</name>
+    </fields>
+    <fields>
+        <help>Mit dieser Einstellung wird automatisch eine Kontaktrolle für Opportunities mit einem Benachrichtigungsempfängerkontakt erstellt. Wenn dieses Feld leer bleibt, wird die autom. Erstellung einer Kontaktrolle für den Benachrichtigungsempfänger deaktiviert.</help>
+        <label>Kontaktr. für Opport. mit Benachr.empf.</label>
+        <name>Notification_Recipient_Opp_Contact_Role__c</name>
+    </fields>
+    <fields>
+        <help>Namen von Opportunity-Datensatztypen, die von der Erstellung von Zahlungen ausgeschlossen werden sollen</help>
+        <label>Von Zahlungen ausgeschl. Datensatztypen</label>
+        <name>Opp_RecTypes_Excluded_for_Payments__c</name>
+    </fields>
+    <fields>
+        <help>Werte für das Opportunity-Typ-Feld, das von der Erstellung von Zahlungen ausgeschlossen werden soll</help>
+        <label>Von Zahlungen ausgeschl. Opport.-Typen</label>
+        <name>Opp_Types_Excluded_for_Payments__c</name>
+    </fields>
+    <fields>
+        <help>Aktiviert bei Auswahl die Adressenverwaltung für Organisation-Accounts</help>
+        <label>Organisatorische Account-Adressen aktiv</label>
+        <name>Organizational_Account_Addresses_Enabled__c</name>
+    </fields>
+    <fields>
+        <help>Wählen Sie die Phase aus, zu der die Opportunity autom. geändert werden soll, wenn der Gesamtbetrag der Zahlung dem Opport.-Betrag entspricht. Ist keine Phase ausgewählt, werden Opportunities nicht autom. geändert, wenn die Zahlung vollständ. erfolgt ist.</help>
+        <label>Opportunity-Phase für vollständ. Zahlung</label>
+        <name>Payments_Auto_Close_Stage_Name__c</name>
+    </fields>
+    <fields>
+        <help>Wenn diese Option aktiviert ist, aktualisieren Änderungen an einem einzelnen Adressfeld eines Kontakts oder Accounts die vorhandene Adresse, anstatt eine neue Adresse zu erstellen.</help>
+        <label>Einfache Adressänd. als Aktualisierung</label>
+        <name>Simple_Address_Change_Treated_as_Update__c</name>
+    </fields>
+    <gender><!-- Neuter --></gender>
+</CustomObjectTranslation>

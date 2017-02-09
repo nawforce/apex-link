@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Batch Data Entry Settings --></value>
+    </caseValues>
+    <fields>
+        <help>オンにすると、支援名が空白の場合 (バッチデータエントリページに含まれていない場合)、バッチデータエントリで支援に名前が付けられることはありません。</help>
+        <label>空白の支援名を許可</label>
+        <name>Allow_Blank_Opportunity_Names__c</name>
+    </fields>
+    <fields>
+        <help>この設定は、バッチ入力された支援レコードのレコード名を入力された項目値に基づいて自動的に生成します。</help>
+        <label>支援の命名</label>
+        <name>Opportunity_Naming__c</name>
+    </fields>
+</CustomObjectTranslation>

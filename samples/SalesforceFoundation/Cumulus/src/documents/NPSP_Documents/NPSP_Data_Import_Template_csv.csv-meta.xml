@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>A template file to use for loading data into the NPSP Data Import object.</description>
+    <internalUseOnly>false</internalUseOnly>
+    <name>NPSP Data Import Template.csv</name>
+    <public>false</public>
+</Document>

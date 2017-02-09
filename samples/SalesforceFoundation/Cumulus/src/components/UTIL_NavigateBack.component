@@ -1,0 +1,28 @@
+<apex:component >
+    <apex:attribute name="recordId"
+        description="The recordId to navigate to."
+        type="Id"
+        required="true"
+        />
+    <apex:attribute name="redirect"
+        description="Prevent redirect unless set to true."
+        type="Boolean"
+        default="false"
+        />
+
+    <script type="text/javascript">
+        var redirect = {!redirect};
+        if (redirect) {
+            if ((typeof sforce != 'undefined') && sforce && (!!sforce.one)) {
+                // Manage navigation in Lightning Experience & Salesforce1
+                    sforce.one.back(true);
+            }
+            else {
+                var recordId = '{!recordId}';
+                // Manage navigation in Salesforce Classic
+                window.parent.location.href = '/' + recordId;
+            }
+        }
+    </script>
+    
+</apex:component>

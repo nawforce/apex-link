@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Contacts And Orgs Settings --></value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value><!-- Contacts And Orgs Settings --></value>
+    </caseValues>
+    <fields>
+        <help>Automáticamente crea un miembro de campaña cuando se crea una oportunidad que tiene un contacto principal y un origen de campaña principal o cuando se cambia la oportunidad a Ganada Cerrada.</help>
+        <label>Automatización de miembros de campaña</label>
+        <name>Automatic_Campaign_Member_Management__c</name>
+    </fields>
+    <fields>
+        <help>El estado de miembro de campaña para oportunidades abiertas o cerradas perdidas que tiene un origen de campaña principal y un contacto principal asociados. Si se deja en blanco, Salesforce utiliza el primer estado No respondida</help>
+        <label>Estado de miembro de campaña:No responde</label>
+        <name>Campaign_Member_Non_Responded_Status__c</name>
+    </fields>
+    <fields>
+        <help>El estado de miembro de campaña para oportunidades cerradas ganadas que tienen un origen de campaña principal y un contacto principal asociados. Si se deja en blanco, Salesforce utiliza el primer estado Respondida</help>
+        <label>Estado de miembro de campaña: Responde</label>
+        <name>Campaign_Member_Responded_Status__c</name>
+    </fields>
+    <fields>
+        <help>Si se completa se creará automáticamente una función de contacto para las oportunidades con un contacto homenajeado. Si no se selecciona una opción, se des-habilitará la creación automática.</help>
+        <label>Función de contacto en op. Homenajeado</label>
+        <name>Honoree_Opportunity_Contact_Role__c</name>
+    </fields>
+    <fields>
+        <help>Des-habilita direcciones para Cuenta Familia cuando esta seleccionado.</help>
+        <label>Deshabilitar direcciones CuentaFamilia</label>
+        <name>Household_Account_Addresses_Disabled__c</name>
+    </fields>
+    <fields>
+        <help>Determina la mayor cantidad de pagos disponibles utilizando el Asistente para crear pagos</help>
+        <label>Cantidad máxima de pagos</label>
+        <name>Max_Payments__c</name>
+    </fields>
+    <fields>
+        <help>Si se completa se creará automáticamente una función de contacto para las oportunidades con un Receptor de notificaciones. Si no se selecciona una opción, se des-habilitará la creación automática.</help>
+        <label>Fun. de c. Receptor de notificaciones</label>
+        <name>Notification_Recipient_Opp_Contact_Role__c</name>
+    </fields>
+    <fields>
+        <help>Nombre de los tipos de registro de la oportunidad que deben excluirse de la creación de pagos.</help>
+        <label>T. de registro op. excluidos de pagos</label>
+        <name>Opp_RecTypes_Excluded_for_Payments__c</name>
+    </fields>
+    <fields>
+        <help>Tipos de oportunidad excluidos de la creación de pagos.</help>
+        <label>Tipo de op. excluidos de pagos</label>
+        <name>Opp_Types_Excluded_for_Payments__c</name>
+    </fields>
+    <fields>
+        <help>Habilita direcciones para Cuenta Organización cuando esta seleccionado.</help>
+        <label>Habilitar direcciones CuentaOrganización</label>
+        <name>Organizational_Account_Addresses_Enabled__c</name>
+    </fields>
+    <fields>
+        <help>Elegir la etapa al cual debe pasar automáticamente la oportunidad cuando el monto total pagado es igual al importe de la oportunidad. Si no se selección una etapa, la oportunidad no se actualizará cuando se realicen todos los pagos.</help>
+        <label>Estado de op. cuando pagada completa</label>
+        <name>Payments_Auto_Close_Stage_Name__c</name>
+    </fields>
+    <fields>
+        <help>Si seleccionado, las modificaciones a direcciones en cuenta o contactos se comportan como modificaciones simples, en ve de crear nuevas direcciones.</help>
+        <label>Cambios en dirección son modificaciones</label>
+        <name>Simple_Address_Change_Treated_as_Update__c</name>
+    </fields>
+    <gender><!-- Feminine --></gender>
+</CustomObjectTranslation>

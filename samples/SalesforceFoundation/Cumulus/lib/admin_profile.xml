@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>*</members>
+        <members>Account</members>
+        <members>Campaign</members>
+        <members>Contact</members>
+        <members>Lead</members>
+        <members>Opportunity</members>
+        <members>npe01__OppPayment__c</members>
+        <members>npo02__Household__c</members>
+        <members>npo02__Opportunity_Rollup_Error__c</members>
+        <members>npe03__Custom_Field_Mapping__c</members>
+        <members>npe03__Recurring_Donation__c</members>
+        <members>npe4__Relationship__c</members>
+        <members>npe4__Relationship_Auto_Create__c</members>
+        <members>npe4__Relationship_Error__c</members>
+        <members>npe4__Relationship_Lookup__c</members>
+        <members>npe5__Affiliation__c</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
+        <members>Admin</members>
+        <name>Profile</name>
+    </types>
+    <version>36.0</version>
+</Package>

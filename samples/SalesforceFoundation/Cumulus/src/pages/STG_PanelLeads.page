@@ -1,0 +1,25 @@
+<apex:page controller="STG_PanelLeads_CTRL" >
+    <apex:form id="form" styleClass="slds-m-around--x-large">
+        <c:STG_PageHeader sectionLabel="{!$Label.stgNavPeople}" pageLabel="{!$Label.stgLabelLeadSettings}" />
+        <c:UTIL_PageMessages />
+        <div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-m-around--large">
+            <apex:commandButton id="editLeads" value="{!$Label.stgBtnEdit}" status="statusLoad" action="{!editSettings}" immediate="true" rendered="{!isReadOnlyMode}" rerender="form" styleClass="slds-button slds-button--small slds-button--neutral" />
+        </div>
+        <div class="slds-form--horizontal slds-m-around--large">
+            <div class="slds-form-element">
+                <apex:outputLabel value="{!$ObjectType.npe01__Contacts_And_Orgs_Settings__c.Fields.npe01__Default_Opp_on_Convert__c.Label}" for="cbxDOC" styleClass="slds-form-element__label" />
+                <div class="slds-form-element__control">
+                    <apex:inputCheckbox value="{!stgService.stgCon.npe01__Default_Opp_on_Convert__c}" rendered="{!isEditMode}" id="cbxDOC" html-aria-describedby="{!$Component.cbxDOCHelp}" styleClass="slds-checkbox"/>
+                    <apex:inputCheckbox value="{!stgService.stgCon.npe01__Default_Opp_on_Convert__c}" rendered="{!isReadOnlyMode}" disabled="true" id="cbxDOCO" html-aria-describedby="{!$Component.cbxDOCHelp}" styleClass="slds-checkbox"/>
+                    <apex:outputPanel id="cbxDOCHelp" layout="block">
+                        <apex:outputText styleClass="slds-form-element__help" value="{!$Label.stgHelpLeadConvert}" escape="false"/>
+                    </apex:outputPanel>
+                </div>
+            </div>
+        </div>
+        <div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-m-around--large">
+            <apex:commandButton id="saveHouseholds" value="{!$Label.stgBtnSave}" status="statusLoad" action="{!saveSettings}" immediate="false" rendered="{!isEditMode}" rerender="form" styleClass="slds-button slds-button--small slds-button--brand" />
+            <apex:commandButton id="cancelHouseholds" value="{!$Label.stgBtnCancel}" status="statusLoad" action="{!cancelEdit}" immediate="true" rendered="{!isEditMode}" rerender="form" styleClass="slds-button slds-button--small slds-button--neutral" />
+        </div>
+    </apex:form>
+</apex:page>

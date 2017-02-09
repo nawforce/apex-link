@@ -1,0 +1,362 @@
+<apex:page controller="PMT_PaymentWizard_CTRL" tabStyle="Opportunity" standardStylesheets="true">
+    <apex:stylesheet value="{!URLFOR($Resource.CumulusStaticResources, '/npsp-slds/npsp-common.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SLDS, '/0_12_2/assets/styles/salesforce-lightning-design-system-vf.min.css')}" />
+
+<!--
+Opp Payment Creator VF Page
+Copyright (c) 2008 Evan Callahan, evanc@npowerseattle.org, NPower Seattle, 403 23rd Ave S, Seattle, WA 98144
+-->
+    <style>
+        .slds .slds-form--horizontal .extraInline {
+            width: calc(33% - 13px);
+        }
+        .slds .slds-form-element .dateInputPicker {
+            margin-right: 105px;
+            width: calc(66% - 129px);
+        }
+        .slds .slds-table td .slds-form-element .dateInputTable {
+            margin-right: 105px !important;
+        }
+    </style>
+    <script>
+        //hack to override JavaScript that is setting focus on Date field 
+        function setFocusOnLoad() {}  
+    </script>
+    
+    <apex:form styleClass="slds" id="vfForm">
+        <!-- Nav -->
+        <c:UTIL_PageMessages />
+        <c:UTIL_NavigateBack recordId="{!currentOpp.id}" redirect="{!redirect}"/>
+        <div class="slds-page-header" role="banner">
+            <div class="slds-grid">
+                <div class="slds-col slds-col--padded">
+                    <nav role="navigation">
+                        <p id="bread-crumb-label" class="slds-assistive-text">You are here:</p>
+                        <ol class="slds-breadcrumb slds-list--horizontal" aria-labelledby="bread-crumb-label">
+                            <li class="slds-list__item slds-text-heading--label">
+                                <a class="slds-type-focus" href="{!URLFOR($Action.Opportunity.Tab, $ObjectType.Opportunity)}">{!$ObjectType.Opportunity.LabelPlural}</a>
+                            </li>
+                            <li class="slds-list__item slds-text-heading--label">
+                                <a class="slds-type-focus" href="{!URLFOR($Action.Opportunity.View, currentOpp.id)}">
+                                    {!currentOpp.Name}
+                                </a>
+                            </li>
+                        </ol>
+                    </nav>              
+                    <h1 class="slds-text-heading--medium slds-p-top-medium">
+                        <apex:outputText rendered="{!NOT(isWriteoffWizard)}" value="{!$Label.pmtWizardSubtitle}" />
+                        <apex:outputText rendered="{!isWriteoffWizard}" value="{!$Label.pmtWizardSectionWriteoff}" />
+                    </h1>
+                    <p class="slds-text-body--small slds-m-top--x-small"><!--apex:outputField value="{!opp.amount}" rendered="opp<>null"/--></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="slds-p-top--medium"/>
+        <!-- Payments Disabled Warning-->
+        <apex:outputText rendered="{!AND(NOT(ISNULL(PaymentsSettings)), PaymentsSettings.npe01__Payments_Enabled__c == false)}">
+            <div class="slds-notify slds-notify--alert slds-theme--inverse-text slds-theme--alert-texture" role="alert">
+                <p>
+                    {!$Label.pmtWizardPaymentsDisabledTitle}
+                </p>
+                <p>
+                    {!$Label.pmtWizardPaymentsDisabled}&nbsp;<apex:outputLink value="/apex/npsp__STG_SettingsManager">{!$Label.lblNPSPSettings}</apex:outputLink>
+                </p>
+            </div>
+        </apex:outputText>
+        
+        <!-- No unpaid amount warning -->
+        <apex:outputText rendered="{!AND(NOT(ISNULL(CurrentOpp)),NOT(haveAmount), NOT(isClosedLost))}">
+            <div class="slds-notify slds-notify--alert slds-theme--inverse-text slds-theme--alert-texture" role="alert">
+                <p>
+                    {!$Label.pmtWizardWarning}
+                </p>
+                <p>
+                    {!$Label.pmtWizardNoUnpaidAmount}&nbsp;&nbsp;
+                    <a href="{!URLFOR($Action.Opportunity.View, currentOpp.id)}">
+                        {!currentOpp.Name}
+                    </a>
+                </p>
+            </div>
+            <div class="slds-grid slds-grid--align-center">
+                <div class="slds-col">
+                    <apex:commandButton action="{!RemovePaidPayments}" value="{!$Label.pmtWizardBtnRemovePaidPayments}" styleClass="slds-button slds-button--neutral" reRender="vfForm"/>
+                </div>
+            </div>
+        </apex:outputText>
+
+        <!-- Closed/Lost warning -->            
+        <apex:outputText rendered="{!isClosedLost}">
+            <div class="slds-notify slds-notify--alert slds-theme--inverse-text slds-theme--alert-texture" role="alert">
+                <p>
+                    {!$Label.pmtWizardClosedLost}
+                </p>
+                <p>
+                    <a href="{!URLFOR($Action.Opportunity.View, currentOpp.id)}">
+                        {!currentOpp.Name}
+                    </a>
+                </p>
+            </div>
+        </apex:outputText>
+
+        <div class="container slds-p-around--medium">
+            <!-- Opportunity Info -->
+            <apex:outputText rendered="{!AND(NOT(ISNULL(PaymentsSettings)), PaymentsSettings.npe01__Payments_Enabled__c == true, isScheduleWizard == true)}">
+                <div class="slds-section-title--divider">
+                    {!$Label.pmtWizardSectionTitle}
+                </div>
+                <apex:outputText rendered="{!NOT(ISNULL(currentOpp))}">
+                    <div class="slds-grid slds-wrap slds-form--horizontal">
+                        <div class="slds-col slds-col--padded">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="oppLink">{!$ObjectType.Opportunity.label}</label>
+                                <div class="slds-form-element__control">
+                                    <span class="slds-form-element__static">
+                                        <a href="{!URLFOR($Action.Opportunity.View, currentOpp.id)}">
+                                            {!currentOpp.Name}
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="oppStage">{!$ObjectType.Opportunity.Fields.StageName.Label}</label>
+                                <div class="slds-form-element__control">
+                                    <span class="slds-form-element__static">
+                                        <apex:outputField value="{!currentOpp.StageName}" id="oppStage"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="oppCloseDate">{!$ObjectType.Opportunity.Fields.CloseDate.Label}</label>
+                                <div class="slds-form-element__control">
+                                    <span class="slds-form-element__static">
+                                        <apex:outputField value="{!currentOpp.CloseDate}" id="oppCloseDate"/></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-col--padded">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="oppAmount">{!$ObjectType.Opportunity.Fields.Amount.Label}</label>
+                                <div class="slds-form-element__control">
+                                    <span class="slds-form-element__static">
+                                        <apex:outputField value="{!currentOpp.Amount}" id="oppAmount"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="oppPmtMade">{!$ObjectType.Opportunity.Fields.npe01__Payments_Made__c.Label}</label>
+                                <div class="slds-form-element__control">
+                                    <span class="slds-form-element__static">
+                                        <apex:outputField value="{!currentOpp.npe01__Payments_Made__c}" id="oppPmtMade"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="oppAmtOutstanding">{!$ObjectType.Opportunity.Fields.npe01__Amount_Outstanding__c.Label}</label>
+                                <div class="slds-form-element__control">
+                                    <span class="slds-form-element__static">
+                                        <apex:outputField value="{!currentOpp.npe01__Amount_Outstanding__c}" id="oppAmtOutstanding"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </apex:outputText>
+                <apex:outputText value="{!$Label.pmtWizardMsgNoOppFound}"  rendered="{!ISNULL(CurrentOpp)}" styleClass="slds-notify slds-notify--alert slds-theme--inverse-text slds-theme--alert-texture"/>
+
+                <!-- Create payment schedule -->
+                <apex:outputText rendered="{!AND(NOT(isClosedLost), OR(haveAmount, removePaidPayments))}" styleClass="slds-m-around--medium slds-p-top--medium">
+                    <div class="slds-section-title--divider">
+                        {!$Label.pmtWizardCreateSchedule}
+                    </div>
+                    <div class="slds-grid slds-wrap slds-form--horizontal">
+                        <div class="slds-col slds-col--padded">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label">{!$Label.pmtWizardNumberOfPayments}</label>
+                                <div class="slds-form-element__control slds-select_container">
+                                    <apex:selectList value="{!numberofPayments}" id="paymentCount" multiselect="false" size="1" styleClass="slds-select">
+                                        <apex:selectOptions value="{!items}"/>
+                                    </apex:selectList>
+                                </div>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label">{!$Label.pmtWizardInterval}</label>
+                                <div class="slds-form-element__control slds-select_container extraInline">
+                                    <apex:selectList value="{!interval}" id="intervals" multiselect="false" size="1" styleClass="slds-select">
+                                        <apex:selectOptions value="{!intervals}"/>
+                                    </apex:selectList>
+                                </div>
+                                <div class="slds-form-element__control slds-select_container extraInline">
+                                    <apex:selectList value="{!intervalunit}" id="intervalunits" multiselect="false" size="1" styleClass="slds-select">
+                                        <apex:selectOptions value="{!intervalunits}"/>
+                                    </apex:selectList>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-col--padded">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="firstPmtDate">{!$Label.pmtWizardFirstPaymentDate}</label>
+                                <div class="slds-form-element__control dateInputPicker">
+                                    <apex:inputField value="{!samplePayment.npe01__Scheduled_Date__c}" id="firstPmtDate" styleClass="slds-input"/>
+                                </div>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="pmtMethod">{!$ObjectType.npe01__OppPayment__c.Fields.npe01__Payment_Method__c.Label}</label>
+                                <div class="slds-form-element__control">
+                                    <apex:inputField value="{!samplePayment.npe01__Payment_Method__c}" id="pmtMethod" styleClass="slds-select"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </apex:outputText>
+                <div class="slds-grid slds-grid--align-center">
+                    <div class="slds-col">
+                        <apex:commandButton action="{!calculate}" value="{!$Label.pmtWizardBtnCalcPayments}" rendered="{!AND(NOT(ISNULL(PaymentsSettings)), PaymentsSettings.npe01__Payments_Enabled__c == true, isScheduleWizard == true, NOT(isClosedLost), OR(haveAmount, removePaidPayments))}" styleClass="slds-button slds-button--neutral slds-m-around--medium" reRender="vfForm"/>
+                    </div>
+                </div>
+                <!-- Show Payments to be Created -->
+                <apex:outputText rendered="{!AND(NOT(isClosedLost), payments.size>0, OR(haveAmount, removePaidPayments))}" styleClass="slds-p-around--medium">
+                    <div class="slds-section-title--divider">
+                        {!$Label.pmtWizardToBeCreated}
+                    </div>
+                    <table class="slds-table" >
+                        <thead>
+                            <tr class="slds-text-heading--label">
+                                <th scope="col"><span class="slds-truncate">{!$Label.pmtWizardPaymentNumber}</span></th>
+                                <th scope="col"><span class="slds-truncate">{!$ObjectType.npe01__OppPayment__c.Fields.npe01__Payment_Amount__c.Label}</span></th>
+                                <th scope="col"><span class="slds-truncate">{!$ObjectType.npe01__OppPayment__c.Fields.npe01__Scheduled_Date__c.Label}</span></th>
+                                <th scope="col"><span class="slds-truncate">{!$ObjectType.npe01__OppPayment__c.Fields.npe01__Payment_Date__c.Label}</span></th>
+                                <th scope="col"><span class="slds-truncate">{!$ObjectType.npe01__OppPayment__c.Fields.npe01__Paid__c.Label}</span></th>
+                            </tr>
+                        </thead>
+                        <apex:repeat value="{!payments}" var="p">
+                            <tr>
+                                <td>
+                                    <div class="slds-form-element">
+                                        <apex:outputText value="{!p.paymentNumber}"/>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="slds-form-element">
+                                        <apex:inputField value="{!p.OppPayment.npe01__Payment_Amount__c}" styleClass="slds-input slds-input--small"/>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="slds-form-element" style="margin-right: 105px">
+                                        <apex:inputField value="{!p.OppPayment.npe01__Scheduled_Date__c}" styleClass="slds-input slds-input--small"/>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="slds-form-element" style="margin-right: 105px">
+                                        <apex:inputField value="{!p.OppPayment.npe01__Payment_Date__c}" styleClass="slds-input slds-input--small"/>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="slds-form-element">
+                                        <apex:inputField value="{!p.OppPayment.npe01__Paid__c}" styleClass="slds-input slds-input--small"/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </apex:repeat>
+                    </table>
+
+                </apex:outputText>
+            </apex:outputText>
+           <!-- END PAYMENT ADD MARKUP  -->  
+           <!-- CREATE PAYMENTS BUTTON -->
+            <div class="slds-grid slds-grid--align-center">
+                <div class="slds-col">
+                    <apex:commandButton action="{!createPayments}" value="{!$Label.pmtWizardBtnCreatePayments}" rendered="{!AND(NOT(isClosedLost), payments.size>0, OR(haveAmount, removePaidPayments))}" styleClass="slds-button slds-button--neutral" reRender="vfForm"/>
+                </div>
+            </div>
+
+           <!-- START PAYMENT WRITEOFF  --> 
+            <apex:outputText rendered="{!AND(NOT(ISNULL(PaymentsSettings)), PaymentsSettings.npe01__Payments_Enabled__c == true, isWriteoffWizard == true)}" styleClass="slds-p-around--medium">
+                <div class="slds-m-around--medium slds-p-top--medium">
+                    <div class="slds-section-title--divider">
+                        {!$Label.pmtWizardSectionTitle}
+                    </div>
+                </div>
+                <apex:outputText rendered="{!NOT(ISNULL(currentOpp))}">
+                    <div class="slds-grid slds-wrap slds-form--horizontal">
+                        <div class="slds-col slds-col--padded">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="opplink2">{!$ObjectType.Opportunity.label}</label>
+                                <div class="slds-form-element__control">
+                                    <span class="slds-form-element__static">
+                                        <a href="{!URLFOR($Action.Opportunity.View, currentOpp.id)}">
+                                            {!currentOpp.Name}
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="oppStage2">{!$ObjectType.Opportunity.Fields.StageName.Label}</label>
+                                <div class="slds-form-element__control">
+                                    <apex:outputField value="{!currentOpp.StageName}" id="oppStage2" styleClass="slds-form-element__static"/>
+                                </div>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="oppCloseDate3">{!$ObjectType.Opportunity.Fields.CloseDate.Label}</label>
+                                <div class="slds-form-element__control">
+                                    <apex:outputField value="{!currentOpp.CloseDate}" id="oppCloseDate3" styleClass="slds-form-element__static"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-col--padded">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="oppAmount4">{!$ObjectType.Opportunity.Fields.Amount.Label}</label>
+                                <div class="slds-form-element__control">
+                                    <apex:outputField value="{!currentOpp.Amount}" id="oppAmount4" styleClass="slds-form-element__static"/>
+                                </div>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="oppPmtMade2">{!$ObjectType.Opportunity.Fields.npe01__Payments_Made__c.Label}</label>
+                                <div class="slds-form-element__control">
+                                    <apex:outputField value="{!currentOpp.npe01__Payments_Made__c}" id="oppPmtMade2" styleClass="slds-form-element__static"/>
+                                </div>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="oppAmtOutstanding2">{!$ObjectType.Opportunity.Fields.npe01__Amount_Outstanding__c.Label}</label>
+                                <div class="slds-form-element__control">
+                                    <apex:outputField value="{!currentOpp.npe01__Amount_Outstanding__c}" id="oppAmtOutstanding2" styleClass="slds-form-element__static"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </apex:outputText>
+                <apex:outputText value="{!$Label.pmtWizardMsgNoOppFound}"  rendered="{!ISNULL(CurrentOpp)}" styleClass="slds-notify slds-notify--alert slds-theme--inverse-text slds-theme--alert-texture"/>
+                <apex:outputText rendered="{!AND(NOT(ISNULL(CurrentOpp)), NOT(haveAmount), NOT(ISNULL(PaymentsSettings)), PaymentsSettings.npe01__Payments_Enabled__c == true)}">
+                        {!$Label.pmtWizardNoWriteoffAmount}&nbsp;&nbsp;
+                        <apex:outputLink value="{!'/' + currentOpp.id}">{!currentOpp.Name}</apex:outputLink>
+                </apex:outputText>
+                <apex:outputText rendered="{!AND(NOT(ISNULL(CurrentOpp)), haveAmount, NOT(ISNULL(PaymentsSettings)), PaymentsSettings.npe01__Payments_Enabled__c == true)}">
+                    <div class="slds-m-around--medium slds-p-top--medium">
+                        <div class="slds-section-title--divider">
+                            {!$Label.pmtWizardSectionWriteoffPayments}
+                        </div>
+                    </div>
+                    <div class="slds-notify slds-notify--alert slds-theme--inverse-text slds-theme--alert-texture slds-m-around--medium" role="alert">
+                        <apex:outputText value="{!$Label.pmtWizardWriteoffMessage}">
+                           <apex:param value="{!outstanding_payments}"/>
+                           <apex:param value="{!currentOpp.npe01__Amount_Outstanding__c}"/>
+                        </apex:outputText>
+                    </div>
+                    <div class="slds-grid slds-wrap slds-grid--align-center">
+                        <div class="slds-col--padded slds-form-element">
+                            <label class="slds-form-element__label">{!$Label.pmtWizardWriteoffDate}</label>
+                            <div class="slds-form-element__control">
+                                <apex:inputField value="{!writeoffPayment.npe01__Payment_Date__c}" styleClass="slds-input"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-grid slds-wrap slds-grid--align-center slds-m-around--medium">
+                        <div class="slds-col">
+                            <apex:commandButton action="{!writeoff}" value="{!$Label.pmtWizardSectionWriteoffPayments}"  styleClass="slds-button slds-button--neutral" reRender="vfForm"/>
+                        </div>
+                    </div>
+                </apex:outputText>
+            </apex:outputText>
+        </div>
+    </apex:form>
+</apex:page>

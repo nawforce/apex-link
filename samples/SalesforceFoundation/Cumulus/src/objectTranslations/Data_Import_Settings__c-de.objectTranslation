@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value><!-- Data Import Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value><!-- Data Import Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>false</plural>
+        <value><!-- Data Import Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>true</plural>
+        <value><!-- Data Import Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>false</plural>
+        <value><!-- Data Import Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>true</plural>
+        <value><!-- Data Import Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>false</plural>
+        <value><!-- Data Import Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>true</plural>
+        <value><!-- Data Import Settings --></value>
+    </caseValues>
+    <fields>
+        <help>Ein optionales Feld mit einer eindeutigen Kennung zum Account-Abgleich</help>
+        <label>Benutzerdef. eindeutige Account-Kennung</label>
+        <name>Account_Custom_Unique_ID__c</name>
+    </fields>
+    <fields>
+        <help>Gibt an, welche Regeln bei dem Versuch des Abgleichs von Accounts in Datenimportdatensätzen mit vorhandenen Accounts befolgt werden sollen</help>
+        <label>Account-Abgleichsregeln</label>
+        <name>Account_Matching_Rule__c</name>
+    </fields>
+    <fields>
+        <help>Die Anzahl der NPSP-Datenimportdatensätze, die bei jedem Batch verarbeitet werden sollen</help>
+        <label>Batchgröße</label>
+        <name>Batch_Size__c</name>
+    </fields>
+    <fields>
+        <help>Ein optionales Feld mit einer eindeutigen Kennung zum Kontakt-Abgleich</help>
+        <label>Benutzerdef. eindeutige Kontakt-Kennung</label>
+        <name>Contact_Custom_Unique_ID__c</name>
+    </fields>
+    <fields>
+        <help>Gibt an, welche Regeln bei dem Versuch des Abgleichs von Kontakten in Datenimportdatensätzen mit vorhandenen Kontakten befolgt werden sollen</help>
+        <label>Kontakt-Abgleichsregeln</label>
+        <name>Contact_Matching_Rule__c</name>
+    </fields>
+    <gender><!-- Neuter --></gender>
+</CustomObjectTranslation>

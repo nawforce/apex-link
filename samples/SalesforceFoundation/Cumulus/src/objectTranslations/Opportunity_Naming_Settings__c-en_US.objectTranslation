@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Opportunity Naming Settings</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Opportunity Naming Settings</value>
+    </caseValues>
+    <fields>
+        <help><!-- Whether this setting applies to individual opportunities, organizational opportunities, or both. --></help>
+        <label><!-- Attribution --></label>
+        <name>Attribution__c</name>
+    </fields>
+    <fields>
+        <help><!-- The format for dates included in this opportunity name. --></help>
+        <label><!-- Date Format --></label>
+        <name>Date_Format__c</name>
+    </fields>
+    <fields>
+        <help><!-- The format to use for Opportunity naming. --></help>
+        <label><!-- Opportunity Name Format --></label>
+        <name>Opportunity_Name_Format__c</name>
+    </fields>
+    <fields>
+        <help><!-- Specifies the opportunity record type that this naming scheme is for. --></help>
+        <label><!-- Opportunity Record Types --></label>
+        <name>Opportunity_Record_Types__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

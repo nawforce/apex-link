@@ -1,0 +1,2854 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customApplications>
+        <label><!-- Nonprofit Success Pack --></label>
+        <name>Nonprofit_CRM</name>
+    </customApplications>
+    <customLabels>
+        <label>認証 ID は空白にできません。</label>
+        <name>Addr_Id_Error</name>
+    </customLabels>
+    <customLabels>
+        <label>指定したサービスではバッチ住所検証はサポートされていません。</label>
+        <name>Addr_No_Batch</name>
+    </customLabels>
+    <customLabels>
+        <label>検証待機中</label>
+        <name>Addr_Pending_Verification</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- DEPRECATED - Addr Settings API Title --></label>
+        <name>Addr_Settings_API_Body</name>
+    </customLabels>
+    <customLabels>
+        <label>検証 API のアカウント設定</label>
+        <name>Addr_Settings_API_Title</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- DEPRECATED - Addr Settings Intro Body --></label>
+        <name>Addr_Settings_Intro_Body</name>
+    </customLabels>
+    <customLabels>
+        <label>住所検証 API を使用して、Salesforce に住所を追加するときにその住所を検証できます。API では、住所を保存するときに標準化することもできます (たとえば、保存レコードの「Street」インスタンスを「St」に変換)。</label>
+        <name>Addr_Settings_Intro_Body1</name>
+    </customLabels>
+    <customLabels>
+        <label>&lt;br/&gt;使用を開始するには: 
+
+&lt;ol&gt;
+&lt;li&gt;サードパーティの住所検証アカウントを開きます(一部のアカウントは非営利団体では無料)。&lt;/li&gt;
+
+&lt;li&gt;住所検証サービスで、必要な認証 ID やトークンを作成します。&lt;/li&gt;
+
+&lt;li&gt;この設定ページに戻って上の [編集] ボタンをクリックし、ID やトークンを適切な項目に貼り付けます。&lt;/li&gt;
+
+&lt;li&gt;残りの項目に入力して [保存] をクリックします。詳細は、各項目のヘルプテキストを参照してください。さらに詳しい情報が必要な場合は、&lt;a href=&quot;https://powerofus.force.com/NPSP_Address_Verification&quot;&gt;NPSP ドキュメント&lt;/a&gt;を参照してください。&lt;/li&gt;</label>
+        <name>Addr_Settings_Intro_Body2</name>
+    </customLabels>
+    <customLabels>
+        <label>はじめに</label>
+        <name>Addr_Settings_Intro_Title</name>
+    </customLabels>
+    <customLabels>
+        <label>住所検証は、この時点以降に作成したレコードのみで機能します。Salesforce ですでに入力済みの個人情報には適用されません。</label>
+        <name>Addr_Settings_Notice</name>
+    </customLabels>
+    <customLabels>
+        <label>秘密鍵のペアをテストするため、任意の米国の郵便番号を入力:</label>
+        <name>Addr_Settings_Test_Body</name>
+    </customLabels>
+    <customLabels>
+        <label>API 応答</label>
+        <name>Addr_Settings_Test_Response_Title</name>
+    </customLabels>
+    <customLabels>
+        <label>私の設定をテスト</label>
+        <name>Addr_Settings_Test_Title</name>
+    </customLabels>
+    <customLabels>
+        <label>以前に検証済みのレコードはスキップ</label>
+        <name>Addr_Skip_Verified</name>
+    </customLabels>
+    <customLabels>
+        <label>認証トークンは空白にできません。</label>
+        <name>Addr_Token_Error</name>
+    </customLabels>
+    <customLabels>
+        <label>未承認のエンドポイント。[設定] &gt; [セキュリティ] &gt; [リモートサイト] で、認証済みリモートサイトのリストにエンドポイント URL を追加してください。</label>
+        <name>Addr_Unauthorized_Endpoint</name>
+    </customLabels>
+    <customLabels>
+        <label>この秘密鍵のペアは有効です。</label>
+        <name>Addr_Valid_Key_Pair</name>
+    </customLabels>
+    <customLabels>
+        <label>&lt;p&gt;団体のすべての住所を検証および標準化するには、[すべての住所を検証] をクリックします。
+        一括検証プロセスには上記の設定が使用されます。&lt;/p&gt;
+ &lt;br/&gt;</label>
+        <name>Addr_Verification_Batch_Body</name>
+    </customLabels>
+    <customLabels>
+        <label>選択したサービスではバッチ住所検証はサポートされていません。</label>
+        <name>Addr_Verification_Batch_Not_Supported</name>
+    </customLabels>
+    <customLabels>
+        <label>SmartyStreets では 100 件のバッチで住所が検証されます。</label>
+        <name>Addr_Verification_Batch_SmartyStreets_Message</name>
+    </customLabels>
+    <customLabels>
+        <label>一括検証状況</label>
+        <name>Addr_Verification_Batch_Status</name>
+    </customLabels>
+    <customLabels>
+        <label>既存の住所の一括検証</label>
+        <name>Addr_Verification_Batch_Title</name>
+    </customLabels>
+    <customLabels>
+        <label>検証が必要</label>
+        <name>Addr_Verification_Required</name>
+    </customLabels>
+    <customLabels>
+        <label>設定で住所検証クラスが定義されていません。住所検証を実行できません。</label>
+        <name>Addr_Verification_Undefined_Class</name>
+    </customLabels>
+    <customLabels>
+        <label>指定した名前のクラスは存在しません。住所検証を実行できません。</label>
+        <name>Addr_Verification_Wrong_Class</name>
+    </customLabels>
+    <customLabels>
+        <label>住所検証クラスに必要なインターフェースが実装されていません。住所検証を実行できません。</label>
+        <name>Addr_Verification_Wrong_Interface</name>
+    </customLabels>
+    <customLabels>
+        <label>検証済み</label>
+        <name>Addr_Verified</name>
+    </customLabels>
+    <customLabels>
+        <label>エンドポイント URL を入力してください。</label>
+        <name>Addr_Verify_Endpoint</name>
+    </customLabels>
+    <customLabels>
+        <label>Google Geocoding API には認証トークンのみの値が必要です。この API は、API コンソール (https://code.google.com/apis/console) にアクセスして Google アカウントでログインすることで入手できます。API コンソールの左側にあるメニューから [Services (サービス)] リンクをクリックし、Geocoding API サービスを有効にします。サービスを有効にしたら、[API Access (API アクセス)] ページの [Simple API Access (簡単な API アクセス)] セクションから API キーを入手できます。このサービスの詳細および提供内容は、https://developers.google.com/maps/documentation/geocoding/ を参照してください。</label>
+        <name>Addr_Verify_Google_Help</name>
+    </customLabels>
+    <customLabels>
+        <label>ログイン情報を入力していることを検証してください。</label>
+        <name>Addr_Verify_Settings</name>
+    </customLabels>
+    <customLabels>
+        <label>住所を検証しています。</label>
+        <name>Addr_Verifying</name>
+    </customLabels>
+    <customLabels>
+        <label>住所が見つかりません。</label>
+        <name>Address_Not_Found</name>
+    </customLabels>
+    <customLabels>
+        <label>「{0}」は団体で有効な国として設定されていません。</label>
+        <name>Address_StateCountry_Invalid_Error</name>
+    </customLabels>
+    <customLabels>
+        <label>一度に 100 件を超える住所は検証できません。</label>
+        <name>Address_Verification_Limit</name>
+    </customLabels>
+    <customLabels>
+        <label>このツールの使用に伴う、データ損失、データの不整合などのリスクを受け入れます。</label>
+        <name>CONV_Accept_Risk</name>
+    </customLabels>
+    <customLabels>
+        <label>団体の項目</label>
+        <name>CONV_Account_Field</name>
+    </customLabels>
+    <customLabels>
+        <label>古い世帯 ID の団体項目</label>
+        <name>CONV_Account_Field_For_Old_HH_ID</name>
+    </customLabels>
+    <customLabels>
+        <label>1 対 1 または個人の団体に関連付けられた活動および ToDo が新しい世帯団体に移行される</label>
+        <name>CONV_Activities_Reparented</name>
+    </customLabels>
+    <customLabels>
+        <label>住所が世帯住所と異なるすべての個人に対して住所の上書きが設定される</label>
+        <name>CONV_Address_Overrides_Set</name>
+    </customLabels>
+    <customLabels>
+        <label>住所が既存の世帯および個人から新しい住所オブジェクトに対応付けられた後に、個人および世帯団体に関連付けられる</label>
+        <name>CONV_Addresses_Mapped</name>
+    </customLabels>
+    <customLabels>
+        <label>私のデータは [設定] | [データの管理] | [データのエクスポート] でバックアップされています。</label>
+        <name>CONV_All_Backed_Up</name>
+    </customLabels>
+    <customLabels>
+        <label>すべての既存の世帯およびその個人が選択される</label>
+        <name>CONV_All_Households_Selected</name>
+    </customLabels>
+    <customLabels>
+        <label>カスタム項目でのすべての必須項目制限は削除されています。</label>
+        <name>CONV_All_Required_Removed</name>
+    </customLabels>
+    <customLabels>
+        <label>すべての NPSP トリガが無効になる (カスタムトリガはユーティリティによって無効化されません。安全性のため、カスタムトリガも無効にしてください)</label>
+        <name>CONV_All_Triggers_Disabled</name>
+    </customLabels>
+    <customLabels>
+        <label>すべてのユーザが Salesforce インスタンスからログアウトしています。</label>
+        <name>CONV_All_Users_Logged_Out</name>
+    </customLabels>
+    <customLabels>
+        <label>すべてのワークフローおよびカスタム入力規則は無効化されています。</label>
+        <name>CONV_All_WFR_Disabled</name>
+    </customLabels>
+    <customLabels>
+        <label>このツールは、一度に 200 件の世帯のバッチで世帯に関連付けられた既存の個人を処理し、それらを世帯団体に変換します。変換中にエラーが発生すると、1 つ以上の個人のバッチが失敗し、他のバッチは成功する場合があります。この場合、データが整合性のない状態になる可能性があります。この問題が発生した場合はすぐに問題を解決し、変換ユーティリティを再実行する必要があります。このツールに関連付けられた一括処理ジョブでは、次のアクションが実行されます。</label>
+        <name>CONV_Batching_Explanation</name>
+    </customLabels>
+    <customLabels>
+        <label>変換プロセスの開始</label>
+        <name>CONV_Begin</name>
+    </customLabels>
+    <customLabels>
+        <label>キャンセル</label>
+        <name>CONV_Cancel</name>
+    </customLabels>
+    <customLabels>
+        <label>設定オプション</label>
+        <name>CONV_Configuration_Options</name>
+    </customLabels>
+    <customLabels>
+        <label>個人が 1 対 1 または個人の団体から切断され、新しく作成された世帯団体に関連付けられる</label>
+        <name>CONV_Contacts_Attached</name>
+    </customLabels>
+    <customLabels>
+        <label>団体モデル変換の進捗状況</label>
+        <name>CONV_Conversion_Process</name>
+    </customLabels>
+    <customLabels>
+        <label>Salesforce データおよびデータモデルに根本的変更を加えようとしています。これらの変更では、レポート、ダッシュボード、その他の機能の変更が必要になる場合があります。Salesforce.com および Salesforce.org は、あらゆるデータ損失またはデータの不整合性について責任を負いません。続行しますか?</label>
+        <name>CONV_Fundamental_Changes</name>
+    </customLabels>
+    <customLabels>
+        <label>重要な情報</label>
+        <name>CONV_Important_Info_Header</name>
+    </customLabels>
+    <customLabels>
+        <label>現地の Salesforce エキスパートに相談済みです。</label>
+        <name>CONV_Local_Expert</name>
+    </customLabels>
+    <customLabels>
+        <label>マスタ世帯住所が存在しない場合、住所の頻度と指定された個人に基づいてマスタ世帯住所が設定または定義される</label>
+        <name>CONV_Master_Address_Set</name>
+    </customLabels>
+    <customLabels>
+        <label>個人への 1 対 1 以外の団体の関連付けが削除され、新しいアフィリエーションが作成され、個人の主アフィリエーション項目が設定される</label>
+        <name>CONV_New_Affiliations</name>
+    </customLabels>
+    <customLabels>
+        <label>既存の各世帯に対して新しい世帯団体が作成される</label>
+        <name>CONV_New_Households_Created</name>
+    </customLabels>
+    <customLabels>
+        <label>NPSP 以外のすべてのアプリケーションは一時的にアンインストールまたは無効化されています。</label>
+        <name>CONV_Non_NPSP_Apps</name>
+    </customLabels>
+    <customLabels>
+        <label>以前の世帯オブジェクトはそのまま残されるため、変換プロセスの結果を検証した後に手動で削除する必要があります。</label>
+        <name>CONV_Old_Household_Objects</name>
+    </customLabels>
+    <customLabels>
+        <label>このツールは現在世帯が関連付けられている個人でのみ機能することを理解しています。</label>
+        <name>CONV_Only_Household_Contacts</name>
+    </customLabels>
+    <customLabels>
+        <label>支援が 1 対 1 または個人の団体から移動され、新しい世帯団体および個人に関連付けられる</label>
+        <name>CONV_Opportunities_Reparented</name>
+    </customLabels>
+    <customLabels>
+        <label>必要に応じて新しい世帯団体のカスタム項目を選択し、元の世代オブジェクト ID を保存できます。これは、後で元の世帯にあるルックアップや子オブジェクトの親を新しい世帯団体に変更する場合に便利です。テキストを格納する未使用のカスタム項目のみを選択できます。</label>
+        <name>CONV_Original_HH_Id</name>
+    </customLabels>
+    <customLabels>
+        <label>このページは、団体を既存の 1x1 または個人の団体モデルから新しい世帯団体モデルに変換できるように設計されています。</label>
+        <name>CONV_Page_Description</name>
+    </customLabels>
+    <customLabels>
+        <label>団体モデル変換ユーティリティ</label>
+        <name>CONV_Page_Title</name>
+    </customLabels>
+    <customLabels>
+        <label>これは永続的な変更です。続行する前に、各地域のエキスパートにご相談ください。変換が完了すると、既存のデータを誤って変更しないようにデータベース機能が一時的に無効になります。Salesforce.com および Salesforce.org は、この操作によるいかなるデータの損失、変更、破損の責任を負いません。自己責任で続行してください。この処理を開始する前に、次の手順が実行されていることを確認する必要があります:</label>
+        <name>CONV_Permanent_Change</name>
+    </customLabels>
+    <customLabels>
+        <label>すべての世帯で主個人の値が設定されています</label>
+        <name>CONV_Primary_Contacts_Set</name>
+    </customLabels>
+    <customLabels>
+        <label>変換を続行する</label>
+        <name>CONV_Proceed</name>
+    </customLabels>
+    <customLabels>
+        <label>無効なユーザからすべてのレコード所有権が転送されました。</label>
+        <name>CONV_Record_Ownership_Transferred</name>
+    </customLabels>
+    <customLabels>
+        <label>コンバータを再読み込み</label>
+        <name>CONV_Reload</name>
+    </customLabels>
+    <customLabels>
+        <label>選択した項目で必要な世帯 ID 情報を格納できません。別の団体項目を選択してください。</label>
+        <name>CONV_Selected_Field_Bad</name>
+    </customLabels>
+    <customLabels>
+        <label>選択した団体項目の有効性を検証しようとしたときにエラーが発生しました。選択した項目を適切に検証できませんでした。この検証が行われていないと、項目の対応付け (変換) が成功するかどうか判別できません。自己責任で続行するか、世帯 ID を格納する別の項目を選択してください。</label>
+        <name>CONV_Selected_Field_Verification_Failure</name>
+    </customLabels>
+    <customLabels>
+        <label>変換処理は最新の Sandbox でテストされました。</label>
+        <name>CONV_Tested_in_Sandbox</name>
+    </customLabels>
+    <customLabels>
+        <label>すべての NPSP トリガは再度有効化されます。変換のために無効にしたカスタムトリガは手動で再度有効にする必要があります。また、ユーティリティによって&lt;b&gt;すべて&lt;/b&gt;の NPSP トリガが再度有効化されるため、事前に選択的に無効にしたトリガも手動で再度無効にする必要があります。</label>
+        <name>CONV_Triggers_Reenabled</name>
+    </customLabels>
+    <customLabels>
+        <label>警告!</label>
+        <name>CONV_Warning</name>
+    </customLabels>
+    <customLabels>
+        <label>このツールの機能</label>
+        <name>CONV_What_This_Tool_Does</name>
+    </customLabels>
+    <customLabels>
+        <label>除外</label>
+        <name>CampaignMemberStatusOmit</name>
+    </customLabels>
+    <customLabels>
+        <label>非表示にしてセキュリティを確保</label>
+        <name>HiddenForSecurity</name>
+    </customLabels>
+    <customLabels>
+        <label>成功</label>
+        <name>PageMessagesConfirm</name>
+    </customLabels>
+    <customLabels>
+        <label>エラー</label>
+        <name>PageMessagesError</name>
+    </customLabels>
+    <customLabels>
+        <label>エラー</label>
+        <name>PageMessagesFatal</name>
+    </customLabels>
+    <customLabels>
+        <label>警告</label>
+        <name>PageMessagesWarning</name>
+    </customLabels>
+    <customLabels>
+        <label>新規リレーションを作成</label>
+        <name>REL_Create_New_Relationship</name>
+    </customLabels>
+    <customLabels>
+        <label>以前</label>
+        <name>REL_Former</name>
+    </customLabels>
+    <customLabels>
+        <label>この個人のリレーションがありません。</label>
+        <name>REL_No_Relationships</name>
+    </customLabels>
+    <customLabels>
+        <label>この個人を再度主個人にする</label>
+        <name>REL_RECenter</name>
+    </customLabels>
+    <customLabels>
+        <label>個人に戻る</label>
+        <name>REL_Return_to_Contact</name>
+    </customLabels>
+    <customLabels>
+        <label>個人レコードを表示</label>
+        <name>REL_View_Contact_Record</name>
+    </customLabels>
+    <customLabels>
+        <label>継続支援には、団体または個人のいずれかのみを指定できます。</label>
+        <name>RecurringDonationAccountAndContactError</name>
+    </customLabels>
+    <customLabels>
+        <label>保存されました。</label>
+        <name>Saved</name>
+    </customLabels>
+    <customLabels>
+        <label>設定が保存されていません</label>
+        <name>Settings_not_Saved</name>
+    </customLabels>
+    <customLabels>
+        <label>SmartyStreets によって提供された認証 ID と認証トークンを入力したことを確認してください。これらは、SmartyStreets API キーのページにあります。</label>
+        <name>SmartyStreets_Help_Text</name>
+    </customLabels>
+    <customLabels>
+        <label>郵便番号が見つかりません。</label>
+        <name>Zip_Not_Found</name>
+    </customLabels>
+    <customLabels>
+        <label>100 件を超える郵便番号の一括検証はできません。</label>
+        <name>Zipcode_Verification_Limit</name>
+    </customLabels>
+    <customLabels>
+        <label>住所検証設定の認証トークン設定で Cicero API キーを指定する必要があります。</label>
+        <name>addrCiceroMissingAPIKey</name>
+    </customLabels>
+    <customLabels>
+        <label>このボタンでサポートされるのは、世帯団体のある個人ではなく、世帯オブジェクトのある個人のみです。</label>
+        <name>addrCopyConAddBtnHHObjOnly</name>
+    </customLabels>
+    <customLabels>
+        <label>住所の一般設定</label>
+        <name>addrGeneralSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>住所オブジェクトは、世帯団体と組織団体 (有効になっている場合) でのみサポートされます。</label>
+        <name>addrHHAccountOnly</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯住所は、[住所の上書き] が設定されていないすべての個人にコピーされます。</label>
+        <name>addrHHAddressAlwaysDefault</name>
+    </customLabels>
+    <customLabels>
+        <label>住所 (季節性) は、世帯の他の住所 (季節性) と重ならないようにする必要があります。</label>
+        <name>addrSeasonalOverlap</name>
+    </customLabels>
+    <customLabels>
+        <label>住所は、すべての季節性項目が設定されている状態か、1 つも設定されていない状態にする必要があります。</label>
+        <name>addrSeasonalPartial</name>
+    </customLabels>
+    <customLabels>
+        <label>行を追加</label>
+        <name>alloAddRow</name>
+    </customLabels>
+    <customLabels>
+        <label>位置を指定して行を追加</label>
+        <name>alloAddRowAtPosition</name>
+    </customLabels>
+    <customLabels>
+        <label>各割り当てには、金額またはパーセントのいずれかが設定されている必要があります。</label>
+        <name>alloAmountOrPercent</name>
+    </customLabels>
+    <customLabels>
+        <label>デフォルトの割り当てをバッチ作成</label>
+        <name>alloBatchCreateDefault</name>
+    </customLabels>
+    <customLabels>
+        <label>このボタンをクリックすると、割り当ての積み上げ集計設定で除外されている支援を除くすべての既存の支援のデフォルトの割り当てを作成するバッチ処理が開始されます。このツールを実行するには、デフォルトの割り当てが有効になっていて、デフォルトの一般会計単位が選択されている必要があります。デフォルトの割り当てを有効にすると、すべての新規支援にデフォルトの割り当てが設定されるため、このツールはデフォルトの割り当てを有効にした後に一度だけ実行する必要があります。</label>
+        <name>alloBatchDefaultInfo</name>
+    </customLabels>
+    <customLabels>
+        <label>キャンセル</label>
+        <name>alloBtnCancel</name>
+    </customLabels>
+    <customLabels>
+        <label>保存</label>
+        <name>alloBtnSaveAndClose</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- alloCampaignExceedsOppAmount --></label>
+        <name>alloCampaignExceedsOppAmount</name>
+    </customLabels>
+    <customLabels>
+        <label>正の金額でのみ支援の割り当てを作成できます。</label>
+        <name>alloCantAllocateNothing</name>
+    </customLabels>
+    <customLabels>
+        <label>デフォルトの割り当てが有効になりました。デフォルトの一般会計単位も選択する必要があります。</label>
+        <name>alloDefaultGAUMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>デフォルトの割り当てはパーセントベースにできません。</label>
+        <name>alloDefaultNotPercent</name>
+    </customLabels>
+    <customLabels>
+        <label>削除</label>
+        <name>alloDeleteRow</name>
+    </customLabels>
+    <customLabels>
+        <label>支援の金額を減らすには、まず割り当てを更新する必要があります。現在、この支援の割り当てが支援金額より大きくなっています。</label>
+        <name>alloExceedsOppAmount</name>
+    </customLabels>
+    <customLabels>
+        <label>キャンペーンの割り当てを管理</label>
+        <name>alloManageCampaignAllocations</name>
+    </customLabels>
+    <customLabels>
+        <label>支援の割り当てを管理</label>
+        <name>alloManageOppAllocations</name>
+    </customLabels>
+    <customLabels>
+        <label>継続支援の割り当てを管理</label>
+        <name>alloManageRecurringDonationAllocations</name>
+    </customLabels>
+    <customLabels>
+        <label>割り当ての通貨は直接変更できません。割り当ての通貨は、親支援、キャンペーン、または継続支援の通貨が変更されると更新されます。</label>
+        <name>alloModifyCurrency</name>
+    </customLabels>
+    <customLabels>
+        <label>割り当てに負の金額を設定することはできません。</label>
+        <name>alloNegativeAmount</name>
+    </customLabels>
+    <customLabels>
+        <label>割り当てに負のパーセントを設定することはできません。</label>
+        <name>alloNegativePercent</name>
+    </customLabels>
+    <customLabels>
+        <label>パーセントベースの割り当ては 100% 以下にしてください。</label>
+        <name>alloPercentExceed100</name>
+    </customLabels>
+    <customLabels>
+        <label>残り:</label>
+        <name>alloRemainder</name>
+    </customLabels>
+    <customLabels>
+        <label>各割り当てには、1 つのパーセントオブジェクト (支援、継続支援、またはキャンペーン) が設定されている必要があります。</label>
+        <name>alloSingleParent</name>
+    </customLabels>
+    <customLabels>
+        <label>支援の割り当ての総額は、支援の金額以下にしてください。</label>
+        <name>alloTotalExceedsOppAmt</name>
+    </customLabels>
+    <customLabels>
+        <label>計:</label>
+        <name>alloTotals</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- alloUnallocated --></label>
+        <name>alloUnallocated</name>
+    </customLabels>
+    <customLabels>
+        <label>[一意の団体カスタム ID] 設定項目の {0} には、API 参照名が {1} および {2} の NPSP データインポートオブジェクトの一致項目が必要です。</label>
+        <name>bdiAccountCustomIdError</name>
+    </customLabels>
+    <customLabels>
+        <label>処理中にエラーが発生しました。次の状況は、最初に報告されたエラーです:</label>
+        <name>bdiBatchException</name>
+    </customLabels>
+    <customLabels>
+        <label>完了</label>
+        <name>bdiBtnClose</name>
+    </customLabels>
+    <customLabels>
+        <label>完了</label>
+        <name>bdiComplete</name>
+    </customLabels>
+    <customLabels>
+        <label>エラー</label>
+        <name>bdiCompleteWithErrors</name>
+    </customLabels>
+    <customLabels>
+        <label>[一意の個人カスタム ID] 設定項目の {0} には、API 参照名が {1} および {2} の NPSP データインポートオブジェクトの一致項目が必要です。</label>
+        <name>bdiContactCustomIdError</name>
+    </customLabels>
+    <customLabels>
+        <label>メールのみ</label>
+        <name>bdiContactMatchEmail</name>
+    </customLabels>
+    <customLabels>
+        <label>名とメール</label>
+        <name>bdiContactMatchFnameEmail</name>
+    </customLabels>
+    <customLabels>
+        <label>名と姓</label>
+        <name>bdiContactMatchFnameLname</name>
+    </customLabels>
+    <customLabels>
+        <label>名、姓、メールアドレス</label>
+        <name>bdiContactMatchFnameLnameEmail</name>
+    </customLabels>
+    <customLabels>
+        <label>姓とメール</label>
+        <name>bdiContactMatchLnameEmail</name>
+    </customLabels>
+    <customLabels>
+        <label>作成済み</label>
+        <name>bdiCreated</name>
+    </customLabels>
+    <customLabels>
+        <label>設定オプション</label>
+        <name>bdiDataImporterConfigTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>NPSP データインポーターを使用すると、簡単にデータを Nonprofit Success Pack にインポートできます</label>
+        <name>bdiDataImporterDescription</name>
+    </customLabels>
+    <customLabels>
+        <label>各インポートレコードには、最大 2 人の個人、最大 2 つの団体、1 つの自宅住所 (省略可能)、1 つの支援 (省略可能) を含めることができます。</label>
+        <name>bdiDataImporterInfoLine1</name>
+    </customLabels>
+    <customLabels>
+        <label>Salesforce は、既存の個人と団体を照合して、重複レコードを作成することなく情報を更新します。</label>
+        <name>bdiDataImporterInfoLine2</name>
+    </customLabels>
+    <customLabels>
+        <label>サービスの制限に達することを回避するために、NPSP データインポーターは NPSP 設定で指定した可能性のある検証サービスを介して住所を検証しません。</label>
+        <name>bdiDataImporterInfoLine2b</name>
+    </customLabels>
+    <customLabels>
+        <label>Salesforce は、各インポートレコードのデータインポートの問題を追跡します。問題が解決したら、失敗したこれらのレコードを再インポートできます。重複レコードは作成されません。</label>
+        <name>bdiDataImporterInfoLine3</name>
+    </customLabels>
+    <customLabels>
+        <label>データインポートはすぐに開始されないことがあります。この処理は、Salesforce の現在のアクティビティによって異なります。</label>
+        <name>bdiDataImporterInfoLine4</name>
+    </customLabels>
+    <customLabels>
+        <label>重要な情報</label>
+        <name>bdiDataImporterInfoTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>処理するデータインポートレコードの数:</label>
+        <name>bdiDataImporterNumToProcess</name>
+    </customLabels>
+    <customLabels>
+        <label>NPSP データインポート</label>
+        <name>bdiDataImporterTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>支援</label>
+        <name>bdiDonation</name>
+    </customLabels>
+    <customLabels>
+        <label>無効な支援キャンペーン名</label>
+        <name>bdiErrorInvalidCampaignName</name>
+    </customLabels>
+    <customLabels>
+        <label>無効な支援者</label>
+        <name>bdiErrorInvalidDonor</name>
+    </customLabels>
+    <customLabels>
+        <label>姓を指定する必要があります。</label>
+        <name>bdiErrorInvalidLastname</name>
+    </customLabels>
+    <customLabels>
+        <label>無効な支援レコードタイプ名</label>
+        <name>bdiErrorInvalidOppRTName</name>
+    </customLabels>
+    <customLabels>
+        <label>サポートされていない、世帯団体以外の既存の個人に一致しました。</label>
+        <name>bdiErrorNonHHAccountContact</name>
+    </customLabels>
+    <customLabels>
+        <label>失敗</label>
+        <name>bdiFailed</name>
+    </customLabels>
+    <customLabels>
+        <label>NPSP データインポーターは、世帯団体モデルでのみ機能します。</label>
+        <name>bdiHouseholdModelRequired</name>
+    </customLabels>
+    <customLabels>
+        <label>無視</label>
+        <name>bdiIgnored</name>
+    </customLabels>
+    <customLabels>
+        <label>インポート済み</label>
+        <name>bdiImported</name>
+    </customLabels>
+    <customLabels>
+        <label>一致</label>
+        <name>bdiMatched</name>
+    </customLabels>
+    <customLabels>
+        <label>レコードが失敗しました:</label>
+        <name>bdiRecordsFailed</name>
+    </customLabels>
+    <customLabels>
+        <label>レコードがインポートされました:</label>
+        <name>bdiRecordsImported</name>
+    </customLabels>
+    <customLabels>
+        <label>レコードが処理されました:</label>
+        <name>bdiRecordsProcessed</name>
+    </customLabels>
+    <customLabels>
+        <label>データインポート処理を開始</label>
+        <name>bdiRunBtn</name>
+    </customLabels>
+    <customLabels>
+        <label>現在の状況:</label>
+        <name>bdiStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>合計バッチ数の {0}/{1} が処理されました。</label>
+        <name>bdiStatusProcessed</name>
+    </customLabels>
+    <customLabels>
+        <label>は、現在合計バッチ数の {0}/{1} を処理しています。</label>
+        <name>bdiStatusProcessing</name>
+    </customLabels>
+    <customLabels>
+        <label>時間:</label>
+        <name>bdiTime</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- button label on the Remove Contact popup --></label>
+        <name>btnRemove</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- campaignMemberStatusDefault --></label>
+        <name>campaignMemberStatusDefault</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- campaignMemberStatusNonResponded --></label>
+        <name>campaignMemberStatusNonResponded</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- campaignMemberStatusResponded --></label>
+        <name>campaignMemberStatusResponded</name>
+    </customLabels>
+    <customLabels>
+        <label>個人団体はサポートされていません。</label>
+        <name>conMergeErrNoPersonAccounts</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} を変更する権限がありません。</label>
+        <name>flsError</name>
+    </customLabels>
+    <customLabels>
+        <label>状態チェックを実行</label>
+        <name>healthButtonRun</name>
+    </customLabels>
+    <customLabels>
+        <label>個人が含まれていない 1 対 1 の団体が {0} 個あります。</label>
+        <name>healthDetailsAccOne2OneNoContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>有効な団体モデルが指定されていません。</label>
+        <name>healthDetailsAccountModel</name>
+    </customLabels>
+    <customLabels>
+        <label>団体モデルが {0} に設定されていますが、団体種別が混在して使用されています。</label>
+        <name>healthDetailsAccountProcessor</name>
+    </customLabels>
+    <customLabels>
+        <label>{1} レコードタイプを使用している {0} 件の団体レコードのシステム項目が正しく設定されていません。</label>
+        <name>healthDetailsAccountRTIssue</name>
+    </customLabels>
+    <customLabels>
+        <label>CampaignMembers のリレーション自動作成では、キャンペーン種別を指定する必要があります。</label>
+        <name>healthDetailsAutoRelCampaignTypeMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>リレーション自動作成では、有効なオブジェクト、項目およびリレーション種別を指定する必要があります。</label>
+        <name>healthDetailsAutoRelFieldsMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>項目 {0} は参照項目ではありません。</label>
+        <name>healthDetailsAutoRelInvalidLookupField</name>
+    </customLabels>
+    <customLabels>
+        <label>継続支援項目 {0} が存在しません。</label>
+        <name>healthDetailsBadRDField</name>
+    </customLabels>
+    <customLabels>
+        <label>無効なレポート {0} が指定されました。</label>
+        <name>healthDetailsBadReportId</name>
+    </customLabels>
+    <customLabels>
+        <label>団体のない個人が {0} 人います。これらの個人は、その個人を作成したユーザにのみ公開されます。</label>
+        <name>healthDetailsContactData</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯団体レコードタイプと 1 対 1 のレコードタイプに同じ団体レコードタイプを指定することはできません。</label>
+        <name>healthDetailsDuplicateAcctRT</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- The details displayed when the duplicate contact roles health check fails --></label>
+        <name>healthDetailsDuplicateContactRoles</name>
+    </customLabels>
+    <customLabels>
+        <label>性別項目 {0} が個人に存在しません。</label>
+        <name>healthDetailsGenderField</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯団体モデルを使用している場合、[世帯ルール] を [個人なし] に設定する必要があります。</label>
+        <name>healthDetailsHHAccountModel</name>
+    </customLabels>
+    <customLabels>
+        <label>個人のない世帯団体が {0} 個あります。</label>
+        <name>healthDetailsHHActNoContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>個人のない世帯オブジェクトが {0} 個あります。</label>
+        <name>healthDetailsHHObNoContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>CampaignMember 項目 {0} が存在しません。</label>
+        <name>healthDetailsInvalidCMField</name>
+    </customLabels>
+    <customLabels>
+        <label>個人項目 {0} が存在しません。</label>
+        <name>healthDetailsInvalidContactField</name>
+    </customLabels>
+    <customLabels>
+        <label>Chatter グループ {0} が無効です。</label>
+        <name>healthDetailsInvalidErrorChatterGroup</name>
+    </customLabels>
+    <customLabels>
+        <label>エラー通知受信者が無効です。</label>
+        <name>healthDetailsInvalidErrorRecipient</name>
+    </customLabels>
+    <customLabels>
+        <label>ユーザ {0} が無効です。</label>
+        <name>healthDetailsInvalidErrorUser</name>
+    </customLabels>
+    <customLabels>
+        <label>組織でカスタム会計年度を使用している場合、会計年度の積み上げ集計はサポートされません。</label>
+        <name>healthDetailsInvalidFiscalYears</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} 項目 {1} が存在しません。</label>
+        <name>healthDetailsInvalidObjectField</name>
+    </customLabels>
+    <customLabels>
+        <label>支援項目 {0} が存在しません。</label>
+        <name>healthDetailsInvalidOppField</name>
+    </customLabels>
+    <customLabels>
+        <label>支援フェーズ {0} が存在しないか、有効ではありません。</label>
+        <name>healthDetailsInvalidOppStage</name>
+    </customLabels>
+    <customLabels>
+        <label>支払項目 {0} が存在しません。</label>
+        <name>healthDetailsInvalidPaymentField</name>
+    </customLabels>
+    <customLabels>
+        <label>継続支援項目の間隔の選択リスト値にカスタム間隔 {0} が含まれていません。</label>
+        <name>healthDetailsInvalidRDCustomPeriod</name>
+    </customLabels>
+    <customLabels>
+        <label>継続支援の間隔の選択リスト値 {0} が有効なカスタム間隔ではありません。</label>
+        <name>healthDetailsInvalidRDCustomPeriodPIcklist</name>
+    </customLabels>
+    <customLabels>
+        <label>Recordtype ID {0} が無効です。</label>
+        <name>healthDetailsInvalidRecordtypeId</name>
+    </customLabels>
+    <customLabels>
+        <label>Recordtype 名 {0} が無効です。</label>
+        <name>healthDetailsInvalidRecordtypeName</name>
+    </customLabels>
+    <customLabels>
+        <label>Schedulable__c オブジェクトのレコード {0} が無効です。</label>
+        <name>healthDetailsInvalidScheduledJob</name>
+    </customLabels>
+    <customLabels>
+        <label>[世帯郵送先名簿] ボタンで使用される NPSP_Campaign_Household_Mailing_List レポートがありません。</label>
+        <name>healthDetailsMailingListReportMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>支払が設定されている必要のある {0} 個の支援に支払が設定されていません。</label>
+        <name>healthDetailsMissingOppPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>NPSP グローバルスケジュールクラスがスケジュールされていません。</label>
+        <name>healthDetailsNothingScheduled</name>
+    </customLabels>
+    <customLabels>
+        <label>複数の支援個人の役割が [主] とマークされている支援が {0} 個見つかりました。</label>
+        <name>healthDetailsOCRDupPrimary</name>
+    </customLabels>
+    <customLabels>
+        <label>複数の主支援個人の役割が割り当てられている支援が見つかりました。</label>
+        <name>healthDetailsOCRDupPrimaryValid</name>
+    </customLabels>
+    <customLabels>
+        <label>支払項目 {0} と支援項目 {1} のデータ型に互換性がありません。</label>
+        <name>healthDetailsPaymentMappingBadDataTypes</name>
+    </customLabels>
+    <customLabels>
+        <label>継続支援項目 {0} と支援項目 {1} のデータ型に互換性がありません。</label>
+        <name>healthDetailsRDFieldsBadDatatypes</name>
+    </customLabels>
+    <customLabels>
+        <label>相互関係 {0} の [男性]、[女性]、[どちらでもない] のいずれかの項目に値が必要です。</label>
+        <name>healthDetailsRelReciprocalInvalid</name>
+    </customLabels>
+    <customLabels>
+        <label>新規団体を作成できません。</label>
+        <name>healthDetailsSaveAcctFailed</name>
+    </customLabels>
+    <customLabels>
+        <label>新規支援を作成できません。</label>
+        <name>healthDetailsSaveOppsFailed</name>
+    </customLabels>
+    <customLabels>
+        <label>1 つ以上の支援積み上げ集計、継続支援、および住所 (季節性) のジョブが Schedulable__c オブジェクトにありません。</label>
+        <name>healthDetailsScheduleJobs</name>
+    </customLabels>
+    <customLabels>
+        <label>同じハンドラ項目のあるオブジェクト {1} のトリガハンドラ {0} が複数回繰り返されているため、NPSP の動作に影響します。</label>
+        <name>healthDetailsTriggerHandlerDuplicate</name>
+    </customLabels>
+    <customLabels>
+        <label>オブジェクト {1} のトリガハンドラ {0} がデフォルトの NPSP 設定に一致しません。</label>
+        <name>healthDetailsTriggerHandlerMismatch</name>
+    </customLabels>
+    <customLabels>
+        <label>オブジェクト {1} のトリガハンドラ {0} がないため、NPSP の動作に影響します。</label>
+        <name>healthDetailsTriggerHandlerMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>支援項目 {0} と {1}　項目 {2} のデータ型に互換性がありません。</label>
+        <name>healthDetailsUDFBadDatatypes</name>
+    </customLabels>
+    <customLabels>
+        <label>継続支援のカスタム間隔は有効です。</label>
+        <name>healthDetailsValidRDCustomPeriod</name>
+    </customLabels>
+    <customLabels>
+        <label>団体データ</label>
+        <name>healthLabelAccountData</name>
+    </customLabels>
+    <customLabels>
+        <label>団体モデルデータ</label>
+        <name>healthLabelAccountModelData</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯団体と 1 対 1 の団体の団体システム項目は正常に設定されています。</label>
+        <name>healthLabelAccountRTIssueValid</name>
+    </customLabels>
+    <customLabels>
+        <label>すべての状態チェックテストに合格しました。</label>
+        <name>healthLabelAllTestsPassed</name>
+    </customLabels>
+    <customLabels>
+        <label>自動リレーションは有効です。</label>
+        <name>healthLabelAutoRelValid</name>
+    </customLabels>
+    <customLabels>
+        <label>個人データ</label>
+        <name>healthLabelContactData</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Label for Duplicate Contact Role health check --></label>
+        <name>healthLabelDuplicateContactRoles</name>
+    </customLabels>
+    <customLabels>
+        <label>エラー通知受信者は有効です。</label>
+        <name>healthLabelErrorRecipientValid</name>
+    </customLabels>
+    <customLabels>
+        <label>失敗</label>
+        <name>healthLabelFailed</name>
+    </customLabels>
+    <customLabels>
+        <label>カスタム会計年度は使用されていません。</label>
+        <name>healthLabelFiscalYearsValid</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯団体データ</label>
+        <name>healthLabelHHAccData</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯データ</label>
+        <name>healthLabelHHData</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯オブジェクトデータ</label>
+        <name>healthLabelHHObjData</name>
+    </customLabels>
+    <customLabels>
+        <label>状態チェックにより、すべての設定が有効であることが確認され、団体関連のデータに問題がないかどうか検索されます。</label>
+        <name>healthLabelIntro</name>
+    </customLabels>
+    <customLabels>
+        <label>最終実行日: {0}</label>
+        <name>healthLabelLastRun</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- The message displayed when the duplicate contact roles health check passes --></label>
+        <name>healthLabelNoDuplicateContactRoles</name>
+    </customLabels>
+    <customLabels>
+        <label>支払が設定されているすべての支援に支払が必要です。</label>
+        <name>healthLabelNoMissingOppPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>(なし)</label>
+        <name>healthLabelNone</name>
+    </customLabels>
+    <customLabels>
+        <label>支援個人の役割</label>
+        <name>healthLabelOCRCheck</name>
+    </customLabels>
+    <customLabels>
+        <label>支援の支払</label>
+        <name>healthLabelOppPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>合格</label>
+        <name>healthLabelPassed</name>
+    </customLabels>
+    <customLabels>
+        <label>支払の対応付けは有効です。</label>
+        <name>healthLabelPaymentMappingsValid</name>
+    </customLabels>
+    <customLabels>
+        <label>新規支援を保存できます。</label>
+        <name>healthLabelRDOppsValid</name>
+    </customLabels>
+    <customLabels>
+        <label>継続支援項目の対応付けは有効です。</label>
+        <name>healthLabelRDValid</name>
+    </customLabels>
+    <customLabels>
+        <label>相互関係は有効です。</label>
+        <name>healthLabelRelReciprocalValid</name>
+    </customLabels>
+    <customLabels>
+        <label>NPSP グローバルスケジューラ</label>
+        <name>healthLabelScheduler</name>
+    </customLabels>
+    <customLabels>
+        <label>NPSP グローバルスケジューラジョブがスケジュールされました。</label>
+        <name>healthLabelSchedulerValid</name>
+    </customLabels>
+    <customLabels>
+        <label>合格したテストを表示</label>
+        <name>healthLabelShowPassedTests</name>
+    </customLabels>
+    <customLabels>
+        <label>検出時間 (秒): {0}</label>
+        <name>healthLabelTime</name>
+    </customLabels>
+    <customLabels>
+        <label>トリガ設定</label>
+        <name>healthLabelTriggerHandlerCheck</name>
+    </customLabels>
+    <customLabels>
+        <label>NPSP のデフォルトトリガにトリガが設定されています。</label>
+        <name>healthLabelTriggerHandlersValid</name>
+    </customLabels>
+    <customLabels>
+        <label>ユーザ定義積み上げ集計は有効です。</label>
+        <name>healthLabelUDFValid</name>
+    </customLabels>
+    <customLabels>
+        <label>警告</label>
+        <name>healthLabelWarning</name>
+    </customLabels>
+    <customLabels>
+        <label>すべての支払が完了したときの移行先として選択する支援フェーズは、有効な成立フェーズである必要があります。</label>
+        <name>healthPaymentAutoCloseStageInvalid</name>
+    </customLabels>
+    <customLabels>
+        <label>支援フェーズを選択しないか (この機能は無効になる)、有効な成立支援フェーズを使用するように設定を更新してください。</label>
+        <name>healthPaymentAutoCloseStageMustBeActiveClosedWonOrBlank</name>
+    </customLabels>
+    <customLabels>
+        <label>すべての支払が完了したときの移行先となる支援フェーズが選択されていないか、選択されたフェーズが有効な成立フェーズです。</label>
+        <name>healthPaymentAutoCloseStageValid</name>
+    </customLabels>
+    <customLabels>
+        <label>これらの未使用の 1 対 1 の団体を削除して領域を節約することを検討してください。</label>
+        <name>healthSolutionAccOne2OneNoContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>すべての各個人で同じ団体モデルを使用する必要があります。これらの個人を表示するには、NPSP 状態チェックレポートフォルダで&lt;b&gt;団体種別ごとの別各個人&lt;/b&gt;レポートを実行します。</label>
+        <name>healthSolutionAccountModel</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯団体の場合、npe01__SYSTEM_AccountType__c が「世帯団体」であることを確認します。1 対 1 の団体の場合、npe01__SYSTEM_AccountType__c が「1 対 1 の個人」であることを確認します。どちらの場合も、npe01__SYSTEMISINDIVIDUAL__c が true であることを確認します。</label>
+        <name>healthSolutionAccountRTIssue</name>
+    </customLabels>
+    <customLabels>
+        <label>[NPSP 設定] タブで、{0} | {1} をクリックし、無効なリレーション自動作成レコードを削除します。</label>
+        <name>healthSolutionAutoRelFieldsMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>[NPSP 設定] タブで、{0} | {1} をクリックし、欠落している CampaignMember 項目を追加するか、リレーション自動作成レコードを削除します。</label>
+        <name>healthSolutionAutoRelInvalidCMField</name>
+    </customLabels>
+    <customLabels>
+        <label>[NPSP 設定] タブで、{0} | {1} をクリックし、欠落している個人項目を追加するか、リレーション自動作成レコードを削除します。</label>
+        <name>healthSolutionAutoRelInvalidContactField</name>
+    </customLabels>
+    <customLabels>
+        <label>[NPSP 設定] タブで、{0} | {1} をクリックし、リレーション自動作成レコードを削除します。</label>
+        <name>healthSolutionAutoRelInvalidLookupField</name>
+    </customLabels>
+    <customLabels>
+        <label>[NPSP 設定] タブで、{0} | {1} をクリックし、欠落している継続支援項目を追加するか、継続支援項目の対応付けレコードを削除します。</label>
+        <name>healthSolutionBadRDField</name>
+    </customLabels>
+    <customLabels>
+        <label>これらの個人を表示するには、NPSP 状態チェックレポートフォルダで&lt;b&gt;団体が関連しない個人&lt;/b&gt;レポートを実行します。</label>
+        <name>healthSolutionContactData</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- The recommended solution for when the duplicate contact roles health check fails --></label>
+        <name>healthSolutionDuplicateContactRoles</name>
+    </customLabels>
+    <customLabels>
+        <label>[NPSP 設定] タブで、{1} | {2} をクリックし、{0} 設定を編集します。</label>
+        <name>healthSolutionEditSetting</name>
+    </customLabels>
+    <customLabels>
+        <label>これらの未使用の世帯団体を削除して領域を節約することを検討してください。これらの世帯団体を表示するには、NPSP 状態チェックレポートフォルダで&lt;b&gt;空の世帯団体&lt;/b&gt;レポートを実行します</label>
+        <name>healthSolutionHHAccNoContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>これらの未使用の世帯オブジェクトを削除して領域を節約することを検討してください。世帯団体モデルへの変換が完了し、世帯オブジェクトレコードのデータが必要なくなった場合、それらを削除できます。これらの世帯オブジェクトを表示するには、NPSP 状態チェックレポートフォルダで&lt;b&gt;空の世帯オブジェクト&lt;/b&gt;レポートを実行します。</label>
+        <name>healthSolutionHHObjNoContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>Salesforce では、カスタム会計年度の無効化がサポートされていないため、NPSP の積み上げ集計はデフォルトの [年] になります。</label>
+        <name>healthSolutionInvalidFiscalYears</name>
+    </customLabels>
+    <customLabels>
+        <label>[NPSP 設定] タブで、{0} | {1} をクリックし、欠落している支援項目を追加するか、支払の対応付けレコードを削除します。</label>
+        <name>healthSolutionInvalidOppField</name>
+    </customLabels>
+    <customLabels>
+        <label>Salesforce の [設定] でこの支援フェーズの値を追加します。</label>
+        <name>healthSolutionInvalidOppStage</name>
+    </customLabels>
+    <customLabels>
+        <label>[NPSP 設定] タブで、{0} | {1} をクリックし、欠落している支払項目を追加するか、支払の対応付けレコードを削除します。</label>
+        <name>healthSolutionInvalidPaymentField</name>
+    </customLabels>
+    <customLabels>
+        <label>Salesforce の [設定] でこの継続支援の間隔の選択リスト値を追加します。</label>
+        <name>healthSolutionInvalidRDCustomPeriod</name>
+    </customLabels>
+    <customLabels>
+        <label>[NPSP 設定] タブで、{0} | {1} をクリックし、欠落している継続支援のカスタム間隔を追加するか、間隔項目から選択リスト値を削除します。</label>
+        <name>healthSolutionInvalidRDCustomPeriodPicklist</name>
+    </customLabels>
+    <customLabels>
+        <label>有効なクラスで UTIL_MasterSchedulableHelper.UTIL_IRecurring インターフェースが実装されるようにレコードを更新する必要があります。</label>
+        <name>healthSolutionInvalidScheduledJob</name>
+    </customLabels>
+    <customLabels>
+        <label>[NPSP 設定] タブで、{0} | {1} をクリックし、欠落している項目を追加するか、ユーザ積み上げ集計レコードを削除します。</label>
+        <name>healthSolutionInvalidUDFObjectField</name>
+    </customLabels>
+    <customLabels>
+        <label>[メンバーの状況] に [重複] が含まれていない、個人が関連するキャンペーンに基づいてレポートを作成します。次に、[NPSP 設定] の {0} &gt; {1} タブでこのレポートを指定します。</label>
+        <name>healthSolutionMailingListReportMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>これらの支援を表示するには、NPSP 状態チェックレポートフォルダで&lt;b&gt;支払が関連しない支援&lt;/b&gt;レポートを実行します。NPSP の支払設定で除外した支援種別や支援 RecTypes の場合、レポートに検索条件を追加する必要があります。これらを作成するには、[NPSP 設定] &gt; [支援] &gt; [支払] の [欠落している支払を作成] ボタンを使用します。</label>
+        <name>healthSolutionMissingOppPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} というジョブ名で毎日実行するようにクラス UTIL_MasterSchedulable をスケジュールする必要があります。</label>
+        <name>healthSolutionNothingScheduled</name>
+    </customLabels>
+    <customLabels>
+        <label>複数の OpportunityContactRoles を [主] としてマークすると、これまでの支援総額などの支援積み上げ集計が誤って計算される可能性があります。これらの支援を表示するには、NPSP 状態チェックレポートフォルダで&lt;b&gt;主個人の役割が関連する支援&lt;/b&gt;レポートを実行し、2 つ以上の主個人の役割のあるレコードを見つけます。</label>
+        <name>healthSolutionOCRDupPrimary</name>
+    </customLabels>
+    <customLabels>
+        <label>支援や支援個人の役割が 50,000 を超える場合、SOQL 制限の処理で発生したエラーを無視しても問題ありません。</label>
+        <name>healthSolutionOCRException</name>
+    </customLabels>
+    <customLabels>
+        <label>[NPSP 設定] タブで、{0} | {1} をクリックし、支払の対応付けレコードを削除します。</label>
+        <name>healthSolutionPaymentMappingBadDataTypes</name>
+    </customLabels>
+    <customLabels>
+        <label>[NPSP 設定] タブで、{0} | {1} をクリックし、欠落している支援項目を追加するか、継続支援項目の対応付けレコードを削除します。</label>
+        <name>healthSolutionRDBadOppField</name>
+    </customLabels>
+    <customLabels>
+        <label>[NPSP 設定] タブで、{0} | {1} をクリックし、継続支援項目の対応付けレコードを削除します。</label>
+        <name>healthSolutionRDFieldsBadDatatypes</name>
+    </customLabels>
+    <customLabels>
+        <label>[NPSP 設定] タブで、{0} | {1} をクリックし、相互関係レコードを削除して、必要な情報で新規相互関係レコードを作成します。</label>
+        <name>healthSolutionRelReciprocalInvalid</name>
+    </customLabels>
+    <customLabels>
+        <label>支援または団体が保存されないようにする入力規則、必須項目、またはワークフロールールがないことを確認します。</label>
+        <name>healthSolutionSaveOppsFailed</name>
+    </customLabels>
+    <customLabels>
+        <label>これらの機能が正常に動作するには、すべての NPSP のスケジュール済みクラスに Schedulable__c のレコードが含まれている必要があります。</label>
+        <name>healthSolutionScheduleJobs</name>
+    </customLabels>
+    <customLabels>
+        <label>トリガハンドラがデフォルトの NPSP 設定と一致しない場合、NPSP の機能が無効または変更されている可能性があります。変更は、NPSP トリガハンドラや、システムの動作に対する変更の影響について知識のあるユーザのみが行う必要があります。</label>
+        <name>healthSolutionTriggerHandlerMismatch</name>
+    </customLabels>
+    <customLabels>
+        <label>[NPSP 設定] タブで、{0} | {1} をクリックし、ユーザ積み上げ集計レコードを削除します。</label>
+        <name>healthSolutionUDFBadDatatypes</name>
+    </customLabels>
+    <customLabels>
+        <label>[NPSP 設定] タブで、{0} | {1} をクリックし、欠落している支援項目を追加するか、ユーザ積み上げ集計レコードを削除します。</label>
+        <name>healthSolutionUDFOppField</name>
+    </customLabels>
+    <customLabels>
+        <label>キャンペーンに戻る</label>
+        <name>hhCmpDedupLabelReturnToCmp</name>
+    </customLabels>
+    <customLabels>
+        <label>このキャンペーンのサイズが大きいため、世帯メンバーを特定する処理がバッチで実行されており、完了するまでに数分かかる場合があります。進行状況が完了したら、リンクをクリックしてレポートを開きます。</label>
+        <name>hhCmpDedupeBatchMessage</name>
+    </customLabels>
+    <customLabels>
+        <label>キャンペーンの世帯の重複排除</label>
+        <name>hhCmpDedupeBatchProgressTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>レポートを開く</label>
+        <name>hhCmpDedupeLabelOpenReport</name>
+    </customLabels>
+    <customLabels>
+        <label>レポートが見つかりませんでした。[レポートの一意の名前] が「NPSP_Campaign_Household_Mailing_List」のレポートを作成します。注意: [レポートタイプ] は [個人が関連するキャンペーン] である必要があります。[メンバーの状況] に [重複] が含まれていないものを抽出する検索条件。</label>
+        <name>hhCmpDedupeNoReport</name>
+    </customLabels>
+    <customLabels>
+        <label>#NAME?</label>
+        <name>hhCmpDedupeStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>名</label>
+        <name>labelListViewFirst</name>
+    </customLabels>
+    <customLabels>
+        <label>姓</label>
+        <name>labelListViewLast</name>
+    </customLabels>
+    <customLabels>
+        <label>次へ</label>
+        <name>labelListViewNext</name>
+    </customLabels>
+    <customLabels>
+        <label>&amp;nbsp;&amp;nbsp;&amp;nbsp;{0}/{1} ページ&amp;nbsp;&amp;nbsp;({2} 件のレコード)</label>
+        <name>labelListViewPageInfo</name>
+    </customLabels>
+    <customLabels>
+        <label>前へ</label>
+        <name>labelListViewPrevious</name>
+    </customLabels>
+    <customLabels>
+        <label>読み込み中...</label>
+        <name>labelMessageLoading</name>
+    </customLabels>
+    <customLabels>
+        <label>表示件数を増やす</label>
+        <name>labelShowMore</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblAddressOverride --></label>
+        <name>lblAddressOverride</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblBtnAddAllHHMembers --></label>
+        <name>lblBtnAddAllHHMembers</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblBtnAddContact --></label>
+        <name>lblBtnAddContact</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblCCardExcludeFrom --></label>
+        <name>lblCCardExcludeFrom</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblCity --></label>
+        <name>lblCity</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblCountry --></label>
+        <name>lblCountry</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- caption of Remove Contact popup --></label>
+        <name>lblDeleteContact</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- prompt for the Remove Contact Popup --></label>
+        <name>lblDeleteContactPrompt</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- autocomplete&apos;s label for &quot;smith in Contacts&quot; --></label>
+        <name>lblFindInContacts</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- string displayed in the autocomplete control when empty --></label>
+        <name>lblFindOrAddContact</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblFirstName --></label>
+        <name>lblFirstName</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblFormalGreeting --></label>
+        <name>lblFormalGreeting</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblHousehold --></label>
+        <name>lblHousehold</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblHouseholdName --></label>
+        <name>lblHouseholdName</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblInformalGreeting --></label>
+        <name>lblInformalGreeting</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblLastName --></label>
+        <name>lblLastName</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblMergeHHPrompt --></label>
+        <name>lblMergeHHPrompt</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblMergeHHTitle --></label>
+        <name>lblMergeHHTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>NPSP 設定</label>
+        <name>lblNPSPSettings</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- error displayed when required perms missing to add a contact and its household --></label>
+        <name>lblNoHHMergePermissions</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblPostalCode --></label>
+        <name>lblPostalCode</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblSalutation --></label>
+        <name>lblSalutation</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblState --></label>
+        <name>lblState</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- lblStreet --></label>
+        <name>lblStreet</name>
+    </customLabels>
+    <customLabels>
+        <label>団体</label>
+        <name>leadConvertAccountName</name>
+    </customLabels>
+    <customLabels>
+        <label>アフィリエイト団体</label>
+        <name>leadConvertAffilationName</name>
+    </customLabels>
+    <customLabels>
+        <label>既存の団体とアフィリエイト:</label>
+        <name>leadConvertAffiliateExistingAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>新規団体とアフィリエイト:</label>
+        <name>leadConvertAffiliateNewAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>アフィリエイト団体</label>
+        <name>leadConvertAffiliatedAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>個人 (バケット) の団体に添付</label>
+        <name>leadConvertAttachBucketAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>既存の団体に添付:</label>
+        <name>leadConvertAttachExistingAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯団体を作成</label>
+        <name>leadConvertAutocreateHHAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>1 対 1 の団体を作成</label>
+        <name>leadConvertAutocreateOne2OneAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>キャンセル</label>
+        <name>leadConvertBtnCancel</name>
+    </customLabels>
+    <customLabels>
+        <label>変換</label>
+        <name>leadConvertBtnConvert</name>
+    </customLabels>
+    <customLabels>
+        <label>個人 団体</label>
+        <name>leadConvertContactAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>新規団体を作成:</label>
+        <name>leadConvertCreateAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>新規作成:</label>
+        <name>leadConvertCreateNewContact</name>
+    </customLabels>
+    <customLabels>
+        <label>既存の団体とマージ:</label>
+        <name>leadConvertMergeExistingContact</name>
+    </customLabels>
+    <customLabels>
+        <label>変換時に新規{0}は作成しない。</label>
+        <name>leadConvertNewOpp</name>
+    </customLabels>
+    <customLabels>
+        <label>レコードの所有者</label>
+        <name>leadConvertOwner</name>
+    </customLabels>
+    <customLabels>
+        <label>リードの取引開始:</label>
+        <name>leadConvertPageTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>リードの取引開始</label>
+        <name>leadConvertSectionTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>所有者にメールを送信する</label>
+        <name>leadConvertSendEmail</name>
+    </customLabels>
+    <customLabels>
+        <label>取引開始後の状況</label>
+        <name>leadConvertStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>参照できるのは既存の個人のみとなります。</label>
+        <name>leadConvertViewContactError</name>
+    </customLabels>
+    <customLabels>
+        <label>検索</label>
+        <name>mtchBtnSearch</name>
+    </customLabels>
+    <customLabels>
+        <label>完了予定日の終了</label>
+        <name>mtchCloseDateEnd</name>
+    </customLabels>
+    <customLabels>
+        <label>完了予定日の開始</label>
+        <name>mtchCloseDateStart</name>
+    </customLabels>
+    <customLabels>
+        <label>マッチングされた支援の検索</label>
+        <name>mtchFindMatchedGiftsSectionHeader</name>
+    </customLabels>
+    <customLabels>
+        <label>他の支援を検索</label>
+        <name>mtchFindMoreGifts</name>
+    </customLabels>
+    <customLabels>
+        <label>1 つ以上の検索条件を入力し、[検索] をクリックします。</label>
+        <name>mtchFindMoreGiftsInfo</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} 個の項目</label>
+        <name>mtchItems</name>
+    </customLabels>
+    <customLabels>
+        <label>検索するには、1 つ以上の検索条件を指定してください。</label>
+        <name>mtchSearchCriteriaEmpty</name>
+    </customLabels>
+    <customLabels>
+        <label>選択</label>
+        <name>mtchSelectCbxTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>マッチングギフトの総額</label>
+        <name>mtchTotalMatchingGift</name>
+    </customLabels>
+    <customLabels>
+        <label>選択済みの総額</label>
+        <name>mtchTotalSelected</name>
+    </customLabels>
+    <customLabels>
+        <label>使途不明の総額</label>
+        <name>mtchTotalUnaccounted</name>
+    </customLabels>
+    <customLabels>
+        <label>/</label>
+        <name>oppInstallmentsOf</name>
+    </customLabels>
+    <customLabels>
+        <label>両方</label>
+        <name>oppNamingBoth</name>
+    </customLabels>
+    <customLabels>
+        <label>個人支援</label>
+        <name>oppNamingIndividual</name>
+    </customLabels>
+    <customLabels>
+        <label>団体支援</label>
+        <name>oppNamingOrganizational</name>
+    </customLabels>
+    <customLabels>
+        <label>支払を計算</label>
+        <name>pmtWizardBtnCalcPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>支払を作成</label>
+        <name>pmtWizardBtnCreatePayments</name>
+    </customLabels>
+    <customLabels>
+        <label>完了した支払を削除</label>
+        <name>pmtWizardBtnRemovePaidPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>注意: この支援は不成立としてマークされます。支払を作成するには、まず支援レコードを編集し、フェーズを進行中または成立に変更します。</label>
+        <name>pmtWizardClosedLost</name>
+    </customLabels>
+    <customLabels>
+        <label>支払スケジュールを作成</label>
+        <name>pmtWizardCreateSchedule</name>
+    </customLabels>
+    <customLabels>
+        <label>最初の支払日</label>
+        <name>pmtWizardFirstPaymentDate</name>
+    </customLabels>
+    <customLabels>
+        <label>期間</label>
+        <name>pmtWizardInterval</name>
+    </customLabels>
+    <customLabels>
+        <label>支援が見つかりません。</label>
+        <name>pmtWizardMsgNoOppFound</name>
+    </customLabels>
+    <customLabels>
+        <label>注意: この支援には未払金額がありません。支払を作成するには、まず支援レコードを編集して金額を入力するか、既存の支払を削除するボタンをクリックします。支援が閉じられている場合、必要に応じて再度開きます。</label>
+        <name>pmtWizardNoUnpaidAmount</name>
+    </customLabels>
+    <customLabels>
+        <label>注意: この支援には未払金額がありません。支払を取り消すには、まず支援レコードを編集して金額を入力するか、既存の支払を削除します。</label>
+        <name>pmtWizardNoWriteoffAmount</name>
+    </customLabels>
+    <customLabels>
+        <label>支払数</label>
+        <name>pmtWizardNumberOfPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>支払番号</label>
+        <name>pmtWizardPaymentNumber</name>
+    </customLabels>
+    <customLabels>
+        <label>NPSP の支払が有効になっていません。支払スケジュールウィザードを使用するには、[NPSP 設定] ページで支払を有効にしてください。</label>
+        <name>pmtWizardPaymentsDisabled</name>
+    </customLabels>
+    <customLabels>
+        <label>NPSP の支払が有効になっていません</label>
+        <name>pmtWizardPaymentsDisabledTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>現在の支援情報</label>
+        <name>pmtWizardSectionTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>残高の消去</label>
+        <name>pmtWizardSectionWriteoff</name>
+    </customLabels>
+    <customLabels>
+        <label>支払の消去</label>
+        <name>pmtWizardSectionWriteoffPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>この支援の 1 つ以上の支払を作成します</label>
+        <name>pmtWizardSubtitle</name>
+    </customLabels>
+    <customLabels>
+        <label>作成する支払</label>
+        <name>pmtWizardToBeCreated</name>
+    </customLabels>
+    <customLabels>
+        <label>警告</label>
+        <name>pmtWizardWarning</name>
+    </customLabels>
+    <customLabels>
+        <label>どの日付を使用しますか?</label>
+        <name>pmtWizardWriteoffDate</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} 件の支払 (合計 {1}) を消去する準備をしています。</label>
+        <name>pmtWizardWriteoffMessage</name>
+    </customLabels>
+    <customLabels>
+        <label>別のソフトクレジットを追加</label>
+        <name>pscManageSoftCreditsAdd</name>
+    </customLabels>
+    <customLabels>
+        <label>金額</label>
+        <name>pscManageSoftCreditsAmount</name>
+    </customLabels>
+    <customLabels>
+        <label>すべてのエントリのソフトクレジット金額を入力してください。</label>
+        <name>pscManageSoftCreditsAmountMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>金額またはパーセント</label>
+        <name>pscManageSoftCreditsAmountOrPercent</name>
+    </customLabels>
+    <customLabels>
+        <label>ソフトクレジット (一部) の通貨は直接変更できません。ソフトクレジット (一部) の通貨は、親支援の通貨が変更されると更新されます。</label>
+        <name>pscManageSoftCreditsCantChangeCurrency</name>
+    </customLabels>
+    <customLabels>
+        <label>フル</label>
+        <name>pscManageSoftCreditsFull</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} は、この支援の主個人です。この個人にソフトクレジットを追加できません。</label>
+        <name>pscManageSoftCreditsInvalidContact</name>
+    </customLabels>
+    <customLabels>
+        <label>[ソフトクレジットの役割] に役割が指定されていません。[NPSP 設定]、[支援]、[個人の役割] で、適切な役割を [ソフトクレジットの役割] 設定に追加する必要があります。</label>
+        <name>pscManageSoftCreditsNoRoles</name>
+    </customLabels>
+    <customLabels>
+        <label>総額</label>
+        <name>pscManageSoftCreditsOppAmount</name>
+    </customLabels>
+    <customLabels>
+        <label>ソフトクレジット金額</label>
+        <name>pscManageSoftCreditsPSCAmount</name>
+    </customLabels>
+    <customLabels>
+        <label>一部</label>
+        <name>pscManageSoftCreditsPartial</name>
+    </customLabels>
+    <customLabels>
+        <label>パーセント</label>
+        <name>pscManageSoftCreditsPercent</name>
+    </customLabels>
+    <customLabels>
+        <label>主支援者</label>
+        <name>pscManageSoftCreditsPrimaryDonor</name>
+    </customLabels>
+    <customLabels>
+        <label>ソフトクレジットの総額は、支援金額以下である必要があります。上書きするには、[総額を超えるソフトクレジット金額を許可] をオンにします。</label>
+        <name>pscManageSoftCreditsReconcileFail</name>
+    </customLabels>
+    <customLabels>
+        <label>ソフトクレジットの制限</label>
+        <name>pscManageSoftCreditsRestrictions</name>
+    </customLabels>
+    <customLabels>
+        <label>すべてのソフトクレジットの役割名を指定する必要があります。</label>
+        <name>pscManageSoftCreditsRoleMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>ソフトクレジットの管理</label>
+        <name>pscManageSoftCreditsTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>種別</label>
+        <name>pscManageSoftCreditsType</name>
+    </customLabels>
+    <customLabels>
+        <label>使途不明の総額</label>
+        <name>pscManageSoftCreditsUnaccounted</name>
+    </customLabels>
+    <customLabels>
+        <label>総額を超えるソフトクレジット金額を許可</label>
+        <name>pscManageSoftCreditsValidateTotals</name>
+    </customLabels>
+    <customLabels>
+        <label>メール受領確認未送信</label>
+        <name>sendAcknowledgmentFailedStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>次のレコードは承認されませんでした。承認を送信するためのワークフロールール (「承認状況」「次の文字列と一致する」「承認の送信」) が有効化されていない場合、またはワークフロールールをトリガする追加条件をレコードが満たしていない場合、承認に失敗する可能性があります。たとえば、主個人が設定されていない場合や、主個人のメール項目が空または無効な場合です。</label>
+        <name>sendAcknowledgmentFailureReasons</name>
+    </customLabels>
+    <customLabels>
+        <label>今すぐメール受領確認</label>
+        <name>sendAcknowledgmentFireStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>[メール承認] をクリックする前に 1 つ以上の支援を選択する必要があります。</label>
+        <name>sendAcknowledgmentNoneSelected</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} 件の承認が送信されませんでした。</label>
+        <name>sendAcknowledgmentNumberNoEmail</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} 件の承認が送信されました。</label>
+        <name>sendAcknowledgmentNumberSent</name>
+    </customLabels>
+    <customLabels>
+        <label>メール受領確認</label>
+        <name>sendAcknowledgmentPageTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>支援に戻る</label>
+        <name>sendAcknowledgmentReturnLinkLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>承認済み</label>
+        <name>sendAcknowledgmentSucceeded</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgAddrGeneralSettingsIntro --></label>
+        <name>stgAddrGeneralSettingsIntro</name>
+    </customLabels>
+    <customLabels>
+        <label>自動検証を有効にするには、検証サービスを選択する必要があります。</label>
+        <name>stgAddrMustChooseClass</name>
+    </customLabels>
+    <customLabels>
+        <label>キャンセル</label>
+        <name>stgBtnCancel</name>
+    </customLabels>
+    <customLabels>
+        <label>エラーログをクリア</label>
+        <name>stgBtnClearErrorLog</name>
+    </customLabels>
+    <customLabels>
+        <label>自動リレーションを作成</label>
+        <name>stgBtnCreateAutoRel</name>
+    </customLabels>
+    <customLabels>
+        <label>カスタム対応付けを作成</label>
+        <name>stgBtnCreateMapping</name>
+    </customLabels>
+    <customLabels>
+        <label>カスタム間隔を作成</label>
+        <name>stgBtnCreateRDPeriod</name>
+    </customLabels>
+    <customLabels>
+        <label>相互関係を作成</label>
+        <name>stgBtnCreateRelReciprocal</name>
+    </customLabels>
+    <customLabels>
+        <label>トリガハンドラを作成</label>
+        <name>stgBtnCreateTH</name>
+    </customLabels>
+    <customLabels>
+        <label>積み上げ集計を作成</label>
+        <name>stgBtnCreateUDR</name>
+    </customLabels>
+    <customLabels>
+        <label>編集</label>
+        <name>stgBtnEdit</name>
+    </customLabels>
+    <customLabels>
+        <label>すべての世帯名を更新</label>
+        <name>stgBtnHHAutoName</name>
+    </customLabels>
+    <customLabels>
+        <label>新規自動リレーション</label>
+        <name>stgBtnNewAutoRel</name>
+    </customLabels>
+    <customLabels>
+        <label>新規支援名設定</label>
+        <name>stgBtnNewONS</name>
+    </customLabels>
+    <customLabels>
+        <label>新規支払項目の対応付け</label>
+        <name>stgBtnNewPaymentMap</name>
+    </customLabels>
+    <customLabels>
+        <label>新規カスタム項目の対応付け</label>
+        <name>stgBtnNewRDFieldMap</name>
+    </customLabels>
+    <customLabels>
+        <label>新規カスタム間隔</label>
+        <name>stgBtnNewRDPeriod</name>
+    </customLabels>
+    <customLabels>
+        <label>新規相互関係</label>
+        <name>stgBtnNewRelReciprocal</name>
+    </customLabels>
+    <customLabels>
+        <label>新規トリガハンドラ</label>
+        <name>stgBtnNewTH</name>
+    </customLabels>
+    <customLabels>
+        <label>新規ユーザ定義積み上げ集計</label>
+        <name>stgBtnNewUDR</name>
+    </customLabels>
+    <customLabels>
+        <label>カスタム項目の対応付けを作成</label>
+        <name>stgBtnRDCreateNewMap</name>
+    </customLabels>
+    <customLabels>
+        <label>すべての支援名を更新</label>
+        <name>stgBtnRefreshOpportunityNames</name>
+    </customLabels>
+    <customLabels>
+        <label>すべての支援の主個人を更新</label>
+        <name>stgBtnRefreshPrimaryContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>バッチを実行</label>
+        <name>stgBtnRunBatch</name>
+    </customLabels>
+    <customLabels>
+        <label>保存</label>
+        <name>stgBtnSave</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgDocumentation --></label>
+        <name>stgDocumentation</name>
+    </customLabels>
+    <customLabels>
+        <label>実装クラスにインターフェース HH_INaming が実装されていません。</label>
+        <name>stgErrorINaming</name>
+    </customLabels>
+    <customLabels>
+        <label>無効な実装クラスです。</label>
+        <name>stgErrorInvalidClass</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} でエラーが発生しました: {1}</label>
+        <name>stgErrorInvalidNameFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯名を更新</label>
+        <name>stgHHNameRefreshTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>団体モデルの設定。「世帯団体」、「1 対 1」、「個人」のいずれかを指定します。カスタム項目 Contact.SystemAccountProcessor__c の代わりに使用されます。「世帯団体」が推奨モデルです。</label>
+        <name>stgHelpAccountModel</name>
+    </customLabels>
+    <customLabels>
+        <label>このオプションをオンにすると、割り当ての積み上げ集計総額に対してカレンダー年度設定ではなく会計年度設定が有効になります。会計年度情報を設定するには、[設定] | [組織プロファイル] | [会計年度] に移動します。注意: Nonprofit Success Pack では、カスタム会計年度設定はサポートされていません。</label>
+        <name>stgHelpAlloFiscalYearRollups</name>
+    </customLabels>
+    <customLabels>
+        <label>「N 日間」の積み上げ集計の値を指定します。「N」は現在の日付から過去の日付までの日数です。この値のデフォルトは、過去 365 日間の積み上げ集計です。</label>
+        <name>stgHelpAlloNDayValue</name>
+    </customLabels>
+    <customLabels>
+        <label>団体項目または主アフィリエーション項目が変更されたときに、組織団体に結び付けられている個人のアフィリエーションを作成または更新します。</label>
+        <name>stgHelpAutoAffil</name>
+    </customLabels>
+    <customLabels>
+        <label>このキャンペーンメンバーの自動作成で使用できるキャンペーン種別のリスト。(個人の自動作成では空白になります)。</label>
+        <name>stgHelpAutoRelCampaignRT</name>
+    </customLabels>
+    <customLabels>
+        <label>このリレーションの作成をトリガする項目の挿入または更新</label>
+        <name>stgHelpAutoRelField</name>
+    </customLabels>
+    <customLabels>
+        <label>この自動リレーションが関連付けられるオブジェクト</label>
+        <name>stgHelpAutoRelObject</name>
+    </customLabels>
+    <customLabels>
+        <label>ベースオブジェクトと参照オブジェクト間で作成されるリレーション種別。参照オブジェクトには相互関係が割り当てられます (使用可能な場合)。</label>
+        <name>stgHelpAutoRelType</name>
+    </customLabels>
+    <customLabels>
+        <label>オンにすると、支援名が空白の場合 (バッチデータエントリページに含まれていない場合)、バッチデータエントリで支援に名前が付けられることはありません。</label>
+        <name>stgHelpBDEAllowBlankOppNames</name>
+    </customLabels>
+    <customLabels>
+        <label>この設定は、バッチ入力された支援レコードのレコード名を入力された項目値に基づいて自動的に生成します。</label>
+        <name>stgHelpBDEOppNaming</name>
+    </customLabels>
+    <customLabels>
+        <label>[バッチを実行] をクリックし、完了したすべての支援の総額を支援に設定された割り当てを使用して積み上げ集計します。結果は、一般会計単位レコードに保存されます。
+このページはいつでも閉じることができます。このページを閉じても処理はバックグラウンドで実行されます。</label>
+        <name>stgHelpBatchAlloRollup</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgHelpBatchCreateDefault --></label>
+        <name>stgHelpBatchCreateDefault</name>
+    </customLabels>
+    <customLabels>
+        <label>このページを使用して、完了したすべての支援の総額を積み上げ集計します。結果は個人、世帯、および団体レコードに保存されます。処理に時間がかかる場合があります。このページを閉じても処理はバックグラウンドで実行されます。</label>
+        <name>stgHelpBatchOppRollup</name>
+    </customLabels>
+    <customLabels>
+        <label>&lt;b&gt;警告:&lt;/b&gt; このボタンをクリックすると、自動世帯命名が有効化され、選択した形式に従って既存の世帯名、公式の挨拶文、および非公式の挨拶文に新しい名前が入力されます。Salesforce 組織の各世帯団体 (世帯オブジェクト) の名前が変更されます (自動命名が有効になっていない世帯は除く)。&lt;br/&gt;&lt;br/&gt;
+
+&lt;b&gt;この処理は元に戻すことができません。&lt;/b&gt;自動世帯命名はいつでも無効化できますが、新しく入力された名前はすべてそのまま残ります。 &lt;br/&gt;&lt;br/&gt;
+
+世帯に影響する場合、この処理を開始する前に次の項目を無効にしておくことをお勧めします: 
+&lt;br/&gt;
+&lt;ul&gt;
+&lt;li&gt;カスタム入力規則&lt;/li&gt;
+&lt;li&gt;ワークフロールール&lt;/li&gt;
+&lt;li&gt;プロセスビルダー&lt;/li&gt;
+&lt;li&gt;Visual Workflow&lt;/li&gt;
+&lt;li&gt;カスタムトリガ&lt;/li&gt;
+&lt;/ul&gt;
+&lt;br/&gt;
+処理が 100% 完了したら、このページから移動したり、このページを更新しても問題ありません。</label>
+        <name>stgHelpBtnHHNaming</name>
+    </customLabels>
+    <customLabels>
+        <label>&lt;b&gt;警告:&lt;/b&gt; このボタンをクリックすると、支援名のバッチ変更が有効化され、選択した形式に従ってすべての支援名が更新されます。[支援名の形式] で [名前を変更しない] と指定した支援を除き、団体の各支援名が変更されます。&lt;br/&gt;&lt;br/&gt;
+
+&lt;b&gt;この処理は元に戻すことができません。&lt;/b&gt;
+支援に影響する場合、この処理を開始する前に次の項目を無効にしておくことをお勧めします: 
+&lt;br/&gt;
+&lt;ul&gt;
+&lt;li&gt;カスタム入力規則&lt;/li&gt;
+&lt;li&gt;ワークフロールール&lt;/li&gt;
+&lt;li&gt;プロセスビルダー&lt;/li&gt;
+&lt;li&gt;Visual Workflow&lt;/li&gt;
+&lt;li&gt;カスタムトリガ&lt;/li&gt;
+&lt;/ul&gt;
+&lt;br/&gt;
+処理が 100% 完了したら、このページから移動したり、このページを更新しても問題ありません。</label>
+        <name>stgHelpBtnOppNaming</name>
+    </customLabels>
+    <customLabels>
+        <label>エラー通知が投稿される Chatter グループ。</label>
+        <name>stgHelpChatterGroup</name>
+    </customLabels>
+    <customLabels>
+        <label>認証トークン設定項目に Cicero API キーを入力したことを確認してください。API キーは、Cicero の [My Profile (私のプロファイル)] ページ (cicero.azavea.com) にあります</label>
+        <name>stgHelpCiceroAddrVerification</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯の支援個人の役割作成から除外する個人レコードタイプ</label>
+        <name>stgHelpContactRTExcluded</name>
+    </customLabels>
+    <customLabels>
+        <label>&lt;b&gt;警告:&lt;/b&gt; このボタンをクリックすると、支払のバッチ作成が有効化されます。次のような支払のない各支援で支払が作成されます:  
+&lt;ul&gt; 
+&lt;li&gt;金額がゼロより大きい&lt;/li&gt; 
+&lt;li&gt;[支払を自動的に作成しない] とマークされていない&lt;/li&gt; 
+&lt;li&gt;上記の設定で除外されていない&lt;/li&gt; 
+&lt;/ul&gt; 
+
+&lt;b&gt;この処理は元に戻すことができません。&lt;/b&gt; 
+支払に影響する場合、この処理を開始する前に次の項目を無効にしておくことをお勧めします:  
+&lt;br/&gt; 
+&lt;ul&gt; 
+&lt;li&gt;カスタム入力規則&lt;/li&gt; 
+&lt;li&gt;ワークフロールール&lt;/li&gt; 
+&lt;li&gt;プロセスビルダー&lt;/li&gt; 
+&lt;li&gt;Visual Workflow&lt;/li&gt; 
+&lt;li&gt;カスタムトリガ&lt;/li&gt; 
+&lt;/ul&gt; 
+&lt;br/&gt; 
+処理が 100% 完了したら、このページから移動したり、このページを更新しても問題ありません。</label>
+        <name>stgHelpCreateMissingPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>デフォルトの一般会計単位に対して GAU 割り当てレコードの自動作成および管理を有効にします。この機能を使用すると、デフォルトの一般会計単位のレポートが向上しますが、より多くのデータストレージを使用します。</label>
+        <name>stgHelpDefaultAllocationsEnabled</name>
+    </customLabels>
+    <customLabels>
+        <label>未割り当て支援のデフォルトの割り当てと部分的に割り当てられている支援の残りの割り当てのデフォルトの一般会計単位。</label>
+        <name>stgHelpDefaultGAU</name>
+    </customLabels>
+    <customLabels>
+        <label>選択すると、世帯団体の住所管理が無効になります。</label>
+        <name>stgHelpDisableHHAccountAddr</name>
+    </customLabels>
+    <customLabels>
+        <label>支援個人の役割に基づいて、完了した支援の合計を積み上げ集計できるようにします。ソフトクレジット積み上げ集計は、夜間一括処理ジョブでのみ実行され、トリガでは実行されません。[支援の積み上げ集計のバッチ] タブを使用して手動で実行できます。</label>
+        <name>stgHelpEnableSoftCreditRollups</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgHelpErrorLog --></label>
+        <name>stgHelpErrorLog</name>
+    </customLabels>
+    <customLabels>
+        <label>特定の種類のエラーに関する通知をシステムに表示する場合にオンにします。</label>
+        <name>stgHelpErrorNotifyOn</name>
+    </customLabels>
+    <customLabels>
+        <label>通知を送信するユーザの種別を選択します。</label>
+        <name>stgHelpErrorNotifyTo</name>
+    </customLabels>
+    <customLabels>
+        <label>公式の挨拶文で使用される形式。</label>
+        <name>stgHelpFGFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>このボックスをオンにすると、支援積み上げ集計の合計にカレンダー年設定の代わりに会計年度が使用されます。会計年度情報を設定するには、[設定] -&gt; [組織プロファイル] -&gt; [会計年度] に移動します。注意: カスタム会計年度設定はサポートされていません。</label>
+        <name>stgHelpFiscalYearRollups</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯団体で使用される団体レコードタイプ。何も選択しない場合、団体にはユーザのデフォルト団体レコードタイプが設定されます。</label>
+        <name>stgHelpHHAccountRTID</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯オブジェクトの作成から除外される個人レコードタイプを指定します。(1 対 1 または個人の団体モデルにのみ適用されます)</label>
+        <name>stgHelpHHExcludedRT</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯の重複が排除されたキャンペーンの郵送先名で使用される世帯郵送先名簿レポート。[メンバーの状況] に [重複] が含まれていない、個人が関連するキャンペーンのレポートにする必要があります</label>
+        <name>stgHelpHHMailingListReport</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯名で使用される形式。</label>
+        <name>stgHelpHHNameFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>選択すると、世帯団体 (世帯オブジェクト) の名前が世帯の個人の名前に基づいて自動的に作成されます。また、公式の挨拶文と非公式の挨拶文も自動的に生成されます。</label>
+        <name>stgHelpHHNaming</name>
+    </customLabels>
+    <customLabels>
+        <label>主個人の世帯メンバーの個人の役割を自動作成する場合はオンにします。</label>
+        <name>stgHelpHHOCROn</name>
+    </customLabels>
+    <customLabels>
+        <label>Nonprofit Success Pack では、2 つの異なる方法で世帯を追跡できます。団体を個人の世帯として使用する世帯団体モデルを指定することをお勧めします。ただし、1 対 1 または個人の団体モデルを使用する場合、必要に応じて個々の世帯オブジェクトを個人の世帯として使用できます。
+&lt;br/&gt;&lt;br/&gt;
+世帯オブジェクトとそれに関連付けられている団体モデルは推奨されなくなりました。ただし、以前のバージョンの Nonprofit Success Pack から 1 対 1 または個人 (「バケット」) の団体モデルを引き続き使用している場合、世帯オブジェクトの設定をここで変更できます。
+&lt;br/&gt;&lt;br/&gt;
+推奨される世帯団体モデルについての詳細は、&lt;a href=&quot;https://powerofus.force.com/NPSP_Documentation&quot; target=&quot;_new&quot;&gt;NPSP ドキュメント&lt;/a&gt;を参照してください。</label>
+        <name>stgHelpHHObjectOverview</name>
+    </customLabels>
+    <customLabels>
+        <label>個々の世帯オブジェクトを自動的に作成する個人を指定します。(1 対 1 または個人の団体モデルにのみ適用されます)</label>
+        <name>stgHelpHHRules</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgHelpHealthCheck --></label>
+        <name>stgHelpHealthCheck</name>
+    </customLabels>
+    <customLabels>
+        <label>非公式の挨拶文で使用される形式。</label>
+        <name>stgHelpIGFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯命名の HH_INaming インターフェースを実装する Apex クラス。</label>
+        <name>stgHelpINamingClass</name>
+    </customLabels>
+    <customLabels>
+        <label>リード取引開始時に支援を作成するかどうかを指定します。</label>
+        <name>stgHelpLeadConvert</name>
+    </customLabels>
+    <customLabels>
+        <label>一致支援者の個人の役割を選択します。</label>
+        <name>stgHelpMatchedDonorRole</name>
+    </customLabels>
+    <customLabels>
+        <label>支払作成ウィザードで最大支払回数を設定します。</label>
+        <name>stgHelpMaxPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>会員の期限が切れた (期限最終日) 後に状況が「猶予期間」から「期限切れ」に移行するまでの猶予期間 (日数)。デフォルトは 30 日です。</label>
+        <name>stgHelpMembershipGracePeriod</name>
+    </customLabels>
+    <customLabels>
+        <label>他の支援レコードタイプから個別に積み上げ集計する、「会員」などの支援レコードタイプの名前。</label>
+        <name>stgHelpMembershipRT</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgHelpNPSPDoc --></label>
+        <name>stgHelpNPSPDoc</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgHelpNPSPSettings --></label>
+        <name>stgHelpNPSPSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>名前のペアの結合に使用する名前または文字 (&amp; など) を指定します。</label>
+        <name>stgHelpNameConnector</name>
+    </customLabels>
+    <customLabels>
+        <label>名前の長いリストを置き換えるために使用するテキストを指定します。</label>
+        <name>stgHelpNameOverrun</name>
+    </customLabels>
+    <customLabels>
+        <label>まず、対応付ける継続支援項目を選択します。次に、対応付け先の支援項目を選択します。選択した継続支援項目が継続支援のすべての子支援に表示されます。
+
+重要: これらの両方の項目は同じデータ型である必要があります。</label>
+        <name>stgHelpNewRDFieldMap</name>
+    </customLabels>
+    <customLabels>
+        <label>対応付ける支援項目と演算子、およびコピー先のオブジェクトと項目を選択します。</label>
+        <name>stgHelpNewUDR</name>
+    </customLabels>
+    <customLabels>
+        <label>ユーザ定義積み上げ集計が定義されていません</label>
+        <name>stgHelpNoUDR</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgHelpOCR --></label>
+        <name>stgHelpOCR</name>
+    </customLabels>
+    <customLabels>
+        <label>自動的に作成される主支援個人の役割のデフォルト役割。</label>
+        <name>stgHelpOCRDefaultRole</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯メンバーの個人の役割を選択</label>
+        <name>stgHelpOCRRoleForHH</name>
+    </customLabels>
+    <customLabels>
+        <label>1 対 1 の団体で使用される団体レコードタイプ。何も選択しない場合、団体にはユーザのデフォルト団体レコードタイプが設定されます。</label>
+        <name>stgHelpOneToOneRTID</name>
+    </customLabels>
+    <customLabels>
+        <label>これらの設定を個人支援 (世帯、1 対 1 の団体、または個人「バケット」の団体に関連付けられている支援) に適用するのか、団体支援に適用するのか、あるいはその両方に適用するのかを指定します。</label>
+        <name>stgHelpOppNamingAttribution</name>
+    </customLabels>
+    <customLabels>
+        <label>[支援名の形式] で参照される日付項目または日時項目で使用される日付形式。形式を選択するか、[その他] を選択して SimpleDateFormat 仕様に準拠した独自のカスタム形式を作成します。</label>
+        <name>stgHelpOppNamingDateFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>支援名の形式。独自の形式を作成するには、[その他] を選択します。詳細は、&lt;a href=&quot;https://powerofus.force.com/NPSP_Opp_Names&quot; target=&quot;_blank&quot;&gt;NPSP ドキュメント&lt;/a&gt;を参照してください。</label>
+        <name>stgHelpOppNamingFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>この支援名を適用する支援レコードタイプ。複数のレコードタイプを選択するには、Ctrl キーまたは Command キーを押しながらクリックします。[なし] では、新しい命名規則がすべてのレコードタイプに適用されます。</label>
+        <name>stgHelpOppNamingRecTypes</name>
+    </customLabels>
+    <customLabels>
+        <label>支払の作成から除外される支援レコードタイプの名前。</label>
+        <name>stgHelpOppRecTypesNoPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>支払の作成から除外する支援種別項目の値。</label>
+        <name>stgHelpOppTypesNoPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>選択すると、組織団体の住所管理が有効になります。</label>
+        <name>stgHelpOrgAccountAddressMgmt</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯名と挨拶文で明示される個人の人数。この人数を超えると、名前の代わりに [超過時の名前] の値が使用されます。</label>
+        <name>stgHelpOverrunCount</name>
+    </customLabels>
+    <customLabels>
+        <label>コピー元の支援項目。</label>
+        <name>stgHelpPaymentMapOppField</name>
+    </customLabels>
+    <customLabels>
+        <label>コピー先の支払項目。</label>
+        <name>stgHelpPaymentMapPaymentField</name>
+    </customLabels>
+    <customLabels>
+        <label>対応付ける支援項目と対応付け先の支払項目を選択します。</label>
+        <name>stgHelpPaymentMapping</name>
+    </customLabels>
+    <customLabels>
+        <label>支援から支払に項目を対応付けます。これにより、自動支払作成または支払スケジューラで挿入されたときに支援の値が支払にコピーされます。</label>
+        <name>stgHelpPaymentMappings</name>
+    </customLabels>
+    <customLabels>
+        <label>新しい支援で作成される自動支払を有効にします。</label>
+        <name>stgHelpPaymentsEnabled</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgHelpPowerOfUsHub --></label>
+        <name>stgHelpPowerOfUsHub</name>
+    </customLabels>
+    <customLabels>
+        <label>&lt;b&gt;警告:&lt;/b&gt; このボタンをクリックすると、支援のバッチ更新が有効化され、主個人項目が更新されます。主個人項目の値が、[主] とマークされている支援個人の役割レコードと同じでない支援レコードが更新されます。&lt;br/&gt;&lt;br/&gt;
+
+&lt;b&gt;この処理は元に戻すことができません。&lt;/b&gt;
+この変更により、支援レコードが更新されます。支援に影響する場合、この処理を開始する前に次の項目を無効にしておくことをお勧めします: 
+&lt;br/&gt;
+&lt;ul&gt;
+&lt;li&gt;カスタム入力規則&lt;/li&gt;
+&lt;li&gt;ワークフロールール&lt;/li&gt;
+&lt;li&gt;プロセスビルダー&lt;/li&gt;
+&lt;li&gt;Visual Workflow&lt;/li&gt;
+&lt;li&gt;カスタムトリガ&lt;/li&gt;
+&lt;/ul&gt;
+&lt;br/&gt;
+処理が 100% 完了したら、このページから移動したり、このページを更新しても問題ありません。</label>
+        <name>stgHelpPrimaryContactBatch</name>
+    </customLabels>
+    <customLabels>
+        <label>選択した場合、継続支援で指定したキャンペーンをすべての関連 (子) 支援に追加します。このオプションを選択していないと、キャンペーンは継続支援の最初の支援にのみ表示されます。</label>
+        <name>stgHelpRDAddCampaign</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgHelpRDBatch --></label>
+        <name>stgHelpRDBatch</name>
+    </customLabels>
+    <customLabels>
+        <label>継続支援の夜間更新がスケジュールされないようにします。[設定] | [監視] | [スケジュール済みジョブ] で既存のスケジュール済みジョブを削除する必要があります。</label>
+        <name>stgHelpRDDisableScheduling</name>
+    </customLabels>
+    <customLabels>
+        <label>前回の一括処理で継続支援の更新に失敗した回数。</label>
+        <name>stgHelpRDFailures</name>
+    </customLabels>
+    <customLabels>
+        <label>この設定では、継続支援レコードから継続支援の子支援に項目を対応付けることができます。</label>
+        <name>stgHelpRDFieldMap</name>
+    </customLabels>
+    <customLabels>
+        <label>使用されなくなりました。</label>
+        <name>stgHelpRDFieldMapOppField</name>
+    </customLabels>
+    <customLabels>
+        <label>使用されなくなりました。</label>
+        <name>stgHelpRDFieldMapRDField</name>
+    </customLabels>
+    <customLabels>
+        <label>継続支援の前回の一括更新の日時。</label>
+        <name>stgHelpRDLastRun</name>
+    </customLabels>
+    <customLabels>
+        <label>固定期間の継続支援の支援の総数 (回数) を制限します。デフォルトは 50 です。</label>
+        <name>stgHelpRDMaxDonations</name>
+    </customLabels>
+    <customLabels>
+        <label>無期限の継続支援の状況を [完了] とマークしたときに残りの進行中の支援をどのように処理するかを Salesforce に指示します。</label>
+        <name>stgHelpRDOpenOppBehavior</name>
+    </customLabels>
+    <customLabels>
+        <label>無期限の継続支援に作成された進行中の支援が計上される月数。デフォルトは 12 であるため、月が変わるたびに次のひと月分の進行中の支援が追加されます (進行中の支援が計上される合計月数は常に 12 です)。</label>
+        <name>stgHelpRDOppForecastMonths</name>
+    </customLabels>
+    <customLabels>
+        <label>継続支援の子支援に割り当てられた支援レコードタイプ。</label>
+        <name>stgHelpRDOppRT</name>
+    </customLabels>
+    <customLabels>
+        <label>カスタム間隔の対象となる時間。</label>
+        <name>stgHelpRDPeriodFrequency</name>
+    </customLabels>
+    <customLabels>
+        <label>新規カスタム間隔の名前</label>
+        <name>stgHelpRDPeriodName</name>
+    </customLabels>
+    <customLabels>
+        <label>カスタム間隔の対象となる期間の種類。</label>
+        <name>stgHelpRDPeriodType</name>
+    </customLabels>
+    <customLabels>
+        <label>前回の一括処理で継続支援の更新に成功した回数。</label>
+        <name>stgHelpRDSuccesses</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgHelpRecDon --></label>
+        <name>stgHelpRecDon</name>
+    </customLabels>
+    <customLabels>
+        <label>自動作成されたリレーションは、2 つの個人間で重複リレーションレコードが作成されることを避けるため、自動的に重複が排除されます。このボックスをオンにするとこの動作が無効になり、2 つの個人間で同じ種別の複数のリレーションが許可されます。</label>
+        <name>stgHelpRelAutoCreatedDup</name>
+    </customLabels>
+    <customLabels>
+        <label>相互関係を判断するための個人の性別の定義に使用されるカスタム項目</label>
+        <name>stgHelpRelGenderField</name>
+    </customLabels>
+    <customLabels>
+        <label>個人の性別項目が女性カスタム表示ラベルの値に一致したときや、個人の敬称が性別を表しているときに使用される値。</label>
+        <name>stgHelpRelReciprocalFemale</name>
+    </customLabels>
+    <customLabels>
+        <label>個人の性別項目が男性カスタム表示ラベルと一致する場合、または個人の敬称が性別を示す場合に使用される値。</label>
+        <name>stgHelpRelReciprocalMale</name>
+    </customLabels>
+    <customLabels>
+        <label>相互関係の生成に使用される方法を決定します。性別のカスタム設定を使用する「リスト設定」、または必要に応じて種別を反転 (「親-子」から「子-親」) する「値反転」のいずれか。</label>
+        <name>stgHelpRelReciprocalMethod</name>
+    </customLabels>
+    <customLabels>
+        <label>相互関係の名前</label>
+        <name>stgHelpRelReciprocalName</name>
+    </customLabels>
+    <customLabels>
+        <label>個人の性別項目が男性または女性カスタム表示ラベルに一致しなかったときや、個人の敬称が性別を表していないときに使用される値。</label>
+        <name>stgHelpRelReciprocalNeutral</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgHelpReviewErrorLog --></label>
+        <name>stgHelpReviewErrorLog</name>
+    </customLabels>
+    <customLabels>
+        <label>支援者の統計情報の計算時に処理されるレコードの数。デフォルトサイズは 200 です。システムの制限により支援の積み上げ集計が失敗する場合は、この数値を小さくします。</label>
+        <name>stgHelpRollupBatchSize</name>
+    </customLabels>
+    <customLabels>
+        <label>団体支援の積み上げ集計時に統計から除外する支援レコードタイプの名前。</label>
+        <name>stgHelpRollupExcludeAccountOppRT</name>
+    </customLabels>
+    <customLabels>
+        <label>団体支援の積み上げ集計時に統計から除外する支援種別項目の値。</label>
+        <name>stgHelpRollupExcludeAccountOppType</name>
+    </customLabels>
+    <customLabels>
+        <label>GAU 割り当ての積み上げ集計時に統計情報から除外される支援レコードタイプの名前。</label>
+        <name>stgHelpRollupExcludeAlloOppRecType</name>
+    </customLabels>
+    <customLabels>
+        <label>積み上げ集計時に統計情報から除外される支援種別項目の値。</label>
+        <name>stgHelpRollupExcludeAlloOppType</name>
+    </customLabels>
+    <customLabels>
+        <label>個人支援の積み上げ集計時に統計から除外する支援レコードタイプの名前。</label>
+        <name>stgHelpRollupExcludeContactOppRT</name>
+    </customLabels>
+    <customLabels>
+        <label>個人支援の積み上げ集計時に統計から除外する支援種別項目の値。</label>
+        <name>stgHelpRollupExcludeContactOppType</name>
+    </customLabels>
+    <customLabels>
+        <label>「N 日間」の積み上げ集計の値を指定します。「N」は現在の日付から過去の日付までの日数です。この値のデフォルトは、過去 365 日間の積み上げ集計です。</label>
+        <name>stgHelpRollupNDayValue</name>
+    </customLabels>
+    <customLabels>
+        <label>支援が個人によるものでない (会社や財団などからの) 場合でも、常に支援者の統計情報を支援の主個人の役割、および対応する世帯に積み上げ集計します。</label>
+        <name>stgHelpRollupPrimaryContact</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgHelpSalesforceSetup --></label>
+        <name>stgHelpSalesforceSetup</name>
+    </customLabels>
+    <customLabels>
+        <label>1 つの個人または団体の住所項目の変更が既存の住所の更新として扱われます (新しい住所オブジェクトが作成されない)。また、空白や大文字/小文字の変更も更新として扱われます。</label>
+        <name>stgHelpSimpleAddrChangeIsUpdate</name>
+    </customLabels>
+    <customLabels>
+        <label>ソフトクレジット積み上げ集計に含める支援個人の役割のリスト。</label>
+        <name>stgHelpSoftCreditRoles</name>
+    </customLabels>
+    <customLabels>
+        <label>エラーをデータベースに保存する場合にオンにします。</label>
+        <name>stgHelpStoreErrorsOn</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgHelpTDTM --></label>
+        <name>stgHelpTDTM</name>
+    </customLabels>
+    <customLabels>
+        <label>このモジュールが有効であることを示します。</label>
+        <name>stgHelpTHActive</name>
+    </customLabels>
+    <customLabels>
+        <label>このモジュールの After イベントはこのトランザクションで非同期に実行される必要があることを示します</label>
+        <name>stgHelpTHAsync</name>
+    </customLabels>
+    <customLabels>
+        <label>実行されるクラス名</label>
+        <name>stgHelpTHClass</name>
+    </customLabels>
+    <customLabels>
+        <label>このモジュールが実行される順序。モジュールとデータの連動関係の維持に役立ちます。</label>
+        <name>stgHelpTHLoadOrder</name>
+    </customLabels>
+    <customLabels>
+        <label>このハンドラが実行されるオブジェクトの名前</label>
+        <name>stgHelpTHObject</name>
+    </customLabels>
+    <customLabels>
+        <label>このモジュールを起動するトリガアクション</label>
+        <name>stgHelpTHTriggerAction</name>
+    </customLabels>
+    <customLabels>
+        <label>これらのトリガで Nonprofit Success Pack のコア機能が制御されるため、これらを変更する場合は細心の注意を払ってください。</label>
+        <name>stgHelpTriggerHandlers</name>
+    </customLabels>
+    <customLabels>
+        <label>トリガハンドラを非同期で実行すると、意図しない結果になる可能性があるため、本番環境にリリースする前に完全にテストする必要があります。</label>
+        <name>stgHelpTriggerHandlersAsync</name>
+    </customLabels>
+    <customLabels>
+        <label>この項目の有効な積み上げ集計操作を選択してください</label>
+        <name>stgHelpUDROperation</name>
+    </customLabels>
+    <customLabels>
+        <label>積み上げ集計する支援項目を選択してください</label>
+        <name>stgHelpUDROppField</name>
+    </customLabels>
+    <customLabels>
+        <label>積み上げ集計するオブジェクトを選択してください</label>
+        <name>stgHelpUDRTargetObject</name>
+    </customLabels>
+    <customLabels>
+        <label>インストールに成功しましたが、軽微な問題が検出されました。問題を修正するには、Salesforce で [NPSP 設定] ページを読み込みます。
+
+注意: [NPSP 設定] が Nonprofit Success Pack アプリケーションに表示されます。タブが表示されない場合は、右上隅のアプリケーションメニューから [Nonprofit Success Pack] を選択します。</label>
+        <name>stgInstallScriptError</name>
+    </customLabels>
+    <customLabels>
+        <label>アクション</label>
+        <name>stgLabelActionColumn</name>
+    </customLabels>
+    <customLabels>
+        <label>住所設定</label>
+        <name>stgLabelAddressVerification</name>
+    </customLabels>
+    <customLabels>
+        <label>アフィリエーション設定</label>
+        <name>stgLabelAfflSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>すべてのレコードタイプ</label>
+        <name>stgLabelAllRecordTypes</name>
+    </customLabels>
+    <customLabels>
+        <label>割り当ての積み上げ集計のバッチの進行状況</label>
+        <name>stgLabelAlloBatchProgress</name>
+    </customLabels>
+    <customLabels>
+        <label>GAU 割り当ての積み上げ集計設定</label>
+        <name>stgLabelAllocationsRollupSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>デフォルトの割り当て設定</label>
+        <name>stgLabelAllocationsSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>実行してよろしいですか?</label>
+        <name>stgLabelAreYouSure</name>
+    </customLabels>
+    <customLabels>
+        <label>自動的に作成される個人の役割</label>
+        <name>stgLabelAutoContactRoles</name>
+    </customLabels>
+    <customLabels>
+        <label>バッチデータエントリ設定</label>
+        <name>stgLabelBDESettings</name>
+    </customLabels>
+    <customLabels>
+        <label>バッチ状況</label>
+        <name>stgLabelBatchStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>欠落している支払を作成</label>
+        <name>stgLabelCreateMissingPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>現在のユーザ定義積み上げ集計</label>
+        <name>stgLabelCurrentUDR</name>
+    </customLabels>
+    <customLabels>
+        <label>名前を変更しない</label>
+        <name>stgLabelDoNotRename</name>
+    </customLabels>
+    <customLabels>
+        <label>エラー通知設定</label>
+        <name>stgLabelErrorNotify</name>
+    </customLabels>
+    <customLabels>
+        <label>公式の挨拶文形式の例</label>
+        <name>stgLabelExamplesFGFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯名形式の例</label>
+        <name>stgLabelExamplesHHNameFOrmat</name>
+    </customLabels>
+    <customLabels>
+        <label>非公式の挨拶文形式の例</label>
+        <name>stgLabelExamplesIGFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>一般設定</label>
+        <name>stgLabelHHGeneral</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯名設定</label>
+        <name>stgLabelHHNaming</name>
+    </customLabels>
+    <customLabels>
+        <label>命名の有効化の進行状況</label>
+        <name>stgLabelHHNamingProgress</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯支援個人の役割</label>
+        <name>stgLabelHHOCR</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯オブジェクト</label>
+        <name>stgLabelHHObject</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯設定</label>
+        <name>stgLabelHHSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>名誉会員および通知受信者の連絡先の自動的に作成される支援個人の役割を作成</label>
+        <name>stgLabelHonoreeNotificationHelpText</name>
+    </customLabels>
+    <customLabels>
+        <label>名誉会員および通知受信者の支援個人の役割</label>
+        <name>stgLabelHonoreeNotificationOCR</name>
+    </customLabels>
+    <customLabels>
+        <label>リードの設定</label>
+        <name>stgLabelLeadSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>会員設定</label>
+        <name>stgLabelMembershipSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>新規自動リレーション</label>
+        <name>stgLabelNewAutoRel</name>
+    </customLabels>
+    <customLabels>
+        <label>新規支払項目の対応付け</label>
+        <name>stgLabelNewPaymentMapping</name>
+    </customLabels>
+    <customLabels>
+        <label>新規カスタム項目の対応付け</label>
+        <name>stgLabelNewRDFieldMap</name>
+    </customLabels>
+    <customLabels>
+        <label>新規相互関係</label>
+        <name>stgLabelNewRelReciprocal</name>
+    </customLabels>
+    <customLabels>
+        <label>新規トリガハンドラ</label>
+        <name>stgLabelNewTH</name>
+    </customLabels>
+    <customLabels>
+        <label>新規ユーザ定義積み上げ集計</label>
+        <name>stgLabelNewUDR</name>
+    </customLabels>
+    <customLabels>
+        <label>なし</label>
+        <name>stgLabelNone</name>
+    </customLabels>
+    <customLabels>
+        <label>支援名設定</label>
+        <name>stgLabelONS</name>
+    </customLabels>
+    <customLabels>
+        <label>支援の積み上げ集計のバッチの進行状況</label>
+        <name>stgLabelOppBatchProgress</name>
+    </customLabels>
+    <customLabels>
+        <label>キャンペーンメンバー</label>
+        <name>stgLabelOppCampMembers</name>
+    </customLabels>
+    <customLabels>
+        <label>支援名を更新</label>
+        <name>stgLabelOppNamingRefreshTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>支援名</label>
+        <name>stgLabelOppNamingSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>支援の主個人を更新</label>
+        <name>stgLabelOppPrimaryContactTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>支援積み上げ集計のレコードタイプ</label>
+        <name>stgLabelOppRollupRT</name>
+    </customLabels>
+    <customLabels>
+        <label>支援積み上げ集計</label>
+        <name>stgLabelOppRollups</name>
+    </customLabels>
+    <customLabels>
+        <label>主個人をバッチ更新</label>
+        <name>stgLabelOppUpdatePrimaryContact</name>
+    </customLabels>
+    <customLabels>
+        <label>その他</label>
+        <name>stgLabelOther</name>
+    </customLabels>
+    <customLabels>
+        <label>その他の日付形式</label>
+        <name>stgLabelOtherDateFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>その他の公式の挨拶文形式</label>
+        <name>stgLabelOtherFormalGreetingFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>その他の世帯名形式</label>
+        <name>stgLabelOtherHHNameFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>その他の非公式の挨拶文形式</label>
+        <name>stgLabelOtherInformalGreetingFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>その他の支援命名形式</label>
+        <name>stgLabelOtherOpportunigyNamingFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>使用できる有効な項目がありません</label>
+        <name>stgLabelPaymentMapNoValidFields</name>
+    </customLabels>
+    <customLabels>
+        <label>支払設定</label>
+        <name>stgLabelPaymentSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>カスタム項目の対応付け</label>
+        <name>stgLabelRDFieldMap</name>
+    </customLabels>
+    <customLabels>
+        <label>新規間隔</label>
+        <name>stgLabelRDNewPeriod</name>
+    </customLabels>
+    <customLabels>
+        <label>カスタム間隔</label>
+        <name>stgLabelRDPeriod</name>
+    </customLabels>
+    <customLabels>
+        <label>継続支援設定</label>
+        <name>stgLabelRDSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>継続支援の支援を更新しています</label>
+        <name>stgLabelRDStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>一般設定</label>
+        <name>stgLabelRelSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>Chatter グループを選択</label>
+        <name>stgLabelSelectChatterGroup</name>
+    </customLabels>
+    <customLabels>
+        <label>ソフトクレジット設定</label>
+        <name>stgLabelSoftCredit</name>
+    </customLabels>
+    <customLabels>
+        <label>トリガハンドラ</label>
+        <name>stgLabelTriggerHandlers</name>
+    </customLabels>
+    <customLabels>
+        <label>入力開始...</label>
+        <name>stgLabelTypeAhead</name>
+    </customLabels>
+    <customLabels>
+        <label>有効な支援項目が見つかりません。</label>
+        <name>stgLabelUDRNoOppFields</name>
+    </customLabels>
+    <customLabels>
+        <label>積み上げ集計操作</label>
+        <name>stgLabelUDROp</name>
+    </customLabels>
+    <customLabels>
+        <label>支援の項目</label>
+        <name>stgLabelUDROppField</name>
+    </customLabels>
+    <customLabels>
+        <label>対象項目</label>
+        <name>stgLabelUDRTargetField</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgLabelUDRTargetFieldHelp --></label>
+        <name>stgLabelUDRTargetFieldHelp</name>
+    </customLabels>
+    <customLabels>
+        <label>対象オブジェクト</label>
+        <name>stgLabelUDRTargetObject</name>
+    </customLabels>
+    <customLabels>
+        <label>削除</label>
+        <name>stgLinkDelete</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgNPSPGuideImportData --></label>
+        <name>stgNPSPGuideImportData</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgNPSPSettings --></label>
+        <name>stgNPSPSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>Nonprofit Success Pack 設定</label>
+        <name>stgNPSPSettingsTitle</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgNPSPWorkbook --></label>
+        <name>stgNPSPWorkbook</name>
+    </customLabels>
+    <customLabels>
+        <label>団体モデル</label>
+        <name>stgNavAccountModel</name>
+    </customLabels>
+    <customLabels>
+        <label>住所</label>
+        <name>stgNavAddressVerification</name>
+    </customLabels>
+    <customLabels>
+        <label>所属</label>
+        <name>stgNavAffiliations</name>
+    </customLabels>
+    <customLabels>
+        <label>一般会計単位の割り当て</label>
+        <name>stgNavAllocations</name>
+    </customLabels>
+    <customLabels>
+        <label>バッチデータエントリ</label>
+        <name>stgNavBDE</name>
+    </customLabels>
+    <customLabels>
+        <label>一括データ処理</label>
+        <name>stgNavBulkProcesses</name>
+    </customLabels>
+    <customLabels>
+        <label>接続</label>
+        <name>stgNavConnections</name>
+    </customLabels>
+    <customLabels>
+        <label>個人の役割</label>
+        <name>stgNavContactRoles</name>
+    </customLabels>
+    <customLabels>
+        <label>個人</label>
+        <name>stgNavContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>支援</label>
+        <name>stgNavDonations</name>
+    </customLabels>
+    <customLabels>
+        <label>支援者の統計情報</label>
+        <name>stgNavDonorStatistics</name>
+    </customLabels>
+    <customLabels>
+        <label>エラーログ</label>
+        <name>stgNavErrorLog</name>
+    </customLabels>
+    <customLabels>
+        <label>エラー通知</label>
+        <name>stgNavErrorNotify</name>
+    </customLabels>
+    <customLabels>
+        <label>状態チェック</label>
+        <name>stgNavHealthCheck</name>
+    </customLabels>
+    <customLabels>
+        <label>世帯</label>
+        <name>stgNavHouseholds</name>
+    </customLabels>
+    <customLabels>
+        <label>リード</label>
+        <name>stgNavLeads</name>
+    </customLabels>
+    <customLabels>
+        <label>会員</label>
+        <name>stgNavMembership</name>
+    </customLabels>
+    <customLabels>
+        <label>支払の対応付け</label>
+        <name>stgNavPaymentMappings</name>
+    </customLabels>
+    <customLabels>
+        <label>支払</label>
+        <name>stgNavPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>人</label>
+        <name>stgNavPeople</name>
+    </customLabels>
+    <customLabels>
+        <label>継続支援のバッチ</label>
+        <name>stgNavRDBatch</name>
+    </customLabels>
+    <customLabels>
+        <label>継続支援のカスタム項目の対応付け</label>
+        <name>stgNavRDFieldMap</name>
+    </customLabels>
+    <customLabels>
+        <label>継続支援のカスタム間隔</label>
+        <name>stgNavRDInstallmentPeriods</name>
+    </customLabels>
+    <customLabels>
+        <label>継続支援</label>
+        <name>stgNavRecurringDonations</name>
+    </customLabels>
+    <customLabels>
+        <label>リレーションの自動作成</label>
+        <name>stgNavRelAutoCreate</name>
+    </customLabels>
+    <customLabels>
+        <label>相互関係設定</label>
+        <name>stgNavRelReciprocal</name>
+    </customLabels>
+    <customLabels>
+        <label>リレーション</label>
+        <name>stgNavRelationships</name>
+    </customLabels>
+    <customLabels>
+        <label>割り当ての積み上げ集計のバッチ</label>
+        <name>stgNavRollupAlloBatch</name>
+    </customLabels>
+    <customLabels>
+        <label>支援の積み上げ集計のバッチ</label>
+        <name>stgNavRollupBatch</name>
+    </customLabels>
+    <customLabels>
+        <label>システムツール</label>
+        <name>stgNavSystem</name>
+    </customLabels>
+    <customLabels>
+        <label>トリガ設定</label>
+        <name>stgNavTriggerConfig</name>
+    </customLabels>
+    <customLabels>
+        <label>ユーザ定義積み上げ集計</label>
+        <name>stgNavUserDefinedRollups</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgOppNamingDescription --></label>
+        <name>stgOppNamingDescription</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgPowerOfUsHub --></label>
+        <name>stgPowerOfUsHub</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgTools --></label>
+        <name>stgTools</name>
+    </customLabels>
+    <customLabels>
+        <label>[団体モデル] が [世帯団体] に設定されているため、[世帯ルール] を [個人なし] に設定する必要があります。世帯団体を使用している場合、追加の世帯オブジェクトを設定する必要はありません。</label>
+        <name>stgValidationHHAccountHHRules</name>
+    </customLabels>
+    <customTabs>
+        <label>バッチデータエントリ</label>
+        <name>Batch_Data_Entry</name>
+    </customTabs>
+    <customTabs>
+        <label>個人のマージ</label>
+        <name>Contact_Merge</name>
+    </customTabs>
+    <customTabs>
+        <label>はじめよう</label>
+        <name>NPSP_Resources</name>
+    </customTabs>
+    <customTabs>
+        <label>NPSP 設定</label>
+        <name>NPSP_Settings</name>
+    </customTabs>
+    <quickActions>
+        <label><!-- LogACall --></label>
+        <name>LogACall</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- NewAccount --></label>
+        <name>NewAccount</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- New Contact --></label>
+        <name>NewContact</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- NewNote --></label>
+        <name>NewNote</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- New Opportunity --></label>
+        <name>NewOpportunity</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- NewTask --></label>
+        <name>NewTask</name>
+    </quickActions>
+    <quickActions>
+        <label>新規キャンペーン</label>
+        <name>New_Campaign</name>
+    </quickActions>
+    <quickActions>
+        <label>新規継続支援</label>
+        <name>New_Recurring_Donation</name>
+    </quickActions>
+    <reportTypes>
+        <description>他のオブジェクトにリンクがない個人</description>
+        <label>個人のみ</label>
+        <name>Contacts_Only</name>
+        <sections>
+            <label>個人</label>
+            <name>Contacts</name>
+        </sections>
+    </reportTypes>
+</Translations>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>GAU Allocation</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>GAU Allocations</value>
+    </caseValues>
+    <fields>
+        <help><!-- Amount of the opportunity to allocate to this general accounting unit. Leave blank for percent based allocations. --></help>
+        <label><!-- Amount --></label>
+        <name>Amount__c</name>
+    </fields>
+    <fields>
+        <help><!-- Optionally attributes allocations to a campaign. All new opportunities created with this campaign as primary campaign source will automatically be allocated in the same way. --></help>
+        <label><!-- Campaign --></label>
+        <name>Campaign__c</name>
+        <relationshipLabel><!-- GAU Allocations --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- The general accounting unit to attribute this allocation. Only general accounting units marked as active are available for new allocations. --></help>
+        <label><!-- General Accounting Unit --></label>
+        <lookupFilter>
+            <errorMessage><!-- Allocations can only be assigned to active general accounting units. Allocations assigned to inactive general accounting units cannot be modified. --></errorMessage>
+            <informationalMessage><!-- Only active general accounting units can be selected. --></informationalMessage>
+        </lookupFilter>
+        <name>General_Accounting_Unit__c</name>
+        <relationshipLabel><!-- GAU Allocations --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Attributes allocations to an opportunity. All opportunities in a closed and won stage will be rolled up to this allocation&apos;s general accounting unit. --></help>
+        <label><!-- Opportunity --></label>
+        <name>Opportunity__c</name>
+        <relationshipLabel><!-- GAU Allocations --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Percent of opportunity amount to allocate to this general accounting unit. Modifying an opportunity amount of a percent based allocation will modify the allocation amount. --></help>
+        <label><!-- Percent --></label>
+        <name>Percent__c</name>
+    </fields>
+    <fields>
+        <help><!-- Optionally attributes allocations to a recurring donation. All new opportunities created with this recurring donation schedule will automatically be allocated in the same way. --></help>
+        <label><!-- Recurring Donation --></label>
+        <name>Recurring_Donation__c</name>
+        <relationshipLabel><!-- GAU Allocations --></relationshipLabel>
+    </fields>
+    <layouts>
+        <layout>Allocation Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <startsWith>Vowel</startsWith>
+    <webLinks>
+        <label><!-- Manage_Allocations --></label>
+        <name>Manage_Allocations</name>
+    </webLinks>
+</CustomObjectTranslation>

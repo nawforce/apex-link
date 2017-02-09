@@ -1,0 +1,274 @@
+Insert Households:
+    sf_object: Account
+    table: households
+    fields:
+        Id: sf_id
+        BillingCountry: country
+        BillingStreet: street
+        BillingState: state
+        BillingCity: city
+        BillingPostalCode: zip
+    static:
+        Name: Household
+        npe01__SYSTEM_AccountType__c: Household Account
+    record_type: HH_Account
+Insert Organizations:
+    sf_object: Account
+    table: organizations
+    fields:
+        Id: sf_id
+        Name: organization
+    record_type: Organization
+Insert Addresses:
+    sf_object: Address__c
+    table: addresses
+    fields:
+        Id: sf_id
+        MailingCountry__c: country
+        MailingStreet__c: street
+        MailingState__c: state
+        MailingCity__c: city
+        MailingPostalCode__c: zip
+        Seasonal_Start_Month__c: start_month
+        Seasonal_Start_Day__c: start_day
+        Seasonal_End_Month__c: end_month
+        Seasonal_End_Day__c: end_day
+    lookups:
+        Household_Account__c: 
+            key_field: household_id
+            table: households
+            join_field: household_id
+            value_field: sf_id
+Insert Household Contacts:
+    sf_object: Contact
+    table: contacts
+    filters:
+        - 'household_id is not null'
+    fields:
+        Id: sf_id
+        Salutation: salutation
+        FirstName: first_name
+        LastName: last_name
+        Email: email
+        Phone: phone
+        Title: job_title
+    lookups:
+        AccountId:
+            key_field: household_id
+            table: households
+            join_field: household_id
+            value_field: sf_id
+        Primary_Affiliation__c: 
+            key_field: organization_id
+            table: organizations
+            join_field: organization_id
+            value_field: sf_id
+Insert Organization Contacts:
+    sf_object: Contact
+    table: contacts
+    filters:
+        - 'household_id is null'
+    fields:
+        Id: sf_id
+        Salutation: salutation
+        FirstName: first_name
+        LastName: last_name
+        Email: email
+        Phone: phone
+        Title: job_title
+    lookups:
+        AccountId:
+            key_field: organization_id
+            table: organizations
+            join_field: organization_id
+            value_field: sf_id
+Insert Recurring Donations:
+    sf_object: npe03__Recurring_Donation__c
+    table: recurring_donations
+    fields:
+        Id: sf_id
+        Name: name
+        npe03__Amount__c: amount
+        npe03__Date_Established__c: start_date
+    static:
+        npe03__Open_Ended_status__c: True
+        npe03__Schedule_Type__c: Monthly
+    lookups:
+        #npe03__Account__c: 
+        #    key_field: household_id
+        #    table: households
+        #    join_field: household_id
+        #    value_field: sf_id
+        npe03__Contact__c:
+            key_field: contact_id
+            table: contacts
+            join_field: id
+            value_field: sf_id
+Insert Organization Opportunities:
+    sf_object: Opportunity
+    table: opportunities
+    filters:
+        - 'organization_id is not null'
+    fields:
+        Id: sf_id
+        Name: name
+        Amount: amount
+        StageName: stage_name
+        CloseDate: close_date
+        npe01__Do_Not_Automatically_Create_Payment__c: dont_create_payments
+    lookups:
+        AccountId: 
+            key_field: organization_id
+            table: organizations
+            join_field: organization_id
+            value_field: sf_id
+        Primary_Contact__c: 
+            key_field: contact_id
+            table: contacts
+            join_field: id
+            value_field: sf_id
+        npe03__Recurring_Donation__c: 
+            key_field: recurring_donation_id
+            table: recurring_donations
+            join_field: recurring_donation_id
+            value_field: sf_id
+Insert Household Opportunities:
+    sf_object: Opportunity
+    table: opportunities
+    filters:
+        - 'organization_id is null'
+    fields:
+        Id: sf_id
+        Name: name
+        Amount: amount
+        StageName: stage_name
+        CloseDate: close_date
+        npe01__Do_Not_Automatically_Create_Payment__c: dont_create_payments
+    lookups:
+        AccountId: 
+            key_field: household_id
+            table: households
+            join_field: household_id
+            value_field: sf_id
+        Primary_Contact__c: 
+            key_field: contact_id
+            table: contacts
+            join_field: id
+            value_field: sf_id
+        npe03__Recurring_Donation__c: 
+            key_field: recurring_donation_id
+            table: recurring_donations
+            join_field: recurring_donation_id
+            value_field: sf_id
+Insert OpportunityContactRoles:
+    sf_object: OpportunityContactRole
+    table: oppcontactroles
+    fields:
+        Id: sf_id
+        Role: role
+        IsPrimary: is_primary
+    lookups:
+        ContactId: 
+            key_field: contact_id
+            table: contacts
+            join_field: id
+            value_field: sf_id
+        OpportunityId:
+            key_field: opportunity_id
+            table: opportunities
+            join_field: opportunity_id
+            value_field: sf_id
+Insert Payments:
+    sf_object: npe01__OppPayment__c
+    table: payments
+    fields:
+        Id: sf_id
+        npe01__Payment_Amount__c: amount
+        npe01__Payment_Date__c: payment_date
+    lookups:
+        npe01__Opportunity__c:
+            key_field: opportunity_id
+            table: opportunities
+            join_field: opportunity_id
+            value_field: sf_id
+Insert Partial Soft Credits:
+    sf_object: Partial_Soft_Credit__c
+    table: partialsoftcredits
+    fields:
+        Id: sf_id
+        Role_Name__c: role
+        Amount__c: amount
+    lookups:
+        Contact__c:
+            key_field: contact_id
+            table: contacts
+            join_field: id
+            value_field: sf_id
+        Opportunity__c:
+            key_field: opportunity_id
+            table: opportunities
+            join_field: opportunity_id
+            value_field: sf_id
+Insert GAUs:
+    sf_object: General_Accounting_Unit__c
+    table: gaus
+    fields:
+        Id: sf_id
+        Name: name
+Insert Allocations:
+    sf_object: Allocation__c
+    table: allocations
+    fields:
+        Id: sf_id
+        Percent__c: percent
+    lookups:
+        Opportunity__c:
+            key_field: opportunity_id
+            table: opportunities
+            join_field: opportunity_id
+            value_field: sf_id
+        General_Accounting_Unit__c:
+            key_field: gau_id
+            table: gaus
+            join_field: id
+            value_field: sf_id
+Insert Relationships:
+    sf_object: npe4__Relationship__c
+    table: relationships
+    fields:
+        Id: sf_id
+        npe4__Type__c: relationship_type
+    lookups:
+        npe4__Contact__c:
+            key_field: contact_id
+            table: contacts
+            join_field: id
+            value_field: sf_id
+        npe4__RelatedContact__c:
+            key_field: related_contact_id
+            table: contacts
+            join_field: id
+            value_field: sf_id
+Insert Campaigns:
+    sf_object: Campaign
+    table: campaigns
+    fields:
+        Id: sf_id
+        Name: name
+Insert CampaignMembers:
+    sf_object: CampaignMember
+    table: campaign_members
+    fields:
+        Id: sf_id
+        Status: status
+    lookups:
+        ContactId:
+            key_field: contact_id
+            table: contacts
+            join_field: id
+            value_field: sf_id
+        CampaignId:
+            key_field: campaign_id
+            table: campaigns
+            join_field: campaign_id
+            value_field: sf_id

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Data Import Settings</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Data Import Settings</value>
+    </caseValues>
+    <fields>
+        <help><!-- An optional Unique Id field to use for Organization Account matching --></help>
+        <label><!-- Account Custom Unique ID --></label>
+        <name>Account_Custom_Unique_ID__c</name>
+    </fields>
+    <fields>
+        <help><!-- Specifies which rule to follow when trying to match Accounts in Data Import records against existing Accounts. --></help>
+        <label><!-- Account Matching Rule --></label>
+        <name>Account_Matching_Rule__c</name>
+    </fields>
+    <fields>
+        <help><!-- The number of NPSP Data Import records to process in each batch. --></help>
+        <label><!-- Batch Size --></label>
+        <name>Batch_Size__c</name>
+    </fields>
+    <fields>
+        <help><!-- An optional Unique Id field to use for Contact matching --></help>
+        <label><!-- Contact Custom Unique ID --></label>
+        <name>Contact_Custom_Unique_ID__c</name>
+    </fields>
+    <fields>
+        <help><!-- Specifies which rule to follow when trying to match Contacts in Data Import records against existing Contacts. --></help>
+        <label><!-- Contact Matching Rule --></label>
+        <name>Contact_Matching_Rule__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

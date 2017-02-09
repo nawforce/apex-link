@@ -1,0 +1,28 @@
+<aura:component >
+
+    <!-- our attributes -->
+    <aura:attribute name="hh" type="Object" access="public" />
+    <aura:attribute name="listCon" type="Object[]" access="public" />
+
+    <!-- events we fire -->
+    <aura:registerEvent name="ContactReorderEvent" type="c:HH_ContactReorderEvent" />
+
+    <!-- events we handle -->
+
+    <!-- libraries needed --> 
+    <ltng:require scripts="{!join(',',
+        $Resource.CumulusStaticResources + '/jquery/jquery-2.2.4.min.js',
+        $Resource.CumulusStaticResources + '/jquery-ui/jquery-ui-1.11.4.min.js')}"
+        afterScriptsLoaded="{!c.afterScriptsLoaded}" />
+
+    <!-- markup follows... -->
+	<div style="position:relative"> <!-- relative to allow jqueryui draggable to calculate offsets correctly -->
+        <ul id="SortCanvas" class="slds-list--horizontal slds-has-dividers--around-space slds-wrap">
+            <aura:iteration items="{!v.listCon}" var="con" indexVar="icon">
+                <li class="slds-item" style="margin: 0; border: 0; vertical-align: top" data-icontact="{!icon}">
+                    <c:HH_ContactCard contact="{!con}" />
+                </li>
+            </aura:iteration> 
+        </ul>
+	</div>
+</aura:component>

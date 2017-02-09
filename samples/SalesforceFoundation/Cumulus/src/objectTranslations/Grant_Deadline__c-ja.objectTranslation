@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Deliverable --></value>
+    </caseValues>
+    <fields>
+        <help><!-- The date on which this particular Deliverable is due. --></help>
+        <label>助成金期限の期日</label>
+        <name>Grant_Deadline_Due_Date__c</name>
+    </fields>
+    <fields>
+        <help>提出書類が実際に提出された日付。</help>
+        <label>助成金の提出書類完了日</label>
+        <name>Grant_Deliverable_Close_Date__c</name>
+    </fields>
+    <fields>
+        <help><!-- Description of what is required for this deliverable. --></help>
+        <label>助成金の提出書類要件</label>
+        <name>Grant_Deliverable_Requirements__c</name>
+    </fields>
+    <fields>
+        <label>助成金支援</label>
+        <name>Opportunity__c</name>
+        <relationshipLabel>助成金期限</relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Type --></label>
+        <name>Type__c</name>
+        <picklistValues>
+            <masterLabel>Application</masterLabel>
+            <translation><!-- Application --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Final Report</masterLabel>
+            <translation><!-- Final Report --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Interim Report</masterLabel>
+            <translation><!-- Interim Report --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>LOI</masterLabel>
+            <translation><!-- LOI --></translation>
+        </picklistValues>
+    </fields>
+    <layouts>
+        <layout>Grant Deadline Layout</layout>
+        <sections>
+            <label>カスタムリンク</label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label>助成金の提出書類要件</label>
+            <section>Grant Deliverable Requirements</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Deliverable Name --></nameFieldLabel>
+</CustomObjectTranslation>

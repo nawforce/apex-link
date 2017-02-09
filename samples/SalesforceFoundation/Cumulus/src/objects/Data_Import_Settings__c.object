@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>Hierarchy</customSettingsType>
+    <enableFeeds>false</enableFeeds>
+    <fields>
+        <fullName>Account_Custom_Unique_ID__c</fullName>
+        <description>An optional Unique Id field to use for Organization Account matching</description>
+        <externalId>false</externalId>
+        <inlineHelpText>An optional Unique Id field to use for Organization Account matching</inlineHelpText>
+        <label>Account Custom Unique ID</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Account_Matching_Rule__c</fullName>
+        <description>Specifies which rule to follow when trying to match Accounts in Data Import records against existing Accounts.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Specifies which rule to follow when trying to match Accounts in Data Import records against existing Accounts.</inlineHelpText>
+        <label>Account Matching Rule</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Batch_Size__c</fullName>
+        <defaultValue>20</defaultValue>
+        <description>The number of NPSP Data Import records to process in each batch.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The number of NPSP Data Import records to process in each batch.</inlineHelpText>
+        <label>Batch Size</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Contact_Custom_Unique_ID__c</fullName>
+        <description>An optional Unique Id field to use for Contact matching</description>
+        <externalId>false</externalId>
+        <inlineHelpText>An optional Unique Id field to use for Contact matching</inlineHelpText>
+        <label>Contact Custom Unique ID</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Contact_Matching_Rule__c</fullName>
+        <description>Specifies which rule to follow when trying to match Contacts in Data Import records against existing Contacts.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Specifies which rule to follow when trying to match Contacts in Data Import records against existing Contacts.</inlineHelpText>
+        <label>Contact Matching Rule</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>Data Import Settings</label>
+    <visibility>Public</visibility>
+</CustomObject>

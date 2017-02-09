@@ -1,0 +1,3 @@
+<aura:event type="APPLICATION" description="Fired when the order of contacts change on the HH_Canvas.">
+    <aura:attribute name="listCon" type="Object[]" />
+</aura:event>

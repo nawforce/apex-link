@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value><!-- Trigger Handler --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value><!-- Trigger Handler --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>false</plural>
+        <value><!-- Trigger Handler --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>true</plural>
+        <value><!-- Trigger Handler --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>false</plural>
+        <value><!-- Trigger Handler --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>true</plural>
+        <value><!-- Trigger Handler --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>false</plural>
+        <value><!-- Trigger Handler --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>true</plural>
+        <value><!-- Trigger Handler --></value>
+    </caseValues>
+    <fields>
+        <help>Gibt an, dass dieses Modul aktiv ist</help>
+        <label>Aktiv</label>
+        <name>Active__c</name>
+    </fields>
+    <fields>
+        <help>Gibt an, dass dieses Modul in dieser Transaktion asynchron ausgeführt werden sollte, und zwar für alle Veranstaltungen danach</help>
+        <label>Asynchrone Veranstaltungen danach</label>
+        <name>Asynchronous__c</name>
+    </fields>
+    <fields>
+        <help>Name der auszuführenden Klasse</help>
+        <label>Klasse</label>
+        <name>Class__c</name>
+    </fields>
+    <fields>
+        <help>Bestellung, in der dieses Modul ausgeführt werden sollte; dient dazu, Abhängigkeiten in Modulen und Daten beizubehalten</help>
+        <label>Bestellung laden</label>
+        <name>Load_Order__c</name>
+    </fields>
+    <fields>
+        <help>Name des Objekts, für das dieses Programm ausgeführt werden sollte</help>
+        <label>Objekt</label>
+        <name>Object__c</name>
+    </fields>
+    <fields>
+        <help>Auslöseraktion, in der dieses Modul aktiv werden sollte</help>
+        <label>Auslöseraktion</label>
+        <name>Trigger_Action__c</name>
+        <picklistValues>
+            <masterLabel>AfterDelete</masterLabel>
+            <translation>NachherLöschen</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>AfterInsert</masterLabel>
+            <translation>NachherEinfügen</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>AfterUndelete</masterLabel>
+            <translation>NachherLöschen_rückgängig_machen</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>AfterUpdate</masterLabel>
+            <translation>NachherAktualisieren</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>BeforeDelete</masterLabel>
+            <translation>VorherLöschen</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>BeforeInsert</masterLabel>
+            <translation>VorherEinfügen</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>BeforeUpdate</masterLabel>
+            <translation>VorherAktualisieren</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>Aktivieren Sie diese Option, wenn Sie beabsichtigen, den Datensatz selbst zu verwalten. Beachten Sie, dass Aktualisierungen am Paket den Datensatz nicht aktualisieren.</help>
+        <label>Benutzerverwaltet</label>
+        <name>User_Managed__c</name>
+    </fields>
+    <gender><!-- Neuter --></gender>
+    <layouts>
+        <layout>Trigger Handler Layout</layout>
+        <sections>
+            <label>Benutzerdefinierte Links</label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Trigger Handler Name --></nameFieldLabel>
+</CustomObjectTranslation>

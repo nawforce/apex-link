@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Engagement Plan Task</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Engagement Plan Tasks</value>
+    </caseValues>
+    <fields>
+        <help><!-- This field maps to the Task&apos;s Assigned To field. If left blank, the task will be assigned based on the template&apos;s Blank Assignment Rule. --></help>
+        <label><!-- Assigned To --></label>
+        <name>Assigned_To__c</name>
+        <relationshipLabel><!-- Engagement Plan Tasks --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Comments on the Task. --></help>
+        <label><!-- Comments --></label>
+        <name>Comments__c</name>
+    </fields>
+    <fields>
+        <help><!-- The number of days after the Engagement Plan creation date, or the parent Task&apos;s Due Date, that this Task is due. --></help>
+        <label><!-- Days After --></label>
+        <name>Days_After__c</name>
+    </fields>
+    <fields>
+        <help><!-- The Template for this Engagement Plan Task. --></help>
+        <label><!-- Engagement Plan Template --></label>
+        <name>Engagement_Plan_Template__c</name>
+        <relationshipLabel><!-- Engagement Plan Tasks --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Indicates that this Engagement Plan Task is dependent on a Parent Task. --></help>
+        <label><!-- Parent Task --></label>
+        <name>Parent_Task__c</name>
+        <relationshipLabel><!-- Engagement Plan Tasks --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- The priority of this Task. --></help>
+        <label><!-- Priority --></label>
+        <name>Priority__c</name>
+        <picklistValues>
+            <masterLabel>High</masterLabel>
+            <translation><!-- High --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Low</masterLabel>
+            <translation><!-- Low --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Medium</masterLabel>
+            <translation><!-- Medium --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- The time on the Due Date that a reminder appears. --></help>
+        <label><!-- Reminder Time --></label>
+        <name>Reminder_Time__c</name>
+    </fields>
+    <fields>
+        <help><!-- Sets a reminder for the Task. --></help>
+        <label><!-- Reminder --></label>
+        <name>Reminder__c</name>
+    </fields>
+    <fields>
+        <help><!-- Determines if an email is sent to the user in the Task&apos;s Assigned To field when the Task becomes active. Dependent Tasks are active when their Parent Task is completed. --></help>
+        <label><!-- Send Email --></label>
+        <name>Send_Email__c</name>
+    </fields>
+    <fields>
+        <help><!-- The Status of a Task. Dependent Tasks are set to &quot;Waiting on Parent Task&quot; until their Parent Task is completed. --></help>
+        <label><!-- Status --></label>
+        <name>Status__c</name>
+        <picklistValues>
+            <masterLabel>Completed</masterLabel>
+            <translation><!-- Completed --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Deferred</masterLabel>
+            <translation><!-- Deferred --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>In Progress</masterLabel>
+            <translation><!-- In Progress --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Not Started</masterLabel>
+            <translation><!-- Not Started --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Waiting on someone else</masterLabel>
+            <translation><!-- Waiting on someone else --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- The type of Task. --></help>
+        <label><!-- Type --></label>
+        <name>Type__c</name>
+        <picklistValues>
+            <masterLabel>Call</masterLabel>
+            <translation><!-- Call --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Email</masterLabel>
+            <translation><!-- Email --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Meeting</masterLabel>
+            <translation><!-- Meeting --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Other</masterLabel>
+            <translation><!-- Other --></translation>
+        </picklistValues>
+    </fields>
+    <layouts>
+        <layout>Engagement Plan Task Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <startsWith>Vowel</startsWith>
+</CustomObjectTranslation>

@@ -1,0 +1,6 @@
+<apex:page standardController="Opportunity" extensions="OPP_OpportunityNamingBTN_CTRL" action="{!buttonClick}" standardStylesheets="false" >
+	<apex:stylesheet value="{!URLFOR($Resource.SLDS, '/0_12_2/assets/styles/salesforce-lightning-design-system-vf.min.css')}" />
+
+	<c:UTIL_PageMessages />
+	<c:UTIL_NavigateBack recordId="{!Opportunity.Id}" redirect="{!redirect}"/>
+</apex:page>

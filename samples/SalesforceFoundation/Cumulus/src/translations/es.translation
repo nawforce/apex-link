@@ -1,0 +1,2666 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customApplications>
+        <label><!-- Nonprofit Success Pack --></label>
+        <name>Nonprofit_CRM</name>
+    </customApplications>
+    <customLabels>
+        <label>El ID de autentificación no puede estar en blanco.</label>
+        <name>Addr_Id_Error</name>
+    </customLabels>
+    <customLabels>
+        <label>El servicio especificado no admite verificación de direcciones en lote.</label>
+        <name>Addr_No_Batch</name>
+    </customLabels>
+    <customLabels>
+        <label>Verificación pendiente.</label>
+        <name>Addr_Pending_Verification</name>
+    </customLabels>
+    <customLabels>
+        <label>DEPRECADA (dada de baja) - Configuración de API de Cuentas.</label>
+        <name>Addr_Settings_API_Body</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración de la verificación del API de la cuenta</label>
+        <name>Addr_Settings_API_Title</name>
+    </customLabels>
+    <customLabels>
+        <label>DEPRECADA</label>
+        <name>Addr_Settings_Intro_Body</name>
+    </customLabels>
+    <customLabels>
+        <label>La API de Verificación de direcciones permite verificar direcciones en el momento que las ingresa en Salesforce. Además permite estandarizar direcciones al guardarlas.</label>
+        <name>Addr_Settings_Intro_Body1</name>
+    </customLabels>
+    <customLabels>
+        <label>&lt;br/&gt;Para empezar:
+
+&lt;ol&gt;
+&lt;li&gt;Abrir una cuenta de verificación de direcciones de una aplicación externa.(Algunas son gratis para organizaciones sin fines de lucro)&lt;/li&gt;
+
+&lt;li&gt;En su servicio de verificación de direcciones, crear el ID o token de autenticación requerido.&lt;/li&gt;
+
+&lt;li&gt;Volver a la página de configuración y hacer click en el botón de Editar y pegar el ID o token de autenticación en el campo apropiado.&lt;/li&gt;
+
+&lt;li&gt;Completar los campos restantes y hacer click en Guardar. El texto de ayuda para cada campo provee más información. Si todavía necesita ayuda ir a &lt;a href=&quot;https://powerofus.force.com/NPSP_Address_Verification&quot;&gt;NPSP documentation&lt;/a&gt;.&lt;/li&gt;</label>
+        <name>Addr_Settings_Intro_Body2</name>
+    </customLabels>
+    <customLabels>
+        <label>Introducción</label>
+        <name>Addr_Settings_Intro_Title</name>
+    </customLabels>
+    <customLabels>
+        <label>La Verificación de Direcciones solo funcionará para los registros que cree a partir de ahora. La verificación no aplica a la información de contacto que ya está ingresada en Salesforce.</label>
+        <name>Addr_Settings_Notice</name>
+    </customLabels>
+    <customLabels>
+        <label>Para testear su Secret Key Pair, entre cualquier código postal de US.</label>
+        <name>Addr_Settings_Test_Body</name>
+    </customLabels>
+    <customLabels>
+        <label>Respuesta API</label>
+        <name>Addr_Settings_Test_Response_Title</name>
+    </customLabels>
+    <customLabels>
+        <label>Testear Mi Configuración</label>
+        <name>Addr_Settings_Test_Title</name>
+    </customLabels>
+    <customLabels>
+        <label>Saltear registros ya verificados.</label>
+        <name>Addr_Skip_Verified</name>
+    </customLabels>
+    <customLabels>
+        <label>El Token de autenticidad no puede estar vacío.</label>
+        <name>Addr_Token_Error</name>
+    </customLabels>
+    <customLabels>
+        <label>Punto final no autorizado. Por favor ingrese una URL de punto final a su lista de sitios remotos autorizados, bajo Configuración&gt; Controles de seguridad &gt; Configuración de sitio Web remoto</label>
+        <name>Addr_Unauthorized_Endpoint</name>
+    </customLabels>
+    <customLabels>
+        <label>Su Secret key Pair es válido.</label>
+        <name>Addr_Valid_Key_Pair</name>
+    </customLabels>
+    <customLabels>
+        <label>Hacer click en Verificar todas las direcciones para verificar y estandarizar todas las direcciones de su organización. La verificación masiva usa la configuración detallada abajo.</label>
+        <name>Addr_Verification_Batch_Body</name>
+    </customLabels>
+    <customLabels>
+        <label>El servicio seleccionado no permite Validación de Direcciones en Lote.</label>
+        <name>Addr_Verification_Batch_Not_Supported</name>
+    </customLabels>
+    <customLabels>
+        <label>SmartyStreets va a verificar direcciones en lotes de 100.</label>
+        <name>Addr_Verification_Batch_SmartyStreets_Message</name>
+    </customLabels>
+    <customLabels>
+        <label>Estado de la Verificación Masiva.</label>
+        <name>Addr_Verification_Batch_Status</name>
+    </customLabels>
+    <customLabels>
+        <label>Verificar masivamente direcciones existentes.</label>
+        <name>Addr_Verification_Batch_Title</name>
+    </customLabels>
+    <customLabels>
+        <label>Verificación requerida</label>
+        <name>Addr_Verification_Required</name>
+    </customLabels>
+    <customLabels>
+        <label>La clase de la Verificación de Direcciones no está definida en la configuración. No se puede realizar esta acción.</label>
+        <name>Addr_Verification_Undefined_Class</name>
+    </customLabels>
+    <customLabels>
+        <label>No existe una clase con el nombre especificado. No se puede realizar la verificación de direcciones.</label>
+        <name>Addr_Verification_Wrong_Class</name>
+    </customLabels>
+    <customLabels>
+        <label>La clase de la Verificación de direcciones no implementa la interface requerida. No se puede realizar la verificación.</label>
+        <name>Addr_Verification_Wrong_Interface</name>
+    </customLabels>
+    <customLabels>
+        <label>Verificado</label>
+        <name>Addr_Verified</name>
+    </customLabels>
+    <customLabels>
+        <label>Por favor ingrese la URL de punto final.</label>
+        <name>Addr_Verify_Endpoint</name>
+    </customLabels>
+    <customLabels>
+        <label>La Google Geocoding API requiere sólo un valor de token de autenticación. El mismo puede encontrarse en https://code.google.com/apis/console ingresando con su cuenta de Google. Hacer click en Services en el menú de la izquierda en la APIs Console, luego active el Geocoding API service. Una vez que el servicio haya sido activado, su llave de API estará disponible en la página API Access , en la sección Simple API Access. Más información sobre este servicio y qué provee en https://developers.google.com/maps/documentation/geocoding/.</label>
+        <name>Addr_Verify_Google_Help</name>
+    </customLabels>
+    <customLabels>
+        <label>Verifique que haya ingresado sus credenciales.</label>
+        <name>Addr_Verify_Settings</name>
+    </customLabels>
+    <customLabels>
+        <label>Verificando direcciones.</label>
+        <name>Addr_Verifying</name>
+    </customLabels>
+    <customLabels>
+        <label>Dirección no encontrada.</label>
+        <name>Address_Not_Found</name>
+    </customLabels>
+    <customLabels>
+        <label>{0}&apos; no está configurado como un País válido en su organización.</label>
+        <name>Address_StateCountry_Invalid_Error</name>
+    </customLabels>
+    <customLabels>
+        <label>No puede verificar más de 100 direcciones al mismo tiempo.</label>
+        <name>Address_Verification_Limit</name>
+    </customLabels>
+    <customLabels>
+        <label>Acepto el riesgo asociado al uso de esta herramienta, incluyendo la pérdida de datos y la inconsistencia de la misma.</label>
+        <name>CONV_Accept_Risk</name>
+    </customLabels>
+    <customLabels>
+        <label>Campo Cuenta</label>
+        <name>CONV_Account_Field</name>
+    </customLabels>
+    <customLabels>
+        <label>Campo Cuenta para antiguo Id de Familia.</label>
+        <name>CONV_Account_Field_For_Old_HH_ID</name>
+    </customLabels>
+    <customLabels>
+        <label>Las actividades asociadas con 1x1 o Cuentas individuales son transferidas a la nueva Cuenta Familia.</label>
+        <name>CONV_Activities_Reparented</name>
+    </customLabels>
+    <customLabels>
+        <label>La funcionalidad para sobrescribir las Dirección es configurada para cualquier Contacto cuya dirección es diferente a la dirección de la Cuenta Familia.</label>
+        <name>CONV_Address_Overrides_Set</name>
+    </customLabels>
+    <customLabels>
+        <label>Direcciones mapeadas de Cuentas Familia existentes y Contactos a los nuevos objetos de Direcciones, luego adjuntadas al Contacto y Cuenta Familia.</label>
+        <name>CONV_Addresses_Mapped</name>
+    </customLabels>
+    <customLabels>
+        <label>Mi información fue respaldada yendo a Configuración, Gestión de Datos, Exportación de Datos.</label>
+        <name>CONV_All_Backed_Up</name>
+    </customLabels>
+    <customLabels>
+        <label>Todas las Cuentas Familia existentes son seleccionadas junto con sus Contactos.</label>
+        <name>CONV_All_Households_Selected</name>
+    </customLabels>
+    <customLabels>
+        <label>Todas las restricciones de los campos obligatorias fueron eliminadas.</label>
+        <name>CONV_All_Required_Removed</name>
+    </customLabels>
+    <customLabels>
+        <label>Todos los triggers del NPSP fueron desactivados. (Sus triggers personalizados no fueron desactivados. Por seguridad, debe desactivarlos)</label>
+        <name>CONV_All_Triggers_Disabled</name>
+    </customLabels>
+    <customLabels>
+        <label>Todos los usuarios han finalizado la sesión en mi instancia de Salesforce.</label>
+        <name>CONV_All_Users_Logged_Out</name>
+    </customLabels>
+    <customLabels>
+        <label>Todas las reglas de flujo de trabajo y reglas de validación personalizadas han sido desactivadas.</label>
+        <name>CONV_All_WFR_Disabled</name>
+    </customLabels>
+    <customLabels>
+        <label>Esta herramienta va a procesar sus contactos existentes en lotes de 200 Cuentas Familia por vez, intentando convertir las mismas en Cuentas Familia. Cualquier error que ocurra durante la conversión resultará en uno o más lotes de contactos con errores, mientras que otros lotes tendrán éxito. Esto puede provocar inconsistencia en su información. Si esto ocurre, deberá resolver inmediatamente el problema y realizar otra vez el proceso. Las siguientes acciones serán llevadas a cabo por el trabajo de lote asociado a esta herramienta:</label>
+        <name>CONV_Batching_Explanation</name>
+    </customLabels>
+    <customLabels>
+        <label>Empezar proceso de conversión.</label>
+        <name>CONV_Begin</name>
+    </customLabels>
+    <customLabels>
+        <label>Cancelar</label>
+        <name>CONV_Cancel</name>
+    </customLabels>
+    <customLabels>
+        <label>Opciones de configuración</label>
+        <name>CONV_Configuration_Options</name>
+    </customLabels>
+    <customLabels>
+        <label>Los contactos fueron desconectados de su Cuenta Individual o su Cuenta 1x1 y han sido adjuntados a las nuevas Cuentas Familia.</label>
+        <name>CONV_Contacts_Attached</name>
+    </customLabels>
+    <customLabels>
+        <label>Conversión del Modelo de Cuentas en proceso.</label>
+        <name>CONV_Conversion_Process</name>
+    </customLabels>
+    <customLabels>
+        <label>Está por realizar cambios fundamentales en su información y en su modelo de datos. Los reportes, paneles, y más podrían necesitar ser modificados. Salesforce.com and Salesforce.org no se responsabilizan por la pérdida de información o la pérdida de la integridad de la misma. ¿Está seguro que quiere proceder?</label>
+        <name>CONV_Fundamental_Changes</name>
+    </customLabels>
+    <customLabels>
+        <label>Información Importante.</label>
+        <name>CONV_Important_Info_Header</name>
+    </customLabels>
+    <customLabels>
+        <label>He consultado con mi experto local de Salesforce.</label>
+        <name>CONV_Local_Expert</name>
+    </customLabels>
+    <customLabels>
+        <label>Dirección de familia establecida o definida si no existe ninguna basada en la frecuencia de dirección y los contactos dados</label>
+        <name>CONV_Master_Address_Set</name>
+    </customLabels>
+    <customLabels>
+        <label>Las asociaciones de las cuentas no 1x1 han sido removida, nuevas afiliaciones fueron creadas, y el campo Afiliación del Contacto Principal ha sido configurado</label>
+        <name>CONV_New_Affiliations</name>
+    </customLabels>
+    <customLabels>
+        <label>Nuevas Cuentas Familia han sido creadas para cada Familia existente.</label>
+        <name>CONV_New_Households_Created</name>
+    </customLabels>
+    <customLabels>
+        <label>Todas las aplicaciones del NPSP han sido desinstaladas o desactivadas momentáneamente.</label>
+        <name>CONV_Non_NPSP_Apps</name>
+    </customLabels>
+    <customLabels>
+        <label>Los objetos de Cuentas Familia anteriores todavía se encuentran y deben ser borrados manualmente luego de verificados los resultados del proceso de conversión.</label>
+        <name>CONV_Old_Household_Objects</name>
+    </customLabels>
+    <customLabels>
+        <label>Tengo conocimiento de que esta herramienta funcionará únicamente para contactos que actualmente tienen una Familia asociada.</label>
+        <name>CONV_Only_Household_Contacts</name>
+    </customLabels>
+    <customLabels>
+        <label>Las oportunidades fueron movida de las cuentas 1x1 o de las cuentas individuales y adjuntadas a la nuevas Cuentas Familia y Contactos.</label>
+        <name>CONV_Opportunities_Reparented</name>
+    </customLabels>
+    <customLabels>
+        <label>Se puede seleccionar opcionalmente un campo personalizado en su nueva Cuenta Familia para almacenar el ID del objeto Familia  original. Esto puede ser útil para más futura reparentalización de cualquier objeto relacionado originalmente a Familia a la nueva Cuenta Familia. Sólo los campos personalizados no utilizados que contienen texto son elegibles para ser seleccionados.</label>
+        <name>CONV_Original_HH_Id</name>
+    </customLabels>
+    <customLabels>
+        <label>Esta página está diseñada para ayudarle a convertir su organización desde un modelo de cuenta Uno-a-Uno o cuenta individual al nuevo modelo de Cuenta Familia.</label>
+        <name>CONV_Page_Description</name>
+    </customLabels>
+    <customLabels>
+        <label>Conversión del modelo de cuenta</label>
+        <name>CONV_Page_Title</name>
+    </customLabels>
+    <customLabels>
+        <label>Esto es un cambio permanente. Por favor, consultar con un experto local antes de continuar. Mientras que esta conversión se completa, la funcionalidad de su base de datos será temporalmente deshabilitada para evitar que accidentalmente se modifique información existente. Salesforce.com y Salesforce.org no son responsables de la perdida de datos, modificaciones, o corrupción que ocurre como resultado de esta operación. Por favor, continuar a SU PROPIO RIESGO. Antes de empezar este proceso, usted deberá confirmar que completó los siguientes pasos:</label>
+        <name>CONV_Permanent_Change</name>
+    </customLabels>
+    <customLabels>
+        <label>Los valores del Contacto Principal se establecieron para todas las Familias</label>
+        <name>CONV_Primary_Contacts_Set</name>
+    </customLabels>
+    <customLabels>
+        <label>Proceder con la conversión</label>
+        <name>CONV_Proceed</name>
+    </customLabels>
+    <customLabels>
+        <label>Todas las propiedades de registros han sido transferidas de cualquier usuario inactivo.</label>
+        <name>CONV_Record_Ownership_Transferred</name>
+    </customLabels>
+    <customLabels>
+        <label>Volver a cargar el convertidor</label>
+        <name>CONV_Reload</name>
+    </customLabels>
+    <customLabels>
+        <label>El campo seleccionado no es capaz de guardar la información de ID de Familia según es necesario. Por favor, seleccione un campo de cuenta diferente.</label>
+        <name>CONV_Selected_Field_Bad</name>
+    </customLabels>
+    <customLabels>
+        <label>Se produjo un error en el intento de verificar la validez del campo de cuenta seleccionado. El campo seleccionado no pudo ser verificada con precisión. Sin esta verificación, no se puede determinar si su asignación de campos, y por lo tanto su conversión será exitosa. Puede proceder a su propio riesgo, o puede seleccionar un campo diferente para mantener el ID de Familias</label>
+        <name>CONV_Selected_Field_Verification_Failure</name>
+    </customLabels>
+    <customLabels>
+        <label>El proceso de conversión ha sido testeado en un sandbox nuevo</label>
+        <name>CONV_Tested_in_Sandbox</name>
+    </customLabels>
+    <customLabels>
+        <label>Todos los desencadenadores del NPSP se vuelven a habilitar (Tendrá que volver a habilitar manualmente los desencadenadores personalizados que haya deshabilitado para la conversión. Además, la utilidad vuelve a habilitar &lt;b&gt; todos &lt;/ b&gt; los desencadenadores del NPSP, por lo que si usted ha desactivado selectivamente cualquier de ellos de antemano, tendrá que desactivarlos manualmente nuevamente)</label>
+        <name>CONV_Triggers_Reenabled</name>
+    </customLabels>
+    <customLabels>
+        <label>¡Advertencia!</label>
+        <name>CONV_Warning</name>
+    </customLabels>
+    <customLabels>
+        <label>Lo que hace esta herramienta</label>
+        <name>CONV_What_This_Tool_Does</name>
+    </customLabels>
+    <customLabels>
+        <label>omitir</label>
+        <name>CampaignMemberStatusOmit</name>
+    </customLabels>
+    <customLabels>
+        <label>Oculto por seguridad</label>
+        <name>HiddenForSecurity</name>
+    </customLabels>
+    <customLabels>
+        <label>Exitoso</label>
+        <name>PageMessagesConfirm</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Error --></label>
+        <name>PageMessagesError</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Fatal --></label>
+        <name>PageMessagesFatal</name>
+    </customLabels>
+    <customLabels>
+        <label>Advertencia</label>
+        <name>PageMessagesWarning</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear nueva relación</label>
+        <name>REL_Create_New_Relationship</name>
+    </customLabels>
+    <customLabels>
+        <label>Antiguo</label>
+        <name>REL_Former</name>
+    </customLabels>
+    <customLabels>
+        <label>No existen relaciones para este contacto.</label>
+        <name>REL_No_Relationships</name>
+    </customLabels>
+    <customLabels>
+        <label>Volver a centrar en este contacto</label>
+        <name>REL_RECenter</name>
+    </customLabels>
+    <customLabels>
+        <label>Volver al contacto</label>
+        <name>REL_Return_to_Contact</name>
+    </customLabels>
+    <customLabels>
+        <label>Ver registro del contacto</label>
+        <name>REL_View_Contact_Record</name>
+    </customLabels>
+    <customLabels>
+        <label>Las donaciones recurrentes sólo pueden tener una organización o contacto especificado, pero no ambos.</label>
+        <name>RecurringDonationAccountAndContactError</name>
+    </customLabels>
+    <customLabels>
+        <label>Guardado.</label>
+        <name>Saved</name>
+    </customLabels>
+    <customLabels>
+        <label>No se guardaron los cambios</label>
+        <name>Settings_not_Saved</name>
+    </customLabels>
+    <customLabels>
+        <label>Asegurarse de haber completado el Auth ID y el Auth Token provisto a usted por SmartyStreets. Los encontrará en su página SmartyStreets API Keys.</label>
+        <name>SmartyStreets_Help_Text</name>
+    </customLabels>
+    <customLabels>
+        <label>Código postal no encontrado</label>
+        <name>Zip_Not_Found</name>
+    </customLabels>
+    <customLabels>
+        <label>No se pueden verificar más de 100 códigos postales a la vez</label>
+        <name>Zipcode_Verification_Limit</name>
+    </customLabels>
+    <customLabels>
+        <label>La Cicero API key debe ser especificada en el Auth Token en la configuración de la Verificación de Direcciones.</label>
+        <name>addrCiceroMissingAPIKey</name>
+    </customLabels>
+    <customLabels>
+        <label>Este botón solo acepta Contactos con el objeto Familia, Cuentas Familia.</label>
+        <name>addrCopyConAddBtnHHObjOnly</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración General de Direcciones</label>
+        <name>addrGeneralSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>Los objetos de Dirección solo son admitidos en Cuentas Familia y Cuentas Organización. (si está activada)</label>
+        <name>addrHHAccountOnly</name>
+    </customLabels>
+    <customLabels>
+        <label>La dirección de la Familia se copiará en todos los contactos que no tengan Sobrescribir dirección.</label>
+        <name>addrHHAddressAlwaysDefault</name>
+    </customLabels>
+    <customLabels>
+        <label>La dirección de temporada no puede superponerse con otras direcciones de temporada de la familia.</label>
+        <name>addrSeasonalOverlap</name>
+    </customLabels>
+    <customLabels>
+        <label>Una dirección debe tener todos o ninguno de los campos de temporada completos.</label>
+        <name>addrSeasonalPartial</name>
+    </customLabels>
+    <customLabels>
+        <label>Agregar fila</label>
+        <name>alloAddRow</name>
+    </customLabels>
+    <customLabels>
+        <label>Agregar fila en posición.</label>
+        <name>alloAddRowAtPosition</name>
+    </customLabels>
+    <customLabels>
+        <label>Cada asignación tiene que tener un monto o porcentaje asignado.</label>
+        <name>alloAmountOrPercent</name>
+    </customLabels>
+    <customLabels>
+        <label>Lote crea asignaciones predeterminadas.</label>
+        <name>alloBatchCreateDefault</name>
+    </customLabels>
+    <customLabels>
+        <label>Haciendo clic en este botón se comienza el proceso en lote para crear asignaciones para todas las oportunidades existentes, excepto las oportunidades excluidas en la Configuración de Resumen de las asignaciones. Las asignaciones predeterminadas tienen que estar activas y tiene que haber una Cuenta Contable General seleccionada para ejecutar esta herramientas. Solo necesita ejecutar esta herramienta una vez después de haber activado asignaciones por defecto, ya que las nuevas oportunidades recibirán una asignación por defecto una vez activada.</label>
+        <name>alloBatchDefaultInfo</name>
+    </customLabels>
+    <customLabels>
+        <label>Cancelar</label>
+        <name>alloBtnCancel</name>
+    </customLabels>
+    <customLabels>
+        <label>Guardar y Cerrar.</label>
+        <name>alloBtnSaveAndClose</name>
+    </customLabels>
+    <customLabels>
+        <label>Solo puede crear asignaciones para oportunidades con un monto positivo.</label>
+        <name>alloCantAllocateNothing</name>
+    </customLabels>
+    <customLabels>
+        <label>Se ha habilitado Asignaciones por defecto. Se debe seleccionar una Cuenta Contable General por defecto.</label>
+        <name>alloDefaultGAUMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>La asignación predeterminada no puede ser un porcentaje.</label>
+        <name>alloDefaultNotPercent</name>
+    </customLabels>
+    <customLabels>
+        <label>Borrar Fila</label>
+        <name>alloDeleteRow</name>
+    </customLabels>
+    <customLabels>
+        <label>Debe actualizar sus asignaciones para poder reducir el monto de una oportunidad. las asignaciones para esta oportunidad son mayores que el monto de la oportunidad.</label>
+        <name>alloExceedsOppAmount</name>
+    </customLabels>
+    <customLabels>
+        <label>Gestionar asignaciones de campañas</label>
+        <name>alloManageCampaignAllocations</name>
+    </customLabels>
+    <customLabels>
+        <label>Gestionar asignaciones de oportunidades</label>
+        <name>alloManageOppAllocations</name>
+    </customLabels>
+    <customLabels>
+        <label>Gestionar asignaciones de donaciones recurrentes</label>
+        <name>alloManageRecurringDonationAllocations</name>
+    </customLabels>
+    <customLabels>
+        <label>No puede modificar directamente la moneda de las asignaciones. La moneda de la asignación se actualiza cuando la oportunidad, campaña o donación recurrente principal se modifica.</label>
+        <name>alloModifyCurrency</name>
+    </customLabels>
+    <customLabels>
+        <label>Las asignaciones no pueden tener un monto negativo.</label>
+        <name>alloNegativeAmount</name>
+    </customLabels>
+    <customLabels>
+        <label>Las asignaciones no pueden tener un porcentaje negativo.</label>
+        <name>alloNegativePercent</name>
+    </customLabels>
+    <customLabels>
+        <label>Las asignaciones basadas en porcentaje no pueden exceder el 100%.</label>
+        <name>alloPercentExceed100</name>
+    </customLabels>
+    <customLabels>
+        <label>Recordatorio:</label>
+        <name>alloRemainder</name>
+    </customLabels>
+    <customLabels>
+        <label>Cada asignación debe tener un solo objeto principal. Oportunidad, Donación Recurrente o Campaña.</label>
+        <name>alloSingleParent</name>
+    </customLabels>
+    <customLabels>
+        <label>Las asignaciones de la Oportunidad no pueden exceder el monto de la oportunidad.</label>
+        <name>alloTotalExceedsOppAmt</name>
+    </customLabels>
+    <customLabels>
+        <label>Totales:</label>
+        <name>alloTotals</name>
+    </customLabels>
+    <customLabels>
+        <label>El campo ID Único Customizado de la Cuenta {0} debe tener campos coincidentes en el NPSP Data Import object cuyos nombres de API son {1} y {2}.</label>
+        <name>bdiAccountCustomIdError</name>
+    </customLabels>
+    <customLabels>
+        <label>Ocurrió un error durante el proceso. El siguiente estado fue el primer error reportado:</label>
+        <name>bdiBatchException</name>
+    </customLabels>
+    <customLabels>
+        <label>Cerrar</label>
+        <name>bdiBtnClose</name>
+    </customLabels>
+    <customLabels>
+        <label>#NOM?</label>
+        <name>bdiComplete</name>
+    </customLabels>
+    <customLabels>
+        <label>#NOM?</label>
+        <name>bdiCompleteWithErrors</name>
+    </customLabels>
+    <customLabels>
+        <label>Importador de información</label>
+        <name>bdiContactCustomIdError</name>
+    </customLabels>
+    <customLabels>
+        <label>Sólo Correo Electrónico</label>
+        <name>bdiContactMatchEmail</name>
+    </customLabels>
+    <customLabels>
+        <label>Nombre y Correo Electrónico</label>
+        <name>bdiContactMatchFnameEmail</name>
+    </customLabels>
+    <customLabels>
+        <label>Nombre y Apellido</label>
+        <name>bdiContactMatchFnameLname</name>
+    </customLabels>
+    <customLabels>
+        <label>Nombre, Apellido y Correo Electrónico</label>
+        <name>bdiContactMatchFnameLnameEmail</name>
+    </customLabels>
+    <customLabels>
+        <label>Apellido y Correo Electrónico</label>
+        <name>bdiContactMatchLnameEmail</name>
+    </customLabels>
+    <customLabels>
+        <label>Creado</label>
+        <name>bdiCreated</name>
+    </customLabels>
+    <customLabels>
+        <label>Opciones de Configuración.</label>
+        <name>bdiDataImporterConfigTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>El NPSP Data Importer lo ayuda a importar fácilmente su información en el NPSP.</label>
+        <name>bdiDataImporterDescription</name>
+    </customLabels>
+    <customLabels>
+        <label>Cada registro importado contiene hasta 2 contactos, 2 organizaciones, una Dirección de Casa opcional y una donación opcional.</label>
+        <name>bdiDataImporterInfoLine1</name>
+    </customLabels>
+    <customLabels>
+        <label>En lugar de crear registros duplicados, Salesforce va a intentar hacer coincidir Contactos y Organizaciones existentes y actualizar su información.</label>
+        <name>bdiDataImporterInfoLine2</name>
+    </customLabels>
+    <customLabels>
+        <label>Con el fin de evitar alcanzar los límites de servicio, el NPSP Data Importer no verifica direcciones a través del servicio de verificación que haya especificado en la Configuración del NPSP.</label>
+        <name>bdiDataImporterInfoLine2b</name>
+    </customLabels>
+    <customLabels>
+        <label>Salesforce va a hacer seguimiento de lo problemas de importación en cada registro importado. Después de resolver los problemas, puede volver a importar los registros que hayan tenido errores sin tener que preocuparse de crear duplicados.</label>
+        <name>bdiDataImporterInfoLine3</name>
+    </customLabels>
+    <customLabels>
+        <label>La carga de la información puede no empezar inmediatamente. Depende de la actividad actual de Salesforce.</label>
+        <name>bdiDataImporterInfoLine4</name>
+    </customLabels>
+    <customLabels>
+        <label>Información Importante</label>
+        <name>bdiDataImporterInfoTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Cantidad de registros a procesar</label>
+        <name>bdiDataImporterNumToProcess</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- bdiDataImporterTitle --></label>
+        <name>bdiDataImporterTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Donación</label>
+        <name>bdiDonation</name>
+    </customLabels>
+    <customLabels>
+        <label>Nombre de Campaña de Donación inválida.</label>
+        <name>bdiErrorInvalidCampaignName</name>
+    </customLabels>
+    <customLabels>
+        <label>Donante inválido.</label>
+        <name>bdiErrorInvalidDonor</name>
+    </customLabels>
+    <customLabels>
+        <label>Debe especificarse el Apellido.</label>
+        <name>bdiErrorInvalidLastname</name>
+    </customLabels>
+    <customLabels>
+        <label>Tipo de Registro de Donación inválido.</label>
+        <name>bdiErrorInvalidOppRTName</name>
+    </customLabels>
+    <customLabels>
+        <label>Se combinó un contacto existente de una Cuenta Familia, el cual no está permitido.</label>
+        <name>bdiErrorNonHHAccountContact</name>
+    </customLabels>
+    <customLabels>
+        <label>Ha fallado.</label>
+        <name>bdiFailed</name>
+    </customLabels>
+    <customLabels>
+        <label>El NPSP Data Importer solo funciona con el modelo de Cuentas Familia.</label>
+        <name>bdiHouseholdModelRequired</name>
+    </customLabels>
+    <customLabels>
+        <label>Ignorado.</label>
+        <name>bdiIgnored</name>
+    </customLabels>
+    <customLabels>
+        <label>Importado</label>
+        <name>bdiImported</name>
+    </customLabels>
+    <customLabels>
+        <label>Combinado.</label>
+        <name>bdiMatched</name>
+    </customLabels>
+    <customLabels>
+        <label>Registros con error:</label>
+        <name>bdiRecordsFailed</name>
+    </customLabels>
+    <customLabels>
+        <label>Registros importados:</label>
+        <name>bdiRecordsImported</name>
+    </customLabels>
+    <customLabels>
+        <label>Registros procesados:</label>
+        <name>bdiRecordsProcessed</name>
+    </customLabels>
+    <customLabels>
+        <label>Empezar proceso de importación</label>
+        <name>bdiRunBtn</name>
+    </customLabels>
+    <customLabels>
+        <label>Estado Actual</label>
+        <name>bdiStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>procesados {0} de {1} de lotes totales.</label>
+        <name>bdiStatusProcessed</name>
+    </customLabels>
+    <customLabels>
+        <label>está procesando el lote {0} de{1} lotes totales.</label>
+        <name>bdiStatusProcessing</name>
+    </customLabels>
+    <customLabels>
+        <label>Tiempo:</label>
+        <name>bdiTime</name>
+    </customLabels>
+    <customLabels>
+        <label>EstadoDelMiembroDeCampañaPredeterminado:</label>
+        <name>campaignMemberStatusDefault</name>
+    </customLabels>
+    <customLabels>
+        <label>EstadoDelMiembroDeCampañaNoRespondido</label>
+        <name>campaignMemberStatusNonResponded</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- campaignMemberStatusResponded --></label>
+        <name>campaignMemberStatusResponded</name>
+    </customLabels>
+    <customLabels>
+        <label>Las Cuentas Personales no son admitidas.</label>
+        <name>conMergeErrNoPersonAccounts</name>
+    </customLabels>
+    <customLabels>
+        <label>Usted no tiene permisos para modificar {0}.</label>
+        <name>flsError</name>
+    </customLabels>
+    <customLabels>
+        <label>Correr Control de salud</label>
+        <name>healthButtonRun</name>
+    </customLabels>
+    <customLabels>
+        <label>Hay {0} Cuentas Uno-a-Uno que no tienen Contactos.</label>
+        <name>healthDetailsAccOne2OneNoContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>No hay un modelo de cuenta válido especificado.</label>
+        <name>healthDetailsAccountModel</name>
+    </customLabels>
+    <customLabels>
+        <label>El modelo de cuenta esta establecido a {0}, pero hay una mezcla de tipos de cuentas siendo utilizados.</label>
+        <name>healthDetailsAccountProcessor</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} registros de cuenta usando el {1} tipo de registro no tienen su campo de System correctamente establecido.</label>
+        <name>healthDetailsAccountRTIssue</name>
+    </customLabels>
+    <customLabels>
+        <label>Tipo de campaña debe estar especificado para Auto creación de relaciones desde miembros de campaña.</label>
+        <name>healthDetailsAutoRelCampaignTypeMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>Auto creación de relaciones requiere un objeto válido, un campo válido y un tipo de relación especificado.</label>
+        <name>healthDetailsAutoRelFieldsMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>El campo {0} no es un campo de búsqueda.</label>
+        <name>healthDetailsAutoRelInvalidLookupField</name>
+    </customLabels>
+    <customLabels>
+        <label>El campo {0} en donaciones recurrentes no existe.</label>
+        <name>healthDetailsBadRDField</name>
+    </customLabels>
+    <customLabels>
+        <label>Reporte inválido {0} especificado.</label>
+        <name>healthDetailsBadReportId</name>
+    </customLabels>
+    <customLabels>
+        <label>Hay {0} Contactos que no tienen Cuenta. Estos contactos serán privados para el usuario que los creo.</label>
+        <name>healthDetailsContactData</name>
+    </customLabels>
+    <customLabels>
+        <label>No se puede especificar el mismo tipo de registro de Cuenta para el tipo de registro Cuenta Familia y para el Tipo de registro Uno-a-Uno.</label>
+        <name>healthDetailsDuplicateAcctRT</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- The details displayed when the duplicate contact roles health check fails --></label>
+        <name>healthDetailsDuplicateContactRoles</name>
+    </customLabels>
+    <customLabels>
+        <label>El campo de género {0} no existe en el Contacto.</label>
+        <name>healthDetailsGenderField</name>
+    </customLabels>
+    <customLabels>
+        <label>Cuando se utiliza el modelo de cuenta Familia, las reglas de Familia deben ser No contactos.</label>
+        <name>healthDetailsHHAccountModel</name>
+    </customLabels>
+    <customLabels>
+        <label>Hay {0} Cuentas Familias que no tienen Contactos.</label>
+        <name>healthDetailsHHActNoContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>Hay {0} registros en el objeto Familias que no tienen Contactos.</label>
+        <name>healthDetailsHHObNoContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>El campo {0} en Miembro de Campaña no existe.</label>
+        <name>healthDetailsInvalidCMField</name>
+    </customLabels>
+    <customLabels>
+        <label>El campo {0} en Contacto no existe.</label>
+        <name>healthDetailsInvalidContactField</name>
+    </customLabels>
+    <customLabels>
+        <label>Grupo de Chatter inválido {0}.</label>
+        <name>healthDetailsInvalidErrorChatterGroup</name>
+    </customLabels>
+    <customLabels>
+        <label>Error receptor de notificación inválido</label>
+        <name>healthDetailsInvalidErrorRecipient</name>
+    </customLabels>
+    <customLabels>
+        <label>Usuario inválido {0}.</label>
+        <name>healthDetailsInvalidErrorUser</name>
+    </customLabels>
+    <customLabels>
+        <label>No se admiten Totales Año Fiscal cuando la organización esta utilizando Años fiscales personalizados.</label>
+        <name>healthDetailsInvalidFiscalYears</name>
+    </customLabels>
+    <customLabels>
+        <label>El campo {1} en {0} no existe.</label>
+        <name>healthDetailsInvalidObjectField</name>
+    </customLabels>
+    <customLabels>
+        <label>El campo {0} en Oportunidad no existe.</label>
+        <name>healthDetailsInvalidOppField</name>
+    </customLabels>
+    <customLabels>
+        <label>La etapa de oportunidad {0} no existe o esta inactiva</label>
+        <name>healthDetailsInvalidOppStage</name>
+    </customLabels>
+    <customLabels>
+        <label>El campo {0} en Pago no existe.</label>
+        <name>healthDetailsInvalidPaymentField</name>
+    </customLabels>
+    <customLabels>
+        <label>La frecuencia personalizada {0} no esta incluida en la lista de selección en el campo Frecuencia en Donaciones recurrentes.</label>
+        <name>healthDetailsInvalidRDCustomPeriod</name>
+    </customLabels>
+    <customLabels>
+        <label>El valor de la lista de selección {0} en el campo Frecuencia en Donaciones recurrentes no es una frecuencia personalizada válida.</label>
+        <name>healthDetailsInvalidRDCustomPeriodPIcklist</name>
+    </customLabels>
+    <customLabels>
+        <label>El Id del tipo de registro {0} no es válido.</label>
+        <name>healthDetailsInvalidRecordtypeId</name>
+    </customLabels>
+    <customLabels>
+        <label>El nombre del tipo de registro {0} no es válido.</label>
+        <name>healthDetailsInvalidRecordtypeName</name>
+    </customLabels>
+    <customLabels>
+        <label>El registro {0} en el objeto Schedulable__c no es válido.</label>
+        <name>healthDetailsInvalidScheduledJob</name>
+    </customLabels>
+    <customLabels>
+        <label>El informe NPSP_Campaign_Household_Mailing_List, que se utiliza para el botón Lista de correo de Familia, no se encuentra.</label>
+        <name>healthDetailsMailingListReportMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} Oportunidades que deberían tener Pagos, no los tienen.</label>
+        <name>healthDetailsMissingOppPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>La clase NPSP Global Scheduled no esta programada.</label>
+        <name>healthDetailsNothingScheduled</name>
+    </customLabels>
+    <customLabels>
+        <label>Se encontraron {0} oportunidades que tienen más de una Función de contacto seleccionada como Principal.</label>
+        <name>healthDetailsOCRDupPrimary</name>
+    </customLabels>
+    <customLabels>
+        <label>No se encontraron oportunidades con múltiples Funciones de contacto seleccionadas como Principal.</label>
+        <name>healthDetailsOCRDupPrimaryValid</name>
+    </customLabels>
+    <customLabels>
+        <label>El campo {0} en pagos y el campo {1} en oportunidades no son de tipos de datos compatibles.</label>
+        <name>healthDetailsPaymentMappingBadDataTypes</name>
+    </customLabels>
+    <customLabels>
+        <label>El campo {0} en donaciones recurrentes y el campo {1} en oportunidades no son de tipos de datos compatibles.</label>
+        <name>healthDetailsRDFieldsBadDatatypes</name>
+    </customLabels>
+    <customLabels>
+        <label>La relación recíproca {0} debería tener un valor en al menos uno de los campos para Masculino, Femenino o Neutral.</label>
+        <name>healthDetailsRelReciprocalInvalid</name>
+    </customLabels>
+    <customLabels>
+        <label>Incapaz de crear una nueva Cuenta.</label>
+        <name>healthDetailsSaveAcctFailed</name>
+    </customLabels>
+    <customLabels>
+        <label>Incapaz de crear una nueva Oportunidad.</label>
+        <name>healthDetailsSaveOppsFailed</name>
+    </customLabels>
+    <customLabels>
+        <label>Uno o más de los trabajos de totales de oportunidad, donación recurrente y dirección temporal faltan en el objeto Schedulable__c.</label>
+        <name>healthDetailsScheduleJobs</name>
+    </customLabels>
+    <customLabels>
+        <label>Trigger Handler {0} en el objeto {1} con los mismos campos esta repetido múltiples veces y afectará el comportamiento del NPSP.</label>
+        <name>healthDetailsTriggerHandlerDuplicate</name>
+    </customLabels>
+    <customLabels>
+        <label>Trigger Handler {0} en el objeto {1} no coincide con la configuración por defecto del NPSP.</label>
+        <name>healthDetailsTriggerHandlerMismatch</name>
+    </customLabels>
+    <customLabels>
+        <label>Trigger Handler {0} en el objeto {1} esta faltando y afectará el comportamiento del NPSP.</label>
+        <name>healthDetailsTriggerHandlerMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>El campo {0} de oportunidad y el campo {2} en {1} no son de tipos de datos compatibles.</label>
+        <name>healthDetailsUDFBadDatatypes</name>
+    </customLabels>
+    <customLabels>
+        <label>Las frecuencias personalizadas en Donaciones recurrentes son válidas.</label>
+        <name>healthDetailsValidRDCustomPeriod</name>
+    </customLabels>
+    <customLabels>
+        <label>Datos de cuenta</label>
+        <name>healthLabelAccountData</name>
+    </customLabels>
+    <customLabels>
+        <label>Datos del modelo de cuenta</label>
+        <name>healthLabelAccountModelData</name>
+    </customLabels>
+    <customLabels>
+        <label>Los campos de System para todas las Cuentas Familias y Cuentas Uno-a-Uno están establecidos correctamente.</label>
+        <name>healthLabelAccountRTIssueValid</name>
+    </customLabels>
+    <customLabels>
+        <label>Todos los test del Control de salud han pasado exitosamente.</label>
+        <name>healthLabelAllTestsPassed</name>
+    </customLabels>
+    <customLabels>
+        <label>Relaciones automáticas válido.</label>
+        <name>healthLabelAutoRelValid</name>
+    </customLabels>
+    <customLabels>
+        <label>Datos del contacto</label>
+        <name>healthLabelContactData</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Label for Duplicate Contact Role health check --></label>
+        <name>healthLabelDuplicateContactRoles</name>
+    </customLabels>
+    <customLabels>
+        <label>Receptor de notificaciones de errores válido.</label>
+        <name>healthLabelErrorRecipientValid</name>
+    </customLabels>
+    <customLabels>
+        <label>Ha fallado</label>
+        <name>healthLabelFailed</name>
+    </customLabels>
+    <customLabels>
+        <label>Años fiscales personalizados no están siendo utilizados.</label>
+        <name>healthLabelFiscalYearsValid</name>
+    </customLabels>
+    <customLabels>
+        <label>Datos de cuenta familia</label>
+        <name>healthLabelHHAccData</name>
+    </customLabels>
+    <customLabels>
+        <label>Datos de familia</label>
+        <name>healthLabelHHData</name>
+    </customLabels>
+    <customLabels>
+        <label>Datos del objeto familias</label>
+        <name>healthLabelHHObjData</name>
+    </customLabels>
+    <customLabels>
+        <label>El Control de salud verificará que todas sus configuraciones sean válidas y buscará problemas en los datos de su cuenta.</label>
+        <name>healthLabelIntro</name>
+    </customLabels>
+    <customLabels>
+        <label>Corrió por última vez: {0}</label>
+        <name>healthLabelLastRun</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- The message displayed when the duplicate contact roles health check passes --></label>
+        <name>healthLabelNoDuplicateContactRoles</name>
+    </customLabels>
+    <customLabels>
+        <label>Todas las Oportunidades con Pagos tienen los Pagos esperados.</label>
+        <name>healthLabelNoMissingOppPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>(ninguno)</label>
+        <name>healthLabelNone</name>
+    </customLabels>
+    <customLabels>
+        <label>Funciones del contacto en Oportunidad</label>
+        <name>healthLabelOCRCheck</name>
+    </customLabels>
+    <customLabels>
+        <label>Pagos en Oportunidad</label>
+        <name>healthLabelOppPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>Aprobado</label>
+        <name>healthLabelPassed</name>
+    </customLabels>
+    <customLabels>
+        <label>Mapeo de pagos válido.</label>
+        <name>healthLabelPaymentMappingsValid</name>
+    </customLabels>
+    <customLabels>
+        <label>Nuevas oportunidades pueden ser guardadas.</label>
+        <name>healthLabelRDOppsValid</name>
+    </customLabels>
+    <customLabels>
+        <label>Mapeo de campos de Donaciones recurrentes válido.</label>
+        <name>healthLabelRDValid</name>
+    </customLabels>
+    <customLabels>
+        <label>Relación recíproca válido.</label>
+        <name>healthLabelRelReciprocalValid</name>
+    </customLabels>
+    <customLabels>
+        <label>Programador global NPSP</label>
+        <name>healthLabelScheduler</name>
+    </customLabels>
+    <customLabels>
+        <label>Trabajo programado del Programador global NPSP</label>
+        <name>healthLabelSchedulerValid</name>
+    </customLabels>
+    <customLabels>
+        <label>Mostrar pruebas aprobadas</label>
+        <name>healthLabelShowPassedTests</name>
+    </customLabels>
+    <customLabels>
+        <label>Tipo de detección en segundos: {0}</label>
+        <name>healthLabelTime</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración de triggers</label>
+        <name>healthLabelTriggerHandlerCheck</name>
+    </customLabels>
+    <customLabels>
+        <label>Triggers son configurados para los triggers por defecto del NPSP</label>
+        <name>healthLabelTriggerHandlersValid</name>
+    </customLabels>
+    <customLabels>
+        <label>Totales definidos por el usuario válidos.</label>
+        <name>healthLabelUDFValid</name>
+    </customLabels>
+    <customLabels>
+        <label>Advertencia</label>
+        <name>healthLabelWarning</name>
+    </customLabels>
+    <customLabels>
+        <label>La etapa de oportundad a la que se debe pasar cuando todos los pagos estan pagados debe ser una etapa cerrada/ganada activa.</label>
+        <name>healthPaymentAutoCloseStageInvalid</name>
+    </customLabels>
+    <customLabels>
+        <label>O bien no seleccione una etapa de oportunidad (por lo tanto se deshabilitar la funcionalidad) o actualize la configuración para utilizar una etapa de oportunidad Cerrada/Ganada activa.</label>
+        <name>healthPaymentAutoCloseStageMustBeActiveClosedWonOrBlank</name>
+    </customLabels>
+    <customLabels>
+        <label>O bien ninguna etapa de oportunidad fue seleccionada para pasar cuando todos los pagos se reciben, o la etapa seleccionada es una etapa Cerrada/Ganada activa.</label>
+        <name>healthPaymentAutoCloseStageValid</name>
+    </customLabels>
+    <customLabels>
+        <label>Considerar borrar estas cuentas Uno-a-Uno no utilizadas para ahorrar espacio.</label>
+        <name>healthSolutionAccOne2OneNoContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>Todos los Contactos individuales deberían usar el mismo modelo de cuenta. Mire estos contactos en el reporte &lt;b&gt;Individual Contacts by Account Type&lt;/b&gt; en la carpeta de informes NPSP Health Check.</label>
+        <name>healthSolutionAccountModel</name>
+    </customLabels>
+    <customLabels>
+        <label>Para Cuenta Familias, asegúrese que npe01__SYSTEM_AccountType__c es &apos;Household Account&apos; (Cuenta Familia). Para Cuentas Uno-a-Uno, asegúrese que npe01__SYSTEM_AccountType__c es &apos;One-to-One Individual&apos; (Uno-a-Uno Individual). Para ambos asegurarse que  npe01__SYSTEMISINDIVIDUAL__c es verdadero.</label>
+        <name>healthSolutionAccountRTIssue</name>
+    </customLabels>
+    <customLabels>
+        <label>En la pestaña Configuración del NPSP, haga clic en {0} | {1}, y elimine el registro inválido Auto creación de relaciones.</label>
+        <name>healthSolutionAutoRelFieldsMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>En la pestaña Configuración del NPSP, haga clic en {0} | {1}, y agregue el campo de Miembro de campaña que falta, o elimine el registro de Auto creación de relaciones.</label>
+        <name>healthSolutionAutoRelInvalidCMField</name>
+    </customLabels>
+    <customLabels>
+        <label>En la pestaña Configuración del NPSP, haga clic en {0} | {1}, y agregue el campo de Contacto que falta, o elimine el registro de Auto creación de relaciones.</label>
+        <name>healthSolutionAutoRelInvalidContactField</name>
+    </customLabels>
+    <customLabels>
+        <label>En la pestaña Configuración del NPSP, haga clic en {0} | {1}, y elimine el registro de Auto creación de relaciones.</label>
+        <name>healthSolutionAutoRelInvalidLookupField</name>
+    </customLabels>
+    <customLabels>
+        <label>En la pestaña Configuración del NPSP, haga clic en {0} | {1}, y agregue el campo de donación recurrente que falta, o elimine el registro de  mapeo de campo de donación recurrente.</label>
+        <name>healthSolutionBadRDField</name>
+    </customLabels>
+    <customLabels>
+        <label>Vea estos contactos en el informe &lt;b&gt;Contacts without Accounts&lt;/b&gt; en la carpeta de informes NPSP Health Check.</label>
+        <name>healthSolutionContactData</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- The recommended solution for when the duplicate contact roles health check fails --></label>
+        <name>healthSolutionDuplicateContactRoles</name>
+    </customLabels>
+    <customLabels>
+        <label>En la pestaña Configuración del NPSP, haga clic en {0} | {1}, y elimine el registro inválido Auto creación de relaciones.</label>
+        <name>healthSolutionEditSetting</name>
+    </customLabels>
+    <customLabels>
+        <label>Considere eliminar estas Cuentas Familias no utilizadas para ahorrar espacio. Vea estas Cuentas Familias en el informe  &lt;b&gt;Empty Household Accounts&lt;/b&gt; en la carpeta de informes NPSP Health Check</label>
+        <name>healthSolutionHHAccNoContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>Considere eliminar estos registros no utilizados en el objeto Familias para ahorrar espacio. Si ha completado una conversión a el modelo de cuenta Cuenta Familia y no necesita más la información en los registros del objeto Familia, los registros pueden eliminarse. Vea estos registros del objeto Familias en el informe &lt;b&gt;Empty Household Objects&lt;/b&gt; en la carpeta de informes NPSP Health Check</label>
+        <name>healthSolutionHHObjNoContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>Como Salesforce no permite desactivar Años fiscales personalizados, los totales del NPSP utilizarán por defecto el año calendario.</label>
+        <name>healthSolutionInvalidFiscalYears</name>
+    </customLabels>
+    <customLabels>
+        <label>En la pestaña Configuración del NPSP, haga clic en {0} | {1}, y agregue el campo de oportunidad que falta, o elimine el registro de mapeo de pagos.</label>
+        <name>healthSolutionInvalidOppField</name>
+    </customLabels>
+    <customLabels>
+        <label>Agregue esta etapa de oportunidad en Configuración</label>
+        <name>healthSolutionInvalidOppStage</name>
+    </customLabels>
+    <customLabels>
+        <label>En la pestaña Configuración del NPSP, haga clic en {0} | {1}, y agregue el campo de pago que falta, o elimine el registro de mapeo de pagos.</label>
+        <name>healthSolutionInvalidPaymentField</name>
+    </customLabels>
+    <customLabels>
+        <label>Agregue esta frecuencia en la lista de selección en Configuración.</label>
+        <name>healthSolutionInvalidRDCustomPeriod</name>
+    </customLabels>
+    <customLabels>
+        <label>En la pestaña Configuración del NPSP, haga clic en {0} | {1}, y agregue la frecuencia que falta, o elimine el valor de la lista de selección en el campo Frecuencia.</label>
+        <name>healthSolutionInvalidRDCustomPeriodPicklist</name>
+    </customLabels>
+    <customLabels>
+        <label>Debe actualizar el registro para tener una clase válida que implemente la interfaz UTIL_MasterSchedulableHelper.UTIL_Irecurring.</label>
+        <name>healthSolutionInvalidScheduledJob</name>
+    </customLabels>
+    <customLabels>
+        <label>En la pestaña Configuración del NPSP, haga clic en {0} | {1}, y agregue el campo que falta, o elimine el Total definido por el usuario.</label>
+        <name>healthSolutionInvalidUDFObjectField</name>
+    </customLabels>
+    <customLabels>
+        <label>Cree un informe basado en Campañas con Contactos, donde el Estado de miembro no contiene Duplicado. Luego especifique este informe en la pestaña {0} &gt; {1} en la Configuración del NPSP.</label>
+        <name>healthSolutionMailingListReportMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>Vea estas oportunidades en el informe &lt;b&gt;Opportunities without Payments&lt;/b&gt; en la carpeta de informes NPSP Health Check. Note que debe filtrar en este informe a los tipos de oportunidad y tipos de registro de oportunidad que haya excluido en la Configuración de Pagos. Puede crearlos utilizando el botón Crear pagos faltantes en Configuración de NPSP &gt; Donaciones &gt; Pagos.</label>
+        <name>healthSolutionMissingOppPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>Debe programar la clase UTIL_MasterSchedulable para correr diariamente con un nombre de trabajo {0}.</label>
+        <name>healthSolutionNothingScheduled</name>
+    </customLabels>
+    <customLabels>
+        <label>Tener múltiples Funciones de contacto seleccionadas como Principal puede causar que totales en la oportunidad, como Total donado, se calculen incorrectamente. Vea estas oportunidades en el informe &lt;b&gt;Opportunities with Primary Contact Roles&lt;/b&gt; en la carpeta de informes NPSP Health Check, y mire los registros con 2 o más Funciones de contacto principales.</label>
+        <name>healthSolutionOCRDupPrimary</name>
+    </customLabels>
+    <customLabels>
+        <label>Si tiene una gran cantidad de oportunidades y funciones de contacto en oportunidades, más de 50.000, puede ignorar cualquier error relacionado a límites de soql.</label>
+        <name>healthSolutionOCRException</name>
+    </customLabels>
+    <customLabels>
+        <label>En la pestaña Configuración del NPSP, haga clic en {0} | {1}, y elimine el registro de mapeo de pagos.</label>
+        <name>healthSolutionPaymentMappingBadDataTypes</name>
+    </customLabels>
+    <customLabels>
+        <label>En la pestaña Configuración del NPSP, haga clic en {0} | {1}, y agregue el campo de oportunidad que falta, o elimine el registro de mapeo de donaciones recurrentes.</label>
+        <name>healthSolutionRDBadOppField</name>
+    </customLabels>
+    <customLabels>
+        <label>En la pestaña Configuración del NPSP, haga clic en {0} | {1}, y elimine el registro de mapeo de donaciones recurrentes.</label>
+        <name>healthSolutionRDFieldsBadDatatypes</name>
+    </customLabels>
+    <customLabels>
+        <label>En la pestaña Configuración del NPSP, haga clic en {0} | {1}, y elimine el registro de Relación recíproca, y cree una nueva con la información requerida.</label>
+        <name>healthSolutionRelReciprocalInvalid</name>
+    </customLabels>
+    <customLabels>
+        <label>Asegúrese de no tener una Regla de validación, Campos obligatorios, o Reglas de flujo de trabajo que puedan prevenir que una oportunidad o un contacto se guarden.</label>
+        <name>healthSolutionSaveOppsFailed</name>
+    </customLabels>
+    <customLabels>
+        <label>Todas las clases programadas del NPSP deben tener un registro en Schedulable__c para estas funcionalidades funcionar correctamente.</label>
+        <name>healthSolutionScheduleJobs</name>
+    </customLabels>
+    <customLabels>
+        <label>Si el Trigger Handler no coincide como la configuración por defecto del NPSP, funcionalidades en el NPSP puede ser deshabilitada o modificada. Las modificaciones solo deben ser realizadas por alguien con conocimiento en el NPSP Trigger Handlers, y como cambiarlos puede afectar el comportamiento del sistema.</label>
+        <name>healthSolutionTriggerHandlerMismatch</name>
+    </customLabels>
+    <customLabels>
+        <label>En la pestaña de Configuración de NPSP, haga clic en {0} | {1}, y borre el registro del Total de usuario.</label>
+        <name>healthSolutionUDFBadDatatypes</name>
+    </customLabels>
+    <customLabels>
+        <label>En la pestaña de Configuración de NPSP , haga clic en {0} | {1}, y agregue el campo de Oportunidad que falta, o borre el registro de Total de usuario.</label>
+        <name>healthSolutionUDFOppField</name>
+    </customLabels>
+    <customLabels>
+        <label>Volver a Campaña</label>
+        <name>hhCmpDedupLabelReturnToCmp</name>
+    </customLabels>
+    <customLabels>
+        <label>Debido al tamaño de esta campaña, el proceso de identificar miembros de familia está siendo realizado en lote, y puede tardar varios minuos en completarse. Una vez que el proceso se completa, clic en el link para abrir el informe.</label>
+        <name>hhCmpDedupeBatchMessage</name>
+    </customLabels>
+    <customLabels>
+        <label>Campaña Familias desduplicadas</label>
+        <name>hhCmpDedupeBatchProgressTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Abrir informe</label>
+        <name>hhCmpDedupeLabelOpenReport</name>
+    </customLabels>
+    <customLabels>
+        <label>No puede encontrar el informe. Cree un informe con el Nombre exclusivo del informe: &apos;NPSP_Campaign_Household_Mailing_List&apos;. NOTA: El tipo de informe debe ser Campañas con Contactos. Filtrar por Estado de miembro no contiene &quot;Duplicado&quot;.</label>
+        <name>hhCmpDedupeNoReport</name>
+    </customLabels>
+    <customLabels>
+        <label>#NOM?</label>
+        <name>hhCmpDedupeStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>Primero</label>
+        <name>labelListViewFirst</name>
+    </customLabels>
+    <customLabels>
+        <label>Último</label>
+        <name>labelListViewLast</name>
+    </customLabels>
+    <customLabels>
+        <label>Siguiente</label>
+        <name>labelListViewNext</name>
+    </customLabels>
+    <customLabels>
+        <label>&amp;nbsp;&amp;nbsp;&amp;nbsp;Página {0} de {1} &amp;nbsp;&amp;nbsp;({2} registros)</label>
+        <name>labelListViewPageInfo</name>
+    </customLabels>
+    <customLabels>
+        <label>Anterior</label>
+        <name>labelListViewPrevious</name>
+    </customLabels>
+    <customLabels>
+        <label>Cargando…</label>
+        <name>labelMessageLoading</name>
+    </customLabels>
+    <customLabels>
+        <label>Mostar más</label>
+        <name>labelShowMore</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración NPSP</label>
+        <name>lblNPSPSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>Cuenta</label>
+        <name>leadConvertAccountName</name>
+    </customLabels>
+    <customLabels>
+        <label>Cuenta afiliada</label>
+        <name>leadConvertAffilationName</name>
+    </customLabels>
+    <customLabels>
+        <label>Afiliar con existente</label>
+        <name>leadConvertAffiliateExistingAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>Afiliar con Nueva cuenta</label>
+        <name>leadConvertAffiliateNewAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>Cuenta afiliada</label>
+        <name>leadConvertAffiliatedAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>Unir a cuenta Individual</label>
+        <name>leadConvertAttachBucketAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>Unir a existente:</label>
+        <name>leadConvertAttachExistingAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear una cuenta familia</label>
+        <name>leadConvertAutocreateHHAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear una cuenta Uno-a-Uno</label>
+        <name>leadConvertAutocreateOne2OneAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>Cancelar</label>
+        <name>leadConvertBtnCancel</name>
+    </customLabels>
+    <customLabels>
+        <label>Convertir</label>
+        <name>leadConvertBtnConvert</name>
+    </customLabels>
+    <customLabels>
+        <label>Cuenta del contacto</label>
+        <name>leadConvertContactAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear nueva cuenta:</label>
+        <name>leadConvertCreateAccount</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear nueva:</label>
+        <name>leadConvertCreateNewContact</name>
+    </customLabels>
+    <customLabels>
+        <label>Combinar con existente:</label>
+        <name>leadConvertMergeExistingContact</name>
+    </customLabels>
+    <customLabels>
+        <label>No crear una nueva {0} en la conversión</label>
+        <name>leadConvertNewOpp</name>
+    </customLabels>
+    <customLabels>
+        <label>Propietario del registro</label>
+        <name>leadConvertOwner</name>
+    </customLabels>
+    <customLabels>
+        <label>Convertir candidato:</label>
+        <name>leadConvertPageTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Convertir candidato</label>
+        <name>leadConvertSectionTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Enviar correo electrónico al propietario</label>
+        <name>leadConvertSendEmail</name>
+    </customLabels>
+    <customLabels>
+        <label>Estado convertido</label>
+        <name>leadConvertStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>Usted solo puede ver contactos existentes.</label>
+        <name>leadConvertViewContactError</name>
+    </customLabels>
+    <customLabels>
+        <label>Buscar</label>
+        <name>mtchBtnSearch</name>
+    </customLabels>
+    <customLabels>
+        <label>Fin de fecha de cierre</label>
+        <name>mtchCloseDateEnd</name>
+    </customLabels>
+    <customLabels>
+        <label>Inicio de fecha de cierre</label>
+        <name>mtchCloseDateStart</name>
+    </customLabels>
+    <customLabels>
+        <label>Encontrar donación complementaria</label>
+        <name>mtchFindMatchedGiftsSectionHeader</name>
+    </customLabels>
+    <customLabels>
+        <label>Encontrar más donaciones</label>
+        <name>mtchFindMoreGifts</name>
+    </customLabels>
+    <customLabels>
+        <label>Completar uno o más filtros, y después hacer clic en Buscar.</label>
+        <name>mtchFindMoreGiftsInfo</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} ítems</label>
+        <name>mtchItems</name>
+    </customLabels>
+    <customLabels>
+        <label>Por favor, especifique uno o varios filtros para buscar.</label>
+        <name>mtchSearchCriteriaEmpty</name>
+    </customLabels>
+    <customLabels>
+        <label>Seleccionar</label>
+        <name>mtchSelectCbxTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Total donación complementaria</label>
+        <name>mtchTotalMatchingGift</name>
+    </customLabels>
+    <customLabels>
+        <label>Total seleccionado</label>
+        <name>mtchTotalSelected</name>
+    </customLabels>
+    <customLabels>
+        <label>Total no contabilizado</label>
+        <name>mtchTotalUnaccounted</name>
+    </customLabels>
+    <customLabels>
+        <label>de</label>
+        <name>oppInstallmentsOf</name>
+    </customLabels>
+    <customLabels>
+        <label>Ambos</label>
+        <name>oppNamingBoth</name>
+    </customLabels>
+    <customLabels>
+        <label>Donaciones del contacto</label>
+        <name>oppNamingIndividual</name>
+    </customLabels>
+    <customLabels>
+        <label>Donaciones de la organización</label>
+        <name>oppNamingOrganizational</name>
+    </customLabels>
+    <customLabels>
+        <label>Calcular pagos</label>
+        <name>pmtWizardBtnCalcPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear pagos</label>
+        <name>pmtWizardBtnCreatePayments</name>
+    </customLabels>
+    <customLabels>
+        <label>Retirar pagos pagados</label>
+        <name>pmtWizardBtnRemovePaidPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>NOTA: Esta oportunidad está cerrada perdida. Para crear pagos, primero editar el registro de la oportunidad y cambiar la etapa a una etapa abierto o cerrada ganada.</label>
+        <name>pmtWizardClosedLost</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear un calendario de pagos</label>
+        <name>pmtWizardCreateSchedule</name>
+    </customLabels>
+    <customLabels>
+        <label>Fecha del primer pago</label>
+        <name>pmtWizardFirstPaymentDate</name>
+    </customLabels>
+    <customLabels>
+        <label>Intervalo</label>
+        <name>pmtWizardInterval</name>
+    </customLabels>
+    <customLabels>
+        <label>No se encontró oportunidad.</label>
+        <name>pmtWizardMsgNoOppFound</name>
+    </customLabels>
+    <customLabels>
+        <label>NOTA: Esta oportunidad no tiene un monto no pagado.  Para crear pagos, primero editar el registro de la oportunidad e introduzca un monto o haga clic en el botón para eliminar los pagos existentes. Si la oportunidad esta cerrada, puede que tenga que volver a abrirla.</label>
+        <name>pmtWizardNoUnpaidAmount</name>
+    </customLabels>
+    <customLabels>
+        <label>NOTA: Este oportunidad no tiene un monto no pagado. Para cancelar pagos, primero editar por el registro de la oportunidad e introduzca un monto o elimine los pagos existentes.</label>
+        <name>pmtWizardNoWriteoffAmount</name>
+    </customLabels>
+    <customLabels>
+        <label># de pagos</label>
+        <name>pmtWizardNumberOfPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>Número de pago</label>
+        <name>pmtWizardPaymentNumber</name>
+    </customLabels>
+    <customLabels>
+        <label>Usted no tiene pagos NPSP habilitado. Para utilizar el Asistente de programación de pago, por favor, habilite Pagos en la página Configuración de NPSP.</label>
+        <name>pmtWizardPaymentsDisabled</name>
+    </customLabels>
+    <customLabels>
+        <label>Los pagos de NPSP no habilitados</label>
+        <name>pmtWizardPaymentsDisabledTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Información de oportunidad actual</label>
+        <name>pmtWizardSectionTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Anular el saldo restante</label>
+        <name>pmtWizardSectionWriteoff</name>
+    </customLabels>
+    <customLabels>
+        <label>Cancelar pagos</label>
+        <name>pmtWizardSectionWriteoffPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear uno o más pagos por esta oportunidad</label>
+        <name>pmtWizardSubtitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Los pagos que se deben crear</label>
+        <name>pmtWizardToBeCreated</name>
+    </customLabels>
+    <customLabels>
+        <label>Advertencia</label>
+        <name>pmtWizardWarning</name>
+    </customLabels>
+    <customLabels>
+        <label>¿Qué fecha desea utilizar?</label>
+        <name>pmtWizardWriteoffDate</name>
+    </customLabels>
+    <customLabels>
+        <label>Se está preparando para anular {0} Pago (s) por un total de {1}.</label>
+        <name>pmtWizardWriteoffMessage</name>
+    </customLabels>
+    <customLabels>
+        <label>Añadir otra crédito blando</label>
+        <name>pscManageSoftCreditsAdd</name>
+    </customLabels>
+    <customLabels>
+        <label>Monto</label>
+        <name>pscManageSoftCreditsAmount</name>
+    </customLabels>
+    <customLabels>
+        <label>Por favor, introduzca un monto de crédito blando para todas las entradas.</label>
+        <name>pscManageSoftCreditsAmountMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>Cantidad o porcentaje</label>
+        <name>pscManageSoftCreditsAmountOrPercent</name>
+    </customLabels>
+    <customLabels>
+        <label>No se pueden modificar las monedas de crédito blandas parciales directamente. La moneda de un crédito blando parcial se actualiza cuando se modifica la moneda de la oportunidad relacionada.</label>
+        <name>pscManageSoftCreditsCantChangeCurrency</name>
+    </customLabels>
+    <customLabels>
+        <label>Lleno</label>
+        <name>pscManageSoftCreditsFull</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} es el contacto principal para esta oportunidad. No se puede agregar crédito blando a este contacto.</label>
+        <name>pscManageSoftCreditsInvalidContact</name>
+    </customLabels>
+    <customLabels>
+        <label>No tiene funciones especificadas como funciones de créditos blandos. Bajo Configuración de NPSP, Donaciones, Funciones de contacto, es necesario agregar las funciones adecuadas a las funciones de crédito blando.</label>
+        <name>pscManageSoftCreditsNoRoles</name>
+    </customLabels>
+    <customLabels>
+        <label>Cantidad total</label>
+        <name>pscManageSoftCreditsOppAmount</name>
+    </customLabels>
+    <customLabels>
+        <label>Monto de crédito blando</label>
+        <name>pscManageSoftCreditsPSCAmount</name>
+    </customLabels>
+    <customLabels>
+        <label>Parcial</label>
+        <name>pscManageSoftCreditsPartial</name>
+    </customLabels>
+    <customLabels>
+        <label>Porcentaje</label>
+        <name>pscManageSoftCreditsPercent</name>
+    </customLabels>
+    <customLabels>
+        <label>Donante principal</label>
+        <name>pscManageSoftCreditsPrimaryDonor</name>
+    </customLabels>
+    <customLabels>
+        <label>Monto total del crédito blando debe ser menor o igual a la cantidad de oportunidades. Marque &quot;Permitir importe del crédito blando mayor al Monto total &quot;para anular.</label>
+        <name>pscManageSoftCreditsReconcileFail</name>
+    </customLabels>
+    <customLabels>
+        <label>Las restricciones de crédito blando</label>
+        <name>pscManageSoftCreditsRestrictions</name>
+    </customLabels>
+    <customLabels>
+        <label>Debe especificar un nombre de función para todos los créditos blandos.</label>
+        <name>pscManageSoftCreditsRoleMissing</name>
+    </customLabels>
+    <customLabels>
+        <label>Manejo de créditos blandos</label>
+        <name>pscManageSoftCreditsTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Tipo</label>
+        <name>pscManageSoftCreditsType</name>
+    </customLabels>
+    <customLabels>
+        <label>Total no contabilizado</label>
+        <name>pscManageSoftCreditsUnaccounted</name>
+    </customLabels>
+    <customLabels>
+        <label>Permitir Monto de crédito blando mayor al Monto total</label>
+        <name>pscManageSoftCreditsValidateTotals</name>
+    </customLabels>
+    <customLabels>
+        <label>Acuse de recibo de correo electrónico no enviado.</label>
+        <name>sendAcknowledgmentFailedStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>Los siguientes registros no fueron reconocidos. Los acuses de recibo pueden fallar si no hay una regla de flujo de trabajo (Acuse de estado igual a &quot; Enviar acuse de recibo &apos; ) activada para enviar el acuse de recibo , o si los registros no cumplen con los criterios adicionales para activar la regla de flujo de trabajo . Por ejemplo, si no está establecido el &quot;Contacto Principal&quot;, o si el campo &quot;Correo electrónico&quot; del Contacto principal está vacío o no es válido.</label>
+        <name>sendAcknowledgmentFailureReasons</name>
+    </customLabels>
+    <customLabels>
+        <label>Enviar Acuse de recibo del correo electrónico ahora</label>
+        <name>sendAcknowledgmentFireStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>Debe seleccionar una o más Oportunidades antes de seleccionar Enviar acuse de recibo.</label>
+        <name>sendAcknowledgmentNoneSelected</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} Acuse (s) de recibo no enviados.</label>
+        <name>sendAcknowledgmentNumberNoEmail</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} Acuses de recibo(s) enviados.</label>
+        <name>sendAcknowledgmentNumberSent</name>
+    </customLabels>
+    <customLabels>
+        <label>Enviar Acuses de recibo</label>
+        <name>sendAcknowledgmentPageTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Volver a la Oportunidad</label>
+        <name>sendAcknowledgmentReturnLinkLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Acuse de recibo</label>
+        <name>sendAcknowledgmentSucceeded</name>
+    </customLabels>
+    <customLabels>
+        <label>Debe seleccionar un servicio de verificación para poder habilitar la verificación automática.</label>
+        <name>stgAddrMustChooseClass</name>
+    </customLabels>
+    <customLabels>
+        <label>Cancelar</label>
+        <name>stgBtnCancel</name>
+    </customLabels>
+    <customLabels>
+        <label>Borrar registro de errores</label>
+        <name>stgBtnClearErrorLog</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear una Relación automática</label>
+        <name>stgBtnCreateAutoRel</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear una asignación personalizada</label>
+        <name>stgBtnCreateMapping</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear un período de Cuotas/Pagos personalizado</label>
+        <name>stgBtnCreateRDPeriod</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear una Relación recíproca</label>
+        <name>stgBtnCreateRelReciprocal</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear Trigger Handler</label>
+        <name>stgBtnCreateTH</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear total</label>
+        <name>stgBtnCreateUDR</name>
+    </customLabels>
+    <customLabels>
+        <label>Editar</label>
+        <name>stgBtnEdit</name>
+    </customLabels>
+    <customLabels>
+        <label>Actualizar todos los nombres en familias</label>
+        <name>stgBtnHHAutoName</name>
+    </customLabels>
+    <customLabels>
+        <label>Nueva relación automática</label>
+        <name>stgBtnNewAutoRel</name>
+    </customLabels>
+    <customLabels>
+        <label>Configurar Nombre de Nuevas Oportunidades</label>
+        <name>stgBtnNewONS</name>
+    </customLabels>
+    <customLabels>
+        <label>Nueva asignación de campos de pago</label>
+        <name>stgBtnNewPaymentMap</name>
+    </customLabels>
+    <customLabels>
+        <label>Nueva asignación de campos personalizados</label>
+        <name>stgBtnNewRDFieldMap</name>
+    </customLabels>
+    <customLabels>
+        <label>Nueva frecuencia personalizada</label>
+        <name>stgBtnNewRDPeriod</name>
+    </customLabels>
+    <customLabels>
+        <label>Nueva Relación recíproca</label>
+        <name>stgBtnNewRelReciprocal</name>
+    </customLabels>
+    <customLabels>
+        <label>Nuevo Trigger Handler</label>
+        <name>stgBtnNewTH</name>
+    </customLabels>
+    <customLabels>
+        <label>Nuevo total definido por el usuario</label>
+        <name>stgBtnNewUDR</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear asignación de campo personalizado</label>
+        <name>stgBtnRDCreateNewMap</name>
+    </customLabels>
+    <customLabels>
+        <label>Actualizar todos los nombres de las oportunidades</label>
+        <name>stgBtnRefreshOpportunityNames</name>
+    </customLabels>
+    <customLabels>
+        <label>Actualizar todos los contactos principales en las oportunidades</label>
+        <name>stgBtnRefreshPrimaryContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>Correr lote</label>
+        <name>stgBtnRunBatch</name>
+    </customLabels>
+    <customLabels>
+        <label>Guardar</label>
+        <name>stgBtnSave</name>
+    </customLabels>
+    <customLabels>
+        <label>La implementación de la clase, no implementa la interfaz HH_INaming .</label>
+        <name>stgErrorINaming</name>
+    </customLabels>
+    <customLabels>
+        <label>Implementación de clase inválida.</label>
+        <name>stgErrorInvalidClass</name>
+    </customLabels>
+    <customLabels>
+        <label>Error en {0} : {1}</label>
+        <name>stgErrorInvalidNameFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>Actualizar nombres en familias</label>
+        <name>stgHHNameRefreshTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración para el modelo de Cuenta. Debe ser &quot;Cuenta Familia&quot; , &quot;Uno a Uno &quot; , o &quot;Individual&quot;. Reemplaza el campo personalizado Contact.SystemAccountProcessor__c . &quot;Cuenta Familia&quot; es el modelo recomendado.</label>
+        <name>stgHelpAccountModel</name>
+    </customLabels>
+    <customLabels>
+        <label>Al seleccionar esta opción se activa el período de año fiscal, en lugar de año calendario, para los totales acumulativos. 
+Para configurar la información de ejercicio o período, vaya a Configuración | Perfil de la empresa | Año fiscal. 
+NOTA : El paquete Non Profit Success Pack no es compatible con la configuración personalizada del año fiscal .</label>
+        <name>stgHelpAlloFiscalYearRollups</name>
+    </customLabels>
+    <customLabels>
+        <label>Asignar un valor para los totales &quot;N días&quot;, donde &quot;N&quot; es el número de días de hoy hacía el pasado. Por defecto este valor calcula los últimos 365 días.</label>
+        <name>stgHelpAlloNDayValue</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear o actualizar Afiliaciones para Contactos conectados a Cuentas de tipo organización cuando los campos de &quot;Organización&quot; o &quot;Afiliación primaria&quot; cambien.</label>
+        <name>stgHelpAutoAffil</name>
+    </customLabels>
+    <customLabels>
+        <label>Listado de los tipos de Campaña disponibles para los Miembros de campaña creados automáticamente. (Esta lista quedará en blanco para los Contactos creados de forma automática)</label>
+        <name>stgHelpAutoRelCampaignRT</name>
+    </customLabels>
+    <customLabels>
+        <label>El campo que al completarse o modificarse activará el desencadenador para la creación de esta relación.</label>
+        <name>stgHelpAutoRelField</name>
+    </customLabels>
+    <customLabels>
+        <label>El objeto con que está relacionado esta Relación Automática</label>
+        <name>stgHelpAutoRelObject</name>
+    </customLabels>
+    <customLabels>
+        <label>El tipo de Relación que se crea entre el objeto base y el objeto de búsqueda. El objeto de consulta recibirá la relación recíproca, si hay alguno disponible.</label>
+        <name>stgHelpAutoRelType</name>
+    </customLabels>
+    <customLabels>
+        <label>Si seleccionado, nunca se agregará nombre a las oportunidades, incluso si esta en blanco</label>
+        <name>stgHelpBDEAllowBlankOppNames</name>
+    </customLabels>
+    <customLabels>
+        <label>Generar automáticamente el nombre de las oportunidades creadas en el lote utilizando valores en los campos.</label>
+        <name>stgHelpBDEOppNaming</name>
+    </customLabels>
+    <customLabels>
+        <label>Hacer clic en Correr lote para calcular los totales para todas las oportunidades cerradas con asignaciones relacionadas a ellas. El resultado se guardará en los registros Cuentas Contables General.
+Puede cerrar esta página en cualquier momento y el proceso seguirá corriendo.</label>
+        <name>stgHelpBatchAlloRollup</name>
+    </customLabels>
+    <customLabels>
+        <label>Use esta página para calcular los totales de todas las oportunidades cerradas, guardado el resultado en registros de Contactos, Familias y Cuentas. Este proceso puede llevar tiempo; puede cerrar esta página y el proceso seguirá corriendo.</label>
+        <name>stgHelpBatchOppRollup</name>
+    </customLabels>
+    <customLabels>
+        <label>&lt;b&gt;ADVERTENCIA:&lt;/b&gt; Al hacer clic en este botón se activará el renombramiento de Familias en lote, y se actualizarán todos los nombres de familia, Saludos formales y Saludos informales con nuevos nombres  de acuerdo al formato que se eligió. Todas las Cuentas Familia (o Familia objeto) en su Salesforce será renombrada (excepto aquellas familias que no tienen el nombramiento automático habilitado.)&lt;br/&gt;&lt;br/&gt;
+
+&lt;b&gt;Este es un proceso irreversible.&lt;/b&gt; Si bien se puede desactivar Nombramiento automático de Familias en cualquier momento, todos los nombres recientemente completados permanecerán.&lt;br/&gt;&lt;br/&gt;
+
+Antes de iniciar este proceso, se recomienda desactivar los siguientes cuando afectan Familias: 
+&lt;br/&gt; 
+&lt;ul&gt; 
+&lt;li&gt;Reglas de validación personalizadas&lt;/li&gt; 
+&lt;li&gt;Reglas de flujo de trabajo&lt;/li&gt; 
+&lt;li&gt;Process Builder&lt;/li&gt; 
+&lt;li&gt;Flujos&lt;/li&gt; 
+&lt;li&gt;Desencadenadores personalizados&lt;/li&gt; 
+&lt;/ul&gt; 
+&lt;br/&gt; 
+Una vez que el proceso se completó al 100%, puede abandonar o actualizar esta página.</label>
+        <name>stgHelpBtnHHNaming</name>
+    </customLabels>
+    <customLabels>
+        <label>&lt;b&gt;ADVERTENCIA:&lt;/b&gt; Al hacer clic en este botón se activará el renombramiento de oportunidades en lote, y se actualizarán todos los nombres de las oportunidades de acuerdo al formato que se eligió. Salesforce renombrará todas las oportunidades en su organización exceptuando a aquellas oportunidades que usted especificó como &quot;No renombrar&quot;.&lt;br/&gt;&lt;br/&gt;
+
+&lt;b&gt;Este es un proceso irreversible.&lt;/b&gt; 
+Antes de iniciar este proceso, se recomienda desactivar los siguientes cuando afectan Oportunidades: 
+&lt;br/&gt; 
+&lt;ul&gt; 
+&lt;li&gt;Reglas de validación personalizadas&lt;/li&gt; 
+&lt;li&gt;Reglas de flujo de trabajo&lt;/li&gt; 
+&lt;li&gt;Process Builder&lt;/li&gt; 
+&lt;li&gt;Flujos&lt;/li&gt; 
+&lt;li&gt;Desencadenadores personalizados&lt;/li&gt; 
+&lt;/ul&gt; 
+&lt;br/&gt; 
+Una vez que el proceso se completó al 100%, puede abandonar o actualizar esta página.</label>
+        <name>stgHelpBtnOppNaming</name>
+    </customLabels>
+    <customLabels>
+        <label>Grupo de chatter donde las notificaciones de errores serán posteadas.</label>
+        <name>stgHelpChatterGroup</name>
+    </customLabels>
+    <customLabels>
+        <label>Asegurarse que se completó el Cicero API Key en en el campo de configuración Auth Token. Encontrará el API Key en su página de Cicero My Profile en cicero.azavea.com</label>
+        <name>stgHelpCiceroAddrVerification</name>
+    </customLabels>
+    <customLabels>
+        <label>Tipo de registro del contacto excluido de la creación de funciones del contacto en oportunidades para familias</label>
+        <name>stgHelpContactRTExcluded</name>
+    </customLabels>
+    <customLabels>
+        <label>&lt;b&gt;ADVERTENCIA: &lt;/b&gt; Al hacer clic en este botón se activará la creación de pago en lotes. Salesforce creará un pago para cada oportunidad sin pagos que:
+&lt;br/&gt; 
+&lt;ul&gt; &lt;li&gt;tiene un monto mayor a cero &lt;/li&gt;
+ &lt;li&gt;no está seleccionado No crear automáticamente pago &lt;/li&gt; 
+&lt;li&gt;no se excluye en la configuración anterior&lt;/li&gt; 
+&lt;/ul&gt; 
+&lt;br/&gt;&lt;br/&gt;
+&lt;b&gt;Este es un proceso irreversible.&lt;/b&gt; 
+Antes de iniciar este proceso, se recomienda desactivar los siguientes cuando afectan pagos: 
+&lt;br/&gt; 
+&lt;ul&gt; 
+&lt;li&gt;Reglas de validación personalizadas&lt;/li&gt; 
+&lt;li&gt;Reglas de flujo de trabajo&lt;/li&gt; 
+&lt;li&gt;Process Builder&lt;/li&gt; 
+&lt;li&gt;Flujos&lt;/li&gt; 
+&lt;li&gt;Desencadenadores personalizados&lt;/li&gt; 
+&lt;/ul&gt; 
+&lt;br/&gt; 
+Una vez que el proceso se completó al 100%, puede abandonar o actualizar esta página.</label>
+        <name>stgHelpCreateMissingPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>Permite la creación automática y la gestión de los registros de Asignación CCG a la Cuenta Contable General por defecto. Esta característica permite mejores informes sobre la Cuenta Contable General por defecto, pero se utiliza más espacio en el sistema.</label>
+        <name>stgHelpDefaultAllocationsEnabled</name>
+    </customLabels>
+    <customLabels>
+        <label>Cuenta Contabilidad General para la asignación por defecto de Oportunidades no asignadas, y el monto no asignado de Oportunidades parcialmente asignadas.</label>
+        <name>stgHelpDefaultGAU</name>
+    </customLabels>
+    <customLabels>
+        <label>Des-habilita direcciones para Cuenta Familia cuando esta seleccionado.</label>
+        <name>stgHelpDisableHHAccountAddr</name>
+    </customLabels>
+    <customLabels>
+        <label>Permite calcular totales de op. cerradas basados en la fun. del contacto en la op. Se calculan solamente en el trabajo programado de la noche, y no en triggers. Pueden ser calculados manualmente usando la pestaña de Lote de totales de donaciones.</label>
+        <name>stgHelpEnableSoftCreditRollups</name>
+    </customLabels>
+    <customLabels>
+        <label>Seleccionar si se quiere que el sistema publique notificaciones de cierto tipo de errores.</label>
+        <name>stgHelpErrorNotifyOn</name>
+    </customLabels>
+    <customLabels>
+        <label>Seleccionar el tipo de usuario al que se le manda notificaciones.</label>
+        <name>stgHelpErrorNotifyTo</name>
+    </customLabels>
+    <customLabels>
+        <label>El formato que Salesforce utiliza para Saludos formal.</label>
+        <name>stgHelpFGFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>Seleccionar este campo hará que los totales en oportunidades respeten el año fiscal, en vez del año calendario. Para configurar el AF, ir a Configuración -&gt; Perfil de la compañía -&gt; Año fiscal. Nota: NO funciona con una configuración personalizada de AF</label>
+        <name>stgHelpFiscalYearRollups</name>
+    </customLabels>
+    <customLabels>
+        <label>El tipo de registro de cuenta de registro que se utilizará para Cuentas Familias. Si no hay ninguna seleccionada, la Cuenta será por defecto del tipo de registro por defecto del usuario.</label>
+        <name>stgHelpHHAccountRTID</name>
+    </customLabels>
+    <customLabels>
+        <label>Especifica los tipos de registro de Contactos que Salesforce excluirá de la creación del objetos Familias. (Aplica solamente al modelo de cuenta Uno-a-Uno o Individual.)</label>
+        <name>stgHelpHHExcludedRT</name>
+    </customLabels>
+    <customLabels>
+        <label>El Informe de lista de envío de familia utilizado para la campaña de listas de correo de familia des duplicado. El informe debe ser de Campañas con  Contactos, donde Estado de miembro no contiene &quot;Duplicado&quot;</label>
+        <name>stgHelpHHMailingListReport</name>
+    </customLabels>
+    <customLabels>
+        <label>El formato de Salesforce utiliza para el nombre familiar.</label>
+        <name>stgHelpHHNameFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>Si se selecciona, Salesforce crea automáticamente un nombre para la Cuenta Familiar (u objeto de los hogares), basado en el nombre de los contactos en el hogar. Salesforce también genera automáticamente saludos formales e informales.</label>
+        <name>stgHelpHHNaming</name>
+    </customLabels>
+    <customLabels>
+        <label>Seleccionar este campo para crear automáticamente funciones del contacto para miembros de la familia del contacto principal.</label>
+        <name>stgHelpHHOCROn</name>
+    </customLabels>
+    <customLabels>
+        <label>El Nonprofit Success Pack admite dos maneras diferentes de realizar un seguimiento a familias. La forma recomendada es Cuenta Familia, que usará una Cuenta como la Familia del Contacto. Sin embargo, si esta utilizando Uno-a-Uno o Individual, puede opcionalmente usar el objeto Familias como la Familia del contacto
+&lt;br/&gt;&lt;br/&gt;
+El objeto Familias y sus modelos de cuenta asociados ya no son recomendados. Sin embargo, si esta utilizando el modelo de cuenta Uno-a-Uno o Individual de versiones anteriores del Nonprofit Success Pack, puede cambiar la configuración del objeto Familias acá.
+&lt;br/&gt;&lt;br/&gt;
+Para aprender más sobre el modelo de Cuenta Familia recomendado, ver &lt;a href=&quot;https://powerofus.force.com/NPSP_Documentation&quot; target=&quot;_new&quot;&gt;NPSP Documentation&lt;/a&gt;.</label>
+        <name>stgHelpHHObjectOverview</name>
+    </customLabels>
+    <customLabels>
+        <label>Especifica para que contacto Salesforce automáticamente creará registros en el objeto Familias. (Aplica solamente para modelo de cuentas Uno-a-Uno o Individual).</label>
+        <name>stgHelpHHRules</name>
+    </customLabels>
+    <customLabels>
+        <label>El formato Salesforce usa para el Saludo informal</label>
+        <name>stgHelpIGFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>La clase de Apex que implementa la interfaz HH_Inaming para nombrar familias.</label>
+        <name>stgHelpINamingClass</name>
+    </customLabels>
+    <customLabels>
+        <label>Define si se crea una oportunidad al convertir un candidato.</label>
+        <name>stgHelpLeadConvert</name>
+    </customLabels>
+    <customLabels>
+        <label>Seleccionar la Función de contacto para Donantes complementados.</label>
+        <name>stgHelpMatchedDonorRole</name>
+    </customLabels>
+    <customLabels>
+        <label>Definir el número máximo de pagos disponibles en el Asistente para crear pagos.</label>
+        <name>stgHelpMaxPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>La duración del período de gracia (en días) después de que la membresía vence (última fecha de fin) antes que el estado se cambie de &quot;Período de gracia&quot; a &quot;Vendida&quot;. Por defecto son 30 días.</label>
+        <name>stgHelpMembershipGracePeriod</name>
+    </customLabels>
+    <customLabels>
+        <label>Nombre del tipo de registro de oportunidades, como Membresía, que se quiere que sumen a totales diferentes de otros tipos de registro de oportunidad.</label>
+        <name>stgHelpMembershipRT</name>
+    </customLabels>
+    <customLabels>
+        <label>Especifica el nombre o caracteres (como &amp;) que Salesforce utiliza para conectar parejas en un nombre.</label>
+        <name>stgHelpNameConnector</name>
+    </customLabels>
+    <customLabels>
+        <label>Especifica el texto que Salesforce utiliza para reemplazar listas largas de nombres.</label>
+        <name>stgHelpNameOverrun</name>
+    </customLabels>
+    <customLabels>
+        <label>Primero, seleccione el campo de Donación Recurrente que quiere asignar. Después seleccione el campo de Oportunidad al cual quiere asignarlo. El campo de Donación recurrente que selecciona aparecerá en todas las oportunidades relacionadas a la donación recurrente. 
+
+IMPORTANTE: Ambos campos deben ser del mismo tipo de dato.</label>
+        <name>stgHelpNewRDFieldMap</name>
+    </customLabels>
+    <customLabels>
+        <label>Seleccione el campo de la oportunidad y el operador a ser mapeado, y el objeto y el campo donde se copiará.</label>
+        <name>stgHelpNewUDR</name>
+    </customLabels>
+    <customLabels>
+        <label>No se definieron Totales definidos por el usuario</label>
+        <name>stgHelpNoUDR</name>
+    </customLabels>
+    <customLabels>
+        <label>La función por defecto para las funciones de contacto en oportunidades que se generan automáticamente.</label>
+        <name>stgHelpOCRDefaultRole</name>
+    </customLabels>
+    <customLabels>
+        <label>Seleccione la Función de contacto para miembros de la familia</label>
+        <name>stgHelpOCRRoleForHH</name>
+    </customLabels>
+    <customLabels>
+        <label>El tipo de registro de Cuenta a utilizar para Cuentas Uno-a-Uno. Si no se selecciona ninguna, la Cuenta por defecto llevará el Tipo de registro de cuenta por defecto del usuario.</label>
+        <name>stgHelpOneToOneRTID</name>
+    </customLabels>
+    <customLabels>
+        <label>Especifica si quiere aplicar estas configuraciones a donaciones de contacto (oportunidades asociadas a Cuenta Familias, Cuenta Uno-a-Uno, o la cuenta Individual), donaciones de organizaciones, o a ambas.</label>
+        <name>stgHelpOppNamingAttribution</name>
+    </customLabels>
+    <customLabels>
+        <label>El formato de fecha usado en cualquier campo de día o día y hora referenciado en el Formato de nombre de oportunidad. Elegir un formato, o elegir &quot;Otro&quot; para crear su propio formato personalizado siguiendo las especificaciones del SimpleDateFormat de Java</label>
+        <name>stgHelpOppNamingDateFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>El formato del nombre de la oportunidad. Elegir &quot;Otro&quot; para crear su propio formato. Ver &lt;a href=&quot;https://powerofus.force.com/NPSP_Opp_Names&quot; target=&quot;_blank&quot;&gt;NPSP Documentation&lt;/a&gt; para detalles.</label>
+        <name>stgHelpOppNamingFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>El/los tipos de registros de oportunidad al cual se le quiere aplicar este nombre de oportunidad. Utilice control o command para seleccionar más de uno. &quot;Ninguno&quot; aplica el nuevo nombre a TODOS los tipos de registro.</label>
+        <name>stgHelpOppNamingRecTypes</name>
+    </customLabels>
+    <customLabels>
+        <label>Nombre de los tipos de registro de oportunidades excluidos de la creación de Pagos.</label>
+        <name>stgHelpOppRecTypesNoPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>Tipos de oportunidad excluidos de la creación de pagos.</label>
+        <name>stgHelpOppTypesNoPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>Habilita direcciones para Cuenta Organización cuando esta seleccionado.</label>
+        <name>stgHelpOrgAccountAddressMgmt</name>
+    </customLabels>
+    <customLabels>
+        <label>El número de Contactos Salesforce explícitamente nombrará en el nombre y saludos de la Familia. Después de este número, Salesforce sustituirá los nombres con el Nombre límite.</label>
+        <name>stgHelpOverrunCount</name>
+    </customLabels>
+    <customLabels>
+        <label>El campo de la Oportunidad donde se tomará el valor</label>
+        <name>stgHelpPaymentMapOppField</name>
+    </customLabels>
+    <customLabels>
+        <label>El campo de Pagos donde se copiará el valor</label>
+        <name>stgHelpPaymentMapPaymentField</name>
+    </customLabels>
+    <customLabels>
+        <label>Seleccionar el campo de la Oportunidad a mapear, y al campo del Pago al que se le unirá.</label>
+        <name>stgHelpPaymentMapping</name>
+    </customLabels>
+    <customLabels>
+        <label>Asignar campos desde la Oportunidad a Pagos. Esto copiará valores en la Oportunidad al Pago cuando se cree vía la creación automática de pagos o el programador de pagos.</label>
+        <name>stgHelpPaymentMappings</name>
+    </customLabels>
+    <customLabels>
+        <label>Habilita la creación automática de pagos para nuevas oportunidades/donaciones.</label>
+        <name>stgHelpPaymentsEnabled</name>
+    </customLabels>
+    <customLabels>
+        <label>&lt;b&gt;Advertencia:&lt;/b&gt; Hacer clic en este botón activará un lote de actualización de oportunidades para actualizar el campo Contacto principal. Salesforce actualizará los registros de oportunidad donde el campo Contacto principal no tenga el mismo valor que la Función de contacto marcada como principal. &lt;br/&gt;&lt;br/&gt;
+
+&lt;b&gt;Este proceso es irreversible.&lt;/b&gt;
+Este cambio actualiza registros de oportunidad. Antes de empezar este proceso, recomendamos deshabilitar los siguientes cuando afectan oportunidades:
+&lt;br/&gt;
+&lt;ul&gt;
+&lt;li&gt;Reglas de validación personalizadas&lt;/li&gt;
+&lt;li&gt;Reglas de flujo de trabajo&lt;/li&gt;
+&lt;li&gt;Process Builder&lt;/li&gt;
+&lt;li&gt;Flujos&lt;/li&gt;
+&lt;li&gt;Desencadenadores personalizados&lt;/li&gt;
+&lt;/ul&gt;
+&lt;br/&gt;
+Una vez que el procesos es 100% completo, usted puede abandonar est página o refrescar esta página.</label>
+        <name>stgHelpPrimaryContactBatch</name>
+    </customLabels>
+    <customLabels>
+        <label>Si seleccionado, agrega la campaña especificada en donaciones recurrentes a todas las oportunidades relacionadas. Si no se selecciona, solo la primera oportunidad tendrá la campaña.</label>
+        <name>stgHelpRDAddCampaign</name>
+    </customLabels>
+    <customLabels>
+        <label>Previene que la programación nocturna modifique las donaciones recurrentes. Deberá remover trabajos programados existentes en Configuración | Supervisar | Trabajos programados.</label>
+        <name>stgHelpRDDisableScheduling</name>
+    </customLabels>
+    <customLabels>
+        <label>Cantidad de Donaciones recurrentes que NO fueron modificadas con éxito el último lote.</label>
+        <name>stgHelpRDFailures</name>
+    </customLabels>
+    <customLabels>
+        <label>Esta configuración permite asignar campos del registro de Donación recurrente a las Oportunidades relacionadas.</label>
+        <name>stgHelpRDFieldMap</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgHelpRDFieldMapOppField --></label>
+        <name>stgHelpRDFieldMapOppField</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgHelpRDFieldMapRDField --></label>
+        <name>stgHelpRDFieldMapRDField</name>
+    </customLabels>
+    <customLabels>
+        <label>Día y hora del último lote que modifica donaciones recurrentes.</label>
+        <name>stgHelpRDLastRun</name>
+    </customLabels>
+    <customLabels>
+        <label>Restringe el número total de donaciones (cuotas) para Donaciones recurrentes con duración fija. Por defecto es 50.</label>
+        <name>stgHelpRDMaxDonations</name>
+    </customLabels>
+    <customLabels>
+        <label>Dice a Salesforce que hacer con las oportunidades abiertas restantes cuando se marca el Estado de final abierto en la donación recurrente como Cerrada.</label>
+        <name>stgHelpRDOpenOppBehavior</name>
+    </customLabels>
+    <customLabels>
+        <label>Cantidad de meses para los que se deben crear oportunidades en Donaciones recurrentes con final abierto. Por defecto es 12, por lo que al finalizar cada mes, Salesforce crea todas las oportunidades abiertas de otro mes (el total de meses con oportunidades abiertas es siempre 12)</label>
+        <name>stgHelpRDOppForecastMonths</name>
+    </customLabels>
+    <customLabels>
+        <label>El tipo de registro de oportunidad asignado a las oportunidades relacionadas a una donación recurrente.</label>
+        <name>stgHelpRDOppRT</name>
+    </customLabels>
+    <customLabels>
+        <label>La cantidad de tiempo que la Frecuencia personalizada abarca.</label>
+        <name>stgHelpRDPeriodFrequency</name>
+    </customLabels>
+    <customLabels>
+        <label>Nombre de la nueva Frecuencia personalizada</label>
+        <name>stgHelpRDPeriodName</name>
+    </customLabels>
+    <customLabels>
+        <label>El tipo de tiempo que la Frecuencia personalizada abarca.</label>
+        <name>stgHelpRDPeriodType</name>
+    </customLabels>
+    <customLabels>
+        <label>Cantidad de donaciones recurrentes que fueron modificadas con éxito en el último lote.</label>
+        <name>stgHelpRDSuccesses</name>
+    </customLabels>
+    <customLabels>
+        <label>Relaciones creadas autom. son automáticamente des duplicadas para prevenir relaciones duplicadas de ser creadas entre dos contactos. Seleccionar esta casilla deshabilita esto y permitir la creación de múltiples relaciones del mismo tipo entre contactos.</label>
+        <name>stgHelpRelAutoCreatedDup</name>
+    </customLabels>
+    <customLabels>
+        <label>Campo personalizado usado para definir el género del contacto que se utiliza para determinar la relación reciproca.</label>
+        <name>stgHelpRelGenderField</name>
+    </customLabels>
+    <customLabels>
+        <label>El valor usado si el campo de genero del contacto es igual al valor de la etiqueta personalizado de Femenino o si el saludo del contacto indica el genero.</label>
+        <name>stgHelpRelReciprocalFemale</name>
+    </customLabels>
+    <customLabels>
+        <label>El valor usado si el campo de genero del contacto es igual al valor de la etiqueta personalizado de Masculino o si el saludo del contacto indica el genero.</label>
+        <name>stgHelpRelReciprocalMale</name>
+    </customLabels>
+    <customLabels>
+        <label>Método a usar para generar relaciones reciprocas. Ya sea Configuración de lista que usa configuración personalizada por género (ver Relaciones recíprocas), o Inversión de valores, que invierte el tipo si es apropiado (&quot;Padre-Hijo&quot; a &quot;Hijo-Padre&quot;)</label>
+        <name>stgHelpRelReciprocalMethod</name>
+    </customLabels>
+    <customLabels>
+        <label>Nombre de la Relación recíproca</label>
+        <name>stgHelpRelReciprocalName</name>
+    </customLabels>
+    <customLabels>
+        <label>El valor usado si el campo de genero del contacto no es igual al valor de la etiqueta personalizado de Masculino o Femenino, y el saludo del contacto no infiere el genero.</label>
+        <name>stgHelpRelReciprocalNeutral</name>
+    </customLabels>
+    <customLabels>
+        <label>El número de registros que se procesa a la vez cuando se calculas las estadísticas del donante. Por defecto el tamaño es de 200. Reducir a un número menor si los Totales de oportunidades están fallando debido a limites en el sistema.</label>
+        <name>stgHelpRollupBatchSize</name>
+    </customLabels>
+    <customLabels>
+        <label>Nombre del tipo de registro de oportunidad excluidos de las estadísticas cuando se calculan los totales de oportunidades en cuenta.</label>
+        <name>stgHelpRollupExcludeAccountOppRT</name>
+    </customLabels>
+    <customLabels>
+        <label>Valores de el campo Tipo en oportunidad que se excluyen de las estadísticas cuando se calculan los totales de oportunidades en cuenta.</label>
+        <name>stgHelpRollupExcludeAccountOppType</name>
+    </customLabels>
+    <customLabels>
+        <label>Nombre de los tipos de registro de oportunidades excluidos de las estadísticas cuando se calculan los totales para las Asignaciones CCG.</label>
+        <name>stgHelpRollupExcludeAlloOppRecType</name>
+    </customLabels>
+    <customLabels>
+        <label>Valores del campo Tipo en oportunidad que se excluyen de las estadísticas cuando se calculan los totales.</label>
+        <name>stgHelpRollupExcludeAlloOppType</name>
+    </customLabels>
+    <customLabels>
+        <label>Nombre del tipo de registro de oportunidad excluidos de las estadísticas cuando se calculan los totales de oportunidades en contactos.</label>
+        <name>stgHelpRollupExcludeContactOppRT</name>
+    </customLabels>
+    <customLabels>
+        <label>Valores del campo Tipo en oportunidad que se excluyen de las estadísticas cuando se calculan los totales de oportunidades en contactos.</label>
+        <name>stgHelpRollupExcludeContactOppType</name>
+    </customLabels>
+    <customLabels>
+        <label>Asignar un valor para los totales &quot;N días&quot;, donde &quot;N&quot; es el número de días de hoy hacía el pasado. Por defecto este valor calcula los últimos 365 días.</label>
+        <name>stgHelpRollupNDayValue</name>
+    </customLabels>
+    <customLabels>
+        <label>Siempre sumar a los totales de donaciones del contacto con función de contacto principal, y a su correspondiente familia, en una oportunidad, incluso si la oportunidad no es de un individuo (por ejemplo: de una empresa, fundación, etc.)</label>
+        <name>stgHelpRollupPrimaryContact</name>
+    </customLabels>
+    <customLabels>
+        <label>Trata cambios a en los campos de dirección en contacto o cuenta como actualizaciones de direcciones existentes (no se crea un registro en el objeto Direcciones). También causa que los espacios blandos y los cambios en caso sea tratados como actualizaciones.</label>
+        <name>stgHelpSimpleAddrChangeIsUpdate</name>
+    </customLabels>
+    <customLabels>
+        <label>Lista de Funciones de contacto en oportunidad que deben ser incluidos en totales de crédito blando.</label>
+        <name>stgHelpSoftCreditRoles</name>
+    </customLabels>
+    <customLabels>
+        <label>Seleccionar si se quiere que los errores se guarden en la base de datos.</label>
+        <name>stgHelpStoreErrorsOn</name>
+    </customLabels>
+    <customLabels>
+        <label>Indica que este módulo esta activo</label>
+        <name>stgHelpTHActive</name>
+    </customLabels>
+    <customLabels>
+        <label>Indica que los After Events de este modulo deben correrse de forma asincrónica en esta transacción</label>
+        <name>stgHelpTHAsync</name>
+    </customLabels>
+    <customLabels>
+        <label>Nombre de la clase que debe correr</label>
+        <name>stgHelpTHClass</name>
+    </customLabels>
+    <customLabels>
+        <label>Orden en el cual este módulo debe correr, ayuda a mantener dependencia en los módulos y los datos.</label>
+        <name>stgHelpTHLoadOrder</name>
+    </customLabels>
+    <customLabels>
+        <label>Nombre del objeto para el que este handler debe correr</label>
+        <name>stgHelpTHObject</name>
+    </customLabels>
+    <customLabels>
+        <label>Trigger Action en el que este modulo debe disparar</label>
+        <name>stgHelpTHTriggerAction</name>
+    </customLabels>
+    <customLabels>
+        <label>Estos triggers controlan funcionalidad básica en el Nonprofit Success Pack, por lo que por favor ejercite extrema precaución al modificarlos.</label>
+        <name>stgHelpTriggerHandlers</name>
+    </customLabels>
+    <customLabels>
+        <label>Marcar cualquier Trigger Handler para que correa asincrónico puede tener consecuencias no queridas, y debe ser correctamente testeado antes de implementar en producción.</label>
+        <name>stgHelpTriggerHandlersAsync</name>
+    </customLabels>
+    <customLabels>
+        <label>Seleccione una operación válida para este campo</label>
+        <name>stgHelpUDROperation</name>
+    </customLabels>
+    <customLabels>
+        <label>Seleccione el campo de la oportunidad que desea totalizar</label>
+        <name>stgHelpUDROppField</name>
+    </customLabels>
+    <customLabels>
+        <label>Seleccione el objeto donde desea el total</label>
+        <name>stgHelpUDRTargetObject</name>
+    </customLabels>
+    <customLabels>
+        <label>Su instalación se realizó correctamente, pero detectó un pequeño problema. Para solucionar el problema, sólo tiene que cargar la página Configuración de NPSP en Salesforce.
+
+Nota: La ficha Configuración de NPSP es visible en la aplicación Nonprofit Success Pack. Si no ve la pestaña, seleccione Nonprofit Success Pack desde el menú de aplicaciones en la esquina superior derecha.</label>
+        <name>stgInstallScriptError</name>
+    </customLabels>
+    <customLabels>
+        <label>Acción</label>
+        <name>stgLabelActionColumn</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración de dirección</label>
+        <name>stgLabelAddressVerification</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración de Afiliaciones</label>
+        <name>stgLabelAfflSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>- todos los tipos de registro -</label>
+        <name>stgLabelAllRecordTypes</name>
+    </customLabels>
+    <customLabels>
+        <label>Progreso del lote de totales en asignaciones</label>
+        <name>stgLabelAlloBatchProgress</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración de las asignaciones de CCG</label>
+        <name>stgLabelAllocationsRollupSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración de Asignaciones por defecto</label>
+        <name>stgLabelAllocationsSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>¿Está seguro?</label>
+        <name>stgLabelAreYouSure</name>
+    </customLabels>
+    <customLabels>
+        <label>Roles del Contacto Automáticos</label>
+        <name>stgLabelAutoContactRoles</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración del Lote de Data Entry</label>
+        <name>stgLabelBDESettings</name>
+    </customLabels>
+    <customLabels>
+        <label>Estado del Lote</label>
+        <name>stgLabelBatchStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear pagos faltantes</label>
+        <name>stgLabelCreateMissingPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>Totales actuales definidos por el usuario</label>
+        <name>stgLabelCurrentUDR</name>
+    </customLabels>
+    <customLabels>
+        <label>- no renombrar-</label>
+        <name>stgLabelDoNotRename</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración de Error de Notificación</label>
+        <name>stgLabelErrorNotify</name>
+    </customLabels>
+    <customLabels>
+        <label>Ejemplos para formatos de agradecimiento formales</label>
+        <name>stgLabelExamplesFGFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>Ejemplos para formatos de Nombre de Familia</label>
+        <name>stgLabelExamplesHHNameFOrmat</name>
+    </customLabels>
+    <customLabels>
+        <label>Ejemplos para formatos de agradecimientos informales</label>
+        <name>stgLabelExamplesIGFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración General</label>
+        <name>stgLabelHHGeneral</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración del nombre de Familia</label>
+        <name>stgLabelHHNaming</name>
+    </customLabels>
+    <customLabels>
+        <label>Progreso de la activación del nombramiento</label>
+        <name>stgLabelHHNamingProgress</name>
+    </customLabels>
+    <customLabels>
+        <label>Roles del Contacto en la Oportunidad de Familia</label>
+        <name>stgLabelHHOCR</name>
+    </customLabels>
+    <customLabels>
+        <label>Objeto Familia</label>
+        <name>stgLabelHHObject</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración de Familia</label>
+        <name>stgLabelHHSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>Crear automáticamente una función de contacto en oportunidades para el Homenajeado y el Receptor de la notificación</label>
+        <name>stgLabelHonoreeNotificationHelpText</name>
+    </customLabels>
+    <customLabels>
+        <label>Función del contacto en oportunidades para el Homenajeado y e Receptor de la notificación</label>
+        <name>stgLabelHonoreeNotificationOCR</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración de Candidatos</label>
+        <name>stgLabelLeadSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración de Membresía</label>
+        <name>stgLabelMembershipSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>Nueva Relación automática</label>
+        <name>stgLabelNewAutoRel</name>
+    </customLabels>
+    <customLabels>
+        <label>Nueva asignación de campos de pago</label>
+        <name>stgLabelNewPaymentMapping</name>
+    </customLabels>
+    <customLabels>
+        <label>Nueva asignación de campos personalizados</label>
+        <name>stgLabelNewRDFieldMap</name>
+    </customLabels>
+    <customLabels>
+        <label>Nueva Relación recíproca</label>
+        <name>stgLabelNewRelReciprocal</name>
+    </customLabels>
+    <customLabels>
+        <label>Nuevo Trigger Handler</label>
+        <name>stgLabelNewTH</name>
+    </customLabels>
+    <customLabels>
+        <label>Nuevo total definido por el usuario</label>
+        <name>stgLabelNewUDR</name>
+    </customLabels>
+    <customLabels>
+        <label>- ninguna-</label>
+        <name>stgLabelNone</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración de Nombre de Oportunidades</label>
+        <name>stgLabelONS</name>
+    </customLabels>
+    <customLabels>
+        <label>Progreso del lote de totales en oportunidades</label>
+        <name>stgLabelOppBatchProgress</name>
+    </customLabels>
+    <customLabels>
+        <label>Miembros de campaña</label>
+        <name>stgLabelOppCampMembers</name>
+    </customLabels>
+    <customLabels>
+        <label>Actualizar nombres en oportunidades</label>
+        <name>stgLabelOppNamingRefreshTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Nombres de oportunidades</label>
+        <name>stgLabelOppNamingSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>Actualizar contacto principal en oportunidades</label>
+        <name>stgLabelOppPrimaryContactTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Tipos de registro de totales en oportunidades</label>
+        <name>stgLabelOppRollupRT</name>
+    </customLabels>
+    <customLabels>
+        <label>Totales en oportunidades</label>
+        <name>stgLabelOppRollups</name>
+    </customLabels>
+    <customLabels>
+        <label>Lote de actualización de Contacto Primario</label>
+        <name>stgLabelOppUpdatePrimaryContact</name>
+    </customLabels>
+    <customLabels>
+        <label>Otro</label>
+        <name>stgLabelOther</name>
+    </customLabels>
+    <customLabels>
+        <label>Otro Formato de Fecha</label>
+        <name>stgLabelOtherDateFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>Otro Formato de Felicitación formal</label>
+        <name>stgLabelOtherFormalGreetingFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>Otro Formato de Nombre de Familia</label>
+        <name>stgLabelOtherHHNameFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>Otro Formato de Felicitación informal</label>
+        <name>stgLabelOtherInformalGreetingFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>Otro Formato de Nombre de la Oportunidad</label>
+        <name>stgLabelOtherOpportunigyNamingFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>Ningún Campo válido disponible</label>
+        <name>stgLabelPaymentMapNoValidFields</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración de Pagos</label>
+        <name>stgLabelPaymentSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>Asignación de Campos Personalizados</label>
+        <name>stgLabelRDFieldMap</name>
+    </customLabels>
+    <customLabels>
+        <label>Nuevo Período de Cuotas</label>
+        <name>stgLabelRDNewPeriod</name>
+    </customLabels>
+    <customLabels>
+        <label>Período de Cuotas Personalizado</label>
+        <name>stgLabelRDPeriod</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración de Donaciones recurrentes</label>
+        <name>stgLabelRDSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>Actualizar las Oportunidades de las Donaciones Recurrentes</label>
+        <name>stgLabelRDStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración general</label>
+        <name>stgLabelRelSettings</name>
+    </customLabels>
+    <customLabels>
+        <label>Seleccionar un Grupo de Chatter</label>
+        <name>stgLabelSelectChatterGroup</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración de crédito blando</label>
+        <name>stgLabelSoftCredit</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- stgLabelTriggerHandlers --></label>
+        <name>stgLabelTriggerHandlers</name>
+    </customLabels>
+    <customLabels>
+        <label>Comenzar a escribir...</label>
+        <name>stgLabelTypeAhead</name>
+    </customLabels>
+    <customLabels>
+        <label>No se encontraron campos válidos en la Oportunidad.</label>
+        <name>stgLabelUDRNoOppFields</name>
+    </customLabels>
+    <customLabels>
+        <label>Operación en totales</label>
+        <name>stgLabelUDROp</name>
+    </customLabels>
+    <customLabels>
+        <label>Campo de la Oportunidad</label>
+        <name>stgLabelUDROppField</name>
+    </customLabels>
+    <customLabels>
+        <label>Campo de destino</label>
+        <name>stgLabelUDRTargetField</name>
+    </customLabels>
+    <customLabels>
+        <label>Objeto objetivo</label>
+        <name>stgLabelUDRTargetObject</name>
+    </customLabels>
+    <customLabels>
+        <label>Borrar</label>
+        <name>stgLinkDelete</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración del Non Profit Success Pack</label>
+        <name>stgNPSPSettingsTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Modelo de Cuenta</label>
+        <name>stgNavAccountModel</name>
+    </customLabels>
+    <customLabels>
+        <label>Direcciones</label>
+        <name>stgNavAddressVerification</name>
+    </customLabels>
+    <customLabels>
+        <label>Afiliaciones</label>
+        <name>stgNavAffiliations</name>
+    </customLabels>
+    <customLabels>
+        <label>Asignación CCG</label>
+        <name>stgNavAllocations</name>
+    </customLabels>
+    <customLabels>
+        <label>Data Entry en lote</label>
+        <name>stgNavBDE</name>
+    </customLabels>
+    <customLabels>
+        <label>Procesos en lote</label>
+        <name>stgNavBulkProcesses</name>
+    </customLabels>
+    <customLabels>
+        <label>Conexiones</label>
+        <name>stgNavConnections</name>
+    </customLabels>
+    <customLabels>
+        <label>Funciones del contacto</label>
+        <name>stgNavContactRoles</name>
+    </customLabels>
+    <customLabels>
+        <label>Contactos</label>
+        <name>stgNavContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>Donaciones</label>
+        <name>stgNavDonations</name>
+    </customLabels>
+    <customLabels>
+        <label>Estadísticas en el donante</label>
+        <name>stgNavDonorStatistics</name>
+    </customLabels>
+    <customLabels>
+        <label>Registro de errores</label>
+        <name>stgNavErrorLog</name>
+    </customLabels>
+    <customLabels>
+        <label>Notificaciones de Error</label>
+        <name>stgNavErrorNotify</name>
+    </customLabels>
+    <customLabels>
+        <label>Control de salud</label>
+        <name>stgNavHealthCheck</name>
+    </customLabels>
+    <customLabels>
+        <label>Familias</label>
+        <name>stgNavHouseholds</name>
+    </customLabels>
+    <customLabels>
+        <label>Candidatos</label>
+        <name>stgNavLeads</name>
+    </customLabels>
+    <customLabels>
+        <label>Membresía</label>
+        <name>stgNavMembership</name>
+    </customLabels>
+    <customLabels>
+        <label>Asignación de campos de pagos</label>
+        <name>stgNavPaymentMappings</name>
+    </customLabels>
+    <customLabels>
+        <label>Pagos</label>
+        <name>stgNavPayments</name>
+    </customLabels>
+    <customLabels>
+        <label>Personas</label>
+        <name>stgNavPeople</name>
+    </customLabels>
+    <customLabels>
+        <label>Lote de las Donaciones Recurrentes</label>
+        <name>stgNavRDBatch</name>
+    </customLabels>
+    <customLabels>
+        <label>Asignación de campos personalizados</label>
+        <name>stgNavRDFieldMap</name>
+    </customLabels>
+    <customLabels>
+        <label>Frecuencias personalizadas</label>
+        <name>stgNavRDInstallmentPeriods</name>
+    </customLabels>
+    <customLabels>
+        <label>Donaciones recurrentes</label>
+        <name>stgNavRecurringDonations</name>
+    </customLabels>
+    <customLabels>
+        <label>Auto-creación de relaciones</label>
+        <name>stgNavRelAutoCreate</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración de las Relaciones recíprocas</label>
+        <name>stgNavRelReciprocal</name>
+    </customLabels>
+    <customLabels>
+        <label>Relaciones</label>
+        <name>stgNavRelationships</name>
+    </customLabels>
+    <customLabels>
+        <label>Lote de totales en asignaciones</label>
+        <name>stgNavRollupAlloBatch</name>
+    </customLabels>
+    <customLabels>
+        <label>Lote de totales en donaciones</label>
+        <name>stgNavRollupBatch</name>
+    </customLabels>
+    <customLabels>
+        <label>Herramientas del sistema</label>
+        <name>stgNavSystem</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración de triggers</label>
+        <name>stgNavTriggerConfig</name>
+    </customLabels>
+    <customLabels>
+        <label>Totales definidos por el usuario</label>
+        <name>stgNavUserDefinedRollups</name>
+    </customLabels>
+    <customLabels>
+        <label>Al establecer el Modelo Cuenta en &apos; Cuenta Familiar &apos;, se requieren que la Regla de Familia se establezca en &apos;No Contactos&apos; . Al utilizar este modelo, no hay necesidad de tener un objeto adicional Familia.</label>
+        <name>stgValidationHHAccountHHRules</name>
+    </customLabels>
+    <customTabs>
+        <label>Data Entry en lote</label>
+        <name>Batch_Data_Entry</name>
+    </customTabs>
+    <customTabs>
+        <label>Combinar Contacto</label>
+        <name>Contact_Merge</name>
+    </customTabs>
+    <customTabs>
+        <label>Empezando</label>
+        <name>NPSP_Resources</name>
+    </customTabs>
+    <customTabs>
+        <label>Configuración del NPSP</label>
+        <name>NPSP_Settings</name>
+    </customTabs>
+    <quickActions>
+        <label><!-- LogACall --></label>
+        <name>LogACall</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- NewAccount --></label>
+        <name>NewAccount</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- New Contact --></label>
+        <name>NewContact</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- NewNote --></label>
+        <name>NewNote</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- New Opportunity --></label>
+        <name>NewOpportunity</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- NewTask --></label>
+        <name>NewTask</name>
+    </quickActions>
+    <quickActions>
+        <label>Nueva campaña</label>
+        <name>New_Campaign</name>
+    </quickActions>
+    <quickActions>
+        <label>Nueva donación recurrente</label>
+        <name>New_Recurring_Donation</name>
+    </quickActions>
+    <reportTypes>
+        <description>Contactos sin estar unidos a ningún otro objeto</description>
+        <label>Solo contactos</label>
+        <name>Contacts_Only</name>
+        <sections>
+            <label>Contactos</label>
+            <name>Contacts</name>
+        </sections>
+    </reportTypes>
+</Translations>

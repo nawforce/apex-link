@@ -1,0 +1,279 @@
+<apex:component controller="UTIL_JobProgress_CTRL" selfClosing="true">
+    <apex:includeScript value="{!URLFOR($Resource.CumulusStaticResources, 'transparency/transparency.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.CumulusStaticResources, 'moment/moment.min.js')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.SLDS, '/0_12_2/assets/styles/salesforce-lightning-design-system-vf.min.css')}"/>
+
+    <apex:attribute name="cNumberOfJobs" type="Integer" assignTo="{!numberOfJobs}" default="20" description="The number of batch jobs to display in the table."/>
+    <apex:attribute name="strBatchComponentLabel" type="String" assignTo="{!batchComponentLabel}" default="Batch Apex Jobs" description="The label of the progress bar section."/>
+    <apex:attribute name="startPolling" type="Boolean" default="True" description="Whether the component should begin polling for jobs as soon as it loads"/>
+    <apex:attribute name="stopPollingOnComplete" type="Boolean" default="False" description="Whether the component should stop polling once all queried jobs are complete"/>
+    <apex:attribute name="pollingDelay" type="Integer" default="5000" description="How long (in ms) to delay between polling for job progress"/>
+    <apex:attribute name="eventTargetId" type="String" description="The id of the DOM Element to use for events"/>
+
+    <style type="text/css">
+        svg {
+            width: 100%;
+            height: 100%;
+            max-width: 100px;
+            max-height: 100px;
+        }
+        circle {
+            transform-origin: 50% 50%;
+            transform: rotate(-90deg);
+            fill: none;
+            stroke-width: 2;
+        }
+        circle, circle.success {
+            stroke: #04844B;
+        }
+        circle.warning {
+            stroke: #FFB75D;
+        }
+        circle.error {
+            stroke: #C23934;
+        }
+        text {
+            text-anchor: middle;
+            dominant-baseline: middle;
+            fill: #00396B;
+        }
+        ul[data-job-progress="template"] {
+            display: none;
+        }
+    </style>
+
+    <apex:outputPanel layout="block" id="jobProgressContainer" styleClass="slds">
+        <div class="slds-card">
+            <div class="slds-card__header">
+                <h3 class="slds-text-heading--small">{!batchComponentLabel}</h3>
+            </div>
+            <div data-job-progress="list-container" class="slds-card__body">
+                <div class="slds-spinner--large slds-container--center slds-m-vertical--xx-large">
+                    <img src="{!URLFOR($Resource.SLDS, '/0_12_2/assets/images/spinners/slds_spinner_brand.gif')}" alt="Loading..." />
+                </div>
+            </div>
+        </div>
+
+
+        <ul data-job-progress="template" class="slds-list--vertical">
+            <li class="slds-list__item slds-m-bottom--large">
+                <div class="slds-media slds-tile slds-wrap">
+                    <div class="slds-media__figure slds-size--2-of-12">
+                        <svg viewbox="0 0 34 34">
+                            <circle class="progressCircle" stroke-dasharray="0 100" r="16" cx="17" cy="17"/>
+                            <g transform="matrix(0.5, 0, 0, 0.5, 8.5, 8.5)">
+                                <text x="17" y="17" class="slds-text-heading--small percentCompleted"></text>
+                            </g>
+                        </svg>
+                    </div>
+                    <div class="slds-media__body slds-size--10-of-12">
+                        <div class="slds-tile__title slds-grid">
+                            <p class="slds-truncate slds-col slds-small-size--2-of-3 slds-medium-size--1-of-2 className"></p>
+                            <div class="slds-col slds-smal-size--1-of-3 slds-medium-size--1-of-2 slds-small-show">
+                                <span class="slds-badge completionBadge"><span class="status"></span></span>
+                            </div>
+                        </div>
+                        <div class="slds-tile__detail">
+                            <p class="slds-text-body--small slds-truncate">
+                                Started by <span class="createdByName"></span> <span class="createdDate"></span>
+                            </p>
+                            <dl class="slds-dl--horizontal slds-text-body--small">
+                                <div class="slds-x-small-show-only">
+                                    <dt class="slds-dl--horizontal__label slds-medium-size--2-of-12 slds-x-small-show-only">
+                                        <span class="slds-truncate">Status:</span>
+                                    </dt>
+                                    <dd class="slds-dl--horizontal__detail slds-tile__meta slds-medium-size--10-of-12 slds-x-small-show-only">
+                                        <span class="slds-truncate status"></span>
+                                    </dd>
+                                </div>
+                                <dt class="slds-dl--horizontal__label slds-medium-size--2-of-12">
+                                    <span class="slds-truncate">Progress:</span>
+                                </dt>
+                                <dd class="slds-dl--horizontal__detail slds-tile__meta slds-medium-size--10-of-12">
+                                    <span class="slds-truncate"><span class="jobItemsProcessed"></span> of <span class="totalJobItems"></span> batches processed</span>
+                                </dd>
+                                <dt class="slds-dl--horizontal__label slds-medium-size--2-of-12 completedDateContainer">
+                                    <span class="slds-truncate">Completed:</span>
+                                </dt>
+                                <dd class="slds-dl--horizontal__detail slds-tile__meta slds-medium-size--10-of-12 completedDateContainer">
+                                    <span class="slds-truncate completedDate"></span>
+                                </dd>
+                                <dt class="slds-dl--horizontal__label slds-medium-size--2-of-12 extendedStatusContainer">
+                                    <span class="slds-truncate">Extended Status:</span>
+                                </dt>
+                                <dd class="slds-dl--horizontal__detail slds-tile__meta slds-medium-size--10-of-12 extendedStatusContainer">
+                                    <span class="slds-truncate extendedStatus"></span>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </apex:outputPanel>
+
+
+    <script>
+    (function () {
+
+        var jobProgressContainer = document.getElementById('{!$Component.jobProgressContainer}');
+        var pollingDelay = {!pollingDelay};
+        var refreshInterval;
+        var eventTarget;
+
+        var jobsListTemplate = jobProgressContainer.querySelector('[data-job-progress="template"]').cloneNode(true);
+        jobsListTemplate.removeAttribute("data-job-progress");
+
+        var directives = {
+            "completionBadge": {
+                "html": function (params) {
+                    var themeClass = getThemeClass(this.status, this.numberOfErrors);
+                    params.element.setAttribute("class", "slds-badge slds-theme--" + themeClass);
+                }
+            },
+            "createdDate": {
+                "text": function () {
+                    return moment(this.createdDate, 'x').fromNow();
+                }
+            },
+            "percentCompleted": {
+                "text": function() {
+                    return '' + this.percentCompleted + '%';
+                }
+            },
+            "progressCircle": {
+                "html": function (params) {
+                    var themeClass = getThemeClass(this.status, this.numberOfErrors);
+                    params.element.setAttribute("class", themeClass);
+
+                    var strokedasharray = '' + this.percentCompleted + ' 100';
+                    params.element.setAttribute("stroke-dasharray", strokedasharray);
+                }
+            },
+            "completedDateContainer": {
+                "html": function (params) {
+                    if (!this.completedDate || this.completedDate === '') {
+                        params.element.remove();
+                    }
+                }
+            },
+            "completedDate": {
+                "text": function () {
+                    return moment(this.completedDate, 'x').calendar();
+                }
+            },
+            "extendedStatusContainer": {
+                "html": function (params) {
+                    if (!this.extendedStatus || this.extendedStatus === '') {
+                        params.element.remove();
+                    }
+                }
+            }
+        };
+
+        function getThemeClass(status, numberOfErrors) {
+            var themeClass;
+            if ('Aborted' === status) {
+                themeClass = 'warning';
+            } else if ('Failed' === status) {
+                themeClass = 'error';
+            } else if ('Completed' === status && numberOfErrors === 0) {
+                themeClass = 'success';
+            } else if ('Completed' === status && numberOfErrors > 0) {
+                themeClass = 'warning';
+            }
+            return themeClass;
+        }
+
+        function refreshJobsList() {
+            Visualforce.remoting.Manager.invokeAction(
+                '{!$RemoteAction.UTIL_JobProgress_CTRL.getBatchJobsStatus}',
+                {!numberOfJobs},
+                function (result, event) {
+                    sendProgressEvents(result);
+                    var jobsListContainer = jobProgressContainer.querySelector('[data-job-progress="list-container"]');
+                    var jobsListContent = Transparency.render(jobsListTemplate.cloneNode(true), result, directives);
+                    jobsListContainer.replaceChild(jobsListContent, jobsListContainer.firstElementChild);
+                }
+            );
+        }
+
+        function startPolling(pollingDelay) {
+            refreshJobsList();
+            refreshInterval = window.setInterval(refreshJobsList, pollingDelay);
+        }
+
+        function stopPolling() {
+            window.clearInterval(refreshInterval);
+        }
+
+        function sendProgressEvents(results) {
+            var stats = {
+                "allDone": true,
+                "abortedCount": 0,
+                "completedCount": 0,
+                "failedCount": 0,
+                "errorCount": 0
+            }
+
+            for (i = 0; i < results.length; i++) {
+                if (results[i].numberOfErrors) {
+                    stats.errorCount += results[i].numberOfErrors;
+                }
+
+                if ('Aborted' === results[i].status) {
+                    stats.abortedCount++;
+                } else if ('Completed' === results[i].status) {
+                    stats.completedCount++;
+                } else if ('Failed' === results[i].status) {
+                    stats.failedCount++;
+                } else {
+                    stats.allDone = false;
+                }
+            }
+
+            if (eventTarget) {
+                var progressEvent = document.createEvent('CustomEvent');
+                progressEvent.initCustomEvent('progress', false, false, stats);
+                eventTarget.dispatchEvent(progressEvent);
+
+                if (stats.allDone) {
+                    var completeEvent = document.createEvent('CustomEvent');
+                    completeEvent.initCustomEvent('complete', false, false, stats);
+                    eventTarget.dispatchEvent(completeEvent);
+                }
+            }
+        }
+
+        function init() {
+            eventTarget = document.getElementById('{!eventTargetId}');
+
+            if (eventTarget) {
+                eventTarget.addEventListener('start', function () {
+                    startPolling(pollingDelay);
+                });
+
+                eventTarget.addEventListener('stop', function () {
+                    stopPolling();
+                });
+
+                eventTarget.addEventListener('complete', function () {
+                   if ({!IF(stopPollingOnComplete, 'true', 'false')}) {
+                       stopPolling();
+                   }
+                });
+            }
+
+            if ({!IF(startPolling, 'true', 'false')}) {
+                startPolling(pollingDelay);
+            }
+        }
+
+        if ('loading' !== document.readyState) {
+            init();
+        } else {
+            document.addEventListener('DOMContentLoaded', init);
+        }
+    })();
+    </script>
+</apex:component>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Trigger Handler --></value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value><!-- Trigger Handler --></value>
+    </caseValues>
+    <fields>
+        <help>Indica que este módulo esta activo</help>
+        <label>Activa</label>
+        <name>Active__c</name>
+    </fields>
+    <fields>
+        <help>Indica que este módulo debe correr de forma asincrónica en esta transacción, para cualquiera de estos After Events</help>
+        <label>Asincrónico After Events</label>
+        <name>Asynchronous__c</name>
+    </fields>
+    <fields>
+        <help>Nombre de la clase que debe correr</help>
+        <label>Clase</label>
+        <name>Class__c</name>
+    </fields>
+    <fields>
+        <help>Orden en el cual este módulo debe correr, ayudando a mantener dependencia en los módulos y los datos.</help>
+        <label>Orden de carga</label>
+        <name>Load_Order__c</name>
+    </fields>
+    <fields>
+        <help>Nombre del objeto en el que este handler debe correr</help>
+        <label>Objeto</label>
+        <name>Object__c</name>
+    </fields>
+    <fields>
+        <help>Acción desencadenada (Trigger Action) en el que este módulo debe disparar</help>
+        <label>Acción desencadenada</label>
+        <name>Trigger_Action__c</name>
+        <picklistValues>
+            <masterLabel>AfterDelete</masterLabel>
+            <translation><!-- AfterDelete --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>AfterInsert</masterLabel>
+            <translation><!-- AfterInsert --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>AfterUndelete</masterLabel>
+            <translation><!-- AfterUndelete --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>AfterUpdate</masterLabel>
+            <translation><!-- AfterUpdate --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>BeforeDelete</masterLabel>
+            <translation><!-- BeforeDelete --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>BeforeInsert</masterLabel>
+            <translation><!-- BeforeInsert --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>BeforeUpdate</masterLabel>
+            <translation><!-- BeforeUpdate --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>Seleccionar si tiene la intención de gestionar el registro usted mismo. Tenga en cuenta que las actualizaciones del paquete no actualizará este registro.</help>
+        <label>Manejado por usuario</label>
+        <name>User_Managed__c</name>
+    </fields>
+    <gender><!-- Feminine --></gender>
+    <layouts>
+        <layout>Trigger Handler Layout</layout>
+        <sections>
+            <label>Vínculos personalizados</label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Trigger Handler Name --></nameFieldLabel>
+</CustomObjectTranslation>

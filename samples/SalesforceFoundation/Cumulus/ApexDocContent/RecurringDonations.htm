@@ -1,0 +1,22 @@
+<html>
+    <body>
+        <h2>Recurring Donations Related Classes</h2>
+        <p>NPSP supports two distinct types of Recurring Donations.</p>
+        <ul>
+            <li>Open-Ended Recurring Donations - these specify a set of new Opportunities on a recurring schedule</li>
+            <li>Non Open-Ended Recurring Donations - these specify a fixed number of new Opportunities</li>
+        </ul>
+        
+        <p>The classes involved in supporting Recurring Donations are:</p>    
+        <ul>
+            <li>RD_AddDonationsBTN_CTRL - The page controller for the Refresh Opportunities button.</li>
+            <li>RD_BulkTests_TEST - Test class that contains a test for creating multiple large RD's at once.</li>
+            <li>RD_ProcessControl - Semaphore class that maintains two flags used by RD's.</li>
+            <li>RD_RecurringDonations_BATCH - Batch class that is scheduled to run regularly to process the creation of future Opportunities.</li>
+            <li>RD_RecurringDonations_Opp_TDTM - Trigger Handler on Opportunities to help manage Recurring Donations.</li>
+            <li>RD_RecurringDonations_TDTM - Trigger Handler on Recurring Donations.</li>
+            <li>RD_RecurringDonations_TEST - Test methods that cover all Recurring Donations functionality.</li>
+            <li>RD_RecurringDonations - The main logic for supporting Recurring Donations.</li>
+        </ul>
+    </body>
+</html>

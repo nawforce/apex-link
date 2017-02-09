@@ -1,0 +1,19 @@
+<apex:page controller="STG_PanelOppBatch_CTRL" >
+    <apex:form id="form" styleClass="slds-m-around--x-large">
+        <c:STG_PageHeader sectionLabel="{!$Label.stgNavBulkProcesses}" pageLabel="{!$Label.stgNavRollupBatch}" />
+        <div class="slds-text-body--small slds-m-around--medium">{!$Label.stgHelpBatchOppRollup}</div>
+        <c:UTIL_PageMessages />
+        <div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-p-around--large">
+            <apex:commandButton id="runOppBatch" value="{!$Label.stgBtnRunBatch}" status="statusLoad" action="{!runBatch}" disabled="{!isRunningBatch}" immediate="true" rerender="form" styleClass="slds-button slds-button--small slds-button--neutral" />
+        </div>
+        <apex:outputPanel rendered="{!isRunningBatch}">
+            <c:UTIL_JobProgressLightning id="jobProgress"
+                eventTargetId="{!$Component.jobProgress}"
+                strBatchComponentLabel="{!$Label.stgLabelOppBatchProgress}"
+                cNumberOfJobs="4"
+                startPolling="True"
+                stopPollingOnComplete="True"
+                pollingDelay="1000"/>
+        </apex:outputPanel>
+    </apex:form>
+</apex:page>

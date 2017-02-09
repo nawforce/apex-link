@@ -1,0 +1,84 @@
+<aura:component >
+    <!-- our attributes -->
+    <aura:attribute name="contact" type="Object" access="public" />
+
+    <!-- events we fire -->
+    <aura:registerEvent name="ContactChangedEvent" type="c:HH_ContactChangedEvent" />
+    <aura:registerEvent name="ContactRemoveEvent" type="c:HH_ContactRemoveEvent" />
+
+    <!-- markup follows... -->
+
+    <div class="slds-card slds-p-around--none">
+        <div class="slds-card__header slds-p-around--small">
+            <div class="slds-tile slds-tile--board slds-m-around--none" style="margin:0;">
+                <span class="slds-tile__title slds-truncate">
+                    <div class="slds-media slds-media--center slds-has-flexi-truncate">
+                        <div class="slds-media__figure">
+                            <lightning:icon iconName="standard:contact" class="slds-icon--small" size="small"/>
+                        </div>
+                        <div class="slds-media__body">
+                            <a href="{! '/' + v.contact.Id}" target="_blank">{!v.contact.FirstName}&nbsp;{!v.contact.LastName}</a>
+                        </div>
+                        <div class="slds-media__figure slds-m-right--none">
+                            <lightning:buttonIcon iconName="utility:close" class="removeBtn" variant="bare"
+                                onclick="{!c.removeContact}" alternativeText="{!$Label.c.btnRemove}"/>
+                        </div>
+                    </div>
+                </span>
+            </div>
+            <!-- slds-tile -->
+        </div>
+        <div class="slds-card__body slds-m-around--x-small slds-p-vertical--none">
+            <!-- address -->
+            <div class="slds-text-body--small slds-m-bottom--small">
+                <ui:outputText value="{!v.contact.MailingStreet}" /><br/>
+                <ui:outputText value="{!v.contact.MailingCity + (v.contact.MailingState != null ? ', ' : '') + v.contact.MailingState + ' ' + v.contact.MailingPostalCode + ' '}" /><br/>
+                <ui:outputText value="{!v.contact.MailingCountry}" />
+                <aura:if isTrue="{!v.contact.is_Address_Override__c}">
+                    <br/><i>{!$Label.c.lblAddressOverride}</i>
+                </aura:if>
+            </div>
+
+            <form>
+                <fieldset class="slds-form-element">
+                    <legend class="form-element__legend slds-form-element__label">{!$Label.c.lblCCardExcludeFrom}</legend>
+                    <div class="slds-form-element">
+                        <div class="slds-form-element__control">
+                            <label class="slds-checkbox">
+                                <ui:inputCheckbox aura:id="Exclude_from_Household_Name__c"
+                                    class="slds-checkbox" change="{!c.onCheck}"
+                                    value="{!v.contact.Exclude_from_Household_Name__c }"/>
+                                <span class="slds-checkbox--faux"></span>
+                                <span class="slds-form-element__label" for="exHHName">{!$Label.c.lblHouseholdName} </span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-form-element">
+                        <div class="slds-form-element__control">
+                            <label class="slds-checkbox">
+                                <ui:inputCheckbox aura:id="Exclude_from_Household_Formal_Greeting__c"
+                                    class="slds-checkbox" change="{!c.onCheck}"
+                                    value="{!v.contact.Exclude_from_Household_Formal_Greeting__c }"/>
+                                <span class="slds-checkbox--faux"></span>
+                                <span class="slds-form-element__label">{!$Label.c.lblFormalGreeting} </span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-form-element">
+                        <div class="slds-form-element__control">
+                            <label class="slds-checkbox">
+                                <ui:inputCheckbox aura:id="Exclude_from_Household_Informal_Greeting__c"
+                                class="slds-checkbox" change="{!c.onCheck}"
+                                value="{!v.contact.Exclude_from_Household_Informal_Greeting__c }"/>
+                                <span class="slds-checkbox--faux"></span>
+                                <span class="slds-form-element__label">{!$Label.c.lblInformalGreeting} </span>
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+    <!-- slds-card -->
+
+</aura:component>

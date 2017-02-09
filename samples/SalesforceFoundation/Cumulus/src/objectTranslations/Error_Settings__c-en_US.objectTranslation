@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Error Settings</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Error Settings</value>
+    </caseValues>
+    <fields>
+        <help><!-- If checked, NPSP&apos;s error handling framework is disabled. --></help>
+        <label><!-- Disable Error Handling --></label>
+        <name>Disable_Error_Handling__c</name>
+    </fields>
+    <fields>
+        <help><!-- Turn this on to enable debug statements in managed package code. --></help>
+        <label><!-- Enable Debug --></label>
+        <name>Enable_Debug__c</name>
+    </fields>
+    <fields>
+        <help><!-- Check this if you&apos;d like the system to post notifications for certain type of errors. --></help>
+        <label><!-- Error Notifications --></label>
+        <name>Error_Notifications_On__c</name>
+    </fields>
+    <fields>
+        <help><!-- Select the type of user to send notifications to. --></help>
+        <label><!-- Error Notification Recipients --></label>
+        <name>Error_Notifications_To__c</name>
+    </fields>
+    <fields>
+        <help><!-- Check this if you&apos;d like errors to be stored in the database. --></help>
+        <label><!-- Store Errors --></label>
+        <name>Store_Errors_On__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

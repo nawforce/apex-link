@@ -1,0 +1,7 @@
+<apex:page controller="ADDR_CopyAddrHHObjBTN_CTRL" action="{!buttonClick}" >
+    <apex:stylesheet value="{!URLFOR($Resource.SLDS, '/0_12_2/assets/styles/salesforce-lightning-design-system-vf.min.css')}" />
+
+	<c:UTIL_PageMessages />
+    <apex:outputLink target="_self" title="Return"  value="{!returnurl}" >Return</apex:outputLink>
+    <c:UTIL_NavigateBack recordId="{!$CurrentPage.parameters.id}" redirect="{!redirectPage}"/>
+</apex:page>

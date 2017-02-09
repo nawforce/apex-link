@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Address Verification Settings</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Address Verification Settings</value>
+    </caseValues>
+    <fields>
+        <help><!-- URL used for address verification. --></help>
+        <label><!-- Address Verification URL --></label>
+        <name>Address_Verification_Endpoint__c</name>
+    </fields>
+    <fields>
+        <help><!-- The Authentication ID. --></help>
+        <label><!-- Auth ID --></label>
+        <name>Auth_ID__c</name>
+    </fields>
+    <fields>
+        <help><!-- The Authentication Token. --></help>
+        <label><!-- Auth Token --></label>
+        <name>Auth_Token__c</name>
+    </fields>
+    <fields>
+        <help><!-- Salesforce class responsible for contacting the web service and verifying addresses. --></help>
+        <label><!-- Verification Service --></label>
+        <name>Class__c</name>
+    </fields>
+    <fields>
+        <help><!-- Enables automatic address verification for new addresses. --></help>
+        <label><!-- Enable Automatic Verification --></label>
+        <name>Enable_Automatic_Verification__c</name>
+    </fields>
+    <fields>
+        <help><!-- Marks ambiguous addresses as invalid, when the API returns more than one address. If left unselected, Salesforce will accept the first suggested address as the valid address. --></help>
+        <label><!-- Reject Ambiguous Addresses --></label>
+        <name>Reject_Ambiguous_Addresses__c</name>
+    </fields>
+    <fields>
+        <help><!-- Callout timeout in seconds. --></help>
+        <label><!-- Timeout --></label>
+        <name>Timeout__c</name>
+    </fields>
+    <fields>
+        <help><!-- Specifies whether or not you are using the SmartyStreets address verification service. --></help>
+        <label><!-- DEPRECATED - Using SmartyStreets --></label>
+        <name>Using_SmartyStreets__c</name>
+    </fields>
+    <fields>
+        <help><!-- URL used for zip code verification. --></help>
+        <label><!-- Zipcode Verification Endpoint --></label>
+        <name>Zipcode_Verification_Endpoint__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

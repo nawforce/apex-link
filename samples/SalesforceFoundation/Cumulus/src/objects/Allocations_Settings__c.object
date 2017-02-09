@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>Hierarchy</customSettingsType>
+    <description>Settings for the allocation of Opportunities into General Accounting Units.</description>
+    <enableFeeds>false</enableFeeds>
+    <fields>
+        <fullName>Default_Allocations_Enabled__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Enabling Default Allocations creates an Allocation object for each Opportunity. This enables reporting on allocations to a default General Accounting Unit, but uses more data storage.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Enabling Default Allocations creates an Allocation object for each Opportunity. This enables reporting on allocations to a default General Accounting Unit, but uses more data storage.</inlineHelpText>
+        <label>Default Allocations Enabled</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Default__c</fullName>
+        <description>Holds the ID of the default General Accounting Unit for creation of default allocations or for the allocation of non allocated amounts.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Holds the ID of the default General Accounting Unit for creation of default allocations or for the allocation of non allocated amounts.</inlineHelpText>
+        <label>Default General Accounting Unit</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Excluded_Opp_RecTypes__c</fullName>
+        <description>Opportunity Record Types to exclude from calculations of Allocations rollups.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Opportunity Record Types to exclude from calculations of Allocations rollups.</inlineHelpText>
+        <label>Excluded Opp RecTypes</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Excluded_Opp_Types__c</fullName>
+        <description>Excluded Opportunity Types from Allocations rollups.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Excluded Opportunity Types from Allocations rollups.</inlineHelpText>
+        <label>Excluded Opp Types</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Rollup_N_Day_Value__c</fullName>
+        <defaultValue>365</defaultValue>
+        <description>This value affects the number of days to count for N Days Allocations rollup fields.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>This value affects the number of days to count for N Days Allocations rollup fields.</inlineHelpText>
+        <label>Rollup N Day Value</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Use_Fiscal_Year_for_Rollups__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Checking this box will cause Allocation rollup totals to respect fiscal year, instead of calendar years settings. To set Fiscal Year information, go to Setup-&gt;Company Profile-&gt;Fiscal Year. NOTE: Custom Fiscal Year Settings are NOT supported.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Checking this box will cause Allocation rollup totals to respect fiscal year, instead of calendar years settings. To set Fiscal Year information, go to Setup-&gt;Company Profile-&gt;Fiscal Year. NOTE: Custom Fiscal Year Settings are NOT supported.</inlineHelpText>
+        <label>Use Fiscal Year for Rollups</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <label>Allocations Settings</label>
+    <visibility>Public</visibility>
+</CustomObject>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value><!-- Error Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value><!-- Error Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>false</plural>
+        <value><!-- Error Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>true</plural>
+        <value><!-- Error Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>false</plural>
+        <value><!-- Error Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>true</plural>
+        <value><!-- Error Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>false</plural>
+        <value><!-- Error Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>true</plural>
+        <value><!-- Error Settings --></value>
+    </caseValues>
+    <fields>
+        <help>Bei Aktivierung dieser Option wird das NPSP-Fehlerbehandlungs-Framework deaktiviert.</help>
+        <label>Fehlerbehandlung deaktivieren</label>
+        <name>Disable_Error_Handling__c</name>
+    </fields>
+    <fields>
+        <help>Aktivieren Sie diese Option, um Debug-Aussagen im Code für verwaltete Pakete zu aktivieren.</help>
+        <label>Debug aktivieren</label>
+        <name>Enable_Debug__c</name>
+    </fields>
+    <fields>
+        <help>Aktivieren Sie diese Option, wenn das System Benachrichtigungen für bestimmte Fehlertypen posten soll.</help>
+        <label>Fehlerbenachrichtigungen</label>
+        <name>Error_Notifications_On__c</name>
+    </fields>
+    <fields>
+        <help>Wählen Sie den Benutzertyp aus, an den Benachrichtigungen gesendet werden sollen.</help>
+        <label>Empfänger von Fehlerbenachrichtigungen</label>
+        <name>Error_Notifications_To__c</name>
+    </fields>
+    <fields>
+        <help>Aktivieren Sie diese Option, wenn Fehler in der Datenbank gespeichert werden sollen.</help>
+        <label>Fehler speichern</label>
+        <name>Store_Errors_On__c</name>
+    </fields>
+    <gender><!-- Neuter --></gender>
+</CustomObjectTranslation>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Allocations Settings</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Allocations Settings</value>
+    </caseValues>
+    <fields>
+        <help><!-- Enabling Default Allocations creates an Allocation object for each Opportunity. This enables reporting on allocations to a default General Accounting Unit, but uses more data storage. --></help>
+        <label><!-- Default Allocations Enabled --></label>
+        <name>Default_Allocations_Enabled__c</name>
+    </fields>
+    <fields>
+        <help><!-- Holds the ID of the default General Accounting Unit for creation of default allocations or for the allocation of non allocated amounts. --></help>
+        <label><!-- Default General Accounting Unit --></label>
+        <name>Default__c</name>
+    </fields>
+    <fields>
+        <help><!-- Opportunity Record Types to exclude from calculations of Allocations rollups. --></help>
+        <label><!-- Excluded Opp RecTypes --></label>
+        <name>Excluded_Opp_RecTypes__c</name>
+    </fields>
+    <fields>
+        <help><!-- Excluded Opportunity Types from Allocations rollups. --></help>
+        <label><!-- Excluded Opp Types --></label>
+        <name>Excluded_Opp_Types__c</name>
+    </fields>
+    <fields>
+        <help><!-- This value affects the number of days to count for N Days Allocations rollup fields. --></help>
+        <label><!-- Rollup N Day Value --></label>
+        <name>Rollup_N_Day_Value__c</name>
+    </fields>
+    <fields>
+        <help><!-- Checking this box will cause Allocation rollup totals to respect fiscal year, instead of calendar years settings. To set Fiscal Year information, go to Setup-&gt;Company Profile-&gt;Fiscal Year. NOTE: Custom Fiscal Year Settings are NOT supported. --></help>
+        <label><!-- Use Fiscal Year for Rollups --></label>
+        <name>Use_Fiscal_Year_for_Rollups__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

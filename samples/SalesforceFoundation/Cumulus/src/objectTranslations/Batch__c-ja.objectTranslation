@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Batch --></value>
+    </caseValues>
+    <fields>
+        <label>バッチ状況</label>
+        <name>Batch_Status__c</name>
+        <picklistValues>
+            <masterLabel>Complete</masterLabel>
+            <translation>完了</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>In Progress</masterLabel>
+            <translation>進行中</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>説明</label>
+        <name>Description__c</name>
+    </fields>
+    <fields>
+        <label>項目数</label>
+        <name>Number_of_Items__c</name>
+    </fields>
+    <fields>
+        <help>バッチであるオブジェクトの API 参照名。</help>
+        <label>オブジェクト名</label>
+        <name>Object_Name__c</name>
+    </fields>
+    <layouts>
+        <layout>Batch Layout</layout>
+        <sections>
+            <label>カスタムリンク</label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Batch Name --></nameFieldLabel>
+</CustomObjectTranslation>

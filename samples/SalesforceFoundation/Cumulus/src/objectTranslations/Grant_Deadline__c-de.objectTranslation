@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value><!-- Deliverable --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value><!-- Deliverable --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>false</plural>
+        <value><!-- Deliverable --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>true</plural>
+        <value><!-- Deliverable --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>false</plural>
+        <value><!-- Deliverable --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>true</plural>
+        <value><!-- Deliverable --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>false</plural>
+        <value><!-- Deliverable --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>true</plural>
+        <value><!-- Deliverable --></value>
+    </caseValues>
+    <fields>
+        <help><!-- The date on which this particular Deliverable is due. --></help>
+        <label>Fälligk.dat. d. letzten Unterst.termins</label>
+        <name>Grant_Deadline_Due_Date__c</name>
+    </fields>
+    <fields>
+        <help>Das Datum, an dem zustellbare Unterstützung tatsächlich übermittelt wurde.</help>
+        <label>Schlussdatum für zustellb. Unterstützung</label>
+        <name>Grant_Deliverable_Close_Date__c</name>
+    </fields>
+    <fields>
+        <help><!-- Description of what is required for this deliverable. --></help>
+        <label>Anforderungen d. zustellb. Unterstützung</label>
+        <name>Grant_Deliverable_Requirements__c</name>
+    </fields>
+    <fields>
+        <label>Unterstützungs-Opportunity</label>
+        <name>Opportunity__c</name>
+        <relationshipLabel>Unterstützungs-Termine</relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Type --></label>
+        <name>Type__c</name>
+        <picklistValues>
+            <masterLabel>Application</masterLabel>
+            <translation><!-- Application --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Final Report</masterLabel>
+            <translation><!-- Final Report --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Interim Report</masterLabel>
+            <translation><!-- Interim Report --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>LOI</masterLabel>
+            <translation><!-- LOI --></translation>
+        </picklistValues>
+    </fields>
+    <gender><!-- Neuter --></gender>
+    <layouts>
+        <layout>Grant Deadline Layout</layout>
+        <sections>
+            <label>Benutzerdefinierte Links</label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label>Unterstützungsanforderungen</label>
+            <section>Grant Deliverable Requirements</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Deliverable Name --></nameFieldLabel>
+</CustomObjectTranslation>

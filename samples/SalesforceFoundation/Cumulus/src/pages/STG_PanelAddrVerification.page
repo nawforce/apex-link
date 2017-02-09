@@ -1,0 +1,242 @@
+<apex:page controller="STG_PanelADDRVerification_CTRL" action="{!initDynamicFields}">
+
+    <script>
+        var j$ = jQuery.noConflict();
+
+        var settingsHelpText = {};
+
+        var hideUnusedElements = function() {
+
+            //drop-down selection, if in Edit mode
+            var selection = j$('[id$=iClass__c] :selected').text();
+
+            //existing value, if in View mode
+            if(!selection) {
+                selection = j$('[id$=iServiceName]').text();
+            }
+
+            if(selection=='SmartyStreets') {
+                j$('[id$=iAuthIdDiv]').show();
+                j$('[id$=iAuthTokenDiv]').show();
+                j$('[id$=iBatchVerifyDiv]').show();
+            } else {
+                j$('[id$=iAuthIdDiv]').hide();
+                j$('[id$=iAuthTokenDiv]').show();
+                j$('[id$=iBatchVerifyDiv]').hide();
+            }
+        }
+
+        j$(document).ready(function() {
+
+            hideUnusedElements();
+
+            j$('[id$="zipTest"]').focus().keydown(function(e) {
+                if (!!j$(this).val() && e.which == 13) j$('[id$="submitZipTest"]').click();
+            });
+
+            j$(document).on('change', '[id$=iClass__c]', function() {
+                selection = j$('[id$=iClass__c] :selected').text();
+                if(!selection) {
+                    j$('[id$=iSettingsHelpText]').html('');
+                    j$('[id$=Enable_Automatic_Verification__c').prop('checked', false);
+                } else {
+                    j$('[id$=iSettingsHelpText]').html(settingsHelpText[selection]);
+                    j$('[id$=Enable_Automatic_Verification__c').prop('checked', true);
+
+                    hideUnusedElements();
+                }
+            });
+        });
+    </script>
+    <apex:form id="form" styleClass="slds-m-around--x-large">
+        <c:STG_PageHeader sectionLabel="{!$Label.stgNavPeople}" pageLabel="{!$Label.stgLabelAddressVerification}" />
+        <c:UTIL_PageMessages />
+    
+        <div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-m-around--large">
+            <apex:commandButton id="editAddr" value="{!$Label.stgBtnEdit}" status="statusLoad" action="{!editSettings}" rendered="{!isReadOnlyMode}" immediate="true" rerender="form" styleClass="slds-button slds-button--small slds-button--neutral" oncomplete="hideUnusedElements()"/>
+        </div>
+
+        <apex:outputPanel id="fields">
+            <div class="slds-section-title--divider">
+                {!$Label.addrGeneralSettings}
+            </div>
+            <div class="slds-text-body--small slds-m-around--large">
+                <p>{!$Label.stgAddrGeneralSettingsIntro}</p>
+            </div>
+            <div class="slds-form--horizontal slds-m-around--large">
+                <div class="slds-form-element">
+                    <apex:outputLabel value="{!$ObjectType.npe01__Contacts_And_Orgs_Settings__c.Fields.Household_Account_Addresses_Disabled__c.Label}" for="cbxDHAA" styleClass="slds-form-element__label" />
+                    <div class="slds-form-element__control">
+                        <apex:inputCheckbox value="{!stgService.stgCon.Household_Account_Addresses_Disabled__c}" rendered="{!isEditMode}" id="cbxDHAA" html-aria-describedby="{!$Component.cbxDHAAHelp}" styleClass="slds-checkbox" />
+                        <apex:inputCheckbox value="{!stgService.stgCon.Household_Account_Addresses_Disabled__c}" rendered="{!isReadOnlyMode}" disabled="true" id="cbxDHAAO" html-aria-describedby="{!$Component.cbxDHAAHelp}" styleClass="slds-checkbox" />
+                        <apex:outputPanel id="cbxDHAAHelp" layout="block">
+                            <apex:outputText value="{!$Label.stgHelpDisableHHAccountAddr}" styleClass="slds-form-element__help" />
+                        </apex:outputPanel>
+                    </div>
+                </div>
+                <div class="slds-form-element">
+                    <apex:outputLabel value="{!$ObjectType.npe01__Contacts_And_Orgs_Settings__c.Fields.Organizational_Account_Addresses_Enabled__c.Label}" for="cbxOAAE" styleClass="slds-form-element__label" />
+                    <div class="slds-form-element__control">
+                        <apex:inputCheckbox value="{!stgService.stgCon.Organizational_Account_Addresses_Enabled__c}" rendered="{!isEditMode}" id="cbxOAAE" html-aria-describedby="{!$Component.cbxOAAEHelp}" styleClass="slds-checkbox" />
+                        <apex:inputCheckbox value="{!stgService.stgCon.Organizational_Account_Addresses_Enabled__c}" rendered="{!isReadOnlyMode}" disabled="true" id="cbxOAAEO" html-aria-describedby="{!$Component.cbxOAAEHelp}" styleClass="slds-checkbox"/>
+                        <apex:outputPanel id="cbxOAAEHelp" layout="block">
+                            <apex:outputText value="{!$Label.stgHelpOrgAccountAddressMgmt}" styleClass="slds-form-element__help" />
+                        </apex:outputPanel>
+                    </div>
+                </div>
+                <div class="slds-form-element">
+                    <apex:outputLabel value="{!$ObjectType.npe01__Contacts_And_Orgs_Settings__c.Fields.Simple_Address_Change_Treated_as_Update__c.Label}" for="cbxSACT" styleClass="slds-form-element__label" />
+                    <div class="slds-form-element__control">
+                        <apex:inputCheckbox value="{!stgService.stgCon.Simple_Address_Change_Treated_as_Update__c}" rendered="{!isEditMode}" id="cbxSACT" html-aria-describedby="{!$Component.cbxSACTHelp}" styleClass="slds-checkbox" />
+                        <apex:inputCheckbox value="{!stgService.stgCon.Simple_Address_Change_Treated_as_Update__c}" rendered="{!isReadOnlyMode}" disabled="true" id="cbxSACTO" html-aria-describedby="{!$Component.cbxSACTHelp}" styleClass="slds-checkbox" />
+                        <apex:outputPanel id="cbxSACTHelp" layout="block">
+                            <apex:outputText value="{!$Label.stgHelpSimpleAddrChangeIsUpdate}" styleClass="slds-form-element__help" />
+                        </apex:outputPanel>
+                    </div>
+                </div>
+            </div>
+
+            <apex:outputPanel id="helpTextMapper">
+                <apex:repeat value="{!servicesHelpTextMap}" var="key">
+                    <script>
+                        settingsHelpText['{!key}'] = '{!servicesHelpTextMap[key]}';
+                    </script>
+                </apex:repeat>
+            </apex:outputPanel>
+
+            <div class="slds-section-title--divider">
+                {!$Label.Addr_Settings_API_Title}
+            </div>
+            <div class="slds-text-body--small slds-m-around--large">
+                <p><apex:outputText value="{!$Label.Addr_Settings_Intro_Body1}" escape="false" /></p>
+                <p><apex:outputText value="{!$Label.Addr_Settings_Intro_Body2}" escape="false" /></p>
+            </div>
+            <div class="slds-form--horizontal slds-m-around--large">
+                <div class="slds-form-element">
+                    <apex:outputLabel value="{!$ObjectType.Addr_Verification_Settings__c.fields.Enable_Automatic_Verification__c.Label}" for="iEnable_Automatic_Verification__c"
+                                        styleClass="slds-form-element__label" />
+                    <div class="slds-form-element__control">
+                        <apex:inputCheckbox value="{!addrVerifsettings.Enable_Automatic_Verification__c}" rendered="{!isEditMode}" id="Enable_Automatic_Verification__c" html-aria-describedby="{!$Component.Enable_Automatic_Verification__cHelp}" styleClass="slds-checkbox" />
+                        <apex:inputCheckbox value="{!addrVerifsettings.Enable_Automatic_Verification__c}" rendered="{!isReadOnlyMode}" disabled="true" id="Enable_Automatic_Verification__cO" html-aria-describedby="{!$Component.Enable_Automatic_Verification__cHelp}" styleClass="slds-checkbox" />
+                        <apex:outputPanel id="Enable_Automatic_Verification__cHelp" layout="block">
+                            <apex:outputText value="{!$ObjectType.Addr_Verification_Settings__c.fields.Enable_Automatic_Verification__c.inlineHelpText}" styleClass="slds-form-element__help" />
+                        </apex:outputPanel>
+                    </div>
+                </div>
+                <div class="slds-form-element">
+                    <apex:outputLabel value="{!$ObjectType.Addr_Verification_Settings__c.fields.Class__c.Label}" for="iClass__c" styleClass="slds-form-element__label" />
+                    <div class="slds-form-element__control">
+                        <apex:outputText id="iServiceName" value="{!serviceName}" rendered="{!isReadOnlyMode}" styleClass="slds-form-element__static" />
+                        <apex:selectList value="{!validatorSelection}" rendered="{!isEditMode}" multiselect="false" size="1" id="iClass__c" styleClass="slds-select">
+                            <apex:selectOptions value="{!validators}"/>
+                        </apex:selectList>
+                    </div>
+                </div>
+                <div id="iAuthIdDiv" class="slds-form-element">
+                    <apex:outputLabel value="{!$ObjectType.Addr_Verification_Settings__c.fields.Auth_ID__c.Label}" for="iAuth_ID__c" styleClass="slds-form-element__label authidlabel" />
+                    <div class="slds-form-element__control">
+                        <apex:outputText value="{!IF(ISBLANK(addrVerifsettings.Auth_ID__c) || LEN(addrVerifsettings.Auth_ID__c) = 0, '', $Label.HiddenForSecurity)}"
+                                            rendered="{!isReadOnlyMode}" styleClass="slds-form-element__static" />
+                        <apex:inputSecret value="{!addrVerifsettings.Auth_ID__c}" rendered="{!isEditMode}" id="iAuth_ID__c" redisplay="true" html-aria-describedby="{!$Component.iAuth_ID__cHelp}" styleClass="slds-input" />
+                        <apex:outputPanel id="iAuth_ID__cHelp" layout="block">
+                            <apex:outputText value="{!$ObjectType.Addr_Verification_Settings__c.fields.Auth_ID__c.inlineHelpText}" styleClass="slds-form-element__help" />
+                        </apex:outputPanel>
+                    </div>
+                </div>
+                <div id="iAuthTokenDiv" class="slds-form-element">
+                    <apex:outputLabel value="{!$ObjectType.Addr_Verification_Settings__c.fields.Auth_Token__c.Label}" for="iAuth_Token__c" styleClass="slds-form-element__label"/>
+                    <div class="slds-form-element__control">
+                        <apex:outputText value="{!IF(ISBLANK(addrVerifsettings.Auth_Token__c) || LEN(addrVerifsettings.Auth_Token__c) = 0, '', $Label.HiddenForSecurity)}"
+                                        rendered="{!isReadOnlyMode}" styleClass="slds-form-element__static" />
+                        <apex:inputSecret value="{!addrVerifsettings.Auth_Token__c}" rendered="{!isEditMode}" id="iAuth_Token__c" redisplay="true" html-aria-describedby="{!$Component.iAuth_Token__cHelp}" styleClass="slds-input" />
+                        <apex:outputPanel id="iAuth_Token__cHelp" layout="block">
+                            <apex:outputText value="{!$ObjectType.Addr_Verification_Settings__c.fields.Auth_Token__c.inlineHelpText}" styleClass="slds-form-element__help" />
+                        </apex:outputPanel>
+                    </div>
+                </div>
+                <div class="slds-form-element">
+                    <apex:outputLabel value="{!$ObjectType.Addr_Verification_Settings__c.fields.Reject_Ambiguous_Addresses__c.Label}" for="iReject_Ambiguous_Addresses__c"
+                                    styleClass="slds-form-element__label"/>
+                    <div class="slds-form-element__control">
+                        <apex:inputCheckbox value="{!addrVerifsettings.Reject_Ambiguous_Addresses__c}" rendered="{!isEditMode}" id="iReject_Ambiguous_Addresses__c" html-aria-describedby="{!$Component.iReject_Ambiguous_Addresses__cHelp}" styleClass="slds-checkbox"/>
+                        <apex:inputCheckbox value="{!addrVerifsettings.Reject_Ambiguous_Addresses__c}" rendered="{!isReadOnlyMode}" disabled="true" id="iReject_Ambiguous_Addresses__cO" html-aria-describedby="{!$Component.iReject_Ambiguous_Addresses__cHelp}" styleClass="slds-checkbox"/>
+                        <apex:outputPanel id="iReject_Ambiguous_Addresses__cHelp" layout="block">
+                            <apex:outputText value="{!$ObjectType.Addr_Verification_Settings__c.fields.Reject_Ambiguous_Addresses__c.inlineHelpText}" styleClass="slds-form-element__help" />
+                        </apex:outputPanel>
+                    </div>
+                </div>
+            </div>
+        </apex:outputPanel>
+        <!--
+        <apex:outputPanel id="addrValidationTest">
+            <apex:outputPanel rendered="{!isEditMode}">
+                 <h4>{!$Label.Addr_Settings_Test_Title}</h4>
+                 <p>
+                 <apex:outputText escape="false" value="{!$Label.Addr_Settings_Test_Body}" />&nbsp;&nbsp;
+                 <apex:inputText id="zipTest" value="{!apiTestEntry}" />&nbsp;&nbsp;
+                 <apex:commandButton id="submitZipTest" action="{!testApi}" status="statusLoad" rerender="testResult" value="Submit Test"/>
+                 </p>
+                 <br/>
+                 <apex:outputPanel id="testResult">
+                     <apex:outputPanel rendered="{!NOT(ISNULL(apiTestResult))}">
+                         <p><b>{!$Label.Addr_Settings_Test_Response_Title}:</b> <apex:outputText value="{!apiTestResult}" /></p>
+                     </apex:outputPanel>
+                 </apex:outputPanel>
+            </apex:outputPanel>
+        </apex:outputPanel>
+        -->
+        <div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-m-around--large">
+            <apex:commandButton id="saveAddr" value="{!$Label.stgBtnSave}" status="statusLoad" action="{!saveSettings}" rendered="{!isEditMode}"
+                        immediate="false" rerender="form" styleClass="slds-button slds-button--small slds-button--brand"
+                        oncomplete="hideUnusedElements()"/>
+            <apex:commandButton id="cancelAddr" value="{!$Label.stgBtnCancel}" status="statusLoad" action="{!cancelEdit}" rendered="{!isEditMode}"
+                        immediate="true" rerender="form" styleClass="slds-button slds-button--small slds-button--neutral"
+                        oncomplete="hideUnusedElements()"/>
+        </div>
+
+        <div style="text-align:center; font-weight:bold; color: red;">
+            <apex:outputPanel id="saveApiSettingsFailure">
+                <apex:outputPanel rendered="{!NOT(ISNULL(apiSettingsErrorMessage))}">
+                    <apex:outputText value="{!apiSettingsErrorMessage}" />
+                    <br/>
+                </apex:outputPanel>
+            </apex:outputPanel>
+        </div>
+
+        <div class="slds-m-around--large" id="iBatchVerifyDiv">
+            <div class="slds-card">
+                <div class="slds-card__header">
+                    <h3 class="slds-text-heading--small">{!$Label.Addr_Verification_Batch_Title}</h3>
+                </div>
+                <div class="slds-card__body slds-text-body--small slds-p-around--medium">
+                    <apex:outputText escape="false" value="{!$Label.Addr_Verification_Batch_Body}" />
+                    <div class="slds-form--horizontal slds-m-around--large">
+                        <div class="slds-form-element">
+                            <apex:outputLabel value="{!$Label.Addr_Skip_Verified}" for="iAddr_Skip_Verified" styleClass="slds-form-element__label"/>
+                            <div class="slds-form-element__control">
+                                <apex:inputCheckbox value="{!skipPreviouslyVerifiedObjects}" id="iAddr_Skip_Verified" html-aria-describedby="{!$Component.iAddr_Skip_VerifiedHelp}" styleClass="slds-checkbox"/>
+                                <apex:outputPanel id="iAddr_Skip_VerifiedHelp" layout="block">
+                                    <apex:outputText id="validatorBatchHelpText" escape="false" value="{!validatorBatchHelpText}" styleClass="slds-form-element__help" />
+                                </apex:outputPanel>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align:center; margin-top: 15px;">
+                        <apex:commandButton id="batchVerify" action="{!batchVerify}" rerender="batchVerifyResult" value="Verify All Addresses" disabled="{!NOT(batchVerifEnabled && isReadOnlyMode)}" styleClass="slds-button slds-button--small slds-button--neutral"/>
+                    </div>
+                    <apex:outputPanel id="batchVerifyResult">
+                        <apex:outputPanel rendered="{!NOT(ISNULL(batchVerifyMessage))}">
+                            <h4>{!$Label.Addr_Verification_Batch_Status}</h4>
+                            <p>
+                                <apex:outputText value="{!batchVerifyMessage}" />
+                            </p>
+                            <apex:outputPanel rendered="{!isRunningBatch}">
+                               <c:UTIL_JobProgress strBatchComponentLabel="{!batchVerifyMessage}" cNumberOfJobs="1" bRerenderOnComplete="true" />
+                            </apex:outputPanel>
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                </div>
+            </div>
+        </div>
+    </apex:form>
+</apex:page>

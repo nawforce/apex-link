@@ -1,0 +1,170 @@
+<apex:page docType="html-5.0" title="Get Started" showHeader="true" sidebar="false">
+  <head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <link rel="icon" href="../../favicon.ico"/>
+
+    <title>Getting Started with the NPSP</title>
+  </head>
+
+  <body>
+    <div class="bootstrap">
+
+    <!-- Top heading for a primary marketing message or call to action -->
+    <div>
+    
+      <div class="container">
+       <div class="row"><h1>Welcome to Salesforce and the Nonprofit Success Pack!</h1></div>
+      <div class="row">
+        <div class="col-md-9"><p>You now have access to ALL the powerful features of Salesforce Enterprise Edition PLUS the ability to better manage donors with the Nonprofit Success Pack application.</p></div>
+        <div class="col-md-3"> <img src="{!URLFOR($Resource.CumulusStaticResources, '/Images/RGB_npsp-full-color.png')}" style="max-width:100%;max-height:60;height:auto;" alt="NPSP Logo"/></div>
+      </div>
+
+      </div>
+    </div>
+    
+    <div class="container">
+    
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="col-md-6">
+            <h2>Get Started</h2>
+            <div style="margin-top:40px; margin-bottom:55px;">
+            <h4><span class="glyphicon glyphicon-cog" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;Review Salesforce Fundamentals</h4>
+                <p>Free e-learning modules from Salesforce Help &amp; Training:</p>
+                <ul><li><a href="https://powerofus.force.com/articles/Resource/Salesforce-Fundamentals" title="Salesforce Fundamentals" target="_blank">Salesforce Fundamentals</a></li>
+                <li><a href="https://developer.salesforce.com/trailhead/trail/force_com_admin_beginner" title="Beginner Admin Trail" target="_blank">Beginner Admin Trail</a></li>
+                </ul>
+                </div>
+      <!--END3Get Started: Fund-->  
+      <!--4Get Started: NPSP-->
+                <h4><span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;Get Started with the Nonprofit Success Pack</h4>
+                
+                <div class="media" style="margin-bottom:60px;">
+                    <div class="pull-left"><a href="https://developer.salesforce.com/trailhead/trail/nonprofit_fundraising" target="_blank"><img class="media-object" height="100" width="130" src="{!URLFOR($Resource.CumulusStaticResources, '/Images/trailhead_npo.png')}" alt="NPSP Trail"/>
+    </a>
+                    </div>
+  
+                    <div class="media-body">
+                    <h4 class="media-heading">Nonprofit Success Pack Trail</h4>
+                    <p>Learn the basics of fundraising with the Nonprofit Success Pack via <a href="https://developer.salesforce.com/trailhead/trail/nonprofit_fundraising" title="Nonprofit Fundraising Trail" target="_blank">this interactive learning path</a> from Salesforce.</p>
+                    </div>
+                </div>
+                
+                <div class="media" style="margin-bottom:60px;">
+                    <div class="pull-left"><a href="https://powerofus.force.com/NPSP_Documentation" target="_blank"><img class="media-object" height="100" width="130" src="{!URLFOR($Resource.CumulusStaticResources, '/Images/workbook.png')}" alt="NPSP Success Pack Documentation"/>
+    </a>
+                    </div>
+  
+                    <div class="media-body">
+                    <h4 class="media-heading">Nonprofit Success Pack Documentation</h4>
+                        <p>Consult our full set of <a href="https://powerofus.force.com/NPSP_Documentation" title="Nonprofit Success Pack Documentation" target="_blank">Nonprofit Success Pack Documentation</a>.</p>
+                    </div>
+                </div>
+
+                <div class="media" style="margin-bottom:40px;">
+                    <div class="pull-left"><a href="https://powerofus.force.com/NPSP_Import_Data" target="_blank">
+      <img class="media-object" height="100" width="130" src="{!URLFOR($Resource.CumulusStaticResources, '/Images/workbook.png')}"/></a>
+                    </div>
+                    <div class="media-body">
+                    <h4 class="media-heading">NPSP Admin Guide to Importing Donor Data</h4>
+                    <p>This <a href="https://powerofus.force.com/NPSP_Import_Data" title="NPSP Data Workbook" target="_blank">guide</a> is intended to help administrators use the NPSP Data Import tool to transfer existing data into Salesforce.</p>
+                    </div>
+                    </div>
+         <!--ENDGet Started: NPSP--> 
+        </div>
+        
+        <div class="col-md-6">
+        <h2>Get Help</h2>
+          <div class="media" style="margin-top:40px; margin-bottom:80px;">
+                <div class="pull-left"><a href="https://powerofus.force.com" target="_blank"><img class="media-object" src="{!URLFOR($Resource.CumulusStaticResources, '/Images/power-of-us-hub_rgb.png')}" width="130" alt="Power of Us Hub"/></a>
+                </div>
+                <div class="media-body"><h4 class="media-heading">Power of Us Hub Community</h4><p>Get answers and access nonprofit specific resources in this vibrant, online community.</p>
+<a href="https://powerofus.force.com" target="_blank"><button type="button" class="btn btn-primary">Login now &raquo;</button></a>
+                </div>
+        </div>
+
+        <div class="media" style="margin-bottom:80px;">
+            <div class="pull-left"><a href="https://powerofus.force.com/articles/Resource/Get-Help-NPSP" target="_blank"><img class="media-object" src="{!URLFOR($Resource.CumulusStaticResources, '/Images/salesforce_logo.png')}" alt="Salesforce Success Plans"/></a>
+            </div>
+            <div class="media-body"><h4 class="media-heading">Salesforce Success Plan</h4>
+            <p>Every Salesforce.org customer has access to a Standard Success Plan including basic training, product documentation and support.</p>
+<a href="https://powerofus.force.com/articles/Resource/Get-Help-NPSP" target="_blank"><button type="button" class="btn btn-primary">Learn More &raquo;</button></a>
+            </div>
+        </div>
+
+        <div class="media">
+          <div class="pull-left">
+           <a href="https://powerofus.force.com/HUB_Foundation_Office_Hours" target="_blank"><img class="media-object" src="{!URLFOR($Resource.CumulusStaticResources, '/Images/officehours.png')}" alt="Office Hours"/></a>
+          </div>
+          <div class="media-body"><h4 class="media-heading">Salesforce.org Office Hours</h4>
+          <p>Join us for our weekly office hours and get your questions answered by experts from the Power of Us Hub.</p>
+          <a href="https://powerofus.force.com/HUB_Foundation_Office_Hours" target="_blank"><button type="button" class="btn btn-primary">Learn More &raquo;</button></a>
+          </div>
+       </div>
+       
+<!-- /leave -->
+</div>
+</div>
+<hr/>
+ <div class="row" style="margin-bottom:10px;">
+   <h4 style="margin-bottom:10px;">Ready to implement Salesforce? Follow these 4 steps:</h4>
+ </div>
+   <!-- STARTThumbnails-->   
+ <div class="row" style="margin-bottom:20px; padding-top:20px; background-color:#f7d93e; border-top-right-radius: 1em; border-top-left-radius: 1em;border-bottom-right-radius: 1em; border-bottom-left-radius: 1em;">
+        <div class="col-xs-6 col-md-3">
+            <div class="thumbnail" style="background-color:#f7d93e; border:none;"><a href="https://powerofus.force.com/articles/Resource/Prepare-for-Success" target="_blank"><img src="{!URLFOR($Resource.CumulusStaticResources, '/Images/prepare.png')}" class="img-responsive" alt="Prepare for Success" style="display: block; margin: 0 auto;"/></a>
+                <div class="caption">
+                  <h4 class="text-center"><a href="https://powerofus.force.com/articles/Resource/Prepare-for-Success" style="color: #4d4d4d; text-decoration: underline;"  target="_blank">1. Prepare for Success</a></h4>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xs-6 col-md-3">
+            <div class="thumbnail" style="background-color:#f7d93e; border:none;"><a href="https://powerofus.force.com/articles/Resource/Configure-and-Customize-NPSP" target="_blank"><img src="{!URLFOR($Resource.CumulusStaticResources, '/Images/configure.png')}" class="img-responsive" alt="Customize and Configure" style="display: block; margin: 0 auto;"/></a>
+                <div class="caption">
+                  <h4 class="text-center"><a href="https://powerofus.force.com/articles/Resource/Configure-and-Customize-NPSP" style="color: #4d4d4d; text-decoration: underline;" target="_blank">2. Customize &amp; Configure</a></h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6 col-md-3">
+            <div class="thumbnail" style="background-color:#f7d93e; border:none;"><a href="https://powerofus.force.com/articles/Resource/Import-Data-NPSP" target="_blank"><img src="{!URLFOR($Resource.CumulusStaticResources, '/Images/data.png')}" class="img-responsive" alt="Import Data" style="display: block; margin: 0 auto;"/></a>
+                <div class="caption">
+                  <h4 class="text-center"><a href="https://powerofus.force.com/articles/Resource/Import-Data-NPSP" style="color: #4d4d4d; text-decoration: underline;" target="_blank">3. Import Data</a></h4>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xs-6 col-md-3">
+            <div class="thumbnail" style="background-color:#f7d93e;border:none;"><a href="https://powerofus.force.com/articles/Resource/Deploy-and-Empower-NPSP" target="_blank"><img src="{!URLFOR($Resource.CumulusStaticResources, '/Images/deploy.png')}" class="img-responsive" alt="Deploy" style="display: block; margin: 0 auto;"/></a>
+                <div class="caption">
+                  <h4 class="text-center"><a href="https://powerofus.force.com/articles/Resource/Deploy-and-Empower-NPSP" style="color: #4d4d4d; text-decoration: underline;" target="_blank">4. Deploy &amp; Adopt</a></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+       
+<!-- ENDThumbnails-->
+
+
+   <div class="row">
+      <footer class="footer">
+      <div class="container" style="background-color:#3c3d3e; padding-top:20px;">
+          <p class="text-right" style="color:#ffffff;"><a href="http://www.salesforce.org/help/findapartner/" title="Find a Partner" target="_blank"><span style="margin:0px 10px;">Find a Consulting Partner</span></a>|<span style="margin:0px 10px;"><a href="http://www.salesforce.org/power-of-us/" title="Apply for Power of Us Program" target="_blank">Apply for the Power of Us Program</a></span> | <span style="margin:0px 10px;">Salesforce.org</span> | <span style="margin:0px 10px;">1-800-667-6389</span> | <span style="margin:0px 10px;"><a href="http://www.salesforce.org/contact-us/" title="Salesforce.org" target="_blank">Contact Us</a></span></p>
+      </div>
+      </footer>
+      </div>
+      
+    </div> <!-- /container -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <apex:includeScript value="{!URLFOR($Resource.CumulusStaticResources, '/jquery/jquery-1.10.2.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.CumulusStaticResources, '/Bootstrap/js/bootstrap.min.js')}" />
+    <apex:styleSheet value="{!URLFOR($Resource.CumulusStaticResources, '/Bootstrap/css/bootstrap-namespaced.css')}" />
+  </div>
+  </body>
+</apex:page>

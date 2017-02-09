@@ -1,0 +1,2 @@
+<aura:event type="APPLICATION"
+    description="Fired after the Household and Contacts have been saved to the database, allowing the visualforce page to save its data and redirect to the household." />

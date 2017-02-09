@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <help>El lote donde fue creado este candidato</help>
+        <label>Lote</label>
+        <name>Batch__c</name>
+        <relationshipLabel>Candidatos</relationshipLabel>
+    </fields>
+    <fields>
+        <label>Ciudad de la organización</label>
+        <name>CompanyCity__c</name>
+    </fields>
+    <fields>
+        <label>País de la organización</label>
+        <name>CompanyCountry__c</name>
+    </fields>
+    <fields>
+        <label>Código postal de la organización</label>
+        <name>CompanyPostalCode__c</name>
+    </fields>
+    <fields>
+        <label>Estado o provincia de la organización</label>
+        <name>CompanyState__c</name>
+    </fields>
+    <fields>
+        <label>Calle de la organización</label>
+        <name>CompanyStreet__c</name>
+    </fields>
+</CustomObjectTranslation>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Error Settings --></value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value><!-- Error Settings --></value>
+    </caseValues>
+    <fields>
+        <help>Si seleccionado, se deshabilita el framework de manejo de errores del NPSP</help>
+        <label>Deshabilitar manejos de errores</label>
+        <name>Disable_Error_Handling__c</name>
+    </fields>
+    <fields>
+        <help>Seleccionar para habilitar debug statements in el código de paquetes gestionados</help>
+        <label>Habilitar Debug</label>
+        <name>Enable_Debug__c</name>
+    </fields>
+    <fields>
+        <help>Seleccionar si se quiere que el sistema publique notificaciones de cierto tipo de errores.</help>
+        <label>Notificaciones de errores</label>
+        <name>Error_Notifications_On__c</name>
+    </fields>
+    <fields>
+        <help>Seleccionar el tipo de usuario al que se le manda notificaciones.</help>
+        <label>Receptor de notificaciones de errores</label>
+        <name>Error_Notifications_To__c</name>
+    </fields>
+    <fields>
+        <help>Seleccionar si se quiere que los errores se guarden en la base de datos.</help>
+        <label>Guardar errores</label>
+        <name>Store_Errors_On__c</name>
+    </fields>
+    <gender><!-- Feminine --></gender>
+</CustomObjectTranslation>

@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- NPSP Data Import --></value>
+    </caseValues>
+    <fields>
+        <label>インポート状況(団体1)</label>
+        <name>Account1ImportStatus__c</name>
+    </fields>
+    <fields>
+        <label>インポート済み(団体1)</label>
+        <name>Account1Imported__c</name>
+        <relationshipLabel>NPSP データインポート (団体1 インポート済み)</relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Account1.BillingCity --></help>
+        <label>市区郡(団体1)</label>
+        <name>Account1_City__c</name>
+    </fields>
+    <fields>
+        <help><!-- Account1.BillingCountry --></help>
+        <label>国(団体1)</label>
+        <name>Account1_Country__c</name>
+    </fields>
+    <fields>
+        <help><!-- Account1.Name --></help>
+        <label>名前(団体1)</label>
+        <name>Account1_Name__c</name>
+    </fields>
+    <fields>
+        <help><!-- Account1.Phone --></help>
+        <label>電話(団体1)</label>
+        <name>Account1_Phone__c</name>
+    </fields>
+    <fields>
+        <help><!-- Account1.BillingState --></help>
+        <label>都道府県(団体1)</label>
+        <name>Account1_State_Province__c</name>
+    </fields>
+    <fields>
+        <help><!-- Account1.BillingStreet --></help>
+        <label>町名・番地(団体1)</label>
+        <name>Account1_Street__c</name>
+    </fields>
+    <fields>
+        <help><!-- Account1.Website --></help>
+        <label>Web サイト(団体1)</label>
+        <name>Account1_Website__c</name>
+    </fields>
+    <fields>
+        <help><!-- Account1.BillingPostalCode --></help>
+        <label>郵便番号(団体1)</label>
+        <name>Account1_Zip_Postal_Code__c</name>
+    </fields>
+    <fields>
+        <label>インポート状況(団体2)</label>
+        <name>Account2ImportStatus__c</name>
+    </fields>
+    <fields>
+        <label>インポート済み(団体2)</label>
+        <name>Account2Imported__c</name>
+        <relationshipLabel>NPSP データインポート (団体2 インポート済み)</relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Account2.BillingCity --></help>
+        <label>市区郡(団体2)</label>
+        <name>Account2_City__c</name>
+    </fields>
+    <fields>
+        <help><!-- Account2.BillingCountry --></help>
+        <label>国(団体2)</label>
+        <name>Account2_Country__c</name>
+    </fields>
+    <fields>
+        <help><!-- Account2.Name --></help>
+        <label>名前(団体2)</label>
+        <name>Account2_Name__c</name>
+    </fields>
+    <fields>
+        <help><!-- Account2.Phone --></help>
+        <label>電話(団体2)</label>
+        <name>Account2_Phone__c</name>
+    </fields>
+    <fields>
+        <help><!-- Account2.BillingState --></help>
+        <label>都道府県(団体2)</label>
+        <name>Account2_State_Province__c</name>
+    </fields>
+    <fields>
+        <help><!-- Account2.BillingStreet --></help>
+        <label>町名・番地(団体2)</label>
+        <name>Account2_Street__c</name>
+    </fields>
+    <fields>
+        <help><!-- Account2.Website --></help>
+        <label>Web サイト(団体2)</label>
+        <name>Account2_Website__c</name>
+    </fields>
+    <fields>
+        <help><!-- Account2.BillingPostalCode --></help>
+        <label>郵便番号(団体2)</label>
+        <name>Account2_Zip_Postal_Code__c</name>
+    </fields>
+    <fields>
+        <help>レコードを処理した一括処理ジョブの ApexJobID。</help>
+        <label><!-- ApexJobId --></label>
+        <name>ApexJobId__c</name>
+    </fields>
+    <fields>
+        <label>キャンペーンメンバーの状況</label>
+        <name>Campaign_Member_Status__c</name>
+    </fields>
+    <fields>
+        <label>インポート状況(個人1)</label>
+        <name>Contact1ImportStatus__c</name>
+    </fields>
+    <fields>
+        <label>インポート済み(個人1)</label>
+        <name>Contact1Imported__c</name>
+        <relationshipLabel>NPSP データインポート (Contact1 インポート済み)</relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Contact1.npe01__AlternateEmail__c --></help>
+        <label>その他のメール(個人1)</label>
+        <name>Contact1_Alternate_Email__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact1.Birthdate --></help>
+        <label>誕生日(個人1)</label>
+        <name>Contact1_Birthdate__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact1.Firstname --></help>
+        <label>名(個人1)</label>
+        <name>Contact1_Firstname__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact1.HomePhone --></help>
+        <label>自宅電話(個人1)</label>
+        <name>Contact1_Home_Phone__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact1.Lastname --></help>
+        <label>性(個人1)</label>
+        <name>Contact1_Lastname__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact1.MobilePhone --></help>
+        <label>携帯電話(個人1)</label>
+        <name>Contact1_Mobile_Phone__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact1.OtherPhone --></help>
+        <label>その他の電話(個人1)</label>
+        <name>Contact1_Other_Phone__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact1.npe01__HomeEmail__c --></help>
+        <label>個人メール(個人1)</label>
+        <name>Contact1_Personal_Email__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact1.npe01__Preferred_Email__c --></help>
+        <label>メール連絡先(個人1)</label>
+        <name>Contact1_Preferred_Email__c</name>
+        <picklistValues>
+            <masterLabel>Alternate</masterLabel>
+            <translation>代替方法</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Personal</masterLabel>
+            <translation>個人</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Work</masterLabel>
+            <translation>勤務先</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- Contact1.npe01__PreferredPhone__c --></help>
+        <label>電話連絡先(個人1)</label>
+        <name>Contact1_Preferred_Phone__c</name>
+        <picklistValues>
+            <masterLabel>Home</masterLabel>
+            <translation>自宅</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Mobile</masterLabel>
+            <translation>携帯</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Other</masterLabel>
+            <translation>その他</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Work</masterLabel>
+            <translation>勤務先</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- Contact1.Salutation --></help>
+        <label>敬称(個人1)</label>
+        <name>Contact1_Salutation__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact1.Title --></help>
+        <label>役職(個人1)</label>
+        <name>Contact1_Title__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact1.npe01__WorkEmail__c --></help>
+        <label>勤務先メール(個人1)</label>
+        <name>Contact1_Work_Email__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact1.npe01__WorkPhone__c --></help>
+        <label>勤務先電話(個人1)</label>
+        <name>Contact1_Work_Phone__c</name>
+    </fields>
+    <fields>
+        <label>インポート状況(個人2)</label>
+        <name>Contact2ImportStatus__c</name>
+    </fields>
+    <fields>
+        <label>インポート済み(個人2)</label>
+        <name>Contact2Imported__c</name>
+        <relationshipLabel>NPSP データインポート (Contact2 インポート済み)</relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Contact2.npe01__AlternateEmail__c --></help>
+        <label>その他のメール(個人2)</label>
+        <name>Contact2_Alternate_Email__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact2.Birthdate --></help>
+        <label>誕生日(個人2)</label>
+        <name>Contact2_Birthdate__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact2.Firstname --></help>
+        <label>名(個人2)</label>
+        <name>Contact2_Firstname__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact2.HomePhone --></help>
+        <label>自宅電話(個人2)</label>
+        <name>Contact2_Home_Phone__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact2.Lastname --></help>
+        <label>性(個人2)</label>
+        <name>Contact2_Lastname__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact2.MobilePhone --></help>
+        <label>携帯電話(個人2)</label>
+        <name>Contact2_Mobile_Phone__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact2.OtherPhone --></help>
+        <label>その他の電話(個人2)</label>
+        <name>Contact2_Other_Phone__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact2.npe01__HomeEmail__c --></help>
+        <label>個人メール(個人2)</label>
+        <name>Contact2_Personal_Email__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact2.npe01__Preferred_Email__c --></help>
+        <label>メール連絡先(個人2)</label>
+        <name>Contact2_Preferred_Email__c</name>
+        <picklistValues>
+            <masterLabel>Alternate</masterLabel>
+            <translation>代替方法</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Personal</masterLabel>
+            <translation>個人</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Work</masterLabel>
+            <translation>勤務先</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- Contact2.npe01__PreferredPhone__c --></help>
+        <label>電話連絡先(個人2)</label>
+        <name>Contact2_Preferred_Phone__c</name>
+        <picklistValues>
+            <masterLabel>Home</masterLabel>
+            <translation>自宅</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Mobile</masterLabel>
+            <translation>携帯</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Other</masterLabel>
+            <translation>その他</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Work</masterLabel>
+            <translation>勤務先</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- Contact2.Salutation --></help>
+        <label>敬称(個人2)</label>
+        <name>Contact2_Salutation__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact2.Title --></help>
+        <label>役職(個人2)</label>
+        <name>Contact2_Title__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact2.npe01__WorkEmail__c --></help>
+        <label>勤務先メール(個人2)</label>
+        <name>Contact2_Work_Email__c</name>
+    </fields>
+    <fields>
+        <help><!-- Contact2.npe01__WorkPhone__c --></help>
+        <label>勤務先電話(個人2)</label>
+        <name>Contact2_Work_Phone__c</name>
+    </fields>
+    <fields>
+        <label>インポート状況(支援)</label>
+        <name>DonationImportStatus__c</name>
+    </fields>
+    <fields>
+        <label>インポート済み(支援)</label>
+        <name>DonationImported__c</name>
+        <relationshipLabel>NPSP データインポート</relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Opportunity.Amount --></help>
+        <label>金額(支援)</label>
+        <name>Donation_Amount__c</name>
+    </fields>
+    <fields>
+        <label>キャンペーン名</label>
+        <name>Donation_Campaign_Name__c</name>
+    </fields>
+    <fields>
+        <help><!-- Opportunity.CloseDate --></help>
+        <label>日付(支援)</label>
+        <name>Donation_Date__c</name>
+    </fields>
+    <fields>
+        <help><!-- Opportunity.Description --></help>
+        <label>説明(支援)</label>
+        <name>Donation_Description__c</name>
+    </fields>
+    <fields>
+        <help>支援が「個人1」からの個人支援であるか、「団体1」からの団体支援であるかを指定します。</help>
+        <label>支援者(支援)</label>
+        <name>Donation_Donor__c</name>
+        <picklistValues>
+            <masterLabel>Account1</masterLabel>
+            <translation>団体 1</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Contact1</masterLabel>
+            <translation>個人 1</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- Opportunity.npe01__Member_Level__c --></help>
+        <label>会員レベル(支援)</label>
+        <name>Donation_Member_Level__c</name>
+    </fields>
+    <fields>
+        <help><!-- Opportunity.npe01__Membership_End_Date__c --></help>
+        <label>会員期限(支援)</label>
+        <name>Donation_Membership_End_Date__c</name>
+    </fields>
+    <fields>
+        <help><!-- Opportunity.npe01__Membership_Origin__c --></help>
+        <label>会員状況(支援)</label>
+        <name>Donation_Membership_Origin__c</name>
+    </fields>
+    <fields>
+        <help><!-- Opportunity.npe01__Membership_Start_Date__c --></help>
+        <label>会員開始日(支援)</label>
+        <name>Donation_Membership_Start_Date__c</name>
+    </fields>
+    <fields>
+        <help><!-- Opportunity.Name --></help>
+        <label>名前(支援)</label>
+        <name>Donation_Name__c</name>
+    </fields>
+    <fields>
+        <help>支援に使用する支援レコードタイプの名前。空白のままにした場合、デフォルトのレコードタイプが使用されます。</help>
+        <label>レコードタイプ名(支援)</label>
+        <name>Donation_Record_Type_Name__c</name>
+    </fields>
+    <fields>
+        <help><!-- Opportunity.StageName --></help>
+        <label>フェーズ(支援)</label>
+        <name>Donation_Stage__c</name>
+    </fields>
+    <fields>
+        <help><!-- Opportunity.Type --></help>
+        <label>種類(支援)</label>
+        <name>Donation_Type__c</name>
+    </fields>
+    <fields>
+        <help>データインポートレコードのインポートに失敗した理由の説明。</help>
+        <label>失敗情報</label>
+        <name>FailureInformation__c</name>
+    </fields>
+    <fields>
+        <label>インポート状況(自宅住所)</label>
+        <name>HomeAddressImportStatus__c</name>
+    </fields>
+    <fields>
+        <label>インポート済み(自宅住所)</label>
+        <name>HomeAddressImported__c</name>
+        <relationshipLabel>NPSP データインポート</relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Address.npsp__MailingCity__c --></help>
+        <label>市町村(自宅)</label>
+        <name>Home_City__c</name>
+    </fields>
+    <fields>
+        <help><!-- Address.npsp__MailingCountry__c --></help>
+        <label>国(自宅)</label>
+        <name>Home_Country__c</name>
+    </fields>
+    <fields>
+        <help><!-- Address.npsp__MailingState__c --></help>
+        <label>都道府県(ホーム)</label>
+        <name>Home_State_Province__c</name>
+    </fields>
+    <fields>
+        <help><!-- Address.npsp__MailingStreet__c --></help>
+        <label>番地(自宅)</label>
+        <name>Home_Street__c</name>
+    </fields>
+    <fields>
+        <help><!-- Address.npsp__MailingPostalCode__c --></help>
+        <label>郵便番号(自宅)</label>
+        <name>Home_Zip_Postal_Code__c</name>
+    </fields>
+    <fields>
+        <label>インポート済み(世帯団体)</label>
+        <name>HouseholdAccountImported__c</name>
+        <relationshipLabel>NPSP データインポート (世帯団体インポート済み)</relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Household.Phone --></help>
+        <label>世帯電話</label>
+        <name>Household_Phone__c</name>
+    </fields>
+    <fields>
+        <help>データインポートレコードが正常にインポートされた日付。</help>
+        <label>インポート日</label>
+        <name>ImportedDate__c</name>
+    </fields>
+    <fields>
+        <help><!-- Payment.npe01__Check_Reference_Number__c --></help>
+        <label>支払確認/参照番号</label>
+        <name>Payment_Check_Reference_Number__c</name>
+    </fields>
+    <fields>
+        <help><!-- Payment.npe01__Payment_Method__c --></help>
+        <label>支払方法</label>
+        <name>Payment_Method__c</name>
+    </fields>
+    <fields>
+        <help>データインポートレコードのインポート状況。</help>
+        <label>状況</label>
+        <name>Status__c</name>
+        <picklistValues>
+            <masterLabel>Failed</masterLabel>
+            <translation>失敗</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Imported</masterLabel>
+            <translation>インポート済み</translation>
+        </picklistValues>
+    </fields>
+    <layouts>
+        <layout>Data Import Layout</layout>
+        <sections>
+            <label>団体１情報</label>
+            <section>Account1 Organization Information</section>
+        </sections>
+        <sections>
+            <label>団体２情報</label>
+            <section>Account2 Organization Information</section>
+        </sections>
+        <sections>
+            <label>キャンペーン情報</label>
+            <section>Campaign Information</section>
+        </sections>
+        <sections>
+            <label>個人１情報</label>
+            <section>Contact1 Information</section>
+        </sections>
+        <sections>
+            <label>個人２情報</label>
+            <section>Contact2 Information</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label>支援情報</label>
+            <section>Donation Information</section>
+        </sections>
+        <sections>
+            <label>自宅住所</label>
+            <section>Home Address</section>
+        </sections>
+        <sections>
+            <label>世帯情報</label>
+            <section>Household Account Information</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Data Import ID --></nameFieldLabel>
+    <webLinks>
+        <label>すべてのデータインポートレコードを削除</label>
+        <name>Delete_All_Data_Import_Records</name>
+    </webLinks>
+    <webLinks>
+        <label>インポート済みのデータインポートレコードを削除</label>
+        <name>Delete_Imported_Data_Import_Records</name>
+    </webLinks>
+    <webLinks>
+        <label>データインポートの開始</label>
+        <name>Process_Data_Import</name>
+    </webLinks>
+</CustomObjectTranslation>

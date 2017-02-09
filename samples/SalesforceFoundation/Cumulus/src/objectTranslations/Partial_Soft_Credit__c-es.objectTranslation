@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Partial Soft Credit --></value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value><!-- Partial Soft Credit --></value>
+    </caseValues>
+    <fields>
+        <help>El monto que será asignado como crédito blando.</help>
+        <label>Monto</label>
+        <name>Amount__c</name>
+    </fields>
+    <fields>
+        <help>Nombre completo del contacto</help>
+        <label>Nombre del contacto</label>
+        <name>Contact_Name__c</name>
+    </fields>
+    <fields>
+        <help>La función del contacto en la oportunidad a la que este crédito blando aplica.</help>
+        <label>Id de la función del contacto</label>
+        <name>Contact_Role_ID__c</name>
+    </fields>
+    <fields>
+        <help>El contacto que recibirá crédito blando.</help>
+        <label>Contacto</label>
+        <name>Contact__c</name>
+        <relationshipLabel>Crédito blando parcial</relationshipLabel>
+    </fields>
+    <fields>
+        <help>La oportunidad a la que este crédito blando aplica.</help>
+        <label>Oportunidad</label>
+        <name>Opportunity__c</name>
+        <relationshipLabel>Crédito blando parcial</relationshipLabel>
+    </fields>
+    <fields>
+        <help>La función de este crédito blando.</help>
+        <label>Nombre de la función</label>
+        <name>Role_Name__c</name>
+    </fields>
+    <gender><!-- Feminine --></gender>
+    <layouts>
+        <layout>Partial Soft Credit Layout</layout>
+        <sections>
+            <label>Vínculos personalizados</label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Partial Soft Credit Name --></nameFieldLabel>
+    <webLinks>
+        <label>Gestionar créditos blandos</label>
+        <name>Manage_Soft_Credits</name>
+    </webLinks>
+</CustomObjectTranslation>

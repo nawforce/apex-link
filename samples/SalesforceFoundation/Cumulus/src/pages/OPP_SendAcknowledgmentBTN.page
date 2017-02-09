@@ -1,0 +1,46 @@
+<apex:page standardController="Opportunity" 
+    extensions="OPP_SendAcknowledgmentBTN_CTRL"
+    recordSetVar="listOpp"
+    action="{!SendAcknowledgment}"
+    standardStylesheets="false"
+    title="{!$Label.sendAcknowledgmentPageTitle}">
+    <apex:stylesheet value="{!URLFOR($Resource.sfdo203, '/assets/styles/salesforce-lightning-design-system-vf.min.css')}" />
+
+    <apex:form id="vfForm">
+        <div class="sfdo203">
+            <!-- PAGE HEADER -->
+            <div class="slds-page-header slds-p-bottom--small" role="banner">
+                <div class="slds-grid">
+                    <div class="slds-col">
+                        <h1 class="slds-text-heading--medium">{!$Label.sendAcknowledgmentPageTitle}</h1>
+                    </div>
+                    <div class="slds-col slds-no-flex slds-align-middle">
+                        <div class="slds-button-group" role="group">
+                            <apex:commandButton id="close" styleClass="slds-button slds-button--neutral" action="{!close}"
+                                value="{!$Label.sendAcknowledgmentReturnLinkLabel}" immediate="true" reRender="vfForm"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- PAGE MESSAGE -->
+            <c:UTIL_PageMessages />
+            <!-- PAGE RETURN -->
+            <c:UTIL_NavigateBack recordId="{!recordId}" redirect="{!redirect}"/>
+            <!-- FAILED EMAILS -->
+            <apex:outputPanel rendered="{!cNotSent > 0}">
+                <div class="slds-grid">
+                    <div class="slds-col slds-size--1-of-1 slds-m-around--medium">
+                        <p class="slds-m-top--x-small slds-p-bottom--small"><apex:outputText value="{!$Label.sendAcknowledgmentFailureReasons}" escape="false"/></p>
+                        <ul class="slds-list--dotted">
+                            <apex:repeat value="{!listOppNotSent}" var="opp">
+                                <li class="slds-item">
+                                    <apex:outputLink value="/{!opp.Id}" target="_blank">{!opp.Name}</apex:outputLink>
+                                </li>
+                            </apex:repeat>
+                        </ul>
+                    </div>
+                </div>
+            </apex:outputPanel>
+        </div>
+    </apex:form>
+</apex:page>

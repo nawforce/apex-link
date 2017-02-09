@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Recurring Donations --></value>
+    </caseValues>
+    <nameFieldLabel><!-- Recurring Donation Name --></nameFieldLabel>
+    <quickActions>
+        <label>新規支援</label>
+        <name>New_Opportunity</name>
+    </quickActions>
+    <quickActions>
+        <label>クイック更新</label>
+        <name>Quick_Update</name>
+    </quickActions>
+</CustomObjectTranslation>

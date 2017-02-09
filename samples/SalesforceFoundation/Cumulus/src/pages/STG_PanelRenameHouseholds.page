@@ -1,0 +1,21 @@
+<apex:page controller="STG_PanelRenameHouseholds_CTRL" >
+    <apex:form id="form" styleClass="slds-m-around--x-large">
+        <c:STG_PageHeader sectionLabel="{!$Label.stgNavBulkProcesses}" pageLabel="{!$Label.stgHHNameRefreshTitle}" />
+        <div class="slds-text-body--small slds-m-around--medium">
+            <apex:outputText value="{!$Label.stgHelpBtnHHNaming}" escape="false" />
+        </div>
+        <c:UTIL_PageMessages />
+        <div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-p-around--large">
+            <apex:commandButton id="runHHAutoNameBatch" value="{!$Label.stgBtnHHAutoName}" status="statusLoad" action="{!runBatch}" disabled="{!isRunningBatch}" immediate="true" rerender="form" styleClass="slds-button slds-button--small slds-button--neutral" />
+        </div>
+        <apex:outputPanel rendered="{!isRunningBatch}">
+            <c:UTIL_JobProgressLightning id="jobProgress"
+                eventTargetId="{!$Component.jobProgress}"
+                strBatchComponentLabel="{!$Label.stgHHNameRefreshTitle}"
+                cNumberOfJobs="1"
+                startPolling="True"
+                stopPollingOnComplete="True"
+                pollingDelay="1000"/>
+        </apex:outputPanel>
+    </apex:form>
+</apex:page>

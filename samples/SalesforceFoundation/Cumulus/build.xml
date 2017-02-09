@@ -1,0 +1,157 @@
+<project name="Cumulus" default="deploy" basedir="." xmlns:sf="antlib:com.salesforce">
+    <!-- Load the package requirements from version.properties -->
+    <loadproperties srcFile="${basedir}/version.properties"/>
+
+    <!-- Load environment variables -->
+    <property environment="env" />
+
+    <!-- Check if the CUMULUSCI_PATH environment variable is set -->
+    <fail>
+       <condition>
+           <not><isset property="env.CUMULUSCI_PATH" /></not>
+       </condition>
+CUMULUSCI_PATH is Required!
+
+This project uses the CumulusCI build scripts which must be checked out and referenced in an environment variable before you can run the build scripts.
+
+To configure the build scripts, do the following:
+
+1. Clone the CumulusCI GitHub repository to a local folder: https://github.com/SalesforceFoundation/CumulusCI
+
+2. Set the CUMULUSCI_PATH environment variable to the path to CumulusCI
+
+If you are on a unix based system, the following commands should work:
+
+    git clone https://github.com/SalesforceFoundation/CumulusCI ~/CumulusCI
+    export CUMULUSCI_PATH=~/CumulusCI
+    </fail>
+
+    <!-- Load CumulusCI build targets -->
+    <import file="${env.CUMULUSCI_PATH}/build/build.xml" />
+
+    <!-- Add project specific build targets and CumulusCI overrides here -->
+    <target name="updateMetaXml">
+        <for list="${required.packages}" delimiter="," param="packageNamespace">
+            <sequential>
+                <if>
+                    <not><equals arg1="@{packageNamespace}" arg2="managed" /></not>
+                    <then>
+                        <updateMetaXml dir="${basedir}/src" namespace="@{packageNamespace}" version="${version.@{packageNamespace}}" />
+                    </then>
+                </if>
+            </sequential>
+        </for>
+    </target>
+
+    <target name="updateMetaXmlApi">
+        <updateMetaXmlApi dir="${basedir}/src" apiVersion="${cumulusci.package.apiVersion}" />
+    </target>
+
+    <target name="preUpdateRequiredPackages">
+        <!-- npsp depends on all other packages.  If it is installed and other packages need to be downgraded (uninstalled), uninstall npsp first -->
+        <if>
+            <and>
+                <not>
+                    <equals arg1="${InstalledPackage.npsp.versionNumber}" arg2="Not Installed" />
+                </not>
+                <or>
+                    <bool>
+                        <isgreaterthan arg1="${InstalledPackage.npe01.versionNumber}" arg2="version.npe01" />
+                    </bool>
+                    <bool>
+                        <isgreaterthan arg1="${InstalledPackage.npo02.versionNumber}" arg2="version.npo02" />
+                    </bool>
+                    <bool>
+                        <isgreaterthan arg1="${InstalledPackage.npe03.versionNumber}" arg2="version.npe03" />
+                    </bool>
+                    <bool>
+                        <isgreaterthan arg1="${InstalledPackage.npe4.versionNumber}" arg2="version.npe4" />
+                    </bool>
+                    <bool>
+                        <isgreaterthan arg1="${InstalledPackage.npe5.versionNumber}" arg2="version.npe5" />
+                    </bool>
+                </or>
+            </and>
+            <then>
+                <echo>Uninstalling npsp ${InstalledPackage.npsp.versionNumber} to allow for downgrade</echo>
+                <uninstallPackage namespace="npsp" username="${sf.username}" password="${sf.password}" />
+
+                <!-- Override the cached installed version of npsp so we don't have to fetch versions again -->
+                <var name="InstalledPackage.npsp.versionNumber" value="Not Installed" />
+            </then>
+        </if>
+
+        <!-- npo02 depends on npe01 so we have to uninstall npo02 first if npo02 needs downgraded -->
+        <if>
+            <and>
+                <!-- npo02 is installed -->
+                <not>
+                    <equals arg1="${InstalledPackage.npo02.versionNumber}" arg2="Not Installed" />
+                </not>
+                <!-- and npe01 need downgraded -->
+                <bool>
+                    <isgreaterthan arg1="${InstalledPackage.npe01.versionNumber}" arg2="${version.npe01}" />
+                </bool>
+            </and>
+            <then>
+                <echo>Uninstalling npo02 ${InstalledPackage.npe01.versionNumber} to allow for npe01 downgrade</echo>
+                <uninstallPackage namespace="npo02" username="${sf.username}" password="${sf.password}" />
+
+                <!-- Override the cached installed version of npo02 so we don't have to fetch versions again -->
+                <var name="InstalledPackage.npo02.versionNumber" value="Not Installed" />
+            </then>
+        </if>
+    </target>
+
+    <!-- Update the Admin.profile to grant all FLS permissions -->
+    <target name="deployUpdatedAdminProfile">
+
+        <delete dir="admin_profile" />
+
+        <echo>Retrieving Admin.profile</echo>
+        <retrieveAdminProfile dir="admin_profile" manifest="lib/admin_profile.xml" />
+
+        <echo>Granting read/edit FLS on all fields in Admin.profile</echo>
+        <updateAdminProfileGrantFLS dir="admin_profile" />
+
+        <!-- Strip the existing recordTypeVisibilties -->
+        <xslt 
+            in="admin_profile/profiles/Admin.profile"
+            out="admin_profile/profiles/Admin.profile.no_rt"
+            style="${basedir}/lib/remove_recordtype_visibilities.xsl" />
+        <move file="admin_profile/profiles/Admin.profile.no_rt" tofile="admin_profile/profiles/Admin.profile" />
+
+        <!-- Add the record types -->
+
+        <!-- Account.HH_Account -->
+        <replaceregexp 
+            file="admin_profile/profiles/Admin.profile" 
+            match="(${lt}tabVisibilities>)" 
+            replace="${lt}recordTypeVisibilities>${line.separator}      ${lt}default>false${lt}/default>${line.separator}      ${lt}personAccountDefault>true${lt}/personAccountDefault>${line.separator}      ${lt}recordType>Account.HH_Account${lt}/recordType>${line.separator}      ${lt}visible>true${lt}/visible>${line.separator}    ${lt}/recordTypeVisibilities>${line.separator}    \1" />
+
+        <!-- Account.Organization (default) -->
+        <replaceregexp 
+            file="admin_profile/profiles/Admin.profile" 
+            match="(${lt}tabVisibilities>)" 
+            replace="${lt}recordTypeVisibilities>${line.separator}      ${lt}default>true${lt}/default>${line.separator}      ${lt}personAccountDefault>false${lt}/personAccountDefault>${line.separator}      ${lt}recordType>Account.Organization${lt}/recordType>${line.separator}      ${lt}visible>true${lt}/visible>${line.separator}    ${lt}/recordTypeVisibilities>${line.separator}    \1" />
+
+        <!-- Opportunity.NPSP_Default (default) -->
+        <replaceregexp 
+            file="admin_profile/profiles/Admin.profile" 
+            match="(${lt}tabVisibilities>)" 
+            replace="${lt}recordTypeVisibilities>${line.separator}      ${lt}default>true${lt}/default>${line.separator}      ${lt}personAccountDefault>true${lt}/personAccountDefault>${line.separator}      ${lt}recordType>Opportunity.NPSP_Default${lt}/recordType>${line.separator}      ${lt}visible>true${lt}/visible>${line.separator}    ${lt}/recordTypeVisibilities>${line.separator}    \1" />
+
+        <echo>Deploying updated Admin.profile</echo>
+        <sf:deploy username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" deployRoot="admin_profile" maxPoll="${cumulusci.maxPoll.notest}" />
+
+        <delete dir="admin_profile" />
+    </target>
+
+    <target name="postDeploy">
+        <!--
+        <echo>Sleeping for 30 seconds to allow background jobs to complete</echo>
+        <sleep seconds="30" />
+        -->
+        <antcall target="deployUpdatedAdminProfile" />
+    </target>
+</project>
