@@ -200,6 +200,8 @@ DOT             : '.';
 // §3.12 Operators
 
 ASSIGN          : '=';
+LE              : '<=';
+GE              : '>=';
 GT              : '>';
 LT              : '<';
 BANG            : '!';
@@ -208,8 +210,6 @@ QUESTION        : '?';
 COLON           : ':';
 EQUAL           : '==';
 TRIPLEEQUAL     : '===';
-LE              : '<=';
-GE              : '>=';
 NOTEQUAL        : '!=';
 LESSANDGREATER  : '<>';
 TRIPLENOTEQUAL  : '!==';

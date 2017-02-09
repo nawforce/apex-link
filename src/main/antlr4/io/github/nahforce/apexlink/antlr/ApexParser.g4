@@ -512,7 +512,7 @@ expression
     |   expression ('*'|'/'|'%') expression                                 # alt13Expression
     |   expression ('+'|'-') expression                                     # alt14Expression
     |   expression ('<' '<' | '>' '>' '>' | '>' '>') expression             # alt15Expression
-    |   expression ('<=' | '>=' | '>' | '<') expression                     # alt16Expression
+    |   expression ('<' '=' | '>' '=' | '<=' | '>=' | '>' | '<') expression # alt16Expression
     |   expression 'instanceof' typeRef                                     # alt17Expression
     |   expression ('===' | '!==' | '==' | '!=' | '<>' ) expression         # alt18Expression
     |   expression '&' expression                                           # alt19Expression
