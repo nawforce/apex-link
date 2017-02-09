@@ -1,0 +1,78 @@
+<apex:component controller="UTIL_JobProgress_CTRL" selfClosing="true">
+<!-- 
+* Salesforce.org 2014
+* Original work by Jason Venable, http://www.tehnrd.com - 2009
+* Component that displays progress for batch apex jobs 
+* Usage:
+*       <c:batchJobs strBatchComponentLabel="Batch Progress" cNumberOfJobs="1" />
+-->
+
+    <apex:includeScript value="{!URLFOR($Resource.CumulusStaticResources, '/jquery/jquery-1.10.2.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.CumulusStaticResources, '/Bootstrap/js/bootstrap.min.js')}" />
+    <apex:styleSheet value="{!URLFOR($Resource.CumulusStaticResources, '/Bootstrap/css/bootstrap-namespaced.css')}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        .panel-heading{
+            overflow: hidden;
+        }
+        .panel-body{
+            margin: 5px;
+        }
+        .batch-system-info{
+            font-style:italic;
+            float: right;
+        }
+        .panel-title{
+            float: left;
+        }
+    </style>
+
+    <apex:attribute name="cNumberOfJobs" type="Integer" assignTo="{!numberOfJobs}" description="The number of batch jobs to display in the table."/>
+    <apex:attribute name="strBatchComponentLabel" type="String" assignTo="{!batchComponentLabel}" description="The label of the progress bar section."/>
+    <apex:attribute name="bRerenderOnComplete" type="Boolean" assignTo="{!rerenderoncomplete}" description="Causes a full page rerender when progress bar equals 100%"/>
+
+    <apex:actionPoller rerender="opBatchJobsProgress" interval="5" />
+
+    <apex:outputpanel id="opBatchJobsProgress">
+            <div class="panel {!IF(NOT(allCompleted), 'panel-primary', IF(hasExtendedStatus, 'panel-warning', 'panel-success'))}">
+                <div class="panel-heading">
+                    <h3 class="panel-title">{!batchComponentLabel} <strong>{!IF(NOT(allCompleted), '', IF(hasExtendedStatus, ' - WARNING!', ' - SUCCESS!'))} </strong></h3>
+                    <span class="batch-system-info">Started by {!bj.job.CreatedBy.Name} on {!bj.job.CreatedDate}</span>
+                </div>
+                <apex:outputpanel id="multiJobPanel" rendered="{!numberOfJobs > 1}">
+                    <div class="panel-body">
+                        <apex:datatable value="{!batchJobs}" var="b" id="jobs" styleClass="table">
+                            <apex:column headerValue="Apex Class" value="{!b.job.ApexClass.Name}"/>
+                            <apex:column headerValue="Status" value="{!b.job.Status}"/>
+                            <apex:column width="320px">
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="{!b.percentComplete}" aria-valuemin="0" aria-valuemax="100" style="width: {!b.percentComplete}%;">
+                                        {!b.percentComplete}%
+                                    </div>
+                                </div>
+                            </apex:column>
+                            <apex:column headerValue="Completed On" value="{!b.job.CompletedDate}"/>
+                            <apex:column headerValue="Extended Status" value="{!b.job.ExtendedStatus}" rendered="{!hasExtendedStatus}"/>
+                        </apex:datatable>
+                    </div>
+                </apex:outputpanel>
+                <apex:outputpanel id="singleJobPanel" rendered="{!numberOfJobs == 1}">
+                    <div class="panel-body">
+                        <p>Current Status: <strong>{!bj.job.Status}</strong></p>
+                        <p>{!bj.job.ApexClass.Name} {!IF(bj.job.Status == 'Processing', 'is currently processing batch', 'processed')} {!bj.job.JobItemsProcessed} of {!bj.job.TotalJobItems} total batches</p>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped active {!IF(bj.job.Status != 'Completed', '', IF(bj.job.NumberOfErrors > 0, 'progress-bar-warning', 'progress-bar-success'))} " role="progressbar" aria-valuenow="{!bj.percentComplete}" aria-valuemin="0" aria-valuemax="100" style="width: {!bj.percentComplete}%;">
+                                {!bj.percentComplete}%
+                            </div>
+                        </div>
+                        <apex:outputpanel id="ExtendedStatusPanel" rendered="{!hasExtendedStatus}">
+                            <strong>
+                            <p>An error was thrown during the process.  The following status was the first reported error: </p>
+                            <p>{!bj.job.ExtendedStatus}</p>
+                            </strong>
+                        </apex:outputpanel>
+                    </div>
+                </apex:outputpanel>
+            </div>
+        </apex:outputpanel>
+</apex:component>

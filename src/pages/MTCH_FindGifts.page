@@ -1,0 +1,359 @@
+<apex:page standardController="Opportunity" extensions="MTCH_FindGifts_CTRL" standardStylesheets="true">
+    <apex:includeScript value="{!URLFOR($Resource.CumulusStaticResources, '/npsp-slds/modal.js')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.SLDS, '/0_12_2/assets/styles/salesforce-lightning-design-system-vf.min.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.CumulusStaticResources, '/npsp-slds/npsp-common.css')}" />
+
+    <style type="text/css">
+        dt {
+            /* conflict with VF common.css bolding labels in page header */
+            font-weight: normal;
+        }
+
+        #page-header-placeholder {
+            position: relative;
+        }
+
+        #page-header-fixed-placeholder {
+            position: absolute;
+        }
+
+        #page-header-fixed {
+            background-color: inherit;
+            z-index: 100;
+        }
+    </style>
+
+    <apex:form >
+      <div class="slds">
+      
+        <!-- PAGE HEADER -->
+        <div id="page-header-placeholder">
+            <div id="page-header-fixed-placeholder"></div>
+            <div id="page-header" class="slds-page-header" role="banner">
+                <nav role="navigation" class="slds-m-bottom--xx-small">
+                    <p id="bread-crumb-label" class="slds-assistive-text">You are here:</p>
+                    <ol class="slds-breadcrumb slds-list--horizontal" aria-labelledby="bread-crumb-label">
+                        <li class="slds-list__item slds-text-heading--label"><a class="slds-type-focus" href="{!URLFOR($Action.Opportunity.Tab, $ObjectType.Opportunity)}" >{!$ObjectType.Opportunity.LabelPlural}</a></li>
+                        <li class="slds-list__item slds-text-heading--label"><a class="slds-type-focus" href="/{!opp.Id}">{!opp.Name}</a></li>
+                    </ol>
+                </nav>
+                <div id="page-header-fixed-wrapper">
+                    <div class="slds-grid" id="page-header-fixed">
+                        <div class="slds-col slds-has-flexi-truncate">
+                            <h1 class="slds-text-heading--medium slds-p-top-medium">{!$Label.mtchFindMatchedGiftsSectionHeader}</h1>
+                        </div>
+
+                        <div class="slds-col slds-no-flex slds-align-middle">
+                            <div class="slds-button-group" role="group">
+                                <apex:commandButton styleClass="slds-button slds-button--neutral" action="{!cancel}" value="{!$Label.stgBtnCancel}" />
+                                <apex:commandButton styleClass="slds-button slds-button--brand" action="{!saveAndClose}" value="{!$Label.stgBtnSave}" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUMMARY INFO PANEL -->
+                <div class="slds-grid slds-page-header__detail-row">
+                    <div class="slds-col--padded slds-size--1-of-4">
+                        <dl>
+                            <dt>
+                                <p class="slds-text-heading--label slds-truncate" title="{!$Label.mtchTotalMatchingGift}">
+                                    {!$Label.mtchTotalMatchingGift}
+                                </p>
+                            </dt>
+                            <dd>
+                                <p class="slds-text-body--regular slds-truncate">
+                                    <apex:outputField value="{!opp.Amount}"/>
+                                </p>
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="slds-col--padded slds-size--1-of-4">
+                        <dl>
+                            <dt>
+                                <p class="slds-text-heading--label slds-truncate" title="{!$ObjectType.Account.Fields.Matching_Gift_Percent__c.Label}">
+                                    {!$ObjectType.Account.Fields.Matching_Gift_Percent__c.Label}
+                                </p>
+                            </dt>
+                            <dd>
+                                <p class="slds-text-body--regular slds-truncate">
+                                    <apex:outputText value="{0,number,0}%" id="txtMatchPercent">
+                                        <apex:param value="{!matchingGiftPercent}"/>
+                                    </apex:outputText>
+                                </p>
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="slds-col--padded slds-size--1-of-4">
+                        <dl>
+                            <dt>
+                                <p class="slds-text-heading--label slds-truncate" title="{!$Label.mtchTotalSelected}">
+                                    {!$Label.mtchTotalSelected}
+                                </p>
+                            </dt>
+                            <dd>
+                                <p class="slds-text-body--regular slds-truncate">
+                                    <apex:outputField id="totalSelected" value="{!oppTotalSelected.Amount}"/>
+                                </p>
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="slds-col--padded slds-size--1-of-4">
+                        <dl>
+                            <dt>
+                                <p class="slds-text-heading--label slds-truncate" title="{!$Label.mtchTotalUnaccounted}">
+                                    {!$Label.mtchTotalUnaccounted}
+                                </p>
+                            </dt>
+                            <dd>
+                                <p class="slds-text-body--regular slds-truncate">
+                                    <apex:outputField id="totalUn" value="{!oppTotalUnaccounted.Amount}"/>
+                                </p>
+                            </dd>
+                        </dl>
+                    </div>
+                </div> <!-- slds-grid -->
+                <!-- /SUMMARY INFO PANEL -->
+
+                <div class="slds-grid">
+                    <div class="slds-col">
+                        <p class="slds-text-body--small">
+                            <apex:outputText value="{!$Label.mtchItems}"><apex:param value="{!numberOfOpps}" /></apex:outputText>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /PAGE HEADER -->
+
+        <apex:pageMessages />
+
+        <!-- PAGE CONTENT -->
+        <div class="myBodyContent slds-m-top--large">
+
+            
+            <!-- DATA TABLE -->
+            <table class="slds-table slds-table--bordered">
+                <thead>
+                    <tr class="slds-text-heading--label">
+                        <th>{!$Label.mtchSelectCbxTitle}</th>
+                        <th>{!$ObjectType.Opportunity.Fields.Name.Label}</th>
+                        <th>{!$ObjectType.Account.Label}</th>
+                        <th>{!$ObjectType.Opportunity.Fields.Primary_Contact__c.Label}</th>
+                        <th>{!$ObjectType.Opportunity.Fields.Amount.Label}</th>
+                        <th>{!$ObjectType.Opportunity.Fields.CloseDate.Label}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <apex:repeat value="{!potentialGifts}" var="g">
+                        <tr>
+                            <td>
+                                <apex:inputCheckbox value="{!selection[g.Id]}">
+                                    <apex:actionSupport action="{!refresh}" event="onchange" rerender="totalSelected, totalUn" />
+                                </apex:inputCheckbox>
+                            </td>
+                            <td><apex:outputLink value="/{!g.Id}">{!g.Name}</apex:outputLink></td>
+                            <td><apex:outputField value="{!g.Account.Name}" /></td>
+                            <td><apex:outputField value="{!g.Primary_Contact__c}" /></td>
+                            <td><apex:outputField value="{!g.Amount}" /></td>
+                            <td><apex:outputField value="{!g.CloseDate}" /></td>
+                        </tr>
+                    </apex:repeat>
+                </tbody>
+            </table>
+            <!-- /DATA TABLE -->
+            
+            <div class="slds-p-around--medium">
+                <a href="#" data-toggle="modal" data-target="searchPopup">{!$Label.mtchFindMoreGifts}</a>
+            </div>
+
+            <!-- SEARCH POPUP -->
+            <div>
+                <div id="searchPopup" tabindex="-1" aria-hidden="true" aria-labelledby="searchPopupLabel" role="dialog" class="slds-modal">
+                    <div class="slds-modal__container">
+
+                        <div class="slds-modal__header">
+                            <h2 id="searchPopupLabel" class="slds-text-heading--medium">{!$Label.mtchFindMoreGifts}</h2>
+                            <p>{!$Label.mtchFindMoreGiftsInfo}</p>
+                            <button type="button" class="slds-button slds-button--icon-inverse slds-modal__close" data-dismiss="modal" data-target="searchPopup">
+                                <svg aria-hidden="true" class="slds-button__icon slds-button__icon--large" viewBox="0 0 24 24" data-target="searchPopup">
+                                    <path data-target="searchPopup" d="M14.6 11.9l6-6c.3-.3.3-.7 0-1l-.9-1c-.3-.3-.7-.3-1 0L12.6 10c-.1.2-.4.2-.6 0L6 3.9c-.3-.3-.7-.3-1 0l-1 .9c-.3.3-.3.7 0 1l6.1 6.1c.1.1.1.4 0 .6L4 18.6c-.3.3-.3.7 0 1l.9.9c.3.3.7.3 1 0l6.1-6c.2-.2.5-.2.6 0l6.1 6c.3.3.7.3 1 0l.9-.9c.3-.3.3-.7 0-1l-6-6c-.2-.2-.2-.5 0-.7z"/>
+                                </svg>
+                                <span class="slds-assistive-text">Close</span>
+                            </button>
+                        </div>
+
+                        <div class="slds-modal__content">
+                            <div class="slds-grid">
+                                <div class="slds-col--padded-medium">
+                                    <div class="slds-form--stacked">
+                                        <div class="slds-form-element">
+                                            <label class="slds-form-element__label" for="txtAccountId">{!$ObjectType.Account.Label}</label>
+                                            <div class="slds-form-element__control">
+                                                <apex:inputField styleClass="lookupInput slds-input--small" id="txtAccountId" value="{!searchFieldsWrapper.AccountId}" />
+                                            </div>
+                                        </div>
+                                        <div class="slds-form-element">
+                                            <label class="slds-form-element__label" for="txtReportToId">{!$ObjectType.Opportunity.Fields.Primary_Contact__c.Label}</label>
+                                            <div class="slds-form-element__control">
+                                                <apex:inputField styleClass="lookupInput slds-input--small" id="txtReportToId" value="{!searchFieldsWrapper.ReportsToId}" />
+                                            </div>
+                                        </div>
+                                        <div class="slds-form-element">
+                                            <label class="slds-form-element__label" for="txtAmount">{!$ObjectType.Opportunity.Fields.Amount.Label}</label>
+                                            <div class="slds-form-element__control">
+                                                <apex:inputField styleClass="slds-input slds-input--small" id="txtAmount" value="{!searchFieldsWrapper.First_Soft_Credit_Amount__c}" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="slds-col--padded-medium">
+                                    <div class="slds-form--stacked">
+                                        <div class="slds-form-element">
+                                            <label class="slds-form-element__label" for="txtCloseDateStart">{!$Label.mtchCloseDateStart}</label>
+                                            <div class="slds-form-element__control">
+                                                <div>
+                                                    <apex:inputField styleClass="slds-input slds-input--small" id="txtCloseDateStart" value="{!searchFieldsWrapper.First_Soft_Credit_Date__c}" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-form-element">
+                                            <label class="slds-form-element__label" for="txtCloseDateEnd">{!$Label.mtchCloseDateEnd}</label>
+                                            <div class="slds-form-element__control">
+                                                <div>
+                                                    <apex:inputField styleClass="slds-input slds-input--small" id="txtCloseDateEnd" value="{!searchFieldsWrapper.Last_Soft_Credit_Date__c}" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                  </div>
+                              </div>
+                            </div> <!-- /slds-grid -->
+                        </div> <!-- /slds-modal__content -->
+                        <div class="slds-modal__footer">
+                            <div class="slds-x-small-buttons--horizontal">
+                                <button type="button" class="slds-button slds-button--neutral" data-dismiss="modal" data-target="searchPopup">{!$Label.stgBtnCancel}</button>
+                                <apex:commandButton styleClass="slds-button slds-button--neutral slds-button--brand" action="{!searchMore}" value="{!$Label.mtchBtnSearch}" />
+                            </div>
+                        </div>
+                    </div> <!-- /slds-modal__container -->
+                </div> <!-- /slds-modal -->
+                <div class="slds-backdrop" tabindex="-1"></div>
+            </div>
+            <!-- /SEARCH POPUP -->
+
+        </div> <!--  /myBodyContent -->
+      </div> <!-- /slds -->
+    </apex:form>
+    <script type="text/javascript">
+        (function () {
+            var header = document.getElementById('page-header');
+            var headerPlaceholder = document.getElementById('page-header-placeholder');
+            var fixed = document.getElementById('page-header-fixed');
+            var fixedPlaceholder = document.getElementById('page-header-fixed-placeholder');
+            var fixedWrapper = document.getElementById('page-header-fixed-wrapper');
+            var nonFixed = document.querySelectorAll('#page-header > *:not(#page-header-fixed-wrapper)');
+
+            var headerRect = header.getBoundingClientRect();
+            var fixedRect = fixed.getBoundingClientRect();
+
+            headerPlaceholder.style.height = headerRect.height + 'px';
+            header.style.height = headerRect.height + 'px';
+            fixedPlaceholder.style.height = fixedRect.height + 'px';
+            fixedPlaceholder.style.top = (fixedRect.top - headerRect.top) + 'px';
+            fixedPlaceholder.style.left = (fixedRect.left - headerRect.left) + 'px';
+            fixedWrapper.style.height = fixedRect.height + 'px';
+
+            var fixedTopLimit = 24;
+            var headerTopLimit = 48 + fixedRect.height - headerRect.height;
+            var fixedPosition = '';
+            var headerPosition = '';
+
+            function resizeHeader(e) {
+                var headerPlaceholderRect = headerPlaceholder.getBoundingClientRect();
+                if (fixedPosition == 'fixed') {
+                    fixed.style.width = (headerPlaceholderRect.width - 48) + 'px';
+                } else {
+                    fixed.style.width = '';
+                }
+                if (headerPosition == 'fixed') {
+                    header.style.width = headerPlaceholderRect.width + 'px';
+                } else {
+                    header.style.width = '';
+                }
+            }
+
+            function updateHeader(e) {
+                var headerRect = header.getBoundingClientRect();
+                var headerPlaceholderRect = headerPlaceholder.getBoundingClientRect();
+                var fixedPlaceholderRect = fixedPlaceholder.getBoundingClientRect();
+                var fixedRect = fixed.getBoundingClientRect();
+
+                if (fixedPlaceholderRect.top <= fixedTopLimit) {
+                    fixed.style.position = 'fixed';
+                    fixedPosition = 'fixed';
+                    fixed.style.top = fixedTopLimit + 'px';
+                    fixed.style.left = fixedPlaceholderRect.left + 'px';
+                    fixed.style.width = headerPlaceholderRect.width + 'px';
+                }
+
+                if (fixedPlaceholderRect.bottom > fixedRect.bottom) {
+                    fixed.style.position = fixedPosition = '';
+                    fixed.style.top = '';
+                    fixed.style.left = '';
+                    fixed.style.width = '';
+                }
+
+                if (headerPlaceholderRect.top <= headerTopLimit) {
+                    header.style.position = headerPosition = 'fixed';
+                    header.style.top = headerTopLimit + 'px';
+                    header.style.left = headerPlaceholderRect.left + 'px';
+                    header.style.width = headerPlaceholderRect.width + 'px';
+                }
+
+                if (headerPlaceholderRect.bottom > headerRect.bottom) {
+                    header.style.position = headerPosition = '';
+                    header.style.top = '';
+                    header.style.left = '';
+                    header.style.width = '';
+                }
+
+                var opacity;
+                var opacityChanged = false;
+
+                if (headerPlaceholderRect.top <= 0 && headerPlaceholderRect.top >= -48) {
+                    opacity = 1 - (headerPlaceholderRect.top / -48);
+                    opacityChanged = true;
+                } else if (headerPlaceholderRect.top < -48 && opacity != 0) {
+                    opacity = 0;
+                    opacityChanged = true;
+                } else if (headerPlaceholderRect.top > 0 && opacity != 1) {
+                    opacity = 1;
+                    opacityChanged = true;
+                }
+
+                if (opacityChanged) {
+                    for (var i = 0; i < nonFixed.length; i++) {
+                        nonFixed[i].style.opacity = opacity;
+                    }
+                }
+            }
+
+            var updating = false;
+
+            function scroll() {
+                if (!updating) {
+                    requestAnimationFrame(function () {
+                        updateHeader();
+                        resizeHeader();
+                        updating = false;
+                    });
+                    updating = true;
+                }
+            }
+
+            document.addEventListener('scroll', scroll);
+            window.addEventListener('resize', scroll);
+        })();
+    </script>
+</apex:page>

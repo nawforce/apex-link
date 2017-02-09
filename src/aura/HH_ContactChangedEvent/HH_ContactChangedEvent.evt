@@ -1,0 +1,3 @@
+<aura:event type="APPLICATION" access="global" description="Fired when a property on the Contact has changed on the HH_ContactCard.">
+    <aura:attribute name="contact" type="Object" access="global" />
+</aura:event>

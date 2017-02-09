@@ -1,0 +1,51 @@
+<apex:page controller="STG_PanelRel_CTRL" docType="html-5.0">
+    <apex:form id="form" styleClass="slds-m-around--x-large">
+        <c:STG_PageHeader sectionLabel="{!$Label.stgNavRelationships}" pageLabel="{!$Label.stgNavRelationships}" />
+        <p class="slds-text-body--small slds-m-top--x-small">{!$Label.npe4__RelationshipsSettingsDescription}</p>
+        <c:UTIL_PageMessages />
+        <div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-m-around--large">
+                <apex:commandButton id="editRel" value="{!$Label.stgBtnEdit}" status="statusLoad" action="{!editSettings}" rendered="{!isReadOnlyMode}" immediate="true" rerender="form" styleClass="slds-button slds-button--small slds-button--neutral" />
+        </div>
+        <div class="slds-form--horizontal slds-m-around--large">
+            <div class="slds-form-element">
+                <apex:outputLabel value="{!$ObjectType.npe4__Relationship_Settings__c.Fields.npe4__Reciprocal_Method__c.Label}" for="slRM" styleClass="col-md-4 slds-form-element__label" />
+                <div class="slds-form-element__control">
+                    <apex:outputField value="{!stgService.stgRel.npe4__Reciprocal_Method__c}" rendered="{!isReadOnlyMode}" styleClass="slds-form-element__static" />
+                    <apex:selectList value="{!stgService.stgRel.npe4__Reciprocal_Method__c}" size="1" multiselect="false" rendered="{!isEditMode}" id="slRM" html-aria-describedby="{!$Component.slRMHelp}" styleClass="slds-select" >
+                        <apex:selectOption itemValue="List Setting" itemLabel="List Settings"/>
+                        <apex:selectOption itemValue="Value Inversion" itemLabel="Value Inversion" />
+                    </apex:selectList>
+                    <apex:outputPanel id="slRMHelp" layout="block">
+                        <apex:outputText styleClass="slds-form-element__help" value="{!$Label.stgHelpRelReciprocalMethod}" escape="false"/>
+                    </apex:outputPanel>
+                </div>
+            </div>
+            <div class="slds-form-element">
+                <apex:outputLabel value="{!$ObjectType.npe4__Relationship_Settings__c.Fields.npe4__Gender_Field__c.Label}" for="slGF" styleClass="col-md-4 slds-form-element__label" />
+                <div class="slds-form-element__control">
+                    <apex:outputText value="{!strGenderFieldLabel}" rendered="{!isReadOnlyMode}" styleClass="slds-form-element__static" />
+                    <apex:selectList value="{!stgService.stgRel.npe4__Gender_Field__c}" size="1" multiselect="false" rendered="{!isEditMode}" id="slGF" html-aria-describedby="{!$Component.slGFHelp}" styleClass="slds-select">
+                        <apex:SelectOptions value="{!listSOGenderFieldOptions}" />
+                    </apex:selectList>
+                    <apex:outputPanel id="slGFHelp" layout="block">
+                        <apex:outputText styleClass="slds-form-element__help" value="{!$Label.stgHelpRelGenderField}" />
+                    </apex:outputPanel>
+                </div>
+            </div>
+            <div class="slds-form-element">
+                <apex:outputLabel value="{!$ObjectType.npe4__Relationship_Settings__c.Fields.npe4__Allow_AutoCreated_Duplicates__c.Label}" for="cbxAACD" styleClass="col-md-4 slds-form-element__label" />
+                <div class="slds-form-element__control">
+                    <apex:inputCheckbox value="{!stgService.stgRel.npe4__Allow_AutoCreated_Duplicates__c}" rendered="{!isEditMode}" id="cbxAACD" html-aria-describedby="{!$Component.cbxAACDHelp}" styleClass="slds-checkbox"/>
+                    <apex:inputCheckbox value="{!stgService.stgRel.npe4__Allow_AutoCreated_Duplicates__c}" rendered="{!isReadOnlyMode}" disabled="true" id="cbxAACDO" html-aria-describedby="{!$Component.cbxAACDHelp}" styleClass="slds-checkbox"/>
+                    <apex:outputPanel id="cbxAACDHelp" layout="block">
+                        <apex:outputText styleClass="slds-form-element__help" value="{!$Label.stgHelpRelAutoCreatedDup}" />
+                    </apex:outputPanel>
+                </div>
+            </div>
+        </div>
+        <div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-m-around--large">
+            <apex:commandButton id="saveRel" value="{!$Label.stgBtnSave}" status="statusLoad" action="{!saveSettings}" rendered="{!isEditMode}" immediate="false" rerender="form" styleClass="slds-button slds-button--small slds-button--brand" />
+            <apex:commandButton id="cancelRel" value="{!$Label.stgBtnCancel}" status="statusLoad" action="{!cancelEdit}" rendered="{!isEditMode}" immediate="true" rerender="form" styleClass="slds-button slds-button--small slds-button--neutral" />
+        </div>
+    </apex:form>
+</apex:page>

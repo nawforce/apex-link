@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>Automatic_Campaign_Member_Management__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Automatically creates a Campaign Member when you create an Opportunity that has a Primary Contact and a Primary Campaign source associated with it, or update that Opportunity with a Closed/Won stage.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Automatically creates a Campaign Member when you create an Opportunity that has a Primary Contact and a Primary Campaign source associated with it, or update that Opportunity with a Closed/Won stage.</inlineHelpText>
+        <label>Automatic Campaign Member Management</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Campaign_Member_Non_Responded_Status__c</fullName>
+        <description>The automatic Status of a Campaign Member for Open or Closed/Lost opportunities that have a Primary Contact and a Primary Campaign Source associated with them. If left blank, Salesforce uses the first non-Responded status.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The automatic Status of a Campaign Member for Open or Closed/Lost opportunities that have a Primary Contact and a Primary Campaign Source associated with them. If left blank, Salesforce uses the first non-Responded status.</inlineHelpText>
+        <label>Campaign Member Non Responded Status</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Campaign_Member_Responded_Status__c</fullName>
+        <description>The automatic Status of the Campaign Member for Closed/Won opportunities that have a Primary Contact and a Primary Campaign Source associated with them. If left blank, Salesforce uses the first Responded status.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The automatic Status of the Campaign Member for Closed/Won opportunities that have a Primary Contact and a Primary Campaign Source associated with them. If left blank, Salesforce uses the first Responded status.</inlineHelpText>
+        <label>Campaign Member Responded Status</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Honoree_Opportunity_Contact_Role__c</fullName>
+        <description>Populating this setting will automatically create a Contact Role for Opportunities with an honoree Contact. Leaving this field blank will disable automatic Contact Role creation for the honoree.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Populating this setting will automatically create a Contact Role for Opportunities with an honoree Contact. Leaving this field blank will disable automatic Contact Role creation for the honoree.</inlineHelpText>
+        <label>Honoree Opportunity Contact Role</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Household_Account_Addresses_Disabled__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Disables Address management for Household Accounts when selected.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Disables Address management for Household Accounts when selected.</inlineHelpText>
+        <label>Household Account Addresses Disabled</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Max_Payments__c</fullName>
+        <defaultValue>12</defaultValue>
+        <description>Determines the maximum number of payments available in the Payment Creation Wizard.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Determines the maximum number of payments available in the Payment Creation Wizard.</inlineHelpText>
+        <label>Max Payments</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Notification_Recipient_Opp_Contact_Role__c</fullName>
+        <description>Populating this setting will automatically create a Contact Role for Opportunities with a notification recipient Contact. Leaving this field blank will disable automatic Contact Role creation for the notification recipient.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Populating this setting will automatically create a Contact Role for Opportunities with a notification recipient Contact. Leaving this field blank will disable automatic Contact Role creation for the notification recipient.</inlineHelpText>
+        <label>Notification Recipient Opp Contact Role</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Opp_RecTypes_Excluded_for_Payments__c</fullName>
+        <description>Salesforce won&apos;t automatically create Payments for the selected Opportunity record types. Control or Command click to select more than one record type.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Salesforce won&apos;t automatically create Payments for the selected Opportunity record types. Control or Command click to select more than one record type.</inlineHelpText>
+        <label>Excluded Opp Record Types</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Opp_Types_Excluded_for_Payments__c</fullName>
+        <description>Salesforce won&apos;t automatically create Payments for Opportunities that have this value in the Type picklist.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Salesforce won&apos;t automatically create Payments for Opportunities that have this value in the Type picklist.</inlineHelpText>
+        <label>Excluded Opp Types</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Organizational_Account_Addresses_Enabled__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Enables Address management for Organizational Accounts when selected.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Enables Address management for Organizational Accounts when selected.</inlineHelpText>
+        <label>Organizational Account Addresses Enabled</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Payments_Auto_Close_Stage_Name__c</fullName>
+        <description>Salesforce automatically sets an Opportunity&apos;s Stage to this value when the Payment Amount Received is equal to the Opportunity Amount. If no stage is selected, the Opportunity Stage won&apos;t change when payments are complete.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Salesforce automatically sets an Opportunity&apos;s Stage to this value when the Payment Amount Received is equal to the Opportunity Amount. If no stage is selected, the Opportunity Stage won&apos;t change when payments are complete.</inlineHelpText>
+        <label>Opportunity Stage for When Fully Paid</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Simple_Address_Change_Treated_as_Update__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>If checked, changes to a single Contact or Account address field update the existing Address, rather than creating a new Address.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>If checked, changes to a single Contact or Account address field update the existing Address, rather than creating a new Address.</inlineHelpText>
+        <label>Simple Address Change Treated as Update</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+</CustomObject>

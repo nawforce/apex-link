@@ -1,0 +1,25 @@
+<apex:page controller="STG_PanelAffiliations_CTRL" >
+    <apex:form id="form" styleClass="slds-m-around--x-large">
+        <c:STG_PageHeader sectionLabel="{!$Label.stgNavRelationships}" pageLabel="{!$Label.stgNavAffiliations}" />
+        <c:UTIL_PageMessages />
+        <div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-m-around--large">
+            <apex:commandButton id="editAffl" value="{!$Label.stgBtnEdit}" status="statusLoad" action="{!editSettings}" rendered="{!isReadOnlyMode}" immediate="true" rerender="form" styleClass="slds-button slds-button--small slds-button--neutral" />
+        </div>
+        <div class="slds-form--horizontal slds-m-around--large">
+            <div class="slds-form-element">
+                <apex:outputLabel value="{!$ObjectType.npe5__Affiliations_Settings__c.Fields.npe5__Automatic_Affiliation_Creation_Turned_On__c.Label}" for="cbxAACTO" styleClass="slds-form-element__label" />
+                <div class="slds-form-element__control">
+                    <apex:inputCheckbox value="{!stgService.stgAffl.npe5__Automatic_Affiliation_Creation_Turned_On__c}" rendered="{!isEditMode}" id="cbxAACTO" html-aria-describedby="{!$Component.cbxAACTOHelp}" styleClass="slds-checkbox"/>
+                    <apex:inputCheckbox value="{!stgService.stgAffl.npe5__Automatic_Affiliation_Creation_Turned_On__c}" rendered="{!isReadOnlyMode}" disabled="true" id="cbxAACTOO" html-aria-describedby="{!$Component.cbxAACTOHelp}" styleClass="slds-checkbox"/>
+                    <apex:outputPanel id="cbxAACTOHelp" layout="block">
+                        <apex:outputText styleClass="slds-form-element__help" value="{!$Label.stgHelpAutoAffil}" />
+                    </apex:outputPanel>
+                </div>
+            </div>
+        </div>
+        <div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-m-around--large">
+            <apex:commandButton id="saveAffl" value="{!$Label.stgBtnSave}" status="statusLoad" action="{!saveSettings}" immediate="false" rendered="{!isEditMode}" rerender="form" styleClass="slds-button slds-button--small slds-button--brand" />
+            <apex:commandButton id="cancelAffl" value="{!$Label.stgBtnCancel}" status="statusLoad" action="{!cancelEdit}" immediate="true" rendered="{!isEditMode}" rerender="form" styleClass="slds-button slds-button--small slds-button--neutral" />
+        </div>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Opportunity Naming Settings --></value>
+    </caseValues>
+    <fields>
+        <help>この設定が個人支援、団体支援、またはその両方のいずれに適用されるか。</help>
+        <label>属性</label>
+        <name>Attribution__c</name>
+    </fields>
+    <fields>
+        <help>この支援名に含まれる日付の形式。</help>
+        <label>日付形式</label>
+        <name>Date_Format__c</name>
+    </fields>
+    <fields>
+        <help>支援の命名に使用する形式。</help>
+        <label>支援名形式</label>
+        <name>Opportunity_Name_Format__c</name>
+    </fields>
+    <fields>
+        <help>この命名方式が適用される支援レコードタイプを指定します。</help>
+        <label>支援レコードタイプ</label>
+        <name>Opportunity_Record_Types__c</name>
+    </fields>
+</CustomObjectTranslation>

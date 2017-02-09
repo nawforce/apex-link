@@ -1,0 +1,3 @@
+<aura:event type="APPLICATION" description="Fired when the remove button is pressed on a HH_ContactCard.">
+    <aura:attribute name="contact" type="Object" />
+</aura:event>

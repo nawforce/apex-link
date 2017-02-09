@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <help>Der Batch, aus dem dieser Lead erstellt wurde</help>
+        <label><!-- Batch --></label>
+        <name>Batch__c</name>
+        <relationshipLabel><!-- Leads --></relationshipLabel>
+    </fields>
+    <fields>
+        <label>Unternehmensanschrift Stadt</label>
+        <name>CompanyCity__c</name>
+    </fields>
+    <fields>
+        <label>Unternehmensanschrift Land</label>
+        <name>CompanyCountry__c</name>
+    </fields>
+    <fields>
+        <label>Unternehmen Postleitzahl</label>
+        <name>CompanyPostalCode__c</name>
+    </fields>
+    <fields>
+        <label>Unternehmen Bundesstaat/Provinz</label>
+        <name>CompanyState__c</name>
+    </fields>
+    <fields>
+        <label>Unternehmen Straße</label>
+        <name>CompanyStreet__c</name>
+    </fields>
+</CustomObjectTranslation>

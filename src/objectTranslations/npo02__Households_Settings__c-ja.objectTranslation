@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Households Settings --></value>
+    </caseValues>
+    <fields>
+        <help>マッチングギフトのソフトクレジットを受け取る個人に割り当てられる役割。</help>
+        <label>一致する支援者の役割</label>
+        <name>Matched_Donor_Role__c</name>
+    </fields>
+</CustomObjectTranslation>

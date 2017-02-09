@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>Hierarchy</customSettingsType>
+    <enableFeeds>false</enableFeeds>
+    <fields>
+        <fullName>Allow_Blank_Opportunity_Names__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>If set, then Batch Data Entry will never name Opportunities, even if they are blank (not included on the BDE page).</description>
+        <externalId>false</externalId>
+        <inlineHelpText>If set, then Batch Data Entry will never name Opportunities, even if they are blank (not included on the BDE page).</inlineHelpText>
+        <label>Allow Blank Opportunity Names</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Opportunity_Naming__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>This setting automatically generates the record name for batch entered Opportunity records based on the value of the entered fields.</inlineHelpText>
+        <label>Opportunity Naming</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <label>Batch Data Entry Settings</label>
+    <visibility>Public</visibility>
+</CustomObject>

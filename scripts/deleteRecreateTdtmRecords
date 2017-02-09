@@ -1,0 +1,8 @@
+/** 
+ * Deletes and recreates the TDTM records that control trigger behavior. (The other actions of the install script
+ * should not have an impact on the org.)
+ * You can run the following code manually (from the Execute Anonymous window of the Dev Console, for example).
+ **/
+delete [SELECT ID from trigger_Handler__c];
+STG_InstallScript i = new STG_InstallScript();
+i.runNewOrgScript();

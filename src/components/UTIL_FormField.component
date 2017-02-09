@@ -1,0 +1,113 @@
+<apex:component layout="none">
+    <apex:attribute name="field" type="String" description="The field to display." required="true"/>
+    <apex:attribute name="sObj" type="sObject" description="The sObject the field belongs to." required="true"/>
+    <apex:attribute name="sObjType" type="String" description="The sObject type." required="true"/>
+    <apex:attribute name="onchange" type="String"  default="" description="On change event."/>
+    <apex:attribute name="required" type="Boolean" default="false" description="When true marks the field as required, defaults to false." />
+    <apex:attribute name="styleClass" type="String" default="" description="The style to apply to the outer form element." />
+
+    <!-- Action Support assumes onchange event and calling page has an action status component on the page -->
+    <apex:attribute name="actSup" type="Boolean" default="false" description="When true the input field will render action support, defaults to false." />
+    <apex:attribute name="actSupAction" type="ApexPages.Action" default="" description="Action for the onchange action support to fire." />
+    <apex:attribute name="actSupReRender" type="String" default="" description="Component id on the main page to rerender after onchange event." />
+    <apex:attribute name="actSupStatus" type="String" default="loading" description="The id of the action status on the main page to display when fired, defaults to loading." />
+    <apex:attribute name="actSupImmediate" type="Boolean" default="false" description="Sets immediate attribute on the action status, defaults to false" />
+
+    <!-- Dependent picklists and multipicklists require additional css -->
+    <apex:variable var="dependent" value="{!$ObjectType[sObjType].fields[field].dependentPicklist}"/>
+    <!-- NOTE: When using a variable for determining readonly or field type in combination with conditionally rendering output panels, some field values do not save -->
+    <apex:variable var="ftype" value="{!$ObjectType[sObjType].fields[field].type}"/>
+    <!-- The fixup style class to apply to dependent and date fields -->
+    <apex:variable var="fixup"
+        value="{!IF(dependent,
+                    IF(ftype=='picklist', ' dependentPicklistFixup', ' dependentMultiPicklistFixup'),
+                    IF(CONTAINS(ftype,'date'),' dateFixup', ''))}"/>
+    <!-- The field label to be displayed -->
+    <apex:variable var="label" value="{!$ObjectType[sObjType].fields[field].label}"/>
+
+    <!-- Read only fields will be displayed as outputfields with a bottom divider per slds standards, checkboxes will render as disabled input checkboxes -->
+    <apex:outputPanel layout="none" id="divOutput"
+        rendered="{!((!$ObjectType[sObjType].fields[field].updateable && sObj['Id']!='')
+                    || !$ObjectType[sObjType].fields[field].createable) && $ObjectType[sObjType].fields[field].accessible}">
+        <div class="{!'slds-form-element ' + styleClass}">
+            <apex:outputLabel for="outputX" styleClass="slds-form-element__label" rendered="{!ftype!='boolean'}">
+                {!label}
+            </apex:outputLabel>
+            <div class="{!'slds-form-element__control' + IF($ObjectType[sObjType].fields[field].type!='boolean', ' slds-has-divider--bottom slds-p-left--small','')}">
+                <!-- Blank space fixes issue where an empty span on read only fields were blank causing the line to shift when no value present -->
+                <apex:outputField id="outputX" value="{!sObj[field]}" styleClass="slds-form-element__static" rendered="{!ftype!='boolean'}">&nbsp;</apex:outputField>
+                <apex:outputPanel layout="{!IF(ftype=='boolean', 'inline', 'none')}" styleClass="{!IF(ftype=='boolean', 'slds-checkbox', '')}">
+                    <apex:outputLabel for="outputCB" styleClass="slds-checkbox__label" rendered="{!ftype=='boolean'}">
+                        <apex:inputCheckbox value="{!sObj[field]}" id="outputCB" disabled="true" rendered="{!ftype=='boolean'}" />
+                        <span class="slds-checkbox--faux"></span>
+                        <span class="slds-form-element__label">{!label}</span>
+                    </apex:outputLabel>
+                </apex:outputPanel>
+            </div>
+        </div>
+    </apex:outputPanel>
+
+    <!-- Updateable fields will render as input fields with the appropriate slds style - note that Record Type Id is displayed as a picklist by Salesforce. -->
+    <apex:outputPanel layout="block" styleClass="{!'slds-form-element ' + styleClass + fixup}" id="divInput"
+        rendered="{!($ObjectType[sObjType].fields[field].updateable
+                    || $ObjectType[sObjType].fields[field].createable && sObj['Id']=='') && $ObjectType[sObjType].fields[field].type != 'boolean'}">        
+        <apex:outputLabel for="inputX" styleClass="slds-form-element__label" rendered="{!ftype!='boolean'}">
+            <apex:outputText rendered="{!required}">
+                <abbr class="slds-required" title="{!$Label.lblRequired}">*</abbr>
+            </apex:outputText>{!label}
+        </apex:outputLabel>
+        <div class="slds-form-element__control">
+            <apex:inputField id="inputX" required="{!required}" value="{!sObj[field]}" label=""
+                styleClass="{!CASE(ftype,
+                                        'textarea', 'slds-textarea',
+                                        'picklist', 'slds-select',
+                                        'multipicklist', 'slds-select multipicklistSLDSFixup',
+                                        'reference', IF(field=='RecordTypeId', 'slds-select', 'lookupInput203 ' + field),
+                                        'slds-input')}">
+                <apex:actionSupport event="onchange" action="{!actSupAction}" reRender="{!actSupReRender}" rendered="{!actSup}" status="{!actSupStatus}" immediate="{!actSupImmediate}"/>
+            </apex:inputField>
+        </div>
+        <!-- Javascript will add the onchange event when needed and swap out the icon for lookup fields -->
+        <script type="text/javascript">
+            var oc = '{!onchange}';
+            var ftype = '{!ftype}';
+            var field = '{!field}';
+            var input = document.getElementById("{!$Component.inputX}");
+
+            // Add onchange event only when needed
+            if (oc) input.setAttribute("onchange", oc);
+
+            // Swap out the search icon
+            if (ftype == 'reference' && field != 'RecordTypeId') {
+                input.style.visibility = "";
+                var lkSpan = input.parentElement;
+                var lkLink = lkSpan.querySelector("a");
+                lkLink.style.visibility = "";
+                lkLink.className = "";
+                lkLink.innerHTML = "<svg aria-hidden=\"true\" class=\"slds-icon slds-input__icon slds-icon--x-small slds-icon-text-default\" viewBox=\"0 0 24 24\"><path  d=\"M22.9 20.9l-6.2-6.1c1.3-1.8 1.9-4 1.6-6.4-.6-3.9-3.8-7.1-7.8-7.4C5 .4.4 5 1 10.5c.3 4 3.5 7.3 7.4 7.8 2.4.3 4.6-.3 6.4-1.5l6.1 6.1c.3.3.7.3 1 0l.9-1c.3-.3.3-.7.1-1zM3.7 9.6c0-3.2 2.7-5.9 5.9-5.9s6 2.7 6 5.9-2.7 6-6 6-5.9-2.6-5.9-6z\"></path></svg>";
+            }
+        </script>
+    </apex:outputPanel>
+
+    <!-- Updateable boolean fields need to have input within the label span. -->
+    <apex:outputPanel layout="block" styleClass="{!'slds-form-element ' + styleClass}" id="divCheckbox"
+        rendered="{!($ObjectType[sObjType].fields[field].updateable
+                    || $ObjectType[sObjType].fields[field].createable && sObj['Id']=='') && $ObjectType[sObjType].fields[field].type == 'boolean'}">
+        <div class="slds-form-element__control">
+            <apex:outputLabel styleClass="slds-checkbox" for="inputCB">
+                <apex:inputField id="inputCB" value="{!sObj[field]}" label="">
+                    <apex:actionSupport event="onchange" action="{!actSupAction}" reRender="{!actSupReRender}" rendered="{!actSup}" status="{!actSupStatus}" immediate="{!actSupImmediate}"/>
+                </apex:inputField>
+                    <span class="slds-checkbox--faux"></span>
+                    <span class="slds-form-element__label">{!label}</span>
+            </apex:outputLabel>
+        </div>
+        <script type="text/javascript">
+            var oc = '{!onchange}';
+            var input = document.getElementById("{!$Component.inputCB}");
+
+            // Add onchange event only when needed
+            if (oc) input.setAttribute("onchange", oc);
+        </script>
+    </apex:outputPanel>
+</apex:component>

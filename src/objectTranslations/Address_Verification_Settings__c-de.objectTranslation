@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value><!-- Address Verification Settings-DEPRECATED --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value><!-- Address Verification Settings-DEPRECATED --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>false</plural>
+        <value><!-- Address Verification Settings-DEPRECATED --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>true</plural>
+        <value><!-- Address Verification Settings-DEPRECATED --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>false</plural>
+        <value><!-- Address Verification Settings-DEPRECATED --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>true</plural>
+        <value><!-- Address Verification Settings-DEPRECATED --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>false</plural>
+        <value><!-- Address Verification Settings-DEPRECATED --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>true</plural>
+        <value><!-- Address Verification Settings-DEPRECATED --></value>
+    </caseValues>
+    <fields>
+        <help>Für die Adressenüberprüfung verwendeter URL</help>
+        <label><!-- Address Verification Endpoint-DEPRECATED --></label>
+        <name>Address_Verification_Endpoint__c</name>
+    </fields>
+    <fields>
+        <help>Die Authentifizierungskennung Ihres geheimen Schlüsselpaars</help>
+        <label><!-- Auth ID-DEPRECATED --></label>
+        <name>Auth_ID__c</name>
+    </fields>
+    <fields>
+        <help>Der Authentifizierungstoken Ihres geheimen Schlüsselpaars</help>
+        <label><!-- Auth Token-DEPRECATED --></label>
+        <name>Auth_Token__c</name>
+    </fields>
+    <fields>
+        <help>Bei Aktivierung dieser Option werden geänderte Adressen automatisch mit der Antwort vom Service aktualisiert (falls ein überprüften Ergebnis vorhanden ist).</help>
+        <label><!-- Auto-Update Addresses-DEPRECATED --></label>
+        <name>Auto_Update_Addresses__c</name>
+    </fields>
+    <fields>
+        <help>Für die Kontaktierung der SmartlyStreets-API und Überprüfung der Adressen zuständige Salesforce-Klasse</help>
+        <label><!-- Class-DEPRECATED --></label>
+        <name>Class__c</name>
+    </fields>
+    <fields>
+        <help>Bei Aktivierung der Option wird jede Account-Adresse in den USA, die der Service als nicht zustellbar markiert hat, automatisch gelöscht. (Sie können den ungültigen Eintrag im Adressdatensatz prüfen.)</help>
+        <label><!-- Clear Invalid Addresses-DEPRECATED --></label>
+        <name>Clear_Invalid_Addresses__c</name>
+    </fields>
+    <fields>
+        <help>Aktiviert die automatische Adressenüberprüfung für neue Adressen.</help>
+        <label><!-- Enable Automatic Verification-DEPRECATED --></label>
+        <name>Enable_Automatic_Verification__c</name>
+    </fields>
+    <fields>
+        <help>Markiert zweideutige Adressen als ungültig, wenn die API mehr als eine Adresse zurück gibt. Wenn diese Option nicht ausgewählt ist, übernimmt Salesforce die erste vorgeschlagene Adresse als gültige Adresse.</help>
+        <label><!-- Reject Ambiguous Addresses-DEPRECATED --></label>
+        <name>Reject_Ambiguous_Addresses__c</name>
+    </fields>
+    <fields>
+        <help>Callout-Zeitüberschreitung in Sekunden</help>
+        <label><!-- Timeout-DEPRECATED --></label>
+        <name>Timeout__c</name>
+    </fields>
+    <fields>
+        <help>Gibt an, ob Sie den SmartyStreets-Service zur Adressenüberprüfung verwenden.</help>
+        <label><!-- Using SmartyStreets-DEPRECATED --></label>
+        <name>Using_SmartyStreets__c</name>
+    </fields>
+    <fields>
+        <help>Für die Postleitzahlüberprüfung verwendeter URL.</help>
+        <label><!-- Zipcode Verification Endpoint-DEPRECATED --></label>
+        <name>Zipcode_Verification_Endpoint__c</name>
+    </fields>
+    <gender><!-- Neuter --></gender>
+</CustomObjectTranslation>

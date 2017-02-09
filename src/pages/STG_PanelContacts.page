@@ -1,0 +1,57 @@
+<apex:page controller="STG_PanelContacts_CTRL" >
+    <apex:form id="form" styleClass="slds-m-around--x-large">
+        <c:STG_PageHeader sectionLabel="{!$Label.stgNavPeople}" pageLabel="{!$Label.stgNavAccountModel}" />
+        <div class="slds-grid">
+            <div class="slds-col slds-size--1-of-1 slds-m-around--medium">
+                <p class="slds-text-body--small slds-m-top--x-small"><apex:outputText escape="false" value="{!$Label.npe01__Contacts_Settings_Account_Model_Help_Text}"/></p>
+            </div>        
+        </div>
+        <c:UTIL_PageMessages />
+        <div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-m-around--large">
+            <apex:commandButton id="editCon" value="{!$Label.stgBtnEdit}" rendered="{!isReadOnlyMode}" status="statusLoad" action="{!editSettings}" immediate="true" rerender="form" styleClass="slds-button slds-button--neutral" />
+        </div>
+        <div class="slds-section-title--divider">{!$Label.CONV_Configuration_Options}</div>
+        <div class="slds-form--horizontal slds-m-around--large">
+            <div class="slds-form-element">
+                <apex:outputLabel value="{!$ObjectType.npe01__Contacts_And_Orgs_Settings__c.Fields.npe01__Account_Processor__c.Label}" for="slAP" styleClass="slds-form-element__label" />
+                <div class="slds-form-element__control">
+                    <apex:outputField value="{!stgService.stgCon.npe01__Account_Processor__c}" rendered="{!isReadOnlyMode}" styleClass="slds-form-element__static"/>
+                    <apex:selectList value="{!stgService.stgCon.npe01__Account_Processor__c}" multiselect="false" size="1" rendered="{!isEditMode}" id="slAP" html-aria-describedby="{!$Component.slAPHelp}" styleClass="slds-select">
+                        <apex:selectOptions value="{!listSOAccountModels}"/>
+                    </apex:selectList>
+                    <apex:outputPanel id="slAPHelp" layout="block">
+                        <apex:outputText styleClass="slds-form-element__help" value="{!$Label.stgHelpAccountModel}" />
+                    </apex:outputPanel>
+                </div>
+            </div>
+            <div class="slds-form-element">
+                <apex:outputLabel value="{!$ObjectType.npe01__Contacts_And_Orgs_Settings__c.Fields.npe01__HH_Account_RecordTypeID__c.Label}" for="slHHAR" styleClass="slds-form-element__label" />
+                <div class="slds-form-element__control">
+                    <apex:outputText value="{!strHHAccountRecordTypeLabel}" rendered="{!isReadOnlyMode}" styleClass="slds-form-element__static"/>
+                    <apex:selectList value="{!stgService.stgCon.npe01__HH_Account_RecordTypeID__c}" multiselect="false" size="1" rendered="{!isEditMode}" id="slHHAR" html-aria-describedby="{!$Component.slHHARHelp}" styleClass="slds-select" >
+                        <apex:selectOptions value="{!listSOAccountRecTypeIds}"/>
+                    </apex:selectList>
+                    <apex:outputPanel id="slHHARHelp" layout="block">
+                        <apex:outputText styleClass="slds-form-element__help" value="{!$Label.stgHelpHHAccountRTID}" />
+                    </apex:outputPanel>
+                </div>
+            </div>
+            <div class="slds-form-element">
+                <apex:outputLabel value="{!$ObjectType.npe01__Contacts_And_Orgs_Settings__c.Fields.npe01__One_to_One_RecordTypeID__c.Label}" for="slOORT" styleClass="slds-form-element__label" />
+                <div class="slds-form-element__control">
+                    <apex:outputText value="{!strOneToOneRecordTypeLabel}" rendered="{!isReadOnlyMode}" styleClass="slds-form-element__static"/>
+                    <apex:selectList value="{!stgService.stgCon.npe01__One_to_One_RecordTypeID__c}" multiselect="false" size="1" rendered="{!isEditMode}" id="slOORT" html-aria-describedby="{!$Component.slOORTHelp}" styleClass="slds-select" >
+                        <apex:selectOptions value="{!listSOAccountRecTypeIds}"/>
+                    </apex:selectList>
+                    <apex:outputPanel id="slOORTHelp" layout="block">
+                        <apex:outputText styleClass="slds-form-element__help" value="{!$Label.stgHelpOneToOneRTID}" />
+                    </apex:outputPanel>
+                </div>
+            </div>
+            <div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-m-around--large">
+                <apex:commandButton id="saveCon" value="{!$Label.stgBtnSave}" status="statusLoad" action="{!saveSettings}" rendered="{!isEditMode}" immediate="false" rerender="form" styleClass="slds-button slds-button--brand" />
+                <apex:commandButton id="cancelCon" value="{!$Label.stgBtnCancel}" status="statusLoad" action="{!cancelEdit}" rendered="{!isEditMode}" immediate="true" rerender="form" styleClass="slds-button slds-button--neutral" />
+            </div>
+        </div>
+    </apex:form>
+</apex:page>

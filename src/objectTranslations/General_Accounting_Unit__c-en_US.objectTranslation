@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>General Accounting Unit</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>General Accounting Units</value>
+    </caseValues>
+    <fields>
+        <help><!-- Active general accounting units are available for selection on allocations. Inactive general accounting units can&apos;t have new allocations to them. --></help>
+        <label><!-- Active --></label>
+        <name>Active__c</name>
+    </fields>
+    <fields>
+        <help><!-- The average of all allocations of all time to this general accounting unit. --></help>
+        <label><!-- Average Allocation --></label>
+        <name>Average_Allocation__c</name>
+    </fields>
+    <fields>
+        <help><!-- Extra information about this general accounting unit. --></help>
+        <label><!-- Description --></label>
+        <name>Description__c</name>
+    </fields>
+    <fields>
+        <help><!-- The first Opportunity Close Date of an allocation associated with this general accounting unit. --></help>
+        <label><!-- First Allocation Date --></label>
+        <name>First_Allocation_Date__c</name>
+    </fields>
+    <fields>
+        <help><!-- The largest allocation of all time to this general accounting unit. --></help>
+        <label><!-- Largest Allocation --></label>
+        <name>Largest_Allocation__c</name>
+    </fields>
+    <fields>
+        <help><!-- The last Opportunity Close Date of an allocation associated with this general accounting unit. --></help>
+        <label><!-- Last Allocation Date --></label>
+        <name>Last_Allocation_Date__c</name>
+    </fields>
+    <fields>
+        <help><!-- Total number of allocations of opportunities in a closed and won stage in the last N days. The value of N can be modified in settings. --></help>
+        <label><!-- Number of Allocations Last N Days --></label>
+        <name>Number_of_Allocations_Last_N_Days__c</name>
+    </fields>
+    <fields>
+        <help><!-- Total number of allocations of opportunities in a closed and won stage last year. --></help>
+        <label><!-- Number of Allocations Last Year --></label>
+        <name>Number_of_Allocations_Last_Year__c</name>
+    </fields>
+    <fields>
+        <help><!-- Total number of allocations of opportunities in a closed and won stage this year. --></help>
+        <label><!-- Number of Allocations This Year --></label>
+        <name>Number_of_Allocations_This_Year__c</name>
+    </fields>
+    <fields>
+        <help><!-- Total number of allocations of opportunities in a closed and won stage two years ago. --></help>
+        <label><!-- Number of Allocations Two Years Ago --></label>
+        <name>Number_of_Allocations_Two_Years_Ago__c</name>
+    </fields>
+    <fields>
+        <help><!-- The smallest allocation of all time to this general accounting unit. --></help>
+        <label><!-- Smallest Allocation --></label>
+        <name>Smallest_Allocation__c</name>
+    </fields>
+    <fields>
+        <help><!-- Sum total of all allocations of opportunities in a closed and won stage in the last N days. The value of N can be modified in settings. --></help>
+        <label><!-- Total Allocations Last N Days --></label>
+        <name>Total_Allocations_Last_N_Days__c</name>
+    </fields>
+    <fields>
+        <help><!-- Sum total of all allocations of opportunities in a closed and won stage last year. --></help>
+        <label><!-- Total Allocations Last Year --></label>
+        <name>Total_Allocations_Last_Year__c</name>
+    </fields>
+    <fields>
+        <help><!-- Sum total of all allocations of opportunities in a closed and won stage this year. --></help>
+        <label><!-- Total Allocations This Year --></label>
+        <name>Total_Allocations_This_Year__c</name>
+    </fields>
+    <fields>
+        <help><!-- Sum total of all allocations of opportunities in a closed and won stage two years ago. --></help>
+        <label><!-- Total Allocations Two Years Ago --></label>
+        <name>Total_Allocations_Two_Years_Ago__c</name>
+    </fields>
+    <fields>
+        <help><!-- Sum total of all allocations of opportunities in a closed and won stage. --></help>
+        <label><!-- Total Allocations --></label>
+        <name>Total_Allocations__c</name>
+    </fields>
+    <fields>
+        <help><!-- Total number of allocations of opportunities in a closed and won stage. --></help>
+        <label><!-- Total Number of Allocations --></label>
+        <name>Total_Number_of_Allocations__c</name>
+    </fields>
+    <layouts>
+        <layout>General Accounting Unit Layout</layout>
+        <sections>
+            <label><!-- Allocation Information --></label>
+            <section>Allocation Information</section>
+        </sections>
+        <sections>
+            <label><!-- Allocation Totals --></label>
+            <section>Allocation Totals</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <startsWith>Consonant</startsWith>
+    <webLinks>
+        <label><!-- Recalculate_Rollups --></label>
+        <name>Recalculate_Rollups</name>
+    </webLinks>
+</CustomObjectTranslation>

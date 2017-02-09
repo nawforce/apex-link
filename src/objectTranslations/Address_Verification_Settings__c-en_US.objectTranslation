@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Address Verification Settings-DEPRECATED</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Address Verification Settings-DEPRECATED</value>
+    </caseValues>
+    <fields>
+        <help><!-- URL used for address verification. --></help>
+        <label><!-- Address Verification Endpoint-DEPRECATED --></label>
+        <name>Address_Verification_Endpoint__c</name>
+    </fields>
+    <fields>
+        <help><!-- The Auth ID from your Secret Pair Key. --></help>
+        <label><!-- Auth ID-DEPRECATED --></label>
+        <name>Auth_ID__c</name>
+    </fields>
+    <fields>
+        <help><!-- The Auth Token from your Secret Pair Key. --></help>
+        <label><!-- Auth Token-DEPRECATED --></label>
+        <name>Auth_Token__c</name>
+    </fields>
+    <fields>
+        <help><!-- If checked, changed addresses get updated automatically with the response from the service (when there is one verified result). --></help>
+        <label><!-- Auto-Update Addresses-DEPRECATED --></label>
+        <name>Auto_Update_Addresses__c</name>
+    </fields>
+    <fields>
+        <help><!-- Salesforce class responsible for contacting the SmartyStreets API and verifying addresses. --></help>
+        <label><!-- Class-DEPRECATED --></label>
+        <name>Class__c</name>
+    </fields>
+    <fields>
+        <help><!-- If checked, any US account address that the service marks undeliverable will automatically get cleared out. (You can review the invalid entry in the Address record.) --></help>
+        <label><!-- Clear Invalid Addresses-DEPRECATED --></label>
+        <name>Clear_Invalid_Addresses__c</name>
+    </fields>
+    <fields>
+        <help><!-- Enables automatic address verification for new addresses. --></help>
+        <label><!-- Enable Automatic Verification-DEPRECATED --></label>
+        <name>Enable_Automatic_Verification__c</name>
+    </fields>
+    <fields>
+        <help><!-- Marks ambiguous addresses as invalid, when the API returns more than one address. If left unselected, Salesforce will accept the first suggested address as the valid address. --></help>
+        <label><!-- Reject Ambiguous Addresses-DEPRECATED --></label>
+        <name>Reject_Ambiguous_Addresses__c</name>
+    </fields>
+    <fields>
+        <help><!-- Callout timeout in seconds --></help>
+        <label><!-- Timeout-DEPRECATED --></label>
+        <name>Timeout__c</name>
+    </fields>
+    <fields>
+        <help><!-- Specifies whether or not you are using the SmartyStreets address verification service. --></help>
+        <label><!-- Using SmartyStreets-DEPRECATED --></label>
+        <name>Using_SmartyStreets__c</name>
+    </fields>
+    <fields>
+        <help><!-- URL used for zip code verification. --></help>
+        <label><!-- Zipcode Verification Endpoint-DEPRECATED --></label>
+        <name>Zipcode_Verification_Endpoint__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

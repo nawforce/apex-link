@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Payment --></value>
+    </caseValues>
+    <fields>
+        <help>受領確認の日付。</help>
+        <label>支払受領確認日</label>
+        <name>Payment_Acknowledged_Date__c</name>
+    </fields>
+    <fields>
+        <help>この支払の受領確認の状況。</help>
+        <label>支払受領確認の状況</label>
+        <name>Payment_Acknowledgment_Status__c</name>
+        <picklistValues>
+            <masterLabel>Acknowledged</masterLabel>
+            <translation>承認済み</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Do Not Acknowledge</masterLabel>
+            <translation>承認しない</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>To Be Acknowledged</masterLabel>
+            <translation>承認予定</translation>
+        </picklistValues>
+    </fields>
+    <nameFieldLabel><!-- Payment Number --></nameFieldLabel>
+    <quickActions>
+        <label>クイック更新</label>
+        <name>Quick_Update</name>
+    </quickActions>
+</CustomObjectTranslation>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>List</customSettingsType>
+    <description>Settings for controlling how Opportunities are named.</description>
+    <enableFeeds>false</enableFeeds>
+    <fields>
+        <fullName>Attribution__c</fullName>
+        <description>Whether this setting applies to individual opportunities, organizational opportunities, or both.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Whether this setting applies to individual opportunities, organizational opportunities, or both.</inlineHelpText>
+        <label>Attribution</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Date_Format__c</fullName>
+        <description>The format for dates included in this opportunity name.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The format for dates included in this opportunity name.</inlineHelpText>
+        <label>Date Format</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Opportunity_Name_Format__c</fullName>
+        <description>The format to use for Opportunity naming.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The format to use for Opportunity naming.</inlineHelpText>
+        <label>Opportunity Name Format</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Opportunity_Record_Types__c</fullName>
+        <description>Specifies the opportunity record type that this naming scheme is for.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Specifies the opportunity record type that this naming scheme is for.</inlineHelpText>
+        <label>Opportunity Record Types</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>Opportunity Naming Settings</label>
+    <visibility>Public</visibility>
+</CustomObject>

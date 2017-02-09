@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>A Thank You email to Household Accounts for donations (opportunities)</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <letterhead>NPSP_Sample_Letterhead</letterhead>
+    <name>NPSP Opportunity Acknowledgment</name>
+    <style>freeForm</style>
+    <subject>Thank you!</subject>
+    <textOnly>Dear {!Account.npo02__Informal_Greeting__c},
+
+Thank you for your gift of {!Opportunity.Amount} on {!Opportunity.CloseDate}.
+
+We greatly appreciate your support!
+
+From all of us at {!Organization.Name}</textOnly>
+    <type>html</type>
+</EmailTemplate>

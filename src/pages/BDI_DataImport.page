@@ -1,0 +1,265 @@
+<apex:page controller="BDI_DataImport_CTRL"
+    title="NPSP Data Import"
+    tabStyle="DataImport__c"
+    showHeader="true"
+    sidebar="false"
+    action="{!actionImportOrDelete}"
+    docType="html-5.0"
+    standardStylesheets="false">
+
+    <apex:stylesheet value="{!URLFOR($Resource.CumulusStaticResources, '/npsp-slds/npsp-common.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SLDS, '/0_12_2/assets/styles/salesforce-lightning-design-system-vf.min.css')}"/>
+
+    <style type="text/css">
+        svg {
+            width: 100%;
+            height: 100%;
+            max-width: 100px;
+            max-height: 100px;
+        }
+        circle {
+            transform-origin: 50% 50%;
+            transform: rotate(-90deg);
+            fill: none;
+            stroke-width: 2;
+        }
+        circle, circle.success {
+            stroke: #04844B;
+        }
+        circle.warning {
+            stroke: #FFB75D;
+        }
+        circle.error {
+            stroke: #C23934;
+        }
+        text {
+            text-anchor: middle;
+            dominant-baseline: middle;
+            fill: #00396B;
+        }
+    </style>
+
+    <div class="slds slds-p-bottom--x-large">
+        <apex:form id="idForm" styleClass="slds-p-bottom--x-large">
+
+            <div class="slds-page-header slds-m-bottom--large" role="banner">
+                <div class="slds-media slds-media--center slds-media--responsive">
+                    <div class="slds-media__body">
+                        <h3 class="slds-text-heading--medium slds-m-bottom--large">{!$Label.bdiDataImporterTitle}</h3>
+                        <p>{!$Label.bdiDataImporterDescription}</p>
+                    </div>
+                    <div class="slds-media__figure slds-media__figure--reverse">
+                        <img src="{!URLFOR($Resource.CumulusStaticResources, '/Images/RGB_npsp-stacked-color.png')}" class="img-rounded img-responsive" style="height: 75px" alt="NPSP Logo"/>
+                    </div>
+                </div>
+            </div>
+
+            <apex:outputText rendered="{!NOT(batchRunning)}">
+                <div class="slds-container--large slds-container--center">
+                    <c:UTIL_PageMessages />
+
+                    <div  class="slds-m-bottom--large">
+                        <div class="slds-text-heading--small slds-m-bottom--medium">
+                            {!$Label.bdiDataImporterInfoTitle}
+                        </div>
+
+                        <div class="slds-text-longform">
+                            <ul>
+                                <li>{!$Label.bdiDataImporterInfoLine1}</li>
+                                <li>{!$Label.bdiDataImporterInfoLine2}</li>
+                                <li>{!$Label.bdiDataImporterInfoLine2b}</li>
+                                <li>{!$Label.bdiDataImporterInfoLine3}</li>
+                                <li>{!$Label.bdiDataImporterInfoLine4}</li>
+                                <li style="list-style-type: none;" class="slds-m-top--medium">
+                                    <b>{!$Label.bdiDataImporterNumToProcess}&nbsp;{!crecToProcess}</b>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </apex:outputText>
+
+            <apex:outputText rendered="{!AND(NOT(batchRunning), userCanEditSettings)}">
+                <div class="slds-container--large slds-container--center slds-m-top--large slds-p-top--large slds-col-rule--top">
+                    <div class="slds-m-bottom--large">
+                        <div class="slds-text-heading--small slds-m-bottom--medium">
+                            {!$Label.bdiDataImporterConfigTitle}
+                        </div>
+
+                        <div class="slds-form--horizontal">
+
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label">
+                                    <apex:outputText value="{!$ObjectType.Data_Import_Settings__c.Fields.Batch_Size__c.Label}"/>
+                                </label>
+                                <div class="slds-form-element__control">
+                                    <apex:inputField value="{!diSettings.Batch_Size__c}" type="number" styleClass="slds-input"/>
+                                    <span class="slds-form-element__help">
+                                        <apex:outputText value="{!$ObjectType.Data_Import_Settings__c.Fields.Batch_Size__c.InlineHelpText}" />
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label">
+                                    <apex:outputText value="{!$ObjectType.Data_Import_Settings__c.Fields.Contact_Matching_Rule__c.Label}"/>
+                                </label>
+                                <div class="slds-form-element__control">
+                                    <div class="slds-select_container">
+                                        <apex:selectList value="{!diSettings.Contact_Matching_Rule__c}" size="1" multiselect="false" styleClass="slds-select">
+                                            <apex:selectOption itemLabel="{!$Label.bdiContactMatchFnameLnameEmail}" itemValue="Firstname,Lastname,Email" />
+                                            <apex:selectOption itemLabel="{!$Label.bdiContactMatchLnameEmail}" itemValue="Lastname,Email" />
+                                            <apex:selectOption itemLabel="{!$Label.bdiContactMatchFnameEmail}" itemValue="Firstname,Email" />
+                                            <apex:selectOption itemLabel="{!$Label.bdiContactMatchFnameLname}" itemValue="Firstname,Lastname" />
+                                            <apex:selectOption itemLabel="{!$Label.bdiContactMatchEmail}" itemValue="Email" />
+                                            <apex:selectOption itemLabel="{!$Label.bdiContactMatchFnameLnamePhone}" itemValue="Firstname,Lastname,Phone" />
+                                        </apex:selectList>
+                                    </div>
+                                    <span class="slds-form-element__help">
+                                        <apex:outputText value="{!$ObjectType.Data_Import_Settings__c.Fields.Contact_Matching_Rule__c.InlineHelpText}" />
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label">
+                                    <apex:outputText value="{!$ObjectType.Data_Import_Settings__c.Fields.Contact_Custom_Unique_ID__c.Label}"/>
+                                </label>
+                                <div class="slds-form-element__control">
+                                    <div class="slds-select_container">
+                                        <apex:selectList value="{!diSettings.Contact_Custom_Unique_ID__c}" size="1" multiselect="false" styleClass="slds-select">
+                                            <apex:selectOptions value="{!listSOContactUniqueID}"/>
+                                        </apex:selectList>
+                                    </div>
+                                    <span class="slds-form-element__help">
+                                        <apex:outputText value="{!$ObjectType.Data_Import_Settings__c.Fields.Contact_Custom_Unique_ID__c.InlineHelpText}" />
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label">
+                                    <apex:outputText value="{!$ObjectType.Data_Import_Settings__c.Fields.Account_Custom_Unique_ID__c.Label}"/>
+                                </label>
+                                <div class="slds-form-element__control">
+                                    <div class="slds-select_container">
+                                        <apex:selectList value="{!diSettings.Account_Custom_Unique_ID__c}" size="1" multiselect="false" styleClass="slds-select">
+                                            <apex:selectOptions value="{!listSOAccountUniqueID}"/>
+                                        </apex:selectList>
+                                    </div>
+                                    <span class="slds-form-element__help">
+                                        <apex:outputText value="{!$ObjectType.Data_Import_Settings__c.Fields.Account_Custom_Unique_ID__c.InlineHelpText}" />
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </apex:outputText>
+
+            <apex:outputText rendered="{!NOT(batchRunning)}">
+                <div class="slds-container--large slds-container--center">
+                    <div class="slds-form--horizontal">
+                        <div class="slds-form-element">
+                            <div class="slds-form-element__control">
+                                <apex:commandButton value="{!$Label.bdiRunBtn}" action="{!importData}" immediate="false" styleClass="slds-button slds-button--brand" rerender="idForm"/>
+                                <apex:commandButton value="{!$Label.stgBtnCancel}" action="{!close}" immediate="true" styleClass="slds-button slds-button--neutral" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </apex:outputText>
+
+
+            <apex:outputText rendered="{!batchRunning}" >
+                <div class="slds-container--large slds-container--center">
+                    <apex:outputText id="batchpanel">
+                        <apex:outputPanel id="panelSummary" rendered="{!batchRunning}" >
+                            <apex:actionPoller rerender="panelSummary" interval="5" enabled="{!NOT(isBatchJobCompleted)}"/>
+                            <apex:variable var="statusTheme" value="{!IF(aaj.Status != 'Completed', '', IF(aaj.NumberOfErrors > 0 || crecFailed > 0, 'warning', 'success'))}"/>
+                            <apex:variable var="badgeText" value="{!IF(NOT(isBatchJobCompleted), '', IF(aaj.ExtendedStatus != null || crecFailed > 0, $Label.bdiCompleteWithErrors, $Label.bdiComplete))}"/>
+                            <apex:variable var="statusText" value="{!IF(aaj.Status == 'Processing' && aaj.JobItemsProcessed == 0, 'Queued', aaj.Status)}"/>
+
+                            <c:UTIL_PageMessages />
+
+                            <div class="slds-card">
+                                <div class="slds-card__header slds-grid">
+                                    <h3 class="slds-text-heading--small slds-has-flexi-truncate">{!$Label.bdiDataImporterTitle}</h3>
+                                    <div class="slds-no-flex">
+                                        <apex:commandButton value="{!$Label.bdiBtnClose}" action="{!close}" immediate="true" styleClass="slds-button slds-button--neutral" />
+                                    </div>
+                                </div>
+                                <div class="slds-card__body">
+                                    <div class="slds-media slds-tile slds-wrap">
+                                        <div class="slds-media__figure slds-size--2-of-12">
+                                            <svg viewbox="0 0 34 34">
+                                                <circle class="{!statusTheme}" stroke-dasharray="{!percentComplete} 100" r="16" cx="17" cy="17"/>
+                                                <g transform="matrix(0.5, 0, 0, 0.5, 8.5, 8.5)">
+                                                    <text x="17" y="17" class="slds-text-heading--small">{!percentComplete}%</text>
+                                                </g>
+                                            </svg>
+                                        </div>
+                                        <div class="slds-media__body slds-size--10-of-12">
+                                            <div class="slds-tile__title slds-grid">
+                                                <p class="slds-truncate slds-col slds-size--2-of-6">
+                                                    {!aaj.ApexClass.Name}
+                                                </p>
+                                                <div class="slds-col slds-size--4-of-6">
+                                                    <span class="slds-badge slds-theme--{!statusTheme}">{!badgeText}</span>
+                                                </div>
+                                            </div>
+                                            <div class="slds-tile__detail">
+                                                <p class="slds-text-body--small slds-truncate">{!strBatchStatus}</p>
+                                                <dl class="slds-dl--horizontal slds-text-body--small slds-m-top--x-small">
+                                                    <dt class="slds-dl--horizontal__label slds-size--3-of-12">
+                                                        {!$Label.bdiStatus}
+                                                    </dt>
+                                                    <dd class="slds-dl--horizontal__detail slds-tile__meta slds-size--9-of-12">
+                                                        {!statusText}
+                                                    </dd>
+                                                    <dt class="slds-dl--horizontal__label slds-size--3-of-12">
+                                                        {!$Label.bdiTime}
+                                                    </dt>
+                                                    <dd class="slds-dl--horizontal__detail slds-tile__meta slds-size--9-of-12">
+                                                        {!strTimeSpent}
+                                                    </dd>
+                                                    <dt class="slds-dl--horizontal__label slds-size--3-of-12">
+                                                        {!$Label.bdiRecordsProcessed}
+                                                    </dt>
+                                                    <dd class="slds-dl--horizontal__detail slds-tile__meta slds-size--9-of-12">
+                                                        {!crecProcessed}
+                                                    </dd>
+                                                    <dt class="slds-dl--horizontal__label slds-size--3-of-12">
+                                                        {!$Label.bdiRecordsImported}
+                                                    </dt>
+                                                    <dd class="slds-dl--horizontal__detail slds-tile__meta slds-size--9-of-12">
+                                                        {!crecImported}
+                                                    </dd>
+                                                    <dt class="slds-dl--horizontal__label slds-size--3-of-12">
+                                                        {!$Label.bdiRecordsFailed}
+                                                    </dt>
+                                                    <dd class="slds-dl--horizontal__detail slds-tile__meta slds-size--9-of-12">
+                                                        {!crecFailed}
+                                                    </dd>
+                                                    <apex:outputText rendered="{!aaj.ExtendedStatus != null}">
+                                                        <dt class="slds-dl--horizontal__label slds-size--3-of-12">
+                                                            {!$Label.bdiBatchException}
+                                                        </dt>
+                                                        <dd class="slds-dl--horizontal__detail slds-tile__meta slds-size--9-of-12">
+                                                            {!aaj.ExtendedStatus}
+                                                        </dd>
+                                                    </apex:outputText>
+                                                </dl>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </apex:outputPanel>
+                    </apex:outputText>
+                </div>
+            </apex:outputText>
+        </apex:form>
+    </div>
+</apex:page>

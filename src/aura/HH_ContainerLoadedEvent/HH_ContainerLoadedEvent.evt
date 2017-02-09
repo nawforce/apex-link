@@ -1,0 +1,1 @@
+<aura:event type="APPLICATION" description="fired when our Container LC has finished loading all data from the server" />

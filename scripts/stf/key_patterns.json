@@ -1,0 +1,58 @@
+{
+    "^ButtonOrLink\\.[^.]+\\.[^.]+$": {
+        "primary_index": 2,
+        "secondary_indices": [1]
+    },
+    "^CrtLayoutSection\\.[^.]+$": {
+        "primary_index": 1,
+        "secondary_indices": null
+    },
+    "^CustomField\\.[^.]+\\.[^.]+\\.(FieldLabel|HelpText|RelatedListLabel)$": {
+        "primary_index": 2,
+        "secondary_indices": [1]
+    },
+    "^CustomLabel\\.[^.]+$": {
+        "primary_index": 1,
+        "secondary_indices": null
+    },
+    "^CustomReportType\\.[^.]+\\.(Description|Name)$": {
+        "primary_index": 1,
+        "secondary_indices": null
+    },
+    "^LayoutSection\\.[^.]+\\.[^.]+\\.[^.]+$": {
+        "primary_index": 2,
+        "secondary_indices": [1]
+    },
+    "^LookupFilter\\.[^.]+\\.[^.]+\\.[^.]+\\.(InfoMessage|ErrorMessage)$": {
+        "primary_index": 3,
+        "secondary_indices": [1, 2]
+    },
+    "^PicklistValue\\.[^.]+\\.[^.]+\\.[^\\t]+$": {
+        "primary_index": 2,
+        "secondary_indices": [1]
+    },
+    "^QuickAction\\.[^.]+\\.[^.]+$": {
+        "primary_index": 2,
+        "secondary_indices": [1]
+    },
+    "^QuickAction\\.[^.]+$": {
+        "primary_index": 1,
+        "secondary_indices": null
+    },
+    "^RecordType\\.[^.]+\\.[^.]+$": {
+        "primary_index": 1,
+        "secondary_indices": null
+    },
+    "^Scontrol\\.[^.]+$": {
+        "primary_index": 1,
+        "secondary_indices": null
+    },
+    "^ValidationFormula\\.[^.]+\\.[^.]+$": {
+        "primary_index": 2,
+        "secondary_indices": [1]
+    },
+    "^WebTab\\.[^.]+$": {
+        "primary_index": 1,
+        "secondary_indices": null
+    }
+}

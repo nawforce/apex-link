@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Accounting units used for allocating Opportunities.</description>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>Active__c</fullName>
+        <defaultValue>true</defaultValue>
+        <description>Active general accounting units are available for selection on allocations. Inactive general accounting units can&apos;t have new allocations to them.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Active general accounting units are available for selection on allocations. Inactive general accounting units can&apos;t have new allocations to them.</inlineHelpText>
+        <label>Active</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Average_Allocation__c</fullName>
+        <defaultValue>0</defaultValue>
+        <description>The average of all allocations of all time to this general accounting unit.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The average of all allocations of all time to this general accounting unit.</inlineHelpText>
+        <label>Average Allocation</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Description__c</fullName>
+        <description>Extra information about this general accounting unit.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Extra information about this general accounting unit.</inlineHelpText>
+        <label>Description</label>
+        <length>32768</length>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>First_Allocation_Date__c</fullName>
+        <description>The first Opportunity Close Date of an allocation associated with this general accounting unit.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The first Opportunity Close Date of an allocation associated with this general accounting unit.</inlineHelpText>
+        <label>First Allocation Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Largest_Allocation__c</fullName>
+        <defaultValue>0</defaultValue>
+        <description>The largest allocation of all time to this general accounting unit.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The largest allocation of all time to this general accounting unit.</inlineHelpText>
+        <label>Largest Allocation</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Last_Allocation_Date__c</fullName>
+        <description>The last Opportunity Close Date of an allocation associated with this general accounting unit.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The last Opportunity Close Date of an allocation associated with this general accounting unit.</inlineHelpText>
+        <label>Last Allocation Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Number_of_Allocations_Last_N_Days__c</fullName>
+        <defaultValue>0</defaultValue>
+        <description>Total number of allocations of opportunities in a closed and won stage in the last N days. The value of N can be modified in settings.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Total number of allocations of opportunities in a closed and won stage in the last N days. The value of N can be modified in settings.</inlineHelpText>
+        <label>Number of Allocations Last N Days</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Number_of_Allocations_Last_Year__c</fullName>
+        <defaultValue>0</defaultValue>
+        <description>Total number of allocations of opportunities in a closed and won stage last year.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Total number of allocations of opportunities in a closed and won stage last year.</inlineHelpText>
+        <label>Number of Allocations Last Year</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Number_of_Allocations_This_Year__c</fullName>
+        <defaultValue>0</defaultValue>
+        <description>Total number of allocations of opportunities in a closed and won stage this year.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Total number of allocations of opportunities in a closed and won stage this year.</inlineHelpText>
+        <label>Number of Allocations This Year</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Number_of_Allocations_Two_Years_Ago__c</fullName>
+        <defaultValue>0</defaultValue>
+        <description>Total number of allocations of opportunities in a closed and won stage two years ago.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Total number of allocations of opportunities in a closed and won stage two years ago.</inlineHelpText>
+        <label>Number of Allocations Two Years Ago</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Smallest_Allocation__c</fullName>
+        <defaultValue>0</defaultValue>
+        <description>The smallest allocation of all time to this general accounting unit.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The smallest allocation of all time to this general accounting unit.</inlineHelpText>
+        <label>Smallest Allocation</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Total_Allocations_Last_N_Days__c</fullName>
+        <defaultValue>0</defaultValue>
+        <description>Sum total of all allocations of opportunities in a closed and won stage in the last N days. The value of N can be modified in settings.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Sum total of all allocations of opportunities in a closed and won stage in the last N days. The value of N can be modified in settings.</inlineHelpText>
+        <label>Total Allocations Last N Days</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Total_Allocations_Last_Year__c</fullName>
+        <defaultValue>0</defaultValue>
+        <description>Sum total of all allocations of opportunities in a closed and won stage last year.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Sum total of all allocations of opportunities in a closed and won stage last year.</inlineHelpText>
+        <label>Total Allocations Last Year</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Total_Allocations_This_Year__c</fullName>
+        <defaultValue>0</defaultValue>
+        <description>Sum total of all allocations of opportunities in a closed and won stage this year.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Sum total of all allocations of opportunities in a closed and won stage this year.</inlineHelpText>
+        <label>Total Allocations This Year</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Total_Allocations_Two_Years_Ago__c</fullName>
+        <defaultValue>0</defaultValue>
+        <description>Sum total of all allocations of opportunities in a closed and won stage two years ago.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Sum total of all allocations of opportunities in a closed and won stage two years ago.</inlineHelpText>
+        <label>Total Allocations Two Years Ago</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Total_Allocations__c</fullName>
+        <defaultValue>0</defaultValue>
+        <description>Sum total of all allocations of opportunities in a closed and won stage.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Sum total of all allocations of opportunities in a closed and won stage.</inlineHelpText>
+        <label>Total Allocations</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Total_Number_of_Allocations__c</fullName>
+        <defaultValue>0</defaultValue>
+        <description>Total number of allocations of opportunities in a closed and won stage.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Total number of allocations of opportunities in a closed and won stage.</inlineHelpText>
+        <label>Total Number of Allocations</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <label>General Accounting Unit</label>
+    <listViews>
+        <fullName>All</fullName>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <nameField>
+        <label>General Accounting Unit Name</label>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>General Accounting Units</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <webLinks>
+        <fullName>Recalculate_Rollups</fullName>
+        <availability>online</availability>
+        <description>This button recalculates Allocations rollups for a single General Accounting Unit</description>
+        <displayType>button</displayType>
+        <height>600</height>
+        <linkType>page</linkType>
+        <masterLabel>Recalculate Rollups</masterLabel>
+        <openType>sidebar</openType>
+        <page>ALLO_RollupBTN</page>
+        <protected>false</protected>
+    </webLinks>
+</CustomObject>

@@ -1,0 +1,4 @@
+<apex:page standardController="npe03__Recurring_Donation__c" extensions="RD_AddDonationsBTN_CTRL" action="{!buttonClick}">
+    <apex:PageMessages />
+    <apex:outputLink title="Return"  value="{!URLFOR($Action.npe03__Recurring_Donation__c.View, npe03__Recurring_Donation__c.Id)}" >Return</apex:outputLink>
+</apex:page>

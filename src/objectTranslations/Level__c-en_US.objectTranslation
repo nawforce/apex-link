@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Level</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Levels</value>
+    </caseValues>
+    <fields>
+        <help><!-- Whether this Level is currently in use. --></help>
+        <label><!-- Active --></label>
+        <name>Active__c</name>
+    </fields>
+    <fields>
+        <help><!-- Describes what this Level is for, or what it means to achieve this Level. --></help>
+        <label><!-- Description --></label>
+        <name>Description__c</name>
+    </fields>
+    <fields>
+        <help><!-- The Engagement Plan Template to apply to the Target Object when this Level is achieved. --></help>
+        <label><!-- Engagement Plan Template --></label>
+        <name>Engagement_Plan_Template__c</name>
+        <relationshipLabel><!-- Levels --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- The field (developer name) on the Target object to store the lookup to the current Level.  Note that this field implicitly defines the “Ladder” that this Level is part of. --></help>
+        <label><!-- Level Field --></label>
+        <name>Level_Field__c</name>
+    </fields>
+    <fields>
+        <help><!-- The maximum amount the value must be below to be assigned this Level.  If empty, then any amount greater than or equal to this Level&apos;s Minimum Amount will assign this Level. --></help>
+        <label><!-- Maximum Amount (&lt;) --></label>
+        <name>Maximum_Amount__c</name>
+    </fields>
+    <fields>
+        <help><!-- The minimum amount to be assigned this Level.  If empty, then any amount less than this Level&apos;s Maximum Amount will assign this Level. --></help>
+        <label><!-- Minimum Amount (&gt;=) --></label>
+        <name>Minimum_Amount__c</name>
+    </fields>
+    <fields>
+        <help><!-- The field (developer name) on the Target object to store the lookup to the previous Level the object had.  Optional. --></help>
+        <label><!-- Previous Level Field --></label>
+        <name>Previous_Level_Field__c</name>
+    </fields>
+    <fields>
+        <help><!-- The target object&apos;s field (developer name) that defines the amount and timeframe to base this Level on. --></help>
+        <label><!-- Source Field --></label>
+        <name>Source_Field__c</name>
+    </fields>
+    <fields>
+        <help><!-- The object that this Level applies to. --></help>
+        <label><!-- Target --></label>
+        <name>Target__c</name>
+        <picklistValues>
+            <masterLabel>Account</masterLabel>
+            <translation><!-- Account --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Contact</masterLabel>
+            <translation><!-- Contact --></translation>
+        </picklistValues>
+    </fields>
+    <layouts>
+        <layout>Level Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label><!-- long text section --></label>
+            <section>long text section</section>
+        </sections>
+    </layouts>
+    <startsWith>Consonant</startsWith>
+    <validationRules>
+        <errorMessage><!-- Target is a required field on Level.  Please specify the Target object for this Level. --></errorMessage>
+        <name>Target_Required</name>
+    </validationRules>
+</CustomObjectTranslation>

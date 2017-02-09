@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>An Engagement Plan Task defines the details of each task that is created when applying an Engagement Plan to a record.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>false</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>false</enableSharing>
+    <enableStreamingApi>false</enableStreamingApi>
+    <fields>
+        <fullName>Assigned_To__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <description>This field maps to the Task&apos;s Assigned To field. If left blank, the task will be assigned based on the template&apos;s Blank Assignment Rule.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>This field maps to the Task&apos;s Assigned To field. If left blank, the task will be assigned based on the template&apos;s Blank Assignment Rule.</inlineHelpText>
+        <label>Assigned To</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Action_Plan_Tasks</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Comments__c</fullName>
+        <description>Comments on the Task.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Comments on the Task.</inlineHelpText>
+        <label>Comments</label>
+        <length>32000</length>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Days_After__c</fullName>
+        <description>The number of days after the Engagement Plan creation date, or the parent Task&apos;s Due Date, that this Task is due.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The number of days after the Engagement Plan creation date, or the parent Task&apos;s Due Date, that this Task is due.</inlineHelpText>
+        <label>Days After</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Engagement_Plan_Template__c</fullName>
+        <description>The Template for this Engagement Plan Task.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The Template for this Engagement Plan Task.</inlineHelpText>
+        <label>Engagement Plan Template</label>
+        <referenceTo>Engagement_Plan_Template__c</referenceTo>
+        <relationshipLabel>Engagement Plan Tasks</relationshipLabel>
+        <relationshipName>Engagement_Plan_Tasks</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <reparentableMasterDetail>true</reparentableMasterDetail>
+        <trackTrending>false</trackTrending>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>Parent_Task__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <description>Indicates that this Engagement Plan Task is dependent on a Parent Task.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Indicates that this Engagement Plan Task is dependent on a Parent Task.</inlineHelpText>
+        <label>Parent Task</label>
+        <referenceTo>Engagement_Plan_Task__c</referenceTo>
+        <relationshipLabel>Engagement Plan Tasks</relationshipLabel>
+        <relationshipName>Engagement_Plan_Tasks</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Priority__c</fullName>
+        <description>The priority of this Task.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The priority of this Task.</inlineHelpText>
+        <label>Priority</label>
+        <picklist>
+            <picklistValues>
+                <fullName>High</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Medium</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Low</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Reminder_Time__c</fullName>
+        <description>The time on the Due Date that a reminder appears.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The time on the Due Date that a reminder appears.</inlineHelpText>
+        <label>Reminder Time</label>
+        <length>4</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Reminder__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Sets a reminder for the Task.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Sets a reminder for the Task.</inlineHelpText>
+        <label>Reminder</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Send_Email__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Determines if an email is sent to the user in the Task&apos;s Assigned To field when the Task becomes active. Dependent Tasks are active when their Parent Task is completed.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Determines if an email is sent to the user in the Task&apos;s Assigned To field when the Task becomes active. Dependent Tasks are active when their Parent Task is completed.</inlineHelpText>
+        <label>Send Email</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Status__c</fullName>
+        <description>The Status of a Task. Dependent Tasks are set to &quot;Waiting on Parent Task&quot; until their Parent Task is completed.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The Status of a Task. Dependent Tasks are set to &quot;Waiting on Parent Task&quot; until their Parent Task is completed.</inlineHelpText>
+        <label>Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Not Started</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>In Progress</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Completed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Waiting on someone else</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Deferred</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Type__c</fullName>
+        <description>The type of Task.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The type of Task.</inlineHelpText>
+        <label>Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Call</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Meeting</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Email</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <label>Engagement Plan Task</label>
+    <nameField>
+        <label>Subject</label>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Engagement Plan Tasks</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ControlledByParent</sharingModel>
+    <startsWith>Vowel</startsWith>
+</CustomObject>

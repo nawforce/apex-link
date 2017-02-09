@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>Hierarchy</customSettingsType>
+    <description>Settings that control your error management configuration.</description>
+    <enableFeeds>false</enableFeeds>
+    <fields>
+        <fullName>Async_Error_Check_Last_Run__c</fullName>
+        <description>If checked, NPSP&apos;s error handling framework is disabled.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Used to keep track of the most recent execution of the Async job error logger</inlineHelpText>
+        <label>Async Error Check Last Run</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Disable_Error_Handling__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>If checked, NPSP&apos;s error handling framework is disabled.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>If checked, NPSP&apos;s error handling framework is disabled.</inlineHelpText>
+        <label>Disable Error Handling</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Don_t_Auto_Schedule_Default_NPSP_Jobs__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>When checked, NPSP won&apos;t automatically schedule default recurring jobs.
+
+These recurring jobs calculate rollups, update recurring donations and seasonal address, and perform error handling.
+
+When checked, every time you visit the NPSP Settings page, NPSP verifies that the default recurring jobs are scheduled. Rescheduling only applies to missing jobs, not updated jobs.
+
+To view these jobs, search for Scheduled Jobs in Salesforce Setup.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>When checked, NPSP won&apos;t automatically schedule default recurring jobs. These recurring jobs calculate rollups, update recurring donations and seasonal address, and perform error handling.</inlineHelpText>
+        <label>Don&apos;t Auto Schedule Default NPSP Jobs</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Enable_Debug__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Turn this on to enable debug statements in managed package code.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Turn this on to enable debug statements in managed package code.</inlineHelpText>
+        <label>Enable Debug</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Error_Notifications_On__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Flag that determines whether to send error notifications.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Check this if you&apos;d like the system to post notifications for certain type of errors.</inlineHelpText>
+        <label>Error Notifications</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Error_Notifications_To__c</fullName>
+        <description>Who should receive error notifications.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Select the type of user to send notifications to.</inlineHelpText>
+        <label>Error Notification Recipients</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Store_Errors_On__c</fullName>
+        <defaultValue>true</defaultValue>
+        <description>Flag that indicates whether errors are going to be stored in the database.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Check this if you&apos;d like errors to be stored in the database.</inlineHelpText>
+        <label>Store Errors</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <label>Error Settings</label>
+    <visibility>Public</visibility>
+</CustomObject>

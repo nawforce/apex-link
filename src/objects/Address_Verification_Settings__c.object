@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>Hierarchy</customSettingsType>
+    <description>Settings for automatic address verification and normalization.</description>
+    <enableFeeds>false</enableFeeds>
+    <fields>
+        <fullName>Address_Verification_Endpoint__c</fullName>
+        <description>URL used for address verification.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>URL used for address verification.</inlineHelpText>
+        <label>Address Verification Endpoint-DEPRECATED</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Url</type>
+    </fields>
+    <fields>
+        <fullName>Auth_ID__c</fullName>
+        <description>The Auth ID from your Secret Pair Key.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The Auth ID from your Secret Pair Key.</inlineHelpText>
+        <label>Auth ID-DEPRECATED</label>
+        <length>124</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Auth_Token__c</fullName>
+        <description>The Auth Token from your Secret Pair Key.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The Auth Token from your Secret Pair Key.</inlineHelpText>
+        <label>Auth Token-DEPRECATED</label>
+        <length>200</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Auto_Update_Addresses__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>If checked, changed addresses get updated automatically with the response from the service (when there is one verified result).</inlineHelpText>
+        <label>Auto-Update Addresses-DEPRECATED</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Class__c</fullName>
+        <description>Salesforce class responsible for contacting the SmartyStreets API and verifying addresses.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Salesforce class responsible for contacting the SmartyStreets API and verifying addresses.</inlineHelpText>
+        <label>Class-DEPRECATED</label>
+        <length>124</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Clear_Invalid_Addresses__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>If checked, any US account address that the service marks undeliverable will automatically get cleared out. (You can review the invalid entry in the Address record.)</inlineHelpText>
+        <label>Clear Invalid Addresses-DEPRECATED</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Enable_Automatic_Verification__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Enables automatic address verification for new addresses.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Enables automatic address verification for new addresses.</inlineHelpText>
+        <label>Enable Automatic Verification-DEPRECATED</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Reject_Ambiguous_Addresses__c</fullName>
+        <defaultValue>true</defaultValue>
+        <description>Marks ambiguous addresses as invalid, when the API returns more than one address. If left unselected, Salesforce will accept the first suggested address as the valid address.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Marks ambiguous addresses as invalid, when the API returns more than one address. If left unselected, Salesforce will accept the first suggested address as the valid address.</inlineHelpText>
+        <label>Reject Ambiguous Addresses-DEPRECATED</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Timeout__c</fullName>
+        <description>Callout timeout in seconds</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Callout timeout in seconds</inlineHelpText>
+        <label>Timeout-DEPRECATED</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Using_SmartyStreets__c</fullName>
+        <defaultValue>true</defaultValue>
+        <description>Specifies whether or not you are using the SmartyStreets address verification service.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Specifies whether or not you are using the SmartyStreets address verification service.</inlineHelpText>
+        <label>Using SmartyStreets-DEPRECATED</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Zipcode_Verification_Endpoint__c</fullName>
+        <description>URL used for zip code verification.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>URL used for zip code verification.</inlineHelpText>
+        <label>Zipcode Verification Endpoint-DEPRECATED</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Url</type>
+    </fields>
+    <label>Address Verification Settings-DEPRECATED</label>
+    <visibility>Public</visibility>
+</CustomObject>

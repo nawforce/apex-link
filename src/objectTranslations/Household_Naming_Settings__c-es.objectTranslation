@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Household Naming Settings --></value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value><!-- Household Naming Settings --></value>
+    </caseValues>
+    <fields>
+        <help>Especifica la cantidad de contactos a listar explícitamente en un nombre. Después de esta cantidad, el Nombre límite será usado.</help>
+        <label>Cantidad límite de contactos</label>
+        <name>Contact_Overrun_Count__c</name>
+    </fields>
+    <fields>
+        <help>El formato a usar para Saludo formal de familia.</help>
+        <label>Formato de saludo formal</label>
+        <name>Formal_Greeting_Format__c</name>
+    </fields>
+    <fields>
+        <help>El formato a usar para el Nombre de la familia.</help>
+        <label>Formato de Nombre de familia</label>
+        <name>Household_Name_Format__c</name>
+    </fields>
+    <fields>
+        <help>Nombre de la clase que implementa la interfaz de HH_Inaming para usar para Nombrar Familia</help>
+        <label>Clase de implementación</label>
+        <name>Implementing_Class__c</name>
+    </fields>
+    <fields>
+        <help>El formato a usar para Saludo informal de familia.</help>
+        <label>Formato de saludo informal</label>
+        <name>Informal_Greeting_Format__c</name>
+    </fields>
+    <fields>
+        <help>La palabra a usar como conector en un nombre. Por ejemplo, Juan y María, o Juan &amp; María.</help>
+        <label>Conector en el nombre</label>
+        <name>Name_Connector__c</name>
+    </fields>
+    <fields>
+        <help>El texto a usar cuando se remplaza una lista larga de nombres</help>
+        <label>Nombre límite</label>
+        <name>Name_Overrun__c</name>
+    </fields>
+    <gender><!-- Feminine --></gender>
+</CustomObjectTranslation>

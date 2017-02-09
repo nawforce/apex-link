@@ -1,0 +1,32 @@
+<aura:component extends="c:autocompleteOption">
+    <li class="slds-lookup__item">
+        <span>
+            <div class="slds-media slds-tile slds-hint-parent">
+                <div class="slds-media__figure">
+                    <lightning:icon iconName="{!'standard:' + (!empty(v.value.HHId__c) ? 'household' : 'contact')}"
+                        class="slds-icon--small" size="small"/>
+                </div>
+                <div class="slds-media__body">
+                    <div class="slds-grid slds-grid--align-spread slds-has-flexi-truncate">
+                        <p class="slds-tile__title slds-truncate">{!v.value.FirstName}&nbsp;{!v.value.LastName}</p>
+                        <lightning:buttonIcon iconName="utility:new" variant="bare" onclick="{!c.handleClick}"
+                            class="slds-shrink-none" size="large" alternativeText="{!$Label.npo02.Add}" />
+                    </div>
+                    <div class="slds-tile__detail slds-text-body--small">
+                        <ul>
+                            <aura:if isTrue="{!v.value.npo02__Household__r.Name != null}" >
+                                <li>{!v.value.npo02__Household__r.Name}</li>
+                                <aura:set attribute="else">                            
+                                    <li>{!v.value.Account.Name}</li>
+                                </aura:set>
+                            </aura:if>
+                            <li><ui:outputText value="{!v.value.MailingStreet}" /></li>
+                            <li><ui:outputText value="{!v.value.MailingCity + (v.value.MailingState != null ? ', ' : '') + v.value.MailingState + ' ' + v.value.MailingPostalCode + ' '}" /></li>
+                            <li><ui:outputText value="{!v.value.MailingCountry}" /></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </span>
+    </li>
+</aura:component>

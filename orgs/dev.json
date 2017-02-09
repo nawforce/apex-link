@@ -1,0 +1,13 @@
+{
+  "Company": "NPSP - Dev Workspace",
+  "Country": "US",
+  "LastName": "Belvedere",
+  "Email": "mrbelvedere@salesforce.org",
+  "Edition": "Developer",
+  "OrgPreferences" : {
+    "DisableParallelApexTesting" : true,
+    "S1DesktopEnabled" : true,
+    "Translation" : true,
+    "ChatterEnabled" : true
+  }
+}

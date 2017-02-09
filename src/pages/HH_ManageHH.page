@@ -1,0 +1,158 @@
+<apex:page controller="HH_ManageHH_CTRL" standardStylesheets="true" showHeader="true" docType="html-5.0" >
+    <html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <apex:includeLightning />
+        <apex:stylesheet value="{!URLFOR($Resource.sfdo203, '/assets/styles/salesforce-lightning-design-system-vf.min.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.CumulusStaticResources, '/npsp-slds/npsp-common.css')}" />
+        <apex:includeScript value="{!URLFOR($Resource.CumulusStaticResources, '/jquery/jquery-2.2.4.js')}"/>
+        
+        <style>       
+            .required {
+                padding-left: 2px;
+                color: red;
+                font-weight: 700;
+            }
+        </style>
+                
+        <!-- start with a spinner here until lightning loads -->
+        <div class="sfdo203 initialSpinner">
+            <div class="slds-spinner_container" style="z-index:999;" > <!-- fixes bug on some browsers where z-order from SLDS was an expression with an error -->            
+                <div class="slds-spinner--brand slds-spinner slds-spinner--medium" style="position:fixed;top:30%;" aria-hidden="false" role="alert">
+                    <div class="slds-spinner__dot-a"></div>
+                    <div class="slds-spinner__dot-b"></div>
+                </div>
+            </div>  
+        </div>
+
+        <!-- used to display any save errors from the Visualforce page's fieldset -->
+        <apex:outputPanel id="panelErrors">
+            <c:UTIL_PageMessages />
+        </apex:outputPanel>
+        
+        <!-- the location that will hold our lightning component -->
+        <div id="lightning" />       
+      
+        <!-- household fields section (using fieldset that Lightning does not yet support) -->
+        <apex:form id="vfForm" >
+            <div class="sfdo203">
+                <div class="slds-grid slds-grid--align-spread slds-m-around--medium">
+                    <div class="slds-form--stacked" style="width:80%" >
+                        <apex:variable value="{!IF(isHHAccount, 'Account', 'npo02__Household__c')}" var="objType"/>
+                        <apex:repeat value="{!hhFieldSet}" var="f">
+                            <c:UTIL_FormField field="{!f.fieldPath}"
+                                    sObj="{!hh}"
+                                    sObjType="{!objType}"
+                                    required="{!f.DBRequired || f.Required}"
+                                    onchange="{!IF(f.FieldPath = 'npe01__One2OneContact__c', 'fireContactChangedEvent();', '')}"/>
+                        </apex:repeat>
+                    </div>
+                </div>                
+            </div>
+            <!-- we expose a javascript function our lightning component can call to save the vf fieldset & close the page -->            
+            <apex:actionFunction action="{!save}" name="saveVisualforce" rerender="panelErrors, vfForm" />
+        </apex:form>
+        
+    </html>
+    
+    <script>
+    var j$ = jQuery.noConflict();
+    var ns = '{!namespacePrefix}';
+    var nsPrefix;
+    if (ns === '') {
+        nsPrefix = '';
+        ns = 'c';
+    } else {
+        nsPrefix = ns + '__';
+    }
+    
+    var hhId = '{!hhId}';
+    $Lightning.use(ns + ":ManageHHApp", function() {
+        $Lightning.createComponent(ns + ":HH_Container", 
+                                   { hhId : hhId,
+                                     namespacePrefix : nsPrefix,
+                                     vfEventHandlers : vfEventHandlers },
+                                   "lightning",
+                                   function(cmp) {
+                                       // after lightning is loaded, do what we need to do here!
+                                       
+                                       // this hack is to prevent the normal apex:inputField of a multiselect picklist
+                                       // behavior of hiding the normal select control and using a table with 2 selects
+                                       // and 2 buttons.  under SLDS, we could not get this more complicated control to
+                                       // style reasonably, so we just hide the table and force showing the original select!
+                                       j$('.multipicklistSLDSFixup').show();
+                                       j$('.multiSelectPicklistTable').hide();
+                                       
+                                       // need to remove focus from the visualforce page
+                                       // or else our Contact Card checkboxes won't work on single click!
+                                       document.activeElement.blur();
+                                   }
+                                  );
+    }); 
+    
+    // we provide this object to our main Lightning Component, to provide it a mechanism
+    // to notify our visualforce page of events its must handle.  this is in leui of
+    // the visualforce page using $A.eventService.AddHandler() which is not publicly exposed by Lightning.
+    // we are also using this mechanism to provide some direct functions the LC can call in the vfpage.
+    var vfEventHandlers = {
+    
+        // called by our lightning component when it needs to tell the visualforce page 
+        // a contact has been removed from the page.  
+        HH_ContactAfterRemoveEvent : function(event) {
+            var con = event.getParam("contact");
+            
+            // if the contact being removed (deleted or moved) is the
+            // HH's primary contact, clear out that field.
+            if (con) {
+                var ctrlPC = j$('.npe01__One2OneContact__c');
+                if (ctrlPC && ctrlPC.val() == con.FirstName + ' ' + con.LastName)
+                    ctrlPC.val(null);
+            }
+        },
+        
+        // called by our lightning component when it has fully finished loading
+        // use it to hide our initial load wait indicator
+        HH_ContainerLoadedEvent : function(event) {
+            // hide our startup spinner
+            j$('.initialSpinner').hide();                                       
+        },
+        
+        // called by our lightning component when it wants the page to save its field set
+        HH_saveHousehold : function(event) {
+            saveVisualforce();
+        },
+        
+        // called by our lightning component when it has finished saving its data,
+        // so it knows whether it is safe to close the page.
+        HH_hasErrors : function() {
+            // look for both validation errors visualforce puts on fields, and our own c:UTIL_PageMessages ui
+            // yes, this is a hack, but avoid yet another round trip to the server to ask about pageMessages 
+            // which wouldn't event include the validation errors on the fields!
+            var hasErrors = j$('.errorMsg').length > 0 || j$('.slds-theme--error').length > 0;
+            return hasErrors;
+        },
+        
+        // called by our lightning component when it needs to know the primary contact, which may be
+        // exposed on our field set.
+        HH_getPrimaryContactName : function() {
+            var ctrlPC = j$('.npe01__One2OneContact__c');
+            if (ctrlPC) {
+                return ctrlPC.val();
+            }
+            return null;
+        }
+        
+                
+    };
+    
+    // when Primary Contact is changed, notify our Lightning Component
+    // so it can update names and greetings.
+    function fireContactChangedEvent () {
+        var evt;
+        if (window.$A && (evt = window.$A.get("e." + ns + ":HH_ContactChangedEvent"))) {            
+            evt.setParams({contact:null});
+            evt.fire();
+        }
+    };
+
+    </script>
+    
+</apex:page>

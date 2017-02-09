@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <help>Datum der Bestätigungsdatum</help>
+        <label>Bestätigungsdatum</label>
+        <name>Acknowledgment_Date__c</name>
+    </fields>
+    <fields>
+        <help>Status der Bestätigung dieses Geschenks</help>
+        <label>Bestätigungsstatus</label>
+        <name>Acknowledgment_Status__c</name>
+        <picklistValues>
+            <masterLabel>Acknowledged</masterLabel>
+            <translation>Bestätigt</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Do Not Acknowledge</masterLabel>
+            <translation>Nicht bestätigen</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Email Acknowledgment Not Sent</masterLabel>
+            <translation>E-Mail-Bestätigung nicht gesendet</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Email Acknowledgment Now</masterLabel>
+            <translation>E-Mail-Bestätigung jetzt</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>To Be Acknowledged</masterLabel>
+            <translation>Zu bestätigen</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- The date when the donor was specifically asked for the donation, as opposed to the Opportunity Close Date that the organization may set to either when the Opportunity was first created, or when the Opportunity was won. --></help>
+        <label><!-- Ask Date --></label>
+        <name>Ask_Date__c</name>
+    </fields>
+    <fields>
+        <label><!-- Batch --></label>
+        <name>Batch__c</name>
+        <relationshipLabel><!-- Opportunities --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Notes on why the donation ask was not successful. --></help>
+        <label><!-- Closed Lost Reason --></label>
+        <name>Closed_Lost_Reason__c</name>
+    </fields>
+    <fields>
+        <help>Der mittlere Marktwert eines Sachgeschenks</help>
+        <label>Mittlerer Marktwert</label>
+        <name>Fair_Market_Value__c</name>
+    </fields>
+    <fields>
+        <help><!-- Categorizes the type of ask for this opportunity. --></help>
+        <label><!-- Gift Strategy --></label>
+        <name>Gift_Strategy__c</name>
+        <picklistValues>
+            <masterLabel>New Donor</masterLabel>
+            <translation><!-- New Donor --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Renewal</masterLabel>
+            <translation><!-- Renewal --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Upgrade</masterLabel>
+            <translation><!-- Upgrade --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>Das Datum des Unterstützungsbeginns gemäß dem Dokument oder Vertrag, das die unterstützende Organisation gesendet hat</help>
+        <label>Unterstützungsvertragsdatum</label>
+        <name>Grant_Contract_Date__c</name>
+    </fields>
+    <fields>
+        <help>Verfolgt eindeutige Zahlen, die manchmal von unterstützenden Organisationen zugewiesen werden</help>
+        <label>Unterstützungsvertragsnummer</label>
+        <name>Grant_Contract_Number__c</name>
+    </fields>
+    <fields>
+        <label>Enddatum des Unterstützungszeitraums</label>
+        <name>Grant_Period_End_Date__c</name>
+    </fields>
+    <fields>
+        <label>Startdatum des Unterstützungszeitraums</label>
+        <name>Grant_Period_Start_Date__c</name>
+    </fields>
+    <fields>
+        <help>Beschreibt die Finanzierungsbereiche der Unterstützung Sie können hier einen beliebigen Eintrag vornehmen. Sie könnten beispielsweise den Namen des Programms eingeben, auf den sich die Unterstützung bezieht.</help>
+        <label>Unterstützungsprogrammbereiche</label>
+        <name>Grant_Program_Area_s__c</name>
+    </fields>
+    <fields>
+        <help>Ein URL, der auf die Unterstützungsanforderungen auf der Website des Geldgebers verweist</help>
+        <label>Website mit Unterstützungsanforderungen</label>
+        <name>Grant_Requirements_Website__c</name>
+    </fields>
+    <fields>
+        <help>Der vorhandene Kontaktdatensatz des Begünstigten für diese Spende</help>
+        <label>Kontakt des Begünstigten</label>
+        <name>Honoree_Contact__c</name>
+        <relationshipLabel>Opportunities (Kontakt des Begünstigten)</relationshipLabel>
+    </fields>
+    <fields>
+        <help>Der vom Spender angegebene Name des Begünstigten Wenn dieses Feld leer bleibt und das Feld für den Kontakt des Begünstigten einen Wert enthält, wird dieser Wert von Salesforce automatisch in dieses Feld eingetragen.</help>
+        <label>Name des Begünstigten</label>
+        <name>Honoree_Name__c</name>
+    </fields>
+    <fields>
+        <help>Enthält eine Rich Text-Beschreibung des Sachgeschenks einschließlich Fotos</help>
+        <label>Beschreibung des Sachgeschenks</label>
+        <name>In_Kind_Description__c</name>
+    </fields>
+    <fields>
+        <help>Aktiviert, falls der Spender den mittleren Marktwert für dieses Sachgeschenk angegeben hat</help>
+        <label>Vom Spender angeg. Wert f. d. Sachgesch.</label>
+        <name>In_Kind_Donor_Declared_Value__c</name>
+    </fields>
+    <fields>
+        <help>Der Typ des Sachgeschenks</help>
+        <label>Typ des Sachgeschenks</label>
+        <name>In_Kind_Type__c</name>
+        <picklistValues>
+            <masterLabel>Goods</masterLabel>
+            <translation>Waren</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Services</masterLabel>
+            <translation><!-- Services --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>Die Auswahl dieser Option besagt, dass die Unterstützung eine Erneuerung einer früheren Unterstützung ist.</help>
+        <label>Unterstützungserneuerung</label>
+        <name>Is_Grant_Renewal__c</name>
+    </fields>
+    <fields>
+        <help><!-- The account of the company who will match this gift. --></help>
+        <label>Zugewiesener Spendenaccount</label>
+        <name>Matching_Gift_Account__c</name>
+        <relationshipLabel>Zugewiesene Geschenke</relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- The name of the company who will match this gift. --></help>
+        <label>Zugewiesenes Spende Arbeitgeber</label>
+        <name>Matching_Gift_Employer__c</name>
+    </fields>
+    <fields>
+        <help><!-- The status of this gift being matched. --></help>
+        <label>Zugewiesener Spendenstatus</label>
+        <name>Matching_Gift_Status__c</name>
+        <picklistValues>
+            <masterLabel>Potential</masterLabel>
+            <translation>Potenziell</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Received</masterLabel>
+            <translation>Empfangen</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Submitted</masterLabel>
+            <translation>Abgesendet</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- The employer&apos;s matching gift for this employee&apos;s gift. --></help>
+        <label>Zugewiesenes Spende</label>
+        <name>Matching_Gift__c</name>
+        <relationshipLabel>Zugewiesene Geschenke</relationshipLabel>
+    </fields>
+    <fields>
+        <help>Dieses Feld wird von NPSP basierend auf dem nächsten Unterstützungstermin-Datensatz automatisch aktualisiert.</help>
+        <label>Fälligk.dat. d. nächsten Unterst.termins</label>
+        <name>Next_Grant_Deadline_Due_Date__c</name>
+    </fields>
+    <fields>
+        <help>Eine personalisierte Nachricht für den Benachrichtigungsempfänger</help>
+        <label>Benachrichtigungsnachricht</label>
+        <name>Notification_Message__c</name>
+    </fields>
+    <fields>
+        <help>Wie der Benachrichtigungsempfänger benachrichtigt werden sollte</help>
+        <label>Benachrichtigungseinstellung</label>
+        <name>Notification_Preference__c</name>
+        <picklistValues>
+            <masterLabel>Do Not Notify</masterLabel>
+            <translation>Keine Benachrichtigung</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Email</masterLabel>
+            <translation>E-Mails</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Phone</masterLabel>
+            <translation>Telefon</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Postal Mail</masterLabel>
+            <translation>Postweg</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>Der vorhandene Kontaktdatensatz der Person, die bezüglich dieser Spende benachrichtigt werden soll</help>
+        <label>Kontakt des Benachrichtigungsempfängers</label>
+        <name>Notification_Recipient_Contact__c</name>
+        <relationshipLabel>Opportunities (Benachrichtigungsempfänger)</relationshipLabel>
+    </fields>
+    <fields>
+        <help>Die (vom Spender angegebenen) Kontaktinformationen für den Benachrichtigungsempfänger</help>
+        <label>Info über den Benachrichtigungsempfänger</label>
+        <name>Notification_Recipient_Information__c</name>
+    </fields>
+    <fields>
+        <help>Der (vom Spender angegebene) Name d. Person, d. über dieses Geschenk benachrichtigt werden soll. Wenn dieses Feld leer bleibt und d. Feld f. d. Kontakt des Benachrichtigungsempfängers einen Wert enthält, wird dieser automatisch von Salesforce übertragen.</help>
+        <label>Name des Benachrichtigungsempfängers</label>
+        <name>Notification_Recipient_Name__c</name>
+    </fields>
+    <fields>
+        <help>Wenn diese Unterstützung eine Erneuerung einer früheren Unterstützung ist, können Sie dieses Feld verwenden, um diesen Datensatz mit dem früheren Datensatz zu verknüpfen.</help>
+        <label>Frühere Unterstützungs-Opportunity</label>
+        <name>Previous_Grant_Opportunity__c</name>
+        <relationshipLabel>Zugehörige Unterstützungs-Opportunity</relationshipLabel>
+    </fields>
+    <fields>
+        <help>Status z. Erst. eines Kamp.mitgl. f. d. Hauptanspr.partner u. d. primäre Kamp.quelle dies. Opportunity. Feld leer lassen, w. standardm. Status &quot;Geantwortet&quot; f. geschl./gewonn. Opportunites u. Status &quot;Nicht geantwortet&quot; f. and. Opportunities eingest. wird.</help>
+        <label>Kamp.mitgl.status f. Hauptanspr.partner</label>
+        <name>Primary_Contact_Campaign_Member_Status__c</name>
+    </fields>
+    <fields>
+        <help>Der Hauptansprechpartner für diese Opportunity Die Hauptansprechpartnerrolle wird ständig mit diesem Feld synchronisiert. Für Einzelpersonenspenden bezeichnet dies die Zuschreibung für diese Opportunity.</help>
+        <label>Hauptansprechpartner</label>
+        <name>Primary_Contact__c</name>
+        <relationshipLabel><!-- Opportunities --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- The date this donor was identified as qualifying for this donation. --></help>
+        <label><!-- Qualified Date --></label>
+        <name>Qualified_Date__c</name>
+    </fields>
+    <fields>
+        <help>Ratenbezeichnung zur Verwendung in der Opportunity-Benennung Zeigt die Ratenanzahl in Klammern für unbefristete wiederkehrende Spenden bzw. die Nummer der Rate aus der Gesamtanzahl für wiederkehrende Spenden mit einer festgelegten Anzahl von Raten</help>
+        <label>Ratenbezeichnung für wiederk. Spenden</label>
+        <name>Recurring_Donation_Installment_Name__c</name>
+    </fields>
+    <fields>
+        <help>Die Ratenanzahl des Zeitplans für wiederkehrende Spenden dieser Opportunity</help>
+        <label>Ratenanzahl für wiederkehrende Spenden</label>
+        <name>Recurring_Donation_Installment_Number__c</name>
+    </fields>
+    <fields>
+        <help>Der von Ihnen angeforderte Betrag Diese Zahl kann vom endgültigen Betrag der Vergabe abweichen.</help>
+        <label>Angeforderter Betrag</label>
+        <name>Requested_Amount__c</name>
+    </fields>
+    <fields>
+        <help>Gibt an, ob das Geschenk zu Ehren oder zur Erinnerung einer Einzelperson gedacht ist</help>
+        <label>Anerkennungstyp</label>
+        <name>Tribute_Type__c</name>
+        <picklistValues>
+            <masterLabel>Honor</masterLabel>
+            <translation>Ehrung</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Memorial</masterLabel>
+            <translation>Gedenken</translation>
+        </picklistValues>
+    </fields>
+    <layouts>
+        <layout>Donation Layout</layout>
+        <sections>
+            <label>Spendeninformationen</label>
+            <section>Donation Information</section>
+        </sections>
+        <sections>
+            <label>Zugewiesenes Geschenk Details</label>
+            <section>Matching Gift Information</section>
+        </sections>
+        <sections>
+            <label>Zahlungsinformationen</label>
+            <section>Payment Information</section>
+        </sections>
+        <sections>
+            <label>Informationen des Begünstigten</label>
+            <section>Tribute Information</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Grant Layout</layout>
+        <sections>
+            <label>Spendeninformationen</label>
+            <section>Donation Information</section>
+        </sections>
+        <sections>
+            <label>Unterstützungsinformationen</label>
+            <section>Grant Information</section>
+        </sections>
+        <sections>
+            <label>Zahlungsinformationen</label>
+            <section>Payment Information</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>In-Kind Gift Layout</layout>
+        <sections>
+            <label><!-- Donation Information --></label>
+            <section>Donation Information</section>
+        </sections>
+        <sections>
+            <label><!-- In-Kind Information --></label>
+            <section>In-Kind Information</section>
+        </sections>
+        <sections>
+            <label><!-- Tribute Information --></label>
+            <section>Tribute Information</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Major Gift Layout</layout>
+        <sections>
+            <label><!-- Donation Information --></label>
+            <section>Donation Information</section>
+        </sections>
+        <sections>
+            <label><!-- Major Gift Information --></label>
+            <section>Major Gift Information</section>
+        </sections>
+        <sections>
+            <label><!-- Payment Information --></label>
+            <section>Payment Information</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Matching Gift Layout</layout>
+        <sections>
+            <label>Spendeninformationen</label>
+            <section>Donation Information</section>
+        </sections>
+        <sections>
+            <label>Zahlungsinformationen</label>
+            <section>Payment Information</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Membership Layout</layout>
+        <sections>
+            <label>Benutzerdefinierte Links</label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label>Felder</label>
+            <section>Fields</section>
+        </sections>
+        <sections>
+            <label>Mitgliederinformationen</label>
+            <section>Member Information</section>
+        </sections>
+        <sections>
+            <label>Zahlungsinformationen</label>
+            <section>Payment Information</section>
+        </sections>
+        <sections>
+            <label>Systeminformationen</label>
+            <section>System Information</section>
+        </sections>
+    </layouts>
+    <quickActions>
+        <label>Neue Zahlung</label>
+        <name>New_Payment</name>
+    </quickActions>
+    <quickActions>
+        <label>Schnelle Aktualisierung</label>
+        <name>Quick_Update</name>
+    </quickActions>
+    <webLinks>
+        <label>E-Mail-Bestätigung</label>
+        <name>Email_Acknowledgment</name>
+    </webLinks>
+    <webLinks>
+        <label>E-Mail-Bestätigungen</label>
+        <name>Email_Acknowledgments</name>
+    </webLinks>
+    <webLinks>
+        <label>Zugewiesene Geschenke suchen</label>
+        <name>Find_Matched_Gifts</name>
+    </webLinks>
+    <webLinks>
+        <label>Weiche Kredite verwalten</label>
+        <name>Manage_Soft_Credits</name>
+    </webLinks>
+    <webLinks>
+        <label>Namen aktualisieren</label>
+        <name>Refresh_Name</name>
+    </webLinks>
+</CustomObjectTranslation>

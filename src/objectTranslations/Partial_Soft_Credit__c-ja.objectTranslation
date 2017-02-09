@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Partial Soft Credit --></value>
+    </caseValues>
+    <fields>
+        <help>ソフトクレジットされる金額</help>
+        <label>金額</label>
+        <name>Amount__c</name>
+    </fields>
+    <fields>
+        <help>個人の氏名</help>
+        <label>個人名</label>
+        <name>Contact_Name__c</name>
+    </fields>
+    <fields>
+        <help>このソフトクレジットが適用される OpportunityContactRole。</help>
+        <label>個人の役割 ID</label>
+        <name>Contact_Role_ID__c</name>
+    </fields>
+    <fields>
+        <help>このソフトクレジットを受け取る個人</help>
+        <label>個人</label>
+        <name>Contact__c</name>
+        <relationshipLabel>部分的ソフトクレジット</relationshipLabel>
+    </fields>
+    <fields>
+        <help>このソフトクレジットが適用される支援。</help>
+        <label>支援</label>
+        <name>Opportunity__c</name>
+        <relationshipLabel>部分的ソフトクレジット</relationshipLabel>
+    </fields>
+    <fields>
+        <help>このソフトクレジットの役割。</help>
+        <label>役割名</label>
+        <name>Role_Name__c</name>
+    </fields>
+    <layouts>
+        <layout>Partial Soft Credit Layout</layout>
+        <sections>
+            <label>カスタムリンク</label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Partial Soft Credit Name --></nameFieldLabel>
+    <webLinks>
+        <label>ソフトクレジットの管理</label>
+        <name>Manage_Soft_Credits</name>
+    </webLinks>
+</CustomObjectTranslation>

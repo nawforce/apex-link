@@ -1,0 +1,69 @@
+<apex:page controller="STG_PanelOpps_CTRL" docType="html-5.0">
+    <apex:form id="form" styleClass="slds-m-around--x-large">
+        <c:STG_PageHeader sectionLabel="{!$Label.stgNavDonations}" pageLabel="{!$Label.stgNavPayments}" />
+        <c:UTIL_PageMessages />
+        <div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-p-around--large">
+            <apex:outputPanel layout="block" rendered="{!isReadOnlyMode}" styleClass="slds-button-group">
+                <apex:commandButton id="editOpps" value="{!$Label.stgBtnEdit}" status="statusLoad" action="{!editSettings}" rendered="{!isReadOnlyMode}" immediate="true" rerender="form" styleClass="slds-button slds-button--small slds-button--neutral" />
+            </apex:outputPanel>
+        </div>
+        <div class="slds-form--horizontal slds-m-around--large">
+            <div class="slds-form-element">
+                <apex:outputLabel value="{!$ObjectType.npe01__Contacts_And_Orgs_Settings__c.Fields.npe01__Payments_Enabled__c.Label}" for="cbxPE" styleClass="slds-form-element__label" />
+                <div class="slds-form-element__control">
+                    <apex:inputField value="{!stgService.stgCon.npe01__Payments_Enabled__c}" rendered="{!isEditMode}" id="cbxPE" html-aria-describedby="{!$Component.cbxPEHelp}" />
+                    <apex:outputField value="{!stgService.stgCon.npe01__Payments_Enabled__c}" rendered="{!isReadOnlyMode}" id="cbxPEO" html-aria-describedby="{!$Component.cbxPEHelp}" />
+                    <apex:outputPanel id="cbxPEHelp" layout="block">
+                        <apex:outputText styleClass="slds-form-element__help" value="{!$Label.stgHelpPaymentsEnabled}" />
+                    </apex:outputPanel>
+                </div>
+            </div>
+            <div class="slds-form-element">
+                <apex:outputLabel value="{!$ObjectType.npe01__Contacts_And_Orgs_Settings__c.Fields.Max_Payments__c.Label}" for="cbxMP" styleClass="slds-form-element__label" />
+                <div class="slds-form-element__control">
+                    <apex:outputField value="{!stgService.stgCon.Max_Payments__c}" rendered="{!isReadOnlyMode}" styleClass="slds-form-element__static" />
+                    <apex:inputField value="{!stgService.stgCon.Max_Payments__c}" type="number" rendered="{!isEditMode}" id="cbxMP" styleClass="slds-input" html-aria-describedby="{!$Component.cbxMPHelp}" />
+                    <apex:outputPanel id="cbxMPHelp" layout="block">
+                        <apex:outputText styleClass="slds-form-element__help" value="{!$Label.stgHelpMaxPayments}" />
+                    </apex:outputPanel>
+                </div>
+            </div>
+            <div class="slds-form-element">
+                <apex:outputLabel value="{!$ObjectType.npe01__Contacts_And_Orgs_Settings__c.Fields.Opp_RecTypes_Excluded_for_Payments__c.Label}" for="idDBMS" styleClass="slds-form-element__label" />
+                <div class="slds-form-element__control">
+                    <c:STG_DataBoundMultiSelect settingObject="{!stgService.stgCon}" fieldname="Opp_RecTypes_Excluded_for_Payments__c" listSO="{!listSOOppRecTypesIds}" strValuesOverride="{!strOppRecTypesExcludedForPaymentsReadOnly}" inEditMode="{!isEditMode}" />
+                    <apex:outputPanel layout="block">
+                        <apex:outputText styleClass="slds-form-element__help" value="{!$Label.stgHelpOppRecTypesNoPayments}" />
+                    </apex:outputPanel>
+                </div>
+            </div>
+            <div class="slds-form-element">
+                <apex:outputLabel value="{!$ObjectType.npe01__Contacts_And_Orgs_Settings__c.Fields.Opp_Types_Excluded_for_Payments__c.Label}" for="idDBMS" styleClass="slds-form-element__label" />
+                <div class="slds-form-element__control">
+                    <c:STG_DataBoundMultiSelect settingObject="{!stgService.stgCon}" fieldname="Opp_Types_Excluded_for_Payments__c" listSO="{!listSOOppTypes}" inEditMode="{!isEditMode}" />
+                    <apex:outputPanel layout="block">
+                        <apex:outputText styleClass="slds-form-element__help" value="{!$Label.stgHelpOppTypesNoPayments}" />
+                    </apex:outputPanel>
+                </div>
+            </div>
+            <div class="slds-form-element">
+                <apex:outputlabel value="{!$ObjectType.npe01__Contacts_And_Orgs_Settings__c.Fields.Payments_Auto_Close_Stage_Name__c.Label}" for="slCS" styleClass="slds-form-element__label" />
+                <div class="slds-form-element__control">
+                    <apex:outputField value="{!stgService.stgCon.Payments_Auto_Close_Stage_Name__c}" rendered="{!isReadOnlyMode}" styleClass="slds-form-element__static" />
+                    <apex:selectList value="{!stgService.stgCon.Payments_Auto_Close_Stage_Name__c}" size="1" rendered="{!isEditMode}" id="slCS" html-aria-describedby="{!$Component.slCSHelp}" styleClass="slds-select">
+                        <apex:selectOptions value="{!opportunityClosedWonStages}" />
+                    </apex:selectList>
+                    <apex:outputPanel id="slCSHelp" layout="block">
+                        <apex:outputText styleClass="slds-form-element__help" value="{!$ObjectType.npe01__Contacts_And_Orgs_Settings__c.Fields.Payments_Auto_Close_Stage_Name__c.InlineHelpText}" />
+                    </apex:outputPanel>
+                </div>
+            </div>
+        </div>
+        <div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-p-around--large">
+            <apex:outputPanel layout="block" rendered="{!isEditMode}" styleClass="slds-button-group">
+                <apex:commandButton id="saveOpps" value="{!$Label.stgBtnSave}" status="statusLoad" action="{!saveSettings}" rendered="{!isEditMode}" immediate="false" rerender="form" styleClass="slds-button slds-button--small slds-button--brand" />
+                <apex:commandButton id="cancelOpps" value="{!$Label.stgBtnCancel}" status="statusLoad" action="{!cancelEdit}" rendered="{!isEditMode}" immediate="true" rerender="form" styleClass="slds-button slds-button--small slds-button--neutral" />
+            </apex:outputPanel>
+        </div>
+    </apex:form>
+</apex:page>

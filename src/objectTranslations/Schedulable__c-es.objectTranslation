@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Schedulable --></value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value><!-- Schedulable --></value>
+    </caseValues>
+    <fields>
+        <help>Determina si un trabajo estará activo o no.</help>
+        <label>Activa</label>
+        <name>Active__c</name>
+    </fields>
+    <fields>
+        <help>Clase que se programará para correr con cierta frecuencia.</help>
+        <label>Nombre de clase</label>
+        <name>Class_Name__c</name>
+    </fields>
+    <fields>
+        <help>Cuan seguido debe correr este trabajo.</help>
+        <label>Frecuencia</label>
+        <name>Frequency__c</name>
+        <picklistValues>
+            <masterLabel>Daily</masterLabel>
+            <translation><!-- Daily --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Hourly</masterLabel>
+            <translation><!-- Hourly --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Monthly</masterLabel>
+            <translation><!-- Monthly --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Quarterly</masterLabel>
+            <translation><!-- Quarterly --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekly</masterLabel>
+            <translation><!-- Weekly --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>Última vez que el trabajo corrió.</help>
+        <label>Fecha y hora de última corrida</label>
+        <name>Last_Time_Run__c</name>
+    </fields>
+    <gender><!-- Feminine --></gender>
+    <layouts>
+        <layout>Schedulable Layout</layout>
+        <sections>
+            <label>Vínculos personalizados</label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Job Name --></nameFieldLabel>
+</CustomObjectTranslation>

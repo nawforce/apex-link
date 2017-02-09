@@ -1,0 +1,16 @@
+<apex:component controller="STG_DataBoundMultiSelect_CTRL" selfClosing="true">
+
+    <apex:attribute name="settingObject" type="SObject" assignTo="{!sobjBinding}" description="the setting object we are binding to." />
+    <apex:attribute name="fieldname" type="string" assignTo="{!strField}" description="the field to bind to" />
+    <apex:attribute name="listSO" type="SelectOption[]" assignTo="{!listSelectOption}" description="The list of SelectOptions to put in the picklist"/>
+    <apex:attribute name="inEditMode" type="boolean" assignTo="{!isEditMode}" description="whether to display the edit version or readonly version of the control."/>
+    <apex:attribute name="inDisabledMode" type="boolean" assignTo="{!isDisabled}" description="whether the control is enabled or disabled."/>
+    <apex:attribute name="strValuesOverride" type="String" default="" description="If this value is set, this will be displayed in read-only mode instead of the generated string values"/>
+
+                <!-- Workaround using IF(). BLANKVALUE() and ISBLANK() would return false with strValuesOverride set to the default "".  -->
+                <apex:outputText value="{!IF(strValuesOverride == '', IF(strValues == '', $Label.stgLabelNone, strValues), strValuesOverride)}" rendered="{!NOT(isEditMode)}" styleClass="slds-form-element__static"/>
+                <apex:selectList value="{!listStrValues}" multiselect="true" size="5" rendered="{!isEditMode}" disabled="{!isDisabled}" id="idDBMS" styleClass="slds-select">
+                    <apex:selectOptions value="{!listSelectOption}"/>
+                </apex:selectList>
+
+</apex:component>

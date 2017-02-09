@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Household Naming Settings --></value>
+    </caseValues>
+    <fields>
+        <help>明示的にリストする個人の名前の数を指定します。この数を超えると、[超過時の名前] が使用されます。</help>
+        <label>個人超過数</label>
+        <name>Contact_Overrun_Count__c</name>
+    </fields>
+    <fields>
+        <help>世帯の公式の挨拶文に使用する形式。</help>
+        <label>公式の挨拶文形式</label>
+        <name>Formal_Greeting_Format__c</name>
+    </fields>
+    <fields>
+        <help>世帯名に使用する形式。</help>
+        <label>世帯名形式</label>
+        <name>Household_Name_Format__c</name>
+    </fields>
+    <fields>
+        <help>世帯命名で使用する HH_INaming インターフェースを実装するクラスの名前。</help>
+        <label>実装クラス</label>
+        <name>Implementing_Class__c</name>
+    </fields>
+    <fields>
+        <help>世帯の非公式の挨拶文に使用する形式。</help>
+        <label>非公式の挨拶文形式</label>
+        <name>Informal_Greeting_Format__c</name>
+    </fields>
+    <fields>
+        <help>名前のペアの結合に使用する文字列。たとえば、「John &amp; Jane」、「John と Jane」など。</help>
+        <label>名前コネクタ</label>
+        <name>Name_Connector__c</name>
+    </fields>
+    <fields>
+        <help>名前のリストが長いときに名前の置き換えに使用される文字列。</help>
+        <label>超過時の名前</label>
+        <name>Name_Overrun__c</name>
+    </fields>
+</CustomObjectTranslation>

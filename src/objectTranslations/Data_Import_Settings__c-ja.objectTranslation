@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Data Import Settings --></value>
+    </caseValues>
+    <fields>
+        <help>団体のマッチングに使用する任意の一意の ID 項目</help>
+        <label>一意の団体カスタム ID</label>
+        <name>Account_Custom_Unique_ID__c</name>
+    </fields>
+    <fields>
+        <help>既存の団体に対してデータインポートレコード内の団体を照合するときのルールを指定します。</help>
+        <label>団体マッチングルール</label>
+        <name>Account_Matching_Rule__c</name>
+    </fields>
+    <fields>
+        <help>各バッチで処理する NPSP データインポートレコードの数。</help>
+        <label>バッチサイズ</label>
+        <name>Batch_Size__c</name>
+    </fields>
+    <fields>
+        <help>個人のマッチングに使用する任意の一意の ID 項目</help>
+        <label>一意の個人カスタム ID</label>
+        <name>Contact_Custom_Unique_ID__c</name>
+    </fields>
+    <fields>
+        <help>既存の個人に対してデータインポートレコード内の個人を照合するときのルールを指定します。</help>
+        <label>個人マッチングルール</label>
+        <name>Contact_Matching_Rule__c</name>
+    </fields>
+</CustomObjectTranslation>

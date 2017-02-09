@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Batch Data Entry Settings</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Batch Data Entry Settings</value>
+    </caseValues>
+    <fields>
+        <help><!-- If set, then Batch Data Entry will never name Opportunities, even if they are blank (not included on the BDE page). --></help>
+        <label><!-- Allow Blank Opportunity Names --></label>
+        <name>Allow_Blank_Opportunity_Names__c</name>
+    </fields>
+    <fields>
+        <help><!-- This setting automatically generates the record name for batch entered Opportunity records based on the value of the entered fields. --></help>
+        <label><!-- Opportunity Naming --></label>
+        <name>Opportunity_Naming__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

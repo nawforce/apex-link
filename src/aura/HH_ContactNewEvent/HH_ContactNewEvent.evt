@@ -1,0 +1,3 @@
+<aura:event type="COMPONENT" description="Fired when the user clicks the New Contact option in the HH_AutoComplete Lightning Component." >
+    <aura:attribute name="contact" type="Object" />
+</aura:event>

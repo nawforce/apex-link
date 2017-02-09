@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Address Verification Settings-DEPRECATED --></value>
+    </caseValues>
+    <fields>
+        <help>住所検証に使用する URL。</help>
+        <label><!-- Address Verification Endpoint-DEPRECATED --></label>
+        <name>Address_Verification_Endpoint__c</name>
+    </fields>
+    <fields>
+        <help>秘密鍵のペアからの認証 ID。</help>
+        <label><!-- Auth ID-DEPRECATED --></label>
+        <name>Auth_ID__c</name>
+    </fields>
+    <fields>
+        <help>秘密鍵のペアからの認証トークン。</help>
+        <label><!-- Auth Token-DEPRECATED --></label>
+        <name>Auth_Token__c</name>
+    </fields>
+    <fields>
+        <help>オンの場合、変更された住所はサービスからの応答で自動的に更新されます (検証済み結果が 1 つの場合)。</help>
+        <label><!-- Auto-Update Addresses-DEPRECATED --></label>
+        <name>Auto_Update_Addresses__c</name>
+    </fields>
+    <fields>
+        <help>Salesforce クラスによって SmartyStreets API への接続と住所の検証が行われます。</help>
+        <label><!-- Class-DEPRECATED --></label>
+        <name>Class__c</name>
+    </fields>
+    <fields>
+        <help>オンの場合、サービスが配信不可とマークされた米国の団体住所は自動的にクリアされます(住所レコードで無効なエントリを確認できます)。</help>
+        <label><!-- Clear Invalid Addresses-DEPRECATED --></label>
+        <name>Clear_Invalid_Addresses__c</name>
+    </fields>
+    <fields>
+        <help>新しい住所の自動住所検証を有効にします。</help>
+        <label><!-- Enable Automatic Verification-DEPRECATED --></label>
+        <name>Enable_Automatic_Verification__c</name>
+    </fields>
+    <fields>
+        <help>API で複数の住所が返されたときに、あいまいな住所を無効としてマークします。未選択のままにすると、最初に提案された住所が有効な住所として受け入れられます。</help>
+        <label><!-- Reject Ambiguous Addresses-DEPRECATED --></label>
+        <name>Reject_Ambiguous_Addresses__c</name>
+    </fields>
+    <fields>
+        <help>コールアウトのタイムアウト (秒)</help>
+        <label><!-- Timeout-DEPRECATED --></label>
+        <name>Timeout__c</name>
+    </fields>
+    <fields>
+        <help>SmartyStreets 住所検証サービスを使用しているかどうかを指定します。</help>
+        <label><!-- Using SmartyStreets-DEPRECATED --></label>
+        <name>Using_SmartyStreets__c</name>
+    </fields>
+    <fields>
+        <help>郵便番号検証に使用される URL。</help>
+        <label><!-- Zipcode Verification Endpoint-DEPRECATED --></label>
+        <name>Zipcode_Verification_Endpoint__c</name>
+    </fields>
+</CustomObjectTranslation>

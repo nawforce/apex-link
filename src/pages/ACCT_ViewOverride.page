@@ -1,0 +1,9 @@
+<apex:page action="{!if(account.npe01__One2OneContact__c == null || account.npe01__SYSTEM_AccountType__c != 'One-to-One Individual', 
+    urlFor($Action.Account.View, account.Id, null, true), 
+    urlFor($Action.Contact.View, account.npe01__One2OneContact__c, null, true))}" 
+    
+    standardController="Account" extensions="ACCT_ViewOverride_CTRL">
+
+    <apex:pageMessages />
+    
+</apex:page>

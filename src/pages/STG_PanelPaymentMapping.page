@@ -1,0 +1,67 @@
+<apex:page controller="STG_PanelPaymentMapping_CTRL" >
+    <apex:form id="form" styleClass="slds-m-around--x-large">
+        <c:STG_PageHeader sectionLabel="{!$Label.stgNavDonations}" pageLabel="{!$Label.stgNavPaymentMappings}" />
+        <p class="slds-text-body--small slds-m-top--x-small">{!$Label.stgHelpPaymentMappings}</p>
+        <c:UTIL_PageMessages />
+        <div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-p-around--large">
+            <apex:commandButton id="newPaymentMapping" value="{!$Label.stgBtnNewPaymentMap}" status="statusLoad" action="{!newPfm}" rendered="{!isReadOnlyMode}" immediate="true" rerender="form" styleClass="slds-button slds-button--small slds-button--neutral" />
+        </div>
+        <apex:outputPanel rendered="{!isEditMode}" >
+            <div class="slds-section-title--divider" >{!$Label.stgLabelNewPaymentMapping}</div>
+            <p class="slds-text-body--small slds-m-bottom--small">{!$Label.stgHelpPaymentMapping}</p>
+            <div class="slds-form--horizontal slds-m-around--large">
+                <div class="slds-form-element">
+                    <apex:outputLabel value="{!$ObjectType.npe01__Payment_Field_Mapping_Settings__c.Fields.npe01__Opportunity_Field__c.Label}" for="slOF" styleClass="slds-form-element__label" />
+                    <div class="slds-form-element__control">
+                        <apex:selectList value="{!pfmNew.npe01__Opportunity_Field__c}" multiselect="false" size="5" id="slOF" html-aria-describedby="{!$Component.slOFHelp}" styleClass="slds-select" >
+                            <apex:selectOptions value="{!sourcefields}"  />
+                            <apex:actionSupport event="onchange" action="{!onSelectSourceField}" rerender="slTargetField,panelButtons" status="statusLoad"/>
+                        </apex:selectList>
+                        <apex:outputPanel id="slOFHelp" layout="block">
+                            <apex:outputText styleClass="slds-form-element__help" value="{!$Label.stgHelpPaymentMapOppField}" />
+                        </apex:outputPanel>
+                    </div>
+                </div>
+                <div class="slds-form-element">
+                    <apex:outputLabel value="{!$ObjectType.npe01__Payment_Field_Mapping_Settings__c.Fields.npe01__Payment_Field__c.Label}" for="slTargetField" styleClass="slds-form-element__label" />
+                    <div class="slds-form-element__control">
+                        <apex:selectList value="{!pfmNew.npe01__Payment_Field__c}" id="slTargetField" multiselect="false" size="5" html-aria-describedby="{!$Component.slTargetFieldHelp}" styleClass="slds-select">
+                            <apex:selectOptions value="{!targetfields}"  />
+                        </apex:selectList>
+                        <apex:outputPanel id="slTargetFieldHelp" layout="block">
+                            <apex:outputText styleClass="slds-form-element__help" value="{!$Label.stgHelpPaymentMapPaymentField}" />
+                        </apex:outputPanel>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-m-around--large">
+                <apex:commandButton id="createPaymentMapping" value="{!$Label.stgBtnCreateMapping}" status="statusLoad" action="{!savePfm}" rendered="{!isEditMode}" immediate="false" rerender="form" styleClass="slds-button slds-button--small slds-button--brand" />
+                <apex:commandButton id="cancelPaymentMapping" value="{!$Label.stgBtnCancel}" status="statusLoad" action="{!cancelPfmEdit}" rendered="{!isEditMode}" immediate="true" rerender="form" styleClass="slds-button slds-button--small slds-button--neutral" />
+            </div>
+        </apex:outputPanel>
+        <apex:outputPanel rendered="{!listPMTFieldMapping.size > 0}">
+            <table class="slds-table slds-table--bordered" >
+                <thead>
+                    <tr class="slds-text-heading--label">
+                        <th scope="col"><label class="slds-truncate">{!$Label.stgLabelActionColumn}</label></th>
+                        <th scope="col"><label class="slds-truncate">{!$ObjectType.npe01__Payment_Field_Mapping_Settings__c.Fields.npe01__Opportunity_Field__c.Label}</label></th>
+                        <th scope="col"><label class="slds-truncate">{!$ObjectType.npe01__Payment_Field_Mapping_Settings__c.Fields.npe01__Payment_Field__c.Label}</label></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <apex:repeat var="pfm" value="{!listPMTFieldMapping}" >
+                        <tr>
+                            <td>
+                                <apex:commandLink id="deletePaymentMapping" action="{!deletePfm}" title="{!$Label.stgLinkDelete} {!pfm.npe01__Opportunity_Field__c} - {!pfm.npe01__Payment_Field__c}" styleClass="actionLink" status="statusLoad" value="{!$Label.stgLinkDelete}" onclick="if (confirm('{!$Label.stgLabelAreYouSure}')==false) { return false;}" rerender="form" >
+                                    <apex:param assignTo="{!pfmIdDelete}" name="idDeletePfm" value="{!pfm.Id}" />
+                                </apex:commandLink>
+                            </td>
+                            <td><apex:outputField value="{!pfm.npe01__Opportunity_Field__c}" styleClass="slds-form-element__static" /></td>
+                            <td><apex:outputField value="{!pfm.npe01__Payment_Field__c}" styleClass="slds-form-element__static" /></td>
+                        </tr>
+                    </apex:repeat>
+               </tbody>
+            </table>
+        </apex:outputPanel>
+    </apex:form>
+</apex:page>

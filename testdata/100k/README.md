@@ -1,0 +1,1 @@
+The data set for this is too large to be included in the repository.  For now, you need to copy the results of the 100k build jobs at https://github.com/SalesforceFoundation/NPSP-Test-Data into testdata/100k/test_data.db
