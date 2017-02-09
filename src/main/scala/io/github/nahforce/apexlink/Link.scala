@@ -45,7 +45,8 @@ object Link {
     val ctx = new SymbolReaderContext(directory)
     new LabelReader().loadSymbols(ctx)
     new CustomObjectReader().loadSymbols(ctx)
-    new PageReader().loadSymbols(ctx)
+    // TODO: Re-enable page reading with HTML parser
+    //new PageReader().loadSymbols(ctx)
     new ApexClassReader().loadSymbols(ctx)
     ctx.report()
 
