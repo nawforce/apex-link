@@ -14,10 +14,9 @@ sealed trait CST {
 
   def children() : List[CST]
 
-  def descendents(cst : CST) : List[CST] = {
-      List(cst) ++ cst.children().flatMap(x => descendents(x))
+  def descendants(cst: CST): List[CST] = {
+    List(cst) ++ cst.children().flatMap(x => descendants(x))
   }
-
 }
 
 abstract class TypeContext {
@@ -228,7 +227,7 @@ object ElementValuePairs {
       val pairs: Seq[ElementValuePairContext] = from.elementValuePair()
       pairs.toList.map(ElementValuePair.construct)
     } else {
-      return List()
+      List()
     }
   }
 }
@@ -1847,9 +1846,9 @@ object Primary {
     from match {
       case alt1: Alt1PrimaryContext =>
         ExpressionPrimary(Expression.construct(alt1.expression()))
-      case alt2: Alt2PrimaryContext =>
+      case _: Alt2PrimaryContext =>
         ThisPrimary()
-      case alt3: Alt3PrimaryContext =>
+      case _: Alt3PrimaryContext =>
         SuperPrimary()
       case alt4: Alt4PrimaryContext =>
         LiteralPrimary(Literal.construct(alt4.literal()))
@@ -1857,7 +1856,7 @@ object Primary {
         FieldPrimary(alt5.id().getText)
       case alt6: Alt6PrimaryContext =>
         TypeRefClassPrimary(TypeRef.construct(alt6.typeRef()))
-      case alt7: Alt7PrimaryContext =>
+      case _: Alt7PrimaryContext =>
         VoidClassPrimary()
       case alt8: Alt8PrimaryContext =>
         MethodPrimary(

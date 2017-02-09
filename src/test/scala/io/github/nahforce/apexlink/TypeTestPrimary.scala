@@ -2,26 +2,26 @@ package io.github.nahforce.apexlink
 
 import java.io.StringReader
 
-import junit.framework.TestCase
-import org.antlr.v4.runtime.CommonTokenStream
 import io.github.nahforce.apexlink.antlr.{ApexLexer, ApexParser}
 import io.github.nahforce.apexlink.cst._
 import io.github.nahforce.apexlink.utils.{CSTException, CaseInsensitiveInputStream, ThrowingErrorListener}
+import junit.framework.TestCase
+import org.antlr.v4.runtime.CommonTokenStream
 
 class TypeContextTest(_thisType: Type = null, _superType: Type = null, identifierTypes: Map[String, Type] = null) extends TypeContext {
-  def thisType : Type =
+  def thisType: Type =
     if (_thisType == null)
       throw new CSTException()
     else
       _thisType
 
-  def superType : Type =
+  def superType: Type =
     if (_superType == null)
       throw new CSTException()
     else
       _superType
 
-  def getIdentifierType(id: String) : Type =
+  def getIdentifierType(id: String): Type =
     if (identifierTypes == null || identifierTypes.get(id).isEmpty)
       throw new CSTException()
     else
@@ -102,18 +102,18 @@ class TypeTestPrimary extends TestCase {
   }
 
   def testThisLiteral(): Unit = {
-    val ctx = new TypeContextTest(_thisType=NullType())
+    val ctx = new TypeContextTest(_thisType = NullType())
     primary("this", NullType(), ctx)
   }
 
   def testSuperLiteral(): Unit = {
-    val ctx = new TypeContextTest(_superType=NullType())
+    val ctx = new TypeContextTest(_superType = NullType())
     primary("super", NullType(), ctx)
   }
 
   def testField(): Unit = {
-    val ctx = new TypeContextTest(identifierTypes = Map(("myid", NullType())))
-    primary("myid", NullType(), ctx)
+    val ctx = new TypeContextTest(identifierTypes = Map(("anId", NullType())))
+    primary("anId", NullType(), ctx)
     // TODO: Identifier handling in lexer
   }
 }

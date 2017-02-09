@@ -58,9 +58,7 @@ object LinkerLog {
     ctxLog.put(index, msg :: indexLog)
   }
 
-  def hasMessages() : Boolean = {
-    log.size != 0
-  }
+  def hasMessages: Boolean = log.nonEmpty
 
   def dumpMessage() : Unit = {
     log.foreach(context => {
