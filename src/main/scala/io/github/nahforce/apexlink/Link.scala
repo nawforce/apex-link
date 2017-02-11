@@ -50,7 +50,7 @@ object Link {
     new ApexClassReader().loadSymbols(ctx)
     ctx.report()
 
-    if (LinkerLog.hasMessages()) {
+    if (LinkerLog.hasMessages) {
       println("Problems found during linking, aborting run")
       LinkerLog.dumpMessage()
       System.exit(1)
