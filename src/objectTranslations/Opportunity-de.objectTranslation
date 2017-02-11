@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <help>Formel: Der Betrag dieser Opportunity minus des Betrags der Zahlungsabschreibung und des empfangenen Zahlungsbetrags</help>
+        <label>Verbleibender Saldo</label>
+        <name>Amount_Outstanding__c</name>
+    </fields>
+    <fields>
+        <help>Gesamtwert der Zahlungen, die für diese Opportunity als abgeschrieben oder nicht eintreibbar gekennzeichnet sind</help>
+        <label>Betrag der Zahlungsabschreibung</label>
+        <name>Amount_Written_Off__c</name>
+    </fields>
+    <fields>
+        <help>Abgeblendetes Feld zum Weiterleiten einer Kontaktkennung für die Erstellung der Kontaktrolle</help>
+        <label>Kontaktkennung für Rolle</label>
+        <name>Contact_Id_for_Role__c</name>
+    </fields>
+    <fields>
+        <help>Wenn Zahlungen aktiv sind und wenn diese Option aktiviert ist, wird für diese Opportunity nicht automatisch eine neue Zahlung erstellt.</help>
+        <label>Zahlung nicht automatisch erstellen</label>
+        <name>Do_Not_Automatically_Create_Payment__c</name>
+    </fields>
+    <fields>
+        <help>Formel: Ob der zugehörige Account als Einzelperson definiert ist (SYSTEMIsIndividual__c)</help>
+        <label>Opportunity einer Einzelperson</label>
+        <name>Is_Opp_From_Individual__c</name>
+    </fields>
+    <fields>
+        <help>Ermittelt den Wert des Kontakts oder Accounts des Felds &quot;Ebene der letzten Mitgliedschaft&quot;</help>
+        <label>Mitgliederebene</label>
+        <name>Member_Level__c</name>
+        <picklistValues>
+            <masterLabel>Bronze</masterLabel>
+            <translation><!-- Bronze --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Gold</masterLabel>
+            <translation><!-- Gold --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Silver</masterLabel>
+            <translation>Silber</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>Datum, an dem der Mitgliedschaftszeitraum endet</help>
+        <label>Enddatum der Mitgliedschaft</label>
+        <name>Membership_End_Date__c</name>
+    </fields>
+    <fields>
+        <help>Ist dies eine Erneuerung, eine neue Mitgliedschaft oder eine Mitgliedschaft von jemandem, der ausgesetzt hat und zurückgekehrt ist?</help>
+        <label>Ursprung der Mitgliedschaft</label>
+        <name>Membership_Origin__c</name>
+        <picklistValues>
+            <masterLabel>New</masterLabel>
+            <translation>Neu</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Reacquire</masterLabel>
+            <translation>Erneut erwerben</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Renewal</masterLabel>
+            <translation>Erneuerung</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>Datum, an dem der Mitgliedschaftszeitraum begonnen hat</help>
+        <label>Startdatum der Mitgliedschaft</label>
+        <name>Membership_Start_Date__c</name>
+    </fields>
+    <fields>
+        <help>Gesamtanzahl der Zahlungen für diese Opportunity (Spende)</help>
+        <label>Anzahl der Zahlungen</label>
+        <name>Number_of_Payments__c</name>
+    </fields>
+    <fields>
+        <help>Der Gesamtwert der Zahlungen, die für diese Opportunity als bezahlt gekennzeichnet wurden</help>
+        <label>Erhaltener Zahlungsbetrag</label>
+        <name>Payments_Made__c</name>
+    </fields>
+    <webLinks>
+        <label>Übereinstimmende Spende</label>
+        <name>Matching_Donation</name>
+    </webLinks>
+    <webLinks>
+        <label>Spende eines neuen Kontakts</label>
+        <name>New_Contact_Donation</name>
+    </webLinks>
+    <webLinks>
+        <label>Spende eines neuen Accounts</label>
+        <name>New_Organization_Donation</name>
+    </webLinks>
+</CustomObjectTranslation>

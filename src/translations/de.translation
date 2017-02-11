@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Die Zusammenführung von Kontakten ist ein Vorgang, der nicht rückgängig gemacht werden kann.</label>
+        <name>Contact_Merge_Error_Confirm_Message</name>
+    </customLabels>
+    <customLabels>
+        <label>Wenn Sie über das Haushalt-Paket verfügen, müssen Sie beachten, dass die Haushalte für zusammengeführte Kontakte bei der Zusammenführung nicht berücksichtigt werden. Wenn Sie die Haushalte zusammenführen möchten, sollten Sie dies manuell ausführen und dabei sicherstellen, dass der Gewinner-Kontakt mit dem richtigen Haushalt verbunden ist.</label>
+        <name>Contact_Merge_Error_Confirm_Message_Households</name>
+    </customLabels>
+    <customLabels>
+        <label>Keine übereinstimmende Kontakte gefunden. Führen Sie die Suche erneut durch.</label>
+        <name>Contact_Merge_Error_Confirm_Message_Nothing_Found</name>
+    </customLabels>
+    <customLabels>
+        <label>Die Kontaktinformationen konnten nicht abgerufen werden.</label>
+        <name>Contact_Merge_Error_Contact_not_found</name>
+    </customLabels>
+    <customLabels>
+        <label>Es konnten nicht alle Datensätze für die Zusammenführung gesperrt werden.</label>
+        <name>Contact_Merge_Error_Lock_failed</name>
+    </customLabels>
+    <customLabels>
+        <label>Die Kontakte konnten nicht zusammengeführt werden.</label>
+        <name>Contact_Merge_Error_Merge_Failed</name>
+    </customLabels>
+    <customLabels>
+        <label>Wählen Sie einen Master-Datensatz für die Zusammenführung aus.</label>
+        <name>Contact_Merge_Error_No_Master</name>
+    </customLabels>
+    <customLabels>
+        <label>Es konnten nicht alle ausgewählten Haushalte abgefragt werden.</label>
+        <name>Contact_Merge_Error_Query_Failed</name>
+    </customLabels>
+    <customLabels>
+        <label>Wählen Sie mindestens 2 Kontakte für die Zusammenführung aus.</label>
+        <name>Contact_Merge_Error_Too_Few_Contacts</name>
+    </customLabels>
+    <customLabels>
+        <label>Sie können maximal 3 Kontakte gleichzeitig zusammenführen.</label>
+        <name>Contact_Merge_Error_Too_Many_Contacts</name>
+    </customLabels>
+    <customLabels>
+        <label>Versuchen Sie, den Vorgang von Anfang an erneut auszuführen.</label>
+        <name>Contact_Merge_Error_please_retry</name>
+    </customLabels>
+    <customLabels>
+        <label>Suchtext zum Suchen doppelter Kontakte eingeben</label>
+        <name>Contact_Merge_Step1</name>
+    </customLabels>
+    <customLabels>
+        <label>Bis zu 3 Kontakte für die Zusammenführung auswählen</label>
+        <name>Contact_Merge_Step2</name>
+    </customLabels>
+    <customLabels>
+        <label>Gewinner-Kontakt auswählen</label>
+        <name>Contact_Merge_Step3</name>
+    </customLabels>
+    <customLabels>
+        <label>Kontakte zusammenführen</label>
+        <name>Contact_Merge_Step4</name>
+    </customLabels>
+    <customLabels>
+        <label>Durch das Account-Modell für das Nonprofit Success Pack (NPSP) wird festgelegt, ob jeder Kontakt einen eigenen &quot;Eins-zu-Eins&quot;-Account und &quot;Haushalt&quot;-Account hat oder ob sie alle zu einem einzelnen &quot;Einzelperson&quot;-Account gehören. Dies sollte vor der Nutzung festgelegt und nicht mehr geändert werden, es sei denn, Sie verstehen genau, was die Änderungen bewirken. Wenn Sie Ihr Account-Modell mit realen Daten ändern möchten, müssen sie diese Daten zu dem neuen Modell migrieren.  Für neue Organisationen empfehlen wir das &quot;Haushalt&quot;-Account-Modell.</label>
+        <name>Contacts_Settings_Account_Model_Help_Text</name>
+    </customLabels>
+    <customLabels>
+        <label>Sie können wählen, dass eine Opportunity-Kontaktrolle automatisch bei Erstellung der Opportunities erstellt wird. Bei der Opportunity ist ein Feld mit der Bezeichnung &quot;Kontaktkennung für Rolle&quot; verfügbar. Wenn Sie Opportunities mit einer gültigen Kontaktkennung in diesem Feld importieren, wird eine Kontaktrolle gemäß den unten festgelegten Standardeinstellungen erstellt. Sie können diese Funktion auch komplett ausschalten, indem Sie die Auslöserkonfiguration ändern.</label>
+        <name>Contacts_Settings_Contact_Roles_Help_Text</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- DefaultContactTransactionCurrency --></label>
+        <name>DefaultContactTransactionCurrency</name>
+    </customLabels>
+    <customLabels>
+        <label>{3} Zugewiesene Spende {1}</label>
+        <name>Matching_Donation_Record_Suffix</name>
+    </customLabels>
+    <customLabels>
+        <label>$Quelle</label>
+        <name>Matching_Donation_Record_Type</name>
+    </customLabels>
+    <customLabels>
+        <label>Die Kontaktkennung, die im Feld &quot;Kontaktkennung für Rolle&quot; angegeben wurde, war ungültig. Verwenden Sie eine gültige Kontaktkennung.</label>
+        <name>Opportunity_Contact_Role_Error_Bad_Contact_Id</name>
+    </customLabels>
+    <customPageWebLinks>
+        <label>Berichte zur Ausgabe für gemeinnützige Organisationen</label>
+        <name>Nonprofit_Edition_Reports</name>
+    </customPageWebLinks>
+    <customTabs>
+        <label>Kontaktzusammenführung (ALT)</label>
+        <name>Contact_Merge</name>
+    </customTabs>
+    <customTabs>
+        <label>Kontakteinstellungen</label>
+        <name>Contacts_Settings</name>
+    </customTabs>
+    <customTabs>
+        <label>Zahlungszuordnung</label>
+        <name>Payment_Mapping</name>
+    </customTabs>
+</Translations>

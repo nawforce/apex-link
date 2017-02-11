@@ -1,0 +1,1 @@
+<apex:page action="{!URLFOR($Action.Contact.NewContact, null, [retURL='/003/o'], true)}" standardController="contact" />

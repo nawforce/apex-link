@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <help>Der Hauptansprechpartner für einen Haushalt-Account, oder der Eins-zu-Eins-Kontakt für einen Eins-zu-Eins-Account</help>
+        <label>Hauptansprechpartner</label>
+        <name>One2OneContact__c</name>
+        <relationshipLabel><!-- Account --></relationshipLabel>
+    </fields>
+    <fields>
+        <help>Gibt an, ob dieser Account eine Einzelperson (wahr) oder eine Organisation (falsch) ist</help>
+        <label>_SYSTEM: IstEinzelperson</label>
+        <name>SYSTEMIsIndividual__c</name>
+    </fields>
+    <fields>
+        <help>Gibt an, welches Modell für das Verhalten der Kontaktbeziehung maßgeblich ist: Einzelperson (Bucket) oder Eins-zu-Eins</help>
+        <label>_SYSTEM: Account-Typ</label>
+        <name>SYSTEM_AccountType__c</name>
+    </fields>
+</CustomObjectTranslation>

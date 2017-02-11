@@ -1,0 +1,13 @@
+.externalToolBuilders
+.project
+.settings
+build.properties
+salesforce.schema
+Referenced Packages
+/uninstall
+/uninstallsrc
+/installdeploy
+/installedPackages
+src/quickActions/LogACall.quickAction
+src/quickActions/NewNote.quickAction
+src/quickActions/NewTask.quickAction

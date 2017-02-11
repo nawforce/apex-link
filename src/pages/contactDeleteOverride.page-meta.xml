@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApexPage xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>36.0</apiVersion>
+    <availableInTouch>false</availableInTouch>
+    <confirmationTokenRequired>false</confirmationTokenRequired>
+    <description>This is a generic template for Visualforce Page.  With this template, you may adjust the default elements and values and add new elements and values.</description>
+    <label>contactDeleteOverride</label>
+</ApexPage>
