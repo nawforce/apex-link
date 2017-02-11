@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value><!-- Relationship Auto-Create --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value><!-- Relationship Auto-Create --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>false</plural>
+        <value><!-- Relationship Auto-Create --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>true</plural>
+        <value><!-- Relationship Auto-Create --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>false</plural>
+        <value><!-- Relationship Auto-Create --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>true</plural>
+        <value><!-- Relationship Auto-Create --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>false</plural>
+        <value><!-- Relationship Auto-Create --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>true</plural>
+        <value><!-- Relationship Auto-Create --></value>
+    </caseValues>
+    <fields>
+        <help>Für die automatische Erstellung dieses Kampagnenmitglieds berechtigte Kampagnentypen (Das Feld bleibt bei der automatischen Erstellung von Kontakten leer.)</help>
+        <label>Kampagnentypen</label>
+        <name>Campaign_Types__c</name>
+    </fields>
+    <fields>
+        <help>Der eingefügte Wert oder die Aktualisierung dieses Felds, der/die die Erstellung dieser Beziehung auslöst</help>
+        <label>Feld</label>
+        <name>Field__c</name>
+    </fields>
+    <fields>
+        <help>Das Objekt, mit dem diese automatische Beziehung verbunden ist</help>
+        <label>Objekt</label>
+        <name>Object__c</name>
+    </fields>
+    <fields>
+        <help>Der Beziehungstyp, der zwischen dem Basisobjekt und dem Nachschlageobjekt erstellt werden soll  Das Nachschlageobjekt erhält die wechselseitige Beziehung, falls vorhanden.</help>
+        <label>Beziehungstyp</label>
+        <name>Relationship_Type__c</name>
+    </fields>
+    <gender><!-- Neuter --></gender>
+</CustomObjectTranslation>

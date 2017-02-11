@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label><!-- AutoCreateFieldError --></label>
+        <name>AutoCreateFieldError</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Female --></label>
+        <name>Female</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Male --></label>
+        <name>Male</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Relationship Explanation Connector --></label>
+        <name>Relationship_Explanation_Connector</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Relationship Split --></label>
+        <name>Relationship_Split</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- RelationshipsAutoDescription --></label>
+        <name>RelationshipsAutoDescription</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- RelationshipsCustomFieldOverload --></label>
+        <name>RelationshipsCustomFieldOverload</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- RelationshipsErrorsDescription --></label>
+        <name>RelationshipsErrorsDescription</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- RelationshipsLookupDescription --></label>
+        <name>RelationshipsLookupDescription</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- RelationshipsSettingsDescription --></label>
+        <name>RelationshipsSettingsDescription</name>
+    </customLabels>
+    <customTabs>
+        <label><!-- Relationships Settings --></label>
+        <name>Relationships_Settings</name>
+    </customTabs>
+</Translations>

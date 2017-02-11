@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value><!-- Relationship --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value><!-- Relationship --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>false</plural>
+        <value><!-- Relationship --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>true</plural>
+        <value><!-- Relationship --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>false</plural>
+        <value><!-- Relationship --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>true</plural>
+        <value><!-- Relationship --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>false</plural>
+        <value><!-- Relationship --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>true</plural>
+        <value><!-- Relationship --></value>
+    </caseValues>
+    <fields>
+        <help>Zugehöriger Kontakt ist der/die __________ des Kontakts</help>
+        <label>Kontakt</label>
+        <name>Contact__c</name>
+        <relationshipLabel>Beziehungen</relationshipLabel>
+    </fields>
+    <fields>
+        <help>Weitere Informationen zu dieser Beziehung</help>
+        <label>Beschreibung</label>
+        <name>Description__c</name>
+    </fields>
+    <fields>
+        <help>Systemfeld, das die beiden Seiten der Beziehung miteinander verbindet  Das Feld sollte nicht direkt bearbeitet werden.  Die wechselseitige Beziehung hat den entgegengesetzten Typ dieser Beziehung, falls verfügbar.</help>
+        <label>Wechselseitige Beziehung</label>
+        <name>ReciprocalRelationship__c</name>
+        <relationshipLabel>Beziehungen</relationshipLabel>
+    </fields>
+    <fields>
+        <label>Zugehöriger Kontakt</label>
+        <name>RelatedContact__c</name>
+        <relationshipLabel>Liste der verborgenen Beziehungen</relationshipLabel>
+    </fields>
+    <fields>
+        <help>Textformel, mit der ein Satz konstruiert wird, der die Beziehung zwischen den beiden Kontakten erklärt</help>
+        <label>Erklärung der Beziehung</label>
+        <name>Relationship_Explanation__c</name>
+    </fields>
+    <fields>
+        <help>Systemfeld, das angibt, ob diese Beziehung automatisch als das Gegenteil zu einer anderen Beziehung erstellt wurde</help>
+        <label>_SYSTEM: VomSystemErstellt</label>
+        <name>SYSTEM_SystemCreated__c</name>
+    </fields>
+    <fields>
+        <help>Status der Beziehung</help>
+        <label><!-- Status --></label>
+        <name>Status__c</name>
+        <picklistValues>
+            <masterLabel>Current</masterLabel>
+            <translation>Aktuell</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Former</masterLabel>
+            <translation>Früher</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>Feld, in dem beschrieben wird, wie der zugehörige Kontakt mit dem Kontakt verbunden ist</help>
+        <label>Typ</label>
+        <name>Type__c</name>
+        <picklistValues>
+            <masterLabel>Aunt</masterLabel>
+            <translation>Tante</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Child</masterLabel>
+            <translation>Kind</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Cousin</masterLabel>
+            <translation><!-- Cousin --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Coworker</masterLabel>
+            <translation>Kollege</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Daughter</masterLabel>
+            <translation>Tochter</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Employee</masterLabel>
+            <translation>Arbeitnehmer</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Employer</masterLabel>
+            <translation>Arbeitgeber</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Family</masterLabel>
+            <translation>Familie</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Father</masterLabel>
+            <translation>Vater</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Friend</masterLabel>
+            <translation>Freund</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Grandchild</masterLabel>
+            <translation>Enkel</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Granddaughter</masterLabel>
+            <translation>Enkeltochter</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Grandfather</masterLabel>
+            <translation>Großvater</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Grandmother</masterLabel>
+            <translation>Großmutter</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Grandparent</masterLabel>
+            <translation>Großeltern</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Grandson</masterLabel>
+            <translation>Enkelsohn</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Husband</masterLabel>
+            <translation>Ehemann</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Mother</masterLabel>
+            <translation>Mutter</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Parent</masterLabel>
+            <translation>Elternteil</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Partner</masterLabel>
+            <translation><!-- Partner --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Son</masterLabel>
+            <translation>Sohn</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Uncle</masterLabel>
+            <translation>Onkel</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Wife</masterLabel>
+            <translation>Ehefrau</translation>
+        </picklistValues>
+    </fields>
+    <gender><!-- Neuter --></gender>
+    <layouts>
+        <layout>Relationship Layout</layout>
+        <sections>
+            <label>Beziehungsinformationen</label>
+            <section>Relationship Information</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Relationship Number --></nameFieldLabel>
+    <validationRules>
+        <errorMessage>Anstatt die Kontakte in einer bestehenden Beziehung zu ändern, ist es besser, diese Beziehung zu löschen und eine neue Beziehung für die neuen Kontakte zu erstellen</errorMessage>
+        <name>Related_Contact_Do_Not_Change</name>
+    </validationRules>
+</CustomObjectTranslation>

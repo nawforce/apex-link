@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Relationship Settings</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Relationship Settings</value>
+    </caseValues>
+    <fields>
+        <help><!-- Auto-created Relationships are auto-deduplicated to prevent duplicate Relationship records from being created between two Contacts.  Check this box to disable this behavior &amp; allow multiple Relationships of the same Type to be created between two Contacts --></help>
+        <label><!-- Allow Auto-Created Duplicate Relations --></label>
+        <name>Allow_AutoCreated_Duplicates__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_RelCM_trigger --></label>
+        <name>DISABLE_RelationshipCM_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_RelContacts_trigger --></label>
+        <name>DISABLE_RelationshipContacts_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_Relationships_trigger --></label>
+        <name>DISABLE_Relationships_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  This setting is not used. --></help>
+        <label><!-- DEPRECATED-Force Synchronous Auto Create --></label>
+        <name>Force_Synchronous_Auto_Create__c</name>
+    </fields>
+    <fields>
+        <help><!-- The custom field used to define the gender of a Contact for determining reciprocal relationships --></help>
+        <label><!-- Gender Field --></label>
+        <name>Gender_Field__c</name>
+    </fields>
+    <fields>
+        <help><!-- Determines method used to generate the reciprocal relationship.  Either List Setting which uses custom settings by gender (see Reciprocal Relationships tab), or Value Inversion, which inverts the type if appropriate (&quot;Parent-Child&quot; to &quot;Child-Parent&quot;) --></help>
+        <label><!-- Reciprocal Method --></label>
+        <name>Reciprocal_Method__c</name>
+    </fields>
+    <fields>
+        <help><!-- Populating this value will allow the field to pre-populate when creating new Relationships from the Relationship Viewer (see description for more information) --></help>
+        <label><!-- Relationship Name Field Id --></label>
+        <name>Relationship_Name_Field_Id__c</name>
+    </fields>
+    <fields>
+        <help><!-- Populating this value will allow the field to pre-populate when creating new Relationships from the Relationship Viewer (see description for more information) --></help>
+        <label><!-- Relationship Name Id Field Id --></label>
+        <name>Relationship_Name_Id_Field_Id__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

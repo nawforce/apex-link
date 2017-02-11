@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- DEPRECATED-Relationship Error --></value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value><!-- DEPRECATED-Relationship Error --></value>
+    </caseValues>
+    <fields>
+        <help>Día y hora en el que ocurrió el error</help>
+        <label>Día/hora de error</label>
+        <name>Error_Date_Time__c</name>
+    </fields>
+    <fields>
+        <help>Link al registro que causo el error, si esta disponible.</help>
+        <label>URL del registro con error</label>
+        <name>Error_Record_Link__c</name>
+    </fields>
+    <fields>
+        <help>Strack trace del error, si esta disponible</help>
+        <label>Strack Trace del error</label>
+        <name>Error_Stack_Trace__c</name>
+    </fields>
+    <fields>
+        <help>Tipo de error que ocurrió.</help>
+        <label>Tipo de error</label>
+        <name>Error_Type__c</name>
+    </fields>
+    <fields>
+        <help>Texto completo del mensaje de error.</help>
+        <label>Mensaje completo de error</label>
+        <name>Full_Error_Message__c</name>
+    </fields>
+    <gender><!-- Feminine --></gender>
+    <nameFieldLabel><!-- Relationship Error Name --></nameFieldLabel>
+</CustomObjectTranslation>

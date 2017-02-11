@@ -1,0 +1,1 @@
+<apex:page standardController="Contact" action="{! urlFor('/apex/npsp__REL_RelationshipsViewer?id=' + Contact.Id) }" />

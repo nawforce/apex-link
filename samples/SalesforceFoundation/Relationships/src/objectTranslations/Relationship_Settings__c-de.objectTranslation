@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value><!-- Relationship Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value><!-- Relationship Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>false</plural>
+        <value><!-- Relationship Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>true</plural>
+        <value><!-- Relationship Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>false</plural>
+        <value><!-- Relationship Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>true</plural>
+        <value><!-- Relationship Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>false</plural>
+        <value><!-- Relationship Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>true</plural>
+        <value><!-- Relationship Settings --></value>
+    </caseValues>
+    <fields>
+        <help>Duplikate autom. erstellter Bez. werden autom. entfernt, damit zwischen zwei Kontakten keine doppelten Bez.datens. erstellt werden. Zur Deakt. dieses Verhaltens und zum Zulassen der Erstell. mehrerer Bez. desselben Typs zw. zwei Kontakten Kontrollk. akt.</help>
+        <label>Autom. erst. dopp. Beziehungen zulassen</label>
+        <name>Allow_AutoCreated_Duplicates__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_RelCM_trigger --></label>
+        <name>DISABLE_RelationshipCM_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_RelContacts_trigger --></label>
+        <name>DISABLE_RelationshipContacts_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_Relationships_trigger --></label>
+        <name>DISABLE_Relationships_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  This setting is not used. --></help>
+        <label><!-- DEPRECATED-Force Synchronous Auto Create --></label>
+        <name>Force_Synchronous_Auto_Create__c</name>
+    </fields>
+    <fields>
+        <help>Das benutzerdefinierte Feld, das zur Definition des Geschlechts eines Kontakts verwendet wird, um wechselseitige Beziehungen festzulegen</help>
+        <label>Feld &quot;Geschlecht&quot;</label>
+        <name>Gender_Field__c</name>
+    </fields>
+    <fields>
+        <help>Legt Methode zur Generierung der wechselseitigen Bez. fest. Entw. Listeneinstellung, die benutzerdef. Einst. nach Geschlecht verwendet (siehe &quot;Wechselseitige Beziehungen&quot;), oder Wertumkehr, die ggf. den Typ umkehrt (&quot;Überg.-Unterg.&quot; zu &quot;Unterg.-Überg.&quot;)</help>
+        <label>Wechselseitige Methode</label>
+        <name>Reciprocal_Method__c</name>
+    </fields>
+    <fields>
+        <help>Wenn dieser Wert eingetragen ist, kann das Feld vorab ausgefüllt werden, wenn neue Beziehungen über die Beziehungsanzeige erstellt werden (weitere Informationen in der Beschreibung).</help>
+        <label>Kennung d. Felds mit dem Beziehungsnamen</label>
+        <name>Relationship_Name_Field_Id__c</name>
+    </fields>
+    <fields>
+        <help>Wenn dieser Wert eingetragen ist, kann das Feld vorab ausgefüllt werden, wenn neue Beziehungen über die Beziehungsanzeige erstellt werden (weitere Informationen in der Beschreibung)</help>
+        <label>Kennung d. Felds mit Kenn. d. Bez.namens</label>
+        <name>Relationship_Name_Id_Field_Id__c</name>
+    </fields>
+    <gender><!-- Neuter --></gender>
+</CustomObjectTranslation>

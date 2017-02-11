@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Relationship Lookup --></value>
+    </caseValues>
+    <fields>
+        <help>この相互参照が有効かどうかを示します。</help>
+        <label>有効</label>
+        <name>Active__c</name>
+    </fields>
+    <fields>
+        <help>個人の性別項目が女性カスタム表示ラベルと一致する場合、または個人の敬称が性別を示す場合に使用される値。</help>
+        <label>女性</label>
+        <name>Female__c</name>
+    </fields>
+    <fields>
+        <help>個人の性別項目が男性カスタム表示ラベルと一致する場合、または個人の敬称が性別を示す場合に使用される値。</help>
+        <label>男性</label>
+        <name>Male__c</name>
+    </fields>
+    <fields>
+        <help>個人の性別項目が男性および女性カスタム表示ラベルと一致しない場合、および個人の敬称が性別を示さない場合に使用される値。</help>
+        <label>どちらでもない</label>
+        <name>Neutral__c</name>
+    </fields>
+</CustomObjectTranslation>

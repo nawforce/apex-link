@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Es ist nicht möglich, eine gültige Kennung für die automatische Erstellung einer Beziehung abzurufen.  Prüfen Sie die Einstellungen auf der Registerkarte &quot;Beziehungseinstellungen&quot; auf gültige Felder und versuchen Sie es erneut.</label>
+        <name>AutoCreateFieldError</name>
+    </customLabels>
+    <customLabels>
+        <label>Weiblich</label>
+        <name>Female</name>
+    </customLabels>
+    <customLabels>
+        <label>Männlich</label>
+        <name>Male</name>
+    </customLabels>
+    <customLabels>
+        <label>Ist</label>
+        <name>Relationship_Explanation_Connector</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Relationship Split --></label>
+        <name>Relationship_Split</name>
+    </customLabels>
+    <customLabels>
+        <label>Anhand der automatischen Beziehungen können Sie Ihre benutzerdefinierten Nachschlagefelder in den Kontakt- oder Kampagnenmitglieder-Objekten erkennen, die die Erstellung eines neuen Beziehungstyps Ihrer Wahl auslösen. Beispiel: Eine &quot;Verweis&quot;-Suche von &quot;Kampagnenmitglied&quot; bis &quot;Kontakt&quot; könnte eine Beziehung &quot;Referrer&quot; und &quot;Referee&quot; zwischen zwei Kontakten erstellen. 
+
+Beachten Sie, dass diese Funktion nicht für Leads verfügbar ist oder für Kampagnenmitgliederobjekte, die auf Leads verweisen.</label>
+        <name>RelationshipsAutoDescription</name>
+    </customLabels>
+    <customLabels>
+        <label>Die Grenze von &quot;Feldbeschreibungen&quot; wurde überschritten und es werden möglicherweise nicht alle verfügbaren Felder angezeigt.  
+
+Im Kampagnenmitglied-Objekt sind mehr als 100 benutzerdefinierte Felder definiert. Wenn das Feld, das Sie verwenden möchten, nicht angezeigt wird, müssen Sie den Datensatz &quot;Automatische Erstellung&quot; möglicherweise manuell eingeben.  Gehen Sie zu Setup -&gt; Entwickeln -&gt; Benutzerdefinierte Einstellungen und klicken Sie neben &quot;Automatische Erstellung der Beziehung&quot; auf &quot;Verwalten&quot;. Klicken Sie anschließend auf &quot;Neu&quot;, um einen neuen Datensatz manuell einzugeben.  Verwenden Sie API-Namen (nicht die Feldbezeichnung), um die Felder zu kennzeichnen, die einen neuen Beziehungsdatensatz auslösen sollten.</label>
+        <name>RelationshipsCustomFieldOverload</name>
+    </customLabels>
+    <customLabels>
+        <label>Im normalen Betrieb Ihres Beziehungen-Pakets können Fehler auftreten.  Sie können durch Dinge wie unsachgemäß zusammengestellte Validierungsregeln, erforderliche Felder, Sicherheit/Berechtigungen und andere Gründe verursacht werden.  Auf dieser Registerkarte finden Sie Informationen über Fehler, die möglicherweise aufgetreten sind, und darüber, wann und wieso sie aufgetreten sind.</label>
+        <name>RelationshipsErrorsDescription</name>
+    </customLabels>
+    <customLabels>
+        <label>Anhand dieser Einstellungen können Sie wechselseitige Beziehungen konfigurieren oder d. &quot;übereinstimmende&quot; Beziehung zw. zwei Kontakten. Wenn z. B. ein Vater mit seinem Sohn verwandt ist, dann sollte auch d. Sohn mit d. Vater verwandt sein.  Sie können den Typwert für d. Namen angeben und anschließend das Geschlecht des verbindenden Kontakts, worauf der wechselseitige Wert basieren sollte. Sie können eine männliche oder eine weibliche wechselseitige Beziehung definieren oder eine neutrale, falls das Geschlecht nicht ermittelt werden kann.  Die Ermittlung des Geschlechts basiert auf der Anrede oder einem benutzerdefinierten Feld für das Geschlecht, das Sie auf der Registerkarte &quot;Beziehungseinstellungen&quot; definieren können. 
+
+
+(HINWEIS: Sie müssen möglicherweise Ihrem Beziehungsobjekt den Typ hinzufügen, um es für die Verwendung bereitzustellen. Gehen Sie dazu zu: Setup|Anpassen|Erstellen|Objekte, klicken Sie auf „Beziehung&quot;, &quot;Typ&quot; und dann in der Liste &quot;Auswahllistenwerte&quot; auf &quot;Neu&quot;.)</label>
+        <name>RelationshipsLookupDescription</name>
+    </customLabels>
+    <customLabels>
+        <label>Einstellungen, die das Verhalten von Beziehungen steuern Wenn Sie dies ändern, wird auch das Verhalten der Beziehungsdatensätze geändert.</label>
+        <name>RelationshipsSettingsDescription</name>
+    </customLabels>
+    <customTabs>
+        <label>Einstellungen für Beziehungen</label>
+        <name>Relationships_Settings</name>
+    </customTabs>
+</Translations>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>AutoCreateFieldError</fullName>
+        <categories>Relationships</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AutoCreateFieldError</shortDescription>
+        <value>Unable to retrieve a valid Id for Relationship auto-creation.  Please check the settings under the Relationships Settings tab for valid fields and try again.</value>
+    </labels>
+    <labels>
+        <fullName>Female</fullName>
+        <categories>Relationships</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Female</shortDescription>
+        <value>Female</value>
+    </labels>
+    <labels>
+        <fullName>Male</fullName>
+        <categories>Relationships</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Male</shortDescription>
+        <value>Male</value>
+    </labels>
+    <labels>
+        <fullName>Relationship_Explanation_Connector</fullName>
+        <categories>Relationships</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Relationship Explanation Connector</shortDescription>
+        <value>is</value>
+    </labels>
+    <labels>
+        <fullName>Relationship_Split</fullName>
+        <categories>Relationships</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Relationship Split</shortDescription>
+        <value>-</value>
+    </labels>
+    <labels>
+        <fullName>RelationshipsAutoDescription</fullName>
+        <categories>Relationships</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>RelationshipsAutoDescription</shortDescription>
+        <value>Auto-created Relationships allow a custom Contact lookup field on the Contact or Campaign Member objects to automatically trigger the creation of a new Relationship type of your choice. For example, you might have a “Referred by” lookup field on the Campaign Member object to represent when a person new to your organization was brought to an event by an existing constituent. See the &lt;a href=&quot;https://powerofus.force.com/NPSP_Relationships_Settings&quot; target=&quot;_blank&quot;&gt;NPSP Documentation&lt;/a&gt; for more information.</value>
+    </labels>
+    <labels>
+        <fullName>RelationshipsCustomFieldOverload</fullName>
+        <categories>Relationships</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>RelationshipsCustomFieldOverload</shortDescription>
+        <value>FieldsDescribes Limit has been exceeded, may not be able to show all available fields.  
+
+There are more than 100 custom fields defined on the Contact or Campaign Member object. If the field you wish to use is not shown, you may need to enter this Auto-Create record manually.  Go to Setup-&gt;Develop-&gt;Custom Settings and click &apos;Manage&apos; next to &apos;Relationship Auto-Create&apos;, then click &apos;New&apos; to enter a new record manually.  Use API names (not the field label) to identify the fields that should trigger a new Relationship record.</value>
+    </labels>
+    <labels>
+        <fullName>RelationshipsErrorsDescription</fullName>
+        <categories>Relationships</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>RelationshipsErrorsDescription</shortDescription>
+        <value>Errors can occur during the normal operation of your Relationships Package.  They can be caused by things such as improperly constructed validation rules, required fields, security/permissions, and other reasons.  This tab provides information about errors that may have occurred, when, and why they occurred.</value>
+    </labels>
+    <labels>
+        <fullName>RelationshipsLookupDescription</fullName>
+        <categories>Relationships</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>RelationshipsLookupDescription</shortDescription>
+        <value>The NPSP uses the settings in this list to determine reciprocal relationships. See the &lt;a href=&quot;https://powerofus.force.com/NPSP_Relationships_Settings&quot; target=&quot;_blank&quot;&gt;NPSP Documentation&lt;/a&gt; for a full explanation of how these settings work, plus examples.</value>
+    </labels>
+    <labels>
+        <fullName>RelationshipsSettingsDescription</fullName>
+        <categories>Relationships</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>RelationshipsSettingsDescription</shortDescription>
+        <value>These settings control how Relationships behave in the Nonprofit Success Pack.</value>
+    </labels>
+</CustomLabels>

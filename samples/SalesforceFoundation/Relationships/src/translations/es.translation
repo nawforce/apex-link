@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>No se puede encontrar un ID válido para la auto creación de relaciones. Por favor revisar la configuración en Configuración de Relaciones e intente otra vez.</label>
+        <name>AutoCreateFieldError</name>
+    </customLabels>
+    <customLabels>
+        <label>Femenino</label>
+        <name>Female</name>
+    </customLabels>
+    <customLabels>
+        <label>Masculino</label>
+        <name>Male</name>
+    </customLabels>
+    <customLabels>
+        <label>es</label>
+        <name>Relationship_Explanation_Connector</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Relationship Split --></label>
+        <name>Relationship_Split</name>
+    </customLabels>
+    <customLabels>
+        <label>Relaciones automáticas le permite identificar sus propios campos de búsqueda en los objetos Contacto o Miembro de campaña que desencadenará la creación de una nueva relación del tipo que usted elija. Por ejemplo, un campo de búsqueda de contactos &quot;Referido por&quot; en el miembro de campaña puede crear una relación &quot;Referente&quot; y &quot;Referido&quot; entre dos contactos. 
+
+Notar que esta funcionalidad no esta disponible para el objeto Candidatos o Miembro de Campaña que refiere a Candidatos.</label>
+        <name>RelationshipsAutoDescription</name>
+    </customLabels>
+    <customLabels>
+        <label>FieldsDescribes El límite ha sido excedido, puede no ser capaz de mostrar todos los campos disponibles. 
+
+Hay más de 100 campos personalizados definidos en el objeto Contacto o Miembro de campaña  Si el campo que desea utilizar no aparece, es posible que tenga que introducir este registro Auto-Crear manualmente. Ir a Configuración-&gt; Desarrollo&gt; Configuración personalizada y haga clic en &quot;Administrar&quot; junto a &quot;Relationship Auto-Create&apos;, haga clic en&quot; Nuevo &quot;para introducir un nuevo registro manualmente. Utilice nombres de API (no la etiqueta de campo) para identificar los campos que deben desencadenar un nuevo registro de Relación.</label>
+        <name>RelationshipsCustomFieldOverload</name>
+    </customLabels>
+    <customLabels>
+        <label>Los errores pueden ocurrir durante la operación normal de su paquete Relaciones. Pueden ser causados por cosas tales como las reglas de validación creadas de forma inapropiada, campos obligatorios , seguridad/permisos, y otras razones. Esta pestaña ofrece información sobre los errores que puedan haber ocurrido, cuándo y por qué se produjeron.</label>
+        <name>RelationshipsErrorsDescription</name>
+    </customLabels>
+    <customLabels>
+        <label>Esta configuración permite configurar relaciones recíprocas, o la relación &quot;pareja&quot; entre dos Contactos. Por ejemplo, si un padre esta relacionado a su hijo, el hijo debe a su vez estar relacionado al padre. Puede especificar el valor de Tipo para el Nombre, y a continuación cual debe ser el valor recíproco basado en el género del contacto relacionado. Se puede definir un recíproco masculino, un recíproco femenino y un recíproco neutral a ser utilizado si el género no se puede determinar. La determinación del género se basa en el Saludo si es posible, o en el campo personalizado de género que se puede definir en la pestaña de Configuración de relaciones.  
+
+
+(NOTA: Puede ser necesario agregar el Tipo al objeto relaciones para hacerlo disponible para los usuarios. Se puede hacer esto en: Configuración|Personalizar|Crear|Objectos Hacer clic en &quot;Relaciones&quot;, &quot;Type&quot;, y después en &quot;Nuevo&quot; en la lista &quot;Valores de lista de selección&quot;)</label>
+        <name>RelationshipsLookupDescription</name>
+    </customLabels>
+    <customLabels>
+        <label>Configuración que controla en comportamiento de Relaciones. Cambiar estos cambiará como los registros de relaciones se comportan.</label>
+        <name>RelationshipsSettingsDescription</name>
+    </customLabels>
+    <customTabs>
+        <label>Configuración de Relaciones</label>
+        <name>Relationships_Settings</name>
+    </customTabs>
+</Translations>
