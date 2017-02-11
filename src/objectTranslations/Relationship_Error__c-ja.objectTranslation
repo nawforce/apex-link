@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- DEPRECATED-Relationship Error --></value>
+    </caseValues>
+    <fields>
+        <help>エラーが発生した日時</help>
+        <label>エラー日付/時間</label>
+        <name>Error_Date_Time__c</name>
+    </fields>
+    <fields>
+        <help>エラーが発生したレコードへのリンク (使用可能な場合)。</help>
+        <label>エラーレコードリンク</label>
+        <name>Error_Record_Link__c</name>
+    </fields>
+    <fields>
+        <help>発生したエラーのスタック追跡 (実行時に使用可能な場合)。</help>
+        <label>エラースタック追跡</label>
+        <name>Error_Stack_Trace__c</name>
+    </fields>
+    <fields>
+        <help>発生したエラーの種類</help>
+        <label>エラーの種類</label>
+        <name>Error_Type__c</name>
+    </fields>
+    <fields>
+        <help>エラーメッセージの完全なテキスト</help>
+        <label>完全なエラーメッセージ</label>
+        <name>Full_Error_Message__c</name>
+    </fields>
+    <nameFieldLabel><!-- Relationship Error Name --></nameFieldLabel>
+</CustomObjectTranslation>

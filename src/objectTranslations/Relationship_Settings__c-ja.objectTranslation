@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Relationship Settings --></value>
+    </caseValues>
+    <fields>
+        <help>自動作成されたリレーションは、2 つの個人間で重複リレーションレコードが作成されることを避けるため、自動的に重複が排除されます。このボックスをオンにするとこの動作が無効になり、2 つの個人間で同じ種別の複数のリレーションが許可されます。</help>
+        <label>自動作成された重複リレーションを許可</label>
+        <name>Allow_AutoCreated_Duplicates__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_RelCM_trigger --></label>
+        <name>DISABLE_RelationshipCM_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_RelContacts_trigger --></label>
+        <name>DISABLE_RelationshipContacts_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_Relationships_trigger --></label>
+        <name>DISABLE_Relationships_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  This setting is not used. --></help>
+        <label><!-- DEPRECATED-Force Synchronous Auto Create --></label>
+        <name>Force_Synchronous_Auto_Create__c</name>
+    </fields>
+    <fields>
+        <help>相互関係を判断するための個人の性別の定義に使用されるカスタム項目</help>
+        <label>性別項目</label>
+        <name>Gender_Field__c</name>
+    </fields>
+    <fields>
+        <help>相互関係の生成に使用される方法を決定します。性別のカスタム設定を使用する「リスト設定」、または必要に応じて種別を反転 (「親-子」から「子-親」) する「値反転」のいずれか。</help>
+        <label>相互方法</label>
+        <name>Reciprocal_Method__c</name>
+    </fields>
+    <fields>
+        <help>この値を入力すると、リレーションビューアから新しいリレーションを作成するときに、項目に自動入力できます (詳細は説明を参照)</help>
+        <label>リレーション名項目 ID</label>
+        <name>Relationship_Name_Field_Id__c</name>
+    </fields>
+    <fields>
+        <help>この値を入力すると、リレーションビューアから新しいリレーションを作成するときに、項目に自動入力できます (詳細は説明を参照)</help>
+        <label>リレーション名 ID 項目 ID</label>
+        <name>Relationship_Name_Id_Field_Id__c</name>
+    </fields>
+</CustomObjectTranslation>

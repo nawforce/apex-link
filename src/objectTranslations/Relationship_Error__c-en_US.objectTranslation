@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>DEPRECATED-Relationship Error</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Relationship Errors</value>
+    </caseValues>
+    <fields>
+        <help><!-- Date &amp; time the error occurred --></help>
+        <label><!-- Error Date/Time --></label>
+        <name>Error_Date_Time__c</name>
+    </fields>
+    <fields>
+        <help><!-- A link to the record which caused the error, if available. --></help>
+        <label><!-- Error Record Link --></label>
+        <name>Error_Record_Link__c</name>
+    </fields>
+    <fields>
+        <help><!-- Stack trace for the thrown error, if available at run time. --></help>
+        <label><!-- Error Stack Trace --></label>
+        <name>Error_Stack_Trace__c</name>
+    </fields>
+    <fields>
+        <help><!-- Type of error that occurred --></help>
+        <label><!-- Error Type --></label>
+        <name>Error_Type__c</name>
+    </fields>
+    <fields>
+        <help><!-- Full text of the error message --></help>
+        <label><!-- Full Error Message --></label>
+        <name>Full_Error_Message__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

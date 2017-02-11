@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value><!-- Relationship Lookup --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value><!-- Relationship Lookup --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>false</plural>
+        <value><!-- Relationship Lookup --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>true</plural>
+        <value><!-- Relationship Lookup --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>false</plural>
+        <value><!-- Relationship Lookup --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>true</plural>
+        <value><!-- Relationship Lookup --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>false</plural>
+        <value><!-- Relationship Lookup --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>true</plural>
+        <value><!-- Relationship Lookup --></value>
+    </caseValues>
+    <fields>
+        <help>Gibt an, ob wechselseitiges Nachschlagen aktiv ist</help>
+        <label>Aktiv</label>
+        <name>Active__c</name>
+    </fields>
+    <fields>
+        <help>Der verwendete Wert, wenn das Feld mit Angabe des Geschlechts mit den Werten in der benutzerdefinierten weiblichen Bezeichnung übereinstimmt oder in der Anrede des Kontakts das Geschlecht angegeben ist</help>
+        <label>Weiblich</label>
+        <name>Female__c</name>
+    </fields>
+    <fields>
+        <help>Der verwendete Wert, wenn das Feld mit Angabe des Geschlechts mit den Werten in der benutzerdefinierten männlichen Bezeichnung übereinstimmt oder in der Anrede des Kontakts das Geschlecht angegeben ist</help>
+        <label>Männlich</label>
+        <name>Male__c</name>
+    </fields>
+    <fields>
+        <help>Der verwendete Wert, wenn das Feld mit Angabe des Geschlecht nicht mit den Werten in der benutzerdefinierten weiblichen oder männlichen Bezeichnung übereinstimmt und in der Anrede des Kontakts kein Geschlecht angegeben ist</help>
+        <label><!-- Neutral --></label>
+        <name>Neutral__c</name>
+    </fields>
+    <gender><!-- Neuter --></gender>
+</CustomObjectTranslation>
