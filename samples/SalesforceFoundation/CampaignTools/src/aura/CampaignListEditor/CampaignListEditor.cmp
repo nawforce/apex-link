@@ -1,0 +1,29 @@
+<aura:component controller="CampaignListBuilder_CTRL" implements="c:namespaceAware">
+    <aura:attribute name="rootSegmentId" type="Id" access="public"/>
+    <aura:attribute name="campaignId" type="Id" access="public"/>
+    <aura:attribute name="segmentData" type="Object" access="private"/>
+    <aura:attribute name="showSpinner" type="Boolean" access="private" default="true" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:handler name="addSegmentEvent" event="c:CampaignListSegmentUpdateEvent" action="{!c.handleAddSegment}"/>
+    <aura:handler name="addGroupEvent" event="c:CampaignListSegmentUpdateEvent" action="{!c.handleAddGroup}"/>
+    <aura:handler name="deleteSegmentEvent" event="c:CampaignListSegmentUpdateEvent" action="{!c.handleDeleteSegment}"/>
+
+    <aura:handler event="c:CampaignListEditorSaveEvent" action="{!c.handleSave}"/>
+
+     <!-- Spinner for waiting feedback -->
+     <aura:if isTrue="{!v.showSpinner}">
+         <div class="slds-spinner_container">
+             <div class="slds-spinner--brand slds-spinner slds-spinner--medium" aria-hidden="false" role="alert">
+                 <div class="slds-spinner__dot-a"></div>
+                 <div class="slds-spinner__dot-b"></div>
+             </div>
+         </div>
+     </aura:if>
+
+    <c:CampaignListSegment segment="{!v.segmentData.inclusionSegment}" allowEmpty="true" nsPrefix="{!v.nsPrefix}"/>
+    <h3 class="slds-m-vertical--medium slds-text-heading--small">
+        {!(v.nsPrefix == 'camptools' ? $Label.camptools.CampaignToolsListEditorExcludes : $Label.c.CampaignToolsListEditorExcludes)}
+    </h3>
+    <c:CampaignListSegment segment="{!v.segmentData.exclusionSegment}" allowEmpty="true" nsPrefix="{!v.nsPrefix}"/>
+</aura:component>

@@ -1,0 +1,8 @@
+<aura:event type="APPLICATION"
+    description="A listener of this event will display the given message to the user somehow."
+    >
+    <aura:attribute name="id" type="String" access="public"/>
+    <aura:attribute name="severity" type="String" access="public"/>
+    <aura:attribute name="summary" type="String" access="public"/>
+    <aura:attribute name="detail" type="String" access="public"/>
+</aura:event>

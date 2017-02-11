@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>Source_Names__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>A list of report and campaign sources that referenced this Contact or Lead in the Campaign&apos;s List.</inlineHelpText>
+        <label>Source Names</label>
+        <length>32768</length>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+</CustomObject>
