@@ -1,0 +1,3 @@
+<aura:interface description="A component that implements this interface is aware that it may be running in an unknown managed package context, and expects to be told which namespace it is running in via the nsPrefix attribute.">
+	<aura:attribute name="nsPrefix" type="String" default="" description="The namespace prefix of the currently running context (if any)"/>
+</aura:interface>

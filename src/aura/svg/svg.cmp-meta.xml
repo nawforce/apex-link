@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AuraDefinitionBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>35.0</apiVersion>
+    <description>Lightning Components framework does not directly support SVG icons at this point.  component called svg that we can reuse everywhere.</description>
+</AuraDefinitionBundle>

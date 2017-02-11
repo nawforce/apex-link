@@ -1,0 +1,30 @@
+<aura:component implements="c:namespaceAware">
+    <aura:attribute name="message" type="Object" required="true" access="public"/>
+    <aura:attribute name="index" type="Integer" required="true" access="public"/>
+    <aura:attribute name="useToast" type="Boolean" default="true" access="public"/>
+    <aura:attribute name="messageTheme" type="String" access="private"/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.setMessageTheme}"/>
+    <aura:handler name="change" value="{!v.message}" action="{!c.setMessageTheme}"/>
+
+    <aura:registerEvent name="removeMessageEvent" type="c:RemovePageMessageEvent"/>
+
+    <div
+        role="alert"
+        class="{!'slds-notify slds-notify--toast slds-theme--' + v.messageTheme + (v.useToast ? '' : ' disable-slds-toast')}"
+        >
+        <lightning:buttonIcon iconName="utility:close" onclick="{!c.removeMessage}" size="large"
+            variant="{!'bare' + (v.messageTheme != 'warning' ? '-inverse' : '')}"
+            class="{!'slds-notify__close'}"
+            alternativeText="{$!Label.c.CampaignToolsListEditorCloseModal}"/>
+        <div class="notify__content">
+            <h2 class="slds-text-heading--small">
+                {!v.message.summary}
+            </h2>
+            <aura:if isTrue="{!not(empty(v.message.detail))}">
+                <p class="slds-m-top--medium">{!v.message.detail}</p>
+            </aura:if>
+        </div>
+    </div>
+
+</aura:component>

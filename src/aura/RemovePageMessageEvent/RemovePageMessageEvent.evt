@@ -1,0 +1,5 @@
+<aura:event type="APPLICATION"
+    description="A listener of this event will remove the message with the given index from it's list of messages"
+    >
+    <aura:attribute name="index" type="Integer" access="public"/>
+</aura:event>

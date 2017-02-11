@@ -1,0 +1,113 @@
+<aura:component controller="CampaignListBuilder_CTRL" implements="c:namespaceAware">
+    <aura:attribute name="source" type="Object" access="public"/>
+    <aura:attribute name="allowDelete" default="true" type="Boolean" access="public"/>
+    <aura:registerEvent name="deleteSegmentEvent" type="c:CampaignListSegmentUpdateEvent"/>
+
+    <aura:handler name="change" value="{!v.source}" action="{!c.handleSourceChange}"/>
+    <aura:handler event="c:autocompleteSelectListOption" name="optionSelected" action="{!c.handleAutocomplete}" />
+
+            <div class="slds-grid">
+                <div class="slds-form-element slds-col--padded slds-size--1-of-5 slds-grow-none">
+                    <label class="slds-form-element__label">
+                        {!(v.nsPrefix == 'camptools' ? $Label.camptools.CampaignToolsListEditorSourceType : $Label.c.CampaignToolsListEditorSourceType)}
+                    </label>
+                    <div class="slds-form-element__control">
+                        <div class="slds-select_container">
+                            <ui:inputSelect class="slds-select"
+                                aura:id="sourceType"
+                                change="{!c.handleSourceType}">
+                                <ui:inputSelectOption label="{!(v.nsPrefix == 'camptools' ? $Label.camptools.CampaignToolsListEditorSelectSourceType : $Label.c.CampaignToolsListEditorSelectSourceType)}"/>
+                                <ui:inputSelectOption text="CAMPAIGN_SOURCE_SEGMENT"
+                                    label="{!(v.nsPrefix == 'camptools' ? $Label.camptools.CampaignToolsListEditorCampaignType : $Label.c.CampaignToolsListEditorCampaignType)}"
+                                    value="{!v.source.segmentType == 'CAMPAIGN_SOURCE_SEGMENT'}"
+                                    />
+                                <ui:inputSelectOption text="REPORT_SOURCE_SEGMENT"
+                                    label="{!(v.nsPrefix == 'camptools' ? $Label.camptools.CampaignToolsListEditorReportType : $Label.c.CampaignToolsListEditorReportType)}"
+                                    value="{!v.source.segmentType == 'REPORT_SOURCE_SEGMENT'}"
+                                    />
+                            </ui:inputSelect>
+                        </div>
+
+                    </div>
+                </div>
+                <aura:if isTrue="{!v.source.segmentType == 'REPORT_SOURCE_SEGMENT'}">
+                    <div class="slds-form-element slds-col--padded slds-size--2-of-5 slds-grow-none">
+                        <label class="slds-form-element__label">
+                            {!(v.nsPrefix == 'camptools' ? $Label.camptools.CampaignToolsListEditorReportName : $Label.c.CampaignToolsListEditorReportName)}
+                        </label>
+                        <div class="slds-form-element__control">
+                            <c:autocomplete aura:id="reportautocomplete"
+                                label=""
+                                value="{!v.source.sourceId}"
+                                displayValue="{!v.source.sourceName}"
+                                placeholder="{!(v.nsPrefix == 'camptools' ? $Label.camptools.CampaignToolsListEditorFindReport : $Label.c.CampaignToolsListEditorFindReport)}"
+                                searchContext="{!(v.nsPrefix == 'camptools' ? $Label.camptools.CampaignToolsListEditorReportType : $Label.c.CampaignToolsListEditorReportType)}">
+                                <aura:set attribute="dataProvider">
+                                    <c:CampaignListSourceDataProvider sObjectType="Report"/>
+                                </aura:set>
+                                <aura:set attribute="itemTemplate">
+                                    <c:autocompleteOption value="{!item}" displayValue="{!item.label}" iconSprite="standard" iconName="report"/>
+                                </aura:set>
+                            </c:autocomplete>
+                        </div>
+                    </div>
+                    <div class="slds-form-element slds-col--padded slds-size--1-of-5 slds-grow-none">
+                        <label class="slds-form-element__label">
+                            {!(v.nsPrefix == 'camptools' ? $Label.camptools.CampaignToolsListEditorReportColumn : $Label.c.CampaignToolsListEditorReportColumn)}
+                        </label>
+                        <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                                <ui:inputSelect class="slds-select"
+                                    aura:id="columnName"
+                                    change="{!c.handleColumnName}"
+                                    />
+                            </div>
+                        </div>
+                    </div>
+                </aura:if>
+                <aura:if isTrue="{!v.source.segmentType == 'CAMPAIGN_SOURCE_SEGMENT'}">
+                    <div class="slds-form-element slds-col--padded slds-size--2-of-5 slds-grow-none">
+                        <label class="slds-form-element__label">
+                            {!(v.nsPrefix == 'camptools' ? $Label.camptools.CampaignToolsListEditorCampaignName : $Label.c.CampaignToolsListEditorCampaignName)}
+                        </label>
+                        <div class="slds-form-element__control">
+                            <c:autocomplete aura:id="campaignautocomplete"
+                                label=""
+                                value="{!v.source.sourceId}"
+                                displayValue="{!v.source.sourceName}"
+                                placeholder="{!(v.nsPrefix == 'camptools' ? $Label.camptools.CampaignToolsListEditorFindCampaign : $Label.c.CampaignToolsListEditorFindCampaign)}"
+                                searchContext="{!(v.nsPrefix == 'camptools' ? $Label.camptools.CampaignToolsListEditorCampaignType : $Label.c.CampaignToolsListEditorCampaignType)}">
+                                <aura:set attribute="dataProvider">
+                                    <c:CampaignListSourceDataProvider sObjectType="Campaign"/>
+                                </aura:set>
+                                <aura:set attribute="itemTemplate">
+                                    <c:autocompleteOption value="{!item}" displayValue="{!item.label}" iconSprite="standard" iconName="campaign"/>
+                                </aura:set>
+                            </c:autocomplete>
+                        </div>
+                    </div>
+                    <div class="slds-form-element slds-col--padded slds-size--1-of-5 slds-grow-none">
+                        <label class="slds-form-element__label">
+                            {!(v.nsPrefix == 'camptools' ? $Label.camptools.CampaignToolsListEditorStatus : $Label.c.CampaignToolsListEditorStatus)}
+                        </label>
+                        <div class="slds-form-element__control" style="height: 100px;">
+                            <ui:inputSelect class="slds-select"
+                                multiple="true"
+                                aura:id="status"
+                                change="{!c.handleStatus}"
+                                />
+                        </div>
+                    </div>
+                </aura:if>
+                <aura:if isTrue="{!v.allowDelete}">
+                    <div class="slds-form-element slds-col--padded slds-grow-none slds-align-top slds-p-vertical--large">
+                        <button
+                            type="button"
+                            class="slds-button slds-button--destructive"
+                            onclick="{!c.deleteSource}">
+                            {!(v.nsPrefix == 'camptools' ? $Label.camptools.CampaignToolsListEditorDelete : $Label.c.CampaignToolsListEditorDelete)}
+                        </button>
+                    </div>
+                </aura:if>
+            </div>
+</aura:component>
