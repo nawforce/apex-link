@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value><!-- Custom Field Mapping --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value><!-- Custom Field Mapping --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>false</plural>
+        <value><!-- Custom Field Mapping --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>true</plural>
+        <value><!-- Custom Field Mapping --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>false</plural>
+        <value><!-- Custom Field Mapping --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>true</plural>
+        <value><!-- Custom Field Mapping --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>false</plural>
+        <value><!-- Custom Field Mapping --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>true</plural>
+        <value><!-- Custom Field Mapping --></value>
+    </caseValues>
+    <fields>
+        <help>Das Opportunity-Feld für den Wert des Felds &quot;Wiederkehrende Spende&quot;  Beachten Sie, dass die Datentypen dieser Felder identisch sein müssen.</help>
+        <label>Opportunity-Feld</label>
+        <name>Opportunity_Field__c</name>
+    </fields>
+    <fields>
+        <help>Das Feld &quot;Wiederkehrende Spende&quot;, das in das Opportunity-Feld kopiert werden soll  Beachten Sie, dass die Datentypen dieser Felder identisch sein müssen.</help>
+        <label>Feld &quot;Wiederkehrende Spende&quot;</label>
+        <name>Recurring_Donation_Field__c</name>
+    </fields>
+    <gender><!-- Neuter --></gender>
+</CustomObjectTranslation>

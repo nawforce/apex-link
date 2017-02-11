@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value><!-- DEPRECATED-RD Error Queue --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value><!-- DEPRECATED-RD Error Queue --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>false</plural>
+        <value><!-- DEPRECATED-RD Error Queue --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>true</plural>
+        <value><!-- DEPRECATED-RD Error Queue --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>false</plural>
+        <value><!-- DEPRECATED-RD Error Queue --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>true</plural>
+        <value><!-- DEPRECATED-RD Error Queue --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>false</plural>
+        <value><!-- DEPRECATED-RD Error Queue --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>true</plural>
+        <value><!-- DEPRECATED-RD Error Queue --></value>
+    </caseValues>
+    <fields>
+        <help>Fehlermeldung für den Vorgang zum damit verbundenen Datensatz der wiederkehrenden Spende</help>
+        <label>Fehlermeldung</label>
+        <name>Error_Message__c</name>
+    </fields>
+    <fields>
+        <help>Kennung des betreffenden Datensatzes der wiederkehrenden Spende</help>
+        <label>Kennung_der_wiederkehrenden_Spende</label>
+        <name>Recurring_Donation_ID__c</name>
+    </fields>
+    <gender><!-- Neuter --></gender>
+</CustomObjectTranslation>

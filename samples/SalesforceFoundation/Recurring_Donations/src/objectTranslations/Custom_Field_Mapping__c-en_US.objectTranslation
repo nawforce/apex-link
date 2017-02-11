@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Custom Field Mapping</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Custom Field Mapping</value>
+    </caseValues>
+    <fields>
+        <help><!-- The Opportunity field to receive the value from the Recurring Donation field.  Note that these fields must have the same data type. --></help>
+        <label><!-- Opportunity Field --></label>
+        <name>Opportunity_Field__c</name>
+    </fields>
+    <fields>
+        <help><!-- The Recurring Donation field to copy to the Opportunity field.  Note that these fields must have the same data type. --></help>
+        <label><!-- Recurring Donation Field --></label>
+        <name>Recurring_Donation_Field__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

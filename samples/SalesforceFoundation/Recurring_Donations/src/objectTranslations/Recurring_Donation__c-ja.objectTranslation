@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Recurring Donations --></value>
+    </caseValues>
+    <fields>
+        <label>金額</label>
+        <name>Amount__c</name>
+    </fields>
+    <fields>
+        <label>個人</label>
+        <name>Contact__c</name>
+        <relationshipLabel>継続支援</relationshipLabel>
+    </fields>
+    <fields>
+        <label>開始日</label>
+        <name>Date_Established__c</name>
+    </fields>
+    <fields>
+        <label>支援者の名前</label>
+        <name>Donor_Name__c</name>
+    </fields>
+    <fields>
+        <label>単価</label>
+        <name>Installment_Amount__c</name>
+    </fields>
+    <fields>
+        <help>継続支援の間隔を設定します。警告: 既存の継続支援の間隔を変更すると、進行中の支援が削除されて再作成される可能性があります。その場合、関連付けられているデータは保持されません。</help>
+        <label>間隔</label>
+        <name>Installment_Period__c</name>
+        <picklistValues>
+            <masterLabel>1st and 15th</masterLabel>
+            <translation><!-- 1st and 15th --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Monthly</masterLabel>
+            <translation><!-- Monthly --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Quarterly</masterLabel>
+            <translation><!-- Quarterly --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekly</masterLabel>
+            <translation><!-- Weekly --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Yearly</masterLabel>
+            <translation><!-- Yearly --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>回数。</help>
+        <label>回数</label>
+        <name>Installments__c</name>
+    </fields>
+    <fields>
+        <help>継続支援の前回の支払日</help>
+        <label>前回の支援日</label>
+        <name>Last_Payment_Date__c</name>
+    </fields>
+    <fields>
+        <help>次回の継続支払の日付を保持します。この項目を手動で編集すると、スケジュールされた定義に基づいて将来のすべての支援の完了予定日が再計算されます。</help>
+        <label>次回の支援日</label>
+        <name>Next_Payment_Date__c</name>
+    </fields>
+    <fields>
+        <help><!-- Choose Open for an Open-Ended Recurring Donation.  Choose None for a Fixed Length Recurring Donation.  Choose Closed to close a Recurring Donation. --></help>
+        <label>状況</label>
+        <name>Open_Ended_Status__c</name>
+        <picklistValues>
+            <masterLabel>Closed</masterLabel>
+            <translation><!-- Closed --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>None</masterLabel>
+            <translation><!-- None --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Open</masterLabel>
+            <translation><!-- Open --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>団体</label>
+        <name>Organization__c</name>
+        <relationshipLabel>継続支援</relationshipLabel>
+    </fields>
+    <fields>
+        <help>この継続支援の支払総額</help>
+        <label>成立支援金額</label>
+        <name>Paid_Amount__c</name>
+    </fields>
+    <fields>
+        <label>キャンペーン</label>
+        <name>Recurring_Donation_Campaign__c</name>
+        <relationshipLabel>継続支援</relationshipLabel>
+    </fields>
+    <fields>
+        <help>金額が毎回使用される額 (乗算) であるか、回数で分割される額 (除算) であるか。固定期間の継続支援でのみ使用されます。</help>
+        <label>スケジュールタイプ</label>
+        <name>Schedule_Type__c</name>
+        <picklistValues>
+            <masterLabel>Divide By</masterLabel>
+            <translation>分割</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Multiply By</masterLabel>
+            <translation><!-- Multiply By --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>この継続支援で支払われた合計回数。</help>
+        <label>成立支援回数</label>
+        <name>Total_Paid_Installments__c</name>
+    </fields>
+    <fields>
+        <help>固定期間の継続支援での、すべての支援の総額。</help>
+        <label>合計</label>
+        <name>Total__c</name>
+    </fields>
+    <layouts>
+        <layout>Recurring Donation Layout</layout>
+        <sections>
+            <label>カスタムリンク</label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Recurring Donation Name --></nameFieldLabel>
+    <quickActions>
+        <label>新規支援</label>
+        <name>New_Opportunity</name>
+    </quickActions>
+    <quickActions>
+        <label>クイック更新</label>
+        <name>Quick_Update</name>
+    </quickActions>
+    <webLinks>
+        <label>新しい団体継続支援</label>
+        <name>New_Recurring_Acct_Donation</name>
+    </webLinks>
+    <webLinks>
+        <label>新しい個人継続支援</label>
+        <name>New_Recurring_Donation_Pledge_Account</name>
+    </webLinks>
+    <webLinks>
+        <label>支援の更新</label>
+        <name>Refresh_Opportunities</name>
+    </webLinks>
+</CustomObjectTranslation>

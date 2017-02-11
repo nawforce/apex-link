@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value><!-- Recurring Donations --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value><!-- Recurring Donations --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>false</plural>
+        <value><!-- Recurring Donations --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>true</plural>
+        <value><!-- Recurring Donations --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>false</plural>
+        <value><!-- Recurring Donations --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>true</plural>
+        <value><!-- Recurring Donations --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>false</plural>
+        <value><!-- Recurring Donations --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>true</plural>
+        <value><!-- Recurring Donations --></value>
+    </caseValues>
+    <fields>
+        <label>Betrag</label>
+        <name>Amount__c</name>
+    </fields>
+    <fields>
+        <label>Kontakt</label>
+        <name>Contact__c</name>
+        <relationshipLabel>Wiederkehrende Spenden</relationshipLabel>
+    </fields>
+    <fields>
+        <label>Erstelldatum</label>
+        <name>Date_Established__c</name>
+    </fields>
+    <fields>
+        <label>Spendername</label>
+        <name>Donor_Name__c</name>
+    </fields>
+    <fields>
+        <label>Ratenbetrag</label>
+        <name>Installment_Amount__c</name>
+    </fields>
+    <fields>
+        <help>Legt Ratenlaufzeit für wiederkehrende Spenden fest. WARNUNG: Durch Ratenlaufzeitänderungen für eine vorhandene wiederkehrende Spende könnten offene Opportunities gelöscht und neu erstellt werden. Damit verbundene Daten werden womöglich nicht beibehalten.</help>
+        <label>Ratenlaufzeit</label>
+        <name>Installment_Period__c</name>
+        <picklistValues>
+            <masterLabel>1st and 15th</masterLabel>
+            <translation><!-- 1st and 15th --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Monthly</masterLabel>
+            <translation><!-- Monthly --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Quarterly</masterLabel>
+            <translation><!-- Quarterly --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekly</masterLabel>
+            <translation><!-- Weekly --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Yearly</masterLabel>
+            <translation><!-- Yearly --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>Anzahl der Raten</help>
+        <label>Raten</label>
+        <name>Installments__c</name>
+    </fields>
+    <fields>
+        <help>Datum der letzten Zahlung für diese wiederkehrende Spende</help>
+        <label>Letztes Spendendatum</label>
+        <name>Last_Payment_Date__c</name>
+    </fields>
+    <fields>
+        <help>Enthält das Datum der nächsten wiederkehrenden Zahlung  Durch eine manuelle Bearbeitung dieses Felds werden alle zukünftigen Abschlussdatumsangaben der Opportunity basierend auf dem definierten Zeitplan neu berechnet.</help>
+        <label>Nächstes Spendendatum</label>
+        <name>Next_Payment_Date__c</name>
+    </fields>
+    <fields>
+        <help><!-- Choose Open for an Open-Ended Recurring Donation.  Choose None for a Fixed Length Recurring Donation.  Choose Closed to close a Recurring Donation. --></help>
+        <label>Status &quot;Unbefristet&quot;</label>
+        <name>Open_Ended_Status__c</name>
+        <picklistValues>
+            <masterLabel>Closed</masterLabel>
+            <translation><!-- Closed --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>None</masterLabel>
+            <translation><!-- None --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Open</masterLabel>
+            <translation><!-- Open --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>Organisation</label>
+        <name>Organization__c</name>
+        <relationshipLabel>Wiederkehrende Spenden</relationshipLabel>
+    </fields>
+    <fields>
+        <help>Für wiederkehrende Spende bezahlter Gesamtbetrag</help>
+        <label>Bezahlter Betrag</label>
+        <name>Paid_Amount__c</name>
+    </fields>
+    <fields>
+        <label>Kampagne</label>
+        <name>Recurring_Donation_Campaign__c</name>
+        <relationshipLabel>Wiederkehrende Spenden</relationshipLabel>
+    </fields>
+    <fields>
+        <help>Gibt an, ob der Betrag für die einzelnen Raten verwendet (multipliziert) wird oder ob er durch die Raten geteilt (dividiert) wird  Wird nur für befristete wiederkehrende Spenden verwendet</help>
+        <label>Zeitplantyp</label>
+        <name>Schedule_Type__c</name>
+        <picklistValues>
+            <masterLabel>Divide By</masterLabel>
+            <translation>Teilen durch</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Multiply By</masterLabel>
+            <translation><!-- Multiply By --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>Summe der bezahlten Raten für diese wiederkehrende Spende</help>
+        <label>Summe der bezahlten Raten</label>
+        <name>Total_Paid_Installments__c</name>
+    </fields>
+    <fields>
+        <help>Die Summe aller Opportunities für befristete wiederkehrende Spenden</help>
+        <label>Summe</label>
+        <name>Total__c</name>
+    </fields>
+    <gender><!-- Neuter --></gender>
+    <layouts>
+        <layout>Recurring Donation Layout</layout>
+        <sections>
+            <label>Benutzerdefinierte Links</label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Recurring Donation Name --></nameFieldLabel>
+    <quickActions>
+        <label>Neue Opportunity</label>
+        <name>New_Opportunity</name>
+    </quickActions>
+    <quickActions>
+        <label>Schnelle Aktualisierung</label>
+        <name>Quick_Update</name>
+    </quickActions>
+    <webLinks>
+        <label>Spende eines neuen wiederkehrenden Accounts</label>
+        <name>New_Recurring_Acct_Donation</name>
+    </webLinks>
+    <webLinks>
+        <label>Spende eines neuen wiederkehrenden Kontakts</label>
+        <name>New_Recurring_Donation_Pledge_Account</name>
+    </webLinks>
+    <webLinks>
+        <label>Aktualisierungsmöglichkeiten</label>
+        <name>Refresh_Opportunities</name>
+    </webLinks>
+</CustomObjectTranslation>

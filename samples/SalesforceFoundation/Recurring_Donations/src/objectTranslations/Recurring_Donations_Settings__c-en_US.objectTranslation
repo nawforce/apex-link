@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Recurring Donations Settings</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Recurring Donations Settings</value>
+    </caseValues>
+    <fields>
+        <help><!-- If selected, all Opportunities for Recurring Donations will use the Campaign on the Recurring Donation. Otherwise, only the first Opportunity will have the Campaign. --></help>
+        <label><!-- Add Campaign to All Opportunites --></label>
+        <name>Add_Campaign_to_All_Opportunites__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_Donations_trigger --></label>
+        <name>DISABLE_Donations_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_RD_trigger --></label>
+        <name>DISABLE_RecurringDonations_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- Prevents the scheduling of the nightly update to Recurring Donations. Any existing scheduled job will need to be removed through Setup-&gt;Monitoring-&gt;Scheduled Jobs --></help>
+        <label><!-- Disable Scheduling of Nightly Job --></label>
+        <name>Disable_Nightly_Job__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Enable Update Check --></label>
+        <name>Enable_Update_Check__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  Replaced by the notification settings in the System Error settings panel. --></help>
+        <label><!-- DEPRECATED-Error Email Notifications --></label>
+        <name>Error_Email_Notifications__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Has Package Update --></label>
+        <name>Has_Package_Update__c</name>
+    </fields>
+    <fields>
+        <help><!-- The date and time of the last batch update of Recurring Donations. --></help>
+        <label><!-- Last Batch Run --></label>
+        <name>Last_Batch_Run__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Last Update Check --></label>
+        <name>Last_Update_Check__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Max Package Version --></label>
+        <name>Max_Package_Version__c</name>
+    </fields>
+    <fields>
+        <help><!-- Restricts the total number of donations created for non-open-ended Recurring Donations. Default is 50.  Larger values may result in DML errors. --></help>
+        <label><!-- Maximum Donations --></label>
+        <name>Maximum_Donations__c</name>
+    </fields>
+    <fields>
+        <label><!-- DEPRECATED-Nightly Update ID --></label>
+        <name>Nightly_Update_ID__c</name>
+    </fields>
+    <fields>
+        <help><!-- Number of Recurring Donations unsuccessfully updated in the last batch operation. --></help>
+        <label><!-- Number of Failures --></label>
+        <name>Number_of_Failures__c</name>
+    </fields>
+    <fields>
+        <help><!-- Number of Recurring Donations successfully updated in the last batch run. --></help>
+        <label><!-- Number of Successes --></label>
+        <name>Number_of_Successes__c</name>
+    </fields>
+    <fields>
+        <help><!-- Determines the behavior of any remaining open Opportunities when an open-ended Recurring Donation is moved to a closed status. --></help>
+        <label><!-- Open Opportunity Behavior on RD Close --></label>
+        <name>Open_Opportunity_Behavior__c</name>
+    </fields>
+    <fields>
+        <help><!-- Number of months from today worth of open Opportunities to be created when using open-ended Recurring Donations. WARNING: Reducing this value will result in extra Opportunities being deleted.  Increasing it will launch a batch process to add Opportunities --></help>
+        <label><!-- Opportunity Forecast Months --></label>
+        <name>Opportunity_Forecast_Months__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Package Update URL --></label>
+        <name>Package_Update_URL__c</name>
+    </fields>
+    <fields>
+        <help><!-- Opportunity Record Type used when Recurring Donation Opportunities are created. --></help>
+        <label><!-- Opportunity Record Type --></label>
+        <name>Record_Type__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Update Check Interval --></label>
+        <name>Update_Check_Interval__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

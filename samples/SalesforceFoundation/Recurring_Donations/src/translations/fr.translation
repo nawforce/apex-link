@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label><!-- RecurringDonationBadFieldMapping --></label>
+        <name>RecurringDonationBadFieldMapping</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- RecurringDonationBadLabelWarning --></label>
+        <name>RecurringDonationBadLabelWarning</name>
+    </customLabels>
+    <customLabels>
+        <label>You must delete the related Donations before you can delete this recurring donation</label>
+        <name>RecurringDonationCantDeleteError</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- RecurringDonationClosedLostOpportunityStage --></label>
+        <name>RecurringDonationClosedLostOpportunityStage</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- RecurringDonationClosedStatus --></label>
+        <name>RecurringDonationClosedStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>Donor</label>
+        <name>RecurringDonationContactRole</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- RecurringDonationCustomValidationWarning --></label>
+        <name>RecurringDonationCustomValidationWarning</name>
+    </customLabels>
+    <customLabels>
+        <label>Divide By</label>
+        <name>RecurringDonationDivideValue</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- RecurringDonationErrorEmailBody --></label>
+        <name>RecurringDonationErrorEmailBody</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- RecurringDonationInstallmentPeriod1stand15th --></label>
+        <name>RecurringDonationInstallmentPeriod1stand15th</name>
+    </customLabels>
+    <customLabels>
+        <label>Monthly</label>
+        <name>RecurringDonationInstallmentPeriodMonthly</name>
+    </customLabels>
+    <customLabels>
+        <label>Quarterly</label>
+        <name>RecurringDonationInstallmentPeriodQuarterly</name>
+    </customLabels>
+    <customLabels>
+        <label>Weekly</label>
+        <name>RecurringDonationInstallmentPeriodWeekly</name>
+    </customLabels>
+    <customLabels>
+        <label>Yearly</label>
+        <name>RecurringDonationInstallmentPeriodYearly</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- RecurringDonationInvalidCustomInstallment --></label>
+        <name>RecurringDonationInvalidCustomInstallment</name>
+    </customLabels>
+    <customLabels>
+        <label>You must select an Organization or Contact</label>
+        <name>RecurringDonationMissingDataError</name>
+    </customLabels>
+    <customLabels>
+        <label>Multiply By</label>
+        <name>RecurringDonationMultiplyValue</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- RecurringDonationOpenStatus --></label>
+        <name>RecurringDonationOpenStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>Donation</label>
+        <name>RecurringDonationPrefix</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- RecurringDonationRequiredFieldsWarning --></label>
+        <name>RecurringDonationRequiredFieldsWarning</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- RecurringDonationSchedulingError --></label>
+        <name>RecurringDonationSchedulingError</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- RecurringDonationSettingsDescription --></label>
+        <name>RecurringDonationSettingsDescription</name>
+    </customLabels>
+    <customLabels>
+        <label>Pledged</label>
+        <name>RecurringDonationStageName</name>
+    </customLabels>
+    <customLabels>
+        <label>You must specify fewer than 50 installments</label>
+        <name>RecurringDonationTooManyInstallmentsError</name>
+    </customLabels>
+    <customTabs>
+        <label><!-- Recurring Donations Settings --></label>
+        <name>Recurring_Donations_Settings</name>
+    </customTabs>
+    <quickActions>
+        <label><!-- NewNote --></label>
+        <name>NewNote</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- NewTask --></label>
+        <name>NewTask</name>
+    </quickActions>
+</Translations>

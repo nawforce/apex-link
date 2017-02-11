@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Donación recurrente</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Donaciones recurrentes</value>
+    </caseValues>
+    <fields>
+        <label>Monto</label>
+        <name>Amount__c</name>
+    </fields>
+    <fields>
+        <label>Contacto</label>
+        <name>Contact__c</name>
+        <relationshipLabel>Donaciones recurrentes y Compromisos</relationshipLabel>
+    </fields>
+    <fields>
+        <label>Fecha de primera cuota</label>
+        <name>Date_Established__c</name>
+    </fields>
+    <fields>
+        <label>Nombre del donante</label>
+        <name>Donor_Name__c</name>
+    </fields>
+    <fields>
+        <label>Monto de cuota</label>
+        <name>Installment_Amount__c</name>
+    </fields>
+    <fields>
+        <help>Con que frecuencia se va a recibir las donaciones. Nota: Modificar la frecuencia en donaciones recurrentes sin final abierto puede resultar en la perdida o re-creación de las op. abiertas relacionadas. Información relacionada a estas op. puede perderse.</help>
+        <label>Frecuencia</label>
+        <name>Installment_Period__c</name>
+        <picklistValues>
+            <masterLabel>1st and 15th</masterLabel>
+            <translation><!-- 1st and 15th --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Monthly</masterLabel>
+            <translation><!-- Monthly --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Quarterly</masterLabel>
+            <translation><!-- Quarterly --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekly</masterLabel>
+            <translation><!-- Weekly --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Yearly</masterLabel>
+            <translation><!-- Yearly --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>Cantidad de cuotas (donaciones) que se esperan recibir. Para donaciones recurrentes con duración fija solamente.</help>
+        <label>Cantidad de cuotas</label>
+        <name>Installments__c</name>
+    </fields>
+    <fields>
+        <help>No Completar. El NPSP calcula este valor automáticamente basado en la última donación relacionada marcada como Ganada Cerrada.</help>
+        <label>Fecha de última donación</label>
+        <name>Last_Payment_Date__c</name>
+    </fields>
+    <fields>
+        <help>La fecha en la cual se va a realizar la próxima donación. Esta fecha también determina la fecha de todas las futuras donaciones.</help>
+        <label>Fecha de próxima donación</label>
+        <name>Next_Payment_Date__c</name>
+    </fields>
+    <fields>
+        <help>Elegir Abierto para donaciones recurrentes sin fecha de fin. Elegir Ninguno para donaciones recurrentes con duración fija. Elegir Cerrada para donaciones recurrentes cerradas/finalizadas.</help>
+        <label>Estado de final abierto</label>
+        <name>Open_Ended_Status__c</name>
+        <picklistValues>
+            <masterLabel>Closed</masterLabel>
+            <translation><!-- Closed --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>None</masterLabel>
+            <translation><!-- None --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Open</masterLabel>
+            <translation><!-- Open --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>Cuenta</label>
+        <name>Organization__c</name>
+        <relationshipLabel>Donaciones recurrentes y Compromisos</relationshipLabel>
+    </fields>
+    <fields>
+        <help>No Completar. El NPSP calcula este valor automáticamente cuando se realizan las donaciones y se marcan como Ganadas Cerradas.</help>
+        <label>Monto pagado</label>
+        <name>Paid_Amount__c</name>
+    </fields>
+    <fields>
+        <label>Campaña</label>
+        <name>Recurring_Donation_Campaign__c</name>
+        <relationshipLabel><!-- Recurring Donations --></relationshipLabel>
+    </fields>
+    <fields>
+        <help>Especifica como se debe calcular el importe de las oportunidades recurrentes, basado en el campo Monto. Solo para donaciones recurrentes con duración fija.</help>
+        <label>Criterio</label>
+        <name>Schedule_Type__c</name>
+        <picklistValues>
+            <masterLabel>Divide By</masterLabel>
+            <translation>Dividir por</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Multiply By</masterLabel>
+            <translation><!-- Multiply By --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>No Completar. El NPSP calcula este valor automáticamente cuando se realizan las donaciones y se marcan como Ganadas Cerradas.</help>
+        <label>Cantidad de cuotas pagadas</label>
+        <name>Total_Paid_Installments__c</name>
+    </fields>
+    <fields>
+        <help>Para donaciones recurrentes sin final abierto, es la suma del importe de todas las oportunidades.</help>
+        <label>Total</label>
+        <name>Total__c</name>
+    </fields>
+    <gender>Feminine</gender>
+    <layouts>
+        <layout>Recurring Donation Layout</layout>
+        <sections>
+            <label>Vínculos personalizados</label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>Nombre Donación recurrente</nameFieldLabel>
+    <quickActions>
+        <label>Nueva oportunidad</label>
+        <name>New_Opportunity</name>
+    </quickActions>
+    <quickActions>
+        <label>Actualización rápida</label>
+        <name>Quick_Update</name>
+    </quickActions>
+    <webLinks>
+        <label>Nueva donación recurrente</label>
+        <name>New_Recurring_Acct_Donation</name>
+    </webLinks>
+    <webLinks>
+        <label>Nueva donación recurrente</label>
+        <name>New_Recurring_Donation_Pledge_Account</name>
+    </webLinks>
+    <webLinks>
+        <label>Actualizar oportunidades</label>
+        <name>Refresh_Opportunities</name>
+    </webLinks>
+</CustomObjectTranslation>

@@ -1,0 +1,1 @@
+<apex:page standardController="Recurring_Donation__c" action="{! urlFor('/apex/npsp__RD_AddDonationsBTN?id=' + Recurring_Donation__c.Id) }" />
