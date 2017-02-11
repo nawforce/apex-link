@@ -1,0 +1,185 @@
+<!-- 
+    Copyright (c) 2016, Salesforce.org
+    All rights reserved.
+    
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+    
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of Salesforce.org nor the names of
+      its contributors may be used to endorse or promote products derived
+      from this software without specific prior written permission.
+ 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
+    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+    POSSIBILITY OF SUCH DAMAGE.
+-->  
+ 
+<apex:page controller="VOL_CTRL_VolunteersJobListing" showheader="false" sidebar="false" standardStylesheets="false" cache="false">
+
+<script src="{!URLFOR($Resource.jQueryFiles, 'js/jquery-1.4.4.min.js')}"/>
+<script src="{!URLFOR($Resource.jQueryFiles, 'js/jquery-ui-1.8.7.custom.min.js')}"/>
+<apex:stylesheet value="{!URLFOR($Resource.jQueryFiles, 'css/ui-lightness/jquery-ui-1.8.7.custom.css')}"/>
+<apex:stylesheet value="{!strURLtoCSSFile}" /> 
+
+<script type="text/javascript">
+    var j$ = jQuery.noConflict();
+
+    j$(function() {
+        j$("#dlgSignUp").dialog({modal: true, autoOpen: false, draggable: true, width: 400 });
+    });
+    
+    function OpenSignUpDlg(JobId, ShiftId, JobName, ShiftName) {
+        j$('input[name$=txtJobId]').val(JobId);                         
+        j$('input[name$=txtShiftId]').val(ShiftId);                         
+        j$('input[name$=txtJobDisplayName]').val(JobName); 
+        j$('input[name$=txtShiftDisplayName]').val(ShiftName); 
+        j$('#dlgSignUp').dialog('open'); 
+        return false;
+    };
+    
+    function JobShiftDateTimeString(dt, duration) {
+        var dtStart = new Date(dt);
+        var strStartDate = (dtStart.getMonth() + 1) + '/' + dtStart.getDate() + '/' + dtStart.getFullYear();
+        var intHours = dtStart.getHours();
+        var intMinutes = dtStart.getMinutes();
+        var strAM = (intHours >= 12) ? 'pm' : 'am';
+        if (intHours > 12) intHours = intHours - 12;
+        if (intHours == 0) intHours = 12;
+        var strMinutes = (intMinutes > 0) ? ':' + intMinutes : '';
+        var strStartTime = intHours + strMinutes + strAM;
+        
+        var dtEnd = new Date(dtStart);
+        dtEnd.setMinutes(dtEnd.getMinutes() + (duration * 60));
+        var intHoursEnd = dtEnd.getHours();
+        var intMinutesEnd = dtEnd.getMinutes();
+        var strAMEnd = (intHoursEnd >= 12) ? 'pm' : 'am';
+        if (intHoursEnd > 12) intHoursEnd = intHoursEnd - 12;
+        if (intHoursEnd == 0) intHoursEnd = 12;
+        var strMinutesEnd = (intMinutesEnd > 0) ? ':' + intMinutesEnd : '';
+        var strEndTime = intHoursEnd + strMinutesEnd + strAMEnd;
+        
+        return strStartDate + ' ' + strStartTime + ' - ' + strEndTime;
+    }      
+      
+</script>
+    <apex:repeat value="{!listVolunteerJobs}" var="job" id="rptJobs" >
+        <apex:outputPanel rendered="{!ShowJobName}" ><p><apex:outputText value="{!job.Name}" styleClass="cssJobName" /></p></apex:outputPanel>
+        <apex:outputPanel rendered="{!ShowDescription}" ><p><apex:outputField value="{!job.Description__c}" /></p></apex:outputPanel>
+        <apex:outputPanel rendered="{!ShowSkills && job.Skills_Needed__c <> null}" >
+            <p class="cssJobSkills" >Desired skills:&nbsp;&nbsp;
+            <apex:outputField value="{!job.Skills_Needed__c}" />
+            </p>  
+        </apex:outputPanel>
+        <apex:outputPanel rendered="{!ShowLocationAddress && job.Location_Street__c <> null}" >
+            <p class="cssJobLocationAddress">
+            <apex:outputField value="{!job.Location_Street__c}" /><br/>
+            <apex:outputField value="{!job.Location_City__c}" />,&nbsp;
+            <apex:outputField value="{!job.Location__c}" />&nbsp;&nbsp;
+            <apex:outputField value="{!job.Location_Zip_Postal_Code__c}" />
+            </p>
+        </apex:outputPanel>
+        <apex:outputPanel rendered="{!ShowLocationInfo && job.Location_Information__c <> null}">
+            <p>
+            <apex:outputField value="{!job.Location_Information__c}" />
+            </p>
+        </apex:outputPanel>
+        <apex:outputPanel id="panelJobOnly" rendered="{!job.Number_of_Shifts__c == 0 || ShowShifts == false}" >
+            <input type="button" value="Sign Up"  class="cssJobShiftSignup" onclick="OpenSignUpDlg('{!job.Id}', '', '{!JSENCODE(job.Name)}', ''); return false;"/>
+        </apex:outputPanel>         
+        <apex:dataTable value="{!job.Volunteer_Job_Slots__r}" var="shift" id="rptShifts" columnClasses="cssJobShiftSignup" rendered="{!ShowShifts}" >
+            <apex:column style="text-align:center;" >
+                <apex:outputPanel rendered="{!shift.Number_of_Volunteers_Still_Needed__c != 0}" >
+                    <a href="SignUp" onclick="
+                        var x = JobShiftDateTimeString('{!shift.Start_Date_Time__c}', '{!shift.Duration__c}');            
+                        OpenSignUpDlg('{!job.Id}', '{!shift.Id}', '{!JSENCODE(job.Name)}', x); 
+                        return false;"
+                        >sign up</a>
+                </apex:outputPanel>
+                <apex:outputText value="full" style="font-style:italic;" rendered="{!BLANKVALUE(shift.Number_of_Volunteers_Still_Needed__c, -1) == 0}" />
+                &nbsp;&nbsp;&nbsp;
+            </apex:column>
+            <apex:column ><div id="txtShiftStartDateTime"><script>document.write(JobShiftDateTimeString('{!shift.Start_Date_Time__c}', '{!shift.Duration__c}'));</script>&nbsp;&nbsp;&nbsp;</div></apex:column>
+            <apex:column ><apex:outputField value="{!shift.Description__c}" /></apex:column>
+        </apex:dataTable>
+        <br/>
+        <br/> 
+        <hr/> 
+    </apex:repeat>
+    <apex:outputText value="Sorry, there are no volunteer jobs available at this time." rendered="{!NOT(VolunteersHasJobs)}" />
+
+<!-- this div contains the modal signup dialog we'll use jQuery to display -->
+<div id="dlgSignUp" title="Volunteer Sign Up">
+    <apex:form styleClass="cssForm" id="dlgSignUp" > 
+        <!--  the form contains 2 panels that are conditionally shown to handle initial signup, subsequent signup, and success confirmation. -->
+        <apex:outputPanel id="panelSignUp" rendered="{!volunteerHoursIdSignUp == null}">
+            <apex:panelGrid columns="2" columnClasses="cssLabelsColumn, cssInputFieldsColumn"  >
+                <apex:outputLabel value="First Name *" for="txtFirstName" />
+                <apex:inputField value="{!contact.FirstName}" id="txtFirstName" required="true" styleClass="cssInputFields" />
+                
+                <apex:outputLabel value="Last Name *" for="txtLastName" />
+                <apex:inputField value="{!contact.LastName}" id="txtLastName" required="true" styleClass="cssInputFields" />
+                
+                <apex:outputLabel value="Email *" for="txtEmail" />
+                <apex:inputField value="{!contact.Email}" id="txtEmail" required="true" styleClass="cssInputFields" />
+                
+                <apex:outputLabel value="Work Phone" for="txtWorkPhone" />
+                <apex:inputField value="{!contact.Phone}" id="txtWorkPhone" required="false" styleClass="cssInputFields" />
+                
+                <apex:outputLabel value="Home Phone" for="txtHomePhone" />
+                <apex:inputField value="{!contact.HomePhone}" id="txtHomePhone" required="false" styleClass="cssInputFields" />
+                
+                <!-- the controller assumes the Department text field holds the Organization (Account) name -->
+                <apex:outputLabel value="Organization" for="txtOrg" />
+                <apex:inputField value="{!contact.Department}" id="txtOrg" required="false" styleClass="cssInputFields" />
+                           
+                <!-- the controller assumes that Group Size is saved in the volunteer hours temp object. -->
+                <apex:outputLabel value="# in Group" for="txtGroupSize" />
+                <apex:inputField value="{!vhTemp.Number_of_Volunteers__c}" id="txtGroupSize" required="true" styleClass="cssInputFields" />
+            </apex:panelGrid>   
+            <p>         
+            <apex:inputText value="{!strJobDisplayName}" id="txtJobDisplayName" styleClass="cssSignupDisplayName" style="border-style:none; background-color:transparent;" size="60" /><br/>
+            <apex:inputText value="{!strShiftDisplayName}" id="txtShiftDisplayName" styleClass="cssSignupDisplayName" style="border-style:none; background-color:transparent;" size="60" />
+            </p>
+            
+            <!-- before calling the action method, clear the return value fields so we can detect validation failures. -->                          
+            <apex:commandButton value="Sign Up" id="btnSignUp" onclick="
+                    j$('input[name$=btnSignUp]').attr('disabled','disabled'); 
+                    j$('input[name$=txtContactIdSignUp]').val(''); 
+                    j$('input[name$=txtVHIdSignUp]').val(''); 
+                    VolunteerShiftSignUp();
+                    return false;" 
+                immediate="false" status="statusSignUp" />              
+            <apex:commandButton value="Cancel" immediate="true" onclick="j$('#dlgSignUp').dialog('close'); return false;" />            
+            <apex:actionStatus startText="   Saving...." stopText=" " id="statusSignUp" startStyle="color:green; font-style:italic" stopStyle="color:black;" />                             
+        </apex:outputPanel>
+        
+        <apex:outputPanel id="panelSignUpSuccess" rendered="{!contactIdSignUp != null && volunteerHoursIdSignUp != null}" >
+            <p class="cssThankYou">Thank you for signing up to volunteer!</p>
+            <apex:commandButton value="Close" immediate="true" onclick="ClearVolunteerHoursIdSignUp(); return false;" oncomplete="j$('#dlgSignUp').dialog('close'); return false;"  />
+        </apex:outputPanel>
+        
+        <apex:actionFunction name="VolunteerShiftSignUp" action="{!VolunteerShiftSignUp}" status="statusSignUp" rerender="dlgSignUp" />         
+        <apex:actionFunction name="ClearVolunteerHoursIdSignUp" action="{!ClearVolunteerHoursIdSignUp}" />      
+        <apex:inputHidden value="{!jobIdSignUp}" id="txtJobId" />               
+        <apex:inputHidden value="{!shiftIdSignUp}" id="txtShiftId" /><br/>  
+        <apex:inputHidden value="{!contactIdSignUp}" id="txtContactIdSignUp" />
+        <apex:inputHidden value="{!volunteerHoursIdSignUp}" id="txtVHIdSignUp" />
+
+    </apex:form>
+</div> <!-- end of the modal dialog -->
+
+</apex:page>

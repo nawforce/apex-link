@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Horario Recurrente del Trabajo</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Horarios de Trabajo de recurrencia</value>
+    </caseValues>
+    <fields>
+        <label>Días de la Semana</label>
+        <name>Days_of_Week__c</name>
+        <picklistValues>
+            <masterLabel>Friday</masterLabel>
+            <translation>Viernes</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Monday</masterLabel>
+            <translation>Lunes</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Saturday</masterLabel>
+            <translation>Sábado</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Sunday</masterLabel>
+            <translation>Domingo</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Thursday</masterLabel>
+            <translation>Jueves</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Tuesday</masterLabel>
+            <translation>Martes</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Wednesday</masterLabel>
+            <translation>Miercoles</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>Descripción de texto para copiara en los registros de Jornadas creados en este horario.</help>
+        <label>Descripción</label>
+        <name>Description__c</name>
+    </fields>
+    <fields>
+        <label>Número deseado de Voluntarios</label>
+        <name>Desired_Number_of_Volunteers__c</name>
+    </fields>
+    <fields>
+        <label>Duración</label>
+        <name>Duration__c</name>
+    </fields>
+    <fields>
+        <label>Fecha de Finalización de la Recurrencia</label>
+        <name>Schedule_End_Date__c</name>
+    </fields>
+    <fields>
+        <label>Fecha y Hora de Inicio de la Recurrencia</label>
+        <name>Schedule_Start_Date_Time__c</name>
+    </fields>
+    <fields>
+        <help>Trabajo para el cual se creó este Horario Recurrente</help>
+        <label>Trabajo Voluntario</label>
+        <name>Volunteer_Job__c</name>
+        <relationshipLabel>Horario Recurrente del Trabajo</relationshipLabel>
+    </fields>
+    <fields>
+        <label>Incidencia Semanal</label>
+        <name>Weekly_Occurrence__c</name>
+        <picklistValues>
+            <masterLabel>1st</masterLabel>
+            <translation>Primero</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2nd</masterLabel>
+            <translation>Segundo</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3rd</masterLabel>
+            <translation>Tercero</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4th</masterLabel>
+            <translation>Cuarto</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>5th</masterLabel>
+            <translation>Quinto</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Alternate</masterLabel>
+            <translation>Alternativo</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Every</masterLabel>
+            <translation>Todos</translation>
+        </picklistValues>
+    </fields>
+    <gender>Masculine</gender>
+    <layouts>
+        <layout>Volunteer Job Recurrence Schedule Layout</layout>
+        <sections>
+            <label>Links personalizados</label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>JRS ID</nameFieldLabel>
+    <validationRules>
+        <errorMessage><!-- You must specify at least one value for Days of Week. --></errorMessage>
+        <name>JRS_Days_Of_Week_Required</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- You must specify at least one value for Weekly Occurrence --></errorMessage>
+        <name>JRS_Weekly_Occurrence_Required</name>
+    </validationRules>
+</CustomObjectTranslation>

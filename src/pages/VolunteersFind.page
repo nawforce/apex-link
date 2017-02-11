@@ -1,0 +1,234 @@
+<!-- 
+    Copyright (c) 2016, Salesforce.org
+    All rights reserved.
+    
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+    
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of Salesforce.org nor the names of
+      its contributors may be used to endorse or promote products derived
+      from this software without specific prior written permission.
+ 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
+    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+    POSSIBILITY OF SUCH DAMAGE.
+-->  
+ 
+<apex:page controller="VOL_CTRL_VolunteersFind" tabStyle="Find_Volunteers__tab" standardStylesheets="true" title="{!$Label.labelFindVolunteers}" docType="html-5.0">
+    <apex:stylesheet value="{!URLFOR($Resource.sfdo213, '/assets/styles/salesforce-lightning-design-system-vf.min.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.v4sStaticResources, '/v4s_slds/v4s-common.css')}" />
+    <apex:includeScript value="{!URLFOR($Resource.jQueryFiles, 'js/jquery-1.4.4.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.jQueryFiles, 'js/jquery-ui-1.8.7.custom.min.js')}"/>
+
+    <style> 
+        .header {
+            cursor: pointer;
+        }
+    </style>
+    <script type="text/javascript">
+    (function($) {
+        //fixes multi select picklists and initializes shown/hidden sections
+        function init() {
+            $('.multipicklistSLDSFixup').attr("size", 4);
+            $('.sectionheader').each(function() {
+                $header = $(this);
+                $content = $header.next();
+                $chevrons = $header.children().first().children();
+
+                if ($header.hasClass('isopen')) {
+                    $chevrons[0].style.display = 'none';
+                    $chevrons[1].style.display = 'block';
+                    $content.slideDown();
+                } else {
+                    $chevrons[0].style.display = 'block';
+                    $chevrons[1].style.display = 'none';
+                    $content.slideUp();
+                }
+            });
+        }
+
+        function openSection(sectionId) {
+            var node = $('#'+sectionId);
+            if (!node.hasClass('isopen')) {
+                node.trigger('click');
+            }
+        }
+
+        $(document).ready(function() {
+            init();
+
+            $('.sectionheader').click(function () {
+                $header = $(this);
+                //add or remove isopen class
+                $header.toggleClass('isopen');
+                //get the element after the section
+                $content = $header.next();
+                //toggle the chevron between > and v
+                $header.children().first().children().toggle();
+                //open or close the content
+                $content.slideToggle(500);
+                return false;
+            });
+        });
+        window.openSection = openSection;
+    })(jQuery);
+</script>
+<apex:variable var="pathChevronRight" value="M8.3 2l9.5 9.5c.3.3.3.7 0 1L8.3 22c-.3.2-.8.2-1.1 0l-1-1c-.2-.3-.2-.8 0-1.1l7.6-7.4c.2-.3.2-.7 0-1L6.3 4.1C6 3.8 6 3.3 6.3 3l1-1c.3-.2.7-.2 1 0z"/>
+<apex:variable var="pathChevronDown" value="M22 8.2l-9.5 9.6c-.3.2-.7.2-1 0L2 8.2c-.2-.3-.2-.7 0-1l1-1c.3-.3.8-.3 1.1 0l7.4 7.5c.3.3.7.3 1 0l7.4-7.5c.3-.2.8-.2 1.1 0l1 1c.2.3.2.7 0 1z"/>
+    <apex:form >
+        <div class="sfdo213">
+            <div class="slds-spinner_container" style="z-index:999;position:fixed;display:none;" id="divLoading">
+                <div class="slds-spinner--brand slds-spinner slds-spinner--medium" style="position:fixed;top:30%;" aria-hidden="false" role="alert">
+                    <div class="slds-spinner__dot-a"></div>
+                    <div class="slds-spinner__dot-b"></div>
+                </div>
+            </div>
+            <apex:actionStatus id="statusLoad"
+                onstart="document.getElementById('divLoading').style.display = 'block';"
+                onstop="document.getElementById('divLoading').style.display = 'none';" />
+            <!-- PAGE HEADER -->
+            <div class="slds-page-header" role="banner">
+              <div class="slds-grid">
+                <div class="slds-col slds-size--1-of-4">
+                  <h1 class="slds-text-heading--medium">{!$Label.labelFindVolunteers}</h1>
+                </div>
+              </div>
+            </div>
+            <!-- / PAGE HEADER -->
+            <!-- Choose Criteria section -->
+            <div id='chooseCriteriaSection' class="sectionheader isopen slds-media slds-theme--shade slds-p-around--small slds-m-top--small">
+                <div class="slds-media__figure">
+                    <div class="slds-button slds-button--icon-bare slds-m-right--x-small chevronright">
+                        <svg aria-hidden="true" class="slds-button__icon slds-button__icon--small" viewBox="0 0 24 24" ><path d="{!pathChevronRight}"/></svg>
+                    </div>
+                    <div class="slds-button slds-button--icon-bare slds-m-right--x-small chevrondown">
+                        <svg aria-hidden="true" class="slds-button__icon slds-button__icon--small" viewBox="0 0 24 24"><path d="{!pathChevronDown}"/></svg>
+                    </div>
+                </div>
+                <div class="slds-media__body">
+                    <div class="slds-text-title--caps">{!$Label.labelChooseCriteria}</div>
+                </div>
+            </div>
+            <div>
+                <apex:outputPanel layout="block" style="font-style:italic;" styleClass="slds-m-around--small">{!$Label.labelFindVolunteersHelpCriteria}</apex:outputPanel> 
+                <form class="slds-form--stacked">
+                    <div class="slds-grid">
+                        <apex:repeat value="{!$ObjectType.Contact.FieldSets.VolunteersFindCriteriaFS}" var="f">
+                            <c:UTIL_FormField field="{!f.fieldPath}"
+                                    sObj="{!conFilter}"
+                                    sObjType="Contact"
+                                    styleClass="slds-size--1-of-{!$ObjectType.Contact.FieldSets.VolunteersFindCriteriaFS.size} slds-p-around--x-small"/>
+                        </apex:repeat>
+                    </div>
+                    <apex:outputPanel styleClass="slds-grid">
+                        <div class="slds-col slds-col--padded slds-p-around--large slds-no-flex slds-align-middle">
+                            <button id="findbtn" onclick="findJS();openSection('chooseVolunteersSection');openSection('assignVolunteersSection');return false;" class="slds-button slds-button--brand">{!$Label.labelButtonFind}</button>
+                        </div>
+                    </apex:outputPanel>
+                </form>
+            </div>
+            <!-- END Choose Criteria section, begin Choose Volunteers section -->
+            <div id="chooseVolunteersSection" class="sectionheader slds-media slds-theme--shade slds-p-around--small slds-m-top--small">
+                <div class="slds-media__figure">
+                    <div class="slds-button slds-button--icon-bare slds-m-right--x-small chevronright">
+                        <svg aria-hidden="true" class="slds-button__icon slds-button__icon--small" viewBox="0 0 24 24" ><path d="{!pathChevronRight}"/></svg>
+                    </div>
+                    <div class="slds-button slds-button--icon-bare slds-m-right--x-small chevrondown">
+                        <svg aria-hidden="true" class="slds-button__icon slds-button__icon--small" viewBox="0 0 24 24"><path d="{!pathChevronDown}"/></svg>
+                    </div>
+                </div>
+                <div class="slds-media__body">
+                    <div class="slds-text-title--caps">{!$Label.labelFindVolunteersFindResults}</div>
+                </div>
+            </div>
+            <div>
+                <apex:outputPanel layout="block" rendered="{!NOT(hasFilterCriteria)}" style="font-style:italic;" styleClass="slds-m-around--small">{!$Label.labelFindVolunteersHelpFindResults}</apex:outputPanel> 
+                <c:SoqlListView id="SoqlListView" pcPageController="{!this}"/>
+            </div>
+            <!-- END choose Volunteers section, begin assign section -->
+            <div id="assignVolunteersSection" class="sectionheader slds-media slds-theme--shade slds-p-around--small slds-m-top--small">
+                <div class="slds-media__figure">
+                    <div class="slds-button slds-button--icon-bare slds-m-right--x-small chevronright">
+                        <svg aria-hidden="true" class="slds-button__icon slds-button__icon--small" viewBox="0 0 24 24" ><path d="{!pathChevronRight}"/></svg>
+                    </div>
+                    <div class="slds-button slds-button--icon-bare slds-m-right--x-small chevrondown">
+                        <svg aria-hidden="true" class="slds-button__icon slds-button__icon--small" viewBox="0 0 24 24"><path d="{!pathChevronDown}"/></svg>
+                    </div>
+                </div>
+                <div class="slds-media__body">
+                    <div class="slds-text-title--caps">{!$Label.labelFindVolunteersAssign}</div>
+                </div>
+            </div>
+            <div>
+                <apex:outputPanel id="panelErrors">
+                    <c:UTIL_PageMessages html-class="slds-grid slds-grid--align-center slds-m-bottom--small"/>
+                </apex:outputPanel>
+                <div class="slds-form slds-form--horizontal slds-grid">
+                    <apex:outputPanel layout="block" styleclass="slds-col slds-col--padded slds-p-top--large slds-size--1-of-2">
+                        <div class="slds-form-element slds-p-top--small">
+                            <apex:outputLabel value="{!$ObjectType.Campaign.Label}" styleClass="slds-form-element__label" />
+                            <div class="slds-form-element__control">
+                                <apex:selectList value="{!campaignId}" size="1" styleClass="slds-select">
+                                    <apex:actionSupport immediate="false" event="onchange" rerender="ddlVolunteerJobs,ddlVolunteerShifts" status="statusLoad" action="{!ChangeCampaign}" />
+                                    <apex:selectOptions value="{!listSOCampaigns}" /> 
+                                </apex:selectList>
+                            </div>
+                        </div>
+                        <div class="slds-form-element slds-p-top--small">
+                            <apex:outputLabel value="{!$ObjectType.Volunteer_Job__c.Label}" styleClass="slds-form-element__label" />
+                            <div class="slds-form-element__control">
+                                <apex:selectList value="{!volunteerJobId}" size="1" id="ddlVolunteerJobs" styleClass="slds-select">
+                                    <apex:actionSupport immediate="false" event="onchange" rerender="ddlVolunteerShifts" status="statusLoad" action="{!ChangeVolunteerJob}" />
+                                    <apex:selectOptions value="{!listSOVolunteerJobs}" /> 
+                                </apex:selectList>
+                            </div>
+                        </div>
+                        <div class="slds-form-element slds-p-top--small">
+                            <apex:outputLabel value="{!$ObjectType.Volunteer_Shift__c.Label}" styleClass="slds-form-element__label" />
+                            <div class="slds-form-element__control">
+                                <apex:selectList value="{!volunteerShiftId}" size="1" id="ddlVolunteerShifts" styleClass="slds-select">
+                                    <apex:selectOptions value="{!listSOVolunteerShifts}" /> 
+                                </apex:selectList>
+                            </div>
+                        </div>
+                    </apex:outputPanel>
+                    <div class="slds-col slds-col--padded slds-p-top--large slds-size--1-of-2">
+                        <div class="slds-form-element slds-p-top--small">
+                            <apex:outputLabel value="{!$ObjectType.Volunteer_Hours__c.Fields.Status__c.Label}" styleClass="slds-form-element__label" />
+                            <div class="slds-form-element__control">
+                                <apex:inputField styleClass="slds-select" value="{!vhAssign.Status__c}"/>
+                            </div>
+                        </div>
+                        <div class="slds-form-element slds-p-top--small">
+                            <apex:outputLabel value="{!$ObjectType.Volunteer_Hours__c.Fields.Hours_Worked__c.Label}" styleClass="slds-form-element__label" />
+                            <div class="slds-form-element__control">
+                                <apex:inputField styleClass="slds-input" value="{!vhAssign.Hours_Worked__c}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-grid">
+                    <div class="slds-col slds-col--padded slds-p-around--large slds-no-flex slds-align-middle">
+                        <button id="assignbtn" onclick="assignJS();return false;" class="slds-button slds-button--brand">{!$Label.labelButtonAssign}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <apex:actionFunction name="findJS" action="{!find}" immediate="false" status="statusLoad" reRender="{!$Component.soqlListView}"/>
+        <apex:actionFunction name="assignJS" action="{!assign}" immediate="false" status="statusLoad" reRender="panelErrors,soqlListView"/>
+    </apex:form>
+</apex:page>

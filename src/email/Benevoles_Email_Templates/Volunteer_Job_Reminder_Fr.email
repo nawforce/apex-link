@@ -1,0 +1,16 @@
+<p>Bonjour {!Contact.FirstName}, </p>
+
+<p>Nous nous réjouissons de recevoir votre aide pour l'activité suivante: </p>
+
+<p>{!Volunteer_Job__c.Name}</p>
+
+{!Volunteer_Job__c.Description__c}
+
+<p>Adresse de l'activité: </p>
+
+<p>{!Volunteer_Job__c.Location_Street__c}<br/>
+{!Volunteer_Job__c.Location_City__c}, {!Volunteer_Job__c.Location__c}  <br/>{!Volunteer_Job__c.Location_Zip_Postal_Code__c}</p>
+
+{!Volunteer_Job__c.Location_Information__c}
+
+<p>Nous vous remercions chaleureusement pour votre aide, {!Organization.Name}</p>

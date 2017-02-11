@@ -1,0 +1,130 @@
+<!-- 
+    Copyright (c) 2016, Salesforce.org
+    All rights reserved.
+    
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+    
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of Salesforce.org nor the names of
+      its contributors may be used to endorse or promote products derived
+      from this software without specific prior written permission.
+ 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
+    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+    POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<apex:component controller="UTIL_PageMessages_CTRL" selfClosing="true">
+
+    <apex:attribute name="useToast"
+        description="If true, page messages will be displayed as floating toast messages, as described in the SLDS style guide. Otherwise, page messages will appear as blocks where the component is used."
+        type="Boolean"
+        default="false"
+        required="false"
+        />
+
+    <apex:outputText rendered="{!NOT(useToast)}">
+        <style type="text/css">
+            #page_messages .slds-notify--toast {
+                display: block;
+            }
+        </style>
+    </apex:outputText>
+
+    <div class="sfd0213" id="page_messages">
+        <div class="{!IF(useToast, 'slds-notify-container', '')}">
+            <apex:repeat value="{!pageMessages}" var="m">
+                <div role="alert" class="slds-notify slds-notify--toast slds-theme--{!m.severityTheme}">
+                    <button class="slds-button slds-notify__close {!IF(m.severityTheme != 'warning', 'slds-button--icon-inverse', '')}">
+                        <svg class="slds-button__icon slds-button__icon--large" aria-hidden="true">
+                            <path d="M14.6 11.9l6-6c.3-.3.3-.7 0-1l-.9-1c-.3-.3-.7-.3-1 0L12.6 10c-.1.2-.4.2-.6 0L6 3.9c-.3-.3-.7-.3-1 0l-1 .9c-.3.3-.3.7 0 1l6.1 6.1c.1.1.1.4 0 .6L4 18.6c-.3.3-.3.7 0 1l.9.9c.3.3.7.3 1 0l6.1-6c.2-.2.5-.2.6 0l6.1 6c.3.3.7.3 1 0l.9-.9c.3-.3.3-.7 0-1l-6-6c-.2-.2-.2-.5 0-.7z"/>
+                        </svg>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <div class="notify__content">
+                        <div class="slds-media">
+                            <div class="slds-media__figure">
+                                <apex:outputText rendered="{!m.severityTheme == 'success'}">
+                                    <svg class="slds-icon" aria-hidden="true" viewBox="0 0 24 24">
+                                        <path  d="M12 .9C5.9.9.9 5.9.9 12s5 11.1 11.1 11.1 11.1-5 11.1-11.1S18.1.9 12 .9zm6.2 8.3l-7.1 7.2c-.3.3-.7.3-1 0l-3.9-3.9c-.2-.3-.2-.8 0-1.1l1-1c.3-.2.8-.2 1.1 0l2 2.1c.2.2.5.2.7 0l5.2-5.3c.2-.3.7-.3 1 0l1 1c.3.2.3.7 0 1z"/>
+                                    </svg>
+                                </apex:outputText>
+                                <apex:outputText rendered="{!m.severityTheme == 'error'}">
+                                    <svg class="slds-icon" aria-hidden="true" viewBox="0 0 24 24">
+                                        <path d="M12 .9C5.9.9.9 5.9.9 12s5 11.1 11.1 11.1 11.1-5 11.1-11.1S18.1.9 12 .9zm0 19.4c-4.6 0-8.3-3.7-8.3-8.3S7.4 3.7 12 3.7s8.3 3.7 8.3 8.3-3.7 8.3-8.3 8.3zm4.8-9.7H7.2c-.4 0-.6.3-.7.6v1.6c.1.4.3.6.7.6h9.6c.4 0 .6-.3.7-.6v-1.6c-.1-.3-.3-.6-.7-.6z" />
+                                    </svg>
+                                </apex:outputText>
+                                <apex:outputText rendered="{!m.severityTheme == 'info'}">
+                                    <svg class="slds-icon" aria-hidden="true" viewBox="0 0 24 24">
+                                        <path  d="M12 .9C5.9.9.9 5.9.9 12s5 11.1 11.1 11.1 11.1-5 11.1-11.1S18.1.9 12 .9zm0 5.6c.8 0 1.4.6 1.4 1.4s-.6 1.4-1.4 1.4-1.4-.6-1.4-1.4.6-1.4 1.4-1.4zm2.3 9.7c0 .2-.2.4-.5.4h-3.6c-.3 0-.5-.1-.5-.4v-.9c0-.3.2-.5.5-.5.2 0 .4-.2.4-.4v-1.9c0-.2-.2-.5-.4-.5-.3 0-.5-.1-.5-.4v-.9c0-.3.2-.5.5-.5h2.7c.3 0 .5.2.5.5v3.7c0 .2.2.4.4.4.3 0 .5.2.5.5v.9z"/>
+                                    </svg>
+                                </apex:outputText>
+                                <apex:outputText rendered="{!m.severityTheme == 'warning'}">
+                                    <svg class="slds-icon" aria-hidden="true" viewBox="0 0 24 24">
+                                        <path  d="M23.7 19.6L13.2 2.5c-.6-.9-1.8-.9-2.4 0L.3 19.6c-.7 1.1 0 2.6 1.1 2.6h21.2c1.1 0 1.8-1.5 1.1-2.6zM12 18.5c-.8 0-1.4-.6-1.4-1.4s.6-1.4 1.4-1.4 1.4.6 1.4 1.4-.6 1.4-1.4 1.4zm1.4-4.2c0 .3-.2.5-.5.5h-1.8c-.3 0-.5-.2-.5-.5v-6c0-.3.2-.5.5-.5h1.8c.3 0 .5.2.5.5v6z"/>
+                                    </svg>
+                                </apex:outputText>
+                            </div>
+                            <div class="slds-media__body">
+                                <h2 class="slds-text-heading--small">
+                                    <apex:outputText value="{!m.severityLabel}: " rendered="{!'' != m.severityLabel}"/>
+                                    <apex:outputText value="{!m.summary}"/>
+                                </h2>
+                                <apex:outputText rendered="{!AND(NOT(ISBLANK(m.detail)), NOT(m.summary == m.detail))}">
+                                    <p class="slds-m-top--medium">{!m.detail}</p>
+                                </apex:outputText>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </apex:repeat>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var elementMatches = function(el, selector) {
+            var m = el.matches || el.matchesSelector || el.msMatchesSelector;
+            return m.call(el, selector);
+        };
+
+        document.getElementById('page_messages').addEventListener(
+            'click',
+            function (e) {
+                if (e.defaultPrevented) return;
+
+                var el = e.target;
+
+                if (elementMatches(el, 'button.slds-notify__close, button.slds-notify__close *')) {
+                    var p;
+                    while (el) {
+                        if (elementMatches(el, 'div.slds-notify')) {
+                            p = el;
+                            break;
+                        }
+                        el = el.parentNode;
+                    }
+                    if (p && p.parentNode) {
+                        p.parentNode.removeChild(p);
+                    }
+                }
+
+                e.preventDefault();
+            },
+            true
+        );
+    </script>
+</apex:component>

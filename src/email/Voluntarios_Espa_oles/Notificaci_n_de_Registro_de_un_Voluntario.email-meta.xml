@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Se enviara un mensaje de notificación al Gestor de Voluntariado que un nuevo registro de un voluntario se ha producido</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Notificación de Registro de un Voluntario</name>
+    <style>none</style>
+    <subject>Un Nuevo voluntario se ha registrado.</subject>
+    <type>text</type>
+</EmailTemplate>

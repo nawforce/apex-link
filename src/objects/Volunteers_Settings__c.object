@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>Hierarchy</customSettingsType>
+    <description>Custom settings used by Volunteers for Salesforce.</description>
+    <enableFeeds>false</enableFeeds>
+    <fields>
+        <fullName>Contact_Match_Email_Fields__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>A semicolon separated list of additional Contact email fields to try to match against when doing Contact matching. Note that the fields are specified by their full Developer name, including namespace prefix. NPSP email fields are automatically checked.</inlineHelpText>
+        <label>Contact Match Email Fields</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Contact_Match_First_Name_Fields__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>A semicolon separated list of additional Contact first name fields to try to match against when doing Contact matching. E.g., a nickname field.  Note that the fields are specified by their full Developer name, including namespace prefix.</inlineHelpText>
+        <label>Contact Match First Name Fields</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Contact_Matching_Rule__c</fullName>
+        <defaultValue>&quot;Firstname;Lastname;Email&quot;</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Specifies which rule to follow when trying to match Contacts against existing Contacts from the Volunteers Sites pages. Semicolon separated string containing one or more of the fields Firstname, Lastname, and Email.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Specifies which rule to follow when trying to match Contacts against existing Contacts from the Volunteers Sites pages. Semicolon separated string containing one or more of the fields Firstname, Lastname, and Email.</inlineHelpText>
+        <label>Contact Matching Rule</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Google_Maps_API_Key__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>If you include a Google Maps API Key, the JobListing pages will display a map on your volunteers site for the Job Location.</inlineHelpText>
+        <label>Google Maps API Key</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Personal_Site_Org_Wide_Email_Name__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>The Display Name of the Organization-Wide Email Address to use on the email sent from the PersonalSiteContactLookup Sites page.</inlineHelpText>
+        <label>Personal Site Org-Wide Email Name</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Personal_Site_Report_Hours_Filtered__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Personal Site Report Hours Filter By Contact</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Personal Site Report Hours Filter By Contact</inlineHelpText>
+        <label>Personal Site Report Hours Filtered</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Personal_Site_Requires_URL_Email_Match__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>If checked, then the Personal Site requires the Email URL parameter is included and matches an Email field on the specified Contact.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>If checked, then the Personal Site requires the Email URL parameter is included and matches an Email field on the specified Contact.</inlineHelpText>
+        <label>Personal Site Requires URL Email Match</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Recurring_Job_Future_Months__c</fullName>
+        <defaultValue>4</defaultValue>
+        <deprecated>false</deprecated>
+        <description>How many months into the future should Recurring Job Shifts be scheduled?  If this number is too large, you may run into Salesforce CPU time limits which will prevent the Job Scheduler from running completely.  It is recommended to use 4 months or less.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>How many months into the future should Recurring Job Shifts be scheduled?  If this number is too large, you may run into Salesforce CPU time limits which will prevent the Job Scheduler from running completely.  It is recommended to use 4 months or less.</inlineHelpText>
+        <label>Recurring Job Future Months</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Signup_Bucket_Account_On_Create__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>The name of the account to use when creating new Contacts during Signup.  If you are using the Non Profit Start Pack One-to-One model, leave this setting blank.  If you are using the bucket model, set this to the name of the account; usually &apos;Individual&apos;.</inlineHelpText>
+        <label>Signup Bucket Account On Create</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Signup_Creates_Contacts_If_No_Match__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Should the Volunteer Signup form create new Contact records, if no existing contact is found (or Signup Matches Existing Contacts is unchecked).  If this setting is unchecked, it will create Leads when no matches found.</inlineHelpText>
+        <label>Signup Creates Contacts If No Match</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Signup_Matches_Existing_Contacts__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Should the Volunteer Signup page try to match the person to an existing Contact (by First Name, Last Name, Email).</inlineHelpText>
+        <label>Signup Matches Existing Contacts</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <label>Volunteers Settings</label>
+    <visibility>Public</visibility>
+</CustomObject>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>false</available>
+    <description>Une notification au responsable des bénévoles lorsque une inscription à une activité/plage horaire s&apos;est produite</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Volunteer Job Signup Notification Fr</name>
+    <style>none</style>
+    <subject>Notification d&apos;inscription d&apos;un bénévole</subject>
+    <type>text</type>
+</EmailTemplate>

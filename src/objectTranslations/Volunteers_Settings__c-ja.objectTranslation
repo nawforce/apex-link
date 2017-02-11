@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Volunteers Settings --></value>
+    </caseValues>
+    <fields>
+        <help>個人マッチングの実行時に照合する個人のメール項目がセミコロン区切りで追加されたリスト。これらの項目は、名前空間プレフィックスを含む完全 API 参照名で指定されます。NPSP メール項目は自動的に確認されます。</help>
+        <label>個人マッチングメール項目</label>
+        <name>Contact_Match_Email_Fields__c</name>
+    </fields>
+    <fields>
+        <help>個人マッチングの実行時に照合する個人の名項目がセミコロン区切りで追加されたリスト。たとえば、ニックネーム項目など。これらの項目は、名前空間プレフィックスを含む完全 API 参照名で指定されます。</help>
+        <label>個人マッチング名項目</label>
+        <name>Contact_Match_First_Name_Fields__c</name>
+    </fields>
+    <fields>
+        <help>ボランティアサイトページから既存の個人に対して個人を照合するときのルールを指定します。名、姓、およびメール項目の 1 つ以上が含まれるセミコロン区切りの文字列。</help>
+        <label>個人マッチングルール</label>
+        <name>Contact_Matching_Rule__c</name>
+    </fields>
+    <fields>
+        <help>Google マップ API キーを含めると、JobListing ページのボランティアサイトの地図に仕事の場所が表示されます。</help>
+        <label>Google マップ API キー</label>
+        <name>Google_Maps_API_Key__c</name>
+    </fields>
+    <fields>
+        <help>PersonalSiteContactLookup サイトページから送信されたメールで使用する組織の共有メールアドレスの表示名。</help>
+        <label>個人サイト組織の共有メール名</label>
+        <name>Personal_Site_Org_Wide_Email_Name__c</name>
+    </fields>
+    <fields>
+        <help><!-- Personal Site Report Hours Filter By Contact --></help>
+        <label><!-- Personal Site Report Hours Filtered --></label>
+        <name>Personal_Site_Report_Hours_Filtered__c</name>
+    </fields>
+    <fields>
+        <help>オンの場合、個人サイトにメール URL パラメータが含まれ、そのパラメータが指定した個人のメール項目と一致する必要があります。</help>
+        <label>個人サイトで URL メールの一致が必要</label>
+        <name>Personal_Site_Requires_URL_Email_Match__c</name>
+    </fields>
+    <fields>
+        <help>定期的な仕事のシフトをスケジュールする将来の月数。この値が大きすぎる場合、Salesforce CPU 時間制限を超え、ジョブスケジューラが完全に実行できない可能性があります。4 か月以下にすることをお勧めします。</help>
+        <label>定期的に仕事ができる期間（月単位）</label>
+        <name>Recurring_Job_Future_Months__c</name>
+    </fields>
+    <fields>
+        <help>サインアップ中に新しい個人を作成するときに使用する団体の名前。Nonprofit Starter Pack の 1 対 1 モデルを使用している場合、この設定は空白のままにします。バケットモデルを使用している場合、団体の名前 (通常は「個人」) を設定します。</help>
+        <label>作成時のサインアップバケット団体</label>
+        <name>Signup_Bucket_Account_On_Create__c</name>
+    </fields>
+    <fields>
+        <help>既存の個人が見つからない場合 (または [サインアップ時に既存の個人を照合] がオフの場合)、ボランティアのサインアップで新しい個人を作成するかどうか。この設定がオフの場合、一致が見つからない場合はリードが作成されます。</help>
+        <label>サインアップ時に一致がない場合は個人を作成</label>
+        <name>Signup_Creates_Contacts_If_No_Match__c</name>
+    </fields>
+    <fields>
+        <help>ボランティアのサインアップページで、登録者を既存の個人と (名、姓、メールで) 照合するかどうか。</help>
+        <label>サインアップ時に既存の個人を照合</label>
+        <name>Signup_Matches_Existing_Contacts__c</name>
+    </fields>
+</CustomObjectTranslation>

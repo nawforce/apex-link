@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Se enviara un mensaje de notificación al Gestor de Voluntariado notificando que se ha producido un nuevo registro a un trabajo o jornada voluntaria</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Notificación por Registro a un Trabajo Voluntario</name>
+    <style>none</style>
+    <subject>Notificación voluntaria Inscripción</subject>
+    <type>text</type>
+</EmailTemplate>

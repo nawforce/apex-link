@@ -1,0 +1,779 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customApplications>
+        <label><!-- Volunteers --></label>
+        <name>Groundwire_Volunteers</name>
+    </customApplications>
+    <customLabels>
+        <label><!-- PageMessagesConfirm --></label>
+        <name>PageMessagesConfirm</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- PageMessagesError --></label>
+        <name>PageMessagesError</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- PageMessagesFatal --></label>
+        <name>PageMessagesFatal</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- PageMessagesWarning --></label>
+        <name>PageMessagesWarning</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Assign button --></label>
+        <name>labelButtonAssign</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Cancel button used on several pages. --></label>
+        <name>labelButtonCancel</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Close button on various pages --></label>
+        <name>labelButtonClose</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Update button --></label>
+        <name>labelButtonEdit</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Find button --></label>
+        <name>labelButtonFind</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- The label for the Save button used on several pages. --></label>
+        <name>labelButtonSave</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Save and Close button used on several pages --></label>
+        <name>labelButtonSaveAndClose</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Send button --></label>
+        <name>labelButtonSend</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for VolunteersJobListingFS page&apos;s Sign Up button --></label>
+        <name>labelButtonSignUp</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- calendar label for all-day slot --></label>
+        <name>labelCalendarAllDay</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- calendar label for axisFormat of agenda views --></label>
+        <name>labelCalendarAxisFormat</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- calendar label for button text --></label>
+        <name>labelCalendarButtonText</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Close Window link in Calendar --></label>
+        <name>labelCalendarCloseWindow</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- calendar label for Column Format --></label>
+        <name>labelCalendarColumnFormat</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for confirmed count on Calendar --></label>
+        <name>labelCalendarConfirmed</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- calendar list of Day Names --></label>
+        <name>labelCalendarDayNames</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- calendar list of Short Day Names --></label>
+        <name>labelCalendarDayNamesShort</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- the first day of the week the calendar should start on --></label>
+        <name>labelCalendarFirstDay</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- calendar list of Month Names --></label>
+        <name>labelCalendarMonthNames</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- calendar list of Short Month Names --></label>
+        <name>labelCalendarMonthNamesShort</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Shift Calendar page --></label>
+        <name>labelCalendarPageTitle</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Print This Page link in calendar --></label>
+        <name>labelCalendarPrintThisPage</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Printable View link in calendar --></label>
+        <name>labelCalendarPrintableView</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Roster link on Calendar --></label>
+        <name>labelCalendarRoster</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for marking calendar shifts as full --></label>
+        <name>labelCalendarShiftFull</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for still needed count on calendar --></label>
+        <name>labelCalendarStillNeeded</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- calendar label for  Time Format --></label>
+        <name>labelCalendarTimeFormat</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- calendar label for Title Format --></label>
+        <name>labelCalendarTitleFormat</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- all campaigns entry in the Campaign filter on the JobCalendar page --></label>
+        <name>labelChoiceAllActiveCampaigns</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- all jobs entry in the Campaign filter on the JobCalendar page --></label>
+        <name>labelChoiceAllJobs</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelChooseCriteria --></label>
+        <name>labelChooseCriteria</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- list of browser color values for JobCalendar --></label>
+        <name>labelColorValues</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the cancel messagbox on the PersonalSiteContactInfo page --></label>
+        <name>labelContactInfoCancelMessage</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- title of contact info chart --></label>
+        <name>labelContactInfoChart</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label of chart x axis on Contact Info page --></label>
+        <name>labelContactInfoChartXAxis</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for chart y axis on Contact Info page --></label>
+        <name>labelContactInfoChartYAxis</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Date table column on PersonalSiteContactInfo --></label>
+        <name>labelContactInfoDateTableColumn</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Details link on PersonalSiteContactInfo --></label>
+        <name>labelContactInfoDetails</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Volunteer History on PersonalSiteContactInfo page --></label>
+        <name>labelContactInfoHistory</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Hours table column on PersonalSiteContactInfo --></label>
+        <name>labelContactInfoHoursTableColumn</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Job table column on PersonalSiteContactInfo --></label>
+        <name>labelContactInfoJobTableColumn</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- title for the Contact Lookup widget page --></label>
+        <name>labelContactInfoLookupTitle</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- sub message on PersonalSiteContactInfo if the volunteer has no completed hours. --></label>
+        <name>labelContactInfoNewVolunteerText</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label on PersonalSiteContactInfo if the volunteer has no completed hours. --></label>
+        <name>labelContactInfoNewVolunteerTitle</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Top % on Contact Info page --></label>
+        <name>labelContactInfoRankText</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelContactInfoRankText12Months --></label>
+        <name>labelContactInfoRankText12Months</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelContactInfoRankTextLifetime --></label>
+        <name>labelContactInfoRankTextLifetime</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Rank field on Contact Info page --></label>
+        <name>labelContactInfoRankTitle</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Time table column on PersonalSiteContactInfo page --></label>
+        <name>labelContactInfoTimeTableColumn</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Upcoming Shifts on PersonalSiteContactInfo page --></label>
+        <name>labelContactInfoUpcomingShifts</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for instructions on the PersonalSiteContactLookup Sites page --></label>
+        <name>labelContactLookupInstructions</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- the message displayed if the name &amp; email lookup to a contact fails --></label>
+        <name>labelContactLookupNotFound</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label displayed on PersonalSiteContactInfo if the lookup and email succeed --></label>
+        <name>labelContactLookupSuccess</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- section title for the Copy Schedule From section on the New and Edit VRS page --></label>
+        <name>labelCopySchedule</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelEventInThePast --></label>
+        <name>labelEventInThePast</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelExternalSignupUrl --></label>
+        <name>labelExternalSignupUrl</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Volunteers Signup File Upload description --></label>
+        <name>labelFileUploadDescription</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Find Volunteers page and sections --></label>
+        <name>labelFindVolunteers</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Number already assigned in Find Volunteers page. --></label>
+        <name>labelFindVolunteersAlreadyAssigned</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Assign section --></label>
+        <name>labelFindVolunteersAssign</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Criteria section --></label>
+        <name>labelFindVolunteersCriteria</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Find Results section --></label>
+        <name>labelFindVolunteersFindResults</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for help text in the Assign section. --></label>
+        <name>labelFindVolunteersHelpAssign</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for help text in the Criteria section. --></label>
+        <name>labelFindVolunteersHelpCriteria</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for help text in the Find Results section. --></label>
+        <name>labelFindVolunteersHelpFindResults</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Number newly assigned in Find Volunteers page. --></label>
+        <name>labelFindVolunteersNewlyAssigned</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelFirstShift --></label>
+        <name>labelFirstShift</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the From dropdown on Mass Email --></label>
+        <name>labelFrom</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelHide --></label>
+        <name>labelHide</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- title of Information section on NewAndEditVRS page --></label>
+        <name>labelInformation</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- System Note added to Shift when created by a JRS. --></label>
+        <name>labelJRSShiftCreatedSystemNote</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- System Note added to Shift when removed from a JRS. --></label>
+        <name>labelJRSShiftRemovedSystemNote</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Add More Rows link in Mass Edit page. --></label>
+        <name>labelLinkAddMoreRows</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for VolunteersJobListingFS page&apos;s full link --></label>
+        <name>labelLinkFull</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for VolunteersJobListingFS page&apos;s Sign Up link --></label>
+        <name>labelLinkSignUp</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for First link in list view --></label>
+        <name>labelListViewFirst</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Last link in list view --></label>
+        <name>labelListViewLast</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Next link in list view --></label>
+        <name>labelListViewNext</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for page info in list view --></label>
+        <name>labelListViewPageInfo</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Previous link in list view --></label>
+        <name>labelListViewPrevious</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the date filter From field. --></label>
+        <name>labelMassEditDateFilterFrom</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the date filter section To field. --></label>
+        <name>labelMassEditDateFilterTo</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- error message when Mass Edit Volunteer Hours save fails. --></label>
+        <name>labelMassEditErrorOnSave</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- help text for the Mass Edit Volunteer Hours page --></label>
+        <name>labelMassEditHelp</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the optional comment on the Volunteer Shift label. --></label>
+        <name>labelMassEditOptional</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- message displayed when Mass Edit Volunteer Hours saves successfully. --></label>
+        <name>labelMassEditSaveSuccess</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- title for the Mass Edit Volunteers Hours page --></label>
+        <name>labelMassEditTitle</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for status field on Mass Email Volunteers page --></label>
+        <name>labelMassEditVolunteersStatus</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Edit Template button --></label>
+        <name>labelMassEmailEditTemplate</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- error message for no contacts to email --></label>
+        <name>labelMassEmailErrorNoContacts</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- error message for no template specified in MassEmail --></label>
+        <name>labelMassEmailErrorNoTemplate</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelMassEmailHelp1 --></label>
+        <name>labelMassEmailHelp1</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelMassEmailHelp2 --></label>
+        <name>labelMassEmailHelp2</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelMassEmailHelp3 --></label>
+        <name>labelMassEmailHelp3</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelMassEmailHelp4 --></label>
+        <name>labelMassEmailHelp4</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelMassEmailHelp5 --></label>
+        <name>labelMassEmailHelp5</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelMassEmailHelp6 --></label>
+        <name>labelMassEmailHelp6</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelMassEmailHelp7 --></label>
+        <name>labelMassEmailHelp7</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelMassEmailTitle --></label>
+        <name>labelMassEmailTitle</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for View Templates button --></label>
+        <name>labelMassEmailViewTemplates</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Activity logging error on the MassEmailVolunteers page --></label>
+        <name>labelMassEmailVolunteersActivityLoggingError</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Log Activity checkbox on Mass Email Volunteers page --></label>
+        <name>labelMassEmailVolunteersLogActivity</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelMassEmailVolunteersLogActivityHelpText --></label>
+        <name>labelMassEmailVolunteersLogActivityHelpText</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- success message on the Mass Email Volunteers page --></label>
+        <name>labelMassEmailVolunteersSuccessCount</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Mass Email Volunteers title --></label>
+        <name>labelMassEmailVolunteersTitle</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Include Contacts Only Once checkbox on Mass Email Volunteers page --></label>
+        <name>labelMassEmailVolunteersUniqueContacts</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- help text for Include Contacts Only Once checkbox --></label>
+        <name>labelMassEmailVolunteersUniqueContactsHelpText</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the message body in MassEmailVolunteers --></label>
+        <name>labelMessageBody</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the loading... message used in some pages --></label>
+        <name>labelMessageLoading</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for VolunteersJobListingFS page&apos;s No Jobs message --></label>
+        <name>labelMessageNoJobs</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Saving... message on several pages --></label>
+        <name>labelMessageSaving</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Number Of Contacts field on MassEmailVolunteers --></label>
+        <name>labelNumberOfContacts</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- help text for Number of Contacts --></label>
+        <name>labelNumberOfContactsHelpText</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelPersonalSiteContactInfoTitle --></label>
+        <name>labelPersonalSiteContactInfoTitle</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelPersonalSiteEmailError --></label>
+        <name>labelPersonalSiteEmailError</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelPersonalSiteEmailRequired --></label>
+        <name>labelPersonalSiteEmailRequired</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelPersonalSiteFirstnameRequired --></label>
+        <name>labelPersonalSiteFirstnameRequired</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- title for the Job Calendar under Personal Site --></label>
+        <name>labelPersonalSiteJobCalendarTitle</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- title for JobListing page in Personal Site --></label>
+        <name>labelPersonalSiteJobListingTitle</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelPersonalSiteLastnameRequired --></label>
+        <name>labelPersonalSiteLastnameRequired</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- displays when the contact hasn&apos;t signed up for any jobs --></label>
+        <name>labelPersonalSiteNoJobsForContact</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- title of the Report Hours page under Personal Site --></label>
+        <name>labelPersonalSiteReportHoursTitle</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelPersonalSiteTitle --></label>
+        <name>labelPersonalSiteTitle</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the return to Calendar link on VolunteersJobListingFS --></label>
+        <name>labelReturnToCalendar</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelShiftClosed --></label>
+        <name>labelShiftClosed</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelShiftNumbers --></label>
+        <name>labelShiftNumbers</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelShowHelp --></label>
+        <name>labelShowHelp</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Show More on list views --></label>
+        <name>labelShowMore</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Subject field in MassEmailVolunteers --></label>
+        <name>labelSubject</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for VolunteersSignupFS page&apos;s submit button --></label>
+        <name>labelSubmitButton</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelTemplateObject --></label>
+        <name>labelTemplateObject</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelTemplateObjectHelpText --></label>
+        <name>labelTemplateObjectHelpText</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for VolunteersJobListingFS page&apos;s Signup Dialog Title --></label>
+        <name>labelTitleJobSignup</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVRSBatchDescription --></label>
+        <name>labelVRSBatchDescription</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVRSBatchProcess --></label>
+        <name>labelVRSBatchProcess</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVRSBatchProcessProgress --></label>
+        <name>labelVRSBatchProcessProgress</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVRSBatchRun --></label>
+        <name>labelVRSBatchRun</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- System Note added to Hour when created by a VRS. --></label>
+        <name>labelVRSHoursCreatedSystemNote</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- error string for required fields --></label>
+        <name>labelVolunteerReportHoursErrorRequiredField</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- The help text displayed on the VolunteersReportHours Sites page with No Shifts --></label>
+        <name>labelVolunteerReportHoursNotesNoShifts</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- The help text displayed on the VolunteersReportHours Sites page with Shifts --></label>
+        <name>labelVolunteerReportHoursNotesShifts</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- The message displayed when a volunteer successfully records their hours. --></label>
+        <name>labelVolunteerReportHoursThankYou</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Thank you message displayed after a successful Volunteer Signup on the web --></label>
+        <name>labelVolunteerSignupThankYou</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVolunteersHelp --></label>
+        <name>labelVolunteersHelp</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVolunteersHelpDescription --></label>
+        <name>labelVolunteersHelpDescription</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVolunteersHelpStep1 --></label>
+        <name>labelVolunteersHelpStep1</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVolunteersHelpStep1Text --></label>
+        <name>labelVolunteersHelpStep1Text</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVolunteersHelpStep2 --></label>
+        <name>labelVolunteersHelpStep2</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVolunteersHelpStep2Text --></label>
+        <name>labelVolunteersHelpStep2Text</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVolunteersHelpStep3 --></label>
+        <name>labelVolunteersHelpStep3</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVolunteersHelpStep3Text --></label>
+        <name>labelVolunteersHelpStep3Text</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- error string for signup of too many volunteers --></label>
+        <name>labelVolunteersJobListingErrorTooManyVols</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- title of the Volunteers Wizard Campaign Information section. --></label>
+        <name>labelVolunteersWizardCampaignInformation</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Close Existing Campaign --></label>
+        <name>labelVolunteersWizardClone</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Copy Volunteers checkbox on Volunteers Wizard --></label>
+        <name>labelVolunteersWizardCopyVolunteers</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- error message for not choosing an existing campaign or sample jobs --></label>
+        <name>labelVolunteersWizardErrorExistingOrSample</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- error message for not choosing Sample Jobs along with Sample Shifts --></label>
+        <name>labelVolunteersWizardErrorNoJobsWithShifts</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for first shift date on Volunteers Wizard --></label>
+        <name>labelVolunteersWizardFirstShiftDate</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- The help text displayed at the top of the Volunteers Wizard page. --></label>
+        <name>labelVolunteersWizardHelp</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- help text for the Volunteers Wizard Jobs &amp; Shifts section. --></label>
+        <name>labelVolunteersWizardJobAndShiftHelp</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Label for the Volunteers Wizard Volunteer Jobs &amp; Shifts section --></label>
+        <name>labelVolunteersWizardJobsAndShifts</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- The title for the main section of the Volunteers Wizard. --></label>
+        <name>labelVolunteersWizardNewCampaignTitle</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for new shift date on Volunteers Wizard --></label>
+        <name>labelVolunteersWizardNewShiftDate</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Volunteer Hours Status picklist on Volunteers Wizard --></label>
+        <name>labelVolunteersWizardOverrideHoursStatus</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- name of sample jobs --></label>
+        <name>labelVolunteersWizardSampleJobName</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for number of sample jobs --></label>
+        <name>labelVolunteersWizardSampleJobs</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- name of sample shifts --></label>
+        <name>labelVolunteersWizardSampleShiftName</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for number of sample shifts --></label>
+        <name>labelVolunteersWizardSampleShifts</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- the title of the Volunteers Wizard page. --></label>
+        <name>labelVolunteersWizardTitle</name>
+    </customLabels>
+    <customTabs>
+        <label><!-- Volunteers Help --></label>
+        <name>About_Volunteers</name>
+    </customTabs>
+    <customTabs>
+        <label><!-- Find Volunteers --></label>
+        <name>Find_Volunteers</name>
+    </customTabs>
+    <customTabs>
+        <label><!-- Process Recurrence Schedules --></label>
+        <name>Process_Recurrence_Schedules</name>
+    </customTabs>
+    <customTabs>
+        <label><!-- Shift Calendar --></label>
+        <name>Shift_Calendar</name>
+    </customTabs>
+    <customTabs>
+        <label><!-- Volunteers Wizard --></label>
+        <name>Volunteers_Wizard</name>
+    </customTabs>
+    <reportTypes>
+        <description><!-- Accounts with Volunteer Hours --></description>
+        <label><!-- Accounts with Volunteer Hours --></label>
+        <name>Accounts</name>
+        <sections>
+            <label><!-- Accounts --></label>
+            <name>Accounts</name>
+        </sections>
+        <sections>
+            <label><!-- Contacts --></label>
+            <name>Contacts</name>
+        </sections>
+        <sections>
+            <label><!-- Volunteer Hours --></label>
+            <name>Volunteer Hours</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description><!-- Volunteer Campaigns --></description>
+        <label><!-- Volunteer Campaigns --></label>
+        <name>Volunteer_Campaigns</name>
+        <sections>
+            <label><!-- Campaigns --></label>
+            <name>Campaigns</name>
+        </sections>
+        <sections>
+            <label><!-- Volunteer Jobs --></label>
+            <name>Volunteer Jobs</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description><!-- Volunteer Jobs and Hours --></description>
+        <label><!-- Volunteer Jobs and Hours --></label>
+        <name>Volunteer_Jobs_and_Hours</name>
+        <sections>
+            <label><!-- Volunteer Hours --></label>
+            <name>Volunteer Hours</name>
+        </sections>
+        <sections>
+            <label><!-- Volunteer Jobs --></label>
+            <name>Volunteer Jobs</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description><!-- Volunteer Jobs with Shifts &amp; Hours --></description>
+        <label><!-- Volunteer Jobs with Shifts &amp; Hours --></label>
+        <name>Volunteer_Jobs_with_Shifts_Hours</name>
+        <sections>
+            <label><!-- Volunteer Hours --></label>
+            <name>Volunteer Hours</name>
+        </sections>
+        <sections>
+            <label><!-- Volunteer Jobs --></label>
+            <name>Volunteer Jobs</name>
+        </sections>
+        <sections>
+            <label><!-- Volunteer Shifts --></label>
+            <name>Volunteer Shifts</name>
+        </sections>
+    </reportTypes>
+</Translations>

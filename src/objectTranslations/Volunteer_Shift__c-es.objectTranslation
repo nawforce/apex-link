@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Jornada Voluntaria</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Jornadas Voluntarias</value>
+    </caseValues>
+    <fields>
+        <label>Descripción</label>
+        <name>Description__c</name>
+    </fields>
+    <fields>
+        <label>N° deseado de Voluntarios</label>
+        <name>Desired_Number_of_Volunteers__c</name>
+    </fields>
+    <fields>
+        <help>¿Cuántas Horas dura la Jornada?</help>
+        <label>Duración (Horas)</label>
+        <name>Duration__c</name>
+    </fields>
+    <fields>
+        <label>Ciudad de localización del Trabajo</label>
+        <name>Job_Location_City__c</name>
+    </fields>
+    <fields>
+        <label>Estado o Provincia de localización</label>
+        <name>Job_Location_State_Province__c</name>
+    </fields>
+    <fields>
+        <label>Calle de localización del Trabajo</label>
+        <name>Job_Location_Street__c</name>
+    </fields>
+    <fields>
+        <label>Código Postal de localización</label>
+        <name>Job_Location_Zip_Postal_Code__c</name>
+    </fields>
+    <fields>
+        <help>Ajustado automáticamente por el planificador del sistema para mostrar el horario de recurrencia del Trabajo con el que este turno se asocia.</help>
+        <label>Horario Recurrente del Trabajo</label>
+        <name>Job_Recurrence_Schedule__c</name>
+        <relationshipLabel>Jornadas Voluntarias</relationshipLabel>
+    </fields>
+    <fields>
+        <label>N° de Voluntarios aún necesitados</label>
+        <name>Number_of_Volunteers_Still_Needed__c</name>
+    </fields>
+    <fields>
+        <label>Fecha y Hora de Inicio</label>
+        <name>Start_Date_Time__c</name>
+    </fields>
+    <fields>
+        <help>Texto de información desde el programador del sistema.</help>
+        <label>Nota del Sistema</label>
+        <name>System_Note__c</name>
+    </fields>
+    <fields>
+        <help>CAMPO DEL SISTEMA. NO EDITAR. Número total de Voluntarios con Horas en Estatus = Completadas o Confirmadas</help>
+        <label>Voluntarios Totales</label>
+        <name>Total_Volunteers__c</name>
+    </fields>
+    <fields>
+        <label>Trabajo Voluntario</label>
+        <name>Volunteer_Job__c</name>
+        <relationshipLabel>Jornadas Voluntarias</relationshipLabel>
+    </fields>
+    <gender>Feminine</gender>
+    <layouts>
+        <layout>Volunteer Shift Layout</layout>
+        <sections>
+            <label>Links personalizados</label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label>Campos del Sistema - NO EDITAR</label>
+            <section>System Fields - DO NOT EDIT</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>ShiftID</nameFieldLabel>
+    <webLinks>
+        <label>Buscador de Voluntarios</label>
+        <name>Find_Volunteers</name>
+    </webLinks>
+    <webLinks>
+        <label>Email Masivo a Voluntarios</label>
+        <name>Mass_Email_Volunteers</name>
+    </webLinks>
+    <webLinks>
+        <label>Lista de Voluntarios</label>
+        <name>Roster</name>
+    </webLinks>
+    <webLinks>
+        <label>Calendario de Jornadas</label>
+        <name>Shift_Calendar</name>
+    </webLinks>
+</CustomObjectTranslation>

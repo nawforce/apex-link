@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Un correo electrónico de confirmación y agradeciendo se enviara al contacto o candidato por registrarse para ser voluntario</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Agradecimiento Registro Voluntario</name>
+    <style>none</style>
+    <subject>Gracias por registrarse para ser voluntario en nuestra organización.</subject>
+    <type>text</type>
+</EmailTemplate>

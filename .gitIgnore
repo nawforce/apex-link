@@ -1,0 +1,11 @@
+.settings
+.project
+salesforce.schema
+build.properties
+src/layouts/Global-Global Layout.layout
+src/profiles/Customer Community Login User.profile
+src/profiles/Customer Community User.profile
+src/profiles/Partner Community Login User.profile
+src/profiles/Partner Community User.profile
+src/workflows/User.workflow
+.appcloud/

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Le modèle envoyé par la page PersonalSiteContactLookup</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Volunteers Personal Site Contact Lookup Fr</name>
+    <style>none</style>
+    <subject>Vos informations de bénévole</subject>
+    <textOnly>Bonjour {!Contact.FirstName},
+
+Voici un lien vers vos information de bénévoles:
+
+ADMIN : Vous devez modifier ce modèle pour mettre en l&apos;URL complète à votre page PersonalSiteContactInfo . Il n&apos;y a pas moyen d&apos;obtenir l&apos; Sites URL à partir d&apos;un champ de fusion dans le modèle de courriel . L&apos;URL doit ressembler à quelque chose comme :
+
+https://xxxxxxx.na3.force.com/Volunteers/GW_Volunteers__PersonalSiteContactInfo?contactId={!Contact.Id}
+
+Informations du bénévole
+
+Merci.</textOnly>
+    <type>custom</type>
+</EmailTemplate>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <help>Fecha de Inicio de las Primeras Horas Voluntarias</help>
+        <label>Primer día del Voluntario</label>
+        <name>First_Volunteer_Date__c</name>
+    </fields>
+    <fields>
+        <help>Fecha de Fin de las últimas horas voluntarias</help>
+        <label>Última Fecha del Voluntariado</label>
+        <name>Last_Volunteer_Date__c</name>
+    </fields>
+    <fields>
+        <label>Cuenta Única del Voluntario</label>
+        <name>Unique_Volunteer_Count__c</name>
+    </fields>
+    <fields>
+        <help>Verifique si este contacto no desea recibir correos electrónicos  automáticos sobre sus próximos turnos. Se utiliza en la regla de flujo de trabajo del Email recordatorio de horas de trabajo voluntario</help>
+        <label>Email recordatorio</label>
+        <name>Volunteer_Auto_Reminder_Email_Opt_Out__c</name>
+    </fields>
+    <fields>
+        <label>Disponibilidad del Voluntario</label>
+        <name>Volunteer_Availability__c</name>
+        <picklistValues>
+            <masterLabel>Afternoon</masterLabel>
+            <translation>Tarde</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Morning</masterLabel>
+            <translation>Mañana</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekdays</masterLabel>
+            <translation>Laborables</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekends</masterLabel>
+            <translation>Fin de Semana</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekly</masterLabel>
+            <translation>Semanal</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>Número total de horas completas. No se incluyen las horas con otros valores de estado.</help>
+        <label>Horas Voluntarias</label>
+        <name>Volunteer_Hours__c</name>
+    </fields>
+    <fields>
+        <help>Fecha del más reciente registro del voluntario en la web. Se utiliza para activar el flujo de trabajo para las notificaciones y correos electrónicos de agradecimiento.</help>
+        <label>Última Fecha de login del Voluntario</label>
+        <name>Volunteer_Last_Web_Signup_Date__c</name>
+    </fields>
+    <fields>
+        <help>Notas sobre el voluntario que el encargado de voluntario o personal de la organización desee guardar en sus registros.</help>
+        <label>Notas del Encargado del Voluntario</label>
+        <name>Volunteer_Manager_Notes__c</name>
+    </fields>
+    <fields>
+        <help>Notas del voluntario. Tenga en cuenta que el formulario de registro web anexa los comentarios del volntario a este campo.</help>
+        <label>Notas del Voluntario</label>
+        <name>Volunteer_Notes__c</name>
+    </fields>
+    <fields>
+        <help>La organización, empresa o grupo de contacto se ofrecen como voluntarios en nombre de.</help>
+        <label>Organización voluntaria</label>
+        <name>Volunteer_Organization__c</name>
+    </fields>
+    <fields>
+        <help>Seleciona la(s) habilidad(es) que tiene el contacto para encontrarlo mediante el Buscador de Voluntarios</help>
+        <label>Habilidades del Voluntario</label>
+        <name>Volunteer_Skills__c</name>
+        <picklistValues>
+            <masterLabel>Computer usage</masterLabel>
+            <translation>Conocimientos en Informatica</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Event Planning</masterLabel>
+            <translation>Planificación de Eventos</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Fundraising</masterLabel>
+            <translation>Desarrollo de Fondos</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Landscaping</masterLabel>
+            <translation>Paisajismo</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Manual labor</masterLabel>
+            <translation>Trabajo Manual</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Marketing</masterLabel>
+            <translation><!-- Marketing --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>Estado del voluntario</label>
+        <name>Volunteer_Status__c</name>
+        <picklistValues>
+            <masterLabel>Active</masterLabel>
+            <translation>Activo</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Inactive</masterLabel>
+            <translation>Inactivo</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>New Sign Up</masterLabel>
+            <translation>Nuevo Registro</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Prospective</masterLabel>
+            <translation>Prevista</translation>
+        </picklistValues>
+    </fields>
+    <workflowTasks>
+        <description>Un correo electrónico automático de agradcimiento ha sido enviado al contacto por registrarse como voluntario</description>
+        <name>Volunteer_Signup_Thank_You_Sent_Contact</name>
+        <subject>Agradecimiento enviado por el registro del Contacto</subject>
+    </workflowTasks>
+</CustomObjectTranslation>

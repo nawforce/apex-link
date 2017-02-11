@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <label>Disponibilités des bénévoles</label>
+        <name>Volunteer_Availability__c</name>
+        <picklistValues>
+            <masterLabel>Afternoon</masterLabel>
+            <translation>Après-midi</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Morning</masterLabel>
+            <translation>Matin</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekdays</masterLabel>
+            <translation>Semaine</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekends</masterLabel>
+            <translation>Weekend</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekly</masterLabel>
+            <translation>Hebdomadaire</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>Remarques des bénévoles</label>
+        <name>Volunteer_Notes__c</name>
+    </fields>
+    <fields>
+        <help>Sélectionnez la ou les compétence(s) que le contact qui devraient être utilisées pour trouver un poste de bénévole.</help>
+        <label>Compétences des bénévoles</label>
+        <name>Volunteer_Skills__c</name>
+        <picklistValues>
+            <masterLabel>Computer usage</masterLabel>
+            <translation>Utilisation de l&apos;ordinateur</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Event Planning</masterLabel>
+            <translation>Planification d&apos;événements</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Fundraising</masterLabel>
+            <translation>Levée de fonds</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Landscaping</masterLabel>
+            <translation>Aménagement paysager</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Manual labor</masterLabel>
+            <translation>Travail manuel</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Marketing</masterLabel>
+            <translation>Marketing</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>Statut des bénévoles</label>
+        <name>Volunteer_Status__c</name>
+        <picklistValues>
+            <masterLabel>New Sign Up</masterLabel>
+            <translation>Nouvelle Inscription</translation>
+        </picklistValues>
+    </fields>
+    <workflowTasks>
+        <description>Un email automatique a été envoyé au piste en leur remerciant de l&apos;inscription pour devenir bénévole.</description>
+        <name>Volunteer_Signup_Thank_You_Sent_Lead</name>
+        <subject>Inscription Bénévoles Remerciment Envoyé - Piste</subject>
+    </workflowTasks>
+</CustomObjectTranslation>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Heures de Bénévoles</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Heures de Bénévoles</value>
+    </caseValues>
+    <fields>
+        <label>Commentaires</label>
+        <name>Comments__c</name>
+    </fields>
+    <fields>
+        <label>Contact</label>
+        <name>Contact__c</name>
+        <relationshipLabel>Heures de Bénévolat</relationshipLabel>
+    </fields>
+    <fields>
+        <label>Date de clôture</label>
+        <name>End_Date__c</name>
+    </fields>
+    <fields>
+        <label>Nom Complet</label>
+        <name>Full_Name__c</name>
+    </fields>
+    <fields>
+        <label>Heures Travaillées</label>
+        <name>Hours_Worked__c</name>
+    </fields>
+    <fields>
+        <help>Par défaut à 1. Augmenter si cette personne amène des personnes supplémentaires que vous ne suivez pas directement dans les contacts, et qui enregisteront pas des Heures de Bénévolat.</help>
+        <label>Nombre de Bénévoles</label>
+        <name>Number_of_Volunteers__c</name>
+    </fields>
+    <fields>
+        <help>La date et l&apos;heure que le bénévole compte commencer.</help>
+        <label>Date et Heure de Début Planifié</label>
+        <name>Planned_Start_Date_Time__c</name>
+    </fields>
+    <fields>
+        <label>Date et l&apos;heure du Quart de Travail</label>
+        <name>Shift_Start_Date_Time__c</name>
+    </fields>
+    <fields>
+        <label>Date de début</label>
+        <name>Start_Date__c</name>
+    </fields>
+    <fields>
+        <label>Statut</label>
+        <name>Status__c</name>
+        <picklistValues>
+            <masterLabel>Canceled</masterLabel>
+            <translation>Annulé</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Completed</masterLabel>
+            <translation>Terminé</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Confirmed</masterLabel>
+            <translation>Confirmée</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>No-Show</masterLabel>
+            <translation>Ne s&apos;est pas presenté</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Prospect</masterLabel>
+            <translation>Perspective</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Web Sign Up</masterLabel>
+            <translation>Inscription Web</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>Informations texte de l&apos;ordonnanceur du système.</help>
+        <label>Remarque système</label>
+        <name>System_Note__c</name>
+    </fields>
+    <fields>
+        <label>Heures totales travaillées</label>
+        <name>Total_Hours_Worked__c</name>
+    </fields>
+    <fields>
+        <label>Nom de la Campagne des Bénévoles</label>
+        <name>Volunteer_Campaign_Name__c</name>
+    </fields>
+    <fields>
+        <label>Campagne de Bénévoles</label>
+        <name>Volunteer_Campaign__c</name>
+    </fields>
+    <fields>
+        <label>Poste Bénévole</label>
+        <name>Volunteer_Job__c</name>
+        <relationshipLabel>Heures de Bénévolat</relationshipLabel>
+    </fields>
+    <fields>
+        <label>Horaires de Récurrence des Bénévoles</label>
+        <name>Volunteer_Recurrence_Schedule__c</name>
+        <relationshipLabel>Heures de Bénévolat</relationshipLabel>
+    </fields>
+    <fields>
+        <label>Quart de Travail de Bénévolat</label>
+        <lookupFilter>
+            <informationalMessage>Vous ne pouvez choisir qu&apos;un quart de travail qui appartient au poste actuel.</informationalMessage>
+        </lookupFilter>
+        <name>Volunteer_Shift__c</name>
+        <relationshipLabel>Heures de Bénévolat</relationshipLabel>
+    </fields>
+    <gender>Feminine</gender>
+    <layouts>
+        <layout>Volunteer Hours Layout</layout>
+        <sections>
+            <label>Liens personnalisés</label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>HoursID</nameFieldLabel>
+    <startsWith>Consonant</startsWith>
+    <validationRules>
+        <errorMessage>S&apos;il vous plaît indiquer les heures travaillées lors de la configuration État complété.</errorMessage>
+        <name>HoursRequiredOnCompletion</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>S&apos;il vous plaît spécifier une valeur d&apos;état.</errorMessage>
+        <name>StatusMustBeSet</name>
+    </validationRules>
+    <webLinks>
+        <label>Modifier les Heures de Bénévolat en masse</label>
+        <name>Mass_Edit_Volunteer_Hours</name>
+    </webLinks>
+</CustomObjectTranslation>

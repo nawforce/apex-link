@@ -1,0 +1,5 @@
+Bonjour {!Contact.FirstName},
+
+Merci pour votre inscription en tant que bénévole.  Notre responsable des bénévoles prendra contact avec vous prochainement pour trouver la meilleure façon d'utiliser vos compétences !
+
+Nous vous remercions chaleureusement pour votre aide, {!Organization.Name}

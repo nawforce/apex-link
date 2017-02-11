@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value><!-- Volunteers Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value><!-- Volunteers Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>false</plural>
+        <value><!-- Volunteers Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>true</plural>
+        <value><!-- Volunteers Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>false</plural>
+        <value><!-- Volunteers Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>true</plural>
+        <value><!-- Volunteers Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>false</plural>
+        <value><!-- Volunteers Settings --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>true</plural>
+        <value><!-- Volunteers Settings --></value>
+    </caseValues>
+    <fields>
+        <help>Durch Semikolon getrennte Liste der zusätzlichen Kontakt-E-Mail-Felder, beim Kontaktabgleich zu berücksichtigen. Felder werden durch den vollständigen Entwicklernamen einschließlich Namenspräfix angegeben. NPSP-E-Mail-Felder werden automatisch aktiviert.</help>
+        <label>Kontakt-E-Mail-Felder für den Abgleich</label>
+        <name>Contact_Match_Email_Fields__c</name>
+    </fields>
+    <fields>
+        <help>Durch Semikolon getrennte Liste der zusätzlichen Kontakt-Vornamenfelder, beim Kontaktabgleich zu berücksichtigen. Beispiel: ein Kurznamen-Feld. Die Felder werden durch ihren vollständigen Entwicklernamen einschließlich Namenspräfix angegeben.</help>
+        <label>Vornamensfelder für den Kontaktabgleich</label>
+        <name>Contact_Match_First_Name_Fields__c</name>
+    </fields>
+    <fields>
+        <help>Gibt an, welche Regel befolgt werden soll, wenn versucht wird, Kontakte mit Kontakten auf Seiten der Freiwilligenschicht-Sites abzugleichen Durch Semikolon getrennte Zeichenfolge mit einem oder mehreren Feldern &quot;Vorname&quot;, &quot;Nachname&quot; und &quot;E-Mail&quot;</help>
+        <label>Kontakt-Abgleichsregel</label>
+        <name>Contact_Matching_Rule__c</name>
+    </fields>
+    <fields>
+        <help>Wenn Sie einen Google Maps API-Schlüssel hinzufügen, wird auf den Seiten mit den Auftragslisten eine Karte auf Ihrer Freiwilligen-Site mit dem Auftrags-Standort angezeigt.</help>
+        <label>Google Maps API-Schlüssel</label>
+        <name>Google_Maps_API_Key__c</name>
+    </fields>
+    <fields>
+        <help>Der Anzeigename der organisationsweiten E-Mail-Adresse, die in E-Mails von der Seite der &quot;Sites zum Nachschlagen von Kontakten auf der persönlichen Site&quot; verwendet wird</help>
+        <label><!-- Personal Site Org-Wide Email Name --></label>
+        <name>Personal_Site_Org_Wide_Email_Name__c</name>
+    </fields>
+    <fields>
+        <help><!-- Personal Site Report Hours Filter By Contact --></help>
+        <label><!-- Personal Site Report Hours Filtered --></label>
+        <name>Personal_Site_Report_Hours_Filtered__c</name>
+    </fields>
+    <fields>
+        <help>Bei Aktivierung dieser Option muss für die persönliche Site der E-Mail-URL-Parameter hinzugefügt und mit dem E-Mail-Feld des angegebenen Kontakts abgeglichen werden.</help>
+        <label>URL-E-Mail-Abgl. F. pers. Site erford.</label>
+        <name>Personal_Site_Requires_URL_Email_Match__c</name>
+    </fields>
+    <fields>
+        <help>Wie viele Monate sollen die Schichten für einen wiederk. Auftrag vorausgeplant werden? Ist diese Zahl zu hoch, greift evtl. die Salesforce CPU-Zeitbeschränkung. Dies würde die vollst. Ausführung d. Auftragsplaners verhindern.  Wir empfehlen max. 4 Monate.</help>
+        <label>Zukünftige Monate für wiederk. Auftrag</label>
+        <name>Recurring_Job_Future_Months__c</name>
+    </fields>
+    <fields>
+        <help>Name d. Accounts z. Erstellung neuer Kontakte bei d. Anmeldung. Einstellungsfeld leer lassen, wenn Sie d. NPSP-Eins-zu-Eins-Modell verwenden. Legen Sie hierfür d. Namen des Accounts fest, wenn Sie das Bucket-Modell verwenden (normalerweise&quot;Einzelperson&quot;).</help>
+        <label>Bucket-Account für Erst. bei Anmeldung</label>
+        <name>Signup_Bucket_Account_On_Create__c</name>
+    </fields>
+    <fields>
+        <help>Falls Freiwilligen-Anmeldung neue Kontaktdatensätze erstellt, wenn kein vorh. Kontakt (oder wenn &quot;Anmeldung gleicht vorhandene Kontakte ab&quot; nicht aktiviert). Wenn Einstellung nicht aktiviert, werden Leads erstellt, falls keine Übereinstimmungen gefunden.</help>
+        <label>Anmeld. erst. Kont., falls k. Übereinst.</label>
+        <name>Signup_Creates_Contacts_If_No_Match__c</name>
+    </fields>
+    <fields>
+        <help>Falls die Seite &quot;Freiwilligen-Anmeldung&quot; versucht, die Person mit einem vorhandenen Kontakt abzugleichen (nach Vornamen, Nachnamen, E-Mail-Adresse)</help>
+        <label>Anmeldung gleicht vorhand. Kontakte ab.</label>
+        <name>Signup_Matches_Existing_Contacts__c</name>
+    </fields>
+    <gender><!-- Neuter --></gender>
+</CustomObjectTranslation>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Quarts de Bénévoles</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Quarts de Bénévoles</value>
+    </caseValues>
+    <fields>
+        <label>Descriptif</label>
+        <name>Description__c</name>
+    </fields>
+    <fields>
+        <label>Nombre de bénévoles désiré</label>
+        <name>Desired_Number_of_Volunteers__c</name>
+    </fields>
+    <fields>
+        <help>Combien d&apos;heures est ce quart de travail?</help>
+        <label>Durée (heures)</label>
+        <name>Duration__c</name>
+    </fields>
+    <fields>
+        <label>Lieu du Poste - Ville</label>
+        <name>Job_Location_City__c</name>
+    </fields>
+    <fields>
+        <label>Lieu du Poste - Etat/Region</label>
+        <name>Job_Location_State_Province__c</name>
+    </fields>
+    <fields>
+        <label>Lieu du Poste - Rue</label>
+        <name>Job_Location_Street__c</name>
+    </fields>
+    <fields>
+        <label>Lieu du Poste - Code Postale</label>
+        <name>Job_Location_Zip_Postal_Code__c</name>
+    </fields>
+    <fields>
+        <help>Est fixé automatiquement par le planificateur système pour montrer les programmes récurrents d&apos;activité avec lequel cette plage horaire est associée.</help>
+        <label>Horaires de Récurrence des Postes</label>
+        <name>Job_Recurrence_Schedule__c</name>
+        <relationshipLabel>Quarts de Travail de Bénévolat</relationshipLabel>
+    </fields>
+    <fields>
+        <label>Nombre de Bénévoles Manquants</label>
+        <name>Number_of_Volunteers_Still_Needed__c</name>
+    </fields>
+    <fields>
+        <label>Date &amp; Heure de début</label>
+        <name>Start_Date_Time__c</name>
+    </fields>
+    <fields>
+        <help>Informations texte de l&apos;ordonnanceur du système.</help>
+        <label>Remarque système</label>
+        <name>System_Note__c</name>
+    </fields>
+    <fields>
+        <help>DOMAINE DU SYSTÈME. NE PAS MODIFIER. Le nombre total de bénévoles dont le statut des heures = complétée ou confirmée.</help>
+        <label>Nombre total de Bénévoles</label>
+        <name>Total_Volunteers__c</name>
+    </fields>
+    <fields>
+        <label>Poste Bénévole</label>
+        <name>Volunteer_Job__c</name>
+        <relationshipLabel>Quart de Travail de Bénévolat</relationshipLabel>
+    </fields>
+    <gender>Masculine</gender>
+    <layouts>
+        <layout>Volunteer Shift Layout</layout>
+        <sections>
+            <label>Liens personnalisés</label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label>Champs système - NE PAS MODIFIER</label>
+            <section>System Fields - DO NOT EDIT</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>ShiftID</nameFieldLabel>
+    <startsWith>Consonant</startsWith>
+    <webLinks>
+        <label>Découverte de Bénévoles</label>
+        <name>Find_Volunteers</name>
+    </webLinks>
+    <webLinks>
+        <label>Envoi Email aux Bénévoles en masse</label>
+        <name>Mass_Email_Volunteers</name>
+    </webLinks>
+    <webLinks>
+        <label>Liste de Bénévoles</label>
+        <name>Roster</name>
+    </webLinks>
+    <webLinks>
+        <label>Calendrier des Quarts de Travail</label>
+        <name>Shift_Calendar</name>
+    </webLinks>
+</CustomObjectTranslation>

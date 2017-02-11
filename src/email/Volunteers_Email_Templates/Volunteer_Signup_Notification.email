@@ -1,0 +1,9 @@
+A new volunteer has signed up. 
+
+{!Contact.FirstName} {!Contact.LastName}
+
+Here is a link to their record:
+{!Contact.Link}
+{!Lead.Link}
+
+Please follow up with them soon.

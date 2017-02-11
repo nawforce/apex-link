@@ -1,0 +1,786 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customApplications>
+        <label>Freiwillige</label>
+        <name>Groundwire_Volunteers</name>
+    </customApplications>
+    <customLabels>
+        <label><!-- PageMessagesConfirm --></label>
+        <name>PageMessagesConfirm</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- PageMessagesError --></label>
+        <name>PageMessagesError</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- PageMessagesFatal --></label>
+        <name>PageMessagesFatal</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- PageMessagesWarning --></label>
+        <name>PageMessagesWarning</name>
+    </customLabels>
+    <customLabels>
+        <label>Zuweisen</label>
+        <name>labelButtonAssign</name>
+    </customLabels>
+    <customLabels>
+        <label>Abbrechen</label>
+        <name>labelButtonCancel</name>
+    </customLabels>
+    <customLabels>
+        <label>Schließen</label>
+        <name>labelButtonClose</name>
+    </customLabels>
+    <customLabels>
+        <label>Aktualisieren</label>
+        <name>labelButtonEdit</name>
+    </customLabels>
+    <customLabels>
+        <label>Suchen</label>
+        <name>labelButtonFind</name>
+    </customLabels>
+    <customLabels>
+        <label>Speichern</label>
+        <name>labelButtonSave</name>
+    </customLabels>
+    <customLabels>
+        <label>Speichern und schließen</label>
+        <name>labelButtonSaveAndClose</name>
+    </customLabels>
+    <customLabels>
+        <label>Senden</label>
+        <name>labelButtonSend</name>
+    </customLabels>
+    <customLabels>
+        <label>Anmelden</label>
+        <name>labelButtonSignUp</name>
+    </customLabels>
+    <customLabels>
+        <label>Den ganzen Tag</label>
+        <name>labelCalendarAllDay</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- calendar label for axisFormat of agenda views --></label>
+        <name>labelCalendarAxisFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>Vorige:     &apos;&amp;nbsp;&amp;#9668;&amp;nbsp;&apos;,
+nächstes:     &apos;&amp;nbsp;&amp;#9658;&amp;nbsp;&apos;,
+Vorjahr: &apos;&amp;nbsp;&amp;lt;&amp;lt;&amp;nbsp;&apos;,
+nächstesJahr: &apos;&amp;nbsp;&amp;gt;&amp;gt;&amp;nbsp;&apos;,
+heute:    &apos;Heute&apos;,
+Monat:    &apos;Monat&apos;,
+Woche:     &apos;Woche&apos;,
+Tag:      &apos;Tag&apos;</label>
+        <name>labelCalendarButtonText</name>
+    </customLabels>
+    <customLabels>
+        <label>Fenster schließen</label>
+        <name>labelCalendarCloseWindow</name>
+    </customLabels>
+    <customLabels>
+        <label>Monat: &apos;ttt&apos;, Woche: &apos;ttt M/t&apos;, Tag: &apos;tttt M/t&apos;</label>
+        <name>labelCalendarColumnFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>bestätigt:&amp;nbsp;</label>
+        <name>labelCalendarConfirmed</name>
+    </customLabels>
+    <customLabels>
+        <label>&apos;Sonntag&apos;, &apos;Montag&apos;, &apos;Dienstag&apos;, &apos;Mittwoch&apos;, &apos;Donnerstag&apos;, &apos;Freitag&apos;, &apos;Samstag&apos;</label>
+        <name>labelCalendarDayNames</name>
+    </customLabels>
+    <customLabels>
+        <label>&apos;So&apos;, &apos;Mo&apos;, &apos;Di&apos;, &apos;Mi&apos;, &apos;Do&apos;, &apos;Fr&apos;, &apos;Sa&apos;</label>
+        <name>labelCalendarDayNamesShort</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- the first day of the week the calendar should start on --></label>
+        <name>labelCalendarFirstDay</name>
+    </customLabels>
+    <customLabels>
+        <label>&apos;Januar&apos;, &apos;Februar&apos;, &apos;März&apos;, &apos;April&apos;, &apos;Mai&apos;, &apos;Juni&apos;, &apos;Juli&apos;, &apos;August&apos;, &apos;September&apos;, &apos;Oktober&apos;, &apos;November&apos;, &apos;Dezember&apos;</label>
+        <name>labelCalendarMonthNames</name>
+    </customLabels>
+    <customLabels>
+        <label>&apos;Jan&apos;, &apos;Feb&apos;, &apos;Mrz&apos;, &apos;Apr&apos;, &apos;Mai&apos;, &apos;Jun&apos;, &apos;Jul&apos;, &apos;Aug&apos;, &apos;Sep&apos;, &apos;Okt&apos;, &apos;Nov&apos;, &apos;Dez&apos;</label>
+        <name>labelCalendarMonthNamesShort</name>
+    </customLabels>
+    <customLabels>
+        <label>Freiwilligenschichtkalender</label>
+        <name>labelCalendarPageTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Diese Seite drucken</label>
+        <name>labelCalendarPrintThisPage</name>
+    </customLabels>
+    <customLabels>
+        <label>Druckansicht</label>
+        <name>labelCalendarPrintableView</name>
+    </customLabels>
+    <customLabels>
+        <label>Dienstplan</label>
+        <name>labelCalendarRoster</name>
+    </customLabels>
+    <customLabels>
+        <label>(voll)</label>
+        <name>labelCalendarShiftFull</name>
+    </customLabels>
+    <customLabels>
+        <label>&amp;Nbsp;&amp;nbsp;noch benötigt:&amp;nbsp;</label>
+        <name>labelCalendarStillNeeded</name>
+    </customLabels>
+    <customLabels>
+        <label>Agenda: &apos;h:mm{ - h:mm}&apos;, &apos;&apos;: &apos;h(:mm)t&apos;</label>
+        <name>labelCalendarTimeFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>Monat: &apos;MMMM jjjj&apos;, Woche: &quot;MMM t[ jjjj]{ &apos;&amp;#8212;&apos;[ MMM] t jjjj}&quot;, Tag: &apos;tttt, MMM t, jjjj&apos;</label>
+        <name>labelCalendarTitleFormat</name>
+    </customLabels>
+    <customLabels>
+        <label>(Alle aktiven Freiwilligenkampagnen)</label>
+        <name>labelChoiceAllActiveCampaigns</name>
+    </customLabels>
+    <customLabels>
+        <label>(Alle Aufträge)</label>
+        <name>labelChoiceAllJobs</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelChooseCriteria --></label>
+        <name>labelChooseCriteria</name>
+    </customLabels>
+    <customLabels>
+        <label>Mittelblau,&quot;Grün&quot;,&quot;Dunkelrot&quot;, &quot;Violett&quot;, &quot;Schiefergrau&quot;, &quot;Mitternachtsblau&quot;</label>
+        <name>labelColorValues</name>
+    </customLabels>
+    <customLabels>
+        <label>Soll diese Schicht wirklich gelöscht werden?</label>
+        <name>labelContactInfoCancelMessage</name>
+    </customLabels>
+    <customLabels>
+        <label>Wie bleiben Sie auf dem Laufenden?</label>
+        <name>labelContactInfoChart</name>
+    </customLabels>
+    <customLabels>
+        <label>Monat</label>
+        <name>labelContactInfoChartXAxis</name>
+    </customLabels>
+    <customLabels>
+        <label>Freiwilligenstunden</label>
+        <name>labelContactInfoChartYAxis</name>
+    </customLabels>
+    <customLabels>
+        <label>Datum</label>
+        <name>labelContactInfoDateTableColumn</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the Details link on PersonalSiteContactInfo --></label>
+        <name>labelContactInfoDetails</name>
+    </customLabels>
+    <customLabels>
+        <label>Ihre neue Freiwilligenhistorie</label>
+        <name>labelContactInfoHistory</name>
+    </customLabels>
+    <customLabels>
+        <label>Stunden</label>
+        <name>labelContactInfoHoursTableColumn</name>
+    </customLabels>
+    <customLabels>
+        <label>Auftrag</label>
+        <name>labelContactInfoJobTableColumn</name>
+    </customLabels>
+    <customLabels>
+        <label>Ihre Freiwilligeninformationen</label>
+        <name>labelContactInfoLookupTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Sehen Sie sich Ihre Freiwilligenstatistik und -historie nach der ersten Teilnahme an.</label>
+        <name>labelContactInfoNewVolunteerText</name>
+    </customLabels>
+    <customLabels>
+        <label>Willkommen als neuer Freiwilliger</label>
+        <name>labelContactInfoNewVolunteerTitle</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for Top % on Contact Info page --></label>
+        <name>labelContactInfoRankText</name>
+    </customLabels>
+    <customLabels>
+        <label>Top {0} in den letzten 12 Monaten</label>
+        <name>labelContactInfoRankText12Months</name>
+    </customLabels>
+    <customLabels>
+        <label>Top {0} während der Laufzeit</label>
+        <name>labelContactInfoRankTextLifetime</name>
+    </customLabels>
+    <customLabels>
+        <label>Ihre Rangfolge</label>
+        <name>labelContactInfoRankTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Uhrzeit</label>
+        <name>labelContactInfoTimeTableColumn</name>
+    </customLabels>
+    <customLabels>
+        <label>Geplante Freiwilligenschichten</label>
+        <name>labelContactInfoUpcomingShifts</name>
+    </customLabels>
+    <customLabels>
+        <label>Tragen Sie Ihren Namen und Ihre E-Mail-Adresse ein und Sie erhalten per E-Mail einen Link zu Ihren Freiwilligeninformationen.</label>
+        <name>labelContactLookupInstructions</name>
+    </customLabels>
+    <customLabels>
+        <label>Ihre Informationen wurden nicht gefunden.  Versuchen Sie es mit einem anderen Namen oder einer anderen E-Mail-Adresse.</label>
+        <name>labelContactLookupNotFound</name>
+    </customLabels>
+    <customLabels>
+        <label>Nachricht gesendet  Prüfen Sie Ihren E-Mail-Posteingang auf eine Nachricht mit einem Link zu Ihren Freiwilligeninformationen.  Vielen Dank.</label>
+        <name>labelContactLookupSuccess</name>
+    </customLabels>
+    <customLabels>
+        <label>Zeitplan kopieren ab</label>
+        <name>labelCopySchedule</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelEventInThePast --></label>
+        <name>labelEventInThePast</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelExternalSignupUrl --></label>
+        <name>labelExternalSignupUrl</name>
+    </customLabels>
+    <customLabels>
+        <label>(Hochgeladen von der Webseite &quot;Freiwilligen-Anmeldung&quot;)</label>
+        <name>labelFileUploadDescription</name>
+    </customLabels>
+    <customLabels>
+        <label>Freiwillige suchen</label>
+        <name>labelFindVolunteers</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} ausgewählte Freiwillige wurden diesem Auftrag oder dieser Schicht bereits zugewiesen.</label>
+        <name>labelFindVolunteersAlreadyAssigned</name>
+    </customLabels>
+    <customLabels>
+        <label>Einem Auftrag oder einer Schicht zuweisen</label>
+        <name>labelFindVolunteersAssign</name>
+    </customLabels>
+    <customLabels>
+        <label>Kriterien</label>
+        <name>labelFindVolunteersCriteria</name>
+    </customLabels>
+    <customLabels>
+        <label>Freiwillige</label>
+        <name>labelFindVolunteersFindResults</name>
+    </customLabels>
+    <customLabels>
+        <label>Aktivieren Sie das Kontrollkästchen für die Freiwilligen, die dem angegebenen Freiwilligen-Auftrag oder der angegebenen Freiwilligenschicht zugewiesen werden sollen, und klicken Sie auf &quot;Zuweisen&quot;.</label>
+        <name>labelFindVolunteersHelpAssign</name>
+    </customLabels>
+    <customLabels>
+        <label>Wählen Sie Ihre Kriterien und klicken Sie auf &quot;Suchen&quot;.  Freiwillige sind passend, wenn die ausgewählten Werte in einem Feld passend sind.  Lassen Sie ein Kriterium frei, wenn nicht danach gefiltert werden soll.</label>
+        <name>labelFindVolunteersHelpCriteria</name>
+    </customLabels>
+    <customLabels>
+        <label>Geben Sie Filterkriterien an, um Ergebnisse anzuzeigen.</label>
+        <name>labelFindVolunteersHelpFindResults</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} ausgewählte Freiwillige wurden diesem Auftrag oder dieser Schicht zugewiesen.</label>
+        <name>labelFindVolunteersNewlyAssigned</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelFirstShift --></label>
+        <name>labelFirstShift</name>
+    </customLabels>
+    <customLabels>
+        <label>Von</label>
+        <name>labelFrom</name>
+    </customLabels>
+    <customLabels>
+        <label>Ausblenden</label>
+        <name>labelHide</name>
+    </customLabels>
+    <customLabels>
+        <label>Informationen</label>
+        <name>labelInformation</name>
+    </customLabels>
+    <customLabels>
+        <label>Automatisch für Zeitplan für wiederkehrende Aufträge erstellt:</label>
+        <name>labelJRSShiftCreatedSystemNote</name>
+    </customLabels>
+    <customLabels>
+        <label>Von Zeitplan für wiederkehrende Aufträge entfernt:</label>
+        <name>labelJRSShiftRemovedSystemNote</name>
+    </customLabels>
+    <customLabels>
+        <label>Weitere Zeilen hinzufügen</label>
+        <name>labelLinkAddMoreRows</name>
+    </customLabels>
+    <customLabels>
+        <label>vollständig</label>
+        <name>labelLinkFull</name>
+    </customLabels>
+    <customLabels>
+        <label>anmelden</label>
+        <name>labelLinkSignUp</name>
+    </customLabels>
+    <customLabels>
+        <label>Vorname</label>
+        <name>labelListViewFirst</name>
+    </customLabels>
+    <customLabels>
+        <label>Nachname</label>
+        <name>labelListViewLast</name>
+    </customLabels>
+    <customLabels>
+        <label>Weiter</label>
+        <name>labelListViewNext</name>
+    </customLabels>
+    <customLabels>
+        <label>&amp;nbsp;&amp;nbsp;&amp;nbsp;Seite {0} von {1} &amp;nbsp;&amp;nbsp;({2} Datensätze)</label>
+        <name>labelListViewPageInfo</name>
+    </customLabels>
+    <customLabels>
+        <label>Zurück</label>
+        <name>labelListViewPrevious</name>
+    </customLabels>
+    <customLabels>
+        <label>Schichten und Stunden anzeigen ab</label>
+        <name>labelMassEditDateFilterFrom</name>
+    </customLabels>
+    <customLabels>
+        <label>Bis</label>
+        <name>labelMassEditDateFilterTo</name>
+    </customLabels>
+    <customLabels>
+        <label>Beim Speichern der Freiwilligenstunden sind Fehler aufgetreten.</label>
+        <name>labelMassEditErrorOnSave</name>
+    </customLabels>
+    <customLabels>
+        <label>Wählen Sie die Kampagne und den Freiwilligenauftrag und optional die Freiwilligenschicht aus. Auf der Seite werden daraufhin alle Datensätze mit Freiwilligenstunden angezeigt, die bereits für den Auftrag gespeichert sind, sowie neue Datensätze, die Sie hinzufügen können. Aktualisieren Sie alle Zeilen wie gewünscht und klicken Sie anschließend auf &quot;Speichern&quot;.</label>
+        <name>labelMassEditHelp</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- label for the optional comment on the Volunteer Shift label. --></label>
+        <name>labelMassEditOptional</name>
+    </customLabels>
+    <customLabels>
+        <label>Die Datensätze mit den Freiwilligenstunden wurden gespeichert.</label>
+        <name>labelMassEditSaveSuccess</name>
+    </customLabels>
+    <customLabels>
+        <label>Freiwilligenstunden für Massenbearbeitung</label>
+        <name>labelMassEditTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>E-Mail an Freiwillige mit Status senden</label>
+        <name>labelMassEditVolunteersStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>Vorlage bearbeiten</label>
+        <name>labelMassEmailEditTemplate</name>
+    </customLabels>
+    <customLabels>
+        <label>Für die E-Mail sind keine Kontakte vorhanden.  Versuchen Sie, einen anderen Status zu wählen, nach dem gefiltert werden soll.</label>
+        <name>labelMassEmailErrorNoContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>Geben Sie eine zu sendende E-Mail-Vorlage an.</label>
+        <name>labelMassEmailErrorNoTemplate</name>
+    </customLabels>
+    <customLabels>
+        <label>&quot;Massen-E-Mail an Freiwillige&quot; bezieht alle Freiwilligenstunden-Datensätze für wiederkehrende Aufträge ein.</label>
+        <name>labelMassEmailHelp1</name>
+    </customLabels>
+    <customLabels>
+        <label>Wählen Sie den Status aus, um anzugeben, welche Datensätze enthalten sein sollen.</label>
+        <name>labelMassEmailHelp2</name>
+    </customLabels>
+    <customLabels>
+        <label>Wenn &quot;Kontakte nur einmal einbeziehen&quot; deaktiviert ist, wird eine E-Mail für jeden Freiwilligenstunden-Datensatz gesendet.</label>
+        <name>labelMassEmailHelp3</name>
+    </customLabels>
+    <customLabels>
+        <label>Wenn &quot;Kontakte nur einmal einbeziehen&quot; aktiviert ist, wird nur eine E-Mail für den ersten Freiwilligenstunden-Datensatz des Kontakts gesendet.</label>
+        <name>labelMassEmailHelp4</name>
+    </customLabels>
+    <customLabels>
+        <label>Aktivieren Sie das Kontrollkästchen für &quot;Aktivität protokollieren&quot; für jede E-Mail, um eine Aktivität mit dem Kontakt zu speichern.</label>
+        <name>labelMassEmailHelp5</name>
+    </customLabels>
+    <customLabels>
+        <label>Wählen Sie die Vorlage basierend auf dem Objekt, um anzugeben, welches Objekt mit der E-Mail-Vorlage verwendet werden soll.</label>
+        <name>labelMassEmailHelp6</name>
+    </customLabels>
+    <customLabels>
+        <label>In Salesforce wird die Anzahl der E-Mails, die jeden Tag gesendet werden kann, beschränkt. Daher wird empfohlen, &quot;Massen-E-Mail an Freiwillige&quot; nicht für eine hohe Anzahl von E-Mails zu verwenden.</label>
+        <name>labelMassEmailHelp7</name>
+    </customLabels>
+    <customLabels>
+        <label>Massen-E-Mail an Freiwillige ab</label>
+        <name>labelMassEmailTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Vorlagen anzeigen</label>
+        <name>labelMassEmailViewTemplates</name>
+    </customLabels>
+    <customLabels>
+        <label>#NAME?</label>
+        <name>labelMassEmailVolunteersActivityLoggingError</name>
+    </customLabels>
+    <customLabels>
+        <label>Eine Aktivität für jede E-Mail protokollieren</label>
+        <name>labelMassEmailVolunteersLogActivity</name>
+    </customLabels>
+    <customLabels>
+        <label>Die Aktivität wird im Datensatz des Kontakts protokolliert.</label>
+        <name>labelMassEmailVolunteersLogActivityHelpText</name>
+    </customLabels>
+    <customLabels>
+        <label>Erfolgreich gesendete E-Mails:</label>
+        <name>labelMassEmailVolunteersSuccessCount</name>
+    </customLabels>
+    <customLabels>
+        <label>Massen-E-Mail an Freiwillige</label>
+        <name>labelMassEmailVolunteersTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Kontakte nur einmal einbeziehen</label>
+        <name>labelMassEmailVolunteersUniqueContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>Wenn das Kontrollkästchen deaktiviert ist, wird eine E-Mail an den Freiwilligen-Kontakt für jeden Stunden-Datensatz zu einem Auftrag oder einer Schicht gesendet. Durch Aktivieren dieses Kontrollkästchens wird nur eine E-Mail für jeden eindeutigen Kontakt gesendet.</label>
+        <name>labelMassEmailVolunteersUniqueContactsHelpText</name>
+    </customLabels>
+    <customLabels>
+        <label>Nachricht</label>
+        <name>labelMessageBody</name>
+    </customLabels>
+    <customLabels>
+        <label>Laden...</label>
+        <name>labelMessageLoading</name>
+    </customLabels>
+    <customLabels>
+        <label>Leider sind zu diesem Zeitpunkt keine Freiwilligenaufträge verfügbar.</label>
+        <name>labelMessageNoJobs</name>
+    </customLabels>
+    <customLabels>
+        <label>Speichern...</label>
+        <name>labelMessageSaving</name>
+    </customLabels>
+    <customLabels>
+        <label>Anzahl der Kontakt-E-Mails</label>
+        <name>labelNumberOfContacts</name>
+    </customLabels>
+    <customLabels>
+        <label>Die Anzahl der E-Mails, die gesendet werden Durch Ändern des Kontrollkästchens für &quot;Kontakte nur einmal einbeziehen&quot; kann diese Anzahl geändert werden.</label>
+        <name>labelNumberOfContactsHelpText</name>
+    </customLabels>
+    <customLabels>
+        <label>Informationen anzeigen</label>
+        <name>labelPersonalSiteContactInfoTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Geben Sie eine gültige E-Mail-Adresse ein.</label>
+        <name>labelPersonalSiteEmailError</name>
+    </customLabels>
+    <customLabels>
+        <label>E-Mail-Adresse erforderlich</label>
+        <name>labelPersonalSiteEmailRequired</name>
+    </customLabels>
+    <customLabels>
+        <label>Vorname erforderlich</label>
+        <name>labelPersonalSiteFirstnameRequired</name>
+    </customLabels>
+    <customLabels>
+        <label>Auftragskalender</label>
+        <name>labelPersonalSiteJobCalendarTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Freiwilligenaufträge</label>
+        <name>labelPersonalSiteJobListingTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Nachname erforderlich</label>
+        <name>labelPersonalSiteLastnameRequired</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- displays when the contact hasn&apos;t signed up for any jobs --></label>
+        <name>labelPersonalSiteNoJobsForContact</name>
+    </customLabels>
+    <customLabels>
+        <label>Stundenbericht</label>
+        <name>labelPersonalSiteReportHoursTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Persönliche Site der Freiwilligen</label>
+        <name>labelPersonalSiteTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Zurück zum Kalender</label>
+        <name>labelReturnToCalendar</name>
+    </customLabels>
+    <customLabels>
+        <label>Geschlossen</label>
+        <name>labelShiftClosed</name>
+    </customLabels>
+    <customLabels>
+        <label>Bestätigt: {0}&amp;nbsp;&amp;nbsp;verfügbar: {1}</label>
+        <name>labelShiftNumbers</name>
+    </customLabels>
+    <customLabels>
+        <label>Hilfe anzeigen</label>
+        <name>labelShowHelp</name>
+    </customLabels>
+    <customLabels>
+        <label>Mehr anzeigen</label>
+        <name>labelShowMore</name>
+    </customLabels>
+    <customLabels>
+        <label>Betreff</label>
+        <name>labelSubject</name>
+    </customLabels>
+    <customLabels>
+        <label>Senden</label>
+        <name>labelSubmitButton</name>
+    </customLabels>
+    <customLabels>
+        <label>Vorlage basierend auf Objekt</label>
+        <name>labelTemplateObject</name>
+    </customLabels>
+    <customLabels>
+        <label>Vergewissern Sie sich, dass Vorlage und Objekt übereinstimmen. Wenn &quot;Kontakte nur einmal einbeziehen&quot; aktiviert ist, wird nur der erste Freiwilligenstunden-Datensatz per E-Mail gesendet. Daher sollten Sie besser ein weniger spezifisches Vorlagenobjekt verwenden.</label>
+        <name>labelTemplateObjectHelpText</name>
+    </customLabels>
+    <customLabels>
+        <label>Freiwilligen-Anmeldung</label>
+        <name>labelTitleJobSignup</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVRSBatchDescription --></label>
+        <name>labelVRSBatchDescription</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVRSBatchProcess --></label>
+        <name>labelVRSBatchProcess</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVRSBatchProcessProgress --></label>
+        <name>labelVRSBatchProcessProgress</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVRSBatchRun --></label>
+        <name>labelVRSBatchRun</name>
+    </customLabels>
+    <customLabels>
+        <label>Automatisch für Zeitplan für wiederkehrende Freiwillige erstellt:</label>
+        <name>labelVRSHoursCreatedSystemNote</name>
+    </customLabels>
+    <customLabels>
+        <label>{0} ist erforderlich.</label>
+        <name>labelVolunteerReportHoursErrorRequiredField</name>
+    </customLabels>
+    <customLabels>
+        <label>Geben Sie den Zeitrahmen ein, zu dem Sie einen Bericht erstellen, sowie die insgesamt abgeleisteten Stunden.</label>
+        <name>labelVolunteerReportHoursNotesNoShifts</name>
+    </customLabels>
+    <customLabels>
+        <label>Wählen Sie die Schicht aus, die Sie abgeleistet haben, und aktualisieren Sie die Anzahl der abgeleisteten Stunden, falls erforderlich.</label>
+        <name>labelVolunteerReportHoursNotesShifts</name>
+    </customLabels>
+    <customLabels>
+        <label>Vielen Dank für den Bericht zu Ihren Freiwilligenstunden.</label>
+        <name>labelVolunteerReportHoursThankYou</name>
+    </customLabels>
+    <customLabels>
+        <label>Vielen Dank für Ihre Anmeldung als Freiwilliger.</label>
+        <name>labelVolunteerSignupThankYou</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVolunteersHelp --></label>
+        <name>labelVolunteersHelp</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVolunteersHelpDescription --></label>
+        <name>labelVolunteersHelpDescription</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVolunteersHelpStep1 --></label>
+        <name>labelVolunteersHelpStep1</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVolunteersHelpStep1Text --></label>
+        <name>labelVolunteersHelpStep1Text</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVolunteersHelpStep2 --></label>
+        <name>labelVolunteersHelpStep2</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVolunteersHelpStep2Text --></label>
+        <name>labelVolunteersHelpStep2Text</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVolunteersHelpStep3 --></label>
+        <name>labelVolunteersHelpStep3</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- labelVolunteersHelpStep3Text --></label>
+        <name>labelVolunteersHelpStep3Text</name>
+    </customLabels>
+    <customLabels>
+        <label>Für diese Schicht werden nur noch {0} Freiwillige gesucht.</label>
+        <name>labelVolunteersJobListingErrorTooManyVols</name>
+    </customLabels>
+    <customLabels>
+        <label>Kampagneninformationen</label>
+        <name>labelVolunteersWizardCampaignInformation</name>
+    </customLabels>
+    <customLabels>
+        <label>Vorhandene Kampagne klonen</label>
+        <name>labelVolunteersWizardClone</name>
+    </customLabels>
+    <customLabels>
+        <label>Freiwillige für Auftrag und Schicht kopieren</label>
+        <name>labelVolunteersWizardCopyVolunteers</name>
+    </customLabels>
+    <customLabels>
+        <label>Wählen Sie zum Kopieren entweder eine bestehende Kampagne oder die Anzahl der Beispielaufträge und -schichten, die erstellt werden sollen, aber nicht beides.</label>
+        <name>labelVolunteersWizardErrorExistingOrSample</name>
+    </customLabels>
+    <customLabels>
+        <label>Geben Sie die Anzahl der Beispielaufträge zusammen mit der Anzahl der Beispielschichten an.</label>
+        <name>labelVolunteersWizardErrorNoJobsWithShifts</name>
+    </customLabels>
+    <customLabels>
+        <label>Datum der ersten Schicht</label>
+        <name>labelVolunteersWizardFirstShiftDate</name>
+    </customLabels>
+    <customLabels>
+        <label>Der Freiwilligenassistent erstellt eine neue Freiwilligenkampagne und erlaubt Ihnen, entweder alle Freiwilligenaufträge, -schichten und -stunden einer bestehenden Kampagne zu kopieren oder Beispielaufträge und -schichten zu erstellen.</label>
+        <name>labelVolunteersWizardHelp</name>
+    </customLabels>
+    <customLabels>
+        <label>Wählen Sie eine bestehende Kampagne zum Kopieren von Aufträgen, Schichten und Stunden oder tragen Sie ein, wie viele Beispielaufträge und -schichten erstellt werden sollen.  Beachten Sie, dass Sie die Zeitpläne für wiederkehrende Aufträge verwenden können, um Aufträge und Schichten in der Zukunft zu wiederholen.</label>
+        <name>labelVolunteersWizardJobAndShiftHelp</name>
+    </customLabels>
+    <customLabels>
+        <label>Freiwilligenaufträge, -schichten und -stunden</label>
+        <name>labelVolunteersWizardJobsAndShifts</name>
+    </customLabels>
+    <customLabels>
+        <label>Neue Freiwilligenkampagne</label>
+        <name>labelVolunteersWizardNewCampaignTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Datum der neuen ersten Schicht</label>
+        <name>labelVolunteersWizardNewShiftDate</name>
+    </customLabels>
+    <customLabels>
+        <label>Status der Freiwilligenstunden überschreiben</label>
+        <name>labelVolunteersWizardOverrideHoursStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>Auftragsbeispiel</label>
+        <name>labelVolunteersWizardSampleJobName</name>
+    </customLabels>
+    <customLabels>
+        <label>Anzahl der Auftragsbeispiele</label>
+        <name>labelVolunteersWizardSampleJobs</name>
+    </customLabels>
+    <customLabels>
+        <label>Schichtbeispiel</label>
+        <name>labelVolunteersWizardSampleShiftName</name>
+    </customLabels>
+    <customLabels>
+        <label>Anzahl der Schichtbeispiele pro Auftrag</label>
+        <name>labelVolunteersWizardSampleShifts</name>
+    </customLabels>
+    <customLabels>
+        <label>Freiwilligenassistent</label>
+        <name>labelVolunteersWizardTitle</name>
+    </customLabels>
+    <customTabs>
+        <label>Freiwilligen-Hilfe</label>
+        <name>About_Volunteers</name>
+    </customTabs>
+    <customTabs>
+        <label>Volontariat Suche</label>
+        <name>Find_Volunteers</name>
+    </customTabs>
+    <customTabs>
+        <label>Wiederkehrende Zeitpläne bearbeiten</label>
+        <name>Process_Recurrence_Schedules</name>
+    </customTabs>
+    <customTabs>
+        <label>Schichtkalender</label>
+        <name>Shift_Calendar</name>
+    </customTabs>
+    <customTabs>
+        <label>Freiwilligenassistent</label>
+        <name>Volunteers_Wizard</name>
+    </customTabs>
+    <reportTypes>
+        <description>Accounts mit Freiwilligenstunden, die über Kontakte zugeordnet wurden</description>
+        <label>Accounts mit Freiwilligenstunden</label>
+        <name>Accounts</name>
+        <sections>
+            <label><!-- Accounts --></label>
+            <name>Accounts</name>
+        </sections>
+        <sections>
+            <label>Kontakte</label>
+            <name>Contacts</name>
+        </sections>
+        <sections>
+            <label>Freiwilligenstunden</label>
+            <name>Volunteer Hours</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description>Kampagnen mit Freiwilligenauftragsdatensätzen</description>
+        <label>Freiwilligenkampagnen</label>
+        <name>Volunteer_Campaigns</name>
+        <sections>
+            <label>Kampagnen</label>
+            <name>Campaigns</name>
+        </sections>
+        <sections>
+            <label>Freiwilligenaufträge</label>
+            <name>Volunteer Jobs</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description>Alle Freiwilligenaufträge und deren entsprechende Stunden</description>
+        <label>Freiwilligenaufträge und -stunden</label>
+        <name>Volunteer_Jobs_and_Hours</name>
+        <sections>
+            <label>Freiwilligenstunden</label>
+            <name>Volunteer Hours</name>
+        </sections>
+        <sections>
+            <label>Freiwilligenaufträge</label>
+            <name>Volunteer Jobs</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description>Freiwilligenaufträge mit Schicht- und Stundendatensätzen</description>
+        <label>Freiwilligenaufträge mit Schichten und Stunden</label>
+        <name>Volunteer_Jobs_with_Shifts_Hours</name>
+        <sections>
+            <label>Freiwilligenstunden</label>
+            <name>Volunteer Hours</name>
+        </sections>
+        <sections>
+            <label>Freiwilligenaufträge</label>
+            <name>Volunteer Jobs</name>
+        </sections>
+        <sections>
+            <label>Freiwilligenschichten</label>
+            <name>Volunteer Shifts</name>
+        </sections>
+    </reportTypes>
+</Translations>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Mensaje recordatorio para enviar a todos los voluntarios sobre su próximo trabajo (para los trabajo sin jornadas).</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Recordatorio Trabajo Voluntario</name>
+    <style>none</style>
+    <subject>El próximo cambio voluntario con {!Organization.Name}</subject>
+    <textOnly>Hola {!Contact.FirstName},
+
+Estamos valorando contar con usted para que nos ayude en nuestro evento.
+
+{!Volunteer_Job__c.Name}
+
+{!Volunteer_Job__c.Description__c}
+
+Dirección del Evento:
+
+{!Volunteer_Job__c.Location_Street__c}
+{!Volunteer_Job__c.Location_City__c}, {!Volunteer_Job__c.Location__c}
+{!Volunteer_Job__c.Location_Zip_Postal_Code__c}
+
+{!Volunteer_Job__c.Location_Information__c}
+
+Gracias de parte de todos nosotros {!Organization.Name}</textOnly>
+    <type>custom</type>
+</EmailTemplate>

@@ -1,0 +1,121 @@
+
+/********************* standard HTML tag styles *********************/
+
+body, td {
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+
+p {
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+
+
+/********************* overriden Salesforce styles *********************/
+
+.errorMsg {
+	color: red;
+}
+
+.messageText {
+	color: red;
+}
+
+.messageTable {
+	color: red;
+}
+
+
+
+/********************* Volunteers Personal Site custom styles *********************/
+.cssPersonalSiteButtons {
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+
+.cssLoading {
+	display: none;
+	z-index: 99;
+	position: fixed;
+	top: 30%;
+	left: 30%;
+	background: lightyellow;
+	width: 400px;
+	height: 40px;	
+	border: 1px solid #cacaca;
+	color: #666;
+	padding: 4px;	
+	text-align: center;
+	font-weight: bold;
+	white-space: nowrap;
+	margin-left: auto;
+	margin-right: auto;	
+} 
+
+.cssContactLookupPanel {
+	width: 300px;
+	display: inline-block;
+}
+
+.error {
+	color: red;
+}
+
+
+/******************** for tabular field/value display ********************/
+.cssLabelsColumn {
+	width: 150px;
+	vertical-align: top;
+	font-weight: bold;
+	text-align: right;	
+	padding: 0 10px;	
+}
+
+.cssInputFieldsColumn {
+	vertical-align: top;
+}
+
+.cssInputFields {
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.cssTextArea { 
+	width:300px; 
+}
+
+/************************** for VolunteersJobListing page ****************/
+.cssJobName {
+	font-weight: bold;
+	font-size: 1.5em;
+}
+
+.cssSignupDisplayName {
+	font-weight: bold;
+}
+
+.cssJobSkills {
+	font-style: italic;
+}
+
+.cssJobShiftSignup {
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.ui-widget input.cssInputFields  {
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-size: 14px;
+}
+
+.ui-widget input.cssButton  {
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-size: 14px;
+}
+
+#ui-dialog-title-dlgSignUp {
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.requiredInput {
+	color: red;
+}

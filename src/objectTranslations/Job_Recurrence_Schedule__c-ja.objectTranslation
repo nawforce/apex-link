@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>仕事の定期的なスケジュール</value>
+    </caseValues>
+    <fields>
+        <label>曜日</label>
+        <name>Days_of_Week__c</name>
+        <picklistValues>
+            <masterLabel>Friday</masterLabel>
+            <translation>金曜日</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Monday</masterLabel>
+            <translation>月曜日</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Saturday</masterLabel>
+            <translation>土曜日</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Sunday</masterLabel>
+            <translation>日曜日</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Thursday</masterLabel>
+            <translation>木曜日</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Tuesday</masterLabel>
+            <translation>火曜日</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Wednesday</masterLabel>
+            <translation>水曜日</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>このスケジュールで作成されたシフトレコードにコピーする説明テキスト。</help>
+        <label>説明</label>
+        <name>Description__c</name>
+    </fields>
+    <fields>
+        <label>必要なボランティア人数</label>
+        <name>Desired_Number_of_Volunteers__c</name>
+    </fields>
+    <fields>
+        <label>期間</label>
+        <name>Duration__c</name>
+    </fields>
+    <fields>
+        <label>終了日のスケジュール</label>
+        <name>Schedule_End_Date__c</name>
+    </fields>
+    <fields>
+        <label>開始日時のスケジュール</label>
+        <name>Schedule_Start_Date_Time__c</name>
+    </fields>
+    <fields>
+        <help>この定期的なスケジュールの対象となる仕事。</help>
+        <label>ボランティアの仕事</label>
+        <name>Volunteer_Job__c</name>
+        <relationshipLabel>仕事の定期的なスケジュール</relationshipLabel>
+    </fields>
+    <fields>
+        <label>毎週の回数</label>
+        <name>Weekly_Occurrence__c</name>
+        <picklistValues>
+            <masterLabel>1st</masterLabel>
+            <translation>第 1 週</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2nd</masterLabel>
+            <translation>第 2 週</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3rd</masterLabel>
+            <translation>第 3 週</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4th</masterLabel>
+            <translation>第 4 週</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>5th</masterLabel>
+            <translation>第 5 週</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Alternate</masterLabel>
+            <translation>隔週</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Every</masterLabel>
+            <translation>毎</translation>
+        </picklistValues>
+    </fields>
+    <layouts>
+        <layout>Volunteer Job Recurrence Schedule Layout</layout>
+        <sections>
+            <label>カスタムリンク</label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>仕事の定期的なスケジュール  身元</nameFieldLabel>
+    <validationRules>
+        <errorMessage>[曜日] に少なくとも 1 つの値を指定してください。</errorMessage>
+        <name>JRS_Days_Of_Week_Required</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>[毎週の回数] に少なくとも 1 つの値を指定してください</errorMessage>
+        <name>JRS_Weekly_Occurrence_Required</name>
+    </validationRules>
+</CustomObjectTranslation>

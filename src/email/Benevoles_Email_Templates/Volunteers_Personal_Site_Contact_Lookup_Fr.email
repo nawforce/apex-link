@@ -1,0 +1,14 @@
+<p>Bonjour {!Contact.FirstName},</p>
+
+<p>Voici un lien vers vos information de bénévoles:</p>
+
+<b>ADMIN : Vous devez modifier ce modèle pour mettre en l'URL complète à votre page PersonalSiteContactInfo . Il n'y a pas moyen d'obtenir l' Sites URL à partir d'un champ de fusion dans le modèle de courriel . L'URL doit ressembler à quelque chose comme :
+</b>
+
+<i>
+https://xxxxxxx.na3.force.com/Volunteers/GW_Volunteers__PersonalSiteContactInfo?contactId={!Contact.Id}&Email={!Contact.Email}
+</i><br/>
+
+<a href="YOUR HTTPS URL HERE!!!!!">Informations du bénévole</a>
+
+<p>Merci.</p>

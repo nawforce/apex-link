@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Un simple message de remerciement au contact ou au candidat pour son inscription en tant que bénévole</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Volunteer Signup Thank You Fr</name>
+    <style>none</style>
+    <subject>Merci pour votre inscription en tant que bénévole, {!Organization.Name}</subject>
+    <type>text</type>
+</EmailTemplate>
