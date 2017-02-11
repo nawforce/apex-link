@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>Contact_Merge_Error_Confirm_Message</fullName>
+        <categories>Contact Merge</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contact Merge Error - Confirm Message</shortDescription>
+        <value>Merging Contacts is an irreversible process.</value>
+    </labels>
+    <labels>
+        <fullName>Contact_Merge_Error_Confirm_Message_Households</fullName>
+        <categories>Contact Merge</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contact Merge Error Confirm Message Households</shortDescription>
+        <value>If you have the Household package, please note that the Households for merged Contacts are not affected during the merge. If you want to merge the Households, you should do that by hand, making sure the winning Contact is connected to the correct Household.</value>
+    </labels>
+    <labels>
+        <fullName>Contact_Merge_Error_Confirm_Message_Nothing_Found</fullName>
+        <categories>Contact Merge</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contact Merge Error Confirm Message Nothing Found</shortDescription>
+        <value>No matching Contacts found, please search again.</value>
+    </labels>
+    <labels>
+        <fullName>Contact_Merge_Error_Contact_not_found</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contact Merge Error - Contact not found</shortDescription>
+        <value>Failed to query contact information.</value>
+    </labels>
+    <labels>
+        <fullName>Contact_Merge_Error_Lock_failed</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contact Merge Error - Lock failed</shortDescription>
+        <value>Failed to lock all the records for merging.</value>
+    </labels>
+    <labels>
+        <fullName>Contact_Merge_Error_Merge_Failed</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contact Merge Error - Merge Failed</shortDescription>
+        <value>Failed to merge the contacts.</value>
+    </labels>
+    <labels>
+        <fullName>Contact_Merge_Error_No_Master</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contact Merge Error - No Master</shortDescription>
+        <value>Please select a master record for merging.</value>
+    </labels>
+    <labels>
+        <fullName>Contact_Merge_Error_Query_Failed</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contact Merge Error - Query Failed</shortDescription>
+        <value>Failed to query all the selected contacts.</value>
+    </labels>
+    <labels>
+        <fullName>Contact_Merge_Error_Too_Few_Contacts</fullName>
+        <categories>Contact Merge</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contact Merge Error - Too Few Contacts</shortDescription>
+        <value>Please select at least 2 contacts to merge.</value>
+    </labels>
+    <labels>
+        <fullName>Contact_Merge_Error_Too_Many_Contacts</fullName>
+        <categories>Contact Merge</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contact Merge Error - Too Many Contacts</shortDescription>
+        <value>You can only merge up to 3 contacts at a time.</value>
+    </labels>
+    <labels>
+        <fullName>Contact_Merge_Error_please_retry</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contact Merge Error - please retry</shortDescription>
+        <value>Please retry from start.</value>
+    </labels>
+    <labels>
+        <fullName>Contact_Merge_Step1</fullName>
+        <categories>Contact Merge</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contact Merge Step1</shortDescription>
+        <value>Enter search text to find duplicate Contacts</value>
+    </labels>
+    <labels>
+        <fullName>Contact_Merge_Step2</fullName>
+        <categories>Contact Merge</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contact Merge Step2</shortDescription>
+        <value>Pick up to 3 Contacts to Merge</value>
+    </labels>
+    <labels>
+        <fullName>Contact_Merge_Step3</fullName>
+        <categories>Contact Merge</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contact Merge Step3</shortDescription>
+        <value>Pick the winning Contact</value>
+    </labels>
+    <labels>
+        <fullName>Contact_Merge_Step4</fullName>
+        <categories>Contact Merge</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contact Merge Step4</shortDescription>
+        <value>Merge the Contacts</value>
+    </labels>
+    <labels>
+        <fullName>Contacts_Settings_Account_Model_Help_Text</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contacts Settings Account Model Help Text</shortDescription>
+        <value>The Nonprofit Success Pack supports three different Account models: the Household Account model, the One-to-One Account model, and the Individual (or &quot;Bucket&quot;) Account model. For more information on any of these models, see the &lt;a href=&quot;https://powerofus.force.com/NPSP_Account_Model&quot; target=&quot;_blank&quot;&gt;NPSP Documentation&lt;/a&gt;.
+&lt;br/&gt;&lt;br&gt; 
+For those using NPSP3 and later, the Household Account model is recommended.</value>
+    </labels>
+    <labels>
+        <fullName>Contacts_Settings_Contact_Roles_Help_Text</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contacts Settings Contact Roles Help Text</shortDescription>
+        <value>You can choose to have an Opportunity Contact Role automatically created when Opportunities are created. There is a field on Opportunity called &quot;Contact Id for Role&quot;. If you import Opportunities with a valid Contact Id in that field, a Contact Role will be created according to the defaults set below. You can also turn the functionality off completely by modifying the Trigger Configuration.</value>
+    </labels>
+    <labels>
+        <fullName>DefaultContactTransactionCurrency</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>DefaultContactTransactionCurrency</shortDescription>
+        <value>$</value>
+    </labels>
+    <labels>
+        <fullName>Matching_Donation_Record_Suffix</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Suffix added to the name of the original donation to form matching donation name</shortDescription>
+        <value>{3} Matching Donation {1}</value>
+    </labels>
+    <labels>
+        <fullName>Matching_Donation_Record_Type</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Record type for matching donation. Set to $Source to match the original donation</shortDescription>
+        <value>$Source</value>
+    </labels>
+    <labels>
+        <fullName>Opportunity_Contact_Role_Error_Bad_Contact_Id</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Opportunity Contact Role Error - Bad Contact Id</shortDescription>
+        <value>The Contact Id supplied in the Contact Id for Role field was invalid. Please use a valid Contact Id.</value>
+    </labels>
+</CustomLabels>

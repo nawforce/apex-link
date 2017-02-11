@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Contacts And Orgs Settings --></value>
+    </caseValues>
+    <fields>
+        <help>団体モデルの設定。「世帯団体」、「1 対 1」、「個人」のいずれかを指定します。カスタム項目 Contact.SystemAccountProcessor__c の代わりに使用されます。「世帯団体」が推奨モデルです。</help>
+        <label>団体モデル</label>
+        <name>Account_Processor__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_IndividualAcc_trigger --></label>
+        <name>DISABLE_IndividualAccounts_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_OppAccount_trigger --></label>
+        <name>DISABLE_OpportunityAccount_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_OCR_trigger --></label>
+        <name>DISABLE_OpportunityContactRoles_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_OppPayments_trigger --></label>
+        <name>DISABLE_OpportunityPayments_trigger__c</name>
+    </fields>
+    <fields>
+        <help>リード取引開始時に支援を作成するかどうかを指定します。</help>
+        <label>リード取引開始時に支援を作成</label>
+        <name>Default_Opp_on_Convert__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable Account Model Trigger --></label>
+        <name>Disable_Account_Model_Trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Enable OppContactRole Trigger --></label>
+        <name>Enable_Opportunity_Contact_Role_Trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label>更新確認の有効化</label>
+        <name>Enable_Update_Check__c</name>
+    </fields>
+    <fields>
+        <help>世帯団体に使用される団体レコードタイプの ID。何も選択しない場合、団体にはユーザのデフォルト団体レコードタイプが設定されます。</help>
+        <label>世帯団体レコードタイプ</label>
+        <name>HH_Account_RecordTypeID__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Has Package Update --></label>
+        <name>Has_Package_Update__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label>最終更新確認日時</label>
+        <name>Last_Update_Check__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Max Package Version --></label>
+        <name>Max_Package_Version__c</name>
+    </fields>
+    <fields>
+        <help>1 対 1 団体で使用される団体レコードタイプの ID。何も選択しない場合、団体にはユーザのデフォルト団体レコードタイプが設定されます。</help>
+        <label>1 対 1 レコードタイプ</label>
+        <name>One_to_One_RecordTypeID__c</name>
+    </fields>
+    <fields>
+        <help>自動的に作成される主支援個人の役割のデフォルト役割。</help>
+        <label>支援個人の役割のデフォルト役割</label>
+        <name>Opportunity_Contact_Role_Default_role__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Package Update URL --></label>
+        <name>Package_Update_URL__c</name>
+    </fields>
+    <fields>
+        <help>新しい支援で作成される自動支払を有効にします。</help>
+        <label>支払の有効化</label>
+        <name>Payments_Enabled__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label>更新確認間隔</label>
+        <name>Update_Check_Interval__c</name>
+    </fields>
+</CustomObjectTranslation>

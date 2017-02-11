@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Payment Field Mapping Settings --></value>
+    </caseValues>
+    <fields>
+        <label>支援の項目</label>
+        <name>Opportunity_Field__c</name>
+    </fields>
+    <fields>
+        <label>支払の項目</label>
+        <name>Payment_Field__c</name>
+    </fields>
+</CustomObjectTranslation>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomPageWebLink xmlns="http://soap.sforce.com/2006/04/metadata">
+    <availability>online</availability>
+    <displayType>link</displayType>
+    <linkType>javascript</linkType>
+    <masterLabel>Nonprofit Edition Reports</masterLabel>
+    <openType>onClickJavaScript</openType>
+    <protected>false</protected>
+    <url>{!REQUIRESCRIPT(&quot;/soap/ajax/13.0/connection.js&quot;)}
+
+var query = sforce.connection.query(&quot;Select Id from Folder where Type = &apos;Report&apos; and Name = &apos;Nonprofit Edition Reports&apos; Limit 1&quot;);
+if (query.size &gt; 0)
+{
+var folder = query.getArray(&quot;records&quot;);
+var folderId18 = folder[0].get(&quot;Id&quot;);
+var folderId = folderId18.substring(0,15);
+this.parent.location.href = &quot;/00O?fcf=&quot; + folderId;
+} else {
+this.parent.location.href = &quot;/00O&quot;;
+}</url>
+</CustomPageWebLink>

@@ -1,0 +1,1 @@
+<apex:page action="{! urlFor('/apex/npsp__PMT_PaymentWizard?Id=' + $CurrentPage.Parameters.Id) + '&wtype=' + $CurrentPage.Parameters.wtype }" />

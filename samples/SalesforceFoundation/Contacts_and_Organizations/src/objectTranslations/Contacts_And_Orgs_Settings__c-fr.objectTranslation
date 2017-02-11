@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Contacts And Orgs Settings --></value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value><!-- Contacts And Orgs Settings --></value>
+    </caseValues>
+    <fields>
+        <help><!-- Setting for the Account model. Should be &quot;Household Account&quot;, &quot;One-to-One&quot;, or &quot;Individual&quot;. Replaces the custom field Contact.SystemAccountProcessor__c.  &quot;Household Account&quot; is the recommended model. --></help>
+        <label><!-- Account Model --></label>
+        <name>Account_Processor__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_IndividualAcc_trigger --></label>
+        <name>DISABLE_IndividualAccounts_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_OppAccount_trigger --></label>
+        <name>DISABLE_OpportunityAccount_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_OCR_trigger --></label>
+        <name>DISABLE_OpportunityContactRoles_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_OppPayments_trigger --></label>
+        <name>DISABLE_OpportunityPayments_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- Specifies whether to create an Opportunity during Lead conversion. --></help>
+        <label><!-- Create Opportunity on Lead Convert --></label>
+        <name>Default_Opp_on_Convert__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable Account Model Trigger --></label>
+        <name>Disable_Account_Model_Trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Enable OppContactRole Trigger --></label>
+        <name>Enable_Opportunity_Contact_Role_Trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Enable Update Check --></label>
+        <name>Enable_Update_Check__c</name>
+    </fields>
+    <fields>
+        <help><!-- The ID of the Account Record Type to be used for Household Accounts. If none is selected, the Account will default to the user&apos;s default Account Record Type. --></help>
+        <label><!-- Household Account Record Type --></label>
+        <name>HH_Account_RecordTypeID__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Has Package Update --></label>
+        <name>Has_Package_Update__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Last Update Check --></label>
+        <name>Last_Update_Check__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Max Package Version --></label>
+        <name>Max_Package_Version__c</name>
+    </fields>
+    <fields>
+        <help><!-- The ID of the Account Record Type to be used for One-to-One Accounts.  If none is selected, the Account will default to the user&apos;s default Account Record Type. --></help>
+        <label><!-- One-to-One Record Type --></label>
+        <name>One_to_One_RecordTypeID__c</name>
+    </fields>
+    <fields>
+        <help><!-- The default Contact Role automatically assigned to the Primary Contact for the Opportunity. --></help>
+        <label><!-- Default Opportunity Contact Role --></label>
+        <name>Opportunity_Contact_Role_Default_role__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Package Update URL --></label>
+        <name>Package_Update_URL__c</name>
+    </fields>
+    <fields>
+        <help><!-- If enabled, Salesforce automatically creates Payments for new Opportunities (Donations). --></help>
+        <label><!-- Automatic Payment Creation --></label>
+        <name>Payments_Enabled__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Update Check Interval --></label>
+        <name>Update_Check_Interval__c</name>
+    </fields>
+    <gender><!-- Masculine --></gender>
+    <startsWith><!-- Consonant --></startsWith>
+</CustomObjectTranslation>

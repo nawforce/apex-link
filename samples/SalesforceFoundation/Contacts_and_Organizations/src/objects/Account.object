@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>One2OneContact__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <description>The primary contact for the Account, or the One2One contact for a One2One account.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The primary contact for the Account, or the One2One contact for a One2One account.</inlineHelpText>
+        <label>Primary Contact</label>
+        <referenceTo>Contact</referenceTo>
+        <relationshipLabel>Account</relationshipLabel>
+        <relationshipName>Organizations</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>SYSTEMIsIndividual__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Hidden system field: do not change.  Updated by automatic processes.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Indicates whether or not this Account is special for Contacts (Household, One-to-One, Individual) vs a normal Account.</inlineHelpText>
+        <label>_SYSTEM: IsIndividual</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>SYSTEM_AccountType__c</fullName>
+        <description>Hidden system field: do not change.  Updated by automatic processes.</description>
+        <encrypted>false</encrypted>
+        <externalId>false</externalId>
+        <inlineHelpText>Indicates which Account Model this account is for: Household Account, One-to-One, or Individual (bucket).</inlineHelpText>
+        <label>_SYSTEM: AccountType</label>
+        <length>100</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+</CustomObject>

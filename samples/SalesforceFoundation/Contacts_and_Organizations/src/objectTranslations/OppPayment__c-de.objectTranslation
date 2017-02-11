@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value><!-- Payment --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value><!-- Payment --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>false</plural>
+        <value><!-- Payment --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>true</plural>
+        <value><!-- Payment --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>false</plural>
+        <value><!-- Payment --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>true</plural>
+        <value><!-- Payment --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>false</plural>
+        <value><!-- Payment --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>true</plural>
+        <value><!-- Payment --></value>
+    </caseValues>
+    <fields>
+        <label>Prüfungs-/Referenznummer</label>
+        <name>Check_Reference_Number__c</name>
+    </fields>
+    <fields>
+        <label>Benutzerdefiniertes Zahlungsfeld</label>
+        <name>Custom_Payment_Field__c</name>
+    </fields>
+    <fields>
+        <label><!-- Opportunity --></label>
+        <name>Opportunity__c</name>
+        <relationshipLabel>Zahlungen</relationshipLabel>
+    </fields>
+    <fields>
+        <label>Bezahlt</label>
+        <name>Paid__c</name>
+    </fields>
+    <fields>
+        <label>Zahlungsbetrag</label>
+        <name>Payment_Amount__c</name>
+    </fields>
+    <fields>
+        <label>Zahlungsdatum</label>
+        <name>Payment_Date__c</name>
+    </fields>
+    <fields>
+        <label>Zahlungsmethode</label>
+        <name>Payment_Method__c</name>
+        <picklistValues>
+            <masterLabel>Cash</masterLabel>
+            <translation>Bar</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Check</masterLabel>
+            <translation>Scheck</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Credit Card</masterLabel>
+            <translation>Kreditkarte</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>Geplantes Datum</label>
+        <name>Scheduled_Date__c</name>
+    </fields>
+    <fields>
+        <label>Abgeschrieben</label>
+        <name>Written_Off__c</name>
+    </fields>
+    <gender><!-- Neuter --></gender>
+    <layouts>
+        <layout>Payment Layout</layout>
+        <sections>
+            <label>Benutzerdefinierte Links</label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Payment Number --></nameFieldLabel>
+    <webLinks>
+        <label>Zahlungen planen</label>
+        <name>Schedule_Payments</name>
+    </webLinks>
+    <webLinks>
+        <label><!-- Writeoff_Payments --></label>
+        <name>Writeoff_Payments</name>
+    </webLinks>
+</CustomObjectTranslation>
