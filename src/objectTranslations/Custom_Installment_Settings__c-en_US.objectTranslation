@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Custom Installment Settings</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Custom Installment Settings</value>
+    </caseValues>
+    <fields>
+        <help><!-- The type of time period the Custom Installment Period covers. --></help>
+        <label><!-- Time Period Type --></label>
+        <name>Increment__c</name>
+    </fields>
+    <fields>
+        <help><!-- The amount of time the Custom Installment Period covers. --></help>
+        <label><!-- Time Period Frequency --></label>
+        <name>Value__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

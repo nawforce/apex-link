@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>List</customSettingsType>
+    <description>Defines custom installment periods for open-ended donations.</description>
+    <enableFeeds>false</enableFeeds>
+    <fields>
+        <fullName>Increment__c</fullName>
+        <description>The type of time period the Custom Installment Period covers.  Weeks, Months, Days</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The type of time period the Custom Installment Period covers.</inlineHelpText>
+        <label>Time Period Type</label>
+        <length>50</length>
+        <required>true</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Value__c</fullName>
+        <description>The amount of time the Custom Installment Period covers.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The amount of time the Custom Installment Period covers.</inlineHelpText>
+        <label>Time Period Frequency</label>
+        <precision>18</precision>
+        <required>true</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <label>Custom Installment Settings</label>
+    <visibility>Public</visibility>
+</CustomObject>

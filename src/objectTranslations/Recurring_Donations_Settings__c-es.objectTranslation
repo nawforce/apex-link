@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Recurring Donations Settings --></value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value><!-- Recurring Donations Settings --></value>
+    </caseValues>
+    <fields>
+        <help>Si seleccionado, todas las oportunidad de las donaciones recurrentes usarán la campaña en la donación recurrente. Si no se selecciona, solo la primera oportunidad tendrá la campaña.</help>
+        <label>Agregar campaña a todas las op.</label>
+        <name>Add_Campaign_to_All_Opportunites__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_Donations_trigger --></label>
+        <name>DISABLE_Donations_trigger__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. Trigger behavior now controlled in the Trigger Configuration page of NPSP Settings. --></help>
+        <label><!-- DEPRECATED-Disable_RD_trigger --></label>
+        <name>DISABLE_RecurringDonations_trigger__c</name>
+    </fields>
+    <fields>
+        <help>Previene la programación del trabajo nocturno que actualiza las donaciones recurrentes. Cualquier trabajo programado existente debe ser removido en Configuración -&gt;Trabajos -&gt; Trabajos programados</help>
+        <label>Deshabilitar progr. del trabajo nocturno</label>
+        <name>Disable_Nightly_Job__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Enable Update Check --></label>
+        <name>Enable_Update_Check__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED.  Replaced by the notification settings in the System Error settings panel. --></help>
+        <label><!-- DEPRECATED-Error Email Notifications --></label>
+        <name>Error_Email_Notifications__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Has Package Update --></label>
+        <name>Has_Package_Update__c</name>
+    </fields>
+    <fields>
+        <help>Día y hora del último lote que modifica donaciones recurrentes.</help>
+        <label>Último lote procesado</label>
+        <name>Last_Batch_Run__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Last Update Check --></label>
+        <name>Last_Update_Check__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Max Package Version --></label>
+        <name>Max_Package_Version__c</name>
+    </fields>
+    <fields>
+        <help>Restringe la cantidad total de donaciones creadas por donaciones recurrentes con final abierto. Por defecto son 50. Un valor mayor puede resultar en errores DML</help>
+        <label>Máximo de donaciones</label>
+        <name>Maximum_Donations__c</name>
+    </fields>
+    <fields>
+        <label><!-- DEPRECATED-Nightly Update ID --></label>
+        <name>Nightly_Update_ID__c</name>
+    </fields>
+    <fields>
+        <help>Cantidad de donaciones recurrentes que NO fueron modificadas con éxito el último lote.</help>
+        <label>Cantidad de fallos</label>
+        <name>Number_of_Failures__c</name>
+    </fields>
+    <fields>
+        <help>Cantidad de donaciones recurrentes que fueron modificadas con éxito en el último lote.</help>
+        <label>Cantidad de éxitos</label>
+        <name>Number_of_Successes__c</name>
+    </fields>
+    <fields>
+        <help>Determina el comportamiento de las oportunidades abiertas cuando una donación recurrente con final abierto cambia su estado a cerrada.</help>
+        <label>Comp. de op. Abiertas en cierre de DR</label>
+        <name>Open_Opportunity_Behavior__c</name>
+    </fields>
+    <fields>
+        <help>Cantidad de meses desde hoy que deben tener op. abiertas creadas cuando se usa don. recurrentes con final abierto. ATENCIÓN: Disminuir este valor resulta en la eliminación de op. que están de más. Aumentar este valor ejecutará un lote para agregar op.</help>
+        <label>Meses de previsiones de oportunidades</label>
+        <name>Opportunity_Forecast_Months__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Package Update URL --></label>
+        <name>Package_Update_URL__c</name>
+    </fields>
+    <fields>
+        <help>Tipo de registro de oportunidad usado para las oportunidades creadas por donaciones recurrentes.</help>
+        <label>Tipo de registro de oportunidad</label>
+        <name>Record_Type__c</name>
+    </fields>
+    <fields>
+        <help><!-- DEPRECATED. New versions of the Nonprofit Success Pack will be automatically installed. --></help>
+        <label><!-- DEPRECATED-Update Check Interval --></label>
+        <name>Update_Check_Interval__c</name>
+    </fields>
+    <gender><!-- Feminine --></gender>
+</CustomObjectTranslation>

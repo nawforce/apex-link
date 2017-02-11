@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>DEPRECATED-RD Error Queue</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Recurring Donations Error Queue</value>
+    </caseValues>
+    <fields>
+        <help><!-- Error message for the operation on the associated Recurring Donation record --></help>
+        <label><!-- Error Message --></label>
+        <name>Error_Message__c</name>
+    </fields>
+    <fields>
+        <help><!-- ID of the affected Recurring Donation record --></help>
+        <label><!-- Recurring_Donation_ID --></label>
+        <name>Recurring_Donation_ID__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>
