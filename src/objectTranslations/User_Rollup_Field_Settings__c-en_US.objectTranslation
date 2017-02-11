@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>User Rollup Field Settings</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>User Rollup Field Settings</value>
+    </caseValues>
+    <fields>
+        <help><!-- The rollup action (MIN, MAX, SUM, COUNT) to be performed on the source field --></help>
+        <label><!-- Field Action --></label>
+        <name>Field_Action__c</name>
+    </fields>
+    <fields>
+        <help><!-- The object this user rollup is mapped to --></help>
+        <label><!-- Object Name --></label>
+        <name>Object_Name__c</name>
+    </fields>
+    <fields>
+        <help><!-- The source field and action from the object for this user rollup --></help>
+        <label><!-- Source Field --></label>
+        <name>Source_Field__c</name>
+    </fields>
+    <fields>
+        <help><!-- The target field for placing the rolled-up value for this user defined rollup --></help>
+        <label><!-- Target Field --></label>
+        <name>Target_Field__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <help><!-- Concatenated fields used during rollups to locate the most recent opportunity. --></help>
+        <label><!-- Combined Rollup Fieldset --></label>
+        <name>CombinedRollupFieldset__c</name>
+    </fields>
+    <fields>
+        <help><!-- Controls if Household contact roles are created for Opportunities.  DEPRECATED.  Replaced by custom settings. --></help>
+        <label><!-- _SYSTEM: HOUSEHOLD CONTACT ROLEPROCESSOR --></label>
+        <name>systemHouseholdContactRoleProcessor__c</name>
+        <picklistValues>
+            <masterLabel>All Opportunities</masterLabel>
+            <translation><!-- All Opportunities --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>No Opportunities</masterLabel>
+            <translation><!-- No Opportunities --></translation>
+        </picklistValues>
+    </fields>
+</CustomObjectTranslation>

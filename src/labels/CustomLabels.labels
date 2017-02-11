@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>Add</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Add</shortDescription>
+        <value>Add</value>
+    </labels>
+    <labels>
+        <fullName>AddAndMerge</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Add and merge Households</shortDescription>
+        <value>Add and merge Households</value>
+    </labels>
+    <labels>
+        <fullName>AddAndRemove</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Add and remove from old Household</shortDescription>
+        <value>Add and remove from old Household</value>
+    </labels>
+    <labels>
+        <fullName>AddHouseholdMembers</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Add Members</shortDescription>
+        <value>Add Members</value>
+    </labels>
+    <labels>
+        <fullName>AddressCopyFailure</fullName>
+        <categories>Households</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AddressCopyFailure</shortDescription>
+        <value>An error occurred during the copying of the address.</value>
+    </labels>
+    <labels>
+        <fullName>AddressCopySuccess</fullName>
+        <categories>Households</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AddressCopySuccess</shortDescription>
+        <value>Address copied successfully.</value>
+    </labels>
+    <labels>
+        <fullName>AddressCopyUnknownObject</fullName>
+        <categories>Households</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AddressCopyUnknownObject</shortDescription>
+        <value>Address Copy is not supported for this object type.</value>
+    </labels>
+    <labels>
+        <fullName>AddressToAllMembers</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Set the home address on all household members to this address.</shortDescription>
+        <value>Set the home address on all household members to this address.</value>
+    </labels>
+    <labels>
+        <fullName>AlreadyInHousehold</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Already In Household</shortDescription>
+        <value>Already In Household</value>
+    </labels>
+    <labels>
+        <fullName>AutoFormalGreeting</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Auto Formal Greeting</shortDescription>
+        <value>Auto Formal Greeting</value>
+    </labels>
+    <labels>
+        <fullName>AutoInformalGreeting</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Auto Informal Greeting</shortDescription>
+        <value>Auto Informal Greeting</value>
+    </labels>
+    <labels>
+        <fullName>AutoName</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Auto Name</shortDescription>
+        <value>Auto Name</value>
+    </labels>
+    <labels>
+        <fullName>Change</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Change</shortDescription>
+        <value>Change</value>
+    </labels>
+    <labels>
+        <fullName>ChangeAddress</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Change Address</shortDescription>
+        <value>Change Address</value>
+    </labels>
+    <labels>
+        <fullName>ChangesNotSaved</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Changes have not been saved.</shortDescription>
+        <value>Changes have not been saved.</value>
+    </labels>
+    <labels>
+        <fullName>ContactAlreadyInHousehold</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Already in a household</shortDescription>
+        <value>is already in a household. Would you like to add this contact with or without their existing household members?</value>
+    </labels>
+    <labels>
+        <fullName>ContactLastNameRqd</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Last Name is required.</shortDescription>
+        <value>Last Name is required.</value>
+    </labels>
+    <labels>
+        <fullName>ContactNameRqd</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Enter a First Name and Last Name.</shortDescription>
+        <value>Enter a First Name and Last Name.</value>
+    </labels>
+    <labels>
+        <fullName>CreatedOnSave</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contact will be created when Household is saved.</shortDescription>
+        <value>Contact will be created when Household is saved.</value>
+    </labels>
+    <labels>
+        <fullName>DefaultHouseholdName</fullName>
+        <categories>Households, Household Naming</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>DefaultHouseholdName</shortDescription>
+        <value>Household</value>
+    </labels>
+    <labels>
+        <fullName>DefaultHouseholdTransactionCurrency</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>DefaultHouseholdTransactionCurrency</shortDescription>
+        <value>$</value>
+    </labels>
+    <labels>
+        <fullName>Delete</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Delete</shortDescription>
+        <value>Delete</value>
+    </labels>
+    <labels>
+        <fullName>EnterNewAddress</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Enter a new address</shortDescription>
+        <value>Enter a new address</value>
+    </labels>
+    <labels>
+        <fullName>ExcludeText</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Exclude Contact from automatic Household naming:</shortDescription>
+        <value>Exclude Contact from automatic Household naming:</value>
+    </labels>
+    <labels>
+        <fullName>ExistingHousehold</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Existing Household</shortDescription>
+        <value>Existing Household</value>
+    </labels>
+    <labels>
+        <fullName>FindContactByName</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Find contact by name ...</shortDescription>
+        <value>Find contact by name ...</value>
+    </labels>
+    <labels>
+        <fullName>HouseholdAddress</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Household Address</shortDescription>
+        <value>Household Address</value>
+    </labels>
+    <labels>
+        <fullName>HouseholdAnonymousGreeting</fullName>
+        <categories>Households, Household Naming</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>HouseholdAnonymousGreeting</shortDescription>
+        <value>Sir or Madam</value>
+    </labels>
+    <labels>
+        <fullName>HouseholdAnonymousName</fullName>
+        <categories>Households, Household Naming</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>HouseholdAnonymousName</shortDescription>
+        <value>Anonymous</value>
+    </labels>
+    <labels>
+        <fullName>HouseholdDetails</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Household Details</shortDescription>
+        <value>Household Details</value>
+    </labels>
+    <labels>
+        <fullName>HouseholdMembers</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Household Members</shortDescription>
+        <value>Household Members</value>
+    </labels>
+    <labels>
+        <fullName>HouseholdNameConnector</fullName>
+        <categories>Households, Household Naming</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>HouseholdNameConnector</shortDescription>
+        <value>and</value>
+    </labels>
+    <labels>
+        <fullName>HouseholdNameOverrun</fullName>
+        <categories>Households, Household Naming</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>HouseholdNameOverrun</shortDescription>
+        <value>Friends</value>
+    </labels>
+    <labels>
+        <fullName>Household_Contact_Role_Processor_Off</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Household Contact Role Processor Off</shortDescription>
+        <value>No Opportunities</value>
+    </labels>
+    <labels>
+        <fullName>Household_Contact_Role_Processor_On</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Household Contact Role Processor On</shortDescription>
+        <value>All Opportunities</value>
+    </labels>
+    <labels>
+        <fullName>Household_Contact_Roles_Help_Text</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Household Contact Roles Help Text</shortDescription>
+        <value>These settings let you automatically create Opportunity Contact Roles for Household members whenever an Opportunity is created.</value>
+    </labels>
+    <labels>
+        <fullName>Household_Member_Contact_Role</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Household Member Contact Role</shortDescription>
+        <value>Household Member</value>
+    </labels>
+    <labels>
+        <fullName>Household_Rules_Help_Text</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Household Rules Help Text</shortDescription>
+        <value>DEPRECATED.  Not Used.  Select which Contacts get Households: All, only those related to an Individual Account, or none.</value>
+    </labels>
+    <labels>
+        <fullName>ManageHousehold</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Manage Household</shortDescription>
+        <value>Manage Household</value>
+    </labels>
+    <labels>
+        <fullName>NameReplacementText</fullName>
+        <categories>Households, Household Naming</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Text used to cause a household name or greeting replacement</shortDescription>
+        <value>REPLACE</value>
+    </labels>
+    <labels>
+        <fullName>NewContact</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>New Contact</shortDescription>
+        <value>New Contact</value>
+    </labels>
+    <labels>
+        <fullName>NoContacts</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>There are currently no Contacts in this Household.</shortDescription>
+        <value>There are currently no Contacts in this Household.</value>
+    </labels>
+    <labels>
+        <fullName>Opportunity_Error_Help_Text</fullName>
+        <categories>Households</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Opportunity_Error_Help_Text</shortDescription>
+        <value>Rollup errors can occur during nightly or manual rollups, and may affect the accuracy of your data.  Listed below are the errors, type of error, and a link to the record on which the error occurred. These errors are reset every time the nightly scheduled job or the manual rollups are run.  It is highly recommended these errors are addressed promptly to ensure the accuracy of your data.</value>
+    </labels>
+    <labels>
+        <fullName>Opportunity_Rollup_Future_Call_Limit</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Opportunity Rollup Future Call Limit</shortDescription>
+        <value>Did not roll up because there were too few future calls available.</value>
+    </labels>
+    <labels>
+        <fullName>Opportunity_Rollup_Scheduling_Error_Text</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Opportunity Rollup Scheduling Error Text</shortDescription>
+        <value>You have reached your limit of Scheduled Apex jobs and the Opportunity Rollups won\&apos;t run nightly. If you want this job to run nightly, delete one of your scheduled jobs and reload this page.</value>
+    </labels>
+    <labels>
+        <fullName>Primary_Donor_Contact_Role</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Primary Donor Contact Role</shortDescription>
+        <value>Donor</value>
+    </labels>
+    <labels>
+        <fullName>RollupErrorMessage</fullName>
+        <categories>Households</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>RollupErrorMessage</shortDescription>
+        <value>Error(s) occurred the last time your Opportunities were rolled up. Please see the System Error Log panel for more information.</value>
+    </labels>
+    <labels>
+        <fullName>SelectExistingAddress</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Select an existing address</shortDescription>
+        <value>Select an existing address</value>
+    </labels>
+    <labels>
+        <fullName>SetAddress</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Set Address</shortDescription>
+        <value>Set Address</value>
+    </labels>
+    <labels>
+        <fullName>UDRDescription</fullName>
+        <categories>Households</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>UDRDescription</shortDescription>
+        <value>These settings let you create and manage user defined rollups from an Opportunity (Donation) to a Contact, Account, or Household.  After you create a User Defined Rollup, you may want to use Rollup Donations Batch in NPSP Settings | Bulk Data Processes to recalculate all rollups in your instance and ensure that your new rollup field is correctly populated. 
+ 
+WARNING: Keep in mind that rollups change how your Nonprofit Success Pack behaves. Improperly configured settings may cause your rollups to fail. Please test your user defined rollups thoroughly before deploying to production.</value>
+    </labels>
+</CustomLabels>

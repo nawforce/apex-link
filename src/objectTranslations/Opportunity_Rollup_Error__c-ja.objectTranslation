@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- DEPRECATED-Opportunity Rollup Errors --></value>
+    </caseValues>
+    <fields>
+        <help>エラーの日時</help>
+        <label>エラー日時</label>
+        <name>Error_Datetime__c</name>
+    </fields>
+    <fields>
+        <help>エラーメッセージの完全なテキスト</help>
+        <label>エラーメッセージ</label>
+        <name>Error_Message__c</name>
+    </fields>
+    <fields>
+        <help>このエラー対象のオブジェクト種別</help>
+        <label>エラーオブジェクト種別</label>
+        <name>Error_Object_Type__c</name>
+    </fields>
+    <fields>
+        <help>エラーが発生したレコードへのリンク</help>
+        <label>エラーレコードリンク</label>
+        <name>Error_Record_Link__c</name>
+    </fields>
+    <fields>
+        <help>発生したエラーの種類</help>
+        <label>エラーの種類</label>
+        <name>Error_Type__c</name>
+    </fields>
+</CustomObjectTranslation>

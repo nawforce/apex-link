@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <help>最新の支援を見つけるために積み上げ集計中に使用される連結項目。</help>
+        <label>結合された積み上げ集計項目セット</label>
+        <name>CombinedRollupFieldset__c</name>
+    </fields>
+    <fields>
+        <help><!-- Controls if Household contact roles are created for Opportunities.  DEPRECATED.  Replaced by custom settings. --></help>
+        <label><!-- _SYSTEM: HOUSEHOLD CONTACT ROLEPROCESSOR --></label>
+        <name>systemHouseholdContactRoleProcessor__c</name>
+        <picklistValues>
+            <masterLabel>All Opportunities</masterLabel>
+            <translation>すべての支援</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>No Opportunities</masterLabel>
+            <translation>支援なし</translation>
+        </picklistValues>
+    </fields>
+</CustomObjectTranslation>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- User Rollup Field Settings --></value>
+    </caseValues>
+    <fields>
+        <help>集計元フィールドに対して実施される集計の種別（MIN：最小値、MAX：最大値、SUM：合計値、COUNT：個数）</help>
+        <label>集計種別</label>
+        <name>Field_Action__c</name>
+    </fields>
+    <fields>
+        <help>この積み上げ集計が指定されているオブジェクト名</help>
+        <label>オブジェクト名</label>
+        <name>Object_Name__c</name>
+    </fields>
+    <fields>
+        <help>この積み上げ集計を行う際の元データとなる項目</help>
+        <label>集計元フィールド名</label>
+        <name>Source_Field__c</name>
+    </fields>
+    <fields>
+        <help>この積み上げ集計した結果を格納する項目</help>
+        <label>集計先フィールド名</label>
+        <name>Target_Field__c</name>
+    </fields>
+</CustomObjectTranslation>

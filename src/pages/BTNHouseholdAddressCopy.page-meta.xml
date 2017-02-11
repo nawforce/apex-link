@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApexPage xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>36.0</apiVersion>
+    <availableInTouch>false</availableInTouch>
+    <confirmationTokenRequired>false</confirmationTokenRequired>
+    <description>Button to copy the Household address down to its member Contacts.</description>
+    <label>BTNHouseholdAddressCopy</label>
+    <packageVersions>
+        <majorNumber>3</majorNumber>
+        <minorNumber>4</minorNumber>
+        <namespace>npe01</namespace>
+    </packageVersions>
+</ApexPage>

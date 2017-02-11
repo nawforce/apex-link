@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <label><!-- Average Gift --></label>
+        <name>AverageAmount__c</name>
+    </fields>
+    <fields>
+        <label><!-- Best Gift Year Total --></label>
+        <name>Best_Gift_Year_Total__c</name>
+    </fields>
+    <fields>
+        <label><!-- Best Gift Year --></label>
+        <name>Best_Gift_Year__c</name>
+    </fields>
+    <fields>
+        <label><!-- First Gift Date --></label>
+        <name>FirstCloseDate__c</name>
+    </fields>
+    <fields>
+        <label>Adresse du Foyer</label>
+        <name>Formula_HouseholdMailingAddress__c</name>
+    </fields>
+    <fields>
+        <label>Téléphone du Foyer</label>
+        <name>Formula_HouseholdPhone__c</name>
+    </fields>
+    <fields>
+        <label><!-- Household Naming Order --></label>
+        <name>Household_Naming_Order__c</name>
+    </fields>
+    <fields>
+        <label>Foyer</label>
+        <name>Household__c</name>
+        <relationshipLabel>Membres du Foyer</relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Largest Gift --></label>
+        <name>LargestAmount__c</name>
+    </fields>
+    <fields>
+        <label><!-- Last Household Gift Date --></label>
+        <name>LastCloseDateHH__c</name>
+    </fields>
+    <fields>
+        <label><!-- Last Gift Date --></label>
+        <name>LastCloseDate__c</name>
+    </fields>
+    <fields>
+        <label><!-- Last Membership Amount --></label>
+        <name>LastMembershipAmount__c</name>
+    </fields>
+    <fields>
+        <label><!-- Last Membership Date --></label>
+        <name>LastMembershipDate__c</name>
+    </fields>
+    <fields>
+        <label><!-- Last Membership Level --></label>
+        <name>LastMembershipLevel__c</name>
+    </fields>
+    <fields>
+        <label><!-- Last Membership Origin --></label>
+        <name>LastMembershipOrigin__c</name>
+    </fields>
+    <fields>
+        <label><!-- Last Gift Amount --></label>
+        <name>LastOppAmount__c</name>
+    </fields>
+    <fields>
+        <label><!-- Membership End Date --></label>
+        <name>MembershipEndDate__c</name>
+    </fields>
+    <fields>
+        <label><!-- Membership Join Date --></label>
+        <name>MembershipJoinDate__c</name>
+    </fields>
+    <fields>
+        <help><!-- Determines which household names this contact is NOT included as part of. --></help>
+        <label><!-- Naming Exclusions --></label>
+        <name>Naming_Exclusions__c</name>
+        <picklistValues>
+            <masterLabel>Household__c.Formal_Greeting__c</masterLabel>
+            <translation><!-- Household__c.Formal_Greeting__c --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Household__c.Informal_Greeting__c</masterLabel>
+            <translation><!-- Household__c.Informal_Greeting__c --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Household__c.Name</masterLabel>
+            <translation><!-- Household__c.Name --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Total Number of Gifts --></label>
+        <name>NumberOfClosedOpps__c</name>
+    </fields>
+    <fields>
+        <label><!-- Number of Memberships --></label>
+        <name>NumberOfMembershipOpps__c</name>
+    </fields>
+    <fields>
+        <label><!-- Total Gifts Two Years Ago --></label>
+        <name>OppAmount2YearsAgo__c</name>
+    </fields>
+    <fields>
+        <label><!-- Total Gifts Last N Days --></label>
+        <name>OppAmountLastNDays__c</name>
+    </fields>
+    <fields>
+        <label><!-- Total Household Gifts Last Year --></label>
+        <name>OppAmountLastYearHH__c</name>
+    </fields>
+    <fields>
+        <label><!-- Total Gifts Last Year --></label>
+        <name>OppAmountLastYear__c</name>
+    </fields>
+    <fields>
+        <label><!-- Total Household Gifts This Year --></label>
+        <name>OppAmountThisYearHH__c</name>
+    </fields>
+    <fields>
+        <label><!-- Total Gifts This Year --></label>
+        <name>OppAmountThisYear__c</name>
+    </fields>
+    <fields>
+        <label><!-- Number of Gifts Two Years Ago --></label>
+        <name>OppsClosed2YearsAgo__c</name>
+    </fields>
+    <fields>
+        <label><!-- Number of Gifts Last N Days --></label>
+        <name>OppsClosedLastNDays__c</name>
+    </fields>
+    <fields>
+        <label><!-- Number of Gifts Last Year --></label>
+        <name>OppsClosedLastYear__c</name>
+    </fields>
+    <fields>
+        <label><!-- Number of Gifts This Year --></label>
+        <name>OppsClosedThisYear__c</name>
+    </fields>
+    <fields>
+        <label><!-- Smallest Gift --></label>
+        <name>SmallestAmount__c</name>
+    </fields>
+    <fields>
+        <help><!-- Total soft credit amount last year. --></help>
+        <label><!-- Soft Credit Last Year --></label>
+        <name>Soft_Credit_Last_Year__c</name>
+    </fields>
+    <fields>
+        <help><!-- Total soft credit amount this year --></help>
+        <label><!-- Soft Credit This Year --></label>
+        <name>Soft_Credit_This_Year__c</name>
+    </fields>
+    <fields>
+        <help><!-- Total amount in soft credits for this Contact&apos;s lifetime. Defined in the Household Settings tab. --></help>
+        <label><!-- Soft Credit Total --></label>
+        <name>Soft_Credit_Total__c</name>
+    </fields>
+    <fields>
+        <help><!-- Total soft credit amount two years ago. --></help>
+        <label><!-- Soft Credit Two Years Ago --></label>
+        <name>Soft_Credit_Two_Years_Ago__c</name>
+    </fields>
+    <fields>
+        <label><!-- _SYSTEM: HOUSEHOLD PROCESSOR-DEPRECATED --></label>
+        <name>SystemHouseholdProcessor__c</name>
+        <picklistValues>
+            <masterLabel>All Individual Contacts</masterLabel>
+            <translation><!-- All Individual Contacts --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>All New or Edited Contacts</masterLabel>
+            <translation><!-- All New or Edited Contacts --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>No Contacts</masterLabel>
+            <translation><!-- No Contacts --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Total Membership Amount --></label>
+        <name>TotalMembershipOppAmount__c</name>
+    </fields>
+    <fields>
+        <label><!-- Total Gifts --></label>
+        <name>TotalOppAmount__c</name>
+    </fields>
+    <fields>
+        <label><!-- Total Household Gifts --></label>
+        <name>Total_Household_Gifts__c</name>
+    </fields>
+    <webLinks>
+        <label><!-- Copy_Address_to_Household --></label>
+        <name>Copy_Address_to_Household</name>
+    </webLinks>
+</CustomObjectTranslation>

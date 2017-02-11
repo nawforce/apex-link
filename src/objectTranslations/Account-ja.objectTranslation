@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <help><!-- Average won Opportunity amount related to this Account.  Updated automatically. --></help>
+        <label>平均支援金額</label>
+        <name>AverageAmount__c</name>
+    </fields>
+    <fields>
+        <help><!-- The sum of won Opportunity amounts in the Best Gift Year for this Account. --></help>
+        <label>最大支援年の総額</label>
+        <name>Best_Gift_Year_Total__c</name>
+    </fields>
+    <fields>
+        <help><!-- The year in which the largest total amount of won Opportunities related to this Account occurred.  See also Best Gift Year Total. --></help>
+        <label>最大支援年</label>
+        <name>Best_Gift_Year__c</name>
+    </fields>
+    <fields>
+        <help><!-- The earliest won Opportunity (by Close Date) with amount greater than zero related to this Account. --></help>
+        <label>最初の支援日(v2)</label>
+        <name>FirstCloseDate__c</name>
+    </fields>
+    <fields>
+        <help>世帯団体で、除外なしで順序付けされた関係する個人の項目を使用します。自動的に生成されます。</help>
+        <label>公式の挨拶</label>
+        <name>Formal_Greeting__c</name>
+    </fields>
+    <fields>
+        <label>世帯電話</label>
+        <name>HouseholdPhone__c</name>
+    </fields>
+    <fields>
+        <help>世帯団体で、除外なしで順序付けされた関係する個人の項目を使用します。自動的に生成されます。</help>
+        <label>非公式の挨拶</label>
+        <name>Informal_Greeting__c</name>
+    </fields>
+    <fields>
+        <help><!-- The largest amount of a won Opportunity related to this Account. --></help>
+        <label>最大支援金額</label>
+        <name>LargestAmount__c</name>
+    </fields>
+    <fields>
+        <help><!-- The most recent Close Date of a won Opportunity related to this Account with amount greater than zero. --></help>
+        <label>最終支援日(v2)</label>
+        <name>LastCloseDate__c</name>
+    </fields>
+    <fields>
+        <help><!-- The amount of the most recent (by Close Date) won Membership Opportunity (by Record Type) for this Account. --></help>
+        <label>最終会費支援金額</label>
+        <name>LastMembershipAmount__c</name>
+    </fields>
+    <fields>
+        <help><!-- The most recent Close Date of a won Membership Opportunity (by Record Type) related to this Account. --></help>
+        <label>最終会費支援日</label>
+        <name>LastMembershipDate__c</name>
+    </fields>
+    <fields>
+        <help><!-- Membership level from most recent (by Close Date) won Membership Opportunity (by Record Type) related to this Account.&quot; --></help>
+        <label>最終会員レベル</label>
+        <name>LastMembershipLevel__c</name>
+    </fields>
+    <fields>
+        <help><!-- Membership &quot;origin&quot; (new, renew...) from most recent (by Close Date) won Membership Opportunity (by Record Type) related to this Account. --></help>
+        <label>最終会員状況</label>
+        <name>LastMembershipOrigin__c</name>
+    </fields>
+    <fields>
+        <help><!-- The amount of the most recent won Opportunity (by Close Date) with amount greater than zero related to this Account. --></help>
+        <label>最終支援金額</label>
+        <name>LastOppAmount__c</name>
+    </fields>
+    <fields>
+        <help><!-- Membership end date from most recent (by Close Date) won Membership Opportunity (by Record Type) related to this Account. --></help>
+        <label>会員期限(v2)</label>
+        <name>MembershipEndDate__c</name>
+    </fields>
+    <fields>
+        <help><!-- Membership start date from most recent (by Close Date) won Membership Opportunity (by Record Type) related to this Account. --></help>
+        <label>入会年月日(v2)</label>
+        <name>MembershipJoinDate__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total number of won Opportunities  related to this Account. --></help>
+        <label>これまでの支援回数(v2)</label>
+        <name>NumberOfClosedOpps__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total number of won Membership Opportunities (Record Type) related to this Account. --></help>
+        <label>会費払込回数(v2)</label>
+        <name>NumberOfMembershipOpps__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total amount of won Opportunities related to this Account, closed within the year or fiscal year preceding last year (see Household Settings). --></help>
+        <label>一昨年の支援総額</label>
+        <name>OppAmount2YearsAgo__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total amount of won Opportunities related to this Account, closed in the last number of days defined in Household Settings. --></help>
+        <label>N日間の支援総額</label>
+        <name>OppAmountLastNDays__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total amount of won Opportunities related to this Account, closed in the current year or fiscal year. --></help>
+        <label>昨年の支援総額</label>
+        <name>OppAmountLastYear__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total amount of won Opportunities related to this Account, closed in the current year or fiscal year. --></help>
+        <label>今年の支援総額</label>
+        <name>OppAmountThisYear__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total number of won Opportunities with amount greater than zero related to this Account, closed within the year or fiscal year preceding last year. --></help>
+        <label>一昨年の支援回数</label>
+        <name>OppsClosed2YearsAgo__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total amount of won Opportunities related to this Account, closed in the last number of days defined in Household Settings. --></help>
+        <label>N日間の支援回数</label>
+        <name>OppsClosedLastNDays__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total number of won Opportunities with amount greater than zero related to this Account, closed in the previous year or fiscal year (see Household Settings). --></help>
+        <label>昨年の支援回数</label>
+        <name>OppsClosedLastYear__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total number of won Opportunities with amount greater than zero related to this Account, closed in the current year or fiscal year (see Household Settings). --></help>
+        <label>今年の支援回数</label>
+        <name>OppsClosedThisYear__c</name>
+    </fields>
+    <fields>
+        <help>世帯団体で、世帯コードによっては自動的に入力されない名前関連項目を指定します。</help>
+        <label><!-- _SYSTEM: CUSTOM NAMING --></label>
+        <name>SYSTEM_CUSTOM_NAMING__c</name>
+        <picklistValues>
+            <masterLabel>Formal_Greeting__c</masterLabel>
+            <translation><!-- Formal_Greeting__c --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Informal_Greeting__c</masterLabel>
+            <translation><!-- Informal_Greeting__c --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Name</masterLabel>
+            <translation><!-- Name --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- The smallest non-zero amount of a won Opportunity related to this Account. --></help>
+        <label>最小支援金額</label>
+        <name>SmallestAmount__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total amount of won Membership Opportunities (Record Type) related to this Account. --></help>
+        <label>会費支援総額</label>
+        <name>TotalMembershipOppAmount__c</name>
+    </fields>
+    <fields>
+        <help><!-- The sum of amounts of all won Opportunities related to this Account. --></help>
+        <label>これまでの支援総額(英版・v2)</label>
+        <name>TotalOppAmount__c</name>
+    </fields>
+</CustomObjectTranslation>

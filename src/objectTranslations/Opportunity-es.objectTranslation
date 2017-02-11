@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <help>Concatenación de campos usados durante el calculo de totales para localizar la oportunidad más reciente.</help>
+        <label>Conjunto de campos combinados</label>
+        <name>CombinedRollupFieldset__c</name>
+    </fields>
+    <fields>
+        <help><!-- Controls if Household contact roles are created for Opportunities.  DEPRECATED.  Replaced by custom settings. --></help>
+        <label><!-- _SYSTEM: HOUSEHOLD CONTACT ROLEPROCESSOR --></label>
+        <name>systemHouseholdContactRoleProcessor__c</name>
+        <picklistValues>
+            <masterLabel>All Opportunities</masterLabel>
+            <translation>Todas las oportunidades</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>No Opportunities</masterLabel>
+            <translation>No oportunidades</translation>
+        </picklistValues>
+    </fields>
+</CustomObjectTranslation>

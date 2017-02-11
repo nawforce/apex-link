@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label><!-- Add --></label>
+        <name>Add</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Add and merge Households --></label>
+        <name>AddAndMerge</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Add and remove from old Household --></label>
+        <name>AddAndRemove</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Add Members --></label>
+        <name>AddHouseholdMembers</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- AddressCopyFailure --></label>
+        <name>AddressCopyFailure</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- AddressCopySuccess --></label>
+        <name>AddressCopySuccess</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- AddressCopyUnknownObject --></label>
+        <name>AddressCopyUnknownObject</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Set the home address on all household members to this address. --></label>
+        <name>AddressToAllMembers</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Already In Household --></label>
+        <name>AlreadyInHousehold</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Auto Formal Greeting --></label>
+        <name>AutoFormalGreeting</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Auto Informal Greeting --></label>
+        <name>AutoInformalGreeting</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Auto Name --></label>
+        <name>AutoName</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Change --></label>
+        <name>Change</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Change Address --></label>
+        <name>ChangeAddress</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Changes have not been saved. --></label>
+        <name>ChangesNotSaved</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Already in a household --></label>
+        <name>ContactAlreadyInHousehold</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Last Name is required. --></label>
+        <name>ContactLastNameRqd</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Enter a First Name and Last Name. --></label>
+        <name>ContactNameRqd</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Contact will be created when Household is saved. --></label>
+        <name>CreatedOnSave</name>
+    </customLabels>
+    <customLabels>
+        <label>Household</label>
+        <name>DefaultHouseholdName</name>
+    </customLabels>
+    <customLabels>
+        <label>€</label>
+        <name>DefaultHouseholdTransactionCurrency</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Delete --></label>
+        <name>Delete</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Enter a new address --></label>
+        <name>EnterNewAddress</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Exclude Contact from automatic Household naming: --></label>
+        <name>ExcludeText</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Existing Household --></label>
+        <name>ExistingHousehold</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Find contact by name ... --></label>
+        <name>FindContactByName</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Household Address --></label>
+        <name>HouseholdAddress</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- HouseholdAnonymousGreeting --></label>
+        <name>HouseholdAnonymousGreeting</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- HouseholdAnonymousName --></label>
+        <name>HouseholdAnonymousName</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Household Details --></label>
+        <name>HouseholdDetails</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Household Members --></label>
+        <name>HouseholdMembers</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- HouseholdNameConnector --></label>
+        <name>HouseholdNameConnector</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- HouseholdNameOverrun --></label>
+        <name>HouseholdNameOverrun</name>
+    </customLabels>
+    <customLabels>
+        <label>No Opportunities</label>
+        <name>Household_Contact_Role_Processor_Off</name>
+    </customLabels>
+    <customLabels>
+        <label>All Opportunities</label>
+        <name>Household_Contact_Role_Processor_On</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Household Contact Roles Help Text --></label>
+        <name>Household_Contact_Roles_Help_Text</name>
+    </customLabels>
+    <customLabels>
+        <label>Household Credit</label>
+        <name>Household_Member_Contact_Role</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Household Rules Help Text --></label>
+        <name>Household_Rules_Help_Text</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Manage Household --></label>
+        <name>ManageHousehold</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Text used to cause a household name or greeting replacement --></label>
+        <name>NameReplacementText</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- New Contact --></label>
+        <name>NewContact</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- There are currently no Contacts in this Household. --></label>
+        <name>NoContacts</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Opportunity_Error_Help_Text --></label>
+        <name>Opportunity_Error_Help_Text</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Opportunity Rollup Future Call Limit --></label>
+        <name>Opportunity_Rollup_Future_Call_Limit</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Opportunity Rollup Scheduling Error Text --></label>
+        <name>Opportunity_Rollup_Scheduling_Error_Text</name>
+    </customLabels>
+    <customLabels>
+        <label>Household Credit</label>
+        <name>Primary_Donor_Contact_Role</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- RollupErrorMessage --></label>
+        <name>RollupErrorMessage</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Select an existing address --></label>
+        <name>SelectExistingAddress</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- Set Address --></label>
+        <name>SetAddress</name>
+    </customLabels>
+    <customLabels>
+        <label><!-- UDRDescription --></label>
+        <name>UDRDescription</name>
+    </customLabels>
+    <customTabs>
+        <label><!-- Households Settings --></label>
+        <name>Households_Settings</name>
+    </customTabs>
+    <customTabs>
+        <label><!-- Opportunity Rollups --></label>
+        <name>Opportunity_Rollups</name>
+    </customTabs>
+    <customTabs>
+        <label><!-- User Rollups --></label>
+        <name>User_Rollups</name>
+    </customTabs>
+    <reportTypes>
+        <label>Foyers et Dons</label>
+        <name>Households_and_Donations</name>
+        <sections>
+            <label>Membres du Foyer</label>
+            <name>Household Members</name>
+        </sections>
+        <sections>
+            <label>Foyers</label>
+            <name>Households</name>
+        </sections>
+        <sections>
+            <label>Opportunités</label>
+            <name>Opportunities</name>
+        </sections>
+    </reportTypes>
+</Translations>

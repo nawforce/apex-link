@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <label><!-- Average Gift --></label>
+        <name>AverageAmount__c</name>
+    </fields>
+    <fields>
+        <label><!-- Best Gift Year Total --></label>
+        <name>Best_Gift_Year_Total__c</name>
+    </fields>
+    <fields>
+        <label><!-- Best Gift Year --></label>
+        <name>Best_Gift_Year__c</name>
+    </fields>
+    <fields>
+        <label><!-- First Gift Date --></label>
+        <name>FirstCloseDate__c</name>
+    </fields>
+    <fields>
+        <help><!-- For Household Accounts, uses fields of non-excluded, ordered related Contacts. Generated automatically. --></help>
+        <label><!-- Formal Greeting --></label>
+        <name>Formal_Greeting__c</name>
+    </fields>
+    <fields>
+        <label><!-- Household Phone --></label>
+        <name>HouseholdPhone__c</name>
+    </fields>
+    <fields>
+        <help><!-- For Household Accounts, uses fields of non-excluded, ordered related Contacts. Generated automatically. --></help>
+        <label><!-- Informal Greeting --></label>
+        <name>Informal_Greeting__c</name>
+    </fields>
+    <fields>
+        <label><!-- Largest Gift --></label>
+        <name>LargestAmount__c</name>
+    </fields>
+    <fields>
+        <label><!-- Last Gift Date --></label>
+        <name>LastCloseDate__c</name>
+    </fields>
+    <fields>
+        <label><!-- Last Membership Amount --></label>
+        <name>LastMembershipAmount__c</name>
+    </fields>
+    <fields>
+        <label><!-- Last Membership Date --></label>
+        <name>LastMembershipDate__c</name>
+    </fields>
+    <fields>
+        <label><!-- Last Membership Level --></label>
+        <name>LastMembershipLevel__c</name>
+    </fields>
+    <fields>
+        <label><!-- Last Membership Origin --></label>
+        <name>LastMembershipOrigin__c</name>
+    </fields>
+    <fields>
+        <label><!-- Last Gift Amount --></label>
+        <name>LastOppAmount__c</name>
+    </fields>
+    <fields>
+        <label><!-- Membership End Date --></label>
+        <name>MembershipEndDate__c</name>
+    </fields>
+    <fields>
+        <label><!-- Membership Join Date --></label>
+        <name>MembershipJoinDate__c</name>
+    </fields>
+    <fields>
+        <label><!-- Total Number of Gifts --></label>
+        <name>NumberOfClosedOpps__c</name>
+    </fields>
+    <fields>
+        <label><!-- Number of Memberships --></label>
+        <name>NumberOfMembershipOpps__c</name>
+    </fields>
+    <fields>
+        <label><!-- Total Gifts Two Years Ago --></label>
+        <name>OppAmount2YearsAgo__c</name>
+    </fields>
+    <fields>
+        <label><!-- Total Gifts Last N Days --></label>
+        <name>OppAmountLastNDays__c</name>
+    </fields>
+    <fields>
+        <label><!-- Total Gifts Last Year --></label>
+        <name>OppAmountLastYear__c</name>
+    </fields>
+    <fields>
+        <label><!-- Total Gifts This Year --></label>
+        <name>OppAmountThisYear__c</name>
+    </fields>
+    <fields>
+        <label><!-- Number of Gifts Two Years Ago --></label>
+        <name>OppsClosed2YearsAgo__c</name>
+    </fields>
+    <fields>
+        <label><!-- Number of Gifts Last N Days --></label>
+        <name>OppsClosedLastNDays__c</name>
+    </fields>
+    <fields>
+        <label><!-- Number of Gifts Last Year --></label>
+        <name>OppsClosedLastYear__c</name>
+    </fields>
+    <fields>
+        <label><!-- Number of Gifts This Year --></label>
+        <name>OppsClosedThisYear__c</name>
+    </fields>
+    <fields>
+        <help><!-- For Household Accounts, specifies which name related fields should not be automatically populated by the Householding code. --></help>
+        <label><!-- _SYSTEM: CUSTOM NAMING --></label>
+        <name>SYSTEM_CUSTOM_NAMING__c</name>
+        <picklistValues>
+            <masterLabel>Formal_Greeting__c</masterLabel>
+            <translation><!-- Formal_Greeting__c --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Informal_Greeting__c</masterLabel>
+            <translation><!-- Informal_Greeting__c --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Name</masterLabel>
+            <translation><!-- Name --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Smallest Gift --></label>
+        <name>SmallestAmount__c</name>
+    </fields>
+    <fields>
+        <label><!-- Total Membership Amount --></label>
+        <name>TotalMembershipOppAmount__c</name>
+    </fields>
+    <fields>
+        <label><!-- Total Gifts --></label>
+        <name>TotalOppAmount__c</name>
+    </fields>
+</CustomObjectTranslation>
