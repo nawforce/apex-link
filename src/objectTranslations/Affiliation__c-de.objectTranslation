@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value><!-- Affiliation --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value><!-- Affiliation --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>false</plural>
+        <value><!-- Affiliation --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>true</plural>
+        <value><!-- Affiliation --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>false</plural>
+        <value><!-- Affiliation --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>true</plural>
+        <value><!-- Affiliation --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>false</plural>
+        <value><!-- Affiliation --></value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>true</plural>
+        <value><!-- Affiliation --></value>
+    </caseValues>
+    <fields>
+        <label>Kontakt</label>
+        <name>Contact__c</name>
+        <relationshipLabel>Organisationszugehörigkeiten</relationshipLabel>
+    </fields>
+    <fields>
+        <label>Beschreibung</label>
+        <name>Description__c</name>
+    </fields>
+    <fields>
+        <label>Enddatum</label>
+        <name>EndDate__c</name>
+    </fields>
+    <fields>
+        <label>Organisation</label>
+        <name>Organization__c</name>
+        <relationshipLabel>Verbundene Kontakte</relationshipLabel>
+    </fields>
+    <fields>
+        <help>Bei Aktivierung wird die Organisation der Zugehörigkeit im Kontaktdatensatz gespeichert.</help>
+        <label>Primär</label>
+        <name>Primary__c</name>
+    </fields>
+    <fields>
+        <label>Rolle</label>
+        <name>Role__c</name>
+    </fields>
+    <fields>
+        <label>Startdatum</label>
+        <name>StartDate__c</name>
+    </fields>
+    <fields>
+        <label><!-- Status --></label>
+        <name>Status__c</name>
+        <picklistValues>
+            <masterLabel>Current</masterLabel>
+            <translation>Aktuell</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Former</masterLabel>
+            <translation>Früher</translation>
+        </picklistValues>
+    </fields>
+    <gender><!-- Neuter --></gender>
+    <layouts>
+        <layout>Affiliation Layout</layout>
+        <sections>
+            <label>Zugehörigkeitsinformationen</label>
+            <section>Affiliation Information</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Affiliation Name --></nameFieldLabel>
+</CustomObjectTranslation>
