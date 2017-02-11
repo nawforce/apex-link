@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <help><!-- The first Volunteer Hours Start Date --></help>
+        <label><!-- First Volunteer Date --></label>
+        <name>First_Volunteer_Date__c</name>
+    </fields>
+    <fields>
+        <help><!-- The latest Volunteer Hours End Date --></help>
+        <label><!-- Last Volunteer Date --></label>
+        <name>Last_Volunteer_Date__c</name>
+    </fields>
+    <fields>
+        <label><!-- Volunteer Unique Count --></label>
+        <name>Unique_Volunteer_Count__c</name>
+    </fields>
+    <fields>
+        <help><!-- Check if this Contact does not want to receive automatic reminder emails about their upcoming shifts.  Used in the &quot;Volunteer Hours Reminder Email&quot; workflow rule. --></help>
+        <label><!-- Volunteer Auto-Reminder Email Opt Out --></label>
+        <name>Volunteer_Auto_Reminder_Email_Opt_Out__c</name>
+    </fields>
+    <fields>
+        <label><!-- Volunteer Availability --></label>
+        <name>Volunteer_Availability__c</name>
+        <picklistValues>
+            <masterLabel>Afternoon</masterLabel>
+            <translation><!-- Afternoon --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Morning</masterLabel>
+            <translation><!-- Morning --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekdays</masterLabel>
+            <translation><!-- Weekdays --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekends</masterLabel>
+            <translation><!-- Weekends --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekly</masterLabel>
+            <translation><!-- Weekly --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- Total number of Hours that are Completed. Hours with other status values are not included. --></help>
+        <label><!-- Volunteer Hours --></label>
+        <name>Volunteer_Hours__c</name>
+    </fields>
+    <fields>
+        <help><!-- The date of the most recent volunteer signup from the web.  Used to trigger workflow for notifications and thank you emails. --></help>
+        <label><!-- Volunteer Last Web Signup Date --></label>
+        <name>Volunteer_Last_Web_Signup_Date__c</name>
+    </fields>
+    <fields>
+        <help><!-- Notes about the volunteer that the volunteer manager or organization staff want to record. --></help>
+        <label><!-- Volunteer Manager Notes --></label>
+        <name>Volunteer_Manager_Notes__c</name>
+    </fields>
+    <fields>
+        <help><!-- Notes from the volunteer.  Note that the web signup form appends the volunteers comments to this field. --></help>
+        <label><!-- Volunteer Notes --></label>
+        <name>Volunteer_Notes__c</name>
+    </fields>
+    <fields>
+        <help><!-- The organization, company, or group the contact is volunteering on behalf of. --></help>
+        <label><!-- Volunteer Organization --></label>
+        <name>Volunteer_Organization__c</name>
+    </fields>
+    <fields>
+        <help><!-- Select the skill(s) this contact has that should be used to find volunteer jobs. --></help>
+        <label><!-- Volunteer Skills --></label>
+        <name>Volunteer_Skills__c</name>
+        <picklistValues>
+            <masterLabel>Computer usage</masterLabel>
+            <translation><!-- Computer usage --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Event Planning</masterLabel>
+            <translation><!-- Event Planning --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Fundraising</masterLabel>
+            <translation><!-- Fundraising --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Landscaping</masterLabel>
+            <translation><!-- Landscaping --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Manual labor</masterLabel>
+            <translation><!-- Manual labor --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Marketing</masterLabel>
+            <translation><!-- Marketing --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Volunteer Status --></label>
+        <name>Volunteer_Status__c</name>
+        <picklistValues>
+            <masterLabel>Active</masterLabel>
+            <translation><!-- Active --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Inactive</masterLabel>
+            <translation><!-- Inactive --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>New Sign Up</masterLabel>
+            <translation><!-- New Sign Up --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Prospective</masterLabel>
+            <translation><!-- Prospective --></translation>
+        </picklistValues>
+    </fields>
+    <workflowTasks>
+        <description><!-- An automatic thank you email has been sent to the contact for signing up to be a volunteer. --></description>
+        <name>Volunteer_Signup_Thank_You_Sent_Contact</name>
+        <subject><!-- Volunteer Signup Thank You Sent - Contact --></subject>
+    </workflowTasks>
+</CustomObjectTranslation>

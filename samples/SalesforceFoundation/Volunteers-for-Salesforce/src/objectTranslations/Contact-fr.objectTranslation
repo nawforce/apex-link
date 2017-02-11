@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <help>Date de la première Heures de Bénévolat</help>
+        <label>Première date de bénévolat</label>
+        <name>First_Volunteer_Date__c</name>
+    </fields>
+    <fields>
+        <help>Date de fin des dernières heures de bénévoles</help>
+        <label>Dernière date de bénévolat</label>
+        <name>Last_Volunteer_Date__c</name>
+    </fields>
+    <fields>
+        <label>Comte de Bénévoles Uniques</label>
+        <name>Unique_Volunteer_Count__c</name>
+    </fields>
+    <fields>
+        <help>Cochée si le contact ne veut pas recevoir de rappels automatiques sur ses prochaines plages horaires.  Utilisé dans la règle de flux &apos;volunteer hours reminder email&apos;.</help>
+        <label>L&apos;email bénévolat d&apos;auto choisissent</label>
+        <name>Volunteer_Auto_Reminder_Email_Opt_Out__c</name>
+    </fields>
+    <fields>
+        <label>Disponibilités des bénévoles</label>
+        <name>Volunteer_Availability__c</name>
+        <picklistValues>
+            <masterLabel>Afternoon</masterLabel>
+            <translation>Après-midi</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Morning</masterLabel>
+            <translation>Matin</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekdays</masterLabel>
+            <translation>Semaine</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekends</masterLabel>
+            <translation>Weekend</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekly</masterLabel>
+            <translation>Hebdomadaire</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>Nombre total d&apos;heures qui sont complétés. Heures avec autres valeurs de Statut ne sont pas inclus.</help>
+        <label>Heures de bénévolat</label>
+        <name>Volunteer_Hours__c</name>
+    </fields>
+    <fields>
+        <help>La date de l&apos;inscription des bénévoles les plus récentes à partir du Web. Utilisé pour déclencher le flux de travail pour les notifications et les e-mails de remerciement.</help>
+        <label>Dernière Date d&apos;Inscription Web</label>
+        <name>Volunteer_Last_Web_Signup_Date__c</name>
+    </fields>
+    <fields>
+        <help>Remarques sur la bénévole que le gestionnaire bénévole ou personnel de l&apos;organisation souhaite enregistrer.</help>
+        <label>Remarques du directeur de bénévoles</label>
+        <name>Volunteer_Manager_Notes__c</name>
+    </fields>
+    <fields>
+        <help>Remarques de la bénévole. Notez que l&apos;inscription à la Web ajoute les commentaires des bénévoles dans ce domaine.</help>
+        <label>Remarques de la Bénévole</label>
+        <name>Volunteer_Notes__c</name>
+    </fields>
+    <fields>
+        <help>L&apos;organisation, la société ou la groupe dans lequel le contact fait du bénévolat</help>
+        <label>Association de bénévoles</label>
+        <name>Volunteer_Organization__c</name>
+    </fields>
+    <fields>
+        <help>Sélectionnez la ou les compétence(s) que le contact qui devraient être utilisées pour trouver un poste de bénévole.</help>
+        <label>Compétences Bénévoles</label>
+        <name>Volunteer_Skills__c</name>
+        <picklistValues>
+            <masterLabel>Computer usage</masterLabel>
+            <translation>Utilisation d&apos;ordinateur</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Event Planning</masterLabel>
+            <translation>Planification d&apos;événements</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Fundraising</masterLabel>
+            <translation>Levée de fonds</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Landscaping</masterLabel>
+            <translation>Aménagement paysager</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Manual labor</masterLabel>
+            <translation>Travail manuel</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Marketing</masterLabel>
+            <translation>Marketing</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>Statut des bénévoles</label>
+        <name>Volunteer_Status__c</name>
+        <picklistValues>
+            <masterLabel>Active</masterLabel>
+            <translation>Actif</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Inactive</masterLabel>
+            <translation>Inactif</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>New Sign Up</masterLabel>
+            <translation>Nouvelle Inscription</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Prospective</masterLabel>
+            <translation>Prospectives</translation>
+        </picklistValues>
+    </fields>
+    <workflowTasks>
+        <description>Un email automatique a été envoyé au contact en leur remerciant de l&apos;inscription pour devenir bénévole.</description>
+        <name>Volunteer_Signup_Thank_You_Sent_Contact</name>
+        <subject>Inscription Bénévoles Remerciment Envoyé - Contact</subject>
+    </workflowTasks>
+</CustomObjectTranslation>

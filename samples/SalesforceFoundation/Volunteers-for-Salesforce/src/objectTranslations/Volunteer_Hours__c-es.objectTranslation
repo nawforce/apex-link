@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Hora Voluntaria</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Horas Voluntarias</value>
+    </caseValues>
+    <fields>
+        <label>Comentarios</label>
+        <name>Comments__c</name>
+    </fields>
+    <fields>
+        <label>Contacto</label>
+        <name>Contact__c</name>
+        <relationshipLabel>Horas Voluntarias</relationshipLabel>
+    </fields>
+    <fields>
+        <label>Fecha de Finalización</label>
+        <name>End_Date__c</name>
+    </fields>
+    <fields>
+        <label>Nombre Completo</label>
+        <name>Full_Name__c</name>
+    </fields>
+    <fields>
+        <label>Horas Trabajadas</label>
+        <name>Hours_Worked__c</name>
+    </fields>
+    <fields>
+        <help>El valor predeterminado es 1. Aumentar si esta persona está trayendo más personas a quienes no se realiza el seguimiento directamente</help>
+        <label>Número de Voluntarios</label>
+        <name>Number_of_Volunteers__c</name>
+    </fields>
+    <fields>
+        <help>Fecha y Hora Real para el Inicio de trabajo Voluntario</help>
+        <label>Fecha y Hora Planeada de Inicio</label>
+        <name>Planned_Start_Date_Time__c</name>
+    </fields>
+    <fields>
+        <label>Fecha y Hora de Inicio de la Jornada</label>
+        <name>Shift_Start_Date_Time__c</name>
+    </fields>
+    <fields>
+        <label>Fecha de Inicio</label>
+        <name>Start_Date__c</name>
+    </fields>
+    <fields>
+        <label>Estado</label>
+        <name>Status__c</name>
+        <picklistValues>
+            <masterLabel>Canceled</masterLabel>
+            <translation>Cancelado</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Completed</masterLabel>
+            <translation>Completado</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Confirmed</masterLabel>
+            <translation>Confirmado</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>No-Show</masterLabel>
+            <translation>Ausente</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Prospect</masterLabel>
+            <translation>Prevista</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Web Sign Up</masterLabel>
+            <translation>Registro por la Web</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help>Texto informativo desde el programador del sistema.</help>
+        <label>Nota del Sistema</label>
+        <name>System_Note__c</name>
+    </fields>
+    <fields>
+        <label>Horas Totales Trabajadas</label>
+        <name>Total_Hours_Worked__c</name>
+    </fields>
+    <fields>
+        <label>Nombre de la Campaña de Voluntarios</label>
+        <name>Volunteer_Campaign_Name__c</name>
+    </fields>
+    <fields>
+        <label>Campaña de Voluntarios</label>
+        <name>Volunteer_Campaign__c</name>
+    </fields>
+    <fields>
+        <label>Trabajo Voluntario</label>
+        <name>Volunteer_Job__c</name>
+        <relationshipLabel>Horas Voluntarias</relationshipLabel>
+    </fields>
+    <fields>
+        <label>Horario Recurrente del Voluntario</label>
+        <name>Volunteer_Recurrence_Schedule__c</name>
+        <relationshipLabel>Horas Voluntarias</relationshipLabel>
+    </fields>
+    <fields>
+        <label>Jornada Voluntaria</label>
+        <lookupFilter>
+            <informationalMessage>Solo se puede escoger una jornada que pertenezca al trabajo actual</informationalMessage>
+        </lookupFilter>
+        <name>Volunteer_Shift__c</name>
+        <relationshipLabel>Horas Voluntarias</relationshipLabel>
+    </fields>
+    <gender>Feminine</gender>
+    <layouts>
+        <layout>Volunteer Hours Layout</layout>
+        <sections>
+            <label>Links personalizados</label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>HoursID</nameFieldLabel>
+    <validationRules>
+        <errorMessage>Por favor especifique las Horas Trabajadas cuando modifique su Estado a Completado</errorMessage>
+        <name>HoursRequiredOnCompletion</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>Por favor especifique un valor de Estado</errorMessage>
+        <name>StatusMustBeSet</name>
+    </validationRules>
+    <webLinks>
+        <label>Edición Masiva de las Horas Voluntarias</label>
+        <name>Mass_Edit_Volunteer_Hours</name>
+    </webLinks>
+</CustomObjectTranslation>

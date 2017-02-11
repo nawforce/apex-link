@@ -1,0 +1,66 @@
+/*-------------------------------------------------------------------- 
+	SAMPLE CSS that gives a reasonable form layout 
+-----------------------------------------------------------------------*/
+
+body {
+    font-family: Arial, FreeSans, sans-serif;
+}
+
+.cssForm {
+	background-color: transparent;
+}
+
+.cssLabelsColumn {
+	width: 150px;
+	vertical-align: top;
+	font-weight: bold;
+	font-size: .8em;
+	text-align: right;	
+	vertical-align: center;
+	
+}
+
+.cssInputFieldsColumn {
+	vertical-align: top;
+}
+
+.cssInputFields {
+}
+
+.cssTextArea { 
+	width:300px; 
+}
+
+
+/*=======================================================================
+    SAMPLE UGLY CSS for the Volunteers Signup page that while ugly,
+	makes it clear what you can visually control.
+	Comment out the CSS above, and remove the trailing comment
+	on this CSS to see some ugly stuff!
+
+.cssForm {
+	background-color: Gainsboro;
+}
+
+.cssLabelsColumn {
+	color: DarkBlue;
+	width: 150px;
+	vertical-align: top;
+	font-family: Century Gothic, sans-serif;
+	font-weight: bold;	
+}
+
+.cssInputFieldsColumn {
+	background-color: LightBlue;
+}
+
+.cssInputFields {
+	color: red;
+	background-color: LightYellow;
+	font-family: Georgia, Serif;
+	border-style: groove;
+	border-color: DodgerBlue;
+
+}
+
+===================================================================*/

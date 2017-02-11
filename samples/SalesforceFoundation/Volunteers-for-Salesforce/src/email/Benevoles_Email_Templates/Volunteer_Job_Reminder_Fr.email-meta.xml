@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Un message de rappel à tous les bénévoles à propos de leurs prochaines activités (pour les activités sans plage horaire déterminée)</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Volunteer Job Reminder Fr</name>
+    <style>none</style>
+    <subject>Votre prochaine activité, {!Organization.Name}</subject>
+    <textOnly>Bonjour {!Contact.FirstName},
+
+Nous nous réjouissons de recevoir votre aide pour l&apos;activité suivante:
+
+{!Volunteer_Job__c.Name}
+
+{!Volunteer_Job__c.Description__c}
+
+Adresse de l&apos;activité:
+
+{!Volunteer_Job__c.Location_Street__c}
+{!Volunteer_Job__c.Location_City__c}, {!Volunteer_Job__c.Location__c}
+{!Volunteer_Job__c.Location_Zip_Postal_Code__c}
+
+{!Volunteer_Job__c.Location_Information__c}
+
+Nous vous remercions chaleureusement pour votre aide, {!Organization.Name}</textOnly>
+    <type>custom</type>
+</EmailTemplate>

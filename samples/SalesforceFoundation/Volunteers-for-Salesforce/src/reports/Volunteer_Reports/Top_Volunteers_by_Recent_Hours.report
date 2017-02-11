@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>FIRST_NAME</field>
+    </columns>
+    <columns>
+        <field>LAST_NAME</field>
+    </columns>
+    <columns>
+        <field>Volunteer_Hours__c.Status__c</field>
+    </columns>
+    <columns>
+        <field>Volunteer_Hours__c.Start_Date__c</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>Volunteer_Hours__c.Hours_Worked__c</field>
+    </columns>
+    <columns>
+        <field>Volunteer_Hours__c.Volunteer_Campaign_Name__c</field>
+    </columns>
+    <columns>
+        <field>FK_NAME</field>
+    </columns>
+    <columns>
+        <field>Volunteer_Hours__c.Volunteer_Shift__c</field>
+    </columns>
+    <description>FOR DASHBOARD: list of total worked hours by volunteer in the specified Time Frame.</description>
+    <filter>
+        <criteriaItems>
+            <column>Volunteer_Hours__c.Status__c</column>
+            <isUnlocked>false</isUnlocked>
+            <operator>equals</operator>
+            <value>Completed</value>
+        </criteriaItems>
+        <language>en_US</language>
+    </filter>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>Volunteer_Hours__c.Full_Name__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Top Volunteers by Recent Hours</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>ContactCustomEntity$Volunteer_Hours__c@Volunteer_Hours__c.Volunteer_Job__c</reportType>
+    <scope>organization</scope>
+    <showDetails>false</showDetails>
+    <timeFrameFilter>
+        <dateColumn>Volunteer_Hours__c.Start_Date__c</dateColumn>
+        <interval>INTERVAL_PREVCURY</interval>
+    </timeFrameFilter>
+</Report>

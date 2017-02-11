@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Volunteers Settings --></value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value><!-- Volunteers Settings --></value>
+    </caseValues>
+    <fields>
+        <help>Une liste séparée par des &apos;;&apos; de champs emails additionnels pour essayer de les relier à un contact existant. Note: ces champs sont déclarés avec leur nom complet de développeur, incluant le &apos;namespace prefix&apos;. Les emails du &apos;npsp&apos; sont auto. utilisés.</help>
+        <label>Champs d&apos;email de match de contact</label>
+        <name>Contact_Match_Email_Fields__c</name>
+    </fields>
+    <fields>
+        <help>Une liste séparée par des &apos;;&apos; de champs prénoms additionnels pour essayer de les relier à un contact existant, comme par exemple un surnom. Notez que ces champs sont déclarés avec leur nom complet de développeur, incluant le &apos;namespace prefix&apos;.</help>
+        <label>Champs de prénom de match de contact</label>
+        <name>Contact_Match_First_Name_Fields__c</name>
+    </fields>
+    <fields>
+        <help>Spécifie quelle règle à suivre lorsqu&apos;on essaie de faire correspondre avec des contacts existants depuis les pages bénévoles du site. Une suite de caractères séparés par des points-virgules qui contiennent plus que le prénom, le nom et l&apos;email.</help>
+        <label>Règle de correspondance pour le contact</label>
+        <name>Contact_Matching_Rule__c</name>
+    </fields>
+    <fields>
+        <help><!-- If you include a Google Maps API Key, the JobListing pages will display a map on your volunteers site for the Job Location. --></help>
+        <label><!-- Google Maps API Key --></label>
+        <name>Google_Maps_API_Key__c</name>
+    </fields>
+    <fields>
+        <help>Le nom affiché de l&apos;adresses e-mail à l&apos;échelle de l&apos;organisation utilisée pour envoyer des emails depuis la page du site &apos;personalsitecontactlookup&apos;.</help>
+        <label>Adresse email pour toute l&apos;organisation</label>
+        <name>Personal_Site_Org_Wide_Email_Name__c</name>
+    </fields>
+    <fields>
+        <help><!-- Personal Site Report Hours Filter By Contact --></help>
+        <label><!-- Personal Site Report Hours Filtered --></label>
+        <name>Personal_Site_Report_Hours_Filtered__c</name>
+    </fields>
+    <fields>
+        <help><!-- If checked, then the Personal Site requires the Email URL parameter is included and matches an Email field on the specified Contact. --></help>
+        <label><!-- Personal Site Requires URL Email Match --></label>
+        <name>Personal_Site_Requires_URL_Email_Match__c</name>
+    </fields>
+    <fields>
+        <help>Combien de mois dans le futur doit-on programmer les quarts de travail?</help>
+        <label>Poste Récurrant Mois Futures</label>
+        <name>Recurring_Job_Future_Months__c</name>
+    </fields>
+    <fields>
+        <help>Le nom du Compte a utiliser pour créer des nouveaux Contacts pendant l&apos;enregistrement. Si vous utilisez le Non Profit Starter Pack &apos;modèle un-à-un&apos;, laisser vide. Si vous utilisez le &apos;modèle sceau&apos;, mettez le nom du compte; normallement &apos;Individual&apos;.</help>
+        <label>Inscrire le Compte Globale sur Création</label>
+        <name>Signup_Bucket_Account_On_Create__c</name>
+    </fields>
+    <fields>
+        <help>Est-ce que l&apos;inscription devrai créer des nouveaux Contacts s&apos;il ny a pas de correspondance trouvé (ou &apos;Inscription correspond Contacts existant&apos; n&apos;est pas coché). Si ce paramètre n&apos;est pas coché, un Piste sera crée.</help>
+        <label>Créer les Contacts sans correspondence</label>
+        <name>Signup_Creates_Contacts_If_No_Match__c</name>
+    </fields>
+    <fields>
+        <help>Si la page Inscription des bénévoles essaie de faire correspondre la personne à un contact existant (par nom, prénom, email).</help>
+        <label>Inscription correspond Contacts existant</label>
+        <name>Signup_Matches_Existing_Contacts__c</name>
+    </fields>
+    <gender><!-- Masculine --></gender>
+    <startsWith><!-- Consonant --></startsWith>
+</CustomObjectTranslation>

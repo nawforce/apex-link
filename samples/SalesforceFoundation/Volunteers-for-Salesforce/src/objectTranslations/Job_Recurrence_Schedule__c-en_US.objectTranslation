@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Job Recurrence Schedule</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Job Recurrence Schedules</value>
+    </caseValues>
+    <fields>
+        <label><!-- Days of Week --></label>
+        <name>Days_of_Week__c</name>
+        <picklistValues>
+            <masterLabel>Friday</masterLabel>
+            <translation><!-- Friday --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Monday</masterLabel>
+            <translation><!-- Monday --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Saturday</masterLabel>
+            <translation><!-- Saturday --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Sunday</masterLabel>
+            <translation><!-- Sunday --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Thursday</masterLabel>
+            <translation><!-- Thursday --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Tuesday</masterLabel>
+            <translation><!-- Tuesday --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Wednesday</masterLabel>
+            <translation><!-- Wednesday --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- Description text to copy to shift records created on this schedule. --></help>
+        <label><!-- Description --></label>
+        <name>Description__c</name>
+    </fields>
+    <fields>
+        <label><!-- Desired Number of Volunteers --></label>
+        <name>Desired_Number_of_Volunteers__c</name>
+    </fields>
+    <fields>
+        <label><!-- Duration --></label>
+        <name>Duration__c</name>
+    </fields>
+    <fields>
+        <label><!-- Schedule End Date --></label>
+        <name>Schedule_End_Date__c</name>
+    </fields>
+    <fields>
+        <label><!-- Schedule Start Date &amp; Time --></label>
+        <name>Schedule_Start_Date_Time__c</name>
+    </fields>
+    <fields>
+        <help><!-- The Job this Recurrence Schedule is for. --></help>
+        <label><!-- Volunteer Job --></label>
+        <name>Volunteer_Job__c</name>
+        <relationshipLabel><!-- Job Recurrence Schedules --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Weekly Occurrence --></label>
+        <name>Weekly_Occurrence__c</name>
+        <picklistValues>
+            <masterLabel>1st</masterLabel>
+            <translation><!-- 1st --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2nd</masterLabel>
+            <translation><!-- 2nd --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3rd</masterLabel>
+            <translation><!-- 3rd --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4th</masterLabel>
+            <translation><!-- 4th --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>5th</masterLabel>
+            <translation><!-- 5th --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Alternate</masterLabel>
+            <translation><!-- Alternate --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Every</masterLabel>
+            <translation><!-- Every --></translation>
+        </picklistValues>
+    </fields>
+    <layouts>
+        <layout>Volunteer Job Recurrence Schedule Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <startsWith>Consonant</startsWith>
+    <validationRules>
+        <errorMessage><!-- You must specify at least one value for Days of Week. --></errorMessage>
+        <name>JRS_Days_Of_Week_Required</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- You must specify at least one value for Weekly Occurrence --></errorMessage>
+        <name>JRS_Weekly_Occurrence_Required</name>
+    </validationRules>
+</CustomObjectTranslation>

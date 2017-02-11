@@ -1,0 +1,14 @@
+<p>Hi {!Contact.FirstName},</p>
+
+<p>Here is the link to your Volunteer information:</p>
+
+<p><b>ADMIN: You must edit this template to put in the full URL to your PersonalSiteContactInfo page in the YOUR HTTPS URL HERE  found below.  There is no way to get the Sites URL from a merge field in the email template.  The URL should look something like the following example.  Full details in the Installation & Configuration Guide.
+</b></p>
+
+<p><i>
+https://xxxxxxxx.na3.force.com/Volunteers/GW_Volunteers__PersonalSiteContactInfo?contactId={!Contact.Id}&Email={!Contact.Email}
+</i></p>
+
+<a href="YOUR HTTPS URL HERE!!!!!">Volunteer Information</a>
+
+<p>Thank you.</p>

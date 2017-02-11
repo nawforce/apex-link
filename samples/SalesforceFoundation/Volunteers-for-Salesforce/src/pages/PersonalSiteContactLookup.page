@@ -1,0 +1,136 @@
+<!-- 
+    Copyright (c) 2016, Salesforce.org
+    All rights reserved.
+    
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+    
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of Salesforce.org nor the names of
+      its contributors may be used to endorse or promote products derived
+      from this software without specific prior written permission.
+ 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
+    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+    POSSIBILITY OF SUCH DAMAGE.
+-->  
+
+<apex:page showheader="false" sidebar="false" standardStylesheets="false" controller="VOL_CTRL_PersonalSiteContactLookup" language="{!strLanguage}" cache="false" >
+
+<!-- Load jQuery  -->
+    <apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"/>
+    <apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/jquery-ui.min.js"/>
+
+<!--Load Bootstrap -->     
+    <apex:stylesheet value="{!URLFOR($Resource.Bootstrap, 'bootstrap/css/bootstrap.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.Bootstrap4Force)}"/>    
+    <apex:stylesheet value="{!URLFOR($Resource.Bootstrap, 'bootstrap/css/bootstrap.min.css')}"/>
+    <apex:includescript value="{!URLFOR($Resource.Bootstrap, 'bootstrap/js/bootstrap.js')}"/>
+    <apex:includescript value="{!URLFOR($Resource.Bootstrap, 'bootstrap/js/bootstrap.min.js')}"/>
+
+<apex:includeScript value="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js" />
+
+<apex:stylesheet value="{!strURLtoCSSFile}" />
+
+<script type="text/javascript"> 
+ 
+	jQuery=$.noConflict();
+  
+	jQuery(document).ready(function() {   // Pass params into the controller
+
+		jQuery.validator.addMethod("notEqual", function(value, element, param) {
+		  return this.optional(element) || value != param;
+		}, "Please specify a different (non-default) value");
+	 
+	  	jQuery('[id$=form1]').validate();            
+	     
+	    jQuery('[id$=FirstName]').rules("add",{
+	        required: true,
+	        notEqual: "{!$ObjectType.Contact.Fields.FirstName.Label}",
+	        messages: {
+	          required: "{!$Label.labelPersonalSiteFirstnameRequired}",
+	          notEqual: "{!$Label.labelPersonalSiteFirstnameRequired}"
+	        }
+	    });    
+	        
+	    jQuery('[id$=LastName]').rules("add",{
+	        required: true,
+	        notEqual: "{!$ObjectType.Contact.Fields.LastName.Label}",
+	        messages: {
+	          required: "{!$Label.labelPersonalSiteLastnameRequired}",
+	          notEqual: "{!$Label.labelPersonalSiteLastnameRequired}"
+	        }
+	    });    
+	    
+	    jQuery('[id$=Email]').rules("add",{
+	        required: true,
+	        email: true,
+	        notEqual: "{!$ObjectType.Contact.Fields.Email.Label}",
+	        messages: {
+	          required: "{!$Label.labelPersonalSiteEmailRequired}",
+	          email: "{!$Label.labelPersonalSiteEmailError}",
+	          notEqual: "{!$Label.labelPersonalSiteEmailError}"
+	        }
+	    });     
+	    
+		Prefill();
+	});
+
+ 
+	function updateHelpText(field, string){
+	    jQuery("."+field).val(string);
+	    jQuery("."+field).css("color","black");
+	}
+	
+	function Prefill(){	
+	  jQuery(".FirstName").val('{!$ObjectType.Contact.Fields.Firstname.Label}');
+	  jQuery(".FirstName").css("color","gray");
+	  jQuery(".LastName").val('{!$ObjectType.Contact.Fields.Lastname.Label}');
+	  jQuery(".LastName").css("color","gray");
+	  jQuery(".Email").val('{!$ObjectType.Contact.Fields.Email.Label}');
+	  jQuery(".Email").css("color","gray");	
+	}
+</script>   
+
+	<apex:form id="form1" styleclass="form1"> 
+	    
+	  <apex:outputPanel id="panelVolunteerLookup" styleClass="thumbnail center well well-small text-center cssContactLookupPanel" > 
+	          
+	    <h3>{!$Label.labelContactInfoLookupTitle}</h3>
+	  
+	    <p><apex:outputText value="{!$Label.labelContactLookupInstructions}" /></p>
+	
+	    <div class="input-prepend"><span class="add-on"><i class="icon-user"></i></span>
+	      <apex:inputText value="{!contact.FirstName}" id="FirstName" required="true" styleClass="FirstName" onfocus="updateHelpText('FirstName','');" />
+	    </div><br/>
+	
+	    <div class="input-prepend"><span class="add-on"><i class="icon-user"></i></span>
+	      <apex:inputText value="{!contact.LastName}" id="LastName" styleClass="LastName" onfocus="updateHelpText('LastName','');" />
+	    </div><br/>
+	     
+	    <div class="input-prepend"><span class="add-on"><i class="icon-envelope"></i></span>
+	      <apex:inputText value="{!contact.Email}" id="Email" styleClass="Email" onfocus="updateHelpText('Email','');" />
+	    </div><br/>
+	    
+	    <apex:commandButton value="{!$Label.labelButtonSend}" immediate="false" action="{!LookupContact}" styleclass="btn btn-large" />
+	   	<br/><br/>
+	    <p><apex:outputText value="{!strResult}" /></p>  
+	  
+	  </apex:outputPanel>
+	    
+	</apex:form>
+
+</apex:page>

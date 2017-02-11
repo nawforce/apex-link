@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>the template sent by the PersonalSiteContactLookup page</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Volunteers Personal Site Contact Lookup</name>
+    <style>none</style>
+    <subject>Your volunteer information</subject>
+    <textOnly>Hi {!Contact.FirstName},
+
+Here is the link to your Volunteer information:
+
+ADMIN: You must edit this template to put in the full URL to your PersonalSiteContactInfo page in the sample URL found below.  There is no way to get the Sites URL from a merge field in the email template.  The URL should look something like the following example.  Full details in the Installation &amp; Configuration Guide.
+
+https://xxxxxxxx.na3.force.com/Volunteers/GW_Volunteers__PersonalSiteContactInfo?contactId={!Contact.Id}&amp;Email={!Contact.Email}
+
+Thank you.</textOnly>
+    <type>custom</type>
+</EmailTemplate>

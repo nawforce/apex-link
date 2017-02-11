@@ -1,0 +1,7 @@
+Dear {!Contact.FirstName},
+
+Thank you for signing up to be a volunteer.  Our volunteer manager will be getting in touch with you to help find the best fit for your talents!
+
+Thanks,
+
+From all of us at {!Organization.Name}.

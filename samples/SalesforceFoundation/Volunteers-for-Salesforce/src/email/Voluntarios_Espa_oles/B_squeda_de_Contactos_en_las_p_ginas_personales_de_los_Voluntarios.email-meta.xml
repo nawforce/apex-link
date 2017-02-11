@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Es la plantilla enviada desde el sitio personal del Voluntario</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Búsqueda de Contactos en las páginas personales de los Voluntarios</name>
+    <style>none</style>
+    <subject>La información sobre el voluntariado</subject>
+    <textOnly>Hola {!Contact.FirstName},
+
+Aquí está el enlace a la información de los Voluntarios:
+
+ADMIN: Debe editar esta plantilla para poner en la URL completa a tu página PersonalSiteContactInfo. No hay manera de obtener la URL de los sitios de un campo de combinación en la plantilla de correo electrónico. La URL debe ser algo como:   
+
+https://xxxxxxx.na3.force.com/Volunteers/GW_Volunteers__PersonalSiteContactInfo?contactId={!Contact.Id}
+
+&lt;a href=&quot;SU HTTPS URL AQUÍ!!!!!&quot;&gt;Información sobre el voluntariado&lt;/a&gt;
+
+Muchas Gracias.</textOnly>
+    <type>custom</type>
+</EmailTemplate>

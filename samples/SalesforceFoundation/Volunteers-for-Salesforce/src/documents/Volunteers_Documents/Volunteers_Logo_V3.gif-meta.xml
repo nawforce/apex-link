@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>the newest logo for Volunteers for Salesforce</description>
+    <internalUseOnly>false</internalUseOnly>
+    <name>Volunteers Logo V3</name>
+    <public>true</public>
+</Document>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Campaign$Status</field>
+    </columns>
+    <columns>
+        <field>Campaign$StartDate</field>
+    </columns>
+    <columns>
+        <field>Campaign.Volunteer_Jobs__r$Name</field>
+    </columns>
+    <columns>
+        <field>Campaign.Volunteer_Jobs__r$Ongoing__c</field>
+    </columns>
+    <columns>
+        <field>Campaign.Volunteer_Jobs__r$Number_of_Volunteers__c</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>Campaign.Volunteer_Jobs__r$Number_of_Completed_Hours__c</field>
+    </columns>
+    <description>Total of all volunteer hours for volunteer campaigns for all time.</description>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>Campaign$Name</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Volunteer Hours by Campaign</name>
+    <params>
+        <name>scopeid</name>
+        <value></value>
+    </params>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>Volunteer_Campaigns__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>Campaign$CreatedDate</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>

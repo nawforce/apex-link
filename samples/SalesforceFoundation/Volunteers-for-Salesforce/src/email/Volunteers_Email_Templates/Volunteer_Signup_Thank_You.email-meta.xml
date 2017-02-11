@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>A simple acknowledgement email thanking the contact or lead for signing up to be a volunteer</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Volunteer Signup Thank You</name>
+    <style>none</style>
+    <subject>Thank you for signing up to be a volunteer</subject>
+    <type>text</type>
+</EmailTemplate>

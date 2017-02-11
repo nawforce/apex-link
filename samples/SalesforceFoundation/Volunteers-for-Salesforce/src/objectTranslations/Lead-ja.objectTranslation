@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <label>ボランティアの対応可能状況</label>
+        <name>Volunteer_Availability__c</name>
+        <picklistValues>
+            <masterLabel>Afternoon</masterLabel>
+            <translation>午後</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Morning</masterLabel>
+            <translation>午前</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekdays</masterLabel>
+            <translation>平日</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekends</masterLabel>
+            <translation>週末</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekly</masterLabel>
+            <translation>毎週</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>ボランティアのメモ</label>
+        <name>Volunteer_Notes__c</name>
+    </fields>
+    <fields>
+        <help>ボランティアの仕事を見つけるために使用される、この個人のスキルを選択します。</help>
+        <label>ボランティアのスキル</label>
+        <name>Volunteer_Skills__c</name>
+        <picklistValues>
+            <masterLabel>Computer usage</masterLabel>
+            <translation>コンピュータの利用状況</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Event Planning</masterLabel>
+            <translation>イベント企画</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Fundraising</masterLabel>
+            <translation>活動資金集め</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Landscaping</masterLabel>
+            <translation>景観設計</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Manual labor</masterLabel>
+            <translation>肉体労働</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Marketing</masterLabel>
+            <translation>マーケティング</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>ボランティアの状況</label>
+        <name>Volunteer_Status__c</name>
+        <picklistValues>
+            <masterLabel>New Sign Up</masterLabel>
+            <translation>新規サインアップ</translation>
+        </picklistValues>
+    </fields>
+    <workflowTasks>
+        <description><!-- An automatic email has been sent to the lead thanking them for signing up to be a volunteer. --></description>
+        <name>Volunteer_Signup_Thank_You_Sent_Lead</name>
+        <subject><!-- Volunteer Signup Thank You Sent - Lead --></subject>
+    </workflowTasks>
+</CustomObjectTranslation>

@@ -1,0 +1,77 @@
+<!-- 
+    Copyright (c) 2016, Salesforce.org
+    All rights reserved.
+    
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+    
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of Salesforce.org nor the names of
+      its contributors may be used to endorse or promote products derived
+      from this software without specific prior written permission.
+ 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
+    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+    POSSIBILITY OF SUCH DAMAGE.
+-->  
+
+<apex:page controller="VOL_CTRL_BatchProgress"
+	tabStyle="Process_Recurrence_Schedules__tab"
+	standardStylesheets="false"
+	title="{!$Label.labelVRSBatchProcess}"
+	docType="html-5.0">
+	<apex:stylesheet value="{!URLFOR($Resource.sfdo213, '/assets/styles/salesforce-lightning-design-system-vf.min.css')}"/>
+	<apex:form id="vfForm">
+		<div class="sfdo213">
+            <!-- PAGE HEADER -->
+            <div class="slds-page-header" role="banner">
+				<div class="slds-grid">
+			        <div class="slds-col slds-size--1-of-1">
+			            <h1 class="slds-text-heading--medium">{!$Label.labelVRSBatchProcess}</h1>
+			        </div>
+			    </div>
+            </div>
+			<!-- PAGE ERRORS -->
+			<apex:outputPanel id="panelErrors">
+                <c:UTIL_PageMessages html-class="slds-grid slds-grid--align-center slds-m-bottom--small"/>
+            </apex:outputPanel>
+            <!-- PAGE BUTTONS -->
+            <apex:outputPanel rendered="{!batching}">
+				<div class="slds-text-body--small slds-m-around--medium">
+					<apex:outputText id="batchDesc" value="{!$Label.labelVRSBatchDescription}" escape="false" />
+				</div>
+				<div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-m-around--large">
+					<div class="slds-col slds-no-flex slds-align-middle">
+						<div class="slds-grid slds-grid--align-center slds-grid--vertical-align-center slds-p-around--large">
+			                <apex:commandButton value="{!$Label.labelVRSBatchRun}" id="runBatchBTN" status="statusLoad"
+			                action="{!rollup}" disabled="{!batchRunning}"
+			                immediate="true" rerender="vfForm" styleClass="slds-button slds-button--small slds-button--neutral" />
+			            </div>
+					</div>
+				</div>
+			</apex:outputPanel>
+			<apex:outputPanel rendered="{!batchRunning}">
+	            <c:UTIL_JobProgressLightning id="jobProgress"
+	                eventTargetId="{!$Component.jobProgress}"
+	                strBatchComponentLabel="{!$Label.labelVRSBatchProcessProgress}"
+	                cNumberOfJobs="1"
+	                startPolling="True"
+	                stopPollingOnComplete="True"
+	                pollingDelay="1000"/>
+	        </apex:outputPanel>
+		</div>
+	</apex:form>
+</apex:page>

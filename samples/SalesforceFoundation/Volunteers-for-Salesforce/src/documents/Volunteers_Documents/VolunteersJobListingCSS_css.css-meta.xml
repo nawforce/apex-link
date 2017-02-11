@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>the css file to control styles for the Volunteers Job Listing page</description>
+    <internalUseOnly>false</internalUseOnly>
+    <name>VolunteersJobListingCSS.css</name>
+    <public>false</public>
+</Document>

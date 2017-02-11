@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value>Freiwillige Wiederholungsintervall</value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value>Zeitpläne für wiederkehrende Freiwillige</value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>false</plural>
+        <value>Freiwillige Wiederholungsintervall</value>
+    </caseValues>
+    <caseValues>
+        <caseType>Accusative</caseType>
+        <plural>true</plural>
+        <value>Zeitpläne für wiederkehrende Freiwillige</value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>false</plural>
+        <value>Freiwillige Wiederholungsintervall</value>
+    </caseValues>
+    <caseValues>
+        <caseType>Genitive</caseType>
+        <plural>true</plural>
+        <value>Zeitpläne für wiederkehrende Freiwillige</value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>false</plural>
+        <value>Freiwillige Wiederholungsintervall</value>
+    </caseValues>
+    <caseValues>
+        <caseType>Dative</caseType>
+        <plural>true</plural>
+        <value>Zeitpläne für wiederkehrende Freiwillige</value>
+    </caseValues>
+    <fields>
+        <help>Text, der in das Kommentarfeld der Freiwilligenstunden für alle von diesem Zeitplan für wiederkehrende Freiwillige erstellten Stunden kopiert wird</help>
+        <label>Kommentare</label>
+        <name>Comments__c</name>
+    </fields>
+    <fields>
+        <label>Kontakt</label>
+        <name>Contact__c</name>
+        <relationshipLabel>Zeitpläne für wiederkehrende Freiwillige</relationshipLabel>
+    </fields>
+    <fields>
+        <label>Wochentage</label>
+        <name>Days_of_Week__c</name>
+        <picklistValues>
+            <masterLabel>Friday</masterLabel>
+            <translation>Freitag</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Monday</masterLabel>
+            <translation>Montag</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Saturday</masterLabel>
+            <translation>Samstag</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Sunday</masterLabel>
+            <translation>Sonntag</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Thursday</masterLabel>
+            <translation>Donnerstag</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Tuesday</masterLabel>
+            <translation>Dienstag</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Wednesday</masterLabel>
+            <translation>Mittwoch</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>Dauer</label>
+        <name>Duration__c</name>
+    </fields>
+    <fields>
+        <help>Legen Sie die Anzahl für eine Einzelperson auf 1 fest.  Legen Sie eine höhere Anzahl fest, wenn der Kontakt eine Gruppe darstellt. Dadurch müssen Sie nicht die Stunden der einzelnen Personen verfolgen.</help>
+        <label>Anzahl der Freiwilligen</label>
+        <name>Number_of_Volunteers__c</name>
+    </fields>
+    <fields>
+        <label>Enddatum des Zeitplans</label>
+        <name>Schedule_End_Date__c</name>
+    </fields>
+    <fields>
+        <label>Startdatum und Uhrzeit des Zeitplans</label>
+        <name>Schedule_Start_Date_Time__c</name>
+    </fields>
+    <fields>
+        <help>Der Wert für den Status der Freiwilligenstunden, der für neu erstellte Stunden-Datensätze angegeben wird</help>
+        <label>Status der Freiwilligenstunden</label>
+        <name>Volunteer_Hours_Status__c</name>
+        <picklistValues>
+            <masterLabel>Canceled</masterLabel>
+            <translation>Abgebrochen</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Completed</masterLabel>
+            <translation>Abgeleistet</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Confirmed</masterLabel>
+            <translation>Bestätigt</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Prospect</masterLabel>
+            <translation>Potenzieller Kunde</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>Freiwilligenauftrag</label>
+        <name>Volunteer_Job__c</name>
+        <relationshipLabel>Zeitpläne für wiederkehrende Freiwillige</relationshipLabel>
+    </fields>
+    <fields>
+        <label>Wöchentliches Vorkommen</label>
+        <name>Weekly_Occurrence__c</name>
+        <picklistValues>
+            <masterLabel>1st</masterLabel>
+            <translation>Erster</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2nd</masterLabel>
+            <translation>Zweiter</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3rd</masterLabel>
+            <translation>Dritter</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>4th</masterLabel>
+            <translation>Vierter</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>5th</masterLabel>
+            <translation>Fünfter</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Alternate</masterLabel>
+            <translation>Alternativ</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Every</masterLabel>
+            <translation>Jeder</translation>
+        </picklistValues>
+    </fields>
+    <gender>Neuter</gender>
+    <layouts>
+        <layout>Volunteer Recurrence Schedule Layout</layout>
+        <sections>
+            <label>Benutzerdefinierte Links</label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- VRS ID --></nameFieldLabel>
+    <validationRules>
+        <errorMessage>Sie müssen mindestens einen Wert für Wochentage angeben.</errorMessage>
+        <name>VRS_Days_of_Week_Required</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage>Sie müssen mindestens einen Wert für wöchentliches Vorkommen angeben.</errorMessage>
+        <name>VRS_Weekly_Occurrence_Required</name>
+    </validationRules>
+</CustomObjectTranslation>

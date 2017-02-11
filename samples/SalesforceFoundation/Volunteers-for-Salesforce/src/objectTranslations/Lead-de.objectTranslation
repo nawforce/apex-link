@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <label>Freiwilligenverfügbarkeit</label>
+        <name>Volunteer_Availability__c</name>
+        <picklistValues>
+            <masterLabel>Afternoon</masterLabel>
+            <translation>Nachmittag</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Morning</masterLabel>
+            <translation>Vormittag</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekdays</masterLabel>
+            <translation>Wochentags</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekends</masterLabel>
+            <translation>Wochenende</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Weekly</masterLabel>
+            <translation>Wöchentlich</translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>Freiwilligenhinweise</label>
+        <name>Volunteer_Notes__c</name>
+    </fields>
+    <fields>
+        <help>Wählen Sie die Fertigkeiten dieser Person aus, die zum Suchen von Freiwilligenaufträgen verwendet werden sollten.</help>
+        <label>Fertigkeiten des Freiwilligen</label>
+        <name>Volunteer_Skills__c</name>
+        <picklistValues>
+            <masterLabel>Computer usage</masterLabel>
+            <translation>Computernutzung</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Event Planning</masterLabel>
+            <translation>Veranstaltungsplanung</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Fundraising</masterLabel>
+            <translation>Spendenaktion</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Landscaping</masterLabel>
+            <translation>Landschaftsbau</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Manual labor</masterLabel>
+            <translation>Körperliche Arbeit</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Marketing</masterLabel>
+            <translation><!-- Marketing --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label>Freiwilligenstatus</label>
+        <name>Volunteer_Status__c</name>
+        <picklistValues>
+            <masterLabel>New Sign Up</masterLabel>
+            <translation>Neue Anmeldung</translation>
+        </picklistValues>
+    </fields>
+    <workflowTasks>
+        <description>Eine automatische Danke-E-Mail wird für die Anmeldung als Freiwilliger an den Lead gesendet.</description>
+        <name>Volunteer_Signup_Thank_You_Sent_Lead</name>
+        <subject>Danke-E-Mail nach Anmeldung an Freiwilligen gesendet – Lead</subject>
+    </workflowTasks>
+</CustomObjectTranslation>

@@ -1,0 +1,17 @@
+<p>Hola {!Contact.FirstName},</p>
+
+<p>Aquí está el enlace a la información de los Voluntarios:</p>
+
+<p><b>ADMIN: Debe editar esta plantilla para poner en la URL completa a tu página PersonalSiteContactInfo. No hay manera de obtener la URL de los sitios de un campo de combinación en la plantilla de correo electrónico. La URL debe ser algo como: 
+</b></p>
+
+<p>
+<i>
+https://xxxxxxxx.na3.force.com/Volunteers/GW_Volunteers__PersonalSiteContactInfo?contactId={!Contact.Id}&Email={!Contact.Email}
+</i>
+</p>
+<br/>
+
+<a href="SU HTTPS URL AQUÍ!!!!!">Información sobre el voluntariado</a>
+
+<p>Muchas Gracias.</p>

@@ -1,0 +1,114 @@
+<!-- 
+    Copyright (c) 2016, Salesforce.org
+    All rights reserved.
+    
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+    
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of Salesforce.org nor the names of
+      its contributors may be used to endorse or promote products derived
+      from this software without specific prior written permission.
+ 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
+    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+    POSSIBILITY OF SUCH DAMAGE.
+-->  
+
+<apex:page standardController="Volunteer_Recurrence_Schedule__c"
+    extensions="VOL_CTRL_NewAndEditVRS"
+    title="{!$ObjectType.Volunteer_Recurrence_Schedule__c.Label}"
+    tabStyle="Volunteer_Recurrence_Schedule__c"
+    docType="html-5.0"
+    standardStylesheets="true">
+
+    <apex:stylesheet value="{!URLFOR($Resource.sfdo213, '/assets/styles/salesforce-lightning-design-system-vf.min.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.v4sStaticResources, '/v4s_slds/v4s-common.css')}" />
+    <script>
+        var previousOnload = window.onload;
+        window.onload = function() {
+            if (previousOnload) {
+                previousOnload();
+            }
+            document.getElementById('{!$Component.vfForm.slJRS}').focus();
+        }
+    </script>
+
+    <apex:form id="vfForm" html-novalidate="novalidate">
+        <div class="sfdo213">
+            <!-- PAGE SPINNER -->
+            <div class="slds-spinner_container" style="z-index:999;position:fixed;display:none;" id="divLoading">
+                <div class="slds-spinner--brand slds-spinner slds-spinner--medium" style="position:fixed;top:30%;" aria-hidden="false" role="alert">
+                    <div class="slds-spinner__dot-a"></div>
+                    <div class="slds-spinner__dot-b"></div>
+                </div>
+            </div>
+            <!-- PAGE HEADER -->
+            <div class="slds-page-header" role="banner">
+                <div class="slds-grid">
+                    <div class="slds-col">
+                        <h1 class="slds-text-heading--medium">{!$ObjectType.Volunteer_Recurrence_Schedule__c.Label}</h1>
+                    </div>
+                <div class="slds-col slds-no-flex slds-align-middle">
+                        <div class="slds-button-group" role="group">
+                            <apex:commandButton id="cancelBTN" styleClass="slds-button slds-button--neutral" action="{!Cancel}" value="{!$Label.labelButtonCancel}" immediate="true"/>
+                            <apex:commandButton id="saveBTN" styleClass="slds-button slds-button--brand" action="{!Save}" value="{!$Label.labelButtonSave}"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- PAGE ERRORS -->
+            <c:UTIL_PageMessages />
+            <div class="slds-form--horizontal slds-m-top--large">
+                <h3 class="slds-section-title slds-text-align--left">{!$Label.labelCopySchedule}</h3>
+                <apex:outputPanel id="jrs">
+                    <div class="slds-form-element slds-p-bottom--large slds-p-top--small slds-size--1-of-2">
+                        <apex:actionRegion >
+                            <span class="slds-form-element__label">
+                                <apex:outputLabel value="{!$ObjectType.Job_Recurrence_Schedule__c.Label}" for="slJRS"/>
+                            </span>
+                            <div class="slds-form-element__control">
+                                <apex:selectList id="slJRS" value="{!jrsId}" size="1" required="false"
+                                    styleClass="slds-select" style="height:calc(1.875rem + (1px * 2));">
+                                    <apex:selectOptions value="{!listSOJRS}" />
+                                    <apex:actionSupport immediate="false" event="onchange" rerender="main" status="loading" action="{!copyScheduleFromJRS}"/>
+                                </apex:selectList>
+                            </div>
+                        </apex:actionRegion>
+                    </div>
+                </apex:outputPanel>
+                <h3 class="slds-section-title slds-text-align--left">{!$Label.labelInformation}</h3>
+                <apex:outputPanel id="main">
+                    <apex:repeat value="{!$ObjectType.Volunteer_Recurrence_Schedule__c.FieldSets.NewAndEditVRSFS}" var="f">
+                        <apex:actionRegion >
+                            <c:UTIL_FormField field="{!f.fieldPath}"
+                                sObj="{!vrs}"
+                                sObjType="Volunteer_Recurrence_Schedule__c"
+                                styleClass="slds-p-top--small slds-size--1-of-2"
+                                required="{!f.DBRequired || f.Required}"
+                                actSup="{!f == VJFieldName}"
+                                actSupAction="{!refreshListSOJRS}"
+                                actSupReRender="jrs"/>
+                        </apex:actionRegion>
+                    </apex:repeat>
+                </apex:outputPanel>
+            </div>
+            <apex:actionStatus id="loading"
+                onstart="document.getElementById('divLoading').style.display = 'block';"
+                onstop="document.getElementById('divLoading').style.display = 'none';" />
+        </div>
+	</apex:form>
+</apex:page>

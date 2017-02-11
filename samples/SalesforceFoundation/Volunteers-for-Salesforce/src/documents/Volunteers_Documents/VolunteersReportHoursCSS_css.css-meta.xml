@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>CSS file for controlling the styling of the VolunteersReportHours visualforce page</description>
+    <internalUseOnly>false</internalUseOnly>
+    <name>VolunteersReportHoursCSS.css</name>
+    <public>true</public>
+</Document>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Volunteer Shift</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Volunteer Shifts</value>
+    </caseValues>
+    <fields>
+        <label><!-- Description --></label>
+        <name>Description__c</name>
+    </fields>
+    <fields>
+        <label><!-- Desired # of Volunteers --></label>
+        <name>Desired_Number_of_Volunteers__c</name>
+    </fields>
+    <fields>
+        <help><!-- How many hours long is the shift? --></help>
+        <label><!-- Duration (Hours) --></label>
+        <name>Duration__c</name>
+    </fields>
+    <fields>
+        <label><!-- Job Location City --></label>
+        <name>Job_Location_City__c</name>
+    </fields>
+    <fields>
+        <label><!-- Job Location State/Province --></label>
+        <name>Job_Location_State_Province__c</name>
+    </fields>
+    <fields>
+        <label><!-- Job Location Street --></label>
+        <name>Job_Location_Street__c</name>
+    </fields>
+    <fields>
+        <label><!-- Job Location Zip/Postal Code --></label>
+        <name>Job_Location_Zip_Postal_Code__c</name>
+    </fields>
+    <fields>
+        <help><!-- Automatically set by the system scheduler to show the Job Recurrence Schedule this shift is associated with. --></help>
+        <label><!-- Job Recurrence Schedule --></label>
+        <name>Job_Recurrence_Schedule__c</name>
+        <relationshipLabel><!-- Volunteer Shifts --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- # of Volunteers Still Needed --></label>
+        <name>Number_of_Volunteers_Still_Needed__c</name>
+    </fields>
+    <fields>
+        <label><!-- Start Date &amp; Time --></label>
+        <name>Start_Date_Time__c</name>
+    </fields>
+    <fields>
+        <help><!-- Text information from the system scheduler. --></help>
+        <label><!-- System Note --></label>
+        <name>System_Note__c</name>
+    </fields>
+    <fields>
+        <help><!-- SYSTEM FIELD.  DO NOT EDIT.  The total number of volunteers whose Hours Status = Completed or Confirmed. --></help>
+        <label><!-- Total Volunteers --></label>
+        <name>Total_Volunteers__c</name>
+    </fields>
+    <fields>
+        <label><!-- Volunteer Job --></label>
+        <name>Volunteer_Job__c</name>
+        <relationshipLabel><!-- Volunteer Shifts --></relationshipLabel>
+    </fields>
+    <layouts>
+        <layout>Volunteer Shift Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label><!-- System Fields - DO NOT EDIT --></label>
+            <section>System Fields - DO NOT EDIT</section>
+        </sections>
+    </layouts>
+    <startsWith>Consonant</startsWith>
+    <webLinks>
+        <label><!-- Find_Volunteers --></label>
+        <name>Find_Volunteers</name>
+    </webLinks>
+    <webLinks>
+        <label><!-- Mass_Email_Volunteers --></label>
+        <name>Mass_Email_Volunteers</name>
+    </webLinks>
+    <webLinks>
+        <label><!-- Roster --></label>
+        <name>Roster</name>
+    </webLinks>
+    <webLinks>
+        <label><!-- Shift_Calendar --></label>
+        <name>Shift_Calendar</name>
+    </webLinks>
+</CustomObjectTranslation>

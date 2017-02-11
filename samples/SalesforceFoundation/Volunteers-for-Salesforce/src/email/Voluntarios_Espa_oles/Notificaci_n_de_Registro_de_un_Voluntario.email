@@ -1,0 +1,9 @@
+Un Nuevo voluntario se ha registrado. 
+
+{!Contact.FirstName} {!Contact.LastName}
+
+Aquí está el link a ese registro:
+{!Contact.Link}
+{!Lead.Link}
+
+Por favor sígalo a la mayor brevedad.

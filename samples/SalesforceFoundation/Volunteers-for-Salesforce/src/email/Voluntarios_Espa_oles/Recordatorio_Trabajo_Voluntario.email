@@ -1,0 +1,16 @@
+<p>Hola {!Contact.FirstName}, </p>
+
+<p>Estamos valorando contar con usted para que nos ayude en nuestro evento.</p>
+
+<p>{!Volunteer_Job__c.Name}</p>
+
+{!Volunteer_Job__c.Description__c}
+
+<p>Dirección del Evento: </p>
+
+<p>{!Volunteer_Job__c.Location_Street__c}<br/>
+{!Volunteer_Job__c.Location_City__c}, {!Volunteer_Job__c.Location__c}  <br/>{!Volunteer_Job__c.Location_Zip_Postal_Code__c}</p>
+
+{!Volunteer_Job__c.Location_Information__c}
+
+<p>Gracias de parte de todos nosotros {!Organization.Name}</p>

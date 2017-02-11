@@ -1,0 +1,72 @@
+<!-- 
+    Copyright (c) 2016, Salesforce.org
+    All rights reserved.
+    
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+    
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of Salesforce.org nor the names of
+      its contributors may be used to endorse or promote products derived
+      from this software without specific prior written permission.
+ 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
+    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+    POSSIBILITY OF SUCH DAMAGE.
+-->  
+ 
+<apex:page controller="VOL_CTRL_VolunteersSignup" showheader="false" sidebar="false" standardStylesheets="false" cache="false">
+
+    <apex:stylesheet value="{!strURLtoCSSFile}" /> 
+
+    <apex:form styleClass="cssForm" > 
+        <apex:panelGrid columns="2" columnClasses="cssLabelsColumn, cssInputFieldsColumn" >
+            <apex:outputLabel value="First Name *" for="txtFirstName" ></apex:outputLabel>
+            <apex:inputField value="{!contact.FirstName}" id="txtFirstName" required="true" styleClass="cssInputFields" />
+            
+            <apex:outputLabel value="Last Name *" for="txtLastName" ></apex:outputLabel>
+            <apex:inputField value="{!contact.LastName}" id="txtLastName" required="true" styleClass="cssInputFields" />
+            
+            <apex:outputLabel value="Email *" for="txtEmail" ></apex:outputLabel>
+            <apex:inputField value="{!contact.Email}" id="txtEmail" required="true" styleClass="cssInputFields" />
+            
+            <apex:outputLabel value="Work Phone" for="txtPhone" ></apex:outputLabel>
+            <apex:inputField value="{!contact.Phone}" id="txtPhone" required="false" styleClass="cssInputFields" />
+            
+            <apex:outputLabel value="Home Phone" for="txtHomePhone" ></apex:outputLabel>
+            <apex:inputField value="{!contact.HomePhone}" id="txtHomePhone" required="false" styleClass="cssInputFields" />
+            
+            <apex:outputLabel value="Organization" for="txtCompany" ></apex:outputLabel>
+            <apex:inputField value="{!contact.Department}" id="txtCompany" required="false" styleClass="cssInputFields" />
+            
+            <apex:outputLabel value="Skills" for="lbxSkills" ></apex:outputLabel>
+            <apex:inputField value="{!contact.Volunteer_Skills__c}" id="lbxSkills" styleClass="cssInputFields" />
+            
+            <apex:outputLabel value="Availability" for="lbxAvailability" ></apex:outputLabel>
+            <apex:inputField value="{!contact.Volunteer_Availability__c}" id="lbxAvailability" styleClass="cssInputFields" />
+
+            <apex:outputLabel value="Please tell us what type of volunteer work you might be interested in." for="txtNotes" ></apex:outputLabel>
+            <apex:inputField value="{!contact.Volunteer_Notes__c}" id="txtNotes" required="false" style="width:300px;height:100px;" styleClass="cssInputFields" />
+            
+            <apex:outputLabel value="" ></apex:outputLabel>
+            <apex:commandButton value="{!$Label.labelSubmitButton}" id="btnSave" 
+                onclick="document.getElementById('{!$Component.btnSave}').disabled=true;DoSave();"/>
+            <apex:actionFunction name="DoSave" action="{!Save}" />         
+            
+            <apex:outputLabel value="{!StrSaveResult}" />                        
+        </apex:panelGrid>    
+    </apex:form>
+</apex:page>

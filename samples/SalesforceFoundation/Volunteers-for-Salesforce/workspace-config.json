@@ -1,0 +1,5 @@
+{
+    "DefaultArtifact": "src",
+    "ApiVersion": "38.0",
+    "EnableTokenEncryption": false
+}
