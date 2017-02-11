@@ -668,7 +668,6 @@ id
     |   'string'
     |   'time'
 
-
     |  'select'
     |  'insert'
     |  'upsert'
@@ -679,5 +678,6 @@ id
 
     |  'new'
     |  'withsharing'
+    |  'for'
     ;
 
