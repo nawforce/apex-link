@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <webLinks>
+        <fullName>Household_Mailing_List</fullName>
+        <availability>online</availability>
+        <description>Deduplicated mailing list of Households</description>
+        <displayType>button</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <height>600</height>
+        <linkType>url</linkType>
+        <masterLabel>Household Mailing List</masterLabel>
+        <openType>sidebar</openType>
+        <protected>false</protected>
+        <url>/apex/npsp__HH_CampaignDedupeBTN?id={!Campaign.Id}</url>
+    </webLinks>
+</CustomObject>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Household__c.Contacts__r$Name</field>
+    </columns>
+    <columns>
+        <field>Household__c.Contacts__r.OpportunityContactRoles$Role</field>
+    </columns>
+    <columns>
+        <field>Household__c.Contacts__r.OpportunityContactRoles$Name</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>Household__c.Contacts__r.OpportunityContactRoles$Amount</field>
+    </columns>
+    <columns>
+        <field>Household__c.Contacts__r.OpportunityContactRoles$StageName</field>
+    </columns>
+    <columns>
+        <field>Household__c.Contacts__r.OpportunityContactRoles$CloseDate</field>
+    </columns>
+    <description>Donations grouped by Household</description>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>Household__c$Name</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Households and Donations</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>Households_and_Donations__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>Household__c$CreatedDate</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>

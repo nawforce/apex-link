@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <help><!-- The average amount of all won Opportunities related to this Contact by a primary Opportunity Contact Role. --></help>
+        <label>平均支援金額</label>
+        <name>AverageAmount__c</name>
+    </fields>
+    <fields>
+        <help><!-- The sum of won Opportunity amounts in the Best Gift Year. --></help>
+        <label>最大支援年の総額</label>
+        <name>Best_Gift_Year_Total__c</name>
+    </fields>
+    <fields>
+        <help><!-- The year of the largest total amount of won Opportunities related to this Contact by primary Contact Role.  See also Best Gift Year Total. --></help>
+        <label>最大支援年</label>
+        <name>Best_Gift_Year__c</name>
+    </fields>
+    <fields>
+        <help><!-- The oldest Close Date of a won Opportunity with amount greater than zero related to this Contact by primary Opportunity Contact Role. --></help>
+        <label>最初の支援日(v2)</label>
+        <name>FirstCloseDate__c</name>
+    </fields>
+    <fields>
+        <help><!-- Formula: Clone of the Household Mailing address (also a Formula) --></help>
+        <label>世帯の郵送先住所</label>
+        <name>Formula_HouseholdMailingAddress__c</name>
+    </fields>
+    <fields>
+        <help><!-- Formula: Simple formula of Household Phone field. --></help>
+        <label>世帯電話</label>
+        <name>Formula_HouseholdPhone__c</name>
+    </fields>
+    <fields>
+        <help><!-- Determines the order in which Contact names are used to generate Household name. --></help>
+        <label>世帯命名順序</label>
+        <name>Household_Naming_Order__c</name>
+    </fields>
+    <fields>
+        <label>世帯</label>
+        <name>Household__c</name>
+        <relationshipLabel>世帯メンバー</relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- The largest amount of a won Opportunity related to this Contact by primary Opportunity Contact Role. --></help>
+        <label>最大支援金額</label>
+        <name>LargestAmount__c</name>
+    </fields>
+    <fields>
+        <label>最終世帯支援日</label>
+        <name>LastCloseDateHH__c</name>
+    </fields>
+    <fields>
+        <help><!-- The close date of the most recent won Opportunity related to this Contact by primary Opportunity Contact Role. --></help>
+        <label>最終支援日(v2)</label>
+        <name>LastCloseDate__c</name>
+    </fields>
+    <fields>
+        <help><!-- The amount of the most recent (by Close Date) won Membership (Record Type) Opportunity related to this Contact by primary Opportunity Contact Role. --></help>
+        <label>最終会費支援金額</label>
+        <name>LastMembershipAmount__c</name>
+    </fields>
+    <fields>
+        <help><!-- The most recent Close Date of a won Membership (Record Type) Opportunity related to this Contact by primary Opportunity Contact Role. --></help>
+        <label>最終会費支援日</label>
+        <name>LastMembershipDate__c</name>
+    </fields>
+    <fields>
+        <help><!-- The level of the most recent (by Close Date) won Membership (Record Type) Opportunity related to this Contact by primary Opportunity Contact Role. --></help>
+        <label>最終会員レベル</label>
+        <name>LastMembershipLevel__c</name>
+    </fields>
+    <fields>
+        <help><!-- The origin (new, renewal, reacquire...) of the most recent (Close Date) won Membership (Record Type) Opportunity related to this Contact by primary Opportunity Contact Role. --></help>
+        <label>最終会員状況</label>
+        <name>LastMembershipOrigin__c</name>
+    </fields>
+    <fields>
+        <help><!-- The amount of the most recent won Opportunity by Close Date related to this Contact by primary Opportunity Contact Role. --></help>
+        <label>最終支援金額</label>
+        <name>LastOppAmount__c</name>
+    </fields>
+    <fields>
+        <help><!-- The Membership End Date of the most recent (Close Date) Membership Opportunity (Record Type) related to this Contact by primary Opportunity Contact Role. --></help>
+        <label>会員期限(v2)</label>
+        <name>MembershipEndDate__c</name>
+    </fields>
+    <fields>
+        <help><!-- The Join Date of the oldest (Close Date) Membership Opportunity (Record Type) related to this Contact by primary Opportunity Contact Role. --></help>
+        <label>入会年月日(v2)</label>
+        <name>MembershipJoinDate__c</name>
+    </fields>
+    <fields>
+        <help>この個人が含まれない世帯名を決定します。</help>
+        <label>命名除外</label>
+        <name>Naming_Exclusions__c</name>
+        <picklistValues>
+            <masterLabel>Household__c.Formal_Greeting__c</masterLabel>
+            <translation><!-- Household__c.Formal_Greeting__c --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Household__c.Informal_Greeting__c</masterLabel>
+            <translation><!-- Household__c.Informal_Greeting__c --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Household__c.Name</masterLabel>
+            <translation><!-- Household__c.Name --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- The total number of won Opportunities with amount greater than zero related to this Contact by primary Opportunity Contact Role. --></help>
+        <label>これまでの支援回数(v2)</label>
+        <name>NumberOfClosedOpps__c</name>
+    </fields>
+    <fields>
+        <help><!-- The number of won Membership Opportunities (Record Type) related to this Contact by primary Opportunity Contact Role. --></help>
+        <label>会費払込回数(v2)</label>
+        <name>NumberOfMembershipOpps__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total amount of won Opportunities related to this Contact by primary Opportunity Contact Role, closed two years ago. --></help>
+        <label>一昨年の支援総額</label>
+        <name>OppAmount2YearsAgo__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total amount of won Opportunities related to this Contact by primary Opportunity Contact Role, closed in the last number of days defined in Household Settings. --></help>
+        <label>N日間の支援総額</label>
+        <name>OppAmountLastNDays__c</name>
+    </fields>
+    <fields>
+        <help><!-- Formula:  Total Gifts Last Year on related Household. --></help>
+        <label>昨年の世帯支援総額</label>
+        <name>OppAmountLastYearHH__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total amount of won Opportunities related to this Contact by primary Opportunity Contact Role, closed last year. --></help>
+        <label>昨年の支援総額</label>
+        <name>OppAmountLastYear__c</name>
+    </fields>
+    <fields>
+        <help><!-- Formula:  Total Gifts This Year on related Household. --></help>
+        <label>今年の世帯支援総額</label>
+        <name>OppAmountThisYearHH__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total amount of won Opportunities related to this Contact by primary Opportunity Contact Role, closed this year. --></help>
+        <label>今年の支援総額</label>
+        <name>OppAmountThisYear__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total number of won Opportunities with amount greater than zero related to this Contact by primary Opportunity Contact Role, closed two years ago. --></help>
+        <label>一昨年の支援回数</label>
+        <name>OppsClosed2YearsAgo__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total number of won Opportunities with amount greater than zero related to this Contact by primary Opportunity Contact Role, closed in the last number of days defined in Household Settings. --></help>
+        <label>N日間の支援回数</label>
+        <name>OppsClosedLastNDays__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total number of won Opportunities with amount greater than zero related to this Contact by primary Opportunity Contact Role, closed last year. --></help>
+        <label>昨年の支援回数</label>
+        <name>OppsClosedLastYear__c</name>
+    </fields>
+    <fields>
+        <help><!-- The total number of won Opportunities with amount greater than zero related to this Contact by primary Opportunity Contact Role, closed this year. --></help>
+        <label>今年の支援回数</label>
+        <name>OppsClosedThisYear__c</name>
+    </fields>
+    <fields>
+        <help><!-- The smallest amount of a won Opportunity related to this Contact by primary Opportunity Contact Role. --></help>
+        <label>最小支援金額</label>
+        <name>SmallestAmount__c</name>
+    </fields>
+    <fields>
+        <help>昨年のソフトクレジットの総額。</help>
+        <label>昨年のソフトクレジット</label>
+        <name>Soft_Credit_Last_Year__c</name>
+    </fields>
+    <fields>
+        <help>今年のソフトクレジットの総額。</help>
+        <label>今年のソフトクレジット</label>
+        <name>Soft_Credit_This_Year__c</name>
+    </fields>
+    <fields>
+        <help>この個人の全期間のソフトクレジットの総額。[世帯設定] タブで定義します。</help>
+        <label>ソフトクレジット合計</label>
+        <name>Soft_Credit_Total__c</name>
+    </fields>
+    <fields>
+        <help>2 年前のソフトクレジットの総額。</help>
+        <label>2 年前のソフトクレジット</label>
+        <name>Soft_Credit_Two_Years_Ago__c</name>
+    </fields>
+    <fields>
+        <label><!-- _SYSTEM: HOUSEHOLD PROCESSOR-DEPRECATED --></label>
+        <name>SystemHouseholdProcessor__c</name>
+        <picklistValues>
+            <masterLabel>All Individual Contacts</masterLabel>
+            <translation><!-- All Individual Contacts --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>All New or Edited Contacts</masterLabel>
+            <translation><!-- All New or Edited Contacts --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>No Contacts</masterLabel>
+            <translation><!-- No Contacts --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- The total amount of won Membership Opportunities (Record Type) related to this Contact by primary Opportunity Contact Role. --></help>
+        <label>会費支援総額</label>
+        <name>TotalMembershipOppAmount__c</name>
+    </fields>
+    <fields>
+        <help><!-- The sum of won Opportunity Amounts related to this Contact by primary Opportunity Contact Role. --></help>
+        <label>これまでの支援総額(英版・v2)</label>
+        <name>TotalOppAmount__c</name>
+    </fields>
+    <fields>
+        <help><!-- Formula:  Total Gifts on related Household. --></help>
+        <label>これまでの世帯支援総額</label>
+        <name>Total_Household_Gifts__c</name>
+    </fields>
+    <webLinks>
+        <label>世帯に住所をコピー</label>
+        <name>Copy_Address_to_Household</name>
+    </webLinks>
+    <webLinks>
+        <label><!-- Household --></label>
+        <name>Household</name>
+    </webLinks>
+</CustomObjectTranslation>

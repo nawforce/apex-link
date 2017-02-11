@@ -1,0 +1,23 @@
+project:
+    name: Households
+    package:
+        name: Households
+        namespace: npo02
+        api_version: 36.0
+    dependencies:
+        - namespace: npe01
+          version: 3.4
+
+flows:
+    ci_master:
+        tasks:
+            # Don't run uninstall_packaged_incremental
+            3:
+                - task: None
+            8:
+                - task: None
+    ci_feature:
+        tasks:
+            # Don't run uninstall_packaged_incremental
+            5:
+                - task: None
