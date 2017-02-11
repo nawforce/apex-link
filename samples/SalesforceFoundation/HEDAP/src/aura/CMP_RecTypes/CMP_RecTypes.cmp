@@ -1,0 +1,36 @@
+<aura:component >
+    <aura:handler event="c:STG_EVT_Save" action="{!c.saveSettings}"/>
+
+    <!-- The class attribute is designed to be a single string and not a space seperated list -->
+    <aura:attribute name="class" type="String" />
+    <aura:attribute name="isView" type="Boolean" default="true"/>
+    <aura:attribute name="setting" type="Object" />
+    <!--
+        Each element in the recTypesSelected array represents a record type of an Object,
+        and should have 3 fields:
+        - name: the friendly name (label) of the record type
+        - id: the internal ID of the record type
+        - selected: whether the record type should be displayed as selected (checked checkbox)
+     -->
+    <aura:attribute name="recTypesSelected" type="Object[]" />
+
+    <aura:iteration items="{!v.recTypesSelected}" var="recType" indexVar="index">
+        <div class="{!join(' ', 'slds-form-element', v.class)}">
+            <div class="slds-form-element__control">
+                <label class="slds-checkbox slds-checkbox__label">
+                <aura:if isTrue="{!v.isView}">
+                    <span>
+                        <ui:outputCheckbox value="{!recType.selected}" class="{!join(' ', 'slds-checkbox', v.class + '-rectypes-outputcheck-' + index)}" />
+                    </span>
+                <aura:set attribute="else">
+                    <ui:inputCheckbox value="{!recType.selected}" class="{!join(' ', 'slds-checkbox', v.class + '-rectypes-inputcheck-' + index)}"
+                      aura:id="checkboxIds" text="{!recType.id}"  />
+                    <span class="slds-checkbox--faux"></span>
+                </aura:set>
+                </aura:if>
+                <span class="slds-form-element__label" for="recTypeName">{!recType.name}</span>
+              </label>
+          </div>
+        </div>
+    </aura:iteration>
+</aura:component>

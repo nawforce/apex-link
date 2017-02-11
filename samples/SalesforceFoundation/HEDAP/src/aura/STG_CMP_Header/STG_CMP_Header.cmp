@@ -1,0 +1,53 @@
+<aura:component >
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+
+    <aura:attribute name="namespacePrefix" type="String" />
+    <aura:attribute name="isView" type="Boolean" default="true"/>
+
+    <aura:registerEvent name="STG_EVT_Edit" type="c:STG_EVT_Edit" />
+    <aura:registerEvent name="STG_EVT_Save" type="c:STG_EVT_Save" />
+    <aura:registerEvent name="STG_EVT_Cancel" type="c:STG_EVT_Cancel" />
+
+    <!-- PAGE HEADER -->
+    <div class="slds-page-header" role="banner">
+
+        <!-- LAYOUT GRID -->
+        <div class="slds-grid">
+
+            <!-- GRID COL -->
+            <div class="slds-col">
+                <!-- HEADING AREA -->
+                <!-- MEDIA OBJECT = FIGURE + BODY -->
+                <div class="slds-media">
+                    <div class="slds-media__figure">
+                        <lightning:icon iconName="standard:custom" size="large"/>
+                    </div>
+
+                    <div class="slds-media__body">
+                        <p class="slds-text-heading--label">HEDA Settings</p>
+                        <h1 class="slds-text-heading--medium">Configuration</h1>
+                    </div>
+
+                </div>
+                <!-- / MEDIA OBJECT -->
+                <!-- HEADING AREA -->
+            </div>
+            <!-- GRID COL -->
+            <div class="slds-col slds-no-flex slds-align-middle">
+                <div class="slds-button-group" role="group">
+                    <aura:if isTrue="{!v.isView}">
+                        <ui:button class="slds-button slds-button--neutral settings-edit-bttn" label="Edit" press="{!c.edit}"/>
+                    <aura:set attribute="else">
+                        <ui:button class="slds-button slds-button--neutral settings-save-bttn" label="Save" press="{!c.save}"/>
+                        <ui:button class="slds-button slds-button--neutral settings-cancel-bttn" label="Cancel" press="{!c.cancel}"/>
+                    </aura:set>
+                    </aura:if>
+                </div>
+            </div>
+            <!-- / GRID COL -->
+        </div>
+        <!-- / LAYOUT GRID -->
+        <p class="slds-text-body--small slds-m-top--x-small">App-wide Settings</p>
+    </div>
+    <!-- / PAGE HEADER -->
+</aura:component>
