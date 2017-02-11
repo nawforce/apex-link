@@ -10,20 +10,22 @@ class ApexClassReader extends SymbolReader {
   override def loadSymbols(ctx: SymbolReaderContext): Unit = {
     try {
       val classesDir = ctx.getBaseDir.resolve("classes")
-      LinkerLog.ifNotLogAndThrow(Files.isDirectory(classesDir), 0, "Classes directory is not present")
+      if (Files.exists(classesDir)) {
+        LinkerLog.ifNotLogAndThrow(Files.isDirectory(classesDir), 0, "classes is present but not a directory")
 
-      val traverse = new TraversePath(classesDir)
-      traverse foreach {
-        case (file: Path, attr: BasicFileAttributes) =>
-          if (attr.isRegularFile && file.toString.endsWith(".cls")) {
-            loadApexClass(ctx, file.getFileName.toString.replaceFirst(".cls$", ""), file).foreach(o => ctx.addApexClass(o))
-          } else if (attr.isRegularFile && file.toString.endsWith(".cls-meta.xml")) {
-            // Ignore
-          } else if (attr.isRegularFile) {
-            LinkerLog.logMessage(file.toString, 0, "Unexpected file in classes directory")
-          } else {
-            LinkerLog.logMessage(file.toString, 0, "Only expected to find files in classes directory")
-          }
+        val traverse = new TraversePath(classesDir)
+        traverse foreach {
+          case (file: Path, attr: BasicFileAttributes) =>
+            if (attr.isRegularFile && file.toString.endsWith(".cls")) {
+              loadApexClass(ctx, file.getFileName.toString.replaceFirst(".cls$", ""), file).foreach(o => ctx.addApexClass(o))
+            } else if (attr.isRegularFile && file.toString.endsWith(".cls-meta.xml")) {
+              // Ignore
+            } else if (attr.isRegularFile) {
+              LinkerLog.logMessage(file.toString, 0, "Unexpected file in classes directory")
+            } else {
+              LinkerLog.logMessage(file.toString, 0, "Only expected to find files in classes directory")
+            }
+        }
       }
 
     } catch {
