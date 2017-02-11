@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Affiliations Settings --></value>
+    </caseValues>
+    <fields>
+        <help>団体項目または主アフィリエーション項目が変更されたときに、組織団体に結び付けられている個人のアフィリエーションを作成または更新します。</help>
+        <label>自動アフィリエーション管理</label>
+        <name>Automatic_Affiliation_Creation_Turned_On__c</name>
+    </fields>
+</CustomObjectTranslation>

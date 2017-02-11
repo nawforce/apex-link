@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Affiliation --></value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value><!-- Affiliation --></value>
+    </caseValues>
+    <fields>
+        <label>Contact</label>
+        <name>Contact__c</name>
+        <relationshipLabel>Affiliations de l&apos;Organisation</relationshipLabel>
+    </fields>
+    <fields>
+        <label>Description</label>
+        <name>Description__c</name>
+    </fields>
+    <fields>
+        <label>Date de fin</label>
+        <name>EndDate__c</name>
+    </fields>
+    <fields>
+        <label>Compte</label>
+        <name>Organization__c</name>
+        <relationshipLabel>Contacts affiliés</relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- If checked, the Affiliation&apos;s Organization will be stored on the Contact record. --></help>
+        <label><!-- Primary --></label>
+        <name>Primary__c</name>
+    </fields>
+    <fields>
+        <label>Rôle</label>
+        <name>Role__c</name>
+    </fields>
+    <fields>
+        <label>Date de début</label>
+        <name>StartDate__c</name>
+    </fields>
+    <fields>
+        <label>Statut</label>
+        <name>Status__c</name>
+        <picklistValues>
+            <masterLabel>Current</masterLabel>
+            <translation><!-- Current --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Former</masterLabel>
+            <translation><!-- Former --></translation>
+        </picklistValues>
+    </fields>
+    <gender><!-- Masculine --></gender>
+    <layouts>
+        <layout>Affiliation Layout</layout>
+        <sections>
+            <label>Information de l&apos;affiliation</label>
+            <section>Affiliation Information</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Affiliation Name --></nameFieldLabel>
+    <startsWith><!-- Consonant --></startsWith>
+</CustomObjectTranslation>

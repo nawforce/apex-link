@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>このボックスをオンにすると、個人が団体とのリレーションと共に作成されたときに自動アフィリエーションが適用されます。</label>
+        <name>Automatic_Affiliation_Help_Text</name>
+    </customLabels>
+    <customLabels>
+        <label>現在</label>
+        <name>DefaultCurrentStatus</name>
+    </customLabels>
+    <customLabels>
+        <label>以前</label>
+        <name>DefaultFormerStatus</name>
+    </customLabels>
+    <customTabs>
+        <label>アフィリエーション設定</label>
+        <name>Affiliations_Settings</name>
+    </customTabs>
+</Translations>

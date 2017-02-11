@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Affiliation --></value>
+    </caseValues>
+    <fields>
+        <label>個人</label>
+        <name>Contact__c</name>
+        <relationshipLabel>関係する団体</relationshipLabel>
+    </fields>
+    <fields>
+        <label>説明</label>
+        <name>Description__c</name>
+    </fields>
+    <fields>
+        <label>終了日</label>
+        <name>EndDate__c</name>
+    </fields>
+    <fields>
+        <label>団体</label>
+        <name>Organization__c</name>
+        <relationshipLabel>関係する個人</relationshipLabel>
+    </fields>
+    <fields>
+        <help>オンの場合、アフィリエーション団体は個人レコードに保存されます。</help>
+        <label>主</label>
+        <name>Primary__c</name>
+    </fields>
+    <fields>
+        <label>役割</label>
+        <name>Role__c</name>
+    </fields>
+    <fields>
+        <label>開始日</label>
+        <name>StartDate__c</name>
+    </fields>
+    <fields>
+        <label>状況</label>
+        <name>Status__c</name>
+        <picklistValues>
+            <masterLabel>Current</masterLabel>
+            <translation>現在</translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Former</masterLabel>
+            <translation>以前</translation>
+        </picklistValues>
+    </fields>
+    <layouts>
+        <layout>Affiliation Layout</layout>
+        <sections>
+            <label>アフィリエーション情報</label>
+            <section>Affiliation Information</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel><!-- Affiliation Name --></nameFieldLabel>
+</CustomObjectTranslation>

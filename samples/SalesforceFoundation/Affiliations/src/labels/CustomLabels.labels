@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>Automatic_Affiliation_Help_Text</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Automatic Affiliation Help Text</shortDescription>
+        <value>Check this box to have Contacts receive automatic affiliations when they are created with a relationship to an Account.</value>
+    </labels>
+    <labels>
+        <fullName>DefaultCurrentStatus</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>DefaultCurrentStatus</shortDescription>
+        <value>Current</value>
+    </labels>
+    <labels>
+        <fullName>DefaultFormerStatus</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>DefaultFormerStatus</shortDescription>
+        <value>Former</value>
+    </labels>
+</CustomLabels>
