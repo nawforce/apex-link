@@ -13,6 +13,10 @@ object Link {
     """.stripMargin
 
   def main(args: Array[String]): Unit = {
+    System.exit(link(args))
+  }
+
+  def link(args: Array[String]): Integer = {
     type OptionMap = Map[String, Any]
 
     class Options {
@@ -31,13 +35,13 @@ object Link {
     val options = nextOption(new Options(), args.toList)
     if (options.unknown.length != 1) {
       println(usage)
-      System.exit(1)
+      return 1
     }
     val directory = Paths.get(options.unknown.head)
     if (!Files.isDirectory(directory)) {
       println("There is no directory at " + directory)
       println(usage)
-      System.exit(1)
+      return 1
     }
 
     // Load from passed directory
@@ -53,7 +57,7 @@ object Link {
     if (LinkerLog.hasMessages) {
       println("Problems found during linking, aborting run")
       LinkerLog.dumpMessage()
-      System.exit(1)
+      return 1
     }
 
     // Run any transforms
@@ -63,8 +67,9 @@ object Link {
         case "assert-delete" => new AssertDelete().exec(ctx)
         case _ =>
           println("There is no transform " + transform)
-          System.exit(1)
+          return 1
       }
     })
+    return 0
   }
 }
