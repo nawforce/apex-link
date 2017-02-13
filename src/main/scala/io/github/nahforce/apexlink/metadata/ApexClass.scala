@@ -3,12 +3,23 @@ package io.github.nahforce.apexlink.metadata
 import java.io.{File, FileInputStream}
 
 import io.github.nahforce.apexlink.antlr.{ApexLexer, ApexParser}
-import io.github.nahforce.apexlink.cst.CompilationUnit
+import io.github.nahforce.apexlink.cst.{CST, CompilationUnit, Expression}
 import io.github.nahforce.apexlink.utils._
 import org.antlr.v4.runtime.CommonTokenStream
 
 case class ApexClass(location: Location, fullName: String, compilationUnit: CompilationUnit) extends Symbol {
   val scopedName : String = fullName
+
+  def expressions : List[Expression] = {
+    expressions(compilationUnit)
+  }
+
+  private def expressions(cst: CST) : List[Expression] = {
+    cst match {
+      case e: Expression => List(e)
+      case _ => cst.children().flatMap(x => expressions(x))
+    }
+  }
 }
 
 object ApexClass {
