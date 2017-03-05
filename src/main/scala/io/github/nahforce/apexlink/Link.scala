@@ -2,6 +2,7 @@ package io.github.nahforce.apexlink
 
 import java.nio.file.{Files, Paths}
 
+import io.github.nahforce.apexlink.diff.FileChanger
 import io.github.nahforce.apexlink.metadata._
 import io.github.nahforce.apexlink.transform.AssertDelete
 import io.github.nahforce.apexlink.utils.LinkerLog
@@ -61,15 +62,17 @@ object Link {
     }
 
     // Run any transforms
+    val fileChanger : FileChanger = new FileChanger()
     options.transforms.foreach(transform => {
       println("Running transform " + transform)
       transform match {
-        case "assert-delete" => new AssertDelete().exec(ctx)
+        case "assert-delete" => new AssertDelete().exec(ctx, fileChanger)
         case _ =>
           println("There is no transform " + transform)
           return 1
       }
     })
+    fileChanger.diff()
     0
   }
 }

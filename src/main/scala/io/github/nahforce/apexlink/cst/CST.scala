@@ -30,8 +30,11 @@ sealed abstract class CST {
   }
 
   def location() : String = {
-    "From " + startPos + " to " + endPos + " length " + (endPos-startPos)
+    "From " + start() + " to " + end() + " length " + (end()-start())
   }
+
+  def start() : Long = startPos
+  def end() : Long = endPos
 }
 
 abstract class TypeContext {
@@ -724,7 +727,7 @@ final case class ExpressionListForInit(expressions: List[Expression]) extends Fo
 
 object ForInit {
   def construct(from: ForInitContext): ForInit = {
-    var cst =
+    val cst =
       if (from.localVariableDeclaration() != null) {
         LocalVariableForInit(LocalVariableDeclaration.construct(from.localVariableDeclaration()))
       } else if (from.expressionList() != null) {
@@ -1192,7 +1195,7 @@ final case class PrimitiveTypeRef(primitiveType: PrimitiveType) extends TypeRef 
 object TypeRef {
   def construct(typeRef: TypeRefContext): TypeRef = {
     val arraySubs = typeRef.arraySubscripts().getText.count(_ == '[')
-    var cst =
+    val cst =
       if (typeRef.classOrInterfaceType() != null) {
         ClassOrInterfaceTypeRef(ClassOrInterfaceType.construct(typeRef.classOrInterfaceType()), arraySubs)
       } else if (typeRef.primitiveType() != null) {

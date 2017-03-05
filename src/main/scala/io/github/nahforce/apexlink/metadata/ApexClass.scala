@@ -3,7 +3,7 @@ package io.github.nahforce.apexlink.metadata
 import java.io.{File, FileInputStream}
 
 import io.github.nahforce.apexlink.antlr.{ApexLexer, ApexParser}
-import io.github.nahforce.apexlink.cst.{CST, CompilationUnit, Expression}
+import io.github.nahforce.apexlink.cst.{CST, CompilationUnit, Expression, Statement}
 import io.github.nahforce.apexlink.utils._
 import org.antlr.v4.runtime.CommonTokenStream
 
@@ -14,10 +14,21 @@ case class ApexClass(location: Location, fullName: String, compilationUnit: Comp
     expressions(compilationUnit)
   }
 
+  def statements : List[Statement] = {
+    statements(compilationUnit)
+  }
+
   private def expressions(cst: CST) : List[Expression] = {
     cst match {
       case e: Expression => List(e)
       case _ => cst.children().flatMap(x => expressions(x))
+    }
+  }
+
+  private def statements(cst: CST) : List[Statement] = {
+    cst match {
+      case s: Statement => List(s)
+      case _ => cst.children().flatMap(x => statements(x))
     }
   }
 }

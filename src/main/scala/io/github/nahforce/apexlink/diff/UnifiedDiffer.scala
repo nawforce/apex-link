@@ -1,0 +1,141 @@
+package io.github.nahforce.apexlink.diff
+
+import java.io.File
+
+import io.github.nahforce.apexlink.diff.OwenDiff._
+
+object UnifiedDiffer {
+  def showDiff(filename: String, original: Array[String], modified: Array[String]): Unit = {
+    println("---  a"+File.separator + filename)
+    println("+++  b"+File.separator + filename)
+
+    val groups: List[List[DiffResult]] = groupDiffs(OwenDiff.Diff.diff(original, modified).toList).flatMap(simplifyGroup)
+    groups.foreach(g => showGroup(g, original, modified))
+  }
+
+  private def showGroup(group: List[DiffResult], original: Array[String], modified: Array[String]): Unit = {
+
+    val startAt = Math.max(0, group.head.file1Index - 3)
+    val endAt = Math.min(original.length - 1, group.last.file1Index + group.last.lengths._1 + 2)
+    if (!hasDifferences(original, modified, group.head.file1Index, group.head.file2Index, endAt-startAt))
+      return
+
+    val added = group.map(d => d.lengths._1 - d.lengths._2).sum
+    val sourceLines = endAt - startAt + 1
+    println("@@ -%d,%d +%d,%d @@".format(startAt+1, sourceLines,
+      group.last.file2Index - (group.head.file1Index - startAt)+1, sourceLines + added))
+
+    val at = showResult(startAt, group, original)
+    for (line <- at to endAt) {
+      writeLine(' ', original(line))
+    }
+  }
+
+  private def showResult(startAt: Integer, group: List[DiffResult], original: Array[String]): Int = {
+    var line = startAt
+    while (line < group.head.file1Index) {
+      writeLine(' ', original(line))
+      line += 1
+    }
+
+    val dr = group.head
+    dr match {
+      case m: Modify =>
+        m.oldLines.foreach(l => writeLine('-', l))
+        m.newLines.foreach(l => writeLine('+', l))
+        line += m.lengths._1
+      case i: Insert =>
+        i.lines.foreach(l => writeLine('+', l))
+      case d: Delete =>
+        d.oldLines.foreach(l => writeLine('-', l))
+        line += d.lengths._1
+    }
+
+    if (group.tail != Nil)
+      showResult(line, group.tail, original)
+    else
+      line
+  }
+
+  /*
+   * Groups diff results that have overlapping contexts
+   */
+  private def groupDiffs(diffs: List[DiffResult]): List[List[DiffResult]] = {
+    diffs.length match {
+      case 0 => List()
+      case 1 => List(List(diffs.head))
+      case _ =>
+        val rest = groupDiffs(diffs.tail)
+        if (rest.nonEmpty && overlaps(diffs.head, rest.head.head)) {
+          (diffs.head :: rest.head) :: rest.tail
+        } else {
+          List(diffs.head) :: rest
+        }
+    }
+  }
+
+  /*
+   * Determine if two results overlap taking into account three line context
+   */
+  private def overlaps(diff1: DiffResult, diff2: DiffResult): Boolean = {
+    diff1.file1Index + diff1.lengths._1 + 3 > diff2.file1Index - 3
+  }
+
+  /*
+   * Simplify a grouped list of diffs
+   */
+  private def simplifyGroup(diffs: List[DiffResult]): Option[List[DiffResult]] = {
+    val simpler: List[DiffResult] = diffs.flatMap(simplifyResult)
+    if (simpler.isEmpty) None else Some(simpler)
+  }
+
+  /*
+   * Simplify a single DiffResult, this should not be need but the output can be less than ideal sometimes. Note
+   * we can't make changes here that would change the line numbers of subsequent DiffResults
+   */
+  private def simplifyResult(dr: DiffResult): Option[DiffResult] = {
+    dr match {
+      case _: Equal =>
+        None
+      case m: Modify =>
+        // If we end up with no lines then drop change
+        if (m.oldLines.isEmpty && m.newLines.isEmpty) {
+          None
+        }
+        // Strip identical start lines
+        else if (m.oldLines.nonEmpty && m.newLines.nonEmpty && m.oldLines.head == m.newLines.head) {
+          simplifyResult(Modify(m.file1Index + 1, m.file2Index + 1, (m.lengths._1 - 1, m.lengths._2 - 1),
+            m.oldLines.tail, m.newLines.tail))
+          // Strip identical last lines
+        } else if (m.oldLines.nonEmpty && m.newLines.nonEmpty && m.oldLines.last == m.newLines.last) {
+          simplifyResult(Modify(m.file1Index, m.file2Index, (m.lengths._1 - 1, m.lengths._2 - 1),
+            m.oldLines.take(m.oldLines.length - 1), m.newLines.take(m.newLines.length - 1)))
+        } else {
+          Some(m)
+        }
+      case _ => Some(dr)
+    }
+  }
+
+  /*
+   * Write a diff line, adding a '\n' if needed
+   */
+  private def writeLine(marker: Char, line: String) : Unit = {
+    if (line.last != '\n')
+      println(marker + line)
+    else
+      print(marker + line)
+  }
+
+  /*
+   * Test if there are some differences over a range of lines, used to reduce output clutter
+   */
+  private def hasDifferences(original: Array[String], modified: Array[String], originalStart: Int,
+                             modifiedStart: Int, lines: Int): Boolean = {
+    for (line <- 0 to lines) {
+      if (original(originalStart+line) != modified(modifiedStart+line))
+        return true
+    }
+    false
+  }
+}
