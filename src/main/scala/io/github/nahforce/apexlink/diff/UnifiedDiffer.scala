@@ -6,24 +6,36 @@ import io.github.nahforce.apexlink.diff.OwenDiff._
 
 object UnifiedDiffer {
   def showDiff(filename: String, original: Array[String], modified: Array[String]): Unit = {
-    println("---  a"+File.separator + filename)
-    println("+++  b"+File.separator + filename)
+    val aPath = joinPaths("a", filename)
+    val bPath = joinPaths("b", filename)
+
+    print("diff -u " + aPath + " " + bPath + '\n')
+    print("---  " + aPath + '\n')
+    print("+++  " + bPath + '\n')
 
     val groups: List[List[DiffResult]] = groupDiffs(OwenDiff.Diff.diff(original, modified).toList).flatMap(simplifyGroup)
     groups.foreach(g => showGroup(g, original, modified))
+  }
+
+  private def joinPaths(prefix: String, path: String): String = {
+    val f = new File(path)
+    if (f.isAbsolute)
+      prefix + path
+    else
+      prefix + File.separator + path
   }
 
   private def showGroup(group: List[DiffResult], original: Array[String], modified: Array[String]): Unit = {
 
     val startAt = Math.max(0, group.head.file1Index - 3)
     val endAt = Math.min(original.length - 1, group.last.file1Index + group.last.lengths._1 + 2)
-    if (!hasDifferences(original, modified, group.head.file1Index, group.head.file2Index, endAt-startAt))
+    if (!hasDifferences(original, modified, group.head.file1Index, group.head.file2Index, endAt - startAt))
       return
 
-    val added = group.map(d => d.lengths._1 - d.lengths._2).sum
+    val added = group.map(d => d.lengths._2 - d.lengths._1).sum
     val sourceLines = endAt - startAt + 1
-    println("@@ -%d,%d +%d,%d @@".format(startAt+1, sourceLines,
-      group.last.file2Index - (group.head.file1Index - startAt)+1, sourceLines + added))
+    print("@@ -%d,%d +%d,%d @@\n".format(startAt + 1, sourceLines,
+      group.head.file2Index - (group.head.file1Index - startAt) + 1, sourceLines + added))
 
     val at = showResult(startAt, group, original)
     for (line <- at to endAt) {
@@ -120,9 +132,11 @@ object UnifiedDiffer {
   /*
    * Write a diff line, adding a '\n' if needed
    */
-  private def writeLine(marker: Char, line: String) : Unit = {
-    if (line.last != '\n')
-      println(marker + line)
+  private def writeLine(marker: Char, line: String): Unit = {
+    if (line.last != '\n') {
+      print(marker + line + '\n')
+      print("\\ No newline at end of file")
+    }
     else
       print(marker + line)
   }
@@ -133,7 +147,7 @@ object UnifiedDiffer {
   private def hasDifferences(original: Array[String], modified: Array[String], originalStart: Int,
                              modifiedStart: Int, lines: Int): Boolean = {
     for (line <- 0 to lines) {
-      if (original(originalStart+line) != modified(modifiedStart+line))
+      if (original(originalStart + line) != modified(modifiedStart + line))
         return true
     }
     false
