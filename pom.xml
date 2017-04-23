@@ -4,7 +4,7 @@
 
     <groupId>apexlink</groupId>
     <artifactId>apexlink</artifactId>
-    <version>0.01</version>
+    <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>apexlink</name>
