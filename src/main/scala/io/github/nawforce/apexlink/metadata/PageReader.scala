@@ -47,7 +47,8 @@ class PageReader extends SymbolReader {
           } else if (attr.isRegularFile && file.toString.endsWith(".page-meta.xml")) {
             // Ignore
           } else if (attr.isRegularFile) {
-            LinkerLog.logMessage(file.toString, 0, "Unexpected file in pages directory")
+            if (!isIgnoreable(file))
+              LinkerLog.logMessage(file.toString, 0, "Unexpected file in pages directory")
           } else {
             LinkerLog.logMessage(file.toString, 0, "Only expected to find files in pages directory")
           }

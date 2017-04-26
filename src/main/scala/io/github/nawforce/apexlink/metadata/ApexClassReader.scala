@@ -48,7 +48,8 @@ class ApexClassReader extends SymbolReader {
             } else if (attr.isRegularFile && file.toString.endsWith(".cls-meta.xml")) {
               // Ignore
             } else if (attr.isRegularFile) {
-              LinkerLog.logMessage(file.toString, 0, "Unexpected file in classes directory")
+              if (!isIgnoreable(file))
+                LinkerLog.logMessage(file.toString, 0, "Unexpected file in classes directory")
             } else {
               LinkerLog.logMessage(file.toString, 0, "Only expected to find files in classes directory")
             }

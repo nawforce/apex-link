@@ -27,10 +27,18 @@
 */
 package io.github.nawforce.apexlink.metadata
 
+import java.nio.file.Path
+
 import io.github.nawforce.apexlink.utils.CSTException
 
 class SymbolReader {
   def loadSymbols(ctx: SymbolReaderContext): Unit = {
     throw new CSTException
   }
+
+  def isIgnoreable(path: Path) : Boolean = {
+    // Ignore stupid OSX files & rogue package.xml files that sometime hangs about
+    path.getFileName() == ".DS_Store" || path.getFileName() == "package.xml"
+  }
+
 }

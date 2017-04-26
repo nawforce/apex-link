@@ -45,7 +45,8 @@ class CustomObjectReader extends SymbolReader {
           if (attr.isRegularFile && file.toString.endsWith(".object")) {
             loadObject(ctx, file.getFileName.toString.replaceFirst(".object$", ""), file)
           } else if (attr.isRegularFile) {
-            LinkerLog.logMessage(file.toString, 0, "Unexpected file in objects directory")
+            if (!isIgnoreable(file))
+              LinkerLog.logMessage(file.toString, 0, "Unexpected file in objects directory")
           } else {
             LinkerLog.logMessage(file.toString, 0, "Only expected to find files in objects directory")
           }
