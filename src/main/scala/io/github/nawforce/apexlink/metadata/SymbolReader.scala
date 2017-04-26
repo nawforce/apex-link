@@ -38,7 +38,8 @@ class SymbolReader {
 
   def isIgnoreable(path: Path) : Boolean = {
     // Ignore stupid OSX files & rogue package.xml files that sometime hangs about
-    path.getFileName() == ".DS_Store" || path.getFileName() == "package.xml"
+    val fileName = path.getFileName.toString
+    fileName == ".DS_Store" || fileName == "package.xml"
   }
 
 }
