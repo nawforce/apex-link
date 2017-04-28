@@ -30,14 +30,20 @@ package io.github.nawforce.apexlink.transform
 import io.github.nawforce.apexlink.cst._
 import io.github.nawforce.apexlink.diff.FileChanger
 import io.github.nawforce.apexlink.metadata.{ApexClass, SymbolReaderContext}
+import scala.language.reflectiveCalls
 
 class AssertDelete {
+
+  implicit class StringInterpolations(sc: StringContext) {
+    def ci = new {
+      def unapply(other: String) : Boolean = sc.parts.mkString.equalsIgnoreCase(other)
+    }
+  }
 
   def exec(ctx: SymbolReaderContext, fileChanger: FileChanger): Unit = {
     ctx.getClasses.values.foreach((apexClass: ApexClass) => {
       apexClass.statements.foreach {
-        case e@ExpressionStatement(FunctionCallExpression(LHSExpression(PrimaryExpression(FieldPrimary(field)), RHSId(id)), FunctionArguments(_)))
-          if field.toLowerCase() == "system" && id.toLowerCase() == "assert" =>
+        case e@ExpressionStatement(FunctionCall(QName(ci"system" :: ci"assert" :: Nil), _)) =>
           fileChanger.addChange(apexClass.location.filepath, e.start(), e.end(), None)
         case _ => None
       }

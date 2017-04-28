@@ -1343,8 +1343,12 @@ final case class LHSExpression(lhs: Expression, rhs: ExpressionRHS) extends Expr
   override def children() : List[CST] = lhs :: rhs :: Nil
 }
 
-final case class FunctionCallExpression(callee: Expression, arguments: FunctionArguments) extends Expression {
-  override def children() : List[CST] = callee :: arguments :: Nil
+final case class QName(ids : List[String]) extends Expression {
+  override def children() : List[CST] = Nil
+}
+
+final case class FunctionCall(callee: Expression, arguments: List[Expression]) extends Expression {
+  override def children() : List[CST] = callee :: arguments
 }
 
 final case class NewExpression(creator: Creator) extends Expression {
@@ -1403,16 +1407,20 @@ final case class RHSArrayExpression(expression: Expression) extends ExpressionRH
   override def children(): List[CST] = expression :: Nil
 }
 
-final case class FunctionArguments(expressions: List[Expression]) extends ExpressionRHS {
-  override def children(): List[CST] = expressions
-}
-
 object Expression {
   def construct(from: ExpressionContext): Expression = {
     val cst =
       from match {
         case alt1: Alt1ExpressionContext =>
-          LHSExpression(Expression.construct(alt1.expression()), RHSId(alt1.id().getText))
+          val lHSExpression = Expression.construct(alt1.expression())
+          lHSExpression match {
+            case PrimaryExpression(Identifier(id)) =>
+              QName(id :: alt1.id().getText() :: Nil)
+            case QName(ids) =>
+              QName(ids ::: (alt1.id().getText() :: Nil))
+            case _ =>
+              LHSExpression(Expression.construct(alt1.expression()), RHSId(alt1.id().getText))
+          }
         case alt2: Alt2ExpressionContext =>
           LHSExpression(Expression.construct(alt2.expression()), RHSThis())
         case alt3: Alt3ExpressionContext =>
@@ -1436,14 +1444,14 @@ object Expression {
             Expression.construct(alt6.expression(1))
           ))
         case alt7: FunctionCallExpressionContext =>
-          FunctionCallExpression(Expression.construct(alt7.expression), FunctionArguments(
+          FunctionCall(Expression.construct(alt7.expression),
             if (alt7.expressionList() != null) {
               val expression: Seq[ExpressionContext] = alt7.expressionList().expression()
               Expression.construct(expression.toList)
             } else {
               List()
             }
-          ))
+          )
         case alt8: Alt8ExpressionContext =>
           NewExpression(Creator.construct(alt8.creator()))
         case alt9: Alt9ExpressionContext =>
@@ -1896,7 +1904,7 @@ final case class LiteralPrimary(literal: Literal) extends Primary {
   override def getType(ctx: TypeContext): Type = literal.getType(ctx)
 }
 
-final case class FieldPrimary(id: String) extends Primary {
+final case class Identifier(id: String) extends Primary {
   override def children(): List[CST] = Nil
   override def getType(ctx: TypeContext): Type = ctx.getIdentifierType(id)
 }
@@ -1933,7 +1941,7 @@ object Primary {
         case alt4: Alt4PrimaryContext =>
           LiteralPrimary(Literal.construct(alt4.literal()))
         case alt5: Alt5PrimaryContext =>
-          FieldPrimary(alt5.id().getText)
+          Identifier(alt5.id().getText)
         case alt6: Alt6PrimaryContext =>
           TypeRefClassPrimary(TypeRef.construct(alt6.typeRef()))
         case _: Alt7PrimaryContext =>
