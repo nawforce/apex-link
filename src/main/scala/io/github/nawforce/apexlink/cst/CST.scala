@@ -1343,6 +1343,10 @@ final case class LHSExpression(lhs: Expression, rhs: ExpressionRHS) extends Expr
   override def children() : List[CST] = lhs :: rhs :: Nil
 }
 
+final case class FunctionCallExpression(callee: Expression, arguments: FunctionArguments) extends Expression {
+  override def children() : List[CST] = callee :: arguments :: Nil
+}
+
 final case class NewExpression(creator: Creator) extends Expression {
   override def children(): List[CST] = creator :: Nil
 }
@@ -1399,8 +1403,8 @@ final case class RHSArrayExpression(expression: Expression) extends ExpressionRH
   override def children(): List[CST] = expression :: Nil
 }
 
-final case class RHSExpressionBlock(expressions: List[Expression], block: List[BlockStatement]) extends ExpressionRHS {
-  override def children(): List[CST] = expressions ++ block
+final case class FunctionArguments(expressions: List[Expression]) extends ExpressionRHS {
+  override def children(): List[CST] = expressions
 }
 
 object Expression {
@@ -1431,18 +1435,14 @@ object Expression {
           LHSExpression(Expression.construct(alt6.expression(0)), RHSArrayExpression(
             Expression.construct(alt6.expression(1))
           ))
-        case alt7: Alt7ExpressionContext =>
-          LHSExpression(Expression.construct(alt7.expression), RHSExpressionBlock(
+        case alt7: FunctionCallExpressionContext =>
+          FunctionCallExpression(Expression.construct(alt7.expression), FunctionArguments(
             if (alt7.expressionList() != null) {
               val expression: Seq[ExpressionContext] = alt7.expressionList().expression()
               Expression.construct(expression.toList)
             } else {
               List()
-            },
-            if (alt7.block() != null)
-              Block.construct(alt7.block())
-            else
-              List()
+            }
           ))
         case alt8: Alt8ExpressionContext =>
           NewExpression(Creator.construct(alt8.creator()))

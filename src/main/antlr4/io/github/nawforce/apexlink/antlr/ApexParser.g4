@@ -503,7 +503,7 @@ expression
     |   expression '.' 'super' superSuffix                                  # alt4Expression
     |   expression '.' explicitGenericInvocation                            # alt5Expression
     |   expression '[' expression ']'                                       # alt6Expression
-    |   expression '(' expressionList? ')' block?                           # alt7Expression
+    |   expression '(' expressionList? ')'                                  # functionCallExpression
     |   'new' creator                                                       # alt8Expression
     |   '(' typeRef ')' expression                                          # alt9Expression
     |   expression ('++' | '--')                                            # alt10Expression
