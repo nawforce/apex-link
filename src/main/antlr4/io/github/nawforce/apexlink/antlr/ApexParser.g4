@@ -328,12 +328,7 @@ elementValueArrayInitializer
 // STATEMENTS / BLOCKS
 
 block
-    :   '{' blockStatement* '}'
-    ;
-
-blockStatement
-    :   statement
-    |   typeDeclaration
+    :   '{' statement* '}'
     ;
 
 localVariableDeclarationStatement

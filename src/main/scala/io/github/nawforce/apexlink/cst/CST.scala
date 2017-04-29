@@ -33,35 +33,54 @@ import io.github.nawforce.apexlink.utils.CSTException
 import org.antlr.v4.runtime.ParserRuleContext
 
 import scala.collection.JavaConversions._
+import scala.collection.mutable
+import scala.collection.mutable.Set
 
 sealed abstract class CST {
 
-  private var startPos : Long = -1
-  private var endPos : Long = -1
+  private var startPos: Long = -1
+  private var endPos: Long = -1
 
   // TODO: Not all CST produce types
   def getType(ctx: TypeContext): Type = {
     throw new CSTException
   }
 
-  def children() : List[CST]
+  def children(): List[CST]
 
   def descendants(cst: CST): List[CST] = {
     List(cst) ++ cst.children().flatMap(x => descendants(x))
   }
 
-  def withContext(context : ParserRuleContext): this.type = {
+  def withContext(context: ParserRuleContext): this.type = {
     startPos = context.start.getStartIndex()
     endPos = context.stop.getStopIndex()
     this
   }
 
-  def location() : String = {
-    "From " + start() + " to " + end() + " length " + (end()-start())
+  def location(): String = {
+    "From " + start() + " to " + end() + " length " + (end() - start())
   }
 
-  def start() : Long = startPos
-  def end() : Long = endPos
+  def start(): Long = startPos
+
+  def end(): Long = endPos
+}
+
+class CSTIndex {
+  private val cstIndex = new mutable.HashMap[String, mutable.Set[CST]] with mutable.MultiMap[String, CST]
+
+  def add(cst: CST): Unit = {
+    cstIndex.addBinding(cst.getClass.getSimpleName, cst)
+  }
+
+  def get(name: String) : mutable.Set[CST] = {
+    val nodes : Option[mutable.Set[CST]] = cstIndex.get(name)
+    if (nodes.isDefined)
+      nodes.get
+    else
+      mutable.Set[CST]()
+  }
 }
 
 abstract class TypeContext {
@@ -74,6 +93,7 @@ abstract class TypeContext {
 
 sealed abstract class Type extends CST {
   override def children(): List[CST] = Nil
+
   override def getType(ctx: TypeContext): Type = {
     this
   }
@@ -82,17 +102,29 @@ sealed abstract class Type extends CST {
 sealed abstract class PrimitiveType extends Type
 
 final case class BlobType(arraySubs: Integer) extends PrimitiveType
+
 final case class BooleanType(arraySubs: Integer) extends PrimitiveType
+
 final case class DateType(arraySubs: Integer) extends PrimitiveType
+
 final case class DatetimeType(arraySubs: Integer) extends PrimitiveType
+
 final case class DecimalType(arraySubs: Integer) extends PrimitiveType
+
 final case class DoubleType(arraySubs: Integer) extends PrimitiveType
+
 final case class IdType(arraySubs: Integer) extends PrimitiveType
+
 final case class IntegerType(arraySubs: Integer) extends PrimitiveType
+
 final case class LongType(arraySubs: Integer) extends PrimitiveType
+
 final case class ObjectType(arraySubs: Integer) extends PrimitiveType
+
 final case class StringType(arraySubs: Integer) extends PrimitiveType
+
 final case class TimeType(arraySubs: Integer) extends PrimitiveType
+
 final case class NullType() extends PrimitiveType
 
 object PrimitiveType {
@@ -165,7 +197,6 @@ final case class ClassType(typeRef: TypeRef) extends Type
 
 final case class VoidClassType() extends Type
 
-
 final case class QualifiedName(names: List[String]) extends CST {
   override def children(): List[CST] = Nil
 }
@@ -193,7 +224,7 @@ object QualifiedNameList {
 }
 
 final case class Annotation(name: QualifiedName, elementValuePairs: List[ElementValuePair], elementValue: Option[ElementValue]) extends CST {
-  override def children() : List[CST] =  List[CST]() ++ elementValuePairs ++ elementValue
+  override def children(): List[CST] = List[CST]() ++ elementValuePairs ++ elementValue
 }
 
 object Annotation {
@@ -213,15 +244,15 @@ object Annotation {
 sealed abstract class ElementValue() extends CST
 
 final case class ExpressionElementValue(expression: Expression) extends ElementValue {
-  override def children() : List[CST] = expression :: Nil
+  override def children(): List[CST] = expression :: Nil
 }
 
 final case class AnnotationElementValue(annotation: Annotation) extends ElementValue {
-  override def children() : List[CST] = annotation :: Nil
+  override def children(): List[CST] = annotation :: Nil
 }
 
 final case class ArrayInitializerElementValue(arrayInitializer: ElementValueArrayInitializer) extends ElementValue {
-  override def children() : List[CST] = arrayInitializer :: Nil
+  override def children(): List[CST] = arrayInitializer :: Nil
 }
 
 object ElementValue {
@@ -244,7 +275,7 @@ object ElementValue {
 }
 
 final case class ElementValueArrayInitializer(elementValues: List[ElementValue]) extends CST {
-  override def children() : List[CST] = elementValues
+  override def children(): List[CST] = elementValues
 }
 
 object ElementValueArrayInitializer {
@@ -255,7 +286,7 @@ object ElementValueArrayInitializer {
 }
 
 final case class ElementValuePair(id: String, elementValue: ElementValue) extends CST {
-  override def children() : List[CST] = elementValue :: Nil
+  override def children(): List[CST] = elementValue :: Nil
 }
 
 object ElementValuePair {
@@ -287,21 +318,33 @@ sealed abstract class TypeModifier() extends CST {
 final case class UnknownModifier(value: String) extends TypeModifier
 
 final case class AnnotationModifier(annotation: Annotation) extends TypeModifier {
-  override def children() : List[CST] = annotation :: Nil
+  override def children(): List[CST] = annotation :: Nil
 }
 
 final case class PublicModifier() extends TypeModifier
+
 final case class ProtectedModifier() extends TypeModifier
+
 final case class PrivateModifier() extends TypeModifier
+
 final case class StaticModifier() extends TypeModifier
+
 final case class AbstractModifier() extends TypeModifier
+
 final case class FinalModifier() extends TypeModifier
+
 final case class GlobalModifier() extends TypeModifier
+
 final case class WebserviceModifier() extends TypeModifier
+
 final case class OverrideModifier() extends TypeModifier
+
 final case class VirtualModifier() extends TypeModifier
+
 final case class TestMethodModifier() extends TypeModifier
+
 final case class WithSharingModifier() extends TypeModifier
+
 final case class WithoutSharingModifier() extends TypeModifier
 
 object TypeModifier {
@@ -366,18 +409,17 @@ object Modifier {
 }
 
 final case class NativeModifier() extends Modifier
+
 final case class SynchronizedModifier() extends Modifier
+
 final case class TransientModifier() extends Modifier
 
-// TODO: Do we need the with and why
-sealed abstract class TypeDeclaration() extends CST with Member with BlockStatement
-
-final case class EmptyTypeDeclaration() extends TypeDeclaration {
-  override def children(): List[CST] = Nil
-}
-
 final case class CompilationUnit(types: List[TypeDeclaration]) extends CST {
-  def children() : List[CST] = types
+  def children(): List[CST] = types
+
+  def resolve(index: CSTIndex): Unit = {
+    types.foreach(_.resolve(index))
+  }
 }
 
 object CompilationUnit {
@@ -385,6 +427,17 @@ object CompilationUnit {
     val typeDecls: Seq[TypeDeclarationContext] = compilationUnit.typeDeclaration()
     CompilationUnit(TypeDeclaration.construct(typeDecls.toList)).withContext(compilationUnit)
   }
+}
+
+// Treat TypeDeclarations as ClassBodyDeclarations for inner class, interface & enum
+sealed abstract class TypeDeclaration extends CST with ClassBodyDeclaration {
+  def resolve(index: CSTIndex)
+}
+
+final case class EmptyTypeDeclaration() extends TypeDeclaration {
+  override def children(): List[CST] = Nil
+
+  override def resolve(index: CSTIndex) {}
 }
 
 object TypeDeclaration {
@@ -399,6 +452,7 @@ object TypeDeclaration {
       } else if (typeDecl.enumDeclaration() != null) {
         EnumDeclaration.construct(TypeModifier.construct(modifiers.toList), typeDecl.enumDeclaration())
       } else {
+        // TODO: Empty type declaration?
         throw new CSTException()
       }
     cst.withContext(typeDecl)
@@ -410,10 +464,15 @@ object TypeDeclaration {
 }
 
 final case class ClassDeclaration(name: String, typeModifiers: List[TypeModifier],
-                            extendsType: Option[Type], implementsTypes: TypeList,
-                            bodyDeclarations: List[ClassBodyDeclaration]) extends TypeDeclaration {
-  override def children() : List[CST] = {
+                                  extendsType: Option[Type], implementsTypes: TypeList,
+                                  bodyDeclarations: List[ClassBodyDeclaration]) extends TypeDeclaration {
+  override def children(): List[CST] = {
     typeModifiers ++ extendsType ++ implementsTypes.types ++ bodyDeclarations
+  }
+
+  override def resolve(index: CSTIndex): Unit = {
+    index.add(this)
+    bodyDeclarations.foreach(_.resolve(index))
   }
 }
 
@@ -440,7 +499,7 @@ object ClassDeclaration {
             StaticBlock.construct(cbd.block())
           } else if (cbd.memberDeclaration() != null) {
             val modifiers: Seq[ModifierContext] = cbd.modifier()
-            Member.construct(modifiers.toList, cbd.memberDeclaration())
+            ClassBodyDeclaration.construct(modifiers.toList, cbd.memberDeclaration())
           } else {
             throw new CSTException()
           }
@@ -454,8 +513,13 @@ object ClassDeclaration {
   }
 }
 
+// TODO: Handle body
 final case class InterfaceDeclaration(name: String, typeModifiers: List[TypeModifier], implementsTypes: TypeList) extends TypeDeclaration {
-  override def children() : List[CST] = implementsTypes.types ::: typeModifiers
+  override def children(): List[CST] = implementsTypes.types ::: typeModifiers
+
+  override def resolve(index: CSTIndex): Unit = {
+    index.add(this)
+  }
 }
 
 object InterfaceDeclaration {
@@ -470,8 +534,13 @@ object InterfaceDeclaration {
   }
 }
 
+// TODO: Handle body
 final case class EnumDeclaration(name: String, typeModifiers: List[TypeModifier], implementsTypes: TypeList) extends TypeDeclaration {
   override def children(): List[CST] = typeModifiers ::: implementsTypes.types
+
+  override def resolve(index: CSTIndex): Unit = {
+    index.add(this)
+  }
 }
 
 object EnumDeclaration {
@@ -485,35 +554,16 @@ object EnumDeclaration {
   }
 }
 
-object Block {
-  def construct(blockContext: BlockContext): List[BlockStatement] = {
-    if (blockContext != null && blockContext.blockStatement() != null) {
-      val blockStatements: Seq[BlockStatementContext] = blockContext.blockStatement()
-      BlockStatement.construct(blockStatements.toList)
-    } else {
-      List()
-    }
+trait ClassBodyDeclaration extends CST {
+  def resolve(index: CSTIndex): Unit = {
+    // Default to ignore
   }
 }
 
-trait ClassBodyDeclaration extends CST
-
-final case class StaticBlock(block: List[BlockStatement]) extends ClassBodyDeclaration {
-  override def children() : List[CST] = block
-}
-
-object StaticBlock {
-  def construct(block: BlockContext): StaticBlock = {
-    StaticBlock(Block.construct(block))
-  }
-}
-
-trait Member extends ClassBodyDeclaration
-
-object Member {
-  def construct(modifiers: List[ModifierContext], memberDeclarationContext: MemberDeclarationContext): Member = {
+object ClassBodyDeclaration {
+  def construct(modifiers: List[ModifierContext], memberDeclarationContext: MemberDeclarationContext): ClassBodyDeclaration = {
     val m = Modifier.construct(modifiers)
-    val cst =
+    val cst: ClassBodyDeclaration =
       if (memberDeclarationContext.methodDeclaration() != null) {
         MethodDeclaration.construct(m, memberDeclarationContext.methodDeclaration())
       } else if (memberDeclarationContext.fieldDeclaration() != null) {
@@ -533,12 +583,27 @@ object Member {
       }
     cst.withContext(memberDeclarationContext)
   }
+
+}
+
+final case class StaticBlock(block: List[Statement]) extends ClassBodyDeclaration {
+  override def children(): List[CST] = block
+}
+
+object StaticBlock {
+  def construct(block: BlockContext): StaticBlock = {
+    val statements: Seq[StatementContext] = block.statement()
+    StaticBlock(Statement.construct(statements.toList))
+  }
 }
 
 final case class MethodDeclaration(modifiers: List[TypeModifier], typeRef: Option[TypeRef], id: String, formalParameters: List[FormalParameter],
-                             qualifiedNameList: List[QualifiedName], block: List[BlockStatement]) extends Member {
-  override def children() : List[CST] = {
-    modifiers ++ typeRef ++ formalParameters ++ qualifiedNameList ++ block
+                                   qualifiedNameList: List[QualifiedName], block: Option[Block]) extends ClassBodyDeclaration {
+
+  override def children(): List[CST] = modifiers ++ typeRef ++ formalParameters ++ qualifiedNameList ++ block
+
+  override def resolve(index: CSTIndex): Unit = {
+    index.add(this)
   }
 }
 
@@ -546,21 +611,20 @@ object MethodDeclaration {
   def construct(modifiers: List[TypeModifier], from: MethodDeclarationContext): MethodDeclaration = {
     val typeRef = if (from.typeRef() != null) Some(TypeRef.construct(from.typeRef())) else None
     val qualifiedNameList = if (from.qualifiedNameList() != null) QualifiedNameList.construct(from.qualifiedNameList()) else List()
+    val block = if (from.block != null) Some(Block.construct(from.block)) else None
 
     MethodDeclaration(modifiers,
       typeRef,
       from.id.getText,
       FormalParameters.construct(from.formalParameters()),
       qualifiedNameList,
-      Block.construct(from.block())
+      block
     ).withContext(from)
   }
 }
 
-final case class FieldDeclaration(modifiers: List[TypeModifier], typeRef: TypeRef, variableDeclarators: VariableDeclarators) extends Member {
-  override def children() : List[CST] = {
-    typeRef :: variableDeclarators :: modifiers
-  }
+final case class FieldDeclaration(modifiers: List[TypeModifier], typeRef: TypeRef, variableDeclarators: VariableDeclarators) extends ClassBodyDeclaration {
+  override def children(): List[CST] = typeRef :: variableDeclarators :: modifiers
 }
 
 object FieldDeclaration {
@@ -571,10 +635,8 @@ object FieldDeclaration {
 }
 
 final case class ConstructorDeclaration(modifiers: List[TypeModifier], id: String, formalParameters: List[FormalParameter],
-                                  qualifiedNameList: List[QualifiedName], block: List[BlockStatement]) extends Member {
-  override def children() : List[CST] = {
-    modifiers ++ formalParameters ++ qualifiedNameList ++ block
-  }
+                                        qualifiedNameList: List[QualifiedName], block: Block) extends ClassBodyDeclaration {
+  override def children(): List[CST] = modifiers ++ formalParameters ++ qualifiedNameList ++ List(block)
 }
 
 object ConstructorDeclaration {
@@ -588,10 +650,8 @@ object ConstructorDeclaration {
   }
 }
 
-final case class PropertyDeclaration(modifiers: List[TypeModifier], typeRef: TypeRef, variableDeclarators: VariableDeclarators, propertyDeclaration: PropertyBodyDeclaration) extends Member {
-  override def children() : List[CST] = {
-    typeRef :: variableDeclarators :: propertyDeclaration :: modifiers
-  }
+final case class PropertyDeclaration(modifiers: List[TypeModifier], typeRef: TypeRef, variableDeclarators: VariableDeclarators, propertyDeclaration: PropertyBodyDeclaration) extends ClassBodyDeclaration {
+  override def children(): List[CST] = typeRef :: variableDeclarators :: propertyDeclaration :: modifiers
 }
 
 object PropertyDeclaration {
@@ -602,40 +662,50 @@ object PropertyDeclaration {
   }
 }
 
-trait BlockStatement extends CST
+// Treat Block as Statement for blocks in blocks
+final case class Block(statements: List[Statement]) extends CST with Statement {
+  override def children(): List[CST] = statements
 
-object BlockStatement {
-  def construct(blockStatement: BlockStatementContext): BlockStatement = {
-    val cst = if (blockStatement.typeDeclaration() != null) {
-      TypeDeclaration.construct(blockStatement.typeDeclaration())
-    } else if (blockStatement.statement() != null) {
-      Statement.construct(blockStatement.statement())
-    } else {
-      throw new CSTException()
-    }
-    cst.withContext(blockStatement)
-  }
-
-  def construct(blockStatements: List[BlockStatementContext]): List[BlockStatement] = {
-    blockStatements.map(BlockStatement.construct)
+  override def resolve(context: ResolveContext): Unit = {
+    context.pushBlock()
+    statements.foreach(_.resolve(context))
+    context.popBlock()
   }
 }
 
-sealed abstract class Statement extends BlockStatement
+object Block {
+  def construct(statements: List[StatementContext]): Block = {
+    Block(Statement.construct(statements))
+  }
 
-final case class BlockInStatement(block: List[BlockStatement]) extends Statement {
-  override def children() : List[CST] = block
+  def construct(blockContext: BlockContext): Block = {
+    val statements: Seq[StatementContext] = blockContext.statement()
+    construct(statements.toList)
+  }
+
+  def constructBlocks(blockContexts: List[BlockContext]): List[Block] = {
+    blockContexts.map(construct)
+  }
+
+  def constructOption(blockContext: BlockContext): Option[Block] = {
+    if (blockContext != null)
+      Some(construct(blockContext))
+    else
+      None
+  }
 }
 
-object BlockInStatement {
-  def construct(blockContext: BlockContext): BlockInStatement = {
-    BlockInStatement(Block.construct(blockContext)).withContext(blockContext)
-  }
+trait Statement extends CST {
+  def resolve(context: ResolveContext)
 }
 
 final case class LocalVariableDeclarationStatement(localVariableDeclaration: LocalVariableDeclaration) extends Statement {
-  override def children() : List[CST] = {
+  override def children(): List[CST] = {
     localVariableDeclaration :: Nil
+  }
+
+  override def resolve(context: ResolveContext): Unit = {
+    context.localVar(this)
   }
 }
 
@@ -645,9 +715,15 @@ object LocalVariableDeclarationStatement {
   }
 }
 
-final case class IfStatement(expression: Expression, statement: List[Statement]) extends Statement {
-  override def children() : List[CST] = {
-    expression :: statement
+final case class IfStatement(expression: Expression, statements: List[Statement]) extends Statement {
+  override def children(): List[CST] = {
+    expression :: statements
+  }
+
+  override def resolve(context: ResolveContext): Unit = {
+    context.pushBlock()
+    statements.foreach(_.resolve(context))
+    context.popBlock()
   }
 }
 
@@ -660,8 +736,15 @@ object IfStatement {
 }
 
 final case class ForStatement(control: ForControl, statement: Statement) extends Statement {
-  override def children() : List[CST] = {
+  override def children(): List[CST] = {
     control :: statement :: Nil
+  }
+
+  override def resolve(context: ResolveContext): Unit = {
+    context.pushBlock()
+    control.resolve(context)
+    statement.resolve(context)
+    context.popBlock()
   }
 }
 
@@ -671,7 +754,9 @@ object ForStatement {
   }
 }
 
-sealed abstract class ForControl extends CST
+sealed abstract class ForControl extends CST {
+  def resolve(context: ResolveContext): Unit
+}
 
 object ForControl {
   def construct(from: ForControlContext): ForControl = {
@@ -683,12 +768,17 @@ object ForControl {
       }
     cst.withContext(from)
   }
+
 }
 
 final case class EnhancedForControl(modifiers: List[VariableModifier], typeRef: TypeRef,
                                     variableDeclaratorId: VariableDeclaratorId, expression: Expression) extends ForControl {
-  override def children() : List[CST] = {
+  override def children(): List[CST] = {
     typeRef :: variableDeclaratorId :: expression :: modifiers
+  }
+
+  def resolve(context: ResolveContext): Unit = {
+    context.forVar(variableDeclaratorId)
   }
 }
 
@@ -711,7 +801,11 @@ object EnhancedForControl {
 }
 
 final case class BasicForControl(forInit: Option[ForInit], expression: Option[Expression], forUpdate: Option[ForUpdate]) extends ForControl {
-  override def children() : List[CST] = List[CST]() ++ forInit ++ expression ++ forUpdate
+  override def children(): List[CST] = List[CST]() ++ forInit ++ expression ++ forUpdate
+
+  def resolve(context: ResolveContext): Unit = {
+    context.forVar(forInit)
+  }
 }
 
 object BasicForControl {
@@ -741,13 +835,13 @@ object BasicForControl {
 sealed abstract class ForInit extends CST
 
 final case class LocalVariableForInit(variable: LocalVariableDeclaration) extends ForInit {
-  override def children() : List[CST] = {
+  override def children(): List[CST] = {
     variable :: Nil
   }
 }
 
 final case class ExpressionListForInit(expressions: List[Expression]) extends ForInit {
-  override def children() : List[CST] = {
+  override def children(): List[CST] = {
     expressions
   }
 }
@@ -768,7 +862,7 @@ object ForInit {
 }
 
 final case class ForUpdate(expressions: List[Expression]) extends CST {
-  override def children() : List[CST] = {
+  override def children(): List[CST] = {
     expressions
   }
 }
@@ -781,8 +875,11 @@ object ForUpdate {
 }
 
 final case class WhileStatement(expression: Expression, statement: Statement) extends Statement {
-  override def children() : List[CST] = {
+  override def children(): List[CST] = {
     expression :: statement :: Nil
+  }
+  def resolve(context: ResolveContext): Unit = {
+    statement.resolve(context)
   }
 }
 
@@ -794,8 +891,11 @@ object WhileStatement {
 }
 
 final case class DoWhileStatement(statement: Statement, expression: Expression) extends Statement {
-  override def children() : List[CST] = {
+  override def children(): List[CST] = {
     expression :: statement :: Nil
+  }
+  def resolve(context: ResolveContext): Unit = {
+    statement.resolve(context)
   }
 }
 
@@ -807,30 +907,35 @@ object DoWhileStatement {
   }
 }
 
-final case class TryStatement(block: List[BlockStatement], catches: List[CatchClause], finallyBlock: List[BlockStatement]) extends Statement {
-  override def children() : List[CST] = block ++ catches ++ finallyBlock
+final case class TryStatement(block: Block, catches: List[CatchClause], finallyBlock: Option[Block]) extends Statement {
+  override def children(): List[CST] = List(block) ++ catches ++ finallyBlock
+  def resolve(context: ResolveContext): Unit = {
+    block.resolve(context)
+    catches.foreach(_.resolve(context))
+    finallyBlock.foreach(_.resolve(context))
+  }
 }
 
 object TryStatement {
   def construct(from: TryStatementContext): TryStatement = {
-    val catches : List[CatchClauseContext] = if (from.catchClause()!= null) from.catchClause().toList else List()
+    val catches: List[CatchClauseContext] = if (from.catchClause() != null) from.catchClause().toList else List()
     TryStatement(Block.construct(from.block()), CatchClause.construct(catches),
       FinallyBlock.construct(from.finallyBlock())).withContext(from)
   }
 }
 
 object FinallyBlock {
-  def construct(from: FinallyBlockContext): List[BlockStatement] = {
+  def construct(from: FinallyBlockContext): Option[Block] = {
     if (from != null) {
-      Block.construct(from.block())
+      Some(Block.construct(from.block()))
     } else {
-      List()
+      None
     }
   }
 }
 
 final case class CatchType(names: List[QualifiedName]) extends CST {
-  override def children() : List[CST] = {
+  override def children(): List[CST] = {
     names
   }
 }
@@ -842,8 +947,11 @@ object CatchType {
   }
 }
 
-final case class CatchClause(modifiers: List[VariableModifier], catchType: CatchType, id: String, block: List[BlockStatement]) extends CST {
-  override def children() : List[CST] = modifiers ++ List(catchType) ++ block
+final case class CatchClause(modifiers: List[VariableModifier], catchType: CatchType, id: String, block: Block) extends CST {
+  override def children(): List[CST] = modifiers ++ List(catchType) ++ List(block)
+  def resolve(context: ResolveContext): Unit = {
+    block.resolve(context)
+  }
 }
 
 object CatchClause {
@@ -867,7 +975,8 @@ object CatchClause {
 }
 
 final case class ReturnStatement(expression: Option[Expression]) extends Statement {
-  override def children() : List[CST] = List() ++ expression
+  override def children(): List[CST] = List() ++ expression
+  def resolve(context: ResolveContext): Unit = {} // Nothing to do
 }
 
 object ReturnStatement {
@@ -883,9 +992,8 @@ object ReturnStatement {
 }
 
 final case class ThrowStatement(expression: Expression) extends Statement {
-  override def children() : List[CST] = {
-    expression :: Nil
-  }
+  override def children(): List[CST] = Nil
+  def resolve(context: ResolveContext): Unit = {} // Nothing to do
 }
 
 object ThrowStatement {
@@ -895,9 +1003,8 @@ object ThrowStatement {
 }
 
 final case class BreakStatement(id: String) extends Statement {
-  override def children() : List[CST] = {
-     Nil
-  }
+  override def children(): List[CST] = Nil
+  def resolve(context: ResolveContext): Unit = {} // Nothing to do
 }
 
 object BreakStatement {
@@ -913,9 +1020,8 @@ object BreakStatement {
 }
 
 final case class ContinueStatement(id: String) extends Statement {
-  override def children() : List[CST] = {
-    Nil
-  }
+  override def children(): List[CST] = Nil
+  def resolve(context: ResolveContext): Unit = {} // Nothing to do
 }
 
 object ContinueStatement {
@@ -931,9 +1037,8 @@ object ContinueStatement {
 }
 
 final case class InsertStatement(expression: Expression) extends Statement {
-  override def children() : List[CST] = {
-    expression :: Nil
-  }
+  override def children(): List[CST] = expression :: Nil
+  def resolve(context: ResolveContext): Unit = {} // Nothing to do
 }
 
 object InsertStatement {
@@ -943,9 +1048,8 @@ object InsertStatement {
 }
 
 final case class UpdateStatement(expression: Expression) extends Statement {
-  override def children() : List[CST] = {
-    expression :: Nil
-  }
+  override def children(): List[CST] = expression :: Nil
+  def resolve(context: ResolveContext): Unit = {} // Nothing to do
 }
 
 object UpdateStatement {
@@ -955,9 +1059,8 @@ object UpdateStatement {
 }
 
 final case class DeleteStatement(expression: Expression) extends Statement {
-  override def children() : List[CST] = {
-    expression :: Nil
-  }
+  override def children(): List[CST] = expression :: Nil
+  def resolve(context: ResolveContext): Unit = {} // Nothing to do
 }
 
 object DeleteStatement {
@@ -967,9 +1070,8 @@ object DeleteStatement {
 }
 
 final case class UndeleteStatement(expression: Expression) extends Statement {
-  override def children() : List[CST] = {
-    expression :: Nil
-  }
+  override def children(): List[CST] = expression :: Nil
+  def resolve(context: ResolveContext): Unit = {} // Nothing to do
 }
 
 object UndeleteStatement {
@@ -979,9 +1081,8 @@ object UndeleteStatement {
 }
 
 final case class UpsertStatement(expression: Expression, id: String) extends Statement {
-  override def children() : List[CST] = {
-    expression :: Nil
-  }
+  override def children(): List[CST] = expression :: Nil
+  def resolve(context: ResolveContext): Unit = {} // Nothing to do
 }
 
 object UpsertStatement {
@@ -995,9 +1096,8 @@ object UpsertStatement {
 }
 
 final case class MergeStatement(expression1: Expression, expression2: Expression) extends Statement {
-  override def children() : List[CST] = {
-    expression1 :: expression2 :: Nil
-  }
+  override def children(): List[CST] = expression1 :: expression2 :: Nil
+  def resolve(context: ResolveContext): Unit = {} // Nothing to do
 }
 
 object MergeStatement {
@@ -1006,8 +1106,11 @@ object MergeStatement {
   }
 }
 
-final case class RunAsStatement(expressions: List[Expression], block: List[BlockStatement]) extends Statement {
-  override def children() : List[CST] = expressions ++ block
+final case class RunAsStatement(expressions: List[Expression], block: Option[Block]) extends Statement {
+  override def children(): List[CST] = expressions ++ block
+  def resolve(context: ResolveContext): Unit = {
+    block.foreach(_.resolve(context))
+  }
 }
 
 object RunAsStatement {
@@ -1019,12 +1122,14 @@ object RunAsStatement {
       } else {
         List()
       }
-    RunAsStatement(expressions, Block.construct(statement.block())).withContext(statement)
+    val block = if (statement.block() != null) Some(Block.construct(statement.block())) else None
+    RunAsStatement(expressions, block).withContext(statement)
   }
 }
 
 final case class EmptyStatement() extends Statement {
-  override def children() : List[CST] = Nil
+  override def children(): List[CST] = Nil
+  def resolve(context: ResolveContext): Unit = {} // Nothing to do
 }
 
 object EmptyStatement {
@@ -1034,7 +1139,8 @@ object EmptyStatement {
 }
 
 final case class ExpressionStatement(expression: Expression) extends Statement {
-  override def children() : List[CST] = expression :: Nil
+  override def children(): List[CST] = expression :: Nil
+  def resolve(context: ResolveContext): Unit = {} // Nothing to do
 }
 
 object ExpressionStatement {
@@ -1044,7 +1150,8 @@ object ExpressionStatement {
 }
 
 final case class IdStatement(id: String, statement: Statement) extends Statement {
-  override def children() : List[CST] = statement :: Nil
+  override def children(): List[CST] = statement :: Nil
+  def resolve(context: ResolveContext): Unit = {} // Nothing to do
 }
 
 object IdStatement {
@@ -1057,7 +1164,7 @@ object Statement {
   def construct(statement: StatementContext): Statement = {
     val cst =
       if (statement.block() != null) {
-        BlockInStatement.construct(statement.block())
+        Block.construct(statement.block())
       } else if (statement.localVariableDeclarationStatement() != null) {
         LocalVariableDeclarationStatement.construct(statement.localVariableDeclarationStatement())
       } else if (statement.ifStatement() != null) {
@@ -1112,15 +1219,15 @@ object Statement {
 sealed abstract class VariableModifier extends CST
 
 final case class FinalVariableModifier() extends VariableModifier {
-  override def children() : List[CST] = Nil
+  override def children(): List[CST] = Nil
 }
 
 final case class AnnotationVariableModifier(annotation: Annotation) extends VariableModifier {
-  override def children() : List[CST] = annotation :: Nil
+  override def children(): List[CST] = annotation :: Nil
 }
 
 object VariableModifier {
-  def construct(variableModifierContext: VariableModifierContext) : VariableModifier = {
+  def construct(variableModifierContext: VariableModifierContext): VariableModifier = {
     if (variableModifierContext.annotation() != null) {
       AnnotationVariableModifier(Annotation.construct(variableModifierContext.annotation())).withContext(variableModifierContext)
     } else {
@@ -1134,11 +1241,11 @@ object VariableModifier {
 }
 
 final case class VariableDeclaratorId(id: String, arrayArgs: Integer) extends CST {
-  override def children() : List[CST] = Nil
+  override def children(): List[CST] = Nil
 }
 
 object VariableDeclaratorId {
-  def construct(variableDeclaratorIdContext: VariableDeclaratorIdContext) : VariableDeclaratorId = {
+  def construct(variableDeclaratorIdContext: VariableDeclaratorIdContext): VariableDeclaratorId = {
     val id = variableDeclaratorIdContext.id().getText
     val arrayPairs = variableDeclaratorIdContext.arraySubscripts().getText.count(_ == '[')
     VariableDeclaratorId(id, arrayPairs).withContext(variableDeclaratorIdContext)
@@ -1166,11 +1273,11 @@ object VariableInitializer {
 }
 
 final case class ArrayVariableInitializer(variableInitializers: List[VariableInitializer]) extends VariableInitializer {
-  override def children() : List[CST] = variableInitializers
+  override def children(): List[CST] = variableInitializers
 }
 
 final case class ExpressionVariableInitializer(expression: Expression) extends VariableInitializer {
-  override def children() : List[CST] = expression :: Nil
+  override def children(): List[CST] = expression :: Nil
 }
 
 object ArrayVariableInitializer {
@@ -1183,7 +1290,7 @@ object ArrayVariableInitializer {
 }
 
 final case class VariableDeclarator(id: VariableDeclaratorId, init: Option[VariableInitializer]) extends CST {
-  override def children() : List[CST] = List[CST](id) ++ init
+  override def children(): List[CST] = List[CST](id) ++ init
 }
 
 object VariableDeclarator {
@@ -1199,7 +1306,7 @@ object VariableDeclarator {
 }
 
 final case class VariableDeclarators(declarators: List[VariableDeclarator]) extends CST {
-  override def children() : List[CST] = declarators
+  override def children(): List[CST] = declarators
 }
 
 object VariableDeclarators {
@@ -1212,11 +1319,11 @@ object VariableDeclarators {
 sealed abstract class TypeRef extends CST
 
 final case class ClassOrInterfaceTypeRef(classOrInterfaceType: ClassOrInterfaceType, arraySubs: Integer) extends TypeRef {
-  override def children() : List[CST] = classOrInterfaceType :: Nil
+  override def children(): List[CST] = classOrInterfaceType :: Nil
 }
 
 final case class PrimitiveTypeRef(primitiveType: PrimitiveType) extends TypeRef {
-  override def children() : List[CST] = primitiveType :: Nil
+  override def children(): List[CST] = primitiveType :: Nil
 }
 
 object TypeRef {
@@ -1239,7 +1346,7 @@ object TypeRef {
 }
 
 final case class LocalVariableDeclaration(modifiers: List[VariableModifier], typeRef: TypeRef, variableDeclarators: VariableDeclarators) extends CST {
-  override def children() : List[CST] = modifiers ::: (typeRef :: variableDeclarators :: Nil)
+  override def children(): List[CST] = modifiers ::: (typeRef :: variableDeclarators :: Nil)
 }
 
 object LocalVariableDeclaration {
@@ -1258,12 +1365,12 @@ object LocalVariableDeclaration {
 
 sealed abstract class PropertyBlock extends CST
 
-final case class GetterPropertyBlock(modifiers: List[TypeModifier], block: List[BlockStatement]) extends PropertyBlock {
-  override def children() : List[CST] = modifiers ++ block
+final case class GetterPropertyBlock(modifiers: List[TypeModifier], block: Option[Block]) extends PropertyBlock {
+  override def children(): List[CST] = modifiers ++ block
 }
 
-final case class SetterPropertyBlock(modifiers: List[TypeModifier], block: List[BlockStatement]) extends PropertyBlock {
-  override def children() : List[CST] = modifiers ++ block
+final case class SetterPropertyBlock(modifiers: List[TypeModifier], block: Option[Block]) extends PropertyBlock {
+  override def children(): List[CST] = modifiers ++ block
 }
 
 object PropertyBlock {
@@ -1271,9 +1378,9 @@ object PropertyBlock {
     val modifiers: Seq[ModifierContext] = propertyBlockContext.modifier()
     val cst =
       if (propertyBlockContext.getter() != null) {
-        GetterPropertyBlock(Modifier.construct(modifiers.toList), Block.construct(propertyBlockContext.getter().block()))
+        GetterPropertyBlock(Modifier.construct(modifiers.toList), Block.constructOption(propertyBlockContext.getter().block()))
       } else if (propertyBlockContext.setter() != null) {
-        SetterPropertyBlock(Modifier.construct(modifiers.toList), Block.construct(propertyBlockContext.setter().block()))
+        SetterPropertyBlock(Modifier.construct(modifiers.toList), Block.constructOption(propertyBlockContext.setter().block()))
       } else {
         throw new CSTException()
       }
@@ -1282,7 +1389,7 @@ object PropertyBlock {
 }
 
 final case class PropertyBodyDeclaration(propertyBlocks: List[PropertyBlock]) extends CST {
-  override def children() : List[CST] = propertyBlocks
+  override def children(): List[CST] = propertyBlocks
 }
 
 object PropertyBodyDeclaration {
@@ -1293,7 +1400,7 @@ object PropertyBodyDeclaration {
 }
 
 final case class FormalParameter(modifiers: List[VariableModifier], typeRef: TypeRef, variableDeclaratorId: VariableDeclaratorId) extends CST {
-  override def children() : List[CST] = modifiers ::: (typeRef :: variableDeclaratorId :: Nil)
+  override def children(): List[CST] = modifiers ::: (typeRef :: variableDeclaratorId :: Nil)
 }
 
 object FormalParameter {
@@ -1340,15 +1447,15 @@ trait ExpressionRHS extends CST
 sealed abstract class Expression extends CST
 
 final case class LHSExpression(lhs: Expression, rhs: ExpressionRHS) extends Expression {
-  override def children() : List[CST] = lhs :: rhs :: Nil
+  override def children(): List[CST] = lhs :: rhs :: Nil
 }
 
-final case class QName(ids : List[String]) extends Expression {
-  override def children() : List[CST] = Nil
+final case class QName(ids: List[String]) extends Expression {
+  override def children(): List[CST] = Nil
 }
 
 final case class FunctionCall(callee: Expression, arguments: List[Expression]) extends Expression {
-  override def children() : List[CST] = callee :: arguments
+  override def children(): List[CST] = callee :: arguments
 }
 
 final case class NewExpression(creator: Creator) extends Expression {
@@ -1415,9 +1522,9 @@ object Expression {
           val lHSExpression = Expression.construct(alt1.expression())
           lHSExpression match {
             case PrimaryExpression(Identifier(id)) =>
-              QName(id :: alt1.id().getText() :: Nil)
+              QName(id :: alt1.id().getText :: Nil)
             case QName(ids) =>
-              QName(ids ::: (alt1.id().getText() :: Nil))
+              QName(ids ::: (alt1.id().getText :: Nil))
             case _ =>
               LHSExpression(Expression.construct(alt1.expression()), RHSId(alt1.id().getText))
           }
@@ -1548,8 +1655,7 @@ object TypeArguments {
   }
 }
 
-final case class ClassCreatorRest(arguments: List[Expression], expressionList: List[Expression]) extends CST
-{
+final case class ClassCreatorRest(arguments: List[Expression], expressionList: List[Expression]) extends CST {
   override def children(): List[CST] = arguments ::: expressionList
 }
 
@@ -1698,7 +1804,7 @@ object LiteralOrExpression {
 }
 
 final case class InnerCreator(nonWildcardTypeArgumentsOrDiamond: Option[NonWildcardTypeArgumentsOrDiamond],
-                        classCreatorRest: ClassCreatorRest) extends CST {
+                              classCreatorRest: ClassCreatorRest) extends CST {
   override def children(): List[CST] = List[CST]() ++ nonWildcardTypeArgumentsOrDiamond ++ List(classCreatorRest)
 }
 
@@ -1787,7 +1893,7 @@ object ExplicitGenericInvocationSuffix {
 }
 
 final case class ExplicitGenericInvocation(nonWildcardTypeArguments: NonWildcardTypeArguments,
-                                     explicitGenericInvocationSuffix: ExplicitGenericInvocationSuffix) extends CST {
+                                           explicitGenericInvocationSuffix: ExplicitGenericInvocationSuffix) extends CST {
   override def children(): List[CST] = nonWildcardTypeArguments :: explicitGenericInvocationSuffix :: Nil
 }
 
@@ -1803,12 +1909,12 @@ object ExplicitGenericInvocation {
 sealed abstract class Creator extends CST
 
 final case class Alt1Creator(nonWildcardTypeArguments: NonWildcardTypeArguments, createdName: CreatedName,
-                       classCreatorRest: ClassCreatorRest) extends Creator {
+                             classCreatorRest: ClassCreatorRest) extends Creator {
   override def children(): List[CST] = nonWildcardTypeArguments :: createdName :: classCreatorRest :: Nil
 }
 
 final case class Alt2Creator(createdName: CreatedName, arrayCreatorRest: Option[ArrayCreatorRest], classCreatorRest: Option[ClassCreatorRest],
-                       mapCreatorRest: Option[MapCreatorRest], setCreatorRest: Option[SetCreatorRest]) extends Creator {
+                             mapCreatorRest: Option[MapCreatorRest], setCreatorRest: Option[SetCreatorRest]) extends Creator {
   override def children(): List[CST] = List[CST](createdName) ++ arrayCreatorRest ++ classCreatorRest ++ mapCreatorRest ++ setCreatorRest
 }
 
@@ -1886,42 +1992,49 @@ sealed abstract class Primary extends CST
 
 final case class ExpressionPrimary(expression: Expression) extends Primary {
   override def children(): List[CST] = expression :: Nil
+
   override def getType(ctx: TypeContext): Type = expression.getType(ctx)
 }
 
 final case class ThisPrimary() extends Primary {
   override def children(): List[CST] = Nil
+
   override def getType(ctx: TypeContext): Type = ctx.thisType
 }
 
 final case class SuperPrimary() extends Primary {
   override def children(): List[CST] = Nil
+
   override def getType(ctx: TypeContext): Type = ctx.superType
 }
 
 final case class LiteralPrimary(literal: Literal) extends Primary {
   override def children(): List[CST] = literal :: Nil
+
   override def getType(ctx: TypeContext): Type = literal.getType(ctx)
 }
 
 final case class Identifier(id: String) extends Primary {
   override def children(): List[CST] = Nil
+
   override def getType(ctx: TypeContext): Type = ctx.getIdentifierType(id)
 }
 
 final case class TypeRefClassPrimary(typeRef: TypeRef) extends Primary {
   override def children(): List[CST] = typeRef :: Nil
+
   override def getType(ctx: TypeContext): Type = ClassType(typeRef)
 }
 
 final case class VoidClassPrimary() extends Primary {
   override def children(): List[CST] = Nil
+
   override def getType(ctx: TypeContext): Type = VoidClassType()
 }
 
 final case class MethodPrimary(nonWildcardTypeArguments: NonWildcardTypeArguments,
-                         explicitGenericInvocationSuffix: Option[ExplicitGenericInvocationSuffix], arguments: List[Expression]) extends Primary {
-  override def children(): List[CST] = List[CST](nonWildcardTypeArguments) ++ explicitGenericInvocationSuffix  ++arguments
+                               explicitGenericInvocationSuffix: Option[ExplicitGenericInvocationSuffix], arguments: List[Expression]) extends Primary {
+  override def children(): List[CST] = List[CST](nonWildcardTypeArguments) ++ explicitGenericInvocationSuffix ++ arguments
 }
 
 final case class SOQLPrimary(soqlLiteral: SOQLLiteral) extends Primary {
