@@ -85,6 +85,7 @@ classOrInterfaceModifier
 
 variableModifier
     :   'final'
+    |   'transient'
     |   annotation
     ;
 
@@ -669,6 +670,7 @@ id
 
     |  'new'
     |  'withsharing'
+    |  'withoutsharing'
     |  'for'
     ;
 

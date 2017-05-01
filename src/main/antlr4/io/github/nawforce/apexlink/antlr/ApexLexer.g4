@@ -69,7 +69,6 @@ FOR           : 'for';
 IF            : 'if';
 GOTO          : 'goto';
 IMPLEMENTS    : 'implements';
-IMPORT        : 'import';
 INSTANCEOF    : 'instanceof';
 INT           : 'int';
 INTERFACE     : 'interface';
