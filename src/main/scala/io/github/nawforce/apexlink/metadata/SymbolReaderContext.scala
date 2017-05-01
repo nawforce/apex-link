@@ -33,7 +33,7 @@ import io.github.nawforce.apexlink.utils.LinkerLog
 
 import scala.collection.mutable
 
-class SymbolReaderContext(val baseDir: Path) {
+class SymbolReaderContext(val baseDir: Path, verbose: Boolean) {
 
   private val _labels = mutable.HashMap[String, Label]()
   private val _customObjects = mutable.HashMap[String, CustomObject]()
@@ -42,43 +42,41 @@ class SymbolReaderContext(val baseDir: Path) {
 
   require(Files.isDirectory(baseDir), "Expecting to see a directory at '" + baseDir.toString + "'")
 
-  def getBaseDir : Path = {
-    baseDir
-  }
+  def getBaseDir: Path = baseDir
 
-  def getClasses : Map[String, ApexClass] = {
-    _apexClasses.toMap
-  }
+  def isVerbose: Boolean = verbose
 
-  def addLabel(label: Label) : Unit = {
+  def getClasses: Map[String, ApexClass] = _apexClasses.toMap
+
+  def addLabel(label: Label): Unit = {
     if (_labels.get(label.fullName).isDefined)
       LinkerLog.logMessage(label.location, "Duplicate label found for '" + label.fullName + "'")
     else
       _labels.put(label.fullName, label)
   }
 
-  def addCustomObject(customObject: CustomObject) : Unit = {
+  def addCustomObject(customObject: CustomObject): Unit = {
     if (_customObjects.get(customObject.fullName).isDefined)
       LinkerLog.logMessage(customObject.location, "Duplicate custom object found for '" + customObject.fullName + "'")
     else
       _customObjects.put(customObject.fullName, customObject)
   }
 
-  def addPage(page: Page) : Unit = {
+  def addPage(page: Page): Unit = {
     if (_pages.get(page.fullName).isDefined)
       LinkerLog.logMessage(page.location, "Duplicate page found for '" + page.fullName + "'")
     else
       _pages.put(page.fullName, page)
   }
 
-  def addApexClass(apexClass: ApexClass) : Unit = {
+  def addApexClass(apexClass: ApexClass): Unit = {
     if (_apexClasses.get(apexClass.fullName).isDefined)
       LinkerLog.logMessage(apexClass.location, "Duplicate class found for '" + apexClass.fullName + "'")
     else
       _apexClasses.put(apexClass.fullName, apexClass)
   }
 
-  def report() : Unit  = {
+  def report(): Unit = {
     System.out.println("Labels loaded: " + _labels.size)
     System.out.println("CustomObjects loaded: " + _customObjects.size)
     System.out.println("Pages loaded: " + _pages.size)

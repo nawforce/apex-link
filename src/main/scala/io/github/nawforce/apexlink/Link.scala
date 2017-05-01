@@ -37,7 +37,7 @@ import io.github.nawforce.apexlink.utils.LinkerLog
 object Link {
   private val usage =
     """
-      |Usage -transform <transform> <directory>
+      |Usage [-verbose] -transform <transform> <directory>
     """.stripMargin
 
   def main(args: Array[String]): Unit = {
@@ -48,6 +48,7 @@ object Link {
     type OptionMap = Map[String, Any]
 
     class Options {
+      var isVerbose = false
       var transforms : List[String] = List[String]()
       var unknown : List[String] = List[String]()
     }
@@ -55,6 +56,7 @@ object Link {
     def nextOption(options: Options, list: List[String]): Options = {
       list match {
         case Nil => options
+        case "-verbose" :: tail => options.isVerbose = true; nextOption(options, tail)
         case "-transform" :: value :: tail => options.transforms = value :: options.transforms; nextOption(options, tail)
         case value :: tail => options.unknown = value :: options.unknown; nextOption(options, tail)
       }
@@ -74,7 +76,7 @@ object Link {
 
     // Load from passed directory
     println("Loading from " + directory)
-    val ctx = new SymbolReaderContext(directory)
+    val ctx = new SymbolReaderContext(directory, options.isVerbose)
     new LabelReader().loadSymbols(ctx)
     new CustomObjectReader().loadSymbols(ctx)
     // TODO: Re-enable page reading with HTML parser

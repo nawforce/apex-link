@@ -79,6 +79,7 @@ class ApexClassReader extends SymbolReader {
   }
 
   def loadApexClass(ctx: SymbolReaderContext, fullName: String, path: Path) : Option[ApexClass] = {
+    if (ctx.isVerbose) println("Loading " + path)
     LinkerLog.pushContext(path.toString)
     try {
       ApexClass.create(fullName, path.toString)
