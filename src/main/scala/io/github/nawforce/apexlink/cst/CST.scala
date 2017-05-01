@@ -1586,7 +1586,7 @@ object Expression {
             case QName(ids) =>
               QName(ids ::: (alt1.id().getText :: Nil))
             case _ =>
-              LHSExpression(Expression.construct(alt1.expression()), RHSId(alt1.id().getText))
+              LHSExpression(lHSExpression, RHSId(alt1.id().getText))
           }
         case alt2: Alt2ExpressionContext =>
           LHSExpression(Expression.construct(alt2.expression()), RHSThis())
