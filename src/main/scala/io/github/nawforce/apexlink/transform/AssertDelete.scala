@@ -42,11 +42,16 @@ class AssertDelete {
 
   def exec(ctx: SymbolReaderContext, fileChanger: FileChanger): Unit = {
     ctx.getClasses.values.foreach((apexClass: ApexClass) => {
-      apexClass.statements.foreach {
-        case e@ExpressionStatement(FunctionCall(QName(ci"system" :: ci"assert" :: Nil), _)) =>
-          fileChanger.addChange(apexClass.location.filepath, e.start(), e.end(), None)
-        case _ => None
-      }
+      // TODO: This just searches methods, should really include static code as well
+      apexClass.methodDeclarations.foreach((method : MethodDeclaration) => {
+        method.findExpressions(true).foreach((expr: Expression) => {
+          expr match {
+            case call@FunctionCall(QName(ci"system" :: ci"assert" :: Nil), _) =>
+              fileChanger.addChange(apexClass.location.filepath, call.start(), call.end(), None)
+            case _ => None
+          }
+        })
+      })
     })
   }
 }

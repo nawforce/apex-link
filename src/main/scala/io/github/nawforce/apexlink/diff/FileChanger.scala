@@ -33,11 +33,11 @@ import scala.io.Source
 case class Delta(start: Long, stop: Long, replace: Option[String]) {
 
   def contains(at: Long): Boolean = {
-    at >= start && at <= stop
+    at >= start && at <= stop && stop != -1
   }
 
   def disjoint(other: Delta): Boolean = {
-    start > other.stop || stop < other.start
+    stop == -1 || other.stop == -1 || (start > other.stop || stop < other.start)
   }
 }
 
@@ -79,12 +79,24 @@ class FileChanger {
 
       atChar = atChar - 1
       if (reverseDeltas.length > atDelta) {
-        if (atChar < reverseDeltas(atDelta).start) {
+        val delta = reverseDeltas(atDelta)
+        if (atChar < delta.start) {
+          if (delta.replace.isDefined) {
+            contents.append(preWhitespace(source, atChar).reverse)
+            contents.append(reverseDeltas(atDelta).replace.getOrElse("").reverse)
+          }
           atDelta = atDelta + 1
         }
       }
     }
     contents.reverse.toArray
+  }
+
+  private def preWhitespace(source: Array[Char], atChar: Integer) : String = {
+    source(atChar) match {
+      case ' ' | '\t' => preWhitespace(source, atChar-1) + source(atChar)
+      case _ => ""
+    }
   }
 }
 

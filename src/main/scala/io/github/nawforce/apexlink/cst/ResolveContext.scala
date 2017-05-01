@@ -27,18 +27,44 @@
 */
 package io.github.nawforce.apexlink.cst
 
-class ResolveContext(index: CSTIndex, parentScope: ResolveContext = null) {
+import io.github.nawforce.apexlink.utils.LinkerException
 
-  def newScope(): Unit = {}
+import scala.collection.mutable
 
-  def pushBlock(): Unit = {}
+trait VarIntroducer {
+  private var assignments : List[Expression] = Nil
 
-  def popBlock(): Unit = {}
+  def addAssign(statement: Expression) : Unit = {
+    assignments = statement :: assignments
+  }
 
-  def localVar(localVar: LocalVariableDeclarationStatement): Unit = {}
+  def getAssignments() : List[Expression] = assignments
+}
 
-  def forVar(varDecl: VariableDeclaratorId): Unit = {}
+case class VarDeclaration(name: Identifier, typeRef: TypeRef, introducer: VarIntroducer) {
+  def addAssign(statement: Expression): Unit = introducer.addAssign(statement)
+}
 
-  def forVar(forInit: Option[ForInit]): Unit = {}
+class ResolveStmtContext(index: CSTIndex, parentScope: ResolveStmtContext = null) {
 
+  private var vars: List[VarDeclaration] = Nil
+  private val blockStack: mutable.Stack[List[VarDeclaration]] = mutable.Stack()
+
+  def pushBlock(): Unit = blockStack.push(vars)
+
+  def popBlock(): Unit = vars = blockStack.pop()
+
+  def complete(): Unit = if (blockStack.nonEmpty) throw new LinkerException()
+
+  def addVarDeclaration(varDeclaration: VarDeclaration) : Unit = vars = varDeclaration :: vars
+
+  def getVarDeclaration(name : String) : Option[VarDeclaration] = {
+    vars.find(_.name.text.compareToIgnoreCase(name)==0)
+  }
+}
+
+class ResolveExprContext(stmtContext: ResolveStmtContext) {
+  def getVarDeclaration(name : String) : Option[VarDeclaration] = {
+    stmtContext.getVarDeclaration(name)
+  }
 }

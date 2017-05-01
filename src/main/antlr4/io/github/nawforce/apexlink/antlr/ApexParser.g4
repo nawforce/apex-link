@@ -225,11 +225,7 @@ variableDeclarators
     ;
 
 variableDeclarator
-    :   variableDeclaratorId ('=' variableInitializer)?
-    ;
-
-variableDeclaratorId
-    :   id arraySubscripts
+    :   id ('=' variableInitializer)?
     ;
 
 variableInitializer
@@ -286,7 +282,7 @@ formalParameterList
     ;
 
 formalParameter
-    :   variableModifier* typeRef variableDeclaratorId
+    :   variableModifier* typeRef id
     ;
 
 qualifiedName
@@ -474,7 +470,7 @@ forInit
     ;
 
 enhancedForControl
-    :   variableModifier* typeRef variableDeclaratorId ':' expression
+    :   variableModifier* typeRef id ':' expression
     ;
 
 forUpdate

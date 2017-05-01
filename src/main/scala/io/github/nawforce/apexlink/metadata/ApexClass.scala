@@ -42,29 +42,7 @@ case class ApexClass(location: Location, fullName: String, compilationUnit: Comp
 
   compilationUnit.resolve(index)
 
-  def methodDeclarations : mutable.Set[CST] = index.get("MethodDeclaration")
-
-  def expressions : List[Expression] = {
-    expressions(compilationUnit)
-  }
-
-  def statements : List[Statement] = {
-    statements(compilationUnit)
-  }
-
-  private def expressions(cst: CST) : List[Expression] = {
-    cst match {
-      case e: Expression => List(e)
-      case _ => cst.children().flatMap(x => expressions(x))
-    }
-  }
-
-  private def statements(cst: CST) : List[Statement] = {
-    cst match {
-      case s: Statement => List(s)
-      case _ => cst.children().flatMap(x => statements(x))
-    }
-  }
+  def methodDeclarations : mutable.Set[MethodDeclaration] = index.get("MethodDeclaration").collect {case x:MethodDeclaration => x}
 }
 
 object ApexClass {
