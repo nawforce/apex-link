@@ -175,7 +175,7 @@ methodDeclaration
     ;
 
 constructorDeclaration
-    :   id formalParameters block
+    :   qualifiedName formalParameters block
     ;
 
 fieldDeclaration

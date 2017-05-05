@@ -36,6 +36,6 @@ object ParseClasses {
   def main(args: Array[String]): Unit = {
     val ctx = new SymbolReaderContext(Paths.get(args.head), true)
     new ApexClassReader().loadSymbolsFrom(ctx, Paths.get(args.head))
-    LinkerLog.dumpMessage()
+    LinkerLog.dumpMessages()
   }
 }

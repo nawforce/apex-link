@@ -37,19 +37,21 @@ class CustomObjectReader extends SymbolReader {
   override def loadSymbols(ctx: SymbolReaderContext): Unit = {
     try {
       val objectsDir = ctx.getBaseDir.resolve("objects")
-      LinkerLog.ifNotLogAndThrow(Files.isDirectory(objectsDir), 0, "Objects directory is not present")
+      if (Files.exists(objectsDir)) {
+        LinkerLog.ifNotLogAndThrow(Files.isDirectory(objectsDir), 0, "objects is present but not a directory")
 
-      val traverse = new TraversePath(objectsDir)
-      traverse foreach {
-        case (file: Path, attr: BasicFileAttributes) =>
-          if (attr.isRegularFile && file.toString.endsWith(".object")) {
-            loadObject(ctx, file.getFileName.toString.replaceFirst(".object$", ""), file)
-          } else if (attr.isRegularFile) {
-            if (!isIgnoreable(file))
-              LinkerLog.logMessage(file.toString, 0, "Unexpected file in objects directory")
-          } else {
-            LinkerLog.logMessage(file.toString, 0, "Only expected to find files in objects directory")
-          }
+        val traverse = new TraversePath(objectsDir)
+        traverse foreach {
+          case (file: Path, attr: BasicFileAttributes) =>
+            if (attr.isRegularFile && file.toString.endsWith(".object")) {
+              loadObject(ctx, file.getFileName.toString.replaceFirst(".object$", ""), file)
+            } else if (attr.isRegularFile) {
+              if (!isIgnoreable(file))
+                LinkerLog.logMessage(file.toString, 0, "Unexpected file in objects directory")
+            } else {
+              LinkerLog.logMessage(file.toString, 0, "Only expected to find files in objects directory")
+            }
+        }
       }
     }
     catch {

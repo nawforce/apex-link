@@ -40,7 +40,7 @@ case class CustomObject(location: Location, fullName: String, fields: List[Custo
 
 }
 
-case class CustomObjectField(location: Location, fullName: String, typeName: String) extends Symbol {
+case class CustomObjectField(location: Location, fullName: String, typeName: Option[String]) extends Symbol {
 
   lazy val scopedName : String = parent.get.scopedName + "." + fullName
 
@@ -58,10 +58,10 @@ object CustomObject {
     implicit def optToBool(opt: Option[_]): Boolean = opt.isDefined
 
     val fullName: Option[String] = XMLUtils.getSingleChildAsString(elem, "fullName")
-    val typeName: Option[String] = XMLUtils.getSingleChildAsString(elem, "type")
+    val typeName: Option[String] = XMLUtils.getOptionalSingleChildAsString(elem, "type")
 
     if (fullName && typeName)
-      Some(CustomObjectField(XMLUtils.getLocation(elem), fullName.get, typeName.get))
+      Some(CustomObjectField(XMLUtils.getLocation(elem), fullName.get, typeName))
     else
       None
   }

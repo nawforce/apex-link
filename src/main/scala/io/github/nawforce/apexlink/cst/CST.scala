@@ -637,7 +637,8 @@ object FieldDeclaration {
   }
 }
 
-final case class ConstructorDeclaration(modifiers: List[TypeModifier], id: String, formalParameters: List[FormalParameter],
+final case class ConstructorDeclaration(modifiers: List[TypeModifier], qualifiedName: QualifiedName,
+                                        formalParameters: List[FormalParameter],
                                          block: Block) extends ClassBodyDeclaration {
   override def children(): List[CST] = modifiers ++ formalParameters ++ List(block)
 }
@@ -645,7 +646,7 @@ final case class ConstructorDeclaration(modifiers: List[TypeModifier], id: Strin
 object ConstructorDeclaration {
   def construct(modifiers: List[TypeModifier], from: ConstructorDeclarationContext): ConstructorDeclaration = {
     ConstructorDeclaration(modifiers,
-      from.id().getText,
+      QualifiedName.construct(from.qualifiedName()),
       FormalParameters.construct(from.formalParameters()),
       Block.construct(from.block())
     ).withContext(from)
