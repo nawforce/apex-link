@@ -2102,8 +2102,8 @@ final case class MethodPrimary(nonWildcardTypeArguments: NonWildcardTypeArgument
   override def children(): List[CST] = List[CST](nonWildcardTypeArguments) ++ explicitGenericInvocationSuffix ++ arguments
 }
 
-final case class SOQLPrimary(soqlLiteral: SOQLLiteral) extends Primary {
-  override def children(): List[CST] = soqlLiteral :: Nil
+final case class SOQL(soql: String) extends Primary {
+  override def children(): List[CST] = Nil
 }
 
 object Primary {
@@ -2137,19 +2137,8 @@ object Primary {
               List()
           )
         case alt9: Alt9PrimaryContext =>
-          SOQLPrimary(SOQLLiteral.construct(alt9.soqlLiteral()))
+          SOQL(alt9.soqlLiteral().getText)
       }
     cst.withContext(from)
-  }
-}
-
-final case class SOQLLiteral(literals: List[SOQLLiteral]) extends CST {
-  override def children(): List[CST] = literals
-}
-
-object SOQLLiteral {
-  def construct(from: SoqlLiteralContext): SOQLLiteral = {
-    val literals: Seq[SoqlLiteralContext] = from.soqlLiteral()
-    SOQLLiteral(literals.toList.map(SOQLLiteral.construct)).withContext(from)
   }
 }

@@ -75,7 +75,7 @@ class LS_QueryLoops {
 
   private def isQueryExpression(expr: Expression) = {
     expr match {
-      case PrimaryExpression(SOQLPrimary(_)) => true
+      case PrimaryExpression(SOQL(_)) => true
       case FunctionCall(QName(ci"database" :: ci"query" :: Nil), _) => true
       case _ => false
     }
