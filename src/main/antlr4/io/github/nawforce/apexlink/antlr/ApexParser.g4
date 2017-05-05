@@ -167,18 +167,15 @@ methodModifier
     |   'testmethod'
     ;
 
-// TODO: What is that override doing, modifier and those []
 methodDeclaration
-    :   annotation? methodModifier* (typeRef|'void') id formalParameters ('[' ']')*
-        ('throws' qualifiedNameList)?
+    :   annotation? methodModifier* (typeRef|'void') id formalParameters
         (   block
         |   ';'
         )
     ;
 
 constructorDeclaration
-    :   id formalParameters ('throws' qualifiedNameList)?
-        block
+    :   id formalParameters block
     ;
 
 fieldDeclaration
@@ -214,11 +211,8 @@ constantDeclarator
     :   id ('[' ']')* '=' variableInitializer
     ;
 
-// see matching of [] comment in methodDeclaratorRest
 interfaceMethodDeclaration
-    :   (typeRef|'void') id formalParameters ('[' ']')*
-        ('throws' qualifiedNameList)?
-        ';'
+    :   (typeRef|'void') id formalParameters ';'
     ;
 
 variableDeclarators

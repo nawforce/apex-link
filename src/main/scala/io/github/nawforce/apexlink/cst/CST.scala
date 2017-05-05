@@ -225,17 +225,6 @@ object QualifiedName {
   }
 }
 
-object QualifiedNameList {
-  def construct(from: QualifiedNameListContext): List[QualifiedName] = {
-    if (from != null) {
-      val names: Seq[QualifiedNameContext] = from.qualifiedName()
-      names.toList.map(QualifiedName.construct)
-    } else {
-      List()
-    }
-  }
-}
-
 final case class Annotation(name: QualifiedName, elementValuePairs: List[ElementValuePair], elementValue: Option[ElementValue]) extends CST {
   override def children(): List[CST] = List[CST]() ++ elementValuePairs ++ elementValue
 }
@@ -610,10 +599,10 @@ object StaticBlock {
   }
 }
 
-final case class MethodDeclaration(modifiers: List[TypeModifier], typeRef: Option[TypeRef], id: String, formalParameters: List[FormalParameter],
-                                   qualifiedNameList: List[QualifiedName], block: Option[Block]) extends ClassBodyDeclaration {
+final case class MethodDeclaration(modifiers: List[TypeModifier], typeRef: Option[TypeRef], id: String,
+                                   formalParameters: List[FormalParameter], block: Option[Block]) extends ClassBodyDeclaration {
 
-  override def children(): List[CST] = modifiers ++ typeRef ++ formalParameters ++ qualifiedNameList ++ block
+  override def children(): List[CST] = modifiers ++ typeRef ++ formalParameters ++ block
 
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)
@@ -626,14 +615,12 @@ final case class MethodDeclaration(modifiers: List[TypeModifier], typeRef: Optio
 object MethodDeclaration {
   def construct(modifiers: List[TypeModifier], from: MethodDeclarationContext): MethodDeclaration = {
     val typeRef = if (from.typeRef() != null) Some(TypeRef.construct(from.typeRef())) else None
-    val qualifiedNameList = if (from.qualifiedNameList() != null) QualifiedNameList.construct(from.qualifiedNameList()) else List()
     val block = if (from.block != null) Some(Block.construct(from.block)) else None
 
     MethodDeclaration(modifiers,
       typeRef,
       from.id.getText,
       FormalParameters.construct(from.formalParameters()),
-      qualifiedNameList,
       block
     ).withContext(from)
   }
@@ -651,8 +638,8 @@ object FieldDeclaration {
 }
 
 final case class ConstructorDeclaration(modifiers: List[TypeModifier], id: String, formalParameters: List[FormalParameter],
-                                        qualifiedNameList: List[QualifiedName], block: Block) extends ClassBodyDeclaration {
-  override def children(): List[CST] = modifiers ++ formalParameters ++ qualifiedNameList ++ List(block)
+                                         block: Block) extends ClassBodyDeclaration {
+  override def children(): List[CST] = modifiers ++ formalParameters ++ List(block)
 }
 
 object ConstructorDeclaration {
@@ -660,7 +647,6 @@ object ConstructorDeclaration {
     ConstructorDeclaration(modifiers,
       from.id().getText,
       FormalParameters.construct(from.formalParameters()),
-      QualifiedNameList.construct(from.qualifiedNameList()),
       Block.construct(from.block())
     ).withContext(from)
   }
@@ -1318,10 +1304,10 @@ final case class VariableDeclarators(declarators: List[VariableDeclarator]) exte
   def resolve(typeRef : TypeRef, context: ResolveStmtContext) : Unit = {
     declarators.foreach(x => {
       context.addVarDeclaration(VarDeclaration(x.id, typeRef, x))
-      x.init.foreach(_ match {
+      x.init.foreach {
         case ExpressionVariableInitializer(expression) => x.addAssign(expression)
         case _ =>
-      })
+      }
     })
   }
 }
