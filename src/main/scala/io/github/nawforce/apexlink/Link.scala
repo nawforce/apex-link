@@ -86,7 +86,7 @@ object Link {
 
     if (LinkerLog.hasMessages) {
       println("Problems found during linking, aborting run")
-      LinkerLog.dumpMessage()
+      LinkerLog.dumpMessages()
       return 1
     }
 

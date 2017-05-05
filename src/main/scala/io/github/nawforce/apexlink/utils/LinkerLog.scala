@@ -87,14 +87,22 @@ object LinkerLog {
 
   def hasMessages: Boolean = log.nonEmpty
 
-  def dumpMessage() : Unit = {
+  def dumpMessages(maxErrors: Integer = 10) : Unit = {
     log.foreach(context => {
       System.out.println(context._1)
-      context._2.foreach(index => {
-        index._2.foreach(msg => {
-          System.out.println(index._1 + ": " + msg)
+      val seq = context._2.toIndexedSeq
+      val sorted = seq.sortBy{case (line, _) => line}
+      var count = 0
+      sorted.foreach( messages => {
+        messages._2.foreach(message => {
+          if (count < maxErrors) {
+            println(messages._1 + ": " + message)
+          }
+          count += 1
         })
       })
+      if (count-maxErrors > 0)
+        println(count-maxErrors + " of " + count + " errors not shown")
     })
   }
 }
