@@ -48,6 +48,8 @@ class SymbolReaderContext(val baseDir: Path, verbose: Boolean) {
 
   def getClasses: Map[String, ApexClass] = _apexClasses.toMap
 
+  def getLabels: Map[String, Label] = _labels.toMap
+
   def addLabel(label: Label): Unit = {
     if (_labels.get(label.fullName).isDefined)
       LinkerLog.logMessage(label.location, "Duplicate label found for '" + label.fullName + "'")

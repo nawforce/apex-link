@@ -44,6 +44,7 @@ case class Delta(start: Long, stop: Long, replace: Option[String]) {
 
 class FileChanger {
   private val changes: mutable.Map[String, mutable.ArrayBuffer[Delta]] = mutable.Map()
+  private val replace: mutable.Map[String, String] = mutable.Map()
 
   def addChange(filename: String, start: Long, end: Long, replace: Option[String]): Boolean = {
     val d = Delta(start, end, replace)
@@ -56,7 +57,18 @@ class FileChanger {
     true
   }
 
+  def replaceFile(filename: String, text: String) = {
+    replace.put(filename, text)
+  }
+
   def diff(): Unit = {
+    replace.foreach { case (filename, text) =>
+      val source = Source.fromFile(filename).toArray
+      val modified: Array[String] = new LineIterator(text.toCharArray).toArray
+      val original: Array[String] = new LineIterator(source).toArray
+      UnifiedDiffer.showDiff(filename, original, modified)
+    }
+
     changes.foreach { case (filename, deltas) =>
       val source = Source.fromFile(filename).toArray
       val modified: Array[String] = new LineIterator(applyDelta(source, deltas.toArray)).toArray

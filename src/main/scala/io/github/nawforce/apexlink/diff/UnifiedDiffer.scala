@@ -100,17 +100,19 @@ object UnifiedDiffer {
    * Groups diff results that have overlapping contexts
    */
   private def groupDiffs(diffs: List[DiffResult]): List[List[DiffResult]] = {
-    diffs.length match {
-      case 0 => List()
-      case 1 => List(List(diffs.head))
-      case _ =>
-        val rest = groupDiffs(diffs.tail)
-        if (rest.nonEmpty && overlaps(diffs.head, rest.head.head)) {
-          (diffs.head :: rest.head) :: rest.tail
+    var groups : List[List[DiffResult]] = List()
+    for (diff <- diffs.filter(!_.isInstanceOf[Equal]).reverse) {
+      if (groups.isEmpty) {
+        groups = List(List(diff))
+      } else {
+        if (overlaps(diff, groups.head.head)) {
+          groups = (diff :: groups.head) :: groups.tail
         } else {
-          List(diffs.head) :: rest
+          groups = List(diff) :: groups
         }
+      }
     }
+    groups
   }
 
   /*

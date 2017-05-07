@@ -85,7 +85,7 @@ object XMLUtils {
       val isBoolean = matched.get.text.matches("true|false")
       if (!isBoolean)
         LinkerLog.logMessage(getLine(matched.get), "Expecting value to be either 'true' or 'false', found '" + matched.get.text + "'")
-      Some(isBoolean)
+      Some(matched.get.text == "true")
     } else {
       None
     }
