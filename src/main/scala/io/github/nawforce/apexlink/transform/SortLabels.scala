@@ -36,33 +36,60 @@ class SortLabels {
 
   def exec(ctx: SymbolReaderContext, fileChanger: FileChanger): Unit = {
 
+    // Sort the labels
     val seq = ctx.getLabels.values.toIndexedSeq
     val sorted = seq.sortBy{label => label.fullName}
-    var buffer = new NodeBuffer
 
+    // Output, this is a bit crude but we some very salesforce specific handling
+    val sb = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+    sb ++= "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\">\n"
+
+    var indent = 1
     sorted.foreach((label : Label) => {
-      val output =
-        <labels>
-          <fullName>{label.fullName}</fullName>
-          {if (label.categories.isDefined) <categories>{label.categories.get}</categories>}
-          <language>{label.language}</language>
-          <protected>{label.protect}</protected>
-          <shortDescription>{label.shortDescription}</shortDescription>
-          <value>{label.value}</value>
-        </labels>
-      buffer += output
-    })
+      indentString(sb, indent)
+      sb ++= "<labels>\n"
+      indent += 1
 
-    if (buffer.nonEmpty) {
-      val xml =
-        <CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
-          {buffer}
-        </CustomLabels>
-      val p = new scala.xml.PrettyPrinter(1000, 4)
-      val text = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + p.format(xml)
-      // Salesforce wrongly escapes ' so we replicate to avoid extra differences
-      val escaped = text.replace("'","&apos;")
-      fileChanger.replaceFile(ctx.getBaseDir.resolve("labels/CustomLabels.labels").toString, escaped)
+      writeValue(sb, indent, "fullName", label.fullName)
+      if (label.categories.isDefined)
+        writeValue(sb, indent, "categories", label.categories.get.mkString(","))
+      writeValue(sb, indent, "language", label.language)
+      writeValue(sb, indent, "protected", if (label.protect) "true" else "false")
+      writeValue(sb, indent, "shortDescription", label.shortDescription)
+      writeValue(sb, indent, "value", label.value)
+
+      indent -= 1
+      indentString(sb, indent)
+      sb ++= "</labels>\n"
+    })
+    sb ++= "</CustomLabels>"
+    fileChanger.replaceFile(ctx.getBaseDir.resolve("labels/CustomLabels.labels").toString, sb.toString())
+  }
+
+  private def indentString(sb: StringBuilder, indent: Integer) : Unit = {
+    if (indent>0) {
+      sb ++= "    "
+      indentString(sb, indent - 1)
     }
+  }
+
+  private def writeValue(sb: StringBuilder, indent: Integer, name: String, text: String) = {
+    indentString(sb, indent)
+    sb ++= "<" + name + ">"
+    writeText(sb, text)
+    sb ++= "</" + name + ">\n"
+  }
+
+  private def writeText(sb: StringBuilder, text: String) : Unit = {
+    text.foreach(c =>
+      sb ++= (c match {
+        case '\'' => "&apos;"
+        case '"' => "&quot;"
+        case '&' =>  "&amp;"
+        case '<' =>  "&lt;"
+        case '>' =>  "&gt;"
+        case _ => c.toString
+      })
+    )
   }
 }
