@@ -56,7 +56,7 @@ object UnifiedDiffer {
 
     val startAt = Math.max(0, group.head.file1Index - 3)
     val endAt = Math.min(original.length - 1, group.last.file1Index + group.last.lengths._1 + 2)
-    if (!hasDifferences(original, modified, group.head.file1Index, group.head.file2Index, endAt - startAt))
+    if (!hasDifferences(original, modified, group.head.file1Index, group.head.file2Index, endAt - group.head.file1Index))
       return
 
     val added = group.map(d => d.lengths._2 - d.lengths._1).sum
