@@ -35,7 +35,7 @@ import scala.xml.Elem
 
 class LabelReader extends SymbolReader {
 
-  override def loadSymbols(ctx: SymbolReaderContext) : Unit = {
+  override def loadSymbols(ctx: SymbolReaderContext): Unit = {
     try {
       val labelsFile = ctx.getBaseDir.resolve("labels").resolve("CustomLabels.labels")
       LinkerLog.pushContext(labelsFile.toString)

@@ -37,7 +37,7 @@ class LS_QueryLoops {
 
   implicit class StringInterpolations(sc: StringContext) {
     def ci = new {
-      def unapply(other: String) : Boolean = sc.parts.mkString.equalsIgnoreCase(other)
+      def unapply(other: String): Boolean = sc.parts.mkString.equalsIgnoreCase(other)
     }
   }
 
@@ -45,27 +45,24 @@ class LS_QueryLoops {
 
     // Filter classes for for statements with Enhanced Control
     ctx.getClasses.values.foreach((apexClass: ApexClass) => {
-      apexClass.methodDeclarations.foreach((method : MethodDeclaration) => {
-        method.findStatements(false).collect {case x:ForStatement => x} foreach((stmt:ForStatement) => {
+      apexClass.methodDeclarations.foreach((method: MethodDeclaration) => {
+        method.findStatements(false).collect { case x: ForStatement => x } foreach ((stmt: ForStatement) => {
           stmt match {
-            case ForStatement(control@EnhancedForControl(_, _, _, _), _) => {
+            case ForStatement(control@EnhancedForControl(_, _, _, _), _) =>
               // Filter for simple type, likely sObject style
               control.typeRef match {
-                case ClassOrInterfaceTypeRef(ClassOrInterfaceType(ClassOrInterfaceTypePart(_, TypeList(Nil)) :: Nil), 0) => {
+                case ClassOrInterfaceTypeRef(ClassOrInterfaceType(ClassOrInterfaceTypePart(_, TypeList(Nil)) :: Nil), 0) =>
                   // Filter for expression is identifier assigned once
                   control.expression match {
-                    case PrimaryExpression(VarRef(decl)) => {
-                      val assignments = decl.introducer.getAssignments()
+                    case PrimaryExpression(VarRef(decl)) =>
+                      val assignments = decl.introducer.getAssignments
                       if (assignments.length == 1 && isQueryExpression(assignments.head)) {
                         fileChanger.addChange(apexClass.location.filepath, stmt.start(), -1, Some(LS_QueryLoops.warningMsg))
                       }
-                    }
                     case _ =>
                   }
-                }
                 case _ =>
               }
-            }
             case _ =>
           }
         })

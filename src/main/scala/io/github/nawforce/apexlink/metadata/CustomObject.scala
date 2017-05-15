@@ -36,13 +36,13 @@ case class CustomObject(location: Location, fullName: String, fields: List[Custo
 
   fields.foreach(f => f.parent = Some(this))
 
-  val scopedName : String = fullName
+  val scopedName: String = fullName
 
 }
 
 case class CustomObjectField(location: Location, fullName: String, typeName: Option[String]) extends Symbol {
 
-  lazy val scopedName : String = parent.get.scopedName + "." + fullName
+  lazy val scopedName: String = parent.get.scopedName + "." + fullName
 
 }
 

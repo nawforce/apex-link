@@ -36,7 +36,7 @@ class SymbolReader {
     throw new CSTException
   }
 
-  def isIgnoreable(path: Path) : Boolean = {
+  def isIgnoreable(path: Path): Boolean = {
     // Ignore stupid OSX files & rogue package.xml files that sometime hangs about
     val fileName = path.getFileName.toString
     fileName == ".DS_Store" || fileName == "package.xml"

@@ -39,7 +39,7 @@ object XMLUtils {
     new Location(LinkerLog.context.get, getLine(elem))
   }
 
-  def ifNotElemLogAndThrow(elem: Elem, name: String) : Unit = {
+  def ifNotElemLogAndThrow(elem: Elem, name: String): Unit = {
     if (ifNotLog(elem.namespace == Constants.sfNamespace, elem, "Expected element in Salesforce namespace, but has namespace '" + elem.namespace + "'")) {
       throw new LinkerException()
     }
@@ -48,7 +48,7 @@ object XMLUtils {
     }
   }
 
-  def ifNotLogAndThrow(condition: Boolean, elem: Elem, msg: String) : Unit  = {
+  def ifNotLogAndThrow(condition: Boolean, elem: Elem, msg: String): Unit = {
     if (ifNotLog(condition, elem, msg)) {
       throw new LinkerException()
     }

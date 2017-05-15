@@ -37,12 +37,12 @@ import org.antlr.v4.runtime.CommonTokenStream
 import scala.collection.mutable
 
 case class ApexClass(location: Location, fullName: String, compilationUnit: CompilationUnit) extends Symbol {
-  val scopedName : String = fullName
+  val scopedName: String = fullName
   val index = new CSTIndex
 
   compilationUnit.resolve(index)
 
-  def methodDeclarations : mutable.Set[MethodDeclaration] = index.get("MethodDeclaration").collect {case x:MethodDeclaration => x}
+  def methodDeclarations: mutable.Set[MethodDeclaration] = index.get("MethodDeclaration").collect { case x: MethodDeclaration => x }
 }
 
 object ApexClass {

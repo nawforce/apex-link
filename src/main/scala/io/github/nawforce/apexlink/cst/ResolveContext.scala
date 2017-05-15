@@ -32,13 +32,13 @@ import io.github.nawforce.apexlink.utils.LinkerException
 import scala.collection.mutable
 
 trait VarIntroducer {
-  private var assignments : List[Expression] = Nil
+  private var assignments: List[Expression] = Nil
 
-  def addAssign(statement: Expression) : Unit = {
+  def addAssign(statement: Expression): Unit = {
     assignments = statement :: assignments
   }
 
-  def getAssignments() : List[Expression] = assignments
+  def getAssignments: List[Expression] = assignments
 }
 
 case class VarDeclaration(name: Identifier, typeRef: TypeRef, introducer: VarIntroducer) {
@@ -56,15 +56,15 @@ class ResolveStmtContext(index: CSTIndex, parentScope: ResolveStmtContext = null
 
   def complete(): Unit = if (blockStack.nonEmpty) throw new LinkerException()
 
-  def addVarDeclaration(varDeclaration: VarDeclaration) : Unit = vars = varDeclaration :: vars
+  def addVarDeclaration(varDeclaration: VarDeclaration): Unit = vars = varDeclaration :: vars
 
-  def getVarDeclaration(name : String) : Option[VarDeclaration] = {
-    vars.find(_.name.text.compareToIgnoreCase(name)==0)
+  def getVarDeclaration(name: String): Option[VarDeclaration] = {
+    vars.find(_.name.text.compareToIgnoreCase(name) == 0)
   }
 }
 
 class ResolveExprContext(stmtContext: ResolveStmtContext) {
-  def getVarDeclaration(name : String) : Option[VarDeclaration] = {
+  def getVarDeclaration(name: String): Option[VarDeclaration] = {
     stmtContext.getVarDeclaration(name)
   }
 }

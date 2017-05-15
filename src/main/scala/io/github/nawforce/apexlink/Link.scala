@@ -49,8 +49,8 @@ object Link {
 
     class Options {
       var isVerbose = false
-      var transforms : List[String] = List[String]()
-      var unknown : List[String] = List[String]()
+      var transforms: List[String] = List[String]()
+      var unknown: List[String] = List[String]()
     }
 
     def nextOption(options: Options, list: List[String]): Options = {
@@ -91,7 +91,7 @@ object Link {
     }
 
     // Run any transforms
-    val fileChanger : FileChanger = new FileChanger()
+    val fileChanger: FileChanger = new FileChanger()
     options.transforms.foreach(transform => {
       println("Running transform " + transform)
       transform match {

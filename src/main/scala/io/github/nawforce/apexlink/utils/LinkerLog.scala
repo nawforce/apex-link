@@ -36,11 +36,11 @@ object LinkerLog {
   private val log = mutable.HashMap[String, mutable.HashMap[Int, List[String]]]()
   private val contexts = mutable.Stack[String]()
 
-  def pushContext(context: String) : Unit = {
+  def pushContext(context: String): Unit = {
     contexts.push(context)
   }
 
-  def popContext() : Unit = {
+  def popContext(): Unit = {
     contexts.pop()
   }
 
@@ -48,7 +48,7 @@ object LinkerLog {
     contexts.headOption
   }
 
-  def ifNotLogAndThrow(condition: Boolean, index: Integer, msg: String) : Unit = {
+  def ifNotLogAndThrow(condition: Boolean, index: Integer, msg: String): Unit = {
     if (ifNotLog(condition, index, msg)) {
       throw new LinkerException()
     }
@@ -87,13 +87,13 @@ object LinkerLog {
 
   def hasMessages: Boolean = log.nonEmpty
 
-  def dumpMessages(maxErrors: Integer = 10) : Unit = {
+  def dumpMessages(maxErrors: Integer = 10): Unit = {
     log.foreach(context => {
       System.out.println(context._1)
       val seq = context._2.toIndexedSeq
-      val sorted = seq.sortBy{case (line, _) => line}
+      val sorted = seq.sortBy { case (line, _) => line }
       var count = 0
-      sorted.foreach( messages => {
+      sorted.foreach(messages => {
         messages._2.foreach(message => {
           if (count < maxErrors) {
             println(messages._1 + ": " + message)
@@ -101,8 +101,8 @@ object LinkerLog {
           count += 1
         })
       })
-      if (count-maxErrors > 0)
-        println(count-maxErrors + " of " + count + " errors not shown")
+      if (count - maxErrors > 0)
+        println(count - maxErrors + " of " + count + " errors not shown")
     })
   }
 }

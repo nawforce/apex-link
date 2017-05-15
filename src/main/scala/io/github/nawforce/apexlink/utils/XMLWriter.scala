@@ -25,31 +25,65 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.apexlink.transform
+package io.github.nawforce.apexlink.utils
 
-import io.github.nawforce.apexlink.diff.FileChanger
-import io.github.nawforce.apexlink.metadata.{Label, SymbolReaderContext}
-import io.github.nawforce.apexlink.utils.XMLWriter
+class XMLWriter(sb: StringBuilder) {
+  private var _indent: Int = 0
+  private var _endText: List[String] = Nil
 
-class SortLabels {
+  def writeDecl(): Unit = {
+    sb ++= "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+  }
 
-  def exec(ctx: SymbolReaderContext, fileChanger: FileChanger): Unit = {
+  def startElement(name: String, newline: Boolean, ns: List[String] = Nil): Unit = {
+    writeIndent()
+    _indent += 1
 
-    // Sort the labels
-    val seq = ctx.getLabels.values.toIndexedSeq
-    val sorted = seq.sortBy { label => label.fullName }
-
-    // Output, this is a bit crude but we need some very specific handling
-    val sb = new StringBuilder()
-    val writer = new XMLWriter(sb)
-
-    writer.writeDecl()
-    writer.startElement("CustomLabels", newline = true, "=\"http://soap.sforce.com/2006/04/metadata\"" :: Nil)
-    sorted.foreach((label: Label) => {
-      label.write(writer)
+    sb ++= "<" + name
+    ns.foreach(n => {
+      sb ++= " xmlns" + n
     })
-    writer.endElement()
+    sb ++= ">"
+    if (newline)
+      sb += '\n'
 
-    fileChanger.replaceFile(ctx.getBaseDir.resolve("labels/CustomLabels.labels").toString, sb.toString())
+    _endText = ("</" + name + ">\n") :: _endText
+  }
+
+  def endElement(indent: Boolean = true): Unit = {
+    _indent -= 1
+    if (indent)
+      writeIndent()
+
+    _endText match {
+      case h :: t => sb ++= h; _endText = t
+      case _ =>
+    }
+  }
+
+  def text(text: String): Unit = {
+    text.foreach(c =>
+      sb ++= (c match {
+        case '\'' => "&apos;"
+        case '"' => "&quot;"
+        case '&' => "&amp;"
+        case '<' => "&lt;"
+        case '>' => "&gt;"
+        case _ => c.toString
+      })
+    )
+  }
+
+  def elementValue(name: String, value: String): Unit = {
+    startElement(name, newline = false)
+    text(value)
+    endElement(false)
+  }
+
+  private def writeIndent(indent: Integer = this._indent): Unit = {
+    if (indent > 0) {
+      sb ++= "    "
+      writeIndent(indent - 1)
+    }
   }
 }

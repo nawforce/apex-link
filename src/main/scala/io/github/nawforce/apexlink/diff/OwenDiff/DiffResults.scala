@@ -27,47 +27,50 @@
 
 package io.github.nawforce.apexlink.diff.OwenDiff
 
-abstract class DiffResult(val file1Index : Int, val file2Index : Int,
-                          val lengths : (Int, Int)) {
-    def oldLineToString(line : String) : String = {
-        "-"+line+"\n"
-    }
+abstract class DiffResult(val file1Index: Int, val file2Index: Int,
+                          val lengths: (Int, Int)) {
+  def oldLineToString(line: String): String = {
+    "-" + line + "\n"
+  }
 
-    def newLineToString(line : String) : String = {
-        "+"+line+"\n"
-    }
+  def newLineToString(line: String): String = {
+    "+" + line + "\n"
+  }
 
-    def equalLineToString(line : String) : String = {
-        " "+line+"\n"
-    }
+  def equalLineToString(line: String): String = {
+    " " + line + "\n"
+  }
 }
 
-case class Insert(override val file1Index : Int, override val file2Index : Int, override val lengths : (Int, Int),
-  lines : Seq[String])
-    extends DiffResult(file1Index, file2Index, lengths) {
-    override def toString: String = {
-        lines.map(newLineToString).mkString("")
-    }
+case class Insert(override val file1Index: Int, override val file2Index: Int, override val lengths: (Int, Int),
+                  lines: Seq[String])
+  extends DiffResult(file1Index, file2Index, lengths) {
+  override def toString: String = {
+    lines.map(newLineToString).mkString("")
+  }
 }
-case class Modify(override val file1Index : Int, override val file2Index : Int, override val lengths : (Int, Int),
-  oldLines : Seq[String], newLines : Seq[String])
-    extends DiffResult(file1Index, file2Index, lengths) {
-    override def toString: String = {
-        oldLines.map(oldLineToString).mkString("") +
-        newLines.map(newLineToString).mkString("")
-    }
+
+case class Modify(override val file1Index: Int, override val file2Index: Int, override val lengths: (Int, Int),
+                  oldLines: Seq[String], newLines: Seq[String])
+  extends DiffResult(file1Index, file2Index, lengths) {
+  override def toString: String = {
+    oldLines.map(oldLineToString).mkString("") +
+      newLines.map(newLineToString).mkString("")
+  }
 }
-case class Delete(override val file1Index : Int, override val file2Index : Int, override val lengths : (Int, Int),
-  oldLines : Seq[String])
-    extends DiffResult(file1Index, file2Index, lengths) {
-    override def toString: String = {
-        oldLines.map(oldLineToString).mkString("")
-    }
+
+case class Delete(override val file1Index: Int, override val file2Index: Int, override val lengths: (Int, Int),
+                  oldLines: Seq[String])
+  extends DiffResult(file1Index, file2Index, lengths) {
+  override def toString: String = {
+    oldLines.map(oldLineToString).mkString("")
+  }
 }
-case class Equal(override val file1Index : Int, override val file2Index : Int, override val lengths : (Int, Int),
-  lines : Seq[String])
-    extends DiffResult(file1Index, file2Index, lengths) {
-    override def toString: String = {
-        lines.map(equalLineToString).mkString("")
-    }
+
+case class Equal(override val file1Index: Int, override val file2Index: Int, override val lengths: (Int, Int),
+                 lines: Seq[String])
+  extends DiffResult(file1Index, file2Index, lengths) {
+  override def toString: String = {
+    lines.map(equalLineToString).mkString("")
+  }
 }

@@ -65,14 +65,14 @@ sealed abstract class CST {
 
   def end(): Long = endPos
 
-  def findExpressions(onlyOuter : Boolean) : List[Expression] = {
+  def findExpressions(onlyOuter: Boolean): List[Expression] = {
     this match {
       case e: Expression => List(e) ++ (if (!onlyOuter) this.children().flatMap(_.findExpressions(onlyOuter)) else Nil)
       case _ => this.children().flatMap(_.findExpressions(onlyOuter))
     }
   }
 
-  def findStatements(onlyOuter : Boolean) : List[Statement] = {
+  def findStatements(onlyOuter: Boolean): List[Statement] = {
     this match {
       case e: Statement => List(e) ++ (if (!onlyOuter) this.children().flatMap(_.findStatements(onlyOuter)) else Nil)
       case _ => this.children().flatMap(_.findStatements(onlyOuter))
@@ -87,8 +87,8 @@ class CSTIndex {
     cstIndex.addBinding(cst.getClass.getSimpleName, cst)
   }
 
-  def get(name: String) : mutable.Set[CST] = {
-    val nodes : Option[mutable.Set[CST]] = cstIndex.get(name)
+  def get(name: String): mutable.Set[CST] = {
+    val nodes: Option[mutable.Set[CST]] = cstIndex.get(name)
     if (nodes.isDefined)
       nodes.get
     else
@@ -639,7 +639,7 @@ object FieldDeclaration {
 
 final case class ConstructorDeclaration(modifiers: List[TypeModifier], qualifiedName: QualifiedName,
                                         formalParameters: List[FormalParameter],
-                                         block: Block) extends ClassBodyDeclaration {
+                                        block: Block) extends ClassBodyDeclaration {
   override def children(): List[CST] = modifiers ++ formalParameters ++ List(block)
 }
 
@@ -704,6 +704,7 @@ trait Statement extends CST {
 
 final case class LocalVariableDeclarationStatement(localVariableDeclaration: LocalVariableDeclaration) extends Statement {
   override def children(): List[CST] = localVariableDeclaration :: Nil
+
   override def resolve(context: ResolveStmtContext): Unit = localVariableDeclaration.resolve(context)
 }
 
@@ -715,6 +716,7 @@ object LocalVariableDeclarationStatement {
 
 final case class IfStatement(expression: Expression, statements: List[Statement]) extends Statement {
   override def children(): List[CST] = expression :: statements
+
   override def resolve(context: ResolveStmtContext): Unit = {
     expression.resolve(new ResolveExprContext(context))
     context.pushBlock()
@@ -769,6 +771,7 @@ object ForControl {
 final case class EnhancedForControl(modifiers: List[VariableModifier], typeRef: TypeRef,
                                     id: Identifier, expression: Expression) extends ForControl with VarIntroducer {
   override def children(): List[CST] = typeRef :: id :: expression :: modifiers
+
   def resolve(context: ResolveStmtContext): Unit = {
     expression.resolve(new ResolveExprContext(context))
     context.addVarDeclaration(VarDeclaration(id, typeRef, this))
@@ -795,6 +798,7 @@ object EnhancedForControl {
 
 final case class BasicForControl(forInit: Option[ForInit], expression: Option[Expression], forUpdate: Option[ForUpdate]) extends ForControl {
   override def children(): List[CST] = List[CST]() ++ forInit ++ expression ++ forUpdate
+
   def resolve(context: ResolveStmtContext): Unit = {
     forInit.foreach(_.resolve(context))
     expression.foreach(_.resolve(new ResolveExprContext(context)))
@@ -827,16 +831,18 @@ object BasicForControl {
 }
 
 sealed abstract class ForInit extends CST {
-  def resolve(context: ResolveStmtContext) : Unit
+  def resolve(context: ResolveStmtContext): Unit
 }
 
 final case class LocalVariableForInit(variable: LocalVariableDeclaration) extends ForInit {
   override def children(): List[CST] = variable :: Nil
+
   def resolve(context: ResolveStmtContext): Unit = variable.resolve(context)
 }
 
 final case class ExpressionListForInit(expressions: List[Expression]) extends ForInit {
   override def children(): List[CST] = expressions
+
   def resolve(context: ResolveStmtContext): Unit = expressions.foreach(_.resolve(new ResolveExprContext(context)))
 }
 
@@ -857,6 +863,7 @@ object ForInit {
 
 final case class ForUpdate(expressions: List[Expression]) extends CST {
   override def children(): List[CST] = expressions
+
   def resolve(context: ResolveStmtContext): Unit = expressions.foreach(_.resolve(new ResolveExprContext(context)))
 }
 
@@ -871,6 +878,7 @@ final case class WhileStatement(expression: Expression, statement: Statement) ex
   override def children(): List[CST] = {
     expression :: statement :: Nil
   }
+
   def resolve(context: ResolveStmtContext): Unit = {
     expression.resolve(new ResolveExprContext(context))
     statement.resolve(context)
@@ -888,6 +896,7 @@ final case class DoWhileStatement(statement: Statement, expression: Expression) 
   override def children(): List[CST] = {
     expression :: statement :: Nil
   }
+
   def resolve(context: ResolveStmtContext): Unit = {
     expression.resolve(new ResolveExprContext(context))
     statement.resolve(context)
@@ -904,6 +913,7 @@ object DoWhileStatement {
 
 final case class TryStatement(block: Block, catches: List[CatchClause], finallyBlock: Option[Block]) extends Statement {
   override def children(): List[CST] = List(block) ++ catches ++ finallyBlock
+
   def resolve(context: ResolveStmtContext): Unit = {
     block.resolve(context)
     catches.foreach(_.resolve(context))
@@ -944,6 +954,7 @@ object CatchType {
 
 final case class CatchClause(modifiers: List[VariableModifier], catchType: CatchType, id: String, block: Block) extends CST {
   override def children(): List[CST] = modifiers ++ List(catchType) ++ List(block)
+
   def resolve(context: ResolveStmtContext): Unit = {
     block.resolve(context)
   }
@@ -971,6 +982,7 @@ object CatchClause {
 
 final case class ReturnStatement(expression: Option[Expression]) extends Statement {
   override def children(): List[CST] = List() ++ expression
+
   def resolve(context: ResolveStmtContext): Unit = expression.foreach(_.resolve(new ResolveExprContext(context)))
 }
 
@@ -988,6 +1000,7 @@ object ReturnStatement {
 
 final case class ThrowStatement(expression: Expression) extends Statement {
   override def children(): List[CST] = Nil
+
   def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
@@ -999,6 +1012,7 @@ object ThrowStatement {
 
 final case class BreakStatement(id: String) extends Statement {
   override def children(): List[CST] = Nil
+
   def resolve(context: ResolveStmtContext): Unit = {} // Nothing to do
 }
 
@@ -1016,6 +1030,7 @@ object BreakStatement {
 
 final case class ContinueStatement(id: String) extends Statement {
   override def children(): List[CST] = Nil
+
   def resolve(context: ResolveStmtContext): Unit = {} // Nothing to do
 }
 
@@ -1033,6 +1048,7 @@ object ContinueStatement {
 
 final case class InsertStatement(expression: Expression) extends Statement {
   override def children(): List[CST] = expression :: Nil
+
   def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
@@ -1044,6 +1060,7 @@ object InsertStatement {
 
 final case class UpdateStatement(expression: Expression) extends Statement {
   override def children(): List[CST] = expression :: Nil
+
   def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
@@ -1055,6 +1072,7 @@ object UpdateStatement {
 
 final case class DeleteStatement(expression: Expression) extends Statement {
   override def children(): List[CST] = expression :: Nil
+
   def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
@@ -1066,6 +1084,7 @@ object DeleteStatement {
 
 final case class UndeleteStatement(expression: Expression) extends Statement {
   override def children(): List[CST] = expression :: Nil
+
   def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
@@ -1077,6 +1096,7 @@ object UndeleteStatement {
 
 final case class UpsertStatement(expression: Expression, id: String) extends Statement {
   override def children(): List[CST] = expression :: Nil
+
   def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
@@ -1092,6 +1112,7 @@ object UpsertStatement {
 
 final case class MergeStatement(expression1: Expression, expression2: Expression) extends Statement {
   override def children(): List[CST] = expression1 :: expression2 :: Nil
+
   def resolve(context: ResolveStmtContext): Unit = {
     expression1.resolve(new ResolveExprContext(context))
     expression2.resolve(new ResolveExprContext(context))
@@ -1106,6 +1127,7 @@ object MergeStatement {
 
 final case class RunAsStatement(expressions: List[Expression], block: Option[Block]) extends Statement {
   override def children(): List[CST] = expressions ++ block
+
   def resolve(context: ResolveStmtContext): Unit = {
     expressions.foreach(_.resolve(new ResolveExprContext(context)))
     block.foreach(_.resolve(context))
@@ -1128,6 +1150,7 @@ object RunAsStatement {
 
 final case class EmptyStatement() extends Statement {
   override def children(): List[CST] = Nil
+
   def resolve(context: ResolveStmtContext): Unit = {} // Nothing to do
 }
 
@@ -1139,12 +1162,13 @@ object EmptyStatement {
 
 final case class ExpressionStatement(var expression: Expression) extends Statement {
   override def children(): List[CST] = expression :: Nil
+
   def resolve(context: ResolveStmtContext): Unit = {
     expression.resolve(new ResolveExprContext(context))
 
     // Link var assignment to declaration
     expression match {
-      case BinaryExpression(PrimaryExpression(VarRef(decl)),rhs,"=") => decl.addAssign(rhs)
+      case BinaryExpression(PrimaryExpression(VarRef(decl)), rhs, "=") => decl.addAssign(rhs)
       case _ =>
     }
   }
@@ -1158,6 +1182,7 @@ object ExpressionStatement {
 
 final case class IdStatement(id: String, statement: Statement) extends Statement {
   override def children(): List[CST] = statement :: Nil
+
   def resolve(context: ResolveStmtContext): Unit = {} // Nothing to do
 }
 
@@ -1302,7 +1327,8 @@ object VariableDeclarator {
 
 final case class VariableDeclarators(declarators: List[VariableDeclarator]) extends CST {
   override def children(): List[CST] = declarators
-  def resolve(typeRef : TypeRef, context: ResolveStmtContext) : Unit = {
+
+  def resolve(typeRef: TypeRef, context: ResolveStmtContext): Unit = {
     declarators.foreach(x => {
       context.addVarDeclaration(VarDeclaration(x.id, typeRef, x))
       x.init.foreach {
@@ -1351,7 +1377,8 @@ object TypeRef {
 
 final case class LocalVariableDeclaration(modifiers: List[VariableModifier], typeRef: TypeRef, variableDeclarators: VariableDeclarators) extends CST {
   override def children(): List[CST] = modifiers ::: (typeRef :: variableDeclarators :: Nil)
-  def resolve(context : ResolveStmtContext) : Unit = variableDeclarators.resolve(typeRef, context)
+
+  def resolve(context: ResolveStmtContext): Unit = variableDeclarators.resolve(typeRef, context)
 }
 
 object LocalVariableDeclaration {
@@ -1456,7 +1483,8 @@ sealed abstract class Expression extends CST {
 
 final case class LHSExpression(lhs: Expression, rhs: ExpressionRHS) extends Expression {
   override def children(): List[CST] = lhs :: rhs :: Nil
-  override def resolve(context: ResolveExprContext) : Unit = {
+
+  override def resolve(context: ResolveExprContext): Unit = {
     lhs.resolve(context)
     rhs.resolve(context)
   }
@@ -1464,12 +1492,14 @@ final case class LHSExpression(lhs: Expression, rhs: ExpressionRHS) extends Expr
 
 final case class QName(ids: List[String]) extends Expression {
   override def children(): List[CST] = Nil
-  def resolve(context: ResolveExprContext) : Unit = {}
+
+  def resolve(context: ResolveExprContext): Unit = {}
 }
 
 final case class FunctionCall(callee: Expression, arguments: List[Expression]) extends Expression {
   override def children(): List[CST] = callee :: arguments
-  override def resolve(context: ResolveExprContext) : Unit = {
+
+  override def resolve(context: ResolveExprContext): Unit = {
     callee.resolve(context)
     arguments.foreach(_.resolve(context))
   }
@@ -1477,27 +1507,32 @@ final case class FunctionCall(callee: Expression, arguments: List[Expression]) e
 
 final case class NewExpression(creator: Creator) extends Expression {
   override def children(): List[CST] = creator :: Nil
-  def resolve(context: ResolveExprContext) : Unit = {}
+
+  def resolve(context: ResolveExprContext): Unit = {}
 }
 
 final case class TypeExpression(typeRef: TypeRef, expression: Expression) extends Expression {
   override def children(): List[CST] = typeRef :: expression :: Nil
-  def resolve(context: ResolveExprContext) : Unit = expression.resolve(context)
+
+  def resolve(context: ResolveExprContext): Unit = expression.resolve(context)
 }
 
 final case class PostOpExpression(expression: Expression, op: String) extends Expression {
   override def children(): List[CST] = expression :: Nil
-  def resolve(context: ResolveExprContext) : Unit = expression.resolve(context)
+
+  def resolve(context: ResolveExprContext): Unit = expression.resolve(context)
 }
 
 final case class PreOpExpression(expression: Expression, op: String) extends Expression {
   override def children(): List[CST] = expression :: Nil
-  def resolve(context: ResolveExprContext) : Unit = expression.resolve(context)
+
+  def resolve(context: ResolveExprContext): Unit = expression.resolve(context)
 }
 
 final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) extends Expression {
   override def children(): List[CST] = lhs :: rhs :: Nil
-  def resolve(context: ResolveExprContext) : Unit = {
+
+  def resolve(context: ResolveExprContext): Unit = {
     lhs.resolve(context)
     rhs.resolve(context)
   }
@@ -1505,12 +1540,14 @@ final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) 
 
 final case class InstanceOfExpression(expression: Expression, typeRef: TypeRef) extends Expression {
   override def children(): List[CST] = expression :: typeRef :: Nil
-  def resolve(context: ResolveExprContext) : Unit = expression.resolve(context)
+
+  def resolve(context: ResolveExprContext): Unit = expression.resolve(context)
 }
 
 final case class QueryExpression(query: Expression, lhs: Expression, rhs: Expression) extends Expression {
   override def children(): List[CST] = query :: lhs :: rhs :: Nil
-  def resolve(context: ResolveExprContext) : Unit = {
+
+  def resolve(context: ResolveExprContext): Unit = {
     query.resolve(context)
     lhs.resolve(context)
     rhs.resolve(context)
@@ -1519,7 +1556,8 @@ final case class QueryExpression(query: Expression, lhs: Expression, rhs: Expres
 
 final case class PrimaryExpression(var primary: Primary) extends Expression {
   override def children(): List[CST] = primary :: Nil
-  def resolve(context: ResolveExprContext) : Unit = {
+
+  def resolve(context: ResolveExprContext): Unit = {
     // Link variable reference
     primary match {
       case Identifier(name) =>
@@ -1533,32 +1571,38 @@ final case class PrimaryExpression(var primary: Primary) extends Expression {
 
 final case class RHSId(id: String) extends ExpressionRHS {
   override def children(): List[CST] = Nil
-  def resolve(context: ResolveExprContext) : Unit = {}
+
+  def resolve(context: ResolveExprContext): Unit = {}
 }
 
 final case class RHSThis() extends ExpressionRHS {
   override def children(): List[CST] = Nil
-  def resolve(context: ResolveExprContext) : Unit = {}
+
+  def resolve(context: ResolveExprContext): Unit = {}
 }
 
 final case class RHSNew(nonWildcardTypeArguments: Option[NonWildcardTypeArguments], innerCreator: InnerCreator) extends ExpressionRHS {
   override def children(): List[CST] = List[CST]() ++ nonWildcardTypeArguments ++ List(innerCreator)
-  def resolve(context: ResolveExprContext) : Unit = {}
+
+  def resolve(context: ResolveExprContext): Unit = {}
 }
 
 final case class RHSSuper(superSuffix: SuperSuffix) extends ExpressionRHS {
   override def children(): List[CST] = superSuffix :: Nil
-  def resolve(context: ResolveExprContext) : Unit = {}
+
+  def resolve(context: ResolveExprContext): Unit = {}
 }
 
 final case class RHSExplicitGenericInvocation(explicitGenericInvocation: ExplicitGenericInvocation) extends ExpressionRHS {
   override def children(): List[CST] = explicitGenericInvocation :: Nil
-  def resolve(context: ResolveExprContext) : Unit = {}
+
+  def resolve(context: ResolveExprContext): Unit = {}
 }
 
 final case class RHSArrayExpression(expression: Expression) extends ExpressionRHS {
   override def children(): List[CST] = expression :: Nil
-  def resolve(context: ResolveExprContext) : Unit = expression.resolve(context)
+
+  def resolve(context: ResolveExprContext): Unit = expression.resolve(context)
 }
 
 object Expression {

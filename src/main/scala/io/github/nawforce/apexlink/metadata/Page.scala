@@ -32,7 +32,7 @@ import io.github.nawforce.apexlink.utils.{Location, XMLUtils}
 import scala.xml.Elem
 
 case class Page(location: Location, fullName: String) extends Symbol {
-  val scopedName : String = fullName
+  val scopedName: String = fullName
 }
 
 object Page {

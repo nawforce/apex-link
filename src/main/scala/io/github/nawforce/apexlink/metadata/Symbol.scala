@@ -28,7 +28,7 @@
 package io.github.nawforce.apexlink.metadata
 
 trait Symbol {
-  var parent : Option[Symbol] = None
+  var parent: Option[Symbol] = None
 
-  val scopedName : String
+  val scopedName: String
 }

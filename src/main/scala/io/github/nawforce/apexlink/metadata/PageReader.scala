@@ -59,7 +59,7 @@ class PageReader extends SymbolReader {
     }
   }
 
-  private def loadPage(ctx: SymbolReaderContext, fullName: String, objectFile: Path) : Unit = {
+  private def loadPage(ctx: SymbolReaderContext, fullName: String, objectFile: Path): Unit = {
     LinkerLog.pushContext(objectFile.toString)
     try {
       val root = XMLLineLoader.loadFile(objectFile.toString)

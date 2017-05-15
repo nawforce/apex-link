@@ -27,7 +27,7 @@
 */
 package io.github.nawforce.apexlink.metadata
 
-import io.github.nawforce.apexlink.utils.{Location, XMLUtils}
+import io.github.nawforce.apexlink.utils.{Location, XMLUtils, XMLWriter}
 
 import scala.language.implicitConversions
 import scala.xml.Elem
@@ -35,8 +35,21 @@ import scala.xml.Elem
 case class Label(location: Location, fullName: String, language: String, protect: Boolean, shortDescription: String,
                  value: String, categories: Option[Array[String]]) extends Symbol {
 
-  val scopedName : String = "Label." + fullName
+  val scopedName: String = "Label." + fullName
 
+  def write(writer: XMLWriter): Unit = {
+    writer.startElement("labels", newline = true)
+
+    writer.elementValue("fullName", fullName)
+    if (categories.isDefined)
+      writer.elementValue("categories", categories.get.mkString(","))
+    writer.elementValue("language", language)
+    writer.elementValue("protected", if (protect) "true" else "false")
+    writer.elementValue("shortDescription", shortDescription)
+    writer.elementValue("value", value)
+
+    writer.endElement()
+  }
 }
 
 object Label {

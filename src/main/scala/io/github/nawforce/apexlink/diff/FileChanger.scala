@@ -57,7 +57,7 @@ class FileChanger {
     true
   }
 
-  def replaceFile(filename: String, text: String) = {
+  def replaceFile(filename: String, text: String): Option[String] = {
     replace.put(filename, text)
   }
 
@@ -104,9 +104,9 @@ class FileChanger {
     contents.reverse.toArray
   }
 
-  private def preWhitespace(source: Array[Char], atChar: Integer) : String = {
+  private def preWhitespace(source: Array[Char], atChar: Integer): String = {
     source(atChar) match {
-      case ' ' | '\t' => preWhitespace(source, atChar-1) + source(atChar)
+      case ' ' | '\t' => preWhitespace(source, atChar - 1) + source(atChar)
       case _ => ""
     }
   }

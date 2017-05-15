@@ -59,7 +59,7 @@ class CustomObjectReader extends SymbolReader {
     }
   }
 
-  def loadObject(ctx: SymbolReaderContext, fullName: String, objectFile: Path) : Unit = {
+  def loadObject(ctx: SymbolReaderContext, fullName: String, objectFile: Path): Unit = {
     LinkerLog.pushContext(objectFile.toString)
     try {
       val root = XMLLineLoader.loadFile(objectFile.toString)

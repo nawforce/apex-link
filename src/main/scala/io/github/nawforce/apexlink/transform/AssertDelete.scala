@@ -30,20 +30,21 @@ package io.github.nawforce.apexlink.transform
 import io.github.nawforce.apexlink.cst._
 import io.github.nawforce.apexlink.diff.FileChanger
 import io.github.nawforce.apexlink.metadata.{ApexClass, SymbolReaderContext}
+
 import scala.language.reflectiveCalls
 
 class AssertDelete {
 
   implicit class StringInterpolations(sc: StringContext) {
     def ci = new {
-      def unapply(other: String) : Boolean = sc.parts.mkString.equalsIgnoreCase(other)
+      def unapply(other: String): Boolean = sc.parts.mkString.equalsIgnoreCase(other)
     }
   }
 
   def exec(ctx: SymbolReaderContext, fileChanger: FileChanger): Unit = {
     ctx.getClasses.values.foreach((apexClass: ApexClass) => {
       // TODO: This just searches methods, should really include static code as well
-      apexClass.methodDeclarations.foreach((method : MethodDeclaration) => {
+      apexClass.methodDeclarations.foreach((method: MethodDeclaration) => {
         method.findExpressions(true).foreach((expr: Expression) => {
           expr match {
             case call@FunctionCall(QName(ci"system" :: ci"assert" :: Nil), _) =>

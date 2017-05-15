@@ -100,7 +100,7 @@ object UnifiedDiffer {
    * Groups diff results that have overlapping contexts
    */
   private def groupDiffs(diffs: List[DiffResult]): List[List[DiffResult]] = {
-    var groups : List[List[DiffResult]] = List()
+    var groups: List[List[DiffResult]] = List()
     for (diff <- diffs.filter(!_.isInstanceOf[Equal]).reverse) {
       if (groups.isEmpty) {
         groups = List(List(diff))

@@ -38,14 +38,14 @@ class TraversePath(path: Path) extends Traversable[(Path, BasicFileAttributes)] 
   def foreach[U](f: ((Path, BasicFileAttributes)) => U) {
 
     class Visitor extends SimpleFileVisitor[Path] {
-      var error :Option[Throwable] = None
+      var error: Option[Throwable] = None
 
       override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = try {
         // Pass a tuple to f
         f(file -> attrs)
         FileVisitResult.CONTINUE
       } catch {
-        case ex : Throwable =>
+        case ex: Throwable =>
           error = Some(ex)
           FileVisitResult.TERMINATE
       }
