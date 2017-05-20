@@ -34,7 +34,7 @@ import io.github.nawforce.apexlink.cst._
 import io.github.nawforce.apexlink.utils._
 import org.antlr.v4.runtime.CommonTokenStream
 
-import scala.collection.mutable
+import scala.collection.JavaConversions._
 
 case class ApexClass(location: Location, fullName: String, compilationUnit: CompilationUnit) extends Symbol {
   val scopedName: String = fullName
@@ -42,7 +42,11 @@ case class ApexClass(location: Location, fullName: String, compilationUnit: Comp
 
   compilationUnit.resolve(index)
 
-  def methodDeclarations: mutable.Set[MethodDeclaration] = index.get("MethodDeclaration").collect { case x: MethodDeclaration => x }
+  def codeBlocks: List[Block] = staticCodeBlocks.map { x => x.block } ++ methodDeclarations.flatMap(_.block)
+
+  def staticCodeBlocks: List[StaticBlock] = index.get("StaticBlock").collect { case x: StaticBlock => x }.toList
+
+  def methodDeclarations: List[MethodDeclaration] = index.get("MethodDeclaration").collect { case x: MethodDeclaration => x }.toList
 }
 
 object ApexClass {
@@ -64,7 +68,8 @@ object ApexClass {
       parser.setTrace(false)
       parser.addErrorListener(listener)
 
-      val cu = CompilationUnit.construct(parser.compilationUnit())
+      tokens.reset()
+      val cu = CompilationUnit.construct(parser.compilationUnit(), new ConstructContext(tokens.getTokens.toList.toArray))
       Some(new ApexClass(new Location(path, 0), fullName, cu))
     } catch {
       case se: SyntaxException =>

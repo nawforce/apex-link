@@ -30,9 +30,9 @@ package io.github.nawforce.apexlink
 import java.io.StringReader
 
 import io.github.nawforce.apexlink.antlr.{ApexLexer, ApexParser}
-import io.github.nawforce.apexlink.cst.{Expression, Primary, Type, TypeContext}
+import io.github.nawforce.apexlink.cst._
 import io.github.nawforce.apexlink.utils.{CSTException, CaseInsensitiveInputStream, ThrowingErrorListener}
-import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.{CommonTokenStream, Token}
 
 class TypeContextTest(_thisType: Type = null, _superType: Type = null, identifierTypes: Map[String, Type] = null) extends TypeContext {
   def thisType: Type =
@@ -57,11 +57,13 @@ class TypeContextTest(_thisType: Type = null, _superType: Type = null, identifie
 object TypeTestHelper {
 
   def typePrimary(p: String, typeCtx: TypeContext): Type = {
-    Primary.construct(parse(p).primary()).getType(typeCtx)
+    val context = new ConstructContext(new Array[Token](0))
+    Primary.construct(parse(p).primary(), context).getType(typeCtx)
   }
 
   def typeExpression(p: String, typeCtx: TypeContext): Expression = {
-    Expression.construct(parse(p).expression())
+    val context = new ConstructContext(new Array[Token](0))
+    Expression.construct(parse(p).expression(), context)
   }
 
   def comparePrimary(p: String, r: Type, typeCtx: TypeContext): Unit = {

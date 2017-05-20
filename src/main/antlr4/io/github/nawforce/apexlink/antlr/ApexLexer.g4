@@ -44,6 +44,10 @@ lexer grammar ApexLexer;
 import java.util.*; 
 }
 
+channels {
+    WHITESPACE_CHANNEL,
+    COMMENT_CHANNEL
+}
 
 // §3.9 Keywords
 
@@ -276,18 +280,22 @@ ELLIPSIS : '...';
 // Whitespace and comments
 //
 
-WS  :  [ \t\r\n\u000C]+ -> skip
+WS  :  [ \t\r\n\u000C]+ -> channel(WHITESPACE_CHANNEL)
+    ;
+
+BANG_STATEMENT
+    :   '//!' ~[\r\n]*
     ;
 
 DOC_COMMENT
-    :   '/**' [\r\n] .*? '*/' -> channel(HIDDEN)
+    :   '/**' [\r\n] .*? '*/' -> channel(COMMENT_CHANNEL)
     ;
 
 COMMENT
-    :   '/*' .*? '*/' -> skip
+    :   '/*' .*? '*/' -> channel(COMMENT_CHANNEL)
     ;
 
 LINE_COMMENT
-    :   '//' ~[\r\n]* -> skip
+    :   '//' ~[\r\n]* -> channel(COMMENT_CHANNEL)
     ;
 

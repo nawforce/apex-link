@@ -25,7 +25,7 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.apexlink.transform
+package io.github.nawforce.apexlink.transforms
 
 import io.github.nawforce.apexlink.diff.FileChanger
 import io.github.nawforce.apexlink.metadata.{Label, SymbolReaderContext}

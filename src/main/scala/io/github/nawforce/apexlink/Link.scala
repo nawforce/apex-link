@@ -31,7 +31,8 @@ import java.nio.file.{Files, Paths}
 
 import io.github.nawforce.apexlink.diff.FileChanger
 import io.github.nawforce.apexlink.metadata.{ApexClassReader, CustomObjectReader, LabelReader, SymbolReaderContext}
-import io.github.nawforce.apexlink.transform.{AssertDelete, LS_QueryLoops, MakeIsTest, SortLabels}
+import io.github.nawforce.apexlink.transforms._
+import io.github.nawforce.apexlink.transforms.experimental.{AssertDelete, LS_QueryLoops}
 import io.github.nawforce.apexlink.utils.LinkerLog
 
 object Link {
@@ -99,6 +100,7 @@ object Link {
         case "ls-query-loops" => new LS_QueryLoops().exec(ctx, fileChanger)
         case "sort-labels" => new SortLabels().exec(ctx, fileChanger)
         case "make-istest" => new MakeIsTest().exec(ctx, fileChanger)
+        case "bang-comments" => new BangComments().exec(ctx, fileChanger)
         case _ =>
           println("There is no transform " + transform)
           return 1

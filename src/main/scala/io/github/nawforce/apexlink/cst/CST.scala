@@ -51,9 +51,10 @@ sealed abstract class CST {
     List(cst) ++ cst.children().flatMap(x => descendants(x))
   }
 
-  def withContext(context: ParserRuleContext): this.type = {
+  def withContext(context: ParserRuleContext, constructContext: ConstructContext): this.type = {
     startPos = context.start.getStartIndex()
     endPos = context.stop.getStopIndex()
+
     this
   }
 
@@ -141,7 +142,7 @@ final case class TimeType(arraySubs: Integer) extends PrimitiveType
 final case class NullType() extends PrimitiveType
 
 object PrimitiveType {
-  def construct(primitiveType: PrimitiveTypeContext, arraySubs: Integer = 0): PrimitiveType = {
+  def construct(primitiveType: PrimitiveTypeContext, arraySubs: Integer, context: ConstructContext): PrimitiveType = {
     val cst = primitiveType.getText.toLowerCase match {
       case "blob" => BlobType(arraySubs)
       case "boolean" => BooleanType(arraySubs)
@@ -156,16 +157,16 @@ object PrimitiveType {
       case "string" => StringType(arraySubs)
       case "time" => TimeType(arraySubs)
     }
-    cst.withContext(primitiveType)
+    cst.withContext(primitiveType, context)
   }
 }
 
 object Type {
-  def construct(t: TypeRefContext): Type = {
+  def construct(t: TypeRefContext, context: ConstructContext): Type = {
     if (t.primitiveType() != null) {
-      PrimitiveType.construct(t.primitiveType()).withContext(t)
+      PrimitiveType.construct(t.primitiveType(), 0, context).withContext(t, context)
     } else if (t.classOrInterfaceType() != null) {
-      ClassOrInterfaceType.construct(t.classOrInterfaceType()).withContext(t)
+      ClassOrInterfaceType.construct(t.classOrInterfaceType(), context).withContext(t, context)
     } else {
       throw new CSTException()
     }
@@ -175,9 +176,9 @@ object Type {
 final case class TypeList(types: List[Type])
 
 object TypeList {
-  def construct(typeList: TypeListContext): TypeList = {
+  def construct(typeList: TypeListContext, context: ConstructContext): TypeList = {
     val types: Seq[TypeRefContext] = typeList.typeRef()
-    TypeList(types.toList.map(t => Type.construct(t).withContext(t)))
+    TypeList(types.toList.map(t => Type.construct(t, context).withContext(t, context)))
   }
 
   def empty(): TypeList = {
@@ -190,7 +191,7 @@ final case class ClassOrInterfaceTypePart(name: String, typeList: TypeList)
 final case class ClassOrInterfaceType(name: List[ClassOrInterfaceTypePart]) extends Type
 
 object ClassOrInterfaceType {
-  def construct(classOrInterfaceType: ClassOrInterfaceTypeContext): ClassOrInterfaceType = {
+  def construct(classOrInterfaceType: ClassOrInterfaceTypeContext, context: ConstructContext): ClassOrInterfaceType = {
     val ids: Seq[IdContext] = classOrInterfaceType.id()
     val typeArgs: Seq[TypeArgumentsContext] = classOrInterfaceType.typeArguments()
     var i = 0
@@ -198,11 +199,11 @@ object ClassOrInterfaceType {
       val hasTypes = typeArgs.length > i
       i += 1
       if (hasTypes)
-        ClassOrInterfaceTypePart(id.getText, TypeList.construct(typeArgs.get(i - 1).typeList()))
+        ClassOrInterfaceTypePart(id.getText, TypeList.construct(typeArgs.get(i - 1).typeList(), context))
       else
         ClassOrInterfaceTypePart(id.getText, TypeList.empty())
     }
-    ClassOrInterfaceType(parts.toList).withContext(classOrInterfaceType)
+    ClassOrInterfaceType(parts.toList).withContext(classOrInterfaceType, context)
   }
 }
 
@@ -215,13 +216,13 @@ final case class QualifiedName(names: List[String]) extends CST {
 }
 
 object QualifiedName {
-  def construct(qualifiedName: QualifiedNameContext): QualifiedName = {
-    val ids: Seq[IdContext] = qualifiedName.id()
-    QualifiedName(ids.toList.map(id => id.getText)).withContext(qualifiedName)
+  def construct(aList: List[QualifiedNameContext], context: ConstructContext): List[QualifiedName] = {
+    aList.map(n => QualifiedName.construct(n, context))
   }
 
-  def construct(aList: List[QualifiedNameContext]): List[QualifiedName] = {
-    aList.map(QualifiedName.construct)
+  def construct(qualifiedName: QualifiedNameContext, context: ConstructContext): QualifiedName = {
+    val ids: Seq[IdContext] = qualifiedName.id()
+    QualifiedName(ids.toList.map(id => id.getText)).withContext(qualifiedName, context)
   }
 }
 
@@ -230,16 +231,16 @@ final case class Annotation(name: QualifiedName, elementValuePairs: List[Element
 }
 
 object Annotation {
-  def construct(annotation: AnnotationContext): Annotation = {
+  def construct(annotation: AnnotationContext, context: ConstructContext): Annotation = {
     val elementValue =
       if (annotation.elementValue() != null) {
-        Some(ElementValue.construct(annotation.elementValue()))
+        Some(ElementValue.construct(annotation.elementValue(), context))
       } else {
         None
       }
-    Annotation(QualifiedName.construct(annotation.qualifiedName()),
-      ElementValuePairs.construct(annotation.elementValuePairs()),
-      elementValue).withContext(annotation)
+    Annotation(QualifiedName.construct(annotation.qualifiedName(), context),
+      ElementValuePairs.construct(annotation.elementValuePairs(), context),
+      elementValue).withContext(annotation, context)
   }
 }
 
@@ -258,21 +259,21 @@ final case class ArrayInitializerElementValue(arrayInitializer: ElementValueArra
 }
 
 object ElementValue {
-  def construct(elementValue: ElementValueContext): ElementValue = {
+  def construct(aList: List[ElementValueContext], context: ConstructContext): List[ElementValue] = {
+    aList.map(x => ElementValue.construct(x, context))
+  }
+
+  def construct(elementValue: ElementValueContext, context: ConstructContext): ElementValue = {
     if (elementValue.expression() != null) {
-      ExpressionElementValue(Expression.construct(elementValue.expression())).withContext(elementValue)
+      ExpressionElementValue(Expression.construct(elementValue.expression(), context)).withContext(elementValue, context)
     } else if (elementValue.annotation() != null) {
-      AnnotationElementValue(Annotation.construct(elementValue.annotation())).withContext(elementValue)
+      AnnotationElementValue(Annotation.construct(elementValue.annotation(), context)).withContext(elementValue, context)
     } else if (elementValue.elementValueArrayInitializer() != null) {
       ArrayInitializerElementValue(ElementValueArrayInitializer.construct(
-        elementValue.elementValueArrayInitializer())).withContext(elementValue)
+        elementValue.elementValueArrayInitializer(), context)).withContext(elementValue, context)
     } else {
       throw new CSTException()
     }
-  }
-
-  def construct(aList: List[ElementValueContext]): List[ElementValue] = {
-    aList.map(ElementValue.construct)
   }
 }
 
@@ -281,9 +282,9 @@ final case class ElementValueArrayInitializer(elementValues: List[ElementValue])
 }
 
 object ElementValueArrayInitializer {
-  def construct(from: ElementValueArrayInitializerContext): ElementValueArrayInitializer = {
+  def construct(from: ElementValueArrayInitializerContext, context: ConstructContext): ElementValueArrayInitializer = {
     val elements: Seq[ElementValueContext] = from.elementValue()
-    ElementValueArrayInitializer(elements.toList.map(ElementValue.construct)).withContext(from)
+    ElementValueArrayInitializer(elements.toList.map(x => ElementValue.construct(x, context))).withContext(from, context)
   }
 }
 
@@ -292,20 +293,20 @@ final case class ElementValuePair(id: String, elementValue: ElementValue) extend
 }
 
 object ElementValuePair {
-  def construct(from: ElementValuePairContext): ElementValuePair = {
-    ElementValuePair(from.id().getText, ElementValue.construct(from.elementValue())).withContext(from)
+  def construct(aList: List[ElementValuePairContext], context: ConstructContext): List[ElementValuePair] = {
+    aList.map(x => ElementValuePair.construct(x, context))
   }
 
-  def construct(aList: List[ElementValuePairContext]): List[ElementValuePair] = {
-    aList.map(ElementValuePair.construct)
+  def construct(from: ElementValuePairContext, context: ConstructContext): ElementValuePair = {
+    ElementValuePair(from.id().getText, ElementValue.construct(from.elementValue(), context)).withContext(from, context)
   }
 }
 
 object ElementValuePairs {
-  def construct(from: ElementValuePairsContext): List[ElementValuePair] = {
+  def construct(from: ElementValuePairsContext, context: ConstructContext): List[ElementValuePair] = {
     if (from != null) {
       val pairs: Seq[ElementValuePairContext] = from.elementValuePair()
-      pairs.toList.map(ElementValuePair.construct)
+      pairs.toList.map(x => ElementValuePair.construct(x, context))
     } else {
       List()
     }
@@ -351,7 +352,25 @@ final case class WithoutSharingModifier() extends TypeModifier
 
 object TypeModifier {
 
-  def construct(typeModifier: String): TypeModifier = {
+  def construct(typeModifiers: List[ClassOrInterfaceModifierContext], context: ConstructContext): List[TypeModifier] = {
+    typeModifiers.map(x => TypeModifier.construct(x, context))
+  }
+
+  def construct(typeModifier: ClassOrInterfaceModifierContext, context: ConstructContext): TypeModifier = {
+    val cst =
+      if (typeModifier.annotation() != null) {
+        AnnotationModifier(Annotation.construct(typeModifier.annotation(), context))
+      } else if (typeModifier.withSharing() != null) {
+        WithSharingModifier()
+      } else if (typeModifier.withoutSharing() != null) {
+        WithoutSharingModifier()
+      } else {
+        construct(typeModifier.getText, context)
+      }
+    cst.withContext(typeModifier, context)
+  }
+
+  def construct(typeModifier: String, context: ConstructContext): TypeModifier = {
     typeModifier.toLowerCase match {
       case "public" => PublicModifier()
       case "protected" => ProtectedModifier()
@@ -367,33 +386,19 @@ object TypeModifier {
       case _ => UnknownModifier(typeModifier)
     }
   }
-
-  def construct(typeModifier: ClassOrInterfaceModifierContext): TypeModifier = {
-    val cst =
-      if (typeModifier.annotation() != null) {
-        AnnotationModifier(Annotation.construct(typeModifier.annotation()))
-      } else if (typeModifier.withSharing() != null) {
-        WithSharingModifier()
-      } else if (typeModifier.withoutSharing() != null) {
-        WithoutSharingModifier()
-      } else {
-        construct(typeModifier.getText)
-      }
-    cst.withContext(typeModifier)
-  }
-
-  def construct(typeModifiers: List[ClassOrInterfaceModifierContext]): List[TypeModifier] = {
-    typeModifiers.map(TypeModifier.construct)
-  }
 }
 
 sealed abstract class Modifier() extends TypeModifier
 
 object Modifier {
-  def construct(modifier: ModifierContext): TypeModifier = {
+  def construct(typeModifiers: List[ModifierContext], context: ConstructContext): List[TypeModifier] = {
+    typeModifiers.map(x => Modifier.construct(x, context))
+  }
+
+  def construct(modifier: ModifierContext, context: ConstructContext): TypeModifier = {
     val cst =
       if (modifier.classOrInterfaceModifier() != null) {
-        TypeModifier.construct(modifier.classOrInterfaceModifier())
+        TypeModifier.construct(modifier.classOrInterfaceModifier(), context)
       } else {
         modifier.getText.toLowerCase() match {
           case "native" => NativeModifier()
@@ -402,11 +407,7 @@ object Modifier {
           case _ => throw new CSTException()
         }
       }
-    cst.withContext(modifier)
-  }
-
-  def construct(typeModifiers: List[ModifierContext]): List[TypeModifier] = {
-    typeModifiers.map(Modifier.construct)
+    cst.withContext(modifier, context)
   }
 }
 
@@ -425,9 +426,9 @@ final case class CompilationUnit(types: List[TypeDeclaration]) extends CST {
 }
 
 object CompilationUnit {
-  def construct(compilationUnit: CompilationUnitContext): CompilationUnit = {
+  def construct(compilationUnit: CompilationUnitContext, context: ConstructContext): CompilationUnit = {
     val typeDecls: Seq[TypeDeclarationContext] = compilationUnit.typeDeclaration()
-    CompilationUnit(TypeDeclaration.construct(typeDecls.toList)).withContext(compilationUnit)
+    CompilationUnit(TypeDeclaration.construct(typeDecls.toList, context)).withContext(compilationUnit, context)
   }
 }
 
@@ -444,24 +445,24 @@ final case class EmptyTypeDeclaration() extends TypeDeclaration {
 
 object TypeDeclaration {
 
-  def construct(typeDecl: TypeDeclarationContext): TypeDeclaration = {
+  def construct(typeDecls: List[TypeDeclarationContext], context: ConstructContext): List[TypeDeclaration] = {
+    typeDecls.map(t => TypeDeclaration.construct(t, context))
+  }
+
+  def construct(typeDecl: TypeDeclarationContext, context: ConstructContext): TypeDeclaration = {
     val modifiers: Seq[ClassOrInterfaceModifierContext] = typeDecl.classOrInterfaceModifier()
     val cst =
       if (typeDecl.classDeclaration() != null) {
-        ClassDeclaration.construct(TypeModifier.construct(modifiers.toList), typeDecl.classDeclaration())
+        ClassDeclaration.construct(TypeModifier.construct(modifiers.toList, context), typeDecl.classDeclaration(), context)
       } else if (typeDecl.interfaceDeclaration() != null) {
-        InterfaceDeclaration.construct(TypeModifier.construct(modifiers.toList), typeDecl.interfaceDeclaration())
+        InterfaceDeclaration.construct(TypeModifier.construct(modifiers.toList, context), typeDecl.interfaceDeclaration(), context)
       } else if (typeDecl.enumDeclaration() != null) {
-        EnumDeclaration.construct(TypeModifier.construct(modifiers.toList), typeDecl.enumDeclaration())
+        EnumDeclaration.construct(TypeModifier.construct(modifiers.toList, context), typeDecl.enumDeclaration(), context)
       } else {
         // TODO: Empty type declaration?
         throw new CSTException()
       }
-    cst.withContext(typeDecl)
-  }
-
-  def construct(typeDecls: List[TypeDeclarationContext]): List[TypeDeclaration] = {
-    typeDecls.map(TypeDeclaration.construct)
+    cst.withContext(typeDecl, context)
   }
 }
 
@@ -479,15 +480,15 @@ final case class ClassDeclaration(name: String, typeModifiers: List[TypeModifier
 }
 
 object ClassDeclaration {
-  def construct(typeModifiers: List[TypeModifier], classDeclaration: ClassDeclarationContext): ClassDeclaration = {
+  def construct(typeModifiers: List[TypeModifier], classDeclaration: ClassDeclarationContext, context: ConstructContext): ClassDeclaration = {
     val extendType =
       if (classDeclaration.typeRef() != null)
-        Some(Type.construct(classDeclaration.typeRef()))
+        Some(Type.construct(classDeclaration.typeRef(), context))
       else
         None
     val implementsType =
       if (classDeclaration.typeList() != null)
-        TypeList.construct(classDeclaration.typeList())
+        TypeList.construct(classDeclaration.typeList(), context)
       else
         TypeList.empty()
 
@@ -498,10 +499,10 @@ object ClassDeclaration {
         classBodyDeclarations.toList.map(cbd =>
 
           if (cbd.block() != null) {
-            StaticBlock.construct(cbd.block())
+            StaticBlock.construct(cbd.block(), context)
           } else if (cbd.memberDeclaration() != null) {
             val modifiers: Seq[ModifierContext] = cbd.modifier()
-            ClassBodyDeclaration.construct(modifiers.toList, cbd.memberDeclaration())
+            ClassBodyDeclaration.construct(modifiers.toList, cbd.memberDeclaration(), context)
           } else {
             throw new CSTException()
           }
@@ -511,7 +512,7 @@ object ClassDeclaration {
       }
 
     ClassDeclaration(classDeclaration.id().getText, typeModifiers, extendType,
-      implementsType, bodyDeclarations).withContext(classDeclaration)
+      implementsType, bodyDeclarations).withContext(classDeclaration, context)
   }
 }
 
@@ -525,14 +526,14 @@ final case class InterfaceDeclaration(name: String, typeModifiers: List[TypeModi
 }
 
 object InterfaceDeclaration {
-  def construct(typeModifiers: List[TypeModifier], interfaceDeclaration: ApexParser.InterfaceDeclarationContext): InterfaceDeclaration = {
+  def construct(typeModifiers: List[TypeModifier], interfaceDeclaration: ApexParser.InterfaceDeclarationContext, context: ConstructContext): InterfaceDeclaration = {
     val implementsType =
       if (interfaceDeclaration.typeList() != null)
-        TypeList.construct(interfaceDeclaration.typeList())
+        TypeList.construct(interfaceDeclaration.typeList(), context)
       else
         TypeList.empty()
 
-    InterfaceDeclaration(interfaceDeclaration.id().getText, typeModifiers, implementsType).withContext(interfaceDeclaration)
+    InterfaceDeclaration(interfaceDeclaration.id().getText, typeModifiers, implementsType).withContext(interfaceDeclaration, context)
   }
 }
 
@@ -546,13 +547,13 @@ final case class EnumDeclaration(name: String, typeModifiers: List[TypeModifier]
 }
 
 object EnumDeclaration {
-  def construct(typeModifiers: List[TypeModifier], enumDeclaration: ApexParser.EnumDeclarationContext): EnumDeclaration = {
+  def construct(typeModifiers: List[TypeModifier], enumDeclaration: ApexParser.EnumDeclarationContext, context: ConstructContext): EnumDeclaration = {
     val implementsType =
       if (enumDeclaration.typeList() != null)
-        TypeList.construct(enumDeclaration.typeList())
+        TypeList.construct(enumDeclaration.typeList(), context)
       else
         TypeList.empty()
-    EnumDeclaration(enumDeclaration.id().getText, typeModifiers, implementsType).withContext(enumDeclaration)
+    EnumDeclaration(enumDeclaration.id().getText, typeModifiers, implementsType).withContext(enumDeclaration, context)
   }
 }
 
@@ -563,39 +564,42 @@ trait ClassBodyDeclaration extends CST {
 }
 
 object ClassBodyDeclaration {
-  def construct(modifiers: List[ModifierContext], memberDeclarationContext: MemberDeclarationContext): ClassBodyDeclaration = {
-    val m = Modifier.construct(modifiers)
+  def construct(modifiers: List[ModifierContext], memberDeclarationContext: MemberDeclarationContext, context: ConstructContext): ClassBodyDeclaration = {
+    val m = Modifier.construct(modifiers, context)
     val cst: ClassBodyDeclaration =
       if (memberDeclarationContext.methodDeclaration() != null) {
-        MethodDeclaration.construct(m, memberDeclarationContext.methodDeclaration())
+        MethodDeclaration.construct(m, memberDeclarationContext.methodDeclaration(), context)
       } else if (memberDeclarationContext.fieldDeclaration() != null) {
-        FieldDeclaration.construct(m, memberDeclarationContext.fieldDeclaration())
+        FieldDeclaration.construct(m, memberDeclarationContext.fieldDeclaration(), context)
       } else if (memberDeclarationContext.constructorDeclaration() != null) {
-        ConstructorDeclaration.construct(m, memberDeclarationContext.constructorDeclaration())
+        ConstructorDeclaration.construct(m, memberDeclarationContext.constructorDeclaration(), context)
       } else if (memberDeclarationContext.interfaceDeclaration() != null) {
-        InterfaceDeclaration.construct(m, memberDeclarationContext.interfaceDeclaration())
+        InterfaceDeclaration.construct(m, memberDeclarationContext.interfaceDeclaration(), context)
       } else if (memberDeclarationContext.enumDeclaration() != null) {
-        EnumDeclaration.construct(m, memberDeclarationContext.enumDeclaration())
+        EnumDeclaration.construct(m, memberDeclarationContext.enumDeclaration(), context)
       } else if (memberDeclarationContext.propertyDeclaration() != null) {
-        PropertyDeclaration.construct(m, memberDeclarationContext.propertyDeclaration())
+        PropertyDeclaration.construct(m, memberDeclarationContext.propertyDeclaration(), context)
       } else if (memberDeclarationContext.classDeclaration() != null) {
-        ClassDeclaration.construct(m, memberDeclarationContext.classDeclaration())
+        ClassDeclaration.construct(m, memberDeclarationContext.classDeclaration(), context)
       } else {
         throw new CSTException()
       }
-    cst.withContext(memberDeclarationContext)
+    cst.withContext(memberDeclarationContext, context)
   }
 
 }
 
-final case class StaticBlock(block: List[Statement]) extends ClassBodyDeclaration {
-  override def children(): List[CST] = block
+final case class StaticBlock(block: Block) extends ClassBodyDeclaration {
+  override def children(): List[CST] = block.children()
+
+  override def resolve(index: CSTIndex): Unit = {
+    index.add(this)
+  }
 }
 
 object StaticBlock {
-  def construct(block: BlockContext): StaticBlock = {
-    val statements: Seq[StatementContext] = block.statement()
-    StaticBlock(Statement.construct(statements.toList))
+  def construct(block: BlockContext, context: ConstructContext): StaticBlock = {
+    StaticBlock(Block.construct(block, context))
   }
 }
 
@@ -613,16 +617,16 @@ final case class MethodDeclaration(modifiers: List[TypeModifier], typeRef: Optio
 }
 
 object MethodDeclaration {
-  def construct(modifiers: List[TypeModifier], from: MethodDeclarationContext): MethodDeclaration = {
-    val typeRef = if (from.typeRef() != null) Some(TypeRef.construct(from.typeRef())) else None
-    val block = if (from.block != null) Some(Block.construct(from.block)) else None
+  def construct(modifiers: List[TypeModifier], from: MethodDeclarationContext, context: ConstructContext): MethodDeclaration = {
+    val typeRef = if (from.typeRef() != null) Some(TypeRef.construct(from.typeRef(), context)) else None
+    val block = if (from.block != null) Some(Block.construct(from.block, context)) else None
 
     MethodDeclaration(modifiers,
       typeRef,
       from.id.getText,
-      FormalParameters.construct(from.formalParameters()),
+      FormalParameters.construct(from.formalParameters(), context),
       block
-    ).withContext(from)
+    ).withContext(from, context)
   }
 }
 
@@ -631,9 +635,9 @@ final case class FieldDeclaration(modifiers: List[TypeModifier], typeRef: TypeRe
 }
 
 object FieldDeclaration {
-  def construct(modifiers: List[TypeModifier], fieldDeclaration: FieldDeclarationContext): FieldDeclaration = {
-    FieldDeclaration(modifiers, TypeRef.construct(fieldDeclaration.typeRef()),
-      VariableDeclarators.construct(fieldDeclaration.variableDeclarators())).withContext(fieldDeclaration)
+  def construct(modifiers: List[TypeModifier], fieldDeclaration: FieldDeclarationContext, context: ConstructContext): FieldDeclaration = {
+    FieldDeclaration(modifiers, TypeRef.construct(fieldDeclaration.typeRef(), context),
+      VariableDeclarators.construct(fieldDeclaration.variableDeclarators(), context)).withContext(fieldDeclaration, context)
   }
 }
 
@@ -644,12 +648,12 @@ final case class ConstructorDeclaration(modifiers: List[TypeModifier], qualified
 }
 
 object ConstructorDeclaration {
-  def construct(modifiers: List[TypeModifier], from: ConstructorDeclarationContext): ConstructorDeclaration = {
+  def construct(modifiers: List[TypeModifier], from: ConstructorDeclarationContext, context: ConstructContext): ConstructorDeclaration = {
     ConstructorDeclaration(modifiers,
-      QualifiedName.construct(from.qualifiedName()),
-      FormalParameters.construct(from.formalParameters()),
-      Block.construct(from.block())
-    ).withContext(from)
+      QualifiedName.construct(from.qualifiedName(), context),
+      FormalParameters.construct(from.formalParameters(), context),
+      Block.construct(from.block(), context)
+    ).withContext(from, context)
   }
 }
 
@@ -658,10 +662,10 @@ final case class PropertyDeclaration(modifiers: List[TypeModifier], typeRef: Typ
 }
 
 object PropertyDeclaration {
-  def construct(modifiers: List[TypeModifier], propertyDeclaration: PropertyDeclarationContext): PropertyDeclaration = {
-    PropertyDeclaration(modifiers, TypeRef.construct(propertyDeclaration.typeRef()),
-      VariableDeclarators.construct(propertyDeclaration.variableDeclarators()),
-      PropertyBodyDeclaration.construct(propertyDeclaration.propertyBodyDeclaration())).withContext(propertyDeclaration)
+  def construct(modifiers: List[TypeModifier], propertyDeclaration: PropertyDeclarationContext, context: ConstructContext): PropertyDeclaration = {
+    PropertyDeclaration(modifiers, TypeRef.construct(propertyDeclaration.typeRef(), context),
+      VariableDeclarators.construct(propertyDeclaration.variableDeclarators(), context),
+      PropertyBodyDeclaration.construct(propertyDeclaration.propertyBodyDeclaration(), context)).withContext(propertyDeclaration, context)
   }
 }
 
@@ -677,22 +681,22 @@ final case class Block(statements: List[Statement]) extends CST with Statement {
 }
 
 object Block {
-  def construct(statements: List[StatementContext]): Block = {
-    Block(Statement.construct(statements))
+  def constructBlocks(blockContexts: List[BlockContext], context: ConstructContext): List[Block] = {
+    blockContexts.map(bc => construct(bc, context))
   }
 
-  def construct(blockContext: BlockContext): Block = {
+  def construct(blockContext: BlockContext, context: ConstructContext): Block = {
     val statements: Seq[StatementContext] = blockContext.statement()
-    construct(statements.toList)
+    construct(statements.toList, context)
   }
 
-  def constructBlocks(blockContexts: List[BlockContext]): List[Block] = {
-    blockContexts.map(construct)
+  def construct(statements: List[StatementContext], context: ConstructContext): Block = {
+    Block(Statement.construct(statements, context))
   }
 
-  def constructOption(blockContext: BlockContext): Option[Block] = {
+  def constructOption(blockContext: BlockContext, context: ConstructContext): Option[Block] = {
     if (blockContext != null)
-      Some(construct(blockContext))
+      Some(construct(blockContext, context))
     else
       None
   }
@@ -709,8 +713,8 @@ final case class LocalVariableDeclarationStatement(localVariableDeclaration: Loc
 }
 
 object LocalVariableDeclarationStatement {
-  def construct(from: LocalVariableDeclarationStatementContext): LocalVariableDeclarationStatement = {
-    LocalVariableDeclarationStatement(LocalVariableDeclaration.construct(from.localVariableDeclaration())).withContext(from)
+  def construct(from: LocalVariableDeclarationStatementContext, context: ConstructContext): LocalVariableDeclarationStatement = {
+    LocalVariableDeclarationStatement(LocalVariableDeclaration.construct(from.localVariableDeclaration(), context)).withContext(from, context)
   }
 }
 
@@ -726,10 +730,10 @@ final case class IfStatement(expression: Expression, statements: List[Statement]
 }
 
 object IfStatement {
-  def construct(ifStatement: IfStatementContext): IfStatement = {
+  def construct(ifStatement: IfStatementContext, context: ConstructContext): IfStatement = {
     val statements: Seq[StatementContext] = ifStatement.statement()
-    IfStatement(Expression.construct(ifStatement.parExpression().expression()),
-      Statement.construct(statements.toList)).withContext(ifStatement)
+    IfStatement(Expression.construct(ifStatement.parExpression().expression(), context),
+      Statement.construct(statements.toList, context)).withContext(ifStatement, context)
   }
 }
 
@@ -747,8 +751,8 @@ final case class ForStatement(control: ForControl, statement: Statement) extends
 }
 
 object ForStatement {
-  def construct(statement: ForStatementContext): ForStatement = {
-    ForStatement(ForControl.construct(statement.forControl()), Statement.construct(statement.statement())).withContext(statement)
+  def construct(statement: ForStatementContext, context: ConstructContext): ForStatement = {
+    ForStatement(ForControl.construct(statement.forControl(), context), Statement.construct(statement.statement(), context)).withContext(statement, context)
   }
 }
 
@@ -757,14 +761,14 @@ sealed abstract class ForControl extends CST {
 }
 
 object ForControl {
-  def construct(from: ForControlContext): ForControl = {
+  def construct(from: ForControlContext, context: ConstructContext): ForControl = {
     val cst =
       if (from.enhancedForControl() != null) {
-        EnhancedForControl.construct(from.enhancedForControl())
+        EnhancedForControl.construct(from.enhancedForControl(), context)
       } else {
-        BasicForControl.construct(from)
+        BasicForControl.construct(from, context)
       }
-    cst.withContext(from)
+    cst.withContext(from, context)
   }
 }
 
@@ -779,7 +783,7 @@ final case class EnhancedForControl(modifiers: List[VariableModifier], typeRef: 
 }
 
 object EnhancedForControl {
-  def construct(from: EnhancedForControlContext): EnhancedForControl = {
+  def construct(from: EnhancedForControlContext, context: ConstructContext): EnhancedForControl = {
     val variableModifiers: Seq[VariableModifierContext] =
       if (from.variableModifier() != null) {
         from.variableModifier()
@@ -788,10 +792,10 @@ object EnhancedForControl {
       }
 
     EnhancedForControl(
-      VariableModifier.construct(variableModifiers.toList),
-      TypeRef.construct(from.typeRef()),
+      VariableModifier.construct(variableModifiers.toList, context),
+      TypeRef.construct(from.typeRef(), context),
       Identifier(from.id().getText),
-      Expression.construct(from.expression()).withContext(from)
+      Expression.construct(from.expression(), context).withContext(from, context)
     )
   }
 }
@@ -807,26 +811,26 @@ final case class BasicForControl(forInit: Option[ForInit], expression: Option[Ex
 }
 
 object BasicForControl {
-  def construct(from: ForControlContext): BasicForControl = {
+  def construct(from: ForControlContext, context: ConstructContext): BasicForControl = {
     val forInit =
       if (from.forInit() != null) {
-        Some(ForInit.construct(from.forInit()))
+        Some(ForInit.construct(from.forInit(), context))
       } else {
         None
       }
     val expression =
       if (from.expression() != null) {
-        Some(Expression.construct(from.expression()))
+        Some(Expression.construct(from.expression(), context))
       } else {
         None
       }
     val forUpdate =
       if (from.forUpdate() != null) {
-        Some(ForUpdate.construct(from.forUpdate()))
+        Some(ForUpdate.construct(from.forUpdate(), context))
       } else {
         None
       }
-    BasicForControl(forInit, expression, forUpdate).withContext(from)
+    BasicForControl(forInit, expression, forUpdate).withContext(from, context)
   }
 }
 
@@ -847,17 +851,17 @@ final case class ExpressionListForInit(expressions: List[Expression]) extends Fo
 }
 
 object ForInit {
-  def construct(from: ForInitContext): ForInit = {
+  def construct(from: ForInitContext, context: ConstructContext): ForInit = {
     val cst =
       if (from.localVariableDeclaration() != null) {
-        LocalVariableForInit(LocalVariableDeclaration.construct(from.localVariableDeclaration()))
+        LocalVariableForInit(LocalVariableDeclaration.construct(from.localVariableDeclaration(), context))
       } else if (from.expressionList() != null) {
         val expressions: Seq[ExpressionContext] = from.expressionList().expression()
-        ExpressionListForInit(Expression.construct(expressions.toList))
+        ExpressionListForInit(Expression.construct(expressions.toList, context))
       } else {
         throw new CSTException
       }
-    cst.withContext(from)
+    cst.withContext(from, context)
   }
 }
 
@@ -868,9 +872,9 @@ final case class ForUpdate(expressions: List[Expression]) extends CST {
 }
 
 object ForUpdate {
-  def construct(from: ForUpdateContext): ForUpdate = {
+  def construct(from: ForUpdateContext, context: ConstructContext): ForUpdate = {
     val expressions: Seq[ExpressionContext] = from.expressionList().expression()
-    ForUpdate(Expression.construct(expressions.toList)).withContext(from)
+    ForUpdate(Expression.construct(expressions.toList, context)).withContext(from, context)
   }
 }
 
@@ -886,9 +890,9 @@ final case class WhileStatement(expression: Expression, statement: Statement) ex
 }
 
 object WhileStatement {
-  def construct(statement: WhileStatementContext): WhileStatement = {
-    WhileStatement(Expression.construct(statement.parExpression().expression()),
-      Statement.construct(statement.statement())).withContext(statement)
+  def construct(statement: WhileStatementContext, context: ConstructContext): WhileStatement = {
+    WhileStatement(Expression.construct(statement.parExpression().expression(), context),
+      Statement.construct(statement.statement(), context)).withContext(statement, context)
   }
 }
 
@@ -904,10 +908,10 @@ final case class DoWhileStatement(statement: Statement, expression: Expression) 
 }
 
 object DoWhileStatement {
-  def construct(statement: DoWhileStatementContext): DoWhileStatement = {
-    DoWhileStatement(Statement.construct(statement.statement()),
-      Expression.construct(statement.parExpression().expression())
-    ).withContext(statement)
+  def construct(statement: DoWhileStatementContext, context: ConstructContext): DoWhileStatement = {
+    DoWhileStatement(Statement.construct(statement.statement(), context),
+      Expression.construct(statement.parExpression().expression(), context)
+    ).withContext(statement, context)
   }
 }
 
@@ -922,17 +926,17 @@ final case class TryStatement(block: Block, catches: List[CatchClause], finallyB
 }
 
 object TryStatement {
-  def construct(from: TryStatementContext): TryStatement = {
+  def construct(from: TryStatementContext, context: ConstructContext): TryStatement = {
     val catches: List[CatchClauseContext] = if (from.catchClause() != null) from.catchClause().toList else List()
-    TryStatement(Block.construct(from.block()), CatchClause.construct(catches),
-      FinallyBlock.construct(from.finallyBlock())).withContext(from)
+    TryStatement(Block.construct(from.block(), context), CatchClause.construct(catches, context),
+      FinallyBlock.construct(from.finallyBlock(), context)).withContext(from, context)
   }
 }
 
 object FinallyBlock {
-  def construct(from: FinallyBlockContext): Option[Block] = {
+  def construct(from: FinallyBlockContext, context: ConstructContext): Option[Block] = {
     if (from != null) {
-      Some(Block.construct(from.block()))
+      Some(Block.construct(from.block(), context))
     } else {
       None
     }
@@ -946,9 +950,9 @@ final case class CatchType(names: List[QualifiedName]) extends CST {
 }
 
 object CatchType {
-  def construct(from: CatchTypeContext): CatchType = {
+  def construct(from: CatchTypeContext, context: ConstructContext): CatchType = {
     val names: Seq[QualifiedNameContext] = from.qualifiedName()
-    CatchType(QualifiedName.construct(names.toList)).withContext(from)
+    CatchType(QualifiedName.construct(names.toList, context)).withContext(from, context)
   }
 }
 
@@ -961,21 +965,21 @@ final case class CatchClause(modifiers: List[VariableModifier], catchType: Catch
 }
 
 object CatchClause {
-  def construct(from: CatchClauseContext): CatchClause = {
-    val modifiers: Seq[VariableModifierContext] = from.variableModifier()
-    CatchClause(
-      VariableModifier.construct(modifiers.toList),
-      CatchType.construct(from.catchType()),
-      from.id().getText,
-      Block.construct(from.block())
-    ).withContext(from)
-  }
-
-  def construct(aList: List[CatchClauseContext]): List[CatchClause] = {
+  def construct(aList: List[CatchClauseContext], context: ConstructContext): List[CatchClause] = {
     if (aList != null)
-      aList.map(CatchClause.construct)
+      aList.map(x => CatchClause.construct(x, context))
     else
       List()
+  }
+
+  def construct(from: CatchClauseContext, context: ConstructContext): CatchClause = {
+    val modifiers: Seq[VariableModifierContext] = from.variableModifier()
+    CatchClause(
+      VariableModifier.construct(modifiers.toList, context),
+      CatchType.construct(from.catchType(), context),
+      from.id().getText,
+      Block.construct(from.block(), context)
+    ).withContext(from, context)
   }
 
 }
@@ -987,14 +991,14 @@ final case class ReturnStatement(expression: Option[Expression]) extends Stateme
 }
 
 object ReturnStatement {
-  def construct(statement: ReturnStatementContext): ReturnStatement = {
+  def construct(statement: ReturnStatementContext, context: ConstructContext): ReturnStatement = {
     val cst =
       if (statement.expression() != null) {
-        ReturnStatement(Some(Expression.construct(statement.expression())))
+        ReturnStatement(Some(Expression.construct(statement.expression(), context)))
       } else {
         ReturnStatement(None)
       }
-    cst.withContext(statement)
+    cst.withContext(statement, context)
   }
 }
 
@@ -1005,8 +1009,8 @@ final case class ThrowStatement(expression: Expression) extends Statement {
 }
 
 object ThrowStatement {
-  def construct(statement: ThrowStatementContext): ThrowStatement = {
-    ThrowStatement(Expression.construct(statement.expression())).withContext(statement)
+  def construct(statement: ThrowStatementContext, context: ConstructContext): ThrowStatement = {
+    ThrowStatement(Expression.construct(statement.expression(), context)).withContext(statement, context)
   }
 }
 
@@ -1017,14 +1021,14 @@ final case class BreakStatement(id: String) extends Statement {
 }
 
 object BreakStatement {
-  def construct(statement: BreakStatementContext): BreakStatement = {
+  def construct(statement: BreakStatementContext, context: ConstructContext): BreakStatement = {
     val cst =
       if (statement.id() != null) {
         BreakStatement(statement.id.getText)
       } else {
         BreakStatement(null)
       }
-    cst.withContext(statement)
+    cst.withContext(statement, context)
   }
 }
 
@@ -1035,14 +1039,14 @@ final case class ContinueStatement(id: String) extends Statement {
 }
 
 object ContinueStatement {
-  def construct(statement: ContinueStatementContext): ContinueStatement = {
+  def construct(statement: ContinueStatementContext, context: ConstructContext): ContinueStatement = {
     val cst =
       if (statement.id() != null) {
         ContinueStatement(statement.id.getText)
       } else {
         ContinueStatement(null)
       }
-    cst.withContext(statement)
+    cst.withContext(statement, context)
   }
 }
 
@@ -1053,8 +1057,8 @@ final case class InsertStatement(expression: Expression) extends Statement {
 }
 
 object InsertStatement {
-  def construct(statement: InsertStatementContext): InsertStatement = {
-    InsertStatement(Expression.construct(statement.expression())).withContext(statement)
+  def construct(statement: InsertStatementContext, context: ConstructContext): InsertStatement = {
+    InsertStatement(Expression.construct(statement.expression(), context)).withContext(statement, context)
   }
 }
 
@@ -1065,8 +1069,8 @@ final case class UpdateStatement(expression: Expression) extends Statement {
 }
 
 object UpdateStatement {
-  def construct(statement: UpdateStatementContext): UpdateStatement = {
-    UpdateStatement(Expression.construct(statement.expression())).withContext(statement)
+  def construct(statement: UpdateStatementContext, context: ConstructContext): UpdateStatement = {
+    UpdateStatement(Expression.construct(statement.expression(), context)).withContext(statement, context)
   }
 }
 
@@ -1077,8 +1081,8 @@ final case class DeleteStatement(expression: Expression) extends Statement {
 }
 
 object DeleteStatement {
-  def construct(statement: DeleteStatementContext): DeleteStatement = {
-    DeleteStatement(Expression.construct(statement.expression())).withContext(statement)
+  def construct(statement: DeleteStatementContext, context: ConstructContext): DeleteStatement = {
+    DeleteStatement(Expression.construct(statement.expression(), context)).withContext(statement, context)
   }
 }
 
@@ -1089,8 +1093,8 @@ final case class UndeleteStatement(expression: Expression) extends Statement {
 }
 
 object UndeleteStatement {
-  def construct(statement: UndeleteStatementContext): UndeleteStatement = {
-    UndeleteStatement(Expression.construct(statement.expression())).withContext(statement)
+  def construct(statement: UndeleteStatementContext, context: ConstructContext): UndeleteStatement = {
+    UndeleteStatement(Expression.construct(statement.expression(), context)).withContext(statement, context)
   }
 }
 
@@ -1101,12 +1105,12 @@ final case class UpsertStatement(expression: Expression, id: String) extends Sta
 }
 
 object UpsertStatement {
-  def construct(statement: UpsertStatementContext): UpsertStatement = {
-    val expression = Expression.construct(statement.expression())
+  def construct(statement: UpsertStatementContext, context: ConstructContext): UpsertStatement = {
+    val expression = Expression.construct(statement.expression(), context)
     if (statement.id() != null)
-      UpsertStatement(expression, statement.id.getText).withContext(statement)
+      UpsertStatement(expression, statement.id.getText).withContext(statement, context)
     else
-      UpsertStatement(expression, null).withContext(statement)
+      UpsertStatement(expression, null).withContext(statement, context)
   }
 }
 
@@ -1120,8 +1124,8 @@ final case class MergeStatement(expression1: Expression, expression2: Expression
 }
 
 object MergeStatement {
-  def construct(statement: MergeStatementContext): MergeStatement = {
-    MergeStatement(Expression.construct(statement.expression(0)), Expression.construct(statement.expression(1))).withContext(statement)
+  def construct(statement: MergeStatementContext, context: ConstructContext): MergeStatement = {
+    MergeStatement(Expression.construct(statement.expression(0), context), Expression.construct(statement.expression(1), context)).withContext(statement, context)
   }
 }
 
@@ -1135,16 +1139,16 @@ final case class RunAsStatement(expressions: List[Expression], block: Option[Blo
 }
 
 object RunAsStatement {
-  def construct(statement: RunAsStatementContext): RunAsStatement = {
+  def construct(statement: RunAsStatementContext, context: ConstructContext): RunAsStatement = {
     val expressions =
       if (statement.expressionList() != null) {
         val e: Seq[ExpressionContext] = statement.expressionList().expression()
-        Expression.construct(e.toList)
+        Expression.construct(e.toList, context)
       } else {
         List()
       }
-    val block = if (statement.block() != null) Some(Block.construct(statement.block())) else None
-    RunAsStatement(expressions, block).withContext(statement)
+    val block = if (statement.block() != null) Some(Block.construct(statement.block(), context)) else None
+    RunAsStatement(expressions, block).withContext(statement, context)
   }
 }
 
@@ -1155,8 +1159,8 @@ final case class EmptyStatement() extends Statement {
 }
 
 object EmptyStatement {
-  def construct(statement: EmptyStatementContext): EmptyStatement = {
-    EmptyStatement().withContext(statement)
+  def construct(statement: EmptyStatementContext, context: ConstructContext): EmptyStatement = {
+    EmptyStatement().withContext(statement, context)
   }
 }
 
@@ -1175,8 +1179,8 @@ final case class ExpressionStatement(var expression: Expression) extends Stateme
 }
 
 object ExpressionStatement {
-  def construct(statement: ExpressionStatementContext): ExpressionStatement = {
-    ExpressionStatement(Expression.construct(statement.expression())).withContext(statement)
+  def construct(statement: ExpressionStatementContext, context: ConstructContext): ExpressionStatement = {
+    ExpressionStatement(Expression.construct(statement.expression(), context)).withContext(statement, context)
   }
 }
 
@@ -1187,64 +1191,78 @@ final case class IdStatement(id: String, statement: Statement) extends Statement
 }
 
 object IdStatement {
-  def construct(statement: IdStatementContext): IdStatement = {
-    IdStatement(statement.id().getText, Statement.construct(statement.statement())).withContext(statement)
+  def construct(statement: IdStatementContext, context: ConstructContext): IdStatement = {
+    IdStatement(statement.id().getText, Statement.construct(statement.statement(), context)).withContext(statement, context)
+  }
+}
+
+final case class BangStatement(text: String) extends Statement {
+  override def children(): List[CST] = Nil
+
+  def resolve(context: ResolveStmtContext): Unit = {} // Nothing to do
+}
+
+object BangStatement {
+  def construct(statement: BangStatementContext, context: ConstructContext): BangStatement = {
+    BangStatement(statement.getText).withContext(statement, context)
   }
 }
 
 object Statement {
-  def construct(statement: StatementContext): Statement = {
+  def construct(statements: List[StatementContext], context: ConstructContext): List[Statement] = {
+    statements.map(s => Statement.construct(s, context))
+  }
+
+  def construct(statement: StatementContext, context: ConstructContext): Statement = {
     val cst =
       if (statement.block() != null) {
-        Block.construct(statement.block())
+        Block.construct(statement.block(), context)
       } else if (statement.localVariableDeclarationStatement() != null) {
-        LocalVariableDeclarationStatement.construct(statement.localVariableDeclarationStatement())
+        LocalVariableDeclarationStatement.construct(statement.localVariableDeclarationStatement(), context)
       } else if (statement.ifStatement() != null) {
-        IfStatement.construct(statement.ifStatement())
+        IfStatement.construct(statement.ifStatement(), context)
       } else if (statement.forStatement() != null) {
-        ForStatement.construct(statement.forStatement())
+        ForStatement.construct(statement.forStatement(), context)
       } else if (statement.whileStatement() != null) {
-        WhileStatement.construct(statement.whileStatement())
+        WhileStatement.construct(statement.whileStatement(), context)
       } else if (statement.doWhileStatement() != null) {
-        DoWhileStatement.construct(statement.doWhileStatement())
+        DoWhileStatement.construct(statement.doWhileStatement(), context)
       } else if (statement.tryStatement() != null) {
-        TryStatement.construct(statement.tryStatement())
+        TryStatement.construct(statement.tryStatement(), context)
       } else if (statement.returnStatement() != null) {
-        ReturnStatement.construct(statement.returnStatement())
+        ReturnStatement.construct(statement.returnStatement(), context)
       } else if (statement.throwStatement() != null) {
-        ThrowStatement.construct(statement.throwStatement())
+        ThrowStatement.construct(statement.throwStatement(), context)
       } else if (statement.breakStatement() != null) {
-        BreakStatement.construct(statement.breakStatement())
+        BreakStatement.construct(statement.breakStatement(), context)
       } else if (statement.continueStatement() != null) {
-        ContinueStatement.construct(statement.continueStatement())
+        ContinueStatement.construct(statement.continueStatement(), context)
       } else if (statement.insertStatement() != null) {
-        InsertStatement.construct(statement.insertStatement())
+        InsertStatement.construct(statement.insertStatement(), context)
       } else if (statement.updateStatement() != null) {
-        UpdateStatement.construct(statement.updateStatement())
+        UpdateStatement.construct(statement.updateStatement(), context)
       } else if (statement.deleteStatement() != null) {
-        DeleteStatement.construct(statement.deleteStatement())
+        DeleteStatement.construct(statement.deleteStatement(), context)
       } else if (statement.undeleteStatement() != null) {
-        UndeleteStatement.construct(statement.undeleteStatement())
+        UndeleteStatement.construct(statement.undeleteStatement(), context)
       } else if (statement.upsertStatement() != null) {
-        UpsertStatement.construct(statement.upsertStatement())
+        UpsertStatement.construct(statement.upsertStatement(), context)
       } else if (statement.mergeStatement() != null) {
-        MergeStatement.construct(statement.mergeStatement())
+        MergeStatement.construct(statement.mergeStatement(), context)
       } else if (statement.runAsStatement() != null) {
-        RunAsStatement.construct(statement.runAsStatement())
+        RunAsStatement.construct(statement.runAsStatement(), context)
       } else if (statement.emptyStatement() != null) {
-        EmptyStatement.construct(statement.emptyStatement())
+        EmptyStatement.construct(statement.emptyStatement(), context)
       } else if (statement.expressionStatement() != null) {
-        ExpressionStatement.construct(statement.expressionStatement())
+        ExpressionStatement.construct(statement.expressionStatement(), context)
       } else if (statement.idStatement() != null) {
-        IdStatement.construct(statement.idStatement())
+        IdStatement.construct(statement.idStatement(), context)
+      } else if (statement.bangStatement() != null) {
+        BangStatement.construct(statement.bangStatement(), context)
       } else {
         throw new CSTException()
       }
-    cst.withContext(statement)
-  }
-
-  def construct(statements: List[StatementContext]): List[Statement] = {
-    statements.map(Statement.construct)
+    cst.withContext(statement, context)
   }
 }
 
@@ -1259,36 +1277,36 @@ final case class AnnotationVariableModifier(annotation: Annotation) extends Vari
 }
 
 object VariableModifier {
-  def construct(variableModifierContext: VariableModifierContext): VariableModifier = {
-    if (variableModifierContext.annotation() != null) {
-      AnnotationVariableModifier(Annotation.construct(variableModifierContext.annotation())).withContext(variableModifierContext)
-    } else {
-      FinalVariableModifier().withContext(variableModifierContext)
-    }
+  def construct(variableModifiers: List[VariableModifierContext], context: ConstructContext): List[VariableModifier] = {
+    variableModifiers.map(x => VariableModifier.construct(x, context))
   }
 
-  def construct(variableModifiers: List[VariableModifierContext]): List[VariableModifier] = {
-    variableModifiers.map(VariableModifier.construct)
+  def construct(variableModifierContext: VariableModifierContext, context: ConstructContext): VariableModifier = {
+    if (variableModifierContext.annotation() != null) {
+      AnnotationVariableModifier(Annotation.construct(variableModifierContext.annotation(), context)).withContext(variableModifierContext, context)
+    } else {
+      FinalVariableModifier().withContext(variableModifierContext, context)
+    }
   }
 }
 
 sealed abstract class VariableInitializer() extends CST
 
 object VariableInitializer {
-  def construct(variableInitializer: VariableInitializerContext): VariableInitializer = {
+  def construct(variableInitializers: List[VariableInitializerContext], context: ConstructContext): List[VariableInitializer] = {
+    variableInitializers.map(x => VariableInitializer.construct(x, context))
+  }
+
+  def construct(variableInitializer: VariableInitializerContext, context: ConstructContext): VariableInitializer = {
     val cst =
       if (variableInitializer.expression() != null) {
-        ExpressionVariableInitializer(Expression.construct(variableInitializer.expression()))
+        ExpressionVariableInitializer(Expression.construct(variableInitializer.expression(), context))
       } else if (variableInitializer.arrayInitializer() != null) {
-        ArrayVariableInitializer.construct(variableInitializer.arrayInitializer())
+        ArrayVariableInitializer.construct(variableInitializer.arrayInitializer(), context)
       } else {
         throw new CSTException()
       }
-    cst.withContext(variableInitializer)
-  }
-
-  def construct(variableInitializers: List[VariableInitializerContext]): List[VariableInitializer] = {
-    variableInitializers.map(VariableInitializer.construct)
+    cst.withContext(variableInitializer, context)
   }
 }
 
@@ -1301,11 +1319,11 @@ final case class ExpressionVariableInitializer(expression: Expression) extends V
 }
 
 object ArrayVariableInitializer {
-  def construct(arrayInitializer: ArrayInitializerContext): ArrayVariableInitializer = {
+  def construct(arrayInitializer: ArrayInitializerContext, context: ConstructContext): ArrayVariableInitializer = {
     val variableInitializers: Seq[VariableInitializerContext] = arrayInitializer.variableInitializer()
-    ArrayVariableInitializer(variableInitializers.toList.map(
-      VariableInitializer.construct
-    )).withContext(arrayInitializer)
+    ArrayVariableInitializer(variableInitializers.toList.map(x =>
+      VariableInitializer.construct(x, context)
+    )).withContext(arrayInitializer, context)
   }
 }
 
@@ -1314,14 +1332,14 @@ final case class VariableDeclarator(id: Identifier, init: Option[VariableInitial
 }
 
 object VariableDeclarator {
-  def construct(variableDeclarator: VariableDeclaratorContext): VariableDeclarator = {
+  def construct(variableDeclarator: VariableDeclaratorContext, context: ConstructContext): VariableDeclarator = {
     val init =
       if (variableDeclarator.variableInitializer() != null) {
-        Some(VariableInitializer.construct(variableDeclarator.variableInitializer()))
+        Some(VariableInitializer.construct(variableDeclarator.variableInitializer(), context))
       } else {
         None
       }
-    VariableDeclarator(Identifier(variableDeclarator.id().getText), init).withContext(variableDeclarator)
+    VariableDeclarator(Identifier(variableDeclarator.id().getText), init).withContext(variableDeclarator, context)
   }
 }
 
@@ -1340,9 +1358,9 @@ final case class VariableDeclarators(declarators: List[VariableDeclarator]) exte
 }
 
 object VariableDeclarators {
-  def construct(variableDeclaratorsContext: VariableDeclaratorsContext): VariableDeclarators = {
+  def construct(variableDeclaratorsContext: VariableDeclaratorsContext, context: ConstructContext): VariableDeclarators = {
     val variableDeclarators: Seq[VariableDeclaratorContext] = variableDeclaratorsContext.variableDeclarator()
-    VariableDeclarators(variableDeclarators.toList.map(VariableDeclarator.construct)).withContext(variableDeclaratorsContext)
+    VariableDeclarators(variableDeclarators.toList.map(x => VariableDeclarator.construct(x, context))).withContext(variableDeclaratorsContext, context)
   }
 }
 
@@ -1357,21 +1375,21 @@ final case class PrimitiveTypeRef(primitiveType: PrimitiveType) extends TypeRef 
 }
 
 object TypeRef {
-  def construct(typeRef: TypeRefContext): TypeRef = {
+  def construct(aList: List[TypeRefContext], context: ConstructContext): List[TypeRef] = {
+    aList.map(x => TypeRef.construct(x, context))
+  }
+
+  def construct(typeRef: TypeRefContext, context: ConstructContext): TypeRef = {
     val arraySubs = typeRef.arraySubscripts().getText.count(_ == '[')
     val cst =
       if (typeRef.classOrInterfaceType() != null) {
-        ClassOrInterfaceTypeRef(ClassOrInterfaceType.construct(typeRef.classOrInterfaceType()), arraySubs)
+        ClassOrInterfaceTypeRef(ClassOrInterfaceType.construct(typeRef.classOrInterfaceType(), context), arraySubs)
       } else if (typeRef.primitiveType() != null) {
-        PrimitiveTypeRef(PrimitiveType.construct(typeRef.primitiveType(), arraySubs))
+        PrimitiveTypeRef(PrimitiveType.construct(typeRef.primitiveType(), arraySubs, context))
       } else {
         throw new CSTException()
       }
-    cst.withContext(typeRef)
-  }
-
-  def construct(aList: List[TypeRefContext]): List[TypeRef] = {
-    aList.map(TypeRef.construct)
+    cst.withContext(typeRef, context)
   }
 }
 
@@ -1382,16 +1400,16 @@ final case class LocalVariableDeclaration(modifiers: List[VariableModifier], typ
 }
 
 object LocalVariableDeclaration {
-  def construct(localVariableDeclaration: LocalVariableDeclarationContext): LocalVariableDeclaration = {
+  def construct(localVariableDeclaration: LocalVariableDeclarationContext, context: ConstructContext): LocalVariableDeclaration = {
     val modifiers =
       if (localVariableDeclaration.variableModifier() != null) {
         val v: Seq[VariableModifierContext] = localVariableDeclaration.variableModifier()
-        VariableModifier.construct(v.toList)
+        VariableModifier.construct(v.toList, context)
       } else {
         List()
       }
-    LocalVariableDeclaration(modifiers, TypeRef.construct(localVariableDeclaration.typeRef()),
-      VariableDeclarators.construct(localVariableDeclaration.variableDeclarators())).withContext(localVariableDeclaration)
+    LocalVariableDeclaration(modifiers, TypeRef.construct(localVariableDeclaration.typeRef(), context),
+      VariableDeclarators.construct(localVariableDeclaration.variableDeclarators(), context)).withContext(localVariableDeclaration, context)
   }
 }
 
@@ -1406,17 +1424,17 @@ final case class SetterPropertyBlock(modifiers: List[TypeModifier], block: Optio
 }
 
 object PropertyBlock {
-  def construct(propertyBlockContext: PropertyBlockContext): PropertyBlock = {
+  def construct(propertyBlockContext: PropertyBlockContext, context: ConstructContext): PropertyBlock = {
     val modifiers: Seq[ModifierContext] = propertyBlockContext.modifier()
     val cst =
       if (propertyBlockContext.getter() != null) {
-        GetterPropertyBlock(Modifier.construct(modifiers.toList), Block.constructOption(propertyBlockContext.getter().block()))
+        GetterPropertyBlock(Modifier.construct(modifiers.toList, context), Block.constructOption(propertyBlockContext.getter().block(), context))
       } else if (propertyBlockContext.setter() != null) {
-        SetterPropertyBlock(Modifier.construct(modifiers.toList), Block.constructOption(propertyBlockContext.setter().block()))
+        SetterPropertyBlock(Modifier.construct(modifiers.toList, context), Block.constructOption(propertyBlockContext.setter().block(), context))
       } else {
         throw new CSTException()
       }
-    cst.withContext(propertyBlockContext)
+    cst.withContext(propertyBlockContext, context)
   }
 }
 
@@ -1425,9 +1443,9 @@ final case class PropertyBodyDeclaration(propertyBlocks: List[PropertyBlock]) ex
 }
 
 object PropertyBodyDeclaration {
-  def construct(propertyBodyDeclarationContext: PropertyBodyDeclarationContext): PropertyBodyDeclaration = {
+  def construct(propertyBodyDeclarationContext: PropertyBodyDeclarationContext, context: ConstructContext): PropertyBodyDeclaration = {
     val blocks: Seq[PropertyBlockContext] = propertyBodyDeclarationContext.propertyBlock()
-    PropertyBodyDeclaration(blocks.toList.map(PropertyBlock.construct)).withContext(propertyBodyDeclarationContext)
+    PropertyBodyDeclaration(blocks.toList.map(x => PropertyBlock.construct(x, context))).withContext(propertyBodyDeclarationContext, context)
   }
 }
 
@@ -1436,27 +1454,27 @@ final case class FormalParameter(modifiers: List[VariableModifier], typeRef: Typ
 }
 
 object FormalParameter {
-  def construct(from: FormalParameterContext): FormalParameter = {
+  def construct(aList: List[FormalParameterContext], context: ConstructContext): List[FormalParameter] = {
+    aList.map(x => FormalParameter.construct(x, context))
+  }
+
+  def construct(from: FormalParameterContext, context: ConstructContext): FormalParameter = {
     val modifiers: List[VariableModifier] =
       if (from.variableModifier() != null) {
         val m: Seq[VariableModifierContext] = from.variableModifier()
-        VariableModifier.construct(m.toList)
+        VariableModifier.construct(m.toList, context)
       } else {
         List()
       }
-    FormalParameter(modifiers, TypeRef.construct(from.typeRef()), Identifier(from.id.getText)).withContext(from)
-  }
-
-  def construct(aList: List[FormalParameterContext]): List[FormalParameter] = {
-    aList.map(FormalParameter.construct)
+    FormalParameter(modifiers, TypeRef.construct(from.typeRef(), context), Identifier(from.id.getText)).withContext(from, context)
   }
 }
 
 object FormalParameterList {
-  def construct(from: FormalParameterListContext): List[FormalParameter] = {
+  def construct(from: FormalParameterListContext, context: ConstructContext): List[FormalParameter] = {
     if (from.formalParameter() != null) {
       val m: Seq[FormalParameterContext] = from.formalParameter()
-      FormalParameter.construct(m.toList)
+      FormalParameter.construct(m.toList, context)
     } else {
       List()
     }
@@ -1464,9 +1482,9 @@ object FormalParameterList {
 }
 
 object FormalParameters {
-  def construct(from: FormalParametersContext): List[FormalParameter] = {
+  def construct(from: FormalParametersContext, context: ConstructContext): List[FormalParameter] = {
     if (from.formalParameterList() != null) {
-      FormalParameterList.construct(from.formalParameterList())
+      FormalParameterList.construct(from.formalParameterList(), context)
     } else {
       List()
     }
@@ -1606,11 +1624,11 @@ final case class RHSArrayExpression(expression: Expression) extends ExpressionRH
 }
 
 object Expression {
-  def construct(from: ExpressionContext): Expression = {
+  def construct(from: ExpressionContext, context: ConstructContext): Expression = {
     val cst =
       from match {
         case alt1: Alt1ExpressionContext =>
-          val lHSExpression = Expression.construct(alt1.expression())
+          val lHSExpression = Expression.construct(alt1.expression(), context)
           lHSExpression match {
             case PrimaryExpression(Identifier(id)) =>
               QName(id :: alt1.id().getText :: Nil)
@@ -1620,80 +1638,80 @@ object Expression {
               LHSExpression(lHSExpression, RHSId(alt1.id().getText))
           }
         case alt2: Alt2ExpressionContext =>
-          LHSExpression(Expression.construct(alt2.expression()), RHSThis())
+          LHSExpression(Expression.construct(alt2.expression(), context), RHSThis())
         case alt3: Alt3ExpressionContext =>
-          LHSExpression(Expression.construct(alt3.expression()), RHSNew(
+          LHSExpression(Expression.construct(alt3.expression(), context), RHSNew(
             if (alt3.nonWildcardTypeArguments() != null)
-              Some(NonWildcardTypeArguments.construct(alt3.nonWildcardTypeArguments()))
+              Some(NonWildcardTypeArguments.construct(alt3.nonWildcardTypeArguments(), context))
             else
               None,
-            InnerCreator.construct(alt3.innerCreator())
+            InnerCreator.construct(alt3.innerCreator(), context)
           ))
         case alt4: Alt4ExpressionContext =>
-          LHSExpression(Expression.construct(alt4.expression()), RHSSuper(
-            SuperSuffix.construct(alt4.superSuffix())
+          LHSExpression(Expression.construct(alt4.expression(), context), RHSSuper(
+            SuperSuffix.construct(alt4.superSuffix(), context)
           ))
         case alt5: Alt5ExpressionContext =>
-          LHSExpression(Expression.construct(alt5.expression()), RHSExplicitGenericInvocation(
-            ExplicitGenericInvocation.construct(alt5.explicitGenericInvocation())
+          LHSExpression(Expression.construct(alt5.expression(), context), RHSExplicitGenericInvocation(
+            ExplicitGenericInvocation.construct(alt5.explicitGenericInvocation(), context)
           ))
         case alt6: Alt6ExpressionContext =>
-          LHSExpression(Expression.construct(alt6.expression(0)), RHSArrayExpression(
-            Expression.construct(alt6.expression(1))
+          LHSExpression(Expression.construct(alt6.expression(0), context), RHSArrayExpression(
+            Expression.construct(alt6.expression(1), context)
           ))
         case alt7: FunctionCallExpressionContext =>
-          FunctionCall(Expression.construct(alt7.expression),
+          FunctionCall(Expression.construct(alt7.expression, context),
             if (alt7.expressionList() != null) {
               val expression: Seq[ExpressionContext] = alt7.expressionList().expression()
-              Expression.construct(expression.toList)
+              Expression.construct(expression.toList, context)
             } else {
               List()
             }
           )
         case alt8: Alt8ExpressionContext =>
-          NewExpression(Creator.construct(alt8.creator()))
+          NewExpression(Creator.construct(alt8.creator(), context))
         case alt9: Alt9ExpressionContext =>
-          TypeExpression(TypeRef.construct(alt9.typeRef()), Expression.construct(alt9.expression()))
+          TypeExpression(TypeRef.construct(alt9.typeRef(), context), Expression.construct(alt9.expression(), context))
         case alt10: Alt10ExpressionContext =>
-          PostOpExpression(Expression.construct(alt10.expression()), alt10.getChild(1).getText)
+          PostOpExpression(Expression.construct(alt10.expression(), context), alt10.getChild(1).getText)
         case alt11: Alt11ExpressionContext =>
-          PreOpExpression(Expression.construct(alt11.expression()), alt11.getChild(0).getText)
+          PreOpExpression(Expression.construct(alt11.expression(), context), alt11.getChild(0).getText)
         case alt12: Alt12ExpressionContext =>
-          PostOpExpression(Expression.construct(alt12.expression()), alt12.getChild(0).getText)
+          PostOpExpression(Expression.construct(alt12.expression(), context), alt12.getChild(0).getText)
         case alt13: Alt13ExpressionContext =>
-          BinaryExpression(Expression.construct(alt13.expression(0)), Expression.construct(alt13.expression(1)), alt13.getChild(1).getText)
+          BinaryExpression(Expression.construct(alt13.expression(0), context), Expression.construct(alt13.expression(1), context), alt13.getChild(1).getText)
         case alt14: Alt14ExpressionContext =>
-          BinaryExpression(Expression.construct(alt14.expression(0)), Expression.construct(alt14.expression(1)), alt14.getChild(1).getText)
+          BinaryExpression(Expression.construct(alt14.expression(0), context), Expression.construct(alt14.expression(1), context), alt14.getChild(1).getText)
         case alt15: Alt15ExpressionContext =>
-          BinaryExpression(Expression.construct(alt15.expression(0)), Expression.construct(alt15.expression(1)), alt15.getChild(1).getText)
+          BinaryExpression(Expression.construct(alt15.expression(0), context), Expression.construct(alt15.expression(1), context), alt15.getChild(1).getText)
         case alt16: Alt16ExpressionContext =>
-          BinaryExpression(Expression.construct(alt16.expression(0)), Expression.construct(alt16.expression(1)), alt16.getChild(1).getText)
+          BinaryExpression(Expression.construct(alt16.expression(0), context), Expression.construct(alt16.expression(1), context), alt16.getChild(1).getText)
         case alt17: Alt17ExpressionContext =>
-          InstanceOfExpression(Expression.construct(alt17.expression()), TypeRef.construct(alt17.typeRef()))
+          InstanceOfExpression(Expression.construct(alt17.expression(), context), TypeRef.construct(alt17.typeRef(), context))
         case alt18: Alt18ExpressionContext =>
-          BinaryExpression(Expression.construct(alt18.expression(0)), Expression.construct(alt18.expression(1)), alt18.getChild(1).getText)
+          BinaryExpression(Expression.construct(alt18.expression(0), context), Expression.construct(alt18.expression(1), context), alt18.getChild(1).getText)
         case alt19: Alt19ExpressionContext =>
-          BinaryExpression(Expression.construct(alt19.expression(0)), Expression.construct(alt19.expression(1)), alt19.getChild(1).getText)
+          BinaryExpression(Expression.construct(alt19.expression(0), context), Expression.construct(alt19.expression(1), context), alt19.getChild(1).getText)
         case alt20: Alt20ExpressionContext =>
-          BinaryExpression(Expression.construct(alt20.expression(0)), Expression.construct(alt20.expression(1)), alt20.getChild(1).getText)
+          BinaryExpression(Expression.construct(alt20.expression(0), context), Expression.construct(alt20.expression(1), context), alt20.getChild(1).getText)
         case alt21: Alt21ExpressionContext =>
-          BinaryExpression(Expression.construct(alt21.expression(0)), Expression.construct(alt21.expression(1)), alt21.getChild(1).getText)
+          BinaryExpression(Expression.construct(alt21.expression(0), context), Expression.construct(alt21.expression(1), context), alt21.getChild(1).getText)
         case alt22: Alt22ExpressionContext =>
-          BinaryExpression(Expression.construct(alt22.expression(0)), Expression.construct(alt22.expression(1)), alt22.getChild(1).getText)
+          BinaryExpression(Expression.construct(alt22.expression(0), context), Expression.construct(alt22.expression(1), context), alt22.getChild(1).getText)
         case alt23: Alt23ExpressionContext =>
-          BinaryExpression(Expression.construct(alt23.expression(0)), Expression.construct(alt23.expression(1)), alt23.getChild(1).getText)
+          BinaryExpression(Expression.construct(alt23.expression(0), context), Expression.construct(alt23.expression(1), context), alt23.getChild(1).getText)
         case alt24: Alt24ExpressionContext =>
-          QueryExpression(Expression.construct(alt24.expression(0)), Expression.construct(alt24.expression(1)), Expression.construct(alt24.expression(2)))
+          QueryExpression(Expression.construct(alt24.expression(0), context), Expression.construct(alt24.expression(1), context), Expression.construct(alt24.expression(2), context))
         case alt25: Alt25ExpressionContext =>
-          BinaryExpression(Expression.construct(alt25.expression(0)), Expression.construct(alt25.expression(1)), alt25.getChild(1).getText)
+          BinaryExpression(Expression.construct(alt25.expression(0), context), Expression.construct(alt25.expression(1), context), alt25.getChild(1).getText)
         case alt26: Alt26ExpressionContext =>
-          PrimaryExpression(Primary.construct(alt26.primary()))
+          PrimaryExpression(Primary.construct(alt26.primary(), context))
       }
-    cst.withContext(from)
+    cst.withContext(from, context)
   }
 
-  def construct(expression: List[ExpressionContext]): List[Expression] = {
-    expression.map(Expression.construct)
+  def construct(expression: List[ExpressionContext], context: ConstructContext): List[Expression] = {
+    expression.map(x => Expression.construct(x, context))
   }
 }
 
@@ -1702,8 +1720,8 @@ final case class NonWildcardTypeArguments(typeList: TypeList) extends CST {
 }
 
 object NonWildcardTypeArguments {
-  def construct(from: NonWildcardTypeArgumentsContext): NonWildcardTypeArguments = {
-    NonWildcardTypeArguments(TypeList.construct(from.typeList())).withContext(from)
+  def construct(from: NonWildcardTypeArgumentsContext, context: ConstructContext): NonWildcardTypeArguments = {
+    NonWildcardTypeArguments(TypeList.construct(from.typeList(), context)).withContext(from, context)
   }
 }
 
@@ -1712,11 +1730,11 @@ final case class NonWildcardTypeArgumentsOrDiamond(nonWildcardTypeArguments: Opt
 }
 
 object NonWildcardTypeArgumentsOrDiamond {
-  def construct(from: NonWildcardTypeArgumentsOrDiamondContext): NonWildcardTypeArgumentsOrDiamond = {
+  def construct(from: NonWildcardTypeArgumentsOrDiamondContext, context: ConstructContext): NonWildcardTypeArgumentsOrDiamond = {
     NonWildcardTypeArgumentsOrDiamond(
       if (from.nonWildcardTypeArguments() != null)
-        Some(NonWildcardTypeArguments.construct(from.nonWildcardTypeArguments()))
-      else None).withContext(from)
+        Some(NonWildcardTypeArguments.construct(from.nonWildcardTypeArguments(), context))
+      else None).withContext(from, context)
   }
 }
 
@@ -1725,13 +1743,13 @@ final case class TypeArgumentsOrDiamond(typeArguments: Option[TypeArguments]) ex
 }
 
 object TypeArgumentsOrDiamond {
-  def construct(from: TypeArgumentsOrDiamondContext): TypeArgumentsOrDiamond = {
+  def construct(from: TypeArgumentsOrDiamondContext, context: ConstructContext): TypeArgumentsOrDiamond = {
     TypeArgumentsOrDiamond(
       if (from.typeArguments() != null)
-        Some(TypeArguments.construct(from.typeArguments()))
+        Some(TypeArguments.construct(from.typeArguments(), context))
       else
         None
-    ).withContext(from)
+    ).withContext(from, context)
   }
 }
 
@@ -1740,9 +1758,9 @@ final case class TypeArguments(typeList: List[TypeRef]) extends CST {
 }
 
 object TypeArguments {
-  def construct(from: TypeArgumentsContext): TypeArguments = {
+  def construct(from: TypeArgumentsContext, context: ConstructContext): TypeArguments = {
     val types: Seq[TypeRefContext] = from.typeList().typeRef()
-    TypeArguments(TypeRef.construct(types.toList)).withContext(from)
+    TypeArguments(TypeRef.construct(types.toList, context)).withContext(from, context)
   }
 }
 
@@ -1751,19 +1769,19 @@ final case class ClassCreatorRest(arguments: List[Expression], expressionList: L
 }
 
 object ClassCreatorRest {
-  def construct(from: ClassCreatorRestContext): ClassCreatorRest = {
+  def construct(from: ClassCreatorRestContext, context: ConstructContext): ClassCreatorRest = {
     ClassCreatorRest(
       if (from.arguments() != null)
-        Arguments.construct(from.arguments())
+        Arguments.construct(from.arguments(), context)
       else
         List(),
       if (from.expressionList() != null) {
         val expressions: Seq[ExpressionContext] = from.expressionList().expression()
-        Expression.construct(expressions.toList)
+        Expression.construct(expressions.toList, context)
       } else {
         List()
       }
-    ).withContext(from)
+    ).withContext(from, context)
   }
 }
 
@@ -1773,14 +1791,14 @@ final case class ArrayCreatorRest(arraySubs: Int, arrayInitializer: Option[Array
 }
 
 object ArrayCreatorRest {
-  def construct(from: ArrayCreatorRestContext): ArrayCreatorRest = {
+  def construct(from: ArrayCreatorRestContext, context: ConstructContext): ArrayCreatorRest = {
     if (from.arrayInitializer() != null) {
       val arraySubs = 1 + from.arraySubscripts().getText.count(_ == '[')
-      ArrayCreatorRest(arraySubs, Some(ArrayInitializer.construct(from.arrayInitializer())), List()).withContext(from)
+      ArrayCreatorRest(arraySubs, Some(ArrayInitializer.construct(from.arrayInitializer(), context)), List()).withContext(from, context)
     } else {
       val arraySubs = from.arraySubscripts().getText.count(_ == '[')
       val expressions: Seq[ExpressionContext] = from.expression()
-      ArrayCreatorRest(arraySubs, None, Expression.construct(expressions.toList)).withContext(from)
+      ArrayCreatorRest(arraySubs, None, Expression.construct(expressions.toList, context)).withContext(from, context)
     }
   }
 }
@@ -1790,17 +1808,17 @@ final case class ArrayInitializer(variableInitializers: List[VariableInitializer
 }
 
 object ArrayInitializer {
-  def construct(from: ArrayInitializerContext): ArrayInitializer = {
+  def construct(from: ArrayInitializerContext, context: ConstructContext): ArrayInitializer = {
     val initializers: Seq[VariableInitializerContext] = from.variableInitializer()
-    ArrayInitializer(VariableInitializer.construct(initializers.toList)).withContext(from)
+    ArrayInitializer(VariableInitializer.construct(initializers.toList, context)).withContext(from, context)
   }
 }
 
 object Arguments {
-  def construct(from: ArgumentsContext): List[Expression] = {
+  def construct(from: ArgumentsContext, context: ConstructContext): List[Expression] = {
     if (from.expressionList() != null) {
       val expressions: Seq[ExpressionContext] = from.expressionList().expression()
-      Expression.construct(expressions.toList)
+      Expression.construct(expressions.toList, context)
     } else {
       List()
     }
@@ -1812,9 +1830,9 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends CST {
 }
 
 object MapCreatorRest {
-  def construct(from: MapCreatorRestContext): MapCreatorRest = {
+  def construct(from: MapCreatorRestContext, context: ConstructContext): MapCreatorRest = {
     val pairs: Seq[MapCreatorRestPairContext] = from.mapCreatorRestPair()
-    MapCreatorRest(MapCreatorRestPair.construct(pairs.toList)).withContext(from)
+    MapCreatorRest(MapCreatorRestPair.construct(pairs.toList, context)).withContext(from, context)
   }
 }
 
@@ -1823,15 +1841,15 @@ final case class MapCreatorRestPair(from: IdOrExpression, to: LiteralOrExpressio
 }
 
 object MapCreatorRestPair {
-  def construct(from: MapCreatorRestPairContext): MapCreatorRestPair = {
-    MapCreatorRestPair(
-      IdOrExpression.construct(from.idOrExpression()),
-      LiteralOrExpression.construct(from.literalOrExpression())
-    ).withContext(from)
+  def construct(aList: List[MapCreatorRestPairContext], context: ConstructContext): List[MapCreatorRestPair] = {
+    aList.map(x => MapCreatorRestPair.construct(x, context))
   }
 
-  def construct(aList: List[MapCreatorRestPairContext]): List[MapCreatorRestPair] = {
-    aList.map(MapCreatorRestPair.construct)
+  def construct(from: MapCreatorRestPairContext, context: ConstructContext): MapCreatorRestPair = {
+    MapCreatorRestPair(
+      IdOrExpression.construct(from.idOrExpression(), context),
+      LiteralOrExpression.construct(from.literalOrExpression(), context)
+    ).withContext(from, context)
   }
 }
 
@@ -1840,9 +1858,9 @@ final case class SetCreatorRest(parts: List[LiteralOrExpression]) extends CST {
 }
 
 object SetCreatorRest {
-  def construct(from: SetCreatorRestContext): SetCreatorRest = {
+  def construct(from: SetCreatorRestContext, context: ConstructContext): SetCreatorRest = {
     val parts: Seq[LiteralOrExpressionContext] = from.literalOrExpression()
-    SetCreatorRest(LiteralOrExpression.construct(parts.toList)).withContext(from)
+    SetCreatorRest(LiteralOrExpression.construct(parts.toList, context)).withContext(from, context)
   }
 }
 
@@ -1851,17 +1869,17 @@ final case class IdOrExpression(id: Option[String], expression: Option[Expressio
 }
 
 object IdOrExpression {
-  def construct(from: IdOrExpressionContext): IdOrExpression = {
+  def construct(from: IdOrExpressionContext, context: ConstructContext): IdOrExpression = {
     IdOrExpression(
       if (from.id() != null)
         Some(from.id().getText)
       else
         None,
       if (from.expression() != null)
-        Some(Expression.construct(from.expression()))
+        Some(Expression.construct(from.expression(), context))
       else
         None
-    ).withContext(from)
+    ).withContext(from, context)
   }
 }
 
@@ -1876,21 +1894,21 @@ final case class LiteralOrExpression(literal: Option[Literal], expression: Optio
 }
 
 object LiteralOrExpression {
-  def construct(from: LiteralOrExpressionContext): LiteralOrExpression = {
+  def construct(aList: List[LiteralOrExpressionContext], context: ConstructContext): List[LiteralOrExpression] = {
+    aList.map(x => LiteralOrExpression.construct(x, context))
+  }
+
+  def construct(from: LiteralOrExpressionContext, context: ConstructContext): LiteralOrExpression = {
     LiteralOrExpression(
       if (from.literal() != null)
-        Some(Literal.construct(from.literal()))
+        Some(Literal.construct(from.literal(), context))
       else
         None,
       if (from.expression() != null)
-        Some(Expression.construct(from.expression()))
+        Some(Expression.construct(from.expression(), context))
       else
         None
-    ).withContext(from)
-  }
-
-  def construct(aList: List[LiteralOrExpressionContext]): List[LiteralOrExpression] = {
-    aList.map(LiteralOrExpression.construct)
+    ).withContext(from, context)
   }
 }
 
@@ -1900,14 +1918,14 @@ final case class InnerCreator(nonWildcardTypeArgumentsOrDiamond: Option[NonWildc
 }
 
 object InnerCreator {
-  def construct(from: InnerCreatorContext): InnerCreator = {
+  def construct(from: InnerCreatorContext, context: ConstructContext): InnerCreator = {
     InnerCreator(
       if (from.nonWildcardTypeArgumentsOrDiamond() != null)
-        Some(NonWildcardTypeArgumentsOrDiamond.construct(from.nonWildcardTypeArgumentsOrDiamond()))
+        Some(NonWildcardTypeArgumentsOrDiamond.construct(from.nonWildcardTypeArgumentsOrDiamond(), context))
       else
         None,
-      ClassCreatorRest.construct(from.classCreatorRest())
-    ).withContext(from)
+      ClassCreatorRest.construct(from.classCreatorRest(), context)
+    ).withContext(from, context)
   }
 }
 
@@ -1922,12 +1940,12 @@ final case class PrimitiveCreatedName(primitiveType: PrimitiveType) extends Crea
 }
 
 object CreatedName {
-  def construct(from: CreatedNameContext): CreatedName = {
+  def construct(from: CreatedNameContext, context: ConstructContext): CreatedName = {
     if (from.primitiveType() != null)
-      PrimitiveCreatedName(PrimitiveType.construct(from.primitiveType())).withContext(from)
+      PrimitiveCreatedName(PrimitiveType.construct(from.primitiveType(), 0, context)).withContext(from, context)
     else {
       val pairs: Seq[IdCreatedNamePairContext] = from.idCreatedNamePair()
-      IdCreatedName(IdCreatedNamePair.construct(pairs.toList)).withContext(from)
+      IdCreatedName(IdCreatedNamePair.construct(pairs.toList, context)).withContext(from, context)
     }
   }
 }
@@ -1937,17 +1955,17 @@ final case class IdCreatedNamePair(id: String, typeArgumentsOrDiamond: Option[Ty
 }
 
 object IdCreatedNamePair {
-  def construct(from: IdCreatedNamePairContext): IdCreatedNamePair = {
-    IdCreatedNamePair(from.id.getText,
-      if (from.typeArgumentsOrDiamond() != null)
-        Some(TypeArgumentsOrDiamond.construct(from.typeArgumentsOrDiamond()))
-      else
-        None
-    ).withContext(from)
+  def construct(aList: List[IdCreatedNamePairContext], context: ConstructContext): List[IdCreatedNamePair] = {
+    aList.map(x => IdCreatedNamePair.construct(x, context))
   }
 
-  def construct(aList: List[IdCreatedNamePairContext]): List[IdCreatedNamePair] = {
-    aList.map(IdCreatedNamePair.construct)
+  def construct(from: IdCreatedNamePairContext, context: ConstructContext): IdCreatedNamePair = {
+    IdCreatedNamePair(from.id.getText,
+      if (from.typeArgumentsOrDiamond() != null)
+        Some(TypeArgumentsOrDiamond.construct(from.typeArgumentsOrDiamond(), context))
+      else
+        None
+    ).withContext(from, context)
   }
 }
 
@@ -1956,17 +1974,17 @@ final case class SuperSuffix(id: Option[String], arguments: List[Expression]) ex
 }
 
 object SuperSuffix {
-  def construct(from: SuperSuffixContext): SuperSuffix = {
+  def construct(from: SuperSuffixContext, context: ConstructContext): SuperSuffix = {
     SuperSuffix(
       if (from.id() != null)
         Some(from.id.getText)
       else
         None,
       if (from.arguments() != null)
-        Arguments.construct(from.arguments())
+        Arguments.construct(from.arguments(), context)
       else
         List()
-    ).withContext(from)
+    ).withContext(from, context)
   }
 }
 
@@ -1975,11 +1993,11 @@ final case class ExplicitGenericInvocationSuffix(supperSuffix: Option[SuperSuffi
 }
 
 object ExplicitGenericInvocationSuffix {
-  def construct(from: ExplicitGenericInvocationSuffixContext): ExplicitGenericInvocationSuffix = {
+  def construct(from: ExplicitGenericInvocationSuffixContext, context: ConstructContext): ExplicitGenericInvocationSuffix = {
     if (from.superSuffix() != null)
-      ExplicitGenericInvocationSuffix(Some(SuperSuffix.construct(from.superSuffix())), None, List()).withContext(from)
+      ExplicitGenericInvocationSuffix(Some(SuperSuffix.construct(from.superSuffix(), context)), None, List()).withContext(from, context)
     else
-      ExplicitGenericInvocationSuffix(None, Some(from.id.getText), Arguments.construct(from.arguments())).withContext(from)
+      ExplicitGenericInvocationSuffix(None, Some(from.id.getText), Arguments.construct(from.arguments(), context)).withContext(from, context)
   }
 }
 
@@ -1989,11 +2007,11 @@ final case class ExplicitGenericInvocation(nonWildcardTypeArguments: NonWildcard
 }
 
 object ExplicitGenericInvocation {
-  def construct(from: ExplicitGenericInvocationContext): ExplicitGenericInvocation = {
+  def construct(from: ExplicitGenericInvocationContext, context: ConstructContext): ExplicitGenericInvocation = {
     ExplicitGenericInvocation(
-      NonWildcardTypeArguments.construct(from.nonWildcardTypeArguments()),
-      ExplicitGenericInvocationSuffix.construct(from.explicitGenericInvocationSuffix())
-    ).withContext(from)
+      NonWildcardTypeArguments.construct(from.nonWildcardTypeArguments(), context),
+      ExplicitGenericInvocationSuffix.construct(from.explicitGenericInvocationSuffix(), context)
+    ).withContext(from, context)
   }
 }
 
@@ -2010,22 +2028,22 @@ final case class Alt2Creator(createdName: CreatedName, arrayCreatorRest: Option[
 }
 
 object Creator {
-  def construct(from: CreatorContext): Creator = {
+  def construct(from: CreatorContext, context: ConstructContext): Creator = {
     from match {
       case alt1: Alt1CreatorContext =>
         Alt1Creator(
-          NonWildcardTypeArguments.construct(alt1.nonWildcardTypeArguments()),
-          CreatedName.construct(alt1.createdName()),
-          ClassCreatorRest.construct(alt1.classCreatorRest())
-        ).withContext(from)
+          NonWildcardTypeArguments.construct(alt1.nonWildcardTypeArguments(), context),
+          CreatedName.construct(alt1.createdName(), context),
+          ClassCreatorRest.construct(alt1.classCreatorRest(), context)
+        ).withContext(from, context)
       case alt2: Alt2CreatorContext =>
         Alt2Creator(
-          CreatedName.construct(alt2.createdName()),
-          if (alt2.arrayCreatorRest() != null) Some(ArrayCreatorRest.construct(alt2.arrayCreatorRest())) else None,
-          if (alt2.classCreatorRest() != null) Some(ClassCreatorRest.construct(alt2.classCreatorRest())) else None,
-          if (alt2.mapCreatorRest() != null) Some(MapCreatorRest.construct(alt2.mapCreatorRest())) else None,
-          if (alt2.setCreatorRest() != null) Some(SetCreatorRest.construct(alt2.setCreatorRest())) else None
-        ).withContext(from)
+          CreatedName.construct(alt2.createdName(), context),
+          if (alt2.arrayCreatorRest() != null) Some(ArrayCreatorRest.construct(alt2.arrayCreatorRest(), context)) else None,
+          if (alt2.classCreatorRest() != null) Some(ClassCreatorRest.construct(alt2.classCreatorRest(), context)) else None,
+          if (alt2.mapCreatorRest() != null) Some(MapCreatorRest.construct(alt2.mapCreatorRest(), context)) else None,
+          if (alt2.setCreatorRest() != null) Some(SetCreatorRest.construct(alt2.setCreatorRest(), context)) else None
+        ).withContext(from, context)
     }
   }
 }
@@ -2063,7 +2081,7 @@ final case class NullLit() extends Literal {
 }
 
 object Literal {
-  def construct(from: LiteralContext): Literal = {
+  def construct(from: LiteralContext, context: ConstructContext): Literal = {
     val cst =
       if (from.IntegerLiteral() != null)
         IntegerLit(from.IntegerLiteral().getText)
@@ -2075,7 +2093,7 @@ object Literal {
         BooleanLit(from.BooleanLiteral().getText)
       else
         NullLit()
-    cst.withContext(from)
+    cst.withContext(from, context)
   }
 }
 
@@ -2138,38 +2156,38 @@ final case class SOQL(soql: String) extends Primary {
 }
 
 object Primary {
-  def construct(from: PrimaryContext): Primary = {
+  def construct(from: PrimaryContext, context: ConstructContext): Primary = {
     val cst =
       from match {
         case alt1: Alt1PrimaryContext =>
-          ExpressionPrimary(Expression.construct(alt1.expression()))
+          ExpressionPrimary(Expression.construct(alt1.expression(), context))
         case _: Alt2PrimaryContext =>
           ThisPrimary()
         case _: Alt3PrimaryContext =>
           SuperPrimary()
         case alt4: Alt4PrimaryContext =>
-          LiteralPrimary(Literal.construct(alt4.literal()))
+          LiteralPrimary(Literal.construct(alt4.literal(), context))
         case alt5: Alt5PrimaryContext =>
           Identifier(alt5.id().getText)
         case alt6: Alt6PrimaryContext =>
-          TypeRefClassPrimary(TypeRef.construct(alt6.typeRef()))
+          TypeRefClassPrimary(TypeRef.construct(alt6.typeRef(), context))
         case _: Alt7PrimaryContext =>
           VoidClassPrimary()
         case alt8: Alt8PrimaryContext =>
           MethodPrimary(
-            NonWildcardTypeArguments.construct(alt8.nonWildcardTypeArguments()),
+            NonWildcardTypeArguments.construct(alt8.nonWildcardTypeArguments(), context),
             if (alt8.explicitGenericInvocationSuffix() != null)
-              Some(ExplicitGenericInvocationSuffix.construct(alt8.explicitGenericInvocationSuffix()))
+              Some(ExplicitGenericInvocationSuffix.construct(alt8.explicitGenericInvocationSuffix(), context))
             else
               None,
             if (alt8.arguments() != null)
-              Arguments.construct(alt8.arguments())
+              Arguments.construct(alt8.arguments(), context)
             else
               List()
           )
         case alt9: Alt9PrimaryContext =>
           SOQL(alt9.soqlLiteral().getText)
       }
-    cst.withContext(from)
+    cst.withContext(from, context)
   }
 }

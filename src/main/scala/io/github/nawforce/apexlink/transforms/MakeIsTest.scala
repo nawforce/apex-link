@@ -25,60 +25,46 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.apexlink.transform
+package io.github.nawforce.apexlink.transforms
 
 import io.github.nawforce.apexlink.cst._
 import io.github.nawforce.apexlink.diff.FileChanger
 import io.github.nawforce.apexlink.metadata.{ApexClass, SymbolReaderContext}
 
-import scala.language.reflectiveCalls
-
-class LS_QueryLoops {
-
-  implicit class StringInterpolations(sc: StringContext) {
-    def ci = new {
-      def unapply(other: String): Boolean = sc.parts.mkString.equalsIgnoreCase(other)
-    }
-  }
+class MakeIsTest {
 
   def exec(ctx: SymbolReaderContext, fileChanger: FileChanger): Unit = {
-
-    // Filter classes for for statements with Enhanced Control
     ctx.getClasses.values.foreach((apexClass: ApexClass) => {
       apexClass.methodDeclarations.foreach((method: MethodDeclaration) => {
-        method.findStatements(false).collect { case x: ForStatement => x } foreach ((stmt: ForStatement) => {
-          stmt match {
-            case ForStatement(control@EnhancedForControl(_, _, _, _), _) =>
-              // Filter for simple type, likely sObject style
-              control.typeRef match {
-                case ClassOrInterfaceTypeRef(ClassOrInterfaceType(ClassOrInterfaceTypePart(_, TypeList(Nil)) :: Nil), 0) =>
-                  // Filter for expression is identifier assigned once
-                  control.expression match {
-                    case PrimaryExpression(VarRef(decl)) =>
-                      val assignments = decl.introducer.getAssignments
-                      if (assignments.length == 1 && isQueryExpression(assignments.head)) {
-                        fileChanger.addChange(apexClass.location.filepath, stmt.start(), -1, Some(LS_QueryLoops.warningMsg))
-                      }
-                    case _ =>
-                  }
-                case _ =>
-              }
-            case _ =>
+
+        // Remove any testmethod modifiers
+        val testMethods = method.modifiers.filter(m => MakeIsTest.isTestMethodModifier(m))
+        testMethods.foreach(a => fileChanger.addChange(apexClass.location.filepath, a.start(), a.end() + 1, None))
+
+        // If we had some but no @isTest add an @isTest
+        if (testMethods.nonEmpty) {
+          if (!method.modifiers.exists(m => MakeIsTest.isTestAnnotationModifier(m))) {
+            fileChanger.addChange(apexClass.location.filepath, method.modifiers.head.start(), -1, Some("@isTest\n"))
           }
-        })
+        }
+
       })
     })
   }
+}
 
-  private def isQueryExpression(expr: Expression) = {
-    expr match {
-      case PrimaryExpression(SOQL(_)) => true
-      case FunctionCall(QName(ci"database" :: ci"query" :: Nil), _) => true
+object MakeIsTest {
+  def isTestAnnotationModifier(m: TypeModifier): Boolean = {
+    m match {
+      case am: AnnotationModifier => am.annotation.name == new QualifiedName("isTest" :: Nil)
       case _ => false
     }
   }
-}
 
-object LS_QueryLoops {
-  val warningMsg = "/* ApexLink ls-query-loops WARNING: using SOQL directly in for loop is more efficient than passing via variable */\n"
+  def isTestMethodModifier(m: TypeModifier): Boolean = {
+    m match {
+      case _: TestMethodModifier => true
+      case _ => false
+    }
+  }
 }

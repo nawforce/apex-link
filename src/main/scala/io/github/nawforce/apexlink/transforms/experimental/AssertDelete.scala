@@ -25,46 +25,34 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.apexlink.transform
+package io.github.nawforce.apexlink.transforms.experimental
 
 import io.github.nawforce.apexlink.cst._
 import io.github.nawforce.apexlink.diff.FileChanger
 import io.github.nawforce.apexlink.metadata.{ApexClass, SymbolReaderContext}
 
-class MakeIsTest {
+import scala.language.reflectiveCalls
+
+class AssertDelete {
+
+  implicit class StringInterpolations(sc: StringContext) {
+    def ci = new {
+      def unapply(other: String): Boolean = sc.parts.mkString.equalsIgnoreCase(other)
+    }
+  }
 
   def exec(ctx: SymbolReaderContext, fileChanger: FileChanger): Unit = {
     ctx.getClasses.values.foreach((apexClass: ApexClass) => {
+      // TODO: This just searches methods, should really include static code as well
       apexClass.methodDeclarations.foreach((method: MethodDeclaration) => {
-
-        // Remove any testmethod modifiers
-        val testMethods = method.modifiers.filter(m => MakeIsTest.isTestMethodModifier(m))
-        testMethods.foreach(a => fileChanger.addChange(apexClass.location.filepath, a.start(), a.end() + 1, None))
-
-        // If we had some but no @isTest add an @isTest
-        if (testMethods.nonEmpty) {
-          if (!method.modifiers.exists(m => MakeIsTest.isTestAnnotationModifier(m))) {
-            fileChanger.addChange(apexClass.location.filepath, method.modifiers.head.start(), -1, Some("@isTest\n"))
+        method.findExpressions(true).foreach((expr: Expression) => {
+          expr match {
+            case call@FunctionCall(QName(ci"system" :: ci"assert" :: Nil), _) =>
+              fileChanger.addChange(apexClass.location.filepath, call.start(), call.end(), None)
+            case _ => None
           }
-        }
-
+        })
       })
     })
-  }
-}
-
-object MakeIsTest {
-  def isTestAnnotationModifier(m: TypeModifier): Boolean = {
-    m match {
-      case am: AnnotationModifier => am.annotation.name == new QualifiedName("isTest" :: Nil)
-      case _ => false
-    }
-  }
-
-  def isTestMethodModifier(m: TypeModifier): Boolean = {
-    m match {
-      case _: TestMethodModifier => true
-      case _ => false
-    }
   }
 }

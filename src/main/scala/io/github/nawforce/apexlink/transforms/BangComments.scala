@@ -25,46 +25,25 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.apexlink.cst
+package io.github.nawforce.apexlink.transforms
 
-import io.github.nawforce.apexlink.utils.LinkerException
+import io.github.nawforce.apexlink.cst.{BangStatement, Block}
+import io.github.nawforce.apexlink.diff.FileChanger
+import io.github.nawforce.apexlink.metadata.{ApexClass, SymbolReaderContext}
 
-import scala.collection.mutable
+class BangComments {
 
-trait VarIntroducer {
-  private var assignments: List[Expression] = Nil
+  def exec(ctx: SymbolReaderContext, fileChanger: FileChanger): Unit = {
 
-  def addAssign(statement: Expression): Unit = {
-    assignments = statement :: assignments
-  }
-
-  def getAssignments: List[Expression] = assignments
-}
-
-case class VarDeclaration(name: Identifier, typeRef: TypeRef, introducer: VarIntroducer) {
-  def addAssign(statement: Expression): Unit = introducer.addAssign(statement)
-}
-
-class ResolveStmtContext(index: CSTIndex, parentScope: ResolveStmtContext = null) {
-
-  private val blockStack: mutable.Stack[List[VarDeclaration]] = mutable.Stack()
-  private var vars: List[VarDeclaration] = Nil
-
-  def pushBlock(): Unit = blockStack.push(vars)
-
-  def popBlock(): Unit = vars = blockStack.pop()
-
-  def complete(): Unit = if (blockStack.nonEmpty) throw new LinkerException()
-
-  def addVarDeclaration(varDeclaration: VarDeclaration): Unit = vars = varDeclaration :: vars
-
-  def getVarDeclaration(name: String): Option[VarDeclaration] = {
-    vars.find(_.name.text.compareToIgnoreCase(name) == 0)
-  }
-}
-
-class ResolveExprContext(stmtContext: ResolveStmtContext) {
-  def getVarDeclaration(name: String): Option[VarDeclaration] = {
-    stmtContext.getVarDeclaration(name)
+    // Find all top level code blocks in each class
+    ctx.getClasses.values.foreach((apexClass: ApexClass) => {
+      apexClass.codeBlocks.foreach((block: Block) => {
+        // Find all bang statements in each block
+        block.findStatements(false).collect { case x: BangStatement => x } foreach ((stmt: BangStatement) => {
+          // Unmask each statement
+          fileChanger.addChange(apexClass.location.filepath, stmt.start(), stmt.start() + 3, None)
+        })
+      })
+    })
   }
 }
