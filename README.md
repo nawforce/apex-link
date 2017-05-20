@@ -11,11 +11,9 @@ access at present, besides this project you may want to take a look at Andrey Ga
 
 ### Building
 
-
 To create a jar use:
 
     mvn package
-
 
 ### Linking
 
@@ -62,6 +60,28 @@ placed in obscure locations that might lead to hard to locate bugs.
 The 'sort-labels' transform does what it says on the tin, it re-orders the labels in your CustomLabels.labels file
 so they match the order that you would get back from retrieving your package from Salesforce. This is handy if you
 want to compare your source file in git with one deployed.
+
+### Maven
+
+To use in a maven project add the following to your pom.xml
+
+    <repositories>
+        <repository>
+            <id>oss-sonatype</id>
+            <name>oss-sonatype</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+
+    <dependency>
+        <groupId>com.github.nawforce</groupId>
+        <artifactId>apexlink</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </dependency>
 
 ### Source & Licenses
 
