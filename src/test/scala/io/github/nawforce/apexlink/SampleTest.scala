@@ -27,12 +27,13 @@
 */
 package io.github.nawforce.apexlink
 
+import io.github.nawforce.ApexLink
 import org.junit.{Assert, Test}
 
 class SampleTest {
 
   def sample(path : String) : Unit = {
-    Assert.assertEquals(0, Link.link(Array(path)))
+    Assert.assertEquals(0, ApexLink.run(Array(path)))
   }
 
   @Test def sample1() : Unit = {
