@@ -1,3 +1,9 @@
+## Abandoned?
+
+This code was rolled into a project for my employeers some time ago so has not been updated here for some time. 
+It's likely that will be released to the community at some point but leaving this older code available until 
+that happens.
+
 ## ApexLink v0.1-SNANPSHOT
 
 ApexLink is an offline validation and transformation toolkit for Salesforce packages. It reads and attempts to 
