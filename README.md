@@ -1,8 +1,7 @@
 ## Abandoned?
 
-This code was rolled into a project for my employeers some time ago so has not been updated here for some time. 
-It's likely that will be released to the community at some point but leaving this older code available until 
-that happens.
+This code was rolled into a project for my employers some time ago so has not had much attention recently but I am
+starting to use it again for a few projects so it going to get a few updates this year (2019).
 
 ## ApexLink v0.1-SNANPSHOT
 
