@@ -29,9 +29,9 @@ package io.github.nawforce.apexlink.metadata
 
 import java.io.{File, FileInputStream}
 
-import io.github.nawforce.apexlink.antlr.{ApexLexer, ApexParser}
 import io.github.nawforce.apexlink.cst._
 import io.github.nawforce.apexlink.utils._
+import io.github.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
 import org.antlr.v4.runtime.CommonTokenStream
 
 import scala.collection.JavaConversions._

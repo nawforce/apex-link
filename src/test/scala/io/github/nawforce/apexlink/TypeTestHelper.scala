@@ -29,9 +29,9 @@ package io.github.nawforce.apexlink
 
 import java.io.StringReader
 
-import io.github.nawforce.apexlink.antlr.{ApexLexer, ApexParser}
 import io.github.nawforce.apexlink.cst._
-import io.github.nawforce.apexlink.utils.{CSTException, CaseInsensitiveInputStream, ThrowingErrorListener}
+import io.github.nawforce.apexlink.utils.{CSTException, ThrowingErrorListener}
+import io.github.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
 import org.antlr.v4.runtime.{CommonTokenStream, Token}
 
 class TypeContextTest(_thisType: Type = null, _superType: Type = null, identifierTypes: Map[String, Type] = null) extends TypeContext {

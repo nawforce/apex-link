@@ -27,9 +27,9 @@
 */
 package io.github.nawforce.apexlink.cst
 
-import io.github.nawforce.apexlink.antlr.ApexParser
-import io.github.nawforce.apexlink.antlr.ApexParser._
 import io.github.nawforce.apexlink.utils.CSTException
+import io.github.nawforce.parsers.ApexParser
+import io.github.nawforce.parsers.ApexParser._
 import org.antlr.v4.runtime.ParserRuleContext
 
 import scala.collection.JavaConversions._
