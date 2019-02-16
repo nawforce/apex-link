@@ -36,13 +36,13 @@
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>2.11.7</version>
+            <version>2.12.6</version>
         </dependency>
 
         <dependency>
             <groupId>org.scala-lang.modules</groupId>
-            <artifactId>scala-xml_2.11</artifactId>
-            <version>1.0.5</version>
+            <artifactId>scala-xml_2.12</artifactId>
+            <version>1.1.1</version>
         </dependency>
 
         <dependency>
@@ -77,8 +77,8 @@
 
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.11</artifactId>
-            <version>2.2.6</version>
+            <artifactId>scalatest_2.12</artifactId>
+            <version>3.0.5</version>
             <scope>test</scope>
         </dependency>
 
