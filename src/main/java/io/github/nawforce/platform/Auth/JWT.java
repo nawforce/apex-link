@@ -25,18 +25,24 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.Auth;
 
-import io.github.nawforce.platform.Schema.SObjectType;
+import io.github.nawforce.platform.System.Map;
 
 @SuppressWarnings("unused")
-public class Id {
-	public void addError(Exception msg) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(Exception msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(String msg) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(String msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
-	public Boolean equals$(String o) {throw new java.lang.UnsupportedOperationException();}
-	public SObjectType getSobjectType() {throw new java.lang.UnsupportedOperationException();}
-
-	public static Id valueOf(String str) {throw new java.lang.UnsupportedOperationException();}
+public class JWT
+{
+    public Map<String, Object> getAdditionalClaims() {throw new java.lang.UnsupportedOperationException();}
+    public String getAud() {throw new java.lang.UnsupportedOperationException();}
+    public String getIss() {throw new java.lang.UnsupportedOperationException();}
+    public Integer getNbfClockSkew() {throw new java.lang.UnsupportedOperationException();}
+    public String getSub() {throw new java.lang.UnsupportedOperationException();}
+    public Integer getValidityLength() {throw new java.lang.UnsupportedOperationException();}
+    public void setAdditionalClaims(Map<String, Object> additionalClaims) {throw new java.lang.UnsupportedOperationException();}
+    public void setAud(String aud) {throw new java.lang.UnsupportedOperationException();}
+    public void setIss(String iss) {throw new java.lang.UnsupportedOperationException();}
+    public void setNbfClockSkew(Integer nbfClockSkew) {throw new java.lang.UnsupportedOperationException();}
+    public void setSub(String sub) {throw new java.lang.UnsupportedOperationException();}
+    public void setValidityLength(Integer validityLength) {throw new java.lang.UnsupportedOperationException();}
+    public String toJSONString() {throw new java.lang.UnsupportedOperationException();}
 }

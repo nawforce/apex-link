@@ -25,18 +25,29 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.Datacloud;
 
-import io.github.nawforce.platform.Schema.SObjectType;
+import io.github.nawforce.platform.Database.Error;
+import io.github.nawforce.platform.System.Boolean;
+import io.github.nawforce.platform.System.Integer;
+import io.github.nawforce.platform.System.List;
+import io.github.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class Id {
-	public void addError(Exception msg) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(Exception msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(String msg) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(String msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
-	public Boolean equals$(String o) {throw new java.lang.UnsupportedOperationException();}
-	public SObjectType getSobjectType() {throw new java.lang.UnsupportedOperationException();}
+public class MatchResult {
+	public String EntityType;
+	public List<Error> Errors;
+	public String MatchEngine;
+	public List<MatchRecord> MatchRecords;
+	public String Rule;
+	public Integer Size;
+	public Boolean Success;
 
-	public static Id valueOf(String str) {throw new java.lang.UnsupportedOperationException();}
+	public String getEntityType() {throw new java.lang.UnsupportedOperationException();}
+	public List<Error> getErrors() {throw new java.lang.UnsupportedOperationException();}
+	public String getMatchEngine() {throw new java.lang.UnsupportedOperationException();}
+	public List<MatchRecord> getMatchRecords() {throw new java.lang.UnsupportedOperationException();}
+	public String getRule() {throw new java.lang.UnsupportedOperationException();}
+	public Integer getSize() {throw new java.lang.UnsupportedOperationException();}
+	public Boolean isSuccess() {throw new java.lang.UnsupportedOperationException();}
 }

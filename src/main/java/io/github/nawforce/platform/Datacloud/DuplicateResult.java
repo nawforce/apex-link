@@ -25,18 +25,23 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.Datacloud;
 
-import io.github.nawforce.platform.Schema.SObjectType;
+import io.github.nawforce.platform.System.Boolean;
+import io.github.nawforce.platform.System.List;
+import io.github.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class Id {
-	public void addError(Exception msg) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(Exception msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(String msg) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(String msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
-	public Boolean equals$(String o) {throw new java.lang.UnsupportedOperationException();}
-	public SObjectType getSobjectType() {throw new java.lang.UnsupportedOperationException();}
+public class DuplicateResult {
+	public Boolean AllowSave;
+	public String DuplicateRule;
+	public String DuplicateRuleEntityType;
+	public String ErrorMessage;
+	public List<MatchResult> MatchResults;
 
-	public static Id valueOf(String str) {throw new java.lang.UnsupportedOperationException();}
+	public String getDuplicateRule() {throw new java.lang.UnsupportedOperationException();}
+	public String getDuplicateRuleEntityType() {throw new java.lang.UnsupportedOperationException();}
+	public String getErrorMessage() {throw new java.lang.UnsupportedOperationException();}
+	public List<MatchResult> getMatchResults() {throw new java.lang.UnsupportedOperationException();}
+	public Boolean isAllowSave() {throw new java.lang.UnsupportedOperationException();}
 }

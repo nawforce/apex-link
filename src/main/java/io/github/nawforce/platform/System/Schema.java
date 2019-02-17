@@ -27,6 +27,8 @@
 */
 package io.github.nawforce.platform.System;
 
+import io.github.nawforce.platform.Schema.*;
+
 @SuppressWarnings("unused")
 public class Schema {
 	public static List<DescribeDataCategoryGroupStructureResult> describeDataCategoryGroupStructures(List<DataCategoryGroupSobjectTypePair> pairs, Boolean topCategoriesOnly) {throw new java.lang.UnsupportedOperationException();}

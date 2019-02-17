@@ -29,9 +29,5 @@ package io.github.nawforce.platform.System;
 
 @SuppressWarnings("unused")
 public class WebServiceMock {
-
-
-	public void doInvoke(Object param1, Object param2, Map<String,ANY> param3, String param4, String param5, String param6, String param7, String param8, String param9) {throw new java.lang.UnsupportedOperationException();}
-
-
+	public void doInvoke(Object param1, Object param2, Map<String, Object> param3, String param4, String param5, String param6, String param7, String param8, String param9) {throw new java.lang.UnsupportedOperationException();}
 }

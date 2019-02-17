@@ -27,16 +27,6 @@
 */
 package io.github.nawforce.platform.System;
 
-import io.github.nawforce.platform.Schema.SObjectType;
-
 @SuppressWarnings("unused")
-public class Id {
-	public void addError(Exception msg) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(Exception msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(String msg) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(String msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
-	public Boolean equals$(String o) {throw new java.lang.UnsupportedOperationException();}
-	public SObjectType getSobjectType() {throw new java.lang.UnsupportedOperationException();}
-
-	public static Id valueOf(String str) {throw new java.lang.UnsupportedOperationException();}
+public class Savepoint {
 }

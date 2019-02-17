@@ -27,16 +27,18 @@
 */
 package io.github.nawforce.platform.System;
 
+import io.github.nawforce.platform.Auth.VerificationMethod;
+
 @SuppressWarnings("unused")
 public class UserManagement {
 	public UserManagement() {throw new java.lang.UnsupportedOperationException();}
 
-	public static void deregisterVerificationMethod(Id userId, Auth.VerificationMethod method) {throw new java.lang.UnsupportedOperationException();}
+	public static void deregisterVerificationMethod(Id userId, VerificationMethod method) {throw new java.lang.UnsupportedOperationException();}
 	public static String formatPhoneNumber(String countryCode, String phoneNumber) {throw new java.lang.UnsupportedOperationException();}
-	public static String initSelfRegistration(Auth.VerificationMethod method, User u) {throw new java.lang.UnsupportedOperationException();}
+	public static String initSelfRegistration(VerificationMethod method, User u) {throw new java.lang.UnsupportedOperationException();}
 	public static void obfuscateUser(Id userId) {throw new java.lang.UnsupportedOperationException();}
 	public static void obfuscateUser(Id userId, String username) {throw new java.lang.UnsupportedOperationException();}
-	public static PageReference registerVerificationMethod(Auth.VerificationMethod method, String startUrl) {throw new java.lang.UnsupportedOperationException();}
+	public static PageReference registerVerificationMethod(VerificationMethod method, String startUrl) {throw new java.lang.UnsupportedOperationException();}
 	public static Boolean sendAsyncEmailConfirmation(String userId, String emailTemplateId, String networkId, String startUrl) {throw new java.lang.UnsupportedOperationException();}
-	public static Auth.VerificationResult verifySelfRegistration(Auth.VerificationMethod method, String identifier, String code, String startUrl) {throw new java.lang.UnsupportedOperationException();}
+	public static VerificationResult verifySelfRegistration(VerificationMethod method, String identifier, String code, String startUrl) {throw new java.lang.UnsupportedOperationException();}
 }

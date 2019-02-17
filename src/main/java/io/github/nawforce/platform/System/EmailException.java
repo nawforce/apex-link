@@ -27,6 +27,8 @@
 */
 package io.github.nawforce.platform.System;
 
+import io.github.nawforce.platform.Schema.SObjectField;
+
 @SuppressWarnings("unused")
 public class EmailException {
 	public EmailException() {throw new java.lang.UnsupportedOperationException();}
@@ -36,7 +38,7 @@ public class EmailException {
 
 	public Exception getCause() {throw new java.lang.UnsupportedOperationException();}
 	public List<String> getDmlFieldNames(Integer index) {throw new java.lang.UnsupportedOperationException();}
-	public List<Schema.SObjectField> getDmlFields(Integer index) {throw new java.lang.UnsupportedOperationException();}
+	public List<SObjectField> getDmlFields(Integer index) {throw new java.lang.UnsupportedOperationException();}
 	public String getDmlId(Integer index) {throw new java.lang.UnsupportedOperationException();}
 	public Integer getDmlIndex(Integer index) {throw new java.lang.UnsupportedOperationException();}
 	public String getDmlMessage(Integer index) {throw new java.lang.UnsupportedOperationException();}

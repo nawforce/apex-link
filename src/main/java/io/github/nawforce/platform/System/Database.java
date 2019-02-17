@@ -27,6 +27,9 @@
 */
 package io.github.nawforce.platform.System;
 
+import io.github.nawforce.platform.Database.*;
+import io.github.nawforce.platform.Schema.SObjectField;
+
 @SuppressWarnings("unused")
 public class Database {
 	public static LeadConvertResult convertLead(LeadConvert leadConvert) {throw new java.lang.UnsupportedOperationException();}
@@ -109,10 +112,10 @@ public class Database {
 	public static SaveResult updateImmediate(SObject sobject) {throw new java.lang.UnsupportedOperationException();}
 	public static List<UpsertResult> upsert(List<SObject> sobjects) {throw new java.lang.UnsupportedOperationException();}
 	public static List<UpsertResult> upsert(List<SObject> sobjects, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<UpsertResult> upsert(List<SObject> sobjects, Schema.SObjectField field) {throw new java.lang.UnsupportedOperationException();}
-	public static List<UpsertResult> upsert(List<SObject> sobjects, Schema.SObjectField field, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
+	public static List<UpsertResult> upsert(List<SObject> sobjects, SObjectField field) {throw new java.lang.UnsupportedOperationException();}
+	public static List<UpsertResult> upsert(List<SObject> sobjects, SObjectField field, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
 	public static UpsertResult upsert(SObject sobject) {throw new java.lang.UnsupportedOperationException();}
 	public static UpsertResult upsert(SObject sobject, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static UpsertResult upsert(SObject sobject, Schema.SObjectField field) {throw new java.lang.UnsupportedOperationException();}
-	public static UpsertResult upsert(SObject sobject, Schema.SObjectField field, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
+	public static UpsertResult upsert(SObject sobject, SObjectField field) {throw new java.lang.UnsupportedOperationException();}
+	public static UpsertResult upsert(SObject sobject, SObjectField field, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -25,18 +25,17 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.dom;
 
-import io.github.nawforce.platform.Schema.SObjectType;
+import io.github.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class Id {
-	public void addError(Exception msg) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(Exception msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(String msg) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(String msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
-	public Boolean equals$(String o) {throw new java.lang.UnsupportedOperationException();}
-	public SObjectType getSobjectType() {throw new java.lang.UnsupportedOperationException();}
+public class Document {
 
-	public static Id valueOf(String str) {throw new java.lang.UnsupportedOperationException();}
+	public Document() {throw new java.lang.UnsupportedOperationException();}
+
+	public XmlNode createRootElement(String name, String namespace, String prefix) {throw new java.lang.UnsupportedOperationException();}
+	public XmlNode getRootElement() {throw new java.lang.UnsupportedOperationException();}
+	public void load(String xml) {throw new java.lang.UnsupportedOperationException();}
+	public String toXmlString() {throw new java.lang.UnsupportedOperationException();}
 }

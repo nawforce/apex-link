@@ -28,16 +28,8 @@
 package io.github.nawforce.platform.System;
 
 @SuppressWarnings("unused")
-public class SetupScope {
-	public ORGANIZATION;
-	public PROFILE;
-	public USER;
-
-
-	public Boolean equals$(Object obj) {throw new java.lang.UnsupportedOperationException();}
-	public Integer hashCode$() {throw new java.lang.UnsupportedOperationException();}
-	public Integer ordinal() {throw new java.lang.UnsupportedOperationException();}
-
-	public static List<SetupScope> values() {throw new java.lang.UnsupportedOperationException();}
-
+public enum SetupScope {
+	ORGANIZATION,
+	PROFILE,
+	USER
 }

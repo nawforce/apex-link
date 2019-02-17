@@ -4,7 +4,7 @@
 
 package io.github.nawforce.platform.System;
 
-import com.financialforce.typex.platform.Schema.SObjectType;
+import io.github.nawforce.platform.Schema.SObjectType;
 
 @SuppressWarnings("unused")
 public abstract class Map<K, V> {

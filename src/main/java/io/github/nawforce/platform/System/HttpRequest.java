@@ -27,7 +27,7 @@
 */
 package io.github.nawforce.platform.System;
 
-import io.github.nawforce.platform.Namespaces.Dom;
+import io.github.nawforce.platform.dom.Document;
 
 @SuppressWarnings("unused")
 public class HttpRequest {
@@ -35,7 +35,8 @@ public class HttpRequest {
 
 	public String getBody() {throw new java.lang.UnsupportedOperationException();}
 	public Blob getBodyAsBlob() {throw new java.lang.UnsupportedOperationException();}
-	public Dom.Document getBodyDocument() {throw new java.lang.UnsupportedOperationException();}
+
+	public Document getBodyDocument() {throw new java.lang.UnsupportedOperationException();}
 	public Boolean getCompressed() {throw new java.lang.UnsupportedOperationException();}
 	public String getEndpoint() {throw new java.lang.UnsupportedOperationException();}
 	public String getHeader(String key) {throw new java.lang.UnsupportedOperationException();}

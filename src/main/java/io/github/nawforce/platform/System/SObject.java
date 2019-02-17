@@ -27,6 +27,10 @@
 */
 package io.github.nawforce.platform.System;
 
+import io.github.nawforce.platform.Database.DMLOptions;
+import io.github.nawforce.platform.Schema.SObjectField;
+import io.github.nawforce.platform.Schema.SObjectType;
+
 @SuppressWarnings("unused")
 public class SObject {
 	public void addError(Object msg) {throw new java.lang.UnsupportedOperationException();}
@@ -34,28 +38,28 @@ public class SObject {
 	public void addError(String msg) {throw new java.lang.UnsupportedOperationException();}
 	public void addError(String msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
 	public void clear() {throw new java.lang.UnsupportedOperationException();}
-	public Object get(Schema.SObjectField field) {throw new java.lang.UnsupportedOperationException();}
+	public Object get(SObjectField field) {throw new java.lang.UnsupportedOperationException();}
 	public Object get(String field) {throw new java.lang.UnsupportedOperationException();}
 	public Map<String,SObject> getAll() {throw new java.lang.UnsupportedOperationException();}
 	public Id getCloneSourceId() {throw new java.lang.UnsupportedOperationException();}
 	public SObject getInstance() {throw new java.lang.UnsupportedOperationException();}
 	public SObject getInstance(String id) {throw new java.lang.UnsupportedOperationException();}
-	public Database.DMLOptions getOptions() {throw new java.lang.UnsupportedOperationException();}
+	public DMLOptions getOptions() {throw new java.lang.UnsupportedOperationException();}
 	public SObject getOrgDefaults() {throw new java.lang.UnsupportedOperationException();}
 	public Map<String, SObject> getPopulatedFieldsAsMap() {throw new java.lang.UnsupportedOperationException();}
 	public String getQuickActionName() {throw new java.lang.UnsupportedOperationException();}
-	public SObject getSObject(Schema.SObjectField field) {throw new java.lang.UnsupportedOperationException();}
+	public SObject getSObject(SObjectField field) {throw new java.lang.UnsupportedOperationException();}
 	public SObject getSObject(String field) {throw new java.lang.UnsupportedOperationException();}
-	public Schema.SObjectType getSObjectType() {throw new java.lang.UnsupportedOperationException();}
-	public List<SObject> getSObjects(Schema.SObjectField field) {throw new java.lang.UnsupportedOperationException();}
+	public SObjectType getSObjectType() {throw new java.lang.UnsupportedOperationException();}
+	public List<SObject> getSObjects(SObjectField field) {throw new java.lang.UnsupportedOperationException();}
 	public List<SObject> getSObjects(String field) {throw new java.lang.UnsupportedOperationException();}
 	public SObject getValues(String id) {throw new java.lang.UnsupportedOperationException();}
 	public Boolean isClone() {throw new java.lang.UnsupportedOperationException();}
-	public Boolean isSet(Schema.SObjectField field) {throw new java.lang.UnsupportedOperationException();}
+	public Boolean isSet(SObjectField field) {throw new java.lang.UnsupportedOperationException();}
 	public Boolean isSet(String fieldName) {throw new java.lang.UnsupportedOperationException();}
-	public Object put(Schema.SObjectField field, Object value) {throw new java.lang.UnsupportedOperationException();}
+	public Object put(SObjectField field, Object value) {throw new java.lang.UnsupportedOperationException();}
 	public Object put(String field, Object value) {throw new java.lang.UnsupportedOperationException();}
-	public SObject putSObject(Schema.SObjectField field, SObject value) {throw new java.lang.UnsupportedOperationException();}
+	public SObject putSObject(SObjectField field, SObject value) {throw new java.lang.UnsupportedOperationException();}
 	public SObject putSObject(String field, SObject value) {throw new java.lang.UnsupportedOperationException();}
 	public void recalculateFormulas() {throw new java.lang.UnsupportedOperationException();}
 	public void setOptions(Object options) {throw new java.lang.UnsupportedOperationException();}

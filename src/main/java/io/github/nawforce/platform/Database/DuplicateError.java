@@ -27,15 +27,16 @@
 */
 package io.github.nawforce.platform.Database;
 
+import io.github.nawforce.platform.Datacloud.DuplicateResult;
 import io.github.nawforce.platform.System.List;
 import io.github.nawforce.platform.System.String;
 import io.github.nawforce.platform.System.StatusCode;
 
 @SuppressWarnings("unused")
 public class DuplicateError {
-	public Datacloud.DuplicateResult DuplicateResult;
+	public DuplicateResult DuplicateResult;
 
-	public Datacloud.DuplicateResult getDuplicateResult() {throw new java.lang.UnsupportedOperationException();}
+	public DuplicateResult getDuplicateResult() {throw new java.lang.UnsupportedOperationException();}
 	public List<String> getFields() {throw new java.lang.UnsupportedOperationException();}
 	public String getMessage() {throw new java.lang.UnsupportedOperationException();}
 	public StatusCode getStatusCode() {throw new java.lang.UnsupportedOperationException();}

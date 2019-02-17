@@ -27,8 +27,10 @@
 */
 package io.github.nawforce.platform.System;
 
+import io.github.nawforce.platform.Database.SaveResult;
+
 @SuppressWarnings("unused")
 public class EventBus {
-	public static List<Database.SaveResult> publish(List<SObject> sobjects) {throw new java.lang.UnsupportedOperationException();}
-	public static Database.SaveResult publish(SObject sobject) {throw new java.lang.UnsupportedOperationException();}
+	public static List<SaveResult> publish(List<SObject> sobjects) {throw new java.lang.UnsupportedOperationException();}
+	public static SaveResult publish(SObject sobject) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -27,22 +27,23 @@
 */
 package io.github.nawforce.platform.Database;
 
+import io.github.nawforce.platform.Datacloud.AdditionalInformationMap;
 import io.github.nawforce.platform.System.List;
 import io.github.nawforce.platform.System.SObject;
 import io.github.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class MergeRequest {
-	public List<Datacloud.AdditionalInformationMap> AdditionalInformationMap;
+	public List<AdditionalInformationMap> AdditionalInformationMap;
 	public SObject MasterRecord;
 	public List<String> RecordToMergeIds;
 
 	public MergeRequest() {throw new java.lang.UnsupportedOperationException();}
 
-	public List<Datacloud.AdditionalInformationMap> getAdditionalInformationMap() {throw new java.lang.UnsupportedOperationException();}
+	public List<AdditionalInformationMap> getAdditionalInformationMap() {throw new java.lang.UnsupportedOperationException();}
 	public SObject getMasterRecord() {throw new java.lang.UnsupportedOperationException();}
 	public List<String> getRecordToMergeIds() {throw new java.lang.UnsupportedOperationException();}
-	public void setAdditionalInformationMap(List<Datacloud.AdditionalInformationMap> param1) {throw new java.lang.UnsupportedOperationException();}
+	public void setAdditionalInformationMap(List<AdditionalInformationMap> param1) {throw new java.lang.UnsupportedOperationException();}
 	public void setMasterRecord(SObject param1) {throw new java.lang.UnsupportedOperationException();}
 	public void setRecordToMergeIds(List<String> param1) {throw new java.lang.UnsupportedOperationException();}
 }

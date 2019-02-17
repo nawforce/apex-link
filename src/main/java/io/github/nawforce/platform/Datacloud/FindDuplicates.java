@@ -25,18 +25,14 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.Datacloud;
 
-import io.github.nawforce.platform.Schema.SObjectType;
+import io.github.nawforce.platform.System.List;
+import io.github.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
-public class Id {
-	public void addError(Exception msg) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(Exception msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(String msg) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(String msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
-	public Boolean equals$(String o) {throw new java.lang.UnsupportedOperationException();}
-	public SObjectType getSobjectType() {throw new java.lang.UnsupportedOperationException();}
+public class FindDuplicates {
+	public FindDuplicates() {throw new java.lang.UnsupportedOperationException();}
 
-	public static Id valueOf(String str) {throw new java.lang.UnsupportedOperationException();}
+	public static List<FindDuplicatesResult> findDuplicates(List<SObject> sObjects) {throw new java.lang.UnsupportedOperationException();}
 }

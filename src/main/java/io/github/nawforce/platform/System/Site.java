@@ -27,6 +27,8 @@
 */
 package io.github.nawforce.platform.System;
 
+import io.github.nawforce.platform.Auth.VerificationMethod;
+
 @SuppressWarnings("unused")
 public class Site {
 	public Site() {throw new java.lang.UnsupportedOperationException();}
@@ -72,7 +74,7 @@ public class Site {
 	public static Boolean isRegistrationEnabled() {throw new java.lang.UnsupportedOperationException();}
 	public static Boolean isValidUsername(String username) {throw new java.lang.UnsupportedOperationException();}
 	public static PageReference login(String username, String password, String startUrl) {throw new java.lang.UnsupportedOperationException();}
-	public static PageReference passwordlessLogin(Id userId, List<Auth.VerificationMethod> methods, String startUrl) {throw new java.lang.UnsupportedOperationException();}
+	public static PageReference passwordlessLogin(Id userId, List<VerificationMethod> methods, String startUrl) {throw new java.lang.UnsupportedOperationException();}
 	public static void setExperienceId(String expIdValue) {throw new java.lang.UnsupportedOperationException();}
 	public static void setPortalUserAsAuthProvider(SObject user, String accountId) {throw new java.lang.UnsupportedOperationException();}
 	public static void validatePassword(SObject user, String password, String confirmPassword) {throw new java.lang.UnsupportedOperationException();}

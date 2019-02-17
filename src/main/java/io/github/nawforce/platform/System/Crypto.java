@@ -27,7 +27,7 @@
 */
 package io.github.nawforce.platform.System;
 
-import io.github.nawforce.platform.Namespaces.Dom;
+import io.github.nawforce.platform.dom.XmlNode;
 
 @SuppressWarnings("unused")
 public class Crypto {
@@ -44,8 +44,8 @@ public class Crypto {
 	public static Long getRandomLong() {throw new java.lang.UnsupportedOperationException();}
 	public static Blob sign(String algorithmName, Blob input, Blob privateKey) {throw new java.lang.UnsupportedOperationException();}
 	public static Blob signWithCertificate(String algorithmName, Blob input, String certDevName) {throw new java.lang.UnsupportedOperationException();}
-	public static void signXml(String algorithmName, Dom.XmlNode node, String idAttributeName, String certDevName) {throw new java.lang.UnsupportedOperationException();}
-	public static void signXml(String algorithmName, Dom.XmlNode node, String idAttributeName, String certDevName, Dom.XmlNode refChild) {throw new java.lang.UnsupportedOperationException();}
+	public static void signXml(String algorithmName, XmlNode node, String idAttributeName, String certDevName) {throw new java.lang.UnsupportedOperationException();}
+	public static void signXml(String algorithmName, XmlNode node, String idAttributeName, String certDevName, XmlNode refChild) {throw new java.lang.UnsupportedOperationException();}
 	public static Boolean verify(String algorithmName, Blob data, Blob signature, Blob publicKey) {throw new java.lang.UnsupportedOperationException();}
 	public static Boolean verify(String algorithmName, Blob data, Blob signature, String certDevName) {throw new java.lang.UnsupportedOperationException();}
 	public static Boolean verifyHmac(String algorithmName, Blob data, Blob privateKey, Blob hmacToVerify) {throw new java.lang.UnsupportedOperationException();}

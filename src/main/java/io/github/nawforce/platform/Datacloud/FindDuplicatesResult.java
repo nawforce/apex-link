@@ -25,18 +25,19 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.Datacloud;
 
-import io.github.nawforce.platform.Schema.SObjectType;
+import io.github.nawforce.platform.Database.Error;
+import io.github.nawforce.platform.System.Boolean;
+import io.github.nawforce.platform.System.List;
 
 @SuppressWarnings("unused")
-public class Id {
-	public void addError(Exception msg) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(Exception msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(String msg) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(String msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
-	public Boolean equals$(String o) {throw new java.lang.UnsupportedOperationException();}
-	public SObjectType getSobjectType() {throw new java.lang.UnsupportedOperationException();}
+public class FindDuplicatesResult {
+	public List<DuplicateResult> DuplicateResults;
+	public List<Error> Errors;
+	public Boolean Success;
 
-	public static Id valueOf(String str) {throw new java.lang.UnsupportedOperationException();}
+	public List<DuplicateResult> getDuplicateResults() {throw new java.lang.UnsupportedOperationException();}
+	public List<Error> getErrors() {throw new java.lang.UnsupportedOperationException();}
+	public Boolean isSuccess() {throw new java.lang.UnsupportedOperationException();}
 }
