@@ -25,18 +25,31 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.QuickAction;
 
-import io.github.nawforce.platform.QuickAction.*;
+import io.github.nawforce.platform.System.Boolean;
+import io.github.nawforce.platform.System.Integer;
+import io.github.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class QuickAction {
-	public static List<DescribeAvailableQuickActionResult> describeAvailableQuickActions(String parentType) {throw new java.lang.UnsupportedOperationException();}
-	public static List<DescribeQuickActionResult> describeQuickActions(List<String> actions) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionTemplateResult retrieveQuickActionTemplate(String quickActionName, Id contextId) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionTemplateResult> retrieveQuickActionTemplates(List<String> quickActionNames, Id contextId) {throw new java.lang.UnsupportedOperationException();}
+public class ReportChartComponent {
+	public Boolean CacheData;
+	public String ContextFilterableField;
+	public String Error;
+	public Boolean HideOnError;
+	public Boolean IncludeContext;
+	public Boolean ShowTitle;
+	public String Size;
+
+	public Boolean getCacheData() {throw new java.lang.UnsupportedOperationException();}
+	public String getContextFilterableField() {throw new java.lang.UnsupportedOperationException();}
+	public Integer getDisplayLines() {throw new java.lang.UnsupportedOperationException();}
+	public String getError() {throw new java.lang.UnsupportedOperationException();}
+	public Boolean getHideOnError() {throw new java.lang.UnsupportedOperationException();}
+	public Boolean getIncludeContext() {throw new java.lang.UnsupportedOperationException();}
+	public Boolean getShowTitle() {throw new java.lang.UnsupportedOperationException();}
+	public String getSize() {throw new java.lang.UnsupportedOperationException();}
+	public Integer getTabOrder() {throw new java.lang.UnsupportedOperationException();}
+	public String getType() {throw new java.lang.UnsupportedOperationException();}
+	public String getValue() {throw new java.lang.UnsupportedOperationException();}
 }

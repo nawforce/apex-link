@@ -25,18 +25,15 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.Search;
 
-import io.github.nawforce.platform.QuickAction.*;
+import io.github.nawforce.platform.System.Integer;
 
 @SuppressWarnings("unused")
-public class QuickAction {
-	public static List<DescribeAvailableQuickActionResult> describeAvailableQuickActions(String parentType) {throw new java.lang.UnsupportedOperationException();}
-	public static List<DescribeQuickActionResult> describeQuickActions(List<String> actions) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionTemplateResult retrieveQuickActionTemplate(String quickActionName, Id contextId) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionTemplateResult> retrieveQuickActionTemplates(List<String> quickActionNames, Id contextId) {throw new java.lang.UnsupportedOperationException();}
+public class SuggestionOption
+{
+	public SuggestionOption() {throw new java.lang.UnsupportedOperationException();}
+
+	public void setFilter(Object filter) {throw new java.lang.UnsupportedOperationException();}
+	public void setLimit(Integer limit) {throw new java.lang.UnsupportedOperationException();}
 }

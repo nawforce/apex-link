@@ -25,18 +25,21 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.QuickAction;
 
-import io.github.nawforce.platform.QuickAction.*;
+import io.github.nawforce.platform.System.Boolean;
+import io.github.nawforce.platform.System.String;
+import io.github.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
-public class QuickAction {
-	public static List<DescribeAvailableQuickActionResult> describeAvailableQuickActions(String parentType) {throw new java.lang.UnsupportedOperationException();}
-	public static List<DescribeQuickActionResult> describeQuickActions(List<String> actions) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionTemplateResult retrieveQuickActionTemplate(String quickActionName, Id contextId) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionTemplateResult> retrieveQuickActionTemplates(List<String> quickActionNames, Id contextId) {throw new java.lang.UnsupportedOperationException();}
+public class SendEmailQuickActionDefaults {
+	public String getActionName() {throw new java.lang.UnsupportedOperationException();}
+	public String getActionType() {throw new java.lang.UnsupportedOperationException();}
+	public Id getContextId() {throw new java.lang.UnsupportedOperationException();}
+	public List<String> getFromAddressList() {throw new java.lang.UnsupportedOperationException();}
+	public Id getInReplyToId() {throw new java.lang.UnsupportedOperationException();}
+	public SObject getTargetSObject() {throw new java.lang.UnsupportedOperationException();}
+	public void setIgnoreTemplateSubject(Boolean ignoreSubject) {throw new java.lang.UnsupportedOperationException();}
+	public void setInsertTemplateBody(Boolean insertBody) {throw new java.lang.UnsupportedOperationException();}
+	public void setTemplateId(Id templateId) {throw new java.lang.UnsupportedOperationException();}
 }

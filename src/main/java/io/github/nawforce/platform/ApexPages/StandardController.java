@@ -25,18 +25,23 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.ApexPages;
 
-import io.github.nawforce.platform.QuickAction.*;
+import io.github.nawforce.platform.System.List;
+import io.github.nawforce.platform.System.SObject;
+import io.github.nawforce.platform.System.String;
+import io.github.nawforce.platform.System.PageReference;
 
 @SuppressWarnings("unused")
-public class QuickAction {
-	public static List<DescribeAvailableQuickActionResult> describeAvailableQuickActions(String parentType) {throw new java.lang.UnsupportedOperationException();}
-	public static List<DescribeQuickActionResult> describeQuickActions(List<String> actions) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionTemplateResult retrieveQuickActionTemplate(String quickActionName, Id contextId) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionTemplateResult> retrieveQuickActionTemplates(List<String> quickActionNames, Id contextId) {throw new java.lang.UnsupportedOperationException();}
+public class StandardController {
+	public StandardController(SObject sobject) {throw new java.lang.UnsupportedOperationException();}
+
+	public void addFields(List<String> fieldNames) {throw new java.lang.UnsupportedOperationException();}
+	public PageReference cancel() {throw new java.lang.UnsupportedOperationException();}
+	public PageReference delete() {throw new java.lang.UnsupportedOperationException();}
+	public PageReference edit() {throw new java.lang.UnsupportedOperationException();}
+	public String getId() {throw new java.lang.UnsupportedOperationException();}
+	public SObject getRecord() {throw new java.lang.UnsupportedOperationException();}
+	public PageReference save() {throw new java.lang.UnsupportedOperationException();}
+	public PageReference view() {throw new java.lang.UnsupportedOperationException();}
 }

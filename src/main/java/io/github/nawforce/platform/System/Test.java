@@ -27,6 +27,10 @@
 */
 package io.github.nawforce.platform.System;
 
+import io.github.nawforce.platform.QuickAction.SendEmailQuickActionDefaults;
+import io.github.nawforce.platform.Schema.SObjectType;
+import io.github.nawforce.platform.eventbus.TestBroker;
+
 @SuppressWarnings("unused")
 public class Test {
 	public Test() {throw new java.lang.UnsupportedOperationException();}
@@ -34,14 +38,13 @@ public class Test {
 	public static void clearApexPageMessages() {throw new java.lang.UnsupportedOperationException();}
 	public static Object createStub(Type parentType, StubProvider stubProvider) {throw new java.lang.UnsupportedOperationException();}
 	public static List<Id> enqueueBatchJobs(Integer n) {throw new java.lang.UnsupportedOperationException();}
-	public static eventbus.TestBroker getEventBus() {throw new java.lang.UnsupportedOperationException();}
+	public static TestBroker getEventBus() {throw new java.lang.UnsupportedOperationException();}
 	public static List<Id> getFlexQueueOrder() {throw new java.lang.UnsupportedOperationException();}
 	public static Id getStandardPricebookId() {throw new java.lang.UnsupportedOperationException();}
 	public static Object invokeContinuationMethod(Object controller, Continuation continuation) {throw new java.lang.UnsupportedOperationException();}
-	public static Component.apex.page invokePage(PageReference p) {throw new java.lang.UnsupportedOperationException();}
 	public static Boolean isRunningTest() {throw new java.lang.UnsupportedOperationException();}
-	public static List<SObject> loadData(Schema.SObjectType sobjectType, String staticResourceName) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickAction.SendEmailQuickActionDefaults newSendEmailQuickActionDefaults(Id contextId, Id replyToId) {throw new java.lang.UnsupportedOperationException();}
+	public static List<SObject> loadData(SObjectType sobjectType, String staticResourceName) {throw new java.lang.UnsupportedOperationException();}
+	public static SendEmailQuickActionDefaults newSendEmailQuickActionDefaults(Id contextId, Id replyToId) {throw new java.lang.UnsupportedOperationException();}
 	public static void setContinuationResponse(String label, HttpResponse response) {throw new java.lang.UnsupportedOperationException();}
 	public static void setCreatedDate(Id id, Datetime dt) {throw new java.lang.UnsupportedOperationException();}
 	public static void setCurrentPage(Object pageReference) {throw new java.lang.UnsupportedOperationException();}

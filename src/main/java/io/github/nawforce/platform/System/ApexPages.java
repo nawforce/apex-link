@@ -27,6 +27,9 @@
 */
 package io.github.nawforce.platform.System;
 
+import io.github.nawforce.platform.ApexPages.Message;
+import io.github.nawforce.platform.ApexPages.Severity;
+
 @SuppressWarnings("unused")
 public class ApexPages {
 	public static void addMessage(Message message) {throw new java.lang.UnsupportedOperationException();}

@@ -25,18 +25,19 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.reports;
 
-import io.github.nawforce.platform.QuickAction.*;
+import io.github.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class QuickAction {
-	public static List<DescribeAvailableQuickActionResult> describeAvailableQuickActions(String parentType) {throw new java.lang.UnsupportedOperationException();}
-	public static List<DescribeQuickActionResult> describeQuickActions(List<String> actions) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionTemplateResult retrieveQuickActionTemplate(String quickActionName, Id contextId) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionTemplateResult> retrieveQuickActionTemplates(List<String> quickActionNames, Id contextId) {throw new java.lang.UnsupportedOperationException();}
+public class SortColumn {
+	public SortColumn() {throw new java.lang.UnsupportedOperationException();}
+	public SortColumn(String sortColumn, ColumnSortOrder sortOrder) {throw new java.lang.UnsupportedOperationException();}
+
+	public String getSortColumn() {throw new java.lang.UnsupportedOperationException();}
+	public ColumnSortOrder getSortOrder() {throw new java.lang.UnsupportedOperationException();}
+	public void setSortColumn(String sortColumn) {throw new java.lang.UnsupportedOperationException();}
+	public void setSortOrder(String value) {throw new java.lang.UnsupportedOperationException();}
+	public void setSortOrder(ColumnSortOrder sortOrder) {throw new java.lang.UnsupportedOperationException();}
+	public String toString$() {throw new java.lang.UnsupportedOperationException();}
 }

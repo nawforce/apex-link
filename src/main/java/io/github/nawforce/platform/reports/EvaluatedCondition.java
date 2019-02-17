@@ -25,18 +25,19 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.reports;
 
-import io.github.nawforce.platform.QuickAction.*;
+import io.github.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class QuickAction {
-	public static List<DescribeAvailableQuickActionResult> describeAvailableQuickActions(String parentType) {throw new java.lang.UnsupportedOperationException();}
-	public static List<DescribeQuickActionResult> describeQuickActions(List<String> actions) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionTemplateResult retrieveQuickActionTemplate(String quickActionName, Id contextId) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionTemplateResult> retrieveQuickActionTemplates(List<String> quickActionNames, Id contextId) {throw new java.lang.UnsupportedOperationException();}
+public class EvaluatedCondition {
+	public EvaluatedCondition(String aggregateName, String aggregateLabel, Double compareTo, Double value, String displayCompareTo, String displayValue, EvaluatedConditionOperator operator) {throw new java.lang.UnsupportedOperationException();}
+
+	public String getAggregateLabel() {throw new java.lang.UnsupportedOperationException();}
+	public String getAggregateName() {throw new java.lang.UnsupportedOperationException();}
+	public Double getCompareTo() {throw new java.lang.UnsupportedOperationException();}
+	public String getDisplayCompareTo() {throw new java.lang.UnsupportedOperationException();}
+	public String getDisplayValue() {throw new java.lang.UnsupportedOperationException();}
+	public EvaluatedConditionOperator getOperator() {throw new java.lang.UnsupportedOperationException();}
+	public Double getValue() {throw new java.lang.UnsupportedOperationException();}
 }

@@ -25,18 +25,34 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.QuickAction;
 
-import io.github.nawforce.platform.QuickAction.*;
+import io.github.nawforce.platform.System.Boolean;
+import io.github.nawforce.platform.System.Integer;
+import io.github.nawforce.platform.System.String;
+import io.github.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
-public class QuickAction {
-	public static List<DescribeAvailableQuickActionResult> describeAvailableQuickActions(String parentType) {throw new java.lang.UnsupportedOperationException();}
-	public static List<DescribeQuickActionResult> describeQuickActions(List<String> actions) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionTemplateResult retrieveQuickActionTemplate(String quickActionName, Id contextId) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionTemplateResult> retrieveQuickActionTemplates(List<String> quickActionNames, Id contextId) {throw new java.lang.UnsupportedOperationException();}
+public class DescribeLayoutSection {
+	public Boolean Collapsed;
+	public Integer Columns;
+	public String Heading;
+	public List<DescribeLayoutRow> LayoutRows;
+	public Id LayoutSectionId;
+	public Id ParentLayoutId;
+	public Integer Rows;
+	public String TabOrder;
+	public Boolean UseCollapsibleSection;
+	public Boolean UseHeading;
+
+	public Integer getColumns() {throw new java.lang.UnsupportedOperationException();}
+	public String getHeading() {throw new java.lang.UnsupportedOperationException();}
+	public List<DescribeLayoutRow> getLayoutRows() {throw new java.lang.UnsupportedOperationException();}
+	public Id getLayoutSectionId() {throw new java.lang.UnsupportedOperationException();}
+	public Id getParentLayoutId() {throw new java.lang.UnsupportedOperationException();}
+	public Integer getRows() {throw new java.lang.UnsupportedOperationException();}
+	public String getTabOrder() {throw new java.lang.UnsupportedOperationException();}
+	public Boolean isCollapsed() {throw new java.lang.UnsupportedOperationException();}
+	public Boolean isUseCollapsibleSection() {throw new java.lang.UnsupportedOperationException();}
+	public Boolean isUseHeading() {throw new java.lang.UnsupportedOperationException();}
 }

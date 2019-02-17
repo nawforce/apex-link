@@ -25,18 +25,28 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.Messaging;
 
-import io.github.nawforce.platform.QuickAction.*;
+import io.github.nawforce.platform.System.Blob;
+import io.github.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class QuickAction {
-	public static List<DescribeAvailableQuickActionResult> describeAvailableQuickActions(String parentType) {throw new java.lang.UnsupportedOperationException();}
-	public static List<DescribeQuickActionResult> describeQuickActions(List<String> actions) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionTemplateResult retrieveQuickActionTemplate(String quickActionName, Id contextId) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionTemplateResult> retrieveQuickActionTemplates(List<String> quickActionNames, Id contextId) {throw new java.lang.UnsupportedOperationException();}
+public class EmailAttachment {
+	public Blob Body;
+	public String ContentId;
+	public String ContentType;
+	public String FileName;
+
+	public EmailAttachment() {throw new java.lang.UnsupportedOperationException();}
+
+	public Blob getBody() {throw new java.lang.UnsupportedOperationException();}
+	public String getContentId() {throw new java.lang.UnsupportedOperationException();}
+	public String getContentType() {throw new java.lang.UnsupportedOperationException();}
+	public String getFileName() {throw new java.lang.UnsupportedOperationException();}
+	public void setBody(Blob param1) {throw new java.lang.UnsupportedOperationException();}
+	public void setContentId(String param1) {throw new java.lang.UnsupportedOperationException();}
+	public void setContentType(String param1) {throw new java.lang.UnsupportedOperationException();}
+	public void setFileName(String param1) {throw new java.lang.UnsupportedOperationException();}
+
+
 }

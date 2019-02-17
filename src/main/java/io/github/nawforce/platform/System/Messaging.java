@@ -27,6 +27,8 @@
 */
 package io.github.nawforce.platform.System;
 
+import io.github.nawforce.platform.Messaging.*;
+
 @SuppressWarnings("unused")
 public class Messaging {
 	public static InboundEmail extractInboundEmail(Object source, Boolean includeForwardedAttachments) {throw new java.lang.UnsupportedOperationException();}

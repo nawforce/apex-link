@@ -27,6 +27,9 @@
 */
 package io.github.nawforce.platform.System;
 
+import io.github.nawforce.platform.Search.SearchResults;
+import io.github.nawforce.platform.Search.SuggestionResults;
+
 @SuppressWarnings("unused")
 public class Search {
 	public static SearchResults find(String searchQuery) {throw new java.lang.UnsupportedOperationException();}

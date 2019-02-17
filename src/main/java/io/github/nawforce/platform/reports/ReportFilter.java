@@ -25,18 +25,20 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.reports;
 
-import io.github.nawforce.platform.QuickAction.*;
+import io.github.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class QuickAction {
-	public static List<DescribeAvailableQuickActionResult> describeAvailableQuickActions(String parentType) {throw new java.lang.UnsupportedOperationException();}
-	public static List<DescribeQuickActionResult> describeQuickActions(List<String> actions) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionTemplateResult retrieveQuickActionTemplate(String quickActionName, Id contextId) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionTemplateResult> retrieveQuickActionTemplates(List<String> quickActionNames, Id contextId) {throw new java.lang.UnsupportedOperationException();}
+public class ReportFilter {
+	public ReportFilter() {throw new java.lang.UnsupportedOperationException();}
+	public ReportFilter(String column, String operator, String value) {throw new java.lang.UnsupportedOperationException();}
+
+	public String getColumn() {throw new java.lang.UnsupportedOperationException();}
+	public String getOperator() {throw new java.lang.UnsupportedOperationException();}
+	public String getValue() {throw new java.lang.UnsupportedOperationException();}
+	public void setColumn(String column) {throw new java.lang.UnsupportedOperationException();}
+	public void setOperator(String operator) {throw new java.lang.UnsupportedOperationException();}
+	public void setValue(String value) {throw new java.lang.UnsupportedOperationException();}
+	public String toString$() {throw new java.lang.UnsupportedOperationException();}
 }

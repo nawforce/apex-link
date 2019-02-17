@@ -56,7 +56,7 @@ public class System {
 	public static Version requestVersion() {throw new java.lang.UnsupportedOperationException();}
 	public static ResetPasswordResult resetPassword(Id userId, Boolean sendUserEmail) {throw new java.lang.UnsupportedOperationException();}
 	public static ResetPasswordResult resetPasswordWithEmailTemplate(Id userId, Boolean sendUserEmail, String emailTemplateName) {throw new java.lang.UnsupportedOperationException();}
-	public static void runAs(Package.Version version) {throw new java.lang.UnsupportedOperationException();}
+	public static void runAs(Version version) {throw new java.lang.UnsupportedOperationException();}
 	public static void runAs(SObject user, Object block) {throw new java.lang.UnsupportedOperationException();}
 	public static String schedule(String jobName, String cronExp, Object schedulable) {throw new java.lang.UnsupportedOperationException();}
 	public static String scheduleBatch(Object batchable, String jobName, Integer minutesFromNow) {throw new java.lang.UnsupportedOperationException();}

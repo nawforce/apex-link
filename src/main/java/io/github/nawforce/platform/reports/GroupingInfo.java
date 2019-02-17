@@ -25,18 +25,24 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.reports;
 
-import io.github.nawforce.platform.QuickAction.*;
+import io.github.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class QuickAction {
-	public static List<DescribeAvailableQuickActionResult> describeAvailableQuickActions(String parentType) {throw new java.lang.UnsupportedOperationException();}
-	public static List<DescribeQuickActionResult> describeQuickActions(List<String> actions) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionTemplateResult retrieveQuickActionTemplate(String quickActionName, Id contextId) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionTemplateResult> retrieveQuickActionTemplates(List<String> quickActionNames, Id contextId) {throw new java.lang.UnsupportedOperationException();}
+public class GroupingInfo {
+	public GroupingInfo() {throw new java.lang.UnsupportedOperationException();}
+	public GroupingInfo(String name, ColumnSortOrder sortOrder, DateGranularity dateGranularity, String sortAggregate) {throw new java.lang.UnsupportedOperationException();}
+
+	public DateGranularity getDateGranularity() {throw new java.lang.UnsupportedOperationException();}
+	public String getName() {throw new java.lang.UnsupportedOperationException();}
+	public String getSortAggregate() {throw new java.lang.UnsupportedOperationException();}
+	public ColumnSortOrder getSortOrder() {throw new java.lang.UnsupportedOperationException();}
+	public void setDateGranularity(String value) {throw new java.lang.UnsupportedOperationException();}
+	public void setDateGranularity(DateGranularity dateGranularity) {throw new java.lang.UnsupportedOperationException();}
+	public void setName(String name) {throw new java.lang.UnsupportedOperationException();}
+	public void setSortAggregate(String sortAggregate) {throw new java.lang.UnsupportedOperationException();}
+	public void setSortOrder(String value) {throw new java.lang.UnsupportedOperationException();}
+	public void setSortOrder(ColumnSortOrder sortOrder) {throw new java.lang.UnsupportedOperationException();}
+	public String toString$() {throw new java.lang.UnsupportedOperationException();}
 }

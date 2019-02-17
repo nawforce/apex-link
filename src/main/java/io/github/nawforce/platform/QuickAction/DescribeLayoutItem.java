@@ -25,18 +25,25 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.QuickAction;
 
-import io.github.nawforce.platform.QuickAction.*;
+import io.github.nawforce.platform.System.Boolean;
+import io.github.nawforce.platform.System.List;
+import io.github.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class QuickAction {
-	public static List<DescribeAvailableQuickActionResult> describeAvailableQuickActions(String parentType) {throw new java.lang.UnsupportedOperationException();}
-	public static List<DescribeQuickActionResult> describeQuickActions(List<String> actions) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionTemplateResult retrieveQuickActionTemplate(String quickActionName, Id contextId) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionTemplateResult> retrieveQuickActionTemplates(List<String> quickActionNames, Id contextId) {throw new java.lang.UnsupportedOperationException();}
+public class DescribeLayoutItem {
+	public Boolean EditableForNew;
+	public Boolean EditableForUpdate;
+	public String Label;
+	public List<DescribeLayoutComponent> LayoutComponents;
+	public Boolean Placeholder;
+	public Boolean Required;
+
+	public String getLabel() {throw new java.lang.UnsupportedOperationException();}
+	public List<DescribeLayoutComponent> getLayoutComponents() {throw new java.lang.UnsupportedOperationException();}
+	public Boolean isEditableForNew() {throw new java.lang.UnsupportedOperationException();}
+	public Boolean isEditableForUpdate() {throw new java.lang.UnsupportedOperationException();}
+	public Boolean isPlaceholder() {throw new java.lang.UnsupportedOperationException();}
+	public Boolean isRequired() {throw new java.lang.UnsupportedOperationException();}
 }

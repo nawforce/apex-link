@@ -25,18 +25,20 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.System;
+package io.github.nawforce.platform.reports;
 
-import io.github.nawforce.platform.QuickAction.*;
+import io.github.nawforce.platform.System.Boolean;
+import io.github.nawforce.platform.System.Map;
+import io.github.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class QuickAction {
-	public static List<DescribeAvailableQuickActionResult> describeAvailableQuickActions(String parentType) {throw new java.lang.UnsupportedOperationException();}
-	public static List<DescribeQuickActionResult> describeQuickActions(List<String> actions) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionResult performQuickAction(QuickActionRequest performQuickAction, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionResult> performQuickActions(List<QuickActionRequest> performQuickActions, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static QuickActionTemplateResult retrieveQuickActionTemplate(String quickActionName, Id contextId) {throw new java.lang.UnsupportedOperationException();}
-	public static List<QuickActionTemplateResult> retrieveQuickActionTemplates(List<String> quickActionNames, Id contextId) {throw new java.lang.UnsupportedOperationException();}
+public class ReportResults {
+	public Boolean getAllData() {throw new java.lang.UnsupportedOperationException();}
+	public Map<String,ReportFact> getFactMap() {throw new java.lang.UnsupportedOperationException();}
+	public Dimension getGroupingsAcross() {throw new java.lang.UnsupportedOperationException();}
+	public Dimension getGroupingsDown() {throw new java.lang.UnsupportedOperationException();}
+	public Boolean getHasDetailRows() {throw new java.lang.UnsupportedOperationException();}
+	public ReportExtendedMetadata getReportExtendedMetadata() {throw new java.lang.UnsupportedOperationException();}
+	public ReportMetadata getReportMetadata() {throw new java.lang.UnsupportedOperationException();}
+	public String toString$() {throw new java.lang.UnsupportedOperationException();}
 }
