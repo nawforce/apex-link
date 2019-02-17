@@ -28,6 +28,8 @@
 package io.github.nawforce.platform.System;
 
 import io.github.nawforce.platform.Auth.VerificationMethod;
+import io.github.nawforce.platform.SObjects.User;
+import io.github.nawforce.platform.Auth.VerificationResult;
 
 @SuppressWarnings("unused")
 public class UserManagement {

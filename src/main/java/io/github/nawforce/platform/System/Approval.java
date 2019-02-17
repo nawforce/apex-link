@@ -27,26 +27,24 @@
 */
 package io.github.nawforce.platform.System;
 
+import io.github.nawforce.platform.Approval.LockResult;
+import io.github.nawforce.platform.Approval.UnlockResult;
+
 @SuppressWarnings("unused")
 public class Approval {
 	public static Boolean isLocked(Id id) {throw new java.lang.UnsupportedOperationException();}
-	public static Map<Id,Boolean> isLocked(List<Id> ids) {throw new java.lang.UnsupportedOperationException();}
-	public static Map<Id,Boolean> isLocked(List<SObject> sobjects) {throw new java.lang.UnsupportedOperationException();}
+	public static Map<Id,Boolean> isLocked(List<Object> objects) {throw new java.lang.UnsupportedOperationException();}
 	public static Boolean isLocked(SObject sobject) {throw new java.lang.UnsupportedOperationException();}
 	public static LockResult lock(Id id) {throw new java.lang.UnsupportedOperationException();}
 	public static LockResult lock(Id id, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<LockResult> lock(List<Id> ids) {throw new java.lang.UnsupportedOperationException();}
-	public static List<LockResult> lock(List<Id> ids, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<LockResult> lock(List<SObject> sobjects) {throw new java.lang.UnsupportedOperationException();}
-	public static List<LockResult> lock(List<SObject> sobjects, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
+	public static List<LockResult> lock(List<Object> objects) {throw new java.lang.UnsupportedOperationException();}
+	public static List<LockResult> lock(List<Object> objects, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
 	public static LockResult lock(SObject sobject) {throw new java.lang.UnsupportedOperationException();}
 	public static LockResult lock(SObject sobject, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
 	public static UnlockResult unlock(Id id) {throw new java.lang.UnsupportedOperationException();}
 	public static UnlockResult unlock(Id id, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<UnlockResult> unlock(List<Id> ids) {throw new java.lang.UnsupportedOperationException();}
-	public static List<UnlockResult> unlock(List<Id> ids, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<UnlockResult> unlock(List<SObject> sobjects) {throw new java.lang.UnsupportedOperationException();}
-	public static List<UnlockResult> unlock(List<SObject> sobjects, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
+	public static List<UnlockResult> unlock(List<Object> objects) {throw new java.lang.UnsupportedOperationException();}
+	public static List<UnlockResult> unlock(List<Object> objects, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
 	public static UnlockResult unlock(SObject sobject) {throw new java.lang.UnsupportedOperationException();}
 	public static UnlockResult unlock(SObject sobject, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
 }

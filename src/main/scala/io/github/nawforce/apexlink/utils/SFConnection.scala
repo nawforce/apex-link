@@ -29,7 +29,7 @@
 package io.github.nawforce.apexlink.utils
 
 import com.sforce.soap.metadata.MetadataConnection
-import com.sforce.soap.partner.PartnerConnection
+import com.sforce.soap.partner.{Field, FieldType, PartnerConnection}
 import com.sforce.soap.tooling.ToolingConnection
 import com.sforce.ws.{ConnectionException, ConnectorConfig}
 
@@ -54,13 +54,17 @@ object SFConnection {
   def login(url: String, username: String, passwordAndToken: String): Either[String, SFConnection] = {
     val config = new ConnectorConfig
     config.setAuthEndpoint(url)
+    config.setServiceEndpoint(url)
     config.setManualLogin(true)
 
     try {
       val connection = new PartnerConnection(config)
       val result = connection.login(username, passwordAndToken)
-      config.setServiceEndpoint(result.getServerUrl)
-      Right(SFConnection(url, username, connection, result.getMetadataServerUrl, result.getServerUrl))
+
+      val newConfig = new ConnectorConfig
+      newConfig.setServiceEndpoint(result.getServerUrl)
+      newConfig.setSessionId(result.getSessionId)
+      Right(SFConnection(url, username, new PartnerConnection(newConfig), result.getMetadataServerUrl, result.getServerUrl))
     } catch {
       case e: ConnectionException => Left(e.toString)
     }

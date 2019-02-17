@@ -27,6 +27,7 @@
 */
 package io.github.nawforce.platform.ApexPages;
 
+import io.github.nawforce.platform.SObjects.Idea;
 import io.github.nawforce.platform.System.List;
 import io.github.nawforce.platform.System.PageReference;
 import io.github.nawforce.platform.System.SelectOption;

@@ -25,23 +25,17 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.platform.ApexPages;
+package io.github.nawforce.platform.Auth;
 
-import io.github.nawforce.platform.SObjects.IdeaComment;
-import io.github.nawforce.platform.System.List;
-import io.github.nawforce.platform.System.SObject;
+import io.github.nawforce.platform.System.Boolean;
 import io.github.nawforce.platform.System.String;
 import io.github.nawforce.platform.System.PageReference;
 
 @SuppressWarnings("unused")
-public class IdeaStandardController {
-	public void addFields(List<String> fieldNames) {throw new java.lang.UnsupportedOperationException();}
-	public PageReference cancel() {throw new java.lang.UnsupportedOperationException();}
-	public PageReference delete() {throw new java.lang.UnsupportedOperationException();}
-	public PageReference edit() {throw new java.lang.UnsupportedOperationException();}
-	public List<IdeaComment> getCommentList() {throw new java.lang.UnsupportedOperationException();}
-	public String getId() {throw new java.lang.UnsupportedOperationException();}
-	public SObject getRecord() {throw new java.lang.UnsupportedOperationException();}
-	public PageReference save() {throw new java.lang.UnsupportedOperationException();}
-	public PageReference view() {throw new java.lang.UnsupportedOperationException();}
+public class VerificationResult {
+    public String message;
+    public PageReference redirect;
+    public Boolean success;
+
+    public VerificationResult(PageReference redirect, Boolean success, String message) {throw new java.lang.UnsupportedOperationException();}
 }

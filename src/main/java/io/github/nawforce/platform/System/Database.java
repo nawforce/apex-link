@@ -41,10 +41,8 @@ public class Database {
 	public static Integer countQuery(String query) {throw new java.lang.UnsupportedOperationException();}
 	public static DeleteResult delete(Id id) {throw new java.lang.UnsupportedOperationException();}
 	public static DeleteResult delete(Id id, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<DeleteResult> delete(List<Id> ids) {throw new java.lang.UnsupportedOperationException();}
-	public static List<DeleteResult> delete(List<Id> ids, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<DeleteResult> delete(List<SObject> sobjects) {throw new java.lang.UnsupportedOperationException();}
-	public static List<DeleteResult> delete(List<SObject> sobjects, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
+	public static List<DeleteResult> delete(List<Object> objects) {throw new java.lang.UnsupportedOperationException();}
+	public static List<DeleteResult> delete(List<Object> objects, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
 	public static DeleteResult delete(SObject sobject) {throw new java.lang.UnsupportedOperationException();}
 	public static DeleteResult delete(SObject sobject, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
 	public static List<DeleteResult> deleteAsync(List<SObject> sobjects) {throw new java.lang.UnsupportedOperationException();}
@@ -53,8 +51,7 @@ public class Database {
 	public static DeleteResult deleteAsync(SObject sobject, Object callback) {throw new java.lang.UnsupportedOperationException();}
 	public static List<DeleteResult> deleteImmediate(List<SObject> sobjects) {throw new java.lang.UnsupportedOperationException();}
 	public static DeleteResult deleteImmediate(SObject sobject) {throw new java.lang.UnsupportedOperationException();}
-	public static List<EmptyRecycleBinResult> emptyRecycleBin(List<Id> ids) {throw new java.lang.UnsupportedOperationException();}
-	public static List<EmptyRecycleBinResult> emptyRecycleBin(List<SObject> sobjects) {throw new java.lang.UnsupportedOperationException();}
+	public static List<EmptyRecycleBinResult> emptyRecycleBin(List<Object> objects) {throw new java.lang.UnsupportedOperationException();}
 	public static EmptyRecycleBinResult emptyRecycleBin(SObject sobject) {throw new java.lang.UnsupportedOperationException();}
 	public static String executeBatch(Object batchable) {throw new java.lang.UnsupportedOperationException();}
 	public static String executeBatch(Object batchable, Integer batchSize) {throw new java.lang.UnsupportedOperationException();}
@@ -81,10 +78,8 @@ public class Database {
 	public static SaveResult insertImmediate(SObject sobject) {throw new java.lang.UnsupportedOperationException();}
 	public static MergeResult merge(SObject master, Id duplicate) {throw new java.lang.UnsupportedOperationException();}
 	public static MergeResult merge(SObject master, Id duplicate, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<MergeResult> merge(SObject master, List<Id> duplicates) {throw new java.lang.UnsupportedOperationException();}
-	public static List<MergeResult> merge(SObject master, List<Id> duplicates, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<MergeResult> merge(SObject master, List<SObject> duplicates) {throw new java.lang.UnsupportedOperationException();}
-	public static List<MergeResult> merge(SObject master, List<SObject> duplicates, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
+	public static List<MergeResult> merge(SObject master, List<Object> duplicates) {throw new java.lang.UnsupportedOperationException();}
+	public static List<MergeResult> merge(SObject master, List<Object> duplicates, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
 	public static MergeResult merge(SObject master, SObject duplicate) {throw new java.lang.UnsupportedOperationException();}
 	public static MergeResult merge(SObject master, SObject duplicate, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
 	public static List<SObject> query(String query) {throw new java.lang.UnsupportedOperationException();}
@@ -92,10 +87,8 @@ public class Database {
 	public static Savepoint setSavepoint() {throw new java.lang.UnsupportedOperationException();}
 	public static UndeleteResult undelete(Id id) {throw new java.lang.UnsupportedOperationException();}
 	public static UndeleteResult undelete(Id id, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<UndeleteResult> undelete(List<Id> ids) {throw new java.lang.UnsupportedOperationException();}
-	public static List<UndeleteResult> undelete(List<Id> ids, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<UndeleteResult> undelete(List<SObject> sobjects) {throw new java.lang.UnsupportedOperationException();}
-	public static List<UndeleteResult> undelete(List<SObject> sobjects, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
+	public static List<UndeleteResult> undelete(List<Object> ids) {throw new java.lang.UnsupportedOperationException();}
+	public static List<UndeleteResult> undelete(List<Object> ids, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
 	public static UndeleteResult undelete(SObject sobject) {throw new java.lang.UnsupportedOperationException();}
 	public static UndeleteResult undelete(SObject sobject, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
 	public static List<SaveResult> update(List<SObject> sobjects) {throw new java.lang.UnsupportedOperationException();}
