@@ -25,7 +25,7 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package io.github.nawforce.tools
+package com.github.nawforce.tools
 
 import java.io.{BufferedWriter, ByteArrayOutputStream, FileWriter}
 import java.net.URL
@@ -40,7 +40,7 @@ import org.apache.http.impl.client.HttpClientBuilder
 case class AbortException(msg: String)  extends Exception(msg)
 
 object NamespaceToJava {
-  def loginURL = "https://login.salesforce.com/services/Soap/u/44.0"
+  def loginURL = "https://login.salesforce.com/services/Soap/u/45.0"
 
   def main(args: Array[String]): Unit = {
 
@@ -74,7 +74,7 @@ object NamespaceToJava {
 
   private def getCompletions(endpoint: String, sessionId: String): JObject = {
     val client = HttpClientBuilder.create.build()
-    val request = new HttpGet(endpoint + "/services/data/v44.0/tooling/completions/?type=apex")
+    val request = new HttpGet(endpoint + "/services/data/v45.0/tooling/completions/?type=apex")
     request.addHeader("Authorization", "Bearer " + sessionId)
     request.addHeader("Content-Type", "application/json")
     request.addHeader("Accept", "application/json")

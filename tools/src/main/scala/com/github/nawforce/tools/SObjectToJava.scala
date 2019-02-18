@@ -1,5 +1,5 @@
 
-package io.github.nawforce.tools
+package com.github.nawforce.tools
 
 import java.io.{BufferedWriter, FileWriter}
 import java.nio.file.Paths
@@ -8,7 +8,7 @@ import io.github.nawforce.apexlink.utils.SFConnection
 
 
 object SObjectToJava {
-  def loginURL = "https://login.salesforce.com/services/Soap/u/44.0"
+  def loginURL = "https://login.salesforce.com/services/Soap/u/45.0"
 
   def main(args: Array[String]): Unit = {
 
