@@ -57,12 +57,12 @@ class TypeContextTest(_thisType: Type = null, _superType: Type = null, identifie
 object TypeTestHelper {
 
   def typePrimary(p: String, typeCtx: TypeContext): Type = {
-    val context = new ConstructContext(new Array[Token](0))
+    val context = new ConstructContext()
     Primary.construct(parse(p).primary(), context).getType(typeCtx)
   }
 
   def typeExpression(p: String, typeCtx: TypeContext): Expression = {
-    val context = new ConstructContext(new Array[Token](0))
+    val context = new ConstructContext()
     Expression.construct(parse(p).expression(), context)
   }
 

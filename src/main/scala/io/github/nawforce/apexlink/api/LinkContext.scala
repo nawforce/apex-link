@@ -34,7 +34,7 @@ import io.github.nawforce.apexlink.metadata.{ApexClassReader, CustomObjectReader
 import io.github.nawforce.apexlink.transforms.{BangComments, MakeIsTest, SortLabels}
 import io.github.nawforce.apexlink.transforms.experimental.{AssertDelete, LS_QueryLoops}
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
  class LinkContext private (path: Path, verbose: Boolean) {
 
@@ -45,11 +45,11 @@ import scala.collection.JavaConversions._
   //new PageReader().loadSymbols(ctx)
   new ApexClassReader().loadSymbols(ctx)
 
-  def report() = ctx.report()
+  def report(): Unit = ctx.report()
 
   def transform(transforms : java.util.List[String]) : Unit = {
     val fileChanger: FileChanger = new FileChanger()
-    transforms.foreach(transform => {
+    transforms.asScala.foreach(transform => {
       println("Running transform " + transform)
       transform match {
         case "sort-labels" => new SortLabels().exec(ctx, fileChanger)

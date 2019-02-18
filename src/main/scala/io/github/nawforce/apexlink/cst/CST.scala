@@ -32,7 +32,7 @@ import io.github.nawforce.parsers.ApexParser
 import io.github.nawforce.parsers.ApexParser._
 import org.antlr.v4.runtime.ParserRuleContext
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 sealed abstract class CST {
@@ -177,7 +177,7 @@ final case class TypeList(types: List[Type])
 
 object TypeList {
   def construct(typeList: TypeListContext, context: ConstructContext): TypeList = {
-    val types: Seq[TypeRefContext] = typeList.typeRef()
+    val types: Seq[TypeRefContext] = typeList.typeRef().asScala
     TypeList(types.toList.map(t => Type.construct(t, context).withContext(t, context)))
   }
 
@@ -192,14 +192,14 @@ final case class ClassOrInterfaceType(name: List[ClassOrInterfaceTypePart]) exte
 
 object ClassOrInterfaceType {
   def construct(classOrInterfaceType: ClassOrInterfaceTypeContext, context: ConstructContext): ClassOrInterfaceType = {
-    val ids: Seq[IdContext] = classOrInterfaceType.id()
-    val typeArgs: Seq[TypeArgumentsContext] = classOrInterfaceType.typeArguments()
+    val ids: Seq[IdContext] = classOrInterfaceType.id().asScala
+    val typeArgs: Seq[TypeArgumentsContext] = classOrInterfaceType.typeArguments().asScala
     var i = 0
     val parts = for (id <- ids) yield {
       val hasTypes = typeArgs.length > i
       i += 1
       if (hasTypes)
-        ClassOrInterfaceTypePart(id.getText, TypeList.construct(typeArgs.get(i - 1).typeList(), context))
+        ClassOrInterfaceTypePart(id.getText, TypeList.construct(typeArgs(i - 1).typeList(), context))
       else
         ClassOrInterfaceTypePart(id.getText, TypeList.empty())
     }
@@ -221,7 +221,7 @@ object QualifiedName {
   }
 
   def construct(qualifiedName: QualifiedNameContext, context: ConstructContext): QualifiedName = {
-    val ids: Seq[IdContext] = qualifiedName.id()
+    val ids: Seq[IdContext] = qualifiedName.id().asScala
     QualifiedName(ids.toList.map(id => id.getText)).withContext(qualifiedName, context)
   }
 }
@@ -283,7 +283,7 @@ final case class ElementValueArrayInitializer(elementValues: List[ElementValue])
 
 object ElementValueArrayInitializer {
   def construct(from: ElementValueArrayInitializerContext, context: ConstructContext): ElementValueArrayInitializer = {
-    val elements: Seq[ElementValueContext] = from.elementValue()
+    val elements: Seq[ElementValueContext] = from.elementValue().asScala
     ElementValueArrayInitializer(elements.toList.map(x => ElementValue.construct(x, context))).withContext(from, context)
   }
 }
@@ -305,7 +305,7 @@ object ElementValuePair {
 object ElementValuePairs {
   def construct(from: ElementValuePairsContext, context: ConstructContext): List[ElementValuePair] = {
     if (from != null) {
-      val pairs: Seq[ElementValuePairContext] = from.elementValuePair()
+      val pairs: Seq[ElementValuePairContext] = from.elementValuePair().asScala
       pairs.toList.map(x => ElementValuePair.construct(x, context))
     } else {
       List()
@@ -427,7 +427,7 @@ final case class CompilationUnit(types: List[TypeDeclaration]) extends CST {
 
 object CompilationUnit {
   def construct(compilationUnit: CompilationUnitContext, context: ConstructContext): CompilationUnit = {
-    val typeDecls: Seq[TypeDeclarationContext] = compilationUnit.typeDeclaration()
+    val typeDecls: Seq[TypeDeclarationContext] = compilationUnit.typeDeclaration().asScala
     CompilationUnit(TypeDeclaration.construct(typeDecls.toList, context)).withContext(compilationUnit, context)
   }
 }
@@ -450,7 +450,7 @@ object TypeDeclaration {
   }
 
   def construct(typeDecl: TypeDeclarationContext, context: ConstructContext): TypeDeclaration = {
-    val modifiers: Seq[ClassOrInterfaceModifierContext] = typeDecl.classOrInterfaceModifier()
+    val modifiers: Seq[ClassOrInterfaceModifierContext] = typeDecl.classOrInterfaceModifier().asScala
     val cst =
       if (typeDecl.classDeclaration() != null) {
         ClassDeclaration.construct(TypeModifier.construct(modifiers.toList, context), typeDecl.classDeclaration(), context)
@@ -493,7 +493,7 @@ object ClassDeclaration {
         TypeList.empty()
 
     val classBody = classDeclaration.classBody()
-    val classBodyDeclarations: Seq[ClassBodyDeclarationContext] = classBody.classBodyDeclaration()
+    val classBodyDeclarations: Seq[ClassBodyDeclarationContext] = classBody.classBodyDeclaration().asScala
     val bodyDeclarations: List[ClassBodyDeclaration] =
       if (classBodyDeclarations != null) {
         classBodyDeclarations.toList.map(cbd =>
@@ -501,7 +501,7 @@ object ClassDeclaration {
           if (cbd.block() != null) {
             StaticBlock.construct(cbd.block(), context)
           } else if (cbd.memberDeclaration() != null) {
-            val modifiers: Seq[ModifierContext] = cbd.modifier()
+            val modifiers: Seq[ModifierContext] = cbd.modifier().asScala
             ClassBodyDeclaration.construct(modifiers.toList, cbd.memberDeclaration(), context)
           } else {
             throw new CSTException()
@@ -686,7 +686,7 @@ object Block {
   }
 
   def construct(blockContext: BlockContext, context: ConstructContext): Block = {
-    val statements: Seq[StatementContext] = blockContext.statement()
+    val statements: Seq[StatementContext] = blockContext.statement().asScala
     construct(statements.toList, context)
   }
 
@@ -731,7 +731,7 @@ final case class IfStatement(expression: Expression, statements: List[Statement]
 
 object IfStatement {
   def construct(ifStatement: IfStatementContext, context: ConstructContext): IfStatement = {
-    val statements: Seq[StatementContext] = ifStatement.statement()
+    val statements: Seq[StatementContext] = ifStatement.statement().asScala
     IfStatement(Expression.construct(ifStatement.parExpression().expression(), context),
       Statement.construct(statements.toList, context)).withContext(ifStatement, context)
   }
@@ -786,7 +786,7 @@ object EnhancedForControl {
   def construct(from: EnhancedForControlContext, context: ConstructContext): EnhancedForControl = {
     val variableModifiers: Seq[VariableModifierContext] =
       if (from.variableModifier() != null) {
-        from.variableModifier()
+        from.variableModifier().asScala
       } else {
         Seq()
       }
@@ -856,7 +856,7 @@ object ForInit {
       if (from.localVariableDeclaration() != null) {
         LocalVariableForInit(LocalVariableDeclaration.construct(from.localVariableDeclaration(), context))
       } else if (from.expressionList() != null) {
-        val expressions: Seq[ExpressionContext] = from.expressionList().expression()
+        val expressions: Seq[ExpressionContext] = from.expressionList().expression().asScala
         ExpressionListForInit(Expression.construct(expressions.toList, context))
       } else {
         throw new CSTException
@@ -873,7 +873,7 @@ final case class ForUpdate(expressions: List[Expression]) extends CST {
 
 object ForUpdate {
   def construct(from: ForUpdateContext, context: ConstructContext): ForUpdate = {
-    val expressions: Seq[ExpressionContext] = from.expressionList().expression()
+    val expressions: Seq[ExpressionContext] = from.expressionList().expression().asScala
     ForUpdate(Expression.construct(expressions.toList, context)).withContext(from, context)
   }
 }
@@ -927,7 +927,7 @@ final case class TryStatement(block: Block, catches: List[CatchClause], finallyB
 
 object TryStatement {
   def construct(from: TryStatementContext, context: ConstructContext): TryStatement = {
-    val catches: List[CatchClauseContext] = if (from.catchClause() != null) from.catchClause().toList else List()
+    val catches: List[CatchClauseContext] = if (from.catchClause() != null) from.catchClause().asScala.toList else List()
     TryStatement(Block.construct(from.block(), context), CatchClause.construct(catches, context),
       FinallyBlock.construct(from.finallyBlock(), context)).withContext(from, context)
   }
@@ -951,7 +951,7 @@ final case class CatchType(names: List[QualifiedName]) extends CST {
 
 object CatchType {
   def construct(from: CatchTypeContext, context: ConstructContext): CatchType = {
-    val names: Seq[QualifiedNameContext] = from.qualifiedName()
+    val names: Seq[QualifiedNameContext] = from.qualifiedName().asScala
     CatchType(QualifiedName.construct(names.toList, context)).withContext(from, context)
   }
 }
@@ -973,7 +973,7 @@ object CatchClause {
   }
 
   def construct(from: CatchClauseContext, context: ConstructContext): CatchClause = {
-    val modifiers: Seq[VariableModifierContext] = from.variableModifier()
+    val modifiers: Seq[VariableModifierContext] = from.variableModifier().asScala
     CatchClause(
       VariableModifier.construct(modifiers.toList, context),
       CatchType.construct(from.catchType(), context),
@@ -1142,7 +1142,7 @@ object RunAsStatement {
   def construct(statement: RunAsStatementContext, context: ConstructContext): RunAsStatement = {
     val expressions =
       if (statement.expressionList() != null) {
-        val e: Seq[ExpressionContext] = statement.expressionList().expression()
+        val e: Seq[ExpressionContext] = statement.expressionList().expression().asScala
         Expression.construct(e.toList, context)
       } else {
         List()
@@ -1320,7 +1320,7 @@ final case class ExpressionVariableInitializer(expression: Expression) extends V
 
 object ArrayVariableInitializer {
   def construct(arrayInitializer: ArrayInitializerContext, context: ConstructContext): ArrayVariableInitializer = {
-    val variableInitializers: Seq[VariableInitializerContext] = arrayInitializer.variableInitializer()
+    val variableInitializers: Seq[VariableInitializerContext] = arrayInitializer.variableInitializer().asScala
     ArrayVariableInitializer(variableInitializers.toList.map(x =>
       VariableInitializer.construct(x, context)
     )).withContext(arrayInitializer, context)
@@ -1359,7 +1359,7 @@ final case class VariableDeclarators(declarators: List[VariableDeclarator]) exte
 
 object VariableDeclarators {
   def construct(variableDeclaratorsContext: VariableDeclaratorsContext, context: ConstructContext): VariableDeclarators = {
-    val variableDeclarators: Seq[VariableDeclaratorContext] = variableDeclaratorsContext.variableDeclarator()
+    val variableDeclarators: Seq[VariableDeclaratorContext] = variableDeclaratorsContext.variableDeclarator().asScala
     VariableDeclarators(variableDeclarators.toList.map(x => VariableDeclarator.construct(x, context))).withContext(variableDeclaratorsContext, context)
   }
 }
@@ -1403,7 +1403,7 @@ object LocalVariableDeclaration {
   def construct(localVariableDeclaration: LocalVariableDeclarationContext, context: ConstructContext): LocalVariableDeclaration = {
     val modifiers =
       if (localVariableDeclaration.variableModifier() != null) {
-        val v: Seq[VariableModifierContext] = localVariableDeclaration.variableModifier()
+        val v: Seq[VariableModifierContext] = localVariableDeclaration.variableModifier().asScala
         VariableModifier.construct(v.toList, context)
       } else {
         List()
@@ -1425,7 +1425,7 @@ final case class SetterPropertyBlock(modifiers: List[TypeModifier], block: Optio
 
 object PropertyBlock {
   def construct(propertyBlockContext: PropertyBlockContext, context: ConstructContext): PropertyBlock = {
-    val modifiers: Seq[ModifierContext] = propertyBlockContext.modifier()
+    val modifiers: Seq[ModifierContext] = propertyBlockContext.modifier().asScala
     val cst =
       if (propertyBlockContext.getter() != null) {
         GetterPropertyBlock(Modifier.construct(modifiers.toList, context), Block.constructOption(propertyBlockContext.getter().block(), context))
@@ -1444,7 +1444,7 @@ final case class PropertyBodyDeclaration(propertyBlocks: List[PropertyBlock]) ex
 
 object PropertyBodyDeclaration {
   def construct(propertyBodyDeclarationContext: PropertyBodyDeclarationContext, context: ConstructContext): PropertyBodyDeclaration = {
-    val blocks: Seq[PropertyBlockContext] = propertyBodyDeclarationContext.propertyBlock()
+    val blocks: Seq[PropertyBlockContext] = propertyBodyDeclarationContext.propertyBlock().asScala
     PropertyBodyDeclaration(blocks.toList.map(x => PropertyBlock.construct(x, context))).withContext(propertyBodyDeclarationContext, context)
   }
 }
@@ -1461,7 +1461,7 @@ object FormalParameter {
   def construct(from: FormalParameterContext, context: ConstructContext): FormalParameter = {
     val modifiers: List[VariableModifier] =
       if (from.variableModifier() != null) {
-        val m: Seq[VariableModifierContext] = from.variableModifier()
+        val m: Seq[VariableModifierContext] = from.variableModifier().asScala
         VariableModifier.construct(m.toList, context)
       } else {
         List()
@@ -1473,7 +1473,7 @@ object FormalParameter {
 object FormalParameterList {
   def construct(from: FormalParameterListContext, context: ConstructContext): List[FormalParameter] = {
     if (from.formalParameter() != null) {
-      val m: Seq[FormalParameterContext] = from.formalParameter()
+      val m: Seq[FormalParameterContext] = from.formalParameter().asScala
       FormalParameter.construct(m.toList, context)
     } else {
       List()
@@ -1662,7 +1662,7 @@ object Expression {
         case alt7: FunctionCallExpressionContext =>
           FunctionCall(Expression.construct(alt7.expression, context),
             if (alt7.expressionList() != null) {
-              val expression: Seq[ExpressionContext] = alt7.expressionList().expression()
+              val expression: Seq[ExpressionContext] = alt7.expressionList().expression().asScala
               Expression.construct(expression.toList, context)
             } else {
               List()
@@ -1759,7 +1759,7 @@ final case class TypeArguments(typeList: List[TypeRef]) extends CST {
 
 object TypeArguments {
   def construct(from: TypeArgumentsContext, context: ConstructContext): TypeArguments = {
-    val types: Seq[TypeRefContext] = from.typeList().typeRef()
+    val types: Seq[TypeRefContext] = from.typeList().typeRef().asScala
     TypeArguments(TypeRef.construct(types.toList, context)).withContext(from, context)
   }
 }
@@ -1776,7 +1776,7 @@ object ClassCreatorRest {
       else
         List(),
       if (from.expressionList() != null) {
-        val expressions: Seq[ExpressionContext] = from.expressionList().expression()
+        val expressions: Seq[ExpressionContext] = from.expressionList().expression().asScala
         Expression.construct(expressions.toList, context)
       } else {
         List()
@@ -1797,7 +1797,7 @@ object ArrayCreatorRest {
       ArrayCreatorRest(arraySubs, Some(ArrayInitializer.construct(from.arrayInitializer(), context)), List()).withContext(from, context)
     } else {
       val arraySubs = from.arraySubscripts().getText.count(_ == '[')
-      val expressions: Seq[ExpressionContext] = from.expression()
+      val expressions: Seq[ExpressionContext] = from.expression().asScala
       ArrayCreatorRest(arraySubs, None, Expression.construct(expressions.toList, context)).withContext(from, context)
     }
   }
@@ -1809,7 +1809,7 @@ final case class ArrayInitializer(variableInitializers: List[VariableInitializer
 
 object ArrayInitializer {
   def construct(from: ArrayInitializerContext, context: ConstructContext): ArrayInitializer = {
-    val initializers: Seq[VariableInitializerContext] = from.variableInitializer()
+    val initializers: Seq[VariableInitializerContext] = from.variableInitializer().asScala
     ArrayInitializer(VariableInitializer.construct(initializers.toList, context)).withContext(from, context)
   }
 }
@@ -1817,7 +1817,7 @@ object ArrayInitializer {
 object Arguments {
   def construct(from: ArgumentsContext, context: ConstructContext): List[Expression] = {
     if (from.expressionList() != null) {
-      val expressions: Seq[ExpressionContext] = from.expressionList().expression()
+      val expressions: Seq[ExpressionContext] = from.expressionList().expression().asScala
       Expression.construct(expressions.toList, context)
     } else {
       List()
@@ -1831,7 +1831,7 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends CST {
 
 object MapCreatorRest {
   def construct(from: MapCreatorRestContext, context: ConstructContext): MapCreatorRest = {
-    val pairs: Seq[MapCreatorRestPairContext] = from.mapCreatorRestPair()
+    val pairs: Seq[MapCreatorRestPairContext] = from.mapCreatorRestPair().asScala
     MapCreatorRest(MapCreatorRestPair.construct(pairs.toList, context)).withContext(from, context)
   }
 }
@@ -1859,7 +1859,7 @@ final case class SetCreatorRest(parts: List[LiteralOrExpression]) extends CST {
 
 object SetCreatorRest {
   def construct(from: SetCreatorRestContext, context: ConstructContext): SetCreatorRest = {
-    val parts: Seq[LiteralOrExpressionContext] = from.literalOrExpression()
+    val parts: Seq[LiteralOrExpressionContext] = from.literalOrExpression().asScala
     SetCreatorRest(LiteralOrExpression.construct(parts.toList, context)).withContext(from, context)
   }
 }
@@ -1944,7 +1944,7 @@ object CreatedName {
     if (from.primitiveType() != null)
       PrimitiveCreatedName(PrimitiveType.construct(from.primitiveType(), 0, context)).withContext(from, context)
     else {
-      val pairs: Seq[IdCreatedNamePairContext] = from.idCreatedNamePair()
+      val pairs: Seq[IdCreatedNamePairContext] = from.idCreatedNamePair().asScala
       IdCreatedName(IdCreatedNamePair.construct(pairs.toList, context)).withContext(from, context)
     }
   }

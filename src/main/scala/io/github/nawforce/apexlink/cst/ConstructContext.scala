@@ -27,8 +27,7 @@
 */
 package io.github.nawforce.apexlink.cst
 
-import org.antlr.v4.runtime.Token
 
-class ConstructContext(tokens: Array[Token]) {
+class ConstructContext() {
 
 }

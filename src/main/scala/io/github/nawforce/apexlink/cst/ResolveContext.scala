@@ -29,8 +29,6 @@ package io.github.nawforce.apexlink.cst
 
 import io.github.nawforce.apexlink.utils.LinkerException
 
-import scala.collection.mutable
-
 trait VarIntroducer {
   private var assignments: List[Expression] = Nil
 
@@ -47,12 +45,15 @@ case class VarDeclaration(name: Identifier, typeRef: TypeRef, introducer: VarInt
 
 class ResolveStmtContext(index: CSTIndex, parentScope: ResolveStmtContext = null) {
 
-  private val blockStack: mutable.Stack[List[VarDeclaration]] = mutable.Stack()
+  private var blockStack: List[List[VarDeclaration]] = Nil
   private var vars: List[VarDeclaration] = Nil
 
-  def pushBlock(): Unit = blockStack.push(vars)
+  def pushBlock(): Unit = blockStack = vars :: blockStack
 
-  def popBlock(): Unit = vars = blockStack.pop()
+  def popBlock(): Unit = {
+    vars = blockStack.head
+    blockStack = blockStack.tail
+  }
 
   def complete(): Unit = if (blockStack.nonEmpty) throw new LinkerException()
 

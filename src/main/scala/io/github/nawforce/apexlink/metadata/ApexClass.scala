@@ -34,7 +34,7 @@ import io.github.nawforce.apexlink.utils._
 import io.github.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
 import org.antlr.v4.runtime.CommonTokenStream
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 case class ApexClass(location: Location, fullName: String, compilationUnit: CompilationUnit) extends Symbol {
   val scopedName: String = fullName
@@ -68,8 +68,7 @@ object ApexClass {
       parser.setTrace(false)
       parser.addErrorListener(listener)
 
-      tokens.reset()
-      val cu = CompilationUnit.construct(parser.compilationUnit(), new ConstructContext(tokens.getTokens.toList.toArray))
+      val cu = CompilationUnit.construct(parser.compilationUnit(), new ConstructContext())
       Some(new ApexClass(new Location(path, 0), fullName, cu))
     } catch {
       case se: SyntaxException =>

@@ -27,7 +27,6 @@
 */
 package io.github.nawforce.parsers;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.IntStream;
 
@@ -39,7 +38,7 @@ import java.io.Reader;
  * ANTLR4 stream handler that allows use of case insensitive handling.
  */
 @SuppressWarnings({"unused", "deprecation"})
-public class CaseInsensitiveInputStream extends ANTLRInputStream {
+public class CaseInsensitiveInputStream extends org.antlr.v4.runtime.ANTLRInputStream {
     public CaseInsensitiveInputStream(InputStream is) throws IOException {
         super(is);
     }
