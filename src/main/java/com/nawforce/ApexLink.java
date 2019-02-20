@@ -46,7 +46,6 @@ public class ApexLink {
 
     static class Options {
         Boolean isVerbose = false;
-        List<String> transforms = new ArrayList<>();
         List<String> unknowns = new ArrayList<>();
     }
 
@@ -55,7 +54,7 @@ public class ApexLink {
 
         // Convert arguments to options
         if (options.unknowns.size() != 1) {
-            System.err.println("Usage [-verbose] -transform <transform> <directory>");
+            System.err.println("Usage [-verbose] <directory>");
             return 1;
         }
         Path directory = Paths.get(options.unknowns.get(0));
@@ -68,9 +67,6 @@ public class ApexLink {
         System.out.println("Loading from " + directory);
         LinkContext lc = LinkContext.create(directory, options.isVerbose);
         lc.report();
-
-        // Run any transforms
-        lc.transform(options.transforms);
 
         return 0;
     }
@@ -85,9 +81,6 @@ public class ApexLink {
         if (args.get(0).equals("-verbose")) {
             args.remove(0);
             options.isVerbose = true;
-        } else if (args.size() > 1 && args.get(0).equals("-transform")) {
-            args.remove(0);
-            options.transforms.add(args.remove(0));
         } else {
             options.unknowns.add(args.remove(0));
         }

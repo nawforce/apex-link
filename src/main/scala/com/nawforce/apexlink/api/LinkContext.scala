@@ -29,40 +29,16 @@ package com.nawforce.apexlink.api
 
 import java.nio.file.Path
 
-import com.nawforce.apexlink.diff.FileChanger
 import com.nawforce.apexlink.metadata.{ApexClassReader, CustomObjectReader, LabelReader, SymbolReaderContext}
-import com.nawforce.apexlink.transforms.experimental.{AssertDelete, LS_QueryLoops}
-import com.nawforce.apexlink.transforms.{BangComments, MakeIsTest, SortLabels}
-
-import scala.collection.JavaConverters._
 
  class LinkContext private (path: Path, verbose: Boolean) {
 
   val ctx = new SymbolReaderContext(path, verbose)
   new LabelReader().loadSymbols(ctx)
   new CustomObjectReader().loadSymbols(ctx)
-  // TODO: Re-enable page reading with HTML parser
-  //new PageReader().loadSymbols(ctx)
   new ApexClassReader().loadSymbols(ctx)
 
   def report(): Unit = ctx.report()
-
-  def transform(transforms : java.util.List[String]) : Unit = {
-    val fileChanger: FileChanger = new FileChanger()
-    transforms.asScala.foreach(transform => {
-      println("Running transform " + transform)
-      transform match {
-        case "sort-labels" => new SortLabels().exec(ctx, fileChanger)
-        case "make-istest" => new MakeIsTest().exec(ctx, fileChanger)
-        case "bang-comments" => new BangComments().exec(ctx, fileChanger)
-        case "exp.assert-delete" => new AssertDelete().exec(ctx, fileChanger)
-        case "exp.ls-query-loops" => new LS_QueryLoops().exec(ctx, fileChanger)
-        case _ =>
-          println("There is no transform " + transform)
-      }
-    })
-    fileChanger.diff()
-  }
 }
 
 object LinkContext {
