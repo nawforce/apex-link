@@ -31,12 +31,11 @@ import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Double;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
-import sun.java2d.pipe.hw.ContextCapabilities;
 
 @SuppressWarnings("unused")
 public class CommentCapabilities {
-	public CommentCapabilities comments;
-	public ContextCapabilities content;
+	public CommentsCapability comments;
+	public ContentCapability content;
 	public EditCapability edit;
 	public FeedEntityShareCapability feedEntityShare;
 	public RecordCapability record;
