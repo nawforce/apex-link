@@ -32,9 +32,6 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class Zones {
-
-
-
 	public static Zone getZone(String communityId, String zoneId) {throw new java.lang.UnsupportedOperationException();}
 	public static ZonePage getZones(String communityId) {throw new java.lang.UnsupportedOperationException();}
 	public static ZonePage getZones(String communityId, Integer pageParam, Integer pageSize) {throw new java.lang.UnsupportedOperationException();}
@@ -44,5 +41,4 @@ public class Zones {
 	public static void setTestSearchInZone(String communityId, String zoneId, String q, ZoneSearchResultType filter, ZoneSearchPage result) {throw new java.lang.UnsupportedOperationException();}
 	public static void setTestSearchInZone(String communityId, String zoneId, String q, ZoneSearchResultType filter, String language, ZoneSearchPage result) {throw new java.lang.UnsupportedOperationException();}
 	public static void setTestSearchInZone(String communityId, String zoneId, String q, ZoneSearchResultType filter, String pageParam, Integer pageSize, ZoneSearchPage result) {throw new java.lang.UnsupportedOperationException();}
-
 }

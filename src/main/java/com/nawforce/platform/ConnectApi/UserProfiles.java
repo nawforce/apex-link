@@ -32,9 +32,6 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class UserProfiles {
-
-
-
 	public static void deleteBannerPhoto(String communityId, String userId) {throw new java.lang.UnsupportedOperationException();}
 	public static void deletePhoto(String communityId, String userId) {throw new java.lang.UnsupportedOperationException();}
 	public static BannerPhoto getBannerPhoto(String communityId, String userId) {throw new java.lang.UnsupportedOperationException();}
@@ -48,5 +45,4 @@ public class UserProfiles {
 	public static Photo setPhoto(String communityId, String userId, String fileId, Integer versionNumber) {throw new java.lang.UnsupportedOperationException();}
 	public static Photo setPhotoWithAttributes(String communityId, String userId, PhotoInput photo) {throw new java.lang.UnsupportedOperationException();}
 	public static Photo setPhotoWithAttributes(String communityId, String userId, PhotoInput photo, BinaryInput fileUpload) {throw new java.lang.UnsupportedOperationException();}
-
 }

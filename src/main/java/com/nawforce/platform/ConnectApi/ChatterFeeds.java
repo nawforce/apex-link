@@ -34,9 +34,6 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class ChatterFeeds {
-
-
-
 	public static ChatterStream createStream(String communityId, ChatterStreamInput streamInput) {throw new java.lang.UnsupportedOperationException();}
 	public static void deleteComment(String communityId, String commentId) {throw new java.lang.UnsupportedOperationException();}
 	public static void deleteFeedElement(String communityId, String feedElementId) {throw new java.lang.UnsupportedOperationException();}
@@ -339,5 +336,4 @@ public class ChatterFeeds {
 	public static ChatterStream updateStream(String communityId, String streamId, ChatterStreamInput streamInput) {throw new java.lang.UnsupportedOperationException();}
 	public static PollCapability voteOnFeedElementPoll(String communityId, String feedElementId, String myChoiceId) {throw new java.lang.UnsupportedOperationException();}
 	public static FeedPoll voteOnFeedPoll(String communityId, String feedItemId, String myChoiceId) {throw new java.lang.UnsupportedOperationException();}
-
 }

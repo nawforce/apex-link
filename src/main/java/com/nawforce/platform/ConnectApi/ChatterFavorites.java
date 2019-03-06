@@ -33,9 +33,6 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class ChatterFavorites {
-
-
-
 	public static FeedFavorite addFavorite(String communityId, String subjectId, String searchText) {throw new java.lang.UnsupportedOperationException();}
 	public static FeedFavorite addRecordFavorite(String communityId, String subjectId, String targetId) {throw new java.lang.UnsupportedOperationException();}
 	public static void deleteFavorite(String communityId, String subjectId, String favoriteId) {throw new java.lang.UnsupportedOperationException();}
@@ -54,5 +51,4 @@ public class ChatterFavorites {
 	public static void setTestGetFeedItems(String communityId, String subjectId, String favoriteId, Integer recentCommentCount, String pageParam, Integer pageSize, FeedSortOrder sortParam, FeedItemPage result) {throw new java.lang.UnsupportedOperationException();}
 	public static void setTestGetFeedItems(String communityId, String subjectId, String favoriteId, String pageParam, Integer pageSize, FeedSortOrder sortParam, FeedItemPage result) {throw new java.lang.UnsupportedOperationException();}
 	public static FeedFavorite updateFavorite(String communityId, String subjectId, String favoriteId, Boolean updateLastViewDate) {throw new java.lang.UnsupportedOperationException();}
-
 }

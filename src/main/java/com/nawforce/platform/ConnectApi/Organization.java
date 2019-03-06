@@ -29,9 +29,5 @@ package com.nawforce.platform.ConnectApi;
 
 @SuppressWarnings("unused")
 public class Organization {
-
-
-
 	public static OrganizationSettings getSettings() {throw new java.lang.UnsupportedOperationException();}
-
 }

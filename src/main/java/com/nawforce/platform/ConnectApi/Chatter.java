@@ -32,13 +32,9 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class Chatter {
-
-
-
 	public static void deleteSubscription(String communityId, String subscriptionId) {throw new java.lang.UnsupportedOperationException();}
 	public static FollowerPage getFollowers(String communityId, String recordId) {throw new java.lang.UnsupportedOperationException();}
 	public static FollowerPage getFollowers(String communityId, String recordId, Integer pageParam, Integer pageSize) {throw new java.lang.UnsupportedOperationException();}
 	public static Subscription getSubscription(String communityId, String subscriptionId) {throw new java.lang.UnsupportedOperationException();}
 	public static DigestJobRepresentation submitDigestJob(DigestPeriod period) {throw new java.lang.UnsupportedOperationException();}
-
 }

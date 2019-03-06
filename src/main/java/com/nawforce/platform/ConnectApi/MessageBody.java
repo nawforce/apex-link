@@ -27,13 +27,10 @@
 */
 package com.nawforce.platform.ConnectApi;
 
-import com.nawforce.platform.System.*;
-import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Double;
 import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.Schema;
-import com.nawforce.platform.DatabaseImpl;
-import com.nawforce.platform.Namespaces.Dom;
+import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class MessageBody {
@@ -44,6 +41,4 @@ public class MessageBody {
 	public Double getBuildVersion() {throw new java.lang.UnsupportedOperationException();}
 	public Integer hashCode$() {throw new java.lang.UnsupportedOperationException();}
 	public String toString$() {throw new java.lang.UnsupportedOperationException();}
-
-
 }

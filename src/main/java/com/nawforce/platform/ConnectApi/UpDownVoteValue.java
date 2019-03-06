@@ -27,14 +27,6 @@
 */
 package com.nawforce.platform.ConnectApi;
 
-import com.nawforce.platform.System.*;
-import com.nawforce.platform.System.String;
-import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.Schema;
-import com.nawforce.platform.DatabaseImpl;
-import com.nawforce.platform.Namespaces.Dom;
-
 @SuppressWarnings("unused")
 public enum UpDownVoteValue {
 	Down,

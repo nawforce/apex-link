@@ -32,9 +32,5 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class EmailMergeFieldService {
-
-
-
 	public static EmailMergeFieldInfo getMergeFields(List<String> objectApiNames) {throw new java.lang.UnsupportedOperationException();}
-
 }

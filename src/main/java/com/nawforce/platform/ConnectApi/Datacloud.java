@@ -32,9 +32,6 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class Datacloud {
-
-
-
 	public static DatacloudCompanies getCompaniesFromOrder(String orderId) {throw new java.lang.UnsupportedOperationException();}
 	public static DatacloudCompanies getCompaniesFromOrder(String orderId, Integer pageParam, Integer pageSize) {throw new java.lang.UnsupportedOperationException();}
 	public static DatacloudCompany getCompany(String companyId) {throw new java.lang.UnsupportedOperationException();}
@@ -44,5 +41,4 @@ public class Datacloud {
 	public static DatacloudOrder getOrder(String orderId) {throw new java.lang.UnsupportedOperationException();}
 	public static DatacloudPurchaseUsage getUsage(String userId) {throw new java.lang.UnsupportedOperationException();}
 	public static DatacloudOrder postOrder(DatacloudOrderInput orderInput) {throw new java.lang.UnsupportedOperationException();}
-
 }

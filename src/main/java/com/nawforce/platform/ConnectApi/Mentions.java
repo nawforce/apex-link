@@ -33,13 +33,9 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class Mentions {
-
-
-
 	public static MentionCompletionPage getMentionCompletions(String communityId, String q, String contextId) {throw new java.lang.UnsupportedOperationException();}
 	public static MentionCompletionPage getMentionCompletions(String communityId, String q, String contextId, MentionCompletionType type, Integer pageParam, Integer pageSize) {throw new java.lang.UnsupportedOperationException();}
 	public static MentionValidations getMentionValidations(String communityId, String parentId, List<String> recordIds, FeedItemVisibilityType visibility) {throw new java.lang.UnsupportedOperationException();}
 	public static void setTestGetMentionCompletions(String communityId, String q, String contextId, MentionCompletionPage result) {throw new java.lang.UnsupportedOperationException();}
 	public static void setTestGetMentionCompletions(String communityId, String q, String contextId, MentionCompletionType type, Integer pageParam, Integer pageSize, MentionCompletionPage result) {throw new java.lang.UnsupportedOperationException();}
-
 }

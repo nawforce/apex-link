@@ -33,9 +33,6 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class ChatterMessages {
-
-
-
 	public static ChatterConversation getConversation(String communityId, String conversationId) {throw new java.lang.UnsupportedOperationException();}
 	public static ChatterConversation getConversation(String communityId, String conversationId, String pageParam, Integer pageSize) {throw new java.lang.UnsupportedOperationException();}
 	public static ChatterConversation getConversation(String conversationId) {throw new java.lang.UnsupportedOperationException();}
@@ -70,5 +67,4 @@ public class ChatterMessages {
 	public static ChatterMessagePage searchMessages(String q) {throw new java.lang.UnsupportedOperationException();}
 	public static ChatterMessage sendMessage(String communityId, String text, String recipients) {throw new java.lang.UnsupportedOperationException();}
 	public static ChatterMessage sendMessage(String text, String recipients) {throw new java.lang.UnsupportedOperationException();}
-
 }

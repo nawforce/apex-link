@@ -33,9 +33,6 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class ChatterUsers {
-
-
-
 	public static void deletePhoto(String communityId, String userId) {throw new java.lang.UnsupportedOperationException();}
 	public static UserActivitiesJob exportUserActivities(String communityId, String userId) {throw new java.lang.UnsupportedOperationException();}
 	public static Subscription follow(String communityId, String userId, String subjectId) {throw new java.lang.UnsupportedOperationException();}
@@ -75,5 +72,4 @@ public class ChatterUsers {
 	public static void setTestSearchUsers(String communityId, String q, String searchContextId, Integer pageParam, Integer pageSize, UserPage result) {throw new java.lang.UnsupportedOperationException();}
 	public static UserChatterSettings updateChatterSettings(String communityId, String userId, GroupEmailFrequency defaultGroupEmailFrequency) {throw new java.lang.UnsupportedOperationException();}
 	public static UserDetail updateUser(String communityId, String userId, UserInput userInput) {throw new java.lang.UnsupportedOperationException();}
-
 }

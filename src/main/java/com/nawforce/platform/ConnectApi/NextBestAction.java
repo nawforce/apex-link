@@ -33,9 +33,6 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class NextBestAction {
-
-
-
 	public static void deleteRecommendationReaction(String reactionId) {throw new java.lang.UnsupportedOperationException();}
 	public static NBARecommendations executeStrategy(String strategyName, NBAStrategyInput strategyInput) {throw new java.lang.UnsupportedOperationException();}
 	public static NBARecommendations executeStrategy(String strategyName, Integer maxResults, String contextRecordId) {throw new java.lang.UnsupportedOperationException();}
@@ -44,5 +41,4 @@ public class NextBestAction {
 	public static RecommendationReaction getRecommendationReaction(String reactionId) {throw new java.lang.UnsupportedOperationException();}
 	public static RecommendationReactions getRecommendationReactions(String onBehalfOfId, String createdById, String targetId, String contextRecordId, Integer pageParam, Integer pageSize) {throw new java.lang.UnsupportedOperationException();}
 	public static RecommendationReaction setRecommendationReaction(RecommendationReactionInput reaction) {throw new java.lang.UnsupportedOperationException();}
-
 }

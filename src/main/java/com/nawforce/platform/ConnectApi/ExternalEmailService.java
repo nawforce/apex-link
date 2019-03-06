@@ -31,9 +31,5 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class ExternalEmailService {
-
-
-
 	public static UserOauthInfo getUserOauthInfo(String landingPage) {throw new java.lang.UnsupportedOperationException();}
-
 }

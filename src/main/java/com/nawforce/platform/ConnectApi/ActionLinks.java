@@ -31,14 +31,10 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class ActionLinks {
-
-
-
 	public static ActionLinkGroupDefinition createActionLinkGroupDefinition(String communityId, ActionLinkGroupDefinitionInput actionLinkGroup) {throw new java.lang.UnsupportedOperationException();}
 	public static void deleteActionLinkGroupDefinition(String communityId, String actionLinkGroupId) {throw new java.lang.UnsupportedOperationException();}
 	public static PlatformAction getActionLink(String communityId, String actionLinkId) {throw new java.lang.UnsupportedOperationException();}
 	public static ActionLinkDiagnosticInfo getActionLinkDiagnosticInfo(String communityId, String actionLinkId) {throw new java.lang.UnsupportedOperationException();}
 	public static PlatformActionGroup getActionLinkGroup(String communityId, String actionLinkGroupId) {throw new java.lang.UnsupportedOperationException();}
 	public static ActionLinkGroupDefinition getActionLinkGroupDefinition(String communityId, String actionLinkGroupId) {throw new java.lang.UnsupportedOperationException();}
-
 }

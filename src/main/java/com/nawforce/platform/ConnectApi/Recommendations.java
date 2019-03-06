@@ -33,9 +33,6 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class Recommendations {
-
-
-
 	public static RecommendationAudience createRecommendationAudience(String communityId, RecommendationAudienceInput recommendationAudience) {throw new java.lang.UnsupportedOperationException();}
 	public static RecommendationAudience createRecommendationAudience(String communityId, String name) {throw new java.lang.UnsupportedOperationException();}
 	public static RecommendationDefinition createRecommendationDefinition(String communityId, RecommendationDefinitionInput recommendationDefinition) {throw new java.lang.UnsupportedOperationException();}
@@ -83,5 +80,4 @@ public class Recommendations {
 	public static Photo updateRecommendationDefinitionPhotoWithAttributes(String communityId, String recommendationDefinitionId, PhotoInput photo, BinaryInput fileUpload) {throw new java.lang.UnsupportedOperationException();}
 	public static ScheduledRecommendation updateScheduledRecommendation(String communityId, String scheduledRecommendationId, ScheduledRecommendationInput scheduledRecommendation) {throw new java.lang.UnsupportedOperationException();}
 	public static ScheduledRecommendation updateScheduledRecommendation(String communityId, String scheduledRecommendationId, Integer rank, Boolean enabled, String recommendationAudienceId) {throw new java.lang.UnsupportedOperationException();}
-
 }

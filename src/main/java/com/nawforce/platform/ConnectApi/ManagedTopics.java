@@ -33,9 +33,6 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class ManagedTopics {
-
-
-
 	public static ManagedTopic createManagedTopic(String communityId, String recordId, ManagedTopicType managedTopicType) {throw new java.lang.UnsupportedOperationException();}
 	public static ManagedTopic createManagedTopic(String communityId, String recordId, ManagedTopicType managedTopicType, String parentId) {throw new java.lang.UnsupportedOperationException();}
 	public static ManagedTopic createManagedTopicByName(String communityId, String name, ManagedTopicType managedTopicType) {throw new java.lang.UnsupportedOperationException();}
@@ -50,5 +47,4 @@ public class ManagedTopics {
 	public static ManagedTopicCollection getManagedTopics(String communityId, ManagedTopicType managedTopicType, List<String> recordIds, Integer depth) {throw new java.lang.UnsupportedOperationException();}
 	public static ManagedTopicCollection getManagedTopics(String communityId, ManagedTopicType managedTopicType, String recordId, Integer depth) {throw new java.lang.UnsupportedOperationException();}
 	public static ManagedTopicCollection reorderManagedTopics(String communityId, ManagedTopicPositionCollectionInput managedTopicPositionCollection) {throw new java.lang.UnsupportedOperationException();}
-
 }

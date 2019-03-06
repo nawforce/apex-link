@@ -33,11 +33,7 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class QuestionAndAnswers {
-
-
-
 	public static QuestionAndAnswersSuggestions getSuggestions(String communityId, String q, String subjectId, Boolean includeArticles, Integer maxResults) {throw new java.lang.UnsupportedOperationException();}
 	public static void setTestGetSuggestions(String communityId, String q, String subjectId, Boolean includeArticles, Integer maxResults, QuestionAndAnswersSuggestions result) {throw new java.lang.UnsupportedOperationException();}
 	public static QuestionAndAnswersCapability updateQuestionAndAnswers(String communityId, String feedElementId, QuestionAndAnswersCapabilityInput questionAndAnswersCapability) {throw new java.lang.UnsupportedOperationException();}
-
 }

@@ -32,11 +32,7 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class Missions {
-
-
-
 	public static UserMissionActivitiesJob exportUserMissionsActivities(String communityId, String userId) {throw new java.lang.UnsupportedOperationException();}
 	public static UserMissionActivitiesJob purgeUserMissionsActivities(String communityId, String userId) {throw new java.lang.UnsupportedOperationException();}
 	public static UserMissionActivityStatus updateUserMissionActivityCount(UserMissionActivityType activityType, Integer activityCount, String communityId, String userId) {throw new java.lang.UnsupportedOperationException();}
-
 }

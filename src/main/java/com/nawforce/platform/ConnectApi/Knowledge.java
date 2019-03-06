@@ -32,9 +32,6 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class Knowledge {
-
-
-
 	public static KnowledgeArticleVersionCollection getTopViewedArticlesForTopic(String communityId, String topicId, Integer maxResults) {throw new java.lang.UnsupportedOperationException();}
 	public static KnowledgeArticleVersionCollection getTrendingArticles(String communityId, Integer maxResults) {throw new java.lang.UnsupportedOperationException();}
 	public static KnowledgeArticleVersionCollection getTrendingArticlesForTopic(String communityId, String topicId, Integer maxResults) {throw new java.lang.UnsupportedOperationException();}

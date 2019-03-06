@@ -35,13 +35,11 @@ import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class Comment {
-	public FeedItemAttachment attachment;
 	public FeedBody body;
 	public CommentCapabilities capabilities;
 	public ClientInfo clientInfo;
 	public Datetime createdDate;
 	public Reference feedElement;
-	public Reference feedItem;
 	public String id;
 	public Boolean isDeleteRestricted;
 	public ChatterLikePage likes;

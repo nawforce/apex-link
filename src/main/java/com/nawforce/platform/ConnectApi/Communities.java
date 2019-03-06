@@ -31,11 +31,7 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class Communities {
-
-
-
 	public static CommunityPage getCommunities() {throw new java.lang.UnsupportedOperationException();}
 	public static CommunityPage getCommunities(CommunityStatus status) {throw new java.lang.UnsupportedOperationException();}
 	public static Community getCommunity(String communityId) {throw new java.lang.UnsupportedOperationException();}
-
 }

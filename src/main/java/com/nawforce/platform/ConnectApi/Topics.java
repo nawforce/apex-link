@@ -34,9 +34,6 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class Topics {
-
-
-
 	public static Topic assignTopic(String communityId, String recordId, String topicId) {throw new java.lang.UnsupportedOperationException();}
 	public static Topic assignTopicByName(String communityId, String recordId, String topicName) {throw new java.lang.UnsupportedOperationException();}
 	public static Topic createTopic(String communityId, String name, String description) {throw new java.lang.UnsupportedOperationException();}
@@ -80,5 +77,4 @@ public class Topics {
 	public static void unassignTopic(String communityId, String recordId, String topicId) {throw new java.lang.UnsupportedOperationException();}
 	public static Topic updateTopic(String communityId, String topicId, TopicInput topic) {throw new java.lang.UnsupportedOperationException();}
 	public static TopicPage updateTopicsForArticlesInDataCategory(String communityId, String dataCategoryGroup, String dataCategory, ArticleTopicAssignmentJobInput articleTopicAssignmentJob) {throw new java.lang.UnsupportedOperationException();}
-
 }
