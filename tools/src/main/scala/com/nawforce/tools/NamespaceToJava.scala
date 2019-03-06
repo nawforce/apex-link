@@ -27,7 +27,7 @@
 */
 package com.nawforce.tools
 
-import java.io.{BufferedWriter, ByteArrayOutputStream, FileWriter}
+import java.io.{BufferedWriter, ByteArrayOutputStream, File, FileWriter}
 import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
@@ -37,7 +37,7 @@ import net.liftweb.json._
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.HttpClientBuilder
 
-case class AbortException(msg: String)  extends Exception(msg)
+case class AbortException(msg: String) extends Exception(msg)
 
 object NamespaceToJava {
   def loginURL = "https://login.salesforce.com/services/Soap/u/45.0"
@@ -45,8 +45,8 @@ object NamespaceToJava {
   def main(args: Array[String]): Unit = {
 
     args.length match {
-      case 3 => ()
-      case _ => println("Usage: NamespaceToJava <username> <password> <namespace>"); return
+      case 2 => ()
+      case _ => println("Usage: NamespaceToJava <username> <password>"); return
     }
 
     val connectionResult = SFConnection.login(loginURL, args(0), args(1))
@@ -61,14 +61,18 @@ object NamespaceToJava {
       connectionResult.right.get.connection.getConfig.getSessionId
     )
 
-    (completions \ args(2)).asInstanceOf[JObject].obj.foreach(json => {
-      val cls = PlatformClass(args(2), json)
+    completions.obj.foreach(ns => {
+      val nsName = ns.name
+      Paths.get(nsName).toFile.mkdirs()
 
-      val output = Paths.get(cls.name+".java").toFile
-      val writer = new BufferedWriter(new FileWriter(output))
-      writer.write(cls.asJava)
-      writer.flush()
-      writer.close()
+      ns.value.asInstanceOf[JObject].obj.foreach(json => {
+        val cls = PlatformClass(nsName, json)
+        val output = Paths.get(nsName + File.separatorChar + cls.name+".java").toFile
+        val writer = new BufferedWriter(new FileWriter(output))
+        writer.write(cls.asJava)
+        writer.flush()
+        writer.close()
+      })
     })
   }
 

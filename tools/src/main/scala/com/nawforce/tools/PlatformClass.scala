@@ -46,6 +46,10 @@ case class PlatformClass(namespace: String, json: JField) {
   lazy val methods: List[JsonAST.JValue] = (json.value \ "methods").asInstanceOf[JArray].arr
     .filterNot(m => (m \ "name").asInstanceOf[JString].s.equalsIgnoreCase("clone"))
 
+  lazy val isEnum: Boolean =
+    staticMethods.map(m => (m \ "name").asInstanceOf[JString].s).toSet == PlatformClass.enumStaticMethods &&
+    instanceMethods.map(m => (m \ "name").asInstanceOf[JString].s).toSet == PlatformClass.enumInstanceMethods
+
   lazy val asJava: String = {
     val stringWriter = new StringWriter()
     val writer = new BufferedWriter(stringWriter)
@@ -64,49 +68,56 @@ case class PlatformClass(namespace: String, json: JField) {
          |
          |@SuppressWarnings("unused")
          |""".stripMargin)
-    writer.write(s"public class $name {\n")
 
-    properties.foreach(p => {
-      val getter = methods.filter(m => (m \ "name").asInstanceOf[JString].s.equalsIgnoreCase("get"+p))
-      if (getter.length == 1) {
-        val returnType = getPlatformType((getter.head \ "returnType").asInstanceOf[JString].s)
-        writer.write(s"\tpublic $returnType ${(getter.head \ "name").asInstanceOf[JString].s.drop(3)};\n")
-      } else {
-        val getterIs = methods.filter(m => (m \ "name").asInstanceOf[JString].s.equalsIgnoreCase("is"+p))
-        if (getterIs.length == 1) {
-          val returnType = getPlatformType((getterIs.head \ "returnType").asInstanceOf[JString].s)
-          writer.write(s"\tpublic $returnType ${(getterIs.head \ "name").asInstanceOf[JString].s.drop(2)};\n")
+    if (isEnum) {
+      writer.write(s"public enum $name {\n")
+      writer.write(properties.map(p => s"\t$p").mkString(",\n"))
+      writer.write("\n")
+    } else {
+      writer.write(s"public class $name {\n")
+
+      properties.foreach(p => {
+        val getter = methods.filter(m => (m \ "name").asInstanceOf[JString].s.equalsIgnoreCase("get" + p))
+        if (getter.length == 1) {
+          val returnType = getPlatformType((getter.head \ "returnType").asInstanceOf[JString].s)
+          writer.write(s"\tpublic $returnType ${(getter.head \ "name").asInstanceOf[JString].s.drop(3)};\n")
         } else {
-          writer.write(s"\tpublic $p;\n")
+          val getterIs = methods.filter(m => (m \ "name").asInstanceOf[JString].s.equalsIgnoreCase("is" + p))
+          if (getterIs.length == 1) {
+            val returnType = getPlatformType((getterIs.head \ "returnType").asInstanceOf[JString].s)
+            writer.write(s"\tpublic $returnType ${(getterIs.head \ "name").asInstanceOf[JString].s.drop(2)};\n")
+          } else {
+            writer.write(s"\tpublic $p;\n")
+          }
         }
-      }
-    })
-    writer.write(s"\n")
+      })
+      writer.write(s"\n")
 
-    constructors.foreach(c => {
-      writer.write(s"\tpublic $name(")
-      writeMethodArguments(writer, c)
-      writer.write(s") {throw new java.lang.UnsupportedOperationException();}\n")
-    })
-    writer.write(s"\n")
+      constructors.foreach(c => {
+        writer.write(s"\tpublic $name(")
+        writeMethodArguments(writer, c)
+        writer.write(s") {throw new java.lang.UnsupportedOperationException();}\n")
+      })
+      writer.write(s"\n")
 
-    instanceMethods.foreach(m => {
-      val methodName = getMethodName((m \ "name").asInstanceOf[JString].s)
-      val returnType = getPlatformType((m \ "returnType").asInstanceOf[JString].s)
-      writer.write(s"\tpublic $returnType $methodName(")
-      writeMethodArguments(writer, m)
-      writer.write(s") {throw new java.lang.UnsupportedOperationException();}\n")
-    })
-    writer.write(s"\n")
+      instanceMethods.foreach(m => {
+        val methodName = getMethodName((m \ "name").asInstanceOf[JString].s)
+        val returnType = getPlatformType((m \ "returnType").asInstanceOf[JString].s)
+        writer.write(s"\tpublic $returnType $methodName(")
+        writeMethodArguments(writer, m)
+        writer.write(s") {throw new java.lang.UnsupportedOperationException();}\n")
+      })
+      writer.write(s"\n")
 
-    staticMethods.foreach(m => {
-      val methodName = getMethodName((m \ "name").asInstanceOf[JString].s)
-      val returnType = getPlatformType((m \ "returnType").asInstanceOf[JString].s)
-      writer.write(s"\tpublic static $returnType $methodName(")
-      writeMethodArguments(writer, m)
-      writer.write(s") {throw new java.lang.UnsupportedOperationException();}\n")
-    })
-    writer.write(s"\n")
+      staticMethods.foreach(m => {
+        val methodName = getMethodName((m \ "name").asInstanceOf[JString].s)
+        val returnType = getPlatformType((m \ "returnType").asInstanceOf[JString].s)
+        writer.write(s"\tpublic static $returnType $methodName(")
+        writeMethodArguments(writer, m)
+        writer.write(s") {throw new java.lang.UnsupportedOperationException();}\n")
+      })
+      writer.write(s"\n")
+    }
 
     writer.write(s"}\n")
     writer.close()
@@ -152,5 +163,17 @@ object PlatformClass {
     "map",
     "set"
   )
+
+  private val enumInstanceMethods = Set(
+    "equals",
+    "hashCode",
+    "ordinal"
+  )
+
+   private val enumStaticMethods = Set(
+    "values"
+  )
+
+
 }
 
