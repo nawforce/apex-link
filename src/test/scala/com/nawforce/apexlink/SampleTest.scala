@@ -28,55 +28,55 @@
 package com.nawforce.apexlink
 
 import com.nawforce.ApexLink
-import org.junit.{Assert, Test}
+import org.scalatest.FunSuite
 
-class SampleTest {
+class SampleTest extends FunSuite {
 
-  def sample(path : String) : Unit = {
-    Assert.assertEquals(0, ApexLink.run(Array(path)))
+  private def sample(path: String): Unit = {
+    assert(0 == ApexLink.run(Array(path)))
   }
 
-  @Test def sample1() : Unit = {
+  test("forcedotcom-enterprise-architecture") {
     sample("samples/forcedotcom-enterprise-architecture/src")
   }
 
-  @Test def sample2() : Unit = {
+  test("chatter=game") {
     sample("samples/forcedotcomlabs/chatter-game/src")
   }
 
-  @Test def sample3() : Unit = {
+  test("Cumulus") {
     sample("samples/SalesforceFoundation/Cumulus/src")
   }
 
-  @Test def sample4() : Unit = {
+  test("HEDAP") {
     sample("samples/SalesforceFoundation/HEDAP/src")
   }
 
-  @Test def sample5() : Unit = {
+  test("CampaignTools") {
     sample("samples/SalesforceFoundation/CampaignTools/src")
   }
 
-  @Test def sample6() : Unit = {
+  test("Volunteers-for-Salesforce") {
     sample("samples/SalesforceFoundation/Volunteers-for-Salesforce/src")
   }
 
-  @Test def sample7() : Unit = {
+  test("Relationships") {
     sample("samples/SalesforceFoundation/Relationships/src")
   }
 
-  @Test def sample8() : Unit = {
+  test("Households") {
     sample("samples/SalesforceFoundation/Households/src")
   }
 
-  @Test def sample9() : Unit = {
+  test("Recurring_Donations") {
     sample("samples/SalesforceFoundation/Recurring_Donations/src")
   }
 
-  @Test def sample10() : Unit = {
+  test("Contacts_and_Organizations") {
     sample("samples/SalesforceFoundation/Contacts_and_Organizations/src")
   }
 
-  @Test def sample11() : Unit = {
+  test("Affiliations") {
     sample("samples/SalesforceFoundation/Affiliations/src")
   }
 }
