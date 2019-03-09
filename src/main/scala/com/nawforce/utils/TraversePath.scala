@@ -25,49 +25,34 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.apexlink
+package com.nawforce.utils
 
-import com.nawforce.cst._
-import org.scalatest.FunSuite
+import java.nio.file._
+import java.nio.file.attribute.BasicFileAttributes
 
-class TypePrimaryTest extends FunSuite
-{
-  def primary(p: String, r: Type, ctx: TypeContext = null) : Unit =
-    TypeTestHelper.comparePrimary(p, r, ctx)
+import scala.collection.Traversable
 
-  test("Primary literal") {
-    primary("0", IntegerType(0))
-    primary("1", IntegerType(0))
-    primary("0l", LongType(0))
-    primary("1l", LongType(0))
-    primary("0L", LongType(0))
-    primary("1L", LongType(0))
-    primary("''", StringType(0))
-    primary("'a'", StringType(0))
-    primary("'az'", StringType(0))
-    primary("'\t'", StringType(0))
-    primary("true", BooleanType(0))
-    primary("False", BooleanType(0))
-    primary("null", NullType())
-    primary("0.0", DecimalType(0))
-    primary(".0", DecimalType(0))
-    primary("0.123", DecimalType(0))
-    primary("0.123456789012345678901234567890123456789012345678", DecimalType(0))
-    primary("0.1234567890123456789012345678901234567890123456789", DoubleType(0))
-  }
+class TraversePath(path: Path) extends Traversable[(Path, BasicFileAttributes)] {
 
-  test("This literal") {
-    val ctx = new TypeContextTest(_thisType = NullType())
-    primary("this", NullType(), ctx)
-  }
+  // Make foreach receive a function from Tuple2 to Unit
+  def foreach[U](f: ((Path, BasicFileAttributes)) => U) {
 
-  test("Super literal") {
-    val ctx = new TypeContextTest(_superType = NullType())
-    primary("super", NullType(), ctx)
-  }
+    class Visitor extends SimpleFileVisitor[Path] {
+      var error: Option[Throwable] = None
 
-  test("Field") {
-    val ctx = new TypeContextTest(identifierTypes = Map(("anId", NullType())))
-    primary("anId", NullType(), ctx)
+      override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = try {
+        // Pass a tuple to f
+        f(file -> attrs)
+        FileVisitResult.CONTINUE
+      } catch {
+        case ex: Throwable =>
+          error = Some(ex)
+          FileVisitResult.TERMINATE
+      }
+    }
+
+    val v = new Visitor
+    Files.walkFileTree(path, v)
+    v.error.exists(ex => throw ex)
   }
 }

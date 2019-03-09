@@ -25,49 +25,36 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.apexlink
+package com.nawforce.metadata
 
-import com.nawforce.cst._
-import org.scalatest.FunSuite
+import java.nio.file.Files
 
-class TypePrimaryTest extends FunSuite
-{
-  def primary(p: String, r: Type, ctx: TypeContext = null) : Unit =
-    TypeTestHelper.comparePrimary(p, r, ctx)
+import com.nawforce.utils.{LinkerException, LinkerLog, XMLLineLoader, XMLUtils}
 
-  test("Primary literal") {
-    primary("0", IntegerType(0))
-    primary("1", IntegerType(0))
-    primary("0l", LongType(0))
-    primary("1l", LongType(0))
-    primary("0L", LongType(0))
-    primary("1L", LongType(0))
-    primary("''", StringType(0))
-    primary("'a'", StringType(0))
-    primary("'az'", StringType(0))
-    primary("'\t'", StringType(0))
-    primary("true", BooleanType(0))
-    primary("False", BooleanType(0))
-    primary("null", NullType())
-    primary("0.0", DecimalType(0))
-    primary(".0", DecimalType(0))
-    primary("0.123", DecimalType(0))
-    primary("0.123456789012345678901234567890123456789012345678", DecimalType(0))
-    primary("0.1234567890123456789012345678901234567890123456789", DoubleType(0))
-  }
+import scala.xml.Elem
 
-  test("This literal") {
-    val ctx = new TypeContextTest(_thisType = NullType())
-    primary("this", NullType(), ctx)
-  }
+class LabelReader extends SymbolReader {
 
-  test("Super literal") {
-    val ctx = new TypeContextTest(_superType = NullType())
-    primary("super", NullType(), ctx)
-  }
+  override def loadSymbols(ctx: SymbolReaderContext): Unit = {
+    try {
+      val labelsFile = ctx.getBaseDir.resolve("labels").resolve("CustomLabels.labels")
+      LinkerLog.pushContext(labelsFile.toString)
+      if (Files.exists(labelsFile)) {
+        LinkerLog.ifNotLogAndThrow(Files.isRegularFile(labelsFile), 0, "Labels file is not a regular file")
+        LinkerLog.ifNotLogAndThrow(Files.isReadable(labelsFile), 0, "Labels file is not readable")
 
-  test("Field") {
-    val ctx = new TypeContextTest(identifierTypes = Map(("anId", NullType())))
-    primary("anId", NullType(), ctx)
+        val root = XMLLineLoader.loadFile(labelsFile.toString)
+        XMLUtils.ifNotElemLogAndThrow(root, "CustomLabels")
+
+        root.child.foreach {
+          case elem: Elem =>
+            XMLUtils.ifNotElemLogAndThrow(elem, "labels")
+            Label.create(elem).foreach(l => ctx.addLabel(l))
+          case _ =>
+        }
+      }
+    } catch {
+      case _: LinkerException => () // Ignore, just used to abort processing
+    }
   }
 }

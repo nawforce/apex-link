@@ -4,7 +4,7 @@ package com.nawforce.tools
 import java.io.{BufferedWriter, FileWriter}
 import java.nio.file.Paths
 
-import com.nawforce.apexlink.utils.SFConnection
+import com.nawforce.utils.SFConnection
 
 
 object SObjectToJava {

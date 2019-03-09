@@ -32,8 +32,7 @@ import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 
-import com.nawforce.apexlink.utils.SFConnection
-import net.liftweb.json._
+import com.nawforce.utils.SFConnection
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.HttpClientBuilder
 

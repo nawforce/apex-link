@@ -25,49 +25,44 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.apexlink
+package com.nawforce.metadata
 
-import com.nawforce.cst._
-import org.scalatest.FunSuite
+import com.nawforce.utils.{Location, XMLUtils}
 
-class TypePrimaryTest extends FunSuite
-{
-  def primary(p: String, r: Type, ctx: TypeContext = null) : Unit =
-    TypeTestHelper.comparePrimary(p, r, ctx)
+import scala.language.implicitConversions
+import scala.xml.Elem
 
-  test("Primary literal") {
-    primary("0", IntegerType(0))
-    primary("1", IntegerType(0))
-    primary("0l", LongType(0))
-    primary("1l", LongType(0))
-    primary("0L", LongType(0))
-    primary("1L", LongType(0))
-    primary("''", StringType(0))
-    primary("'a'", StringType(0))
-    primary("'az'", StringType(0))
-    primary("'\t'", StringType(0))
-    primary("true", BooleanType(0))
-    primary("False", BooleanType(0))
-    primary("null", NullType())
-    primary("0.0", DecimalType(0))
-    primary(".0", DecimalType(0))
-    primary("0.123", DecimalType(0))
-    primary("0.123456789012345678901234567890123456789012345678", DecimalType(0))
-    primary("0.1234567890123456789012345678901234567890123456789", DoubleType(0))
+case class CustomObject(location: Location, fullName: String, fields: List[CustomObjectField]) extends Symbol {
+
+  fields.foreach(f => f.parent = Some(this))
+
+  val scopedName: String = fullName
+
+}
+
+case class CustomObjectField(location: Location, fullName: String, typeName: Option[String]) extends Symbol {
+
+  lazy val scopedName: String = parent.get.scopedName + "." + fullName
+
+}
+
+object CustomObject {
+
+  def create(fullName: String, elem: Elem): Option[CustomObject] = {
+
+    val fields = XMLUtils.getMultipleChildren(elem, "fields").map(f => createField(f))
+    Some(new CustomObject(XMLUtils.getLocation(elem), fullName, fields.flatten))
   }
 
-  test("This literal") {
-    val ctx = new TypeContextTest(_thisType = NullType())
-    primary("this", NullType(), ctx)
-  }
+  def createField(elem: Elem): Option[CustomObjectField] = {
+    implicit def optToBool(opt: Option[_]): Boolean = opt.isDefined
 
-  test("Super literal") {
-    val ctx = new TypeContextTest(_superType = NullType())
-    primary("super", NullType(), ctx)
-  }
+    val fullName: Option[String] = XMLUtils.getSingleChildAsString(elem, "fullName")
+    val typeName: Option[String] = XMLUtils.getOptionalSingleChildAsString(elem, "type")
 
-  test("Field") {
-    val ctx = new TypeContextTest(identifierTypes = Map(("anId", NullType())))
-    primary("anId", NullType(), ctx)
+    if (fullName && typeName)
+      Some(CustomObjectField(XMLUtils.getLocation(elem), fullName.get, typeName))
+    else
+      None
   }
 }

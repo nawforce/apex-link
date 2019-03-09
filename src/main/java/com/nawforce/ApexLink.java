@@ -28,7 +28,7 @@
 
 package com.nawforce;
 
-import com.nawforce.apexlink.api.LinkContext;
+import com.nawforce.api.LinkContext;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

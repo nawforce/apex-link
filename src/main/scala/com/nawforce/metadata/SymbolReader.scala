@@ -25,49 +25,21 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.apexlink
+package com.nawforce.metadata
 
-import com.nawforce.cst._
-import org.scalatest.FunSuite
+import java.nio.file.Path
 
-class TypePrimaryTest extends FunSuite
-{
-  def primary(p: String, r: Type, ctx: TypeContext = null) : Unit =
-    TypeTestHelper.comparePrimary(p, r, ctx)
+import com.nawforce.utils.CSTException
 
-  test("Primary literal") {
-    primary("0", IntegerType(0))
-    primary("1", IntegerType(0))
-    primary("0l", LongType(0))
-    primary("1l", LongType(0))
-    primary("0L", LongType(0))
-    primary("1L", LongType(0))
-    primary("''", StringType(0))
-    primary("'a'", StringType(0))
-    primary("'az'", StringType(0))
-    primary("'\t'", StringType(0))
-    primary("true", BooleanType(0))
-    primary("False", BooleanType(0))
-    primary("null", NullType())
-    primary("0.0", DecimalType(0))
-    primary(".0", DecimalType(0))
-    primary("0.123", DecimalType(0))
-    primary("0.123456789012345678901234567890123456789012345678", DecimalType(0))
-    primary("0.1234567890123456789012345678901234567890123456789", DoubleType(0))
+class SymbolReader {
+  def loadSymbols(ctx: SymbolReaderContext): Unit = {
+    throw new CSTException
   }
 
-  test("This literal") {
-    val ctx = new TypeContextTest(_thisType = NullType())
-    primary("this", NullType(), ctx)
+  def isIgnoreable(path: Path): Boolean = {
+    // Ignore stupid OSX files & rogue package.xml files that sometime hangs about
+    val fileName = path.getFileName.toString
+    fileName == ".DS_Store" || fileName == "package.xml"
   }
 
-  test("Super literal") {
-    val ctx = new TypeContextTest(_superType = NullType())
-    primary("super", NullType(), ctx)
-  }
-
-  test("Field") {
-    val ctx = new TypeContextTest(identifierTypes = Map(("anId", NullType())))
-    primary("anId", NullType(), ctx)
-  }
 }
