@@ -120,13 +120,7 @@ INTEGER       : 'integer';
 OBJECT        : 'object';
 STRING        : 'string';
 TIME          : 'time';
-
-// Types
-
-// TODO: This is not nice, is it only one of its type?
 RUNAS         : 'system.runas';
-
-// TODO Do we need *all* these
 WITH          : 'with';
 WITHOUT       : 'without';
 SHARING       : 'sharing';

@@ -96,9 +96,6 @@ classDeclaration
         classBody
     ;
 
-typeBound
-    :   typeRef ('&' typeRef)*
-    ;
 
 enumDeclaration
     :   ENUM id ('implements' typeList)?
@@ -262,10 +259,6 @@ primitiveType
 
 typeArguments
     :   '<' typeList '>'
-    ;
-
-qualifiedNameList
-    :   qualifiedName (',' qualifiedName)*
     ;
 
 formalParameters
