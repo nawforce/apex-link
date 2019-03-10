@@ -29,10 +29,27 @@ package com.nawforce.types
 
 import com.nawforce.utils.Name
 
-case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeName]=None) {
+case class TypeName(name: Name, params: Seq[Name]=Nil, outer: Option[TypeName]=None) {
+
+  def withParams(newParams: Seq[Name]): TypeName = {
+    if (newParams != params)
+      TypeName(name, newParams, outer)
+    else
+      this
+  }
+
   override def toString: String = {
     name.toString +
       (if (params.isEmpty) "" else s"<${params.map(_.toString).mkString(", ")}>") +
       (if (outer.isEmpty) "" else "." + outer.get.toString)
+  }
+}
+
+object TypeName {
+  def apply(names: Seq[Name]): TypeName = {
+    names match {
+      case hd +: Nil => new TypeName(hd)
+      case hd +: tl => new TypeName(hd, Nil, Some(TypeName(tl)))
+    }
   }
 }

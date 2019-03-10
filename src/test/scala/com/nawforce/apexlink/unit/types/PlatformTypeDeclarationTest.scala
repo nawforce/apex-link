@@ -25,60 +25,31 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.utils
+package com.nawforce.apexlink.unit.types
 
-import scalaz.Memo
+import com.nawforce.types.PlatformTypeDeclaration
+import com.nawforce.utils.QName
+import org.scalatest.FunSuite
 
-/**
-  * A case insensitive string typically used for holding symbol names
-  */
-case class Name(value: String) {
-  private val normalised = value.toLowerCase
+class PlatformTypeDeclarationTest extends FunSuite {
 
-  def canEqual(that: Any): Boolean = that.isInstanceOf[Name]
-
-  override def equals(that: Any): Boolean = {
-    that match {
-      case otherName: Name =>
-        otherName.canEqual(this) && otherName.normalised == normalised
-      case _ => false
-    }
+  test("Bad class not found") {
+    assert(PlatformTypeDeclaration.get(QName("Hello")).isEmpty)
   }
 
-  override def hashCode(): Int = normalised.hashCode
-
-  override def toString: String = value
-}
-
-object Name {
-  def apply(name: String): Name = cache(name)
-
-  lazy val System: Name = cache("System")
-
-  private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
-}
-
-/**
-  * A qualified name
-  */
-case class QName(name:Name, outer: Option[QName]) {
-  override def toString: String = {
-    name.toString +
-      (if (outer.isEmpty) "" else "." + outer.get.toString)
-  }
-}
-
-object QName {
-  def apply(name: String): QName = {
-    QName(name.split('.').toSeq.map(p => Name(p)))
+  test("Unscoped class not found") {
+    assert(PlatformTypeDeclaration.get(QName("String")).isEmpty)
   }
 
-  def apply(names: Seq[Name]): QName = {
-    names match {
-      case hd +: Nil => new QName(hd, None)
-      case hd +: tl => new QName(hd, Some(QName(tl)))
-    }
+  test("Scoped class not found") {
+    assert(PlatformTypeDeclaration.get(QName("System.String")).nonEmpty)
+  }
+
+  test("Case insensitive class name") {
+    assert(PlatformTypeDeclaration.get(QName("System.strIng")).nonEmpty)
+  }
+
+  test("Case insensitive namespace") {
+    assert(PlatformTypeDeclaration.get(QName("systEm.String")).nonEmpty)
   }
 }
-
-
