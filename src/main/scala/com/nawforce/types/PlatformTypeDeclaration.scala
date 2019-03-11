@@ -31,22 +31,23 @@ import java.io.File
 import java.nio.file.{FileSystems, Path, Paths}
 import java.util
 
-import com.nawforce.utils.{Name, QName}
+import com.nawforce.utils.{DotName, Name}
 import scalaz.Memo
 
+import scala.collection.immutable.HashMap
+import scala.collection.mutable
+
+/** Platform type declaration wrapper around a Java class */
 case class PlatformTypeDeclaration(cls: java.lang.Class[_]) extends TypeDeclaration {
   lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(cls)
 
   def name: Name = typeName.name
-
-  //  def extendsQName: QName
-  //  def implementsQNames: Seq[QName]
-
 }
 
 object PlatformTypeDeclaration {
   val platformPackage = "com.nawforce.platform"
 
+  /** Get a Path that leads to platform classes */
   lazy val platformPackagePath: Path = {
     val path = "/" + platformPackage.replaceAll("\\.", "/")
     val uri = classOf[PlatformTypeDeclaration].getResource(path).toURI
@@ -57,54 +58,47 @@ object PlatformTypeDeclaration {
     }
   }
 
-  lazy val platformPackagePathPrefix: String = platformPackagePath.toString
-
-  def get(name: QName): Option[PlatformTypeDeclaration] = {
+  /* Get a declaration for a class from a name, if one exists, searching of inner classes is not supported here */
+  def get(name: DotName): Option[PlatformTypeDeclaration] = {
     declarationCache(name)
   }
 
-  private val declarationCache: QName => Option[PlatformTypeDeclaration] =
-    Memo.immutableHashMapMemo { name: QName => find(name) }
+  private val declarationCache: DotName => Option[PlatformTypeDeclaration] =
+    Memo.immutableHashMapMemo { name: DotName => find(name) }
 
-  private def find(name: QName, path: Path = platformPackagePath): Option[PlatformTypeDeclaration] = {
-    matchFile(name.name.toString, path) match {
-      case Some(f: File) if f.isFile =>
-        Some(PlatformTypeDeclaration(classOf[PlatformTypeDeclaration].getClassLoader.loadClass(classNameOf(f))))
-      case Some(f: File) if f.isDirectory && name.outer.isDefined =>
-        find(name.outer.get, f.toPath)
-      case _ => None
-    }
+  private def find(name: DotName): Option[PlatformTypeDeclaration] = {
+    val matched: Option[DotName] = classNames.get(name)
+    if (matched.size == 1)
+      Some(PlatformTypeDeclaration(
+        classOf[PlatformTypeDeclaration].getClassLoader.loadClass(platformPackage + "." + matched.head)
+      ))
+    else
+      None
   }
 
-  private def matchFile(name: String, path: Path): Option[File] = {
-    val testFile = path.resolve(name).toFile
-    val testFileClass = path.resolve(name + ".class").toFile
-
-    if (testFile.isFile || testFile.isDirectory) {
-      Some(testFile)
-    } else if (testFileClass.isFile || testFileClass.isDirectory) {
-      Some(testFileClass)
-    } else {
-      val matches = path.toFile.list().flatMap(n => {
-        if (n.equalsIgnoreCase(testFile.getName) || n.equalsIgnoreCase(testFileClass.getName))
-          Some(path.resolve(n))
-        else
-          None
-      })
-      if (matches.length == 1)
-        Some(path.resolve(matches.head).toFile)
-      else
-        None
-    }
+  /** Map of class names, it's a map just to allow easy recovery of the original case by looking at value */
+  private lazy val classNames: HashMap[DotName, DotName] = {
+    val names = mutable.HashMap[DotName, DotName]()
+    indexDir(platformPackagePath.toFile, DotName(Seq()), names)
+    HashMap[DotName, DotName]() ++ names
   }
 
-  private def classNameOf(file: File): String = {
-    assert(file.toString.startsWith(platformPackagePathPrefix))
-    platformPackage + "." + file.toString.drop(platformPackagePathPrefix.length + 1)
-      .replace(File.separatorChar, '.')
-      .dropRight(".class".length)
+  /* Index .class files in a path, we have to index to make sure we get natural case sensitive names */
+  private def indexDir(file: File, prefix: DotName, accum: mutable.HashMap[DotName, DotName]): Unit = {
+    val path = file.toPath
+    file.list().foreach(name => {
+      path.resolve(name).toFile match {
+        case f: File if f.isDirectory =>
+          indexDir(f, prefix.append(Name(name)), accum)
+        case f: File if f.isFile && name.endsWith(".class") =>
+          val dotName = prefix.append(Name(name.dropRight(".class".length)))
+          accum.put(dotName, dotName)
+        case _ => ()
+      }
+    })
   }
 
+  /** Create a TypeName from a Java class */
   private def typeName(cls: java.lang.Class[_]): TypeName = {
     val cname = cls.getCanonicalName
     assert(cname.startsWith(platformPackage))

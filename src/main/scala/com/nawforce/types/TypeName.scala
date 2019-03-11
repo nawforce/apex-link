@@ -39,9 +39,9 @@ case class TypeName(name: Name, params: Seq[Name]=Nil, outer: Option[TypeName]=N
   }
 
   override def toString: String = {
+    (if (outer.isEmpty) "" else outer.get.toString + ".") +
     name.toString +
-      (if (params.isEmpty) "" else s"<${params.map(_.toString).mkString(", ")}>") +
-      (if (outer.isEmpty) "" else "." + outer.get.toString)
+      (if (params.isEmpty) "" else s"<${params.map(_.toString).mkString(", ")}>")
   }
 }
 

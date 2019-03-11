@@ -28,28 +28,37 @@
 package com.nawforce.apexlink.unit.types
 
 import com.nawforce.types.PlatformTypeDeclaration
-import com.nawforce.utils.QName
+import com.nawforce.utils.DotName
 import org.scalatest.FunSuite
 
 class PlatformTypeDeclarationTest extends FunSuite {
 
   test("Bad class not found") {
-    assert(PlatformTypeDeclaration.get(QName("Hello")).isEmpty)
+    assert(PlatformTypeDeclaration.get(DotName("Hello")).isEmpty)
   }
 
   test("Unscoped class not found") {
-    assert(PlatformTypeDeclaration.get(QName("String")).isEmpty)
+    assert(PlatformTypeDeclaration.get(DotName("String")).isEmpty)
   }
 
   test("Scoped class not found") {
-    assert(PlatformTypeDeclaration.get(QName("System.String")).nonEmpty)
+    val td = PlatformTypeDeclaration.get(DotName("System.String"))
+    assert(td.nonEmpty)
+    assert(td.get.name.toString == "String")
+    assert(td.get.typeName.toString == "System.String")
   }
 
   test("Case insensitive class name") {
-    assert(PlatformTypeDeclaration.get(QName("System.strIng")).nonEmpty)
+    val td = PlatformTypeDeclaration.get(DotName("System.strIng"))
+    assert(td.nonEmpty)
+    assert(td.get.name.toString == "String")
+    assert(td.get.typeName.toString == "System.String")
   }
 
   test("Case insensitive namespace") {
-    assert(PlatformTypeDeclaration.get(QName("systEm.String")).nonEmpty)
+    val td = PlatformTypeDeclaration.get(DotName("systEm.String"))
+    assert(td.nonEmpty)
+    assert(td.get.name.toString == "String")
+    assert(td.get.typeName.toString == "System.String")
   }
 }

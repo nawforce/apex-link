@@ -59,25 +59,18 @@ object Name {
 }
 
 /**
-  * A qualified name
+  * A qualified name with 'dot' separators
   */
-case class QName(name:Name, outer: Option[QName]) {
-  override def toString: String = {
-    name.toString +
-      (if (outer.isEmpty) "" else "." + outer.get.toString)
-  }
+case class DotName(names: Seq[Name]) {
+
+  def append(name: Name): DotName = DotName(names :+ name)
+
+  override def toString: String = names.mkString(".")
 }
 
-object QName {
-  def apply(name: String): QName = {
-    QName(name.split('.').toSeq.map(p => Name(p)))
-  }
-
-  def apply(names: Seq[Name]): QName = {
-    names match {
-      case hd +: Nil => new QName(hd, None)
-      case hd +: tl => new QName(hd, Some(QName(tl)))
-    }
+object DotName {
+  def apply(name: String): DotName = {
+    DotName(name.split('.').toSeq.map(p => Name(p)))
   }
 }
 
