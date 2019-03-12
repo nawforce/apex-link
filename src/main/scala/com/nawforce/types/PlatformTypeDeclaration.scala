@@ -67,7 +67,7 @@ object PlatformTypeDeclaration {
     Memo.immutableHashMapMemo { name: DotName => find(name) }
 
   private def find(name: DotName): Option[PlatformTypeDeclaration] = {
-    val matched: Option[DotName] = classNames.get(name)
+    val matched: Option[DotName] = classNameMap.get(name)
     if (matched.size == 1)
       Some(PlatformTypeDeclaration(
         classOf[PlatformTypeDeclaration].getClassLoader.loadClass(platformPackage + "." + matched.head)
@@ -76,8 +76,11 @@ object PlatformTypeDeclaration {
       None
   }
 
+  /* Valid platform class names */
+  lazy val classNames: Iterable[DotName] = classNameMap.values
+
   /** Map of class names, it's a map just to allow easy recovery of the original case by looking at value */
-  private lazy val classNames: HashMap[DotName, DotName] = {
+  private lazy val classNameMap: HashMap[DotName, DotName] = {
     val names = mutable.HashMap[DotName, DotName]()
     indexDir(platformPackagePath.toFile, DotName(Seq()), names)
     HashMap[DotName, DotName]() ++ names
@@ -90,7 +93,7 @@ object PlatformTypeDeclaration {
       path.resolve(name).toFile match {
         case f: File if f.isDirectory =>
           indexDir(f, prefix.append(Name(name)), accum)
-        case f: File if f.isFile && name.endsWith(".class") =>
+        case f: File if f.isFile && name.endsWith(".class") && !name.contains('$')=>
           val dotName = prefix.append(Name(name.dropRight(".class".length)))
           accum.put(dotName, dotName)
         case _ => ()
@@ -104,11 +107,7 @@ object PlatformTypeDeclaration {
     assert(cname.startsWith(platformPackage))
 
     val names = cls.getCanonicalName.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse
-    val params = cls.getTypeParameters.map(tp => {
-      assert(tp.getAnnotatedBounds.isEmpty)
-      assert(tp.getBounds.isEmpty)
-      Name(tp.getName)
-    })
+    val params = cls.getTypeParameters.map(tp => Name(tp.getName))
     TypeName(names).withParams(params.toSeq)
   }
 }

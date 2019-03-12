@@ -25,55 +25,30 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.utils
+package com.nawforce.apexlink.behaviour.types
 
-import scalaz.Memo
+import com.nawforce.types.PlatformTypeDeclaration
+import org.scalatest.FunSuite
 
-/**
-  * A case insensitive string typically used for holding symbol names
-  */
-case class Name(value: String) {
-  private val normalised = value.toLowerCase
+class PlatformTypesValid extends FunSuite {
 
-  def canEqual(that: Any): Boolean = that.isInstanceOf[Name]
-
-  override def equals(that: Any): Boolean = {
-    that match {
-      case otherName: Name =>
-        otherName.canEqual(this) && otherName.normalised == normalised
-      case _ => false
-    }
+  test("Right number of types (should exclude inners)") {
+    assert(PlatformTypeDeclaration.classNames.size == 1295)
   }
 
-  override def hashCode(): Int = normalised.hashCode
-
-  override def toString: String = value
-}
-
-object Name {
-  def apply(name: String): Name = cache(name)
-
-  lazy val System: Name = cache("System")
-
-  private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
-}
-
-/**
-  * A qualified name with 'dot' separators
-  */
-case class DotName(names: Seq[Name]) {
-
-  def lastName: Name = names.last
-
-  def append(name: Name): DotName = DotName(names :+ name)
-
-  override def toString: String = names.mkString(".")
-}
-
-object DotName {
-  def apply(name: String): DotName = {
-    DotName(name.split('.').toSeq.map(p => Name(p)))
+  test("All types are valid") {
+    PlatformTypeDeclaration.classNames.foreach(cn => {
+      val td = PlatformTypeDeclaration.get(cn)
+      assert(td.nonEmpty)
+      assert(td.get.name.toString == cn.lastName.toString)
+      cn.toString match {
+        case "System.List" => assert(td.get.typeName.toString == "System.List<T>")
+        case "System.Iterator" => assert(td.get.typeName.toString == "System.Iterator<T>")
+        case "System.Map" => assert(td.get.typeName.toString == "System.Map<K, V>")
+        case "System.Set" => assert(td.get.typeName.toString == "System.Set<T>")
+        case "System.Iterable" => assert(td.get.typeName.toString == "System.Iterable<T>")
+        case _ => assert(td.get.typeName.toString == cn.toString)
+      }
+    })
   }
 }
-
-
