@@ -28,6 +28,6 @@
 package com.nawforce.platform.System;
 
 @SuppressWarnings("unused")
-public class Comparable {
-	public Integer compareTo(Object param1) {throw new java.lang.UnsupportedOperationException();}
+public interface Comparable {
+	Integer compareTo(Object param1);
 }

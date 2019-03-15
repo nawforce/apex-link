@@ -30,6 +30,6 @@ package com.nawforce.platform.cache;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class CacheBuilder {
-	public Object doLoad(String param1) {throw new java.lang.UnsupportedOperationException();}
+public interface CacheBuilder {
+	Object doLoad(String param1);
 }

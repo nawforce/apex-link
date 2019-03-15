@@ -32,13 +32,13 @@ import com.nawforce.platform.System.Set;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class EnvironmentContext {
-	public void addEntityField(String param1) {throw new java.lang.UnsupportedOperationException();}
-	public void addEntityFields(Set<String> param1) {throw new java.lang.UnsupportedOperationException();}
-	public String getDisplayLocation() {throw new java.lang.UnsupportedOperationException();}
-	public List<String> getEntityFields() {throw new java.lang.UnsupportedOperationException();}
-	public String getLocationUrl() {throw new java.lang.UnsupportedOperationException();}
-	public String getParametersAsJSON() {throw new java.lang.UnsupportedOperationException();}
-	public String getSublocation() {throw new java.lang.UnsupportedOperationException();}
-	public void setParametersAsJSON(String param1) {throw new java.lang.UnsupportedOperationException();}
+public interface EnvironmentContext {
+	void addEntityField(String param1);
+	void addEntityFields(Set<String> param1);
+	String getDisplayLocation();
+	List<String> getEntityFields();
+	String getLocationUrl();
+	String getParametersAsJSON();
+	String getSublocation();
+	void setParametersAsJSON(String param1);
 }

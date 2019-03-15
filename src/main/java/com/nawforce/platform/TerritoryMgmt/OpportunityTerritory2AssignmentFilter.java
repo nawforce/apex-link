@@ -32,6 +32,6 @@ import com.nawforce.platform.System.List;
 import com.nawforce.platform.System.Map;
 
 @SuppressWarnings("unused")
-public class OpportunityTerritory2AssignmentFilter {
-	public Map<Id,Id> getOpportunityTerritory2Assignments(List<Id> param1) {throw new java.lang.UnsupportedOperationException();}
+public interface OpportunityTerritory2AssignmentFilter {
+	Map<Id,Id> getOpportunityTerritory2Assignments(List<Id> param1);
 }

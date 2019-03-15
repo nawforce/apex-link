@@ -31,6 +31,6 @@ import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class AccountCreator {
-	public String createAccount(String param1, String param2, Id param3) {throw new java.lang.UnsupportedOperationException();}
+public interface AccountCreator {
+	String createAccount(String param1, String param2, Id param3);
 }

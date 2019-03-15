@@ -31,6 +31,6 @@ import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class MilestoneTriggerTimeCalculator {
-	public Integer calculateMilestoneTriggerTime(String param1, String param2) {throw new java.lang.UnsupportedOperationException();}
+public interface MilestoneTriggerTimeCalculator {
+	Integer calculateMilestoneTriggerTime(String param1, String param2);
 }

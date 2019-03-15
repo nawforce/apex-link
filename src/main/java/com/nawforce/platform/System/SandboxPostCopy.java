@@ -28,6 +28,6 @@
 package com.nawforce.platform.System;
 
 @SuppressWarnings("unused")
-public class SandboxPostCopy {
-	public void runApexClass(SandboxContext param1) {throw new java.lang.UnsupportedOperationException();}
+public interface SandboxPostCopy {
+	void runApexClass(SandboxContext param1);
 }

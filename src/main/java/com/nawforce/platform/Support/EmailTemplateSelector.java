@@ -30,6 +30,6 @@ package com.nawforce.platform.Support;
 import com.nawforce.platform.System.Id;
 
 @SuppressWarnings("unused")
-public class EmailTemplateSelector {
-	public Id getDefaultEmailTemplateId(Id param1) {throw new java.lang.UnsupportedOperationException();}
+public interface EmailTemplateSelector {
+	Id getDefaultEmailTemplateId(Id param1);
 }

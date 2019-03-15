@@ -28,7 +28,7 @@
 package com.nawforce.platform.Canvas;
 
 @SuppressWarnings("unused")
-public class RenderContext {
-	public ApplicationContext getApplicationContext() {throw new java.lang.UnsupportedOperationException();}
-	public EnvironmentContext getEnvironmentContext() {throw new java.lang.UnsupportedOperationException();}
+public interface RenderContext {
+	ApplicationContext getApplicationContext();
+	EnvironmentContext getEnvironmentContext();
 }

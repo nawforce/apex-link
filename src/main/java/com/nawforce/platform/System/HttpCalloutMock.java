@@ -28,6 +28,6 @@
 package com.nawforce.platform.System;
 
 @SuppressWarnings("unused")
-public class HttpCalloutMock {
-	public HttpResponse respond(HttpRequest param1) {throw new java.lang.UnsupportedOperationException();}
+public interface HttpCalloutMock {
+	HttpResponse respond(HttpRequest param1);
 }

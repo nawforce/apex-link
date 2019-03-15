@@ -30,6 +30,6 @@ package com.nawforce.platform.TxnSecurity;
 import com.nawforce.platform.System.Boolean;
 
 @SuppressWarnings("unused")
-public class PolicyCondition {
-	public Boolean evaluate(Event param1) {throw new java.lang.UnsupportedOperationException();}
+public interface PolicyCondition {
+	Boolean evaluate(Event param1);
 }

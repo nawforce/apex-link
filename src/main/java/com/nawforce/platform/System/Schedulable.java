@@ -28,6 +28,6 @@
 package com.nawforce.platform.System;
 
 @SuppressWarnings("unused")
-public class Schedulable {
-	public void execute(SchedulableContext param1) {throw new java.lang.UnsupportedOperationException();}
+public interface Schedulable {
+	void execute(SchedulableContext param1);
 }

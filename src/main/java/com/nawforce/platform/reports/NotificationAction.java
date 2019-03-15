@@ -28,6 +28,6 @@
 package com.nawforce.platform.reports;
 
 @SuppressWarnings("unused")
-public class NotificationAction {
-	public void execute(NotificationActionContext param1) {throw new java.lang.UnsupportedOperationException();}
+public interface NotificationAction {
+	void execute(NotificationActionContext param1);
 }

@@ -31,7 +31,7 @@ import com.nawforce.platform.System.List;
 import com.nawforce.platform.System.PageReference;
 
 @SuppressWarnings("unused")
-public class UrlRewriter {
-	public List<PageReference> generateUrlFor(List<PageReference> param1) {throw new java.lang.UnsupportedOperationException();}
-	public PageReference mapRequestUrl(PageReference param1) {throw new java.lang.UnsupportedOperationException();}
+public interface UrlRewriter {
+	List<PageReference> generateUrlFor(List<PageReference> param1);
+	PageReference mapRequestUrl(PageReference param1);
 }

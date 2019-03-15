@@ -30,7 +30,7 @@ package com.nawforce.platform.Canvas;
 import com.nawforce.platform.System.Set;
 
 @SuppressWarnings("unused")
-public class CanvasLifecycleHandler {
-	public Set<ContextTypeEnum> excludeContextTypes() {throw new java.lang.UnsupportedOperationException();}
-	public void onRender(RenderContext param1) {throw new java.lang.UnsupportedOperationException();}
+public interface CanvasLifecycleHandler {
+	Set<ContextTypeEnum> excludeContextTypes();
+	void onRender(RenderContext param1);
 }

@@ -30,7 +30,7 @@ package com.nawforce.platform.Database;
 import com.nawforce.platform.System.Id;
 
 @SuppressWarnings("unused")
-public class BatchableContext {
-	public Id getChildJobId() {throw new java.lang.UnsupportedOperationException();}
-	public Id getJobId() {throw new java.lang.UnsupportedOperationException();}
+public interface BatchableContext {
+	Id getChildJobId();
+	Id getJobId();
 }

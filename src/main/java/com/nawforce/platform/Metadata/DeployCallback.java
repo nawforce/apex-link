@@ -28,6 +28,6 @@
 package com.nawforce.platform.Metadata;
 
 @SuppressWarnings("unused")
-public class DeployCallback {
-	public void handleResult(DeployResult param1, DeployCallbackContext param2) {throw new java.lang.UnsupportedOperationException();}
+public interface DeployCallback {
+	void handleResult(DeployResult param1, DeployCallbackContext param2);
 }

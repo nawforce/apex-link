@@ -30,6 +30,6 @@ package com.nawforce.platform.QuickAction;
 import com.nawforce.platform.System.List;
 
 @SuppressWarnings("unused")
-public class QuickActionDefaultsHandler {
-	public void onInitDefaults(List<QuickActionDefaults> param1) {throw new java.lang.UnsupportedOperationException();}
+public interface QuickActionDefaultsHandler {
+	void onInitDefaults(List<QuickActionDefaults> param1);
 }

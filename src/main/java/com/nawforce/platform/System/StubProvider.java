@@ -28,6 +28,6 @@
 package com.nawforce.platform.System;
 
 @SuppressWarnings("unused")
-public class StubProvider {
-	public Object handleMethodCall(Object param1, String param2, Type param3, List<Type> param4, List<String> param5, List<Object> param6) {throw new java.lang.UnsupportedOperationException();}
+public interface StubProvider {
+	Object handleMethodCall(Object param1, String param2, Type param3, List<Type> param4, List<String> param5, List<Object> param6);
 }

@@ -28,6 +28,6 @@
 package com.nawforce.platform.System;
 
 @SuppressWarnings("unused")
-public class Queueable {
-	public void execute(QueueableContext param1) {throw new java.lang.UnsupportedOperationException();}
+public interface Queueable {
+	void execute(QueueableContext param1);
 }

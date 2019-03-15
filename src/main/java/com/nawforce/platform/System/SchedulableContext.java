@@ -28,6 +28,6 @@
 package com.nawforce.platform.System;
 
 @SuppressWarnings("unused")
-public class SchedulableContext {
-	public Id getTriggerId() {throw new java.lang.UnsupportedOperationException();}
+public interface SchedulableContext {
+	Id getTriggerId();
 }

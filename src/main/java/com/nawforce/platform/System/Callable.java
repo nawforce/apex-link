@@ -28,6 +28,6 @@
 package com.nawforce.platform.System;
 
 @SuppressWarnings("unused")
-public class Callable {
-	public Object call(String param1, Map<String, Object> param2) {throw new java.lang.UnsupportedOperationException();}
+public interface Callable {
+	Object call(String param1, Map<String, Object> param2);
 }

@@ -30,11 +30,11 @@ package com.nawforce.platform.Canvas;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class ApplicationContext {
-	public String getCanvasUrl() {throw new java.lang.UnsupportedOperationException();}
-	public String getDeveloperName() {throw new java.lang.UnsupportedOperationException();}
-	public String getName() {throw new java.lang.UnsupportedOperationException();}
-	public String getNamespace() {throw new java.lang.UnsupportedOperationException();}
-	public String getVersion() {throw new java.lang.UnsupportedOperationException();}
-	public void setCanvasUrlPath(String param1) {throw new java.lang.UnsupportedOperationException();}
+public interface ApplicationContext {
+	String getCanvasUrl();
+	String getDeveloperName();
+	String getName();
+	String getNamespace();
+	String getVersion();
+	void setCanvasUrlPath(String param1);
 }
