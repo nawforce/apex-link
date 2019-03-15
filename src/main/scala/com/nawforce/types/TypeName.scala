@@ -27,7 +27,7 @@
 */
 package com.nawforce.types
 
-import com.nawforce.utils.Name
+import com.nawforce.utils.{DotName, Name}
 
 case class TypeName(name: Name, params: Seq[Name]=Nil, outer: Option[TypeName]=None) {
 
@@ -36,6 +36,13 @@ case class TypeName(name: Name, params: Seq[Name]=Nil, outer: Option[TypeName]=N
       TypeName(name, newParams, outer)
     else
       this
+  }
+
+  def asDotName: DotName = {
+    outer match {
+      case None => DotName(Seq(name))
+      case Some(x) => x.asDotName.append(name)
+    }
   }
 
   override def toString: String = {

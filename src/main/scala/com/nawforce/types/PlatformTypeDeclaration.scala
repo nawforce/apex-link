@@ -37,9 +37,20 @@ import scalaz.Memo
 import scala.collection.immutable.HashMap
 import scala.collection.mutable
 
-/** Platform type declaration wrapper around a Java class */
+/** Platform type declaration, a wrapper around a com.nawforce.platform Java classes */
 case class PlatformTypeDeclaration(cls: java.lang.Class[_]) extends TypeDeclaration {
   lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(cls)
+  lazy val superClass: Option[TypeName] = {
+    if (cls.getSuperclass != null) {
+      cls.getSuperclass.getCanonicalName match {
+        case "java.lang.Object" => None
+        case "java.lang.Enum" => None
+        case _ => PlatformTypeDeclaration.typeNameOptional(cls.getSuperclass)
+      }
+    } else {
+      None
+    }
+  }
 
   def name: Name = typeName.name
 }
@@ -93,12 +104,20 @@ object PlatformTypeDeclaration {
       path.resolve(name).toFile match {
         case f: File if f.isDirectory =>
           indexDir(f, prefix.append(Name(name)), accum)
-        case f: File if f.isFile && name.endsWith(".class") && !name.contains('$')=>
+        case f: File if f.isFile && name.endsWith(".class") && !name.contains('$') =>
           val dotName = prefix.append(Name(name.dropRight(".class".length)))
           accum.put(dotName, dotName)
         case _ => ()
       }
     })
+  }
+
+  /** Create a TypeName from a Java class with null checking */
+  private def typeNameOptional(cls: java.lang.Class[_]): Option[TypeName] = {
+    cls match {
+      case null => None
+      case _ => Some(typeName(cls))
+    }
   }
 
   /** Create a TypeName from a Java class */

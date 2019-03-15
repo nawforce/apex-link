@@ -41,11 +41,12 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(PlatformTypeDeclaration.get(DotName("String")).isEmpty)
   }
 
-  test("Scoped class not found") {
+  test("Scoped class") {
     val td = PlatformTypeDeclaration.get(DotName("System.String"))
     assert(td.nonEmpty)
     assert(td.get.name.toString == "String")
     assert(td.get.typeName.toString == "System.String")
+    assert(td.get.superClass.isEmpty)
   }
 
   test("Case insensitive class name") {
@@ -53,6 +54,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.nonEmpty)
     assert(td.get.name.toString == "String")
     assert(td.get.typeName.toString == "System.String")
+    assert(td.get.superClass.isEmpty)
   }
 
   test("Case insensitive namespace") {
@@ -60,5 +62,15 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.nonEmpty)
     assert(td.get.name.toString == "String")
     assert(td.get.typeName.toString == "System.String")
+    assert(td.get.superClass.isEmpty)
   }
+
+  test("Extending class") {
+    val td = PlatformTypeDeclaration.get(DotName("ConnectApi.FeedItem"))
+    assert(td.nonEmpty)
+    assert(td.get.name.toString == "FeedItem")
+    assert(td.get.typeName.toString == "ConnectApi.FeedItem")
+    assert(td.get.superClass.get.toString == "ConnectApi.FeedElement")
+  }
+
 }

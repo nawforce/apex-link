@@ -38,17 +38,20 @@ class PlatformTypesValid extends FunSuite {
 
   test("All types are valid") {
     PlatformTypeDeclaration.classNames.foreach(cn => {
-      val td = PlatformTypeDeclaration.get(cn)
-      assert(td.nonEmpty)
-      assert(td.get.name.toString == cn.lastName.toString)
+      val tdOpt = PlatformTypeDeclaration.get(cn)
+      assert(tdOpt.nonEmpty)
+      val td = tdOpt.get
+      assert(td.name.toString == cn.lastName.toString)
       cn.toString match {
-        case "System.List" => assert(td.get.typeName.toString == "System.List<T>")
-        case "System.Iterator" => assert(td.get.typeName.toString == "System.Iterator<T>")
-        case "System.Map" => assert(td.get.typeName.toString == "System.Map<K, V>")
-        case "System.Set" => assert(td.get.typeName.toString == "System.Set<T>")
-        case "System.Iterable" => assert(td.get.typeName.toString == "System.Iterable<T>")
-        case _ => assert(td.get.typeName.toString == cn.toString)
+        case "System.List" => assert(td.typeName.toString == "System.List<T>")
+        case "System.Iterator" => assert(td.typeName.toString == "System.Iterator<T>")
+        case "System.Map" => assert(td.typeName.toString == "System.Map<K, V>")
+        case "System.Set" => assert(td.typeName.toString == "System.Set<T>")
+        case "System.Iterable" => assert(td.typeName.toString == "System.Iterable<T>")
+        case _ => assert(td.typeName.toString == cn.toString)
       }
+      if (td.superClass.nonEmpty)
+        assert(PlatformTypeDeclaration.get(td.superClass.get.asDotName).nonEmpty)
     })
   }
 }
