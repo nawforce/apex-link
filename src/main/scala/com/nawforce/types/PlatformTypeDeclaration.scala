@@ -51,6 +51,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_]) extends TypeDeclarat
       None
     }
   }
+  lazy val interfaces: Seq[TypeName] =  cls.getInterfaces.map(PlatformTypeDeclaration.typeName)
 
   def name: Name = typeName.name
 }

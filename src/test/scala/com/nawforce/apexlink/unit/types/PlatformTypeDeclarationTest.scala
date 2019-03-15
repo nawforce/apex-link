@@ -73,4 +73,13 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.superClass.get.toString == "ConnectApi.FeedElement")
   }
 
+  test("Implements class") {
+    val td = PlatformTypeDeclaration.get(DotName("System.List"))
+    assert(td.nonEmpty)
+    assert(td.get.name.toString == "List")
+    assert(td.get.typeName.toString == "System.List<T>")
+    assert(td.get.superClass.isEmpty)
+    assert(td.get.interfaces.size == 1)
+    assert(td.get.interfaces.head.toString == "System.Iterable<T>")
+  }
 }

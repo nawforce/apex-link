@@ -52,6 +52,7 @@ class PlatformTypesValid extends FunSuite {
       }
       if (td.superClass.nonEmpty)
         assert(PlatformTypeDeclaration.get(td.superClass.get.asDotName).nonEmpty)
+      td.interfaces.foreach(tn => PlatformTypeDeclaration.get(tn.asDotName))
     })
   }
 }
