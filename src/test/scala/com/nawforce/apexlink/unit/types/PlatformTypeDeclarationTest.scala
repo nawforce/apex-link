@@ -27,7 +27,7 @@
 */
 package com.nawforce.apexlink.unit.types
 
-import com.nawforce.types.PlatformTypeDeclaration
+import com.nawforce.types.{CLASS, ENUM, INTERFACE, PlatformTypeDeclaration}
 import com.nawforce.utils.DotName
 import org.scalatest.FunSuite
 
@@ -47,6 +47,8 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.name.toString == "String")
     assert(td.get.typeName.toString == "System.String")
     assert(td.get.superClass.isEmpty)
+    assert(td.get.interfaces.isEmpty)
+    assert(td.get.nature == CLASS)
   }
 
   test("Case insensitive class name") {
@@ -55,6 +57,8 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.name.toString == "String")
     assert(td.get.typeName.toString == "System.String")
     assert(td.get.superClass.isEmpty)
+    assert(td.get.interfaces.isEmpty)
+    assert(td.get.nature == CLASS)
   }
 
   test("Case insensitive namespace") {
@@ -63,6 +67,8 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.name.toString == "String")
     assert(td.get.typeName.toString == "System.String")
     assert(td.get.superClass.isEmpty)
+    assert(td.get.interfaces.isEmpty)
+    assert(td.get.nature == CLASS)
   }
 
   test("Extending class") {
@@ -71,6 +77,8 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.name.toString == "FeedItem")
     assert(td.get.typeName.toString == "ConnectApi.FeedItem")
     assert(td.get.superClass.get.toString == "ConnectApi.FeedElement")
+    assert(td.get.interfaces.isEmpty)
+    assert(td.get.nature == CLASS)
   }
 
   test("Implements class") {
@@ -81,5 +89,26 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.size == 1)
     assert(td.get.interfaces.head.toString == "System.Iterable<T>")
+    assert(td.get.nature == CLASS)
+  }
+
+  test("Interface nature") {
+    val td = PlatformTypeDeclaration.get(DotName("System.Callable"))
+    assert(td.nonEmpty)
+    assert(td.get.name.toString == "Callable")
+    assert(td.get.typeName.toString == "System.Callable")
+    assert(td.get.superClass.isEmpty)
+    assert(td.get.interfaces.isEmpty)
+    assert(td.get.nature == INTERFACE)
+  }
+
+  test("Enum nature") {
+    val td = PlatformTypeDeclaration.get(DotName("System.RoundingMode"))
+    assert(td.nonEmpty)
+    assert(td.get.name.toString == "RoundingMode")
+    assert(td.get.typeName.toString == "System.RoundingMode")
+    assert(td.get.superClass.isEmpty)
+    assert(td.get.interfaces.isEmpty)
+    assert(td.get.nature == ENUM)
   }
 }

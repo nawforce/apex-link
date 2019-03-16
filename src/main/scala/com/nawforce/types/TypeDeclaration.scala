@@ -29,7 +29,16 @@ package com.nawforce.types
 
 import com.nawforce.utils.Name
 
+sealed trait Nature
+case object CLASS extends Nature
+case object INTERFACE extends Nature
+case object ENUM extends Nature
+
 trait TypeDeclaration {
-  def name: Name
-  def typeName: TypeName
+  val name: Name
+  val typeName: TypeName
+  val nature: Nature
+
+  val superClass: Option[TypeName]
+  val interfaces: Seq[TypeName]
 }

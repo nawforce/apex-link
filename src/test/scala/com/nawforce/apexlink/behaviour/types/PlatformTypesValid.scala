@@ -27,7 +27,7 @@
 */
 package com.nawforce.apexlink.behaviour.types
 
-import com.nawforce.types.PlatformTypeDeclaration
+import com.nawforce.types.{CLASS, ENUM, INTERFACE, PlatformTypeDeclaration}
 import org.scalatest.FunSuite
 
 class PlatformTypesValid extends FunSuite {
@@ -41,6 +41,8 @@ class PlatformTypesValid extends FunSuite {
       val tdOpt = PlatformTypeDeclaration.get(cn)
       assert(tdOpt.nonEmpty)
       val td = tdOpt.get
+
+      // name & typeName are valid
       assert(td.name.toString == cn.lastName.toString)
       cn.toString match {
         case "System.List" => assert(td.typeName.toString == "System.List<T>")
@@ -50,9 +52,21 @@ class PlatformTypesValid extends FunSuite {
         case "System.Iterable" => assert(td.typeName.toString == "System.Iterable<T>")
         case _ => assert(td.typeName.toString == cn.toString)
       }
+
+      // superClass & interfaces reference platform types
       if (td.superClass.nonEmpty)
         assert(PlatformTypeDeclaration.get(td.superClass.get.asDotName).nonEmpty)
       td.interfaces.foreach(tn => PlatformTypeDeclaration.get(tn.asDotName))
+
+      // nature valid and superClass & interfaces are valid for it
+      td.nature match {
+        case INTERFACE =>
+          assert(td.superClass.isEmpty)
+        case ENUM =>
+          assert(td.superClass.isEmpty)
+          assert(td.interfaces.isEmpty)
+        case CLASS => ()
+      }
     })
   }
 }

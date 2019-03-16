@@ -39,7 +39,16 @@ import scala.collection.mutable
 
 /** Platform type declaration, a wrapper around a com.nawforce.platform Java classes */
 case class PlatformTypeDeclaration(cls: java.lang.Class[_]) extends TypeDeclaration {
+  lazy val name: Name = typeName.name
   lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(cls)
+  lazy val nature: Nature = {
+    (cls.isEnum, cls.isInterface) match {
+      case (true, _) => ENUM
+      case (_, true) => INTERFACE
+      case _ => CLASS
+    }
+  }
+
   lazy val superClass: Option[TypeName] = {
     if (cls.getSuperclass != null) {
       cls.getSuperclass.getCanonicalName match {
@@ -52,8 +61,6 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_]) extends TypeDeclarat
     }
   }
   lazy val interfaces: Seq[TypeName] =  cls.getInterfaces.map(PlatformTypeDeclaration.typeName)
-
-  def name: Name = typeName.name
 }
 
 object PlatformTypeDeclaration {
