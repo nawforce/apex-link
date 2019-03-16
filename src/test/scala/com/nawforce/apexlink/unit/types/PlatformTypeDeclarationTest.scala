@@ -27,7 +27,7 @@
 */
 package com.nawforce.apexlink.unit.types
 
-import com.nawforce.types.{CLASS, ENUM, INTERFACE, PlatformTypeDeclaration}
+import com.nawforce.types._
 import com.nawforce.utils.DotName
 import org.scalatest.FunSuite
 
@@ -49,6 +49,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS)
+    assert(td.get.modifiers == Seq(PUBLIC))
   }
 
   test("Case insensitive class name") {
@@ -59,6 +60,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS)
+    assert(td.get.modifiers == Seq(PUBLIC))
   }
 
   test("Case insensitive namespace") {
@@ -69,6 +71,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS)
+    assert(td.get.modifiers == Seq(PUBLIC))
   }
 
   test("Extending class") {
@@ -79,6 +82,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.superClass.get.toString == "ConnectApi.FeedElement")
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS)
+    assert(td.get.modifiers == Seq(PUBLIC))
   }
 
   test("Implements class") {
@@ -90,6 +94,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.interfaces.size == 1)
     assert(td.get.interfaces.head.toString == "System.Iterable<T>")
     assert(td.get.nature == CLASS)
+    assert(td.get.modifiers == Seq(PUBLIC))
   }
 
   test("Interface nature") {
@@ -100,6 +105,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == INTERFACE)
+    assert(td.get.modifiers == Seq(PUBLIC))
   }
 
   test("Enum nature") {
@@ -110,5 +116,6 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == ENUM)
+    assert(td.get.modifiers == Seq(PUBLIC))
   }
 }

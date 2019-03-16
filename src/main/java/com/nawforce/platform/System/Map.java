@@ -7,7 +7,7 @@ package com.nawforce.platform.System;
 import com.nawforce.platform.Schema.SObjectType;
 
 @SuppressWarnings("unused")
-public abstract class Map<K, V> {
+public class Map<K, V> {
     Map() {throw new java.lang.UnsupportedOperationException();}
     Map(Map<K,V> mapToCopy) {throw new java.lang.UnsupportedOperationException();}
     Map(List<SObject> recordList) {throw new java.lang.UnsupportedOperationException();}

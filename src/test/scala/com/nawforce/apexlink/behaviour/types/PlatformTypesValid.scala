@@ -27,7 +27,7 @@
 */
 package com.nawforce.apexlink.behaviour.types
 
-import com.nawforce.types.{CLASS, ENUM, INTERFACE, PlatformTypeDeclaration}
+import com.nawforce.types._
 import org.scalatest.FunSuite
 
 class PlatformTypesValid extends FunSuite {
@@ -36,7 +36,7 @@ class PlatformTypesValid extends FunSuite {
     assert(PlatformTypeDeclaration.classNames.size == 1295)
   }
 
-  test("All types are valid") {
+  test("All outer types are valid") {
     PlatformTypeDeclaration.classNames.foreach(cn => {
       val tdOpt = PlatformTypeDeclaration.get(cn)
       assert(tdOpt.nonEmpty)
@@ -67,6 +67,9 @@ class PlatformTypesValid extends FunSuite {
           assert(td.interfaces.isEmpty)
         case CLASS => ()
       }
+
+      // Modifiers, always public for outer platform classes
+      assert(td.modifiers == Seq(PUBLIC))
     })
   }
 }

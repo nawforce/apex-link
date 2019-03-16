@@ -25,17 +25,32 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.platform.ConnectApi;
+package com.nawforce.types
 
-import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Double;
-import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.System.String;
+import java.lang.reflect.{Modifier => JavaModifier}
 
-@SuppressWarnings("unused")
-public class FeedElementCapability {
-	public Boolean equals$(Object obj) {throw new java.lang.UnsupportedOperationException();}
-	public Double getBuildVersion() {throw new java.lang.UnsupportedOperationException();}
-	public Integer hashCode$() {throw new java.lang.UnsupportedOperationException();}
-	public String toString$() {throw new java.lang.UnsupportedOperationException();}
+sealed abstract class Modifier
+case object GLOBAL extends Modifier
+case object PUBLIC extends Modifier
+case object PROTECTED extends Modifier
+case object PRIVATE extends Modifier
+case object STATIC extends Modifier
+case object TEST_VISIBLE extends Modifier
+
+object Modifiers {
+  def apply(javaBits: Int, nature: Nature): Seq[Modifier] = {
+    assert(JavaModifier.isPublic(javaBits))
+    if (nature == CLASS) assert(!JavaModifier.isAbstract(javaBits))
+    if (nature != ENUM) assert(!JavaModifier.isFinal(javaBits))
+    assert(!JavaModifier.isTransient(javaBits))
+    assert(!JavaModifier.isVolatile(javaBits))
+    assert(!JavaModifier.isSynchronized(javaBits))
+    assert(!JavaModifier.isNative(javaBits))
+    assert(!JavaModifier.isStrict(javaBits))
+
+    if (JavaModifier.isStatic(javaBits))
+      Seq(PUBLIC, STATIC)
+    else
+      Seq(PUBLIC)
+  }
 }
