@@ -50,28 +50,19 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS)
     assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.parent.isEmpty)
   }
 
   test("Case insensitive class name") {
     val td = PlatformTypeDeclaration.get(DotName("System.strIng"))
     assert(td.nonEmpty)
-    assert(td.get.name.toString == "String")
-    assert(td.get.typeName.toString == "System.String")
-    assert(td.get.superClass.isEmpty)
-    assert(td.get.interfaces.isEmpty)
-    assert(td.get.nature == CLASS)
-    assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td eq PlatformTypeDeclaration.get(DotName("System.String")))
   }
 
   test("Case insensitive namespace") {
     val td = PlatformTypeDeclaration.get(DotName("systEm.String"))
     assert(td.nonEmpty)
-    assert(td.get.name.toString == "String")
-    assert(td.get.typeName.toString == "System.String")
-    assert(td.get.superClass.isEmpty)
-    assert(td.get.interfaces.isEmpty)
-    assert(td.get.nature == CLASS)
-    assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td eq PlatformTypeDeclaration.get(DotName("System.String")))
   }
 
   test("Extending class") {
@@ -83,6 +74,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS)
     assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.parent.isEmpty)
   }
 
   test("Implements class") {
@@ -95,6 +87,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.interfaces.head.toString == "System.Iterable<T>")
     assert(td.get.nature == CLASS)
     assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.parent.isEmpty)
   }
 
   test("Interface nature") {
@@ -106,6 +99,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == INTERFACE)
     assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.parent.isEmpty)
   }
 
   test("Enum nature") {
@@ -117,5 +111,24 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == ENUM)
     assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.parent.isEmpty)
   }
+
+  test("Nested class") {
+    val td = PlatformTypeDeclaration.get(DotName("Messaging.InboundEmail"))
+    assert(td.nonEmpty)
+    assert(td.get.name.toString == "InboundEmail")
+    assert(td.get.typeName.toString == "Messaging.InboundEmail")
+    assert(td.get.superClass.isEmpty)
+    assert(td.get.interfaces.isEmpty)
+    assert(td.get.nature == CLASS)
+    assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.parent.isEmpty)
+    val nested = td.get.nestedClasses.sortBy(_.name.toString)
+    assert(nested.size == 3)
+    assert(nested.map(_.name.toString) == Seq("BinaryAttachment", "Header", "TextAttachment"))
+    assert(nested.filter(_.modifiers == Seq(PUBLIC, STATIC)) == nested)
+    assert(nested.filter(_.parent == td) == nested)
+  }
+
 }

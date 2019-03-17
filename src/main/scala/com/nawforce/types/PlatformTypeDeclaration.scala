@@ -38,7 +38,9 @@ import scala.collection.immutable.HashMap
 import scala.collection.mutable
 
 /** Platform type declaration, a wrapper around a com.nawforce.platform Java classes */
-case class PlatformTypeDeclaration(cls: java.lang.Class[_]) extends TypeDeclaration {
+case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[PlatformTypeDeclaration])
+  extends TypeDeclaration {
+
   lazy val name: Name = typeName.name
   lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(cls)
   lazy val nature: Nature = {
@@ -63,6 +65,9 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_]) extends TypeDeclarat
   lazy val interfaces: Seq[TypeName] = cls.getInterfaces.map(PlatformTypeDeclaration.typeName)
 
   lazy val modifiers: Seq[Modifier] = Modifiers(cls.getModifiers, nature)
+
+  lazy val nestedClasses: Seq[PlatformTypeDeclaration] =
+    cls.getClasses.map(nested => PlatformTypeDeclaration(nested, Some(this)))
 }
 
 object PlatformTypeDeclaration {
@@ -91,7 +96,8 @@ object PlatformTypeDeclaration {
     val matched: Option[DotName] = classNameMap.get(name)
     if (matched.size == 1)
       Some(PlatformTypeDeclaration(
-        classOf[PlatformTypeDeclaration].getClassLoader.loadClass(platformPackage + "." + matched.head)
+        classOf[PlatformTypeDeclaration].getClassLoader.loadClass(platformPackage + "." + matched.head),
+        None
       ))
     else
       None

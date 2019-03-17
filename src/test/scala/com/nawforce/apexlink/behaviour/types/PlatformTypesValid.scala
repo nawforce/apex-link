@@ -28,6 +28,7 @@
 package com.nawforce.apexlink.behaviour.types
 
 import com.nawforce.types._
+import com.nawforce.utils.DotName
 import org.scalatest.FunSuite
 
 class PlatformTypesValid extends FunSuite {
@@ -37,39 +38,52 @@ class PlatformTypesValid extends FunSuite {
   }
 
   test("All outer types are valid") {
-    PlatformTypeDeclaration.classNames.foreach(cn => {
-      val tdOpt = PlatformTypeDeclaration.get(cn)
-      assert(tdOpt.nonEmpty)
-      val td = tdOpt.get
-
-      // name & typeName are valid
-      assert(td.name.toString == cn.lastName.toString)
-      cn.toString match {
-        case "System.List" => assert(td.typeName.toString == "System.List<T>")
-        case "System.Iterator" => assert(td.typeName.toString == "System.Iterator<T>")
-        case "System.Map" => assert(td.typeName.toString == "System.Map<K, V>")
-        case "System.Set" => assert(td.typeName.toString == "System.Set<T>")
-        case "System.Iterable" => assert(td.typeName.toString == "System.Iterable<T>")
-        case _ => assert(td.typeName.toString == cn.toString)
-      }
-
-      // superClass & interfaces reference platform types
-      if (td.superClass.nonEmpty)
-        assert(PlatformTypeDeclaration.get(td.superClass.get.asDotName).nonEmpty)
-      td.interfaces.foreach(tn => PlatformTypeDeclaration.get(tn.asDotName))
-
-      // nature valid and superClass & interfaces are valid for it
-      td.nature match {
-        case INTERFACE =>
-          assert(td.superClass.isEmpty)
-        case ENUM =>
-          assert(td.superClass.isEmpty)
-          assert(td.interfaces.isEmpty)
-        case CLASS => ()
-      }
-
-      // Modifiers, always public for outer platform classes
-      assert(td.modifiers == Seq(PUBLIC))
+    PlatformTypeDeclaration.classNames.foreach(className => {
+      val typeDeclaration = PlatformTypeDeclaration.get(className)
+      assert(typeDeclaration.nonEmpty)
+      validateTypeDeclaration(className, typeDeclaration.get)
     })
+  }
+
+  def validateTypeDeclaration(className: DotName, typeDeclaration: PlatformTypeDeclaration): Unit = {
+    // name & typeName are valid
+    assert(typeDeclaration.name.toString == className.lastName.toString)
+    className.toString match {
+      case "System.List" => assert(typeDeclaration.typeName.toString == "System.List<T>")
+      case "System.Iterator" => assert(typeDeclaration.typeName.toString == "System.Iterator<T>")
+      case "System.Map" => assert(typeDeclaration.typeName.toString == "System.Map<K, V>")
+      case "System.Set" => assert(typeDeclaration.typeName.toString == "System.Set<T>")
+      case "System.Iterable" => assert(typeDeclaration.typeName.toString == "System.Iterable<T>")
+      case _ => assert(typeDeclaration.typeName.toString == className.toString)
+    }
+
+    // superClass & interfaces reference platform types
+    if (typeDeclaration.superClass.nonEmpty)
+      assert(PlatformTypeDeclaration.get(typeDeclaration.superClass.get.asDotName).nonEmpty)
+    typeDeclaration.interfaces.foreach(tn => PlatformTypeDeclaration.get(tn.asDotName))
+
+    // nature valid and superClass & interfaces are valid for it
+    typeDeclaration.nature match {
+      case INTERFACE =>
+        assert(typeDeclaration.superClass.isEmpty)
+      case ENUM =>
+        assert(typeDeclaration.superClass.isEmpty)
+        assert(typeDeclaration.interfaces.isEmpty)
+      case CLASS => ()
+    }
+
+    // Modifiers, always public for outer platform classes
+    if (typeDeclaration.parent.isEmpty)
+      assert(typeDeclaration.modifiers == Seq(PUBLIC))
+
+    // Nested classes
+    typeDeclaration.nature match {
+      case INTERFACE =>
+        assert(typeDeclaration.nestedClasses.isEmpty)
+      case ENUM =>
+        assert(typeDeclaration.nestedClasses.isEmpty)
+      case CLASS =>
+        typeDeclaration.nestedClasses.foreach(nested => validateTypeDeclaration(className.append(nested.name), nested))
+    }
   }
 }
