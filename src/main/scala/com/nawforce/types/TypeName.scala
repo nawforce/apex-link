@@ -53,6 +53,8 @@ case class TypeName(name: Name, params: Seq[Name]=Nil, outer: Option[TypeName]=N
 }
 
 object TypeName {
+  lazy val Object = TypeName(Name("Object"))
+
   def apply(names: Seq[Name]): TypeName = {
     names match {
       case hd +: Nil => new TypeName(hd)

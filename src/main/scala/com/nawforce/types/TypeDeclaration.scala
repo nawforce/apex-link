@@ -34,11 +34,21 @@ case object CLASS extends Nature
 case object INTERFACE extends Nature
 case object ENUM extends Nature
 
+trait FieldDeclaration {
+  val name: Name
+  val typeName: TypeName
+  val modifiers: Seq[Modifier]
+}
+
 trait TypeDeclaration {
   val name: Name
   val typeName: TypeName
   val nature: Nature
+  val modifiers: Seq[Modifier]
 
   val superClass: Option[TypeName]
   val interfaces: Seq[TypeName]
+  val nestedClasses: Seq[PlatformTypeDeclaration]
+
+  val fields: Seq[FieldDeclaration]
 }

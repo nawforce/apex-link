@@ -29,6 +29,7 @@ package com.nawforce.platform.Database;
 
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
+import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class DMLOptions {

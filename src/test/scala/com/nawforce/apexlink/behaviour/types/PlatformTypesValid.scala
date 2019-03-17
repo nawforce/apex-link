@@ -34,7 +34,7 @@ import org.scalatest.FunSuite
 class PlatformTypesValid extends FunSuite {
 
   test("Right number of types (should exclude inners)") {
-    assert(PlatformTypeDeclaration.classNames.size == 1295)
+    assert(PlatformTypeDeclaration.classNames.size == 1296)
   }
 
   test("All outer types are valid") {
@@ -84,6 +84,19 @@ class PlatformTypesValid extends FunSuite {
         assert(typeDeclaration.nestedClasses.isEmpty)
       case CLASS =>
         typeDeclaration.nestedClasses.foreach(nested => validateTypeDeclaration(className.append(nested.name), nested))
+    }
+
+    // Fields
+    typeDeclaration.nature match {
+      case INTERFACE =>
+        assert(typeDeclaration.fields.isEmpty)
+      case ENUM =>
+        assert(typeDeclaration.fields.nonEmpty)
+        assert(typeDeclaration.fields.filter(_.typeName.toString == typeDeclaration.typeName.toString)
+          == typeDeclaration.fields)
+      case CLASS =>
+        assert(typeDeclaration.fields.map(f =>PlatformTypeDeclaration.get(f.typeName.asDotName)).size
+          == typeDeclaration.fields.size)
     }
   }
 }

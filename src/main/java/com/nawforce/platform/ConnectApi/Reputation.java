@@ -31,7 +31,6 @@ import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Double;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
-import com.sforce.soap.metadata.ReputationLevel;
 
 @SuppressWarnings("unused")
 public class Reputation {

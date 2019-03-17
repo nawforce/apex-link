@@ -27,24 +27,12 @@
 */
 package com.nawforce.platform.ConnectApi;
 
-import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
-import com.nawforce.platform.System.Exception;
 
 @SuppressWarnings("unused")
-public class BatchResult {
-	public Exception Error;
-	public String ErrorMessage;
-	public String ErrorTypeName;
-	public Boolean isSuccess;
-	public Object Result;
-
-	public BatchResult(Object result, Exception error) {throw new java.lang.UnsupportedOperationException();}
-
-	public Exception getError() {throw new java.lang.UnsupportedOperationException();}
-	public String getErrorMessage() {throw new java.lang.UnsupportedOperationException();}
-	public String getErrorTypeName() {throw new java.lang.UnsupportedOperationException();}
-	public Object getResult() {throw new java.lang.UnsupportedOperationException();}
-	public Boolean isSuccess() {throw new java.lang.UnsupportedOperationException();}
-	public String toString$() {throw new java.lang.UnsupportedOperationException();}
+public class ReputationLevel {
+    public String levelImageUrl;
+    public String levelName;
+    public Integer levelNumber;
 }

@@ -42,7 +42,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
   extends TypeDeclaration {
 
   lazy val name: Name = typeName.name
-  lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(cls)
+  lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(cls, cls)
   lazy val nature: Nature = {
     (cls.isEnum, cls.isInterface) match {
       case (true, _) => ENUM
@@ -56,18 +56,28 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
       cls.getSuperclass.getCanonicalName match {
         case "java.lang.Object" => None
         case "java.lang.Enum" => None
-        case _ => PlatformTypeDeclaration.typeNameOptional(cls.getSuperclass)
+        case _ => PlatformTypeDeclaration.typeNameOptional(cls.getSuperclass, cls)
       }
     } else {
       None
     }
   }
-  lazy val interfaces: Seq[TypeName] = cls.getInterfaces.map(PlatformTypeDeclaration.typeName)
+  lazy val interfaces: Seq[TypeName] = cls.getInterfaces.map(i => PlatformTypeDeclaration.typeName(i, cls))
 
-  lazy val modifiers: Seq[Modifier] = Modifiers(cls.getModifiers, nature)
+  lazy val modifiers: Seq[Modifier] = Modifiers.typeModifiers(cls.getModifiers, nature)
 
   lazy val nestedClasses: Seq[PlatformTypeDeclaration] =
     cls.getClasses.map(nested => PlatformTypeDeclaration(nested, Some(this)))
+
+  /** Platform type declaration, a wrapper around a com.nawforce.platform Java classes */
+  case class Field(field: java.lang.reflect.Field) extends FieldDeclaration {
+    lazy val name: Name = Name(field.getName)
+    lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(field.getType, field.getDeclaringClass)
+    lazy val modifiers: Seq[Modifier] = Modifiers.fieldModifiers(field.getModifiers)
+  }
+
+  lazy val fields: Seq[FieldDeclaration] =
+    cls.getFields.map(f => Field(f))
 }
 
 object PlatformTypeDeclaration {
@@ -93,14 +103,11 @@ object PlatformTypeDeclaration {
     Memo.immutableHashMapMemo { name: DotName => find(name) }
 
   private def find(name: DotName): Option[PlatformTypeDeclaration] = {
-    val matched: Option[DotName] = classNameMap.get(name)
-    if (matched.size == 1)
-      Some(PlatformTypeDeclaration(
-        classOf[PlatformTypeDeclaration].getClassLoader.loadClass(platformPackage + "." + matched.head),
-        None
-      ))
-    else
-      None
+    val matched = classNameMap.get(name)
+    assert(matched.size < 2, s"Found multiple platform type matches for $name")
+    matched.map(name => PlatformTypeDeclaration(
+      classOf[PlatformTypeDeclaration].getClassLoader.loadClass(platformPackage + "." + name),
+      None))
   }
 
   /* Valid platform class names */
@@ -129,22 +136,27 @@ object PlatformTypeDeclaration {
   }
 
   /** Create a TypeName from a Java class with null checking */
-  private def typeNameOptional(cls: java.lang.Class[_]): Option[TypeName] = {
+  private def typeNameOptional(cls: java.lang.Class[_], contextCls: java.lang.Class[_]): Option[TypeName] = {
     cls match {
       case null => None
-      case _ => Some(typeName(cls))
+      case _ => Some(typeName(cls, contextCls))
     }
   }
 
   /** Create a TypeName from a Java class */
-  private def typeName(cls: java.lang.Class[_]): TypeName = {
+  private def typeName(cls: java.lang.Class[_], contextCls: java.lang.Class[_]): TypeName = {
     val cname = cls.getCanonicalName
-    assert(cname.startsWith(platformPackage))
-
-    val names = cls.getCanonicalName.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse
-    val params = cls.getTypeParameters.map(tp => Name(tp.getName))
-    TypeName(names).withParams(params.toSeq)
+    if (cname == "java.lang.Object") {
+      TypeName.Object
+    } else {
+      assert(cname.startsWith(platformPackage), s"Reference to non-platform type $cname in ${contextCls.getCanonicalName}")
+      val names = cls.getCanonicalName.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse
+      val params = cls.getTypeParameters.map(tp => Name(tp.getName))
+      TypeName(names).withParams(params.toSeq)
+    }
   }
 }
+
+
 
 

@@ -51,6 +51,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.nature == CLASS)
     assert(td.get.modifiers == Seq(PUBLIC))
     assert(td.get.parent.isEmpty)
+    assert(td.get.nestedClasses.isEmpty)
   }
 
   test("Case insensitive class name") {
@@ -75,6 +76,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.nature == CLASS)
     assert(td.get.modifiers == Seq(PUBLIC))
     assert(td.get.parent.isEmpty)
+    assert(td.get.nestedClasses.isEmpty)
   }
 
   test("Implements class") {
@@ -88,6 +90,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.nature == CLASS)
     assert(td.get.modifiers == Seq(PUBLIC))
     assert(td.get.parent.isEmpty)
+    assert(td.get.nestedClasses.isEmpty)
   }
 
   test("Interface nature") {
@@ -100,6 +103,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.nature == INTERFACE)
     assert(td.get.modifiers == Seq(PUBLIC))
     assert(td.get.parent.isEmpty)
+    assert(td.get.nestedClasses.isEmpty)
   }
 
   test("Enum nature") {
@@ -112,6 +116,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.nature == ENUM)
     assert(td.get.modifiers == Seq(PUBLIC))
     assert(td.get.parent.isEmpty)
+    assert(td.get.nestedClasses.isEmpty)
   }
 
   test("Nested class") {
@@ -124,6 +129,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.nature == CLASS)
     assert(td.get.modifiers == Seq(PUBLIC))
     assert(td.get.parent.isEmpty)
+
     val nested = td.get.nestedClasses.sortBy(_.name.toString)
     assert(nested.size == 3)
     assert(nested.map(_.name.toString) == Seq("BinaryAttachment", "Header", "TextAttachment"))
@@ -131,4 +137,23 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(nested.filter(_.parent == td) == nested)
   }
 
+  test("Field access") {
+    val td = PlatformTypeDeclaration.get(DotName("System.Address"))
+    assert(td.nonEmpty)
+    assert(td.get.name.toString == "Address")
+    assert(td.get.typeName.toString == "System.Address")
+    assert(td.get.superClass.isEmpty)
+    assert(td.get.interfaces.isEmpty)
+    assert(td.get.nature == CLASS)
+    assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.parent.isEmpty)
+    assert(td.get.nestedClasses.isEmpty)
+
+    val fields = td.get.fields.sortBy(_.name.toString)
+    assert(fields.size == 8)
+    assert(fields.map(_.name.toString) ==
+      Seq("city", "country", "countryCode", "geocodeAccuracy", "postalCode", "state", "stateCode", "street"))
+    assert(fields.filter(_.modifiers == Seq(PUBLIC)) == fields)
+    assert(fields.filter(_.typeName.toString == "System.String") == fields)
+  }
 }

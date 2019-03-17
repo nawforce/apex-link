@@ -38,10 +38,26 @@ case object STATIC extends Modifier
 case object TEST_VISIBLE extends Modifier
 
 object Modifiers {
-  def apply(javaBits: Int, nature: Nature): Seq[Modifier] = {
+  def typeModifiers(javaBits: Int, nature: Nature): Seq[Modifier] = {
     assert(JavaModifier.isPublic(javaBits))
     if (nature == CLASS) assert(!JavaModifier.isAbstract(javaBits))
     if (nature != ENUM) assert(!JavaModifier.isFinal(javaBits))
+    assert(!JavaModifier.isTransient(javaBits))
+    assert(!JavaModifier.isVolatile(javaBits))
+    assert(!JavaModifier.isSynchronized(javaBits))
+    assert(!JavaModifier.isNative(javaBits))
+    assert(!JavaModifier.isStrict(javaBits))
+
+    if (JavaModifier.isStatic(javaBits))
+      Seq(PUBLIC, STATIC)
+    else
+      Seq(PUBLIC)
+  }
+
+  def fieldModifiers(javaBits: Int): Seq[Modifier] = {
+    assert(JavaModifier.isPublic(javaBits))
+    assert(!JavaModifier.isAbstract(javaBits))
+    assert(!JavaModifier.isFinal(javaBits))
     assert(!JavaModifier.isTransient(javaBits))
     assert(!JavaModifier.isVolatile(javaBits))
     assert(!JavaModifier.isSynchronized(javaBits))
