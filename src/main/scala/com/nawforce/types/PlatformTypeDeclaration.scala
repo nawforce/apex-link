@@ -69,15 +69,44 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
   lazy val nestedClasses: Seq[PlatformTypeDeclaration] =
     cls.getClasses.map(nested => PlatformTypeDeclaration(nested, Some(this)))
 
-  /** Platform type declaration, a wrapper around a com.nawforce.platform Java classes */
   case class Field(field: java.lang.reflect.Field) extends FieldDeclaration {
     lazy val name: Name = Name(field.getName)
     lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(field.getType, field.getDeclaringClass)
-    lazy val modifiers: Seq[Modifier] = Modifiers.fieldModifiers(field.getModifiers)
+    lazy val modifiers: Seq[Modifier] = Modifiers.fieldOrMethodModifiers(field.getModifiers)
   }
 
-  lazy val fields: Seq[FieldDeclaration] =
-    cls.getFields.map(f => Field(f))
+  lazy val fields: Seq[FieldDeclaration] = cls.getFields.map(f => Field(f))
+
+  case class Parameter(parameter: java.lang.reflect.Parameter, method: Method) extends ParameterDeclaration {
+    lazy val name: Name = Name(parameter.getName)
+    lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(parameter.getType, method.getDeclaringClass)
+
+    override def toString: String = typeName.toString + " " + name.toString
+  }
+
+  case class Method(method: java.lang.reflect.Method, typeDeclaration: PlatformTypeDeclaration) extends MethodDeclaration {
+    lazy val name: Name = Name(method.getName)
+    lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(method.getReturnType, method.getDeclaringClass)
+    lazy val modifiers: Seq[Modifier] = Modifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
+    lazy val parameters: Seq[Parameter] = method.getParameters.map(p => Parameter(p, this))
+    def getDeclaringClass: Class[_] =  method.getDeclaringClass
+
+    override def toString: String =
+      modifiers.map(_.toString).mkString(" ") + " " + typeName.toString + " " + name.toString + "(" +
+        parameters.map(_.toString).mkString(", ") + ")"
+  }
+
+  lazy val methods: Seq[MethodDeclaration] = {
+    val localMethods = cls.getMethods.filter(_.getDeclaringClass eq cls)
+    nature match {
+      case ENUM =>
+        assert(localMethods.forall(m => m.getName == "values" || m.getName == "valueOf"),
+          s"Enum $name has locally defined methods which are not supported in platform types")
+        Seq()
+      case _ =>
+        localMethods.map(m => Method(m, this))
+    }
+  }
 }
 
 object PlatformTypeDeclaration {
@@ -148,7 +177,11 @@ object PlatformTypeDeclaration {
     val cname = cls.getCanonicalName
     if (cname == "java.lang.Object") {
       TypeName.Object
+    } else if (cname == "void") {
+      TypeName.Void
     } else {
+      if (!cname.startsWith(platformPackage))
+        println("")
       assert(cname.startsWith(platformPackage), s"Reference to non-platform type $cname in ${contextCls.getCanonicalName}")
       val names = cls.getCanonicalName.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse
       val params = cls.getTypeParameters.map(tp => Name(tp.getName))

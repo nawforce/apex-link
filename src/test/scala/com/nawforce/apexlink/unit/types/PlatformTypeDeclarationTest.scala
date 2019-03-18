@@ -27,6 +27,7 @@
 */
 package com.nawforce.apexlink.unit.types
 
+import com.nawforce.platform.System.{Double, Location, String}
 import com.nawforce.types._
 import com.nawforce.utils.DotName
 import org.scalatest.FunSuite
@@ -155,5 +156,28 @@ class PlatformTypeDeclarationTest extends FunSuite {
       Seq("city", "country", "countryCode", "geocodeAccuracy", "postalCode", "state", "stateCode", "street"))
     assert(fields.filter(_.modifiers == Seq(PUBLIC)) == fields)
     assert(fields.filter(_.typeName.toString == "System.String") == fields)
+  }
+
+  test("Method access") {
+    val td = PlatformTypeDeclaration.get(DotName("System.Address"))
+    assert(td.nonEmpty)
+    assert(td.get.name.toString == "Address")
+    assert(td.get.typeName.toString == "System.Address")
+    assert(td.get.superClass.isEmpty)
+    assert(td.get.interfaces.isEmpty)
+    assert(td.get.nature == CLASS)
+    assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.parent.isEmpty)
+    assert(td.get.nestedClasses.isEmpty)
+
+    val methods = td.get.methods.sortBy(_.name.toString)
+    assert(methods.size == 11)
+    assert(methods.map(_.name.toString) ==
+      Seq("getCity", "getCountry", "getCountryCode", "getDistance", "getGeocodeAccuracy", "getLatitude",
+        "getLongitude", "getPostalCode", "getState", "getStateCode", "getStreet"))
+    assert(methods.filter(_.modifiers == Seq(PUBLIC)) == methods)
+    assert(methods.filter(_.name.toString == "getCity").head.toString == "public System.String getCity()")
+    assert(methods.filter(_.name.toString == "getDistance").head.toString ==
+      "public System.Double getDistance(System.Location other, System.String unit)")
   }
 }

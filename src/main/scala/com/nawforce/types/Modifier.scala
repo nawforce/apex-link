@@ -29,13 +29,15 @@ package com.nawforce.types
 
 import java.lang.reflect.{Modifier => JavaModifier}
 
-sealed abstract class Modifier
-case object GLOBAL extends Modifier
-case object PUBLIC extends Modifier
-case object PROTECTED extends Modifier
-case object PRIVATE extends Modifier
-case object STATIC extends Modifier
-case object TEST_VISIBLE extends Modifier
+sealed abstract class Modifier(name: String) {
+  override def toString: String = name
+}
+case object GLOBAL extends Modifier("global")
+case object PUBLIC extends Modifier("public")
+case object PROTECTED extends Modifier("protected")
+case object PRIVATE extends Modifier("private")
+case object STATIC extends Modifier("static")
+case object TEST_VISIBLE extends Modifier("@TestVisible")
 
 object Modifiers {
   def typeModifiers(javaBits: Int, nature: Nature): Seq[Modifier] = {
@@ -54,8 +56,10 @@ object Modifiers {
       Seq(PUBLIC)
   }
 
-  def fieldModifiers(javaBits: Int): Seq[Modifier] = {
+  def fieldOrMethodModifiers(javaBits: Int): Seq[Modifier] = {
     assert(JavaModifier.isPublic(javaBits))
+    if (JavaModifier.isAbstract(javaBits))
+      println("")
     assert(!JavaModifier.isAbstract(javaBits))
     assert(!JavaModifier.isFinal(javaBits))
     assert(!JavaModifier.isTransient(javaBits))
@@ -69,4 +73,26 @@ object Modifiers {
     else
       Seq(PUBLIC)
   }
+
+  def methodModifiers(javaBits: Int, nature: Nature): Seq[Modifier] = {
+    assert(JavaModifier.isPublic(javaBits))
+    if (nature == INTERFACE)
+      assert(JavaModifier.isAbstract(javaBits))
+    else
+      assert(!JavaModifier.isAbstract(javaBits))
+    assert(!JavaModifier.isFinal(javaBits))
+    assert(!JavaModifier.isTransient(javaBits))
+    if (JavaModifier.isVolatile(javaBits))
+      println("")
+    assert(!JavaModifier.isVolatile(javaBits))
+    assert(!JavaModifier.isSynchronized(javaBits))
+    assert(!JavaModifier.isNative(javaBits))
+    assert(!JavaModifier.isStrict(javaBits))
+
+    if (JavaModifier.isStatic(javaBits))
+      Seq(PUBLIC, STATIC)
+    else
+      Seq(PUBLIC)
+  }
+
 }

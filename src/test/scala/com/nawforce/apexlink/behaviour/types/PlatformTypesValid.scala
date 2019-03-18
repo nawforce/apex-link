@@ -98,5 +98,8 @@ class PlatformTypesValid extends FunSuite {
         assert(typeDeclaration.fields.map(f =>PlatformTypeDeclaration.get(f.typeName.asDotName)).size
           == typeDeclaration.fields.size)
     }
+
+    // Methods (make sure we can decompose them via toString)
+    typeDeclaration.methods.map(_.toString)
   }
 }

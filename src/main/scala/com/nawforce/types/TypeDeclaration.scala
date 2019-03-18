@@ -36,8 +36,20 @@ case object ENUM extends Nature
 
 trait FieldDeclaration {
   val name: Name
-  val typeName: TypeName
   val modifiers: Seq[Modifier]
+  val typeName: TypeName
+}
+
+trait ParameterDeclaration {
+  val name: Name
+  val typeName: TypeName
+}
+
+trait MethodDeclaration {
+  val name: Name
+  val modifiers: Seq[Modifier]
+  val typeName: TypeName
+  val parameters: Seq[ParameterDeclaration]
 }
 
 trait TypeDeclaration {
@@ -51,4 +63,5 @@ trait TypeDeclaration {
   val nestedClasses: Seq[PlatformTypeDeclaration]
 
   val fields: Seq[FieldDeclaration]
+  val methods: Seq[MethodDeclaration]
 }
