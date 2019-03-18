@@ -27,8 +27,8 @@
 */
 package com.nawforce.platform.Metadata;
 
-import com.nawforce.platform.System.List;
 import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.List;
 
 @SuppressWarnings("unused")
 public class FeedLayout {

@@ -28,10 +28,10 @@
 package com.nawforce.platform.ApexPages;
 
 import com.nawforce.platform.SObjects.Idea;
-import com.nawforce.platform.System.List;
-import com.nawforce.platform.System.PageReference;
-import com.nawforce.platform.System.SObject;
-import com.nawforce.platform.System.SelectOption;
+import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Integer;
+import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class IdeaStandardSetController {

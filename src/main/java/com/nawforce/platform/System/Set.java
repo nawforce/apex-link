@@ -10,7 +10,7 @@ public class Set<T> {
     Set(Set<T> setToCopy) {throw new java.lang.UnsupportedOperationException();}
     Set(List<T> listToCopy) {throw new java.lang.UnsupportedOperationException();}
 
-    public Set<T> clone() {throw new java.lang.UnsupportedOperationException();}
+    public Set<T> clone$() {throw new java.lang.UnsupportedOperationException();}
     Boolean add(T setElement) {throw new java.lang.UnsupportedOperationException();}
     Boolean addAll(List<T> fromList) {throw new java.lang.UnsupportedOperationException();}
     Boolean addAll(Set<T> fromSet) {throw new java.lang.UnsupportedOperationException();}

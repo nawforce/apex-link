@@ -28,12 +28,11 @@
 package com.nawforce.platform.cache;
 
 import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Double;
 import com.nawforce.platform.System.Integer;
+import com.nawforce.platform.System.Long;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
-
-import java.lang.Double;
-import java.lang.Long;
 
 @SuppressWarnings("unused")
 public class Session {

@@ -28,6 +28,7 @@
 package com.nawforce.platform.DataProtection;
 
 import com.nawforce.platform.System.List;
+import com.nawforce.platform.System.Long;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")

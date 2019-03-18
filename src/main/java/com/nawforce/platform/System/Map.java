@@ -12,7 +12,7 @@ public class Map<K, V> {
     Map(Map<K,V> mapToCopy) {throw new java.lang.UnsupportedOperationException();}
     Map(List<SObject> recordList) {throw new java.lang.UnsupportedOperationException();}
 
-    public Map<K, V> clone() {throw new java.lang.UnsupportedOperationException();}
+    public Map<K, V> clone$() {throw new java.lang.UnsupportedOperationException();}
     public void clear() {throw new java.lang.UnsupportedOperationException();}
     public Boolean containsKey(K key) {throw new java.lang.UnsupportedOperationException();}
     public Map<K, V> deepClone() {throw new java.lang.UnsupportedOperationException();}

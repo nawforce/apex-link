@@ -27,7 +27,9 @@
 */
 package com.nawforce.platform.Auth;
 
+import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.Map;
+import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class JWT

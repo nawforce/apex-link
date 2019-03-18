@@ -28,9 +28,10 @@
 package com.nawforce.platform.ConnectApi;
 
 import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Double;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
-import com.nawforce.platform.System.List;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class FollowingPage {

@@ -27,8 +27,8 @@
 */
 package com.nawforce.platform.Datacloud;
 
-import com.nawforce.platform.System.List;
 import com.nawforce.platform.System.Double;
+import com.nawforce.platform.System.List;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")

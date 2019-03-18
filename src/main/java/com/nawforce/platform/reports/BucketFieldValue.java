@@ -27,6 +27,7 @@
 */
 package com.nawforce.platform.reports;
 
+import com.nawforce.platform.System.Double;
 import com.nawforce.platform.System.List;
 import com.nawforce.platform.System.String;
 
