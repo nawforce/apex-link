@@ -27,9 +27,13 @@
 */
 package com.nawforce.platform.ConnectApi;
 
+import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class NotFoundException {
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
+public class NotFoundException extends Exception {
+	public NotFoundException() {throw new java.lang.UnsupportedOperationException();}
+	public NotFoundException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
+	public NotFoundException(String param1) {throw new java.lang.UnsupportedOperationException();}
+	public NotFoundException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
 }

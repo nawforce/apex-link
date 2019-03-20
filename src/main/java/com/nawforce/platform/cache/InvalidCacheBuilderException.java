@@ -31,11 +31,9 @@ import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class InvalidCacheBuilderException {
+public class InvalidCacheBuilderException extends Exception {
 	public InvalidCacheBuilderException() {throw new java.lang.UnsupportedOperationException();}
 	public InvalidCacheBuilderException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
 	public InvalidCacheBuilderException(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public InvalidCacheBuilderException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
-
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }

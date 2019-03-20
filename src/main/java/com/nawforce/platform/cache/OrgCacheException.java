@@ -31,11 +31,9 @@ import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class OrgCacheException {
+public class OrgCacheException extends Exception {
 	public OrgCacheException() {throw new java.lang.UnsupportedOperationException();}
 	public OrgCacheException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
 	public OrgCacheException(String msg) {throw new java.lang.UnsupportedOperationException();}
 	public OrgCacheException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
-
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }

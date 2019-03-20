@@ -27,16 +27,16 @@
 */
 package com.nawforce.platform.reports;
 
+import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.List;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class InvalidSnapshotDateException {
+public class InvalidSnapshotDateException extends Exception {
 	public InvalidSnapshotDateException() {throw new java.lang.UnsupportedOperationException();}
 	public InvalidSnapshotDateException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
 	public InvalidSnapshotDateException(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public InvalidSnapshotDateException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
 
 	public List<String> getSnapshotDateErrors() {throw new java.lang.UnsupportedOperationException();}
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }

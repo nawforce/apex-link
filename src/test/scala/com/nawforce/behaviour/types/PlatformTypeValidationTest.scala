@@ -25,13 +25,13 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.apexlink.behaviour.types
+package com.nawforce.behaviour.types
 
 import com.nawforce.types._
 import com.nawforce.utils.DotName
 import org.scalatest.FunSuite
 
-class PlatformTypesValid extends FunSuite {
+class PlatformTypeValidationTest extends FunSuite {
 
   test("Right number of types (should exclude inners)") {
     assert(PlatformTypeDeclaration.classNames.size == 1296)
@@ -102,4 +102,24 @@ class PlatformTypesValid extends FunSuite {
     // Methods (make sure we can decompose them via toString)
     typeDeclaration.methods.map(_.toString)
   }
+
+  test("Exceptions are valid") {
+    PlatformTypeDeclaration.classNames.filter(_.lastName.toString.endsWith("Exception")).foreach(className => {
+      val typeDeclaration = PlatformTypeDeclaration.get(className)
+      assert(typeDeclaration.nonEmpty)
+      val td = typeDeclaration.get
+
+      if (td.name.toString() != "Exception")
+        assert(td.superClass.get.toString == "System.Exception")
+      assert(td.interfaces.isEmpty)
+      assert(td.nature == CLASS)
+      assert(td.modifiers == Seq(PUBLIC))
+      assert(td.parent.isEmpty)
+      assert(td.nestedClasses.isEmpty)
+
+      val methods = td.methods.sortBy(_.name.toString)
+      assert(methods.size >= 7)
+    })
+  }
+
 }

@@ -54,7 +54,7 @@ case class TypeName(name: Name, params: Seq[Name]=Nil, outer: Option[TypeName]=N
 
 object TypeName {
   lazy val Object = TypeName(Name("Object"))
-  lazy val Void = TypeName(Name("Void"))
+  lazy val Void = TypeName(Name("void"))
 
   def apply(names: Seq[Name]): TypeName = {
     names match {

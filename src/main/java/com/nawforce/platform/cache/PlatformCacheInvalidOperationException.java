@@ -27,14 +27,13 @@
 */
 package com.nawforce.platform.cache;
 
+import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class PlatformCacheInvalidOperationException {
+public class PlatformCacheInvalidOperationException extends Exception {
 	public PlatformCacheInvalidOperationException() {throw new java.lang.UnsupportedOperationException();}
 	public PlatformCacheInvalidOperationException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
 	public PlatformCacheInvalidOperationException(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public PlatformCacheInvalidOperationException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
-
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }

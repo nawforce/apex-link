@@ -28,17 +28,9 @@
 package com.nawforce.platform.System;
 
 @SuppressWarnings("unused")
-public class LicenseException {
+public class LicenseException extends Exception {
 	public LicenseException() {throw new java.lang.UnsupportedOperationException();}
 	public LicenseException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
 	public LicenseException(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public LicenseException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
-
-	public Exception getCause() {throw new java.lang.UnsupportedOperationException();}
-	public Integer getLineNumber() {throw new java.lang.UnsupportedOperationException();}
-	public String getMessage() {throw new java.lang.UnsupportedOperationException();}
-	public String getStackTraceString() {throw new java.lang.UnsupportedOperationException();}
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
-	public void initCause(Exception cause) {throw new java.lang.UnsupportedOperationException();}
-	public void setMessage(String message) {throw new java.lang.UnsupportedOperationException();}
 }

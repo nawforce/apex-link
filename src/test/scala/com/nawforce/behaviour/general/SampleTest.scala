@@ -25,49 +25,58 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.apexlink
+package com.nawforce.behaviour.general
 
-import com.nawforce.cst._
+import com.nawforce.ApexLink
 import org.scalatest.FunSuite
 
-class TypePrimaryTest extends FunSuite
-{
-  def primary(p: String, r: Type, ctx: TypeContext = null) : Unit =
-    TypeTestHelper.comparePrimary(p, r, ctx)
+class SampleTest extends FunSuite {
 
-  test("Primary literal") {
-    primary("0", IntegerType(0))
-    primary("1", IntegerType(0))
-    primary("0l", LongType(0))
-    primary("1l", LongType(0))
-    primary("0L", LongType(0))
-    primary("1L", LongType(0))
-    primary("''", StringType(0))
-    primary("'a'", StringType(0))
-    primary("'az'", StringType(0))
-    primary("'\t'", StringType(0))
-    primary("true", BooleanType(0))
-    primary("False", BooleanType(0))
-    primary("null", NullType())
-    primary("0.0", DecimalType(0))
-    primary(".0", DecimalType(0))
-    primary("0.123", DecimalType(0))
-    primary("0.123456789012345678901234567890123456789012345678", DecimalType(0))
-    primary("0.1234567890123456789012345678901234567890123456789", DoubleType(0))
+  private def sample(path: String): Unit = {
+    assert(0 == ApexLink.run(Array(path)))
   }
 
-  test("This literal") {
-    val ctx = new TypeContextTest(_thisType = NullType())
-    primary("this", NullType(), ctx)
+  test("forcedotcom-enterprise-architecture") {
+    sample("samples/forcedotcom-enterprise-architecture/src")
   }
 
-  test("Super literal") {
-    val ctx = new TypeContextTest(_superType = NullType())
-    primary("super", NullType(), ctx)
+  test("chatter=game") {
+    sample("samples/forcedotcomlabs/chatter-game/src")
   }
 
-  test("Field") {
-    val ctx = new TypeContextTest(identifierTypes = Map(("anId", NullType())))
-    primary("anId", NullType(), ctx)
+  test("Cumulus") {
+    sample("samples/SalesforceFoundation/Cumulus/src")
+  }
+
+  test("HEDAP") {
+    sample("samples/SalesforceFoundation/HEDAP/src")
+  }
+
+  test("CampaignTools") {
+    sample("samples/SalesforceFoundation/CampaignTools/src")
+  }
+
+  test("Volunteers-for-Salesforce") {
+    sample("samples/SalesforceFoundation/Volunteers-for-Salesforce/src")
+  }
+
+  test("Relationships") {
+    sample("samples/SalesforceFoundation/Relationships/src")
+  }
+
+  test("Households") {
+    sample("samples/SalesforceFoundation/Households/src")
+  }
+
+  test("Recurring_Donations") {
+    sample("samples/SalesforceFoundation/Recurring_Donations/src")
+  }
+
+  test("Contacts_and_Organizations") {
+    sample("samples/SalesforceFoundation/Contacts_and_Organizations/src")
+  }
+
+  test("Affiliations") {
+    sample("samples/SalesforceFoundation/Affiliations/src")
   }
 }

@@ -31,12 +31,9 @@ import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class CacheException {
-
+public class CacheException extends Exception {
 	public CacheException() {throw new java.lang.UnsupportedOperationException();}
 	public CacheException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
 	public CacheException(String msg) {throw new java.lang.UnsupportedOperationException();}
 	public CacheException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
-
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }

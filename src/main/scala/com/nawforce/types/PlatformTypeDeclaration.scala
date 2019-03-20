@@ -75,7 +75,9 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
     lazy val modifiers: Seq[Modifier] = Modifiers.fieldOrMethodModifiers(field.getModifiers)
   }
 
-  lazy val fields: Seq[FieldDeclaration] = cls.getFields.map(f => Field(f))
+  lazy val fields: Seq[FieldDeclaration] = cls.getFields.filter(
+    _.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
+    .map(f => Field(f))
 
   case class Parameter(parameter: java.lang.reflect.Parameter, method: Method) extends ParameterDeclaration {
     lazy val name: Name = Name(parameter.getName)
@@ -97,7 +99,8 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
   }
 
   lazy val methods: Seq[MethodDeclaration] = {
-    val localMethods = cls.getMethods.filter(_.getDeclaringClass eq cls)
+    val localMethods = cls.getMethods.filter(
+      _.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
     nature match {
       case ENUM =>
         assert(localMethods.forall(m => m.getName == "values" || m.getName == "valueOf"),

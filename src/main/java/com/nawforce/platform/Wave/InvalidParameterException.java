@@ -27,13 +27,13 @@
 */
 package com.nawforce.platform.Wave;
 
+import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class InvalidParameterException {
+public class InvalidParameterException extends Exception {
 	public InvalidParameterException() {throw new java.lang.UnsupportedOperationException();}
 	public InvalidParameterException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
+	public InvalidParameterException(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public InvalidParameterException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
-
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }

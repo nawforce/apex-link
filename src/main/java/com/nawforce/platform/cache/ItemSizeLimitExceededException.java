@@ -31,11 +31,9 @@ import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class ItemSizeLimitExceededException {
+public class ItemSizeLimitExceededException extends Exception {
 	public ItemSizeLimitExceededException() {throw new java.lang.UnsupportedOperationException();}
 	public ItemSizeLimitExceededException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
 	public ItemSizeLimitExceededException(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public ItemSizeLimitExceededException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
-
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }

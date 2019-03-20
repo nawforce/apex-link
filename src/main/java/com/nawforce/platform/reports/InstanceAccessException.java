@@ -27,13 +27,13 @@
 */
 package com.nawforce.platform.reports;
 
+import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class InstanceAccessException {
+public class InstanceAccessException extends Exception {
 	public InstanceAccessException() {throw new java.lang.UnsupportedOperationException();}
 	public InstanceAccessException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
+	public InstanceAccessException(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public InstanceAccessException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
-
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }

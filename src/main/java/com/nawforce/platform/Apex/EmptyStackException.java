@@ -31,12 +31,9 @@ import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class EmptyStackException {
-
+public class EmptyStackException extends Exception {
 	public EmptyStackException() {throw new java.lang.UnsupportedOperationException();}
 	public EmptyStackException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
 	public EmptyStackException(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public EmptyStackException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
-
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }

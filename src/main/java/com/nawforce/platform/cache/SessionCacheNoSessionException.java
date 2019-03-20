@@ -31,12 +31,9 @@ import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class SessionCacheNoSessionException {
-
+public class SessionCacheNoSessionException extends Exception {
 	public SessionCacheNoSessionException() {throw new java.lang.UnsupportedOperationException();}
 	public SessionCacheNoSessionException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
 	public SessionCacheNoSessionException(String msg) {throw new java.lang.UnsupportedOperationException();}
 	public SessionCacheNoSessionException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
-
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }

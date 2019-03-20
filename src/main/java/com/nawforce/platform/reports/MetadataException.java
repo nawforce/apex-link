@@ -27,13 +27,13 @@
 */
 package com.nawforce.platform.reports;
 
+import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class MetadataException {
+public class MetadataException extends Exception {
 	public MetadataException() {throw new java.lang.UnsupportedOperationException();}
 	public MetadataException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
+	public MetadataException(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public MetadataException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
-
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }

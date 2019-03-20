@@ -28,14 +28,12 @@
 package com.nawforce.platform.eventbus;
 
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.Exception;
 
 @SuppressWarnings("unused")
-public class RetryableException {
-
+public class RetryableException extends Exception {
 	public RetryableException() {throw new java.lang.UnsupportedOperationException();}
 	public RetryableException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
 	public RetryableException(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public RetryableException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
-
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }

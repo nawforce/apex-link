@@ -31,11 +31,9 @@ import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class InvalidParamException {
+public class InvalidParamException extends Exception {
 	public InvalidParamException() {throw new java.lang.UnsupportedOperationException();}
 	public InvalidParamException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
 	public InvalidParamException(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public InvalidParamException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
-
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }

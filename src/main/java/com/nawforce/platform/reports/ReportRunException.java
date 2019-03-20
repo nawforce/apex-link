@@ -27,13 +27,13 @@
 */
 package com.nawforce.platform.reports;
 
+import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class ReportRunException {
+public class ReportRunException extends Exception {
 	public ReportRunException() {throw new java.lang.UnsupportedOperationException();}
 	public ReportRunException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
+	public ReportRunException(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public ReportRunException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
-
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }

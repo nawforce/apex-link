@@ -27,13 +27,13 @@
 */
 package com.nawforce.platform.Wave;
 
+import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class WaveQueryException {
+public class WaveQueryException extends Exception {
 	public WaveQueryException() {throw new java.lang.UnsupportedOperationException();}
 	public WaveQueryException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
+	public WaveQueryException(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public WaveQueryException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
-
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }

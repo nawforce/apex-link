@@ -31,11 +31,9 @@ import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class CanvasRenderException {
+public class CanvasRenderException extends Exception {
 	public CanvasRenderException() {throw new java.lang.UnsupportedOperationException();}
 	public CanvasRenderException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
 	public CanvasRenderException(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public CanvasRenderException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
-
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }

@@ -25,7 +25,7 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.apexlink.unit.types
+package com.nawforce.unit.types
 
 import com.nawforce.platform.System.{Double, Location, String}
 import com.nawforce.types._
@@ -180,4 +180,31 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(methods.filter(_.name.toString == "getDistance").head.toString ==
       "public System.Double getDistance(System.Location other, System.String unit)")
   }
+
+  test("Exception") {
+    val td = PlatformTypeDeclaration.get(DotName("eventbus.RetryableException"))
+    assert(td.nonEmpty)
+    assert(td.get.name.toString == "RetryableException")
+    assert(td.get.typeName.toString == "eventbus.RetryableException")
+    assert(td.get.superClass.get.toString == "System.Exception")
+    assert(td.get.interfaces.isEmpty)
+    assert(td.get.nature == CLASS)
+    assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.parent.isEmpty)
+    assert(td.get.nestedClasses.isEmpty)
+
+    val methods = td.get.methods.sortBy(_.name.toString)
+    assert(methods.size == 7)
+    assert(methods.map(_.name.toString) == Seq("getCause", "getLineNumber", "getMessage", "getStackTraceString",
+      "getTypeName", "initCause", "setMessage"))
+    assert(methods.filter(_.modifiers == Seq(PUBLIC)) == methods)
+    assert(methods.filter(_.name.toString == "getCause").head.toString == "public System.Exception getCause()")
+    assert(methods.filter(_.name.toString == "getLineNumber").head.toString == "public System.Integer getLineNumber()")
+    assert(methods.filter(_.name.toString == "getMessage").head.toString == "public System.String getMessage()")
+    assert(methods.filter(_.name.toString == "getStackTraceString").head.toString == "public System.String getStackTraceString()")
+    assert(methods.filter(_.name.toString == "getTypeName").head.toString == "public System.String getTypeName()")
+    assert(methods.filter(_.name.toString == "initCause").head.toString == "public void initCause(System.Exception cause)")
+    assert(methods.filter(_.name.toString == "setMessage").head.toString == "public void setMessage(System.String message)")
+  }
+
 }

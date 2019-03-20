@@ -28,11 +28,9 @@
 package com.nawforce.platform.System;
 
 @SuppressWarnings("unused")
-public class InvalidHeaderException {
+public class InvalidHeaderException extends Exception {
 	public InvalidHeaderException() {throw new java.lang.UnsupportedOperationException();}
 	public InvalidHeaderException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
 	public InvalidHeaderException(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public InvalidHeaderException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
-
-	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }

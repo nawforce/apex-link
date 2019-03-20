@@ -27,10 +27,16 @@
 */
 package com.nawforce.platform.ConnectApi;
 
+import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class RateLimitException {
+public class RateLimitException extends Exception {
+	public RateLimitException() {throw new java.lang.UnsupportedOperationException();}
+	public RateLimitException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
+	public RateLimitException(String param1) {throw new java.lang.UnsupportedOperationException();}
+	public RateLimitException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
+
 	public String getErrorCode() {throw new java.lang.UnsupportedOperationException();}
 	public String getTypeName() {throw new java.lang.UnsupportedOperationException();}
 }
