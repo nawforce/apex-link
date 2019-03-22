@@ -158,6 +158,27 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(fields.filter(_.typeName.toString == "System.String") == fields)
   }
 
+  test("Constructor access") {
+    val td = PlatformTypeDeclaration.get(DotName("System.DmlException"))
+    assert(td.nonEmpty)
+    assert(td.get.name.toString == "DmlException")
+    assert(td.get.typeName.toString == "System.DmlException")
+    assert(td.get.superClass.get.toString == "System.Exception")
+    assert(td.get.interfaces.isEmpty)
+    assert(td.get.nature == CLASS)
+    assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.parent.isEmpty)
+    assert(td.get.nestedClasses.isEmpty)
+
+    val constructors = td.get.constructors.sortBy(_.toString)
+    assert(constructors.size == 4)
+    assert(constructors.filter(_.modifiers == Seq(PUBLIC)) == constructors)
+    assert(constructors.head.toString == "public System.DmlException()")
+    assert(constructors(1).toString == "public System.DmlException(System.Exception param1)")
+    assert(constructors(2).toString == "public System.DmlException(System.String param1)")
+    assert(constructors(3).toString == "public System.DmlException(System.String param1, System.Exception param2)")
+  }
+
   test("Method access") {
     val td = PlatformTypeDeclaration.get(DotName("System.Address"))
     assert(td.nonEmpty)

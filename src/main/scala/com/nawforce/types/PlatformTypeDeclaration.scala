@@ -79,18 +79,34 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
     _.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
     .map(f => Field(f))
 
-  case class Parameter(parameter: java.lang.reflect.Parameter, method: Method) extends ParameterDeclaration {
+  case class Parameter(parameter: java.lang.reflect.Parameter, declaringClass: Class[_]) extends ParameterDeclaration {
     lazy val name: Name = Name(parameter.getName)
-    lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(parameter.getType, method.getDeclaringClass)
+    lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(parameter.getType, declaringClass)
 
     override def toString: String = typeName.toString + " " + name.toString
   }
 
-  case class Method(method: java.lang.reflect.Method, typeDeclaration: PlatformTypeDeclaration) extends MethodDeclaration {
+  case class Constructor(ctor: java.lang.reflect.Constructor[_], typeDeclaration: PlatformTypeDeclaration)
+    extends ConstructorDeclaration {
+    lazy val modifiers: Seq[Modifier] = Modifiers.methodModifiers(ctor.getModifiers, typeDeclaration.nature)
+    lazy val parameters: Seq[Parameter] = ctor.getParameters.map(p => Parameter(p, ctor.getDeclaringClass))
+    def getDeclaringClass: Class[_] =  ctor.getDeclaringClass
+
+    override def toString: String =
+      modifiers.map(_.toString).mkString(" ") + " " + typeName.toString + "(" +
+        parameters.map(_.toString).mkString(", ") + ")"
+  }
+
+  lazy val constructors: Seq[Constructor] = {
+    cls.getConstructors.map(c => Constructor(c, this))
+  }
+
+  case class Method(method: java.lang.reflect.Method, typeDeclaration: PlatformTypeDeclaration)
+    extends MethodDeclaration {
     lazy val name: Name = Name(method.getName)
     lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(method.getReturnType, method.getDeclaringClass)
     lazy val modifiers: Seq[Modifier] = Modifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
-    lazy val parameters: Seq[Parameter] = method.getParameters.map(p => Parameter(p, this))
+    lazy val parameters: Seq[Parameter] = method.getParameters.map(p => Parameter(p, method.getDeclaringClass))
     def getDeclaringClass: Class[_] =  method.getDeclaringClass
 
     override def toString: String =
@@ -183,8 +199,6 @@ object PlatformTypeDeclaration {
     } else if (cname == "void") {
       TypeName.Void
     } else {
-      if (!cname.startsWith(platformPackage))
-        println("")
       assert(cname.startsWith(platformPackage), s"Reference to non-platform type $cname in ${contextCls.getCanonicalName}")
       val names = cls.getCanonicalName.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse
       val params = cls.getTypeParameters.map(tp => Name(tp.getName))

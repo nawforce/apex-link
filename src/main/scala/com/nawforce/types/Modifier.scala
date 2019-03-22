@@ -58,8 +58,6 @@ object Modifiers {
 
   def fieldOrMethodModifiers(javaBits: Int): Seq[Modifier] = {
     assert(JavaModifier.isPublic(javaBits))
-    if (JavaModifier.isAbstract(javaBits))
-      println("")
     assert(!JavaModifier.isAbstract(javaBits))
     assert(!JavaModifier.isFinal(javaBits))
     assert(!JavaModifier.isTransient(javaBits))
@@ -82,8 +80,6 @@ object Modifiers {
       assert(!JavaModifier.isAbstract(javaBits))
     assert(!JavaModifier.isFinal(javaBits))
     assert(!JavaModifier.isTransient(javaBits))
-    if (JavaModifier.isVolatile(javaBits))
-      println("")
     assert(!JavaModifier.isVolatile(javaBits))
     assert(!JavaModifier.isSynchronized(javaBits))
     assert(!JavaModifier.isNative(javaBits))

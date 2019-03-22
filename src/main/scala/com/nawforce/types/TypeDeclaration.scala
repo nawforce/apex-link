@@ -45,6 +45,11 @@ trait ParameterDeclaration {
   val typeName: TypeName
 }
 
+trait ConstructorDeclaration {
+  val modifiers: Seq[Modifier]
+  val parameters: Seq[ParameterDeclaration]
+}
+
 trait MethodDeclaration {
   val name: Name
   val modifiers: Seq[Modifier]

@@ -99,6 +99,9 @@ class PlatformTypeValidationTest extends FunSuite {
           == typeDeclaration.fields.size)
     }
 
+    // Constructors (make sure we can decompose them via toString)
+    typeDeclaration.constructors.map(_.toString)
+
     // Methods (make sure we can decompose them via toString)
     typeDeclaration.methods.map(_.toString)
   }
