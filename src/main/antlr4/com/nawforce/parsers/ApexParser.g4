@@ -345,7 +345,6 @@ statement
     |   emptyStatement
     |   expressionStatement
     |   idStatement
-    |   bangStatement
     ;
 
 ifStatement
@@ -422,10 +421,6 @@ expressionStatement
 
 idStatement
     :   id ':' statement
-    ;
-
-bangStatement
-    :   BANG_STATEMENT
     ;
 
 propertyBlock

@@ -1,5 +1,11 @@
 
+# ANTLR 
+*.tokens
+*.interp 
+
 # Created by https://www.gitignore.io/api/windows,intellij,maven
+
+
 
 ### Windows ###
 # Windows image file caches

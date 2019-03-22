@@ -277,10 +277,6 @@ ELLIPSIS : '...';
 WS  :  [ \t\r\n\u000C]+ -> channel(WHITESPACE_CHANNEL)
     ;
 
-BANG_STATEMENT
-    :   '//!' ~[\r\n]*
-    ;
-
 DOC_COMMENT
     :   '/**' [\r\n] .*? '*/' -> channel(COMMENT_CHANNEL)
     ;

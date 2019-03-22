@@ -1196,18 +1196,6 @@ object IdStatement {
   }
 }
 
-final case class BangStatement(text: String) extends Statement {
-  override def children(): List[CST] = Nil
-
-  def resolve(context: ResolveStmtContext): Unit = {} // Nothing to do
-}
-
-object BangStatement {
-  def construct(statement: BangStatementContext, context: ConstructContext): BangStatement = {
-    BangStatement(statement.getText).withContext(statement, context)
-  }
-}
-
 object Statement {
   def construct(statements: List[StatementContext], context: ConstructContext): List[Statement] = {
     statements.map(s => Statement.construct(s, context))
@@ -1257,8 +1245,6 @@ object Statement {
         ExpressionStatement.construct(statement.expressionStatement(), context)
       } else if (statement.idStatement() != null) {
         IdStatement.construct(statement.idStatement(), context)
-      } else if (statement.bangStatement() != null) {
-        BangStatement.construct(statement.bangStatement(), context)
       } else {
         throw new CSTException()
       }
