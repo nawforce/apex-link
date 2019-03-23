@@ -78,6 +78,7 @@ INTERFACE     : 'interface';
 LONG          : 'long';
 NATIVE        : 'native';
 NEW           : 'new';
+NULL          : 'null';
 PACKAGE       : 'package';
 PRIVATE       : 'private';
 PROTECTED     : 'protected';
@@ -176,7 +177,7 @@ EscapeSequence
 // §3.10.7 The Null Literal
 
 NullLiteral
-    :   'null'
+    :   NULL
     ;
 
 
@@ -268,7 +269,6 @@ JavaLetterOrDigit
 //
 
 AT : '@';
-ELLIPSIS : '...';
 
 //
 // Whitespace and comments

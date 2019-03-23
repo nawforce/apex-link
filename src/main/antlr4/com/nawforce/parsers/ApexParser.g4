@@ -51,10 +51,9 @@ compilationUnit
     ;
 
 typeDeclaration
-    :   classOrInterfaceModifier* classDeclaration
-    |   classOrInterfaceModifier* enumDeclaration
-    |   classOrInterfaceModifier* interfaceDeclaration
-    |   ';'
+    :   classOrInterfaceModifier* classDeclaration EOF
+    |   classOrInterfaceModifier* enumDeclaration EOF
+    |   classOrInterfaceModifier* interfaceDeclaration EOF
     ;
 
 modifier
@@ -90,20 +89,20 @@ variableModifier
     ;
 
 classDeclaration
-    :   'class' id
-        ('extends' typeRef)?
-        ('implements' typeList)?
+    :   CLASS id
+        (EXTENDS typeRef)?
+        (IMPLEMENTS typeList)?
         classBody
     ;
 
 
 enumDeclaration
-    :   ENUM id ('implements' typeList)?
-        '{' enumConstants? ','? enumBodyDeclarations? '}'
+    :   ENUM id (IMPLEMENTS typeList)?
+        LBRACE enumConstants? COMMA ? enumBodyDeclarations? RBRACE
     ;
 
 enumConstants
-    :   enumConstant (',' enumConstant)*
+    :   enumConstant (COMMA enumConstant)*
     ;
 
 enumConstant
@@ -111,28 +110,28 @@ enumConstant
     ;
 
 enumBodyDeclarations
-    :   ';' classBodyDeclaration*
+    :   SEMI classBodyDeclaration*
     ;
 
 interfaceDeclaration
-    :   'interface' id ('extends' typeList)? interfaceBody
+    :   INTERFACE id (EXTENDS typeList)? interfaceBody
     ;
 
 typeList
-    :   typeRef (',' typeRef)*
+    :   typeRef (COMMA typeRef)*
     ;
 
 classBody
-    :   '{' classBodyDeclaration* '}'
+    :   LBRACE classBodyDeclaration* RBRACE
     ;
 
 interfaceBody
-    :   '{' interfaceBodyDeclaration* '}'
+    :   LBRACE interfaceBodyDeclaration* RBRACE
     ;
 
 classBodyDeclaration
-    :   ';'
-    |   'static'? block
+    :   SEMI
+    |   STATIC? block
     |   modifier* memberDeclaration
     ;
 
@@ -153,21 +152,21 @@ memberDeclaration
  */
 
 methodModifier
-    :   'global'
-    |   'public'
-    |   'protected'
-    |   'private'
-    |   'static' 
-    |   'webservice'
-    |   'override'
-    |   'virtual'
-    |   'testmethod'
+    :   GLOBAL
+    |   PUBLIC
+    |   PROTECTED
+    |   PRIVATE
+    |   STATIC
+    |   WEBSERVICE
+    |   OVERRIDE
+    |   VIRTUAL
+    |   TESTMETHOD
     ;
 
 methodDeclaration
-    :   annotation? methodModifier* (typeRef|'void') id formalParameters
+    :   annotation? methodModifier* (typeRef|VOID) id formalParameters
         (   block
-        |   ';'
+        |   SEMI
         )
     ;
 
@@ -176,7 +175,7 @@ constructorDeclaration
     ;
 
 fieldDeclaration
-    :   typeRef variableDeclarators ';'
+    :   typeRef variableDeclarators SEMI
     ;
 
 propertyDeclaration
@@ -184,12 +183,12 @@ propertyDeclaration
     ;
 
 propertyBodyDeclaration
-    :   '{' propertyBlock propertyBlock? '}'
+    :   LBRACE propertyBlock propertyBlock? RBRACE
     ;
 
 interfaceBodyDeclaration
     :   modifier* interfaceMemberDeclaration
-    |   ';'
+    |   SEMI
     ;
 
 interfaceMemberDeclaration
@@ -201,23 +200,23 @@ interfaceMemberDeclaration
     ;
 
 constDeclaration
-    :   typeRef constantDeclarator (',' constantDeclarator)* ';'
+    :   typeRef constantDeclarator (COMMA constantDeclarator)* SEMI
     ;
 
 constantDeclarator
-    :   id ('[' ']')* '=' variableInitializer
+    :   id (LBRACK RBRACK)* '=' variableInitializer
     ;
 
 interfaceMethodDeclaration
-    :   (typeRef|'void') id formalParameters ';'
+    :   (typeRef|VOID) id formalParameters SEMI
     ;
 
 variableDeclarators
-    :   variableDeclarator (',' variableDeclarator)*
+    :   variableDeclarator (COMMA variableDeclarator)*
     ;
 
 variableDeclarator
-    :   id ('=' variableInitializer)?
+    :   id (ASSIGN variableInitializer)?
     ;
 
 variableInitializer
@@ -226,7 +225,7 @@ variableInitializer
     ;
 
 arrayInitializer
-    :   '{' (variableInitializer (',' variableInitializer)* (',')? )? '}'
+    :   LBRACE (variableInitializer (COMMA variableInitializer)* (COMMA)? )? RBRACE
     ;
 
 typeRef
@@ -235,38 +234,38 @@ typeRef
     ;
 
 arraySubscripts
-    :   ('[' ']')*
+    :   (LBRACK RBRACK)*
     ;
 
 classOrInterfaceType
-    :   id typeArguments? ('.' id typeArguments? )*
+    :   id typeArguments? (DOT id typeArguments? )*
     ;
 
 primitiveType
-    :   'blob'
-    |   'boolean'
-    |   'date'
-    |   'datetime'
-    |   'decimal'
-    |   'double'
-    |   'id'
-    |   'integer'
-    |   'long'
-    |   'object'
-    |   'string'
-    |   'time'
+    :   BLOB
+    |   BOOLEAN
+    |   DATE
+    |   DATETIME
+    |   DECIMAL
+    |   DOUBLE
+    |   ID
+    |   INTEGER
+    |   LONG
+    |   OBJECT
+    |   STRING
+    |   TIME
     ;
 
 typeArguments
-    :   '<' typeList '>'
+    :   LT typeList GT
     ;
 
 formalParameters
-    :   '(' formalParameterList? ')'
+    :   LPAREN formalParameterList? RPAREN
     ;
 
 formalParameterList
-    :   formalParameter (',' formalParameter)*
+    :   formalParameter (COMMA formalParameter)*
     ;
 
 formalParameter
@@ -274,7 +273,7 @@ formalParameter
     ;
 
 qualifiedName
-    :   id ('.' id)*
+    :   id (DOT id)*
     ;
 
 literal
@@ -282,21 +281,21 @@ literal
     |   NumberLiteral
     |   StringLiteral
     |   BooleanLiteral
-    |   'null'
+    |   NULL
     ;
 
 // ANNOTATIONS
 
 annotation
-    :   '@' qualifiedName ( '(' ( elementValuePairs | elementValue )? ')' )?
+    :   AT qualifiedName ( LPAREN ( elementValuePairs | elementValue )? RPAREN )?
     ;
 
 elementValuePairs
-    :   elementValuePair (','? elementValuePair)*
+    :   elementValuePair (COMMA? elementValuePair)*
     ;
 
 elementValuePair
-    :   id '=' elementValue
+    :   id ASSIGN elementValue
     ;
 
 elementValue
@@ -306,17 +305,17 @@ elementValue
     ;
 
 elementValueArrayInitializer
-    :   '{' (elementValue (',' elementValue)*)? (',')? '}'
+    :   LBRACE (elementValue (COMMA elementValue)*)? (COMMA)? RBRACE
     ;
 
 // STATEMENTS / BLOCKS
 
 block
-    :   '{' statement* '}'
+    :   LBRACE statement* RBRACE
     ;
 
 localVariableDeclarationStatement
-    :    localVariableDeclaration ';'
+    :    localVariableDeclaration SEMI
     ;
 
 localVariableDeclaration
@@ -348,79 +347,79 @@ statement
     ;
 
 ifStatement
-    : 'if' parExpression statement ('else' statement)?
+    : IF parExpression statement (ELSE statement)?
     ;
 
 forStatement
-    : 'for' '(' forControl ')' statement
+    : FOR LPAREN forControl RPAREN statement
     ;
 
 whileStatement
-    :   'while' parExpression statement
+    : WHILE parExpression statement
     ;
 
 doWhileStatement
-    :   'do' statement 'while' parExpression ';'
+    : DO statement WHILE parExpression SEMI
     ;
 
 tryStatement
-    :   'try' block (catchClause+ finallyBlock? | finallyBlock)
+    : TRY block (catchClause+ finallyBlock? | finallyBlock)
     ;
 
 returnStatement
-    :   'return' expression? ';'
+    : RETURN expression? SEMI
     ;
 
 throwStatement
-    :   'throw' expression ';'
+    : THROW expression SEMI
     ;
 
 breakStatement
-    :   'break' id? ';'
+    : BREAK id? SEMI
     ;
 
 continueStatement
-    :   'continue' id? ';'
+    : CONTINUE id? SEMI
     ;
 
 insertStatement
-    :   'insert' expression ';'
+    : INSERT expression SEMI
     ;
 
 updateStatement
-    :   'update' expression ';'
+    : UPDATE expression SEMI
     ;
 
 deleteStatement
-    :   'delete' expression ';'
+    : DELETE expression SEMI
     ;
 
 undeleteStatement
-    :   'undelete' expression ';'
+    : UNDELETE expression SEMI
     ;
 
 upsertStatement
-    :   'upsert' expression id? ';'
+    : UPSERT expression id? SEMI
     ;
 
 mergeStatement
-    :   'merge' expression expression ';'
+    : MERGE expression expression SEMI
     ;
 
 runAsStatement
-    :   RUNAS '(' expressionList? ')' block?
+    : RUNAS LPAREN expressionList? RPAREN block?
     ;
 
 emptyStatement
-    :   ';'
+    : SEMI
     ;
 
 expressionStatement
-    :   expression ';'
+    :   expression SEMI
     ;
 
 idStatement
-    :   id ':' statement
+    :   id COLON statement
     ;
 
 propertyBlock
@@ -428,115 +427,115 @@ propertyBlock
 	;
 
 getter
- : 'get' (';' | block)
- ;
+    : GET (SEMI | block)
+    ;
 
 setter
- : 'set' (';' | block)
- ;
+    : SET (SEMI | block)
+    ;
 
 catchClause
-    :   'catch' '(' variableModifier* catchType id ')' block
+    : CATCH LPAREN variableModifier* catchType id RPAREN block
     ;
 
 catchType
-    :   qualifiedName ('|' qualifiedName)*
+    : qualifiedName (BITOR qualifiedName)*
     ;
 
 finallyBlock
-    :   'finally' block
+    : FINALLY block
     ;
 
 forControl
-    :   enhancedForControl
-    |   forInit? ';' expression? ';' forUpdate?
+    :  enhancedForControl
+    |  forInit? SEMI expression? SEMI forUpdate?
     ;
 
 forInit
-    :   localVariableDeclaration
-    |   expressionList
+    :  localVariableDeclaration
+    |  expressionList
     ;
 
 enhancedForControl
-    :   variableModifier* typeRef id ':' expression
+    :  variableModifier* typeRef id COLON expression
     ;
 
 forUpdate
-    :   expressionList
+    :  expressionList
     ;
 
 // EXPRESSIONS
 
 parExpression
-    :   '(' expression ')'
+    :  LPAREN expression RPAREN
     ;
 
 expressionList
-    :   expression (',' expression)*
+    :  expression (COMMA expression)*
     ;
 
 expression
-    :   expression '.' id                                                   # alt1Expression
-    |   expression '.' 'this'                                               # alt2Expression
-    |   expression '.' 'new' nonWildcardTypeArguments? innerCreator         # alt3Expression
-    |   expression '.' 'super' superSuffix                                  # alt4Expression
-    |   expression '.' explicitGenericInvocation                            # alt5Expression
-    |   expression '[' expression ']'                                       # alt6Expression
-    |   expression '(' expressionList? ')'                                  # functionCallExpression
-    |   'new' creator                                                       # alt8Expression
-    |   '(' typeRef ')' expression                                          # alt9Expression
-    |   expression ('++' | '--')                                            # alt10Expression
-    |   ('+'|'-'|'++'|'--') expression                                      # alt11Expression
-    |   ('~'|'!') expression                                                # alt12Expression
-    |   expression ('*'|'/'|'%') expression                                 # alt13Expression
-    |   expression ('+'|'-') expression                                     # alt14Expression
-    |   expression ('<' '<' | '>' '>' '>' | '>' '>') expression             # alt15Expression
-    |   expression ('<' '=' | '>' '=' | '<=' | '>=' | '>' | '<') expression # alt16Expression
-    |   expression 'instanceof' typeRef                                     # alt17Expression
-    |   expression ('===' | '!==' | '==' | '!=' | '<>' ) expression         # alt18Expression
-    |   expression '&' expression                                           # alt19Expression
-    |   expression '^' expression                                           # alt20Expression
-    |   expression '|' expression                                           # alt21Expression
-    |   expression '&&' expression                                          # alt22Expression
-    |   expression '||' expression                                          # alt23Expression
-    |   expression '?' expression ':' expression                            # alt24Expression
+    :   expression DOT id                                                                               # alt1Expression
+    |   expression DOT THIS                                                                             # alt2Expression
+    |   expression DOT NEW nonWildcardTypeArguments? innerCreator                                       # alt3Expression
+    |   expression DOT SUPER superSuffix                                                                # alt4Expression
+    |   expression DOT explicitGenericInvocation                                                        # alt5Expression
+    |   expression LBRACK expression RBRACK                                                             # alt6Expression
+    |   expression LPAREN expressionList? RPAREN                                                        # functionCallExpression
+    |   NEW creator                                                                                     # alt8Expression
+    |   LPAREN typeRef RPAREN expression                                                                # alt9Expression
+    |   expression (INC | DEC)                                                                          # alt10Expression
+    |   (ADD|SUB|INC|DEC) expression                                                                    # alt11Expression
+    |   (TILDE|BANG) expression                                                                         # alt12Expression
+    |   expression (MUL|DIV|MOD) expression                                                             # alt13Expression
+    |   expression (ADD|SUB) expression                                                                 # alt14Expression
+    |   expression (LT LT | GT GT GT | GT GT) expression                                                # alt15Expression
+    |   expression (LT ASSIGN | GT ASSIGN | LE | GE | GT | LT) expression                               # alt16Expression
+    |   expression INSTANCEOF typeRef                                                                   # alt17Expression
+    |   expression (TRIPLEEQUAL | TRIPLENOTEQUAL | EQUAL | NOTEQUAL | LESSANDGREATER ) expression       # alt18Expression
+    |   expression BITAND expression                                                                    # alt19Expression
+    |   expression CARET expression                                                                     # alt20Expression
+    |   expression BITOR expression                                                                     # alt21Expression
+    |   expression AND expression                                                                       # alt22Expression
+    |   expression OR expression                                                                        # alt23Expression
+    |   expression QUESTION expression COLON expression                                                 # alt24Expression
     |   <assoc=right> expression
-        (   '='
-        |   '+='
-        |   '-='
-        |   '*='
-        |   '/='
-        |   '&='
-        |   '|='
-        |   '^='
-        |   '>>='
-        |   '>>>='
-        |   '<<='
-        |   '%='
+        (   ASSIGN
+        |   ADD_ASSIGN
+        |   SUB_ASSIGN
+        |   MUL_ASSIGN
+        |   DIV_ASSIGN
+        |   AND_ASSIGN
+        |   OR_ASSIGN
+        |   XOR_ASSIGN
+        |   RSHIFT_ASSIGN
+        |   URSHIFT_ASSIGN
+        |   LSHIFT_ASSIGN
+        |   MOD_ASSIGN
         )
-        expression                                                          # alt25Expression
-    |   primary                                                             # alt26Expression
+        expression                                                                                     # alt25Expression
+    |   primary                                                                                        # alt26Expression
     ;
 
 primary
-    :   '(' expression ')'                                                              # alt1Primary
-    |   'this'                                                                          # alt2Primary
-    |   'super'                                                                         # alt3Primary
-    |   literal                                                                         # alt4Primary
-    |   id                                                                              # alt5Primary
-    |   typeRef '.' 'class'                                                             # alt6Primary
-    |   'void' '.' 'class'                                                              # alt7Primary
-    |   nonWildcardTypeArguments (explicitGenericInvocationSuffix | 'this' arguments)   # alt8Primary
-    |   soqlLiteral                                                                     # alt9Primary
+    :   LPAREN expression RPAREN                                                                       # alt1Primary
+    |   THIS                                                                                           # alt2Primary
+    |   SUPER                                                                                          # alt3Primary
+    |   literal                                                                                        # alt4Primary
+    |   id                                                                                             # alt5Primary
+    |   typeRef DOT CLASS                                                                              # alt6Primary
+    |   VOID DOT CLASS                                                                                 # alt7Primary
+    |   nonWildcardTypeArguments (explicitGenericInvocationSuffix | THIS arguments)                    # alt8Primary
+    |   soqlLiteral                                                                                    # alt9Primary
     ;
 
 creator
-    :   nonWildcardTypeArguments createdName classCreatorRest                                   #alt1Creator
-    |   createdName (arrayCreatorRest | classCreatorRest | mapCreatorRest | setCreatorRest)     #alt2Creator
+    :   nonWildcardTypeArguments createdName classCreatorRest                                          #alt1Creator
+    |   createdName (arrayCreatorRest | classCreatorRest | mapCreatorRest | setCreatorRest)            #alt2Creator
     ;
 
 createdName
-    :   idCreatedNamePair ('.' idCreatedNamePair)*
+    :   idCreatedNamePair (DOT idCreatedNamePair)*
     |   primitiveType
     ;
 
@@ -549,22 +548,22 @@ innerCreator
     ;
 
 arrayCreatorRest
-    :   '['
-        (   ']' arraySubscripts arrayInitializer
-        |   expression ']' ('[' expression ']')* arraySubscripts
+    :   LBRACK
+        (   RBRACK arraySubscripts arrayInitializer
+        |   expression RBRACK (LBRACK expression RBRACK)* arraySubscripts
         )
     ;
 
 mapCreatorRest
-    :   '{' mapCreatorRestPair (',' mapCreatorRestPair )* '}'
+    :   LBRACE mapCreatorRestPair (COMMA mapCreatorRestPair )* RBRACE
     ;
 
 mapCreatorRestPair
-    :   idOrExpression '=>' literalOrExpression
+    :   idOrExpression MAP literalOrExpression
     ;
 
 setCreatorRest
-	: '{' literalOrExpression (',' ( literalOrExpression ))* '}'
+	: LBRACE literalOrExpression (COMMA ( literalOrExpression ))* RBRACE
 	;
 
 literalOrExpression
@@ -577,7 +576,7 @@ idOrExpression
 
 classCreatorRest
     :   arguments
-    |   '{' expressionList? '}'
+    |   LBRACE expressionList? RBRACE
     ;
 
 explicitGenericInvocation
@@ -585,68 +584,64 @@ explicitGenericInvocation
     ;
 
 nonWildcardTypeArguments
-    :   '<' typeList '>'
+    :   LT typeList GT
     ;
 
 typeArgumentsOrDiamond
-    :   '<' '>'
+    :   LT GT
     |   typeArguments
     ;
 
 nonWildcardTypeArgumentsOrDiamond
-    :   '<' '>'
+    :   LT GT
     |   nonWildcardTypeArguments
     ;
 
 superSuffix
     :   arguments
-    |   '.' id arguments?
+    |   DOT id arguments?
     ;
 
 explicitGenericInvocationSuffix
-    :   'super' superSuffix
+    :   SUPER superSuffix
     |   id arguments
     ;
 
 arguments
-    :   '(' expressionList? ')'
+    :   LPAREN expressionList? RPAREN
     ;
 
 
 soqlLiteral
-    : '[' (soqlLiteral|~']')*? ']'
+    : LBRACK (soqlLiteral|~RBRACK)*? RBRACK
     ;
 
 withSharing
-    : 'withsharing'
-    | 'with' 'sharing'
+    : WITHSHARING
+    | WITH SHARING
     ;
 
 withoutSharing
-    : 'withoutsharing'
-    | 'without' 'sharing'
+    : WITHOUTSHARING
+    | WITHOUT SHARING
     ;
 
-// TODO: What is really reserved and do we care?
 id
     :  Identifier
     |  'get'
     |  'set'
-
-    // primitiveType
-    |   'blob'
-    |   'boolean'
-    |   'date'
-    |   'datetime'
-    |   'decimal'
-    |   'double'
-    |   'id'
-    |   'integer'
-    |   'long'
-    |   'object'
-    |   'string'
-    |   'time'
-
+    |  'blob'
+    |  'boolean'
+    |  'date'
+    |  'datetime'
+    |  'decimal'
+    |  'double'
+    |  'id'
+    |  'integer'
+    |  'long'
+    |  'object'
+    |  'string'
+    |  'time'
     |  'select'
     |  'insert'
     |  'upsert'
@@ -654,7 +649,6 @@ id
     |  'delete'
     |  'undelete'
     |  'merge'
-
     |  'new'
     |  'withsharing'
     |  'withoutsharing'
