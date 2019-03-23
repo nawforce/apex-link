@@ -77,8 +77,9 @@ classOrInterfaceModifier
         |   'override'   // method only
         |   'virtual'    // method only
         |   'testmethod'   // method only
-		|	withSharing  // class only
-		|	withoutSharing //class only
+		|	WITH SHARING
+		|	WITHOUT SHARING
+		|	INHERITED SHARING
         )
     ;
 
@@ -616,16 +617,6 @@ soqlLiteral
     : LBRACK (soqlLiteral|~RBRACK)*? RBRACK
     ;
 
-withSharing
-    : WITHSHARING
-    | WITH SHARING
-    ;
-
-withoutSharing
-    : WITHOUTSHARING
-    | WITHOUT SHARING
-    ;
-
 id
     :  Identifier
     |  'get'
@@ -650,8 +641,6 @@ id
     |  'undelete'
     |  'merge'
     |  'new'
-    |  'withsharing'
-    |  'withoutsharing'
     |  'for'
     ;
 

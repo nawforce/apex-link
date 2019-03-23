@@ -325,30 +325,19 @@ final case class AnnotationModifier(annotation: Annotation) extends TypeModifier
 }
 
 final case class PublicModifier() extends TypeModifier
-
 final case class ProtectedModifier() extends TypeModifier
-
 final case class PrivateModifier() extends TypeModifier
-
 final case class StaticModifier() extends TypeModifier
-
 final case class AbstractModifier() extends TypeModifier
-
 final case class FinalModifier() extends TypeModifier
-
 final case class GlobalModifier() extends TypeModifier
-
 final case class WebserviceModifier() extends TypeModifier
-
 final case class OverrideModifier() extends TypeModifier
-
 final case class VirtualModifier() extends TypeModifier
-
 final case class TestMethodModifier() extends TypeModifier
-
 final case class WithSharingModifier() extends TypeModifier
-
 final case class WithoutSharingModifier() extends TypeModifier
+final case class InheritedSharingModifier() extends TypeModifier
 
 object TypeModifier {
 
@@ -360,10 +349,6 @@ object TypeModifier {
     val cst =
       if (typeModifier.annotation() != null) {
         AnnotationModifier(Annotation.construct(typeModifier.annotation(), context))
-      } else if (typeModifier.withSharing() != null) {
-        WithSharingModifier()
-      } else if (typeModifier.withoutSharing() != null) {
-        WithoutSharingModifier()
       } else {
         construct(typeModifier.getText, context)
       }
@@ -383,6 +368,9 @@ object TypeModifier {
       case "override" => OverrideModifier()
       case "virtual" => VirtualModifier()
       case "testmethod" => TestMethodModifier()
+      case "withsharing" => WithSharingModifier()
+      case "withoutsharing" => WithoutSharingModifier()
+      case "inheritedsharing" => InheritedSharingModifier()
       case _ => UnknownModifier(typeModifier)
     }
   }

@@ -125,8 +125,7 @@ RUNAS         : 'system.runas';
 WITH          : 'with';
 WITHOUT       : 'without';
 SHARING       : 'sharing';
-WITHSHARING   : 'withsharing';
-WITHOUTSHARING: 'withoutsharing';
+INHERITED     : 'inherited';
 
 // §3.10.1 Integer Literals
 
