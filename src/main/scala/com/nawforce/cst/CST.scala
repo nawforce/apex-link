@@ -29,13 +29,14 @@ package com.nawforce.cst
 
 import com.nawforce.parsers.ApexParser
 import com.nawforce.parsers.ApexParser._
+import com.nawforce.types.{ApexModifiers, Modifier}
 import com.nawforce.utils.CSTException
 import org.antlr.v4.runtime.ParserRuleContext
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-sealed abstract class CST {
+abstract class CST {
 
   private var startPos: Long = -1
   private var endPos: Long = -1
@@ -313,238 +314,6 @@ object ElementValuePairs {
   }
 }
 
-sealed abstract class TypeModifier() extends CST {
-  override def children(): List[CST] = Nil
-}
-
-// TODO: How do we remove this
-final case class UnknownModifier(value: String) extends TypeModifier
-
-final case class AnnotationModifier(annotation: Annotation) extends TypeModifier {
-  override def children(): List[CST] = annotation :: Nil
-}
-
-final case class PublicModifier() extends TypeModifier
-final case class ProtectedModifier() extends TypeModifier
-final case class PrivateModifier() extends TypeModifier
-final case class StaticModifier() extends TypeModifier
-final case class AbstractModifier() extends TypeModifier
-final case class FinalModifier() extends TypeModifier
-final case class GlobalModifier() extends TypeModifier
-final case class WebserviceModifier() extends TypeModifier
-final case class OverrideModifier() extends TypeModifier
-final case class VirtualModifier() extends TypeModifier
-final case class TestMethodModifier() extends TypeModifier
-final case class WithSharingModifier() extends TypeModifier
-final case class WithoutSharingModifier() extends TypeModifier
-final case class InheritedSharingModifier() extends TypeModifier
-
-object TypeModifier {
-
-  def construct(typeModifiers: List[ClassOrInterfaceModifierContext], context: ConstructContext): List[TypeModifier] = {
-    typeModifiers.map(x => TypeModifier.construct(x, context))
-  }
-
-  def construct(typeModifier: ClassOrInterfaceModifierContext, context: ConstructContext): TypeModifier = {
-    val cst =
-      if (typeModifier.annotation() != null) {
-        AnnotationModifier(Annotation.construct(typeModifier.annotation(), context))
-      } else {
-        construct(typeModifier.getText, context)
-      }
-    cst.withContext(typeModifier, context)
-  }
-
-  def construct(typeModifier: String, context: ConstructContext): TypeModifier = {
-    typeModifier.toLowerCase match {
-      case "public" => PublicModifier()
-      case "protected" => ProtectedModifier()
-      case "private" => PrivateModifier()
-      case "static" => StaticModifier()
-      case "abstract" => AbstractModifier()
-      case "final" => FinalModifier()
-      case "global" => GlobalModifier()
-      case "webservice" => WebserviceModifier()
-      case "override" => OverrideModifier()
-      case "virtual" => VirtualModifier()
-      case "testmethod" => TestMethodModifier()
-      case "withsharing" => WithSharingModifier()
-      case "withoutsharing" => WithoutSharingModifier()
-      case "inheritedsharing" => InheritedSharingModifier()
-      case _ => UnknownModifier(typeModifier)
-    }
-  }
-}
-
-sealed abstract class Modifier() extends TypeModifier
-
-object Modifier {
-  def construct(typeModifiers: List[ModifierContext], context: ConstructContext): List[TypeModifier] = {
-    typeModifiers.map(x => Modifier.construct(x, context))
-  }
-
-  def construct(modifier: ModifierContext, context: ConstructContext): TypeModifier = {
-    val cst =
-      if (modifier.classOrInterfaceModifier() != null) {
-        TypeModifier.construct(modifier.classOrInterfaceModifier(), context)
-      } else {
-        modifier.getText.toLowerCase() match {
-          case "native" => NativeModifier()
-          case "synchronized" => SynchronizedModifier()
-          case "transient" => TransientModifier()
-          case _ => throw new CSTException()
-        }
-      }
-    cst.withContext(modifier, context)
-  }
-}
-
-final case class NativeModifier() extends Modifier
-
-final case class SynchronizedModifier() extends Modifier
-
-final case class TransientModifier() extends Modifier
-
-final case class CompilationUnit(types: List[TypeDeclaration]) extends CST {
-  def children(): List[CST] = types
-
-  def resolve(index: CSTIndex): Unit = {
-    types.foreach(_.resolve(index))
-  }
-}
-
-object CompilationUnit {
-  def construct(compilationUnit: CompilationUnitContext, context: ConstructContext): CompilationUnit = {
-    val typeDecls: Seq[TypeDeclarationContext] = compilationUnit.typeDeclaration().asScala
-    CompilationUnit(TypeDeclaration.construct(typeDecls.toList, context)).withContext(compilationUnit, context)
-  }
-}
-
-// Treat TypeDeclarations as ClassBodyDeclarations for inner class, interface & enum
-sealed abstract class TypeDeclaration extends CST with ClassBodyDeclaration {
-  def resolve(index: CSTIndex)
-}
-
-final case class EmptyTypeDeclaration() extends TypeDeclaration {
-  override def children(): List[CST] = Nil
-
-  override def resolve(index: CSTIndex) {}
-}
-
-object TypeDeclaration {
-
-  def construct(typeDecls: List[TypeDeclarationContext], context: ConstructContext): List[TypeDeclaration] = {
-    typeDecls.map(t => TypeDeclaration.construct(t, context))
-  }
-
-  def construct(typeDecl: TypeDeclarationContext, context: ConstructContext): TypeDeclaration = {
-    val modifiers: Seq[ClassOrInterfaceModifierContext] = typeDecl.classOrInterfaceModifier().asScala
-    val cst =
-      if (typeDecl.classDeclaration() != null) {
-        ClassDeclaration.construct(TypeModifier.construct(modifiers.toList, context), typeDecl.classDeclaration(), context)
-      } else if (typeDecl.interfaceDeclaration() != null) {
-        InterfaceDeclaration.construct(TypeModifier.construct(modifiers.toList, context), typeDecl.interfaceDeclaration(), context)
-      } else if (typeDecl.enumDeclaration() != null) {
-        EnumDeclaration.construct(TypeModifier.construct(modifiers.toList, context), typeDecl.enumDeclaration(), context)
-      } else {
-        // TODO: Empty type declaration?
-        throw new CSTException()
-      }
-    cst.withContext(typeDecl, context)
-  }
-}
-
-final case class ClassDeclaration(name: String, typeModifiers: List[TypeModifier],
-                                  extendsType: Option[Type], implementsTypes: TypeList,
-                                  bodyDeclarations: List[ClassBodyDeclaration]) extends TypeDeclaration {
-  override def children(): List[CST] = {
-    typeModifiers ++ extendsType ++ implementsTypes.types ++ bodyDeclarations
-  }
-
-  override def resolve(index: CSTIndex): Unit = {
-    index.add(this)
-    bodyDeclarations.foreach(_.resolve(index))
-  }
-}
-
-object ClassDeclaration {
-  def construct(typeModifiers: List[TypeModifier], classDeclaration: ClassDeclarationContext, context: ConstructContext): ClassDeclaration = {
-    val extendType =
-      if (classDeclaration.typeRef() != null)
-        Some(Type.construct(classDeclaration.typeRef(), context))
-      else
-        None
-    val implementsType =
-      if (classDeclaration.typeList() != null)
-        TypeList.construct(classDeclaration.typeList(), context)
-      else
-        TypeList.empty()
-
-    val classBody = classDeclaration.classBody()
-    val classBodyDeclarations: Seq[ClassBodyDeclarationContext] = classBody.classBodyDeclaration().asScala
-    val bodyDeclarations: List[ClassBodyDeclaration] =
-      if (classBodyDeclarations != null) {
-        classBodyDeclarations.toList.map(cbd =>
-
-          if (cbd.block() != null) {
-            StaticBlock.construct(cbd.block(), context)
-          } else if (cbd.memberDeclaration() != null) {
-            val modifiers: Seq[ModifierContext] = cbd.modifier().asScala
-            ClassBodyDeclaration.construct(modifiers.toList, cbd.memberDeclaration(), context)
-          } else {
-            throw new CSTException()
-          }
-        )
-      } else {
-        List()
-      }
-
-    ClassDeclaration(classDeclaration.id().getText, typeModifiers, extendType,
-      implementsType, bodyDeclarations).withContext(classDeclaration, context)
-  }
-}
-
-// TODO: Handle body
-final case class InterfaceDeclaration(name: String, typeModifiers: List[TypeModifier], implementsTypes: TypeList) extends TypeDeclaration {
-  override def children(): List[CST] = implementsTypes.types ::: typeModifiers
-
-  override def resolve(index: CSTIndex): Unit = {
-    index.add(this)
-  }
-}
-
-object InterfaceDeclaration {
-  def construct(typeModifiers: List[TypeModifier], interfaceDeclaration: ApexParser.InterfaceDeclarationContext, context: ConstructContext): InterfaceDeclaration = {
-    val implementsType =
-      if (interfaceDeclaration.typeList() != null)
-        TypeList.construct(interfaceDeclaration.typeList(), context)
-      else
-        TypeList.empty()
-
-    InterfaceDeclaration(interfaceDeclaration.id().getText, typeModifiers, implementsType).withContext(interfaceDeclaration, context)
-  }
-}
-
-// TODO: Handle body
-final case class EnumDeclaration(name: String, typeModifiers: List[TypeModifier], implementsTypes: TypeList) extends TypeDeclaration {
-  override def children(): List[CST] = typeModifiers ::: implementsTypes.types
-
-  override def resolve(index: CSTIndex): Unit = {
-    index.add(this)
-  }
-}
-
-object EnumDeclaration {
-  def construct(typeModifiers: List[TypeModifier], enumDeclaration: ApexParser.EnumDeclarationContext, context: ConstructContext): EnumDeclaration = {
-    val implementsType =
-      if (enumDeclaration.typeList() != null)
-        TypeList.construct(enumDeclaration.typeList(), context)
-      else
-        TypeList.empty()
-    EnumDeclaration(enumDeclaration.id().getText, typeModifiers, implementsType).withContext(enumDeclaration, context)
-  }
-}
-
 trait ClassBodyDeclaration extends CST {
   def resolve(index: CSTIndex): Unit = {
     // Default to ignore
@@ -553,7 +322,7 @@ trait ClassBodyDeclaration extends CST {
 
 object ClassBodyDeclaration {
   def construct(modifiers: List[ModifierContext], memberDeclarationContext: MemberDeclarationContext, context: ConstructContext): ClassBodyDeclaration = {
-    val m = Modifier.construct(modifiers, context)
+    val m = ApexModifiers.construct(modifiers, context)
     val cst: ClassBodyDeclaration =
       if (memberDeclarationContext.methodDeclaration() != null) {
         MethodDeclaration.construct(m, memberDeclarationContext.methodDeclaration(), context)
@@ -591,10 +360,10 @@ object StaticBlock {
   }
 }
 
-final case class MethodDeclaration(modifiers: List[TypeModifier], typeRef: Option[TypeRef], id: String,
+final case class MethodDeclaration(modifiers: Seq[Modifier], typeRef: Option[TypeRef], id: String,
                                    formalParameters: List[FormalParameter], block: Option[Block]) extends ClassBodyDeclaration {
 
-  override def children(): List[CST] = modifiers ++ typeRef ++ formalParameters ++ block
+  override def children(): List[CST] = List() ++ typeRef ++ formalParameters ++ block
 
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)
@@ -605,7 +374,7 @@ final case class MethodDeclaration(modifiers: List[TypeModifier], typeRef: Optio
 }
 
 object MethodDeclaration {
-  def construct(modifiers: List[TypeModifier], from: MethodDeclarationContext, context: ConstructContext): MethodDeclaration = {
+  def construct(modifiers: Seq[Modifier], from: MethodDeclarationContext, context: ConstructContext): MethodDeclaration = {
     val typeRef = if (from.typeRef() != null) Some(TypeRef.construct(from.typeRef(), context)) else None
     val block = if (from.block != null) Some(Block.construct(from.block, context)) else None
 
@@ -618,25 +387,25 @@ object MethodDeclaration {
   }
 }
 
-final case class FieldDeclaration(modifiers: List[TypeModifier], typeRef: TypeRef, variableDeclarators: VariableDeclarators) extends ClassBodyDeclaration {
-  override def children(): List[CST] = typeRef :: variableDeclarators :: modifiers
+final case class FieldDeclaration(modifiers: Seq[Modifier], typeRef: TypeRef, variableDeclarators: VariableDeclarators) extends ClassBodyDeclaration {
+  override def children(): List[CST] = typeRef :: variableDeclarators :: Nil
 }
 
 object FieldDeclaration {
-  def construct(modifiers: List[TypeModifier], fieldDeclaration: FieldDeclarationContext, context: ConstructContext): FieldDeclaration = {
+  def construct(modifiers: Seq[Modifier], fieldDeclaration: FieldDeclarationContext, context: ConstructContext): FieldDeclaration = {
     FieldDeclaration(modifiers, TypeRef.construct(fieldDeclaration.typeRef(), context),
       VariableDeclarators.construct(fieldDeclaration.variableDeclarators(), context)).withContext(fieldDeclaration, context)
   }
 }
 
-final case class ConstructorDeclaration(modifiers: List[TypeModifier], qualifiedName: QualifiedName,
+final case class ConstructorDeclaration(modifiers: Seq[Modifier], qualifiedName: QualifiedName,
                                         formalParameters: List[FormalParameter],
                                         block: Block) extends ClassBodyDeclaration {
-  override def children(): List[CST] = modifiers ++ formalParameters ++ List(block)
+  override def children(): List[CST] = formalParameters ++ List(block)
 }
 
 object ConstructorDeclaration {
-  def construct(modifiers: List[TypeModifier], from: ConstructorDeclarationContext, context: ConstructContext): ConstructorDeclaration = {
+  def construct(modifiers: Seq[Modifier], from: ConstructorDeclarationContext, context: ConstructContext): ConstructorDeclaration = {
     ConstructorDeclaration(modifiers,
       QualifiedName.construct(from.qualifiedName(), context),
       FormalParameters.construct(from.formalParameters(), context),
@@ -645,12 +414,12 @@ object ConstructorDeclaration {
   }
 }
 
-final case class PropertyDeclaration(modifiers: List[TypeModifier], typeRef: TypeRef, variableDeclarators: VariableDeclarators, propertyDeclaration: PropertyBodyDeclaration) extends ClassBodyDeclaration {
-  override def children(): List[CST] = typeRef :: variableDeclarators :: propertyDeclaration :: modifiers
+final case class PropertyDeclaration(modifiers: Seq[Modifier], typeRef: TypeRef, variableDeclarators: VariableDeclarators, propertyDeclaration: PropertyBodyDeclaration) extends ClassBodyDeclaration {
+  override def children(): List[CST] = typeRef :: variableDeclarators :: propertyDeclaration :: Nil
 }
 
 object PropertyDeclaration {
-  def construct(modifiers: List[TypeModifier], propertyDeclaration: PropertyDeclarationContext, context: ConstructContext): PropertyDeclaration = {
+  def construct(modifiers: Seq[Modifier], propertyDeclaration: PropertyDeclarationContext, context: ConstructContext): PropertyDeclaration = {
     PropertyDeclaration(modifiers, TypeRef.construct(propertyDeclaration.typeRef(), context),
       VariableDeclarators.construct(propertyDeclaration.variableDeclarators(), context),
       PropertyBodyDeclaration.construct(propertyDeclaration.propertyBodyDeclaration(), context)).withContext(propertyDeclaration, context)
@@ -760,9 +529,9 @@ object ForControl {
   }
 }
 
-final case class EnhancedForControl(modifiers: List[VariableModifier], typeRef: TypeRef,
+final case class EnhancedForControl(modifiers: Seq[Modifier], typeRef: TypeRef,
                                     id: Identifier, expression: Expression) extends ForControl with VarIntroducer {
-  override def children(): List[CST] = typeRef :: id :: expression :: modifiers
+  override def children(): List[CST] = typeRef :: id :: expression :: Nil
 
   def resolve(context: ResolveStmtContext): Unit = {
     expression.resolve(new ResolveExprContext(context))
@@ -772,15 +541,8 @@ final case class EnhancedForControl(modifiers: List[VariableModifier], typeRef: 
 
 object EnhancedForControl {
   def construct(from: EnhancedForControlContext, context: ConstructContext): EnhancedForControl = {
-    val variableModifiers: Seq[VariableModifierContext] =
-      if (from.variableModifier() != null) {
-        from.variableModifier().asScala
-      } else {
-        Seq()
-      }
-
     EnhancedForControl(
-      VariableModifier.construct(variableModifiers.toList, context),
+      ApexModifiers.construct(from.modifier().asScala, context),
       TypeRef.construct(from.typeRef(), context),
       Identifier(from.id().getText),
       Expression.construct(from.expression(), context).withContext(from, context)
@@ -944,8 +706,8 @@ object CatchType {
   }
 }
 
-final case class CatchClause(modifiers: List[VariableModifier], catchType: CatchType, id: String, block: Block) extends CST {
-  override def children(): List[CST] = modifiers ++ List(catchType) ++ List(block)
+final case class CatchClause(modifiers: Seq[Modifier], catchType: CatchType, id: String, block: Block) extends CST {
+  override def children(): List[CST] = List(catchType) ++ List(block)
 
   def resolve(context: ResolveStmtContext): Unit = {
     block.resolve(context)
@@ -961,9 +723,8 @@ object CatchClause {
   }
 
   def construct(from: CatchClauseContext, context: ConstructContext): CatchClause = {
-    val modifiers: Seq[VariableModifierContext] = from.variableModifier().asScala
     CatchClause(
-      VariableModifier.construct(modifiers.toList, context),
+      ApexModifiers.construct(from.modifier().asScala, context),
       CatchType.construct(from.catchType(), context),
       from.id().getText,
       Block.construct(from.block(), context)
@@ -1240,30 +1001,6 @@ object Statement {
   }
 }
 
-sealed abstract class VariableModifier extends CST
-
-final case class FinalVariableModifier() extends VariableModifier {
-  override def children(): List[CST] = Nil
-}
-
-final case class AnnotationVariableModifier(annotation: Annotation) extends VariableModifier {
-  override def children(): List[CST] = annotation :: Nil
-}
-
-object VariableModifier {
-  def construct(variableModifiers: List[VariableModifierContext], context: ConstructContext): List[VariableModifier] = {
-    variableModifiers.map(x => VariableModifier.construct(x, context))
-  }
-
-  def construct(variableModifierContext: VariableModifierContext, context: ConstructContext): VariableModifier = {
-    if (variableModifierContext.annotation() != null) {
-      AnnotationVariableModifier(Annotation.construct(variableModifierContext.annotation(), context)).withContext(variableModifierContext, context)
-    } else {
-      FinalVariableModifier().withContext(variableModifierContext, context)
-    }
-  }
-}
-
 sealed abstract class VariableInitializer() extends CST
 
 object VariableInitializer {
@@ -1367,34 +1104,29 @@ object TypeRef {
   }
 }
 
-final case class LocalVariableDeclaration(modifiers: List[VariableModifier], typeRef: TypeRef, variableDeclarators: VariableDeclarators) extends CST {
-  override def children(): List[CST] = modifiers ::: (typeRef :: variableDeclarators :: Nil)
+final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeRef: TypeRef, variableDeclarators: VariableDeclarators) extends CST {
+  override def children(): List[CST] = typeRef :: variableDeclarators :: Nil
 
   def resolve(context: ResolveStmtContext): Unit = variableDeclarators.resolve(typeRef, context)
 }
 
 object LocalVariableDeclaration {
   def construct(localVariableDeclaration: LocalVariableDeclarationContext, context: ConstructContext): LocalVariableDeclaration = {
-    val modifiers =
-      if (localVariableDeclaration.variableModifier() != null) {
-        val v: Seq[VariableModifierContext] = localVariableDeclaration.variableModifier().asScala
-        VariableModifier.construct(v.toList, context)
-      } else {
-        List()
-      }
-    LocalVariableDeclaration(modifiers, TypeRef.construct(localVariableDeclaration.typeRef(), context),
+    LocalVariableDeclaration(
+      ApexModifiers.construct(localVariableDeclaration.modifier().asScala, context),
+      TypeRef.construct(localVariableDeclaration.typeRef(), context),
       VariableDeclarators.construct(localVariableDeclaration.variableDeclarators(), context)).withContext(localVariableDeclaration, context)
   }
 }
 
 sealed abstract class PropertyBlock extends CST
 
-final case class GetterPropertyBlock(modifiers: List[TypeModifier], block: Option[Block]) extends PropertyBlock {
-  override def children(): List[CST] = modifiers ++ block
+final case class GetterPropertyBlock(modifiers: Seq[Modifier], block: Option[Block]) extends PropertyBlock {
+  override def children(): List[CST] = List() ++ block
 }
 
-final case class SetterPropertyBlock(modifiers: List[TypeModifier], block: Option[Block]) extends PropertyBlock {
-  override def children(): List[CST] = modifiers ++ block
+final case class SetterPropertyBlock(modifiers: Seq[Modifier], block: Option[Block]) extends PropertyBlock {
+  override def children(): List[CST] = List() ++ block
 }
 
 object PropertyBlock {
@@ -1402,9 +1134,9 @@ object PropertyBlock {
     val modifiers: Seq[ModifierContext] = propertyBlockContext.modifier().asScala
     val cst =
       if (propertyBlockContext.getter() != null) {
-        GetterPropertyBlock(Modifier.construct(modifiers.toList, context), Block.constructOption(propertyBlockContext.getter().block(), context))
+        GetterPropertyBlock(ApexModifiers.construct(modifiers.toList, context), Block.constructOption(propertyBlockContext.getter().block(), context))
       } else if (propertyBlockContext.setter() != null) {
-        SetterPropertyBlock(Modifier.construct(modifiers.toList, context), Block.constructOption(propertyBlockContext.setter().block(), context))
+        SetterPropertyBlock(ApexModifiers.construct(modifiers.toList, context), Block.constructOption(propertyBlockContext.setter().block(), context))
       } else {
         throw new CSTException()
       }
@@ -1423,8 +1155,8 @@ object PropertyBodyDeclaration {
   }
 }
 
-final case class FormalParameter(modifiers: List[VariableModifier], typeRef: TypeRef, id: Identifier) extends CST {
-  override def children(): List[CST] = modifiers ::: (typeRef :: id :: Nil)
+final case class FormalParameter(modifiers: Seq[Modifier], typeRef: TypeRef, id: Identifier) extends CST {
+  override def children(): List[CST] = List(typeRef, id)
 }
 
 object FormalParameter {
@@ -1433,14 +1165,9 @@ object FormalParameter {
   }
 
   def construct(from: FormalParameterContext, context: ConstructContext): FormalParameter = {
-    val modifiers: List[VariableModifier] =
-      if (from.variableModifier() != null) {
-        val m: Seq[VariableModifierContext] = from.variableModifier().asScala
-        VariableModifier.construct(m.toList, context)
-      } else {
-        List()
-      }
-    FormalParameter(modifiers, TypeRef.construct(from.typeRef(), context), Identifier(from.id.getText)).withContext(from, context)
+    FormalParameter(
+      ApexModifiers.construct(from.modifier().asScala, context),
+      TypeRef.construct(from.typeRef(), context), Identifier(from.id.getText)).withContext(from, context)
   }
 }
 

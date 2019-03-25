@@ -89,13 +89,11 @@ STATIC        : 'static';
 VIRTUAL       : 'virtual';
 
 SUPER         : 'super';
-SYNCHRONIZED  : 'synchronized';
 THIS          : 'this';
 THROW         : 'throw';
 TRANSIENT     : 'transient';
 TRY           : 'try';
 VOID          : 'void';
-VOLATILE      : 'volatile';
 WHILE         : 'while';
 
 // Apexcode specific

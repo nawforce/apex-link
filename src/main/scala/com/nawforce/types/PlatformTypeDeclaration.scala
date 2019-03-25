@@ -64,7 +64,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
   }
   lazy val interfaces: Seq[TypeName] = cls.getInterfaces.map(i => PlatformTypeDeclaration.typeName(i, cls))
 
-  lazy val modifiers: Seq[Modifier] = Modifiers.typeModifiers(cls.getModifiers, nature)
+  lazy val modifiers: Seq[Modifier] = PlatformModifiers.typeModifiers(cls.getModifiers, nature)
 
   lazy val nestedClasses: Seq[PlatformTypeDeclaration] =
     cls.getClasses.map(nested => PlatformTypeDeclaration(nested, Some(this)))
@@ -72,7 +72,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
   case class Field(field: java.lang.reflect.Field) extends FieldDeclaration {
     lazy val name: Name = Name(field.getName)
     lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(field.getType, field.getDeclaringClass)
-    lazy val modifiers: Seq[Modifier] = Modifiers.fieldOrMethodModifiers(field.getModifiers)
+    lazy val modifiers: Seq[Modifier] = PlatformModifiers.fieldOrMethodModifiers(field.getModifiers)
   }
 
   lazy val fields: Seq[FieldDeclaration] = cls.getFields.filter(
@@ -88,7 +88,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
 
   case class Constructor(ctor: java.lang.reflect.Constructor[_], typeDeclaration: PlatformTypeDeclaration)
     extends ConstructorDeclaration {
-    lazy val modifiers: Seq[Modifier] = Modifiers.methodModifiers(ctor.getModifiers, typeDeclaration.nature)
+    lazy val modifiers: Seq[Modifier] = PlatformModifiers.methodModifiers(ctor.getModifiers, typeDeclaration.nature)
     lazy val parameters: Seq[Parameter] = ctor.getParameters.map(p => Parameter(p, ctor.getDeclaringClass))
     def getDeclaringClass: Class[_] =  ctor.getDeclaringClass
 
@@ -105,7 +105,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
     extends MethodDeclaration {
     lazy val name: Name = Name(method.getName)
     lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(method.getReturnType, method.getDeclaringClass)
-    lazy val modifiers: Seq[Modifier] = Modifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
+    lazy val modifiers: Seq[Modifier] = PlatformModifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
     lazy val parameters: Seq[Parameter] = method.getParameters.map(p => Parameter(p, method.getDeclaringClass))
     def getDeclaringClass: Class[_] =  method.getDeclaringClass
 

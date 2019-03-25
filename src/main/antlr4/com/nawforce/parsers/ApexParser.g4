@@ -47,46 +47,13 @@ import java.util.*;
 
 // starting point for parsing a apexcode file
 compilationUnit
-    :   typeDeclaration* EOF
+    :   typeDeclaration EOF
     ;
 
 typeDeclaration
-    :   classOrInterfaceModifier* classDeclaration EOF
-    |   classOrInterfaceModifier* enumDeclaration EOF
-    |   classOrInterfaceModifier* interfaceDeclaration EOF
-    ;
-
-modifier
-    :   classOrInterfaceModifier
-    |   (   'native'
-        |   'synchronized'
-        |   'transient'
-        )
-    ;
-
-classOrInterfaceModifier
-    :   annotation       // class or interface
-    |   (   'public'     // class or interface
-        |   'protected'  // class or interface
-        |   'private'    // class or interface
-        |   'static'     // class or interface
-        |   'abstract'   // class or interface
-        |   'final'      // class only -- does not apply to interfaces
-        |   'global'     // class or interface
-        |   'webservice' // class only -- does not apply to interfaces
-        |   'override'   // method only
-        |   'virtual'    // method only
-        |   'testmethod'   // method only
-		|	WITH SHARING
-		|	WITHOUT SHARING
-		|	INHERITED SHARING
-        )
-    ;
-
-variableModifier
-    :   'final'
-    |   'transient'
-    |   annotation
+    :   modifier* classDeclaration
+    |   modifier* enumDeclaration
+    |   modifier* interfaceDeclaration
     ;
 
 classDeclaration
@@ -95,7 +62,6 @@ classDeclaration
         (IMPLEMENTS typeList)?
         classBody
     ;
-
 
 enumDeclaration
     :   ENUM id (IMPLEMENTS typeList)?
@@ -136,6 +102,26 @@ classBodyDeclaration
     |   modifier* memberDeclaration
     ;
 
+/* Unify all modifiers so we can give better error messages */
+modifier
+    :   annotation
+    |   GLOBAL
+    |   PUBLIC
+    |   PROTECTED
+    |   PRIVATE
+    |   TRANSIENT
+    |   STATIC
+    |   ABSTRACT
+    |   FINAL
+    |   WEBSERVICE
+    |   OVERRIDE
+    |   VIRTUAL
+    |   TESTMETHOD
+    |	WITH SHARING
+    |	WITHOUT SHARING
+    |	INHERITED SHARING
+    ;
+
 memberDeclaration
     :   methodDeclaration
     |   fieldDeclaration
@@ -152,20 +138,9 @@ memberDeclaration
    for invalid return type after parsing.
  */
 
-methodModifier
-    :   GLOBAL
-    |   PUBLIC
-    |   PROTECTED
-    |   PRIVATE
-    |   STATIC
-    |   WEBSERVICE
-    |   OVERRIDE
-    |   VIRTUAL
-    |   TESTMETHOD
-    ;
 
 methodDeclaration
-    :   annotation? methodModifier* (typeRef|VOID) id formalParameters
+    :   annotation? modifier* (typeRef|VOID) id formalParameters
         (   block
         |   SEMI
         )
@@ -270,7 +245,7 @@ formalParameterList
     ;
 
 formalParameter
-    :   variableModifier* typeRef id
+    :   modifier* typeRef id
     ;
 
 qualifiedName
@@ -320,7 +295,7 @@ localVariableDeclarationStatement
     ;
 
 localVariableDeclaration
-    :   variableModifier* typeRef variableDeclarators
+    :   modifier* typeRef variableDeclarators
     ;
 
 statement
@@ -436,7 +411,7 @@ setter
     ;
 
 catchClause
-    : CATCH LPAREN variableModifier* catchType id RPAREN block
+    : CATCH LPAREN modifier* catchType id RPAREN block
     ;
 
 catchType
@@ -458,7 +433,7 @@ forInit
     ;
 
 enhancedForControl
-    :  variableModifier* typeRef id COLON expression
+    :  modifier* typeRef id COLON expression
     ;
 
 forUpdate

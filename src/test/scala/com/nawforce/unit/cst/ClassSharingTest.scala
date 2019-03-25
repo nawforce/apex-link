@@ -27,12 +27,18 @@
 */
 package com.nawforce.unit.cst
 
+import com.nawforce.cst.TypeDeclaration
+import com.nawforce.types.PUBLIC
 import org.scalatest.FunSuite
 
 class ClassSharingTest extends FunSuite {
 
+  def typeDeclaration(clsText: String): TypeDeclaration = {
+    ClassParser.parseSingle(clsText).get.compilationUnit.typeDeclaration
+  }
+
   test("No sharing class") {
-    assert(ClassParser.parseSingle("public class Dummy {}").nonEmpty)
+    assert(typeDeclaration("public class Dummy {}").modifiers.contains(PUBLIC))
   }
 
   test("With sharing class") {

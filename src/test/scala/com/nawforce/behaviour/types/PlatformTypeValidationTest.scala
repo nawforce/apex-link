@@ -72,7 +72,7 @@ class PlatformTypeValidationTest extends FunSuite {
       case CLASS => ()
     }
 
-    // Modifiers, always public for outer platform classes
+    // PlatformModifiers, always public for outer platform classes
     if (typeDeclaration.parent.isEmpty)
       assert(typeDeclaration.modifiers == Seq(PUBLIC))
 

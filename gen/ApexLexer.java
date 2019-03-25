@@ -1,5 +1,4 @@
 // Generated from /Users/kevin/Projects/ApexLink/src/main/antlr4/com/nawforce/parsers/ApexLexer.g4 by ANTLR 4.7.2
-package com.nawforce.parsers;
 
 import java.util.*; 
 
