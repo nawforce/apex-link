@@ -54,6 +54,7 @@ object Name {
   def apply(name: String): Name = cache(name)
 
   lazy val System: Name = cache("System")
+  lazy val Void: Name = cache("void")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 }

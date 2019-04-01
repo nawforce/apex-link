@@ -29,7 +29,6 @@ package com.nawforce.unit.cst
 
 import java.net.URI
 
-import com.nawforce.cst.TypeDeclaration
 import com.nawforce.types._
 import com.nawforce.utils.IssueLog
 import org.scalatest.FunSuite
