@@ -37,7 +37,6 @@ class SymbolReaderContext(val baseDir: Path, verbose: Boolean) {
 
   private val _labels = mutable.HashMap[String, Label]()
   private val _customObjects = mutable.HashMap[String, CustomObject]()
-  private val _pages = mutable.HashMap[String, Page]()
   private val _apexClasses = mutable.HashMap[String, ApexClass]()
 
   require(Files.isDirectory(baseDir), "Expecting to see a directory at '" + baseDir.toString + "'")
@@ -64,13 +63,6 @@ class SymbolReaderContext(val baseDir: Path, verbose: Boolean) {
       _customObjects.put(customObject.fullName, customObject)
   }
 
-  def addPage(page: Page): Unit = {
-    if (_pages.get(page.fullName).isDefined)
-      IssueLog.logMessage(page.location, "Duplicate page found for '" + page.fullName + "'")
-    else
-      _pages.put(page.fullName, page)
-  }
-
   def addApexClass(apexClass: ApexClass): Unit = {
     if (_apexClasses.get(apexClass.fullName).isDefined)
       IssueLog.logMessage(apexClass.location, "Duplicate class found for '" + apexClass.fullName + "'")
@@ -81,7 +73,6 @@ class SymbolReaderContext(val baseDir: Path, verbose: Boolean) {
   def report(): Unit = {
     System.out.println("Labels loaded: " + _labels.size)
     System.out.println("CustomObjects loaded: " + _customObjects.size)
-    System.out.println("Pages loaded: " + _pages.size)
     System.out.println("Classes loaded: " + _apexClasses.size)
   }
 }
