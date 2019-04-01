@@ -28,10 +28,11 @@
 package com.nawforce.metadata
 
 import java.io.{File, FileInputStream}
+import java.net.URI
 
 import com.nawforce.cst._
 import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
-import com.nawforce.utils.{LinkerLog, Location, SyntaxException, ThrowingErrorListener}
+import com.nawforce.utils._
 import org.antlr.v4.runtime.CommonTokenStream
 
 case class ApexClass(location: Location, fullName: String, compilationUnit: CompilationUnit) extends Symbol {
@@ -48,11 +49,11 @@ case class ApexClass(location: Location, fullName: String, compilationUnit: Comp
 }
 
 object ApexClass {
-  def create(fullName: String, path: String): Option[ApexClass] = {
+  def create(fullName: String, uri: URI): Option[ApexClass] = {
 
     try {
       val listener = new ThrowingErrorListener
-      val fis: FileInputStream = new FileInputStream(new File(path))
+      val fis: FileInputStream = new FileInputStream(new File(uri))
       val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(fis)
       val lexer: ApexLexer = new ApexLexer(cis)
       lexer.removeErrorListeners()
@@ -67,10 +68,10 @@ object ApexClass {
       parser.addErrorListener(listener)
 
       val cu = CompilationUnit.construct(parser.compilationUnit(), new ConstructContext())
-      Some(new ApexClass(new Location(path, 0), fullName, cu))
+      Some(new ApexClass(LineLocation(uri, 0), fullName, cu))
     } catch {
       case se: SyntaxException =>
-        LinkerLog.logMessage(path, se.line, se.msg)
+        IssueLog.logMessage(LineLocation(uri, se.line), se.msg)
         None
     }
   }

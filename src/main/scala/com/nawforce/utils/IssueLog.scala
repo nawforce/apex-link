@@ -27,16 +27,20 @@
 */
 package com.nawforce.utils
 
+import java.net.URI
+
 import scala.collection.mutable
 
-class Location(val filepath: String, val line: Integer) {
-}
+object IssueLog {
+  private val log = mutable.HashMap[URI, List[(Location, String)]]() withDefaultValue List()
+  private val contexts = mutable.Stack[URI]()
 
-object LinkerLog {
-  private val log = mutable.HashMap[String, mutable.HashMap[Int, List[String]]]()
-  private val contexts = mutable.Stack[String]()
+  def clear(): Unit = {
+    log.clear()
+    contexts.clear()
+  }
 
-  def pushContext(context: String): Unit = {
+  def pushContext(context: URI): Unit = {
     contexts.push(context)
   }
 
@@ -44,7 +48,7 @@ object LinkerLog {
     contexts.pop()
   }
 
-  def context: Option[String] = {
+  def context: Option[URI] = {
     contexts.headOption
   }
 
@@ -63,46 +67,43 @@ object LinkerLog {
 
   def logMessage(index: Integer, msg: String): Unit = {
     if (contexts.nonEmpty) {
-      logMessage(contexts.head, index, msg)
+      logMessage(LineLocation(contexts.head, index), msg)
     }
+  }
+
+  def logMessage(range: TextRange, msg: String): Unit = {
+    assert(contexts.nonEmpty)
+    logMessage(RangeLocation(contexts.head, range), msg)
   }
 
   def logMessage(location: Location, msg: String): Unit = {
-    if (contexts.nonEmpty) {
-      logMessage(location.filepath, location.line, msg)
-    }
-  }
-
-  def logMessage(context: String, index: Integer, msg: String): Unit = {
-    if (!log.contains(context)) {
-      log.put(context, mutable.HashMap[Int, List[String]]())
-    }
-    val ctxLog = log(context)
-    if (!ctxLog.contains(index)) {
-      ctxLog.put(index, List[String]())
-    }
-    val indexLog = ctxLog(index)
-    ctxLog.put(index, msg :: indexLog)
+    log.put(location.uri, (location, msg) :: log(location.uri))
   }
 
   def hasMessages: Boolean = log.nonEmpty
 
-  def dumpMessages(maxErrors: Integer = 10): Unit = {
-    log.foreach(context => {
-      System.out.println(context._1)
-      val seq = context._2.toIndexedSeq
-      val sorted = seq.sortBy { case (line, _) => line }
+  def getMessages(uri: URI, showURI: Boolean = false, maxErrors: Int = 10): String = {
+    val buffer = new StringBuilder
+    val messages = log.getOrElse(uri, List())
+    if (messages.nonEmpty) {
+      if (showURI)
+        buffer ++= uri.toString + "\n"
       var count = 0
-      sorted.foreach(messages => {
-        messages._2.foreach(message => {
-          if (count < maxErrors) {
-            println(messages._1 + ": " + message)
-          }
-          count += 1
-        })
+      messages.sortBy(_._1.line).foreach(message => {
+        if (count < maxErrors) {
+          buffer ++= message._1.displayPosition + ": " + message._2 + "\n"
+        }
+        count += 1
       })
       if (count - maxErrors > 0)
-        println(count - maxErrors + " of " + count + " errors not shown")
+        buffer ++= count - maxErrors + " of " + count + " errors not shown"
+    }
+    buffer.toString()
+  }
+
+  def dumpMessages(maxErrors: Integer = 10): Unit = {
+    log.keys.foreach(uri => {
+      System.out.println(getMessages(uri, showURI = true, maxErrors))
     })
   }
 }

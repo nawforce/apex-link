@@ -30,7 +30,7 @@ package com.nawforce.metadata
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{Files, Path}
 
-import com.nawforce.utils.{LinkerException, LinkerLog, TraversePath}
+import com.nawforce.utils.{IssueLog, LineLocation, LinkerException, TraversePath}
 
 class ApexClassReader extends SymbolReader {
 
@@ -38,7 +38,7 @@ class ApexClassReader extends SymbolReader {
     try {
       val classesDir = ctx.getBaseDir.resolve("classes")
       if (Files.exists(classesDir)) {
-        LinkerLog.ifNotLogAndThrow(Files.isDirectory(classesDir), 0, "classes is present but not a directory")
+        IssueLog.ifNotLogAndThrow(Files.isDirectory(classesDir), 0, "classes is present but not a directory")
 
         val traverse = new TraversePath(classesDir)
         traverse foreach {
@@ -49,9 +49,9 @@ class ApexClassReader extends SymbolReader {
               // Ignore
             } else if (attr.isRegularFile) {
               if (!isIgnoreable(file))
-                LinkerLog.logMessage(file.toString, 0, "Unexpected file in classes directory")
+                IssueLog.logMessage(LineLocation(file.toUri, 0), "Unexpected file in classes directory")
             } else {
-              LinkerLog.logMessage(file.toString, 0, "Only expected to find files in classes directory")
+              IssueLog.logMessage(LineLocation(file.toUri, 0), "Only expected to find files in classes directory")
             }
         }
       }
@@ -63,7 +63,7 @@ class ApexClassReader extends SymbolReader {
 
   def loadSymbolsFrom(ctx: SymbolReaderContext, path: Path): Unit = {
     try {
-      LinkerLog.ifNotLogAndThrow(Files.isDirectory(path), 0, "Directory is not present")
+      IssueLog.ifNotLogAndThrow(Files.isDirectory(path), 0, "Directory is not present")
 
       val traverse = new TraversePath(path)
       traverse foreach {
@@ -80,11 +80,11 @@ class ApexClassReader extends SymbolReader {
 
   def loadApexClass(ctx: SymbolReaderContext, fullName: String, path: Path): Option[ApexClass] = {
     if (ctx.isVerbose) println("Loading " + path)
-    LinkerLog.pushContext(path.toString)
+    IssueLog.pushContext(path.toUri)
     try {
-      ApexClass.create(fullName, path.toString)
+      ApexClass.create(fullName, path.toUri)
     } finally {
-      LinkerLog.popContext()
+      IssueLog.popContext()
     }
   }
 }

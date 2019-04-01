@@ -2,13 +2,15 @@ package com.nawforce.cst
 
 import com.nawforce.parsers.ApexParser
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{ApexModifiers, Modifier}
-import com.nawforce.utils.CSTException
+import com.nawforce.types.{ApexModifiers, GLOBAL, Modifier}
+import com.nawforce.utils.{CSTException, IssueLog}
 
 import scala.collection.JavaConverters._
 
 final case class CompilationUnit(typeDeclaration: TypeDeclaration) extends CST {
   def children(): List[CST] = List(typeDeclaration)
+
+  def verify(): Unit = typeDeclaration.verify()
 
   def resolve(index: CSTIndex): Unit = {
     typeDeclaration.resolve(index)
@@ -23,16 +25,18 @@ object CompilationUnit {
 
 // Treat TypeDeclarations as ClassBodyDeclarations for inner class, interface & enum
 sealed abstract class TypeDeclaration(val modifiers: Seq[Modifier]) extends CST with ClassBodyDeclaration {
+  def verify()
   def resolve(index: CSTIndex)
 }
 
 object TypeDeclaration {
-
   def construct(typeDecl: TypeDeclarationContext, context: ConstructContext): TypeDeclaration = {
     val modifiers: Seq[ModifierContext] = typeDecl.modifier().asScala
     val cst =
       if (typeDecl.classDeclaration() != null) {
-        ClassDeclaration.construct(ApexModifiers.construct(modifiers, context), typeDecl.classDeclaration(), context)
+        ClassDeclaration.construct(
+          ApexModifiers.classModifiers(modifiers, context, outer = true, typeDecl.classDeclaration().id()),
+          typeDecl.classDeclaration(), context)
       } else if (typeDecl.interfaceDeclaration() != null) {
         InterfaceDeclaration.construct(ApexModifiers.construct(modifiers, context), typeDecl.interfaceDeclaration(), context)
       } else if (typeDecl.enumDeclaration() != null) {
@@ -45,13 +49,21 @@ object TypeDeclaration {
   }
 }
 
-final case class ClassDeclaration(name: String, _modifiers: Seq[Modifier],
+final case class ClassDeclaration(id: Id, _modifiers: Seq[Modifier],
                                   extendsType: Option[Type], implementsTypes: TypeList,
                                   bodyDeclarations: List[ClassBodyDeclaration]) extends
   TypeDeclaration(_modifiers) {
 
   override def children(): List[CST] = {
     List() ++ extendsType ++ implementsTypes.types ++ bodyDeclarations
+  }
+
+  override def isGlobal: Boolean = modifiers.contains(GLOBAL)
+
+  override def verify(): Unit = {
+    if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL)) {
+      IssueLog.logMessage(id.textRange, "Classes enclosing globals must also be declared global")
+    }
   }
 
   override def resolve(index: CSTIndex): Unit = {
@@ -92,7 +104,7 @@ object ClassDeclaration {
         List()
       }
 
-    ClassDeclaration(classDeclaration.id().getText, modifiers, extendType,
+    ClassDeclaration(Id.construct(classDeclaration.id(), context), modifiers, extendType,
       implementsType, bodyDeclarations).withContext(classDeclaration, context)
   }
 }
@@ -102,6 +114,10 @@ final case class InterfaceDeclaration(name: String, _modifiers: Seq[Modifier], i
   extends TypeDeclaration(_modifiers) {
 
   override def children(): List[CST] = implementsTypes.types
+
+  override def isGlobal: Boolean = modifiers.contains(GLOBAL)
+
+  override def verify(): Unit = {}
 
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)
@@ -125,6 +141,10 @@ final case class EnumDeclaration(name: String, _modifiers: Seq[Modifier], implem
   extends TypeDeclaration(_modifiers) {
 
   override def children(): List[CST] = implementsTypes.types
+
+  override def isGlobal: Boolean = modifiers.contains(GLOBAL)
+
+  override def verify(): Unit = {}
 
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)

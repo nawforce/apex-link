@@ -30,7 +30,8 @@ package com.nawforce.types
 import java.lang.reflect.{Modifier => JavaModifier}
 
 import com.nawforce.cst.ConstructContext
-import com.nawforce.parsers.ApexParser.ModifierContext
+import com.nawforce.parsers.ApexParser.{IdContext, ModifierContext}
+import com.nawforce.utils.{IssueLog, TextRange}
 
 sealed abstract class Modifier(name: String) {
   override def toString: String = name
@@ -40,6 +41,7 @@ case object GLOBAL extends Modifier("global")
 case object PUBLIC extends Modifier("public")
 case object PROTECTED extends Modifier("protected")
 case object PRIVATE extends Modifier("private")
+case object TEST_CLASS extends Modifier("@isTest")
 
 case object STATIC extends Modifier("static")
 case object ABSTRACT extends Modifier("abstract")
@@ -57,6 +59,46 @@ case object WITHOUT_SHARING extends Modifier("without sharing")
 case object INHERITED_SHARING extends Modifier("inherited sharing")
 
 object ApexModifiers {
+  def classModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext,
+                     outer: Boolean, idContext: IdContext)
+  : Seq[Modifier] = {
+
+    val mods = modifierContexts.flatMap(modifierContext =>
+      modifierContext.getText match {
+        case "global" => Some(GLOBAL)
+        case "public" => Some(PUBLIC)
+        case "private" if !outer => Some(PRIVATE)
+        case "withsharing" => Some(WITH_SHARING)
+        case "withoutsharing" => Some(WITHOUT_SHARING)
+        case "inheritedsharing" => Some(INHERITED_SHARING)
+        case _ =>
+          val modifierText = modifierContext.getText
+          if (modifierText == "private")
+            IssueLog.logMessage(TextRange(modifierContext),
+              s"Modifier '${modifierContext.getText}' is not supported on ${if (outer) "outer" else ""} classes")
+          else
+            IssueLog.logMessage(TextRange(modifierContext),
+              s"Modifier '${modifierContext.getText}' is not supported on classes")
+          None
+      })
+
+    if (mods.size == modifierContexts.size) {
+      val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
+      if (duplicates.nonEmpty) {
+        IssueLog.logMessage(TextRange(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
+      } else if (outer && !(mods.contains(GLOBAL) || mods.contains(PUBLIC))) {
+        IssueLog.logMessage(TextRange(idContext), s"Outer classes must be declared either 'global' or 'public'")
+      } else if (mods.intersect(Seq(PUBLIC, PROTECTED, PRIVATE)).size > 1) {
+        IssueLog.logMessage(TextRange(idContext),
+          s"Only one visibility modifier from 'global', 'public' & 'private' may be used on classes")
+      } else if (mods.intersect(Seq(WITH_SHARING, WITHOUT_SHARING, INHERITED_SHARING)).size > 1) {
+        IssueLog.logMessage(TextRange(idContext),
+          s"Only one sharing modifier from 'with sharing', 'without sharing' & 'inherited sharing' may be used on classes")
+      }
+    }
+    mods
+  }
+
   def construct(modifiers: Seq[ModifierContext], context: ConstructContext): Seq[Modifier] = {
     modifiers.map(_.getText).flatMap {
       case "public" => Some(PUBLIC)
@@ -64,7 +106,6 @@ object ApexModifiers {
     }
   }
 }
-
 
 object PlatformModifiers {
   def typeModifiers(javaBits: Int, nature: Nature): Seq[Modifier] = {

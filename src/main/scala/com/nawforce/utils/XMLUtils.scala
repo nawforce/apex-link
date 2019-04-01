@@ -36,7 +36,7 @@ object XMLUtils {
   }
 
   def getLocation(elem: Elem): Location = {
-    new Location(LinkerLog.context.get, getLine(elem))
+    LineLocation(IssueLog.context.get, getLine(elem))
   }
 
   def ifNotElemLogAndThrow(elem: Elem, name: String): Unit = {
@@ -56,7 +56,7 @@ object XMLUtils {
 
   def ifNotLog(condition: Boolean, elem: Elem, msg: String): Boolean = {
     if (!condition) {
-      LinkerLog.logMessage(getLine(elem), msg)
+      IssueLog.logMessage(getLine(elem), msg)
     }
     !condition
   }
@@ -64,7 +64,7 @@ object XMLUtils {
   def getSingleChildAsString(elem: Elem, name: String): Option[String] = {
     val text = getOptionalSingleChildAsString(elem, name)
     if (text.isEmpty)
-      LinkerLog.logMessage(getLine(elem), "Expecting element to have single '" + name + "' child")
+      IssueLog.logMessage(getLine(elem), "Expecting element to have single '" + name + "' child")
     text
   }
 
@@ -75,7 +75,7 @@ object XMLUtils {
   def getSingleChildAsBoolean(elem: Elem, name: String): Option[Boolean] = {
     val value = getOptionalSingleChildAsBoolean(elem, name)
     if (value.isEmpty)
-      LinkerLog.logMessage(getLine(elem), "Expecting element to have single '" + name + "' child")
+      IssueLog.logMessage(getLine(elem), "Expecting element to have single '" + name + "' child")
     value
   }
 
@@ -84,7 +84,7 @@ object XMLUtils {
     if (matched.isDefined) {
       val isBoolean = matched.get.text.matches("true|false")
       if (!isBoolean)
-        LinkerLog.logMessage(getLine(matched.get), "Expecting value to be either 'true' or 'false', found '" + matched.get.text + "'")
+        IssueLog.logMessage(getLine(matched.get), "Expecting value to be either 'true' or 'false', found '" + matched.get.text + "'")
       Some(matched.get.text == "true")
     } else {
       None
@@ -94,7 +94,7 @@ object XMLUtils {
   def getSingleChild(elem: Elem, name: String): Option[Elem] = {
     val child = getOptionalSingleChild(elem, name)
     if (child.isEmpty)
-      LinkerLog.logMessage(getLine(elem), "Expecting element to have single '" + name + "' child")
+      IssueLog.logMessage(getLine(elem), "Expecting element to have single '" + name + "' child")
     child
   }
 

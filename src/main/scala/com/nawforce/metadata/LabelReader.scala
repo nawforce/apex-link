@@ -29,7 +29,7 @@ package com.nawforce.metadata
 
 import java.nio.file.Files
 
-import com.nawforce.utils.{LinkerException, LinkerLog, XMLLineLoader, XMLUtils}
+import com.nawforce.utils.{LinkerException, IssueLog, XMLLineLoader, XMLUtils}
 
 import scala.xml.Elem
 
@@ -38,10 +38,10 @@ class LabelReader extends SymbolReader {
   override def loadSymbols(ctx: SymbolReaderContext): Unit = {
     try {
       val labelsFile = ctx.getBaseDir.resolve("labels").resolve("CustomLabels.labels")
-      LinkerLog.pushContext(labelsFile.toString)
+      IssueLog.pushContext(labelsFile.toUri)
       if (Files.exists(labelsFile)) {
-        LinkerLog.ifNotLogAndThrow(Files.isRegularFile(labelsFile), 0, "Labels file is not a regular file")
-        LinkerLog.ifNotLogAndThrow(Files.isReadable(labelsFile), 0, "Labels file is not readable")
+        IssueLog.ifNotLogAndThrow(Files.isRegularFile(labelsFile), 0, "Labels file is not a regular file")
+        IssueLog.ifNotLogAndThrow(Files.isReadable(labelsFile), 0, "Labels file is not readable")
 
         val root = XMLLineLoader.loadFile(labelsFile.toString)
         XMLUtils.ifNotElemLogAndThrow(root, "CustomLabels")

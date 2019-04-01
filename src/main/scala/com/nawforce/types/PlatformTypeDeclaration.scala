@@ -168,7 +168,7 @@ object PlatformTypeDeclaration {
     HashMap[DotName, DotName]() ++ names
   }
 
-  /* Index .class files in a path, we have to index to make sure we get natural case sensitive names */
+  /* Index .class files in a uri, we have to index to make sure we get natural case sensitive names */
   private def indexDir(file: File, prefix: DotName, accum: mutable.HashMap[DotName, DotName]): Unit = {
     val path = file.toPath
     file.list().foreach(name => {

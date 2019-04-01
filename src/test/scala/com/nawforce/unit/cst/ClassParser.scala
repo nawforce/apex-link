@@ -28,16 +28,21 @@
 package com.nawforce.unit.cst
 
 import java.io.ByteArrayInputStream
+import java.net.URI
 import java.nio.charset.StandardCharsets
+import java.nio.file.Paths
 
 import com.nawforce.cst.{CompilationUnit, ConstructContext}
 import com.nawforce.metadata.ApexClass
 import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
-import com.nawforce.utils.{LinkerLog, Location, SyntaxException, ThrowingErrorListener}
+import com.nawforce.utils._
 import org.antlr.v4.runtime.CommonTokenStream
 
 object ClassParser {
-  def parseSingle(clsText: String): Option[ApexClass] = {
+  lazy val defaultUri: URI = Paths.get("dummy.cls").toUri
+
+  def parseSingle(clsText: String, uri: URI = defaultUri, displayMessages: Boolean = false)
+    : Option[ApexClass] = {
     try {
       val listener = new ThrowingErrorListener
       val stream = new ByteArrayInputStream(clsText.getBytes(StandardCharsets.UTF_8))
@@ -54,12 +59,18 @@ object ClassParser {
       parser.setTrace(false)
       parser.addErrorListener(listener)
 
+      IssueLog.pushContext(uri)
       val cu = CompilationUnit.construct(parser.compilationUnit(), new ConstructContext())
-      Some(new ApexClass(new Location("dummy", 0), "dummy", cu))
+      cu.verify()
+      if (IssueLog.hasMessages && displayMessages)
+        IssueLog.dumpMessages()
+      Some(new ApexClass(LineLocation(uri, 0), "dummy", cu))
     } catch {
       case se: SyntaxException =>
-        LinkerLog.logMessage("dummy", se.line, se.msg)
+        IssueLog.logMessage(LineLocation(uri, se.line), se.msg)
         None
+    } finally {
+      IssueLog.popContext()
     }
   }
 

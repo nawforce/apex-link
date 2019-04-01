@@ -29,7 +29,7 @@ package com.nawforce.metadata
 
 import java.nio.file.{Files, Path}
 
-import com.nawforce.utils.LinkerLog
+import com.nawforce.utils.IssueLog
 
 import scala.collection.mutable
 
@@ -52,28 +52,28 @@ class SymbolReaderContext(val baseDir: Path, verbose: Boolean) {
 
   def addLabel(label: Label): Unit = {
     if (_labels.get(label.fullName).isDefined)
-      LinkerLog.logMessage(label.location, "Duplicate label found for '" + label.fullName + "'")
+      IssueLog.logMessage(label.location, "Duplicate label found for '" + label.fullName + "'")
     else
       _labels.put(label.fullName, label)
   }
 
   def addCustomObject(customObject: CustomObject): Unit = {
     if (_customObjects.get(customObject.fullName).isDefined)
-      LinkerLog.logMessage(customObject.location, "Duplicate custom object found for '" + customObject.fullName + "'")
+      IssueLog.logMessage(customObject.location, "Duplicate custom object found for '" + customObject.fullName + "'")
     else
       _customObjects.put(customObject.fullName, customObject)
   }
 
   def addPage(page: Page): Unit = {
     if (_pages.get(page.fullName).isDefined)
-      LinkerLog.logMessage(page.location, "Duplicate page found for '" + page.fullName + "'")
+      IssueLog.logMessage(page.location, "Duplicate page found for '" + page.fullName + "'")
     else
       _pages.put(page.fullName, page)
   }
 
   def addApexClass(apexClass: ApexClass): Unit = {
     if (_apexClasses.get(apexClass.fullName).isDefined)
-      LinkerLog.logMessage(apexClass.location, "Duplicate class found for '" + apexClass.fullName + "'")
+      IssueLog.logMessage(apexClass.location, "Duplicate class found for '" + apexClass.fullName + "'")
     else
       _apexClasses.put(apexClass.fullName, apexClass)
   }

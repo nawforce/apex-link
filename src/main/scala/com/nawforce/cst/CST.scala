@@ -27,19 +27,16 @@
 */
 package com.nawforce.cst
 
-import com.nawforce.parsers.ApexParser
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{ApexModifiers, Modifier}
-import com.nawforce.utils.CSTException
+import com.nawforce.types.{ApexModifiers, GLOBAL, Modifier}
+import com.nawforce.utils.{CSTException, Name, TextRange}
 import org.antlr.v4.runtime.ParserRuleContext
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 abstract class CST {
-
-  private var startPos: Long = -1
-  private var endPos: Long = -1
+  var textRange: TextRange = TextRange.empty
 
   // TODO: Not all CST produce types
   def getType(ctx: TypeContext): Type = {
@@ -53,19 +50,9 @@ abstract class CST {
   }
 
   def withContext(context: ParserRuleContext, constructContext: ConstructContext): this.type = {
-    startPos = context.start.getStartIndex()
-    endPos = context.stop.getStopIndex()
-
+    textRange = TextRange(context)
     this
   }
-
-  def location(): String = {
-    "From " + start() + " to " + end() + " length " + (end() - start())
-  }
-
-  def start(): Long = startPos
-
-  def end(): Long = endPos
 
   def findExpressions(onlyOuter: Boolean): List[Expression] = {
     this match {
@@ -95,6 +82,16 @@ class CSTIndex {
       nodes.get
     else
       mutable.Set[CST]()
+  }
+}
+
+final case class Id(name: Name) extends CST {
+  override def children(): List[CST] = List()
+}
+
+object Id {
+  def construct(idContext: IdContext, context: ConstructContext): Id = {
+    Id(Name(idContext.toString)).withContext(idContext, context)
   }
 }
 
@@ -315,6 +312,8 @@ object ElementValuePairs {
 }
 
 trait ClassBodyDeclaration extends CST {
+  def isGlobal: Boolean
+
   def resolve(index: CSTIndex): Unit = {
     // Default to ignore
   }
@@ -337,7 +336,9 @@ object ClassBodyDeclaration {
       } else if (memberDeclarationContext.propertyDeclaration() != null) {
         PropertyDeclaration.construct(m, memberDeclarationContext.propertyDeclaration(), context)
       } else if (memberDeclarationContext.classDeclaration() != null) {
-        ClassDeclaration.construct(m, memberDeclarationContext.classDeclaration(), context)
+        ClassDeclaration.construct(
+          ApexModifiers.classModifiers(modifiers, context, outer = false, memberDeclarationContext.classDeclaration().id()),
+          memberDeclarationContext.classDeclaration(), context)
       } else {
         throw new CSTException()
       }
@@ -348,6 +349,8 @@ object ClassBodyDeclaration {
 
 final case class StaticBlock(block: Block) extends ClassBodyDeclaration {
   override def children(): List[CST] = block.children()
+
+  override def isGlobal: Boolean = false
 
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)
@@ -364,6 +367,8 @@ final case class MethodDeclaration(modifiers: Seq[Modifier], typeRef: Option[Typ
                                    formalParameters: List[FormalParameter], block: Option[Block]) extends ClassBodyDeclaration {
 
   override def children(): List[CST] = List() ++ typeRef ++ formalParameters ++ block
+
+  override def isGlobal: Boolean = modifiers.contains(GLOBAL)
 
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)
@@ -389,6 +394,8 @@ object MethodDeclaration {
 
 final case class FieldDeclaration(modifiers: Seq[Modifier], typeRef: TypeRef, variableDeclarators: VariableDeclarators) extends ClassBodyDeclaration {
   override def children(): List[CST] = typeRef :: variableDeclarators :: Nil
+
+  override def isGlobal: Boolean = modifiers.contains(GLOBAL)
 }
 
 object FieldDeclaration {
@@ -402,6 +409,8 @@ final case class ConstructorDeclaration(modifiers: Seq[Modifier], qualifiedName:
                                         formalParameters: List[FormalParameter],
                                         block: Block) extends ClassBodyDeclaration {
   override def children(): List[CST] = formalParameters ++ List(block)
+
+  override def isGlobal: Boolean = modifiers.contains(GLOBAL)
 }
 
 object ConstructorDeclaration {
@@ -416,6 +425,8 @@ object ConstructorDeclaration {
 
 final case class PropertyDeclaration(modifiers: Seq[Modifier], typeRef: TypeRef, variableDeclarators: VariableDeclarators, propertyDeclaration: PropertyBodyDeclaration) extends ClassBodyDeclaration {
   override def children(): List[CST] = typeRef :: variableDeclarators :: propertyDeclaration :: Nil
+
+  override def isGlobal: Boolean = modifiers.contains(GLOBAL)
 }
 
 object PropertyDeclaration {

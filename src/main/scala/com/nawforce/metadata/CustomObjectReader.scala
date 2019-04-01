@@ -38,7 +38,7 @@ class CustomObjectReader extends SymbolReader {
     try {
       val objectsDir = ctx.getBaseDir.resolve("objects")
       if (Files.exists(objectsDir)) {
-        LinkerLog.ifNotLogAndThrow(Files.isDirectory(objectsDir), 0, "objects is present but not a directory")
+        IssueLog.ifNotLogAndThrow(Files.isDirectory(objectsDir), 0, "objects is present but not a directory")
 
         val traverse = new TraversePath(objectsDir)
         traverse foreach {
@@ -47,9 +47,9 @@ class CustomObjectReader extends SymbolReader {
               loadObject(ctx, file.getFileName.toString.replaceFirst(".object$", ""), file)
             } else if (attr.isRegularFile) {
               if (!isIgnoreable(file))
-                LinkerLog.logMessage(file.toString, 0, "Unexpected file in objects directory")
+                IssueLog.logMessage(LineLocation(file.toUri, 0), "Unexpected file in objects directory")
             } else {
-              LinkerLog.logMessage(file.toString, 0, "Only expected to find files in objects directory")
+              IssueLog.logMessage(LineLocation(file.toUri, 0), "Only expected to find files in objects directory")
             }
         }
       }
@@ -60,14 +60,14 @@ class CustomObjectReader extends SymbolReader {
   }
 
   def loadObject(ctx: SymbolReaderContext, fullName: String, objectFile: Path): Unit = {
-    LinkerLog.pushContext(objectFile.toString)
+    IssueLog.pushContext(objectFile.toUri)
     try {
       val root = XMLLineLoader.loadFile(objectFile.toString)
       XMLUtils.ifNotElemLogAndThrow(root, "CustomObject")
 
       CustomObject.create(fullName, root).foreach(o => ctx.addCustomObject(o))
     } finally {
-      LinkerLog.popContext()
+      IssueLog.popContext()
     }
   }
 }
