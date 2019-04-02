@@ -27,19 +27,18 @@
 */
 package com.nawforce.unit.cst
 
-import java.net.URI
-
 import com.nawforce.types._
-import com.nawforce.utils.IssueLog
+import com.nawforce.utils.{DocumentLoader, IssueLog}
 import org.scalatest.FunSuite
 
 class ClassModifierTest extends FunSuite {
 
-  lazy val defaultUri: URI = ClassParser.defaultUri
+  private val defaultUri = TestDocumentLoader.defaultUri
 
   def typeDeclaration(clsText: String): TypeDeclaration = {
     IssueLog.clear()
-    ClassParser.parseSingle(clsText).get.compilationUnit.typeDeclaration
+    DocumentLoader.documentLoader = new TestDocumentLoader(clsText)
+    ApexTypeDeclaration.create(defaultUri).get
   }
 
   test("Global outer") {

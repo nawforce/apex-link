@@ -29,7 +29,8 @@ package com.nawforce.metadata
 
 import java.nio.file.Path
 
-import com.nawforce.utils.CSTException
+import com.nawforce.cst.CSTException
+
 
 class SymbolReader {
   def loadSymbols(ctx: SymbolReaderContext): Unit = {

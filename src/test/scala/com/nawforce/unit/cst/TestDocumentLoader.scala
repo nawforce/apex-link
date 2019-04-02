@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2017 Kevin Jones
+ Copyright (c) 2019 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -25,25 +25,23 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.api
+package com.nawforce.unit.cst
 
-import java.nio.file.Path
+import java.io.{ByteArrayInputStream, InputStream}
+import java.net.URI
+import java.nio.file.Paths
 
-import com.nawforce.metadata.{ApexClassReader, CustomObjectReader, LabelReader, SymbolReaderContext}
+import com.nawforce.utils.{DocumentLoader, DocumentLoadingException}
 
- class LinkContext private (path: Path, verbose: Boolean) {
-
-  val ctx = new SymbolReaderContext(path, verbose)
-  new LabelReader().loadSymbols(ctx)
-  new CustomObjectReader().loadSymbols(ctx)
-  new ApexClassReader().loadSymbols(ctx)
-
-  def report(): Unit = ctx.report()
+class TestDocumentLoader(text: String) extends DocumentLoader {
+  override def get(uri: URI): InputStream = {
+    if (uri == TestDocumentLoader.defaultUri)
+      new ByteArrayInputStream(text.getBytes)
+    else
+      throw new DocumentLoadingException("Wrong uri used in test")
+  }
 }
 
-object LinkContext {
-
-  def create(path: Path, verbose: Boolean) : LinkContext = {
-    new LinkContext(path, verbose)
-  }
+object TestDocumentLoader {
+  val defaultUri: URI = Paths.get("dummy.cls").toUri
 }

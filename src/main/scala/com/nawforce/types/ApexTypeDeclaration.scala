@@ -27,9 +27,14 @@
 */
 package com.nawforce.types
 
+import java.io.InputStream
+import java.net.URI
+
 import com.nawforce.cst._
 import com.nawforce.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
-import com.nawforce.utils.{CSTException, Name}
+import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
+import com.nawforce.utils._
+import org.antlr.v4.runtime.CommonTokenStream
 
 import scala.collection.JavaConverters._
 
@@ -41,6 +46,7 @@ abstract class ApexTypeDeclaration(val id: Id, val modifiers: Seq[Modifier])
   val typeName: TypeName = ApexTypeDeclaration.typeName(name)
   val nature: Nature
 
+  // TODO:
   val superClass: Option[TypeName] = None
   val interfaces: Seq[TypeName] = Seq()
   val nestedClasses: Seq[PlatformTypeDeclaration] = Seq()
@@ -53,6 +59,37 @@ abstract class ApexTypeDeclaration(val id: Id, val modifiers: Seq[Modifier])
 }
 
 object ApexTypeDeclaration {
+  def create(uri: URI): Option[ApexTypeDeclaration] = {
+    try {
+      IssueLog.pushContext(uri)
+
+      val listener = new ThrowingErrorListener
+      val is: InputStream = DocumentLoader.get(uri)
+      val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(is)
+      val lexer: ApexLexer = new ApexLexer(cis)
+      lexer.removeErrorListeners()
+      lexer.addErrorListener(listener)
+
+      val tokens: CommonTokenStream = new CommonTokenStream(lexer)
+      tokens.fill()
+
+      val parser: ApexParser = new ApexParser(tokens)
+      parser.removeErrorListeners()
+      parser.setTrace(false)
+      parser.addErrorListener(listener)
+
+      val cu = CompilationUnit.construct(uri, parser.compilationUnit(), new ConstructContext())
+      cu.verify()
+      Some(cu.typeDeclaration)
+    } catch {
+      case se: SyntaxException =>
+        IssueLog.logMessage(LineLocation(uri, se.line), se.msg)
+        None
+    } finally {
+      IssueLog.popContext()
+    }
+  }
+
   def construct(typeDecl: TypeDeclarationContext, context: ConstructContext): ApexTypeDeclaration = {
     val modifiers: Seq[ModifierContext] = typeDecl.modifier().asScala
     val cst =

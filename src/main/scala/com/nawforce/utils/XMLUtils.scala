@@ -30,6 +30,7 @@ package com.nawforce.utils
 import scala.xml.Elem
 
 object XMLUtils {
+val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
 
   def getLine(elem: Elem): Integer = {
     elem.attribute("line").get.toString().toInt
@@ -40,7 +41,7 @@ object XMLUtils {
   }
 
   def ifNotElemLogAndThrow(elem: Elem, name: String): Unit = {
-    if (ifNotLog(elem.namespace == Constants.sfNamespace, elem, "Expected element in Salesforce namespace, but has namespace '" + elem.namespace + "'")) {
+    if (ifNotLog(elem.namespace == sfNamespace, elem, "Expected element in Salesforce namespace, but has namespace '" + elem.namespace + "'")) {
       throw new LinkerException()
     }
     if (ifNotLog(elem.label == name, elem, "Expected element named '" + name + "', but found '" + elem.label + "'")) {
@@ -99,7 +100,7 @@ object XMLUtils {
   }
 
   def getOptionalSingleChild(elem: Elem, name: String): Option[Elem] = {
-    val matched = (elem \ name).filter(x => x.namespace == Constants.sfNamespace)
+    val matched = (elem \ name).filter(x => x.namespace == sfNamespace)
     if (matched.length == 1)
       Some(matched.head.asInstanceOf[Elem])
     else {
@@ -108,7 +109,6 @@ object XMLUtils {
   }
 
   def getMultipleChildren(elem: Elem, name: String): List[Elem] = {
-    (elem \ name).filter(x => x.namespace == Constants.sfNamespace).asInstanceOf[Seq[Elem]].toList
+    (elem \ name).filter(x => x.namespace == sfNamespace).asInstanceOf[Seq[Elem]].toList
   }
-
 }

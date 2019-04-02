@@ -29,11 +29,13 @@ package com.nawforce.cst
 
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types.{ApexModifiers, GLOBAL, Modifier}
-import com.nawforce.utils.{CSTException, Name, TextRange}
+import com.nawforce.utils.{Name, TextRange}
 import org.antlr.v4.runtime.ParserRuleContext
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
+
+class CSTException extends Exception
 
 abstract class CST {
   var textRange: TextRange = TextRange.empty

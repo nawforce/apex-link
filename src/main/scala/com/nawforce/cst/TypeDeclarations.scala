@@ -27,14 +27,16 @@
 */
 package com.nawforce.cst
 
+import java.net.URI
+
 import com.nawforce.parsers.ApexParser
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{ApexTypeDeclaration, GLOBAL, Modifier, Nature, CLASS, INTERFACE, ENUM}
-import com.nawforce.utils.{CSTException, IssueLog}
+import com.nawforce.types.{ApexTypeDeclaration, CLASS, ENUM, GLOBAL, INTERFACE, Modifier, Nature}
+import com.nawforce.utils.IssueLog
 
 import scala.collection.JavaConverters._
 
-final case class CompilationUnit(typeDeclaration: ApexTypeDeclaration) extends CST {
+final case class CompilationUnit(uri: URI, typeDeclaration: ApexTypeDeclaration) extends CST {
   def children(): List[CST] = List(typeDeclaration)
 
   def verify(): Unit = typeDeclaration.verify()
@@ -45,8 +47,10 @@ final case class CompilationUnit(typeDeclaration: ApexTypeDeclaration) extends C
 }
 
 object CompilationUnit {
-  def construct(compilationUnit: CompilationUnitContext, context: ConstructContext): CompilationUnit = {
-    CompilationUnit(ApexTypeDeclaration.construct(compilationUnit.typeDeclaration(), context)).withContext(compilationUnit, context)
+  def construct(uri: URI, compilationUnit: CompilationUnitContext, context: ConstructContext): CompilationUnit = {
+    CompilationUnit(uri,
+      ApexTypeDeclaration.construct(compilationUnit.typeDeclaration(), context))
+      .withContext(compilationUnit, context)
   }
 }
 

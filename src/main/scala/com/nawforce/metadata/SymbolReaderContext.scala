@@ -29,7 +29,8 @@ package com.nawforce.metadata
 
 import java.nio.file.{Files, Path}
 
-import com.nawforce.utils.IssueLog
+import com.nawforce.types.ApexTypeDeclaration
+import com.nawforce.utils.{IssueLog, Name}
 
 import scala.collection.mutable
 
@@ -37,7 +38,7 @@ class SymbolReaderContext(val baseDir: Path, verbose: Boolean) {
 
   private val _labels = mutable.HashMap[String, Label]()
   private val _customObjects = mutable.HashMap[String, CustomObject]()
-  private val _apexClasses = mutable.HashMap[String, ApexClass]()
+  private val _apexClasses = mutable.HashMap[Name, ApexTypeDeclaration]()
 
   require(Files.isDirectory(baseDir), "Expecting to see a directory at '" + baseDir.toString + "'")
 
@@ -45,7 +46,7 @@ class SymbolReaderContext(val baseDir: Path, verbose: Boolean) {
 
   def isVerbose: Boolean = verbose
 
-  def getClasses: Map[String, ApexClass] = _apexClasses.toMap
+  def getClasses: Map[Name, ApexTypeDeclaration] = _apexClasses.toMap
 
   def getLabels: Map[String, Label] = _labels.toMap
 
@@ -63,11 +64,8 @@ class SymbolReaderContext(val baseDir: Path, verbose: Boolean) {
       _customObjects.put(customObject.fullName, customObject)
   }
 
-  def addApexClass(apexClass: ApexClass): Unit = {
-    if (_apexClasses.get(apexClass.fullName).isDefined)
-      IssueLog.logMessage(apexClass.location, "Duplicate class found for '" + apexClass.fullName + "'")
-    else
-      _apexClasses.put(apexClass.fullName, apexClass)
+  def addApexClass(apexClass: ApexTypeDeclaration): Unit = {
+    _apexClasses.put(apexClass.name, apexClass)
   }
 
   def report(): Unit = {
