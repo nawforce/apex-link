@@ -27,69 +27,70 @@
 */
 package com.nawforce.unit.cst
 
+import com.nawforce.documents.DocumentLoader
 import com.nawforce.types._
-import com.nawforce.utils.{DocumentLoader, IssueLog}
+import com.nawforce.utils.IssueLog
 import org.scalatest.FunSuite
 
 class ClassModifierTest extends FunSuite {
 
-  private val defaultUri = TestDocumentLoader.defaultUri
+  private val defaultPath = TestDocumentLoader.defaultPath
 
   def typeDeclaration(clsText: String): TypeDeclaration = {
     IssueLog.clear()
     DocumentLoader.documentLoader = new TestDocumentLoader(clsText)
-    ApexTypeDeclaration.create(defaultUri).get
+    ApexTypeDeclaration.create(defaultPath).get
   }
 
   test("Global outer") {
-    assert(typeDeclaration("global class Dummy {}").modifiers == Seq(GLOBAL))
+    assert(typeDeclaration("global class Dummy {}").modifiers == Seq(GLOBAL_MODIFIER))
     assert(!IssueLog.hasMessages)
   }
 
   test("Public outer") {
-    assert(typeDeclaration("public class Dummy {}").modifiers == Seq(PUBLIC))
+    assert(typeDeclaration("public class Dummy {}").modifiers == Seq(PUBLIC_MODIFIER))
     assert(!IssueLog.hasMessages)
   }
 
   test("Protected outer") {
     assert(typeDeclaration("protected class Dummy {}").modifiers.isEmpty)
-    assert(IssueLog.getMessages(defaultUri) ==
+    assert(IssueLog.getMessages(defaultPath) ==
       "line 1 at 0-9: Modifier 'protected' is not supported on classes\n")
   }
 
   test("Private outer") {
     assert(typeDeclaration("private class Dummy {}").modifiers.isEmpty)
-    assert(IssueLog.getMessages(defaultUri) ==
+    assert(IssueLog.getMessages(defaultPath) ==
       "line 1 at 0-7: Modifier 'private' is not supported on outer classes\n")
   }
 
   test("No modifier class") {
     assert(typeDeclaration("class Dummy {}").modifiers.isEmpty)
-    assert(IssueLog.getMessages(defaultUri) ==
+    assert(IssueLog.getMessages(defaultPath) ==
       "line 1 at 6-11: Outer classes must be declared either 'global' or 'public'\n")
   }
 
   test("Illegal modifier class") {
-    assert(typeDeclaration("global static class Dummy {}").modifiers == Seq(GLOBAL))
-    assert(IssueLog.getMessages(defaultUri) ==
+    assert(typeDeclaration("global static class Dummy {}").modifiers == Seq(GLOBAL_MODIFIER))
+    assert(IssueLog.getMessages(defaultPath) ==
       "line 1 at 7-13: Modifier 'static' is not supported on classes\n")
   }
 
   test("With sharing class") {
     val modifiers = typeDeclaration("public with sharing class Dummy {}").modifiers
-    assert(modifiers.toSet == Set(PUBLIC, WITH_SHARING))
+    assert(modifiers.toSet == Set(PUBLIC_MODIFIER, WITH_SHARING_MODIFIER))
     assert(!IssueLog.hasMessages)
   }
 
   test("Without sharing class") {
     val modifiers = typeDeclaration("public without sharing class Dummy {}").modifiers
-    assert(modifiers.toSet == Set(PUBLIC, WITHOUT_SHARING))
+    assert(modifiers.toSet == Set(PUBLIC_MODIFIER, WITHOUT_SHARING_MODIFIER))
     assert(!IssueLog.hasMessages)
   }
 
   test("Inherited sharing class") {
     val modifiers = typeDeclaration("public inherited sharing class Dummy {}").modifiers
-    assert(modifiers.toSet == Set(PUBLIC, INHERITED_SHARING))
+    assert(modifiers.toSet == Set(PUBLIC_MODIFIER, INHERITED_SHARING_MODIFIER))
     assert(!IssueLog.hasMessages)
   }
 }

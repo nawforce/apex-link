@@ -27,9 +27,10 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.documents.TextRange
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{ApexModifiers, GLOBAL, Modifier}
-import com.nawforce.utils.{Name, TextRange}
+import com.nawforce.types.{ApexModifiers, GLOBAL_MODIFIER, Modifier}
+import com.nawforce.utils.Name
 import org.antlr.v4.runtime.ParserRuleContext
 
 import scala.collection.JavaConverters._
@@ -370,7 +371,7 @@ final case class MethodDeclaration(modifiers: Seq[Modifier], typeRef: Option[Typ
 
   override def children(): List[CST] = List() ++ typeRef ++ formalParameters ++ block
 
-  override def isGlobal: Boolean = modifiers.contains(GLOBAL)
+  override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
 
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)

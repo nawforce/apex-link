@@ -28,45 +28,46 @@
 package com.nawforce.unit.cst
 
 import com.nawforce.cst.ClassDeclaration
+import com.nawforce.documents.DocumentLoader
 import com.nawforce.types._
-import com.nawforce.utils.{DocumentLoader, IssueLog}
+import com.nawforce.utils.IssueLog
 import org.scalatest.FunSuite
 
 class InnerClassModifierTest extends FunSuite {
 
-  private val defaultUri = TestDocumentLoader.defaultUri
+  private val defaultPath = TestDocumentLoader.defaultPath
 
   def typeDeclaration(clsText: String): TypeDeclaration = {
     IssueLog.clear()
     DocumentLoader.documentLoader = new TestDocumentLoader(clsText)
-    ApexTypeDeclaration.create(defaultUri).get.asInstanceOf[ClassDeclaration]
+    ApexTypeDeclaration.create(defaultPath).get.asInstanceOf[ClassDeclaration]
       .bodyDeclarations.head.asInstanceOf[ClassDeclaration]
   }
 
   test("Global inner") {
-    assert(typeDeclaration("global class Dummy {global class Inner{}}").modifiers == Seq(GLOBAL))
+    assert(typeDeclaration("global class Dummy {global class Inner{}}").modifiers == Seq(GLOBAL_MODIFIER))
     assert(!IssueLog.hasMessages)
   }
 
   test("Global inner of public outer") {
-    assert(typeDeclaration("public class Dummy {global class Inner{}}").modifiers == Seq(GLOBAL))
-    assert(IssueLog.getMessages(defaultUri) ==
+    assert(typeDeclaration("public class Dummy {global class Inner{}}").modifiers == Seq(GLOBAL_MODIFIER))
+    assert(IssueLog.getMessages(defaultPath) ==
       "line 1 at 13-18: Classes enclosing globals must also be declared global\n")
   }
 
   test("Public inner") {
-    assert(typeDeclaration("public class Dummy {public class Inner{}}").modifiers == Seq(PUBLIC))
+    assert(typeDeclaration("public class Dummy {public class Inner{}}").modifiers == Seq(PUBLIC_MODIFIER))
     assert(!IssueLog.hasMessages)
   }
 
   test("Protected inner") {
     assert(typeDeclaration("public class Dummy {protected class Inner{}}").modifiers.isEmpty)
-    assert(IssueLog.getMessages(defaultUri) ==
+    assert(IssueLog.getMessages(defaultPath) ==
       "line 1 at 20-29: Modifier 'protected' is not supported on classes\n")
   }
 
   test("Private inner") {
-    assert(typeDeclaration("public class Dummy {private class Inner{}}").modifiers == Seq(PRIVATE))
+    assert(typeDeclaration("public class Dummy {private class Inner{}}").modifiers == Seq(PRIVATE_MODIFIER))
     assert(!IssueLog.hasMessages)
   }
 
@@ -77,25 +78,25 @@ class InnerClassModifierTest extends FunSuite {
 
   test("Illegal modifier inner class") {
     assert(typeDeclaration("global class Dummy {static class Inner{}}").modifiers.isEmpty)
-    assert(IssueLog.getMessages(defaultUri) ==
+    assert(IssueLog.getMessages(defaultPath) ==
       "line 1 at 20-26: Modifier 'static' is not supported on classes\n")
   }
 
   test("With sharing inner class") {
     val modifiers = typeDeclaration("public class Dummy {with sharing class Inner {}}").modifiers
-    assert(modifiers.toSet == Set(WITH_SHARING))
+    assert(modifiers.toSet == Set(WITH_SHARING_MODIFIER))
     assert(!IssueLog.hasMessages)
   }
 
   test("Without sharing inner class") {
     val modifiers = typeDeclaration("public without sharing class Dummy {without sharing class Inner {}}").modifiers
-    assert(modifiers.toSet == Set(WITHOUT_SHARING))
+    assert(modifiers.toSet == Set(WITHOUT_SHARING_MODIFIER))
     assert(!IssueLog.hasMessages)
   }
 
   test("Inherited sharing inner  class") {
     val modifiers = typeDeclaration("public inherited sharing class Dummy {inherited sharing class Inner {}}").modifiers
-    assert(modifiers.toSet == Set(INHERITED_SHARING))
+    assert(modifiers.toSet == Set(INHERITED_SHARING_MODIFIER))
     assert(!IssueLog.hasMessages)
   }
 }

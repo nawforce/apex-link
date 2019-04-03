@@ -30,6 +30,7 @@ package com.nawforce.metadata
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{Files, Path}
 
+import com.nawforce.documents.{LineLocation, TraversePath}
 import com.nawforce.utils._
 
 class CustomObjectReader extends SymbolReader {

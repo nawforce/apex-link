@@ -27,20 +27,22 @@
 */
 package com.nawforce.utils
 
-import java.net.URI
+import java.nio.file.Path
+
+import com.nawforce.documents.{LineLocation, Location, RangeLocation, TextRange}
 
 import scala.collection.mutable
 
 object IssueLog {
-  private val log = mutable.HashMap[URI, List[(Location, String)]]() withDefaultValue List()
-  private val contexts = mutable.Stack[URI]()
+  private val log = mutable.HashMap[Path, List[(Location, String)]]() withDefaultValue List()
+  private val contexts = mutable.Stack[Path]()
 
   def clear(): Unit = {
     log.clear()
     contexts.clear()
   }
 
-  def pushContext(context: URI): Unit = {
+  def pushContext(context: Path): Unit = {
     contexts.push(context)
   }
 
@@ -48,7 +50,7 @@ object IssueLog {
     contexts.pop()
   }
 
-  def context: Option[URI] = {
+  def context: Option[Path] = {
     contexts.headOption
   }
 
@@ -77,17 +79,17 @@ object IssueLog {
   }
 
   def logMessage(location: Location, msg: String): Unit = {
-    log.put(location.uri, (location, msg) :: log(location.uri))
+    log.put(location.path, (location, msg) :: log(location.path))
   }
 
   def hasMessages: Boolean = log.nonEmpty
 
-  def getMessages(uri: URI, showURI: Boolean = false, maxErrors: Int = 10): String = {
+  def getMessages(path: Path, showPath: Boolean = false, maxErrors: Int = 10): String = {
     val buffer = new StringBuilder
-    val messages = log.getOrElse(uri, List())
+    val messages = log.getOrElse(path, List())
     if (messages.nonEmpty) {
-      if (showURI)
-        buffer ++= uri.toString + "\n"
+      if (showPath)
+        buffer ++= path.toString + "\n"
       var count = 0
       messages.sortBy(_._1.line).foreach(message => {
         if (count < maxErrors) {
@@ -103,7 +105,7 @@ object IssueLog {
 
   def dumpMessages(maxErrors: Integer = 10): Unit = {
     log.keys.foreach(uri => {
-      System.out.println(getMessages(uri, showURI = true, maxErrors))
+      System.out.println(getMessages(uri, showPath = true, maxErrors))
     })
   }
 }

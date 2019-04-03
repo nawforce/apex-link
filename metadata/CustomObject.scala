@@ -27,7 +27,8 @@
 */
 package com.nawforce.metadata
 
-import com.nawforce.utils.{Location, XMLUtils}
+import com.nawforce.documents.Location
+import com.nawforce.utils.XMLUtils
 
 import scala.language.implicitConversions
 import scala.xml.Elem

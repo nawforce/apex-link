@@ -30,9 +30,9 @@ package com.nawforce.types
 import com.nawforce.utils.Name
 
 sealed trait Nature
-case object CLASS extends Nature
-case object INTERFACE extends Nature
-case object ENUM extends Nature
+case object CLASS_NATURE extends Nature
+case object INTERFACE_NATURE extends Nature
+case object ENUM_NATURE extends Nature
 
 trait FieldDeclaration {
   val name: Name

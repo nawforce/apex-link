@@ -27,16 +27,16 @@
 */
 package com.nawforce.cst
 
-import java.net.URI
+import java.nio.file.Path
 
 import com.nawforce.parsers.ApexParser
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{ApexTypeDeclaration, CLASS, ENUM, GLOBAL, INTERFACE, Modifier, Nature}
+import com.nawforce.types.{ApexTypeDeclaration, CLASS_NATURE, ENUM_NATURE, GLOBAL_MODIFIER, INTERFACE_NATURE, Modifier, Nature}
 import com.nawforce.utils.IssueLog
 
 import scala.collection.JavaConverters._
 
-final case class CompilationUnit(uri: URI, typeDeclaration: ApexTypeDeclaration) extends CST {
+final case class CompilationUnit(path: Path, typeDeclaration: ApexTypeDeclaration) extends CST {
   def children(): List[CST] = List(typeDeclaration)
 
   def verify(): Unit = typeDeclaration.verify()
@@ -47,8 +47,8 @@ final case class CompilationUnit(uri: URI, typeDeclaration: ApexTypeDeclaration)
 }
 
 object CompilationUnit {
-  def construct(uri: URI, compilationUnit: CompilationUnitContext, context: ConstructContext): CompilationUnit = {
-    CompilationUnit(uri,
+  def construct(path: Path, compilationUnit: CompilationUnitContext, context: ConstructContext): CompilationUnit = {
+    CompilationUnit(path,
       ApexTypeDeclaration.construct(compilationUnit.typeDeclaration(), context))
       .withContext(compilationUnit, context)
   }
@@ -61,12 +61,12 @@ final case class ClassDeclaration(_id: Id, _modifiers: Seq[Modifier],
 
   override def children(): List[CST] = List() ++ extendsType ++ implementsTypes.types ++ bodyDeclarations
 
-  override val nature: Nature = CLASS
+  override val nature: Nature = CLASS_NATURE
 
-  override def isGlobal: Boolean = modifiers.contains(GLOBAL)
+  override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
 
   override def verify(): Unit = {
-    if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL)) {
+    if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL_MODIFIER)) {
       IssueLog.logMessage(id.textRange, "Classes enclosing globals must also be declared global")
     }
   }
@@ -120,7 +120,7 @@ final case class InterfaceDeclaration(_id: Id, _modifiers: Seq[Modifier], implem
 
   override def children(): List[CST] = implementsTypes.types
 
-  override val nature: Nature = INTERFACE
+  override val nature: Nature = INTERFACE_NATURE
 
   override def isGlobal: Boolean = modifiers.contains(GLOBAL)
 
@@ -150,9 +150,9 @@ final case class EnumDeclaration(_id: Id, _modifiers: Seq[Modifier], implementsT
 
   override def children(): List[CST] = implementsTypes.types
 
-  override val nature: Nature = ENUM
+  override val nature: Nature = ENUM_NATURE
 
-  override def isGlobal: Boolean = modifiers.contains(GLOBAL)
+  override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
 
   override def verify(): Unit = {}
 

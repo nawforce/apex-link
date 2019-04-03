@@ -30,33 +30,34 @@ package com.nawforce.types
 import java.lang.reflect.{Modifier => JavaModifier}
 
 import com.nawforce.cst.ConstructContext
+import com.nawforce.documents.TextRange
 import com.nawforce.parsers.ApexParser.{IdContext, ModifierContext}
-import com.nawforce.utils.{IssueLog, TextRange}
+import com.nawforce.utils.IssueLog
 
 sealed abstract class Modifier(name: String) {
   override def toString: String = name
 }
 
-case object GLOBAL extends Modifier("global")
-case object PUBLIC extends Modifier("public")
-case object PROTECTED extends Modifier("protected")
-case object PRIVATE extends Modifier("private")
-case object TEST_CLASS extends Modifier("@isTest")
+case object GLOBAL_MODIFIER extends Modifier("global")
+case object PUBLIC_MODIFIER extends Modifier("public")
+case object PROTECTED_MODIFIER extends Modifier("protected")
+case object PRIVATE_MODIFIER extends Modifier("private")
+case object TEST_CLASS_MODIFIER extends Modifier("@isTest")
 
-case object STATIC extends Modifier("static")
-case object ABSTRACT extends Modifier("abstract")
-case object FINAL extends Modifier("final")
-case object OVERRIDE extends Modifier("override")
-case object VIRTUAL extends Modifier("virtual")
+case object STATIC_MODIFIER extends Modifier("static")
+case object ABSTRACT_MODIFIER extends Modifier("abstract")
+case object FINAL_MODIFIER extends Modifier("final")
+case object OVERRIDE_MODIFIER extends Modifier("override")
+case object VIRTUAL_MODIFIER extends Modifier("virtual")
 
-case object WEBSERVICE extends Modifier("webservice")
+case object WEBSERVICE_MODIFIER extends Modifier("webservice")
 
-case object TEST_METHOD extends Modifier("@isTest")
-case object TEST_VISIBLE extends Modifier("@TestVisible")
+case object TEST_METHOD_MODIFIER extends Modifier("@isTest")
+case object TEST_VISIBLE_MODIFIER extends Modifier("@TestVisible")
 
-case object WITH_SHARING extends Modifier("with sharing")
-case object WITHOUT_SHARING extends Modifier("without sharing")
-case object INHERITED_SHARING extends Modifier("inherited sharing")
+case object WITH_SHARING_MODIFIER extends Modifier("with sharing")
+case object WITHOUT_SHARING_MODIFIER extends Modifier("without sharing")
+case object INHERITED_SHARING_MODIFIER extends Modifier("inherited sharing")
 
 object ApexModifiers {
   def classModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext,
@@ -65,12 +66,12 @@ object ApexModifiers {
 
     val mods = modifierContexts.flatMap(modifierContext =>
       modifierContext.getText match {
-        case "global" => Some(GLOBAL)
-        case "public" => Some(PUBLIC)
-        case "private" if !outer => Some(PRIVATE)
-        case "withsharing" => Some(WITH_SHARING)
-        case "withoutsharing" => Some(WITHOUT_SHARING)
-        case "inheritedsharing" => Some(INHERITED_SHARING)
+        case "global" => Some(GLOBAL_MODIFIER)
+        case "public" => Some(PUBLIC_MODIFIER)
+        case "private" if !outer => Some(PRIVATE_MODIFIER)
+        case "withsharing" => Some(WITH_SHARING_MODIFIER)
+        case "withoutsharing" => Some(WITHOUT_SHARING_MODIFIER)
+        case "inheritedsharing" => Some(INHERITED_SHARING_MODIFIER)
         case _ =>
           val modifierText = modifierContext.getText
           if (modifierText == "private")
@@ -86,12 +87,12 @@ object ApexModifiers {
       val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
       if (duplicates.nonEmpty) {
         IssueLog.logMessage(TextRange(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
-      } else if (outer && !(mods.contains(GLOBAL) || mods.contains(PUBLIC))) {
+      } else if (outer && !(mods.contains(GLOBAL_MODIFIER) || mods.contains(PUBLIC_MODIFIER))) {
         IssueLog.logMessage(TextRange(idContext), s"Outer classes must be declared either 'global' or 'public'")
-      } else if (mods.intersect(Seq(PUBLIC, PROTECTED, PRIVATE)).size > 1) {
+      } else if (mods.intersect(Seq(PUBLIC_MODIFIER, PROTECTED_MODIFIER, PRIVATE_MODIFIER)).size > 1) {
         IssueLog.logMessage(TextRange(idContext),
           s"Only one visibility modifier from 'global', 'public' & 'private' may be used on classes")
-      } else if (mods.intersect(Seq(WITH_SHARING, WITHOUT_SHARING, INHERITED_SHARING)).size > 1) {
+      } else if (mods.intersect(Seq(WITH_SHARING_MODIFIER, WITHOUT_SHARING_MODIFIER, INHERITED_SHARING_MODIFIER)).size > 1) {
         IssueLog.logMessage(TextRange(idContext),
           s"Only one sharing modifier from 'with sharing', 'without sharing' & 'inherited sharing' may be used on classes")
       }
@@ -101,7 +102,7 @@ object ApexModifiers {
 
   def construct(modifiers: Seq[ModifierContext], context: ConstructContext): Seq[Modifier] = {
     modifiers.map(_.getText).flatMap {
-      case "public" => Some(PUBLIC)
+      case "public" => Some(PUBLIC_MODIFIER)
       case _ => None
     }
   }
@@ -110,8 +111,8 @@ object ApexModifiers {
 object PlatformModifiers {
   def typeModifiers(javaBits: Int, nature: Nature): Seq[Modifier] = {
     assert(JavaModifier.isPublic(javaBits))
-    if (nature == CLASS) assert(!JavaModifier.isAbstract(javaBits))
-    if (nature != ENUM) assert(!JavaModifier.isFinal(javaBits))
+    if (nature == CLASS_NATURE) assert(!JavaModifier.isAbstract(javaBits))
+    if (nature != ENUM_NATURE) assert(!JavaModifier.isFinal(javaBits))
     assert(!JavaModifier.isTransient(javaBits))
     assert(!JavaModifier.isVolatile(javaBits))
     assert(!JavaModifier.isSynchronized(javaBits))
@@ -119,9 +120,9 @@ object PlatformModifiers {
     assert(!JavaModifier.isStrict(javaBits))
 
     if (JavaModifier.isStatic(javaBits))
-      Seq(PUBLIC, STATIC)
+      Seq(PUBLIC_MODIFIER, STATIC_MODIFIER)
     else
-      Seq(PUBLIC)
+      Seq(PUBLIC_MODIFIER)
   }
 
   def fieldOrMethodModifiers(javaBits: Int): Seq[Modifier] = {
@@ -135,14 +136,14 @@ object PlatformModifiers {
     assert(!JavaModifier.isStrict(javaBits))
 
     if (JavaModifier.isStatic(javaBits))
-      Seq(PUBLIC, STATIC)
+      Seq(PUBLIC_MODIFIER, STATIC_MODIFIER)
     else
-      Seq(PUBLIC)
+      Seq(PUBLIC_MODIFIER)
   }
 
   def methodModifiers(javaBits: Int, nature: Nature): Seq[Modifier] = {
     assert(JavaModifier.isPublic(javaBits))
-    if (nature == INTERFACE)
+    if (nature == INTERFACE_NATURE)
       assert(JavaModifier.isAbstract(javaBits))
     else
       assert(!JavaModifier.isAbstract(javaBits))
@@ -154,9 +155,9 @@ object PlatformModifiers {
     assert(!JavaModifier.isStrict(javaBits))
 
     if (JavaModifier.isStatic(javaBits))
-      Seq(PUBLIC, STATIC)
+      Seq(PUBLIC_MODIFIER, STATIC_MODIFIER)
     else
-      Seq(PUBLIC)
+      Seq(PUBLIC_MODIFIER)
   }
 
 }

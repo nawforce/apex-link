@@ -28,9 +28,10 @@
 package com.nawforce.types
 
 import java.io.InputStream
-import java.net.URI
+import java.nio.file.Path
 
 import com.nawforce.cst._
+import com.nawforce.documents.{DocumentLoader, LineLocation}
 import com.nawforce.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
 import com.nawforce.utils._
@@ -59,12 +60,12 @@ abstract class ApexTypeDeclaration(val id: Id, val modifiers: Seq[Modifier])
 }
 
 object ApexTypeDeclaration {
-  def create(uri: URI): Option[ApexTypeDeclaration] = {
+  def create(path: Path): Option[ApexTypeDeclaration] = {
     try {
-      IssueLog.pushContext(uri)
+      IssueLog.pushContext(path)
 
       val listener = new ThrowingErrorListener
-      val is: InputStream = DocumentLoader.get(uri)
+      val is: InputStream = DocumentLoader.get(path)
       val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(is)
       val lexer: ApexLexer = new ApexLexer(cis)
       lexer.removeErrorListeners()
@@ -78,12 +79,12 @@ object ApexTypeDeclaration {
       parser.setTrace(false)
       parser.addErrorListener(listener)
 
-      val cu = CompilationUnit.construct(uri, parser.compilationUnit(), new ConstructContext())
+      val cu = CompilationUnit.construct(path, parser.compilationUnit(), new ConstructContext())
       cu.verify()
       Some(cu.typeDeclaration)
     } catch {
       case se: SyntaxException =>
-        IssueLog.logMessage(LineLocation(uri, se.line), se.msg)
+        IssueLog.logMessage(LineLocation(path, se.line), se.msg)
         None
     } finally {
       IssueLog.popContext()

@@ -45,9 +45,9 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
   lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(cls, cls)
   lazy val nature: Nature = {
     (cls.isEnum, cls.isInterface) match {
-      case (true, _) => ENUM
-      case (_, true) => INTERFACE
-      case _ => CLASS
+      case (true, _) => ENUM_NATURE
+      case (_, true) => INTERFACE_NATURE
+      case _ => CLASS_NATURE
     }
   }
 
@@ -118,7 +118,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
     val localMethods = cls.getMethods.filter(
       _.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
     nature match {
-      case ENUM =>
+      case ENUM_NATURE =>
         assert(localMethods.forall(m => m.getName == "values" || m.getName == "valueOf"),
           s"Enum $name has locally defined methods which are not supported in platform types")
         Seq()
@@ -168,7 +168,7 @@ object PlatformTypeDeclaration {
     HashMap[DotName, DotName]() ++ names
   }
 
-  /* Index .class files in a uri, we have to index to make sure we get natural case sensitive names */
+  /* Index .class files, we have to index to make sure we get natural case sensitive names */
   private def indexDir(file: File, prefix: DotName, accum: mutable.HashMap[DotName, DotName]): Unit = {
     val path = file.toPath
     file.list().foreach(name => {

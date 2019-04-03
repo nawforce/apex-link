@@ -25,24 +25,24 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.utils
+package com.nawforce.documents
 
-import java.io.{File, FileInputStream, FileNotFoundException, InputStream}
-import java.net.URI
+import java.io.{FileInputStream, FileNotFoundException, InputStream}
+import java.nio.file.Path
 
 class DocumentLoadingException(msg: String, ex: Exception=null) extends Exception(msg, ex)
 
 trait DocumentLoader {
-  def get(uri: URI): InputStream
+  def get(path: Path): InputStream
 }
 
 class DefaultDocumentLoader extends DocumentLoader {
-  def get(uri: URI): InputStream = {
+  def get(path: Path): InputStream = {
     try {
-      new FileInputStream(new File(uri))
+      new FileInputStream(path.toFile)
     } catch {
-      case e: IllegalArgumentException => throw new DocumentLoadingException(s"Can not load from: ${uri.toString}", e)
-      case e: FileNotFoundException => throw new DocumentLoadingException(s"Can not open: ${uri.toString}", e)
+      case e: IllegalArgumentException => throw new DocumentLoadingException(s"Can not load from: ${path.toString}", e)
+      case e: FileNotFoundException => throw new DocumentLoadingException(s"Can not open: ${path.toString}", e)
     }
   }
 }
@@ -50,5 +50,5 @@ class DefaultDocumentLoader extends DocumentLoader {
 object DocumentLoader {
   var documentLoader: DocumentLoader = new DefaultDocumentLoader
 
-  def get(uri: URI): InputStream = documentLoader.get(uri)
+  def get(path: Path): InputStream = documentLoader.get(path)
 }

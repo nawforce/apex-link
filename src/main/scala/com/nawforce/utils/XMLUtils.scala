@@ -27,6 +27,8 @@
 */
 package com.nawforce.utils
 
+import com.nawforce.documents.{LineLocation, Location}
+
 import scala.xml.Elem
 
 object XMLUtils {

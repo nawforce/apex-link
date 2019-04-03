@@ -64,37 +64,37 @@ class PlatformTypeValidationTest extends FunSuite {
 
     // nature valid and superClass & interfaces are valid for it
     typeDeclaration.nature match {
-      case INTERFACE =>
+      case INTERFACE_NATURE =>
         assert(typeDeclaration.superClass.isEmpty)
-      case ENUM =>
+      case ENUM_NATURE =>
         assert(typeDeclaration.superClass.isEmpty)
         assert(typeDeclaration.interfaces.isEmpty)
-      case CLASS => ()
+      case CLASS_NATURE => ()
     }
 
     // PlatformModifiers, always public for outer platform classes
     if (typeDeclaration.parent.isEmpty)
-      assert(typeDeclaration.modifiers == Seq(PUBLIC))
+      assert(typeDeclaration.modifiers == Seq(PUBLIC_MODIFIER))
 
     // Nested classes
     typeDeclaration.nature match {
-      case INTERFACE =>
+      case INTERFACE_NATURE =>
         assert(typeDeclaration.nestedClasses.isEmpty)
-      case ENUM =>
+      case ENUM_NATURE =>
         assert(typeDeclaration.nestedClasses.isEmpty)
-      case CLASS =>
+      case CLASS_NATURE =>
         typeDeclaration.nestedClasses.foreach(nested => validateTypeDeclaration(className.append(nested.name), nested))
     }
 
     // Fields
     typeDeclaration.nature match {
-      case INTERFACE =>
+      case INTERFACE_NATURE =>
         assert(typeDeclaration.fields.isEmpty)
-      case ENUM =>
+      case ENUM_NATURE =>
         assert(typeDeclaration.fields.nonEmpty)
         assert(typeDeclaration.fields.filter(_.typeName.toString == typeDeclaration.typeName.toString)
           == typeDeclaration.fields)
-      case CLASS =>
+      case CLASS_NATURE =>
         assert(typeDeclaration.fields.map(f =>PlatformTypeDeclaration.get(f.typeName.asDotName)).size
           == typeDeclaration.fields.size)
     }
@@ -115,8 +115,8 @@ class PlatformTypeValidationTest extends FunSuite {
       if (td.name.toString() != "Exception")
         assert(td.superClass.get.toString == "System.Exception")
       assert(td.interfaces.isEmpty)
-      assert(td.nature == CLASS)
-      assert(td.modifiers == Seq(PUBLIC))
+      assert(td.nature == CLASS_NATURE)
+      assert(td.modifiers == Seq(PUBLIC_MODIFIER))
       assert(td.parent.isEmpty)
       assert(td.nestedClasses.isEmpty)
 

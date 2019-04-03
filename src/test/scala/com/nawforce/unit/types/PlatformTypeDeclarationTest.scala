@@ -27,7 +27,6 @@
 */
 package com.nawforce.unit.types
 
-import com.nawforce.platform.System.{Double, Location, String}
 import com.nawforce.types._
 import com.nawforce.utils.DotName
 import org.scalatest.FunSuite
@@ -49,8 +48,8 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.typeName.toString == "System.String")
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
-    assert(td.get.nature == CLASS)
-    assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.nature == CLASS_NATURE)
+    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
     assert(td.get.nestedClasses.isEmpty)
   }
@@ -74,8 +73,8 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.typeName.toString == "ConnectApi.FeedItem")
     assert(td.get.superClass.get.toString == "ConnectApi.FeedElement")
     assert(td.get.interfaces.isEmpty)
-    assert(td.get.nature == CLASS)
-    assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.nature == CLASS_NATURE)
+    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
     assert(td.get.nestedClasses.isEmpty)
   }
@@ -88,8 +87,8 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.size == 1)
     assert(td.get.interfaces.head.toString == "System.Iterable<T>")
-    assert(td.get.nature == CLASS)
-    assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.nature == CLASS_NATURE)
+    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
     assert(td.get.nestedClasses.isEmpty)
   }
@@ -101,8 +100,8 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.typeName.toString == "System.Callable")
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
-    assert(td.get.nature == INTERFACE)
-    assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.nature == INTERFACE_NATURE)
+    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
     assert(td.get.nestedClasses.isEmpty)
   }
@@ -114,8 +113,8 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.typeName.toString == "System.RoundingMode")
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
-    assert(td.get.nature == ENUM)
-    assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.nature == ENUM_NATURE)
+    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
     assert(td.get.nestedClasses.isEmpty)
   }
@@ -127,14 +126,14 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.typeName.toString == "Messaging.InboundEmail")
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
-    assert(td.get.nature == CLASS)
-    assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.nature == CLASS_NATURE)
+    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
 
     val nested = td.get.nestedClasses.sortBy(_.name.toString)
     assert(nested.size == 3)
     assert(nested.map(_.name.toString) == Seq("BinaryAttachment", "Header", "TextAttachment"))
-    assert(nested.filter(_.modifiers == Seq(PUBLIC, STATIC)) == nested)
+    assert(nested.filter(_.modifiers == Seq(PUBLIC_MODIFIER, STATIC_MODIFIER)) == nested)
     assert(nested.filter(_.parent == td) == nested)
   }
 
@@ -145,8 +144,8 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.typeName.toString == "System.Address")
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
-    assert(td.get.nature == CLASS)
-    assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.nature == CLASS_NATURE)
+    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
     assert(td.get.nestedClasses.isEmpty)
 
@@ -154,7 +153,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(fields.size == 8)
     assert(fields.map(_.name.toString) ==
       Seq("city", "country", "countryCode", "geocodeAccuracy", "postalCode", "state", "stateCode", "street"))
-    assert(fields.filter(_.modifiers == Seq(PUBLIC)) == fields)
+    assert(fields.filter(_.modifiers == Seq(PUBLIC_MODIFIER)) == fields)
     assert(fields.filter(_.typeName.toString == "System.String") == fields)
   }
 
@@ -165,14 +164,14 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.typeName.toString == "System.DmlException")
     assert(td.get.superClass.get.toString == "System.Exception")
     assert(td.get.interfaces.isEmpty)
-    assert(td.get.nature == CLASS)
-    assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.nature == CLASS_NATURE)
+    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
     assert(td.get.nestedClasses.isEmpty)
 
     val constructors = td.get.constructors.sortBy(_.toString)
     assert(constructors.size == 4)
-    assert(constructors.filter(_.modifiers == Seq(PUBLIC)) == constructors)
+    assert(constructors.filter(_.modifiers == Seq(PUBLIC_MODIFIER)) == constructors)
     assert(constructors.head.toString == "public System.DmlException()")
     assert(constructors(1).toString == "public System.DmlException(System.Exception param1)")
     assert(constructors(2).toString == "public System.DmlException(System.String param1)")
@@ -186,8 +185,8 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.typeName.toString == "System.Address")
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
-    assert(td.get.nature == CLASS)
-    assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.nature == CLASS_NATURE)
+    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
     assert(td.get.nestedClasses.isEmpty)
 
@@ -196,7 +195,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(methods.map(_.name.toString) ==
       Seq("getCity", "getCountry", "getCountryCode", "getDistance", "getGeocodeAccuracy", "getLatitude",
         "getLongitude", "getPostalCode", "getState", "getStateCode", "getStreet"))
-    assert(methods.filter(_.modifiers == Seq(PUBLIC)) == methods)
+    assert(methods.filter(_.modifiers == Seq(PUBLIC_MODIFIER)) == methods)
     assert(methods.filter(_.name.toString == "getCity").head.toString == "public System.String getCity()")
     assert(methods.filter(_.name.toString == "getDistance").head.toString ==
       "public System.Double getDistance(System.Location other, System.String unit)")
@@ -209,8 +208,8 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.typeName.toString == "eventbus.RetryableException")
     assert(td.get.superClass.get.toString == "System.Exception")
     assert(td.get.interfaces.isEmpty)
-    assert(td.get.nature == CLASS)
-    assert(td.get.modifiers == Seq(PUBLIC))
+    assert(td.get.nature == CLASS_NATURE)
+    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
     assert(td.get.nestedClasses.isEmpty)
 
@@ -218,7 +217,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(methods.size == 7)
     assert(methods.map(_.name.toString) == Seq("getCause", "getLineNumber", "getMessage", "getStackTraceString",
       "getTypeName", "initCause", "setMessage"))
-    assert(methods.filter(_.modifiers == Seq(PUBLIC)) == methods)
+    assert(methods.filter(_.modifiers == Seq(PUBLIC_MODIFIER)) == methods)
     assert(methods.filter(_.name.toString == "getCause").head.toString == "public System.Exception getCause()")
     assert(methods.filter(_.name.toString == "getLineNumber").head.toString == "public System.Integer getLineNumber()")
     assert(methods.filter(_.name.toString == "getMessage").head.toString == "public System.String getMessage()")
@@ -227,5 +226,4 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(methods.filter(_.name.toString == "initCause").head.toString == "public void initCause(System.Exception cause)")
     assert(methods.filter(_.name.toString == "setMessage").head.toString == "public void setMessage(System.String message)")
   }
-
 }

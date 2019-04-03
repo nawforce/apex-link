@@ -25,22 +25,17 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.unit.cst
+package com.nawforce
 
-import java.io.{ByteArrayInputStream, InputStream}
-import java.nio.file.{Path, Paths}
+object ApexLink {
+  def main(args: Array[String]): Unit = {
+    if (args.isEmpty) {
+      println(s"Usage: ApexLink <dir1> <dir2> ...")
+      return
+    }
 
-import com.nawforce.documents.{DocumentLoader, DocumentLoadingException}
 
-class TestDocumentLoader(text: String) extends DocumentLoader {
-  override def get(path: Path): InputStream = {
-    if (path == TestDocumentLoader.defaultPath)
-      new ByteArrayInputStream(text.getBytes)
-    else
-      throw new DocumentLoadingException("Wrong path used in test")
+
   }
-}
 
-object TestDocumentLoader {
-  val defaultPath: Path = Paths.get("dummy.cls")
 }

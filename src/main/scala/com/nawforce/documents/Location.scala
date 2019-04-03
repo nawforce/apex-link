@@ -25,23 +25,23 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.utils
+package com.nawforce.documents
 
-import java.net.URI
+import java.nio.file.Path
 
 import org.antlr.v4.runtime.ParserRuleContext
 
-abstract class Location(val uri: URI, val line: Int) {
+abstract class Location(val path: Path, val line: Int) {
   def displayPosition: String
 }
 
-case class LineLocation(_uri: URI, _line: Int) extends Location(_uri, _line) {
+case class LineLocation(_path: Path, _line: Int) extends Location(_path, _line) {
   override def displayPosition: String = {
     s"line $line"
   }
 }
 
-case class LineRangeLocation(_uri: URI, start: Int, end: Int) extends Location(_uri, start) {
+case class LineRangeLocation(_path: Path, start: Int, end: Int) extends Location(_path, start) {
   override def displayPosition: String = {
     s"line $start to $end"
   }
@@ -62,11 +62,11 @@ case class TextRange(start: Position, end: Position) {
   }
 }
 
-case class PointLocation(_uri: URI, start: Position) extends Location(_uri, start.line) {
+case class PointLocation(_path: Path, start: Position) extends Location(_path, start.line) {
   override def displayPosition: String = start.displayPosition
 }
 
-case class RangeLocation(_uri: URI, start: Position, end: Position) extends Location(_uri, start.line) {
+case class RangeLocation(_path: Path, start: Position, end: Position) extends Location(_path, start.line) {
   override def displayPosition: String = TextRange(start, end).displayPosition
 }
 
@@ -82,8 +82,8 @@ object TextRange {
 }
 
 object RangeLocation {
-  def apply(uri: URI, range: TextRange): RangeLocation = {
-    RangeLocation(uri, range.start, range.end)
+  def apply(path: Path, range: TextRange): RangeLocation = {
+    RangeLocation(path, range.start, range.end)
   }
 }
 
