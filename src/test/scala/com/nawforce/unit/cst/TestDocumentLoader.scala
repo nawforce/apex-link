@@ -30,17 +30,19 @@ package com.nawforce.unit.cst
 import java.io.{ByteArrayInputStream, InputStream}
 import java.nio.file.{Path, Paths}
 
-import com.nawforce.documents.{DocumentLoader, DocumentLoadingException}
+import com.nawforce.documents.DocumentLoader
+import com.nawforce.utils.Name
 
-class TestDocumentLoader(text: String) extends DocumentLoader {
-  override def get(path: Path): InputStream = {
-    if (path == TestDocumentLoader.defaultPath)
-      new ByteArrayInputStream(text.getBytes)
+class TestDocumentLoader(text: String) extends DocumentLoader(Seq()) {
+  override def getByName(name: Name): Option[(Path, InputStream)] = {
+    if (name == TestDocumentLoader.defaultName)
+      Some(TestDocumentLoader.defaultPath, new ByteArrayInputStream(text.getBytes))
     else
-      throw new DocumentLoadingException("Wrong path used in test")
+      None
   }
 }
 
 object TestDocumentLoader {
-  val defaultPath: Path = Paths.get("dummy.cls")
+  val defaultName: Name = Name("Dummy")
+  val defaultPath: Path = Paths.get(defaultName.toString)
 }

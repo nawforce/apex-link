@@ -60,13 +60,21 @@ abstract class ApexTypeDeclaration(val id: Id, val modifiers: Seq[Modifier])
 }
 
 object ApexTypeDeclaration {
-  def create(path: Path): Option[ApexTypeDeclaration] = {
+  def create(name: Name): Option[ApexTypeDeclaration] = {
+    val document = DocumentLoader.getByName(name)
+    if (document.nonEmpty) {
+      parseAndVerify(document.get._1, document.get._2)
+    } else {
+      None
+    }
+  }
+
+  private def parseAndVerify(path: Path, inputStream: InputStream): Option[ApexTypeDeclaration] = {
     try {
       IssueLog.pushContext(path)
 
       val listener = new ThrowingErrorListener
-      val is: InputStream = DocumentLoader.get(path)
-      val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(is)
+      val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(inputStream)
       val lexer: ApexLexer = new ApexLexer(cis)
       lexer.removeErrorListeners()
       lexer.addErrorListener(listener)

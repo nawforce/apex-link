@@ -27,15 +27,24 @@
 */
 package com.nawforce
 
+import java.nio.file.Paths
+
+import com.nawforce.documents.DocumentLoader
+
 object ApexLink {
   def main(args: Array[String]): Unit = {
-    if (args.isEmpty) {
+    val paths = args.flatMap(arg => {
+      val path = Paths.get(arg)
+      if (path.toFile.isDirectory) Some(path) else None
+    })
+
+    if (paths.length != args.length) {
       println(s"Usage: ApexLink <dir1> <dir2> ...")
       return
     }
 
-
+    DocumentLoader.defaultDocumentLoader = new DocumentLoader(
+      if (paths.isEmpty) Seq(Paths.get("").toAbsolutePath) else paths)
 
   }
-
 }

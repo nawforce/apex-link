@@ -35,12 +35,13 @@ import org.scalatest.FunSuite
 
 class InnerClassModifierTest extends FunSuite {
 
+  private val defaultName = TestDocumentLoader.defaultName
   private val defaultPath = TestDocumentLoader.defaultPath
 
   def typeDeclaration(clsText: String): TypeDeclaration = {
     IssueLog.clear()
-    DocumentLoader.documentLoader = new TestDocumentLoader(clsText)
-    ApexTypeDeclaration.create(defaultPath).get.asInstanceOf[ClassDeclaration]
+    DocumentLoader.defaultDocumentLoader = new TestDocumentLoader(clsText)
+    ApexTypeDeclaration.create(defaultName).get.asInstanceOf[ClassDeclaration]
       .bodyDeclarations.head.asInstanceOf[ClassDeclaration]
   }
 

@@ -34,12 +34,13 @@ import org.scalatest.FunSuite
 
 class ClassModifierTest extends FunSuite {
 
+  private val defaultName = TestDocumentLoader.defaultName
   private val defaultPath = TestDocumentLoader.defaultPath
 
   def typeDeclaration(clsText: String): TypeDeclaration = {
     IssueLog.clear()
-    DocumentLoader.documentLoader = new TestDocumentLoader(clsText)
-    ApexTypeDeclaration.create(defaultPath).get
+    DocumentLoader.defaultDocumentLoader = new TestDocumentLoader(clsText)
+    ApexTypeDeclaration.create(defaultName).get
   }
 
   test("Global outer") {

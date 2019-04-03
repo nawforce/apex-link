@@ -27,28 +27,61 @@
 */
 package com.nawforce.documents
 
-import java.io.{FileInputStream, FileNotFoundException, InputStream}
-import java.nio.file.Path
+import java.io.{File, FileInputStream, InputStream}
+import java.nio.file.{Path, Paths}
+
+import com.nawforce.utils.Name
+
+import scala.collection.mutable
 
 class DocumentLoadingException(msg: String, ex: Exception=null) extends Exception(msg, ex)
 
-trait DocumentLoader {
-  def get(path: Path): InputStream
-}
+class DocumentLoader(paths: Seq[Path]) {
+  private val cwd = Paths.get("").toAbsolutePath
+  private val documentByName = new mutable.HashMap[Name, Path]()
+  private val documentsByExtension = new mutable.HashMap[Name, List[Path]]() withDefaultValue List()
 
-class DefaultDocumentLoader extends DocumentLoader {
-  def get(path: Path): InputStream = {
-    try {
-      new FileInputStream(path.toFile)
-    } catch {
-      case e: IllegalArgumentException => throw new DocumentLoadingException(s"Can not load from: ${path.toString}", e)
-      case e: FileNotFoundException => throw new DocumentLoadingException(s"Can not open: ${path.toString}", e)
+  index()
+
+  private def index(): Unit = {
+      paths.reverse.foreach(p => indexPath(cwd.resolve(p)))
+  }
+
+  private def indexPath(path: Path): Unit = {
+    val directory = path.toFile
+    if (directory.isDirectory) {
+      directory.listFiles().foreach(file => {
+        if (file.isDirectory)
+          indexPath(file.toPath)
+        else {
+          val ext = extensionOf(file)
+          if (ext.nonEmpty && ext.get.nonEmpty) {
+            documentsByExtension.put(Name(ext.get), file.toPath :: documentsByExtension(Name(ext.get)))
+          }
+          documentByName.put(Name(file.getName), file.toPath)
+        }
+      })
+    } else {
+      throw new DocumentLoadingException(s"Expecting directory at $directory")
     }
+  }
+
+  private def extensionOf(file: File): Option[String] = {
+    val pathToFile = file.toString
+    val splitAt = pathToFile.lastIndexOf('.')
+    if (splitAt == -1)
+      None
+    else
+      Some(pathToFile.substring(splitAt+1))
+  }
+
+  def getByName(name: Name): Option[(Path, InputStream)] = {
+    documentByName.get(name).map(path => (path, new FileInputStream(path.toFile)))
   }
 }
 
 object DocumentLoader {
-  var documentLoader: DocumentLoader = new DefaultDocumentLoader
+  var defaultDocumentLoader: DocumentLoader = _
 
-  def get(path: Path): InputStream = documentLoader.get(path)
+  def getByName(name: Name): Option[(Path, InputStream)] = defaultDocumentLoader.getByName(name)
 }
