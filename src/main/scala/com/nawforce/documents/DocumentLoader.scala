@@ -53,30 +53,29 @@ class DocumentLoader(paths: Seq[Path]) {
       directory.listFiles().foreach(file => {
         if (file.isDirectory)
           indexPath(file.toPath)
-        else {
-          val ext = extensionOf(file)
-          if (ext.nonEmpty && ext.get.nonEmpty) {
-            documentsByExtension.put(Name(ext.get), file.toPath :: documentsByExtension(Name(ext.get)))
-          }
-          documentByName.put(Name(file.getName), file.toPath)
-        }
+        else
+          insertDocument(DocumentType(file))
       })
     } else {
       throw new DocumentLoadingException(s"Expecting directory at $directory")
     }
   }
 
-  private def extensionOf(file: File): Option[String] = {
-    val pathToFile = file.toString
-    val splitAt = pathToFile.lastIndexOf('.')
-    if (splitAt == -1)
-      None
-    else
-      Some(pathToFile.substring(splitAt+1))
+  private def insertDocument(documentType: DocumentType): Unit = {
+    documentType match {
+      case docType: MetadataDocumentType =>
+        documentsByExtension.put(docType.extension, docType.path :: documentsByExtension(docType.extension))
+        documentByName.put(docType.name, docType.path)
+      case _ => ()
+    }
   }
 
   def getByName(name: Name): Option[(Path, InputStream)] = {
     documentByName.get(name).map(path => (path, new FileInputStream(path.toFile)))
+  }
+
+  def getByExtension(name: Name): Seq[Path] = {
+    documentsByExtension(name)
   }
 }
 
@@ -84,4 +83,5 @@ object DocumentLoader {
   var defaultDocumentLoader: DocumentLoader = _
 
   def getByName(name: Name): Option[(Path, InputStream)] = defaultDocumentLoader.getByName(name)
+  def getByExtension(name: Name): Seq[Path] = defaultDocumentLoader.getByExtension(name)
 }

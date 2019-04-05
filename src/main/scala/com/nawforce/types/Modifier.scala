@@ -31,7 +31,7 @@ import java.lang.reflect.{Modifier => JavaModifier}
 
 import com.nawforce.cst.ConstructContext
 import com.nawforce.documents.TextRange
-import com.nawforce.parsers.ApexParser.{IdContext, ModifierContext}
+import com.nawforce.parsers.ApexParser.{AnnotationContext, IdContext, ModifierContext}
 import com.nawforce.utils.IssueLog
 
 sealed abstract class Modifier(name: String) {
@@ -49,55 +49,101 @@ case object ABSTRACT_MODIFIER extends Modifier("abstract")
 case object FINAL_MODIFIER extends Modifier("final")
 case object OVERRIDE_MODIFIER extends Modifier("override")
 case object VIRTUAL_MODIFIER extends Modifier("virtual")
-
 case object WEBSERVICE_MODIFIER extends Modifier("webservice")
-
-case object TEST_METHOD_MODIFIER extends Modifier("@isTest")
-case object TEST_VISIBLE_MODIFIER extends Modifier("@TestVisible")
 
 case object WITH_SHARING_MODIFIER extends Modifier("with sharing")
 case object WITHOUT_SHARING_MODIFIER extends Modifier("without sharing")
 case object INHERITED_SHARING_MODIFIER extends Modifier("inherited sharing")
 
+case object AURA_ENABLED_ANNOTATION extends Modifier("@AuraEnabled")
+case object DEPRECATED_ANNOTATION extends Modifier("@Deprecated")
+case object FUTURE_ANNOTATION extends Modifier("@Future")
+case object INVOCABLE_METHOD_ANNOTATION extends Modifier("@InvocableMethod")
+case object INVOCABLE_VARIABLE_ANNOTATION extends Modifier("@InvocableField")
+case object ISTEST_ANNOTATION extends Modifier("@isTest")
+case object READ_ONLY_ANNOTATION extends Modifier("@ReadOnly")
+case object REMOTE_ACTION_ANNOTATION extends Modifier("@RemoteAction")
+case object SUPPRESS_WARNINGS_ANNOTATION extends Modifier("@SuppressWarnings")
+case object TEST_SETUP_ANNOTATION extends Modifier("@TestSetup")
+case object TEST_VISIBLE_ANNOTATION extends Modifier("@TestVisible")
+
+case object REST_RESOURCE_ANNOTATION extends Modifier("@RestResource")
+case object HTTP_DELETE_ANNOTATION extends Modifier("@HttpDelete")
+case object HTTP_GET_ANNOTATION extends Modifier("@HttpGet")
+case object HTTP_PATCH_ANNOTATION extends Modifier("@HttpPatch")
+case object HTTP_POST_ANNOTATION extends Modifier("@HttpPost")
+case object HTTP_PUT_ANNOTATION extends Modifier("@HttpPut")
+
 object ApexModifiers {
+  private val classVisibilityModifiers: Set[Modifier] = Set(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PRIVATE_MODIFIER)
+  private val sharingModifiers: Set[Modifier] = Set(WITH_SHARING_MODIFIER, WITHOUT_SHARING_MODIFIER, INHERITED_SHARING_MODIFIER)
+
   def classModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext,
                      outer: Boolean, idContext: IdContext)
   : Seq[Modifier] = {
 
     val mods = modifierContexts.flatMap(modifierContext =>
-      modifierContext.getText match {
-        case "global" => Some(GLOBAL_MODIFIER)
-        case "public" => Some(PUBLIC_MODIFIER)
-        case "private" if !outer => Some(PRIVATE_MODIFIER)
-        case "withsharing" => Some(WITH_SHARING_MODIFIER)
-        case "withoutsharing" => Some(WITHOUT_SHARING_MODIFIER)
-        case "inheritedsharing" => Some(INHERITED_SHARING_MODIFIER)
-        case _ =>
-          val modifierText = modifierContext.getText
-          if (modifierText == "private")
+      if (modifierContext.annotation() != null) {
+        classAnnotation(modifierContext.annotation())
+      } else {
+        modifierContext.getText match {
+          case "global" => Some(GLOBAL_MODIFIER)
+          case "public" => Some(PUBLIC_MODIFIER)
+          case "private" => Some(PRIVATE_MODIFIER)
+          case "withsharing" => Some(WITH_SHARING_MODIFIER)
+          case "withoutsharing" => Some(WITHOUT_SHARING_MODIFIER)
+          case "inheritedsharing" => Some(INHERITED_SHARING_MODIFIER)
+          case "abstract" => Some(ABSTRACT_MODIFIER)
+          case "virtual" => Some(VIRTUAL_MODIFIER)
+          case _ =>
             IssueLog.logMessage(TextRange(modifierContext),
-              s"Modifier '${modifierContext.getText}' is not supported on ${if (outer) "outer" else ""} classes")
-          else
-            IssueLog.logMessage(TextRange(modifierContext),
-              s"Modifier '${modifierContext.getText}' is not supported on classes")
-          None
-      })
+                s"Modifier '${modifierContext.getText}' is not supported on classes")
+            None
+        }
+      }
+    )
 
     if (mods.size == modifierContexts.size) {
       val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
       if (duplicates.nonEmpty) {
         IssueLog.logMessage(TextRange(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
-      } else if (outer && !(mods.contains(GLOBAL_MODIFIER) || mods.contains(PUBLIC_MODIFIER))) {
+        mods.toSet.toSeq
+      } else if (outer && !mods.contains(ISTEST_ANNOTATION) && mods.contains(PRIVATE_MODIFIER) ) {
+        IssueLog.logMessage(TextRange(idContext),
+          s"Private modifier is not allowed on outer classes")
+        mods.filterNot(_ == PRIVATE_MODIFIER)
+      } else if (outer && !mods.contains(ISTEST_ANNOTATION) && !(mods.contains(GLOBAL_MODIFIER) || mods.contains(PUBLIC_MODIFIER))) {
         IssueLog.logMessage(TextRange(idContext), s"Outer classes must be declared either 'global' or 'public'")
+        PUBLIC_MODIFIER +: mods
       } else if (mods.intersect(Seq(PUBLIC_MODIFIER, PROTECTED_MODIFIER, PRIVATE_MODIFIER)).size > 1) {
         IssueLog.logMessage(TextRange(idContext),
           s"Only one visibility modifier from 'global', 'public' & 'private' may be used on classes")
+        PUBLIC_MODIFIER +: mods.toSet.diff(classVisibilityModifiers).toSeq
       } else if (mods.intersect(Seq(WITH_SHARING_MODIFIER, WITHOUT_SHARING_MODIFIER, INHERITED_SHARING_MODIFIER)).size > 1) {
         IssueLog.logMessage(TextRange(idContext),
           s"Only one sharing modifier from 'with sharing', 'without sharing' & 'inherited sharing' may be used on classes")
+        mods.toSet.diff(sharingModifiers).toSeq
+      } else {
+        mods
       }
+    } else {
+      mods
     }
-    mods
+  }
+
+  private def classAnnotation(context: AnnotationContext): Option[Modifier] = {
+    // TODO: Validate arguments of the annotations
+    context.qualifiedName().getText.toLowerCase match {
+      case "deprecated" => Some(DEPRECATED_ANNOTATION)
+      case "istest" => Some(ISTEST_ANNOTATION)
+      case "testvisible" => Some(TEST_VISIBLE_ANNOTATION)
+      case "suppresswarnings" => Some(SUPPRESS_WARNINGS_ANNOTATION)
+      case "restresource" => Some(REST_RESOURCE_ANNOTATION)
+      case _ =>
+        IssueLog.logMessage(TextRange(context),
+          s"Unexpected annotation '${context.qualifiedName().getText}' on class declaration")
+        None
+    }
   }
 
   def construct(modifiers: Seq[ModifierContext], context: ConstructContext): Seq[Modifier] = {

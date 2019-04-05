@@ -73,7 +73,7 @@ enumConstants
     ;
 
 enumConstant
-    :   annotation* id arguments? classBody?
+    :   modifier* id arguments? classBody?
     ;
 
 enumBodyDeclarations
@@ -102,7 +102,7 @@ classBodyDeclaration
     |   modifier* memberDeclaration
     ;
 
-/* Unify all modifiers so we can give better error messages */
+/* Unify all annotation & modifiers so we can give better error messages */
 modifier
     :   annotation
     |   GLOBAL
@@ -140,7 +140,7 @@ memberDeclaration
 
 
 methodDeclaration
-    :   annotation? modifier* (typeRef|VOID) id formalParameters
+    :   modifier* (typeRef|VOID) id formalParameters
         (   block
         |   SEMI
         )
@@ -283,6 +283,7 @@ elementValue
 elementValueArrayInitializer
     :   LBRACE (elementValue (COMMA elementValue)*)? (COMMA)? RBRACE
     ;
+
 
 // STATEMENTS / BLOCKS
 

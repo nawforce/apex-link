@@ -8,7 +8,7 @@ global class Application
 					Season__c.SObjectType, 
 				  	Race__c.SObjectType, 
 				  	Contestant__c.SObjectType,
-				  	RaceData__c.SObjectType });	
+				  	RaceData__c.SObjectType });
 
 	// Configure and create the SelectorFactory for this Application
 	public static final SelectorFactory Selector = 

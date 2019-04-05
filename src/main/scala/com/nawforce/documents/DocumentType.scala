@@ -25,36 +25,46 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce
+package com.nawforce.documents
 
-import java.nio.file.Paths
+import java.io.File
+import java.nio.file.Path
 
-import com.nawforce.documents.{ApexDocument, DocumentLoader, DocumentType}
-import com.nawforce.types.ApexTypeDeclaration
-import com.nawforce.utils.{IssueLog, Name}
+import com.nawforce.utils.Name
 
-object ApexLink {
-  def main(args: Array[String]): Unit = {
-    val paths = args.flatMap(arg => {
-      val path = Paths.get(arg)
-      if (path.toFile.isDirectory) Some(path) else None
-    })
+trait DocumentType {
+  val name: Name
+}
 
-    if (paths.length != args.length) {
-      println(s"Usage: ApexLink <dir1> <dir2> ...")
-      return
+class PathDocument(val path: Path) extends DocumentType {
+  lazy val name = Name(path.getFileName.toString)
+}
+
+abstract class MetadataDocumentType(path: Path) extends PathDocument(path) {
+  val extension: Name
+}
+
+case class ApexDocument(_path: Path) extends MetadataDocumentType(_path) {
+  lazy val extension: Name = Name("cls")
+}
+
+object DocumentType {
+  def apply(path: Path): DocumentType = {
+    extensionOf(path) match {
+      case Some("cls") => ApexDocument(path)
+      case _ => new PathDocument(path)
     }
+  }
 
-    DocumentLoader.defaultDocumentLoader = new DocumentLoader(
-      if (paths.isEmpty) Seq(Paths.get("").toAbsolutePath) else paths)
+  def apply(file: File): DocumentType = apply(file.toPath)
 
-    DocumentLoader.getByExtension(Name("cls")).foreach(path => {
-      DocumentType(path) match {
-        case docType: ApexDocument => ApexTypeDeclaration.create(docType.name)
-        case _ => println(s"Unexpected document type at: $path")
-      }
-    })
-
-    IssueLog.dumpMessages()
+  private def extensionOf(path: Path): Option[String] = {
+    val pathToFile = path.toString
+    val splitAt = pathToFile.lastIndexOf('.')
+    if (splitAt == -1)
+      None
+    else
+      Some(pathToFile.substring(splitAt+1).toLowerCase())
   }
 }
+
