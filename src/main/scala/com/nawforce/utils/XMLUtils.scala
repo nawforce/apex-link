@@ -39,7 +39,7 @@ val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
   }
 
   def getLocation(elem: Elem): Location = {
-    LineLocation(IssueLog.context.get, getLine(elem))
+    LineLocation(IssueLog.context.value, getLine(elem))
   }
 
   def ifNotElemLogAndThrow(elem: Elem, name: String): Unit = {

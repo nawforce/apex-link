@@ -48,7 +48,7 @@ object ApexLink {
     DocumentLoader.defaultDocumentLoader = new DocumentLoader(
       if (paths.isEmpty) Seq(Paths.get("").toAbsolutePath) else paths)
 
-    DocumentLoader.getByExtension(Name("cls")).foreach(path => {
+    DocumentLoader.getByExtension(Name("cls")).par.foreach(path => {
       DocumentType(path) match {
         case docType: ApexDocument => ApexTypeDeclaration.create(docType.name)
         case _ => println(s"Unexpected document type at: $path")

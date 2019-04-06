@@ -71,31 +71,30 @@ object ApexTypeDeclaration {
 
   private def parseAndVerify(path: Path, inputStream: InputStream): Option[ApexTypeDeclaration] = {
     try {
-      IssueLog.pushContext(path)
+      IssueLog.context.withValue(path) {
 
-      val listener = new ThrowingErrorListener
-      val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(inputStream)
-      val lexer: ApexLexer = new ApexLexer(cis)
-      lexer.removeErrorListeners()
-      lexer.addErrorListener(listener)
+        val listener = new ThrowingErrorListener
+        val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(inputStream)
+        val lexer: ApexLexer = new ApexLexer(cis)
+        lexer.removeErrorListeners()
+        lexer.addErrorListener(listener)
 
-      val tokens: CommonTokenStream = new CommonTokenStream(lexer)
-      tokens.fill()
+        val tokens: CommonTokenStream = new CommonTokenStream(lexer)
+        tokens.fill()
 
-      val parser: ApexParser = new ApexParser(tokens)
-      parser.removeErrorListeners()
-      parser.setTrace(false)
-      parser.addErrorListener(listener)
+        val parser: ApexParser = new ApexParser(tokens)
+        parser.removeErrorListeners()
+        parser.setTrace(false)
+        parser.addErrorListener(listener)
 
-      val cu = CompilationUnit.construct(path, parser.compilationUnit(), new ConstructContext())
-      cu.verify()
-      Some(cu.typeDeclaration)
+        val cu = CompilationUnit.construct(path, parser.compilationUnit(), new ConstructContext())
+        cu.verify()
+        Some(cu.typeDeclaration)
+      }
     } catch {
       case se: SyntaxException =>
         IssueLog.logMessage(LineLocation(path, se.line), se.msg)
         None
-    } finally {
-      IssueLog.popContext()
     }
   }
 

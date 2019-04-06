@@ -32,26 +32,18 @@ import java.nio.file.Path
 import com.nawforce.documents.{LineLocation, Location, RangeLocation, TextRange}
 
 import scala.collection.mutable
+import scala.util.DynamicVariable
 
 object IssueLog {
+  val context: DynamicVariable[Path] = new DynamicVariable[Path](null)
+
+  private[this] val lock = new Object()
   private val log = mutable.HashMap[Path, List[(Location, String)]]() withDefaultValue List()
-  private val contexts = mutable.Stack[Path]()
 
   def clear(): Unit = {
-    log.clear()
-    contexts.clear()
-  }
-
-  def pushContext(context: Path): Unit = {
-    contexts.push(context)
-  }
-
-  def popContext(): Unit = {
-    contexts.pop()
-  }
-
-  def context: Option[Path] = {
-    contexts.headOption
+    lock.synchronized {
+      log.clear()
+    }
   }
 
   def ifNotLogAndThrow(condition: Boolean, index: Integer, msg: String): Unit = {
@@ -68,44 +60,47 @@ object IssueLog {
   }
 
   def logMessage(index: Integer, msg: String): Unit = {
-    if (contexts.nonEmpty) {
-      logMessage(LineLocation(contexts.head, index), msg)
-    }
+    logMessage(LineLocation(context.value, index), msg)
   }
 
   def logMessage(range: TextRange, msg: String): Unit = {
-    assert(contexts.nonEmpty)
-    logMessage(RangeLocation(contexts.head, range), msg)
+    logMessage(RangeLocation(context.value, range), msg)
   }
 
   def logMessage(location: Location, msg: String): Unit = {
-    log.put(location.path, (location, msg) :: log(location.path))
+    lock.synchronized {
+      log.put(location.path, (location, msg) :: log(location.path))
+    }
   }
 
-  def hasMessages: Boolean = log.nonEmpty
+  def hasMessages: Boolean = lock.synchronized {log.nonEmpty}
 
   def getMessages(path: Path, showPath: Boolean = false, maxErrors: Int = 10): String = {
-    val buffer = new StringBuilder
-    val messages = log.getOrElse(path, List())
-    if (messages.nonEmpty) {
-      if (showPath)
-        buffer ++= path.toString + "\n"
-      var count = 0
-      messages.sortBy(_._1.line).foreach(message => {
-        if (count < maxErrors) {
-          buffer ++= message._1.displayPosition + ": " + message._2 + "\n"
-        }
-        count += 1
-      })
-      if (count - maxErrors > 0)
-        buffer ++= count - maxErrors + " of " + count + " errors not shown"
+    lock.synchronized {
+      val buffer = new StringBuilder
+      val messages = log.getOrElse(path, List())
+      if (messages.nonEmpty) {
+        if (showPath)
+          buffer ++= path.toString + "\n"
+        var count = 0
+        messages.sortBy(_._1.line).foreach(message => {
+          if (count < maxErrors) {
+            buffer ++= message._1.displayPosition + ": " + message._2 + "\n"
+          }
+          count += 1
+        })
+        if (count - maxErrors > 0)
+          buffer ++= count - maxErrors + " of " + count + " errors not shown"
+      }
+      buffer.toString()
     }
-    buffer.toString()
   }
 
   def dumpMessages(maxErrors: Integer = 10): Unit = {
-    log.keys.foreach(uri => {
-      System.out.println(getMessages(uri, showPath = true, maxErrors))
-    })
+    lock.synchronized {
+      log.keys.foreach(uri => {
+        System.out.println(getMessages(uri, showPath = true, maxErrors))
+      })
+    }
   }
 }
