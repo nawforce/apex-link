@@ -49,9 +49,9 @@ channels {
     COMMENT_CHANNEL
 }
 
-// §3.9 Keywords
-
+// Keywords
 ABSTRACT      : 'abstract';
+BLOB          : 'blob';
 BOOLEAN       : 'boolean';
 BREAK         : 'break';
 BYTE          : 'byte';
@@ -60,7 +60,11 @@ CHAR          : 'char';
 CLASS         : 'class';
 CONST         : 'const';
 CONTINUE      : 'continue';
+DATE          : 'date';
+DATETIME      : 'datetime';
+DECIMAL       : 'decimal';
 DEFAULT       : 'default';
+DELETE        : 'delete';
 DO            : 'do';
 DOUBLE        : 'double';
 ELSE          : 'else';
@@ -70,60 +74,55 @@ FINAL         : 'final';
 FINALLY       : 'finally';
 FLOAT         : 'float';
 FOR           : 'for';
-IF            : 'if';
+GET           : 'get';
+GLOBAL	      : 'global';
 GOTO          : 'goto';
+ID            : 'id';
+IF            : 'if';
 IMPLEMENTS    : 'implements';
+INHERITED     : 'inherited';
+INSERT        : 'insert';
 INSTANCEOF    : 'instanceof';
+INTEGER       : 'integer';
 INTERFACE     : 'interface';
 LONG          : 'long';
+MERGE         : 'merge';
 NATIVE        : 'native';
 NEW           : 'new';
 NULL          : 'null';
+OBJECT        : 'object';
+ON            : 'on';
+OVERRIDE      : 'override';
 PACKAGE       : 'package';
 PRIVATE       : 'private';
 PROTECTED     : 'protected';
 PUBLIC        : 'public';
 RETURN        : 'return';
+RUNAS         : 'system.runas';
+SELECT        : 'select';
+SET           : 'set';
+SHARING       : 'sharing';
 SHORT         : 'short';
 STATIC        : 'static';
-VIRTUAL       : 'virtual';
-
+STRING        : 'string';
 SUPER         : 'super';
+SWITCH        : 'switch';
+TESTMETHOD    : 'testmethod';
 THIS          : 'this';
 THROW         : 'throw';
+TIME          : 'time';
 TRANSIENT     : 'transient';
 TRY           : 'try';
-VOID          : 'void';
-WHILE         : 'while';
-
-// Apexcode specific
-GLOBAL	      : 'global';
-WEBSERVICE    : 'webservice';
-SELECT        : 'select';
-INSERT        : 'insert';
-UPSERT        : 'upsert';
-UPDATE        : 'update';
-DELETE        : 'delete';
 UNDELETE      : 'undelete';
-MERGE         : 'merge';
-TESTMETHOD    : 'testmethod';
-OVERRIDE      : 'override';
-GET           : 'get';
-SET           : 'set';
-BLOB          : 'blob';
-DATE          : 'date';
-DATETIME      : 'datetime';
-DECIMAL       : 'decimal';
-ID            : 'id';
-INTEGER       : 'integer';
-OBJECT        : 'object';
-STRING        : 'string';
-TIME          : 'time';
-RUNAS         : 'system.runas';
+UPDATE        : 'update';
+UPSERT        : 'upsert';
+VIRTUAL       : 'virtual';
+VOID          : 'void';
+WEBSERVICE    : 'webservice';
+WHEN          : 'when';
+WHILE         : 'while';
 WITH          : 'with';
 WITHOUT       : 'without';
-SHARING       : 'sharing';
-INHERITED     : 'inherited';
 
 // §3.10.1 Integer Literals
 

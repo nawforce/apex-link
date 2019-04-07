@@ -508,6 +508,46 @@ object IfStatement {
   }
 }
 
+final case class WhenControl(expressions: List[Expression], block: Block) extends CST {
+  override def children(): List[CST] = expressions ++ List(block)
+
+  def resolve(context: ResolveStmtContext): Unit = {
+    val erc = new ResolveExprContext(context)
+    expressions.foreach(_.resolve(erc))
+    block.resolve(context)
+  }
+}
+
+object WhenControl {
+  def construct(whenControl: WhenControlContext, context: ConstructContext): WhenControl = {
+    val exprs =
+      if (whenControl.expressionList() != null) {
+        whenControl.expressionList().expression().asScala.map(e => Expression.construct(e, context))
+      } else {
+        Seq()
+      }
+    WhenControl(exprs.toList, Block.construct(whenControl.block(), context))
+  }
+}
+
+final case class SwitchStatement(expression: Expression, whenControls: List[WhenControl]) extends Statement {
+  override def children(): List[CST] = expression :: whenControls
+
+  override def resolve(context: ResolveStmtContext): Unit = {
+    expression.resolve(new ResolveExprContext(context))
+    whenControls.foreach(_.resolve(context))
+  }
+}
+
+object SwitchStatement {
+  def construct(switchStatement: SwitchStatementContext, context: ConstructContext): SwitchStatement = {
+    SwitchStatement(
+      Expression.construct(switchStatement.expression(), context),
+      switchStatement.whenControl().asScala.map(WhenControl.construct(_, context)).toList,
+    )
+  }
+}
+
 final case class ForStatement(control: ForControl, statement: Statement) extends Statement {
   override def children(): List[CST] = {
     control :: statement :: Nil
@@ -972,6 +1012,8 @@ object Statement {
         LocalVariableDeclarationStatement.construct(statement.localVariableDeclarationStatement(), context)
       } else if (statement.ifStatement() != null) {
         IfStatement.construct(statement.ifStatement(), context)
+      } else if (statement.switchStatement() != null) {
+        SwitchStatement.construct(statement.switchStatement(), context)
       } else if (statement.forStatement() != null) {
         ForStatement.construct(statement.forStatement(), context)
       } else if (statement.whileStatement() != null) {

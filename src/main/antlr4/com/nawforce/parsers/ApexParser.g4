@@ -303,6 +303,7 @@ statement
     : block
     | localVariableDeclarationStatement                           // TODO: Is this right or dodgy code
     | ifStatement
+    | switchStatement
     | forStatement
     | whileStatement
     | doWhileStatement
@@ -325,6 +326,14 @@ statement
 
 ifStatement
     : IF parExpression statement (ELSE statement)?
+    ;
+
+switchStatement
+    : SWITCH ON expression LBRACE whenControl+ RBRACE
+    ;
+
+whenControl
+    : WHEN (expressionList| ELSE) block
     ;
 
 forStatement
@@ -636,6 +645,7 @@ id
     | NEW
     | NULL
     | OBJECT
+    | ON
     | OVERRIDE
     | PACKAGE
     | PRIVATE
@@ -649,6 +659,7 @@ id
     | SHORT
     | STATIC
     | STRING
+    | SWITCH
     | SUPER
     | TESTMETHOD
     | THIS
@@ -662,6 +673,7 @@ id
     | VIRTUAL
     | VOID
     | WEBSERVICE
+    | WHEN
     | WHILE
     | WITH
     | WITHOUT
