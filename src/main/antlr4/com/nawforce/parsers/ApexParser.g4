@@ -47,89 +47,89 @@ import java.util.*;
 
 // starting point for parsing a apexcode file
 compilationUnit
-    :   typeDeclaration EOF
+    : typeDeclaration EOF
     ;
 
 typeDeclaration
-    :   modifier* classDeclaration
-    |   modifier* enumDeclaration
-    |   modifier* interfaceDeclaration
+    : modifier* classDeclaration
+    | modifier* enumDeclaration
+    | modifier* interfaceDeclaration
     ;
 
 classDeclaration
-    :   CLASS id
-        (EXTENDS typeRef)?
-        (IMPLEMENTS typeList)?
-        classBody
+    : CLASS id
+      (EXTENDS typeRef)?
+      (IMPLEMENTS typeList)?
+      classBody
     ;
 
 enumDeclaration
-    :   ENUM id (IMPLEMENTS typeList)?
-        LBRACE enumConstants? COMMA ? enumBodyDeclarations? RBRACE
+    : ENUM id (IMPLEMENTS typeList)?
+      LBRACE enumConstants? COMMA ? enumBodyDeclarations? RBRACE
     ;
 
 enumConstants
-    :   enumConstant (COMMA enumConstant)*
+    : enumConstant (COMMA enumConstant)*
     ;
 
 enumConstant
-    :   modifier* id arguments? classBody?
+    : modifier* id arguments? classBody?
     ;
 
 enumBodyDeclarations
-    :   SEMI classBodyDeclaration*
+    : SEMI classBodyDeclaration*
     ;
 
 interfaceDeclaration
-    :   INTERFACE id (EXTENDS typeList)? interfaceBody
+    : INTERFACE id (EXTENDS typeList)? interfaceBody
     ;
 
 typeList
-    :   typeRef (COMMA typeRef)*
+    : typeRef (COMMA typeRef)*
     ;
 
 classBody
-    :   LBRACE classBodyDeclaration* RBRACE
+    : LBRACE classBodyDeclaration* RBRACE
     ;
 
 interfaceBody
-    :   LBRACE interfaceBodyDeclaration* RBRACE
+    : LBRACE interfaceBodyDeclaration* RBRACE
     ;
 
 classBodyDeclaration
-    :   SEMI
-    |   STATIC? block
-    |   modifier* memberDeclaration
+    : SEMI
+    | STATIC? block
+    | modifier* memberDeclaration
     ;
 
 /* Unify all annotation & modifiers so we can give better error messages */
 modifier
-    :   annotation
-    |   GLOBAL
-    |   PUBLIC
-    |   PROTECTED
-    |   PRIVATE
-    |   TRANSIENT
-    |   STATIC
-    |   ABSTRACT
-    |   FINAL
-    |   WEBSERVICE
-    |   OVERRIDE
-    |   VIRTUAL
-    |   TESTMETHOD
-    |	WITH SHARING
-    |	WITHOUT SHARING
-    |	INHERITED SHARING
+    : annotation
+    | GLOBAL
+    | PUBLIC
+    | PROTECTED
+    | PRIVATE
+    | TRANSIENT
+    | STATIC
+    | ABSTRACT
+    | FINAL
+    | WEBSERVICE
+    | OVERRIDE
+    | VIRTUAL
+    | TESTMETHOD
+    | WITH SHARING
+    | WITHOUT SHARING
+    | INHERITED SHARING
     ;
 
 memberDeclaration
-    :   methodDeclaration
-    |   fieldDeclaration
-    |   constructorDeclaration
-    |   interfaceDeclaration
-    |   classDeclaration
-    |   enumDeclaration
-    |   propertyDeclaration
+    : methodDeclaration
+    | fieldDeclaration
+    | constructorDeclaration
+    | interfaceDeclaration
+    | classDeclaration
+    | enumDeclaration
+    | propertyDeclaration
     ;
 
 /* We use rule this even for void methods which cannot have [] after parameters.
@@ -140,187 +140,187 @@ memberDeclaration
 
 
 methodDeclaration
-    :   modifier* (typeRef|VOID) id formalParameters
-        (   block
-        |   SEMI
-        )
+    : modifier* (typeRef|VOID) id formalParameters
+      (   block
+      |   SEMI
+      )
     ;
 
 constructorDeclaration
-    :   qualifiedName formalParameters block
+    : qualifiedName formalParameters block
     ;
 
 fieldDeclaration
-    :   typeRef variableDeclarators SEMI
+    : typeRef variableDeclarators SEMI
     ;
 
 propertyDeclaration
-    :   typeRef variableDeclarators propertyBodyDeclaration
+    : typeRef variableDeclarators propertyBodyDeclaration
     ;
 
 propertyBodyDeclaration
-    :   LBRACE propertyBlock propertyBlock? RBRACE
+    : LBRACE propertyBlock propertyBlock? RBRACE
     ;
 
 interfaceBodyDeclaration
-    :   modifier* interfaceMemberDeclaration
-    |   SEMI
+    : modifier* interfaceMemberDeclaration
+    | SEMI
     ;
 
 interfaceMemberDeclaration
-    :   constDeclaration
-    |   interfaceMethodDeclaration
-    |   interfaceDeclaration
-    |   classDeclaration
-    |   enumDeclaration
+    : constDeclaration
+    | interfaceMethodDeclaration
+    | interfaceDeclaration
+    | classDeclaration
+    | enumDeclaration
     ;
 
 constDeclaration
-    :   typeRef constantDeclarator (COMMA constantDeclarator)* SEMI
+    : typeRef constantDeclarator (COMMA constantDeclarator)* SEMI
     ;
 
 constantDeclarator
-    :   id (LBRACK RBRACK)* '=' variableInitializer
+    : id (LBRACK RBRACK)* '=' variableInitializer
     ;
 
 interfaceMethodDeclaration
-    :   (typeRef|VOID) id formalParameters SEMI
+    : (typeRef|VOID) id formalParameters SEMI
     ;
 
 variableDeclarators
-    :   variableDeclarator (COMMA variableDeclarator)*
+    : variableDeclarator (COMMA variableDeclarator)*
     ;
 
 variableDeclarator
-    :   id (ASSIGN variableInitializer)?
+    : id (ASSIGN variableInitializer)?
     ;
 
 variableInitializer
-    :   arrayInitializer
-    |   expression
+    : arrayInitializer
+    | expression
     ;
 
 arrayInitializer
-    :   LBRACE (variableInitializer (COMMA variableInitializer)* (COMMA)? )? RBRACE
+    : LBRACE (variableInitializer (COMMA variableInitializer)* (COMMA)? )? RBRACE
     ;
 
 typeRef
-    :   classOrInterfaceType arraySubscripts
-    |   primitiveType arraySubscripts
+    : classOrInterfaceType arraySubscripts
+    | primitiveType arraySubscripts
     ;
 
 arraySubscripts
-    :   (LBRACK RBRACK)*
+    : (LBRACK RBRACK)*
     ;
 
 classOrInterfaceType
-    :   id typeArguments? (DOT id typeArguments? )*
+    : id typeArguments? (DOT id typeArguments? )*
     ;
 
 primitiveType
-    :   BLOB
-    |   BOOLEAN
-    |   DATE
-    |   DATETIME
-    |   DECIMAL
-    |   DOUBLE
-    |   ID
-    |   INTEGER
-    |   LONG
-    |   OBJECT
-    |   STRING
-    |   TIME
+    : BLOB
+    | BOOLEAN
+    | DATE
+    | DATETIME
+    | DECIMAL
+    | DOUBLE
+    | ID
+    | INTEGER
+    | LONG
+    | OBJECT
+    | STRING
+    | TIME
     ;
 
 typeArguments
-    :   LT typeList GT
+    : LT typeList GT
     ;
 
 formalParameters
-    :   LPAREN formalParameterList? RPAREN
+    : LPAREN formalParameterList? RPAREN
     ;
 
 formalParameterList
-    :   formalParameter (COMMA formalParameter)*
+    : formalParameter (COMMA formalParameter)*
     ;
 
 formalParameter
-    :   modifier* typeRef id
+    : modifier* typeRef id
     ;
 
 qualifiedName
-    :   id (DOT id)*
+    : id (DOT id)*
     ;
 
 literal
-    :   IntegerLiteral
-    |   NumberLiteral
-    |   StringLiteral
-    |   BooleanLiteral
-    |   NULL
+    : IntegerLiteral
+    | NumberLiteral
+    | StringLiteral
+    | BooleanLiteral
+    | NULL
     ;
 
 // ANNOTATIONS
 
 annotation
-    :   AT qualifiedName ( LPAREN ( elementValuePairs | elementValue )? RPAREN )?
+    : AT qualifiedName ( LPAREN ( elementValuePairs | elementValue )? RPAREN )?
     ;
 
 elementValuePairs
-    :   elementValuePair (COMMA? elementValuePair)*
+    : elementValuePair (COMMA? elementValuePair)*
     ;
 
 elementValuePair
-    :   id ASSIGN elementValue
+    : id ASSIGN elementValue
     ;
 
 elementValue
-    :   expression
-    |   annotation
-    |   elementValueArrayInitializer
+    : expression
+    | annotation
+    | elementValueArrayInitializer
     ;
 
 elementValueArrayInitializer
-    :   LBRACE (elementValue (COMMA elementValue)*)? (COMMA)? RBRACE
+    : LBRACE (elementValue (COMMA elementValue)*)? (COMMA)? RBRACE
     ;
 
 
 // STATEMENTS / BLOCKS
 
 block
-    :   LBRACE statement* RBRACE
+    : LBRACE statement* RBRACE
     ;
 
 localVariableDeclarationStatement
-    :    localVariableDeclaration SEMI
+    : localVariableDeclaration SEMI
     ;
 
 localVariableDeclaration
-    :   modifier* typeRef variableDeclarators
+    : modifier* typeRef variableDeclarators
     ;
 
 statement
-    :   block
-    |   localVariableDeclarationStatement                           // TODO: Is this right or dodgy code
-    |   ifStatement
-    |   forStatement                                               
-    |   whileStatement
-    |   doWhileStatement
-    |   tryStatement
-    |   returnStatement
-    |   throwStatement
-    |   breakStatement
-    |   continueStatement
-    |   insertStatement
-    |   updateStatement
-    |   deleteStatement
-    |   undeleteStatement
-    |   upsertStatement
-    |   mergeStatement
-    |   runAsStatement
-    |   emptyStatement
-    |   expressionStatement
-    |   idStatement
+    : block
+    | localVariableDeclarationStatement                           // TODO: Is this right or dodgy code
+    | ifStatement
+    | forStatement
+    | whileStatement
+    | doWhileStatement
+    | tryStatement
+    | returnStatement
+    | throwStatement
+    | breakStatement
+    | continueStatement
+    | insertStatement
+    | updateStatement
+    | deleteStatement
+    | undeleteStatement
+    | upsertStatement
+    | mergeStatement
+    | runAsStatement
+    | emptyStatement
+    | expressionStatement
+    | idStatement
     ;
 
 ifStatement
@@ -392,15 +392,15 @@ emptyStatement
     ;
 
 expressionStatement
-    :   expression SEMI
+    : expression SEMI
     ;
 
 idStatement
-    :   id COLON statement
+    : id COLON statement
     ;
 
 propertyBlock
-	:	modifier* (getter | setter)
+	: modifier* (getter | setter)
 	;
 
 getter
@@ -424,119 +424,119 @@ finallyBlock
     ;
 
 forControl
-    :  enhancedForControl
-    |  forInit? SEMI expression? SEMI forUpdate?
+    : enhancedForControl
+    | forInit? SEMI expression? SEMI forUpdate?
     ;
 
 forInit
-    :  localVariableDeclaration
-    |  expressionList
+    : localVariableDeclaration
+    | expressionList
     ;
 
 enhancedForControl
-    :  modifier* typeRef id COLON expression
+    : modifier* typeRef id COLON expression
     ;
 
 forUpdate
-    :  expressionList
+    : expressionList
     ;
 
 // EXPRESSIONS
 
 parExpression
-    :  LPAREN expression RPAREN
+    : LPAREN expression RPAREN
     ;
 
 expressionList
-    :  expression (COMMA expression)*
+    : expression (COMMA expression)*
     ;
 
 expression
-    :   expression DOT id                                                                               # alt1Expression
-    |   expression DOT THIS                                                                             # alt2Expression
-    |   expression DOT NEW nonWildcardTypeArguments? innerCreator                                       # alt3Expression
-    |   expression DOT SUPER superSuffix                                                                # alt4Expression
-    |   expression DOT explicitGenericInvocation                                                        # alt5Expression
-    |   expression LBRACK expression RBRACK                                                             # alt6Expression
-    |   expression LPAREN expressionList? RPAREN                                                        # functionCallExpression
-    |   NEW creator                                                                                     # alt8Expression
-    |   LPAREN typeRef RPAREN expression                                                                # alt9Expression
-    |   expression (INC | DEC)                                                                          # alt10Expression
-    |   (ADD|SUB|INC|DEC) expression                                                                    # alt11Expression
-    |   (TILDE|BANG) expression                                                                         # alt12Expression
-    |   expression (MUL|DIV|MOD) expression                                                             # alt13Expression
-    |   expression (ADD|SUB) expression                                                                 # alt14Expression
-    |   expression (LT LT | GT GT GT | GT GT) expression                                                # alt15Expression
-    |   expression (LT ASSIGN | GT ASSIGN | LE | GE | GT | LT) expression                               # alt16Expression
-    |   expression INSTANCEOF typeRef                                                                   # alt17Expression
-    |   expression (TRIPLEEQUAL | TRIPLENOTEQUAL | EQUAL | NOTEQUAL | LESSANDGREATER ) expression       # alt18Expression
-    |   expression BITAND expression                                                                    # alt19Expression
-    |   expression CARET expression                                                                     # alt20Expression
-    |   expression BITOR expression                                                                     # alt21Expression
-    |   expression AND expression                                                                       # alt22Expression
-    |   expression OR expression                                                                        # alt23Expression
-    |   expression QUESTION expression COLON expression                                                 # alt24Expression
-    |   <assoc=right> expression
-        (   ASSIGN
-        |   ADD_ASSIGN
-        |   SUB_ASSIGN
-        |   MUL_ASSIGN
-        |   DIV_ASSIGN
-        |   AND_ASSIGN
-        |   OR_ASSIGN
-        |   XOR_ASSIGN
-        |   RSHIFT_ASSIGN
-        |   URSHIFT_ASSIGN
-        |   LSHIFT_ASSIGN
-        |   MOD_ASSIGN
-        )
-        expression                                                                                     # alt25Expression
-    |   primary                                                                                        # alt26Expression
+    : expression DOT id                                                                               # alt1Expression
+    | expression DOT THIS                                                                             # alt2Expression
+    | expression DOT NEW nonWildcardTypeArguments? innerCreator                                       # alt3Expression
+    | expression DOT SUPER superSuffix                                                                # alt4Expression
+    | expression DOT explicitGenericInvocation                                                        # alt5Expression
+    | expression LBRACK expression RBRACK                                                             # alt6Expression
+    | expression LPAREN expressionList? RPAREN                                                        # functionCallExpression
+    | NEW creator                                                                                     # alt8Expression
+    | LPAREN typeRef RPAREN expression                                                                # alt9Expression
+    | expression (INC | DEC)                                                                          # alt10Expression
+    | (ADD|SUB|INC|DEC) expression                                                                    # alt11Expression
+    | (TILDE|BANG) expression                                                                         # alt12Expression
+    | expression (MUL|DIV|MOD) expression                                                             # alt13Expression
+    | expression (ADD|SUB) expression                                                                 # alt14Expression
+    | expression (LT LT | GT GT GT | GT GT) expression                                                # alt15Expression
+    | expression (LT ASSIGN | GT ASSIGN | LE | GE | GT | LT) expression                               # alt16Expression
+    | expression INSTANCEOF typeRef                                                                   # alt17Expression
+    | expression (TRIPLEEQUAL | TRIPLENOTEQUAL | EQUAL | NOTEQUAL | LESSANDGREATER ) expression       # alt18Expression
+    | expression BITAND expression                                                                    # alt19Expression
+    | expression CARET expression                                                                     # alt20Expression
+    | expression BITOR expression                                                                     # alt21Expression
+    | expression AND expression                                                                       # alt22Expression
+    | expression OR expression                                                                        # alt23Expression
+    | expression QUESTION expression COLON expression                                                 # alt24Expression
+    | <assoc=right> expression
+      (   ASSIGN
+      |   ADD_ASSIGN
+      |   SUB_ASSIGN
+      |   MUL_ASSIGN
+      |   DIV_ASSIGN
+      |   AND_ASSIGN
+      |   OR_ASSIGN
+      |   XOR_ASSIGN
+      |   RSHIFT_ASSIGN
+      |   URSHIFT_ASSIGN
+      |   LSHIFT_ASSIGN
+      |   MOD_ASSIGN
+      )
+      expression                                                                                     # alt25Expression
+    | primary                                                                                        # alt26Expression
     ;
 
 primary
-    :   LPAREN expression RPAREN                                                                       # alt1Primary
-    |   THIS                                                                                           # alt2Primary
-    |   SUPER                                                                                          # alt3Primary
-    |   literal                                                                                        # alt4Primary
-    |   id                                                                                             # alt5Primary
-    |   typeRef DOT CLASS                                                                              # alt6Primary
-    |   VOID DOT CLASS                                                                                 # alt7Primary
-    |   nonWildcardTypeArguments (explicitGenericInvocationSuffix | THIS arguments)                    # alt8Primary
-    |   soqlLiteral                                                                                    # alt9Primary
+    : LPAREN expression RPAREN                                                                       # alt1Primary
+    | THIS                                                                                           # alt2Primary
+    | SUPER                                                                                          # alt3Primary
+    | literal                                                                                        # alt4Primary
+    | id                                                                                             # alt5Primary
+    | typeRef DOT CLASS                                                                              # alt6Primary
+    | VOID DOT CLASS                                                                                 # alt7Primary
+    | nonWildcardTypeArguments (explicitGenericInvocationSuffix | THIS arguments)                    # alt8Primary
+    | soqlLiteral                                                                                    # alt9Primary
     ;
 
 creator
-    :   nonWildcardTypeArguments createdName classCreatorRest                                          #alt1Creator
-    |   createdName (arrayCreatorRest | classCreatorRest | mapCreatorRest | setCreatorRest)            #alt2Creator
+    : nonWildcardTypeArguments createdName classCreatorRest                                          #alt1Creator
+    | createdName (arrayCreatorRest | classCreatorRest | mapCreatorRest | setCreatorRest)            #alt2Creator
     ;
 
 createdName
-    :   idCreatedNamePair (DOT idCreatedNamePair)*
-    |   primitiveType
+    : idCreatedNamePair (DOT idCreatedNamePair)*
+    | primitiveType
     ;
 
 idCreatedNamePair
-    :   id typeArgumentsOrDiamond?
+    : id typeArgumentsOrDiamond?
     ;
 
 innerCreator
-    :   id nonWildcardTypeArgumentsOrDiamond? classCreatorRest
+    : id nonWildcardTypeArgumentsOrDiamond? classCreatorRest
     ;
 
 arrayCreatorRest
-    :   LBRACK
-        (   RBRACK arraySubscripts arrayInitializer
-        |   expression RBRACK (LBRACK expression RBRACK)* arraySubscripts
-        )
+    : LBRACK
+      (   RBRACK arraySubscripts arrayInitializer
+      |   expression RBRACK (LBRACK expression RBRACK)* arraySubscripts
+      )
     ;
 
 mapCreatorRest
-    :   LBRACE mapCreatorRestPair (COMMA mapCreatorRestPair )* RBRACE
+    : LBRACE mapCreatorRestPair (COMMA mapCreatorRestPair )* RBRACE
     ;
 
 mapCreatorRestPair
-    :   idOrExpression MAP literalOrExpression
+    : idOrExpression MAP literalOrExpression
     ;
 
 setCreatorRest
@@ -544,48 +544,48 @@ setCreatorRest
 	;
 
 literalOrExpression
-    :   literal | expression
+    : literal | expression
     ;
 
 idOrExpression
-    :   id | expression
+    : id | expression
     ;
 
 classCreatorRest
-    :   arguments
-    |   LBRACE expressionList? RBRACE
+    : arguments
+    | LBRACE expressionList? RBRACE
     ;
 
 explicitGenericInvocation
-    :   nonWildcardTypeArguments explicitGenericInvocationSuffix
+    : nonWildcardTypeArguments explicitGenericInvocationSuffix
     ;
 
 nonWildcardTypeArguments
-    :   LT typeList GT
+    : LT typeList GT
     ;
 
 typeArgumentsOrDiamond
-    :   LT GT
-    |   typeArguments
+    : LT GT
+    | typeArguments
     ;
 
 nonWildcardTypeArgumentsOrDiamond
-    :   LT GT
-    |   nonWildcardTypeArguments
+    : LT GT
+    | nonWildcardTypeArguments
     ;
 
 superSuffix
-    :   arguments
-    |   DOT id arguments?
+    : arguments
+    | DOT id arguments?
     ;
 
 explicitGenericInvocationSuffix
-    :   SUPER superSuffix
-    |   id arguments
+    : SUPER superSuffix
+    | id arguments
     ;
 
 arguments
-    :   LPAREN expressionList? RPAREN
+    : LPAREN expressionList? RPAREN
     ;
 
 
@@ -594,29 +594,76 @@ soqlLiteral
     ;
 
 id
-    :  Identifier
-    |  'get'
-    |  'set'
-    |  'blob'
-    |  'boolean'
-    |  'date'
-    |  'datetime'
-    |  'decimal'
-    |  'double'
-    |  'id'
-    |  'integer'
-    |  'long'
-    |  'object'
-    |  'string'
-    |  'time'
-    |  'select'
-    |  'insert'
-    |  'upsert'
-    |  'update'
-    |  'delete'
-    |  'undelete'
-    |  'merge'
-    |  'new'
-    |  'for'
+    : Identifier
+    | ABSTRACT
+    | BLOB
+    | BOOLEAN
+    | BREAK
+    | BYTE
+    | CATCH
+    | CHAR
+    | CLASS
+    | CONST
+    | CONTINUE
+    | DATE
+    | DATETIME
+    | DECIMAL
+    | DEFAULT
+    | DELETE
+    | DO
+    | DOUBLE
+    | ELSE
+    | ENUM
+    | EXTENDS
+    | FINAL
+    | FINALLY
+    | FLOAT
+    | FOR
+    | GET
+    | GLOBAL
+    | GOTO
+    | ID
+    | IF
+    | IMPLEMENTS
+    | INHERITED
+    | INSERT
+    | INSTANCEOF
+    | INTEGER
+    | INTERFACE
+    | LONG
+    | MERGE
+    | NATIVE
+    | NEW
+    | NULL
+    | OBJECT
+    | OVERRIDE
+    | PACKAGE
+    | PRIVATE
+    | PROTECTED
+    | PUBLIC
+    | RETURN
+    | RUNAS
+    | SELECT
+    | SET
+    | SHARING
+    | SHORT
+    | STATIC
+    | STRING
+    | SUPER
+    | TESTMETHOD
+    | THIS
+    | THROW
+    | TIME
+    | TRANSIENT
+    | TRY
+    | UNDELETE
+    | UPDATE
+    | UPSERT
+    | VIRTUAL
+    | VOID
+    | WEBSERVICE
+    | WHILE
+    | WITH
+    | WITHOUT
     ;
 

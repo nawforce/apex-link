@@ -464,7 +464,7 @@ public class ApexParser extends Parser {
 			setState(246);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << DOUBLE) | (1L << FINAL) | (1L << FOR) | (1L << LONG) | (1L << NEW) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << VIRTUAL) | (1L << TRANSIENT) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (INHERITED - 64)) | (1L << (Identifier - 64)) | (1L << (AT - 64)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (Identifier - 64)) | (1L << (AT - 64)))) != 0)) {
 				{
 				setState(245);
 				enumConstants();
@@ -590,21 +590,24 @@ public class ApexParser extends Parser {
 		enterRule(_localctx, 10, RULE_enumConstant);
 		int _la;
 		try {
+			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(267);
 			_errHandler.sync(this);
-			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << FINAL) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << VIRTUAL) | (1L << TRANSIENT) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << TESTMETHOD) | (1L << OVERRIDE))) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & ((1L << (WITH - 67)) | (1L << (WITHOUT - 67)) | (1L << (INHERITED - 67)) | (1L << (AT - 67)))) != 0)) {
-				{
-				{
-				setState(264);
-				modifier();
-				}
+			_alt = getInterpreter().adaptivePredict(_input,11,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					{
+					{
+					setState(264);
+					modifier();
+					}
+					} 
 				}
 				setState(269);
 				_errHandler.sync(this);
-				_la = _input.LA(1);
+				_alt = getInterpreter().adaptivePredict(_input,11,_ctx);
 			}
 			setState(270);
 			id();
@@ -667,7 +670,7 @@ public class ApexParser extends Parser {
 			setState(281);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << CLASS) | (1L << DOUBLE) | (1L << ENUM) | (1L << FINAL) | (1L << FOR) | (1L << INTERFACE) | (1L << LONG) | (1L << NEW) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << VIRTUAL) | (1L << TRANSIENT) | (1L << VOID) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (INHERITED - 64)) | (1L << (LBRACE - 64)) | (1L << (SEMI - 64)) | (1L << (Identifier - 64)) | (1L << (AT - 64)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (LBRACE - 64)) | (1L << (SEMI - 64)) | (1L << (Identifier - 64)) | (1L << (AT - 64)))) != 0)) {
 				{
 				{
 				setState(278);
@@ -829,7 +832,7 @@ public class ApexParser extends Parser {
 			setState(304);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << CLASS) | (1L << DOUBLE) | (1L << ENUM) | (1L << FINAL) | (1L << FOR) | (1L << INTERFACE) | (1L << LONG) | (1L << NEW) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << VIRTUAL) | (1L << TRANSIENT) | (1L << VOID) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (INHERITED - 64)) | (1L << (LBRACE - 64)) | (1L << (SEMI - 64)) | (1L << (Identifier - 64)) | (1L << (AT - 64)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (LBRACE - 64)) | (1L << (SEMI - 64)) | (1L << (Identifier - 64)) | (1L << (AT - 64)))) != 0)) {
 				{
 				{
 				setState(301);
@@ -882,7 +885,7 @@ public class ApexParser extends Parser {
 			setState(313);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << CLASS) | (1L << DOUBLE) | (1L << ENUM) | (1L << FINAL) | (1L << FOR) | (1L << INTERFACE) | (1L << LONG) | (1L << NEW) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << VIRTUAL) | (1L << TRANSIENT) | (1L << VOID) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (INHERITED - 64)) | (1L << (SEMI - 64)) | (1L << (Identifier - 64)) | (1L << (AT - 64)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (SEMI - 64)) | (1L << (Identifier - 64)) | (1L << (AT - 64)))) != 0)) {
 				{
 				{
 				setState(310);
@@ -1291,64 +1294,41 @@ public class ApexParser extends Parser {
 	public final MethodDeclarationContext methodDeclaration() throws RecognitionException {
 		MethodDeclarationContext _localctx = new MethodDeclarationContext(_ctx, getState());
 		enterRule(_localctx, 28, RULE_methodDeclaration);
-		int _la;
 		try {
+			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(365);
 			_errHandler.sync(this);
-			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << FINAL) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << VIRTUAL) | (1L << TRANSIENT) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << TESTMETHOD) | (1L << OVERRIDE))) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & ((1L << (WITH - 67)) | (1L << (WITHOUT - 67)) | (1L << (INHERITED - 67)) | (1L << (AT - 67)))) != 0)) {
-				{
-				{
-				setState(362);
-				modifier();
-				}
+			_alt = getInterpreter().adaptivePredict(_input,24,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					{
+					{
+					setState(362);
+					modifier();
+					}
+					} 
 				}
 				setState(367);
 				_errHandler.sync(this);
-				_la = _input.LA(1);
+				_alt = getInterpreter().adaptivePredict(_input,24,_ctx);
 			}
 			setState(370);
 			_errHandler.sync(this);
-			switch (_input.LA(1)) {
-			case BOOLEAN:
-			case DOUBLE:
-			case FOR:
-			case LONG:
-			case NEW:
-			case SELECT:
-			case INSERT:
-			case UPSERT:
-			case UPDATE:
-			case DELETE:
-			case UNDELETE:
-			case MERGE:
-			case GET:
-			case SET:
-			case BLOB:
-			case DATE:
-			case DATETIME:
-			case DECIMAL:
-			case ID:
-			case INTEGER:
-			case OBJECT:
-			case STRING:
-			case TIME:
-			case Identifier:
+			switch ( getInterpreter().adaptivePredict(_input,25,_ctx) ) {
+			case 1:
 				{
 				setState(368);
 				typeRef();
 				}
 				break;
-			case VOID:
+			case 2:
 				{
 				setState(369);
 				match(VOID);
 				}
 				break;
-			default:
-				throw new NoViableAltException(this);
 			}
 			setState(372);
 			id();
@@ -1577,28 +1557,54 @@ public class ApexParser extends Parser {
 	public final InterfaceBodyDeclarationContext interfaceBodyDeclaration() throws RecognitionException {
 		InterfaceBodyDeclarationContext _localctx = new InterfaceBodyDeclarationContext(_ctx, getState());
 		enterRule(_localctx, 38, RULE_interfaceBodyDeclaration);
-		int _la;
 		try {
+			int _alt;
 			setState(405);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case ABSTRACT:
 			case BOOLEAN:
+			case BREAK:
+			case BYTE:
+			case CATCH:
+			case CHAR:
 			case CLASS:
+			case CONST:
+			case CONTINUE:
+			case DEFAULT:
+			case DO:
 			case DOUBLE:
+			case ELSE:
 			case ENUM:
+			case EXTENDS:
 			case FINAL:
+			case FINALLY:
+			case FLOAT:
 			case FOR:
+			case IF:
+			case GOTO:
+			case IMPLEMENTS:
+			case INSTANCEOF:
 			case INTERFACE:
 			case LONG:
+			case NATIVE:
 			case NEW:
+			case NULL:
+			case PACKAGE:
 			case PRIVATE:
 			case PROTECTED:
 			case PUBLIC:
+			case RETURN:
+			case SHORT:
 			case STATIC:
 			case VIRTUAL:
+			case SUPER:
+			case THIS:
+			case THROW:
 			case TRANSIENT:
+			case TRY:
 			case VOID:
+			case WHILE:
 			case GLOBAL:
 			case WEBSERVICE:
 			case SELECT:
@@ -1621,8 +1627,10 @@ public class ApexParser extends Parser {
 			case OBJECT:
 			case STRING:
 			case TIME:
+			case RUNAS:
 			case WITH:
 			case WITHOUT:
+			case SHARING:
 			case INHERITED:
 			case Identifier:
 			case AT:
@@ -1630,17 +1638,19 @@ public class ApexParser extends Parser {
 				{
 				setState(400);
 				_errHandler.sync(this);
-				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << FINAL) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << VIRTUAL) | (1L << TRANSIENT) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << TESTMETHOD) | (1L << OVERRIDE))) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & ((1L << (WITH - 67)) | (1L << (WITHOUT - 67)) | (1L << (INHERITED - 67)) | (1L << (AT - 67)))) != 0)) {
-					{
-					{
-					setState(397);
-					modifier();
-					}
+				_alt = getInterpreter().adaptivePredict(_input,28,_ctx);
+				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+					if ( _alt==1 ) {
+						{
+						{
+						setState(397);
+						modifier();
+						}
+						} 
 					}
 					setState(402);
 					_errHandler.sync(this);
-					_la = _input.LA(1);
+					_alt = getInterpreter().adaptivePredict(_input,28,_ctx);
 				}
 				setState(403);
 				interfaceMemberDeclaration();
@@ -1898,44 +1908,19 @@ public class ApexParser extends Parser {
 			{
 			setState(438);
 			_errHandler.sync(this);
-			switch (_input.LA(1)) {
-			case BOOLEAN:
-			case DOUBLE:
-			case FOR:
-			case LONG:
-			case NEW:
-			case SELECT:
-			case INSERT:
-			case UPSERT:
-			case UPDATE:
-			case DELETE:
-			case UNDELETE:
-			case MERGE:
-			case GET:
-			case SET:
-			case BLOB:
-			case DATE:
-			case DATETIME:
-			case DECIMAL:
-			case ID:
-			case INTEGER:
-			case OBJECT:
-			case STRING:
-			case TIME:
-			case Identifier:
+			switch ( getInterpreter().adaptivePredict(_input,33,_ctx) ) {
+			case 1:
 				{
 				setState(436);
 				typeRef();
 				}
 				break;
-			case VOID:
+			case 2:
 				{
 				setState(437);
 				match(VOID);
 				}
 				break;
-			default:
-				throw new NoViableAltException(this);
 			}
 			setState(440);
 			id();
@@ -2086,15 +2071,51 @@ public class ApexParser extends Parser {
 				arrayInitializer();
 				}
 				break;
+			case ABSTRACT:
 			case BOOLEAN:
+			case BREAK:
+			case BYTE:
+			case CATCH:
+			case CHAR:
+			case CLASS:
+			case CONST:
+			case CONTINUE:
+			case DEFAULT:
+			case DO:
 			case DOUBLE:
+			case ELSE:
+			case ENUM:
+			case EXTENDS:
+			case FINAL:
+			case FINALLY:
+			case FLOAT:
 			case FOR:
+			case IF:
+			case GOTO:
+			case IMPLEMENTS:
+			case INSTANCEOF:
+			case INTERFACE:
 			case LONG:
+			case NATIVE:
 			case NEW:
 			case NULL:
+			case PACKAGE:
+			case PRIVATE:
+			case PROTECTED:
+			case PUBLIC:
+			case RETURN:
+			case SHORT:
+			case STATIC:
+			case VIRTUAL:
 			case SUPER:
 			case THIS:
+			case THROW:
+			case TRANSIENT:
+			case TRY:
 			case VOID:
+			case WHILE:
+			case GLOBAL:
+			case WEBSERVICE:
 			case SELECT:
 			case INSERT:
 			case UPSERT:
@@ -2102,6 +2123,8 @@ public class ApexParser extends Parser {
 			case DELETE:
 			case UNDELETE:
 			case MERGE:
+			case TESTMETHOD:
+			case OVERRIDE:
 			case GET:
 			case SET:
 			case BLOB:
@@ -2113,6 +2136,11 @@ public class ApexParser extends Parser {
 			case OBJECT:
 			case STRING:
 			case TIME:
+			case RUNAS:
+			case WITH:
+			case WITHOUT:
+			case SHARING:
+			case INHERITED:
 			case IntegerLiteral:
 			case NumberLiteral:
 			case BooleanLiteral:
@@ -2180,7 +2208,7 @@ public class ApexParser extends Parser {
 			setState(473);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOLEAN) | (1L << DOUBLE) | (1L << FOR) | (1L << LONG) | (1L << NEW) | (1L << NULL) | (1L << SUPER) | (1L << THIS) | (1L << VOID) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACE - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACE - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)))) != 0)) {
 				{
 				setState(462);
 				variableInitializer();
@@ -2530,7 +2558,7 @@ public class ApexParser extends Parser {
 			setState(514);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << DOUBLE) | (1L << FINAL) | (1L << FOR) | (1L << LONG) | (1L << NEW) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << VIRTUAL) | (1L << TRANSIENT) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (INHERITED - 64)) | (1L << (Identifier - 64)) | (1L << (AT - 64)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (Identifier - 64)) | (1L << (AT - 64)))) != 0)) {
 				{
 				setState(513);
 				formalParameterList();
@@ -2629,23 +2657,25 @@ public class ApexParser extends Parser {
 	public final FormalParameterContext formalParameter() throws RecognitionException {
 		FormalParameterContext _localctx = new FormalParameterContext(_ctx, getState());
 		enterRule(_localctx, 70, RULE_formalParameter);
-		int _la;
 		try {
+			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(529);
 			_errHandler.sync(this);
-			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << FINAL) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << VIRTUAL) | (1L << TRANSIENT) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << TESTMETHOD) | (1L << OVERRIDE))) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & ((1L << (WITH - 67)) | (1L << (WITHOUT - 67)) | (1L << (INHERITED - 67)) | (1L << (AT - 67)))) != 0)) {
-				{
-				{
-				setState(526);
-				modifier();
-				}
+			_alt = getInterpreter().adaptivePredict(_input,47,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					{
+					{
+					setState(526);
+					modifier();
+					}
+					} 
 				}
 				setState(531);
 				_errHandler.sync(this);
-				_la = _input.LA(1);
+				_alt = getInterpreter().adaptivePredict(_input,47,_ctx);
 			}
 			setState(532);
 			typeRef();
@@ -2861,7 +2891,7 @@ public class ApexParser extends Parser {
 			setState(562);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOLEAN) | (1L << DOUBLE) | (1L << FOR) | (1L << LONG) | (1L << NEW) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (COMMA - 64)) | (1L << (Identifier - 64)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (COMMA - 64)) | (1L << (Identifier - 64)))) != 0)) {
 				{
 				{
 				setState(557);
@@ -2957,15 +2987,51 @@ public class ApexParser extends Parser {
 			setState(572);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
+			case ABSTRACT:
 			case BOOLEAN:
+			case BREAK:
+			case BYTE:
+			case CATCH:
+			case CHAR:
+			case CLASS:
+			case CONST:
+			case CONTINUE:
+			case DEFAULT:
+			case DO:
 			case DOUBLE:
+			case ELSE:
+			case ENUM:
+			case EXTENDS:
+			case FINAL:
+			case FINALLY:
+			case FLOAT:
 			case FOR:
+			case IF:
+			case GOTO:
+			case IMPLEMENTS:
+			case INSTANCEOF:
+			case INTERFACE:
 			case LONG:
+			case NATIVE:
 			case NEW:
 			case NULL:
+			case PACKAGE:
+			case PRIVATE:
+			case PROTECTED:
+			case PUBLIC:
+			case RETURN:
+			case SHORT:
+			case STATIC:
+			case VIRTUAL:
 			case SUPER:
 			case THIS:
+			case THROW:
+			case TRANSIENT:
+			case TRY:
 			case VOID:
+			case WHILE:
+			case GLOBAL:
+			case WEBSERVICE:
 			case SELECT:
 			case INSERT:
 			case UPSERT:
@@ -2973,6 +3039,8 @@ public class ApexParser extends Parser {
 			case DELETE:
 			case UNDELETE:
 			case MERGE:
+			case TESTMETHOD:
+			case OVERRIDE:
 			case GET:
 			case SET:
 			case BLOB:
@@ -2984,6 +3052,11 @@ public class ApexParser extends Parser {
 			case OBJECT:
 			case STRING:
 			case TIME:
+			case RUNAS:
+			case WITH:
+			case WITHOUT:
+			case SHARING:
+			case INHERITED:
 			case IntegerLiteral:
 			case NumberLiteral:
 			case BooleanLiteral:
@@ -3065,7 +3138,7 @@ public class ApexParser extends Parser {
 			setState(583);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOLEAN) | (1L << DOUBLE) | (1L << FOR) | (1L << LONG) | (1L << NEW) | (1L << NULL) | (1L << SUPER) | (1L << THIS) | (1L << VOID) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACE - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)) | (1L << (AT - 64)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACE - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)) | (1L << (AT - 64)))) != 0)) {
 				{
 				setState(575);
 				elementValue();
@@ -3142,7 +3215,7 @@ public class ApexParser extends Parser {
 			setState(594);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << CONTINUE) | (1L << DO) | (1L << DOUBLE) | (1L << FINAL) | (1L << FOR) | (1L << IF) | (1L << LONG) | (1L << NEW) | (1L << NULL) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (INHERITED - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACE - 64)) | (1L << (LBRACK - 64)) | (1L << (SEMI - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)) | (1L << (AT - 64)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACE - 64)) | (1L << (LBRACK - 64)) | (1L << (SEMI - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)) | (1L << (AT - 64)))) != 0)) {
 				{
 				{
 				setState(591);
@@ -3224,23 +3297,25 @@ public class ApexParser extends Parser {
 	public final LocalVariableDeclarationContext localVariableDeclaration() throws RecognitionException {
 		LocalVariableDeclarationContext _localctx = new LocalVariableDeclarationContext(_ctx, getState());
 		enterRule(_localctx, 90, RULE_localVariableDeclaration);
-		int _la;
 		try {
+			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(605);
 			_errHandler.sync(this);
-			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << FINAL) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << VIRTUAL) | (1L << TRANSIENT) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << TESTMETHOD) | (1L << OVERRIDE))) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & ((1L << (WITH - 67)) | (1L << (WITHOUT - 67)) | (1L << (INHERITED - 67)) | (1L << (AT - 67)))) != 0)) {
-				{
-				{
-				setState(602);
-				modifier();
-				}
+			_alt = getInterpreter().adaptivePredict(_input,58,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					{
+					{
+					setState(602);
+					modifier();
+					}
+					} 
 				}
 				setState(607);
 				_errHandler.sync(this);
-				_la = _input.LA(1);
+				_alt = getInterpreter().adaptivePredict(_input,58,_ctx);
 			}
 			setState(608);
 			typeRef();
@@ -3703,8 +3778,8 @@ public class ApexParser extends Parser {
 	public final TryStatementContext tryStatement() throws RecognitionException {
 		TryStatementContext _localctx = new TryStatementContext(_ctx, getState());
 		enterRule(_localctx, 102, RULE_tryStatement);
-		int _la;
 		try {
+			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(657);
@@ -3718,28 +3793,34 @@ public class ApexParser extends Parser {
 				{
 				setState(660); 
 				_errHandler.sync(this);
-				_la = _input.LA(1);
+				_alt = 1;
 				do {
-					{
-					{
-					setState(659);
-					catchClause();
-					}
+					switch (_alt) {
+					case 1:
+						{
+						{
+						setState(659);
+						catchClause();
+						}
+						}
+						break;
+					default:
+						throw new NoViableAltException(this);
 					}
 					setState(662); 
 					_errHandler.sync(this);
-					_la = _input.LA(1);
-				} while ( _la==CATCH );
+					_alt = getInterpreter().adaptivePredict(_input,61,_ctx);
+				} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
 				setState(665);
 				_errHandler.sync(this);
-				_la = _input.LA(1);
-				if (_la==FINALLY) {
+				switch ( getInterpreter().adaptivePredict(_input,62,_ctx) ) {
+				case 1:
 					{
 					setState(664);
 					finallyBlock();
 					}
+					break;
 				}
-
 				}
 				break;
 			case FINALLY:
@@ -3788,7 +3869,7 @@ public class ApexParser extends Parser {
 			setState(672);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOLEAN) | (1L << DOUBLE) | (1L << FOR) | (1L << LONG) | (1L << NEW) | (1L << NULL) | (1L << SUPER) | (1L << THIS) | (1L << VOID) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)))) != 0)) {
 				{
 				setState(671);
 				expression(0);
@@ -3871,7 +3952,7 @@ public class ApexParser extends Parser {
 			setState(682);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOLEAN) | (1L << DOUBLE) | (1L << FOR) | (1L << LONG) | (1L << NEW) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (Identifier - 64)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (Identifier - 64)))) != 0)) {
 				{
 				setState(681);
 				id();
@@ -3917,7 +3998,7 @@ public class ApexParser extends Parser {
 			setState(688);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOLEAN) | (1L << DOUBLE) | (1L << FOR) | (1L << LONG) | (1L << NEW) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (Identifier - 64)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (Identifier - 64)))) != 0)) {
 				{
 				setState(687);
 				id();
@@ -4116,7 +4197,7 @@ public class ApexParser extends Parser {
 			setState(711);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOLEAN) | (1L << DOUBLE) | (1L << FOR) | (1L << LONG) | (1L << NEW) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (Identifier - 64)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (Identifier - 64)))) != 0)) {
 				{
 				setState(710);
 				id();
@@ -4210,7 +4291,7 @@ public class ApexParser extends Parser {
 			setState(723);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOLEAN) | (1L << DOUBLE) | (1L << FOR) | (1L << LONG) | (1L << NEW) | (1L << NULL) | (1L << SUPER) | (1L << THIS) | (1L << VOID) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)))) != 0)) {
 				{
 				setState(722);
 				expressionList();
@@ -4545,8 +4626,8 @@ public class ApexParser extends Parser {
 	public final CatchClauseContext catchClause() throws RecognitionException {
 		CatchClauseContext _localctx = new CatchClauseContext(_ctx, getState());
 		enterRule(_localctx, 138, RULE_catchClause);
-		int _la;
 		try {
+			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(758);
@@ -4555,17 +4636,19 @@ public class ApexParser extends Parser {
 			match(LPAREN);
 			setState(763);
 			_errHandler.sync(this);
-			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << FINAL) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << VIRTUAL) | (1L << TRANSIENT) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << TESTMETHOD) | (1L << OVERRIDE))) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & ((1L << (WITH - 67)) | (1L << (WITHOUT - 67)) | (1L << (INHERITED - 67)) | (1L << (AT - 67)))) != 0)) {
-				{
-				{
-				setState(760);
-				modifier();
-				}
+			_alt = getInterpreter().adaptivePredict(_input,74,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					{
+					{
+					setState(760);
+					modifier();
+					}
+					} 
 				}
 				setState(765);
 				_errHandler.sync(this);
-				_la = _input.LA(1);
+				_alt = getInterpreter().adaptivePredict(_input,74,_ctx);
 			}
 			setState(766);
 			catchType();
@@ -4721,7 +4804,7 @@ public class ApexParser extends Parser {
 				setState(784);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << DOUBLE) | (1L << FINAL) | (1L << FOR) | (1L << LONG) | (1L << NEW) | (1L << NULL) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << TRANSIENT) | (1L << VOID) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (INHERITED - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)) | (1L << (AT - 64)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)) | (1L << (AT - 64)))) != 0)) {
 					{
 					setState(783);
 					forInit();
@@ -4733,7 +4816,7 @@ public class ApexParser extends Parser {
 				setState(788);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOLEAN) | (1L << DOUBLE) | (1L << FOR) | (1L << LONG) | (1L << NEW) | (1L << NULL) | (1L << SUPER) | (1L << THIS) | (1L << VOID) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)))) != 0)) {
 					{
 					setState(787);
 					expression(0);
@@ -4745,7 +4828,7 @@ public class ApexParser extends Parser {
 				setState(792);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOLEAN) | (1L << DOUBLE) | (1L << FOR) | (1L << LONG) | (1L << NEW) | (1L << NULL) | (1L << SUPER) | (1L << THIS) | (1L << VOID) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)))) != 0)) {
 					{
 					setState(791);
 					forUpdate();
@@ -4840,23 +4923,25 @@ public class ApexParser extends Parser {
 	public final EnhancedForControlContext enhancedForControl() throws RecognitionException {
 		EnhancedForControlContext _localctx = new EnhancedForControlContext(_ctx, getState());
 		enterRule(_localctx, 148, RULE_enhancedForControl);
-		int _la;
 		try {
+			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(803);
 			_errHandler.sync(this);
-			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << FINAL) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << VIRTUAL) | (1L << TRANSIENT) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << TESTMETHOD) | (1L << OVERRIDE))) != 0) || ((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & ((1L << (WITH - 67)) | (1L << (WITHOUT - 67)) | (1L << (INHERITED - 67)) | (1L << (AT - 67)))) != 0)) {
-				{
-				{
-				setState(800);
-				modifier();
-				}
+			_alt = getInterpreter().adaptivePredict(_input,81,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					{
+					{
+					setState(800);
+					modifier();
+					}
+					} 
 				}
 				setState(805);
 				_errHandler.sync(this);
-				_la = _input.LA(1);
+				_alt = getInterpreter().adaptivePredict(_input,81,_ctx);
 			}
 			setState(806);
 			typeRef();
@@ -5754,7 +5839,7 @@ public class ApexParser extends Parser {
 						setState(924);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
-						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOLEAN) | (1L << DOUBLE) | (1L << FOR) | (1L << LONG) | (1L << NEW) | (1L << NULL) | (1L << SUPER) | (1L << THIS) | (1L << VOID) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)))) != 0)) {
+						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)))) != 0)) {
 							{
 							setState(923);
 							expressionList();
@@ -5971,38 +6056,14 @@ public class ApexParser extends Parser {
 				nonWildcardTypeArguments();
 				setState(956);
 				_errHandler.sync(this);
-				switch (_input.LA(1)) {
-				case BOOLEAN:
-				case DOUBLE:
-				case FOR:
-				case LONG:
-				case NEW:
-				case SUPER:
-				case SELECT:
-				case INSERT:
-				case UPSERT:
-				case UPDATE:
-				case DELETE:
-				case UNDELETE:
-				case MERGE:
-				case GET:
-				case SET:
-				case BLOB:
-				case DATE:
-				case DATETIME:
-				case DECIMAL:
-				case ID:
-				case INTEGER:
-				case OBJECT:
-				case STRING:
-				case TIME:
-				case Identifier:
+				switch ( getInterpreter().adaptivePredict(_input,90,_ctx) ) {
+				case 1:
 					{
 					setState(953);
 					explicitGenericInvocationSuffix();
 					}
 					break;
-				case THIS:
+				case 2:
 					{
 					setState(954);
 					match(THIS);
@@ -6010,8 +6071,6 @@ public class ApexParser extends Parser {
 					arguments();
 					}
 					break;
-				default:
-					throw new NoViableAltException(this);
 				}
 				}
 				break;
@@ -6097,11 +6156,51 @@ public class ApexParser extends Parser {
 				classCreatorRest();
 				}
 				break;
+			case ABSTRACT:
 			case BOOLEAN:
+			case BREAK:
+			case BYTE:
+			case CATCH:
+			case CHAR:
+			case CLASS:
+			case CONST:
+			case CONTINUE:
+			case DEFAULT:
+			case DO:
 			case DOUBLE:
+			case ELSE:
+			case ENUM:
+			case EXTENDS:
+			case FINAL:
+			case FINALLY:
+			case FLOAT:
 			case FOR:
+			case IF:
+			case GOTO:
+			case IMPLEMENTS:
+			case INSTANCEOF:
+			case INTERFACE:
 			case LONG:
+			case NATIVE:
 			case NEW:
+			case NULL:
+			case PACKAGE:
+			case PRIVATE:
+			case PROTECTED:
+			case PUBLIC:
+			case RETURN:
+			case SHORT:
+			case STATIC:
+			case VIRTUAL:
+			case SUPER:
+			case THIS:
+			case THROW:
+			case TRANSIENT:
+			case TRY:
+			case VOID:
+			case WHILE:
+			case GLOBAL:
+			case WEBSERVICE:
 			case SELECT:
 			case INSERT:
 			case UPSERT:
@@ -6109,6 +6208,8 @@ public class ApexParser extends Parser {
 			case DELETE:
 			case UNDELETE:
 			case MERGE:
+			case TESTMETHOD:
+			case OVERRIDE:
 			case GET:
 			case SET:
 			case BLOB:
@@ -6120,6 +6221,11 @@ public class ApexParser extends Parser {
 			case OBJECT:
 			case STRING:
 			case TIME:
+			case RUNAS:
+			case WITH:
+			case WITHOUT:
+			case SHARING:
+			case INHERITED:
 			case Identifier:
 				_localctx = new Alt2CreatorContext(_localctx);
 				enterOuterAlt(_localctx, 2);
@@ -6386,15 +6492,51 @@ public class ApexParser extends Parser {
 				arrayInitializer();
 				}
 				break;
+			case ABSTRACT:
 			case BOOLEAN:
+			case BREAK:
+			case BYTE:
+			case CATCH:
+			case CHAR:
+			case CLASS:
+			case CONST:
+			case CONTINUE:
+			case DEFAULT:
+			case DO:
 			case DOUBLE:
+			case ELSE:
+			case ENUM:
+			case EXTENDS:
+			case FINAL:
+			case FINALLY:
+			case FLOAT:
 			case FOR:
+			case IF:
+			case GOTO:
+			case IMPLEMENTS:
+			case INSTANCEOF:
+			case INTERFACE:
 			case LONG:
+			case NATIVE:
 			case NEW:
 			case NULL:
+			case PACKAGE:
+			case PRIVATE:
+			case PROTECTED:
+			case PUBLIC:
+			case RETURN:
+			case SHORT:
+			case STATIC:
+			case VIRTUAL:
 			case SUPER:
 			case THIS:
+			case THROW:
+			case TRANSIENT:
+			case TRY:
 			case VOID:
+			case WHILE:
+			case GLOBAL:
+			case WEBSERVICE:
 			case SELECT:
 			case INSERT:
 			case UPSERT:
@@ -6402,6 +6544,8 @@ public class ApexParser extends Parser {
 			case DELETE:
 			case UNDELETE:
 			case MERGE:
+			case TESTMETHOD:
+			case OVERRIDE:
 			case GET:
 			case SET:
 			case BLOB:
@@ -6413,6 +6557,11 @@ public class ApexParser extends Parser {
 			case OBJECT:
 			case STRING:
 			case TIME:
+			case RUNAS:
+			case WITH:
+			case WITHOUT:
+			case SHARING:
+			case INHERITED:
 			case IntegerLiteral:
 			case NumberLiteral:
 			case BooleanLiteral:
@@ -6767,7 +6916,7 @@ public class ApexParser extends Parser {
 				setState(1052);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOLEAN) | (1L << DOUBLE) | (1L << FOR) | (1L << LONG) | (1L << NEW) | (1L << NULL) | (1L << SUPER) | (1L << THIS) | (1L << VOID) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)))) != 0)) {
 					{
 					setState(1051);
 					expressionList();
@@ -7047,8 +7196,8 @@ public class ApexParser extends Parser {
 		try {
 			setState(1087);
 			_errHandler.sync(this);
-			switch (_input.LA(1)) {
-			case SUPER:
+			switch ( getInterpreter().adaptivePredict(_input,110,_ctx) ) {
+			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(1082);
@@ -7057,30 +7206,7 @@ public class ApexParser extends Parser {
 				superSuffix();
 				}
 				break;
-			case BOOLEAN:
-			case DOUBLE:
-			case FOR:
-			case LONG:
-			case NEW:
-			case SELECT:
-			case INSERT:
-			case UPSERT:
-			case UPDATE:
-			case DELETE:
-			case UNDELETE:
-			case MERGE:
-			case GET:
-			case SET:
-			case BLOB:
-			case DATE:
-			case DATETIME:
-			case DECIMAL:
-			case ID:
-			case INTEGER:
-			case OBJECT:
-			case STRING:
-			case TIME:
-			case Identifier:
+			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(1084);
@@ -7089,8 +7215,6 @@ public class ApexParser extends Parser {
 				arguments();
 				}
 				break;
-			default:
-				throw new NoViableAltException(this);
 			}
 		}
 		catch (RecognitionException re) {
@@ -7128,7 +7252,7 @@ public class ApexParser extends Parser {
 			setState(1091);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOLEAN) | (1L << DOUBLE) | (1L << FOR) | (1L << LONG) | (1L << NEW) | (1L << NULL) | (1L << SUPER) | (1L << THIS) | (1L << VOID) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (IntegerLiteral - 64)) | (1L << (NumberLiteral - 64)) | (1L << (BooleanLiteral - 64)) | (1L << (StringLiteral - 64)) | (1L << (LPAREN - 64)) | (1L << (LBRACK - 64)) | (1L << (LT - 64)) | (1L << (BANG - 64)) | (1L << (TILDE - 64)) | (1L << (INC - 64)) | (1L << (DEC - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (Identifier - 64)))) != 0)) {
 				{
 				setState(1090);
 				expressionList();
@@ -7231,29 +7355,76 @@ public class ApexParser extends Parser {
 
 	public static class IdContext extends ParserRuleContext {
 		public TerminalNode Identifier() { return getToken(ApexParser.Identifier, 0); }
-		public TerminalNode GET() { return getToken(ApexParser.GET, 0); }
-		public TerminalNode SET() { return getToken(ApexParser.SET, 0); }
+		public TerminalNode ABSTRACT() { return getToken(ApexParser.ABSTRACT, 0); }
 		public TerminalNode BLOB() { return getToken(ApexParser.BLOB, 0); }
 		public TerminalNode BOOLEAN() { return getToken(ApexParser.BOOLEAN, 0); }
+		public TerminalNode BREAK() { return getToken(ApexParser.BREAK, 0); }
+		public TerminalNode BYTE() { return getToken(ApexParser.BYTE, 0); }
+		public TerminalNode CATCH() { return getToken(ApexParser.CATCH, 0); }
+		public TerminalNode CHAR() { return getToken(ApexParser.CHAR, 0); }
+		public TerminalNode CLASS() { return getToken(ApexParser.CLASS, 0); }
+		public TerminalNode CONST() { return getToken(ApexParser.CONST, 0); }
+		public TerminalNode CONTINUE() { return getToken(ApexParser.CONTINUE, 0); }
 		public TerminalNode DATE() { return getToken(ApexParser.DATE, 0); }
 		public TerminalNode DATETIME() { return getToken(ApexParser.DATETIME, 0); }
 		public TerminalNode DECIMAL() { return getToken(ApexParser.DECIMAL, 0); }
-		public TerminalNode DOUBLE() { return getToken(ApexParser.DOUBLE, 0); }
-		public TerminalNode ID() { return getToken(ApexParser.ID, 0); }
-		public TerminalNode INTEGER() { return getToken(ApexParser.INTEGER, 0); }
-		public TerminalNode LONG() { return getToken(ApexParser.LONG, 0); }
-		public TerminalNode OBJECT() { return getToken(ApexParser.OBJECT, 0); }
-		public TerminalNode STRING() { return getToken(ApexParser.STRING, 0); }
-		public TerminalNode TIME() { return getToken(ApexParser.TIME, 0); }
-		public TerminalNode SELECT() { return getToken(ApexParser.SELECT, 0); }
-		public TerminalNode INSERT() { return getToken(ApexParser.INSERT, 0); }
-		public TerminalNode UPSERT() { return getToken(ApexParser.UPSERT, 0); }
-		public TerminalNode UPDATE() { return getToken(ApexParser.UPDATE, 0); }
+		public TerminalNode DEFAULT() { return getToken(ApexParser.DEFAULT, 0); }
 		public TerminalNode DELETE() { return getToken(ApexParser.DELETE, 0); }
-		public TerminalNode UNDELETE() { return getToken(ApexParser.UNDELETE, 0); }
-		public TerminalNode MERGE() { return getToken(ApexParser.MERGE, 0); }
-		public TerminalNode NEW() { return getToken(ApexParser.NEW, 0); }
+		public TerminalNode DO() { return getToken(ApexParser.DO, 0); }
+		public TerminalNode DOUBLE() { return getToken(ApexParser.DOUBLE, 0); }
+		public TerminalNode ELSE() { return getToken(ApexParser.ELSE, 0); }
+		public TerminalNode ENUM() { return getToken(ApexParser.ENUM, 0); }
+		public TerminalNode EXTENDS() { return getToken(ApexParser.EXTENDS, 0); }
+		public TerminalNode FINAL() { return getToken(ApexParser.FINAL, 0); }
+		public TerminalNode FINALLY() { return getToken(ApexParser.FINALLY, 0); }
+		public TerminalNode FLOAT() { return getToken(ApexParser.FLOAT, 0); }
 		public TerminalNode FOR() { return getToken(ApexParser.FOR, 0); }
+		public TerminalNode GET() { return getToken(ApexParser.GET, 0); }
+		public TerminalNode GLOBAL() { return getToken(ApexParser.GLOBAL, 0); }
+		public TerminalNode GOTO() { return getToken(ApexParser.GOTO, 0); }
+		public TerminalNode ID() { return getToken(ApexParser.ID, 0); }
+		public TerminalNode IF() { return getToken(ApexParser.IF, 0); }
+		public TerminalNode IMPLEMENTS() { return getToken(ApexParser.IMPLEMENTS, 0); }
+		public TerminalNode INHERITED() { return getToken(ApexParser.INHERITED, 0); }
+		public TerminalNode INSERT() { return getToken(ApexParser.INSERT, 0); }
+		public TerminalNode INSTANCEOF() { return getToken(ApexParser.INSTANCEOF, 0); }
+		public TerminalNode INTEGER() { return getToken(ApexParser.INTEGER, 0); }
+		public TerminalNode INTERFACE() { return getToken(ApexParser.INTERFACE, 0); }
+		public TerminalNode LONG() { return getToken(ApexParser.LONG, 0); }
+		public TerminalNode MERGE() { return getToken(ApexParser.MERGE, 0); }
+		public TerminalNode NATIVE() { return getToken(ApexParser.NATIVE, 0); }
+		public TerminalNode NEW() { return getToken(ApexParser.NEW, 0); }
+		public TerminalNode NULL() { return getToken(ApexParser.NULL, 0); }
+		public TerminalNode OBJECT() { return getToken(ApexParser.OBJECT, 0); }
+		public TerminalNode OVERRIDE() { return getToken(ApexParser.OVERRIDE, 0); }
+		public TerminalNode PACKAGE() { return getToken(ApexParser.PACKAGE, 0); }
+		public TerminalNode PRIVATE() { return getToken(ApexParser.PRIVATE, 0); }
+		public TerminalNode PROTECTED() { return getToken(ApexParser.PROTECTED, 0); }
+		public TerminalNode PUBLIC() { return getToken(ApexParser.PUBLIC, 0); }
+		public TerminalNode RETURN() { return getToken(ApexParser.RETURN, 0); }
+		public TerminalNode RUNAS() { return getToken(ApexParser.RUNAS, 0); }
+		public TerminalNode SELECT() { return getToken(ApexParser.SELECT, 0); }
+		public TerminalNode SET() { return getToken(ApexParser.SET, 0); }
+		public TerminalNode SHARING() { return getToken(ApexParser.SHARING, 0); }
+		public TerminalNode SHORT() { return getToken(ApexParser.SHORT, 0); }
+		public TerminalNode STATIC() { return getToken(ApexParser.STATIC, 0); }
+		public TerminalNode STRING() { return getToken(ApexParser.STRING, 0); }
+		public TerminalNode SUPER() { return getToken(ApexParser.SUPER, 0); }
+		public TerminalNode TESTMETHOD() { return getToken(ApexParser.TESTMETHOD, 0); }
+		public TerminalNode THIS() { return getToken(ApexParser.THIS, 0); }
+		public TerminalNode THROW() { return getToken(ApexParser.THROW, 0); }
+		public TerminalNode TIME() { return getToken(ApexParser.TIME, 0); }
+		public TerminalNode TRANSIENT() { return getToken(ApexParser.TRANSIENT, 0); }
+		public TerminalNode TRY() { return getToken(ApexParser.TRY, 0); }
+		public TerminalNode UNDELETE() { return getToken(ApexParser.UNDELETE, 0); }
+		public TerminalNode UPDATE() { return getToken(ApexParser.UPDATE, 0); }
+		public TerminalNode UPSERT() { return getToken(ApexParser.UPSERT, 0); }
+		public TerminalNode VIRTUAL() { return getToken(ApexParser.VIRTUAL, 0); }
+		public TerminalNode VOID() { return getToken(ApexParser.VOID, 0); }
+		public TerminalNode WEBSERVICE() { return getToken(ApexParser.WEBSERVICE, 0); }
+		public TerminalNode WHILE() { return getToken(ApexParser.WHILE, 0); }
+		public TerminalNode WITH() { return getToken(ApexParser.WITH, 0); }
+		public TerminalNode WITHOUT() { return getToken(ApexParser.WITHOUT, 0); }
 		public IdContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -7269,7 +7440,7 @@ public class ApexParser extends Parser {
 			{
 			setState(1105);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOLEAN) | (1L << DOUBLE) | (1L << FOR) | (1L << LONG) | (1L << NEW) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (Identifier - 64)))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << BOOLEAN) | (1L << BREAK) | (1L << BYTE) | (1L << CATCH) | (1L << CHAR) | (1L << CLASS) | (1L << CONST) | (1L << CONTINUE) | (1L << DEFAULT) | (1L << DO) | (1L << DOUBLE) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FLOAT) | (1L << FOR) | (1L << IF) | (1L << GOTO) | (1L << IMPLEMENTS) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << LONG) | (1L << NATIVE) | (1L << NEW) | (1L << NULL) | (1L << PACKAGE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SHORT) | (1L << STATIC) | (1L << VIRTUAL) | (1L << SUPER) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRY) | (1L << VOID) | (1L << WHILE) | (1L << GLOBAL) | (1L << WEBSERVICE) | (1L << SELECT) | (1L << INSERT) | (1L << UPSERT) | (1L << UPDATE) | (1L << DELETE) | (1L << UNDELETE) | (1L << MERGE) | (1L << TESTMETHOD) | (1L << OVERRIDE) | (1L << GET) | (1L << SET) | (1L << BLOB) | (1L << DATE) | (1L << DATETIME) | (1L << DECIMAL) | (1L << ID) | (1L << INTEGER) | (1L << OBJECT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (STRING - 64)) | (1L << (TIME - 64)) | (1L << (RUNAS - 64)) | (1L << (WITH - 64)) | (1L << (WITHOUT - 64)) | (1L << (SHARING - 64)) | (1L << (INHERITED - 64)) | (1L << (Identifier - 64)))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -7425,122 +7596,121 @@ public class ApexParser extends Parser {
 		"\u00a0\u00a2\u00a4\u00a6\u00a8\u00aa\u00ac\u00ae\u00b0\u00b2\u00b4\u00b6"+
 		"\u00b8\u00ba\u00bc\u00be\u00c0\u00c2\u00c4\u00c6\u00c8\2\r\6\2\4\4\16"+
 		"\16\33\33;C\4\2\36\36IL\3\2gj\3\2\\]\4\2klpp\3\2ij\3\2`d\4\2WWr|\3\2g"+
-		"h\3\2SS\n\2\4\4\16\16\25\25\33\33\35\35\60\669C}}\2\u04b4\2\u00ca\3\2"+
-		"\2\2\4\u00e2\3\2\2\2\6\u00e4\3\2\2\2\b\u00f0\3\2\2\2\n\u0102\3\2\2\2\f"+
-		"\u010d\3\2\2\2\16\u0117\3\2\2\2\20\u011e\3\2\2\2\22\u0126\3\2\2\2\24\u012e"+
-		"\3\2\2\2\26\u0137\3\2\2\2\30\u014c\3\2\2\2\32\u0161\3\2\2\2\34\u016a\3"+
-		"\2\2\2\36\u016f\3\2\2\2 \u017c\3\2\2\2\"\u0180\3\2\2\2$\u0184\3\2\2\2"+
-		"&\u0188\3\2\2\2(\u0197\3\2\2\2*\u019e\3\2\2\2,\u01a0\3\2\2\2.\u01ab\3"+
-		"\2\2\2\60\u01b8\3\2\2\2\62\u01be\3\2\2\2\64\u01c6\3\2\2\2\66\u01cd\3\2"+
-		"\2\28\u01cf\3\2\2\2:\u01e5\3\2\2\2<\u01eb\3\2\2\2>\u01ee\3\2\2\2@\u01fc"+
-		"\3\2\2\2B\u01fe\3\2\2\2D\u0202\3\2\2\2F\u0208\3\2\2\2H\u0213\3\2\2\2J"+
-		"\u0219\3\2\2\2L\u0221\3\2\2\2N\u0223\3\2\2\2P\u022d\3\2\2\2R\u0237\3\2"+
-		"\2\2T\u023e\3\2\2\2V\u0240\3\2\2\2X\u0250\3\2\2\2Z\u0259\3\2\2\2\\\u025f"+
-		"\3\2\2\2^\u027a\3\2\2\2`\u027c\3\2\2\2b\u0283\3\2\2\2d\u0289\3\2\2\2f"+
-		"\u028d\3\2\2\2h\u0293\3\2\2\2j\u02a0\3\2\2\2l\u02a6\3\2\2\2n\u02aa\3\2"+
-		"\2\2p\u02b0\3\2\2\2r\u02b6\3\2\2\2t\u02ba\3\2\2\2v\u02be\3\2\2\2x\u02c2"+
-		"\3\2\2\2z\u02c6\3\2\2\2|\u02cd\3\2\2\2~\u02d2\3\2\2\2\u0080\u02db\3\2"+
-		"\2\2\u0082\u02dd\3\2\2\2\u0084\u02e0\3\2\2\2\u0086\u02e7\3\2\2\2\u0088"+
-		"\u02ee\3\2\2\2\u008a\u02f3\3\2\2\2\u008c\u02f8\3\2\2\2\u008e\u0305\3\2"+
-		"\2\2\u0090\u030d\3\2\2\2\u0092\u031c\3\2\2\2\u0094\u0320\3\2\2\2\u0096"+
-		"\u0325\3\2\2\2\u0098\u032d\3\2\2\2\u009a\u032f\3\2\2\2\u009c\u0333\3\2"+
-		"\2\2\u009e\u0348\3\2\2\2\u00a0\u03c1\3\2\2\2\u00a2\u03ce\3\2\2\2\u00a4"+
-		"\u03d9\3\2\2\2\u00a6\u03db\3\2\2\2\u00a8\u03df\3\2\2\2\u00aa\u03e5\3\2"+
-		"\2\2\u00ac\u03f9\3\2\2\2\u00ae\u0404\3\2\2\2\u00b0\u0408\3\2\2\2\u00b2"+
-		"\u0415\3\2\2\2\u00b4\u0419\3\2\2\2\u00b6\u0421\3\2\2\2\u00b8\u0423\3\2"+
-		"\2\2\u00ba\u0426\3\2\2\2\u00bc\u042d\3\2\2\2\u00be\u0432\3\2\2\2\u00c0"+
-		"\u043a\3\2\2\2\u00c2\u0441\3\2\2\2\u00c4\u0443\3\2\2\2\u00c6\u0449\3\2"+
-		"\2\2\u00c8\u0453\3\2\2\2\u00ca\u00cb\5\4\3\2\u00cb\u00cc\7\2\2\3\u00cc"+
-		"\3\3\2\2\2\u00cd\u00cf\5\32\16\2\u00ce\u00cd\3\2\2\2\u00cf\u00d2\3\2\2"+
-		"\2\u00d0\u00ce\3\2\2\2\u00d0\u00d1\3\2\2\2\u00d1\u00d3\3\2\2\2\u00d2\u00d0"+
-		"\3\2\2\2\u00d3\u00e3\5\6\4\2\u00d4\u00d6\5\32\16\2\u00d5\u00d4\3\2\2\2"+
-		"\u00d6\u00d9\3\2\2\2\u00d7\u00d5\3\2\2\2\u00d7\u00d8\3\2\2\2\u00d8\u00da"+
-		"\3\2\2\2\u00d9\u00d7\3\2\2\2\u00da\u00e3\5\b\5\2\u00db\u00dd\5\32\16\2"+
-		"\u00dc\u00db\3\2\2\2\u00dd\u00e0\3\2\2\2\u00de\u00dc\3\2\2\2\u00de\u00df"+
-		"\3\2\2\2\u00df\u00e1\3\2\2\2\u00e0\u00de\3\2\2\2\u00e1\u00e3\5\20\t\2"+
-		"\u00e2\u00d0\3\2\2\2\u00e2\u00d7\3\2\2\2\u00e2\u00de\3\2\2\2\u00e3\5\3"+
-		"\2\2\2\u00e4\u00e5\7\t\2\2\u00e5\u00e8\5\u00c8e\2\u00e6\u00e7\7\21\2\2"+
-		"\u00e7\u00e9\5:\36\2\u00e8\u00e6\3\2\2\2\u00e8\u00e9\3\2\2\2\u00e9\u00ec"+
-		"\3\2\2\2\u00ea\u00eb\7\30\2\2\u00eb\u00ed\5\22\n\2\u00ec\u00ea\3\2\2\2"+
-		"\u00ec\u00ed\3\2\2\2\u00ed\u00ee\3\2\2\2\u00ee\u00ef\5\24\13\2\u00ef\7"+
-		"\3\2\2\2\u00f0\u00f1\7\20\2\2\u00f1\u00f4\5\u00c8e\2\u00f2\u00f3\7\30"+
-		"\2\2\u00f3\u00f5\5\22\n\2\u00f4\u00f2\3\2\2\2\u00f4\u00f5\3\2\2\2\u00f5"+
-		"\u00f6\3\2\2\2\u00f6\u00f8\7P\2\2\u00f7\u00f9\5\n\6\2\u00f8\u00f7\3\2"+
-		"\2\2\u00f8\u00f9\3\2\2\2\u00f9\u00fb\3\2\2\2\u00fa\u00fc\7U\2\2\u00fb"+
-		"\u00fa\3\2\2\2\u00fb\u00fc\3\2\2\2\u00fc\u00fe\3\2\2\2\u00fd\u00ff\5\16"+
-		"\b\2\u00fe\u00fd\3\2\2\2\u00fe\u00ff\3\2\2\2\u00ff\u0100\3\2\2\2\u0100"+
-		"\u0101\7Q\2\2\u0101\t\3\2\2\2\u0102\u0107\5\f\7\2\u0103\u0104\7U\2\2\u0104"+
-		"\u0106\5\f\7\2\u0105\u0103\3\2\2\2\u0106\u0109\3\2\2\2\u0107\u0105\3\2"+
-		"\2\2\u0107\u0108\3\2\2\2\u0108\13\3\2\2\2\u0109\u0107\3\2\2\2\u010a\u010c"+
-		"\5\32\16\2\u010b\u010a\3\2\2\2\u010c\u010f\3\2\2\2\u010d\u010b\3\2\2\2"+
-		"\u010d\u010e\3\2\2\2\u010e\u0110\3\2\2\2\u010f\u010d\3\2\2\2\u0110\u0112"+
-		"\5\u00c8e\2\u0111\u0113\5\u00c4c\2\u0112\u0111\3\2\2\2\u0112\u0113\3\2"+
-		"\2\2\u0113\u0115\3\2\2\2\u0114\u0116\5\24\13\2\u0115\u0114\3\2\2\2\u0115"+
-		"\u0116\3\2\2\2\u0116\r\3\2\2\2\u0117\u011b\7T\2\2\u0118\u011a\5\30\r\2"+
-		"\u0119\u0118\3\2\2\2\u011a\u011d\3\2\2\2\u011b\u0119\3\2\2\2\u011b\u011c"+
-		"\3\2\2\2\u011c\17\3\2\2\2\u011d\u011b\3\2\2\2\u011e\u011f\7\32\2\2\u011f"+
-		"\u0122\5\u00c8e\2\u0120\u0121\7\21\2\2\u0121\u0123\5\22\n\2\u0122\u0120"+
-		"\3\2\2\2\u0122\u0123\3\2\2\2\u0123\u0124\3\2\2\2\u0124\u0125\5\26\f\2"+
-		"\u0125\21\3\2\2\2\u0126\u012b\5:\36\2\u0127\u0128\7U\2\2\u0128\u012a\5"+
-		":\36\2\u0129\u0127\3\2\2\2\u012a\u012d\3\2\2\2\u012b\u0129\3\2\2\2\u012b"+
-		"\u012c\3\2\2\2\u012c\23\3\2\2\2\u012d\u012b\3\2\2\2\u012e\u0132\7P\2\2"+
-		"\u012f\u0131\5\30\r\2\u0130\u012f\3\2\2\2\u0131\u0134\3\2\2\2\u0132\u0130"+
-		"\3\2\2\2\u0132\u0133\3\2\2\2\u0133\u0135\3\2\2\2\u0134\u0132\3\2\2\2\u0135"+
-		"\u0136\7Q\2\2\u0136\25\3\2\2\2\u0137\u013b\7P\2\2\u0138\u013a\5(\25\2"+
-		"\u0139\u0138\3\2\2\2\u013a\u013d\3\2\2\2\u013b\u0139\3\2\2\2\u013b\u013c"+
-		"\3\2\2\2\u013c\u013e\3\2\2\2\u013d\u013b\3\2\2\2\u013e\u013f\7Q\2\2\u013f"+
-		"\27\3\2\2\2\u0140\u014d\7T\2\2\u0141\u0143\7%\2\2\u0142\u0141\3\2\2\2"+
-		"\u0142\u0143\3\2\2\2\u0143\u0144\3\2\2\2\u0144\u014d\5X-\2\u0145\u0147"+
-		"\5\32\16\2\u0146\u0145\3\2\2\2\u0147\u014a\3\2\2\2\u0148\u0146\3\2\2\2"+
-		"\u0148\u0149\3\2\2\2\u0149\u014b\3\2\2\2\u014a\u0148\3\2\2\2\u014b\u014d"+
-		"\5\34\17\2\u014c\u0140\3\2\2\2\u014c\u0142\3\2\2\2\u014c\u0148\3\2\2\2"+
-		"\u014d\31\3\2\2\2\u014e\u0162\5N(\2\u014f\u0162\7.\2\2\u0150\u0162\7\""+
-		"\2\2\u0151\u0162\7!\2\2\u0152\u0162\7 \2\2\u0153\u0162\7*\2\2\u0154\u0162"+
-		"\7%\2\2\u0155\u0162\7\3\2\2\u0156\u0162\7\22\2\2\u0157\u0162\7/\2\2\u0158"+
-		"\u0162\78\2\2\u0159\u0162\7&\2\2\u015a\u0162\7\67\2\2\u015b\u015c\7E\2"+
-		"\2\u015c\u0162\7G\2\2\u015d\u015e\7F\2\2\u015e\u0162\7G\2\2\u015f\u0160"+
-		"\7H\2\2\u0160\u0162\7G\2\2\u0161\u014e\3\2\2\2\u0161\u014f\3\2\2\2\u0161"+
-		"\u0150\3\2\2\2\u0161\u0151\3\2\2\2\u0161\u0152\3\2\2\2\u0161\u0153\3\2"+
-		"\2\2\u0161\u0154\3\2\2\2\u0161\u0155\3\2\2\2\u0161\u0156\3\2\2\2\u0161"+
-		"\u0157\3\2\2\2\u0161\u0158\3\2\2\2\u0161\u0159\3\2\2\2\u0161\u015a\3\2"+
-		"\2\2\u0161\u015b\3\2\2\2\u0161\u015d\3\2\2\2\u0161\u015f\3\2\2\2\u0162"+
-		"\33\3\2\2\2\u0163\u016b\5\36\20\2\u0164\u016b\5\"\22\2\u0165\u016b\5 "+
-		"\21\2\u0166\u016b\5\20\t\2\u0167\u016b\5\6\4\2\u0168\u016b\5\b\5\2\u0169"+
-		"\u016b\5$\23\2\u016a\u0163\3\2\2\2\u016a\u0164\3\2\2\2\u016a\u0165\3\2"+
-		"\2\2\u016a\u0166\3\2\2\2\u016a\u0167\3\2\2\2\u016a\u0168\3\2\2\2\u016a"+
-		"\u0169\3\2\2\2\u016b\35\3\2\2\2\u016c\u016e\5\32\16\2\u016d\u016c\3\2"+
-		"\2\2\u016e\u0171\3\2\2\2\u016f\u016d\3\2\2\2\u016f\u0170\3\2\2\2\u0170"+
-		"\u0174\3\2\2\2\u0171\u016f\3\2\2\2\u0172\u0175\5:\36\2\u0173\u0175\7,"+
-		"\2\2\u0174\u0172\3\2\2\2\u0174\u0173\3\2\2\2\u0175\u0176\3\2\2\2\u0176"+
-		"\u0177\5\u00c8e\2\u0177\u017a\5D#\2\u0178\u017b\5X-\2\u0179\u017b\7T\2"+
-		"\2\u017a\u0178\3\2\2\2\u017a\u0179\3\2\2\2\u017b\37\3\2\2\2\u017c\u017d"+
-		"\5J&\2\u017d\u017e\5D#\2\u017e\u017f\5X-\2\u017f!\3\2\2\2\u0180\u0181"+
-		"\5:\36\2\u0181\u0182\5\62\32\2\u0182\u0183\7T\2\2\u0183#\3\2\2\2\u0184"+
-		"\u0185\5:\36\2\u0185\u0186\5\62\32\2\u0186\u0187\5&\24\2\u0187%\3\2\2"+
-		"\2\u0188\u0189\7P\2\2\u0189\u018b\5\u0086D\2\u018a\u018c\5\u0086D\2\u018b"+
-		"\u018a\3\2\2\2\u018b\u018c\3\2\2\2\u018c\u018d\3\2\2\2\u018d\u018e\7Q"+
-		"\2\2\u018e\'\3\2\2\2\u018f\u0191\5\32\16\2\u0190\u018f\3\2\2\2\u0191\u0194"+
-		"\3\2\2\2\u0192\u0190\3\2\2\2\u0192\u0193\3\2\2\2\u0193\u0195\3\2\2\2\u0194"+
-		"\u0192\3\2\2\2\u0195\u0198\5*\26\2\u0196\u0198\7T\2\2\u0197\u0192\3\2"+
-		"\2\2\u0197\u0196\3\2\2\2\u0198)\3\2\2\2\u0199\u019f\5,\27\2\u019a\u019f"+
-		"\5\60\31\2\u019b\u019f\5\20\t\2\u019c\u019f\5\6\4\2\u019d\u019f\5\b\5"+
-		"\2\u019e\u0199\3\2\2\2\u019e\u019a\3\2\2\2\u019e\u019b\3\2\2\2\u019e\u019c"+
-		"\3\2\2\2\u019e\u019d\3\2\2\2\u019f+\3\2\2\2\u01a0\u01a1\5:\36\2\u01a1"+
-		"\u01a6\5.\30\2\u01a2\u01a3\7U\2\2\u01a3\u01a5\5.\30\2\u01a4\u01a2\3\2"+
-		"\2\2\u01a5\u01a8\3\2\2\2\u01a6\u01a4\3\2\2\2\u01a6\u01a7\3\2\2\2\u01a7"+
-		"\u01a9\3\2\2\2\u01a8\u01a6\3\2\2\2\u01a9\u01aa\7T\2\2\u01aa-\3\2\2\2\u01ab"+
-		"\u01b0\5\u00c8e\2\u01ac\u01ad\7R\2\2\u01ad\u01af\7S\2\2\u01ae\u01ac\3"+
-		"\2\2\2\u01af\u01b2\3\2\2\2\u01b0\u01ae\3\2\2\2\u01b0\u01b1\3\2\2\2\u01b1"+
-		"\u01b3\3\2\2\2\u01b2\u01b0\3\2\2\2\u01b3\u01b4\7W\2\2\u01b4\u01b5\5\66"+
-		"\34\2\u01b5/\3\2\2\2\u01b6\u01b9\5:\36\2\u01b7\u01b9\7,\2\2\u01b8\u01b6"+
-		"\3\2\2\2\u01b8\u01b7\3\2\2\2\u01b9\u01ba\3\2\2\2\u01ba\u01bb\5\u00c8e"+
-		"\2\u01bb\u01bc\5D#\2\u01bc\u01bd\7T\2\2\u01bd\61\3\2\2\2\u01be\u01c3\5"+
-		"\64\33\2\u01bf\u01c0\7U\2\2\u01c0\u01c2\5\64\33\2\u01c1\u01bf\3\2\2\2"+
-		"\u01c2\u01c5\3\2\2\2\u01c3\u01c1\3\2\2\2\u01c3\u01c4\3\2\2\2\u01c4\63"+
-		"\3\2\2\2\u01c5\u01c3\3\2\2\2\u01c6\u01c9\5\u00c8e\2\u01c7\u01c8\7W\2\2"+
-		"\u01c8\u01ca\5\66\34\2\u01c9\u01c7\3\2\2\2\u01c9\u01ca\3\2\2\2\u01ca\65"+
-		"\3\2\2\2\u01cb\u01ce\58\35\2\u01cc\u01ce\5\u009eP\2\u01cd\u01cb\3\2\2"+
-		"\2\u01cd\u01cc\3\2\2\2\u01ce\67\3\2\2\2\u01cf\u01db\7P\2\2\u01d0\u01d5"+
+		"h\3\2SS\4\2\3H}}\2\u04b4\2\u00ca\3\2\2\2\4\u00e2\3\2\2\2\6\u00e4\3\2\2"+
+		"\2\b\u00f0\3\2\2\2\n\u0102\3\2\2\2\f\u010d\3\2\2\2\16\u0117\3\2\2\2\20"+
+		"\u011e\3\2\2\2\22\u0126\3\2\2\2\24\u012e\3\2\2\2\26\u0137\3\2\2\2\30\u014c"+
+		"\3\2\2\2\32\u0161\3\2\2\2\34\u016a\3\2\2\2\36\u016f\3\2\2\2 \u017c\3\2"+
+		"\2\2\"\u0180\3\2\2\2$\u0184\3\2\2\2&\u0188\3\2\2\2(\u0197\3\2\2\2*\u019e"+
+		"\3\2\2\2,\u01a0\3\2\2\2.\u01ab\3\2\2\2\60\u01b8\3\2\2\2\62\u01be\3\2\2"+
+		"\2\64\u01c6\3\2\2\2\66\u01cd\3\2\2\28\u01cf\3\2\2\2:\u01e5\3\2\2\2<\u01eb"+
+		"\3\2\2\2>\u01ee\3\2\2\2@\u01fc\3\2\2\2B\u01fe\3\2\2\2D\u0202\3\2\2\2F"+
+		"\u0208\3\2\2\2H\u0213\3\2\2\2J\u0219\3\2\2\2L\u0221\3\2\2\2N\u0223\3\2"+
+		"\2\2P\u022d\3\2\2\2R\u0237\3\2\2\2T\u023e\3\2\2\2V\u0240\3\2\2\2X\u0250"+
+		"\3\2\2\2Z\u0259\3\2\2\2\\\u025f\3\2\2\2^\u027a\3\2\2\2`\u027c\3\2\2\2"+
+		"b\u0283\3\2\2\2d\u0289\3\2\2\2f\u028d\3\2\2\2h\u0293\3\2\2\2j\u02a0\3"+
+		"\2\2\2l\u02a6\3\2\2\2n\u02aa\3\2\2\2p\u02b0\3\2\2\2r\u02b6\3\2\2\2t\u02ba"+
+		"\3\2\2\2v\u02be\3\2\2\2x\u02c2\3\2\2\2z\u02c6\3\2\2\2|\u02cd\3\2\2\2~"+
+		"\u02d2\3\2\2\2\u0080\u02db\3\2\2\2\u0082\u02dd\3\2\2\2\u0084\u02e0\3\2"+
+		"\2\2\u0086\u02e7\3\2\2\2\u0088\u02ee\3\2\2\2\u008a\u02f3\3\2\2\2\u008c"+
+		"\u02f8\3\2\2\2\u008e\u0305\3\2\2\2\u0090\u030d\3\2\2\2\u0092\u031c\3\2"+
+		"\2\2\u0094\u0320\3\2\2\2\u0096\u0325\3\2\2\2\u0098\u032d\3\2\2\2\u009a"+
+		"\u032f\3\2\2\2\u009c\u0333\3\2\2\2\u009e\u0348\3\2\2\2\u00a0\u03c1\3\2"+
+		"\2\2\u00a2\u03ce\3\2\2\2\u00a4\u03d9\3\2\2\2\u00a6\u03db\3\2\2\2\u00a8"+
+		"\u03df\3\2\2\2\u00aa\u03e5\3\2\2\2\u00ac\u03f9\3\2\2\2\u00ae\u0404\3\2"+
+		"\2\2\u00b0\u0408\3\2\2\2\u00b2\u0415\3\2\2\2\u00b4\u0419\3\2\2\2\u00b6"+
+		"\u0421\3\2\2\2\u00b8\u0423\3\2\2\2\u00ba\u0426\3\2\2\2\u00bc\u042d\3\2"+
+		"\2\2\u00be\u0432\3\2\2\2\u00c0\u043a\3\2\2\2\u00c2\u0441\3\2\2\2\u00c4"+
+		"\u0443\3\2\2\2\u00c6\u0449\3\2\2\2\u00c8\u0453\3\2\2\2\u00ca\u00cb\5\4"+
+		"\3\2\u00cb\u00cc\7\2\2\3\u00cc\3\3\2\2\2\u00cd\u00cf\5\32\16\2\u00ce\u00cd"+
+		"\3\2\2\2\u00cf\u00d2\3\2\2\2\u00d0\u00ce\3\2\2\2\u00d0\u00d1\3\2\2\2\u00d1"+
+		"\u00d3\3\2\2\2\u00d2\u00d0\3\2\2\2\u00d3\u00e3\5\6\4\2\u00d4\u00d6\5\32"+
+		"\16\2\u00d5\u00d4\3\2\2\2\u00d6\u00d9\3\2\2\2\u00d7\u00d5\3\2\2\2\u00d7"+
+		"\u00d8\3\2\2\2\u00d8\u00da\3\2\2\2\u00d9\u00d7\3\2\2\2\u00da\u00e3\5\b"+
+		"\5\2\u00db\u00dd\5\32\16\2\u00dc\u00db\3\2\2\2\u00dd\u00e0\3\2\2\2\u00de"+
+		"\u00dc\3\2\2\2\u00de\u00df\3\2\2\2\u00df\u00e1\3\2\2\2\u00e0\u00de\3\2"+
+		"\2\2\u00e1\u00e3\5\20\t\2\u00e2\u00d0\3\2\2\2\u00e2\u00d7\3\2\2\2\u00e2"+
+		"\u00de\3\2\2\2\u00e3\5\3\2\2\2\u00e4\u00e5\7\t\2\2\u00e5\u00e8\5\u00c8"+
+		"e\2\u00e6\u00e7\7\21\2\2\u00e7\u00e9\5:\36\2\u00e8\u00e6\3\2\2\2\u00e8"+
+		"\u00e9\3\2\2\2\u00e9\u00ec\3\2\2\2\u00ea\u00eb\7\30\2\2\u00eb\u00ed\5"+
+		"\22\n\2\u00ec\u00ea\3\2\2\2\u00ec\u00ed\3\2\2\2\u00ed\u00ee\3\2\2\2\u00ee"+
+		"\u00ef\5\24\13\2\u00ef\7\3\2\2\2\u00f0\u00f1\7\20\2\2\u00f1\u00f4\5\u00c8"+
+		"e\2\u00f2\u00f3\7\30\2\2\u00f3\u00f5\5\22\n\2\u00f4\u00f2\3\2\2\2\u00f4"+
+		"\u00f5\3\2\2\2\u00f5\u00f6\3\2\2\2\u00f6\u00f8\7P\2\2\u00f7\u00f9\5\n"+
+		"\6\2\u00f8\u00f7\3\2\2\2\u00f8\u00f9\3\2\2\2\u00f9\u00fb\3\2\2\2\u00fa"+
+		"\u00fc\7U\2\2\u00fb\u00fa\3\2\2\2\u00fb\u00fc\3\2\2\2\u00fc\u00fe\3\2"+
+		"\2\2\u00fd\u00ff\5\16\b\2\u00fe\u00fd\3\2\2\2\u00fe\u00ff\3\2\2\2\u00ff"+
+		"\u0100\3\2\2\2\u0100\u0101\7Q\2\2\u0101\t\3\2\2\2\u0102\u0107\5\f\7\2"+
+		"\u0103\u0104\7U\2\2\u0104\u0106\5\f\7\2\u0105\u0103\3\2\2\2\u0106\u0109"+
+		"\3\2\2\2\u0107\u0105\3\2\2\2\u0107\u0108\3\2\2\2\u0108\13\3\2\2\2\u0109"+
+		"\u0107\3\2\2\2\u010a\u010c\5\32\16\2\u010b\u010a\3\2\2\2\u010c\u010f\3"+
+		"\2\2\2\u010d\u010b\3\2\2\2\u010d\u010e\3\2\2\2\u010e\u0110\3\2\2\2\u010f"+
+		"\u010d\3\2\2\2\u0110\u0112\5\u00c8e\2\u0111\u0113\5\u00c4c\2\u0112\u0111"+
+		"\3\2\2\2\u0112\u0113\3\2\2\2\u0113\u0115\3\2\2\2\u0114\u0116\5\24\13\2"+
+		"\u0115\u0114\3\2\2\2\u0115\u0116\3\2\2\2\u0116\r\3\2\2\2\u0117\u011b\7"+
+		"T\2\2\u0118\u011a\5\30\r\2\u0119\u0118\3\2\2\2\u011a\u011d\3\2\2\2\u011b"+
+		"\u0119\3\2\2\2\u011b\u011c\3\2\2\2\u011c\17\3\2\2\2\u011d\u011b\3\2\2"+
+		"\2\u011e\u011f\7\32\2\2\u011f\u0122\5\u00c8e\2\u0120\u0121\7\21\2\2\u0121"+
+		"\u0123\5\22\n\2\u0122\u0120\3\2\2\2\u0122\u0123\3\2\2\2\u0123\u0124\3"+
+		"\2\2\2\u0124\u0125\5\26\f\2\u0125\21\3\2\2\2\u0126\u012b\5:\36\2\u0127"+
+		"\u0128\7U\2\2\u0128\u012a\5:\36\2\u0129\u0127\3\2\2\2\u012a\u012d\3\2"+
+		"\2\2\u012b\u0129\3\2\2\2\u012b\u012c\3\2\2\2\u012c\23\3\2\2\2\u012d\u012b"+
+		"\3\2\2\2\u012e\u0132\7P\2\2\u012f\u0131\5\30\r\2\u0130\u012f\3\2\2\2\u0131"+
+		"\u0134\3\2\2\2\u0132\u0130\3\2\2\2\u0132\u0133\3\2\2\2\u0133\u0135\3\2"+
+		"\2\2\u0134\u0132\3\2\2\2\u0135\u0136\7Q\2\2\u0136\25\3\2\2\2\u0137\u013b"+
+		"\7P\2\2\u0138\u013a\5(\25\2\u0139\u0138\3\2\2\2\u013a\u013d\3\2\2\2\u013b"+
+		"\u0139\3\2\2\2\u013b\u013c\3\2\2\2\u013c\u013e\3\2\2\2\u013d\u013b\3\2"+
+		"\2\2\u013e\u013f\7Q\2\2\u013f\27\3\2\2\2\u0140\u014d\7T\2\2\u0141\u0143"+
+		"\7%\2\2\u0142\u0141\3\2\2\2\u0142\u0143\3\2\2\2\u0143\u0144\3\2\2\2\u0144"+
+		"\u014d\5X-\2\u0145\u0147\5\32\16\2\u0146\u0145\3\2\2\2\u0147\u014a\3\2"+
+		"\2\2\u0148\u0146\3\2\2\2\u0148\u0149\3\2\2\2\u0149\u014b\3\2\2\2\u014a"+
+		"\u0148\3\2\2\2\u014b\u014d\5\34\17\2\u014c\u0140\3\2\2\2\u014c\u0142\3"+
+		"\2\2\2\u014c\u0148\3\2\2\2\u014d\31\3\2\2\2\u014e\u0162\5N(\2\u014f\u0162"+
+		"\7.\2\2\u0150\u0162\7\"\2\2\u0151\u0162\7!\2\2\u0152\u0162\7 \2\2\u0153"+
+		"\u0162\7*\2\2\u0154\u0162\7%\2\2\u0155\u0162\7\3\2\2\u0156\u0162\7\22"+
+		"\2\2\u0157\u0162\7/\2\2\u0158\u0162\78\2\2\u0159\u0162\7&\2\2\u015a\u0162"+
+		"\7\67\2\2\u015b\u015c\7E\2\2\u015c\u0162\7G\2\2\u015d\u015e\7F\2\2\u015e"+
+		"\u0162\7G\2\2\u015f\u0160\7H\2\2\u0160\u0162\7G\2\2\u0161\u014e\3\2\2"+
+		"\2\u0161\u014f\3\2\2\2\u0161\u0150\3\2\2\2\u0161\u0151\3\2\2\2\u0161\u0152"+
+		"\3\2\2\2\u0161\u0153\3\2\2\2\u0161\u0154\3\2\2\2\u0161\u0155\3\2\2\2\u0161"+
+		"\u0156\3\2\2\2\u0161\u0157\3\2\2\2\u0161\u0158\3\2\2\2\u0161\u0159\3\2"+
+		"\2\2\u0161\u015a\3\2\2\2\u0161\u015b\3\2\2\2\u0161\u015d\3\2\2\2\u0161"+
+		"\u015f\3\2\2\2\u0162\33\3\2\2\2\u0163\u016b\5\36\20\2\u0164\u016b\5\""+
+		"\22\2\u0165\u016b\5 \21\2\u0166\u016b\5\20\t\2\u0167\u016b\5\6\4\2\u0168"+
+		"\u016b\5\b\5\2\u0169\u016b\5$\23\2\u016a\u0163\3\2\2\2\u016a\u0164\3\2"+
+		"\2\2\u016a\u0165\3\2\2\2\u016a\u0166\3\2\2\2\u016a\u0167\3\2\2\2\u016a"+
+		"\u0168\3\2\2\2\u016a\u0169\3\2\2\2\u016b\35\3\2\2\2\u016c\u016e\5\32\16"+
+		"\2\u016d\u016c\3\2\2\2\u016e\u0171\3\2\2\2\u016f\u016d\3\2\2\2\u016f\u0170"+
+		"\3\2\2\2\u0170\u0174\3\2\2\2\u0171\u016f\3\2\2\2\u0172\u0175\5:\36\2\u0173"+
+		"\u0175\7,\2\2\u0174\u0172\3\2\2\2\u0174\u0173\3\2\2\2\u0175\u0176\3\2"+
+		"\2\2\u0176\u0177\5\u00c8e\2\u0177\u017a\5D#\2\u0178\u017b\5X-\2\u0179"+
+		"\u017b\7T\2\2\u017a\u0178\3\2\2\2\u017a\u0179\3\2\2\2\u017b\37\3\2\2\2"+
+		"\u017c\u017d\5J&\2\u017d\u017e\5D#\2\u017e\u017f\5X-\2\u017f!\3\2\2\2"+
+		"\u0180\u0181\5:\36\2\u0181\u0182\5\62\32\2\u0182\u0183\7T\2\2\u0183#\3"+
+		"\2\2\2\u0184\u0185\5:\36\2\u0185\u0186\5\62\32\2\u0186\u0187\5&\24\2\u0187"+
+		"%\3\2\2\2\u0188\u0189\7P\2\2\u0189\u018b\5\u0086D\2\u018a\u018c\5\u0086"+
+		"D\2\u018b\u018a\3\2\2\2\u018b\u018c\3\2\2\2\u018c\u018d\3\2\2\2\u018d"+
+		"\u018e\7Q\2\2\u018e\'\3\2\2\2\u018f\u0191\5\32\16\2\u0190\u018f\3\2\2"+
+		"\2\u0191\u0194\3\2\2\2\u0192\u0190\3\2\2\2\u0192\u0193\3\2\2\2\u0193\u0195"+
+		"\3\2\2\2\u0194\u0192\3\2\2\2\u0195\u0198\5*\26\2\u0196\u0198\7T\2\2\u0197"+
+		"\u0192\3\2\2\2\u0197\u0196\3\2\2\2\u0198)\3\2\2\2\u0199\u019f\5,\27\2"+
+		"\u019a\u019f\5\60\31\2\u019b\u019f\5\20\t\2\u019c\u019f\5\6\4\2\u019d"+
+		"\u019f\5\b\5\2\u019e\u0199\3\2\2\2\u019e\u019a\3\2\2\2\u019e\u019b\3\2"+
+		"\2\2\u019e\u019c\3\2\2\2\u019e\u019d\3\2\2\2\u019f+\3\2\2\2\u01a0\u01a1"+
+		"\5:\36\2\u01a1\u01a6\5.\30\2\u01a2\u01a3\7U\2\2\u01a3\u01a5\5.\30\2\u01a4"+
+		"\u01a2\3\2\2\2\u01a5\u01a8\3\2\2\2\u01a6\u01a4\3\2\2\2\u01a6\u01a7\3\2"+
+		"\2\2\u01a7\u01a9\3\2\2\2\u01a8\u01a6\3\2\2\2\u01a9\u01aa\7T\2\2\u01aa"+
+		"-\3\2\2\2\u01ab\u01b0\5\u00c8e\2\u01ac\u01ad\7R\2\2\u01ad\u01af\7S\2\2"+
+		"\u01ae\u01ac\3\2\2\2\u01af\u01b2\3\2\2\2\u01b0\u01ae\3\2\2\2\u01b0\u01b1"+
+		"\3\2\2\2\u01b1\u01b3\3\2\2\2\u01b2\u01b0\3\2\2\2\u01b3\u01b4\7W\2\2\u01b4"+
+		"\u01b5\5\66\34\2\u01b5/\3\2\2\2\u01b6\u01b9\5:\36\2\u01b7\u01b9\7,\2\2"+
+		"\u01b8\u01b6\3\2\2\2\u01b8\u01b7\3\2\2\2\u01b9\u01ba\3\2\2\2\u01ba\u01bb"+
+		"\5\u00c8e\2\u01bb\u01bc\5D#\2\u01bc\u01bd\7T\2\2\u01bd\61\3\2\2\2\u01be"+
+		"\u01c3\5\64\33\2\u01bf\u01c0\7U\2\2\u01c0\u01c2\5\64\33\2\u01c1\u01bf"+
+		"\3\2\2\2\u01c2\u01c5\3\2\2\2\u01c3\u01c1\3\2\2\2\u01c3\u01c4\3\2\2\2\u01c4"+
+		"\63\3\2\2\2\u01c5\u01c3\3\2\2\2\u01c6\u01c9\5\u00c8e\2\u01c7\u01c8\7W"+
+		"\2\2\u01c8\u01ca\5\66\34\2\u01c9\u01c7\3\2\2\2\u01c9\u01ca\3\2\2\2\u01ca"+
+		"\65\3\2\2\2\u01cb\u01ce\58\35\2\u01cc\u01ce\5\u009eP\2\u01cd\u01cb\3\2"+
+		"\2\2\u01cd\u01cc\3\2\2\2\u01ce\67\3\2\2\2\u01cf\u01db\7P\2\2\u01d0\u01d5"+
 		"\5\66\34\2\u01d1\u01d2\7U\2\2\u01d2\u01d4\5\66\34\2\u01d3\u01d1\3\2\2"+
 		"\2\u01d4\u01d7\3\2\2\2\u01d5\u01d3\3\2\2\2\u01d5\u01d6\3\2\2\2\u01d6\u01d9"+
 		"\3\2\2\2\u01d7\u01d5\3\2\2\2\u01d8\u01da\7U\2\2\u01d9\u01d8\3\2\2\2\u01d9"+
