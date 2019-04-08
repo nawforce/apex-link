@@ -385,7 +385,7 @@ undeleteStatement
     ;
 
 upsertStatement
-    : UPSERT expression id? SEMI
+    : UPSERT expression qualifiedName? SEMI
     ;
 
 mergeStatement

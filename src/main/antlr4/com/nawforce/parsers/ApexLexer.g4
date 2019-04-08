@@ -135,6 +135,11 @@ NumberLiteral
     ;
 
 fragment
+HexCharacter
+    :   Digit | 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
+    ;
+
+fragment
 Digit
     :   [0-9]
     ;
@@ -168,6 +173,7 @@ StringCharacter
 fragment
 EscapeSequence
     :   '\\' [btnfr"'\\]
+    |   '\\u' HexCharacter HexCharacter HexCharacter HexCharacter
     ;
 
 // §3.10.7 The Null Literal

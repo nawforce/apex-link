@@ -901,7 +901,7 @@ object UndeleteStatement {
   }
 }
 
-final case class UpsertStatement(expression: Expression, id: String) extends Statement {
+final case class UpsertStatement(expression: Expression, field: Option[QualifiedName]) extends Statement {
   override def children(): List[CST] = expression :: Nil
 
   def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
@@ -910,10 +910,12 @@ final case class UpsertStatement(expression: Expression, id: String) extends Sta
 object UpsertStatement {
   def construct(statement: UpsertStatementContext, context: ConstructContext): UpsertStatement = {
     val expression = Expression.construct(statement.expression(), context)
-    if (statement.id() != null)
-      UpsertStatement(expression, statement.id.getText).withContext(statement, context)
-    else
-      UpsertStatement(expression, null).withContext(statement, context)
+    val qualifiedName =
+      if (statement.qualifiedName()==null)
+        None
+      else
+        Some(QualifiedName.construct(statement.qualifiedName(), context))
+    UpsertStatement(expression, qualifiedName).withContext(statement, context)
   }
 }
 
