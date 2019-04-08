@@ -28,7 +28,7 @@
 package com.nawforce.documents
 
 import java.io.File
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 
 import com.nawforce.utils.Name
 
@@ -42,10 +42,14 @@ class PathDocument(val path: Path) extends DocumentType {
 
 abstract class MetadataDocumentType(path: Path) extends PathDocument(path) {
   val extension: Name
+  val ignorable: Boolean = false
 }
 
 case class ApexDocument(_path: Path) extends MetadataDocumentType(_path) {
   lazy val extension: Name = Name("cls")
+  override val ignorable: Boolean = {
+    path.toFile.length() == 8 && new String(Files.readAllBytes(path)) == "(hidden)"
+  }
 }
 
 object DocumentType {

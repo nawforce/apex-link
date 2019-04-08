@@ -48,22 +48,24 @@ class DocumentLoader(paths: Seq[Path]) {
   }
 
   private def indexPath(path: Path): Unit = {
-    val directory = path.toFile
-    if (directory.isDirectory) {
-      directory.listFiles().foreach(file => {
-        if (file.isDirectory)
-          indexPath(file.toPath)
-        else
-          insertDocument(DocumentType(file))
-      })
-    } else {
-      throw new DocumentLoadingException(s"Expecting directory at $directory")
+    if (!path.getFileName.toString.startsWith(".")) {
+      val directory = path.toFile
+      if (directory.isDirectory) {
+        directory.listFiles().foreach(file => {
+          if (file.isDirectory)
+           indexPath(file.toPath)
+          else
+            insertDocument(DocumentType(file))
+        })
+      } else {
+        throw new DocumentLoadingException(s"Expecting directory at $directory")
+      }
     }
   }
 
   private def insertDocument(documentType: DocumentType): Unit = {
     documentType match {
-      case docType: MetadataDocumentType =>
+      case docType: MetadataDocumentType if !docType.ignorable =>
         documentsByExtension.put(docType.extension, docType.path :: documentsByExtension(docType.extension))
         documentByName.put(docType.name, docType.path)
       case _ => ()
