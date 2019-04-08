@@ -53,6 +53,11 @@ class ClassModifierTest extends FunSuite {
     assert(!IssueLog.hasMessages)
   }
 
+  test("Public outer (mixed case)") {
+    assert(typeDeclaration("puBlIc class Dummy {}").modifiers == Seq(PUBLIC_MODIFIER))
+    assert(!IssueLog.hasMessages)
+  }
+
   test("Protected outer") {
     assert(typeDeclaration("protected class Dummy {}").modifiers.isEmpty)
     assert(IssueLog.getMessages(defaultPath) ==
@@ -95,8 +100,20 @@ class ClassModifierTest extends FunSuite {
     assert(!IssueLog.hasMessages)
   }
 
+  test("Inherited sharing class (mixed case)") {
+    val modifiers = typeDeclaration("public inHerited shaRing class Dummy {}").modifiers
+    assert(modifiers.toSet == Set(PUBLIC_MODIFIER, INHERITED_SHARING_MODIFIER))
+    assert(!IssueLog.hasMessages)
+  }
+
   test("Deprecated annotation class") {
     val modifiers = typeDeclaration("@Deprecated public class Dummy {}").modifiers
+    assert(modifiers.toSet == Set(PUBLIC_MODIFIER, DEPRECATED_ANNOTATION))
+    assert(!IssueLog.hasMessages)
+  }
+
+  test("Deprecated annotation class (mixed case)") {
+    val modifiers = typeDeclaration("@DeprecAted public class Dummy {}").modifiers
     assert(modifiers.toSet == Set(PUBLIC_MODIFIER, DEPRECATED_ANNOTATION))
     assert(!IssueLog.hasMessages)
   }

@@ -86,7 +86,7 @@ object ApexModifiers {
       if (modifierContext.annotation() != null) {
         classAnnotation(modifierContext.annotation())
       } else {
-        modifierContext.getText match {
+        modifierContext.getText.toLowerCase match {
           case "global" => Some(GLOBAL_MODIFIER)
           case "public" => Some(PUBLIC_MODIFIER)
           case "private" => Some(PRIVATE_MODIFIER)
@@ -147,7 +147,7 @@ object ApexModifiers {
   }
 
   def construct(modifiers: Seq[ModifierContext], context: ConstructContext): Seq[Modifier] = {
-    modifiers.map(_.getText).flatMap {
+    modifiers.map(_.getText.toLowerCase).flatMap {
       case "public" => Some(PUBLIC_MODIFIER)
       case _ => None
     }
