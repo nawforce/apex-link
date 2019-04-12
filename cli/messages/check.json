@@ -1,0 +1,9 @@
+{
+  "commandDescription": "Validate Apex code in current or passed directories",
+  "nameFlagDescription": "name to print",
+  "forceFlagDescription": "example boolean flag",
+  "errorNoJVM": "No suitable Java virtual machine found, try setting JAVA_HOME to directory of Java 1.8 64-bit JRE or JVM.",
+  "errorManyJVM": "Multiple suitable Java virtual machines found, using '%s'.",
+  "errorNotDir": "No directory found at '%s'.",
+  "errorNoJarFile": "No jar found at '%s'."
+}
