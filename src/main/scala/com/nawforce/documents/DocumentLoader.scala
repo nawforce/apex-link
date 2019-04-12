@@ -44,7 +44,7 @@ class DocumentLoader(paths: Seq[Path]) {
   index()
 
   private def index(): Unit = {
-      paths.reverse.foreach(p => indexPath(cwd.resolve(p)))
+      paths.reverse.foreach(p => indexPath(cwd.resolve(p).normalize()))
   }
 
   private def indexPath(path: Path): Unit = {

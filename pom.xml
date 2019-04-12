@@ -4,7 +4,7 @@
 
     <groupId>com.github.nawforce</groupId>
     <artifactId>apexlink</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
     <packaging>jar</packaging>
 
     <name>apexlink</name>
@@ -154,11 +154,7 @@
                 <version>3.0.2</version>
                 <configuration>
                     <archive>
-                        <index>true</index>
-                        <manifest>
-                            <classpathPrefix>lib/</classpathPrefix>
-                            <addClasspath>false</addClasspath>
-                        </manifest>
+                        <manifestFile>src/META-INF/MANIFEST.MF</manifestFile>
                     </archive>
                 </configuration>
             </plugin>
