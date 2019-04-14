@@ -1,5 +1,5 @@
 
-## ApexLink v0.1-SNAPSHOT
+## ApexLink v0.1
 
 ApexLink is a library for supporting offline validation of Salesforce package Apex code. It's currently WIP but
 contains a half decent parser for Apex alongside definitions for common platform classes and SObjects. 
@@ -42,7 +42,6 @@ To use in a maven project add the following to your pom.xml
             </snapshots>
         </repository>
     </repositories>
-
 
     <dependency>
         <groupId>com.github.nawforce</groupId>
