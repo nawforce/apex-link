@@ -1,16 +1,9 @@
 apexlink
 ========
 
-
-
 [![Version](https://img.shields.io/npm/v/apexlink.svg)](https://npmjs.org/package/apexlink)
-[![CircleCI](https://circleci.com/gh/nawforce/apexlink/tree/master.svg?style=shield)](https://circleci.com/gh/nawforce/apexlink/tree/master)
-[![Appveyor CI](https://ci.appveyor.com/api/projects/status/github/nawforce/apexlink?branch=master&svg=true)](https://ci.appveyor.com/project/heroku/apexlink/branch/master)
-[![Codecov](https://codecov.io/gh/nawforce/apexlink/branch/master/graph/badge.svg)](https://codecov.io/gh/nawforce/apexlink)
-[![Greenkeeper](https://badges.greenkeeper.io/nawforce/apexlink.svg)](https://greenkeeper.io/)
-[![Known Vulnerabilities](https://snyk.io/test/github/nawforce/apexlink/badge.svg)](https://snyk.io/test/github/nawforce/apexlink)
-[![Downloads/week](https://img.shields.io/npm/dw/apexlink.svg)](https://npmjs.org/package/apexlink)
 [![License](https://img.shields.io/npm/l/apexlink.svg)](https://github.com/nawforce/apexlink/blob/master/package.json)
+[![Known Vulnerabilities](https://snyk.io/test/github/nawforce/apexlink/badge.svg)](https://snyk.io/test/github/nawforce/apexlink)
 
 <!-- toc -->
 
