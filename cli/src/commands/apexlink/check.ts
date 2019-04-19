@@ -26,7 +26,7 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { SfdxCommand } from '@salesforce/command';
+import { SfdxCommand, flags } from '@salesforce/command';
 import { Messages, SfdxError} from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import LocateJavaHome from 'locate-java-home'
@@ -48,14 +48,16 @@ export default class Check extends SfdxCommand {
 
   public static examples = [
   `$ sfdx apexlink:check`,
-  `$ sfdx apexlink:check $HOME/myproject`
+  `$ sfdx apexlink:check -verbose $HOME/myproject`
   ];
 
   public static args = [
-    {name: 'directory', description: 'directory to search for Apex class files, defaults to current directory'}, 
+    {name: 'directory', description: 'directory to search for Apex class files, defaults to current directory'}
   ];
 
   protected static flagsConfig = {
+    json: flags.boolean({description: 'show output in json format (disables --verbose)'}),
+    verbose: flags.boolean({description: 'show progress messages'})
   };
 
   protected static requiresUsername = false;
@@ -69,7 +71,7 @@ export default class Check extends SfdxCommand {
       throw new SfdxError(messages.getMessage('errorNotDir', [directory]));
     }
 
-    const jarFile = path.join(__dirname, '..', '..', '..', 'jars', 'apexlink-0.1.jar')
+    const jarFile = path.join(__dirname, '..', '..', '..', 'jars', 'apexlink-0.2.jar')
     if (!fs.existsSync(jarFile) || !fs.lstatSync(jarFile).isFile()) {
       throw new SfdxError(messages.getMessage('errorNoJarFile', [jarFile]));
     }
@@ -80,11 +82,16 @@ export default class Check extends SfdxCommand {
     } 
 
     const javaExecutable = jvms[0].executables.java
-    if (jvms.length > 1) {
+    if (jvms.length > 1 && this.flags.verbose) {
       this.ux.log(messages.getMessage('errorManyJVM', [javaExecutable]));
     }
 
-    return this.execute(javaExecutable, ['-jar', jarFile, directory])
+    let execArgs = ['-jar', jarFile]
+    if (this.flags.verbose)
+      execArgs.push('-verbose')
+    if (this.flags.json)
+      execArgs.push('-json')
+    return this.execute(javaExecutable, execArgs, this.flags.json)
   }
 
   private getJavaHome(): Promise<IJavaHomeInfo[]> {
@@ -96,12 +103,21 @@ export default class Check extends SfdxCommand {
     });
   }
 
-  private execute(process: string, args: string[]) {
-    return new Promise<number>(function(resolve, reject) {
+  private execute(process: string, args: string[], json: boolean) {
+    let jsonData = ''
+    return new Promise<AnyJson>(function(resolve, reject) {
       try {
-          const child = crossspawn(process, args, {stdio: 'inherit'});
+          const child = crossspawn(process, args, json ? {} : {stdio: 'inherit'});
+          if (json) {
+            child.stdout.on('data', (data) => {
+              jsonData += data.toString('utf8')
+            });
+          }
           child.on('close', (code) => {
-            resolve(code)
+            if (json)
+              resolve(JSON.parse(jsonData))
+            else
+              resolve({})  
           });
       } catch (e) {
           reject(e)

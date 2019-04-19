@@ -33,6 +33,7 @@ import com.nawforce.documents.{LineLocation, Location, RangeLocation, TextRange}
 
 import scala.collection.mutable
 import scala.util.DynamicVariable
+import net.liftweb.json._
 
 object IssueLog {
   val context: DynamicVariable[Path] = new DynamicVariable[Path](null)
@@ -75,32 +76,96 @@ object IssueLog {
 
   def hasMessages: Boolean = lock.synchronized {log.nonEmpty}
 
-  def getMessages(path: Path, showPath: Boolean = false, maxErrors: Int = 10): String = {
-    lock.synchronized {
-      val buffer = new StringBuilder
-      val messages = log.getOrElse(path, List())
-      if (messages.nonEmpty) {
-        if (showPath)
-          buffer ++= path.toString + "\n"
-        var count = 0
-        messages.sortBy(_._1.line).foreach(message => {
-          if (count < maxErrors) {
-            buffer ++= message._1.displayPosition + ": " + message._2 + "\n"
-          }
-          count += 1
-        })
-        if (count - maxErrors > 0)
-          buffer ++= count - maxErrors + " of " + count + " errors not shown"
-      }
+  private trait MessageWriter {
+    def startOutput()
+    def startDocument(path: Path)
+    def writeMessage(location: Location, message: String)
+    def writeSummary(notShown: Int, total: Int)
+    def endDocument()
+    def output: String
+  }
+
+  private class TextMessageWriter(showPath: Boolean) extends MessageWriter {
+    private val buffer = new StringBuilder()
+
+    override def startOutput(): Unit = buffer.clear()
+    override def startDocument(path: Path): Unit = if (showPath) buffer ++= path.toString + '\n'
+    override def writeMessage(location: Location, message: String): Unit =
+      buffer ++= location.displayPosition + ": " + message + "\n"
+    override def writeSummary(notShown: Int, total: Int): Unit =
+      buffer ++= notShown + " of " + total + " errors not shown" + "\n"
+    override def endDocument(): Unit = {}
+    override def output: String = buffer.toString()
+  }
+
+  private class JSONMessageWriter(count: Int, avgTime: Long) extends MessageWriter {
+    private val buffer = new StringBuilder()
+    private var firstDocument: Boolean = _
+    private var firstMessage: Boolean = _
+
+    override def startOutput(): Unit = {
+      buffer.clear()
+      buffer ++= s"""{ "count": $count, "avgTime": $avgTime, "files": [\n"""
+      firstDocument = true
+    }
+    override def startDocument(path: Path): Unit = {
+      buffer ++= (if (firstDocument) "" else ",\n")
+      buffer ++= s"""{ "path": ${encode(path.toString)}, "messages": [\n"""
+      firstDocument = false
+      firstMessage = true
+    }
+    override def writeMessage(location: Location, message: String): Unit = {
+      buffer ++= (if (firstMessage) "" else ",\n")
+      buffer ++= s"""{${location.asJSON}, "message": ${encode(message)}}"""
+      firstMessage = false
+    }
+    override def writeSummary(notShown: Int, total: Int): Unit = ()
+    override def endDocument(): Unit = buffer ++= "\n]}"
+    override def output: String = {
+      buffer ++= "]}\n"
       buffer.toString()
+    }
+
+    private def encode(value: String): String = compactRender(JString(value))
+  }
+
+  private def writeMessages(writer: MessageWriter, path: Path, maxErrors: Int): Unit = {
+    val messages = log.getOrElse(path, List())
+    if (messages.nonEmpty) {
+      writer.startDocument(path)
+      var count = 0
+      messages.sortBy(_._1.line).foreach(message => {
+        if (count < maxErrors) {
+          writer.writeMessage(message._1, message._2)
+        }
+        count += 1
+      })
+      if (count - maxErrors > 0)
+        writer.writeSummary(count - maxErrors, count)
+      writer.endDocument()
     }
   }
 
-  def dumpMessages(maxErrors: Integer = 10): Unit = {
+  def getMessages(path: Path, showPath: Boolean = false, maxErrors: Int = 10): String = {
     lock.synchronized {
-      log.keys.foreach(uri => {
-        System.out.println(getMessages(uri, showPath = true, maxErrors))
+      val writer: MessageWriter= new TextMessageWriter(showPath = showPath)
+      writeMessages(writer, path, maxErrors)
+      writer.output
+    }
+  }
+
+  def dumpMessages(json: Boolean, count: Int, avgTime: Long): Unit = {
+    val writer: MessageWriter=
+      if (json)
+        new JSONMessageWriter(count, avgTime)
+      else
+        new TextMessageWriter(true)
+    writer.startOutput()
+    lock.synchronized {
+      log.keys.foreach(path => {
+        writeMessages(writer, path, if (json) 100 else 10)
       })
     }
+    print(writer.output)
   }
 }

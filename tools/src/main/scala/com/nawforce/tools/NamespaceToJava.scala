@@ -33,6 +33,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 
 import com.nawforce.utils.SFConnection
+import net.liftweb.json._
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.HttpClientBuilder
 

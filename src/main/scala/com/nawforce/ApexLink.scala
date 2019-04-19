@@ -35,26 +35,48 @@ import com.nawforce.utils.{IssueLog, Name}
 
 object ApexLink {
   def main(args: Array[String]): Unit = {
-    val paths = args.flatMap(arg => {
-      val path = Paths.get(arg)
-      if (path.toFile.isDirectory) Some(path) else None
-    })
+    val options = Set("-verbose", "-json")
 
-    if (paths.length != args.length) {
-      println(s"Usage: ApexLink <dir1> <dir2> ...")
+    val validArgs = args.flatMap {
+      case option if options.contains(option)=> Some(option)
+      case arg =>
+        val path = Paths.get(arg)
+        if (path.toFile.isDirectory) Some(arg) else None
+    }
+
+    if (validArgs.length != args.length) {
+      println(s"Usage: ApexLink [-json] [-verbose] <dir1> <dir2> ...")
       return
     }
 
-    DocumentLoader.defaultDocumentLoader = new DocumentLoader(
-      if (paths.isEmpty) Seq(Paths.get("").toAbsolutePath) else paths)
+    val paths = validArgs.filterNot(options.contains).map(Paths.get(_))
+    val json = validArgs.contains("-json")
+    val verbose = !json && validArgs.contains("-verbose")
 
-    DocumentLoader.getByExtension(Name("cls")).par.foreach(path => {
+    DocumentLoader.defaultDocumentLoader = new DocumentLoader(
+      if (paths.isEmpty) Seq(Paths.get("").toAbsolutePath) else paths
+    )
+
+    val classes = DocumentLoader.getByExtension(Name("cls"))
+    if (verbose)
+      println(s"Found ${classes.size} classes to parse")
+
+    val parseStart = System.currentTimeMillis()
+    classes.par.foreach(path => {
       DocumentType(path) match {
-        case docType: ApexDocument => ApexTypeDeclaration.create(docType.name)
+        case docType: ApexDocument =>
+          val start = System.currentTimeMillis()
+          ApexTypeDeclaration.create(docType.name)
+          val end = System.currentTimeMillis()
+          if (verbose)
+            println(s"Parsed ${docType.path.toString} in ${end-start}ms")
         case _ => println(s"Unexpected document type at: $path")
       }
     })
+    val parseEnd = System.currentTimeMillis()
 
-    IssueLog.dumpMessages()
+    IssueLog.dumpMessages(json, classes.size, (parseEnd-parseStart)/classes.size)
+    if (verbose)
+      println(s"Parsed ${classes.size} files, with average time/file of ${(parseEnd-parseStart)/classes.size}ms")
   }
 }

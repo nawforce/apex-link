@@ -31,7 +31,7 @@
         <dependency>
             <groupId>com.github.nawforce</groupId>
             <artifactId>apexlink</artifactId>
-            <version>0.1</version>
+            <version>0.2</version>
         </dependency>
 
         <dependency>
@@ -39,13 +39,6 @@
             <artifactId>httpclient</artifactId>
             <version>4.5.6</version>
         </dependency>
-
-        <dependency>
-            <groupId>net.liftweb</groupId>
-            <artifactId>lift-json_2.12</artifactId>
-            <version>3.3.0</version>
-        </dependency>
-
     </dependencies>
 
     <build>

@@ -4,7 +4,7 @@
 
     <groupId>com.github.nawforce</groupId>
     <artifactId>apexlink</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
     <packaging>jar</packaging>
 
     <name>apexlink</name>
@@ -81,6 +81,12 @@
             <groupId>com.force.api</groupId>
             <artifactId>force-apex-api</artifactId>
             <version>45.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.liftweb</groupId>
+            <artifactId>lift-json_2.12</artifactId>
+            <version>3.3.0</version>
         </dependency>
 
         <dependency>

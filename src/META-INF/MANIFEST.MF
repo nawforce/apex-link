@@ -6,12 +6,13 @@ Class-Path: ST4-4.0.7.jar
   antlr4-runtime-4.7.1.jar
   commons-beanutils-1.7.0.jar
   commons-logging-1.0.3.jar
-  force-apex-api-44.0.0.jar
-  force-metadata-api-44.0.0.jar
-  force-partner-api-44.0.0.jar
-  force-wsc-44.0.0.jar
+  force-apex-api-45.1.0.jar
+  force-metadata-api-45.1.0.jar
+  force-partner-api-45.1.0.jar
+  force-wsc-45.1.0.jar
   jackson-core-asl-1.9.13.jar
   jackson-mapper-asl-1.9.13.jar
+  lift-json_2.12-3.3.0.jar
   scala-library-2.12.6.jar
   scala-reflect-2.12.4.jar
   scala-xml_2.12-1.1.1.jar

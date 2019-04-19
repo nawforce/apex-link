@@ -37,12 +37,10 @@ class SwitchTest extends FunSuite {
   private val defaultName = TestDocumentLoader.defaultName
   private val defaultPath = TestDocumentLoader.defaultPath
 
-  def typeDeclaration(clsText: String, displayIssues: Boolean = false): Option[TypeDeclaration] = {
+  def typeDeclaration(clsText: String): Option[TypeDeclaration] = {
     IssueLog.clear()
     DocumentLoader.defaultDocumentLoader = new TestDocumentLoader(clsText)
     val td = ApexTypeDeclaration.create(defaultName)
-    if (displayIssues)
-      IssueLog.dumpMessages()
     td
   }
 

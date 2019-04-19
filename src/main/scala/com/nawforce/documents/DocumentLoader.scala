@@ -30,7 +30,7 @@ package com.nawforce.documents
 import java.io.{File, FileInputStream, InputStream}
 import java.nio.file.{Path, Paths}
 
-import com.nawforce.utils.Name
+import com.nawforce.utils.{IssueLog, Name}
 
 import scala.collection.mutable
 
@@ -66,8 +66,13 @@ class DocumentLoader(paths: Seq[Path]) {
   private def insertDocument(documentType: DocumentType): Unit = {
     documentType match {
       case docType: MetadataDocumentType if !docType.ignorable =>
-        documentsByExtension.put(docType.extension, docType.path :: documentsByExtension(docType.extension))
-        documentByName.put(docType.name, docType.path)
+        val duplicate = documentByName.get(docType.name)
+        if (duplicate.nonEmpty) {
+          IssueLog.logMessage(LineLocation(docType.path, 0), s"File has same name as ${duplicate.get}, ignoring")
+        } else {
+          documentsByExtension.put(docType.extension, docType.path :: documentsByExtension(docType.extension))
+          documentByName.put(docType.name, docType.path)
+        }
       case _ => ()
     }
   }
