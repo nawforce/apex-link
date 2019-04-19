@@ -57,7 +57,7 @@ export default class Check extends SfdxCommand {
 
   protected static flagsConfig = {
     json: flags.boolean({description: 'show output in json format (disables --verbose)'}),
-    verbose: flags.boolean({description: 'show progress messages'})
+    verbose: flags.builtin({description: 'show progress messages'})
   };
 
   protected static requiresUsername = false;
