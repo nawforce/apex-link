@@ -1,8 +1,22 @@
 
-## ApexLink v0.1
+## ApexLink
 
 ApexLink is a library for supporting offline validation of Salesforce package Apex code. It's currently WIP but
 contains a half decent parser for Apex alongside definitions for common platform classes and SObjects. 
+
+### SFDX CLI
+
+As well as Java libraries there is a SFDX CLI that you can install with
+
+    sfdx plugins:install apexlink
+
+This has a single command you can use to syntax check all the Apex files in a directory
+
+    sfdx apexlink:check
+    
+The --verbose & --json options give some control to the output formatting.    
+
+### Other tools
  
 There are a few publicly available tools available for handling packaged metadata offline, notably Salesforce's own 
 Eclipse plugin provides Apex parsing and the derived PMD plugin utilises this but neither can offer full source code
@@ -22,9 +36,9 @@ the package and tries to resolve all symbols to ensure they exist in the correct
 the metadata in the package. In practice it's quite a long way from being useful as a linker but can report some simple
 syntactical problems in Apex code.
 
-To run just a linker pass use:
+To run just a scan of a package use:
 
-     java -jar target/uber-apexlink-0.1-SNAPSHOT.jar <packagage directory>
+     java -jar target/uber-apexlink-0.2.jar <packagage directory>
      
 If any errors are found these will be reported back to the console.
      
