@@ -27,11 +27,11 @@
 */
 package com.nawforce.types
 
-import java.io.InputStream
+import java.io.{FileInputStream, InputStream}
 import java.nio.file.Path
 
 import com.nawforce.cst._
-import com.nawforce.documents.{DocumentLoader, LineLocation}
+import com.nawforce.documents.LineLocation
 import com.nawforce.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
 import com.nawforce.utils._
@@ -60,21 +60,12 @@ abstract class ApexTypeDeclaration(val id: Id, val modifiers: Seq[Modifier])
 }
 
 object ApexTypeDeclaration {
-  def create(name: Name): Option[ApexTypeDeclaration] = {
-    val document = DocumentLoader.getByName(name)
-    if (document.nonEmpty) {
-      parseAndVerify(document.get._1, document.get._2)
-    } else {
-      None
-    }
-  }
-
-  private def parseAndVerify(path: Path, inputStream: InputStream): Option[ApexTypeDeclaration] = {
+  def create(path: Path, data: InputStream): Option[ApexTypeDeclaration] = {
     try {
       IssueLog.context.withValue(path) {
 
         val listener = new ThrowingErrorListener
-        val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(inputStream)
+        val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(data)
         val lexer: ApexLexer = new ApexLexer(cis)
         lexer.removeErrorListeners()
         lexer.addErrorListener(listener)

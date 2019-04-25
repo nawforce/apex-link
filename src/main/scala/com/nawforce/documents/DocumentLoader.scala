@@ -85,10 +85,3 @@ class DocumentLoader(paths: Seq[Path]) {
     documentsByExtension(name)
   }
 }
-
-object DocumentLoader {
-  var defaultDocumentLoader: DocumentLoader = _
-
-  def getByName(name: Name): Option[(Path, InputStream)] = defaultDocumentLoader.getByName(name)
-  def getByExtension(name: Name): Seq[Path] = defaultDocumentLoader.getByExtension(name)
-}

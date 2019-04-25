@@ -25,45 +25,50 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce
 
-import java.nio.file.Paths
+import * as java from 'java'
+import * as fs from 'fs'
+import * as path from 'path'
+import Org from './org';
 
-import com.nawforce.api.Org
-import com.nawforce.utils.IssueLog
+export default class Server {
 
-object ApexLink {
-  def main(args: Array[String]): Unit = {
-    val options = Set("-verbose", "-json")
+    private static instance: Server
 
-    val validArgs = args.flatMap {
-      case option if options.contains(option)=> Some(option)
-      case arg => Some(arg)
+    private constructor() {
+        if (Server.instance) {
+            throw new Error('Server instance already running - use Server.getInstance()')
+        }
     }
 
-    if (validArgs.length != args.length) {
-      println(s"Usage: ApexLink [-json] [-verbose] <dir1> <dir2> ...")
-      return
+    static async getInstance(): Promise<Server> {
+        return new Promise<Server>(function (resolve, reject) {
+            if (!Server.instance) {
+                java.classpath.push(Server.jarHome())
+                java.ensureJvm(function (err, result) {
+                    if (err) {
+                        reject(err)
+                    } else {
+                        if (!Server.instance)
+                            Server.instance = new Server()
+                        resolve(Server.instance)
+                    }
+                })
+            } else {
+                resolve(Server.instance)
+            }
+        });
     }
 
-    var paths: Seq[String] = validArgs.filterNot(options.contains)
-    if (paths.isEmpty)
-      paths = Seq(Paths.get("").toAbsolutePath.toString)
-    val json = validArgs.contains("-json")
-    val verbose = !json && validArgs.contains("-verbose")
+    public createOrg(): Org {
+        return new Org()
+    }
 
-    val parseStart = System.currentTimeMillis()
-    val org = new Org()
-    val pkg = org.addPackage(paths.toArray)
-    val resultJson = pkg.deployAll(verbose)
-    val parseEnd = System.currentTimeMillis()
-
-    if (!json)
-      IssueLog.dumpMessages(json = false, pkg.classCount, (parseEnd-parseStart)/pkg.classCount)
-    else
-      println(resultJson)
-
-    if (verbose)
-      println(s"Parsed ${pkg.classCount} files, with average time/file of ${(parseEnd-parseStart)/pkg.classCount}ms")
-  }
+    private static jarHome(): string {
+        const jarFile = path.join(__dirname, '..', '..', 'jars', 'apexlink-0.2.jar')
+        if (!fs.existsSync(jarFile) || !fs.lstatSync(jarFile).isFile()) {
+            throw new Error(`No jar found at '${jarFile}'.`);
+        }
+        return jarFile
+    }
 }

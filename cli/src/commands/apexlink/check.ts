@@ -27,13 +27,10 @@
 */
 
 import { SfdxCommand, flags } from '@salesforce/command';
-import { Messages, SfdxError} from '@salesforce/core';
+import { Messages, SfdxError } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import LocateJavaHome from 'locate-java-home'
-import { IJavaHomeInfo } from 'locate-java-home/js/es5/lib/interfaces';
+import Server from '../../api/server';
 import * as fs from 'fs'
-import * as path from 'path'
-import * as crossspawn from 'cross-spawn';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -47,17 +44,17 @@ export default class Check extends SfdxCommand {
   public static description = messages.getMessage('commandDescription');
 
   public static examples = [
-  `$ sfdx apexlink:check`,
-  `$ sfdx apexlink:check -verbose $HOME/myproject`
+    `$ sfdx apexlink:check`,
+    `$ sfdx apexlink:check -verbose $HOME/myproject`
   ];
 
   public static args = [
-    {name: 'directory', description: 'directory to search for Apex class files, defaults to current directory'}
+    { name: 'directory', description: 'directory to search for Apex class files, defaults to current directory' }
   ];
 
   protected static flagsConfig = {
-    json: flags.boolean({description: 'show output in json format (disables --verbose)'}),
-    verbose: flags.builtin({description: 'show progress messages'})
+    json: flags.boolean({ description: 'show output in json format (disables --verbose)' }),
+    verbose: flags.builtin({ description: 'show progress messages' })
   };
 
   protected static requiresUsername = false;
@@ -65,63 +62,20 @@ export default class Check extends SfdxCommand {
   protected static requiresProject = false;
 
   public async run(): Promise<AnyJson> {
+    let verbose = this.flags.verbose || false
+    let json = this.flags.json || false
 
     const directory = this.args.directory || process.cwd()
     if (!fs.existsSync(directory) || !fs.lstatSync(directory).isDirectory()) {
       throw new SfdxError(messages.getMessage('errorNotDir', [directory]));
     }
 
-    const jarFile = path.join(__dirname, '..', '..', '..', 'jars', 'apexlink-0.2.jar')
-    if (!fs.existsSync(jarFile) || !fs.lstatSync(jarFile).isFile()) {
-      throw new SfdxError(messages.getMessage('errorNoJarFile', [jarFile]));
-    }
+    let server = await Server.getInstance();
 
-    const jvms = await this.getJavaHome();
-    if (jvms.length == 0) {
-      throw new SfdxError(messages.getMessage('errorNoJVM'));
-    } 
+    const org = server.createOrg();
+    const pkg = org.addPackage([directory])
+    const results = pkg.deployAll(!json && verbose)
 
-    const javaExecutable = jvms[0].executables.java
-    if (jvms.length > 1 && this.flags.verbose) {
-      this.ux.log(messages.getMessage('errorManyJVM', [javaExecutable]));
-    }
-
-    let execArgs = ['-jar', jarFile]
-    if (this.flags.verbose)
-      execArgs.push('-verbose')
-    if (this.flags.json)
-      execArgs.push('-json')
-    return this.execute(javaExecutable, execArgs, this.flags.json)
-  }
-
-  private getJavaHome(): Promise<IJavaHomeInfo[]> {
-    return new Promise<IJavaHomeInfo[]>(function(resolve, reject) {
-      LocateJavaHome({version: ">=1.8", mustBe64Bit: true}, function(error, javaHomes) {
-        if (error != null) reject(error) 
-        else resolve(javaHomes)    
-      });
-    });
-  }
-
-  private execute(process: string, args: string[], json: boolean) {
-    let jsonData = ''
-    return new Promise<AnyJson>(function(resolve, reject) {
-      try {
-          const child = crossspawn(process, args, json ? {} : {stdio: 'inherit'});
-          if (json) {
-            child.stdout.on('data', (data) => {
-              jsonData += data.toString('utf8')
-            });
-          }
-          child.on('close', (code) => {
-            if (json)
-              resolve(JSON.parse(jsonData))
-            else
-              resolve({})  
-          });
-      } catch (e) {
-          reject(e)
-      }
-    })
+    return JSON.parse(results)
   }
 }

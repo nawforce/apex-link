@@ -27,21 +27,24 @@
 */
 package com.nawforce.unit.cst
 
+import java.io.ByteArrayInputStream
+import java.nio.file.{Path, Paths}
+
 import com.nawforce.cst.ClassDeclaration
 import com.nawforce.documents.DocumentLoader
 import com.nawforce.types._
-import com.nawforce.utils.IssueLog
+import com.nawforce.utils.{IssueLog, Name}
 import org.scalatest.FunSuite
 
 class InnerClassModifierTest extends FunSuite {
 
-  private val defaultName = TestDocumentLoader.defaultName
-  private val defaultPath = TestDocumentLoader.defaultPath
+  private val defaultName: Name = Name("Dummy")
+  private val defaultPath: Path = Paths.get(defaultName.toString)
 
   def typeDeclaration(clsText: String): TypeDeclaration = {
     IssueLog.clear()
-    DocumentLoader.defaultDocumentLoader = new TestDocumentLoader(clsText)
-    ApexTypeDeclaration.create(defaultName).get.asInstanceOf[ClassDeclaration]
+    ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes()))
+      .get.asInstanceOf[ClassDeclaration]
       .bodyDeclarations.head.asInstanceOf[ClassDeclaration]
   }
 

@@ -154,6 +154,17 @@ object IssueLog {
     }
   }
 
+  def asJSON(maxErrors: Int): String = {
+    val writer = new JSONMessageWriter(100, 10)
+    writer.startOutput()
+    lock.synchronized {
+      log.keys.foreach(path => {
+        writeMessages(writer, path, maxErrors)
+      })
+    }
+    writer.output
+  }
+
   def dumpMessages(json: Boolean, count: Int, avgTime: Long): Unit = {
     val writer: MessageWriter=
       if (json)

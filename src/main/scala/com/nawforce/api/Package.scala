@@ -25,45 +25,47 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce
+package com.nawforce.api
 
-import java.nio.file.Paths
+import java.io.FileInputStream
+import java.nio.file.{Path, Paths}
 
-import com.nawforce.api.Org
-import com.nawforce.utils.IssueLog
+import com.nawforce.documents.{ApexDocument, DocumentLoader, DocumentType}
+import com.nawforce.types.ApexTypeDeclaration
+import com.nawforce.utils.{IssueLog, Name}
 
-object ApexLink {
-  def main(args: Array[String]): Unit = {
-    val options = Set("-verbose", "-json")
+class Package(org: Org, paths: Seq[Path]) {
+  private val documents = new DocumentLoader(paths)
 
-    val validArgs = args.flatMap {
-      case option if options.contains(option)=> Some(option)
-      case arg => Some(arg)
-    }
+  lazy val classCount: Int = documents.getByExtension(Name("cls")).size
 
-    if (validArgs.length != args.length) {
-      println(s"Usage: ApexLink [-json] [-verbose] <dir1> <dir2> ...")
-      return
-    }
-
-    var paths: Seq[String] = validArgs.filterNot(options.contains)
-    if (paths.isEmpty)
-      paths = Seq(Paths.get("").toAbsolutePath.toString)
-    val json = validArgs.contains("-json")
-    val verbose = !json && validArgs.contains("-verbose")
-
-    val parseStart = System.currentTimeMillis()
-    val org = new Org()
-    val pkg = org.addPackage(paths.toArray)
-    val resultJson = pkg.deployAll(verbose)
-    val parseEnd = System.currentTimeMillis()
-
-    if (!json)
-      IssueLog.dumpMessages(json = false, pkg.classCount, (parseEnd-parseStart)/pkg.classCount)
-    else
-      println(resultJson)
-
+  def deployAll(verbose: Boolean): String = {
+    val classes = documents.getByExtension(Name("cls"))
     if (verbose)
-      println(s"Parsed ${pkg.classCount} files, with average time/file of ${(parseEnd-parseStart)/pkg.classCount}ms")
+      println(s"Found ${classes.size} classes to parse")
+
+    classes.par.foreach(path => {
+      DocumentType(path) match {
+        case docType: ApexDocument =>
+          val start = System.currentTimeMillis()
+          ApexTypeDeclaration.create(docType.path, new FileInputStream(docType.path.toFile))
+          val end = System.currentTimeMillis()
+          if (verbose)
+            println(s"Parsed ${docType.path.toString} in ${end-start}ms")
+        case _ => println(s"Unexpected document type at: $path")
+      }
+    })
+    IssueLog.asJSON(100)
+  }
+}
+
+object Package {
+  def apply(org: Org, directories: Seq[String]): Package = {
+    val paths = directories.map(directory => Paths.get(directory))
+    paths.foreach(path => {
+      if (!path.toFile.isDirectory)
+        throw new IllegalArgumentException(s"Package root '${path.toString}' must be a directory")
+    })
+    new Package(org, paths)
   }
 }

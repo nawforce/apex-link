@@ -25,45 +25,20 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce
 
-import java.nio.file.Paths
+import * as java from 'java'
+import Package from './package';
 
-import com.nawforce.api.Org
-import com.nawforce.utils.IssueLog
+export default class Org {
 
-object ApexLink {
-  def main(args: Array[String]): Unit = {
-    val options = Set("-verbose", "-json")
+    private org: any
 
-    val validArgs = args.flatMap {
-      case option if options.contains(option)=> Some(option)
-      case arg => Some(arg)
+    constructor() {
+        this.org = java.newInstanceSync("com.nawforce.api.Org")
     }
 
-    if (validArgs.length != args.length) {
-      println(s"Usage: ApexLink [-json] [-verbose] <dir1> <dir2> ...")
-      return
+    addPackage(directory: string[]): Package {
+        return new Package(this.org.addPackageSync(directory))
     }
-
-    var paths: Seq[String] = validArgs.filterNot(options.contains)
-    if (paths.isEmpty)
-      paths = Seq(Paths.get("").toAbsolutePath.toString)
-    val json = validArgs.contains("-json")
-    val verbose = !json && validArgs.contains("-verbose")
-
-    val parseStart = System.currentTimeMillis()
-    val org = new Org()
-    val pkg = org.addPackage(paths.toArray)
-    val resultJson = pkg.deployAll(verbose)
-    val parseEnd = System.currentTimeMillis()
-
-    if (!json)
-      IssueLog.dumpMessages(json = false, pkg.classCount, (parseEnd-parseStart)/pkg.classCount)
-    else
-      println(resultJson)
-
-    if (verbose)
-      println(s"Parsed ${pkg.classCount} files, with average time/file of ${(parseEnd-parseStart)/pkg.classCount}ms")
-  }
 }
+
