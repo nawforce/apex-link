@@ -30,6 +30,7 @@ import { SfdxCommand, flags } from '@salesforce/command';
 import { Messages, SfdxError } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import Server from '../../api/server';
+import {InfoMessages, MessageWriter} from '../../api/messages';
 import * as fs from 'fs'
 
 // Initialize Messages with the current plugin directory
@@ -71,11 +72,19 @@ export default class Check extends SfdxCommand {
     }
 
     let server = await Server.getInstance();
+    server.setLoggingLevel(verbose && !json)
 
     const org = server.createOrg();
     const pkg = org.addPackage([directory])
-    const results = pkg.deployAll(!json && verbose)
+    const results = pkg.deployAll()
 
-    return JSON.parse(results)
+    if (json) {
+      return JSON.parse(results)
+    } else {
+      let writer = new MessageWriter();
+      writer.writeMessages(JSON.parse(results) as InfoMessages)
+      this.ux.log(writer.output())
+      return {}
+    }
   }
 }

@@ -34,8 +34,8 @@ export default class Package {
         this.package = pkg
     }
 
-    deployAll(verbose: Boolean): string {
-        return this.package.deployAllSync(verbose)
+    deployAll(): string {
+        return this.package.deployAllSync()
     }
 }
 

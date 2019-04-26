@@ -29,7 +29,7 @@ package com.nawforce
 
 import java.nio.file.Paths
 
-import com.nawforce.api.Org
+import com.nawforce.api.{LogUtils, Org}
 import com.nawforce.utils.IssueLog
 
 object ApexLink {
@@ -51,11 +51,12 @@ object ApexLink {
       paths = Seq(Paths.get("").toAbsolutePath.toString)
     val json = validArgs.contains("-json")
     val verbose = !json && validArgs.contains("-verbose")
+    LogUtils.setLoggingLevel(verbose)
 
     val parseStart = System.currentTimeMillis()
     val org = new Org()
     val pkg = org.addPackage(paths.toArray)
-    val resultJson = pkg.deployAll(verbose)
+    val resultJson = pkg.deployAll()
     val parseEnd = System.currentTimeMillis()
 
     if (!json)

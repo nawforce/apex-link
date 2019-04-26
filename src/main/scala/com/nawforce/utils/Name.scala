@@ -75,6 +75,9 @@ object DotName {
   def apply(name: String): DotName = {
     DotName(name.split('.').toSeq.map(p => Name(p)))
   }
+  def apply(name: Name): DotName = {
+    DotName(Seq(name))
+  }
 }
 
 

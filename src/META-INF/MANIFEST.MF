@@ -13,10 +13,14 @@ Class-Path: ST4-4.0.7.jar
   jackson-core-asl-1.9.13.jar
   jackson-mapper-asl-1.9.13.jar
   lift-json_2.12-3.3.0.jar
+  logback-classic-1.2.3.jar
+  logback-core-1.2.3.jar
   scala-library-2.12.6.jar
+  scala-logging_2.12-3.9.0.jar
   scala-reflect-2.12.4.jar
   scala-xml_2.12-1.1.1.jar
   scalaz-core_2.12-7.2.27.jar
+  slf4j-api-1.7.25.jar
   stringtemplate-3.2.1.jar
 
 

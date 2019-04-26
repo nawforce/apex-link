@@ -32,26 +32,26 @@ import java.nio.file.{Path, Paths}
 
 import com.nawforce.documents.{ApexDocument, DocumentLoader, DocumentType}
 import com.nawforce.types.ApexTypeDeclaration
-import com.nawforce.utils.{IssueLog, Name}
+import com.nawforce.utils.{DotName, IssueLog, Name}
+import com.typesafe.scalalogging.LazyLogging
 
-class Package(org: Org, paths: Seq[Path]) {
+class Package(org: Org, paths: Seq[Path]) extends LazyLogging {
   private val documents = new DocumentLoader(paths)
 
   lazy val classCount: Int = documents.getByExtension(Name("cls")).size
 
-  def deployAll(verbose: Boolean): String = {
+  def deployAll(): String = {
     val classes = documents.getByExtension(Name("cls"))
-    if (verbose)
-      println(s"Found ${classes.size} classes to parse")
+    logger.debug(s"Found ${classes.size} classes to parse")
 
     classes.par.foreach(path => {
       DocumentType(path) match {
         case docType: ApexDocument =>
           val start = System.currentTimeMillis()
-          ApexTypeDeclaration.create(docType.path, new FileInputStream(docType.path.toFile))
+          val typeDeclaration = ApexTypeDeclaration.create(docType.path, new FileInputStream(docType.path.toFile))
+          typeDeclaration.foreach(td => org.replaceType(DotName(docType.name), td))
           val end = System.currentTimeMillis()
-          if (verbose)
-            println(s"Parsed ${docType.path.toString} in ${end-start}ms")
+          logger.debug(s"Parsed ${docType.path.toString} in ${end-start}ms")
         case _ => println(s"Unexpected document type at: $path")
       }
     })

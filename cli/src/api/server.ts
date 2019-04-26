@@ -64,6 +64,10 @@ export default class Server {
         return new Org()
     }
 
+    public setLoggingLevel(verbose: boolean) {
+        java.callStaticMethodSync('com.nawforce.api.LogUtils', 'setLoggingLevel', verbose)
+    }
+
     private static jarHome(): string {
         const jarFile = path.join(__dirname, '..', '..', 'jars', 'apexlink-0.2.jar')
         if (!fs.existsSync(jarFile) || !fs.lstatSync(jarFile).isFile()) {

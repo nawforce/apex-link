@@ -27,23 +27,12 @@
 */
 package com.nawforce.api
 
+import ch.qos.logback.classic.Level
+import org.slf4j.LoggerFactory
 
-import java.util.concurrent.ConcurrentHashMap
-
-import com.nawforce.types.TypeDeclaration
-import com.nawforce.utils.DotName
-import com.typesafe.scalalogging.LazyLogging
-
-class Org extends LazyLogging {
-  private var packages: List[Package] = Nil
-  private val types = new ConcurrentHashMap[DotName, TypeDeclaration]()
-
-  def addPackage(directories: Array[String]): Package = {
-    packages = Package(this, directories) :: packages
-    packages.head
-  }
-
-  def replaceType(name: DotName, typeDeclaration: TypeDeclaration): Unit = {
-    types.put(name, typeDeclaration)
+object LogUtils {
+  def setLoggingLevel(verbose: Boolean): Unit = {
+    LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME).asInstanceOf[ch.qos.logback.classic.Logger]
+      .setLevel(if (verbose) Level.ALL else Level.OFF)
   }
 }
