@@ -54,6 +54,7 @@ object Name {
   def apply(name: String): Name = cache(name)
 
   lazy val System: Name = cache("System")
+  lazy val Schema: Name = cache("Schema")
   lazy val Void: Name = cache("void")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
@@ -64,9 +65,13 @@ object Name {
   */
 case class DotName(names: Seq[Name]) {
 
+  val isCompound: Boolean = names.size > 1
+
+  def headNames: DotName = DotName(names.reverse.tail.reverse)
   def lastName: Name = names.last
 
   def append(name: Name): DotName = DotName(names :+ name)
+  def prepend(name: Name): DotName = DotName(name +: names)
 
   override def toString: String = names.mkString(".")
 }

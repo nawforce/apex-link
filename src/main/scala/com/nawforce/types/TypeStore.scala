@@ -25,28 +25,27 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.api
+package com.nawforce.types
 
+import com.nawforce.utils.{DotName, Name}
 
-import java.util.concurrent.ConcurrentHashMap
-
-import com.nawforce.types.{TypeDeclaration, TypeName, TypeStore}
-import com.typesafe.scalalogging.LazyLogging
-
-class Org extends TypeStore with LazyLogging {
-  private var packages: List[Package] = Nil
-  private val types = new ConcurrentHashMap[TypeName, TypeDeclaration]()
-
-  def addPackage(directories: Array[String]): Package = {
-    packages = Package(this, directories) :: packages
-    packages.head
+class TypeStore {
+  /** Base implementation of locating a type declaration from a name */
+  def getType(typeName: TypeName) : Option[TypeDeclaration] = {
+    val dotName = typeName.asDotName
+    var declaration = getType(dotName)
+    if (declaration.isEmpty)
+      declaration = getType(dotName.prepend(Name.System))
+    if (declaration.isEmpty)
+      declaration = getType(dotName.prepend(Name.Schema))
+    declaration
   }
 
-  override def getType(typeName: TypeName): Option[TypeDeclaration] = {
-    super.getType(typeName)
-  }
-
-  def replaceType(typeDeclaration: TypeDeclaration): Unit = {
-    types.put(typeDeclaration.typeName, typeDeclaration)
+  private def getType(name: DotName): Option[TypeDeclaration] = {
+    val declaration = PlatformTypeDeclaration.get(name)
+    if (declaration.isEmpty && name.isCompound)
+      getType(name.headNames).flatMap(_.nestedClasses.find(td => td.name == name.lastName))
+    else
+      declaration
   }
 }

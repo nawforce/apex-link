@@ -25,28 +25,9 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.api
+package com.nawforce.types
+
+class TypeFinder {
 
 
-import java.util.concurrent.ConcurrentHashMap
-
-import com.nawforce.types.{TypeDeclaration, TypeName, TypeStore}
-import com.typesafe.scalalogging.LazyLogging
-
-class Org extends TypeStore with LazyLogging {
-  private var packages: List[Package] = Nil
-  private val types = new ConcurrentHashMap[TypeName, TypeDeclaration]()
-
-  def addPackage(directories: Array[String]): Package = {
-    packages = Package(this, directories) :: packages
-    packages.head
-  }
-
-  override def getType(typeName: TypeName): Option[TypeDeclaration] = {
-    super.getType(typeName)
-  }
-
-  def replaceType(typeDeclaration: TypeDeclaration): Unit = {
-    types.put(typeDeclaration.typeName, typeDeclaration)
-  }
 }

@@ -25,28 +25,44 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.api
+package com.nawforce.unit.types
 
+import com.nawforce.types.{TypeName, TypeStore}
+import com.nawforce.utils.Name
+import org.scalatest.FunSuite
 
-import java.util.concurrent.ConcurrentHashMap
+class TypeStoreTest extends FunSuite {
 
-import com.nawforce.types.{TypeDeclaration, TypeName, TypeStore}
-import com.typesafe.scalalogging.LazyLogging
-
-class Org extends TypeStore with LazyLogging {
-  private var packages: List[Package] = Nil
-  private val types = new ConcurrentHashMap[TypeName, TypeDeclaration]()
-
-  def addPackage(directories: Array[String]): Package = {
-    packages = Package(this, directories) :: packages
-    packages.head
+  test("Bad class not found") {
+    assert(new TypeStore().getType(TypeName(Seq(Name("Hello")))).isEmpty)
   }
 
-  override def getType(typeName: TypeName): Option[TypeDeclaration] = {
-    super.getType(typeName)
+  test("Scoped system class found") {
+    val typeName = TypeName(Seq(Name("String"), Name.System))
+    assert(new TypeStore().getType(typeName).get.typeName == typeName)
   }
 
-  def replaceType(typeDeclaration: TypeDeclaration): Unit = {
-    types.put(typeDeclaration.typeName, typeDeclaration)
+  test("Unscoped system class found") {
+    val typeName = TypeName(Seq(Name("String")))
+    assert(new TypeStore().getType(typeName).get.typeName == typeName.withOuter(Some(TypeName.System)))
+  }
+
+  test("Unscoped schema class found") {
+    val typeName = TypeName(Seq(Name("SObjectType")))
+    assert(new TypeStore().getType(typeName).get.typeName == typeName.withOuter(Some(TypeName.Schema)))
+  }
+
+  test("Unscoped database class not found") {
+    assert(new TypeStore().getType(TypeName(Seq(Name("QueryLocator")))).isEmpty)
+  }
+
+  test("Inner class found") {
+    val typeName = TypeName(Seq(Name("Header"), Name("InboundEmail"), Name("Messaging")))
+    assert(new TypeStore().getType(typeName).get.typeName == typeName)
+  }
+
+  test("Bad inner class not found") {
+    val typeName = TypeName(Seq(Name("BadHeader"), Name("InboundEmail"), Name("Messaging")))
+    assert(new TypeStore().getType(typeName).isEmpty)
   }
 }

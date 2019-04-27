@@ -49,7 +49,7 @@ class Package(org: Org, paths: Seq[Path]) extends LazyLogging {
         case docType: ApexDocument =>
           val start = System.currentTimeMillis()
           val typeDeclaration = ApexTypeDeclaration.create(docType.path, new FileInputStream(docType.path.toFile))
-          typeDeclaration.foreach(td => org.replaceType(DotName(docType.name), td))
+          typeDeclaration.foreach(td => org.replaceType(td))
           val end = System.currentTimeMillis()
           logger.debug(s"Parsed ${docType.path.toString} in ${end-start}ms")
         case _ => println(s"Unexpected document type at: $path")

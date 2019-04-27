@@ -38,6 +38,13 @@ case class TypeName(name: Name, params: Seq[Name]=Nil, outer: Option[TypeName]=N
       this
   }
 
+  def withOuter(newOuter: Option[TypeName]): TypeName = {
+    if (newOuter != outer)
+      TypeName(name, params, newOuter)
+    else
+      this
+  }
+
   def asDotName: DotName = {
     outer match {
       case None => DotName(Seq(name))
@@ -55,6 +62,8 @@ case class TypeName(name: Name, params: Seq[Name]=Nil, outer: Option[TypeName]=N
 object TypeName {
   lazy val Object = TypeName(Name("Object"))
   lazy val Void = TypeName(Name("void"))
+  lazy val System = TypeName(Name("System"))
+  lazy val Schema = TypeName(Name("Schema"))
 
   def apply(names: Seq[Name]): TypeName = {
     names match {
