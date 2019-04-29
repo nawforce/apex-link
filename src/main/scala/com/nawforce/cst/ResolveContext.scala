@@ -27,6 +27,7 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.types.TypeName
 import com.nawforce.utils.LinkerException
 
 trait VarIntroducer {
@@ -39,7 +40,7 @@ trait VarIntroducer {
   def getAssignments: List[Expression] = assignments
 }
 
-case class VarDeclaration(name: Identifier, typeRef: TypeRef, introducer: VarIntroducer) {
+case class VarDeclaration(name: Identifier, typeRef: TypeName, introducer: VarIntroducer) {
   def addAssign(statement: Expression): Unit = introducer.addAssign(statement)
 }
 

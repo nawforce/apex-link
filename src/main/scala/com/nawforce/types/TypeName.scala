@@ -29,9 +29,9 @@ package com.nawforce.types
 
 import com.nawforce.utils.{DotName, Name}
 
-case class TypeName(name: Name, params: Seq[Name]=Nil, outer: Option[TypeName]=None) {
+case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeName]=None) {
 
-  def withParams(newParams: Seq[Name]): TypeName = {
+  def withParams(newParams: Seq[TypeName]): TypeName = {
     if (newParams != params)
       TypeName(name, newParams, outer)
     else
@@ -45,12 +45,24 @@ case class TypeName(name: Name, params: Seq[Name]=Nil, outer: Option[TypeName]=N
       this
   }
 
+  def withArraySubscripts(count: Int): TypeName = {
+    assert(count >= 0)
+    if (count == 0)
+      this
+    else
+      this.asListOf.withArraySubscripts(count-1)
+  }
+
   def asDotName: DotName = {
     outer match {
       case None => DotName(Seq(name))
       case Some(x) => x.asDotName.append(name)
     }
   }
+
+  def asListOf: TypeName = new TypeName(Name.List, Seq(this), Some(TypeName.System))
+
+  def asClassOf: TypeName = new TypeName(Name.Class, Seq(this), Some(TypeName.System))
 
   override def toString: String = {
     (if (outer.isEmpty) "" else outer.get.toString + ".") +
@@ -60,10 +72,18 @@ case class TypeName(name: Name, params: Seq[Name]=Nil, outer: Option[TypeName]=N
 }
 
 object TypeName {
-  lazy val Object = TypeName(Name("Object"))
   lazy val Void = TypeName(Name("void"))
+  lazy val Object = TypeName(Name("Object"))
   lazy val System = TypeName(Name("System"))
   lazy val Schema = TypeName(Name("Schema"))
+
+  lazy val Null = TypeName(Name("null"))
+  lazy val Long = TypeName(Name("Long"))
+  lazy val Integer = TypeName(Name("Integer"))
+  lazy val Double = TypeName(Name("Double"))
+  lazy val Decimal = TypeName(Name("Decimal"))
+  lazy val String = TypeName(Name("String"))
+  lazy val Boolean = TypeName(Name("Boolean"))
 
   def apply(names: Seq[Name]): TypeName = {
     names match {

@@ -55,11 +55,9 @@ object CompilationUnit {
 }
 
 final case class ClassDeclaration(_id: Id, _outerTypeName: Option[TypeName], _modifiers: Seq[Modifier],
-                                  extendsType: Option[Type], implementsTypes: TypeList,
+                                  _extendsType: Option[TypeName], _implementsTypes: Seq[TypeName],
                                   _bodyDeclarations: Seq[ClassBodyDeclaration]) extends
-  ApexTypeDeclaration(_id, _outerTypeName, _modifiers, _bodyDeclarations) {
-
-  override def children(): List[CST] = List() ++ extendsType ++ implementsTypes.types ++ bodyDeclarations
+  ApexTypeDeclaration(_id, _outerTypeName, _modifiers, _extendsType, _implementsTypes, _bodyDeclarations) {
 
   override val nature: Nature = CLASS_NATURE
 
@@ -84,14 +82,14 @@ object ClassDeclaration {
     val thisType = TypeName(Name(classDeclaration.id().getText)).withOuter(outerTypeName)
     val extendType =
       if (classDeclaration.typeRef() != null)
-        Some(Type.construct(classDeclaration.typeRef(), context))
+        Some(TypeRef.construct(classDeclaration.typeRef(), context))
       else
         None
     val implementsType =
       if (classDeclaration.typeList() != null)
         TypeList.construct(classDeclaration.typeList(), context)
       else
-        TypeList.empty()
+        Seq()
 
     val classBody = classDeclaration.classBody()
     val classBodyDeclarations: Seq[ClassBodyDeclarationContext] = classBody.classBodyDeclaration().asScala
@@ -118,10 +116,8 @@ object ClassDeclaration {
 }
 
 final case class InterfaceDeclaration(_id: Id, _outerTypeName: Option[TypeName], _modifiers: Seq[Modifier],
-                                      implementsTypes: TypeList, _bodyDeclarations: Seq[ClassBodyDeclaration])
-  extends ApexTypeDeclaration(_id, _outerTypeName, _modifiers, _bodyDeclarations) {
-
-  override def children(): List[CST] = implementsTypes.types
+                                      implementsTypes: Seq[TypeName], _bodyDeclarations: Seq[ClassBodyDeclaration])
+  extends ApexTypeDeclaration(_id, _outerTypeName, _modifiers, None, implementsTypes, _bodyDeclarations) {
 
   override val nature: Nature = INTERFACE_NATURE
 
@@ -140,7 +136,7 @@ object InterfaceDeclaration {
       if (interfaceDeclaration.typeList() != null)
         TypeList.construct(interfaceDeclaration.typeList(), context)
       else
-        TypeList.empty()
+        Seq()
 
     // TODO: Handle body
     InterfaceDeclaration(Id.construct(interfaceDeclaration.id(), context), outerTypeName, modifiers,
@@ -150,10 +146,8 @@ object InterfaceDeclaration {
 }
 
 final case class EnumDeclaration(_id: Id, _outerTypeName: Option[TypeName], _modifiers: Seq[Modifier],
-                                 implementsTypes: TypeList, _bodyDeclarations: Seq[ClassBodyDeclaration])
-  extends ApexTypeDeclaration(_id, _outerTypeName, _modifiers, _bodyDeclarations) {
-
-  override def children(): List[CST] = implementsTypes.types
+                                 _bodyDeclarations: Seq[ClassBodyDeclaration])
+  extends ApexTypeDeclaration(_id, _outerTypeName, _modifiers, None, Seq(), _bodyDeclarations) {
 
   override val nature: Nature = ENUM_NATURE
 
@@ -169,13 +163,8 @@ final case class EnumDeclaration(_id: Id, _outerTypeName: Option[TypeName], _mod
 object EnumDeclaration {
   def construct(outerTypeName: Option[TypeName], typeModifiers: Seq[Modifier],
                 enumDeclaration: ApexParser.EnumDeclarationContext, context: ConstructContext): EnumDeclaration = {
-    val implementsType =
-      if (enumDeclaration.typeList() != null)
-        TypeList.construct(enumDeclaration.typeList(), context)
-      else
-        TypeList.empty()
     // TODO: Handle body
-    EnumDeclaration(Id.construct(enumDeclaration.id(), context), outerTypeName, typeModifiers, implementsType, Seq())
+    EnumDeclaration(Id.construct(enumDeclaration.id(), context), outerTypeName, typeModifiers, Seq())
       .withContext(enumDeclaration, context)
   }
 }

@@ -202,7 +202,7 @@ object PlatformTypeDeclaration {
       assert(cname.startsWith(platformPackage), s"Reference to non-platform type $cname in ${contextCls.getCanonicalName}")
       val names = cls.getCanonicalName.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse
       val params = cls.getTypeParameters.map(tp => Name(tp.getName))
-      TypeName(names).withParams(params.toSeq)
+      TypeName(names).withParams(params.toSeq.map(TypeName(_)))
     }
   }
 }

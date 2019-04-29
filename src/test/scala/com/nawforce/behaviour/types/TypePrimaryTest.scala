@@ -28,46 +28,47 @@
 package com.nawforce.behaviour.types
 
 import com.nawforce.cst._
+import com.nawforce.types.TypeName
 import org.scalatest.FunSuite
 
 class TypePrimaryTest extends FunSuite
 {
-  def primary(p: String, r: Type, ctx: TypeContext = null) : Unit =
+  def primary(p: String, r: TypeName, ctx: TypeContext = null) : Unit =
     TypeTestHelper.comparePrimary(p, r, ctx)
 
   test("Primary literal") {
-    primary("0", IntegerType(0))
-    primary("1", IntegerType(0))
-    primary("0l", LongType(0))
-    primary("1l", LongType(0))
-    primary("0L", LongType(0))
-    primary("1L", LongType(0))
-    primary("''", StringType(0))
-    primary("'a'", StringType(0))
-    primary("'az'", StringType(0))
-    primary("'\t'", StringType(0))
-    primary("true", BooleanType(0))
-    primary("False", BooleanType(0))
-    primary("null", NullType())
-    primary("0.0", DecimalType(0))
-    primary(".0", DecimalType(0))
-    primary("0.123", DecimalType(0))
-    primary("0.123456789012345678901234567890123456789012345678", DecimalType(0))
-    primary("0.1234567890123456789012345678901234567890123456789", DoubleType(0))
+    primary("0", TypeName.Integer)
+    primary("1", TypeName.Integer)
+    primary("0l", TypeName.Long)
+    primary("1l", TypeName.Long)
+    primary("0L", TypeName.Long)
+    primary("1L", TypeName.Long)
+    primary("''", TypeName.String)
+    primary("'a'", TypeName.String)
+    primary("'az'", TypeName.String)
+    primary("'\t'", TypeName.String)
+    primary("true", TypeName.Boolean)
+    primary("False", TypeName.Boolean)
+    primary("null", TypeName.Null)
+    primary("0.0", TypeName.Decimal)
+    primary(".0", TypeName.Decimal)
+    primary("0.123", TypeName.Decimal)
+    primary("0.123456789012345678901234567890123456789012345678", TypeName.Decimal)
+    primary("0.1234567890123456789012345678901234567890123456789", TypeName.Double)
   }
 
   test("This literal") {
-    val ctx = new TypeContextTest(_thisType = NullType())
-    primary("this", NullType(), ctx)
+    val ctx = new TypeContextTest(_thisType = TypeName.Null)
+    primary("this", TypeName.Null, ctx)
   }
 
   test("Super literal") {
-    val ctx = new TypeContextTest(_superType = NullType())
-    primary("super", NullType(), ctx)
+    val ctx = new TypeContextTest(_superType = TypeName.Null)
+    primary("super", TypeName.Null, ctx)
   }
 
   test("Field") {
-    val ctx = new TypeContextTest(identifierTypes = Map(("anId", NullType())))
-    primary("anId", NullType(), ctx)
+    val ctx = new TypeContextTest(identifierTypes = Map(("anId", TypeName.Null)))
+    primary("anId", TypeName.Null, ctx)
   }
 }

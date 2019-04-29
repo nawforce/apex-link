@@ -42,7 +42,7 @@ abstract class CST {
   var textRange: TextRange = TextRange.empty
 
   // TODO: Not all CST produce types
-  def getType(ctx: TypeContext): Type = {
+  def getType(ctx: TypeContext): TypeName = {
     throw new CSTException
   }
 
@@ -99,118 +99,19 @@ object Id {
 }
 
 abstract class TypeContext {
-  def thisType: Type
+  def thisType: TypeName
 
-  def superType: Type
+  def superType: TypeName
 
-  def getIdentifierType(id: String): Type
+  def getIdentifierType(id: String): TypeName
 }
-
-sealed abstract class Type extends CST {
-  override def children(): List[CST] = Nil
-
-  override def getType(ctx: TypeContext): Type = {
-    this
-  }
-}
-
-sealed abstract class PrimitiveType extends Type
-
-final case class BlobType(arraySubs: Integer) extends PrimitiveType
-
-final case class BooleanType(arraySubs: Integer) extends PrimitiveType
-
-final case class DateType(arraySubs: Integer) extends PrimitiveType
-
-final case class DatetimeType(arraySubs: Integer) extends PrimitiveType
-
-final case class DecimalType(arraySubs: Integer) extends PrimitiveType
-
-final case class DoubleType(arraySubs: Integer) extends PrimitiveType
-
-final case class IdType(arraySubs: Integer) extends PrimitiveType
-
-final case class IntegerType(arraySubs: Integer) extends PrimitiveType
-
-final case class LongType(arraySubs: Integer) extends PrimitiveType
-
-final case class ObjectType(arraySubs: Integer) extends PrimitiveType
-
-final case class StringType(arraySubs: Integer) extends PrimitiveType
-
-final case class TimeType(arraySubs: Integer) extends PrimitiveType
-
-final case class NullType() extends PrimitiveType
-
-object PrimitiveType {
-  def construct(primitiveType: PrimitiveTypeContext, arraySubs: Integer, context: ConstructContext): PrimitiveType = {
-    val cst = primitiveType.getText.toLowerCase match {
-      case "blob" => BlobType(arraySubs)
-      case "boolean" => BooleanType(arraySubs)
-      case "date" => DateType(arraySubs)
-      case "datetime" => DatetimeType(arraySubs)
-      case "decimal" => DecimalType(arraySubs)
-      case "double" => DoubleType(arraySubs)
-      case "id" => IdType(arraySubs)
-      case "integer" => IntegerType(arraySubs)
-      case "long" => LongType(arraySubs)
-      case "object" => ObjectType(arraySubs)
-      case "string" => StringType(arraySubs)
-      case "time" => TimeType(arraySubs)
-    }
-    cst.withContext(primitiveType, context)
-  }
-}
-
-object Type {
-  def construct(t: TypeRefContext, context: ConstructContext): Type = {
-    if (t.primitiveType() != null) {
-      PrimitiveType.construct(t.primitiveType(), 0, context).withContext(t, context)
-    } else if (t.classOrInterfaceType() != null) {
-      ClassOrInterfaceType.construct(t.classOrInterfaceType(), context).withContext(t, context)
-    } else {
-      throw new CSTException()
-    }
-  }
-}
-
-final case class TypeList(types: List[Type])
 
 object TypeList {
-  def construct(typeList: TypeListContext, context: ConstructContext): TypeList = {
+  def construct(typeList: TypeListContext, context: ConstructContext): Seq[TypeName] = {
     val types: Seq[TypeRefContext] = typeList.typeRef().asScala
-    TypeList(types.toList.map(t => Type.construct(t, context).withContext(t, context)))
-  }
-
-  def empty(): TypeList = {
-    TypeList(List())
+    types.toList.map(t => TypeRef.construct(t, context))
   }
 }
-
-final case class ClassOrInterfaceTypePart(name: String, typeList: TypeList)
-
-final case class ClassOrInterfaceType(name: List[ClassOrInterfaceTypePart]) extends Type
-
-object ClassOrInterfaceType {
-  def construct(classOrInterfaceType: ClassOrInterfaceTypeContext, context: ConstructContext): ClassOrInterfaceType = {
-    val ids: Seq[IdContext] = classOrInterfaceType.id().asScala
-    val typeArgs: Seq[TypeArgumentsContext] = classOrInterfaceType.typeArguments().asScala
-    var i = 0
-    val parts = for (id <- ids) yield {
-      val hasTypes = typeArgs.length > i
-      i += 1
-      if (hasTypes)
-        ClassOrInterfaceTypePart(id.getText, TypeList.construct(typeArgs(i - 1).typeList(), context))
-      else
-        ClassOrInterfaceTypePart(id.getText, TypeList.empty())
-    }
-    ClassOrInterfaceType(parts.toList).withContext(classOrInterfaceType, context)
-  }
-}
-
-final case class ClassType(typeRef: TypeRef) extends Type
-
-final case class VoidClassType() extends Type
 
 final case class QualifiedName(names: List[String]) extends CST {
   override def children(): List[CST] = Nil
@@ -367,10 +268,10 @@ object StaticBlock {
   }
 }
 
-final case class MethodDeclaration(modifiers: Seq[Modifier], typeRef: Option[TypeRef], id: String,
+final case class MethodDeclaration(modifiers: Seq[Modifier], typeRef: Option[TypeName], id: String,
                                    formalParameters: List[FormalParameter], block: Option[Block]) extends ClassBodyDeclaration {
 
-  override def children(): List[CST] = List() ++ typeRef ++ formalParameters ++ block
+  override def children(): List[CST] = List() ++ formalParameters ++ block
 
   override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
 
@@ -396,10 +297,10 @@ object MethodDeclaration {
   }
 }
 
-final case class FieldDeclaration(modifiers: Seq[Modifier], typeRef: TypeRef, variableDeclarators: VariableDeclarators) extends ClassBodyDeclaration {
-  override def children(): List[CST] = typeRef :: variableDeclarators :: Nil
+final case class FieldDeclaration(modifiers: Seq[Modifier], typeRef: TypeName, variableDeclarators: VariableDeclarators) extends ClassBodyDeclaration {
+  override def children(): List[CST] = variableDeclarators :: Nil
 
-  override def isGlobal: Boolean = modifiers.contains(GLOBAL)
+  override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
 }
 
 object FieldDeclaration {
@@ -414,7 +315,7 @@ final case class ConstructorDeclaration(modifiers: Seq[Modifier], qualifiedName:
                                         block: Block) extends ClassBodyDeclaration {
   override def children(): List[CST] = formalParameters ++ List(block)
 
-  override def isGlobal: Boolean = modifiers.contains(GLOBAL)
+  override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
 }
 
 object ConstructorDeclaration {
@@ -427,10 +328,10 @@ object ConstructorDeclaration {
   }
 }
 
-final case class PropertyDeclaration(modifiers: Seq[Modifier], typeRef: TypeRef, variableDeclarators: VariableDeclarators, propertyDeclaration: PropertyBodyDeclaration) extends ClassBodyDeclaration {
-  override def children(): List[CST] = typeRef :: variableDeclarators :: propertyDeclaration :: Nil
+final case class PropertyDeclaration(modifiers: Seq[Modifier], typeRef: TypeName, variableDeclarators: VariableDeclarators, propertyDeclaration: PropertyBodyDeclaration) extends ClassBodyDeclaration {
+  override def children(): List[CST] = variableDeclarators :: propertyDeclaration :: Nil
 
-  override def isGlobal: Boolean = modifiers.contains(GLOBAL)
+  override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
 }
 
 object PropertyDeclaration {
@@ -584,9 +485,9 @@ object ForControl {
   }
 }
 
-final case class EnhancedForControl(modifiers: Seq[Modifier], typeRef: TypeRef,
+final case class EnhancedForControl(modifiers: Seq[Modifier], typeRef: TypeName,
                                     id: Identifier, expression: Expression) extends ForControl with VarIntroducer {
-  override def children(): List[CST] = typeRef :: id :: expression :: Nil
+  override def children(): List[CST] = id :: expression :: Nil
 
   def resolve(context: ResolveStmtContext): Unit = {
     expression.resolve(new ResolveExprContext(context))
@@ -1116,7 +1017,7 @@ object VariableDeclarator {
 final case class VariableDeclarators(declarators: List[VariableDeclarator]) extends CST {
   override def children(): List[CST] = declarators
 
-  def resolve(typeRef: TypeRef, context: ResolveStmtContext): Unit = {
+  def resolve(typeRef: TypeName, context: ResolveStmtContext): Unit = {
     declarators.foreach(x => {
       context.addVarDeclaration(VarDeclaration(x.id, typeRef, x))
       x.init.foreach {
@@ -1134,37 +1035,26 @@ object VariableDeclarators {
   }
 }
 
-sealed abstract class TypeRef extends CST
-
-final case class ClassOrInterfaceTypeRef(classOrInterfaceType: ClassOrInterfaceType, arraySubs: Int) extends TypeRef {
-  override def children(): List[CST] = classOrInterfaceType :: Nil
-}
-
-final case class PrimitiveTypeRef(primitiveType: PrimitiveType) extends TypeRef {
-  override def children(): List[CST] = primitiveType :: Nil
-}
-
 object TypeRef {
-  def construct(aList: List[TypeRefContext], context: ConstructContext): List[TypeRef] = {
+  def construct(aList: List[TypeRefContext], context: ConstructContext): List[TypeName] = {
     aList.map(x => TypeRef.construct(x, context))
   }
 
-  def construct(typeRef: TypeRefContext, context: ConstructContext): TypeRef = {
+  def construct(typeRef: TypeRefContext, context: ConstructContext): TypeName = {
     val arraySubs = typeRef.arraySubscripts().getText.count(_ == '[')
-    val cst =
-      if (typeRef.classOrInterfaceType() != null) {
-        ClassOrInterfaceTypeRef(ClassOrInterfaceType.construct(typeRef.classOrInterfaceType(), context), arraySubs)
-      } else if (typeRef.primitiveType() != null) {
-        PrimitiveTypeRef(PrimitiveType.construct(typeRef.primitiveType(), arraySubs, context))
-      } else {
-        throw new CSTException()
-      }
-    cst.withContext(typeRef, context)
+    construct(None, typeRef.typeName().asScala).withArraySubscripts(arraySubs)
+  }
+
+  private def construct(outer: Option[TypeName], names: Seq[TypeNameContext]): TypeName = {
+    names match {
+      case hd :: Nil => TypeName(Name(hd.getText)).withOuter(outer)
+      case hd :: tl => construct(Some(TypeName(Name(hd.getText)).withOuter(outer)), tl)
+    }
   }
 }
 
-final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeRef: TypeRef, variableDeclarators: VariableDeclarators) extends CST {
-  override def children(): List[CST] = typeRef :: variableDeclarators :: Nil
+final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeRef: TypeName, variableDeclarators: VariableDeclarators) extends CST {
+  override def children(): List[CST] = variableDeclarators :: Nil
 
   def resolve(context: ResolveStmtContext): Unit = variableDeclarators.resolve(typeRef, context)
 }
@@ -1214,8 +1104,8 @@ object PropertyBodyDeclaration {
   }
 }
 
-final case class FormalParameter(modifiers: Seq[Modifier], typeRef: TypeRef, id: Identifier) extends CST {
-  override def children(): List[CST] = List(typeRef, id)
+final case class FormalParameter(modifiers: Seq[Modifier], typeRef: TypeName, id: Identifier) extends CST {
+  override def children(): List[CST] = List(id)
 }
 
 object FormalParameter {
@@ -1289,8 +1179,8 @@ final case class NewExpression(creator: Creator) extends Expression {
   def resolve(context: ResolveExprContext): Unit = {}
 }
 
-final case class TypeExpression(typeRef: TypeRef, expression: Expression) extends Expression {
-  override def children(): List[CST] = typeRef :: expression :: Nil
+final case class TypeExpression(typeRef: TypeName, expression: Expression) extends Expression {
+  override def children(): List[CST] = expression :: Nil
 
   def resolve(context: ResolveExprContext): Unit = expression.resolve(context)
 }
@@ -1316,8 +1206,8 @@ final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) 
   }
 }
 
-final case class InstanceOfExpression(expression: Expression, typeRef: TypeRef) extends Expression {
-  override def children(): List[CST] = expression :: typeRef :: Nil
+final case class InstanceOfExpression(expression: Expression, typeRef: TypeName) extends Expression {
+  override def children(): List[CST] = expression :: Nil
 
   def resolve(context: ResolveExprContext): Unit = expression.resolve(context)
 }
@@ -1475,8 +1365,8 @@ object Expression {
   }
 }
 
-final case class NonWildcardTypeArguments(typeList: TypeList) extends CST {
-  override def children(): List[CST] = typeList.types
+final case class NonWildcardTypeArguments(typeList: Seq[TypeName]) extends CST {
+  override def children(): List[CST] = Nil
 }
 
 object NonWildcardTypeArguments {
@@ -1513,8 +1403,8 @@ object TypeArgumentsOrDiamond {
   }
 }
 
-final case class TypeArguments(typeList: List[TypeRef]) extends CST {
-  override def children(): List[CST] = typeList
+final case class TypeArguments(typeList: List[TypeName]) extends CST {
+  override def children(): List[CST] = Nil
 }
 
 object TypeArguments {
@@ -1695,18 +1585,10 @@ final case class IdCreatedName(idPairs: List[IdCreatedNamePair]) extends Created
   override def children(): List[CST] = idPairs
 }
 
-final case class PrimitiveCreatedName(primitiveType: PrimitiveType) extends CreatedName {
-  override def children(): List[CST] = primitiveType :: Nil
-}
-
 object CreatedName {
   def construct(from: CreatedNameContext, context: ConstructContext): CreatedName = {
-    if (from.primitiveType() != null)
-      PrimitiveCreatedName(PrimitiveType.construct(from.primitiveType(), 0, context)).withContext(from, context)
-    else {
-      val pairs: Seq[IdCreatedNamePairContext] = from.idCreatedNamePair().asScala
-      IdCreatedName(IdCreatedNamePair.construct(pairs.toList, context)).withContext(from, context)
-    }
+    val pairs: Seq[IdCreatedNamePairContext] = from.idCreatedNamePair().asScala
+    IdCreatedName(IdCreatedNamePair.construct(pairs.toList, context)).withContext(from, context)
   }
 }
 
@@ -1813,31 +1695,31 @@ sealed abstract class Literal() extends CST {
 }
 
 final case class IntegerLit(value: String) extends Literal {
-  override def getType(ctx: TypeContext): Type =
+  override def getType(ctx: TypeContext): TypeName =
     if (value.endsWith("l") || value.endsWith("L"))
-      LongType(0)
+      TypeName.Long
     else
-      IntegerType(0)
+      TypeName.Integer
 }
 
 final case class NumberLit(value: String) extends Literal {
-  override def getType(ctx: TypeContext): Type =
+  override def getType(ctx: TypeContext): TypeName =
     if (value.length() > 50)
-      DoubleType(0)
+      TypeName.Double
     else
-      DecimalType(0)
+      TypeName.Decimal
 }
 
 final case class StringLit(value: String) extends Literal {
-  override def getType(ctx: TypeContext): Type = StringType(0)
+  override def getType(ctx: TypeContext): TypeName = TypeName.String
 }
 
 final case class BooleanLit(value: String) extends Literal {
-  override def getType(ctx: TypeContext): Type = BooleanType(0)
+  override def getType(ctx: TypeContext): TypeName = TypeName.Boolean
 }
 
 final case class NullLit() extends Literal {
-  override def getType(ctx: TypeContext): Type = NullType()
+  override def getType(ctx: TypeContext): TypeName = TypeName.Null
 }
 
 object Literal {
@@ -1862,43 +1744,43 @@ sealed abstract class Primary extends CST
 final case class ExpressionPrimary(expression: Expression) extends Primary {
   override def children(): List[CST] = expression :: Nil
 
-  override def getType(ctx: TypeContext): Type = expression.getType(ctx)
+  override def getType(ctx: TypeContext): TypeName = expression.getType(ctx)
 }
 
 final case class ThisPrimary() extends Primary {
   override def children(): List[CST] = Nil
 
-  override def getType(ctx: TypeContext): Type = ctx.thisType
+  override def getType(ctx: TypeContext): TypeName = ctx.thisType
 }
 
 final case class SuperPrimary() extends Primary {
   override def children(): List[CST] = Nil
 
-  override def getType(ctx: TypeContext): Type = ctx.superType
+  override def getType(ctx: TypeContext): TypeName = ctx.superType
 }
 
 final case class LiteralPrimary(literal: Literal) extends Primary {
   override def children(): List[CST] = literal :: Nil
 
-  override def getType(ctx: TypeContext): Type = literal.getType(ctx)
+  override def getType(ctx: TypeContext): TypeName = literal.getType(ctx)
 }
 
 final case class Identifier(text: String) extends Primary {
   override def children(): List[CST] = Nil
 
-  override def getType(ctx: TypeContext): Type = ctx.getIdentifierType(text)
+  override def getType(ctx: TypeContext): TypeName = ctx.getIdentifierType(text)
 }
 
-final case class TypeRefClassPrimary(typeRef: TypeRef) extends Primary {
-  override def children(): List[CST] = typeRef :: Nil
+final case class TypeRefClassPrimary(typeRef: TypeName) extends Primary {
+  override def children(): List[CST] = Nil
 
-  override def getType(ctx: TypeContext): Type = ClassType(typeRef)
+  override def getType(ctx: TypeContext): TypeName = typeRef.asClassOf
 }
 
 final case class VoidClassPrimary() extends Primary {
   override def children(): List[CST] = Nil
 
-  override def getType(ctx: TypeContext): Type = VoidClassType()
+  override def getType(ctx: TypeContext): TypeName = TypeName.Void
 }
 
 // Fake node for linking variable refs to their declarations

@@ -31,23 +31,24 @@ import java.io.StringReader
 
 import com.nawforce.cst._
 import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
-import com.nawforce.utils.{ThrowingErrorListener}
+import com.nawforce.types.TypeName
+import com.nawforce.utils.ThrowingErrorListener
 import org.antlr.v4.runtime.CommonTokenStream
 
-class TypeContextTest(_thisType: Type = null, _superType: Type = null, identifierTypes: Map[String, Type] = null) extends TypeContext {
-  def thisType: Type =
+class TypeContextTest(_thisType: TypeName = null, _superType: TypeName = null, identifierTypes: Map[String, TypeName] = null) extends TypeContext {
+  def thisType: TypeName =
     if (_thisType == null)
       throw new CSTException()
     else
       _thisType
 
-  def superType: Type =
+  def superType: TypeName =
     if (_superType == null)
       throw new CSTException()
     else
       _superType
 
-  def getIdentifierType(id: String): Type =
+  def getIdentifierType(id: String): TypeName =
     if (identifierTypes == null || identifierTypes.get(id).isEmpty)
       throw new CSTException()
     else
@@ -56,7 +57,7 @@ class TypeContextTest(_thisType: Type = null, _superType: Type = null, identifie
 
 object TypeTestHelper {
 
-  def typePrimary(p: String, typeCtx: TypeContext): Type = {
+  def typePrimary(p: String, typeCtx: TypeContext): TypeName = {
     val context = new ConstructContext()
     Primary.construct(parse(p).primary(), context).getType(typeCtx)
   }
@@ -66,7 +67,7 @@ object TypeTestHelper {
     Expression.construct(parse(p).expression(), context)
   }
 
-  def comparePrimary(p: String, r: Type, typeCtx: TypeContext): Unit = {
+  def comparePrimary(p: String, r: TypeName, typeCtx: TypeContext): Unit = {
     val t = typePrimary(p, typeCtx)
     if (t == null)
       throw new CSTException

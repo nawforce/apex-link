@@ -41,16 +41,16 @@ import scala.collection.JavaConverters._
 
 /** Apex type declaration, a wrapper around the Apex parser output */
 abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeName], val modifiers: Seq[Modifier],
+                                   val superClass: Option[TypeName], val interfaces: Seq[TypeName],
                                    val bodyDeclarations: Seq[ClassBodyDeclaration])
   extends CST with ClassBodyDeclaration with TypeDeclaration {
+
+  override def children(): List[CST] = bodyDeclarations.toList
 
   val name: Name = id.name
   val typeName: TypeName = ApexTypeDeclaration.typeName(name).withOuter(outerTypeName)
   val nature: Nature
 
-  // TODO:
-  val superClass: Option[TypeName] = None
-  val interfaces: Seq[TypeName] = Seq()
   lazy val nestedTypes: Seq[TypeDeclaration] = {
     bodyDeclarations.flatMap {
       case x: TypeDeclaration => Some(x)
@@ -58,6 +58,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
     }
   }
 
+  // TODO: These should inherit
   val fields: Seq[FieldDeclaration] = Seq()
   val methods: Seq[MethodDeclaration] = Seq()
 

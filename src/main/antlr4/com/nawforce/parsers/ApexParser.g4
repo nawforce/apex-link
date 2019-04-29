@@ -64,8 +64,8 @@ classDeclaration
     ;
 
 enumDeclaration
-    : ENUM id (IMPLEMENTS typeList)?
-      LBRACE enumConstants? COMMA ? enumBodyDeclarations? RBRACE
+    : ENUM id
+      LBRACE enumConstants? RBRACE
     ;
 
 enumConstants
@@ -74,10 +74,6 @@ enumConstants
 
 enumConstant
     : modifier* id arguments? classBody?
-    ;
-
-enumBodyDeclarations
-    : SEMI classBodyDeclaration*
     ;
 
 interfaceDeclaration
@@ -205,31 +201,15 @@ arrayInitializer
     ;
 
 typeRef
-    : classOrInterfaceType arraySubscripts
-    | primitiveType arraySubscripts
+    : typeName (DOT typeName)* arraySubscripts
     ;
 
 arraySubscripts
     : (LBRACK RBRACK)*
     ;
 
-classOrInterfaceType
-    : id typeArguments? (DOT id typeArguments? )*
-    ;
-
-primitiveType
-    : BLOB
-    | BOOLEAN
-    | DATE
-    | DATETIME
-    | DECIMAL
-    | DOUBLE
-    | ID
-    | INTEGER
-    | LONG
-    | OBJECT
-    | STRING
-    | TIME
+typeName
+    : id typeArguments?
     ;
 
 typeArguments
@@ -522,7 +502,6 @@ creator
 
 createdName
     : idCreatedNamePair (DOT idCreatedNamePair)*
-    | primitiveType
     ;
 
 idCreatedNamePair
@@ -605,8 +584,6 @@ soqlLiteral
 id
     : Identifier
     | ABSTRACT
-    | BLOB
-    | BOOLEAN
     | BREAK
     | BYTE
     | CATCH
@@ -614,13 +591,9 @@ id
     | CLASS
     | CONST
     | CONTINUE
-    | DATE
-    | DATETIME
-    | DECIMAL
     | DEFAULT
     | DELETE
     | DO
-    | DOUBLE
     | ELSE
     | ENUM
     | EXTENDS
@@ -631,20 +604,16 @@ id
     | GET
     | GLOBAL
     | GOTO
-    | ID
     | IF
     | IMPLEMENTS
     | INHERITED
     | INSERT
     | INSTANCEOF
-    | INTEGER
     | INTERFACE
-    | LONG
     | MERGE
     | NATIVE
     | NEW
     | NULL
-    | OBJECT
     | ON
     | OVERRIDE
     | PACKAGE
@@ -658,13 +627,11 @@ id
     | SHARING
     | SHORT
     | STATIC
-    | STRING
     | SWITCH
     | SUPER
     | TESTMETHOD
     | THIS
     | THROW
-    | TIME
     | TRANSIENT
     | TRY
     | UNDELETE
