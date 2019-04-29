@@ -31,8 +31,8 @@ import java.nio.file.Path
 
 import com.nawforce.parsers.ApexParser
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{ApexTypeDeclaration, CLASS_NATURE, ENUM_NATURE, GLOBAL_MODIFIER, INTERFACE_NATURE, Modifier, Nature}
-import com.nawforce.utils.IssueLog
+import com.nawforce.types.{ApexTypeDeclaration, CLASS_NATURE, ENUM_NATURE, GLOBAL_MODIFIER, INTERFACE_NATURE, Modifier, Nature, TypeName}
+import com.nawforce.utils.{IssueLog, Name}
 
 import scala.collection.JavaConverters._
 
@@ -49,15 +49,15 @@ final case class CompilationUnit(path: Path, typeDeclaration: ApexTypeDeclaratio
 object CompilationUnit {
   def construct(path: Path, compilationUnit: CompilationUnitContext, context: ConstructContext): CompilationUnit = {
     CompilationUnit(path,
-      ApexTypeDeclaration.construct(compilationUnit.typeDeclaration(), context))
+      ApexTypeDeclaration.construct(None, compilationUnit.typeDeclaration(), context))
       .withContext(compilationUnit, context)
   }
 }
 
-final case class ClassDeclaration(_id: Id, _modifiers: Seq[Modifier],
+final case class ClassDeclaration(_id: Id, _outerTypeName: Option[TypeName], _modifiers: Seq[Modifier],
                                   extendsType: Option[Type], implementsTypes: TypeList,
-                                  bodyDeclarations: List[ClassBodyDeclaration]) extends
-  ApexTypeDeclaration(_id, _modifiers) {
+                                  _bodyDeclarations: Seq[ClassBodyDeclaration]) extends
+  ApexTypeDeclaration(_id, _outerTypeName, _modifiers, _bodyDeclarations) {
 
   override def children(): List[CST] = List() ++ extendsType ++ implementsTypes.types ++ bodyDeclarations
 
@@ -78,7 +78,10 @@ final case class ClassDeclaration(_id: Id, _modifiers: Seq[Modifier],
 }
 
 object ClassDeclaration {
-  def construct(modifiers: Seq[Modifier], classDeclaration: ClassDeclarationContext, context: ConstructContext): ClassDeclaration = {
+  def construct(outerTypeName: Option[TypeName], modifiers: Seq[Modifier], classDeclaration: ClassDeclarationContext,
+                context: ConstructContext): ClassDeclaration = {
+
+    val thisType = TypeName(Name(classDeclaration.id().getText)).withOuter(outerTypeName)
     val extendType =
       if (classDeclaration.typeRef() != null)
         Some(Type.construct(classDeclaration.typeRef(), context))
@@ -100,7 +103,7 @@ object ClassDeclaration {
             StaticBlock.construct(cbd.block(), context)
           } else if (cbd.memberDeclaration() != null) {
             val modifiers: Seq[ModifierContext] = cbd.modifier().asScala
-            ClassBodyDeclaration.construct(modifiers.toList, cbd.memberDeclaration(), context)
+            ClassBodyDeclaration.construct(Some(thisType), modifiers.toList, cbd.memberDeclaration(), context)
           } else {
             throw new CSTException()
           }
@@ -109,20 +112,20 @@ object ClassDeclaration {
         List()
       }
 
-    ClassDeclaration(Id.construct(classDeclaration.id(), context), modifiers, extendType,
+    ClassDeclaration(Id.construct(classDeclaration.id(), context), outerTypeName, modifiers, extendType,
       implementsType, bodyDeclarations).withContext(classDeclaration, context)
   }
 }
 
-// TODO: Handle body
-final case class InterfaceDeclaration(_id: Id, _modifiers: Seq[Modifier], implementsTypes: TypeList)
-  extends ApexTypeDeclaration(_id, _modifiers) {
+final case class InterfaceDeclaration(_id: Id, _outerTypeName: Option[TypeName], _modifiers: Seq[Modifier],
+                                      implementsTypes: TypeList, _bodyDeclarations: Seq[ClassBodyDeclaration])
+  extends ApexTypeDeclaration(_id, _outerTypeName, _modifiers, _bodyDeclarations) {
 
   override def children(): List[CST] = implementsTypes.types
 
   override val nature: Nature = INTERFACE_NATURE
 
-  override def isGlobal: Boolean = modifiers.contains(GLOBAL)
+  override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
 
   override def verify(): Unit = {}
 
@@ -132,21 +135,23 @@ final case class InterfaceDeclaration(_id: Id, _modifiers: Seq[Modifier], implem
 }
 
 object InterfaceDeclaration {
-  def construct(modifiers: Seq[Modifier], interfaceDeclaration: ApexParser.InterfaceDeclarationContext, context: ConstructContext): InterfaceDeclaration = {
+  def construct(outerTypeName: Option[TypeName], modifiers: Seq[Modifier], interfaceDeclaration: ApexParser.InterfaceDeclarationContext, context: ConstructContext): InterfaceDeclaration = {
     val implementsType =
       if (interfaceDeclaration.typeList() != null)
         TypeList.construct(interfaceDeclaration.typeList(), context)
       else
         TypeList.empty()
 
-    InterfaceDeclaration(Id.construct(interfaceDeclaration.id(), context), modifiers, implementsType)
+    // TODO: Handle body
+    InterfaceDeclaration(Id.construct(interfaceDeclaration.id(), context), outerTypeName, modifiers,
+      implementsType, Seq())
       .withContext(interfaceDeclaration, context)
   }
 }
 
-// TODO: Handle body
-final case class EnumDeclaration(_id: Id, _modifiers: Seq[Modifier], implementsTypes: TypeList)
-  extends ApexTypeDeclaration(_id, _modifiers) {
+final case class EnumDeclaration(_id: Id, _outerTypeName: Option[TypeName], _modifiers: Seq[Modifier],
+                                 implementsTypes: TypeList, _bodyDeclarations: Seq[ClassBodyDeclaration])
+  extends ApexTypeDeclaration(_id, _outerTypeName, _modifiers, _bodyDeclarations) {
 
   override def children(): List[CST] = implementsTypes.types
 
@@ -162,13 +167,15 @@ final case class EnumDeclaration(_id: Id, _modifiers: Seq[Modifier], implementsT
 }
 
 object EnumDeclaration {
-  def construct(typeModifiers: Seq[Modifier], enumDeclaration: ApexParser.EnumDeclarationContext, context: ConstructContext): EnumDeclaration = {
+  def construct(outerTypeName: Option[TypeName], typeModifiers: Seq[Modifier],
+                enumDeclaration: ApexParser.EnumDeclarationContext, context: ConstructContext): EnumDeclaration = {
     val implementsType =
       if (enumDeclaration.typeList() != null)
         TypeList.construct(enumDeclaration.typeList(), context)
       else
         TypeList.empty()
-    EnumDeclaration(Id.construct(enumDeclaration.id(), context), typeModifiers, implementsType)
+    // TODO: Handle body
+    EnumDeclaration(Id.construct(enumDeclaration.id(), context), outerTypeName, typeModifiers, implementsType, Seq())
       .withContext(enumDeclaration, context)
   }
 }

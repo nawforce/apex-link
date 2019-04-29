@@ -44,7 +44,7 @@ class TypeStore {
   private def getType(name: DotName): Option[TypeDeclaration] = {
     val declaration = PlatformTypeDeclaration.get(name)
     if (declaration.isEmpty && name.isCompound)
-      getType(name.headNames).flatMap(_.nestedClasses.find(td => td.name == name.lastName))
+      getType(name.headNames).flatMap(_.nestedTypes.find(td => td.name == name.lastName))
     else
       declaration
   }

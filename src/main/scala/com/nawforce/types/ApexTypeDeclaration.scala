@@ -27,7 +27,7 @@
 */
 package com.nawforce.types
 
-import java.io.{FileInputStream, InputStream}
+import java.io.InputStream
 import java.nio.file.Path
 
 import com.nawforce.cst._
@@ -40,17 +40,23 @@ import org.antlr.v4.runtime.CommonTokenStream
 import scala.collection.JavaConverters._
 
 /** Apex type declaration, a wrapper around the Apex parser output */
-abstract class ApexTypeDeclaration(val id: Id, val modifiers: Seq[Modifier])
+abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeName], val modifiers: Seq[Modifier],
+                                   val bodyDeclarations: Seq[ClassBodyDeclaration])
   extends CST with ClassBodyDeclaration with TypeDeclaration {
 
   val name: Name = id.name
-  val typeName: TypeName = ApexTypeDeclaration.typeName(name)
+  val typeName: TypeName = ApexTypeDeclaration.typeName(name).withOuter(outerTypeName)
   val nature: Nature
 
   // TODO:
   val superClass: Option[TypeName] = None
   val interfaces: Seq[TypeName] = Seq()
-  val nestedClasses: Seq[PlatformTypeDeclaration] = Seq()
+  lazy val nestedTypes: Seq[TypeDeclaration] = {
+    bodyDeclarations.flatMap {
+      case x: TypeDeclaration => Some(x)
+      case _ => None
+    }
+  }
 
   val fields: Seq[FieldDeclaration] = Seq()
   val methods: Seq[MethodDeclaration] = Seq()
@@ -89,17 +95,24 @@ object ApexTypeDeclaration {
     }
   }
 
-  def construct(typeDecl: TypeDeclarationContext, context: ConstructContext): ApexTypeDeclaration = {
+  def construct(outerTypeName: Option[TypeName], typeDecl: TypeDeclarationContext, context: ConstructContext)
+  : ApexTypeDeclaration = {
+
     val modifiers: Seq[ModifierContext] = typeDecl.modifier().asScala
     val cst =
       if (typeDecl.classDeclaration() != null) {
         ClassDeclaration.construct(
-          ApexModifiers.classModifiers(modifiers, context, outer = true, typeDecl.classDeclaration().id()),
+          outerTypeName,
+          ApexModifiers.classModifiers(modifiers, context, outer = outerTypeName.isEmpty, typeDecl.classDeclaration().id()),
           typeDecl.classDeclaration(), context)
       } else if (typeDecl.interfaceDeclaration() != null) {
-        InterfaceDeclaration.construct(ApexModifiers.construct(modifiers, context), typeDecl.interfaceDeclaration(), context)
+        InterfaceDeclaration.construct(
+          outerTypeName,
+          ApexModifiers.construct(modifiers, context), typeDecl.interfaceDeclaration(), context)
       } else if (typeDecl.enumDeclaration() != null) {
-        EnumDeclaration.construct(ApexModifiers.construct(modifiers, context), typeDecl.enumDeclaration(), context)
+        EnumDeclaration.construct(
+          outerTypeName,
+          ApexModifiers.construct(modifiers, context), typeDecl.enumDeclaration(), context)
       } else {
         // TODO: Empty type declaration?
         throw new CSTException()

@@ -79,11 +79,11 @@ class PlatformTypeValidationTest extends FunSuite {
     // Nested classes
     typeDeclaration.nature match {
       case INTERFACE_NATURE =>
-        assert(typeDeclaration.nestedClasses.isEmpty)
+        assert(typeDeclaration.nestedTypes.isEmpty)
       case ENUM_NATURE =>
-        assert(typeDeclaration.nestedClasses.isEmpty)
+        assert(typeDeclaration.nestedTypes.isEmpty)
       case CLASS_NATURE =>
-        typeDeclaration.nestedClasses.foreach(nested => validateTypeDeclaration(className.append(nested.name), nested))
+        typeDeclaration.nestedTypes.foreach(nested => validateTypeDeclaration(className.append(nested.name), nested))
     }
 
     // Fields
@@ -118,7 +118,7 @@ class PlatformTypeValidationTest extends FunSuite {
       assert(td.nature == CLASS_NATURE)
       assert(td.modifiers == Seq(PUBLIC_MODIFIER))
       assert(td.parent.isEmpty)
-      assert(td.nestedClasses.isEmpty)
+      assert(td.nestedTypes.isEmpty)
 
       val methods = td.methods.sortBy(_.name.toString)
       assert(methods.size >= 7)

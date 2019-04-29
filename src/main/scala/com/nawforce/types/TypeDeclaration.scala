@@ -65,7 +65,7 @@ trait TypeDeclaration {
 
   val superClass: Option[TypeName]
   val interfaces: Seq[TypeName]
-  val nestedClasses: Seq[PlatformTypeDeclaration]
+  val nestedTypes: Seq[TypeDeclaration]
 
   val fields: Seq[FieldDeclaration]
   val methods: Seq[MethodDeclaration]

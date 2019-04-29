@@ -33,7 +33,7 @@ import org.scalatest.FunSuite
 
 class TypeStoreTest extends FunSuite {
 
-  test("Bad class not found") {
+  test("Bad type not found") {
     assert(new TypeStore().getType(TypeName(Seq(Name("Hello")))).isEmpty)
   }
 

@@ -31,11 +31,12 @@ package com.nawforce.api
 import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.types.{TypeDeclaration, TypeName, TypeStore}
+import com.nawforce.utils.DotName
 import com.typesafe.scalalogging.LazyLogging
 
 class Org extends TypeStore with LazyLogging {
   private var packages: List[Package] = Nil
-  private val types = new ConcurrentHashMap[TypeName, TypeDeclaration]()
+  private val types = new ConcurrentHashMap[DotName, TypeDeclaration]()
 
   def addPackage(directories: Array[String]): Package = {
     packages = Package(this, directories) :: packages
@@ -43,10 +44,23 @@ class Org extends TypeStore with LazyLogging {
   }
 
   override def getType(typeName: TypeName): Option[TypeDeclaration] = {
-    super.getType(typeName)
+    val dotName = typeName.asDotName
+    val declaration = getType(dotName)
+    if (declaration.isEmpty)
+        super.getType(typeName)
+    else
+      declaration
+  }
+
+  private def getType(name: DotName): Option[TypeDeclaration] = {
+    val declaration = types.get(name)
+    if (declaration==null && name.isCompound)
+      getType(name.headNames).flatMap(_.nestedTypes.find(td => td.name == name.lastName))
+    else
+      Option(declaration)
   }
 
   def replaceType(typeDeclaration: TypeDeclaration): Unit = {
-    types.put(typeDeclaration.typeName, typeDeclaration)
+    types.put(typeDeclaration.typeName.asDotName, typeDeclaration)
   }
 }

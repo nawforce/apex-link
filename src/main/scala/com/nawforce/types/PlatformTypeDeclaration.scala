@@ -66,7 +66,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
 
   lazy val modifiers: Seq[Modifier] = PlatformModifiers.typeModifiers(cls.getModifiers, nature)
 
-  lazy val nestedClasses: Seq[PlatformTypeDeclaration] =
+  lazy val nestedTypes: Seq[PlatformTypeDeclaration] =
     cls.getClasses.map(nested => PlatformTypeDeclaration(nested, Some(this)))
 
   case class Field(field: java.lang.reflect.Field) extends FieldDeclaration {

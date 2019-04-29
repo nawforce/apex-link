@@ -32,7 +32,7 @@ import java.nio.file.{Path, Paths}
 
 import com.nawforce.documents.{ApexDocument, DocumentLoader, DocumentType}
 import com.nawforce.types.ApexTypeDeclaration
-import com.nawforce.utils.{DotName, IssueLog, Name}
+import com.nawforce.utils.{IssueLog, Name}
 import com.typesafe.scalalogging.LazyLogging
 
 class Package(org: Org, paths: Seq[Path]) extends LazyLogging {

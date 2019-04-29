@@ -51,7 +51,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.nature == CLASS_NATURE)
     assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
-    assert(td.get.nestedClasses.isEmpty)
+    assert(td.get.nestedTypes.isEmpty)
   }
 
   test("Case insensitive class name") {
@@ -76,7 +76,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.nature == CLASS_NATURE)
     assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
-    assert(td.get.nestedClasses.isEmpty)
+    assert(td.get.nestedTypes.isEmpty)
   }
 
   test("Implements class") {
@@ -90,7 +90,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.nature == CLASS_NATURE)
     assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
-    assert(td.get.nestedClasses.isEmpty)
+    assert(td.get.nestedTypes.isEmpty)
   }
 
   test("Interface nature") {
@@ -103,7 +103,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.nature == INTERFACE_NATURE)
     assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
-    assert(td.get.nestedClasses.isEmpty)
+    assert(td.get.nestedTypes.isEmpty)
   }
 
   test("Enum nature") {
@@ -116,7 +116,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.nature == ENUM_NATURE)
     assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
-    assert(td.get.nestedClasses.isEmpty)
+    assert(td.get.nestedTypes.isEmpty)
   }
 
   test("Nested class") {
@@ -130,7 +130,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
 
-    val nested = td.get.nestedClasses.sortBy(_.name.toString)
+    val nested = td.get.nestedTypes.sortBy(_.name.toString)
     assert(nested.size == 3)
     assert(nested.map(_.name.toString) == Seq("BinaryAttachment", "Header", "TextAttachment"))
     assert(nested.filter(_.modifiers == Seq(PUBLIC_MODIFIER, STATIC_MODIFIER)) == nested)
@@ -147,7 +147,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.nature == CLASS_NATURE)
     assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
-    assert(td.get.nestedClasses.isEmpty)
+    assert(td.get.nestedTypes.isEmpty)
 
     val fields = td.get.fields.sortBy(_.name.toString)
     assert(fields.size == 8)
@@ -167,7 +167,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.nature == CLASS_NATURE)
     assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
-    assert(td.get.nestedClasses.isEmpty)
+    assert(td.get.nestedTypes.isEmpty)
 
     val constructors = td.get.constructors.sortBy(_.toString)
     assert(constructors.size == 4)
@@ -188,7 +188,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.nature == CLASS_NATURE)
     assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
-    assert(td.get.nestedClasses.isEmpty)
+    assert(td.get.nestedTypes.isEmpty)
 
     val methods = td.get.methods.sortBy(_.name.toString)
     assert(methods.size == 11)
@@ -211,7 +211,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.nature == CLASS_NATURE)
     assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
-    assert(td.get.nestedClasses.isEmpty)
+    assert(td.get.nestedTypes.isEmpty)
 
     val methods = td.get.methods.sortBy(_.name.toString)
     assert(methods.size == 7)

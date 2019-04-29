@@ -29,7 +29,7 @@ package com.nawforce.cst
 
 import com.nawforce.documents.TextRange
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{ApexModifiers, GLOBAL_MODIFIER, Modifier}
+import com.nawforce.types.{ApexModifiers, GLOBAL_MODIFIER, Modifier, TypeName}
 import com.nawforce.utils.Name
 import org.antlr.v4.runtime.ParserRuleContext
 
@@ -94,7 +94,7 @@ final case class Id(name: Name) extends CST {
 
 object Id {
   def construct(idContext: IdContext, context: ConstructContext): Id = {
-    Id(Name(idContext.toString)).withContext(idContext, context)
+    Id(Name(idContext.getText)).withContext(idContext, context)
   }
 }
 
@@ -323,7 +323,8 @@ trait ClassBodyDeclaration extends CST {
 }
 
 object ClassBodyDeclaration {
-  def construct(modifiers: List[ModifierContext], memberDeclarationContext: MemberDeclarationContext, context: ConstructContext): ClassBodyDeclaration = {
+  def construct(outerTypeName: Option[TypeName], modifiers: List[ModifierContext],
+                memberDeclarationContext: MemberDeclarationContext, context: ConstructContext): ClassBodyDeclaration = {
     val m = ApexModifiers.construct(modifiers, context)
     val cst: ClassBodyDeclaration =
       if (memberDeclarationContext.methodDeclaration() != null) {
@@ -333,13 +334,13 @@ object ClassBodyDeclaration {
       } else if (memberDeclarationContext.constructorDeclaration() != null) {
         ConstructorDeclaration.construct(m, memberDeclarationContext.constructorDeclaration(), context)
       } else if (memberDeclarationContext.interfaceDeclaration() != null) {
-        InterfaceDeclaration.construct(m, memberDeclarationContext.interfaceDeclaration(), context)
+        InterfaceDeclaration.construct(outerTypeName, m, memberDeclarationContext.interfaceDeclaration(), context)
       } else if (memberDeclarationContext.enumDeclaration() != null) {
-        EnumDeclaration.construct(m, memberDeclarationContext.enumDeclaration(), context)
+        EnumDeclaration.construct(outerTypeName, m, memberDeclarationContext.enumDeclaration(), context)
       } else if (memberDeclarationContext.propertyDeclaration() != null) {
         PropertyDeclaration.construct(m, memberDeclarationContext.propertyDeclaration(), context)
       } else if (memberDeclarationContext.classDeclaration() != null) {
-        ClassDeclaration.construct(
+        ClassDeclaration.construct(outerTypeName,
           ApexModifiers.classModifiers(modifiers, context, outer = false, memberDeclarationContext.classDeclaration().id()),
           memberDeclarationContext.classDeclaration(), context)
       } else {
