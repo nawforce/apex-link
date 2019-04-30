@@ -35,11 +35,12 @@ import com.nawforce.types.{ApexTypeDeclaration, CLASS_NATURE, ENUM_NATURE, GLOBA
 import com.nawforce.utils.{IssueLog, Name}
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 final case class CompilationUnit(path: Path, typeDeclaration: ApexTypeDeclaration) extends CST {
   def children(): List[CST] = List(typeDeclaration)
 
-  def verify(): Unit = typeDeclaration.verify()
+  val imports: Set[(TypeName, TypeName)] = typeDeclaration.verify()
 
   def resolve(index: CSTIndex): Unit = {
     typeDeclaration.resolve(index)
@@ -63,10 +64,12 @@ final case class ClassDeclaration(_id: Id, _outerTypeName: Option[TypeName], _mo
 
   override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
 
-  override def verify(): Unit = {
+  override def verify(): Set[(TypeName, TypeName)] = {
     if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL_MODIFIER)) {
       IssueLog.logMessage(id.textRange, "Classes enclosing globals must also be declared global")
     }
+    val imports = mutable.Set[(TypeName, TypeName)]()
+    imports.toSet
   }
 
   override def resolve(index: CSTIndex): Unit = {
@@ -123,7 +126,10 @@ final case class InterfaceDeclaration(_id: Id, _outerTypeName: Option[TypeName],
 
   override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
 
-  override def verify(): Unit = {}
+  override def verify(): Set[(TypeName, TypeName)] = {
+    val imports = mutable.Set[(TypeName, TypeName)]()
+    imports.toSet
+  }
 
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)
@@ -153,7 +159,10 @@ final case class EnumDeclaration(_id: Id, _outerTypeName: Option[TypeName], _mod
 
   override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
 
-  override def verify(): Unit = {}
+  override def verify(): Set[(TypeName, TypeName)] = {
+    val imports = mutable.Set[(TypeName, TypeName)]()
+    imports.toSet
+  }
 
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)

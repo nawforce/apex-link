@@ -27,14 +27,17 @@
 */
 package com.nawforce.behaviour.general
 
+import com.nawforce.api.{LogUtils, Org}
 import org.scalatest.FunSuite
 
 class SampleTest extends FunSuite {
 
-  // TODO: Reenable
-  /*
   private def sample(path: String): Unit = {
-    assert(0 == ApexLink.run(Array(path)))
+    LogUtils.setLoggingLevel(false)
+    val org = new Org()
+    val pkg = org.addPackage(Array[String](path))
+    val resultJson = pkg.deployAll()
+    assert(resultJson == "{ \"files\": [\n]}\n")
   }
 
   test("forcedotcom-enterprise-architecture") {
@@ -79,5 +82,5 @@ class SampleTest extends FunSuite {
 
   test("Affiliations") {
     sample("samples/SalesforceFoundation/Affiliations/src")
-  }*/
+  }
 }

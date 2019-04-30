@@ -60,7 +60,7 @@ object ApexLink {
     val parseEnd = System.currentTimeMillis()
 
     if (!json)
-      IssueLog.dumpMessages(json = false, pkg.classCount, (parseEnd-parseStart)/pkg.classCount)
+      IssueLog.dumpMessages(json = false)
     else
       println(resultJson)
 

@@ -27,8 +27,6 @@
 */
 
 export interface InfoMessages {
-    count: number,
-    avgTime: number,
     files: FileMessage[]
 }
 

@@ -38,7 +38,6 @@ import com.nawforce.utils._
 import org.antlr.v4.runtime.CommonTokenStream
 
 import scala.collection.JavaConverters._
-import scala.concurrent.BlockContext
 
 /** Apex type declaration, a wrapper around the Apex parser output */
 abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeName], val modifiers: Seq[Modifier],
@@ -63,7 +62,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
   val fields: Seq[FieldDeclaration] = Seq()
   val methods: Seq[MethodDeclaration] = Seq()
 
-  def verify()
+  def verify(): Set[(TypeName, TypeName)]
   def resolve(index: CSTIndex)
 }
 
@@ -86,9 +85,7 @@ object ApexTypeDeclaration {
         parser.setTrace(false)
         parser.addErrorListener(listener)
 
-        val cu = CompilationUnit.construct(path, parser.compilationUnit(), new ConstructContext())
-        cu.verify()
-        Some(cu.typeDeclaration)
+        Some(CompilationUnit.construct(path, parser.compilationUnit(), new ConstructContext()).typeDeclaration)
       }
     } catch {
       case se: SyntaxException =>

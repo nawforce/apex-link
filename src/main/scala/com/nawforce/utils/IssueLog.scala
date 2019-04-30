@@ -98,14 +98,14 @@ object IssueLog {
     override def output: String = buffer.toString()
   }
 
-  private class JSONMessageWriter(count: Int, avgTime: Long) extends MessageWriter {
+  private class JSONMessageWriter extends MessageWriter {
     private val buffer = new StringBuilder()
     private var firstDocument: Boolean = _
     private var firstMessage: Boolean = _
 
     override def startOutput(): Unit = {
       buffer.clear()
-      buffer ++= s"""{ "count": $count, "avgTime": $avgTime, "files": [\n"""
+      buffer ++= s"""{ "files": [\n"""
       firstDocument = true
     }
     override def startDocument(path: Path): Unit = {
@@ -155,7 +155,7 @@ object IssueLog {
   }
 
   def asJSON(maxErrors: Int): String = {
-    val writer = new JSONMessageWriter(100, 10)
+    val writer = new JSONMessageWriter()
     writer.startOutput()
     lock.synchronized {
       log.keys.foreach(path => {
@@ -165,10 +165,10 @@ object IssueLog {
     writer.output
   }
 
-  def dumpMessages(json: Boolean, count: Int, avgTime: Long): Unit = {
+  def dumpMessages(json: Boolean): Unit = {
     val writer: MessageWriter=
       if (json)
-        new JSONMessageWriter(count, avgTime)
+        new JSONMessageWriter()
       else
         new TextMessageWriter(true)
     writer.startOutput()
