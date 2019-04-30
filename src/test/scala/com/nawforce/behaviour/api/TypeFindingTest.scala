@@ -55,7 +55,7 @@ class TypeFindingTest extends FunSuite {
     val td = ApexTypeDeclaration.create(Paths.get("Dummy.cls"),
       new ByteArrayInputStream("public class Dummy {}".getBytes())).get
     val org = new Org()
-    org.replaceType(td)
+    org.replaceTypes(Seq(td))
     assert(org.getType(TypeName(Seq(Name("Dummy")))).get.typeName == td.typeName)
   }
 
@@ -63,7 +63,7 @@ class TypeFindingTest extends FunSuite {
     val td = ApexTypeDeclaration.create(Paths.get("Dummy.cls"),
       new ByteArrayInputStream("public class Dummy {}".getBytes())).get
     val org = new Org()
-    org.replaceType(td)
+    org.replaceTypes(Seq(td))
     assert(org.getType(TypeName(Seq(Name("dummy")))).get.typeName == td.typeName)
   }
 
@@ -71,7 +71,7 @@ class TypeFindingTest extends FunSuite {
     val td = ApexTypeDeclaration.create(Paths.get("Dummy.cls"),
       new ByteArrayInputStream("public class Dummy {class Inner {}}".getBytes())).get
     val org = new Org()
-    org.replaceType(td)
+    org.replaceTypes(Seq(td))
     val innerTypeName = TypeName(Name("Inner")).withOuter(Some(td.typeName))
     assert(org.getType(innerTypeName).get.typeName == innerTypeName)
   }
@@ -80,7 +80,7 @@ class TypeFindingTest extends FunSuite {
     val td = ApexTypeDeclaration.create(Paths.get("Dummy.cls"),
       new ByteArrayInputStream("public class Dummy {class Inner {}}".getBytes())).get
     val org = new Org()
-    org.replaceType(td)
+    org.replaceTypes(Seq(td))
     val innerTypeName = TypeName(Name("INner")).withOuter(Some(td.typeName))
     assert(org.getType(innerTypeName).get.typeName == innerTypeName)
   }

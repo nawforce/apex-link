@@ -38,6 +38,7 @@ import com.nawforce.utils._
 import org.antlr.v4.runtime.CommonTokenStream
 
 import scala.collection.JavaConverters._
+import scala.concurrent.BlockContext
 
 /** Apex type declaration, a wrapper around the Apex parser output */
 abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeName], val modifiers: Seq[Modifier],
@@ -127,6 +128,32 @@ object ApexTypeDeclaration {
       TypeName.Void
     } else {
       TypeName(name)
+    }
+  }
+
+  def parseBlock(path: Path, data: InputStream): Option[ApexParser.BlockContext] = {
+    try {
+      IssueLog.context.withValue(path) {
+
+        val listener = new ThrowingErrorListener
+        val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(data)
+        val lexer: ApexLexer = new ApexLexer(cis)
+        lexer.removeErrorListeners()
+        lexer.addErrorListener(listener)
+
+        val tokens: CommonTokenStream = new CommonTokenStream(lexer)
+        tokens.fill()
+
+        val parser: ApexParser = new ApexParser(tokens)
+        parser.removeErrorListeners()
+        parser.setTrace(false)
+        parser.addErrorListener(listener)
+        Some(parser.block())
+      }
+    } catch {
+      case se: SyntaxException =>
+        IssueLog.logMessage(LineLocation(path, se.line), se.msg)
+        None
     }
   }
 }

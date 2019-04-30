@@ -25,47 +25,36 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.api
+package com.nawforce.cst
 
-import java.util.concurrent.ConcurrentHashMap
+import com.nawforce.parsers.ApexParser.{TypeListContext, TypeNameContext, TypeRefContext}
+import com.nawforce.types.TypeName
+import com.nawforce.utils.Name
 
-import com.nawforce.types.{TypeDeclaration, TypeName, TypeStore}
-import com.nawforce.utils.DotName
-import com.typesafe.scalalogging.LazyLogging
+import scala.collection.JavaConverters._
 
-import scala.util.DynamicVariable
-
-class Org extends TypeStore with LazyLogging {
-  private var packages: List[Package] = Nil
-  private val types = new ConcurrentHashMap[DotName, TypeDeclaration]()
-
-  def addPackage(directories: Array[String]): Package = {
-    packages = Package(this, directories) :: packages
-    packages.head
+object TypeRef {
+  def construct(aList: List[TypeRefContext], context: ConstructContext): List[TypeName] = {
+    aList.map(x => TypeRef.construct(x, context))
   }
 
-  override def getType(typeName: TypeName): Option[TypeDeclaration] = {
-    val dotName = typeName.asDotName
-    val declaration = getType(dotName)
-    if (declaration.isEmpty)
-        super.getType(typeName)
-    else
-      declaration
+  def construct(typeRef: TypeRefContext, context: ConstructContext): TypeName = {
+    val arraySubs = typeRef.arraySubscripts().getText.count(_ == '[')
+    createTypeName(None, typeRef.typeName().asScala).withArraySubscripts(arraySubs)
   }
 
-  private def getType(name: DotName): Option[TypeDeclaration] = {
-    val declaration = types.get(name)
-    if (declaration==null && name.isCompound)
-      getType(name.headNames).flatMap(_.nestedTypes.find(td => td.name == name.lastName))
-    else
-      Option(declaration)
-  }
-
-  def replaceTypes(newDeclarations: Seq[TypeDeclaration]): Unit = {
-    newDeclarations.foreach(td => types.put(td.typeName.asDotName, td))
+  private def createTypeName(outer: Option[TypeName], names: Seq[TypeNameContext]): TypeName = {
+    names match {
+      case hd +: Seq() => TypeName(Name(hd.getText)).withOuter(outer)
+      case hd +: tl => createTypeName(Some(TypeName(Name(hd.getText)).withOuter(outer)), tl)
+    }
   }
 }
 
-object Org {
-  val current: DynamicVariable[Org] = new DynamicVariable[Org](null)
+object TypeList {
+  def construct(typeList: TypeListContext, context: ConstructContext): Seq[TypeName] = {
+    val types: Seq[TypeRefContext] = typeList.typeRef().asScala
+    types.toList.map(t => TypeRef.construct(t, context))
+  }
 }
+
