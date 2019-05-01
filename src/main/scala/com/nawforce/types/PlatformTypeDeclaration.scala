@@ -41,6 +41,8 @@ import scala.collection.mutable
 case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[PlatformTypeDeclaration])
   extends TypeDeclaration {
 
+  lazy val imports: Set[(TypeName, TypeName)] = Set.empty
+
   lazy val name: Name = typeName.name
   lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(cls, cls)
   lazy val nature: Nature = {

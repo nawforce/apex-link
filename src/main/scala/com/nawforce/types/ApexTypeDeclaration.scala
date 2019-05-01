@@ -51,6 +51,8 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
   val typeName: TypeName = ApexTypeDeclaration.typeName(name).withOuter(outerTypeName)
   val nature: Nature
 
+  val imports: Set[(TypeName, TypeName)] = verify()
+
   lazy val nestedTypes: Seq[TypeDeclaration] = {
     bodyDeclarations.flatMap {
       case x: TypeDeclaration => Some(x)
@@ -62,7 +64,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
   val fields: Seq[FieldDeclaration] = Seq()
   val methods: Seq[MethodDeclaration] = Seq()
 
-  def verify(): Set[(TypeName, TypeName)]
+  protected def verify(): Set[(TypeName, TypeName)]
   def resolve(index: CSTIndex)
 }
 
@@ -108,13 +110,11 @@ object ApexTypeDeclaration {
         InterfaceDeclaration.construct(
           outerTypeName,
           ApexModifiers.construct(modifiers, context), typeDecl.interfaceDeclaration(), context)
-      } else if (typeDecl.enumDeclaration() != null) {
+      } else {
+        assert(typeDecl.enumDeclaration() != null)
         EnumDeclaration.construct(
           outerTypeName,
           ApexModifiers.construct(modifiers, context), typeDecl.enumDeclaration(), context)
-      } else {
-        // TODO: Empty type declaration?
-        throw new CSTException()
       }
     cst.withContext(typeDecl, context)
   }

@@ -39,12 +39,6 @@ import scala.collection.mutable
 
 final case class CompilationUnit(path: Path, typeDeclaration: ApexTypeDeclaration) extends CST {
   def children(): List[CST] = List(typeDeclaration)
-
-  val imports: Set[(TypeName, TypeName)] = typeDeclaration.verify()
-
-  def resolve(index: CSTIndex): Unit = {
-    typeDeclaration.resolve(index)
-  }
 }
 
 object CompilationUnit {
@@ -64,11 +58,13 @@ final case class ClassDeclaration(_id: Id, _outerTypeName: Option[TypeName], _mo
 
   override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
 
-  override def verify(): Set[(TypeName, TypeName)] = {
+  override protected def verify(): Set[(TypeName, TypeName)] = {
     if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL_MODIFIER)) {
       IssueLog.logMessage(id.textRange, "Classes enclosing globals must also be declared global")
     }
     val imports = mutable.Set[(TypeName, TypeName)]()
+    _extendsType.foreach(tn => imports.add((tn, typeName)))
+    _implementsTypes.foreach(tn => imports.add((tn, typeName)))
     imports.toSet
   }
 
@@ -119,15 +115,16 @@ object ClassDeclaration {
 }
 
 final case class InterfaceDeclaration(_id: Id, _outerTypeName: Option[TypeName], _modifiers: Seq[Modifier],
-                                      implementsTypes: Seq[TypeName], _bodyDeclarations: Seq[ClassBodyDeclaration])
-  extends ApexTypeDeclaration(_id, _outerTypeName, _modifiers, None, implementsTypes, _bodyDeclarations) {
+                                      _implementsTypes: Seq[TypeName], _bodyDeclarations: Seq[ClassBodyDeclaration])
+  extends ApexTypeDeclaration(_id, _outerTypeName, _modifiers, None, _implementsTypes, _bodyDeclarations) {
 
   override val nature: Nature = INTERFACE_NATURE
 
   override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
 
-  override def verify(): Set[(TypeName, TypeName)] = {
+  override protected def verify(): Set[(TypeName, TypeName)] = {
     val imports = mutable.Set[(TypeName, TypeName)]()
+    _implementsTypes.foreach(tn => imports.add((tn, typeName)))
     imports.toSet
   }
 
@@ -159,7 +156,7 @@ final case class EnumDeclaration(_id: Id, _outerTypeName: Option[TypeName], _mod
 
   override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
 
-  override def verify(): Set[(TypeName, TypeName)] = {
+  override protected def verify(): Set[(TypeName, TypeName)] = {
     val imports = mutable.Set[(TypeName, TypeName)]()
     imports.toSet
   }
