@@ -62,10 +62,7 @@ final case class ClassDeclaration(_id: Id, _outerTypeName: Option[TypeName], _mo
     if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL_MODIFIER)) {
       IssueLog.logMessage(id.textRange, "Classes enclosing globals must also be declared global")
     }
-    val imports = mutable.Set[(TypeName, TypeName)]()
-    _extendsType.foreach(tn => imports.add((tn, typeName)))
-    _implementsTypes.foreach(tn => imports.add((tn, typeName)))
-    imports.toSet
+    super.verify()
   }
 
   override def resolve(index: CSTIndex): Unit = {
@@ -122,12 +119,6 @@ final case class InterfaceDeclaration(_id: Id, _outerTypeName: Option[TypeName],
 
   override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
 
-  override protected def verify(): Set[(TypeName, TypeName)] = {
-    val imports = mutable.Set[(TypeName, TypeName)]()
-    _implementsTypes.foreach(tn => imports.add((tn, typeName)))
-    imports.toSet
-  }
-
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)
   }
@@ -155,11 +146,6 @@ final case class EnumDeclaration(_id: Id, _outerTypeName: Option[TypeName], _mod
   override val nature: Nature = ENUM_NATURE
 
   override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
-
-  override protected def verify(): Set[(TypeName, TypeName)] = {
-    val imports = mutable.Set[(TypeName, TypeName)]()
-    imports.toSet
-  }
 
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)

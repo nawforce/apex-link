@@ -27,8 +27,8 @@
 */
 package com.nawforce.types
 
-import java.io.InputStream
-import java.nio.file.Path
+import java.io.{ByteArrayInputStream, InputStream}
+import java.nio.file.{Path, Paths}
 
 import com.nawforce.cst._
 import com.nawforce.documents.LineLocation
@@ -38,6 +38,7 @@ import com.nawforce.utils._
 import org.antlr.v4.runtime.CommonTokenStream
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 /** Apex type declaration, a wrapper around the Apex parser output */
 abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeName], val modifiers: Seq[Modifier],
@@ -64,11 +65,22 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
   val fields: Seq[FieldDeclaration] = Seq()
   val methods: Seq[MethodDeclaration] = Seq()
 
-  protected def verify(): Set[(TypeName, TypeName)]
+  protected def verify(): Set[(TypeName, TypeName)] = {
+    val imports = mutable.Set[(TypeName, TypeName)]()
+    superClass.foreach(tn => imports.add((tn, typeName)))
+    interfaces.foreach(tn => imports.add((tn, typeName)))
+    imports.toSet
+  }
+
   def resolve(index: CSTIndex)
 }
 
 object ApexTypeDeclaration {
+  def clearCache(): Unit = {
+    create(Paths.get("Dummy"), new ByteArrayInputStream("public class Dummy {}".getBytes()))
+    System.gc()
+  }
+
   def create(path: Path, data: InputStream): Option[ApexTypeDeclaration] = {
     try {
       IssueLog.context.withValue(path) {
