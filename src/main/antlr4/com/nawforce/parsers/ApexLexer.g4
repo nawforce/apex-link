@@ -44,6 +44,12 @@ lexer grammar ApexLexer;
 import java.util.*; 
 }
 
+@lexer::members {
+    public void clearCache() {
+        _interp.clearDFA();
+    }
+}
+
 channels {
     WHITESPACE_CHANNEL,
     COMMENT_CHANNEL

@@ -54,6 +54,7 @@ class Package(org: Org, paths: Seq[Path]) extends LazyLogging {
           typeDeclaration
       }
     })
+    ApexTypeDeclaration.clearCache();
     org.replaceTypes(newDeclarations.seq)
     IssueLog.asJSON(100)
   }

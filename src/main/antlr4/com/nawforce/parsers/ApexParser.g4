@@ -45,6 +45,13 @@ options {tokenVocab=ApexLexer;}
 import java.util.*; 
 }
 
+@oarser::members {
+    public void clearCache() {
+        _interp.clearDFA();
+    }
+}
+
+
 // starting point for parsing a apexcode file
 compilationUnit
     : typeDeclaration EOF

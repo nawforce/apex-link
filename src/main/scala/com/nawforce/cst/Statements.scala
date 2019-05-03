@@ -43,12 +43,12 @@ trait Statement extends CST {
 }
 
 // Treat Block as Statement for blocks in blocks
-final case class Block(path: Path, text: String) extends CST with Statement {
+final case class Block(path: Path, bytes: Array[Byte]) extends CST with Statement {
   private var statementsRef: WeakReference[List[Statement]] = WeakReference(null)
 
   def statements(): List[Statement] = {
     if (statementsRef.get.isEmpty) {
-      val blockContext = ApexTypeDeclaration.parseBlock(path, new ByteArrayInputStream(text.getBytes()))
+      val blockContext = ApexTypeDeclaration.parseBlock(path, new ByteArrayInputStream(bytes))
       if (blockContext.nonEmpty) {
         val statementContexts: Seq[StatementContext] = blockContext.get.statement().asScala
         statementsRef = WeakReference(Statement.construct(statementContexts.toList, new ConstructContext))
@@ -70,7 +70,7 @@ object Block {
   def construct(blockContext: BlockContext, context: ConstructContext): Block = {
     val is = blockContext.start.getInputStream
     val text = is.getText(new Interval(blockContext.start.getStartIndex, blockContext.stop.getStopIndex))
-    Block(IssueLog.context.value, text)
+    Block(IssueLog.context.value, text.getBytes())
   }
 
   def constructOption(blockContext: BlockContext, context: ConstructContext): Option[Block] = {

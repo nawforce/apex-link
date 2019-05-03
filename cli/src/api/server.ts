@@ -44,6 +44,7 @@ export default class Server {
     static async getInstance(): Promise<Server> {
         return new Promise<Server>(function (resolve, reject) {
             if (!Server.instance) {
+                java.options.push('-XX:+UseG1GC')
                 java.classpath.push(Server.jarHome())
                 java.ensureJvm(function (err, result) {
                     if (err) {
