@@ -81,7 +81,7 @@ final case class NewExpression(creator: Creator) extends Expression {
   def resolve(context: ResolveExprContext): Unit = {}
 }
 
-final case class TypeExpression(typeRef: TypeName, expression: Expression) extends Expression {
+final case class CastExpression(typeRef: TypeName, expression: Expression) extends Expression {
   override def children(): List[CST] = expression :: Nil
 
   override def verify(imports: mutable.Set[TypeName]): Unit = {
@@ -221,8 +221,8 @@ object Expression {
           )
         case alt8: NewExpressionContext =>
           NewExpression(Creator.construct(alt8.creator(), context))
-        case alt9: Alt9ExpressionContext =>
-          TypeExpression(TypeRef.construct(alt9.typeRef(), context), Expression.construct(alt9.expression(), context))
+        case alt9: CastExpressionContext =>
+          CastExpression(TypeRef.construct(alt9.typeRef(), context), Expression.construct(alt9.expression(), context))
         case alt10: Alt10ExpressionContext =>
           PostOpExpression(Expression.construct(alt10.expression(), context), alt10.getChild(1).getText)
         case alt11: Alt11ExpressionContext =>

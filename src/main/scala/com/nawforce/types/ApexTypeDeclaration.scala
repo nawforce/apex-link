@@ -70,7 +70,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
     superClass.foreach(tn => imports.add(tn))
     interfaces.foreach(tn => imports.add(tn))
     bodyDeclarations.foreach(bd => bd.verify(imports))
-    imports.map(i => (i, typeName)).toSet
+    imports.diff(TypeName.ApexTypes).map(i => (i, typeName)).toSet
   }
 
   def resolve(index: CSTIndex)

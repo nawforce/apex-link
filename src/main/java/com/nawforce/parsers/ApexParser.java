@@ -4898,17 +4898,6 @@ public class ApexParser extends Parser {
 			super.copyFrom(ctx);
 		}
 	}
-	public static class Alt9ExpressionContext extends ExpressionContext {
-		public TerminalNode LPAREN() { return getToken(ApexParser.LPAREN, 0); }
-		public TypeRefContext typeRef() {
-			return getRuleContext(TypeRefContext.class,0);
-		}
-		public TerminalNode RPAREN() { return getToken(ApexParser.RPAREN, 0); }
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
-		}
-		public Alt9ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
-	}
 	public static class Alt18ExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
@@ -5037,6 +5026,17 @@ public class ApexParser extends Parser {
 		public TerminalNode TILDE() { return getToken(ApexParser.TILDE, 0); }
 		public TerminalNode BANG() { return getToken(ApexParser.BANG, 0); }
 		public Alt12ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+	}
+	public static class CastExpressionContext extends ExpressionContext {
+		public TerminalNode LPAREN() { return getToken(ApexParser.LPAREN, 0); }
+		public TypeRefContext typeRef() {
+			return getRuleContext(TypeRefContext.class,0);
+		}
+		public TerminalNode RPAREN() { return getToken(ApexParser.RPAREN, 0); }
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
+		}
+		public CastExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
 	}
 	public static class Alt14ExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
@@ -5174,7 +5174,7 @@ public class ApexParser extends Parser {
 				break;
 			case 2:
 				{
-				_localctx = new Alt9ExpressionContext(_localctx);
+				_localctx = new CastExpressionContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(786);

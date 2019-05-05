@@ -425,7 +425,7 @@ object FinallyBlock {
 final case class CatchType(names: List[QualifiedName]) extends CST {
   override def children(): List[CST] = names
   def verify(imports: mutable.Set[TypeName]): Unit = {
-    // TODO: Convert to types and add to imports
+    names.foreach(name => imports.add(TypeName(name.names)))
   }
 }
 

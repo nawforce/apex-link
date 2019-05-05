@@ -92,4 +92,46 @@ class ImportTest extends FunSuite {
       Set((TypeName(Name("Ref")).asClassOf,TypeName(Name("Dummy"))), (TypeName(Name("Type")),TypeName(Name("Dummy")))))
   }
 
+  test("Method return type imports") {
+    assert(typeDeclaration("public class Dummy {Ref func() {}}").imports ==
+      Set((TypeName(Name("Ref")),TypeName(Name("Dummy")))))
+  }
+
+  test("Method parameter type imports") {
+    assert(typeDeclaration("public class Dummy {void func(Ref a) {}}").imports ==
+      Set((TypeName(Name("Ref")),TypeName(Name("Dummy")))))
+  }
+
+  test("Field type imports") {
+    assert(typeDeclaration("public class Dummy {Ref field;}").imports ==
+      Set((TypeName(Name("Ref")),TypeName(Name("Dummy")))))
+  }
+
+  test("Property type imports") {
+    assert(typeDeclaration("public class Dummy {Ref field {get;}}").imports ==
+      Set((TypeName(Name("Ref")),TypeName(Name("Dummy")))))
+  }
+
+  test("Local var type imports") {
+    assert(typeDeclaration("public class Dummy {static {Ref a;}}").imports ==
+      Set((TypeName(Name("Ref")),TypeName(Name("Dummy")))))
+  }
+
+  test("Cast expression imports") {
+    assert(typeDeclaration("public class Dummy {static {Object a=(Ref)null;}}").imports ==
+      Set((TypeName(Name("Ref")),TypeName(Name("Dummy")))))
+  }
+
+  test("For control imports") {
+    assert(typeDeclaration("public class Dummy {void func() {for(Ref a;;) {}} }").imports ==
+      Set((TypeName(Name("Ref")),TypeName(Name("Dummy")))))
+  }
+
+  test("Catch imports") {
+    assert(typeDeclaration("public class Dummy {void func() {try {} catch(Ref a) {}} }").imports ==
+      Set((TypeName(Name("Ref")),TypeName(Name("Dummy")))))
+  }
+
+
+
 }

@@ -442,7 +442,7 @@ expression
     | expression LBRACK expression RBRACK                                                             # alt6Expression
     | expression LPAREN expressionList? RPAREN                                                        # functionCallExpression
     | NEW creator                                                                                     # newExpression
-    | LPAREN typeRef RPAREN expression                                                                # alt9Expression
+    | LPAREN typeRef RPAREN expression                                                                # castExpression
     | expression (INC | DEC)                                                                          # alt10Expression
     | (ADD|SUB|INC|DEC) expression                                                                    # alt11Expression
     | (TILDE|BANG) expression                                                                         # alt12Expression
