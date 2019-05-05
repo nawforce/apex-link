@@ -40,7 +40,10 @@ class ImportTest extends FunSuite {
 
   def typeDeclaration(clsText: String): TypeDeclaration = {
     IssueLog.clear()
-    ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes())).get
+    val td = ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes()))
+    if (td.isEmpty)
+      IssueLog.dumpMessages(json=false)
+    td.get
   }
 
   test("Empty class has no imports") {
@@ -83,4 +86,10 @@ class ImportTest extends FunSuite {
     assert(typeDeclaration("public class Dummy {interface Inner extends A, B {}}").nestedTypes.head.imports ==
       Set((TypeName(Name("A")),innerType),(TypeName(Name("B")),innerType)))
   }
+
+  test("Class reference imports") {
+    assert(typeDeclaration("public class Dummy {{Type t = Ref.class;}}").imports ==
+      Set((TypeName(Name("Ref")).asClassOf,TypeName(Name("Dummy"))), (TypeName(Name("Type")),TypeName(Name("Dummy")))))
+  }
+
 }

@@ -30,10 +30,10 @@ package com.nawforce.utils
 import java.nio.file.Path
 
 import com.nawforce.documents.{LineLocation, Location, RangeLocation, TextRange}
+import net.liftweb.json._
 
 import scala.collection.mutable
 import scala.util.DynamicVariable
-import net.liftweb.json._
 
 object IssueLog {
   val context: DynamicVariable[Path] = new DynamicVariable[Path](null)

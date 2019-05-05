@@ -27,7 +27,7 @@
 */
 package com.nawforce.documents
 
-import java.io.{File, FileInputStream, InputStream}
+import java.io.{FileInputStream, InputStream}
 import java.nio.file.{Path, Paths}
 
 import com.nawforce.utils.{IssueLog, Name}

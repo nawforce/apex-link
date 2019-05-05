@@ -28,7 +28,7 @@
 package com.nawforce.cst
 
 import com.nawforce.types.TypeName
-import com.nawforce.utils.LinkerException
+import com.nawforce.utils.{LinkerException, Name}
 
 trait VarIntroducer {
   private var assignments: List[Expression] = Nil
@@ -40,7 +40,7 @@ trait VarIntroducer {
   def getAssignments: List[Expression] = assignments
 }
 
-case class VarDeclaration(name: Identifier, typeRef: TypeName, introducer: VarIntroducer) {
+case class VarDeclaration(id: Id, typeRef: TypeName, introducer: VarIntroducer) {
   def addAssign(statement: Expression): Unit = introducer.addAssign(statement)
 }
 
@@ -60,13 +60,13 @@ class ResolveStmtContext(index: CSTIndex, parentScope: ResolveStmtContext = null
 
   def addVarDeclaration(varDeclaration: VarDeclaration): Unit = vars = varDeclaration :: vars
 
-  def getVarDeclaration(name: String): Option[VarDeclaration] = {
-    vars.find(_.name.text.compareToIgnoreCase(name) == 0)
+  def getVarDeclaration(name: Name): Option[VarDeclaration] = {
+    vars.find(_.id.name == name)
   }
 }
 
 class ResolveExprContext(stmtContext: ResolveStmtContext) {
-  def getVarDeclaration(name: String): Option[VarDeclaration] = {
+  def getVarDeclaration(name: Name): Option[VarDeclaration] = {
     stmtContext.getVarDeclaration(name)
   }
 }

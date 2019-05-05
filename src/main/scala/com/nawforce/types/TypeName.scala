@@ -62,7 +62,7 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
 
   def asListOf: TypeName = new TypeName(Name.List, Seq(this), Some(TypeName.System))
 
-  def asClassOf: TypeName = new TypeName(Name.Class, Seq(this), Some(TypeName.System))
+  def asClassOf: TypeName = new TypeName(Name.Class$, Seq(this), Some(TypeName.System))
 
   override def toString: String = {
     (if (outer.isEmpty) "" else outer.get.toString + ".") +

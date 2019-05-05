@@ -149,6 +149,11 @@ public class ApexLexer extends Lexer {
 	}
 
 
+	    public void clearCache() {
+	        _interp.clearDFA();
+	    }
+
+
 	public ApexLexer(CharStream input) {
 		super(input);
 		_interp = new LexerATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);

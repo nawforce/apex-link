@@ -36,23 +36,28 @@ import com.nawforce.utils.IssueLog
 import org.antlr.v4.runtime.misc.Interval
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.ref.WeakReference
 
 trait Statement extends CST {
+  def verify(imports: mutable.Set[TypeName]): Unit
   def resolve(context: ResolveStmtContext)
 }
 
 // Treat Block as Statement for blocks in blocks
-final case class Block(path: Path, bytes: Array[Byte]) extends CST with Statement {
+final case class Block(path: Path, bytes: Array[Byte], var blockContextRef: WeakReference[BlockContext]) extends CST with Statement {
   private var statementsRef: WeakReference[List[Statement]] = WeakReference(null)
+
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    statements().foreach(s => s.verify(imports))
+  }
 
   def statements(): List[Statement] = {
     if (statementsRef.get.isEmpty) {
-      val blockContext = ApexTypeDeclaration.parseBlock(path, new ByteArrayInputStream(bytes))
-      if (blockContext.nonEmpty) {
-        val statementContexts: Seq[StatementContext] = blockContext.get.statement().asScala
-        statementsRef = WeakReference(Statement.construct(statementContexts.toList, new ConstructContext))
-      }
+      if (blockContextRef.get.isEmpty)
+        blockContextRef = WeakReference(ApexTypeDeclaration.parseBlock(path, new ByteArrayInputStream(bytes)).get)
+      val statementContexts: Seq[StatementContext] = blockContextRef.get.head.statement().asScala
+      statementsRef = WeakReference(Statement.construct(statementContexts.toList, new ConstructContext))
     }
     statementsRef.get.getOrElse(List())
   }
@@ -70,7 +75,7 @@ object Block {
   def construct(blockContext: BlockContext, context: ConstructContext): Block = {
     val is = blockContext.start.getInputStream
     val text = is.getText(new Interval(blockContext.start.getStartIndex, blockContext.stop.getStopIndex))
-    Block(IssueLog.context.value, text.getBytes())
+    Block(IssueLog.context.value, text.getBytes(), WeakReference(blockContext))
   }
 
   def constructOption(blockContext: BlockContext, context: ConstructContext): Option[Block] = {
@@ -84,6 +89,10 @@ object Block {
 final case class LocalVariableDeclarationStatement(localVariableDeclaration: LocalVariableDeclaration) extends Statement {
   override def children(): List[CST] = localVariableDeclaration :: Nil
 
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    localVariableDeclaration.verify(imports)
+  }
+
   override def resolve(context: ResolveStmtContext): Unit = localVariableDeclaration.resolve(context)
 }
 
@@ -95,6 +104,11 @@ object LocalVariableDeclarationStatement {
 
 final case class IfStatement(expression: Expression, statements: List[Statement]) extends Statement {
   override def children(): List[CST] = expression :: statements
+
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    expression.verify(imports)
+    statements.foreach(_.verify(imports))
+  }
 
   override def resolve(context: ResolveStmtContext): Unit = {
     expression.resolve(new ResolveExprContext(context))
@@ -114,6 +128,11 @@ object IfStatement {
 
 final case class WhenControl(expressions: List[Expression], block: Block) extends CST {
   override def children(): List[CST] = expressions ++ List(block)
+
+  def verify(imports: mutable.Set[TypeName]): Unit = {
+    expressions.foreach(_.verify(imports))
+    block.verify(imports)
+  }
 
   def resolve(context: ResolveStmtContext): Unit = {
     val erc = new ResolveExprContext(context)
@@ -137,6 +156,11 @@ object WhenControl {
 final case class SwitchStatement(expression: Expression, whenControls: List[WhenControl]) extends Statement {
   override def children(): List[CST] = expression :: whenControls
 
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    expression.verify(imports)
+    whenControls.foreach(_.verify(imports))
+  }
+
   override def resolve(context: ResolveStmtContext): Unit = {
     expression.resolve(new ResolveExprContext(context))
     whenControls.foreach(_.resolve(context))
@@ -157,6 +181,11 @@ final case class ForStatement(control: ForControl, statement: Statement) extends
     control :: statement :: Nil
   }
 
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    control.verify(imports)
+    statement.verify(imports)
+  }
+
   override def resolve(context: ResolveStmtContext): Unit = {
     context.pushBlock()
     control.resolve(context)
@@ -172,7 +201,9 @@ object ForStatement {
 }
 
 sealed abstract class ForControl extends CST {
+  def verify(imports: mutable.Set[TypeName]): Unit
   def resolve(context: ResolveStmtContext): Unit
+
 }
 
 object ForControl {
@@ -188,8 +219,13 @@ object ForControl {
 }
 
 final case class EnhancedForControl(modifiers: Seq[Modifier], typeRef: TypeName,
-                                    id: Identifier, expression: Expression) extends ForControl with VarIntroducer {
+                                    id: Id, expression: Expression) extends ForControl with VarIntroducer {
   override def children(): List[CST] = id :: expression :: Nil
+
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    imports.add(typeRef)
+    expression.verify(imports)
+  }
 
   def resolve(context: ResolveStmtContext): Unit = {
     expression.resolve(new ResolveExprContext(context))
@@ -202,7 +238,7 @@ object EnhancedForControl {
     EnhancedForControl(
       ApexModifiers.construct(from.modifier().asScala, context),
       TypeRef.construct(from.typeRef(), context),
-      Identifier(from.id().getText),
+      Id.construct(from.id(), context),
       Expression.construct(from.expression(), context).withContext(from, context)
     )
   }
@@ -210,6 +246,12 @@ object EnhancedForControl {
 
 final case class BasicForControl(forInit: Option[ForInit], expression: Option[Expression], forUpdate: Option[ForUpdate]) extends ForControl {
   override def children(): List[CST] = List[CST]() ++ forInit ++ expression ++ forUpdate
+
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    forInit.foreach(_.verify(imports))
+    expression.foreach(_.verify(imports))
+    forUpdate.foreach(_.verify(imports))
+  }
 
   def resolve(context: ResolveStmtContext): Unit = {
     forInit.foreach(_.resolve(context))
@@ -243,17 +285,26 @@ object BasicForControl {
 }
 
 sealed abstract class ForInit extends CST {
+  def verify(imports: mutable.Set[TypeName]): Unit
   def resolve(context: ResolveStmtContext): Unit
 }
 
 final case class LocalVariableForInit(variable: LocalVariableDeclaration) extends ForInit {
   override def children(): List[CST] = variable :: Nil
 
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    variable.verify(imports)
+  }
+
   def resolve(context: ResolveStmtContext): Unit = variable.resolve(context)
 }
 
 final case class ExpressionListForInit(expressions: List[Expression]) extends ForInit {
   override def children(): List[CST] = expressions
+
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    expressions.foreach(_.verify(imports))
+  }
 
   def resolve(context: ResolveStmtContext): Unit = expressions.foreach(_.resolve(new ResolveExprContext(context)))
 }
@@ -276,6 +327,10 @@ object ForInit {
 final case class ForUpdate(expressions: List[Expression]) extends CST {
   override def children(): List[CST] = expressions
 
+  def verify(imports: mutable.Set[TypeName]): Unit = {
+    expressions.foreach(_.verify(imports))
+  }
+
   def resolve(context: ResolveStmtContext): Unit = expressions.foreach(_.resolve(new ResolveExprContext(context)))
 }
 
@@ -291,7 +346,12 @@ final case class WhileStatement(expression: Expression, statement: Statement) ex
     expression :: statement :: Nil
   }
 
-  def resolve(context: ResolveStmtContext): Unit = {
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    expression.verify(imports)
+    statement.verify(imports)
+  }
+
+  override def resolve(context: ResolveStmtContext): Unit = {
     expression.resolve(new ResolveExprContext(context))
     statement.resolve(context)
   }
@@ -309,7 +369,12 @@ final case class DoWhileStatement(statement: Statement, expression: Expression) 
     expression :: statement :: Nil
   }
 
-  def resolve(context: ResolveStmtContext): Unit = {
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    expression.verify(imports)
+    statement.verify(imports)
+  }
+
+  override def resolve(context: ResolveStmtContext): Unit = {
     expression.resolve(new ResolveExprContext(context))
     statement.resolve(context)
   }
@@ -326,7 +391,13 @@ object DoWhileStatement {
 final case class TryStatement(block: Block, catches: List[CatchClause], finallyBlock: Option[Block]) extends Statement {
   override def children(): List[CST] = List(block) ++ catches ++ finallyBlock
 
-  def resolve(context: ResolveStmtContext): Unit = {
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    block.verify(imports)
+    catches.foreach(_.verify(imports))
+    finallyBlock.foreach(_.verify(imports))
+  }
+
+  override def resolve(context: ResolveStmtContext): Unit = {
     block.resolve(context)
     catches.foreach(_.resolve(context))
     finallyBlock.foreach(_.resolve(context))
@@ -352,8 +423,9 @@ object FinallyBlock {
 }
 
 final case class CatchType(names: List[QualifiedName]) extends CST {
-  override def children(): List[CST] = {
-    names
+  override def children(): List[CST] = names
+  def verify(imports: mutable.Set[TypeName]): Unit = {
+    // TODO: Convert to types and add to imports
   }
 }
 
@@ -366,6 +438,11 @@ object CatchType {
 
 final case class CatchClause(modifiers: Seq[Modifier], catchType: CatchType, id: String, block: Block) extends CST {
   override def children(): List[CST] = List(catchType) ++ List(block)
+
+  def verify(imports: mutable.Set[TypeName]): Unit = {
+    catchType.verify(imports)
+    block.verify(imports)
+  }
 
   def resolve(context: ResolveStmtContext): Unit = {
     block.resolve(context)
@@ -388,13 +465,16 @@ object CatchClause {
       Block.construct(from.block(), context)
     ).withContext(from, context)
   }
-
 }
 
 final case class ReturnStatement(expression: Option[Expression]) extends Statement {
   override def children(): List[CST] = List() ++ expression
 
-  def resolve(context: ResolveStmtContext): Unit = expression.foreach(_.resolve(new ResolveExprContext(context)))
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    expression.foreach(_.verify(imports))
+  }
+
+  override def resolve(context: ResolveStmtContext): Unit = expression.foreach(_.resolve(new ResolveExprContext(context)))
 }
 
 object ReturnStatement {
@@ -412,7 +492,11 @@ object ReturnStatement {
 final case class ThrowStatement(expression: Expression) extends Statement {
   override def children(): List[CST] = Nil
 
-  def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    expression.verify(imports)
+  }
+
+  override def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
 object ThrowStatement {
@@ -421,46 +505,42 @@ object ThrowStatement {
   }
 }
 
-final case class BreakStatement(id: String) extends Statement {
+final case class BreakStatement() extends Statement {
   override def children(): List[CST] = Nil
 
-  def resolve(context: ResolveStmtContext): Unit = {} // Nothing to do
+  override def verify(imports: mutable.Set[TypeName]): Unit = {}
+
+  override def resolve(context: ResolveStmtContext): Unit = {}
 }
 
 object BreakStatement {
   def construct(statement: BreakStatementContext, context: ConstructContext): BreakStatement = {
-    val cst =
-      if (statement.id() != null) {
-        BreakStatement(statement.id.getText)
-      } else {
-        BreakStatement(null)
-      }
-    cst.withContext(statement, context)
+    BreakStatement().withContext(statement, context)
   }
 }
 
-final case class ContinueStatement(id: String) extends Statement {
+final case class ContinueStatement() extends Statement {
   override def children(): List[CST] = Nil
 
-  def resolve(context: ResolveStmtContext): Unit = {} // Nothing to do
+  override def verify(imports: mutable.Set[TypeName]): Unit = {}
+
+  override def resolve(context: ResolveStmtContext): Unit = {}
 }
 
 object ContinueStatement {
   def construct(statement: ContinueStatementContext, context: ConstructContext): ContinueStatement = {
-    val cst =
-      if (statement.id() != null) {
-        ContinueStatement(statement.id.getText)
-      } else {
-        ContinueStatement(null)
-      }
-    cst.withContext(statement, context)
+    ContinueStatement().withContext(statement, context)
   }
 }
 
 final case class InsertStatement(expression: Expression) extends Statement {
   override def children(): List[CST] = expression :: Nil
 
-  def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    expression.verify(imports)
+  }
+
+  override def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
 object InsertStatement {
@@ -472,7 +552,11 @@ object InsertStatement {
 final case class UpdateStatement(expression: Expression) extends Statement {
   override def children(): List[CST] = expression :: Nil
 
-  def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    expression.verify(imports)
+  }
+
+  override def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
 object UpdateStatement {
@@ -484,7 +568,11 @@ object UpdateStatement {
 final case class DeleteStatement(expression: Expression) extends Statement {
   override def children(): List[CST] = expression :: Nil
 
-  def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    expression.verify(imports)
+  }
+
+  override def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
 object DeleteStatement {
@@ -496,7 +584,11 @@ object DeleteStatement {
 final case class UndeleteStatement(expression: Expression) extends Statement {
   override def children(): List[CST] = expression :: Nil
 
-  def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    expression.verify(imports)
+  }
+
+  override def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
 object UndeleteStatement {
@@ -508,7 +600,12 @@ object UndeleteStatement {
 final case class UpsertStatement(expression: Expression, field: Option[QualifiedName]) extends Statement {
   override def children(): List[CST] = expression :: Nil
 
-  def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    expression.verify(imports)
+    // TODO: Field?
+  }
+
+  override def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
 object UpsertStatement {
@@ -526,7 +623,12 @@ object UpsertStatement {
 final case class MergeStatement(expression1: Expression, expression2: Expression) extends Statement {
   override def children(): List[CST] = expression1 :: expression2 :: Nil
 
-  def resolve(context: ResolveStmtContext): Unit = {
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    expression1.verify(imports)
+    expression2.verify(imports)
+  }
+
+  override def resolve(context: ResolveStmtContext): Unit = {
     expression1.resolve(new ResolveExprContext(context))
     expression2.resolve(new ResolveExprContext(context))
   }
@@ -541,7 +643,12 @@ object MergeStatement {
 final case class RunAsStatement(expressions: List[Expression], block: Option[Block]) extends Statement {
   override def children(): List[CST] = expressions ++ block
 
-  def resolve(context: ResolveStmtContext): Unit = {
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    expressions.foreach(_.verify(imports))
+    block.foreach(_.verify(imports))
+  }
+
+  override def resolve(context: ResolveStmtContext): Unit = {
     expressions.foreach(_.resolve(new ResolveExprContext(context)))
     block.foreach(_.resolve(context))
   }
@@ -561,22 +668,15 @@ object RunAsStatement {
   }
 }
 
-final case class EmptyStatement() extends Statement {
-  override def children(): List[CST] = Nil
-
-  def resolve(context: ResolveStmtContext): Unit = {} // Nothing to do
-}
-
-object EmptyStatement {
-  def construct(statement: EmptyStatementContext, context: ConstructContext): EmptyStatement = {
-    EmptyStatement().withContext(statement, context)
-  }
-}
-
+// TODO: What causes expression can not be a statement
 final case class ExpressionStatement(var expression: Expression) extends Statement {
   override def children(): List[CST] = expression :: Nil
 
-  def resolve(context: ResolveStmtContext): Unit = {
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    expression.verify(imports)
+  }
+
+  override def resolve(context: ResolveStmtContext): Unit = {
     expression.resolve(new ResolveExprContext(context))
 
     // Link var assignment to declaration
@@ -590,18 +690,6 @@ final case class ExpressionStatement(var expression: Expression) extends Stateme
 object ExpressionStatement {
   def construct(statement: ExpressionStatementContext, context: ConstructContext): ExpressionStatement = {
     ExpressionStatement(Expression.construct(statement.expression(), context)).withContext(statement, context)
-  }
-}
-
-final case class IdStatement(id: String, statement: Statement) extends Statement {
-  override def children(): List[CST] = statement :: Nil
-
-  def resolve(context: ResolveStmtContext): Unit = {} // Nothing to do
-}
-
-object IdStatement {
-  def construct(statement: IdStatementContext, context: ConstructContext): IdStatement = {
-    IdStatement(statement.id().getText, Statement.construct(statement.statement(), context)).withContext(statement, context)
   }
 }
 
@@ -650,12 +738,8 @@ object Statement {
         MergeStatement.construct(statement.mergeStatement(), context)
       } else if (statement.runAsStatement() != null) {
         RunAsStatement.construct(statement.runAsStatement(), context)
-      } else if (statement.emptyStatement() != null) {
-        EmptyStatement.construct(statement.emptyStatement(), context)
       } else if (statement.expressionStatement() != null) {
         ExpressionStatement.construct(statement.expressionStatement(), context)
-      } else if (statement.idStatement() != null) {
-        IdStatement.construct(statement.idStatement(), context)
       } else {
         throw new CSTException()
       }

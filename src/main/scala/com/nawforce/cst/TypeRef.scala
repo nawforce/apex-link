@@ -33,6 +33,7 @@ import com.nawforce.utils.Name
 
 import scala.collection.JavaConverters._
 
+
 object TypeRef {
   def construct(aList: List[TypeRefContext], context: ConstructContext): List[TypeName] = {
     aList.map(x => TypeRef.construct(x, context))

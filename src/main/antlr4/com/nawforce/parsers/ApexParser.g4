@@ -288,7 +288,7 @@ localVariableDeclaration
 
 statement
     : block
-    | localVariableDeclarationStatement                           // TODO: Is this right or dodgy code
+    | localVariableDeclarationStatement
     | ifStatement
     | switchStatement
     | forStatement
@@ -306,9 +306,7 @@ statement
     | upsertStatement
     | mergeStatement
     | runAsStatement
-    | emptyStatement
     | expressionStatement
-    | idStatement
     ;
 
 ifStatement
@@ -348,11 +346,11 @@ throwStatement
     ;
 
 breakStatement
-    : BREAK id? SEMI
+    : BREAK SEMI
     ;
 
 continueStatement
-    : CONTINUE id? SEMI
+    : CONTINUE SEMI
     ;
 
 insertStatement
@@ -383,16 +381,8 @@ runAsStatement
     : RUNAS LPAREN expressionList? RPAREN block?
     ;
 
-emptyStatement
-    : SEMI
-    ;
-
 expressionStatement
     : expression SEMI
-    ;
-
-idStatement
-    : id COLON statement
     ;
 
 propertyBlock
@@ -449,13 +439,9 @@ expressionList
 
 expression
     : expression DOT id                                                                               # alt1Expression
-    | expression DOT THIS                                                                             # alt2Expression
-    | expression DOT NEW nonWildcardTypeArguments? innerCreator                                       # alt3Expression
-    | expression DOT SUPER superSuffix                                                                # alt4Expression
-    | expression DOT explicitGenericInvocation                                                        # alt5Expression
     | expression LBRACK expression RBRACK                                                             # alt6Expression
     | expression LPAREN expressionList? RPAREN                                                        # functionCallExpression
-    | NEW creator                                                                                     # alt8Expression
+    | NEW creator                                                                                     # newExpression
     | LPAREN typeRef RPAREN expression                                                                # alt9Expression
     | expression (INC | DEC)                                                                          # alt10Expression
     | (ADD|SUB|INC|DEC) expression                                                                    # alt11Expression
@@ -491,20 +477,16 @@ expression
     ;
 
 primary
-    : LPAREN expression RPAREN                                                                       # alt1Primary
-    | THIS                                                                                           # alt2Primary
-    | SUPER                                                                                          # alt3Primary
-    | literal                                                                                        # alt4Primary
-    | id                                                                                             # alt5Primary
-    | typeRef DOT CLASS                                                                              # alt6Primary
-    | VOID DOT CLASS                                                                                 # alt7Primary
-    | nonWildcardTypeArguments (explicitGenericInvocationSuffix | THIS arguments)                    # alt8Primary
-    | soqlLiteral                                                                                    # alt9Primary
+    : LPAREN expression RPAREN                                                                       # subPrimary
+    | THIS                                                                                           # thisPrimary
+    | SUPER                                                                                          # superPrimary
+    | literal                                                                                        # literalPrimary
+    | typeRef                                                                                        # refPrimary
+    | soqlLiteral                                                                                    # soqlPrimary
     ;
 
 creator
-    : nonWildcardTypeArguments createdName classCreatorRest                                          #alt1Creator
-    | createdName (arrayCreatorRest | classCreatorRest | mapCreatorRest | setCreatorRest)            #alt2Creator
+    :  createdName (noRest | classCreatorRest | arrayCreatorRest | mapCreatorRest | setCreatorRest)
     ;
 
 createdName
@@ -512,18 +494,19 @@ createdName
     ;
 
 idCreatedNamePair
-    : id typeArgumentsOrDiamond?
+    : id (LT typeList GT)?
     ;
 
-innerCreator
-    : id nonWildcardTypeArgumentsOrDiamond? classCreatorRest
+noRest
+    : LBRACE RBRACE
+    ;
+
+classCreatorRest
+    : arguments
     ;
 
 arrayCreatorRest
-    : LBRACK
-      (   RBRACK arraySubscripts arrayInitializer
-      |   expression RBRACK (LBRACK expression RBRACK)* arraySubscripts
-      )
+    : LBRACK expression? RBRACK arrayInitializer?
     ;
 
 mapCreatorRest
@@ -531,58 +514,16 @@ mapCreatorRest
     ;
 
 mapCreatorRestPair
-    : idOrExpression MAP literalOrExpression
+    : expression MAP expression
     ;
 
 setCreatorRest
-	: LBRACE literalOrExpression (COMMA ( literalOrExpression ))* RBRACE
+	: LBRACE expression (COMMA ( expression ))* RBRACE
 	;
-
-literalOrExpression
-    : literal | expression
-    ;
-
-idOrExpression
-    : id | expression
-    ;
-
-classCreatorRest
-    : arguments
-    | LBRACE expressionList? RBRACE
-    ;
-
-explicitGenericInvocation
-    : nonWildcardTypeArguments explicitGenericInvocationSuffix
-    ;
-
-nonWildcardTypeArguments
-    : LT typeList GT
-    ;
-
-typeArgumentsOrDiamond
-    : LT GT
-    | typeArguments
-    ;
-
-nonWildcardTypeArgumentsOrDiamond
-    : LT GT
-    | nonWildcardTypeArguments
-    ;
-
-superSuffix
-    : arguments
-    | DOT id arguments?
-    ;
-
-explicitGenericInvocationSuffix
-    : SUPER superSuffix
-    | id arguments
-    ;
 
 arguments
     : LPAREN expressionList? RPAREN
     ;
-
 
 soqlLiteral
     : LBRACK (soqlLiteral|~RBRACK)*? RBRACK

@@ -31,7 +31,7 @@ import java.nio.file.Path
 
 import com.nawforce.parsers.ApexParser
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{ApexTypeDeclaration, CLASS_NATURE, ENUM_NATURE, GLOBAL_MODIFIER, INTERFACE_NATURE, Modifier, Nature, TypeName}
+import com.nawforce.types._
 import com.nawforce.utils.{IssueLog, Name}
 
 import scala.collection.JavaConverters._
@@ -65,6 +65,10 @@ final case class ClassDeclaration(_id: Id, _outerTypeName: Option[TypeName], _mo
     super.verify()
   }
 
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    // Don't collate nested imports into parent
+  }
+
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)
     bodyDeclarations.foreach(_.resolve(index))
@@ -94,7 +98,7 @@ object ClassDeclaration {
         classBodyDeclarations.toList.map(cbd =>
 
           if (cbd.block() != null) {
-            StaticBlock.construct(cbd.block(), context)
+            InitialiserBlock.construct(cbd.block(), context)
           } else if (cbd.memberDeclaration() != null) {
             val modifiers: Seq[ModifierContext] = cbd.modifier().asScala
             ClassBodyDeclaration.construct(Some(thisType), modifiers.toList, cbd.memberDeclaration(), context)
@@ -118,6 +122,10 @@ final case class InterfaceDeclaration(_id: Id, _outerTypeName: Option[TypeName],
   override val nature: Nature = INTERFACE_NATURE
 
   override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
+
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    // Don't collate nested imports into parent
+  }
 
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)
@@ -146,6 +154,10 @@ final case class EnumDeclaration(_id: Id, _outerTypeName: Option[TypeName], _mod
   override val nature: Nature = ENUM_NATURE
 
   override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
+
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
+    // Don't collate nested imports into parent
+  }
 
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)

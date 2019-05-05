@@ -66,10 +66,11 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
   val methods: Seq[MethodDeclaration] = Seq()
 
   protected def verify(): Set[(TypeName, TypeName)] = {
-    val imports = mutable.Set[(TypeName, TypeName)]()
-    superClass.foreach(tn => imports.add((tn, typeName)))
-    interfaces.foreach(tn => imports.add((tn, typeName)))
-    imports.toSet
+    val imports = mutable.Set[TypeName]()
+    superClass.foreach(tn => imports.add(tn))
+    interfaces.foreach(tn => imports.add(tn))
+    bodyDeclarations.foreach(bd => bd.verify(imports))
+    imports.map(i => (i, typeName)).toSet
   }
 
   def resolve(index: CSTIndex)
