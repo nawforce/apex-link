@@ -132,6 +132,96 @@ class ImportTest extends FunSuite {
       Set((TypeName(Name("Ref")),TypeName(Name("Dummy")))))
   }
 
+  test("New imports") {
+    assert(typeDeclaration("public class Dummy {void func() {Object a = new Ref();} }").imports ==
+      Set((TypeName(Name("Ref")),TypeName(Name("Dummy")))))
+  }
 
+  test("Complex new imports") {
+    assert(typeDeclaration("public class Dummy {void func() {Object a = new Foo.Bar<Baz>();} }").imports ==
+      Set((
+        TypeName(Name("Bar"), Seq(TypeName(Name("Baz"))), Some(TypeName(Name("Foo"), Nil, None))),
+        TypeName(Name("Dummy"))
+      )))
+  }
 
+  test("Class reference imports in Inner") {
+    val innerType = TypeName(Name("Inner")).withOuter(Some(TypeName(Name("Dummy"))))
+    assert(typeDeclaration("public class Dummy {class Inner {{Type t = Ref.class;}}}")
+      .nestedTypes.head.imports ==
+      Set((TypeName(Name("Ref")).asClassOf, innerType), (TypeName(Name("Type")), innerType)))
+  }
+
+  test("Method return type imports in Inner") {
+    val innerType = TypeName(Name("Inner")).withOuter(Some(TypeName(Name("Dummy"))))
+    assert(typeDeclaration("public class Dummy {class Inner {Ref func() {}}}")
+      .nestedTypes.head.imports ==
+      Set((TypeName(Name("Ref")), innerType)))
+  }
+
+  test("Method parameter type imports in Inner") {
+    val innerType = TypeName(Name("Inner")).withOuter(Some(TypeName(Name("Dummy"))))
+    assert(typeDeclaration("public class Dummy {class Inner {void func(Ref a) {}}}")
+      .nestedTypes.head.imports ==
+      Set((TypeName(Name("Ref")), innerType)))
+  }
+
+  test("Field type imports in Inner") {
+    val innerType = TypeName(Name("Inner")).withOuter(Some(TypeName(Name("Dummy"))))
+    assert(typeDeclaration("public class Dummy {class Inner {Ref field;}}")
+      .nestedTypes.head.imports ==
+      Set((TypeName(Name("Ref")), innerType)))
+  }
+
+  test("Property type imports in Inner") {
+    val innerType = TypeName(Name("Inner")).withOuter(Some(TypeName(Name("Dummy"))))
+    assert(typeDeclaration("public class Dummy {class Inner {Ref field {get;}}}")
+      .nestedTypes.head.imports ==
+      Set((TypeName(Name("Ref")), innerType)))
+  }
+
+  test("Local var type imports in Inner") {
+    val innerType = TypeName(Name("Inner")).withOuter(Some(TypeName(Name("Dummy"))))
+    assert(typeDeclaration("public class Dummy {class Inner {static {Ref a;}}}")
+      .nestedTypes.head.imports ==
+      Set((TypeName(Name("Ref")), innerType)))
+  }
+
+  test("Cast expression imports in Inner") {
+    val innerType = TypeName(Name("Inner")).withOuter(Some(TypeName(Name("Dummy"))))
+    assert(typeDeclaration("public class Dummy {class Inner {static {Object a=(Ref)null;}}}")
+      .nestedTypes.head.imports ==
+      Set((TypeName(Name("Ref")), innerType)))
+  }
+
+  test("For control imports in Inner") {
+    val innerType = TypeName(Name("Inner")).withOuter(Some(TypeName(Name("Dummy"))))
+    assert(typeDeclaration("public class Dummy {class Inner {void func() {for(Ref a;;) {}} }}")
+      .nestedTypes.head.imports ==
+      Set((TypeName(Name("Ref")), innerType)))
+  }
+
+  test("Catch imports in Inner") {
+    val innerType = TypeName(Name("Inner")).withOuter(Some(TypeName(Name("Dummy"))))
+    assert(typeDeclaration("public class Dummy {class Inner {void func() {try {} catch(Ref a) {}} }}")
+      .nestedTypes.head.imports ==
+      Set((TypeName(Name("Ref")), innerType)))
+  }
+
+  test("New imports in Inner") {
+    val innerType = TypeName(Name("Inner")).withOuter(Some(TypeName(Name("Dummy"))))
+    assert(typeDeclaration("public class Dummy {class Inner {void func() {Object a = new Ref();} }}")
+      .nestedTypes.head.imports ==
+      Set((TypeName(Name("Ref")), innerType)))
+  }
+
+  test("Complex new imports in Inner") {
+    val innerType = TypeName(Name("Inner")).withOuter(Some(TypeName(Name("Dummy"))))
+    assert(typeDeclaration("public class Dummy {class Inner {void func() {Object a = new Foo.Bar<Baz>();} }}")
+      .nestedTypes.head.imports ==
+      Set((
+        TypeName(Name("Bar"), Seq(TypeName(Name("Baz"))), Some(TypeName(Name("Foo"), Nil, None))),
+        innerType
+      )))
+  }
 }

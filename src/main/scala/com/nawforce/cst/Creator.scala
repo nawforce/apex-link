@@ -27,33 +27,39 @@
 */
 package com.nawforce.cst
 
-import com.nawforce.parsers.ApexParser.{CreatedNameContext, CreatorContext, IdCreatedNamePairContext}
+import com.nawforce.parsers.ApexParser.{CreatedNameContext, CreatorContext, IdCreatedNamePairContext, TypeNameContext}
 import com.nawforce.types.TypeName
+import com.nawforce.utils.Name
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-sealed abstract class CreatedName extends CST {
-  def verify(imports: mutable.Set[TypeName]): Unit
-}
-
-final case class IdCreatedName(idPairs: List[IdCreatedNamePair]) extends CreatedName {
+final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
   override def children(): List[CST] = idPairs
 
   def verify(imports: mutable.Set[TypeName]): Unit = {
-    // TODO: Convert to concrete type import
+    imports.add(createTypeName(None, idPairs.map(_.typeName)))
+  }
+
+  private def createTypeName(outer: Option[TypeName], names: Seq[TypeName]): TypeName = {
+    names match {
+      case hd +: Seq() => hd.withOuter(outer)
+      case hd +: tl => createTypeName(Some(hd.withOuter(outer)), tl)
+    }
   }
 }
 
 object CreatedName {
   def construct(from: CreatedNameContext, context: ConstructContext): CreatedName = {
     val pairs: Seq[IdCreatedNamePairContext] = from.idCreatedNamePair().asScala
-    IdCreatedName(IdCreatedNamePair.construct(pairs.toList, context)).withContext(from, context)
+    CreatedName(IdCreatedNamePair.construct(pairs.toList, context)).withContext(from, context)
   }
 }
 
 final case class IdCreatedNamePair(id: Id, types: Seq[TypeName]) extends CST {
   override def children(): List[CST] = Nil
+
+  val typeName: TypeName = TypeName(id.name, types, None)
 }
 
 object IdCreatedNamePair {
