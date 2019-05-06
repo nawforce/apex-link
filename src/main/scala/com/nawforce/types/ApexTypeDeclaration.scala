@@ -40,19 +40,17 @@ import org.antlr.v4.runtime.CommonTokenStream
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-/** Apex type declaration, a wrapper around the Apex parser output */
-abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeName], val modifiers: Seq[Modifier],
+/** Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
+abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeName], _modifiers: Seq[Modifier],
                                    val superClass: Option[TypeName], val interfaces: Seq[TypeName],
                                    val bodyDeclarations: Seq[ClassBodyDeclaration])
-  extends CST with ClassBodyDeclaration with TypeDeclaration {
+  extends ClassBodyDeclaration(_modifiers) with TypeDeclaration {
 
   override def children(): List[CST] = bodyDeclarations.toList
 
   val name: Name = id.name
   val typeName: TypeName = ApexTypeDeclaration.typeName(name).withOuter(outerTypeName)
   val nature: Nature
-
-  val imports: Set[(TypeName, TypeName)] = verify()
 
   lazy val nestedTypes: Seq[TypeDeclaration] = {
     bodyDeclarations.flatMap {
@@ -65,12 +63,11 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
   val fields: Seq[FieldDeclaration] = Seq()
   val methods: Seq[MethodDeclaration] = Seq()
 
-  protected def verify(): Set[(TypeName, TypeName)] = {
-    val imports = mutable.Set[TypeName]()
+  protected def verify(imports: mutable.Set[TypeName]): Unit = {
     superClass.foreach(tn => imports.add(tn))
     interfaces.foreach(tn => imports.add(tn))
-    bodyDeclarations.foreach(bd => bd.verify(imports))
-    imports.diff(TypeName.ApexTypes).map(i => (i, typeName)).toSet
+    bodyDeclarations.foreach(bd => imports ++= bd.imports)
+    imports.diff(TypeName.ApexTypes).toSet
   }
 
   def resolve(index: CSTIndex)
@@ -100,7 +97,7 @@ object ApexTypeDeclaration {
         parser.setTrace(false)
         parser.addErrorListener(listener)
 
-        Some(CompilationUnit.construct(path, parser.compilationUnit(), new ConstructContext()).typeDeclaration)
+        Some(CompilationUnit.construct(path, parser.compilationUnit(), new ConstructContext()).typeDeclaration())
       }
     } catch {
       case se: SyntaxException =>

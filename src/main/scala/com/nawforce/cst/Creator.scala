@@ -27,9 +27,8 @@
 */
 package com.nawforce.cst
 
-import com.nawforce.parsers.ApexParser.{CreatedNameContext, CreatorContext, IdCreatedNamePairContext, TypeNameContext}
+import com.nawforce.parsers.ApexParser.{CreatedNameContext, CreatorContext, IdCreatedNamePairContext}
 import com.nawforce.types.TypeName
-import com.nawforce.utils.Name
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable

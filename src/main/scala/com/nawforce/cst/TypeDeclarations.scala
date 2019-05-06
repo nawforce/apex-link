@@ -37,8 +37,14 @@ import com.nawforce.utils.{IssueLog, Name}
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-final case class CompilationUnit(path: Path, typeDeclaration: ApexTypeDeclaration) extends CST {
-  def children(): List[CST] = List(typeDeclaration)
+final case class CompilationUnit(path: Path, private val _typeDeclaration: ApexTypeDeclaration) extends CST {
+  def children(): List[CST] = List(_typeDeclaration)
+
+  // TODO: Is there a way around this hack
+  def typeDeclaration(): ApexTypeDeclaration = {
+    _typeDeclaration.imports
+    _typeDeclaration
+  }
 }
 
 object CompilationUnit {
@@ -56,17 +62,11 @@ final case class ClassDeclaration(_id: Id, _outerTypeName: Option[TypeName], _mo
 
   override val nature: Nature = CLASS_NATURE
 
-  override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
-
-  override protected def verify(): Set[(TypeName, TypeName)] = {
+  override def verify(imports: mutable.Set[TypeName]): Unit = {
     if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL_MODIFIER)) {
       IssueLog.logMessage(id.textRange, "Classes enclosing globals must also be declared global")
     }
-    super.verify()
-  }
-
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    // Don't collate nested imports into parent
+    super.verify(imports)
   }
 
   override def resolve(index: CSTIndex): Unit = {
@@ -98,7 +98,7 @@ object ClassDeclaration {
         classBodyDeclarations.toList.map(cbd =>
 
           if (cbd.block() != null) {
-            InitialiserBlock.construct(cbd.block(), context)
+            InitialiserBlock.construct(if (cbd.STATIC()==null) Seq() else Seq(STATIC_MODIFIER), cbd.block(), context)
           } else if (cbd.memberDeclaration() != null) {
             val modifiers: Seq[ModifierContext] = cbd.modifier().asScala
             ClassBodyDeclaration.construct(Some(thisType), modifiers.toList, cbd.memberDeclaration(), context)
@@ -120,12 +120,6 @@ final case class InterfaceDeclaration(_id: Id, _outerTypeName: Option[TypeName],
   extends ApexTypeDeclaration(_id, _outerTypeName, _modifiers, None, _implementsTypes, _bodyDeclarations) {
 
   override val nature: Nature = INTERFACE_NATURE
-
-  override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
-
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    // Don't collate nested imports into parent
-  }
 
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)
@@ -152,12 +146,6 @@ final case class EnumDeclaration(_id: Id, _outerTypeName: Option[TypeName], _mod
   extends ApexTypeDeclaration(_id, _outerTypeName, _modifiers, None, Seq(), _bodyDeclarations) {
 
   override val nature: Nature = ENUM_NATURE
-
-  override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
-
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    // Don't collate nested imports into parent
-  }
 
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)

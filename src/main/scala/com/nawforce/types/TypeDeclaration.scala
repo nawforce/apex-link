@@ -58,7 +58,7 @@ trait MethodDeclaration {
 }
 
 trait TypeDeclaration {
-  val imports: Set[(TypeName, TypeName)]
+  val imports: Set[TypeName]
 
   val name: Name
   val typeName: TypeName

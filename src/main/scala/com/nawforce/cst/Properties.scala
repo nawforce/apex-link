@@ -28,13 +28,16 @@
 package com.nawforce.cst
 
 import com.nawforce.parsers.ApexParser.{ModifierContext, PropertyBlockContext, PropertyBodyDeclarationContext, PropertyDeclarationContext}
-import com.nawforce.types.{ApexModifiers, GLOBAL_MODIFIER, Modifier, TypeName}
+import com.nawforce.types.{ApexModifiers, Modifier, TypeName}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
+final case class PropertyDeclaration(_modifiers: Seq[Modifier], typeRef: TypeName,
+                                     variableDeclarators: VariableDeclarators,
+                                     propertyDeclaration: PropertyBodyDeclaration)
+  extends ClassBodyDeclaration(_modifiers) {
 
-final case class PropertyDeclaration(modifiers: Seq[Modifier], typeRef: TypeName, variableDeclarators: VariableDeclarators, propertyDeclaration: PropertyBodyDeclaration) extends ClassBodyDeclaration {
   override def children(): List[CST] = variableDeclarators :: propertyDeclaration :: Nil
 
   override def verify(imports: mutable.Set[TypeName]): Unit = {
@@ -42,8 +45,6 @@ final case class PropertyDeclaration(modifiers: Seq[Modifier], typeRef: TypeName
     variableDeclarators.verify(imports)
     propertyDeclaration.verify(imports)
   }
-
-  override def isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
 }
 
 object PropertyDeclaration {
