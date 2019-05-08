@@ -28,7 +28,8 @@
 package com.nawforce.cst
 
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{ApexModifiers, GLOBAL_MODIFIER, Modifier, TypeName}
+import com.nawforce.types.{ApexModifiers, FieldDeclaration, GLOBAL_MODIFIER, Modifier, TypeName}
+import com.nawforce.utils.Name
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -48,29 +49,30 @@ abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST {
 
 object ClassBodyDeclaration {
   def construct(outerTypeName: Option[TypeName], modifiers: List[ModifierContext],
-                memberDeclarationContext: MemberDeclarationContext, context: ConstructContext): ClassBodyDeclaration = {
+                memberDeclarationContext: MemberDeclarationContext, context: ConstructContext)
+  : Seq[ClassBodyDeclaration] = {
     val m = ApexModifiers.construct(modifiers, context)
-    val cst: ClassBodyDeclaration =
+    val declarations =
       if (memberDeclarationContext.methodDeclaration() != null) {
-        MethodDeclaration.construct(m, memberDeclarationContext.methodDeclaration(), context)
+        Seq(MethodDeclaration.construct(m, memberDeclarationContext.methodDeclaration(), context))
       } else if (memberDeclarationContext.fieldDeclaration() != null) {
-        FieldDeclaration.construct(m, memberDeclarationContext.fieldDeclaration(), context)
+        ApexFieldDeclaration.construct(m, memberDeclarationContext.fieldDeclaration(), context)
       } else if (memberDeclarationContext.constructorDeclaration() != null) {
-        ConstructorDeclaration.construct(m, memberDeclarationContext.constructorDeclaration(), context)
+        Seq(ConstructorDeclaration.construct(m, memberDeclarationContext.constructorDeclaration(), context))
       } else if (memberDeclarationContext.interfaceDeclaration() != null) {
-        InterfaceDeclaration.construct(outerTypeName, m, memberDeclarationContext.interfaceDeclaration(), context)
+        Seq(InterfaceDeclaration.construct(outerTypeName, m, memberDeclarationContext.interfaceDeclaration(), context))
       } else if (memberDeclarationContext.enumDeclaration() != null) {
-        EnumDeclaration.construct(outerTypeName, m, memberDeclarationContext.enumDeclaration(), context)
+        Seq(EnumDeclaration.construct(outerTypeName, m, memberDeclarationContext.enumDeclaration(), context))
       } else if (memberDeclarationContext.propertyDeclaration() != null) {
-        PropertyDeclaration.construct(m, memberDeclarationContext.propertyDeclaration(), context)
+        Seq(PropertyDeclaration.construct(m, memberDeclarationContext.propertyDeclaration(), context))
       } else if (memberDeclarationContext.classDeclaration() != null) {
-        ClassDeclaration.construct(outerTypeName,
+        Seq(ClassDeclaration.construct(outerTypeName,
           ApexModifiers.classModifiers(modifiers, context, outer = false, memberDeclarationContext.classDeclaration().id()),
-          memberDeclarationContext.classDeclaration(), context)
+          memberDeclarationContext.classDeclaration(), context))
       } else {
         throw new CSTException()
       }
-    cst.withContext(memberDeclarationContext, context)
+    declarations.map(_.withContext(memberDeclarationContext, context))
   }
 }
 
@@ -126,20 +128,29 @@ object MethodDeclaration {
   }
 }
 
-final case class FieldDeclaration(_modifiers: Seq[Modifier], typeRef: TypeName, variableDeclarators: VariableDeclarators)
-  extends ClassBodyDeclaration(_modifiers) {
-  override def children(): List[CST] = variableDeclarators :: Nil
+final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeName, variableDeclarator: VariableDeclarator)
+  extends ClassBodyDeclaration(_modifiers) with FieldDeclaration {
+
+  override val name: Name = variableDeclarator.id.name
+  override val readAccess: Seq[Modifier] = _modifiers
+  override val writeAccess: Seq[Modifier] = _modifiers
+
+  override def children(): List[CST] = variableDeclarator :: Nil
 
   override def verify(imports: mutable.Set[TypeName]): Unit = {
-    imports.add(typeRef)
-    variableDeclarators.verify(imports)
+    imports.add(typeName)
+    variableDeclarator.verify(imports)
   }
 }
 
-object FieldDeclaration {
-  def construct(modifiers: Seq[Modifier], fieldDeclaration: FieldDeclarationContext, context: ConstructContext): FieldDeclaration = {
-    FieldDeclaration(modifiers, TypeRef.construct(fieldDeclaration.typeRef(), context),
-      VariableDeclarators.construct(fieldDeclaration.variableDeclarators(), context)).withContext(fieldDeclaration, context)
+object ApexFieldDeclaration {
+  def construct(modifiers: Seq[Modifier], fieldDeclaration: FieldDeclarationContext, context: ConstructContext):
+        Seq[ApexFieldDeclaration] = {
+
+    val typeName = TypeRef.construct(fieldDeclaration.typeRef(), context)
+    VariableDeclarators.construct(fieldDeclaration.variableDeclarators(), context).declarators.map(vd => {
+      ApexFieldDeclaration(modifiers, typeName, vd).withContext(fieldDeclaration, context)
+    })
   }
 }
 

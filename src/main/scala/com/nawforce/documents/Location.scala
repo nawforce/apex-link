@@ -32,6 +32,7 @@ import java.nio.file.Path
 import org.antlr.v4.runtime.ParserRuleContext
 
 abstract class Location(val path: Path, val line: Int) {
+  def startPosition: (Int, Int) = (line, 0)
   def displayPosition: String
   def asJSON: String
 }
@@ -47,11 +48,13 @@ case class LineRangeLocation(_path: Path, start: Int, end: Int) extends Location
 }
 
 case class Position(line: Int, offset: Int) {
+  def startPosition: (Int, Int) = (line, offset)
   def displayPosition: String = s"line $line at $offset"
   def asJSON: String = s"""{"line": $line, "offset": $offset}"""
 }
 
 case class TextRange(start: Position, end: Position) {
+  def startPosition: (Int, Int) = start.startPosition
   def displayPosition: String = {
     if (start.line == end.line)
       s"line ${start.line} at ${start.offset}-${end.offset}"
@@ -64,11 +67,13 @@ case class TextRange(start: Position, end: Position) {
 }
 
 case class PointLocation(_path: Path, start: Position) extends Location(_path, start.line) {
+  override def startPosition: (Int, Int) = start.startPosition
   override def displayPosition: String = start.displayPosition
   override def asJSON: String = start.asJSON
 }
 
 case class RangeLocation(_path: Path, start: Position, end: Position) extends Location(_path, start.line) {
+  override def startPosition: (Int, Int) = start.startPosition
   override def displayPosition: String = TextRange(start, end).displayPosition
   override def asJSON: String = TextRange(start, end).asJSON
 }
@@ -89,5 +94,3 @@ object RangeLocation {
     RangeLocation(path, range.start, range.end)
   }
 }
-
-

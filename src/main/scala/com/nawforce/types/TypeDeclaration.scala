@@ -38,6 +38,8 @@ trait FieldDeclaration {
   val name: Name
   val modifiers: Seq[Modifier]
   val typeName: TypeName
+  val readAccess: Seq[Modifier]
+  val writeAccess: Seq[Modifier]
 }
 
 trait ParameterDeclaration {
@@ -70,5 +72,6 @@ trait TypeDeclaration {
   val nestedTypes: Seq[TypeDeclaration]
 
   val fields: Seq[FieldDeclaration]
+  val constructors: Seq[ConstructorDeclaration]
   val methods: Seq[MethodDeclaration]
 }

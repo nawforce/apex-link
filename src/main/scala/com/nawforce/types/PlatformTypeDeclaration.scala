@@ -75,6 +75,8 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
     lazy val name: Name = Name(field.getName)
     lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(field.getType, field.getDeclaringClass)
     lazy val modifiers: Seq[Modifier] = PlatformModifiers.fieldOrMethodModifiers(field.getModifiers)
+    lazy val readAccess: Seq[Modifier] = Seq.empty
+    lazy val writeAccess: Seq[Modifier] = Seq.empty
   }
 
   lazy val fields: Seq[FieldDeclaration] = cls.getFields.filter(

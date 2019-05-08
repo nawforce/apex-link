@@ -134,7 +134,7 @@ object IssueLog {
     if (messages.nonEmpty) {
       writer.startDocument(path)
       var count = 0
-      messages.sortBy(_._1.line).foreach(message => {
+      messages.sortBy(_._1.startPosition).foreach(message => {
         if (count < maxErrors) {
           writer.writeMessage(message._1, message._2)
         }

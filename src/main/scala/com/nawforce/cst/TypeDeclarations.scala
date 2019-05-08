@@ -95,10 +95,10 @@ object ClassDeclaration {
     val classBodyDeclarations: Seq[ClassBodyDeclarationContext] = classBody.classBodyDeclaration().asScala
     val bodyDeclarations: List[ClassBodyDeclaration] =
       if (classBodyDeclarations != null) {
-        classBodyDeclarations.toList.map(cbd =>
+        classBodyDeclarations.toList.flatMap(cbd =>
 
           if (cbd.block() != null) {
-            InitialiserBlock.construct(if (cbd.STATIC()==null) Seq() else Seq(STATIC_MODIFIER), cbd.block(), context)
+            Seq(InitialiserBlock.construct(if (cbd.STATIC()==null) Seq() else Seq(STATIC_MODIFIER), cbd.block(), context))
           } else if (cbd.memberDeclaration() != null) {
             val modifiers: Seq[ModifierContext] = cbd.modifier().asScala
             ClassBodyDeclaration.construct(Some(thisType), modifiers.toList, cbd.memberDeclaration(), context)

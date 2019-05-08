@@ -48,20 +48,45 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
 
   override def children(): List[CST] = bodyDeclarations.toList
 
-  val name: Name = id.name
-  val typeName: TypeName = ApexTypeDeclaration.typeName(name).withOuter(outerTypeName)
-  val nature: Nature
+  override val name: Name = id.name
+  override val typeName: TypeName = ApexTypeDeclaration.typeName(name).withOuter(outerTypeName)
+  override val nature: Nature
 
-  lazy val nestedTypes: Seq[TypeDeclaration] = {
+  override lazy val nestedTypes: Seq[TypeDeclaration] = {
     bodyDeclarations.flatMap {
       case x: TypeDeclaration => Some(x)
       case _ => None
     }
   }
 
-  // TODO: These should inherit
-  val fields: Seq[FieldDeclaration] = Seq()
-  val methods: Seq[MethodDeclaration] = Seq()
+  override val fields: Seq[FieldDeclaration] = {
+    val fields = bodyDeclarations.flatMap {
+      case x: FieldDeclaration => Some(x)
+      case _ => None
+    }
+    fields.groupBy(f => f.name).collect {
+      case (_, y :: Nil) => y
+      case (_, duplicates) =>
+        duplicates.tail.foreach(d => {
+          IssueLog.logMessage(d.textRange, s"Duplicate field: '${d.name}'")
+        })
+        duplicates.head
+    }.toSeq
+  }
+
+  override val constructors: Seq[ConstructorDeclaration] = {
+    bodyDeclarations.flatMap {
+      case x: ConstructorDeclaration => Some(x)
+      case _ => None
+    }
+  }
+
+  override val methods: Seq[MethodDeclaration] = {
+    bodyDeclarations.flatMap {
+      case x: MethodDeclaration => Some(x)
+      case _ => None
+    }
+  }
 
   protected def verify(imports: mutable.Set[TypeName]): Unit = {
     superClass.foreach(tn => imports.add(tn))
