@@ -50,6 +50,7 @@ case object FINAL_MODIFIER extends Modifier("final")
 case object OVERRIDE_MODIFIER extends Modifier("override")
 case object VIRTUAL_MODIFIER extends Modifier("virtual")
 case object WEBSERVICE_MODIFIER extends Modifier("webservice")
+case object TRANSIENT_MODIFIER extends Modifier("transient")
 
 case object WITH_SHARING_MODIFIER extends Modifier("with sharing")
 case object WITHOUT_SHARING_MODIFIER extends Modifier("without sharing")
@@ -74,13 +75,17 @@ case object HTTP_PATCH_ANNOTATION extends Modifier("@HttpPatch")
 case object HTTP_POST_ANNOTATION extends Modifier("@HttpPost")
 case object HTTP_PUT_ANNOTATION extends Modifier("@HttpPut")
 
+// TODO: Validate arguments of the annotations
+// TODO: Cross modifier/annotation checking
+
 object ApexModifiers {
   private val classVisibilityModifiers: Set[Modifier] = Set(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PRIVATE_MODIFIER)
+  private val allVisibilityModifiers: Set[Modifier] = Set(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PROTECTED_MODIFIER, PRIVATE_MODIFIER)
   private val sharingModifiers: Set[Modifier] = Set(WITH_SHARING_MODIFIER, WITHOUT_SHARING_MODIFIER, INHERITED_SHARING_MODIFIER)
 
   def classModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext,
                      outer: Boolean, idContext: IdContext)
-  : Seq[Modifier] = {
+    : Seq[Modifier] = {
 
     val mods = modifierContexts.flatMap(modifierContext =>
       if (modifierContext.annotation() != null) {
@@ -131,8 +136,49 @@ object ApexModifiers {
     }
   }
 
+  def fieldModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext, idContext: IdContext)
+    : Seq[Modifier] = {
+
+    val mods = modifierContexts.flatMap(modifierContext =>
+      if (modifierContext.annotation() != null) {
+        fieldAnnotation(modifierContext.annotation())
+      } else {
+        modifierContext.getText.toLowerCase match {
+          case "global" => Some(GLOBAL_MODIFIER)
+          case "public" => Some(PUBLIC_MODIFIER)
+          case "protected" => Some(PROTECTED_MODIFIER)
+          case "private" => Some(PRIVATE_MODIFIER)
+          case "final" => Some(FINAL_MODIFIER)
+          case "static" => Some(STATIC_MODIFIER)
+          case "transient" => Some(TRANSIENT_MODIFIER)
+          case _ =>
+            IssueLog.logMessage(TextRange(modifierContext),
+              s"Modifier '${modifierContext.getText}' is not supported on fields")
+            None
+        }
+      }
+    )
+
+    if (mods.size == modifierContexts.size) {
+      val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
+      if (duplicates.nonEmpty) {
+        IssueLog.logMessage(TextRange(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
+        mods.toSet.toSeq
+      } else if (mods.intersect(Seq(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PROTECTED_MODIFIER, PRIVATE_MODIFIER)).size > 1) {
+        IssueLog.logMessage(TextRange(idContext),
+          s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' may be used on fields")
+        PUBLIC_MODIFIER +: mods.toSet.diff(allVisibilityModifiers).toSeq
+      } else if (mods.intersect(Seq(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PROTECTED_MODIFIER, PRIVATE_MODIFIER)).isEmpty) {
+        PRIVATE_MODIFIER +: mods
+      } else {
+        mods
+      }
+    } else {
+      mods
+    }
+  }
+
   private def classAnnotation(context: AnnotationContext): Option[Modifier] = {
-    // TODO: Validate arguments of the annotations
     context.qualifiedName().getText.toLowerCase match {
       case "deprecated" => Some(DEPRECATED_ANNOTATION)
       case "istest" => Some(ISTEST_ANNOTATION)
@@ -145,6 +191,22 @@ object ApexModifiers {
         None
     }
   }
+
+  private def fieldAnnotation(context: AnnotationContext): Option[Modifier] = {
+    // TODO: Validate arguments of the annotations
+    context.qualifiedName().getText.toLowerCase match {
+      case "auraenabled" => Some(AURA_ENABLED_ANNOTATION)
+      case "deprecated" => Some(DEPRECATED_ANNOTATION)
+      case "invocablevariable" => Some(INVOCABLE_VARIABLE_ANNOTATION)
+      case "testvisible" => Some(TEST_VISIBLE_ANNOTATION)
+      case "suppresswarnings" => Some(SUPPRESS_WARNINGS_ANNOTATION)
+      case _ =>
+        IssueLog.logMessage(TextRange(context),
+          s"Unexpected annotation '${context.qualifiedName().getText}' on field declaration")
+        None
+    }
+  }
+
 
   def construct(modifiers: Seq[ModifierContext], context: ConstructContext): Seq[Modifier] = {
     modifiers.map(_.getText.toLowerCase).flatMap {

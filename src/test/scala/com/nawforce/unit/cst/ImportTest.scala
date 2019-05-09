@@ -38,11 +38,12 @@ class ImportTest extends FunSuite {
   private val defaultName: Name = Name("Dummy")
   private val defaultPath: Path = Paths.get(defaultName.toString)
 
-  def typeDeclaration(clsText: String): TypeDeclaration = {
+  def typeDeclaration(clsText: String, hasMessages: Boolean = false): TypeDeclaration = {
     IssueLog.clear()
     val td = ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes()))
     if (td.isEmpty)
       IssueLog.dumpMessages(json=false)
+    assert(IssueLog.hasMessages == hasMessages)
     td.get
   }
 

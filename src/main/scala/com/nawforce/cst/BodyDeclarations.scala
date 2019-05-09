@@ -56,7 +56,10 @@ object ClassBodyDeclaration {
       if (memberDeclarationContext.methodDeclaration() != null) {
         Seq(MethodDeclaration.construct(m, memberDeclarationContext.methodDeclaration(), context))
       } else if (memberDeclarationContext.fieldDeclaration() != null) {
-        ApexFieldDeclaration.construct(m, memberDeclarationContext.fieldDeclaration(), context)
+        val id = memberDeclarationContext.fieldDeclaration().variableDeclarators().variableDeclarator().get(0).id()
+        ApexFieldDeclaration.construct(
+          ApexModifiers.fieldModifiers(modifiers, context, id),
+          memberDeclarationContext.fieldDeclaration(), context)
       } else if (memberDeclarationContext.constructorDeclaration() != null) {
         Seq(ConstructorDeclaration.construct(m, memberDeclarationContext.constructorDeclaration(), context))
       } else if (memberDeclarationContext.interfaceDeclaration() != null) {
