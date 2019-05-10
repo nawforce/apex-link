@@ -56,7 +56,7 @@ class InnerClassModifierTest extends FunSuite {
   test("Global inner of public outer") {
     assert(typeDeclaration("public class Dummy {global class Inner{}}").modifiers == Seq(GLOBAL_MODIFIER))
     assert(IssueLog.getMessages(defaultPath) ==
-      "line 1 at 13-18: Classes enclosing globals must also be declared global\n")
+      "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
   test("Public inner") {

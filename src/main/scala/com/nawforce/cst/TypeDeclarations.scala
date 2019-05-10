@@ -64,7 +64,7 @@ final case class ClassDeclaration(_id: Id, _outerTypeName: Option[TypeName], _mo
 
   override def verify(imports: mutable.Set[TypeName]): Unit = {
     if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL_MODIFIER)) {
-      IssueLog.logMessage(id.textRange, "Classes enclosing globals must also be declared global")
+      IssueLog.logMessage(id.textRange, "Classes enclosing globals or webservices must also be declared global")
     }
     super.verify(imports)
   }

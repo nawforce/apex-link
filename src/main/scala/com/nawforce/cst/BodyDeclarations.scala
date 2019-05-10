@@ -28,14 +28,14 @@
 package com.nawforce.cst
 
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{ApexModifiers, FieldDeclaration, GLOBAL_MODIFIER, Modifier, TypeName}
+import com.nawforce.types._
 import com.nawforce.utils.Name
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST {
-  lazy val isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER)
+  lazy val isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER) || modifiers.contains(WEBSERVICE_MODIFIER)
 
   lazy val imports: Set[TypeName] = {
     val imports = mutable.Set[TypeName]()

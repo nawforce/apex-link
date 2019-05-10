@@ -79,9 +79,9 @@ case object HTTP_PUT_ANNOTATION extends Modifier("@HttpPut")
 // TODO: Cross modifier/annotation checking
 
 object ApexModifiers {
-  private val classVisibilityModifiers: Set[Modifier] = Set(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PRIVATE_MODIFIER)
-  private val allVisibilityModifiers: Set[Modifier] = Set(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PROTECTED_MODIFIER, PRIVATE_MODIFIER)
-  private val sharingModifiers: Set[Modifier] = Set(WITH_SHARING_MODIFIER, WITHOUT_SHARING_MODIFIER, INHERITED_SHARING_MODIFIER)
+  private val classVisibilityModifiers: Seq[Modifier] = Seq(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PRIVATE_MODIFIER)
+  private val allVisibilityModifiers: Seq[Modifier] = Seq(WEBSERVICE_MODIFIER, GLOBAL_MODIFIER, PUBLIC_MODIFIER, PROTECTED_MODIFIER, PRIVATE_MODIFIER)
+  private val sharingModifiers: Seq[Modifier] = Seq(WITH_SHARING_MODIFIER, WITHOUT_SHARING_MODIFIER, INHERITED_SHARING_MODIFIER)
 
   def classModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext,
                      outer: Boolean, idContext: IdContext)
@@ -120,14 +120,14 @@ object ApexModifiers {
       } else if (outer && !mods.contains(ISTEST_ANNOTATION) && !(mods.contains(GLOBAL_MODIFIER) || mods.contains(PUBLIC_MODIFIER))) {
         IssueLog.logMessage(TextRange(idContext), s"Outer classes must be declared either 'global' or 'public'")
         PUBLIC_MODIFIER +: mods
-      } else if (mods.intersect(Seq(PUBLIC_MODIFIER, PROTECTED_MODIFIER, PRIVATE_MODIFIER)).size > 1) {
+      } else if (mods.intersect(classVisibilityModifiers).size > 1) {
         IssueLog.logMessage(TextRange(idContext),
           s"Only one visibility modifier from 'global', 'public' & 'private' may be used on classes")
-        PUBLIC_MODIFIER +: mods.toSet.diff(classVisibilityModifiers).toSeq
-      } else if (mods.intersect(Seq(WITH_SHARING_MODIFIER, WITHOUT_SHARING_MODIFIER, INHERITED_SHARING_MODIFIER)).size > 1) {
+        PUBLIC_MODIFIER +: mods.diff(classVisibilityModifiers)
+      } else if (mods.intersect(classVisibilityModifiers).size > 1) {
         IssueLog.logMessage(TextRange(idContext),
           s"Only one sharing modifier from 'with sharing', 'without sharing' & 'inherited sharing' may be used on classes")
-        mods.toSet.diff(sharingModifiers).toSeq
+        mods.diff(sharingModifiers)
       } else {
         mods
       }
@@ -151,6 +151,7 @@ object ApexModifiers {
           case "final" => Some(FINAL_MODIFIER)
           case "static" => Some(STATIC_MODIFIER)
           case "transient" => Some(TRANSIENT_MODIFIER)
+          case "webservice" => Some(WEBSERVICE_MODIFIER)
           case _ =>
             IssueLog.logMessage(TextRange(modifierContext),
               s"Modifier '${modifierContext.getText}' is not supported on fields")
@@ -164,11 +165,11 @@ object ApexModifiers {
       if (duplicates.nonEmpty) {
         IssueLog.logMessage(TextRange(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
         mods.toSet.toSeq
-      } else if (mods.intersect(Seq(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PROTECTED_MODIFIER, PRIVATE_MODIFIER)).size > 1) {
+      } else if (mods.intersect(allVisibilityModifiers).size > 1) {
         IssueLog.logMessage(TextRange(idContext),
-          s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' may be used on fields")
-        PUBLIC_MODIFIER +: mods.toSet.diff(allVisibilityModifiers).toSeq
-      } else if (mods.intersect(Seq(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PROTECTED_MODIFIER, PRIVATE_MODIFIER)).isEmpty) {
+          s"Only one visibility modifier from 'webservice', 'global', 'public', 'protected' & 'private' may be used on fields")
+        PUBLIC_MODIFIER +: mods.diff(allVisibilityModifiers)
+      } else if (mods.intersect(allVisibilityModifiers).isEmpty) {
         PRIVATE_MODIFIER +: mods
       } else {
         mods
