@@ -158,11 +158,7 @@ fieldDeclaration
     ;
 
 propertyDeclaration
-    : typeRef variableDeclarators propertyBodyDeclaration
-    ;
-
-propertyBodyDeclaration
-    : LBRACE propertyBlock propertyBlock? RBRACE
+    : typeRef id LBRACE propertyBlock* RBRACE
     ;
 
 interfaceBodyDeclaration
@@ -386,8 +382,8 @@ expressionStatement
     ;
 
 propertyBlock
-	: modifier* (getter | setter)
-	;
+    : modifier* (getter | setter)
+    ;
 
 getter
     : GET (SEMI | block)

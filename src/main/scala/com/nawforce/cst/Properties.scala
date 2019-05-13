@@ -27,31 +27,32 @@
 */
 package com.nawforce.cst
 
-import com.nawforce.parsers.ApexParser.{ModifierContext, PropertyBlockContext, PropertyBodyDeclarationContext, PropertyDeclarationContext}
+import com.nawforce.parsers.ApexParser.{ModifierContext, PropertyBlockContext, PropertyDeclarationContext}
 import com.nawforce.types.{ApexModifiers, Modifier, TypeName}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-final case class PropertyDeclaration(_modifiers: Seq[Modifier], typeRef: TypeName,
-                                     variableDeclarators: VariableDeclarators,
-                                     propertyDeclaration: PropertyBodyDeclaration)
+final case class PropertyDeclaration(_modifiers: Seq[Modifier], typeRef: TypeName, id: Id,
+                                     propertyBlocks: Seq[PropertyBlock])
   extends ClassBodyDeclaration(_modifiers) {
 
-  override def children(): List[CST] = variableDeclarators :: propertyDeclaration :: Nil
+  override def children(): List[CST] = List(id) ++ propertyBlocks.toList
 
   override def verify(imports: mutable.Set[TypeName]): Unit = {
     imports.add(typeRef)
-    variableDeclarators.verify(imports)
-    propertyDeclaration.verify(imports)
+    propertyBlocks.foreach(_.verify(imports))
   }
 }
 
 object PropertyDeclaration {
-  def construct(modifiers: Seq[Modifier], propertyDeclaration: PropertyDeclarationContext, context: ConstructContext): PropertyDeclaration = {
-    PropertyDeclaration(modifiers, TypeRef.construct(propertyDeclaration.typeRef(), context),
-      VariableDeclarators.construct(propertyDeclaration.variableDeclarators(), context),
-      PropertyBodyDeclaration.construct(propertyDeclaration.propertyBodyDeclaration(), context)).withContext(propertyDeclaration, context)
+  def construct(modifiers: Seq[Modifier], propertyDeclaration: PropertyDeclarationContext, context: ConstructContext)
+  : PropertyDeclaration = {
+    PropertyDeclaration(modifiers,
+      TypeRef.construct(propertyDeclaration.typeRef(), context),
+      Id.construct(propertyDeclaration.id, context),
+      propertyDeclaration.propertyBlock().asScala.map(pb => PropertyBlock.construct(pb, context)),
+    ).withContext(propertyDeclaration, context)
   }
 }
 
@@ -74,27 +75,14 @@ object PropertyBlock {
     val modifiers: Seq[ModifierContext] = propertyBlockContext.modifier().asScala
     val cst =
       if (propertyBlockContext.getter() != null) {
-        GetterPropertyBlock(ApexModifiers.construct(modifiers.toList, context), Block.constructOption(propertyBlockContext.getter().block(), context))
+        GetterPropertyBlock(ApexModifiers.construct(modifiers.toList, context),
+          Block.constructOption(propertyBlockContext.getter().block(), context))
       } else if (propertyBlockContext.setter() != null) {
-        SetterPropertyBlock(ApexModifiers.construct(modifiers.toList, context), Block.constructOption(propertyBlockContext.setter().block(), context))
+        SetterPropertyBlock(ApexModifiers.construct(modifiers.toList, context),
+          Block.constructOption(propertyBlockContext.setter().block(), context))
       } else {
         throw new CSTException()
       }
     cst.withContext(propertyBlockContext, context)
-  }
-}
-
-final case class PropertyBodyDeclaration(propertyBlocks: List[PropertyBlock]) extends CST {
-  override def children(): List[CST] = propertyBlocks
-
-  def verify(imports: mutable.Set[TypeName]): Unit = {
-    propertyBlocks.foreach(_.verify(imports))
-  }
-}
-
-object PropertyBodyDeclaration {
-  def construct(propertyBodyDeclarationContext: PropertyBodyDeclarationContext, context: ConstructContext): PropertyBodyDeclaration = {
-    val blocks: Seq[PropertyBlockContext] = propertyBodyDeclarationContext.propertyBlock().asScala
-    PropertyBodyDeclaration(blocks.toList.map(x => PropertyBlock.construct(x, context))).withContext(propertyBodyDeclarationContext, context)
   }
 }
