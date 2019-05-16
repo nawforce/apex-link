@@ -54,8 +54,8 @@ class FieldTest extends FunSuite {
   test("Field visible") {
     val field = typeDeclaration("public class Dummy {String foo;}").fields.head
     assert(field.name == Name("foo"))
-    assert(field.readAccess == Seq(PRIVATE_MODIFIER))
-    assert(field.writeAccess == Seq(PRIVATE_MODIFIER))
+    assert(field.readAccess == PRIVATE_MODIFIER)
+    assert(field.writeAccess == PRIVATE_MODIFIER)
   }
 
   test("Multiple fields visible") {
@@ -68,45 +68,50 @@ class FieldTest extends FunSuite {
     assert(fields.size == 1)
     assert(fields.head.name == Name("foo"))
     assert(IssueLog.getMessages(defaultPath) ==
-      "line 1 at 32-43: Duplicate field: 'foo'\n")
+      "line 1 at 32-43: Duplicate field/property: 'foo'\n")
   }
 
-  test("More than on duplicate field reports error on duplicates") {
+  test("More than one duplicate field reports error on duplicates") {
     val fields = typeDeclaration("public class Dummy {String foo; Integer foo; String foo;}",
       hasMessages = true).fields
     assert(fields.size == 1)
     assert(fields.head.name == Name("foo"))
     assert(IssueLog.getMessages(defaultPath) ==
-      "line 1 at 32-44: Duplicate field: 'foo'\nline 1 at 45-56: Duplicate field: 'foo'\n")
+      "line 1 at 32-44: Duplicate field/property: 'foo'\nline 1 at 45-56: Duplicate field/property: 'foo'\n")
   }
 
   test("Default field access private" ) {
     val field = typeDeclaration("public class Dummy {String foo;}").fields.head
-    assert(field.readAccess == Seq(PRIVATE_MODIFIER))
+    assert(field.modifiers == Seq(PRIVATE_MODIFIER))
+    assert(field.readAccess == PRIVATE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
   }
 
   test("Private field access" ) {
     val field = typeDeclaration("public class Dummy {private String foo;}").fields.head
-    assert(field.readAccess == Seq(PRIVATE_MODIFIER))
+    assert(field.modifiers == Seq(PRIVATE_MODIFIER))
+    assert(field.readAccess == PRIVATE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
   }
 
   test("Protected field access" ) {
     val field = typeDeclaration("public class Dummy {protected String foo;}").fields.head
-    assert(field.readAccess == Seq(PROTECTED_MODIFIER))
+    assert(field.modifiers == Seq(PROTECTED_MODIFIER))
+    assert(field.readAccess == PROTECTED_MODIFIER)
     assert(field.writeAccess == field.readAccess)
   }
 
   test("Public field access" ) {
     val field = typeDeclaration("public class Dummy {public String foo;}").fields.head
-    assert(field.readAccess == Seq(PUBLIC_MODIFIER))
+    assert(field.modifiers == Seq(PUBLIC_MODIFIER))
+    assert(field.readAccess == PUBLIC_MODIFIER)
     assert(field.writeAccess == field.readAccess)
   }
 
   test("Global field access" ) {
     val field = typeDeclaration("public class Dummy {global String foo;}", hasMessages = true).fields.head
-    assert(field.readAccess == Seq(GLOBAL_MODIFIER))
+    assert(field.modifiers == Seq(GLOBAL_MODIFIER))
+    assert(field.readAccess == GLOBAL_MODIFIER)
     assert(field.writeAccess == field.readAccess)
     assert(IssueLog.getMessages(defaultPath) ==
       "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
@@ -114,13 +119,15 @@ class FieldTest extends FunSuite {
 
   test("Global field access in global class" ) {
     val field = typeDeclaration("global class Dummy {global String foo;}").fields.head
-    assert(field.readAccess == Seq(GLOBAL_MODIFIER))
+    assert(field.modifiers == Seq(GLOBAL_MODIFIER))
+    assert(field.readAccess == GLOBAL_MODIFIER)
     assert(field.writeAccess == field.readAccess)
   }
 
   test("Webservice field access" ) {
     val field = typeDeclaration("public class Dummy {webservice String foo;}", hasMessages = true).fields.head
-    assert(field.readAccess == Seq(WEBSERVICE_MODIFIER))
+    assert(field.modifiers == Seq(WEBSERVICE_MODIFIER))
+    assert(field.readAccess == WEBSERVICE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
     assert(IssueLog.getMessages(defaultPath) ==
       "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
@@ -128,32 +135,37 @@ class FieldTest extends FunSuite {
 
   test("Webservice field access in global class" ) {
     val field = typeDeclaration("global class Dummy {webservice String foo;}").fields.head
-    assert(field.readAccess == Seq(WEBSERVICE_MODIFIER))
+    assert(field.modifiers == Seq(WEBSERVICE_MODIFIER))
+    assert(field.readAccess == WEBSERVICE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
   }
 
   test("Static field" ) {
     val field = typeDeclaration("public class Dummy {static String foo;}").fields.head
-    assert(field.readAccess == Seq(PRIVATE_MODIFIER, STATIC_MODIFIER))
+    assert(field.modifiers == Seq(PRIVATE_MODIFIER, STATIC_MODIFIER))
+    assert(field.readAccess == PRIVATE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
   }
 
   test("Final field" ) {
     val field = typeDeclaration("public class Dummy {final String foo;}").fields.head
-    assert(field.readAccess == Seq(PRIVATE_MODIFIER, FINAL_MODIFIER))
+    assert(field.modifiers == Seq(PRIVATE_MODIFIER, FINAL_MODIFIER))
+    assert(field.readAccess == PRIVATE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
   }
 
   test("Many modifiers field" ) {
     val field = typeDeclaration("public class Dummy {protected transient final static String foo;}").fields.head
-    assert(field.readAccess == Seq(PROTECTED_MODIFIER, TRANSIENT_MODIFIER, FINAL_MODIFIER, STATIC_MODIFIER))
+    assert(field.modifiers == Seq(PROTECTED_MODIFIER, TRANSIENT_MODIFIER, FINAL_MODIFIER, STATIC_MODIFIER))
+    assert(field.readAccess == PROTECTED_MODIFIER)
     assert(field.writeAccess == field.readAccess)
   }
 
   test("Duplicate modifiers field" ) {
     val field = typeDeclaration("public class Dummy {protected protected String foo;}",
       hasMessages = true).fields.head
-    assert(field.readAccess == Seq(PROTECTED_MODIFIER))
+    assert(field.modifiers == Seq(PROTECTED_MODIFIER))
+    assert(field.readAccess == PROTECTED_MODIFIER)
     assert(field.writeAccess == field.readAccess)
     assert(IssueLog.getMessages(defaultPath) ==
       "line 1 at 47-50: Modifier 'protected' is used more than once\n")
@@ -162,7 +174,8 @@ class FieldTest extends FunSuite {
   test("Mixed access field" ) {
     val field = typeDeclaration("public class Dummy {global webservice String foo;}",
       hasMessages = true).fields.head
-    assert(field.readAccess == Seq(PUBLIC_MODIFIER))
+    assert(field.modifiers == Seq(PUBLIC_MODIFIER))
+    assert(field.readAccess == PUBLIC_MODIFIER)
     assert(field.writeAccess == field.readAccess)
     assert(IssueLog.getMessages(defaultPath) ==
       "line 1 at 45-48: Only one visibility modifier from 'webservice', 'global', 'public', 'protected' & 'private' may be used on fields\n")
@@ -170,45 +183,52 @@ class FieldTest extends FunSuite {
 
   test("AuraEnabled field" ) {
     val field = typeDeclaration("public class Dummy {@AuraEnabled String foo;}").fields.head
-    assert(field.readAccess == Seq(PRIVATE_MODIFIER, AURA_ENABLED_ANNOTATION))
+    assert(field.modifiers == Seq(PRIVATE_MODIFIER, AURA_ENABLED_ANNOTATION))
+    assert(field.readAccess == PRIVATE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
   }
 
   test("Deprecated field" ) {
     val field = typeDeclaration("public class Dummy {@Deprecated String foo;}").fields.head
-    assert(field.readAccess == Seq(PRIVATE_MODIFIER, DEPRECATED_ANNOTATION))
+    assert(field.modifiers == Seq(PRIVATE_MODIFIER, DEPRECATED_ANNOTATION))
+    assert(field.readAccess == PRIVATE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
   }
 
   test("InvocableVariable field" ) {
     val field = typeDeclaration("public class Dummy {@InvocableVariable String foo;}").fields.head
-    assert(field.readAccess == Seq(PRIVATE_MODIFIER, INVOCABLE_VARIABLE_ANNOTATION))
+    assert(field.modifiers == Seq(PRIVATE_MODIFIER, INVOCABLE_VARIABLE_ANNOTATION))
+    assert(field.readAccess == PRIVATE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
   }
 
   test("TestVisible field" ) {
     val field = typeDeclaration("public class Dummy {@TestVisible String foo;}").fields.head
-    assert(field.readAccess == Seq(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION))
+    assert(field.modifiers == Seq(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION))
+    assert(field.readAccess == PRIVATE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
   }
 
   test("SuppressWarnings field" ) {
     val field = typeDeclaration("public class Dummy {@SuppressWarnings String foo;}").fields.head
-    assert(field.readAccess == Seq(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION))
+    assert(field.modifiers == Seq(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION))
+    assert(field.readAccess == PRIVATE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
   }
 
   test("Bad annotation field" ) {
     val field = typeDeclaration("public class Dummy {@TestSetup String foo;}", hasMessages = true).fields.head
-    assert(field.readAccess == Seq())
+    assert(field.modifiers == Seq(PRIVATE_MODIFIER))
+    assert(field.readAccess == PRIVATE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
     assert(IssueLog.getMessages(defaultPath) ==
-      "line 1 at 20-30: Unexpected annotation 'TestSetup' on field declaration\n")
+      "line 1 at 20-30: Unexpected annotation 'TestSetup' on field/property declaration\n")
   }
 
   test("Duplicate annotation field" ) {
     val field = typeDeclaration("public class Dummy {@TestVisible @TestVisible String foo;}", hasMessages = true).fields.head
-    assert(field.readAccess == Seq(TEST_VISIBLE_ANNOTATION))
+    assert(field.modifiers == Seq(TEST_VISIBLE_ANNOTATION))
+    assert(field.readAccess == PRIVATE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
     assert(IssueLog.getMessages(defaultPath) ==
       "line 1 at 53-56: Modifier '@TestVisible' is used more than once\n")

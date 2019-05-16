@@ -67,7 +67,9 @@ object ClassBodyDeclaration {
       } else if (memberDeclarationContext.enumDeclaration() != null) {
         Seq(EnumDeclaration.construct(outerTypeName, m, memberDeclarationContext.enumDeclaration(), context))
       } else if (memberDeclarationContext.propertyDeclaration() != null) {
-        Seq(PropertyDeclaration.construct(m, memberDeclarationContext.propertyDeclaration(), context))
+        Seq(ApexPropertyDeclaration.construct(
+            ApexModifiers.fieldModifiers(modifiers, context, memberDeclarationContext.propertyDeclaration().id()),
+            memberDeclarationContext.propertyDeclaration(), context))
       } else if (memberDeclarationContext.classDeclaration() != null) {
         Seq(ClassDeclaration.construct(outerTypeName,
           ApexModifiers.classModifiers(modifiers, context, outer = false, memberDeclarationContext.classDeclaration().id()),
@@ -135,8 +137,9 @@ final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeN
   extends ClassBodyDeclaration(_modifiers) with FieldDeclaration {
 
   override val name: Name = variableDeclarator.id.name
-  override val readAccess: Seq[Modifier] = _modifiers
-  override val writeAccess: Seq[Modifier] = _modifiers
+  private val visibility: Option[Modifier] = _modifiers.find(m => ApexModifiers.allVisibilityModifiers.contains(m))
+  override val readAccess: Modifier = visibility.getOrElse(PRIVATE_MODIFIER)
+  override val writeAccess: Modifier = readAccess
 
   override def children(): List[CST] = variableDeclarator :: Nil
 

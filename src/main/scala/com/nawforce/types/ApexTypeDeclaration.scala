@@ -68,7 +68,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
       case (_, y :: Nil) => y
       case (_, duplicates) =>
         duplicates.tail.foreach(d => {
-          IssueLog.logMessage(d.textRange, s"Duplicate field: '${d.name}'")
+          IssueLog.logMessage(d.textRange, s"Duplicate field/property: '${d.name}'")
         })
         duplicates.head
     }.toSeq
@@ -122,7 +122,7 @@ object ApexTypeDeclaration {
         parser.setTrace(false)
         parser.addErrorListener(listener)
 
-        Some(CompilationUnit.construct(path, parser.compilationUnit(), new ConstructContext()).typeDeclaration())
+        Some(CompilationUnit.construct(path, parser.compilationUnit(), new ConstructContext()).typeDeclaration)
       }
     } catch {
       case se: SyntaxException =>

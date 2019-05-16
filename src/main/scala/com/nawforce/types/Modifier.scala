@@ -31,17 +31,17 @@ import java.lang.reflect.{Modifier => JavaModifier}
 
 import com.nawforce.cst.ConstructContext
 import com.nawforce.documents.TextRange
-import com.nawforce.parsers.ApexParser.{AnnotationContext, IdContext, ModifierContext}
+import com.nawforce.parsers.ApexParser.{AnnotationContext, IdContext, ModifierContext, PropertyBlockContext}
 import com.nawforce.utils.IssueLog
 
-sealed abstract class Modifier(name: String) {
+sealed abstract class Modifier(val name: String, val order: Integer=0) {
   override def toString: String = name
 }
 
-case object GLOBAL_MODIFIER extends Modifier("global")
-case object PUBLIC_MODIFIER extends Modifier("public")
-case object PROTECTED_MODIFIER extends Modifier("protected")
-case object PRIVATE_MODIFIER extends Modifier("private")
+case object GLOBAL_MODIFIER extends Modifier("global", order = 3)
+case object PUBLIC_MODIFIER extends Modifier("public", order = 2)
+case object PROTECTED_MODIFIER extends Modifier("protected", order = 1)
+case object PRIVATE_MODIFIER extends Modifier("private", order = 0)
 case object TEST_CLASS_MODIFIER extends Modifier("@isTest")
 
 case object STATIC_MODIFIER extends Modifier("static")
@@ -79,8 +79,8 @@ case object HTTP_PUT_ANNOTATION extends Modifier("@HttpPut")
 // TODO: Cross modifier/annotation checking
 
 object ApexModifiers {
+  val allVisibilityModifiers: Seq[Modifier] = Seq(WEBSERVICE_MODIFIER, GLOBAL_MODIFIER, PUBLIC_MODIFIER, PROTECTED_MODIFIER, PRIVATE_MODIFIER)
   private val classVisibilityModifiers: Seq[Modifier] = Seq(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PRIVATE_MODIFIER)
-  private val allVisibilityModifiers: Seq[Modifier] = Seq(WEBSERVICE_MODIFIER, GLOBAL_MODIFIER, PUBLIC_MODIFIER, PROTECTED_MODIFIER, PRIVATE_MODIFIER)
   private val sharingModifiers: Seq[Modifier] = Seq(WITH_SHARING_MODIFIER, WITHOUT_SHARING_MODIFIER, INHERITED_SHARING_MODIFIER)
 
   def classModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext,
@@ -160,20 +160,44 @@ object ApexModifiers {
       }
     )
 
-    if (mods.size == modifierContexts.size) {
-      val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
-      if (duplicates.nonEmpty) {
-        IssueLog.logMessage(TextRange(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
-        mods.toSet.toSeq
-      } else if (mods.intersect(allVisibilityModifiers).size > 1) {
-        IssueLog.logMessage(TextRange(idContext),
-          s"Only one visibility modifier from 'webservice', 'global', 'public', 'protected' & 'private' may be used on fields")
-        PUBLIC_MODIFIER +: mods.diff(allVisibilityModifiers)
-      } else if (mods.intersect(allVisibilityModifiers).isEmpty) {
-        PRIVATE_MODIFIER +: mods
-      } else {
-        mods
+    val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
+    if (duplicates.nonEmpty) {
+      IssueLog.logMessage(TextRange(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
+      mods.toSet.toSeq
+    } else if (mods.intersect(allVisibilityModifiers).size > 1) {
+      IssueLog.logMessage(TextRange(idContext),
+        s"Only one visibility modifier from 'webservice', 'global', 'public', 'protected' & 'private' may be used on fields")
+      PUBLIC_MODIFIER +: mods.diff(allVisibilityModifiers)
+    } else if (mods.intersect(allVisibilityModifiers).isEmpty) {
+      PRIVATE_MODIFIER +: mods
+    } else {
+      mods
+    }
+  }
+
+  def propertyBlockModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext, idContext: PropertyBlockContext)
+  : Seq[Modifier] = {
+
+    val mods = modifierContexts.flatMap(modifierContext =>
+        modifierContext.getText.toLowerCase match {
+          case "public" => Some(PUBLIC_MODIFIER)
+          case "protected" => Some(PROTECTED_MODIFIER)
+          case "private" => Some(PRIVATE_MODIFIER)
+          case _ =>
+            IssueLog.logMessage(TextRange(modifierContext),
+              s"Modifier '${modifierContext.getText}' is not supported on property set/get")
+            None
       }
+    )
+
+    val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
+    if (duplicates.nonEmpty) {
+      IssueLog.logMessage(TextRange(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
+      mods.toSet.toSeq
+    } else if (mods.intersect(allVisibilityModifiers).size > 1) {
+      IssueLog.logMessage(TextRange(idContext),
+        s"Only one visibility modifier from 'public', 'protected' & 'private' may be used on property set/get")
+      mods.diff(allVisibilityModifiers)
     } else {
       mods
     }
@@ -203,11 +227,10 @@ object ApexModifiers {
       case "suppresswarnings" => Some(SUPPRESS_WARNINGS_ANNOTATION)
       case _ =>
         IssueLog.logMessage(TextRange(context),
-          s"Unexpected annotation '${context.qualifiedName().getText}' on field declaration")
+          s"Unexpected annotation '${context.qualifiedName().getText}' on field/property declaration")
         None
     }
   }
-
 
   def construct(modifiers: Seq[ModifierContext], context: ConstructContext): Seq[Modifier] = {
     modifiers.map(_.getText.toLowerCase).flatMap {

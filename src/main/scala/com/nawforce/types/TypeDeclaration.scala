@@ -38,8 +38,8 @@ trait FieldDeclaration {
   val name: Name
   val modifiers: Seq[Modifier]
   val typeName: TypeName
-  val readAccess: Seq[Modifier]
-  val writeAccess: Seq[Modifier]
+  val readAccess: Modifier
+  val writeAccess: Modifier
 }
 
 trait ParameterDeclaration {

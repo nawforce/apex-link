@@ -27,28 +27,58 @@
 */
 package com.nawforce.cst
 
-import com.nawforce.parsers.ApexParser.{ModifierContext, PropertyBlockContext, PropertyDeclarationContext}
-import com.nawforce.types.{ApexModifiers, Modifier, TypeName}
+import com.nawforce.parsers.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
+import com.nawforce.types.{ApexModifiers, FieldDeclaration, Modifier, PRIVATE_MODIFIER, TypeName}
+import com.nawforce.utils.{IssueLog, Name}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-final case class PropertyDeclaration(_modifiers: Seq[Modifier], typeRef: TypeName, id: Id,
-                                     propertyBlocks: Seq[PropertyBlock])
-  extends ClassBodyDeclaration(_modifiers) {
+final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: TypeName, id: Id,
+                                         propertyBlocks: Seq[PropertyBlock])
+  extends ClassBodyDeclaration(_modifiers) with FieldDeclaration {
 
+  override val name: Name = id.name
+  val setter: Option[SetterPropertyBlock] =
+    propertyBlocks.flatMap {
+      case x: SetterPropertyBlock => Some(x)
+      case _ => None
+    }.headOption
+  val getter: Option[GetterPropertyBlock] =
+    propertyBlocks.flatMap {
+      case x: GetterPropertyBlock => Some(x)
+      case _ => None
+    }.headOption
+
+  private val visibility: Option[Modifier] = _modifiers.find(m => ApexModifiers.allVisibilityModifiers.contains(m))
+  override val readAccess: Modifier =
+    getter.flatMap(_.modifiers.headOption).getOrElse(visibility.getOrElse(PRIVATE_MODIFIER))
+  override val writeAccess: Modifier =
+    setter.flatMap(_.modifiers.headOption).getOrElse(visibility.getOrElse(PRIVATE_MODIFIER))
   override def children(): List[CST] = List(id) ++ propertyBlocks.toList
 
   override def verify(imports: mutable.Set[TypeName]): Unit = {
-    imports.add(typeRef)
-    propertyBlocks.foreach(_.verify(imports))
+    imports.add(typeName)
+    val setters = propertyBlocks.filter(_.isInstanceOf[SetterPropertyBlock])
+    val getters = propertyBlocks.filter(_.isInstanceOf[GetterPropertyBlock])
+    if (setters.size > 1 || getters.size > 1 || propertyBlocks.isEmpty) {
+      IssueLog.logMessage(textRange, "Properties must have either a single 'get' and/or a single 'set' block")
+    }
+
+    if (visibility.nonEmpty && writeAccess.order > visibility.get.order) {
+      IssueLog.logMessage(textRange, "Setter visibility must be same or less than property")
+    }
+
+    if (visibility.nonEmpty && readAccess.order > visibility.get.order) {
+      IssueLog.logMessage(textRange, "Getter visibility must be same or less than property")
+    }
   }
 }
 
-object PropertyDeclaration {
+object ApexPropertyDeclaration {
   def construct(modifiers: Seq[Modifier], propertyDeclaration: PropertyDeclarationContext, context: ConstructContext)
-  : PropertyDeclaration = {
-    PropertyDeclaration(modifiers,
+  : ApexPropertyDeclaration = {
+    ApexPropertyDeclaration(modifiers,
       TypeRef.construct(propertyDeclaration.typeRef(), context),
       Id.construct(propertyDeclaration.id, context),
       propertyDeclaration.propertyBlock().asScala.map(pb => PropertyBlock.construct(pb, context)),
@@ -72,13 +102,14 @@ final case class SetterPropertyBlock(modifiers: Seq[Modifier], block: Option[Blo
 
 object PropertyBlock {
   def construct(propertyBlockContext: PropertyBlockContext, context: ConstructContext): PropertyBlock = {
-    val modifiers: Seq[ModifierContext] = propertyBlockContext.modifier().asScala
+    val modifiers: Seq[Modifier] = ApexModifiers.propertyBlockModifiers(
+      propertyBlockContext.modifier().asScala, context, propertyBlockContext)
     val cst =
       if (propertyBlockContext.getter() != null) {
-        GetterPropertyBlock(ApexModifiers.construct(modifiers.toList, context),
+        GetterPropertyBlock(modifiers,
           Block.constructOption(propertyBlockContext.getter().block(), context))
       } else if (propertyBlockContext.setter() != null) {
-        SetterPropertyBlock(ApexModifiers.construct(modifiers.toList, context),
+        SetterPropertyBlock(modifiers,
           Block.constructOption(propertyBlockContext.setter().block(), context))
       } else {
         throw new CSTException()
