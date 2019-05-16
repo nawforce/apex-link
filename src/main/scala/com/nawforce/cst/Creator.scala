@@ -36,8 +36,8 @@ import scala.collection.mutable
 final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
   override def children(): List[CST] = idPairs
 
-  def verify(imports: mutable.Set[TypeName]): Unit = {
-    imports.add(createTypeName(None, idPairs.map(_.typeName)))
+  def verify(context: VerifyContext): Unit = {
+    context.addImport(createTypeName(None, idPairs.map(_.typeName)))
   }
 
   private def createTypeName(outer: Option[TypeName], names: Seq[TypeName]): TypeName = {
@@ -84,12 +84,12 @@ final case class Creator(createdName: CreatedName,
   override def children(): List[CST] =
     List(createdName) ++ classCreatorRest ++ arrayCreatorRest ++ mapCreatorRest ++setCreatorRest
 
-  def verify(imports: mutable.Set[TypeName]): Unit = {
-    createdName.verify(imports)
-    classCreatorRest.foreach(_.verify(imports))
-    arrayCreatorRest.foreach(_.verify(imports))
-    mapCreatorRest.foreach(_.verify(imports))
-    setCreatorRest.foreach(_.verify(imports))
+  def verify(context: VerifyContext): Unit = {
+    createdName.verify(context)
+    classCreatorRest.foreach(_.verify(context))
+    arrayCreatorRest.foreach(_.verify(context))
+    mapCreatorRest.foreach(_.verify(context))
+    setCreatorRest.foreach(_.verify(context))
   }
 }
 

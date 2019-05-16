@@ -88,11 +88,10 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
     }
   }
 
-  protected def verify(imports: mutable.Set[TypeName]): Unit = {
-    superClass.foreach(tn => imports.add(tn))
-    interfaces.foreach(tn => imports.add(tn))
-    bodyDeclarations.foreach(bd => imports ++= bd.imports)
-    imports.diff(TypeName.ApexTypes).toSet
+  protected def verify(context: VerifyContext): Unit = {
+    superClass.foreach(context.addImport)
+    interfaces.foreach(context.addImport)
+    bodyDeclarations.foreach(bd => bd.imports.foreach(context.addImport))
   }
 
   def resolve(index: CSTIndex)

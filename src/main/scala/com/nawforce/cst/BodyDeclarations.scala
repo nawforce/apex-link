@@ -32,18 +32,17 @@ import com.nawforce.types._
 import com.nawforce.utils.Name
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 
 abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST {
   lazy val isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER) || modifiers.contains(WEBSERVICE_MODIFIER)
 
   lazy val imports: Set[TypeName] = {
-    val imports = mutable.Set[TypeName]()
-    verify(imports)
-    imports.diff(TypeName.ApexTypes).toSet
+    val context = new VerifyContext
+    verify(context)
+    context.imports
   }
 
-  protected def verify(imports: mutable.Set[TypeName]): Unit
+  protected def verify(context: VerifyContext): Unit
   def resolve(index: CSTIndex): Unit = {}
 }
 
@@ -84,8 +83,8 @@ object ClassBodyDeclaration {
 final case class InitialiserBlock(_modifiers: Seq[Modifier], block: Block) extends ClassBodyDeclaration(_modifiers) {
   override def children(): List[CST] = block.children()
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    block.verify(imports)
+  override def verify(ctx: VerifyContext): Unit = {
+    block.verify(ctx)
   }
 
   override def resolve(index: CSTIndex): Unit = {
@@ -105,10 +104,10 @@ final case class MethodDeclaration(_modifiers: Seq[Modifier], typeRef: Option[Ty
 
   override def children(): List[CST] = List() ++ formalParameters ++ block
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    typeRef.foreach(imports.add)
-    formalParameters.foreach(_.verify(imports))
-    block.foreach(_.verify(imports))
+  override def verify(context: VerifyContext): Unit = {
+    typeRef.foreach(context.addImport)
+    formalParameters.foreach(_.verify(context))
+    block.foreach(_.verify(context))
   }
 
   override def resolve(index: CSTIndex): Unit = {
@@ -143,9 +142,9 @@ final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeN
 
   override def children(): List[CST] = variableDeclarator :: Nil
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    imports.add(typeName)
-    variableDeclarator.verify(imports)
+  override def verify(context: VerifyContext): Unit = {
+    context.addImport(typeName)
+    variableDeclarator.verify(context)
   }
 }
 
@@ -166,9 +165,9 @@ final case class ConstructorDeclaration(_modifiers: Seq[Modifier], qualifiedName
   extends ClassBodyDeclaration(_modifiers) {
   override def children(): List[CST] = formalParameters ++ List(block)
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    formalParameters.foreach(_.verify(imports))
-    block.verify(imports)
+  override def verify(context: VerifyContext): Unit = {
+    formalParameters.foreach(_.verify(context))
+    block.verify(context)
   }
 }
 
@@ -185,8 +184,8 @@ object ConstructorDeclaration {
 final case class FormalParameter(modifiers: Seq[Modifier], typeRef: TypeName, id: Id) extends CST {
   override def children(): List[CST] = List(id)
 
-  def verify(imports: mutable.Set[TypeName]): Unit = {
-    imports.add(typeRef)
+  def verify(context: VerifyContext): Unit = {
+    context.addImport(typeRef)
   }
 }
 

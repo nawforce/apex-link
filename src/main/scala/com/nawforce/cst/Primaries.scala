@@ -31,16 +31,16 @@ import com.nawforce.parsers.ApexParser._
 import com.nawforce.types.TypeName
 import com.nawforce.utils.Name
 
-import scala.collection.mutable
-
 sealed abstract class Primary extends CST {
-  def verify(imports: mutable.Set[TypeName]): Unit = {}
+  def verify(context: VerifyContext): Unit = {}
 }
 
 final case class ExpressionPrimary(expression: Expression) extends Primary {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = expression.verify(imports)
+  override def verify(context: VerifyContext): Unit = {
+    expression.verify(context)
+  }
 
   override def getType(ctx: TypeContext): TypeName = expression.getType(ctx)
 }
@@ -66,10 +66,10 @@ final case class LiteralPrimary(literal: Literal) extends Primary {
 final case class QualifiedNamePrimary(typeName: TypeName) extends Primary {
   override def children(): List[CST] = Nil
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
+  override def verify(context: VerifyContext): Unit = {
     // TODO: Check not var & below
     val isClassRef = typeName.name == Name.Class && typeName.outer.nonEmpty
-    imports.add(if (isClassRef) typeName.outer.get.asClassOf else typeName)
+    context.addImport(if (isClassRef) typeName.outer.get.asClassOf else typeName)
   }
 
   override def getType(ctx: TypeContext): TypeName = typeName

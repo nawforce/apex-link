@@ -28,11 +28,10 @@
 package com.nawforce.cst
 
 import com.nawforce.parsers.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
-import com.nawforce.types.{ApexModifiers, FieldDeclaration, Modifier, PRIVATE_MODIFIER, TypeName}
+import com.nawforce.types._
 import com.nawforce.utils.{IssueLog, Name}
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 
 final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: TypeName, id: Id,
                                          propertyBlocks: Seq[PropertyBlock])
@@ -57,8 +56,8 @@ final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: Ty
     setter.flatMap(_.modifiers.headOption).getOrElse(visibility.getOrElse(PRIVATE_MODIFIER))
   override def children(): List[CST] = List(id) ++ propertyBlocks.toList
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    imports.add(typeName)
+  override def verify(context: VerifyContext): Unit = {
+    context.addImport(typeName)
     val setters = propertyBlocks.filter(_.isInstanceOf[SetterPropertyBlock])
     val getters = propertyBlocks.filter(_.isInstanceOf[GetterPropertyBlock])
     if (setters.size > 1 || getters.size > 1 || propertyBlocks.isEmpty) {
@@ -87,17 +86,21 @@ object ApexPropertyDeclaration {
 }
 
 sealed abstract class PropertyBlock extends CST {
-  def verify(imports: mutable.Set[TypeName]): Unit
+  def verify(context: VerifyContext): Unit
 }
 
 final case class GetterPropertyBlock(modifiers: Seq[Modifier], block: Option[Block]) extends PropertyBlock {
   override def children(): List[CST] = List() ++ block
-  override def verify(imports: mutable.Set[TypeName]): Unit = block.foreach(_.verify(imports))
+  override def verify(context: VerifyContext): Unit = {
+    block.foreach(_.verify(context))
+  }
 }
 
 final case class SetterPropertyBlock(modifiers: Seq[Modifier], block: Option[Block]) extends PropertyBlock {
   override def children(): List[CST] = List() ++ block
-  override def verify(imports: mutable.Set[TypeName]): Unit = block.foreach(_.verify(imports))
+  override def verify(context: VerifyContext): Unit = {
+    block.foreach(_.verify(context))
+  }
 }
 
 object PropertyBlock {

@@ -62,11 +62,11 @@ final case class ClassDeclaration(_id: Id, _outerTypeName: Option[TypeName], _mo
 
   override val nature: Nature = CLASS_NATURE
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
+  override def verify(context: VerifyContext): Unit = {
     if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL_MODIFIER)) {
       IssueLog.logMessage(id.textRange, "Classes enclosing globals or webservices must also be declared global")
     }
-    super.verify(imports)
+    super.verify(context)
   }
 
   override def resolve(index: CSTIndex): Unit = {

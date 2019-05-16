@@ -31,10 +31,9 @@ import com.nawforce.parsers.ApexParser._
 import com.nawforce.types.{ApexModifiers, Modifier, TypeName}
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 
 sealed abstract class VariableInitializer() extends CST {
-  def verify(imports: mutable.Set[TypeName]): Unit
+  def verify(context: VerifyContext): Unit
 }
 
 object VariableInitializer {
@@ -58,16 +57,16 @@ object VariableInitializer {
 final case class ArrayVariableInitializer(variableInitializers: List[VariableInitializer]) extends VariableInitializer {
   override def children(): List[CST] = variableInitializers
 
-  def verify(imports: mutable.Set[TypeName]): Unit = {
-    variableInitializers.foreach(_.verify(imports))
+  def verify(context: VerifyContext): Unit = {
+    variableInitializers.foreach(_.verify(context))
   }
 }
 
 final case class ExpressionVariableInitializer(expression: Expression) extends VariableInitializer {
   override def children(): List[CST] = expression :: Nil
 
-  def verify(imports: mutable.Set[TypeName]): Unit = {
-    expression.verify(imports)
+  def verify(context: VerifyContext): Unit = {
+    expression.verify(context)
   }
 }
 
@@ -83,8 +82,8 @@ object ArrayVariableInitializer {
 final case class VariableDeclarator(id: Id, init: Option[VariableInitializer]) extends CST with VarIntroducer {
   override def children(): List[CST] = List[CST](id) ++ init
 
-  def verify(imports: mutable.Set[TypeName]): Unit = {
-    init.foreach(_.verify(imports))
+  def verify(context: VerifyContext): Unit = {
+    init.foreach(_.verify(context))
   }
 }
 
@@ -103,8 +102,8 @@ object VariableDeclarator {
 final case class VariableDeclarators(declarators: List[VariableDeclarator]) extends CST {
   override def children(): List[CST] = declarators
 
-  def verify(imports: mutable.Set[TypeName]): Unit = {
-    declarators.foreach(_.verify(imports))
+  def verify(context: VerifyContext): Unit = {
+    declarators.foreach(_.verify(context))
   }
 
   def resolve(typeRef: TypeName, context: ResolveStmtContext): Unit = {
@@ -129,9 +128,9 @@ object VariableDeclarators {
 final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeRef: TypeName, variableDeclarators: VariableDeclarators) extends CST {
   override def children(): List[CST] = variableDeclarators :: Nil
 
-  def verify(imports: mutable.Set[TypeName]): Unit = {
-    imports.add(typeRef)
-    variableDeclarators.verify(imports)
+  def verify(context: VerifyContext): Unit = {
+    context.addImport(typeRef)
+    variableDeclarators.verify(context)
   }
 
   def resolve(context: ResolveStmtContext): Unit = variableDeclarators.resolve(typeRef, context)

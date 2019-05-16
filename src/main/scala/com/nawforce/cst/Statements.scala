@@ -36,11 +36,10 @@ import com.nawforce.utils.IssueLog
 import org.antlr.v4.runtime.misc.Interval
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 import scala.ref.WeakReference
 
 trait Statement extends CST {
-  def verify(imports: mutable.Set[TypeName]): Unit
+  def verify(context: VerifyContext): Unit
   def resolve(context: ResolveStmtContext)
 }
 
@@ -48,8 +47,8 @@ trait Statement extends CST {
 final case class Block(path: Path, bytes: Array[Byte], var blockContextRef: WeakReference[BlockContext]) extends CST with Statement {
   private var statementsRef: WeakReference[List[Statement]] = WeakReference(null)
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    statements().foreach(s => s.verify(imports))
+  override def verify(context: VerifyContext): Unit = {
+    statements().foreach(s => s.verify(context))
   }
 
   def statements(): List[Statement] = {
@@ -89,8 +88,8 @@ object Block {
 final case class LocalVariableDeclarationStatement(localVariableDeclaration: LocalVariableDeclaration) extends Statement {
   override def children(): List[CST] = localVariableDeclaration :: Nil
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    localVariableDeclaration.verify(imports)
+  override def verify(context: VerifyContext): Unit = {
+    localVariableDeclaration.verify(context)
   }
 
   override def resolve(context: ResolveStmtContext): Unit = localVariableDeclaration.resolve(context)
@@ -105,9 +104,9 @@ object LocalVariableDeclarationStatement {
 final case class IfStatement(expression: Expression, statements: List[Statement]) extends Statement {
   override def children(): List[CST] = expression :: statements
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    expression.verify(imports)
-    statements.foreach(_.verify(imports))
+  override def verify(context: VerifyContext): Unit = {
+    expression.verify(context)
+    statements.foreach(_.verify(context))
   }
 
   override def resolve(context: ResolveStmtContext): Unit = {
@@ -129,9 +128,9 @@ object IfStatement {
 final case class WhenControl(expressions: List[Expression], block: Block) extends CST {
   override def children(): List[CST] = expressions ++ List(block)
 
-  def verify(imports: mutable.Set[TypeName]): Unit = {
-    expressions.foreach(_.verify(imports))
-    block.verify(imports)
+  def verify(context: VerifyContext): Unit = {
+    expressions.foreach(_.verify(context))
+    block.verify(context)
   }
 
   def resolve(context: ResolveStmtContext): Unit = {
@@ -156,9 +155,9 @@ object WhenControl {
 final case class SwitchStatement(expression: Expression, whenControls: List[WhenControl]) extends Statement {
   override def children(): List[CST] = expression :: whenControls
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    expression.verify(imports)
-    whenControls.foreach(_.verify(imports))
+  override def verify(context: VerifyContext): Unit = {
+    expression.verify(context)
+    whenControls.foreach(_.verify(context))
   }
 
   override def resolve(context: ResolveStmtContext): Unit = {
@@ -181,9 +180,9 @@ final case class ForStatement(control: ForControl, statement: Statement) extends
     control :: statement :: Nil
   }
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    control.verify(imports)
-    statement.verify(imports)
+  override def verify(context: VerifyContext): Unit = {
+    control.verify(context)
+    statement.verify(context)
   }
 
   override def resolve(context: ResolveStmtContext): Unit = {
@@ -201,7 +200,7 @@ object ForStatement {
 }
 
 sealed abstract class ForControl extends CST {
-  def verify(imports: mutable.Set[TypeName]): Unit
+  def verify(context: VerifyContext): Unit
   def resolve(context: ResolveStmtContext): Unit
 
 }
@@ -222,9 +221,9 @@ final case class EnhancedForControl(modifiers: Seq[Modifier], typeRef: TypeName,
                                     id: Id, expression: Expression) extends ForControl with VarIntroducer {
   override def children(): List[CST] = id :: expression :: Nil
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    imports.add(typeRef)
-    expression.verify(imports)
+  override def verify(context: VerifyContext): Unit = {
+    context.addImport(typeRef)
+    expression.verify(context)
   }
 
   def resolve(context: ResolveStmtContext): Unit = {
@@ -247,10 +246,10 @@ object EnhancedForControl {
 final case class BasicForControl(forInit: Option[ForInit], expression: Option[Expression], forUpdate: Option[ForUpdate]) extends ForControl {
   override def children(): List[CST] = List[CST]() ++ forInit ++ expression ++ forUpdate
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    forInit.foreach(_.verify(imports))
-    expression.foreach(_.verify(imports))
-    forUpdate.foreach(_.verify(imports))
+  override def verify(context: VerifyContext): Unit = {
+    forInit.foreach(_.verify(context))
+    expression.foreach(_.verify(context))
+    forUpdate.foreach(_.verify(context))
   }
 
   def resolve(context: ResolveStmtContext): Unit = {
@@ -285,15 +284,15 @@ object BasicForControl {
 }
 
 sealed abstract class ForInit extends CST {
-  def verify(imports: mutable.Set[TypeName]): Unit
+  def verify(context: VerifyContext): Unit
   def resolve(context: ResolveStmtContext): Unit
 }
 
 final case class LocalVariableForInit(variable: LocalVariableDeclaration) extends ForInit {
   override def children(): List[CST] = variable :: Nil
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    variable.verify(imports)
+  override def verify(context: VerifyContext): Unit = {
+    variable.verify(context)
   }
 
   def resolve(context: ResolveStmtContext): Unit = variable.resolve(context)
@@ -302,8 +301,8 @@ final case class LocalVariableForInit(variable: LocalVariableDeclaration) extend
 final case class ExpressionListForInit(expressions: List[Expression]) extends ForInit {
   override def children(): List[CST] = expressions
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    expressions.foreach(_.verify(imports))
+  override def verify(context: VerifyContext): Unit = {
+    expressions.foreach(_.verify(context))
   }
 
   def resolve(context: ResolveStmtContext): Unit = expressions.foreach(_.resolve(new ResolveExprContext(context)))
@@ -327,8 +326,8 @@ object ForInit {
 final case class ForUpdate(expressions: List[Expression]) extends CST {
   override def children(): List[CST] = expressions
 
-  def verify(imports: mutable.Set[TypeName]): Unit = {
-    expressions.foreach(_.verify(imports))
+  def verify(context: VerifyContext): Unit = {
+    expressions.foreach(_.verify(context))
   }
 
   def resolve(context: ResolveStmtContext): Unit = expressions.foreach(_.resolve(new ResolveExprContext(context)))
@@ -346,9 +345,9 @@ final case class WhileStatement(expression: Expression, statement: Statement) ex
     expression :: statement :: Nil
   }
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    expression.verify(imports)
-    statement.verify(imports)
+  override def verify(context: VerifyContext): Unit = {
+    expression.verify(context)
+    statement.verify(context)
   }
 
   override def resolve(context: ResolveStmtContext): Unit = {
@@ -369,9 +368,9 @@ final case class DoWhileStatement(statement: Statement, expression: Expression) 
     expression :: statement :: Nil
   }
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    expression.verify(imports)
-    statement.verify(imports)
+  override def verify(context: VerifyContext): Unit = {
+    expression.verify(context)
+    statement.verify(context)
   }
 
   override def resolve(context: ResolveStmtContext): Unit = {
@@ -391,10 +390,10 @@ object DoWhileStatement {
 final case class TryStatement(block: Block, catches: List[CatchClause], finallyBlock: Option[Block]) extends Statement {
   override def children(): List[CST] = List(block) ++ catches ++ finallyBlock
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    block.verify(imports)
-    catches.foreach(_.verify(imports))
-    finallyBlock.foreach(_.verify(imports))
+  override def verify(context: VerifyContext): Unit = {
+    block.verify(context)
+    catches.foreach(_.verify(context))
+    finallyBlock.foreach(_.verify(context))
   }
 
   override def resolve(context: ResolveStmtContext): Unit = {
@@ -424,8 +423,8 @@ object FinallyBlock {
 
 final case class CatchType(names: List[QualifiedName]) extends CST {
   override def children(): List[CST] = names
-  def verify(imports: mutable.Set[TypeName]): Unit = {
-    names.foreach(name => imports.add(TypeName(name.names)))
+  def verify(context: VerifyContext): Unit = {
+    names.foreach(name => context.addImport(TypeName(name.names)))
   }
 }
 
@@ -439,9 +438,9 @@ object CatchType {
 final case class CatchClause(modifiers: Seq[Modifier], catchType: CatchType, id: String, block: Block) extends CST {
   override def children(): List[CST] = List(catchType) ++ List(block)
 
-  def verify(imports: mutable.Set[TypeName]): Unit = {
-    catchType.verify(imports)
-    block.verify(imports)
+  def verify(context: VerifyContext): Unit = {
+    catchType.verify(context)
+    block.verify(context)
   }
 
   def resolve(context: ResolveStmtContext): Unit = {
@@ -470,8 +469,8 @@ object CatchClause {
 final case class ReturnStatement(expression: Option[Expression]) extends Statement {
   override def children(): List[CST] = List() ++ expression
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    expression.foreach(_.verify(imports))
+  override def verify(context: VerifyContext): Unit = {
+    expression.foreach(_.verify(context))
   }
 
   override def resolve(context: ResolveStmtContext): Unit = expression.foreach(_.resolve(new ResolveExprContext(context)))
@@ -492,8 +491,8 @@ object ReturnStatement {
 final case class ThrowStatement(expression: Expression) extends Statement {
   override def children(): List[CST] = Nil
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    expression.verify(imports)
+  override def verify(context: VerifyContext): Unit = {
+    expression.verify(context)
   }
 
   override def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
@@ -508,7 +507,7 @@ object ThrowStatement {
 final case class BreakStatement() extends Statement {
   override def children(): List[CST] = Nil
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {}
+  override def verify(context: VerifyContext): Unit = {}
 
   override def resolve(context: ResolveStmtContext): Unit = {}
 }
@@ -522,7 +521,7 @@ object BreakStatement {
 final case class ContinueStatement() extends Statement {
   override def children(): List[CST] = Nil
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {}
+  override def verify(context: VerifyContext): Unit = {}
 
   override def resolve(context: ResolveStmtContext): Unit = {}
 }
@@ -536,8 +535,8 @@ object ContinueStatement {
 final case class InsertStatement(expression: Expression) extends Statement {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    expression.verify(imports)
+  override def verify(context: VerifyContext): Unit = {
+    expression.verify(context)
   }
 
   override def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
@@ -552,8 +551,8 @@ object InsertStatement {
 final case class UpdateStatement(expression: Expression) extends Statement {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    expression.verify(imports)
+  override def verify(context: VerifyContext): Unit = {
+    expression.verify(context)
   }
 
   override def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
@@ -568,8 +567,8 @@ object UpdateStatement {
 final case class DeleteStatement(expression: Expression) extends Statement {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    expression.verify(imports)
+  override def verify(context: VerifyContext): Unit = {
+    expression.verify(context)
   }
 
   override def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
@@ -584,8 +583,8 @@ object DeleteStatement {
 final case class UndeleteStatement(expression: Expression) extends Statement {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    expression.verify(imports)
+  override def verify(context: VerifyContext): Unit = {
+    expression.verify(context)
   }
 
   override def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
@@ -600,8 +599,8 @@ object UndeleteStatement {
 final case class UpsertStatement(expression: Expression, field: Option[QualifiedName]) extends Statement {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    expression.verify(imports)
+  override def verify(context: VerifyContext): Unit = {
+    expression.verify(context)
     // TODO: Field?
   }
 
@@ -623,9 +622,9 @@ object UpsertStatement {
 final case class MergeStatement(expression1: Expression, expression2: Expression) extends Statement {
   override def children(): List[CST] = expression1 :: expression2 :: Nil
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    expression1.verify(imports)
-    expression2.verify(imports)
+  override def verify(context: VerifyContext): Unit = {
+    expression1.verify(context)
+    expression2.verify(context)
   }
 
   override def resolve(context: ResolveStmtContext): Unit = {
@@ -643,9 +642,9 @@ object MergeStatement {
 final case class RunAsStatement(expressions: List[Expression], block: Option[Block]) extends Statement {
   override def children(): List[CST] = expressions ++ block
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    expressions.foreach(_.verify(imports))
-    block.foreach(_.verify(imports))
+  override def verify(context: VerifyContext): Unit = {
+    expressions.foreach(_.verify(context))
+    block.foreach(_.verify(context))
   }
 
   override def resolve(context: ResolveStmtContext): Unit = {
@@ -672,8 +671,8 @@ object RunAsStatement {
 final case class ExpressionStatement(var expression: Expression) extends Statement {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(imports: mutable.Set[TypeName]): Unit = {
-    expression.verify(imports)
+  override def verify(context: VerifyContext): Unit = {
+    expression.verify(context)
   }
 
   override def resolve(context: ResolveStmtContext): Unit = {
