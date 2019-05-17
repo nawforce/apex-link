@@ -35,7 +35,7 @@ import net.liftweb.json._
 import scala.collection.mutable
 import scala.util.DynamicVariable
 
-object IssueLog {
+class IssueLog {
   val context: DynamicVariable[Path] = new DynamicVariable[Path](null)
 
   private[this] val lock = new Object()

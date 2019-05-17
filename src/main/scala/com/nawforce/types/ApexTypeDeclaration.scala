@@ -27,9 +27,10 @@
 */
 package com.nawforce.types
 
-import java.io.{ByteArrayInputStream, InputStream}
-import java.nio.file.{Path, Paths}
+import java.io.InputStream
+import java.nio.file.Path
 
+import com.nawforce.api.Org
 import com.nawforce.cst._
 import com.nawforce.documents.LineLocation
 import com.nawforce.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
@@ -38,7 +39,6 @@ import com.nawforce.utils._
 import org.antlr.v4.runtime.CommonTokenStream
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 
 /** Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
 abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeName], _modifiers: Seq[Modifier],
@@ -68,7 +68,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
       case (_, y :: Nil) => y
       case (_, duplicates) =>
         duplicates.tail.foreach(d => {
-          IssueLog.logMessage(d.textRange, s"Duplicate field/property: '${d.name}'")
+          Org.logMessage(d.textRange, s"Duplicate field/property: '${d.name}'")
         })
         duplicates.head
     }.toSeq
@@ -98,15 +98,9 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
 }
 
 object ApexTypeDeclaration {
-  def clearCache(): Unit = {
-    create(Paths.get("Dummy"), new ByteArrayInputStream("public class Dummy {}".getBytes()))
-    System.gc()
-  }
-
   def create(path: Path, data: InputStream): Option[ApexTypeDeclaration] = {
-    try {
-      IssueLog.context.withValue(path) {
-
+    Org.current.value.issues.context.withValue(path) {
+      try {
         val listener = new ThrowingErrorListener
         val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(data)
         val lexer: ApexLexer = new ApexLexer(cis)
@@ -121,12 +115,14 @@ object ApexTypeDeclaration {
         parser.setTrace(false)
         parser.addErrorListener(listener)
 
-        Some(CompilationUnit.construct(path, parser.compilationUnit(), new ConstructContext()).typeDeclaration)
+        Some(CompilationUnit.construct(path, parser.compilationUnit(), new ConstructContext()).typeDeclaration())
       }
-    } catch {
-      case se: SyntaxException =>
-        IssueLog.logMessage(LineLocation(path, se.line), se.msg)
-        None
+      catch
+      {
+        case se: SyntaxException =>
+          Org.logMessage(LineLocation(path, se.line), se.msg)
+          None
+      }
     }
   }
 
@@ -163,8 +159,8 @@ object ApexTypeDeclaration {
   }
 
   def parseBlock(path: Path, data: InputStream): Option[ApexParser.BlockContext] = {
-    try {
-      IssueLog.context.withValue(path) {
+    Org.current.value.issues.context.withValue(path) {
+      try {
 
         val listener = new ThrowingErrorListener
         val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(data)
@@ -180,11 +176,11 @@ object ApexTypeDeclaration {
         parser.setTrace(false)
         parser.addErrorListener(listener)
         Some(parser.block())
+      } catch {
+        case se: SyntaxException =>
+          Org.logMessage(LineLocation(path, se.line), se.msg)
+          None
       }
-    } catch {
-      case se: SyntaxException =>
-        IssueLog.logMessage(LineLocation(path, se.line), se.msg)
-        None
     }
   }
 }

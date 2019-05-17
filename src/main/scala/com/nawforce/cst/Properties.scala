@@ -27,6 +27,7 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
 import com.nawforce.types._
 import com.nawforce.utils.{IssueLog, Name}
@@ -61,15 +62,15 @@ final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: Ty
     val setters = propertyBlocks.filter(_.isInstanceOf[SetterPropertyBlock])
     val getters = propertyBlocks.filter(_.isInstanceOf[GetterPropertyBlock])
     if (setters.size > 1 || getters.size > 1 || propertyBlocks.isEmpty) {
-      IssueLog.logMessage(textRange, "Properties must have either a single 'get' and/or a single 'set' block")
+      Org.logMessage(textRange, "Properties must have either a single 'get' and/or a single 'set' block")
     }
 
     if (visibility.nonEmpty && writeAccess.order > visibility.get.order) {
-      IssueLog.logMessage(textRange, "Setter visibility must be same or less than property")
+      Org.logMessage(textRange, "Setter visibility must be same or less than property")
     }
 
     if (visibility.nonEmpty && readAccess.order > visibility.get.order) {
-      IssueLog.logMessage(textRange, "Getter visibility must be same or less than property")
+      Org.logMessage(textRange, "Getter visibility must be same or less than property")
     }
   }
 }

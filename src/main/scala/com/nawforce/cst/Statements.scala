@@ -30,9 +30,9 @@ package com.nawforce.cst
 import java.io.ByteArrayInputStream
 import java.nio.file.Path
 
+import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types.{ApexModifiers, ApexTypeDeclaration, Modifier, TypeName}
-import com.nawforce.utils.IssueLog
 import org.antlr.v4.runtime.misc.Interval
 
 import scala.collection.JavaConverters._
@@ -74,7 +74,8 @@ object Block {
   def construct(blockContext: BlockContext, context: ConstructContext): Block = {
     val is = blockContext.start.getInputStream
     val text = is.getText(new Interval(blockContext.start.getStartIndex, blockContext.stop.getStopIndex))
-    Block(IssueLog.context.value, text.getBytes(), WeakReference(blockContext))
+    val path = Org.current.value.issues.context.value
+    Block(path, text.getBytes(), WeakReference(blockContext))
   }
 
   def constructOption(blockContext: BlockContext, context: ConstructContext): Option[Block] = {

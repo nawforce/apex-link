@@ -27,11 +27,9 @@
 */
 package com.nawforce.api
 
-import java.io.FileInputStream
 import java.nio.file.{Path, Paths}
 
-import com.nawforce.documents.{ApexDocument, DocumentLoader, DocumentType}
-import com.nawforce.types.ApexTypeDeclaration
+import com.nawforce.documents.DocumentLoader
 import com.nawforce.utils.{IssueLog, Name}
 import com.typesafe.scalalogging.LazyLogging
 
@@ -43,24 +41,8 @@ class Package(org: Org, paths: Seq[Path]) extends LazyLogging {
   def deployAll(): String = {
     val classes = documents.getByExtension(Name("cls"))
     logger.debug(s"Found ${classes.size} classes to parse")
-
-    val newDeclarations = classes.grouped(100).flatMap(group => {
-      val parsed = group.par.flatMap(path => {
-        DocumentType(path) match {
-          case docType: ApexDocument =>
-            val start = System.currentTimeMillis()
-            val typeDeclaration = ApexTypeDeclaration.create(docType.path, new FileInputStream(docType.path.toFile))
-            val end = System.currentTimeMillis()
-            logger.debug(s"Parsed ${docType.path.toString} in ${end-start}ms")
-            typeDeclaration
-        }
-      })
-      System.gc()
-      parsed
-    })
-    ApexTypeDeclaration.clearCache()
-    org.replaceTypes(newDeclarations.toSeq)
-    IssueLog.asJSON(100)
+    org.deployMetadata(classes)
+    Org.current.value.issues.asJSON(100)
   }
 }
 

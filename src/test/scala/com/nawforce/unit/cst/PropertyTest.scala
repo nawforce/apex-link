@@ -30,22 +30,25 @@ package com.nawforce.unit.cst
 import java.io.ByteArrayInputStream
 import java.nio.file.{Path, Paths}
 
+import com.nawforce.api.Org
 import com.nawforce.types._
-import com.nawforce.utils.{IssueLog, Name}
+import com.nawforce.utils.Name
 import org.scalatest.FunSuite
 
 class PropertyTest extends FunSuite {
   private val defaultName: Name = Name("Dummy")
   private val defaultPath: Path = Paths.get(defaultName.toString)
+  private val defaultOrg: Org = new Org
 
   def typeDeclaration(clsText: String, hasMessages: Boolean = false): TypeDeclaration = {
-    IssueLog.clear()
-
-    val td = ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes()))
-    if (td.isEmpty)
-    IssueLog.dumpMessages(json=false)
-    assert(IssueLog.hasMessages == hasMessages)
-    td.get
+    Org.current.withValue(defaultOrg) {
+      defaultOrg.issues.clear()
+      val td = ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes()))
+      if (td.isEmpty)
+        defaultOrg.issues.dumpMessages(json = false)
+      assert(defaultOrg.issues.hasMessages == hasMessages)
+      td.get
+    }
   }
 
   test("Empty class has no properties") {
@@ -66,28 +69,28 @@ class PropertyTest extends FunSuite {
     val fields = typeDeclaration("public class Dummy {String foo{get; set;} String foo{get; set;}}", hasMessages = true).fields
     assert(fields.size == 1)
     assert(fields.head.name == Name("foo"))
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 42-63: Duplicate field/property: 'foo'\n")
   }
 
   test("Property without blocks") {
     val property = typeDeclaration("public class Dummy {String foo{} }", hasMessages = true).fields.head
     assert(property.name == Name("foo"))
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 20-32: Properties must have either a single 'get' and/or a single 'set' block\n")
   }
 
   test("Property with dual set") {
     val property = typeDeclaration("public class Dummy {String foo{set; set;} }", hasMessages = true).fields.head
     assert(property.name == Name("foo"))
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 20-41: Properties must have either a single 'get' and/or a single 'set' block\n")
   }
 
   test("Property with dual get & a set") {
     val property = typeDeclaration("public class Dummy {String foo{get; set; get;} }", hasMessages = true).fields.head
     assert(property.name == Name("foo"))
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 20-46: Properties must have either a single 'get' and/or a single 'set' block\n")
   }
 
@@ -96,7 +99,7 @@ class PropertyTest extends FunSuite {
       hasMessages = true).fields
     assert(fields.size == 1)
     assert(fields.head.name == Name("foo"))
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 42-64: Duplicate field/property: 'foo'\nline 1 at 65-86: Duplicate field/property: 'foo'\n")
   }
 
@@ -133,7 +136,7 @@ class PropertyTest extends FunSuite {
     assert(property.modifiers == Seq(GLOBAL_MODIFIER))
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == property.readAccess)
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
@@ -149,7 +152,7 @@ class PropertyTest extends FunSuite {
     assert(property.modifiers == Seq(WEBSERVICE_MODIFIER))
     assert(property.readAccess == WEBSERVICE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
@@ -172,7 +175,7 @@ class PropertyTest extends FunSuite {
     assert(property.modifiers == Seq(PRIVATE_MODIFIER))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == PUBLIC_MODIFIER)
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 28-56: Setter visibility must be same or less than property\n")
   }
 
@@ -188,7 +191,7 @@ class PropertyTest extends FunSuite {
     assert(property.modifiers == Seq(PRIVATE_MODIFIER))
     assert(property.readAccess == PUBLIC_MODIFIER)
     assert(property.writeAccess == PRIVATE_MODIFIER)
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 28-56: Getter visibility must be same or less than property\n")
   }
 
@@ -219,7 +222,7 @@ class PropertyTest extends FunSuite {
     assert(property.modifiers == Seq(PROTECTED_MODIFIER))
     assert(property.readAccess == PROTECTED_MODIFIER)
     assert(property.writeAccess == property.readAccess)
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 47-50: Modifier 'protected' is used more than once\n")
   }
 
@@ -229,7 +232,7 @@ class PropertyTest extends FunSuite {
     assert(property.modifiers == Seq(PUBLIC_MODIFIER))
     assert(property.readAccess == PUBLIC_MODIFIER)
     assert(property.writeAccess == property.readAccess)
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 45-48: Only one visibility modifier from 'webservice', 'global', 'public', 'protected' & 'private' may be used on fields\n")
   }
 
@@ -273,7 +276,7 @@ class PropertyTest extends FunSuite {
     assert(property.modifiers == Seq(PRIVATE_MODIFIER))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 20-30: Unexpected annotation 'TestSetup' on field/property declaration\n")
   }
 
@@ -282,8 +285,7 @@ class PropertyTest extends FunSuite {
     assert(property.modifiers == Seq(TEST_VISIBLE_ANNOTATION))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 53-56: Modifier '@TestVisible' is used more than once\n")
-    IssueLog.clear()
   }
 }

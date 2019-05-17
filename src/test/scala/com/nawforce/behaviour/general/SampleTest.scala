@@ -35,9 +35,11 @@ class SampleTest extends FunSuite {
   private def sample(path: String): Unit = {
     LogUtils.setLoggingLevel(false)
     val org = new Org()
-    val pkg = org.addPackage(Array[String](path))
-    val resultJson = pkg.deployAll()
-    assert(resultJson == "{ \"files\": [\n]}\n")
+    Org.current.withValue(org) {
+      val pkg = org.addPackage(Array[String](path))
+      val resultJson = pkg.deployAll()
+      assert(resultJson == "{ \"files\": [\n]}\n")
+    }
   }
 
   test("forcedotcom-enterprise-architecture") {

@@ -27,6 +27,7 @@
 */
 package com.nawforce.utils
 
+import com.nawforce.api.Org
 import com.nawforce.documents.{LineLocation, Location}
 
 import scala.xml.Elem
@@ -39,7 +40,7 @@ val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
   }
 
   def getLocation(elem: Elem): Location = {
-    LineLocation(IssueLog.context.value, getLine(elem))
+    LineLocation(Org.current.value.issues.context.value, getLine(elem))
   }
 
   def ifNotElemLogAndThrow(elem: Elem, name: String): Unit = {
@@ -59,7 +60,7 @@ val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
 
   def ifNotLog(condition: Boolean, elem: Elem, msg: String): Boolean = {
     if (!condition) {
-      IssueLog.logMessage(getLine(elem), msg)
+      Org.current.value.issues.logMessage(getLine(elem), msg)
     }
     !condition
   }
@@ -67,7 +68,7 @@ val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
   def getSingleChildAsString(elem: Elem, name: String): Option[String] = {
     val text = getOptionalSingleChildAsString(elem, name)
     if (text.isEmpty)
-      IssueLog.logMessage(getLine(elem), "Expecting element to have single '" + name + "' child")
+      Org.current.value.issues.logMessage(getLine(elem), "Expecting element to have single '" + name + "' child")
     text
   }
 
@@ -78,7 +79,7 @@ val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
   def getSingleChildAsBoolean(elem: Elem, name: String): Option[Boolean] = {
     val value = getOptionalSingleChildAsBoolean(elem, name)
     if (value.isEmpty)
-      IssueLog.logMessage(getLine(elem), "Expecting element to have single '" + name + "' child")
+      Org.current.value.issues.logMessage(getLine(elem), "Expecting element to have single '" + name + "' child")
     value
   }
 
@@ -87,7 +88,7 @@ val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
     if (matched.isDefined) {
       val isBoolean = matched.get.text.matches("true|false")
       if (!isBoolean)
-        IssueLog.logMessage(getLine(matched.get), "Expecting value to be either 'true' or 'false', found '" + matched.get.text + "'")
+        Org.current.value.issues.logMessage(getLine(matched.get), "Expecting value to be either 'true' or 'false', found '" + matched.get.text + "'")
       Some(matched.get.text == "true")
     } else {
       None
@@ -97,7 +98,7 @@ val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
   def getSingleChild(elem: Elem, name: String): Option[Elem] = {
     val child = getOptionalSingleChild(elem, name)
     if (child.isEmpty)
-      IssueLog.logMessage(getLine(elem), "Expecting element to have single '" + name + "' child")
+      Org.current.value.issues.logMessage(getLine(elem), "Expecting element to have single '" + name + "' child")
     child
   }
 

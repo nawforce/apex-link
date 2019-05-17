@@ -30,21 +30,25 @@ package com.nawforce.unit.cst
 import java.io.ByteArrayInputStream
 import java.nio.file.{Path, Paths}
 
+import com.nawforce.api.Org
 import com.nawforce.types.{ApexTypeDeclaration, TypeDeclaration, TypeName}
-import com.nawforce.utils.{IssueLog, Name}
+import com.nawforce.utils.Name
 import org.scalatest.FunSuite
 
 class ImportTest extends FunSuite {
   private val defaultName: Name = Name("Dummy")
   private val defaultPath: Path = Paths.get(defaultName.toString)
+  private val defaultOrg: Org = new Org
 
   def typeDeclaration(clsText: String, hasMessages: Boolean = false): TypeDeclaration = {
-    IssueLog.clear()
-    val td = ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes()))
-    if (td.isEmpty)
-      IssueLog.dumpMessages(json=false)
-    assert(IssueLog.hasMessages == hasMessages)
-    td.get
+    Org.current.withValue(defaultOrg) {
+      defaultOrg.issues.clear()
+      val td = ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes()))
+      if (td.isEmpty)
+        defaultOrg.issues.dumpMessages(json = false)
+      assert(defaultOrg.issues.hasMessages == hasMessages)
+      td.get
+    }
   }
 
   test("Empty class has no imports") {

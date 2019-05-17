@@ -30,40 +30,43 @@ package com.nawforce.unit.cst
 import java.io.ByteArrayInputStream
 import java.nio.file.{Path, Paths}
 
-import com.nawforce.documents.DocumentLoader
+import com.nawforce.api.Org
 import com.nawforce.types._
-import com.nawforce.utils.{IssueLog, Name}
+import com.nawforce.utils.Name
 import org.scalatest.FunSuite
 
 class SwitchTest extends FunSuite {
 
   private val defaultName: Name = Name("Dummy")
   private val defaultPath: Path = Paths.get(defaultName.toString)
+  private val defaultOrg: Org = new Org
 
   def typeDeclaration(clsText: String): Option[TypeDeclaration] = {
-    IssueLog.clear()
-    val td = ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes()))
-    td
+    Org.current.withValue(defaultOrg) {
+      defaultOrg.issues.clear()
+      val td = ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes()))
+      td
+    }
   }
 
   test("Single control switch") {
     typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} }}}")
-    assert(!IssueLog.hasMessages)
+    assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Multi control switch") {
     typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} when 'B' {}}}}")
-    assert(!IssueLog.hasMessages)
+    assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Else switch") {
     typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} when else {}}}}")
-    assert(!IssueLog.hasMessages)
+    assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Empty switch") {
     typeDeclaration("public class Dummy {{switch on 'A' {}}}")
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1: mismatched input '}' expecting 'when'\n")
   }
 

@@ -30,21 +30,25 @@ package com.nawforce.unit.cst
 import java.io.ByteArrayInputStream
 import java.nio.file.{Path, Paths}
 
+import com.nawforce.api.Org
 import com.nawforce.types._
-import com.nawforce.utils.{IssueLog, Name}
+import com.nawforce.utils.Name
 import org.scalatest.FunSuite
 
 class FieldTest extends FunSuite {
   private val defaultName: Name = Name("Dummy")
   private val defaultPath: Path = Paths.get(defaultName.toString)
+  private val defaultOrg: Org = new Org
 
   def typeDeclaration(clsText: String, hasMessages: Boolean = false): TypeDeclaration = {
-    IssueLog.clear()
-    val td = ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes()))
-    if (td.isEmpty)
-      IssueLog.dumpMessages(json=false)
-    assert(IssueLog.hasMessages == hasMessages)
-    td.get
+    Org.current.withValue(defaultOrg) {
+      defaultOrg.issues.clear()
+      val td = ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes()))
+      if (td.isEmpty)
+        defaultOrg.issues.dumpMessages(json = false)
+      assert(defaultOrg.issues.hasMessages == hasMessages)
+      td.get
+    }
   }
 
   test("Empty class has no fields") {
@@ -67,7 +71,7 @@ class FieldTest extends FunSuite {
     val fields = typeDeclaration("public class Dummy {String foo; String foo;}", hasMessages = true).fields
     assert(fields.size == 1)
     assert(fields.head.name == Name("foo"))
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 32-43: Duplicate field/property: 'foo'\n")
   }
 
@@ -76,7 +80,7 @@ class FieldTest extends FunSuite {
       hasMessages = true).fields
     assert(fields.size == 1)
     assert(fields.head.name == Name("foo"))
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 32-44: Duplicate field/property: 'foo'\nline 1 at 45-56: Duplicate field/property: 'foo'\n")
   }
 
@@ -113,7 +117,7 @@ class FieldTest extends FunSuite {
     assert(field.modifiers == Seq(GLOBAL_MODIFIER))
     assert(field.readAccess == GLOBAL_MODIFIER)
     assert(field.writeAccess == field.readAccess)
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
@@ -129,7 +133,7 @@ class FieldTest extends FunSuite {
     assert(field.modifiers == Seq(WEBSERVICE_MODIFIER))
     assert(field.readAccess == WEBSERVICE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
@@ -167,7 +171,7 @@ class FieldTest extends FunSuite {
     assert(field.modifiers == Seq(PROTECTED_MODIFIER))
     assert(field.readAccess == PROTECTED_MODIFIER)
     assert(field.writeAccess == field.readAccess)
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 47-50: Modifier 'protected' is used more than once\n")
   }
 
@@ -177,7 +181,7 @@ class FieldTest extends FunSuite {
     assert(field.modifiers == Seq(PUBLIC_MODIFIER))
     assert(field.readAccess == PUBLIC_MODIFIER)
     assert(field.writeAccess == field.readAccess)
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 45-48: Only one visibility modifier from 'webservice', 'global', 'public', 'protected' & 'private' may be used on fields\n")
   }
 
@@ -221,7 +225,7 @@ class FieldTest extends FunSuite {
     assert(field.modifiers == Seq(PRIVATE_MODIFIER))
     assert(field.readAccess == PRIVATE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 20-30: Unexpected annotation 'TestSetup' on field/property declaration\n")
   }
 
@@ -230,8 +234,7 @@ class FieldTest extends FunSuite {
     assert(field.modifiers == Seq(TEST_VISIBLE_ANNOTATION))
     assert(field.readAccess == PRIVATE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
-    assert(IssueLog.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 53-56: Modifier '@TestVisible' is used more than once\n")
-    IssueLog.clear()
   }
 }

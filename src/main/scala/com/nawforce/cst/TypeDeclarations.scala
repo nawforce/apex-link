@@ -29,6 +29,7 @@ package com.nawforce.cst
 
 import java.nio.file.Path
 
+import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types._
@@ -64,7 +65,7 @@ final case class ClassDeclaration(_id: Id, _outerTypeName: Option[TypeName], _mo
 
   override def verify(context: VerifyContext): Unit = {
     if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL_MODIFIER)) {
-      IssueLog.logMessage(id.textRange, "Classes enclosing globals or webservices must also be declared global")
+      Org.logMessage(id.textRange, "Classes enclosing globals or webservices must also be declared global")
     }
     super.verify(context)
   }
