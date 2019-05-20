@@ -46,7 +46,7 @@ export default class Check extends SfdxCommand {
 
   public static examples = [
     `$ sfdx apexlink:check`,
-    `$ sfdx apexlink:check -verbose $HOME/myproject`
+    `$ sfdx apexlink:check --verbose projects/myproject`
   ];
 
   public static args = [

@@ -25,34 +25,38 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.api
 
-import java.nio.file.{Path, Paths}
+import { SfdxCommand, flags } from '@salesforce/command';
+import { Messages } from '@salesforce/core';
+import { AnyJson } from '@salesforce/ts-types';
 
-import com.nawforce.documents.DocumentLoader
-import com.nawforce.utils.{IssueLog, Name}
-import com.typesafe.scalalogging.LazyLogging
+// Initialize Messages with the current plugin directory
+Messages.importMessagesDirectory(__dirname);
 
-class Package(org: Org, paths: Seq[Path]) extends LazyLogging {
-  private val documents = new DocumentLoader(paths)
+// Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
+// or any library that is using the messages framework can also be loaded this way.
+const messages = Messages.loadMessages('apexlink', 'retest');
 
-  lazy val classCount: Int = documents.getByExtension(Name("cls")).size
+export default class Check extends SfdxCommand {
 
-  def deployAll(): String = {
-    val classes = documents.getByExtension(Name("cls"))
-    logger.debug(s"Found ${classes.size} classes to parse")
-    org.deployMetadata(classes)
-    org.issues.asJSON(100)
-  }
-}
+  public static description = messages.getMessage('commandDescription');
 
-object Package {
-  def apply(org: Org, directories: Seq[String]): Package = {
-    val paths = directories.map(directory => Paths.get(directory))
-    paths.foreach(path => {
-      if (!path.toFile.isDirectory)
-        throw new IllegalArgumentException(s"Package root '${path.toString}' must be a directory")
-    })
-    new Package(org, paths)
+  public static examples = [
+    `$ sfdx apexlink:retest`,
+    `$ sfdx apexlink:retest --all --verbose`
+  ];
+
+  protected static flagsConfig = {
+    all: flags.boolean({ description: 'run all local tests' }),
+    json: flags.boolean({ description: 'show output in json format (disables --verbose)' }),
+    verbose: flags.builtin({ description: 'show progress messages' })
+  };
+
+  protected static requiresUsername = false;
+  protected static supportsDevhubUsername = false;
+  protected static requiresProject = true;
+
+  public async run(): Promise<AnyJson> {
+    return {};
   }
 }
