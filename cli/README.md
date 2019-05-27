@@ -15,7 +15,7 @@ $ npm install -g apexlink
 $ sfdx COMMAND
 running command...
 $ sfdx (-v|--version|version)
-apexlink/0.2.0 darwin-x64 node-v8.14.0
+apexlink/0.2.0 darwin-x64 node-v10.15.3
 $ sfdx --help [COMMAND]
 USAGE
   $ sfdx COMMAND
@@ -24,6 +24,7 @@ USAGE
 <!-- usagestop -->
 <!-- commands -->
 * [`sfdx apexlink:check [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal]`](#sfdx-apexlinkcheck---verbose---json---loglevel-tracedebuginfowarnerrorfatal)
+* [`sfdx apexlink:retest [--all] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal]`](#sfdx-apexlinkretest---all---verbose---json---loglevel-tracedebuginfowarnerrorfatal)
 
 ## `sfdx apexlink:check [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal]`
 
@@ -43,8 +44,29 @@ OPTIONS
 
 EXAMPLES
   $ sfdx apexlink:check
-  $ sfdx apexlink:check -verbose $HOME/myproject
+  $ sfdx apexlink:check --verbose projects/myproject
 ```
 
 _See code: [src/commands/apexlink/check.ts](https://github.com/nawforce/apexlink/blob/v0.2.0/src/commands/apexlink/check.ts)_
+
+## `sfdx apexlink:retest [--all] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal]`
+
+Run tests for source files changed since last test run
+
+```
+USAGE
+  $ sfdx apexlink:retest [--all] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal]
+
+OPTIONS
+  --all                                           run all local tests
+  --json                                          show output in json format (disables --verbose)
+  --loglevel=(trace|debug|info|warn|error|fatal)  [default: warn] logging level for this command invocation
+  --verbose                                       show progress messages
+
+EXAMPLES
+  $ sfdx apexlink:retest
+  $ sfdx apexlink:retest --all --verbose
+```
+
+_See code: [src/commands/apexlink/retest.ts](https://github.com/nawforce/apexlink/blob/v0.2.0/src/commands/apexlink/retest.ts)_
 <!-- commandsstop -->

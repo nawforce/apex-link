@@ -1,3 +1,5 @@
 {
-    "commandDescription": "Run tests for source files changed since last test run"
+    "commandDescription": "Run tests for source files changed since last test run",
+    "errorNoStatus": "Could not execute 'git status' error: %s",
+    "errorBadStatus": "Problem running 'git status', error code: %s"
 }

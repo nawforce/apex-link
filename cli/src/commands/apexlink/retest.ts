@@ -26,20 +26,25 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { SfdxCommand, flags } from '@salesforce/command';
-import { Messages } from '@salesforce/core';
-import { AnyJson } from '@salesforce/ts-types';
+import { SfdxCommand, flags } from "@salesforce/command";
+import { Messages, SfdxError } from "@salesforce/core";
+import { AnyJson, JsonMap, JsonArray } from "@salesforce/ts-types";
+import GitStatus, { ChangedFile } from "../../cmd/gitStatus";
+import { CommandStatus } from "../../cmd/commandRunner";
+import ForceIgnore from "../../cmd/forceIgnore";
+import * as path from "path";
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
 
 // Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
 // or any library that is using the messages framework can also be loaded this way.
-const messages = Messages.loadMessages('apexlink', 'retest');
+const messages = Messages.loadMessages("apexlink", "retest");
 
-export default class Check extends SfdxCommand {
+const includedExtensions = [".cls", ".trigger"];
 
-  public static description = messages.getMessage('commandDescription');
+export default class ReTest extends SfdxCommand {
+  public static description = messages.getMessage("commandDescription");
 
   public static examples = [
     `$ sfdx apexlink:retest`,
@@ -47,9 +52,11 @@ export default class Check extends SfdxCommand {
   ];
 
   protected static flagsConfig = {
-    all: flags.boolean({ description: 'run all local tests' }),
-    json: flags.boolean({ description: 'show output in json format (disables --verbose)' }),
-    verbose: flags.builtin({ description: 'show progress messages' })
+    all: flags.boolean({ description: "run all local tests" }),
+    json: flags.boolean({
+      description: "show output in json format (disables --verbose)"
+    }),
+    verbose: flags.builtin({ description: "show progress messages" })
   };
 
   protected static requiresUsername = false;
@@ -57,6 +64,34 @@ export default class Check extends SfdxCommand {
   protected static requiresProject = true;
 
   public async run(): Promise<AnyJson> {
-    return {};
+    const projectConfig = await this.project.resolveProjectConfig();
+    const forceIgnore = new ForceIgnore(this.project.getPath(), projectConfig);
+
+    return new GitStatus()
+      .execute()
+      .then((changedFiles: ChangedFile[]) => {
+        changedFiles
+          .filter(fileStatus => {
+            return (
+              forceIgnore.isValid(fileStatus.path) &&
+              includedExtensions.filter(ext => fileStatus.path.endsWith(ext))
+                .length > 0
+            );
+          })
+          .forEach(fileStatus => {
+            console.log(fileStatus);
+          });
+        return {};
+      })
+      .catch((status: CommandStatus) => {
+        if (status.abortError)
+          throw new SfdxError(
+            messages.getMessage("errorNoStatus", [status.abortError])
+          );
+        else
+          throw new SfdxError(
+            messages.getMessage("errorBadStatus", [status.statusCode])
+          );
+      });
   }
 }
