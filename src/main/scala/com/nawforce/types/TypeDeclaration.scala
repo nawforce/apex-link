@@ -27,12 +27,13 @@
 */
 package com.nawforce.types
 
+import com.nawforce.api.{ConstructorSummary, FieldSummary, MethodSummary, ParameterSummary, TypeSummary}
 import com.nawforce.utils.Name
 
-sealed trait Nature
-case object CLASS_NATURE extends Nature
-case object INTERFACE_NATURE extends Nature
-case object ENUM_NATURE extends Nature
+sealed trait Nature {def value: String}
+case object CLASS_NATURE extends Nature {override def value: String = "class"}
+case object INTERFACE_NATURE extends Nature {override def value: String = "interface"}
+case object ENUM_NATURE extends Nature {override def value: String = "enum"}
 
 trait FieldDeclaration {
   val name: Name
@@ -40,16 +41,26 @@ trait FieldDeclaration {
   val typeName: TypeName
   val readAccess: Modifier
   val writeAccess: Modifier
+
+  lazy val summary: FieldSummary = FieldSummary(name.toString, modifiers.map(_.toString).sorted.toList,
+    typeName.toString, readAccess.toString, writeAccess.toString)
 }
 
 trait ParameterDeclaration {
   val name: Name
   val typeName: TypeName
+
+  lazy val summary: ParameterSummary = ParameterSummary(name.toString, typeName.toString)
 }
 
 trait ConstructorDeclaration {
   val modifiers: Seq[Modifier]
   val parameters: Seq[ParameterDeclaration]
+
+  lazy val summary: ConstructorSummary = ConstructorSummary(
+    modifiers.map(_.toString).sorted.toList,
+    parameters.map(_.summary).sortBy(_.name).toList
+  )
 }
 
 trait MethodDeclaration {
@@ -57,6 +68,11 @@ trait MethodDeclaration {
   val modifiers: Seq[Modifier]
   val typeName: TypeName
   val parameters: Seq[ParameterDeclaration]
+
+  lazy val summary: MethodSummary = MethodSummary(
+    name.toString, modifiers.map(_.toString).sorted.toList, typeName.toString,
+    parameters.map(_.summary).sortBy(_.name).toList
+  )
 }
 
 trait TypeDeclaration {
@@ -74,4 +90,13 @@ trait TypeDeclaration {
   val fields: Seq[FieldDeclaration]
   val constructors: Seq[ConstructorDeclaration]
   val methods: Seq[MethodDeclaration]
+
+  lazy val summary: TypeSummary = TypeSummary(
+    name.toString, typeName.toString, nature.value, modifiers.map(_.toString).sorted.toList,
+    superClass.map(_.toString).getOrElse(""), interfaces.map(_.toString).sorted.toList,
+    fields.map(_.summary).sortBy(_.name).toList,
+    constructors.map(_.summary).sortBy(_.parameters.size).toList,
+    methods.map(_.summary).sortBy(_.name).toList,
+    nestedTypes.map(_.summary).sortBy(_.name).toList
+  )
 }

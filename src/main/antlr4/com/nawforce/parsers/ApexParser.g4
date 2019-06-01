@@ -76,12 +76,8 @@ enumDeclaration
     ;
 
 enumConstants
-    : enumConstant (COMMA enumConstant)*
-    ;
-
-enumConstant
-    : modifier* id arguments? classBody?
-    ;
+ 	: id (COMMA id)*
+   	;
 
 interfaceDeclaration
     : INTERFACE id (EXTENDS typeList)? interfaceBody
@@ -96,7 +92,7 @@ classBody
     ;
 
 interfaceBody
-    : LBRACE interfaceBodyDeclaration* RBRACE
+    : LBRACE interfaceMethodDeclaration* RBRACE
     ;
 
 classBodyDeclaration
@@ -161,29 +157,8 @@ propertyDeclaration
     : typeRef id LBRACE propertyBlock* RBRACE
     ;
 
-interfaceBodyDeclaration
-    : modifier* interfaceMemberDeclaration
-    | SEMI
-    ;
-
-interfaceMemberDeclaration
-    : constDeclaration
-    | interfaceMethodDeclaration
-    | interfaceDeclaration
-    | classDeclaration
-    | enumDeclaration
-    ;
-
-constDeclaration
-    : typeRef constantDeclarator (COMMA constantDeclarator)* SEMI
-    ;
-
-constantDeclarator
-    : id (LBRACK RBRACK)* '=' variableInitializer
-    ;
-
 interfaceMethodDeclaration
-    : (typeRef|VOID) id formalParameters SEMI
+    : modifier* (typeRef|VOID) id formalParameters SEMI
     ;
 
 variableDeclarators

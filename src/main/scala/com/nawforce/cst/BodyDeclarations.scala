@@ -53,18 +53,22 @@ object ClassBodyDeclaration {
     val m = ApexModifiers.construct(modifiers, context)
     val declarations =
       if (memberDeclarationContext.methodDeclaration() != null) {
-        Seq(MethodDeclaration.construct(m, memberDeclarationContext.methodDeclaration(), context))
+        Seq(ApexMethodDeclaration.construct(m, memberDeclarationContext.methodDeclaration(), context))
       } else if (memberDeclarationContext.fieldDeclaration() != null) {
         val id = memberDeclarationContext.fieldDeclaration().variableDeclarators().variableDeclarator().get(0).id()
         ApexFieldDeclaration.construct(
           ApexModifiers.fieldModifiers(modifiers, context, id),
           memberDeclarationContext.fieldDeclaration(), context)
       } else if (memberDeclarationContext.constructorDeclaration() != null) {
-        Seq(ConstructorDeclaration.construct(m, memberDeclarationContext.constructorDeclaration(), context))
+        Seq(ApexConstructorDeclaration.construct(m, memberDeclarationContext.constructorDeclaration(), context))
       } else if (memberDeclarationContext.interfaceDeclaration() != null) {
-        Seq(InterfaceDeclaration.construct(outerTypeName, m, memberDeclarationContext.interfaceDeclaration(), context))
+        Seq(InterfaceDeclaration.construct(outerTypeName,
+          ApexModifiers.interfaceModifiers(modifiers, context, outer = false, memberDeclarationContext.interfaceDeclaration().id()),
+          memberDeclarationContext.interfaceDeclaration(), context))
       } else if (memberDeclarationContext.enumDeclaration() != null) {
-        Seq(EnumDeclaration.construct(outerTypeName, m, memberDeclarationContext.enumDeclaration(), context))
+        Seq(EnumDeclaration.construct(outerTypeName,
+          ApexModifiers.enumModifiers(modifiers, context, outer = false, memberDeclarationContext.enumDeclaration().id()),
+          memberDeclarationContext.enumDeclaration(), context))
       } else if (memberDeclarationContext.propertyDeclaration() != null) {
         Seq(ApexPropertyDeclaration.construct(
             ApexModifiers.fieldModifiers(modifiers, context, memberDeclarationContext.propertyDeclaration().id()),
@@ -98,15 +102,17 @@ object InitialiserBlock {
   }
 }
 
-final case class MethodDeclaration(_modifiers: Seq[Modifier], typeRef: Option[TypeName], id: String,
-                                   formalParameters: List[FormalParameter], block: Option[Block])
-  extends ClassBodyDeclaration(_modifiers) {
+final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: TypeName, id: Id,
+                                       parameters: List[FormalParameter], block: Option[Block])
+  extends ClassBodyDeclaration(_modifiers) with MethodDeclaration {
 
-  override def children(): List[CST] = List() ++ formalParameters ++ block
+  override def children(): List[CST] = List() ++ parameters ++ block
+
+  override val name: Name = id.name
 
   override def verify(context: VerifyContext): Unit = {
-    typeRef.foreach(context.addImport)
-    formalParameters.foreach(_.verify(context))
+    context.addImport(typeName)
+    parameters.foreach(_.verify(context))
     block.foreach(_.verify(context))
   }
 
@@ -118,16 +124,27 @@ final case class MethodDeclaration(_modifiers: Seq[Modifier], typeRef: Option[Ty
   }
 }
 
-object MethodDeclaration {
-  def construct(modifiers: Seq[Modifier], from: MethodDeclarationContext, context: ConstructContext): MethodDeclaration = {
-    val typeRef = if (from.typeRef() != null) Some(TypeRef.construct(from.typeRef(), context)) else None
+object ApexMethodDeclaration {
+  def construct(modifiers: Seq[Modifier], from: MethodDeclarationContext, context: ConstructContext): ApexMethodDeclaration = {
+    val typeName = if (from.typeRef() != null) TypeRef.construct(from.typeRef(), context) else TypeName.Void
     val block = if (from.block != null) Some(Block.construct(from.block, context)) else None
 
-    MethodDeclaration(modifiers,
-      typeRef,
-      from.id.getText,
+    ApexMethodDeclaration(modifiers,
+      typeName,
+      Id.construct(from.id(), context),
       FormalParameters.construct(from.formalParameters(), context),
       block
+    ).withContext(from, context)
+  }
+
+  def construct(modifiers: Seq[Modifier], from: InterfaceMethodDeclarationContext, context: ConstructContext): ApexMethodDeclaration = {
+    val typeName = if (from.typeRef() != null) TypeRef.construct(from.typeRef(), context) else TypeName.Void
+
+    ApexMethodDeclaration(modifiers,
+      typeName,
+      Id.construct(from.id(), context),
+      FormalParameters.construct(from.formalParameters(), context),
+      None
     ).withContext(from, context)
   }
 }
@@ -159,21 +176,22 @@ object ApexFieldDeclaration {
   }
 }
 
-final case class ConstructorDeclaration(_modifiers: Seq[Modifier], qualifiedName: QualifiedName,
-                                        formalParameters: List[FormalParameter],
-                                        block: Block)
-  extends ClassBodyDeclaration(_modifiers) {
-  override def children(): List[CST] = formalParameters ++ List(block)
+final case class ApexConstructorDeclaration(_modifiers: Seq[Modifier], qualifiedName: QualifiedName,
+                                            parameters: List[FormalParameter],
+                                            block: Block)
+  extends ClassBodyDeclaration(_modifiers) with ConstructorDeclaration {
+
+  override def children(): List[CST] = parameters ++ List(block)
 
   override def verify(context: VerifyContext): Unit = {
-    formalParameters.foreach(_.verify(context))
+    parameters.foreach(_.verify(context))
     block.verify(context)
   }
 }
 
-object ConstructorDeclaration {
-  def construct(modifiers: Seq[Modifier], from: ConstructorDeclarationContext, context: ConstructContext): ConstructorDeclaration = {
-    ConstructorDeclaration(modifiers,
+object ApexConstructorDeclaration {
+  def construct(modifiers: Seq[Modifier], from: ConstructorDeclarationContext, context: ConstructContext): ApexConstructorDeclaration = {
+    ApexConstructorDeclaration(modifiers,
       QualifiedName.construct(from.qualifiedName(), context),
       FormalParameters.construct(from.formalParameters(), context),
       Block.construct(from.block(), context)
@@ -181,11 +199,15 @@ object ConstructorDeclaration {
   }
 }
 
-final case class FormalParameter(modifiers: Seq[Modifier], typeRef: TypeName, id: Id) extends CST {
+final case class FormalParameter(modifiers: Seq[Modifier], typeName: TypeName, id: Id)
+  extends CST with ParameterDeclaration {
+
   override def children(): List[CST] = List(id)
 
+  val name: Name = id.name
+
   def verify(context: VerifyContext): Unit = {
-    context.addImport(typeRef)
+    context.addImport(typeName)
   }
 }
 

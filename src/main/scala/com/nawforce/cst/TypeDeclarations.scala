@@ -135,9 +135,13 @@ object InterfaceDeclaration {
       else
         Seq()
 
-    // TODO: Handle body
+    val methods: Seq[ApexMethodDeclaration]
+        = interfaceDeclaration.interfaceBody().interfaceMethodDeclaration().asScala.map(m =>
+            ApexMethodDeclaration.construct(ApexModifiers.construct(m.modifier().asScala, context), m, context)
+    )
+
     InterfaceDeclaration(Id.construct(interfaceDeclaration.id(), context), outerTypeName, modifiers,
-      implementsType, Seq())
+      implementsType, methods)
       .withContext(interfaceDeclaration, context)
   }
 }
@@ -156,8 +160,23 @@ final case class EnumDeclaration(_id: Id, _outerTypeName: Option[TypeName], _mod
 object EnumDeclaration {
   def construct(outerTypeName: Option[TypeName], typeModifiers: Seq[Modifier],
                 enumDeclaration: ApexParser.EnumDeclarationContext, context: ConstructContext): EnumDeclaration = {
-    // TODO: Handle body
-    EnumDeclaration(Id.construct(enumDeclaration.id(), context), outerTypeName, typeModifiers, Seq())
+
+
+    // TODO: Add standard enum methods
+
+    val id = Id.construct(enumDeclaration.id(), context)
+    val thisType = TypeName(id.name).withOuter(outerTypeName)
+    val constants= Option(enumDeclaration.enumConstants()).map(_.id().asScala).getOrElse(Seq())
+    val fields = constants.map(constant => {
+      ApexFieldDeclaration(Seq(PUBLIC_MODIFIER, STATIC_MODIFIER), thisType,
+        VariableDeclarator(
+          Id.construct(constant, context),
+          None
+        )
+      )
+    })
+
+    EnumDeclaration(id, outerTypeName, typeModifiers, fields)
       .withContext(enumDeclaration, context)
   }
 }

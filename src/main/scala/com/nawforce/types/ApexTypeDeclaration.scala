@@ -134,17 +134,22 @@ object ApexTypeDeclaration {
       if (typeDecl.classDeclaration() != null) {
         ClassDeclaration.construct(
           outerTypeName,
-          ApexModifiers.classModifiers(modifiers, context, outer = outerTypeName.isEmpty, typeDecl.classDeclaration().id()),
+          ApexModifiers.classModifiers(modifiers, context, outer = outerTypeName.isEmpty,
+            typeDecl.classDeclaration().id()),
           typeDecl.classDeclaration(), context)
       } else if (typeDecl.interfaceDeclaration() != null) {
         InterfaceDeclaration.construct(
           outerTypeName,
-          ApexModifiers.construct(modifiers, context), typeDecl.interfaceDeclaration(), context)
+          ApexModifiers.interfaceModifiers(modifiers, context, outer = outerTypeName.isEmpty,
+            typeDecl.interfaceDeclaration().id()),
+          typeDecl.interfaceDeclaration(), context)
       } else {
         assert(typeDecl.enumDeclaration() != null)
         EnumDeclaration.construct(
           outerTypeName,
-          ApexModifiers.construct(modifiers, context), typeDecl.enumDeclaration(), context)
+          ApexModifiers.enumModifiers(modifiers, context, outer = outerTypeName.isEmpty,
+            typeDecl.enumDeclaration().id()),
+          typeDecl.enumDeclaration(), context)
       }
     cst.withContext(typeDecl, context)
   }
