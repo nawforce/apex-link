@@ -28,11 +28,15 @@
 
 import { SfdxCommand, flags } from "@salesforce/command";
 import { Messages, SfdxError } from "@salesforce/core";
-import { AnyJson, JsonMap, JsonArray } from "@salesforce/ts-types";
-import GitStatus, { ChangedFile } from "../../cmd/gitStatus";
+import { AnyJson } from "@salesforce/ts-types";
+import TestRunStart from "../../cmd/testRunStart";
+import TestRunProgress from "../../cmd/testRunProgress";
+import TestRunWait from "../../cmd/testRunWait";
+import * as moment from "moment";
 import { CommandStatus } from "../../cmd/commandRunner";
-import ForceIgnore from "../../cmd/forceIgnore";
-import * as path from "path";
+import TestRunResults, { TestRunDetail } from "../../cmd/testRunResults";
+import TestRunSingle from "../../cmd/testRunSingle";
+import * as fs from "fs";
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -41,7 +45,8 @@ Messages.importMessagesDirectory(__dirname);
 // or any library that is using the messages framework can also be loaded this way.
 const messages = Messages.loadMessages("apexlink", "retest");
 
-const includedExtensions = [".cls", ".trigger"];
+// TODO: For future use
+//const includedExtensions = [".cls", ".trigger"];
 
 export default class ReTest extends SfdxCommand {
   public static description = messages.getMessage("commandDescription");
@@ -63,14 +68,112 @@ export default class ReTest extends SfdxCommand {
   protected static supportsDevhubUsername = false;
   protected static requiresProject = true;
 
+  protected updateProgressFrequency = 60000;
+  private testRunId = "";
+
   public async run(): Promise<AnyJson> {
+    const startMoment = moment();
+    this.ux.log(`Starting parallel test run at ${startMoment.format("LLLL")}`);
+    await new TestRunStart()
+      .execute()
+      .then(testRunId => {
+        this.testRunId = testRunId;
+      })
+      .catch(status =>
+        this.throwFailure("When starting parallel test run", status)
+      );
+
+    this.monitorProgress(startMoment);
+    await new TestRunWait(this.testRunId)
+      .execute()
+      .then(async status => {
+        let testRunId = this.testRunId;
+        this.testRunId = "";
+        this.ux.log(
+          `parallel Test run completed at ${moment().format("LLLL")}`
+        );
+        const failures = await this.sequentialTestAndReport(testRunId);
+        if (failures.length != 0) {
+          fs.writeFileSync("test-results.json", JSON.stringify(failures, null, 4));
+          this.ux.log("Review test-report.json for failure details");
+        }
+        const timePassed = moment.duration(moment().diff(startMoment)).humanize();
+        this.ux.log(`Finished at ${moment().format("LLLL")}, took ${timePassed}`)
+      })
+      .catch(status =>
+        this.throwFailure("When waiting for parallel test run to end", status)
+      );
+    return {};
+  }
+
+  private throwFailure(context: string, status: CommandStatus) {
+    if (status.stderr !== "")
+      throw new SfdxError(context + " " + JSON.parse(status.stderr).message);
+    else
+      throw new SfdxError(
+        context + " " + `a bad status code was returned: ${status.statusCode}`
+      );
+  }
+
+  private async monitorProgress(startMoment: moment.Moment) {
+    if (this.testRunId === "") return;
+    setTimeout(
+      () => this.monitorProgress(startMoment),
+      this.updateProgressFrequency
+    ).unref();
+
+    const runCount = await new TestRunProgress(this.testRunId, false).execute();
+    const failedCount = await new TestRunProgress(
+      this.testRunId,
+      true
+    ).execute();
+    const timePassed = moment.duration(moment().diff(startMoment)).humanize();
+    this.ux.log(
+      `${failedCount} tests have failed of ${runCount} run after ${timePassed}`
+    );
+  }
+
+  private async sequentialTestAndReport(
+    testRunId: string
+  ): Promise<TestRunDetail[]> {
+    const results = await new TestRunResults(testRunId).execute();
+    const locked = results.filter(
+      result =>
+        result.Outcome != "Pass" &&
+        (result.Message.search(/UNABLE_TO_LOCK_ROW/) != -1 ||
+          result.Message.search(/deadlock detected/) != -1)
+    );
+    if (locked.length > 0) {
+      this.ux.log(
+        `Of ${results.length} tests run, ${
+          locked.length
+        } failed due to locking issues, re-running these sequentially`
+      );
+      for (const result of locked) {
+        const testName = result.ApexClass.Name + "." + result.MethodName;
+        this.ux.log(`Running ${testName}`);
+        const status = await new TestRunSingle(testName).execute();
+        if (status.statusCode === 0) result.Outcome = "Pass";
+      }
+    }
+    const failed = results.filter(result => result.Outcome !== "Pass");
+    if (failed.length !== 0)
+      this.ux.log(
+        `Of ${results.length} tests run, ${failed.length} have failed :-(`
+      );
+    else this.ux.log(`Of ${results.length} tests run, NONE have failed :-)`);
+    return failed;
+  }
+
+  /* TODO: For future use
+  private async collectChangedFiles(): Promise<string[]> {
     const projectConfig = await this.project.resolveProjectConfig();
     const forceIgnore = new ForceIgnore(this.project.getPath(), projectConfig);
 
     return new GitStatus()
       .execute()
       .then((changedFiles: ChangedFile[]) => {
-        changedFiles
+        return changedFiles
           .filter(fileStatus => {
             return (
               forceIgnore.isValid(fileStatus.path) &&
@@ -78,10 +181,7 @@ export default class ReTest extends SfdxCommand {
                 .length > 0
             );
           })
-          .forEach(fileStatus => {
-            console.log(fileStatus);
-          });
-        return {};
+          .map(fileStatus => fileStatus.path);
       })
       .catch((status: CommandStatus) => {
         if (status.abortError)
@@ -94,4 +194,5 @@ export default class ReTest extends SfdxCommand {
           );
       });
   }
+  */
 }
