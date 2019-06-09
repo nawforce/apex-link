@@ -38,7 +38,7 @@ syntactical problems in Apex code.
 
 To run just a scan of a package use:
 
-     java -jar target/uber-apexlink-0.2.jar <packagage directory>
+     java -jar target/uber-apexlink-0.3.jar <packagage directory>
      
 If any errors are found these will be reported back to the console.
      
