@@ -1,20 +1,20 @@
 
 ## ApexLink
 
-ApexLink is a library for supporting offline validation of Salesforce package Apex code. It's currently WIP but
-contains a half decent parser for Apex alongside definitions for common platform classes and SObjects. 
+ApexLink is a SFDX CLI plugin & library for supporting offline validation of Salesforce package Apex code. It's 
+currently WIP but contains a half decent parser for Apex alongside definitions for common platform classes and SObjects. 
 
 ### SFDX CLI
 
-As well as Java libraries there is a SFDX CLI that you can install with
+As well as the Java libraries there is a SFDX CLI that you can install with
 
     sfdx plugins:install apexlink
 
-This has a single command you can use to syntax check all the Apex files in a directory
+The cli currently supports the ability to syntax check Apex code and a parallel test utility. After installing run
 
-    sfdx apexlink:check
+    sfdx apexlink --help
     
-The --verbose & --json options give some control to the output formatting.    
+to see commands and arguments that you can use.   
 
 ### Other tools
  
@@ -46,21 +46,10 @@ If any errors are found these will be reported back to the console.
 
 To use in a maven project add the following to your pom.xml
 
-    <repositories>
-        <repository>
-            <id>oss-sonatype</id>
-            <name>oss-sonatype</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <dependency>
         <groupId>com.github.nawforce</groupId>
         <artifactId>apexlink</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.3</version>
     </dependency>
 
 ### Source & Licenses
