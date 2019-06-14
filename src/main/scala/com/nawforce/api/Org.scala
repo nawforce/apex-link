@@ -72,24 +72,28 @@ class Org extends TypeStore with LazyLogging {
   /** Deploy some metadata to the org, if already present this will replace the existing metadata */
   def deployMetadata(files: Seq[Path]): Unit = {
     Org.current.withValue(this) {
-      val newDeclarations = files.grouped(100).flatMap(group => {
-        val parsed = group.par.flatMap(path => {
-          DocumentType(path) match {
-            case docType: ApexDocument =>
-              issues.context.withValue(path) {
-                val start = System.currentTimeMillis()
-                val typeDeclaration = ApexTypeDeclaration.create(docType.path, new FileInputStream(docType.path.toFile))
-                val end = System.currentTimeMillis()
-                logger.debug(s"Parsed ${docType.path.toString} in ${end - start}ms")
-                typeDeclaration
-              }
-          }
-        })
-        System.gc()
-        parsed
-      })
-      newDeclarations.foreach(upsertType)
+      loadFromFiles(files)
     }
+  }
+
+  private def loadFromFiles(files:Seq[Path]): Unit = {
+    val newDeclarations = files.grouped(100).flatMap(group => {
+      val parsed = group.par.flatMap(path => {
+        DocumentType(path) match {
+          case docType: ApexDocument =>
+            issues.context.withValue(path) {
+              val start = System.currentTimeMillis()
+              val typeDeclaration = ApexTypeDeclaration.create(docType.path, new FileInputStream(docType.path.toFile))
+              val end = System.currentTimeMillis()
+              logger.debug(s"Parsed ${docType.path.toString} in ${end - start}ms")
+              typeDeclaration
+            }
+        }
+      })
+      System.gc()
+      parsed
+    })
+    newDeclarations.foreach(upsertType)
   }
 
   /** Upsert a type declaration in the Org */

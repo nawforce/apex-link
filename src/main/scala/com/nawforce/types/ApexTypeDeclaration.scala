@@ -41,37 +41,41 @@ import org.antlr.v4.runtime.CommonTokenStream
 import scala.collection.JavaConverters._
 
 /** Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
-abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeName], _modifiers: Seq[Modifier],
-                                   val superClass: Option[TypeName], val interfaces: Seq[TypeName],
-                                   val bodyDeclarations: Seq[ClassBodyDeclaration])
+abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeName],
+                                   _modifiers: Seq[Modifier], val superClass: Option[TypeName],
+                                   val interfaces: Seq[TypeName], val bodyDeclarations: Seq[ClassBodyDeclaration])
   extends ClassBodyDeclaration(_modifiers) with TypeDeclaration {
 
   override def children(): List[CST] = bodyDeclarations.toList
+
+  private val path: Path = Org.current.value.issues.context.value
 
   override val name: Name = id.name
   override val typeName: TypeName = ApexTypeDeclaration.typeName(name).withOuter(outerTypeName)
   override val nature: Nature
 
-  override lazy val nestedTypes: Seq[TypeDeclaration] = {
+  override val nestedTypes: Seq[TypeDeclaration] = {
     bodyDeclarations.flatMap {
       case x: TypeDeclaration => Some(x)
       case _ => None
     }
   }
 
-  override val fields: Seq[FieldDeclaration] = {
-    val fields = bodyDeclarations.flatMap {
-      case x: FieldDeclaration => Some(x)
-      case _ => None
+  override lazy val fields: Seq[FieldDeclaration] = {
+    Org.current.value.issues.context.withValue(path) {
+      val fields = bodyDeclarations.flatMap {
+        case x: FieldDeclaration => Some(x)
+        case _ => None
+      }
+      fields.groupBy(f => f.name).collect {
+        case (_, y :: Nil) => y
+        case (_, duplicates) =>
+          duplicates.tail.foreach(d => {
+            Org.logMessage(d.textRange, s"Duplicate field/property: '${d.name}'")
+          })
+          duplicates.head
+      }.toSeq
     }
-    fields.groupBy(f => f.name).collect {
-      case (_, y :: Nil) => y
-      case (_, duplicates) =>
-        duplicates.tail.foreach(d => {
-          Org.logMessage(d.textRange, s"Duplicate field/property: '${d.name}'")
-        })
-        duplicates.head
-    }.toSeq
   }
 
   override val constructors: Seq[ConstructorDeclaration] = {

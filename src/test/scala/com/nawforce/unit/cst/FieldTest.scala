@@ -46,6 +46,8 @@ class FieldTest extends FunSuite {
       val td = ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes()))
       if (td.isEmpty)
         defaultOrg.issues.dumpMessages(json = false)
+      else
+        td.get.fields
       assert(defaultOrg.issues.hasMessages == hasMessages)
       td.get
     }
