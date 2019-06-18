@@ -48,9 +48,8 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
 
   override def children(): List[CST] = bodyDeclarations.toList
 
-  private val path: Path = Org.current.value.issues.context.value
-
   override val name: Name = id.name
+  override val path: Path = Org.current.value.issues.context.value
   override val typeName: TypeName = ApexTypeDeclaration.typeName(name).withOuter(outerTypeName)
   override val nature: Nature
 
@@ -93,9 +92,14 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
   }
 
   protected def verify(context: VerifyContext): Unit = {
+    if (!superClass.forall(superType => context.importTypeFor(superType, this))) {
+      context.importTypeFor(superClass.get, this)
+      Org.logMessage(textRange, s"No type declaration found for ${superClass.get.asDotName} ")
+    }
+
     superClass.foreach(context.addImport)
     interfaces.foreach(context.addImport)
-    bodyDeclarations.foreach(bd => bd.imports.foreach(context.addImport))
+    bodyDeclarations.foreach(bd => bd.validate())
   }
 
   def resolve(index: CSTIndex)

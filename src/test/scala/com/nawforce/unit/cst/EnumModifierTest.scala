@@ -48,6 +48,9 @@ class EnumModifierTest extends FunSuite {
       val td = ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes()))
       if (td.isEmpty)
         defaultOrg.issues.dumpMessages(json = false)
+      Org.current.value.issues.context.withValue(defaultPath) {
+        td.get.validate()
+      }
       td.get
     }
   }

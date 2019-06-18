@@ -27,6 +27,8 @@
 */
 package com.nawforce.types
 
+import java.nio.file.Path
+
 import com.nawforce.api.{ConstructorSummary, FieldSummary, MethodSummary, ParameterSummary, TypeSummary}
 import com.nawforce.utils.Name
 
@@ -35,7 +37,9 @@ case object CLASS_NATURE extends Nature {override def value: String = "class"}
 case object INTERFACE_NATURE extends Nature {override def value: String = "interface"}
 case object ENUM_NATURE extends Nature {override def value: String = "enum"}
 
-trait FieldDeclaration {
+trait DependencyDeclaration
+
+trait FieldDeclaration extends DependencyDeclaration {
   val name: Name
   val modifiers: Seq[Modifier]
   val typeName: TypeName
@@ -53,7 +57,7 @@ trait ParameterDeclaration {
   lazy val summary: ParameterSummary = ParameterSummary(name.toString, typeName.toString)
 }
 
-trait ConstructorDeclaration {
+trait ConstructorDeclaration extends DependencyDeclaration {
   val modifiers: Seq[Modifier]
   val parameters: Seq[ParameterDeclaration]
 
@@ -63,7 +67,7 @@ trait ConstructorDeclaration {
   )
 }
 
-trait MethodDeclaration {
+trait MethodDeclaration extends DependencyDeclaration {
   val name: Name
   val modifiers: Seq[Modifier]
   val typeName: TypeName
@@ -75,11 +79,11 @@ trait MethodDeclaration {
   )
 }
 
-trait TypeDeclaration {
-  val imports: Set[TypeName]
-
+trait TypeDeclaration extends DependencyDeclaration {
   val name: Name
+  val path: Path
   val typeName: TypeName
+  val outerTypeName: Option[TypeName]
   val nature: Nature
   val modifiers: Seq[Modifier]
 
@@ -90,6 +94,8 @@ trait TypeDeclaration {
   val fields: Seq[FieldDeclaration]
   val constructors: Seq[ConstructorDeclaration]
   val methods: Seq[MethodDeclaration]
+
+  def validate(): Unit
 
   lazy val summary: TypeSummary = TypeSummary(
     name.toString, typeName.toString, nature.value, modifiers.map(_.toString).sorted.toList,

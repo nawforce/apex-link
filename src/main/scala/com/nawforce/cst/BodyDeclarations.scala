@@ -32,14 +32,28 @@ import com.nawforce.types._
 import com.nawforce.utils.Name
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST {
   lazy val isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER) || modifiers.contains(WEBSERVICE_MODIFIER)
 
-  lazy val imports: Set[TypeName] = {
-    val context = new VerifyContext
-    verify(context)
-    context.imports
+  private var depends: Option[Set[ClassBodyDeclaration]] = None
+  private val dependencyHolder: mutable.Set[ClassBodyDeclaration] = mutable.Set()
+
+  def invalidate(): Unit = {
+    depends = None
+  }
+
+  def validate(): Unit = {
+    if (depends.isEmpty) {
+      val context = new VerifyContext()
+      verify(context)
+      depends = Some(context.depends)
+    }
+  }
+
+  def addDependencyHolder(holder: ClassBodyDeclaration): Unit = {
+    dependencyHolder.add(holder)
   }
 
   protected def verify(context: VerifyContext): Unit

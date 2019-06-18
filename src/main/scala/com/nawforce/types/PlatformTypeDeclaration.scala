@@ -41,10 +41,10 @@ import scala.collection.mutable
 case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[PlatformTypeDeclaration])
   extends TypeDeclaration {
 
-  lazy val imports: Set[TypeName] = Set.empty
-
   lazy val name: Name = typeName.name
+  lazy val path: Path = Paths.get(name.toString)
   lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(cls, cls)
+  lazy val outerTypeName: Option[TypeName] = parent.map(_.typeName)
   lazy val nature: Nature = {
     (cls.isEnum, cls.isInterface) match {
       case (true, _) => ENUM_NATURE
@@ -129,6 +129,10 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
       case _ =>
         localMethods.map(m => Method(m, this))
     }
+  }
+
+  override def validate(): Unit = {
+    // Always valid because javac said so
   }
 }
 

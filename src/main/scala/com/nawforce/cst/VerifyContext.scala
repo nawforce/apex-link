@@ -27,14 +27,24 @@
 */
 package com.nawforce.cst
 
-import com.nawforce.types.TypeName
+import com.nawforce.api.Org
+import com.nawforce.types.{DependencyDeclaration, TypeDeclaration, TypeName}
 
 import scala.collection.mutable
 
 class VerifyContext {
   private val _imports = mutable.Set[TypeName] ()
+  private val _dependencies = mutable.Set[DependencyDeclaration] ()
 
   def imports: Set[TypeName] = _imports.diff(TypeName.ApexTypes).toSet
+
+  def depends: Set[ClassBodyDeclaration] = Set()
+
+  def importTypeFor(typeName: TypeName, from: TypeDeclaration): Boolean = {
+    val td = Org.current.value.getTypeFor(typeName, from)
+    td.foreach(_dependencies += _)
+    td.nonEmpty
+  }
 
   def addImport(typeName: TypeName): Unit = {
     _imports += typeName

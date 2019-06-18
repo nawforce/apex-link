@@ -33,17 +33,14 @@ import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types._
-import com.nawforce.utils.{IssueLog, Name}
+import com.nawforce.utils.Name
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 
 final case class CompilationUnit(path: Path, private val _typeDeclaration: ApexTypeDeclaration) extends CST {
   def children(): List[CST] = List(_typeDeclaration)
 
-  // TODO: Is there a way around this hack
   def typeDeclaration(): ApexTypeDeclaration = {
-    _typeDeclaration.imports
     _typeDeclaration
   }
 }

@@ -38,7 +38,7 @@ import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.DynamicVariable
 
-/** Org abstraction, a simulation of the metadata installed on an org. Us the 'current' dynamic variable to access
+/** Org abstraction, a simulation of the metadata installed on an org. Use the 'current' dynamic variable to access
   * the org being currently worked on. Typically only one org will be being used but some use cases might require
   * multiple. Problems with the metadata are recorded in the the associated issue log.
   */
@@ -57,7 +57,7 @@ class Org extends TypeStore with LazyLogging {
     }
   }
 
-  /** Find a type in the org */
+  /** Find a type using a global name*/
   override def getType(typeName: TypeName): Option[TypeDeclaration] = {
     Org.current.withValue(this) {
       val dotName = typeName.asDotName
@@ -69,14 +69,37 @@ class Org extends TypeStore with LazyLogging {
     }
   }
 
+  /** Find a type relative to a starting type with a local or global name*/
+  def getTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {
+    if (typeName.outer.isEmpty) {
+      val matched = from.nestedTypes.filter(_.name == typeName.name)
+      assert(matched.size < 2)
+      if (matched.nonEmpty)
+        return matched.headOption
+    }
+
+    if (from.outerTypeName.nonEmpty) {
+      val outerType = getType(from.outerTypeName.get)
+      if (outerType.nonEmpty) {
+        if (typeName.name == outerType.get.name)
+          return outerType
+        else
+          return getTypeFor(typeName, outerType.get)
+      }
+    }
+
+    getType(typeName)
+  }
+
   /** Deploy some metadata to the org, if already present this will replace the existing metadata */
   def deployMetadata(files: Seq[Path]): Unit = {
     Org.current.withValue(this) {
       loadFromFiles(files)
+      validateMetadata()
     }
   }
 
-  private def loadFromFiles(files:Seq[Path]): Unit = {
+  private def loadFromFiles(files: Seq[Path]): Unit = {
     val newDeclarations = files.grouped(100).flatMap(group => {
       val parsed = group.par.flatMap(path => {
         DocumentType(path) match {
@@ -94,6 +117,14 @@ class Org extends TypeStore with LazyLogging {
       parsed
     })
     newDeclarations.foreach(upsertType)
+  }
+
+  private def validateMetadata(): Unit = {
+    types.values.parallelStream().forEach(td => {
+      issues.context.withValue(td.path) {
+        td.validate()
+      }
+    })
   }
 
   /** Upsert a type declaration in the Org */

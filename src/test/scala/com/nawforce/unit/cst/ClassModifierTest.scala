@@ -45,7 +45,11 @@ class ClassModifierTest extends FunSuite {
   def typeDeclaration(clsText: String): TypeDeclaration = {
     defaultOrg.issues.clear()
     Org.current.withValue(defaultOrg) {
-      ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes())).get
+      val td = ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes())).get
+      Org.current.value.issues.context.withValue(defaultPath) {
+        td.validate()
+      }
+      td
     }
   }
 

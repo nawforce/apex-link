@@ -51,6 +51,8 @@ class ImportTest extends FunSuite {
     }
   }
 
+  /* TODO: re-write
+
   test("Empty class has no imports") {
     assert(typeDeclaration("public class Dummy {}").imports.isEmpty)
   }
@@ -213,4 +215,5 @@ class ImportTest extends FunSuite {
         TypeName(Name("Bar"), Seq(TypeName(Name("Baz"))), Some(TypeName(Name("Foo"), Nil, None)))
       ))
   }
+   */
 }
