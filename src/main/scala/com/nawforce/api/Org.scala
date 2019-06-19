@@ -31,7 +31,7 @@ import java.io.FileInputStream
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 
-import com.nawforce.documents.{ApexDocument, DocumentType, LineLocation, Location, RangeLocation, TextRange}
+import com.nawforce.documents.{ApexDocument, DocumentType, Location, TextRange}
 import com.nawforce.types.{ApexTypeDeclaration, TypeDeclaration, TypeName, TypeStore}
 import com.nawforce.utils.{DotName, IssueLog}
 import com.typesafe.scalalogging.LazyLogging

@@ -30,7 +30,7 @@ package com.nawforce.api
 import java.nio.file.{Path, Paths}
 
 import com.nawforce.documents.DocumentLoader
-import com.nawforce.utils.{IssueLog, Name}
+import com.nawforce.utils.Name
 import com.typesafe.scalalogging.LazyLogging
 
 class Package(org: Org, paths: Seq[Path]) extends LazyLogging {

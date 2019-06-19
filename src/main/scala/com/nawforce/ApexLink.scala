@@ -30,7 +30,6 @@ package com.nawforce
 import java.nio.file.Paths
 
 import com.nawforce.api.{LogUtils, Org}
-import com.nawforce.utils.IssueLog
 
 object ApexLink {
   def main(args: Array[String]): Unit = {

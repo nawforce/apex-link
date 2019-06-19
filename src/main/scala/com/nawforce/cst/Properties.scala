@@ -30,7 +30,7 @@ package com.nawforce.cst
 import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
 import com.nawforce.types._
-import com.nawforce.utils.{IssueLog, Name}
+import com.nawforce.utils.Name
 
 import scala.collection.JavaConverters._
 

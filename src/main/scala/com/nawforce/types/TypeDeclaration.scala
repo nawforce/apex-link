@@ -29,7 +29,7 @@ package com.nawforce.types
 
 import java.nio.file.Path
 
-import com.nawforce.api.{ConstructorSummary, FieldSummary, MethodSummary, ParameterSummary, TypeSummary}
+import com.nawforce.api._
 import com.nawforce.utils.Name
 
 sealed trait Nature {def value: String}

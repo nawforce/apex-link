@@ -27,13 +27,13 @@
 */
 package com.nawforce.types
 
-import java.io.File
-import java.nio.file.{FileSystems, Path, Paths}
+import java.nio.file.{FileSystems, Files, Path, Paths}
 import java.util
 
 import com.nawforce.utils.{DotName, Name}
 import scalaz.Memo
 
+import scala.collection.JavaConverters._
 import scala.collection.immutable.HashMap
 import scala.collection.mutable
 
@@ -172,21 +172,21 @@ object PlatformTypeDeclaration {
   /** Map of class names, it's a map just to allow easy recovery of the original case by looking at value */
   private lazy val classNameMap: HashMap[DotName, DotName] = {
     val names = mutable.HashMap[DotName, DotName]()
-    indexDir(platformPackagePath.toFile, DotName(Seq()), names)
+    indexDir(platformPackagePath, DotName(Seq()), names)
     HashMap[DotName, DotName]() ++ names
   }
 
   /* Index .class files, we have to index to make sure we get natural case sensitive names */
-  private def indexDir(file: File, prefix: DotName, accum: mutable.HashMap[DotName, DotName]): Unit = {
-    val path = file.toPath
-    file.list().foreach(name => {
-      path.resolve(name).toFile match {
-        case f: File if f.isDirectory =>
-          indexDir(f, prefix.append(Name(name)), accum)
-        case f: File if f.isFile && name.endsWith(".class") && !name.contains('$') =>
-          val dotName = prefix.append(Name(name.dropRight(".class".length)))
-          accum.put(dotName, dotName)
-        case _ => ()
+  private def indexDir(path: Path, prefix: DotName, accum: mutable.HashMap[DotName, DotName]): Unit = {
+    Files.list(path).iterator.asScala.foreach(entry => {
+      val filename = entry.getFileName.toString
+      if (Files.isRegularFile(entry) && filename.endsWith(".class") && !filename.contains('$')) {
+        val dotName = prefix.append(Name(filename.dropRight(".class".length)))
+        accum.put(dotName, dotName)
+      }
+      else if (Files.isDirectory(entry)) {
+        val safeFilename = filename.replace("/", "").replace("\\", "")
+        indexDir(entry, prefix.append(Name(safeFilename)), accum)
       }
     })
   }

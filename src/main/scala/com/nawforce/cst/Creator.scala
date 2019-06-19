@@ -31,7 +31,6 @@ import com.nawforce.parsers.ApexParser.{CreatedNameContext, CreatorContext, IdCr
 import com.nawforce.types.TypeName
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 
 final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
   override def children(): List[CST] = idPairs
