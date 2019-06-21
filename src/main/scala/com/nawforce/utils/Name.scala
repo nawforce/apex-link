@@ -64,7 +64,7 @@ object Name {
 }
 
 /**
-  * A qualified name with 'dot' separators
+  * A qualified name with notional 'dot' separators
   */
 case class DotName(names: Seq[Name]) {
 

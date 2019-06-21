@@ -31,20 +31,19 @@ import com.nawforce.utils.{DotName, Name}
 
 class TypeStore {
   /** Base implementation of locating a type declaration from a name */
-  def getType(typeName: TypeName) : Option[TypeDeclaration] = {
-    val dotName = typeName.asDotName
-    var declaration = getType(dotName)
+  def getType(dotName: DotName) : Option[TypeDeclaration] = {
+    var declaration = getPlatformType(dotName)
     if (declaration.isEmpty)
-      declaration = getType(dotName.prepend(Name.System))
+      declaration = getPlatformType(dotName.prepend(Name.System))
     if (declaration.isEmpty)
-      declaration = getType(dotName.prepend(Name.Schema))
+      declaration = getPlatformType(dotName.prepend(Name.Schema))
     declaration
   }
 
-  private def getType(name: DotName): Option[TypeDeclaration] = {
+  private def getPlatformType(name: DotName): Option[TypeDeclaration] = {
     val declaration = PlatformTypeDeclaration.get(name)
     if (declaration.isEmpty && name.isCompound)
-      getType(name.headNames).flatMap(_.nestedTypes.find(td => td.name == name.lastName))
+      getPlatformType(name.headNames).flatMap(_.nestedTypes.find(td => td.name == name.lastName))
     else
       declaration
   }

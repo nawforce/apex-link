@@ -41,7 +41,7 @@ class VerifyContext {
   def depends: Set[ClassBodyDeclaration] = Set()
 
   def importTypeFor(typeName: TypeName, from: TypeDeclaration): Boolean = {
-    val td = Org.current.value.getTypeFor(typeName, from)
+    val td = Org.current.value.getTypeFor(typeName.asDotName, from)
     td.foreach(_dependencies += _)
     td.nonEmpty
   }

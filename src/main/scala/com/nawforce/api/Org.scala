@@ -58,37 +58,45 @@ class Org extends TypeStore with LazyLogging {
   }
 
   /** Find a type using a global name*/
-  override def getType(typeName: TypeName): Option[TypeDeclaration] = {
+  override def getType(dotName: DotName): Option[TypeDeclaration] = {
     Org.current.withValue(this) {
-      val dotName = typeName.asDotName
-      val declaration = getType(dotName)
+      val declaration = getOrgType(dotName)
       if (declaration.isEmpty)
-        super.getType(typeName)
+        super.getType(dotName)
       else
         declaration
     }
   }
 
   /** Find a type relative to a starting type with a local or global name*/
-  def getTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {
-    if (typeName.outer.isEmpty) {
-      val matched = from.nestedTypes.filter(_.name == typeName.name)
+  def getTypeFor(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
+    if (!dotName.isCompound) {
+      val matched = from.nestedTypes.filter(_.name == dotName.names.head)
       assert(matched.size < 2)
       if (matched.nonEmpty)
         return matched.headOption
     }
 
-    if (from.outerTypeName.nonEmpty) {
-      val outerType = getType(from.outerTypeName.get)
-      if (outerType.nonEmpty) {
-        if (typeName.name == outerType.get.name)
-          return outerType
-        else
-          return getTypeFor(typeName, outerType.get)
+    if (from.superClass.nonEmpty && !from.superClass.map(_.asDotName).contains(dotName)) {
+      val superType = getTypeFor(from.superClass.get.asDotName, from)
+      if (superType.exists(_.path != from.path)) {
+        val superRelative = superType.flatMap(st => getTypeFor(dotName, st))
+        if (superRelative.nonEmpty)
+          return superRelative
       }
     }
 
-    getType(typeName)
+    if (!dotName.isCompound && from.outerTypeName.nonEmpty) {
+      val outerType = getType(from.outerTypeName.get.asDotName)
+      if (outerType.nonEmpty) {
+        if (dotName.names.head == outerType.get.name)
+          return outerType
+        else
+          return getTypeFor(dotName, outerType.get)
+      }
+    }
+
+    getType(dotName)
   }
 
   /** Deploy some metadata to the org, if already present this will replace the existing metadata */
@@ -134,14 +142,13 @@ class Org extends TypeStore with LazyLogging {
     }
   }
 
-  private def getType(name: DotName): Option[TypeDeclaration] = {
+  private def getOrgType(name: DotName): Option[TypeDeclaration] = {
     val declaration = types.get(name)
     if (declaration == null && name.isCompound)
-      getType(name.headNames).flatMap(_.nestedTypes.find(td => td.name == name.lastName))
+      getOrgType(name.headNames).flatMap(_.nestedTypes.find(td => td.name == name.lastName))
     else
       Option(declaration)
   }
-
 }
 
 object Org {

@@ -27,42 +27,42 @@
 */
 package com.nawforce.unit.types
 
-import com.nawforce.types.{TypeName, TypeStore}
-import com.nawforce.utils.Name
+import com.nawforce.types.TypeStore
+import com.nawforce.utils.{DotName, Name}
 import org.scalatest.FunSuite
 
 class TypeStoreTest extends FunSuite {
 
   test("Bad type not found") {
-    assert(new TypeStore().getType(TypeName(Seq(Name("Hello")))).isEmpty)
+    assert(new TypeStore().getType(DotName(Seq(Name("Hello")))).isEmpty)
   }
 
   test("Scoped system class found") {
-    val typeName = TypeName(Seq(Name("String"), Name.System))
-    assert(new TypeStore().getType(typeName).get.typeName == typeName)
+    val typeName = DotName(Seq(Name("System"), Name("String")))
+    assert(new TypeStore().getType(typeName).get.typeName.asDotName == typeName)
   }
 
   test("Unscoped system class found") {
-    val typeName = TypeName(Seq(Name("String")))
-    assert(new TypeStore().getType(typeName).get.typeName == typeName.withOuter(Some(TypeName.System)))
+    val typeName = DotName(Seq(Name("String")))
+    assert(new TypeStore().getType(typeName).get.typeName.asDotName == DotName(Seq(Name("System"), Name("String"))))
   }
 
   test("Unscoped schema class found") {
-    val typeName = TypeName(Seq(Name("SObjectType")))
-    assert(new TypeStore().getType(typeName).get.typeName == typeName.withOuter(Some(TypeName.Schema)))
+    val typeName = DotName(Seq(Name("SObjectType")))
+    assert(new TypeStore().getType(typeName).get.typeName.asDotName == DotName(Seq(Name("Schema"), Name("SObjectType"))))
   }
 
   test("Unscoped database class not found") {
-    assert(new TypeStore().getType(TypeName(Seq(Name("QueryLocator")))).isEmpty)
+    assert(new TypeStore().getType(DotName(Seq(Name("QueryLocator")))).isEmpty)
   }
 
   test("Inner class found") {
-    val typeName = TypeName(Seq(Name("Header"), Name("InboundEmail"), Name("Messaging")))
-    assert(new TypeStore().getType(typeName).get.typeName == typeName)
+    val typeName = DotName(Seq(Name("Messaging"), Name("InboundEmail"), Name("Header")))
+    assert(new TypeStore().getType(typeName).get.typeName.asDotName == typeName)
   }
 
   test("Bad inner class not found") {
-    val typeName = TypeName(Seq(Name("BadHeader"), Name("InboundEmail"), Name("Messaging")))
+    val typeName = DotName(Seq(Name("Messaging"), Name("InboundEmail"), Name("BadHeader")))
     assert(new TypeStore().getType(typeName).isEmpty)
   }
 }

@@ -32,23 +32,23 @@ import java.nio.file.Paths
 
 import com.nawforce.api.Org
 import com.nawforce.types.{ApexTypeDeclaration, TypeName}
-import com.nawforce.utils.Name
+import com.nawforce.utils.{DotName, Name}
 import org.scalatest.FunSuite
 
 class TypeFindingTest extends FunSuite {
 
   test("Bad type not found") {
-    assert(new Org().getType(TypeName(Seq(Name("Hello")))).isEmpty)
+    assert(new Org().getType(DotName(Seq(Name("Hello")))).isEmpty)
   }
 
   test("Platform type found") {
     val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Name.System)))
-    assert(new Org().getType(TypeName(Seq(Name("String")))).get.typeName == typeName)
+    assert(new Org().getType(DotName(Seq(Name("String")))).get.typeName == typeName)
   }
 
   test("Platform type found (wrong case)") {
     val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Name.System)))
-    assert(new Org().getType(TypeName(Seq(Name("STRING")))).get.typeName == typeName)
+    assert(new Org().getType(DotName(Seq(Name("STRING")))).get.typeName == typeName)
   }
 
   test("Custom Outer type found") {
@@ -57,7 +57,7 @@ class TypeFindingTest extends FunSuite {
       val td = ApexTypeDeclaration.create(Paths.get("Dummy.cls"),
         new ByteArrayInputStream("public class Dummy {}".getBytes())).get
       org.upsertType(td)
-      assert(org.getType(TypeName(Seq(Name("Dummy")))).get.typeName == td.typeName)
+      assert(org.getType(DotName(Seq(Name("Dummy")))).get.typeName == td.typeName)
     }
   }
 
@@ -67,7 +67,7 @@ class TypeFindingTest extends FunSuite {
       val td = ApexTypeDeclaration.create(Paths.get("Dummy.cls"),
         new ByteArrayInputStream("public class Dummy {}".getBytes())).get
       org.upsertType(td)
-      assert(org.getType(TypeName(Seq(Name("dummy")))).get.typeName == td.typeName)
+      assert(org.getType(DotName(Seq(Name("dummy")))).get.typeName == td.typeName)
     }
   }
 
@@ -77,8 +77,8 @@ class TypeFindingTest extends FunSuite {
       val td = ApexTypeDeclaration.create(Paths.get("Dummy.cls"),
         new ByteArrayInputStream("public class Dummy {class Inner {}}".getBytes())).get
       org.upsertType(td)
-      val innerTypeName = TypeName(Name("Inner")).withOuter(Some(td.typeName))
-      assert(org.getType(innerTypeName).get.typeName == innerTypeName)
+      val innerTypeName = DotName(Seq(Name("Dummy"), Name("Inner")))
+      assert(org.getType(innerTypeName).get.typeName.asDotName == innerTypeName)
     }
   }
 
@@ -88,8 +88,8 @@ class TypeFindingTest extends FunSuite {
       val td = ApexTypeDeclaration.create(Paths.get("Dummy.cls"),
         new ByteArrayInputStream("public class Dummy {class Inner {}}".getBytes())).get
       org.upsertType(td)
-      val innerTypeName = TypeName(Name("INner")).withOuter(Some(td.typeName))
-      assert(org.getType(innerTypeName).get.typeName == innerTypeName)
+      val innerTypeName = DotName(Seq(Name("Dummy"), Name("INner")))
+      assert(org.getType(innerTypeName).get.typeName.asDotName == innerTypeName)
     }
   }
 }
