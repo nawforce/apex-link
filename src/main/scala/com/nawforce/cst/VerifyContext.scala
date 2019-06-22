@@ -28,7 +28,10 @@
 package com.nawforce.cst
 
 import com.nawforce.api.Org
-import com.nawforce.types.{DependencyDeclaration, TypeDeclaration, TypeName}
+import com.nawforce.types.PlatformTypeDeclaration.find
+import com.nawforce.types.{DependencyDeclaration, PlatformTypeDeclaration, TypeDeclaration, TypeName}
+import com.nawforce.utils.DotName
+import scalaz.Memo
 
 import scala.collection.mutable
 
@@ -41,12 +44,67 @@ class VerifyContext {
   def depends: Set[ClassBodyDeclaration] = Set()
 
   def importTypeFor(typeName: TypeName, from: TypeDeclaration): Boolean = {
-    val td = Org.current.value.getTypeFor(typeName.asDotName, from)
+    val td = getTypeFor(typeName.asDotName, from)
     td.foreach(_dependencies += _)
     td.nonEmpty
   }
 
   def addImport(typeName: TypeName): Unit = {
     _imports += typeName
+  }
+
+  /** Find a type relative to a starting type with a local or global name*/
+  def getTypeFor(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
+    typeCache(dotName, from)
+  }
+
+  private val typeCache = Memo.immutableHashMapMemo[(DotName, TypeDeclaration), Option[TypeDeclaration]] {
+    case (name: DotName, from: TypeDeclaration) => findTypeFor(name, from)
+  }
+
+  private def findTypeFor(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
+    getNestedType(dotName, from)
+      .orElse(getFromSuperType(dotName, from)
+        .orElse(getFromOuterType(dotName, from)
+          .orElse(Org.getType(dotName))))
+  }
+
+  private def getNestedType(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
+    if (dotName.isCompound) {
+      None
+    } else {
+      val matched = from.nestedTypes.filter(_.name == dotName.names.head)
+      assert(matched.size < 2)
+      matched.headOption
+    }
+  }
+
+  private def getFromSuperType(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
+    if (from.superClass.isEmpty || from.superClass.map(_.asDotName).contains(dotName)) {
+      None
+    } else {
+      val superType = getTypeFor(from.superClass.get.asDotName, from)
+      if (superType.exists(_.path != from.path)) {
+        superType.flatMap(st => getTypeFor(dotName, st))
+      } else {
+        None
+      }
+    }
+  }
+
+  private def getFromOuterType(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
+    if (dotName.isCompound || from.outerTypeName.isEmpty) {
+      None
+    } else {
+      val outerType = Org.getType(from.outerTypeName.get.asDotName)
+      if (outerType.nonEmpty) {
+        if (dotName.names.head == outerType.get.name)
+          outerType
+        else
+          getTypeFor(dotName, outerType.get)
+      } else {
+        None
+      }
+    }
   }
 }

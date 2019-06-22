@@ -68,37 +68,6 @@ class Org extends TypeStore with LazyLogging {
     }
   }
 
-  /** Find a type relative to a starting type with a local or global name*/
-  def getTypeFor(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
-    if (!dotName.isCompound) {
-      val matched = from.nestedTypes.filter(_.name == dotName.names.head)
-      assert(matched.size < 2)
-      if (matched.nonEmpty)
-        return matched.headOption
-    }
-
-    if (from.superClass.nonEmpty && !from.superClass.map(_.asDotName).contains(dotName)) {
-      val superType = getTypeFor(from.superClass.get.asDotName, from)
-      if (superType.exists(_.path != from.path)) {
-        val superRelative = superType.flatMap(st => getTypeFor(dotName, st))
-        if (superRelative.nonEmpty)
-          return superRelative
-      }
-    }
-
-    if (!dotName.isCompound && from.outerTypeName.nonEmpty) {
-      val outerType = getType(from.outerTypeName.get.asDotName)
-      if (outerType.nonEmpty) {
-        if (dotName.names.head == outerType.get.name)
-          return outerType
-        else
-          return getTypeFor(dotName, outerType.get)
-      }
-    }
-
-    getType(dotName)
-  }
-
   /** Deploy some metadata to the org, if already present this will replace the existing metadata */
   def deployMetadata(files: Seq[Path]): Unit = {
     Org.current.withValue(this) {
@@ -153,6 +122,10 @@ class Org extends TypeStore with LazyLogging {
 
 object Org {
   val current: DynamicVariable[Org] = new DynamicVariable[Org](null)
+
+  def getType(dotName: DotName): Option[TypeDeclaration] = {
+    Org.current.value.getType(dotName)
+  }
 
   def logMessage(index: Integer, msg: String): Unit = {
     Org.current.value.issues.logMessage(index, msg)
