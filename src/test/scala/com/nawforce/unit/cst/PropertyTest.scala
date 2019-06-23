@@ -153,6 +153,13 @@ class PropertyTest extends FunSuite {
     assert(property.writeAccess == property.readAccess)
   }
 
+  test("Global property access with get modifier in global class" ) {
+    val property = typeDeclaration("global class Dummy {global String foo{global get; public set;}}").fields.head
+    assert(property.modifiers == Seq(GLOBAL_MODIFIER))
+    assert(property.readAccess == GLOBAL_MODIFIER)
+    assert(property.writeAccess == PUBLIC_MODIFIER)
+  }
+
   test("Webservice property access" ) {
     val property = typeDeclaration("public class Dummy {webservice String foo{get; set;}}", hasMessages = true).fields.head
     assert(property.modifiers == Seq(WEBSERVICE_MODIFIER))

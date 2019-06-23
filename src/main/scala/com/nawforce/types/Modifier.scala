@@ -270,6 +270,7 @@ object ApexModifiers {
 
     val mods = modifierContexts.flatMap(modifierContext =>
         modifierContext.getText.toLowerCase match {
+          case "global" => Some(GLOBAL_MODIFIER)
           case "public" => Some(PUBLIC_MODIFIER)
           case "protected" => Some(PROTECTED_MODIFIER)
           case "private" => Some(PRIVATE_MODIFIER)
@@ -286,7 +287,7 @@ object ApexModifiers {
       mods.toSet.toSeq
     } else if (mods.intersect(allVisibilityModifiers).size > 1) {
       Org.logMessage(TextRange(idContext),
-        s"Only one visibility modifier from 'public', 'protected' & 'private' may be used on property set/get")
+        s"Only one visibility modifier from 'global, 'public', 'protected' & 'private' may be used on property set/get")
       mods.diff(allVisibilityModifiers)
     } else {
       mods
