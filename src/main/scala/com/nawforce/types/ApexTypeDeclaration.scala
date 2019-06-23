@@ -53,9 +53,9 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
   override val typeName: TypeName = ApexTypeDeclaration.typeName(name).withOuter(outerTypeName)
   override val nature: Nature
 
-  override val nestedTypes: Seq[TypeDeclaration] = {
+  override val nestedTypes: Seq[ApexTypeDeclaration] = {
     bodyDeclarations.flatMap {
-      case x: TypeDeclaration => Some(x)
+      case x: ApexTypeDeclaration => Some(x)
       case _ => None
     }
   }
@@ -94,8 +94,12 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
   protected def verify(context: VerifyContext): Unit = {
     if (!superClass.forall(superType => context.importTypeFor(superType, this))) {
       context.importTypeFor(superClass.get, this)
-      Org.logMessage(textRange, s"No type declaration found for ${superClass.get.asDotName} ")
+      Org.logMessage(id.textRange, s"No type declaration found for '${superClass.get.asDotName}'")
     }
+
+    val duplicateNestedType = (this +: nestedTypes).groupBy(_.name).collect { case (_, List(_, y, _*)) => y }
+    duplicateNestedType.foreach(td =>
+      Org.logMessage(td.id.textRange, s"Duplicate type name '${td.name.toString}'"))
 
     superClass.foreach(context.addImport)
     interfaces.foreach(context.addImport)

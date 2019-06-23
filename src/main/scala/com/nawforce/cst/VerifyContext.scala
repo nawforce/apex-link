@@ -28,8 +28,7 @@
 package com.nawforce.cst
 
 import com.nawforce.api.Org
-import com.nawforce.types.PlatformTypeDeclaration.find
-import com.nawforce.types.{DependencyDeclaration, PlatformTypeDeclaration, TypeDeclaration, TypeName}
+import com.nawforce.types.{DependencyDeclaration, TypeDeclaration, TypeName}
 import com.nawforce.utils.DotName
 import scalaz.Memo
 

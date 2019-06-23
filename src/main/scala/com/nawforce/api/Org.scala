@@ -27,7 +27,7 @@
 */
 package com.nawforce.api
 
-import java.io.FileInputStream
+import java.io.{FileInputStream, InputStream}
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 
@@ -45,6 +45,7 @@ import scala.util.DynamicVariable
 class Org extends TypeStore with LazyLogging {
   private var packages: List[Package] = Nil
   private val types = new ConcurrentHashMap[DotName, TypeDeclaration]()
+  private val inputStreams = new ConcurrentHashMap[Path, InputStream]()
 
   val issues = new IssueLog
 
@@ -55,6 +56,10 @@ class Org extends TypeStore with LazyLogging {
       packages = Package(this, directories) :: packages
       packages.head
     }
+  }
+
+  def getTypes(dotNames: Seq[DotName]): Seq[TypeDeclaration] = {
+    dotNames.flatMap(getType)
   }
 
   /** Find a type using a global name*/
@@ -83,7 +88,7 @@ class Org extends TypeStore with LazyLogging {
           case docType: ApexDocument =>
             issues.context.withValue(path) {
               val start = System.currentTimeMillis()
-              val typeDeclaration = ApexTypeDeclaration.create(docType.path, new FileInputStream(docType.path.toFile))
+              val typeDeclaration = ApexTypeDeclaration.create(docType.path, getInputStream(docType.path))
               val end = System.currentTimeMillis()
               logger.debug(s"Parsed ${docType.path.toString} in ${end - start}ms")
               typeDeclaration
@@ -94,6 +99,14 @@ class Org extends TypeStore with LazyLogging {
       parsed
     })
     newDeclarations.foreach(upsertType)
+  }
+
+  def setInputStream(path: Path, inputStream: InputStream): Unit = {
+    inputStreams.put(path, inputStream)
+  }
+
+  private def getInputStream(path: Path): InputStream = {
+    Option(inputStreams.get(path)).getOrElse(new FileInputStream(path.toFile))
   }
 
   private def validateMetadata(): Unit = {
