@@ -92,9 +92,15 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
   }
 
   protected def verify(context: VerifyContext): Unit = {
-    if (!superClass.forall(superType => context.importTypeFor(superType, this))) {
-      context.importTypeFor(superClass.get, this)
-      Org.logMessage(id.textRange, s"No type declaration found for '${superClass.get.asDotName}'")
+    val superTypeDeclaration = superClass.flatMap(superType => context.importTypeFor(superType, this))
+    if (superClass.nonEmpty) {
+      if (superTypeDeclaration.isEmpty) {
+        Org.logMessage(id.textRange, s"No type declaration found for '${superClass.get.asDotName}'")
+      } else if (superTypeDeclaration.get.nature != CLASS_NATURE) {
+        Org.logMessage(id.textRange, s"Parent type '${superClass.get.asDotName}' must be a class")
+      } else if (superTypeDeclaration.get.modifiers.intersect(Seq(VIRTUAL_MODIFIER, ABSTRACT_MODIFIER)).isEmpty) {
+        Org.logMessage(id.textRange, s"Parent class '${superClass.get.asDotName}' must be declared virtual or abstract")
+      }
     }
 
     val duplicateNestedType = (this +: nestedTypes).groupBy(_.name).collect { case (_, List(_, y, _*)) => y }

@@ -73,8 +73,11 @@ class PlatformTypeValidationTest extends FunSuite {
     }
 
     // PlatformModifiers, always public for outer platform classes
-    if (typeDeclaration.parent.isEmpty)
-      assert(typeDeclaration.modifiers == Seq(PUBLIC_MODIFIER))
+    if (typeDeclaration.parent.isEmpty) {
+      assert(typeDeclaration.modifiers.contains(PUBLIC_MODIFIER))
+      if (typeDeclaration.nature == CLASS_NATURE)
+        assert(typeDeclaration.modifiers.contains(VIRTUAL_MODIFIER))
+    }
 
     // Nested classes
     typeDeclaration.nature match {
@@ -116,7 +119,7 @@ class PlatformTypeValidationTest extends FunSuite {
         assert(td.superClass.get.toString == "System.Exception")
       assert(td.interfaces.isEmpty)
       assert(td.nature == CLASS_NATURE)
-      assert(td.modifiers == Seq(PUBLIC_MODIFIER))
+      assert(td.modifiers == Seq(VIRTUAL_MODIFIER, PUBLIC_MODIFIER))
       assert(td.parent.isEmpty)
       assert(td.nestedTypes.isEmpty)
 

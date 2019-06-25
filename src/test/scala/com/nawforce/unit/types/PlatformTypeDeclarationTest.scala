@@ -49,7 +49,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
+    assert(td.get.modifiers == Seq(VIRTUAL_MODIFIER, PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
   }
@@ -74,7 +74,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.superClass.get.toString == "ConnectApi.FeedElement")
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
+    assert(td.get.modifiers == Seq(VIRTUAL_MODIFIER, PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
   }
@@ -88,7 +88,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.interfaces.size == 1)
     assert(td.get.interfaces.head.toString == "System.Iterable<T>")
     assert(td.get.nature == CLASS_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
+    assert(td.get.modifiers == Seq(VIRTUAL_MODIFIER, PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
   }
@@ -127,13 +127,13 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
+    assert(td.get.modifiers == Seq(VIRTUAL_MODIFIER, PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
 
     val nested = td.get.nestedTypes.sortBy(_.name.toString)
     assert(nested.size == 3)
     assert(nested.map(_.name.toString) == Seq("BinaryAttachment", "Header", "TextAttachment"))
-    assert(nested.filter(_.modifiers == Seq(PUBLIC_MODIFIER, STATIC_MODIFIER)) == nested)
+    assert(nested.filter(_.modifiers == Seq(VIRTUAL_MODIFIER, STATIC_MODIFIER, PUBLIC_MODIFIER)) == nested)
     assert(nested.filter(_.parent == td) == nested)
   }
 
@@ -145,7 +145,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
+    assert(td.get.modifiers == Seq(VIRTUAL_MODIFIER, PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
 
@@ -165,7 +165,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.superClass.get.toString == "System.Exception")
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
+    assert(td.get.modifiers == Seq(VIRTUAL_MODIFIER, PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
 
@@ -186,7 +186,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
+    assert(td.get.modifiers == Seq(VIRTUAL_MODIFIER, PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
 
@@ -209,7 +209,7 @@ class PlatformTypeDeclarationTest extends FunSuite {
     assert(td.get.superClass.get.toString == "System.Exception")
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
+    assert(td.get.modifiers == Seq(VIRTUAL_MODIFIER, PUBLIC_MODIFIER))
     assert(td.get.parent.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
 

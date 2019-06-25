@@ -356,10 +356,9 @@ object PlatformModifiers {
     assert(!JavaModifier.isNative(javaBits))
     assert(!JavaModifier.isStrict(javaBits))
 
-    if (JavaModifier.isStatic(javaBits))
-      Seq(PUBLIC_MODIFIER, STATIC_MODIFIER)
-    else
-      Seq(PUBLIC_MODIFIER)
+    (if (nature == CLASS_NATURE) Seq(VIRTUAL_MODIFIER) else Seq()) ++
+    (if (JavaModifier.isStatic(javaBits)) Seq(STATIC_MODIFIER) else Seq()) ++
+    Seq(PUBLIC_MODIFIER)
   }
 
   def fieldOrMethodModifiers(javaBits: Int): Seq[Modifier] = {

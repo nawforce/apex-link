@@ -42,10 +42,10 @@ class VerifyContext {
 
   def depends: Set[ClassBodyDeclaration] = Set()
 
-  def importTypeFor(typeName: TypeName, from: TypeDeclaration): Boolean = {
+  def importTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {
     val td = getTypeFor(typeName.asDotName, from)
     td.foreach(_dependencies += _)
-    td.nonEmpty
+    td
   }
 
   def addImport(typeName: TypeName): Unit = {

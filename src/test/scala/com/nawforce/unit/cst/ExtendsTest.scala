@@ -73,20 +73,47 @@ class ExtendsTest extends FunSuite {
       "line 1 at 13-18: No type declaration found for 'Foo'\n")
   }
 
-  test("External superclass") {
+  test("Non-virtual superclass") {
     assert(typeDeclarations(Map(
       "SuperClass" -> "global class SuperClass {}",
+      "Dummy" -> "global class Dummy extends SuperClass {}")).size == 2)
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
+      "line 1 at 13-18: Parent class 'SuperClass' must be declared virtual or abstract\n")
+  }
+
+  test("Interface superclass") {
+    assert(typeDeclarations(Map(
+      "SuperInterface" -> "global interface SuperInterface {}",
+      "Dummy" -> "global class Dummy extends SuperInterface {}")).size == 2)
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
+      "line 1 at 13-18: Parent type 'SuperInterface' must be a class\n")
+  }
+
+  test("Enum superclass") {
+    assert(typeDeclarations(Map(
+      "SuperEnum" -> "global enum SuperEnum {}",
+      "Dummy" -> "global class Dummy extends SuperEnum {}")).size == 2)
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
+      "line 1 at 13-18: Parent type 'SuperEnum' must be a class\n")
+  }
+
+  test("External superclass") {
+    assert(typeDeclarations(Map(
+      "SuperClass" -> "global virtual class SuperClass {}",
       "Dummy" -> "global class Dummy extends SuperClass {}")).size == 2)
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Inner superclass") {
-    assert(typeDeclarations(Map("Dummy" -> "global class Dummy extends Inner {class Inner{}}")).nonEmpty)
+    assert(typeDeclarations(Map("Dummy" -> "global class Dummy extends Inner {virtual class Inner{}}")).nonEmpty)
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Outer superclass") {
-    assert(typeDeclarations(Map("Dummy" -> "global class Dummy {class Inner extends Dummy {}}")).nonEmpty)
+    assert(typeDeclarations(Map("Dummy" -> "global virtual class Dummy {class Inner extends Dummy {}}")).nonEmpty)
     assert(!defaultOrg.issues.hasMessages)
   }
+
+
+
 }
