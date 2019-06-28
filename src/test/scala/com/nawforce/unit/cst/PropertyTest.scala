@@ -169,6 +169,13 @@ class PropertyTest extends FunSuite {
       "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
+  test("Webservice property access with get/set modifiers" ) {
+    val property = typeDeclaration("global class Dummy {webservice String foo{global get; public set;}}").fields.head
+    assert(property.modifiers == Seq(WEBSERVICE_MODIFIER))
+    assert(property.readAccess == GLOBAL_MODIFIER)
+    assert(property.writeAccess == PUBLIC_MODIFIER)
+  }
+
   test("Webservice property access in global class" ) {
     val property = typeDeclaration("global class Dummy {webservice String foo{get; set;}}").fields.head
     assert(property.modifiers == Seq(WEBSERVICE_MODIFIER))

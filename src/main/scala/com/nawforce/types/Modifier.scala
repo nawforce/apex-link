@@ -38,6 +38,7 @@ sealed abstract class Modifier(val name: String, val order: Integer=0) {
   override def toString: String = name
 }
 
+case object WEBSERVICE_MODIFIER extends Modifier("webservice", order = 4)
 case object GLOBAL_MODIFIER extends Modifier("global", order = 3)
 case object PUBLIC_MODIFIER extends Modifier("public", order = 2)
 case object PROTECTED_MODIFIER extends Modifier("protected", order = 1)
@@ -49,7 +50,6 @@ case object ABSTRACT_MODIFIER extends Modifier("abstract")
 case object FINAL_MODIFIER extends Modifier("final")
 case object OVERRIDE_MODIFIER extends Modifier("override")
 case object VIRTUAL_MODIFIER extends Modifier("virtual")
-case object WEBSERVICE_MODIFIER extends Modifier("webservice")
 case object TRANSIENT_MODIFIER extends Modifier("transient")
 
 case object WITH_SHARING_MODIFIER extends Modifier("with sharing")
