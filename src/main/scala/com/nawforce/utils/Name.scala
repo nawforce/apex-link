@@ -52,7 +52,9 @@ case class Name(value: String) {
 
 object Name {
   def apply(name: String): Name = cache(name)
+  def safeApply(name: String): Name = Option(name).map(n => Name(n)).getOrElse(Name.Empty)
 
+  lazy val Empty: Name = cache("")
   lazy val System: Name = cache("System")
   lazy val Schema: Name = cache("Schema")
   lazy val Void: Name = cache("void")
@@ -75,6 +77,12 @@ case class DotName(names: Seq[Name]) {
 
   def append(name: Name): DotName = DotName(names :+ name)
   def prepend(name: Name): DotName = DotName(name +: names)
+  def prepend(name: Option[Name]): DotName = {
+    name match {
+      case Some(value) => DotName(value +: names)
+      case _ => this
+    }
+  }
 
   override def toString: String = names.mkString(".")
 }
@@ -87,5 +95,6 @@ object DotName {
     DotName(Seq(name))
   }
 }
+
 
 

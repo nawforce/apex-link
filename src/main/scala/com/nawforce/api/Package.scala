@@ -33,7 +33,7 @@ import com.nawforce.documents.DocumentLoader
 import com.nawforce.utils.Name
 import com.typesafe.scalalogging.LazyLogging
 
-class Package(org: Org, paths: Seq[Path]) extends LazyLogging {
+class Package(org: Org, namespace: Name, paths: Seq[Path]) extends LazyLogging {
   private val documents = new DocumentLoader(paths)
 
   lazy val classCount: Int = documents.getByExtension(Name("cls")).size
@@ -41,18 +41,18 @@ class Package(org: Org, paths: Seq[Path]) extends LazyLogging {
   def deployAll(): String = {
     val classes = documents.getByExtension(Name("cls"))
     logger.debug(s"Found ${classes.size} classes to parse")
-    org.deployMetadata(classes)
+    org.deployMetadata(namespace, classes)
     org.issues.asJSON(100)
   }
 }
 
 object Package {
-  def apply(org: Org, directories: Seq[String]): Package = {
+  def apply(org: Org, namespace: Name, directories: Seq[String]): Package = {
     val paths = directories.map(directory => Paths.get(directory))
     paths.foreach(path => {
       if (!path.toFile.isDirectory)
         throw new IllegalArgumentException(s"Package root '${path.toString}' must be a directory")
     })
-    new Package(org, paths)
+    new Package(org, namespace, paths)
   }
 }

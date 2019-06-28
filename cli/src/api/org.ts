@@ -37,8 +37,8 @@ export default class Org {
         this.org = java.newInstanceSync("com.nawforce.api.Org")
     }
 
-    addPackage(directory: string[]): Package {
-        return new Package(this.org.addPackageSync(directory))
+    addPackage(namespace: string, directory: string[]): Package {
+        return new Package(this.org.addPackageSync(namespace, directory))
     }
 }
 

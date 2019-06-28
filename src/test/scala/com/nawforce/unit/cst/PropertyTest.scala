@@ -43,7 +43,7 @@ class PropertyTest extends FunSuite {
   def typeDeclaration(clsText: String, hasMessages: Boolean = false): TypeDeclaration = {
     Org.current.withValue(defaultOrg) {
       defaultOrg.issues.clear()
-      val td = ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes()))
+      val td = ApexTypeDeclaration.create(Name.Empty, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
       if (td.isEmpty)
         defaultOrg.issues.dumpMessages(json = false)
       else {

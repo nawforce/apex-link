@@ -54,7 +54,7 @@ object ApexLink {
 
     val parseStart = System.currentTimeMillis()
     val org = new Org()
-    val pkg = org.addPackage(paths.toArray)
+    val pkg = org.addPackage(null, paths.toArray)
     val resultJson = pkg.deployAll()
     val parseEnd = System.currentTimeMillis()
 

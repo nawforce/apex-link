@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.documents.{ApexDocument, DocumentType, Location, TextRange}
 import com.nawforce.types.{ApexTypeDeclaration, TypeDeclaration, TypeName, TypeStore}
-import com.nawforce.utils.{DotName, IssueLog}
+import com.nawforce.utils.{DotName, IssueLog, Name}
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.DynamicVariable
@@ -51,9 +51,9 @@ class Org extends TypeStore with LazyLogging {
 
   /** Create a new package in the org, directories are priority ordered. Duplicate detection depends on metadata
     * type. */
-  def addPackage(directories: Array[String]): Package = {
+  def addPackage(namespace: String, directories: Array[String]): Package = {
     Org.current.withValue(this) {
-      packages = Package(this, directories) :: packages
+      packages = Package(this, Name.safeApply(namespace), directories) :: packages
       packages.head
     }
   }
@@ -74,21 +74,21 @@ class Org extends TypeStore with LazyLogging {
   }
 
   /** Deploy some metadata to the org, if already present this will replace the existing metadata */
-  def deployMetadata(files: Seq[Path]): Unit = {
+  def deployMetadata(namespace: Name, files: Seq[Path]): Unit = {
     Org.current.withValue(this) {
-      loadFromFiles(files)
+      loadFromFiles(namespace, files)
       validateMetadata()
     }
   }
 
-  private def loadFromFiles(files: Seq[Path]): Unit = {
+  private def loadFromFiles(namespace: Name, files: Seq[Path]): Unit = {
     val newDeclarations = files.grouped(100).flatMap(group => {
       val parsed = group.par.flatMap(path => {
         DocumentType(path) match {
           case docType: ApexDocument =>
             issues.context.withValue(path) {
               val start = System.currentTimeMillis()
-              val typeDeclaration = ApexTypeDeclaration.create(docType.path, getInputStream(docType.path))
+              val typeDeclaration = ApexTypeDeclaration.create(namespace, docType.path, getInputStream(docType.path))
               val end = System.currentTimeMillis()
               logger.debug(s"Parsed ${docType.path.toString} in ${end - start}ms")
               typeDeclaration
@@ -98,7 +98,7 @@ class Org extends TypeStore with LazyLogging {
       System.gc()
       parsed
     })
-    newDeclarations.foreach(upsertType)
+    newDeclarations.foreach(td => upsertType(td))
   }
 
   def setInputStream(path: Path, inputStream: InputStream): Unit = {

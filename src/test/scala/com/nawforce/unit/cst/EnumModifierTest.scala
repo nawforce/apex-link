@@ -45,7 +45,7 @@ class EnumModifierTest extends FunSuite {
   def typeDeclaration(clsText: String): TypeDeclaration = {
     defaultOrg.issues.clear()
     Org.current.withValue(defaultOrg) {
-      val td = ApexTypeDeclaration.create(defaultPath, new ByteArrayInputStream(clsText.getBytes()))
+      val td = ApexTypeDeclaration.create(Name.Empty, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
       if (td.isEmpty)
         defaultOrg.issues.dumpMessages(json = false)
       Org.current.value.issues.context.withValue(defaultPath) {

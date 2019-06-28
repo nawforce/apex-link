@@ -75,7 +75,7 @@ export default class Check extends SfdxCommand {
     server.setLoggingLevel(verbose && !json)
 
     const org = server.createOrg();
-    const pkg = org.addPackage([directory])
+    const pkg = org.addPackage("", [directory])
     const results = pkg.deployAll()
 
     if (json) {

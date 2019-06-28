@@ -50,7 +50,7 @@ class ExtendsTest extends FunSuite {
     }).toSeq
 
     Org.current.withValue(defaultOrg) {
-      defaultOrg.deployMetadata(paths)
+      defaultOrg.deployMetadata(Name.Empty, paths)
       defaultOrg.getTypes(classes.keys.map(k => DotName(k)).toSeq)
     }
   }

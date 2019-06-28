@@ -41,7 +41,7 @@ import org.antlr.v4.runtime.CommonTokenStream
 import scala.collection.JavaConverters._
 
 /** Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
-abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeName],
+abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, TypeName],
                                    _modifiers: Seq[Modifier], val superClass: Option[TypeName],
                                    val interfaces: Seq[TypeName], val bodyDeclarations: Seq[ClassBodyDeclaration])
   extends ClassBodyDeclaration(_modifiers) with TypeDeclaration {
@@ -50,7 +50,20 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
 
   override val name: Name = id.name
   override val path: Path = Org.current.value.issues.context.value
-  override val typeName: TypeName = ApexTypeDeclaration.typeName(name).withOuter(outerTypeName)
+  override val typeName: TypeName = {
+    outerContext match {
+      case Left(ns) if ns == Name.Empty => TypeName(name)
+      case Left(ns) => TypeName(name).withOuter(Some(TypeName(ns)))
+      case Right(outer) => TypeName(name).withOuter(Some(outer))
+    }
+  }
+  override val outerTypeName: Option[TypeName] = {
+    outerContext match {
+      case Left(_) => None
+      case Right(outer) => Some(outer)
+    }
+  }
+
   override val nature: Nature
 
   override val nestedTypes: Seq[ApexTypeDeclaration] = {
@@ -116,7 +129,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerTypeName: Option[TypeNam
 }
 
 object ApexTypeDeclaration {
-  def create(path: Path, data: InputStream): Option[ApexTypeDeclaration] = {
+  def create(namespace: Name, path: Path, data: InputStream): Option[ApexTypeDeclaration] = {
     Org.current.value.issues.context.withValue(path) {
       try {
         val listener = new ThrowingErrorListener
@@ -133,7 +146,7 @@ object ApexTypeDeclaration {
         parser.setTrace(false)
         parser.addErrorListener(listener)
 
-        Some(CompilationUnit.construct(path, parser.compilationUnit(), new ConstructContext()).typeDeclaration())
+        Some(CompilationUnit.construct(namespace, path, parser.compilationUnit(), new ConstructContext()).typeDeclaration())
       }
       catch
       {
@@ -144,41 +157,30 @@ object ApexTypeDeclaration {
     }
   }
 
-  def construct(outerTypeName: Option[TypeName], typeDecl: TypeDeclarationContext, context: ConstructContext)
+  def construct(outerContext: Either[Name, TypeName], typeDecl: TypeDeclarationContext, context: ConstructContext)
   : ApexTypeDeclaration = {
 
     val modifiers: Seq[ModifierContext] = typeDecl.modifier().asScala
+    val isOuter = outerContext.isLeft
     val cst =
       if (typeDecl.classDeclaration() != null) {
         ClassDeclaration.construct(
-          outerTypeName,
-          ApexModifiers.classModifiers(modifiers, context, outer = outerTypeName.isEmpty,
-            typeDecl.classDeclaration().id()),
+          outerContext,
+          ApexModifiers.classModifiers(modifiers, context, outer = isOuter, typeDecl.classDeclaration().id()),
           typeDecl.classDeclaration(), context)
       } else if (typeDecl.interfaceDeclaration() != null) {
         InterfaceDeclaration.construct(
-          outerTypeName,
-          ApexModifiers.interfaceModifiers(modifiers, context, outer = outerTypeName.isEmpty,
-            typeDecl.interfaceDeclaration().id()),
+          outerContext,
+          ApexModifiers.interfaceModifiers(modifiers, context, outer = isOuter, typeDecl.interfaceDeclaration().id()),
           typeDecl.interfaceDeclaration(), context)
       } else {
         assert(typeDecl.enumDeclaration() != null)
         EnumDeclaration.construct(
-          outerTypeName,
-          ApexModifiers.enumModifiers(modifiers, context, outer = outerTypeName.isEmpty,
-            typeDecl.enumDeclaration().id()),
+          outerContext,
+          ApexModifiers.enumModifiers(modifiers, context, outer = isOuter, typeDecl.enumDeclaration().id()),
           typeDecl.enumDeclaration(), context)
       }
     cst.withContext(typeDecl, context)
-  }
-
-  /** Create a TypeName from a name */
-  private def typeName(name: Name): TypeName = {
-    if (name == Name.Void) {
-      TypeName.Void
-    } else {
-      TypeName(name)
-    }
   }
 
   def parseBlock(path: Path, data: InputStream): Option[ApexParser.BlockContext] = {
