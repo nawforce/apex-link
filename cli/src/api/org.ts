@@ -26,19 +26,26 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import * as java from 'java'
-import Package from './package';
+import * as java from "java";
+import Package from "./package";
 
 export default class Org {
+  private org: any;
 
-    private org: any
+  constructor() {
+    this.org = java.newInstanceSync("com.nawforce.api.Org");
+  }
 
-    constructor() {
-        this.org = java.newInstanceSync("com.nawforce.api.Org")
-    }
+  issues(): string {
+    return this.org.issuesAsJSONSync();
+  }
 
-    addPackage(namespace: string, directory: string[]): Package {
-        return new Package(this.org.addPackageSync(namespace, directory))
-    }
+  addPackage(namespace: string, directories: string[]): Package {
+    return new Package(
+      this.org.addPackageSync(
+        namespace,
+        java.newArray("java.lang.String", directories)
+      )
+    );
+  }
 }
-

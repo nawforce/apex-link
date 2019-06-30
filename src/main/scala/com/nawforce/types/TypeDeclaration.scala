@@ -87,6 +87,12 @@ trait TypeDeclaration extends DependencyDeclaration {
   val nature: Nature
   val modifiers: Seq[Modifier]
 
+  lazy val namespace: Option[Name] = {
+    val outermostType = outerTypeName.getOrElse(typeName).outer
+    assert(outermostType.forall(_.outer.isEmpty))
+    outermostType.map(_.name)
+  }
+
   val superClass: Option[TypeName]
   val interfaces: Seq[TypeName]
   val nestedTypes: Seq[TypeDeclaration]

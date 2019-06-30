@@ -29,7 +29,7 @@ package com.nawforce.cst
 
 import com.nawforce.api.Org
 import com.nawforce.types.{DependencyDeclaration, TypeDeclaration, TypeName}
-import com.nawforce.utils.DotName
+import com.nawforce.utils.{DotName, Name}
 import scalaz.Memo
 
 import scala.collection.mutable
@@ -54,7 +54,7 @@ class VerifyContext {
 
   /** Find a type relative to a starting type with a local or global name*/
   def getTypeFor(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
-    typeCache(dotName, from)
+    from.namespace.flatMap(ns => typeCache(dotName.prepend(ns), from)).orElse(typeCache(dotName, from))
   }
 
   private val typeCache = Memo.immutableHashMapMemo[(DotName, TypeDeclaration), Option[TypeDeclaration]] {
@@ -79,15 +79,20 @@ class VerifyContext {
   }
 
   private def getFromSuperType(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
-    if (from.superClass.isEmpty || from.superClass.map(_.asDotName).contains(dotName)) {
-      None
+    if (from.superClass.isEmpty)
+      return None
+
+    // Avoid infinite recursion of searching for super class in super class, we wont find it!
+    val superBaseName = from.superClass.get.asDotName
+    val superNsName = from.namespace.map(ns => superBaseName.prepend(ns)).getOrElse(superBaseName)
+    if (dotName == superNsName || dotName == superBaseName)
+      return None
+
+    val superType = getTypeFor(from.superClass.get.asDotName, from)
+    if (superType.exists(_.path != from.path)) {
+      superType.flatMap(st => getTypeFor(dotName, st))
     } else {
-      val superType = getTypeFor(from.superClass.get.asDotName, from)
-      if (superType.exists(_.path != from.path)) {
-        superType.flatMap(st => getTypeFor(dotName, st))
-      } else {
-        None
-      }
+      None
     }
   }
 

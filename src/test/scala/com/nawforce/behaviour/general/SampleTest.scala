@@ -37,8 +37,8 @@ class SampleTest extends FunSuite {
     val org = new Org()
     Org.current.withValue(org) {
       val pkg = org.addPackage(null, Array[String](path))
-      val resultJson = pkg.deployAll()
-      assert(resultJson == "{ \"files\": [\n]}\n")
+      pkg.deployAll()
+      assert(org.issues.asJSON(100) == "{ \"files\": [\n]}\n")
     }
   }
 

@@ -115,6 +115,4 @@ class TypeFindingTest extends FunSuite {
       assert(org.getType(DotName(Seq(Name("Dummy"), Name("Inner")))).isEmpty)
     }
   }
-
-
 }

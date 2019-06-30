@@ -32,7 +32,7 @@ import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.documents.{ApexDocument, DocumentType, Location, TextRange}
-import com.nawforce.types.{ApexTypeDeclaration, TypeDeclaration, TypeName, TypeStore}
+import com.nawforce.types.{ApexTypeDeclaration, TypeDeclaration, TypeStore}
 import com.nawforce.utils.{DotName, IssueLog, Name}
 import com.typesafe.scalalogging.LazyLogging
 
@@ -48,6 +48,8 @@ class Org extends TypeStore with LazyLogging {
   private val inputStreams = new ConcurrentHashMap[Path, InputStream]()
 
   val issues = new IssueLog
+  def issuesAsJSON: String = issues.asJSON(maxErrors = 100)
+  def typeCount: Int= types.size()
 
   /** Create a new package in the org, directories are priority ordered. Duplicate detection depends on metadata
     * type. */

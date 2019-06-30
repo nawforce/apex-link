@@ -38,11 +38,10 @@ class Package(org: Org, namespace: Name, paths: Seq[Path]) extends LazyLogging {
 
   lazy val classCount: Int = documents.getByExtension(Name("cls")).size
 
-  def deployAll(): String = {
+  def deployAll(): Unit = {
     val classes = documents.getByExtension(Name("cls"))
     logger.debug(s"Found ${classes.size} classes to parse")
     org.deployMetadata(namespace, classes)
-    org.issues.asJSON(100)
   }
 }
 

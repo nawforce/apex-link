@@ -31,31 +31,51 @@ import java.nio.file.Paths
 
 import com.nawforce.api.{LogUtils, Org}
 
+import scala.collection.mutable
+
 object ApexLink {
+  val usage = "Usage: ApexLink [-json] [-verbose] <[namespace=]directory>..."
+
   def main(args: Array[String]): Unit = {
     val options = Set("-verbose", "-json")
 
     val validArgs = args.flatMap {
-      case option if options.contains(option)=> Some(option)
+      case option if options.contains(option) => Some(option)
       case arg => Some(arg)
     }
 
     if (validArgs.length != args.length) {
-      println(s"Usage: ApexLink [-json] [-verbose] <dir1> <dir2> ...")
+      println(usage)
       return
     }
 
     var paths: Seq[String] = validArgs.filterNot(options.contains)
     if (paths.isEmpty)
       paths = Seq(Paths.get("").toAbsolutePath.toString)
+    val nsSplit = paths.map(_.split("=") match {
+      case Array(d) => ("", d)
+      case Array(ns, d) => (ns, d)
+      case _ =>
+        println(usage)
+        return
+    })
     val json = validArgs.contains("-json")
     val verbose = !json && validArgs.contains("-verbose")
     LogUtils.setLoggingLevel(verbose)
 
     val parseStart = System.currentTimeMillis()
     val org = new Org()
-    val pkg = org.addPackage(null, paths.toArray)
-    val resultJson = pkg.deployAll()
+
+    val nsLoaded = mutable.Set[String]()
+    nsSplit.foreach(nsDirPair => {
+      if (!nsLoaded.contains(nsDirPair._1)) {
+        nsLoaded.add(nsDirPair._1)
+        val paths = nsSplit.filter(_._1 == nsDirPair._1).map(_._2)
+        val pkg = org.addPackage(nsDirPair._1, paths.toArray)
+        pkg.deployAll()
+      }
+    })
+    val resultJson = org.issues.asJSON(100)
     val parseEnd = System.currentTimeMillis()
 
     if (!json)
@@ -63,7 +83,7 @@ object ApexLink {
     else
       println(resultJson)
 
-    if (verbose)
-      println(s"Parsed ${pkg.classCount} files, with average time/file of ${(parseEnd-parseStart)/pkg.classCount}ms")
+    if (verbose && org.typeCount>0)
+      println(s"Loaded & checked ${org.typeCount} types, with average time/type of ${(parseEnd - parseStart) / org.typeCount}ms")
   }
 }
