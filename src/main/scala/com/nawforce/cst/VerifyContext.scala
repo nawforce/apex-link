@@ -54,7 +54,7 @@ class VerifyContext {
 
   /** Find a type relative to a starting type with a local or global name*/
   def getTypeFor(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
-    from.namespace.flatMap(ns => typeCache(dotName.prepend(ns), from)).orElse(typeCache(dotName, from))
+    typeCache(dotName, from)
   }
 
   private val typeCache = Memo.immutableHashMapMemo[(DotName, TypeDeclaration), Option[TypeDeclaration]] {
@@ -65,7 +65,12 @@ class VerifyContext {
     getNestedType(dotName, from)
       .orElse(getFromSuperType(dotName, from)
         .orElse(getFromOuterType(dotName, from)
-          .orElse(Org.getType(dotName))))
+          .orElse(
+            Org.getType(from.namespace.map(ns => dotName.prepend(ns)).getOrElse(dotName))
+              .orElse(Org.getType(dotName))
+          )
+        )
+      )
   }
 
   private def getNestedType(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
@@ -82,10 +87,8 @@ class VerifyContext {
     if (from.superClass.isEmpty)
       return None
 
-    // Avoid infinite recursion of searching for super class in super class, we wont find it!
-    val superBaseName = from.superClass.get.asDotName
-    val superNsName = from.namespace.map(ns => superBaseName.prepend(ns)).getOrElse(superBaseName)
-    if (dotName == superNsName || dotName == superBaseName)
+    // Avoid recursion of searching for super class in super class, will be found later
+    if (dotName == from.superClass.get.asDotName)
       return None
 
     val superType = getTypeFor(from.superClass.get.asDotName, from)
