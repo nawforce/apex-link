@@ -34,24 +34,7 @@ import scalaz.Memo
 
 import scala.collection.mutable
 
-class VerifyContext {
-  private val _imports = mutable.Set[TypeName] ()
-  private val _dependencies = mutable.Set[DependencyDeclaration] ()
-
-  def imports: Set[TypeName] = _imports.diff(TypeName.ApexTypes).toSet
-
-  def depends: Set[ClassBodyDeclaration] = Set()
-
-  def importTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {
-    val td = getTypeFor(typeName.asDotName, from)
-    td.foreach(_dependencies += _)
-    td
-  }
-
-  def addImport(typeName: TypeName): Unit = {
-    _imports += typeName
-  }
-
+trait TypeResolver {
   /** Find a type relative to a starting type with a local or global name*/
   def getTypeFor(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
     typeCache(dotName, from)
@@ -113,5 +96,42 @@ class VerifyContext {
         None
       }
     }
+  }
+}
+
+trait VerifyContext {
+
+  def parent(): Option[VerifyContext]
+
+  def importTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration]
+  def addImport(typeName: TypeName)
+
+  def isVar(name: Name): Boolean
+}
+
+class TypeVerifyContext(parentContext: Option[TypeVerifyContext], typeDeclaration: TypeDeclaration)
+  extends VerifyContext with TypeResolver {
+
+  private val _imports = mutable.Set[TypeName] ()
+  private val _dependencies = mutable.Set[DependencyDeclaration] ()
+
+  def parent(): Option[TypeVerifyContext] = parentContext
+
+  def imports: Set[TypeName] = _imports.diff(TypeName.ApexTypes).toSet
+
+  def depends: Set[ClassBodyDeclaration] = Set()
+
+  def importTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {
+    val td = getTypeFor(typeName.asDotName, from)
+    td.foreach(_dependencies += _)
+    td
+  }
+
+  def addImport(typeName: TypeName): Unit = {
+    _imports += typeName
+  }
+
+  def isVar(name: Name): Boolean = {
+    typeDeclaration.fields.exists(_.name == name) || parentContext.exists(_.isVar(name))
   }
 }

@@ -39,6 +39,7 @@ import com.nawforce.utils._
 import org.antlr.v4.runtime.CommonTokenStream
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 /** Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
 abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, TypeName],
@@ -66,6 +67,9 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
 
   override val nature: Nature
 
+  private var superTypeDeclaration: Option[TypeDeclaration] = None
+  private var isComplete = false
+
   override val nestedTypes: Seq[ApexTypeDeclaration] = {
     bodyDeclarations.flatMap {
       case x: ApexTypeDeclaration => Some(x)
@@ -75,11 +79,12 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
 
   override lazy val fields: Seq[FieldDeclaration] = {
     Org.current.value.issues.context.withValue(path) {
+
       val fields = bodyDeclarations.flatMap {
         case x: FieldDeclaration => Some(x)
         case _ => None
       }
-      fields.groupBy(f => f.name).collect {
+      val allFields = superTypeDeclaration.map(_.fields).getOrElse(Seq()) ++ fields.groupBy(f => f.name).collect {
         case (_, y :: Nil) => y
         case (_, duplicates) =>
           duplicates.tail.foreach(d => {
@@ -87,25 +92,32 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
           })
           duplicates.head
       }.toSeq
+
+      allFields.map(f => (f.name, f)).toMap.values.toSeq
     }
   }
 
-  override val constructors: Seq[ConstructorDeclaration] = {
+  override lazy val constructors: Seq[ConstructorDeclaration] = {
     bodyDeclarations.flatMap {
       case x: ConstructorDeclaration => Some(x)
       case _ => None
     }
   }
 
-  override val methods: Seq[MethodDeclaration] = {
+  override lazy val methods: Seq[MethodDeclaration] = {
     bodyDeclarations.flatMap {
       case x: MethodDeclaration => Some(x)
       case _ => None
     }
   }
 
-  protected def verify(context: VerifyContext): Unit = {
-    val superTypeDeclaration = superClass.flatMap(superType => context.importTypeFor(superType, this))
+  override def validate(): Unit = {
+    val typeVerifyContext = new TypeVerifyContext(None, this)
+    validate(typeVerifyContext)
+  }
+
+  protected def verify(context: TypeVerifyContext): Unit = {
+    superTypeDeclaration = superClass.flatMap(superType => context.importTypeFor(superType, this))
     if (superClass.nonEmpty) {
       if (superTypeDeclaration.isEmpty) {
         Org.logMessage(id.textRange, s"No type declaration found for '${superClass.get.asDotName}'")
@@ -115,6 +127,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
         Org.logMessage(id.textRange, s"Parent class '${superClass.get.asDotName}' must be declared virtual or abstract")
       }
     }
+    isComplete = superTypeDeclaration.isDefined || superClass.isEmpty
 
     val duplicateNestedType = (this +: nestedTypes).groupBy(_.name).collect { case (_, List(_, y, _*)) => y }
     duplicateNestedType.foreach(td =>
@@ -122,7 +135,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
 
     superClass.foreach(context.addImport)
     interfaces.foreach(context.addImport)
-    bodyDeclarations.foreach(bd => bd.validate())
+    bodyDeclarations.foreach(bd => bd.validate(context))
   }
 
   def resolve(index: CSTIndex)

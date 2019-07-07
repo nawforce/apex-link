@@ -44,9 +44,8 @@ abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST {
     depends = None
   }
 
-  def validate(): Unit = {
+  def validate(context: TypeVerifyContext): Unit = {
     if (depends.isEmpty) {
-      val context = new VerifyContext()
       verify(context)
       depends = Some(context.depends)
     }
@@ -56,7 +55,7 @@ abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST {
     dependencyHolder.add(holder)
   }
 
-  protected def verify(context: VerifyContext): Unit
+  protected def verify(context: TypeVerifyContext): Unit
   def resolve(index: CSTIndex): Unit = {}
 }
 
@@ -101,8 +100,8 @@ object ClassBodyDeclaration {
 final case class InitialiserBlock(_modifiers: Seq[Modifier], block: Block) extends ClassBodyDeclaration(_modifiers) {
   override def children(): List[CST] = block.children()
 
-  override def verify(ctx: VerifyContext): Unit = {
-    block.verify(ctx)
+  override def verify(context: TypeVerifyContext): Unit = {
+    block.verify(context)
   }
 
   override def resolve(index: CSTIndex): Unit = {
@@ -124,7 +123,7 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: Type
 
   override val name: Name = id.name
 
-  override def verify(context: VerifyContext): Unit = {
+  override def verify(context: TypeVerifyContext): Unit = {
     context.addImport(typeName)
     parameters.foreach(_.verify(context))
     block.foreach(_.verify(context))
@@ -173,7 +172,7 @@ final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeN
 
   override def children(): List[CST] = variableDeclarator :: Nil
 
-  override def verify(context: VerifyContext): Unit = {
+  override def verify(context: TypeVerifyContext): Unit = {
     context.addImport(typeName)
     variableDeclarator.verify(context)
   }
@@ -197,7 +196,7 @@ final case class ApexConstructorDeclaration(_modifiers: Seq[Modifier], qualified
 
   override def children(): List[CST] = parameters ++ List(block)
 
-  override def verify(context: VerifyContext): Unit = {
+  override def verify(context: TypeVerifyContext): Unit = {
     parameters.foreach(_.verify(context))
     block.verify(context)
   }

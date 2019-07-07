@@ -57,7 +57,7 @@ final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: Ty
     setter.flatMap(_.modifiers.headOption).getOrElse(visibility.getOrElse(PRIVATE_MODIFIER))
   override def children(): List[CST] = List(id) ++ propertyBlocks.toList
 
-  override def verify(context: VerifyContext): Unit = {
+  override def verify(context: TypeVerifyContext): Unit = {
     context.addImport(typeName)
     val setters = propertyBlocks.filter(_.isInstanceOf[SetterPropertyBlock])
     val getters = propertyBlocks.filter(_.isInstanceOf[GetterPropertyBlock])
