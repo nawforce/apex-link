@@ -57,10 +57,15 @@ final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: Ty
     setter.flatMap(_.modifiers.headOption).getOrElse(visibility.getOrElse(PRIVATE_MODIFIER))
   override def children(): List[CST] = List(id) ++ propertyBlocks.toList
 
-  override def verify(context: TypeVerifyContext): Unit = {
-    context.addImport(typeName)
+  override def verify(context: BodyDeclarationVerifyContext): Unit = {
+    context.getTypeAndAddDependency(typeName)
+    // TODO: Check typename
+
     val setters = propertyBlocks.filter(_.isInstanceOf[SetterPropertyBlock])
+    setters.foreach(_.verify(context))
     val getters = propertyBlocks.filter(_.isInstanceOf[GetterPropertyBlock])
+    getters.foreach(_.verify(context))
+
     if (setters.size > 1 || getters.size > 1 || propertyBlocks.isEmpty) {
       Org.logMessage(textRange, "Properties must have either a single 'get' and/or a single 'set' block")
     }
@@ -72,6 +77,8 @@ final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: Ty
     if (visibility.nonEmpty && readAccess.order > visibility.get.order) {
       Org.logMessage(textRange, "Getter visibility must be same or less than property")
     }
+
+    depends = Some(context.dependencies)
   }
 }
 
@@ -87,20 +94,20 @@ object ApexPropertyDeclaration {
 }
 
 sealed abstract class PropertyBlock extends CST {
-  def verify(context: VerifyContext): Unit
+  def verify(context: BodyDeclarationVerifyContext): Unit
 }
 
 final case class GetterPropertyBlock(modifiers: Seq[Modifier], block: Option[Block]) extends PropertyBlock {
   override def children(): List[CST] = List() ++ block
-  override def verify(context: VerifyContext): Unit = {
-    block.foreach(_.verify(context))
+  override def verify(context: BodyDeclarationVerifyContext): Unit = {
+    block.foreach(_.verify(new BlockVerifyContext(context)))
   }
 }
 
 final case class SetterPropertyBlock(modifiers: Seq[Modifier], block: Option[Block]) extends PropertyBlock {
   override def children(): List[CST] = List() ++ block
-  override def verify(context: VerifyContext): Unit = {
-    block.foreach(_.verify(context))
+  override def verify(context: BodyDeclarationVerifyContext): Unit = {
+    block.foreach(_.verify(new BlockVerifyContext(context)))
   }
 }
 

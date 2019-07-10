@@ -113,7 +113,4 @@ class ExtendsTest extends FunSuite {
     assert(typeDeclarations(Map("Dummy" -> "global virtual class Dummy {class Inner extends Dummy {}}")).nonEmpty)
     assert(!defaultOrg.issues.hasMessages)
   }
-
-
-
 }

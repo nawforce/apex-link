@@ -35,8 +35,9 @@ import scala.collection.JavaConverters._
 final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
   override def children(): List[CST] = idPairs
 
-  def verify(context: VerifyContext): Unit = {
-    context.addImport(createTypeName(None, idPairs.map(_.typeName)))
+  def verify(context: ExpressionVerifyContext): Unit = {
+    context.getTypeAndAddDependency(createTypeName(None, idPairs.map(_.typeName)))
+    // TODO: Add error if not found
   }
 
   private def createTypeName(outer: Option[TypeName], names: Seq[TypeName]): TypeName = {
@@ -83,7 +84,7 @@ final case class Creator(createdName: CreatedName,
   override def children(): List[CST] =
     List(createdName) ++ classCreatorRest ++ arrayCreatorRest ++ mapCreatorRest ++setCreatorRest
 
-  def verify(context: VerifyContext): Unit = {
+  def verify(context: ExpressionVerifyContext): Unit = {
     createdName.verify(context)
     classCreatorRest.foreach(_.verify(context))
     arrayCreatorRest.foreach(_.verify(context))

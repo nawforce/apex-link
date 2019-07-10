@@ -33,19 +33,22 @@ import com.nawforce.types.TypeName
 import scala.collection.JavaConverters._
 
 trait ExpressionRHS extends CST {
-  def verify(context: VerifyContext): Unit
+  def verify(context: ExpressionVerifyContext): Unit
   def resolve(context: ResolveExprContext)
 }
 
 sealed abstract class Expression extends CST {
-  def verify(context: VerifyContext): Unit
+  def verify(context: ExpressionVerifyContext): Unit
+  def verify(context: BlockVerifyContext): Unit = {
+    verify(new ExpressionVerifyContext(context))
+  }
   def resolve(context: ResolveExprContext)
 }
 
 final case class LHSExpression(lhs: Expression, rhs: ExpressionRHS) extends Expression {
   override def children(): List[CST] = lhs :: rhs :: Nil
 
-  override def verify(context: VerifyContext): Unit = {
+  override def verify(context: ExpressionVerifyContext): Unit = {
     lhs.verify(context)
     rhs.verify(context)
   }
@@ -59,7 +62,7 @@ final case class LHSExpression(lhs: Expression, rhs: ExpressionRHS) extends Expr
 final case class FunctionCall(callee: Expression, arguments: List[Expression]) extends Expression {
   override def children(): List[CST] = callee :: arguments
 
-  override def verify(context: VerifyContext): Unit = {
+  override def verify(context: ExpressionVerifyContext): Unit = {
     callee.verify(context)
     arguments.foreach(_.verify(context))
   }
@@ -73,7 +76,7 @@ final case class FunctionCall(callee: Expression, arguments: List[Expression]) e
 final case class NewExpression(creator: Creator) extends Expression {
   override def children(): List[CST] = creator :: Nil
 
-  override def verify(context: VerifyContext): Unit = {
+  override def verify(context: ExpressionVerifyContext): Unit = {
     creator.verify(context)
   }
 
@@ -83,8 +86,9 @@ final case class NewExpression(creator: Creator) extends Expression {
 final case class CastExpression(typeRef: TypeName, expression: Expression) extends Expression {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(context: VerifyContext): Unit = {
-    context.addImport(typeRef)
+  override def verify(context: ExpressionVerifyContext): Unit = {
+    context.getTypeAndAddDependency(typeRef)
+    // TODO: Check type found
     expression.verify(context)
   }
 
@@ -94,7 +98,7 @@ final case class CastExpression(typeRef: TypeName, expression: Expression) exten
 final case class PostOpExpression(expression: Expression, op: String) extends Expression {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(context: VerifyContext): Unit = {
+  override def verify(context: ExpressionVerifyContext): Unit = {
     expression.verify(context)
   }
 
@@ -104,7 +108,7 @@ final case class PostOpExpression(expression: Expression, op: String) extends Ex
 final case class PreOpExpression(expression: Expression, op: String) extends Expression {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(context: VerifyContext): Unit = {
+  override def verify(context: ExpressionVerifyContext): Unit = {
     expression.verify(context)
   }
 
@@ -114,7 +118,7 @@ final case class PreOpExpression(expression: Expression, op: String) extends Exp
 final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) extends Expression {
   override def children(): List[CST] = lhs :: rhs :: Nil
 
-  override def verify(context: VerifyContext): Unit = {
+  override def verify(context: ExpressionVerifyContext): Unit = {
     lhs.verify(context)
     rhs.verify(context)
   }
@@ -128,8 +132,9 @@ final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) 
 final case class InstanceOfExpression(expression: Expression, typeRef: TypeName) extends Expression {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(context: VerifyContext): Unit = {
-    context.addImport(typeRef)
+  override def verify(context: ExpressionVerifyContext): Unit = {
+    context.getTypeAndAddDependency(typeRef)
+    // TODO: Check type found
     expression.verify(context)
   }
 
@@ -139,7 +144,7 @@ final case class InstanceOfExpression(expression: Expression, typeRef: TypeName)
 final case class QueryExpression(query: Expression, lhs: Expression, rhs: Expression) extends Expression {
   override def children(): List[CST] = query :: lhs :: rhs :: Nil
 
-  override def verify(context: VerifyContext): Unit = {
+  override def verify(context: ExpressionVerifyContext): Unit = {
     query.verify(context)
     lhs.verify(context)
     rhs.verify(context)
@@ -155,7 +160,7 @@ final case class QueryExpression(query: Expression, lhs: Expression, rhs: Expres
 final case class PrimaryExpression(var primary: Primary) extends Expression {
   override def children(): List[CST] = primary :: Nil
 
-  override def verify(context: VerifyContext): Unit = {
+  override def verify(context: ExpressionVerifyContext): Unit = {
     primary.verify(context)
   }
 
@@ -175,7 +180,7 @@ final case class PrimaryExpression(var primary: Primary) extends Expression {
 final case class RHSId(id: String) extends ExpressionRHS {
   override def children(): List[CST] = Nil
 
-  override def verify(context: VerifyContext): Unit = {}
+  override def verify(context: ExpressionVerifyContext): Unit = {}
 
   override def resolve(context: ResolveExprContext): Unit = {}
 }
@@ -183,7 +188,7 @@ final case class RHSId(id: String) extends ExpressionRHS {
 final case class RHSArrayExpression(expression: Expression) extends ExpressionRHS {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(context: VerifyContext): Unit = {
+  override def verify(context: ExpressionVerifyContext): Unit = {
     expression.verify(context)
   }
 
@@ -281,7 +286,7 @@ object TypeArguments {
 final case class ClassCreatorRest(arguments: List[Expression]) extends CST {
   override def children(): List[CST] = arguments
 
-  def verify(context: VerifyContext): Unit = {
+  def verify(context: ExpressionVerifyContext): Unit = {
     arguments.foreach(_.verify(context))
   }
 }
@@ -296,7 +301,7 @@ final case class ArrayCreatorRest(expressions: Option[Expression], arrayInitiali
                                   ) extends CST {
   override def children(): List[CST] = List[CST]() ++ expressions ++ arrayInitializer
 
-  def verify(context: VerifyContext): Unit = {
+  def verify(context: ExpressionVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
     arrayInitializer.foreach(_.verify(context))
   }
@@ -314,7 +319,7 @@ object ArrayCreatorRest {
 final case class ArrayInitializer(variableInitializers: List[VariableInitializer]) extends CST {
   override def children(): List[CST] = variableInitializers
 
-  def verify(context: VerifyContext): Unit = {
+  def verify(context: ExpressionVerifyContext): Unit = {
     variableInitializers.foreach(_.verify(context))
   }
 }
@@ -340,7 +345,7 @@ object Arguments {
 final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends CST {
   override def children(): List[CST] = pairs
 
-  def verify(context: VerifyContext): Unit = {
+  def verify(context: ExpressionVerifyContext): Unit = {
     pairs.foreach(_.verify(context))
   }
 }
@@ -355,7 +360,7 @@ object MapCreatorRest {
 final case class MapCreatorRestPair(from: Expression, to: Expression) extends CST {
   override def children(): List[CST] = from :: to :: Nil
 
-  def verify(context: VerifyContext): Unit = {
+  def verify(context: ExpressionVerifyContext): Unit = {
     from.verify(context)
     to.verify(context)
   }
@@ -377,7 +382,7 @@ object MapCreatorRestPair {
 final case class SetCreatorRest(parts: List[Expression]) extends CST {
   override def children(): List[CST] = parts
 
-  def verify(context: VerifyContext): Unit = {
+  def verify(context: ExpressionVerifyContext): Unit = {
     parts.foreach(_.verify(context))
   }
 }

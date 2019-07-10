@@ -32,13 +32,13 @@ import com.nawforce.types.TypeName
 import com.nawforce.utils.Name
 
 sealed abstract class Primary extends CST {
-  def verify(context: VerifyContext): Unit = {}
+  def verify(context: ExpressionVerifyContext): Unit = {}
 }
 
 final case class ExpressionPrimary(expression: Expression) extends Primary {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(context: VerifyContext): Unit = {
+  override def verify(context: ExpressionVerifyContext): Unit = {
     expression.verify(context)
   }
 
@@ -66,10 +66,10 @@ final case class LiteralPrimary(literal: Literal) extends Primary {
 final case class QualifiedNamePrimary(typeName: TypeName) extends Primary {
   override def children(): List[CST] = Nil
 
-  override def verify(context: VerifyContext): Unit = {
+  override def verify(context: ExpressionVerifyContext): Unit = {
     // TODO: Check not var & below
     val isClassRef = typeName.name == Name.Class && typeName.outer.nonEmpty
-    context.addImport(if (isClassRef) typeName.outer.get.asClassOf else typeName)
+    context.getTypeAndAddDependency(if (isClassRef) typeName.outer.get else typeName)
   }
 
   override def getType(ctx: TypeContext): TypeName = typeName

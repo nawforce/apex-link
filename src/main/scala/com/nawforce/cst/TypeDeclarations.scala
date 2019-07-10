@@ -68,6 +68,13 @@ final case class ClassDeclaration(_id: Id, _outerContext: Either[Name, TypeName]
     super.verify(context)
   }
 
+  override def verify(context: BodyDeclarationVerifyContext): Unit = {
+    if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL_MODIFIER)) {
+      Org.logMessage(id.textRange, "Classes enclosing globals or webservices must also be declared global")
+    }
+    super.verify(new TypeVerifyContext(Some(context), this))
+  }
+
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)
     bodyDeclarations.foreach(_.resolve(index))
@@ -125,6 +132,10 @@ final case class InterfaceDeclaration(_id: Id, _outerContext: Either[Name, TypeN
 
   override val nature: Nature = INTERFACE_NATURE
 
+  override def verify(context: BodyDeclarationVerifyContext): Unit = {
+    super.verify(new TypeVerifyContext(Some(context), this))
+  }
+
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)
   }
@@ -154,6 +165,10 @@ final case class EnumDeclaration(_id: Id, _outerContext: Either[Name, TypeName],
   extends ApexTypeDeclaration(_id, _outerContext, _modifiers, None, Seq(), _bodyDeclarations) {
 
   override val nature: Nature = ENUM_NATURE
+
+  override def verify(context: BodyDeclarationVerifyContext): Unit = {
+    super.verify(new TypeVerifyContext(Some(context), this))
+  }
 
   override def resolve(index: CSTIndex): Unit = {
     index.add(this)

@@ -33,7 +33,7 @@ import com.nawforce.types.{ApexModifiers, Modifier, TypeName}
 import scala.collection.JavaConverters._
 
 sealed abstract class VariableInitializer() extends CST {
-  def verify(context: VerifyContext): Unit
+  def verify(context: ExpressionVerifyContext): Unit
 }
 
 object VariableInitializer {
@@ -57,7 +57,7 @@ object VariableInitializer {
 final case class ArrayVariableInitializer(variableInitializers: List[VariableInitializer]) extends VariableInitializer {
   override def children(): List[CST] = variableInitializers
 
-  def verify(context: VerifyContext): Unit = {
+  def verify(context: ExpressionVerifyContext): Unit = {
     variableInitializers.foreach(_.verify(context))
   }
 }
@@ -65,7 +65,7 @@ final case class ArrayVariableInitializer(variableInitializers: List[VariableIni
 final case class ExpressionVariableInitializer(expression: Expression) extends VariableInitializer {
   override def children(): List[CST] = expression :: Nil
 
-  def verify(context: VerifyContext): Unit = {
+  def verify(context: ExpressionVerifyContext): Unit = {
     expression.verify(context)
   }
 }
@@ -82,8 +82,9 @@ object ArrayVariableInitializer {
 final case class VariableDeclarator(id: Id, init: Option[VariableInitializer]) extends CST with VarIntroducer {
   override def children(): List[CST] = List[CST](id) ++ init
 
-  def verify(context: VerifyContext): Unit = {
-    init.foreach(_.verify(context))
+  def verify(context: BlockVerifyContext): Unit = {
+    val exprContext = new ExpressionVerifyContext(context)
+    init.foreach(_.verify(exprContext))
   }
 }
 
@@ -102,7 +103,7 @@ object VariableDeclarator {
 final case class VariableDeclarators(declarators: List[VariableDeclarator]) extends CST {
   override def children(): List[CST] = declarators
 
-  def verify(context: VerifyContext): Unit = {
+  def verify(context: BlockVerifyContext): Unit = {
     declarators.foreach(_.verify(context))
   }
 
@@ -125,11 +126,14 @@ object VariableDeclarators {
 }
 
 
-final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeRef: TypeName, variableDeclarators: VariableDeclarators) extends CST {
+final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeRef: TypeName, variableDeclarators: VariableDeclarators)
+  extends CST {
+
   override def children(): List[CST] = variableDeclarators :: Nil
 
-  def verify(context: VerifyContext): Unit = {
-    context.addImport(typeRef)
+  def verify(context: BlockVerifyContext): Unit = {
+    context.getTypeAndAddDependency(typeRef)
+    // TODO: Check type
     variableDeclarators.verify(context)
   }
 

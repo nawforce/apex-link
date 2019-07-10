@@ -37,7 +37,13 @@ case object CLASS_NATURE extends Nature {override def value: String = "class"}
 case object INTERFACE_NATURE extends Nature {override def value: String = "interface"}
 case object ENUM_NATURE extends Nature {override def value: String = "enum"}
 
-trait DependencyDeclaration
+trait DependencyDeclaration {
+  def dependencies(): Set[DependencyDeclaration]
+}
+
+trait BlockDeclaration extends DependencyDeclaration {
+  val isStatic: Boolean
+}
 
 trait FieldDeclaration extends DependencyDeclaration {
   val name: Name
@@ -97,11 +103,13 @@ trait TypeDeclaration extends DependencyDeclaration {
   val interfaces: Seq[TypeName]
   val nestedTypes: Seq[TypeDeclaration]
 
+  val blocks: Seq[BlockDeclaration]
   val fields: Seq[FieldDeclaration]
   val constructors: Seq[ConstructorDeclaration]
   val methods: Seq[MethodDeclaration]
 
   def validate(): Unit
+  def dependencies(): Set[DependencyDeclaration]
 
   lazy val summary: TypeSummary = TypeSummary(
     name.toString, typeName.toString, nature.value, modifiers.map(_.toString).sorted.toList,

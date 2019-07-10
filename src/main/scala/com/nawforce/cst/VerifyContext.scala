@@ -100,38 +100,79 @@ trait TypeResolver {
 }
 
 trait VerifyContext {
-
   def parent(): Option[VerifyContext]
-
-  def importTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration]
-  def addImport(typeName: TypeName)
-
-  def isVar(name: Name): Boolean
 }
 
-class TypeVerifyContext(parentContext: Option[TypeVerifyContext], typeDeclaration: TypeDeclaration)
-  extends VerifyContext with TypeResolver {
-
-  private val _imports = mutable.Set[TypeName] ()
+abstract class HolderVerifyContext {
   private val _dependencies = mutable.Set[DependencyDeclaration] ()
 
-  def parent(): Option[TypeVerifyContext] = parentContext
+  def dependencies: Set[DependencyDeclaration] = _dependencies.toSet
 
-  def imports: Set[TypeName] = _imports.diff(TypeName.ApexTypes).toSet
-
-  def depends: Set[ClassBodyDeclaration] = Set()
-
-  def importTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {
-    val td = getTypeFor(typeName.asDotName, from)
-    td.foreach(_dependencies += _)
-    td
+  def addDependency(dependentDeclaration: DependencyDeclaration): Unit = {
+    _dependencies += dependentDeclaration
   }
 
-  def addImport(typeName: TypeName): Unit = {
-    _imports += typeName
+  def getTypeFor(typeName: TypeName): Option[TypeDeclaration]
+
+  def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration] = {
+    val paramTypes = typeName.params.flatMap(getTypeFor)
+    if (paramTypes.size == typeName.params.size) {
+      val tdOpt = getTypeFor(typeName)
+      tdOpt.foreach(td => {
+        addDependency(td)
+        paramTypes.foreach(addDependency)
+      })
+      tdOpt
+    } else {
+      None
+    }
   }
+}
+
+class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: TypeDeclaration)
+  extends HolderVerifyContext with VerifyContext with TypeResolver {
+
+  def parent(): Option[VerifyContext] = parentContext
 
   def isVar(name: Name): Boolean = {
-    typeDeclaration.fields.exists(_.name == name) || parentContext.exists(_.isVar(name))
+    typeDeclaration.fields.exists(_.name == name)
+  }
+
+  def addFieldDependency(name: Name): Unit = {
+    typeDeclaration.fields.find(_.name == name).foreach(addDependency)
+  }
+
+  override def getTypeFor(typeName: TypeName): Option[TypeDeclaration] = {
+    getTypeFor(typeName.asDotName, typeDeclaration)
+  }
+}
+
+class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDeclaration: ClassBodyDeclaration)
+  extends HolderVerifyContext with VerifyContext {
+
+  def parent(): Option[VerifyContext] = Some(parentContext)
+
+  override def getTypeFor(typeName: TypeName): Option[TypeDeclaration] = {
+    parentContext.getTypeFor(typeName)
+  }
+}
+
+class BlockVerifyContext(parentContext: BodyDeclarationVerifyContext)
+  extends VerifyContext {
+
+  def parent(): Option[VerifyContext] = Some(parentContext)
+
+  def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration] = {
+    parentContext.getTypeAndAddDependency(typeName)
+  }
+}
+
+class ExpressionVerifyContext(parentContext: BlockVerifyContext)
+  extends VerifyContext {
+
+  def parent(): Option[VerifyContext] = Some(parentContext)
+
+  def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration] = {
+    parentContext.getTypeAndAddDependency(typeName)
   }
 }

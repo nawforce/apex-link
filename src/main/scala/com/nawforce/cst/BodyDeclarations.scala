@@ -37,25 +37,26 @@ import scala.collection.mutable
 abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST {
   lazy val isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER) || modifiers.contains(WEBSERVICE_MODIFIER)
 
-  private var depends: Option[Set[ClassBodyDeclaration]] = None
+  protected var depends: Option[Set[DependencyDeclaration]] = None
   private val dependencyHolder: mutable.Set[ClassBodyDeclaration] = mutable.Set()
+
+  def dependencies(): Set[DependencyDeclaration] = {
+    depends.getOrElse(Set())
+  }
 
   def invalidate(): Unit = {
     depends = None
   }
 
-  def validate(context: TypeVerifyContext): Unit = {
-    if (depends.isEmpty) {
-      verify(context)
-      depends = Some(context.depends)
-    }
+  def validate(context: BodyDeclarationVerifyContext): Unit = {
+    verify(context)
   }
 
   def addDependencyHolder(holder: ClassBodyDeclaration): Unit = {
     dependencyHolder.add(holder)
   }
 
-  protected def verify(context: TypeVerifyContext): Unit
+  protected def verify(context: BodyDeclarationVerifyContext): Unit
   def resolve(index: CSTIndex): Unit = {}
 }
 
@@ -97,11 +98,16 @@ object ClassBodyDeclaration {
   }
 }
 
-final case class InitialiserBlock(_modifiers: Seq[Modifier], block: Block) extends ClassBodyDeclaration(_modifiers) {
+final case class InitialiserBlock(_modifiers: Seq[Modifier], block: Block)
+  extends ClassBodyDeclaration(_modifiers) with BlockDeclaration {
   override def children(): List[CST] = block.children()
 
-  override def verify(context: TypeVerifyContext): Unit = {
-    block.verify(context)
+  override val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
+
+  override def verify(context: BodyDeclarationVerifyContext): Unit = {
+    val blockContext = new BlockVerifyContext(context)
+    block.verify(blockContext)
+    depends = Some(context.dependencies)
   }
 
   override def resolve(index: CSTIndex): Unit = {
@@ -123,10 +129,14 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: Type
 
   override val name: Name = id.name
 
-  override def verify(context: TypeVerifyContext): Unit = {
-    context.addImport(typeName)
+  override def verify(context: BodyDeclarationVerifyContext): Unit = {
+    val returnType = context.getTypeAndAddDependency(typeName)
+    // TODO: Add error if not found
     parameters.foreach(_.verify(context))
-    block.foreach(_.verify(context))
+
+    val blockContext = new BlockVerifyContext(context)
+    block.foreach(_.verify(blockContext))
+    depends = Some(context.dependencies)
   }
 
   override def resolve(index: CSTIndex): Unit = {
@@ -172,9 +182,11 @@ final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeN
 
   override def children(): List[CST] = variableDeclarator :: Nil
 
-  override def verify(context: TypeVerifyContext): Unit = {
-    context.addImport(typeName)
-    variableDeclarator.verify(context)
+  override def verify(context: BodyDeclarationVerifyContext): Unit = {
+    context.getTypeAndAddDependency(typeName)
+    // TODO: Add error if not found
+    variableDeclarator.verify(new BlockVerifyContext(context))
+    depends = Some(context.dependencies)
   }
 }
 
@@ -196,9 +208,12 @@ final case class ApexConstructorDeclaration(_modifiers: Seq[Modifier], qualified
 
   override def children(): List[CST] = parameters ++ List(block)
 
-  override def verify(context: TypeVerifyContext): Unit = {
+  override def verify(context: BodyDeclarationVerifyContext): Unit = {
     parameters.foreach(_.verify(context))
-    block.verify(context)
+
+    val blockContext = new BlockVerifyContext(context)
+    block.verify(blockContext)
+    depends = Some(context.dependencies)
   }
 }
 
@@ -219,8 +234,9 @@ final case class FormalParameter(modifiers: Seq[Modifier], typeName: TypeName, i
 
   val name: Name = id.name
 
-  def verify(context: VerifyContext): Unit = {
-    context.addImport(typeName)
+  def verify(context: BodyDeclarationVerifyContext): Unit = {
+    context.getTypeAndAddDependency(typeName)
+    // TODO: Add error if not found
   }
 }
 

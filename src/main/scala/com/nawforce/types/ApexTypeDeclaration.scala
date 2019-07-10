@@ -39,7 +39,6 @@ import com.nawforce.utils._
 import org.antlr.v4.runtime.CommonTokenStream
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 
 /** Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
 abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, TypeName],
@@ -73,6 +72,13 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
   override val nestedTypes: Seq[ApexTypeDeclaration] = {
     bodyDeclarations.flatMap {
       case x: ApexTypeDeclaration => Some(x)
+      case _ => None
+    }
+  }
+
+  override lazy val blocks: Seq[BlockDeclaration] = {
+    bodyDeclarations.flatMap {
+      case x: BlockDeclaration => Some(x)
       case _ => None
     }
   }
@@ -112,12 +118,18 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
   }
 
   override def validate(): Unit = {
-    val typeVerifyContext = new TypeVerifyContext(None, this)
-    validate(typeVerifyContext)
+    val context = new TypeVerifyContext(None, this)
+    if (depends.isEmpty) {
+      verify(context)
+      depends = Some(context.dependencies)
+    }
   }
 
   protected def verify(context: TypeVerifyContext): Unit = {
-    superTypeDeclaration = superClass.flatMap(superType => context.importTypeFor(superType, this))
+    if (depends.nonEmpty)
+      return
+
+    superTypeDeclaration = superClass.flatMap(superType => context.getTypeAndAddDependency(superType))
     if (superClass.nonEmpty) {
       if (superTypeDeclaration.isEmpty) {
         Org.logMessage(id.textRange, s"No type declaration found for '${superClass.get.asDotName}'")
@@ -133,9 +145,11 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
     duplicateNestedType.foreach(td =>
       Org.logMessage(td.id.textRange, s"Duplicate type name '${td.name.toString}'"))
 
-    superClass.foreach(context.addImport)
-    interfaces.foreach(context.addImport)
-    bodyDeclarations.foreach(bd => bd.validate(context))
+    // TODO: Check for interfaces
+    interfaces.foreach(context.getTypeAndAddDependency)
+    bodyDeclarations.foreach(bd => bd.validate(new BodyDeclarationVerifyContext(context, bd)))
+
+    depends = Some(context.dependencies)
   }
 
   def resolve(index: CSTIndex)
