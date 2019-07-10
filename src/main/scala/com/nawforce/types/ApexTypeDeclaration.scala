@@ -145,8 +145,13 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
     duplicateNestedType.foreach(td =>
       Org.logMessage(td.id.textRange, s"Duplicate type name '${td.name.toString}'"))
 
-    // TODO: Check for interfaces
-    interfaces.foreach(context.getTypeAndAddDependency)
+    interfaces.foreach(interface => {
+      val td = context.getTypeAndAddDependency(interface)
+      if (td.isEmpty)
+        Org.logMessage(id.textRange, s"No declaration found for interface '${interface.toString}'")
+      else if (td.get.nature != INTERFACE_NATURE)
+        Org.logMessage(id.textRange, s"Type '${interface.toString}' must be an interface")
+    })
     bodyDeclarations.foreach(bd => bd.validate(new BodyDeclarationVerifyContext(context, bd)))
 
     depends = Some(context.dependencies)

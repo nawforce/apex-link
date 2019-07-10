@@ -34,7 +34,7 @@ import org.scalatest.FunSuite
 class PlatformTypeValidationTest extends FunSuite {
 
   test("Right number of types (should exclude inners)") {
-    assert(PlatformTypeDeclaration.classNames.size == 1296)
+    assert(PlatformTypeDeclaration.classNames.size == 1299)
   }
 
   test("All outer types are valid") {

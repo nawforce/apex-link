@@ -62,6 +62,9 @@ object Name {
   lazy val Class: Name = cache("Class")
   lazy val List: Name = cache("List")
   lazy val Type: Name = cache("Type")
+  lazy val Object: Name = cache("Object")
+  lazy val Object$: Name = cache("Object$")
+  lazy val Internal: Name = cache("Internal")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 }
@@ -89,6 +92,9 @@ case class DotName(names: Seq[Name]) {
 }
 
 object DotName {
+  lazy val Object: DotName = DotName(Name.Object)
+  lazy val ObjectAlias: DotName = DotName(Seq(Name.Internal, Name.Object$))
+
   def apply(name: String): DotName = {
     DotName(name.split('.').toSeq.map(p => Name(p)))
   }

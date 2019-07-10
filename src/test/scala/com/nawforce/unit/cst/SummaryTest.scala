@@ -30,7 +30,7 @@ package com.nawforce.unit.cst
 import java.io.ByteArrayInputStream
 import java.nio.file.{Path, Paths}
 
-import com.nawforce.api.{ConstructorSummary, FieldSummary, MethodSummary, Org, ParameterSummary, TypeSummary}
+import com.nawforce.api._
 import com.nawforce.types._
 import com.nawforce.utils.Name
 import org.scalatest.FunSuite

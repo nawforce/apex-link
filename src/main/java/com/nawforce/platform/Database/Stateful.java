@@ -25,27 +25,7 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.types
+package com.nawforce.platform.Database;
 
-import com.nawforce.utils.{DotName, Name}
-
-class TypeStore {
-  /** Base implementation of locating a type declaration from a name */
-  def getType(dotName: DotName) : Option[TypeDeclaration] = {
-
-    if (dotName == DotName.Object)
-      getPlatformType(DotName.ObjectAlias)
-    else
-      getPlatformType(dotName)
-        .orElse(getPlatformType(dotName.prepend(Name.System)))
-        .orElse(getPlatformType(dotName.prepend(Name.Schema)))
-  }
-
-  private def getPlatformType(name: DotName): Option[TypeDeclaration] = {
-    val declaration = PlatformTypeDeclaration.get(name)
-    if (declaration.isEmpty && name.isCompound)
-      getPlatformType(name.headNames).flatMap(_.nestedTypes.find(td => td.name == name.lastName))
-    else
-      declaration
-  }
+public interface Stateful {
 }

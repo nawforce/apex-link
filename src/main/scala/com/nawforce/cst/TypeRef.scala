@@ -33,7 +33,6 @@ import com.nawforce.utils.Name
 
 import scala.collection.JavaConverters._
 
-
 object TypeRef {
   def construct(aList: List[TypeRefContext], context: ConstructContext): List[TypeName] = {
     aList.map(x => TypeRef.construct(x, context))
@@ -41,13 +40,20 @@ object TypeRef {
 
   def construct(typeRef: TypeRefContext, context: ConstructContext): TypeName = {
     val arraySubs = typeRef.arraySubscripts().getText.count(_ == '[')
-    createTypeName(None, typeRef.typeName().asScala).withArraySubscripts(arraySubs)
+    createTypeName(None, typeRef.typeName().asScala, context).withArraySubscripts(arraySubs)
   }
 
-  private def createTypeName(outer: Option[TypeName], names: Seq[TypeNameContext]): TypeName = {
+  private def createTypeName(outer: Option[TypeName], names: Seq[TypeNameContext], context: ConstructContext)
+  : TypeName = {
+
+    val params = Option(names.head.typeArguments()).map(_.typeList().typeRef().asScala.toSeq).getOrElse(Seq())
+    val paramsTypes = params.map(param => TypeRef.construct(param, context))
+
     names match {
-      case hd +: Seq() => TypeName(Name(hd.getText)).withOuter(outer)
-      case hd +: tl => createTypeName(Some(TypeName(Name(hd.getText)).withOuter(outer)), tl)
+      case hd +: Seq() =>
+        TypeName(Name(hd.id().getText), paramsTypes, outer)
+      case hd +: tl =>
+        createTypeName(Some(TypeName(Name(hd.id().getText), paramsTypes, outer)), tl, context)
     }
   }
 }

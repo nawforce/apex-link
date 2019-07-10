@@ -40,6 +40,10 @@ class DependencyTest extends FunSuite {
   private val defaultPath: Path = Paths.get(defaultName.toString)
   private val defaultOrg: Org = new Org
 
+  private val listClass = defaultOrg.getType(DotName(Seq(Name.System, Name.List))).get
+  private val objectClass = defaultOrg.getType(DotName.Object).get
+  private val typeClass = defaultOrg.getType(DotName(Seq(Name.System, Name.Type))).get
+
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
     defaultOrg.issues.clear()
     val paths = classes.map(kv => {
@@ -133,8 +137,7 @@ class DependencyTest extends FunSuite {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    val typeClass = defaultOrg.getType(DotName(Seq(Name.System, Name.Type)))
-    assert(tds.head.blocks.head.dependencies() == Set(tds.tail.head, typeClass.get))
+    assert(tds.head.blocks.head.dependencies() == Set(tds.tail.head, typeClass))
   }
 
   test("Method return creates dependency") {
@@ -192,7 +195,7 @@ class DependencyTest extends FunSuite {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.blocks.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.blocks.head.dependencies() == Set(objectClass, tds.tail.head))
   }
 
   test("For control creates dependency") {
@@ -219,7 +222,7 @@ class DependencyTest extends FunSuite {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.methods.head.dependencies() == Set(tds.tail.head, objectClass))
   }
 
   test("Complex New creates dependency") {
@@ -228,8 +231,7 @@ class DependencyTest extends FunSuite {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    val listClass = defaultOrg.getType(DotName(Seq(Name.System, Name.List)))
-    assert(tds.head.methods.head.dependencies() == Set(tds.tail.head,listClass.get))
+    assert(tds.head.methods.head.dependencies() == Set(tds.tail.head, listClass, objectClass))
   }
 
   test("Class reference in Inner creates dependency") {
@@ -238,8 +240,8 @@ class DependencyTest extends FunSuite {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    val typeClass = defaultOrg.getType(DotName(Seq(Name.System, Name.Type)))
-    assert(tds.head.nestedTypes.head.blocks.head.dependencies() == Set(tds.tail.head, typeClass.get))
+
+    assert(tds.head.nestedTypes.head.blocks.head.dependencies() == Set(tds.tail.head, typeClass))
   }
 
   test("Method return in Inner creates dependency") {
@@ -297,7 +299,7 @@ class DependencyTest extends FunSuite {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.blocks.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.nestedTypes.head.blocks.head.dependencies() == Set(tds.tail.head, objectClass))
   }
 
   test("Inner For control creates dependency") {
@@ -324,7 +326,7 @@ class DependencyTest extends FunSuite {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.methods.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.nestedTypes.head.methods.head.dependencies() == Set(tds.tail.head, objectClass))
   }
 
   test("Inner Complex New creates dependency") {
@@ -333,7 +335,6 @@ class DependencyTest extends FunSuite {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    val listClass = defaultOrg.getType(DotName(Seq(Name.System, Name.List)))
-    assert(tds.head.nestedTypes.head.methods.head.dependencies() == Set(tds.tail.head,listClass.get))
+    assert(tds.head.nestedTypes.head.methods.head.dependencies() == Set(tds.tail.head,listClass, objectClass))
   }
 }
