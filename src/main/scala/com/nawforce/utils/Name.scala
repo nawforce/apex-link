@@ -64,6 +64,7 @@ object Name {
   lazy val Type: Name = cache("Type")
   lazy val Object: Name = cache("Object")
   lazy val Object$: Name = cache("Object$")
+  lazy val SObjects: Name = cache("SObjects")
   lazy val Internal: Name = cache("Internal")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }

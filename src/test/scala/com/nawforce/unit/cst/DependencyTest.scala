@@ -36,7 +36,7 @@ import com.nawforce.utils.{DotName, Name}
 import org.scalatest.FunSuite
 
 class DependencyTest extends FunSuite {
-  private val defaultName: Name = Name("Dummy")
+  private val defaultName: Name = Name("Dummy.cls")
   private val defaultPath: Path = Paths.get(defaultName.toString)
   private val defaultOrg: Org = new Org
 
@@ -45,7 +45,7 @@ class DependencyTest extends FunSuite {
   private val typeClass = defaultOrg.getType(DotName(Seq(Name.System, Name.Type))).get
 
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
-    defaultOrg.issues.clear()
+    defaultOrg.clear()
     val paths = classes.map(kv => {
       val fakePath = Paths.get(kv._1 + ".cls")
       defaultOrg.setInputStream(fakePath, new ByteArrayInputStream(kv._2.getBytes()))
@@ -166,6 +166,16 @@ class DependencyTest extends FunSuite {
     assert(!defaultOrg.issues.hasMessages)
     Org.current.withValue(defaultOrg) {
       assert(tds.head.fields.head.dependencies() == tds.tail.toSet)
+    }
+  }
+
+  test("Unknown Field type") {
+    val tds = typeDeclarations(Map(
+      "Dummy" -> "public class Dummy {A a;}"
+    ))
+    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 22-23: No type declaration found for 'A'")
+    Org.current.withValue(defaultOrg) {
+      assert(tds.head.fields.head.dependencies().isEmpty)
     }
   }
 

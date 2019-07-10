@@ -42,7 +42,7 @@ class ImplementsTest extends FunSuite {
   private val defaultOrg: Org = new Org
 
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
-    defaultOrg.issues.clear()
+    defaultOrg.clear()
     val paths = classes.map(kv => {
       val fakePath = Paths.get(kv._1 + ".cls")
       defaultOrg.setInputStream(fakePath, new ByteArrayInputStream(kv._2.getBytes()))

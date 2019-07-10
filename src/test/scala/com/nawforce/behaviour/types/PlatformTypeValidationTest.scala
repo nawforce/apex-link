@@ -28,13 +28,19 @@
 package com.nawforce.behaviour.types
 
 import com.nawforce.types._
-import com.nawforce.utils.DotName
+import com.nawforce.utils.{DotName, Name}
 import org.scalatest.FunSuite
 
 class PlatformTypeValidationTest extends FunSuite {
 
   test("Right number of types (should exclude inners)") {
     assert(PlatformTypeDeclaration.classNames.size == 1299)
+  }
+
+  test("SObject type is visible") {
+    val td = PlatformTypeDeclaration.get(DotName(Name("User")))
+    assert(td.nonEmpty)
+    assert(td.get.typeName == TypeName(Name("User"), Nil, None))
   }
 
   test("All outer types are valid") {

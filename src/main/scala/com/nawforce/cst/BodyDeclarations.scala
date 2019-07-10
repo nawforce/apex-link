@@ -27,6 +27,7 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types._
 import com.nawforce.utils.Name
@@ -183,8 +184,10 @@ final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeN
   override def children(): List[CST] = variableDeclarator :: Nil
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    context.getTypeAndAddDependency(typeName)
-    // TODO: Add error if not found
+    val td = context.getTypeAndAddDependency(typeName)
+    if (td.isEmpty)
+      Org.logMessage(variableDeclarator.id.textRange, s"No type declaration found for '${typeName.toString}'")
+
     variableDeclarator.verify(new BlockVerifyContext(context))
     depends = Some(context.dependencies)
   }

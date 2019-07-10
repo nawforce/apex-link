@@ -42,7 +42,7 @@ class FieldTest extends FunSuite {
 
   def typeDeclaration(clsText: String, hasMessages: Boolean = false): TypeDeclaration = {
     Org.current.withValue(defaultOrg) {
-      defaultOrg.issues.clear()
+      defaultOrg.clear()
       val td = ApexTypeDeclaration.create(Name.Empty, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
       if (td.isEmpty)
         defaultOrg.issues.dumpMessages(json = false)

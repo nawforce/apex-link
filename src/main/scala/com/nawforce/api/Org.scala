@@ -51,6 +51,13 @@ class Org extends TypeStore with LazyLogging {
   def issuesAsJSON: String = issues.asJSON(maxErrors = 100)
   def typeCount: Int= types.size()
 
+  def clear(): Unit = {
+    packages = Nil
+    types.clear()
+    inputStreams.clear()
+    issues.clear()
+  }
+
   /** Create a new package in the org, directories are priority ordered. Duplicate detection depends on metadata
     * type. */
   def addPackage(namespace: String, directories: Array[String]): Package = {
