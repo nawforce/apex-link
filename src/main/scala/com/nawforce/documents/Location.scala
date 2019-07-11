@@ -51,6 +51,17 @@ case class Position(line: Int, offset: Int) {
   def startPosition: (Int, Int) = (line, offset)
   def displayPosition: String = s"line $line at $offset"
   def asJSON: String = s"""{"line": $line, "offset": $offset}"""
+
+  def adjust(lineOffset: Int, positionOffset: Int): Position = {
+    if (lineOffset == 0 && positionOffset == 0) {
+      return this
+    }
+
+    if (line == 1)
+      Position(line + lineOffset, offset + positionOffset)
+    else
+      Position(line + lineOffset, offset)
+  }
 }
 
 case class TextRange(start: Position, end: Position) {
@@ -64,6 +75,17 @@ case class TextRange(start: Position, end: Position) {
 
   def asJSON: String =
     s""""start": ${start.asJSON}, "end": ${end.asJSON}"""
+
+  def adjust(lineOffset: Int, positionOffset: Int) : TextRange = {
+    if (lineOffset == 0 && positionOffset == 0) {
+      return this
+    }
+
+    TextRange(
+      start.adjust(lineOffset, positionOffset),
+      end.adjust(lineOffset, positionOffset)
+    )
+  }
 }
 
 case class PointLocation(_path: Path, start: Position) extends Location(_path, start.line) {

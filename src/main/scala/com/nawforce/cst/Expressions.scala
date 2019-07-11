@@ -27,6 +27,7 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types.TypeName
 
@@ -83,12 +84,13 @@ final case class NewExpression(creator: Creator) extends Expression {
   def resolve(context: ResolveExprContext): Unit = {}
 }
 
-final case class CastExpression(typeRef: TypeName, expression: Expression) extends Expression {
+final case class CastExpression(typeName: TypeName, expression: Expression) extends Expression {
   override def children(): List[CST] = expression :: Nil
 
   override def verify(context: ExpressionVerifyContext): Unit = {
-    context.getTypeAndAddDependency(typeRef)
-    // TODO: Check type found
+    val castType = context.getTypeAndAddDependency(typeName)
+    if (castType.isEmpty)
+      Org.logMessage(textRange, s"No type declaration found for '$typeName'")
     expression.verify(context)
   }
 
@@ -129,12 +131,13 @@ final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) 
   }
 }
 
-final case class InstanceOfExpression(expression: Expression, typeRef: TypeName) extends Expression {
+final case class InstanceOfExpression(expression: Expression, typeName: TypeName) extends Expression {
   override def children(): List[CST] = expression :: Nil
 
   override def verify(context: ExpressionVerifyContext): Unit = {
-    context.getTypeAndAddDependency(typeRef)
-    // TODO: Check type found
+    val instanceOfType = context.getTypeAndAddDependency(typeName)
+    if (instanceOfType.isEmpty)
+      Org.logMessage(textRange, s"No type declaration found for '$typeName'")
     expression.verify(context)
   }
 

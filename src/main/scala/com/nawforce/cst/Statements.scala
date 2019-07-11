@@ -44,7 +44,9 @@ trait Statement extends CST {
 }
 
 // Treat Block as Statement for blocks in blocks
-final case class Block(path: Path, bytes: Array[Byte], var blockContextRef: WeakReference[BlockContext]) extends CST with Statement {
+final case class Block(path: Path, bytes: Array[Byte], lineAdjust: Int, positionAdjust:Int,
+                       var blockContextRef: WeakReference[BlockContext])
+  extends CST with Statement {
   private var statementsRef: WeakReference[List[Statement]] = WeakReference(null)
 
   override def verify(context: BlockVerifyContext): Unit = {
@@ -53,10 +55,16 @@ final case class Block(path: Path, bytes: Array[Byte], var blockContextRef: Weak
 
   def statements(): List[Statement] = {
     if (statementsRef.get.isEmpty) {
-      if (blockContextRef.get.isEmpty)
-        blockContextRef = WeakReference(ApexTypeDeclaration.parseBlock(path, new ByteArrayInputStream(bytes)).get)
-      val statementContexts: Seq[StatementContext] = blockContextRef.get.head.statement().asScala
-      statementsRef = WeakReference(Statement.construct(statementContexts.toList, new ConstructContext))
+      if (blockContextRef.get.isEmpty) {
+        val rangeAdjust = CST.rangeAdjust.value
+        assert(rangeAdjust._1 == 0 && rangeAdjust._2 == 0)
+
+        CST.rangeAdjust.withValue((lineAdjust, positionAdjust)) {
+          blockContextRef = WeakReference(ApexTypeDeclaration.parseBlock(path, new ByteArrayInputStream(bytes)).get)
+          val statementContexts: Seq[StatementContext] = blockContextRef.get.head.statement().asScala
+          statementsRef = WeakReference(Statement.construct(statementContexts.toList, new ConstructContext))
+        }
+      }
     }
     statementsRef.get.getOrElse(List())
   }
@@ -75,7 +83,8 @@ object Block {
     val is = blockContext.start.getInputStream
     val text = is.getText(new Interval(blockContext.start.getStartIndex, blockContext.stop.getStopIndex))
     val path = Org.current.value.issues.context.value
-    Block(path, text.getBytes(), WeakReference(blockContext))
+    Block(path, text.getBytes(), blockContext.start.getLine-1, blockContext.start.getCharPositionInLine,
+      WeakReference(blockContext))
   }
 
   def constructOption(blockContext: BlockContext, context: ConstructContext): Option[Block] = {
@@ -218,19 +227,20 @@ object ForControl {
   }
 }
 
-final case class EnhancedForControl(modifiers: Seq[Modifier], typeRef: TypeName,
+final case class EnhancedForControl(modifiers: Seq[Modifier], typeName: TypeName,
                                     id: Id, expression: Expression) extends ForControl with VarIntroducer {
   override def children(): List[CST] = id :: expression :: Nil
 
   override def verify(context: BlockVerifyContext): Unit = {
-    context.getTypeAndAddDependency(typeRef)
-    // TODO: Check type
+    val forType = context.getTypeAndAddDependency(typeName)
+    if (forType.isEmpty)
+      Org.logMessage(id.textRange, s"No type declaration found for '$typeName'")
     expression.verify(context)
   }
 
   def resolve(context: ResolveStmtContext): Unit = {
     expression.resolve(new ResolveExprContext(context))
-    context.addVarDeclaration(VarDeclaration(id, typeRef, this))
+    context.addVarDeclaration(VarDeclaration(id, typeName, this))
   }
 }
 
@@ -426,8 +436,12 @@ object FinallyBlock {
 final case class CatchType(names: List[QualifiedName]) extends CST {
   override def children(): List[CST] = names
   def verify(context: BlockVerifyContext): Unit = {
-    names.foreach(name => context.getTypeAndAddDependency(TypeName(name.names)))
-    // TODO: Check types
+    names.foreach(name => {
+      val typeName = TypeName(name.names.reverse)
+      val catchType = context.getTypeAndAddDependency(typeName)
+      if (catchType.isEmpty)
+        Org.logMessage(name.textRange, s"No type declaration found for '$typeName'")
+    })
   }
 }
 

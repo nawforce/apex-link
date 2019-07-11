@@ -27,6 +27,7 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types.{ApexModifiers, Modifier, TypeName}
 
@@ -126,18 +127,20 @@ object VariableDeclarators {
 }
 
 
-final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeRef: TypeName, variableDeclarators: VariableDeclarators)
+final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeName: TypeName, variableDeclarators: VariableDeclarators)
   extends CST {
 
   override def children(): List[CST] = variableDeclarators :: Nil
 
   def verify(context: BlockVerifyContext): Unit = {
-    context.getTypeAndAddDependency(typeRef)
-    // TODO: Check type
+    val varType = context.getTypeAndAddDependency(typeName)
+    if (varType.isEmpty)
+      Org.logMessage(textRange, s"No type declaration found for '$typeName'")
+
     variableDeclarators.verify(context)
   }
 
-  def resolve(context: ResolveStmtContext): Unit = variableDeclarators.resolve(typeRef, context)
+  def resolve(context: ResolveStmtContext): Unit = variableDeclarators.resolve(typeName, context)
 }
 
 object LocalVariableDeclaration {

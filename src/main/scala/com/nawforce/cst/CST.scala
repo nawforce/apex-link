@@ -27,6 +27,7 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.api.Org
 import com.nawforce.documents.TextRange
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types.TypeName
@@ -35,6 +36,7 @@ import org.antlr.v4.runtime.ParserRuleContext
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.util.DynamicVariable
 
 class CSTException extends Exception
 
@@ -53,7 +55,8 @@ abstract class CST {
   }
 
   def withContext(context: ParserRuleContext, constructContext: ConstructContext): this.type = {
-    textRange = TextRange(context)
+    val positionAdjust = CST.rangeAdjust.value
+    textRange = TextRange(context).adjust(positionAdjust._1, positionAdjust._2)
     this
   }
 
@@ -70,6 +73,10 @@ abstract class CST {
       case _ => this.children().flatMap(_.findStatements(onlyOuter))
     }
   }
+}
+
+object CST {
+  val rangeAdjust: DynamicVariable[(Int, Int)] = new DynamicVariable[(Int,Int)]((0,0))
 }
 
 class CSTIndex {

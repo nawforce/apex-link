@@ -259,7 +259,6 @@ localVariableDeclaration
 
 statement
     : block
-    | localVariableDeclarationStatement
     | ifStatement
     | switchStatement
     | forStatement
@@ -277,6 +276,7 @@ statement
     | upsertStatement
     | mergeStatement
     | runAsStatement
+    | localVariableDeclarationStatement
     | expressionStatement
     ;
 

@@ -2698,9 +2698,6 @@ public class ApexParser extends Parser {
 		public BlockContext block() {
 			return getRuleContext(BlockContext.class,0);
 		}
-		public LocalVariableDeclarationStatementContext localVariableDeclarationStatement() {
-			return getRuleContext(LocalVariableDeclarationStatementContext.class,0);
-		}
 		public IfStatementContext ifStatement() {
 			return getRuleContext(IfStatementContext.class,0);
 		}
@@ -2752,6 +2749,9 @@ public class ApexParser extends Parser {
 		public RunAsStatementContext runAsStatement() {
 			return getRuleContext(RunAsStatementContext.class,0);
 		}
+		public LocalVariableDeclarationStatementContext localVariableDeclarationStatement() {
+			return getRuleContext(LocalVariableDeclarationStatementContext.class,0);
+		}
 		public ExpressionStatementContext expressionStatement() {
 			return getRuleContext(ExpressionStatementContext.class,0);
 		}
@@ -2779,126 +2779,126 @@ public class ApexParser extends Parser {
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(507);
-				localVariableDeclarationStatement();
+				ifStatement();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(508);
-				ifStatement();
+				switchStatement();
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(509);
-				switchStatement();
+				forStatement();
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
 				setState(510);
-				forStatement();
+				whileStatement();
 				}
 				break;
 			case 6:
 				enterOuterAlt(_localctx, 6);
 				{
 				setState(511);
-				whileStatement();
+				doWhileStatement();
 				}
 				break;
 			case 7:
 				enterOuterAlt(_localctx, 7);
 				{
 				setState(512);
-				doWhileStatement();
+				tryStatement();
 				}
 				break;
 			case 8:
 				enterOuterAlt(_localctx, 8);
 				{
 				setState(513);
-				tryStatement();
+				returnStatement();
 				}
 				break;
 			case 9:
 				enterOuterAlt(_localctx, 9);
 				{
 				setState(514);
-				returnStatement();
+				throwStatement();
 				}
 				break;
 			case 10:
 				enterOuterAlt(_localctx, 10);
 				{
 				setState(515);
-				throwStatement();
+				breakStatement();
 				}
 				break;
 			case 11:
 				enterOuterAlt(_localctx, 11);
 				{
 				setState(516);
-				breakStatement();
+				continueStatement();
 				}
 				break;
 			case 12:
 				enterOuterAlt(_localctx, 12);
 				{
 				setState(517);
-				continueStatement();
+				insertStatement();
 				}
 				break;
 			case 13:
 				enterOuterAlt(_localctx, 13);
 				{
 				setState(518);
-				insertStatement();
+				updateStatement();
 				}
 				break;
 			case 14:
 				enterOuterAlt(_localctx, 14);
 				{
 				setState(519);
-				updateStatement();
+				deleteStatement();
 				}
 				break;
 			case 15:
 				enterOuterAlt(_localctx, 15);
 				{
 				setState(520);
-				deleteStatement();
+				undeleteStatement();
 				}
 				break;
 			case 16:
 				enterOuterAlt(_localctx, 16);
 				{
 				setState(521);
-				undeleteStatement();
+				upsertStatement();
 				}
 				break;
 			case 17:
 				enterOuterAlt(_localctx, 17);
 				{
 				setState(522);
-				upsertStatement();
+				mergeStatement();
 				}
 				break;
 			case 18:
 				enterOuterAlt(_localctx, 18);
 				{
 				setState(523);
-				mergeStatement();
+				runAsStatement();
 				}
 				break;
 			case 19:
 				enterOuterAlt(_localctx, 19);
 				{
 				setState(524);
-				runAsStatement();
+				localVariableDeclarationStatement();
 				}
 				break;
 			case 20:
@@ -6225,12 +6225,12 @@ public class ApexParser extends Parser {
 		"\u01f1\5L\'\2\u01f1\u01f2\7K\2\2\u01f2K\3\2\2\2\u01f3\u01f5\5\26\f\2\u01f4"+
 		"\u01f3\3\2\2\2\u01f5\u01f8\3\2\2\2\u01f6\u01f4\3\2\2\2\u01f6\u01f7\3\2"+
 		"\2\2\u01f7\u01f9\3\2\2\2\u01f8\u01f6\3\2\2\2\u01f9\u01fa\5,\27\2\u01fa"+
-		"\u01fb\5$\23\2\u01fbM\3\2\2\2\u01fc\u0211\5H%\2\u01fd\u0211\5J&\2\u01fe"+
-		"\u0211\5P)\2\u01ff\u0211\5R*\2\u0200\u0211\5V,\2\u0201\u0211\5X-\2\u0202"+
-		"\u0211\5Z.\2\u0203\u0211\5\\/\2\u0204\u0211\5^\60\2\u0205\u0211\5`\61"+
-		"\2\u0206\u0211\5b\62\2\u0207\u0211\5d\63\2\u0208\u0211\5f\64\2\u0209\u0211"+
-		"\5h\65\2\u020a\u0211\5j\66\2\u020b\u0211\5l\67\2\u020c\u0211\5n8\2\u020d"+
-		"\u0211\5p9\2\u020e\u0211\5r:\2\u020f\u0211\5t;\2\u0210\u01fc\3\2\2\2\u0210"+
+		"\u01fb\5$\23\2\u01fbM\3\2\2\2\u01fc\u0211\5H%\2\u01fd\u0211\5P)\2\u01fe"+
+		"\u0211\5R*\2\u01ff\u0211\5V,\2\u0200\u0211\5X-\2\u0201\u0211\5Z.\2\u0202"+
+		"\u0211\5\\/\2\u0203\u0211\5^\60\2\u0204\u0211\5`\61\2\u0205\u0211\5b\62"+
+		"\2\u0206\u0211\5d\63\2\u0207\u0211\5f\64\2\u0208\u0211\5h\65\2\u0209\u0211"+
+		"\5j\66\2\u020a\u0211\5l\67\2\u020b\u0211\5n8\2\u020c\u0211\5p9\2\u020d"+
+		"\u0211\5r:\2\u020e\u0211\5J&\2\u020f\u0211\5t;\2\u0210\u01fc\3\2\2\2\u0210"+
 		"\u01fd\3\2\2\2\u0210\u01fe\3\2\2\2\u0210\u01ff\3\2\2\2\u0210\u0200\3\2"+
 		"\2\2\u0210\u0201\3\2\2\2\u0210\u0202\3\2\2\2\u0210\u0203\3\2\2\2\u0210"+
 		"\u0204\3\2\2\2\u0210\u0205\3\2\2\2\u0210\u0206\3\2\2\2\u0210\u0207\3\2"+

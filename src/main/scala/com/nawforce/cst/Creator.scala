@@ -27,6 +27,7 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser.{CreatedNameContext, CreatorContext, IdCreatedNamePairContext}
 import com.nawforce.types.TypeName
 
@@ -36,8 +37,10 @@ final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
   override def children(): List[CST] = idPairs
 
   def verify(context: ExpressionVerifyContext): Unit = {
-    context.getTypeAndAddDependency(createTypeName(None, idPairs.map(_.typeName)))
-    // TODO: Add error if not found
+    val typeName = createTypeName(None, idPairs.map(_.typeName))
+    val newType = context.getTypeAndAddDependency(typeName)
+    if (newType.isEmpty)
+      Org.logMessage(textRange, s"No type declaration found for '$typeName'")
   }
 
   private def createTypeName(outer: Option[TypeName], names: Seq[TypeName]): TypeName = {

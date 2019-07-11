@@ -131,8 +131,11 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: Type
   override val name: Name = id.name
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    val returnType = context.getTypeAndAddDependency(typeName)
-    // TODO: Add error if not found
+    if (typeName != TypeName.Void) {
+      val returnType = context.getTypeAndAddDependency(typeName)
+      if (returnType.isEmpty)
+        Org.logMessage(id.textRange, s"No type declaration found for '$typeName'")
+    }
     parameters.foreach(_.verify(context))
 
     val blockContext = new BlockVerifyContext(context)
@@ -238,8 +241,9 @@ final case class FormalParameter(modifiers: Seq[Modifier], typeName: TypeName, i
   val name: Name = id.name
 
   def verify(context: BodyDeclarationVerifyContext): Unit = {
-    context.getTypeAndAddDependency(typeName)
-    // TODO: Add error if not found
+    val paramType = context.getTypeAndAddDependency(typeName)
+    if (paramType.isEmpty)
+      Org.logMessage(id.textRange, s"No type declaration found for '$typeName'")
   }
 }
 
