@@ -29,7 +29,6 @@ package com.nawforce.cst
 
 import com.nawforce.documents.TextRange
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.TypeName
 import com.nawforce.utils.Name
 import org.antlr.v4.runtime.ParserRuleContext
 

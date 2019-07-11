@@ -36,39 +36,48 @@ trait DocumentType {
   val name: Name
 }
 
-class PathDocument(val path: Path) extends DocumentType {
-  lazy val name = Name(path.getFileName.toString)
+class PathDocument(val path: Path, val name: Name) extends DocumentType {
 }
 
-abstract class MetadataDocumentType(path: Path) extends PathDocument(path) {
+abstract class MetadataDocumentType(_path: Path, _name: Name)
+  extends PathDocument(_path, _name) {
   val extension: Name
   val ignorable: Boolean = false
 }
 
-case class ApexDocument(_path: Path) extends MetadataDocumentType(_path) {
+case class ApexDocument(_path: Path, _name: Name)
+  extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("cls")
   override val ignorable: Boolean = {
     path.toFile.length() == 8 && new String(Files.readAllBytes(path)) == "(hidden)"
   }
 }
 
+case class CustomObjectDocument(_path: Path, _name: Name)
+  extends MetadataDocumentType(_path, _name) {
+  lazy val extension: Name = Name("object")
+  override val ignorable: Boolean = {
+    path.toFile.length() == 8 && new String(Files.readAllBytes(path)) == "(hidden)"
+  }
+}
+
 object DocumentType {
-  def apply(path: Path): DocumentType = {
-    extensionOf(path) match {
-      case Some("cls") => ApexDocument(path)
-      case _ => new PathDocument(path)
+  def apply(path: Path): Option[DocumentType] = {
+    splitFilename(path) match {
+      case Seq(name, Name("cls")) =>
+        Some(ApexDocument(path, name))
+      case Seq(name, Name("object")) if name.value.endsWith("__c") =>
+        Some(CustomObjectDocument(path, name))
+      case Seq(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__c") =>
+        Some(CustomObjectDocument(path, name))
+      case _ => None
     }
   }
 
-  def apply(file: File): DocumentType = apply(file.toPath)
+  def apply(file: File): Option[DocumentType] = apply(file.toPath)
 
-  private def extensionOf(path: Path): Option[String] = {
-    val pathToFile = path.toString
-    val splitAt = pathToFile.lastIndexOf('.')
-    if (splitAt == -1)
-      None
-    else
-      Some(pathToFile.substring(splitAt+1).toLowerCase())
+  private def splitFilename(path: Path): Seq[Name] = {
+    path.getFileName.toString.split('.').map(part => Name(part))
   }
 }
 

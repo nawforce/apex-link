@@ -31,8 +31,8 @@ import java.io.{FileInputStream, InputStream}
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 
-import com.nawforce.documents.{ApexDocument, DocumentType, Location, TextRange}
-import com.nawforce.types.{ApexTypeDeclaration, TypeDeclaration, TypeStore}
+import com.nawforce.documents._
+import com.nawforce.types.{ApexTypeDeclaration, CustomObjectDeclaration, TypeDeclaration, TypeStore}
 import com.nawforce.utils.{DotName, IssueLog, Name}
 import com.typesafe.scalalogging.LazyLogging
 
@@ -94,7 +94,7 @@ class Org extends TypeStore with LazyLogging {
     val newDeclarations = files.grouped(100).flatMap(group => {
       val parsed = group.par.flatMap(path => {
         DocumentType(path) match {
-          case docType: ApexDocument =>
+          case Some(docType: ApexDocument) =>
             issues.context.withValue(path) {
               val start = System.currentTimeMillis()
               val typeDeclaration = ApexTypeDeclaration.create(namespace, docType.path, getInputStream(docType.path))
@@ -102,6 +102,15 @@ class Org extends TypeStore with LazyLogging {
               logger.debug(s"Parsed ${docType.path.toString} in ${end - start}ms")
               typeDeclaration
             }
+          case Some(docType: CustomObjectDocument) =>
+            issues.context.withValue(path) {
+              val start = System.currentTimeMillis()
+              val typeDeclaration = CustomObjectDeclaration.create(namespace, docType.path, getInputStream(docType.path))
+              val end = System.currentTimeMillis()
+              logger.debug(s"Parsed ${docType.path.toString} in ${end - start}ms")
+              typeDeclaration
+            }
+          case _ => None
         }
       })
       System.gc()
@@ -127,7 +136,7 @@ class Org extends TypeStore with LazyLogging {
   }
 
   /** Upsert a type declaration in the Org */
-  def upsertType(declaration: ApexTypeDeclaration): Unit = {
+  def upsertType(declaration: TypeDeclaration): Unit = {
     Org.current.withValue(this) {
       types.put(declaration.typeName.asDotName, declaration)
     }

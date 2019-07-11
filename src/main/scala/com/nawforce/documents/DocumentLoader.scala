@@ -64,9 +64,9 @@ class DocumentLoader(paths: Seq[Path]) {
     }
   }
 
-  private def insertDocument(documentType: DocumentType): Unit = {
+  private def insertDocument(documentType: Option[DocumentType]): Unit = {
     documentType match {
-      case docType: MetadataDocumentType if !docType.ignorable =>
+      case Some(docType: MetadataDocumentType) if !docType.ignorable =>
         val duplicate = documentByName.get(docType.name)
         if (duplicate.nonEmpty) {
           Org.logMessage(LineLocation(docType.path, 0), s"File has same name as ${duplicate.get}, ignoring")

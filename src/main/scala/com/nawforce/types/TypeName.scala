@@ -77,6 +77,7 @@ object TypeName {
   lazy val Object = TypeName(Name("Object"))
   lazy val System = TypeName(Name("System"))
   lazy val Schema = TypeName(Name("Schema"))
+  lazy val SObject = TypeName(Name.SObject, Nil, Some(TypeName.System))
 
   lazy val Null = TypeName(Name("null"))
   lazy val Long = TypeName(Name("Long"))
