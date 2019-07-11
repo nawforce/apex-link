@@ -41,26 +41,18 @@ final case class ExpressionPrimary(expression: Expression) extends Primary {
   override def verify(context: ExpressionVerifyContext): Unit = {
     expression.verify(context)
   }
-
-  override def getType(ctx: TypeContext): TypeName = expression.getType(ctx)
 }
 
 final case class ThisPrimary() extends Primary {
   override def children(): List[CST] = Nil
-
-  override def getType(ctx: TypeContext): TypeName = ctx.thisType
 }
 
 final case class SuperPrimary() extends Primary {
   override def children(): List[CST] = Nil
-
-  override def getType(ctx: TypeContext): TypeName = ctx.superType
 }
 
 final case class LiteralPrimary(literal: Literal) extends Primary {
   override def children(): List[CST] = literal :: Nil
-
-  override def getType(ctx: TypeContext): TypeName = literal.getType(ctx)
 }
 
 final case class QualifiedNamePrimary(typeName: TypeName) extends Primary {
@@ -71,13 +63,6 @@ final case class QualifiedNamePrimary(typeName: TypeName) extends Primary {
     val isClassRef = typeName.name == Name.Class && typeName.outer.nonEmpty
     context.getTypeAndAddDependency(if (isClassRef) typeName.outer.get else typeName)
   }
-
-  override def getType(ctx: TypeContext): TypeName = typeName
-}
-
-// Fake node for linking variable refs to their declarations
-final case class VarRef(varDeclaration: VarDeclaration) extends Primary {
-  override def children(): List[CST] = List(varDeclaration.id)
 }
 
 final case class SOQL(soql: String) extends Primary {

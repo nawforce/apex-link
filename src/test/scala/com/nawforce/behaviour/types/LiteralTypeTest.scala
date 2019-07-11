@@ -31,46 +31,29 @@ import com.nawforce.cst._
 import com.nawforce.types.TypeName
 import org.scalatest.FunSuite
 
-class TypePrimaryTest extends FunSuite
+class LiteralTypeTest extends FunSuite
 {
-  def primary(p: String, r: TypeName, ctx: TypeContext = null) : Unit =
-    TypeTestHelper.comparePrimary(p, r, ctx)
+  def literal(p: String, r: TypeName, ctx: TypeContext = null) : Unit =
+    TypeTestHelper.compareLiteral(p, r, ctx)
 
   test("Primary literal") {
-    primary("0", TypeName.Integer)
-    primary("1", TypeName.Integer)
-    primary("0l", TypeName.Long)
-    primary("1l", TypeName.Long)
-    primary("0L", TypeName.Long)
-    primary("1L", TypeName.Long)
-    primary("''", TypeName.String)
-    primary("'a'", TypeName.String)
-    primary("'az'", TypeName.String)
-    primary("'\t'", TypeName.String)
-    primary("true", TypeName.Boolean)
-    primary("False", TypeName.Boolean)
-    primary("null", TypeName.Null)
-    primary("0.0", TypeName.Decimal)
-    primary(".0", TypeName.Decimal)
-    primary("0.123", TypeName.Decimal)
-    primary("0.123456789012345678901234567890123456789012345678", TypeName.Decimal)
-    primary("0.1234567890123456789012345678901234567890123456789", TypeName.Double)
+    literal("0", TypeName.Integer)
+    literal("1", TypeName.Integer)
+    literal("0l", TypeName.Long)
+    literal("1l", TypeName.Long)
+    literal("0L", TypeName.Long)
+    literal("1L", TypeName.Long)
+    literal("''", TypeName.String)
+    literal("'a'", TypeName.String)
+    literal("'az'", TypeName.String)
+    literal("'\t'", TypeName.String)
+    literal("true", TypeName.Boolean)
+    literal("False", TypeName.Boolean)
+    literal("null", TypeName.Null)
+    literal("0.0", TypeName.Decimal)
+    literal(".0", TypeName.Decimal)
+    literal("0.123", TypeName.Decimal)
+    literal("0.123456789012345678901234567890123456789012345678", TypeName.Decimal)
+    literal("0.1234567890123456789012345678901234567890123456789", TypeName.Double)
   }
-
-  test("This literal") {
-    val ctx = new TypeContextTest(_thisType = TypeName.Null)
-    primary("this", TypeName.Null, ctx)
-  }
-
-  test("Super literal") {
-    val ctx = new TypeContextTest(_superType = TypeName.Null)
-    primary("super", TypeName.Null, ctx)
-  }
-
-  /* TODO Re-enable ?
-  test("Field") {
-    val ctx = new TypeContextTest(identifierTypes = Map(("anId", TypeName.Null)))
-    primary("anId", TypeName.Null, ctx)
-  }
-  */
 }

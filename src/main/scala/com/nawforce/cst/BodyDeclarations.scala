@@ -58,7 +58,6 @@ abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST {
   }
 
   protected def verify(context: BodyDeclarationVerifyContext): Unit
-  def resolve(index: CSTIndex): Unit = {}
 }
 
 object ClassBodyDeclaration {
@@ -110,10 +109,6 @@ final case class InitialiserBlock(_modifiers: Seq[Modifier], block: Block)
     block.verify(blockContext)
     depends = Some(context.dependencies)
   }
-
-  override def resolve(index: CSTIndex): Unit = {
-    index.add(this)
-  }
 }
 
 object InitialiserBlock {
@@ -141,13 +136,6 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: Type
     val blockContext = new BlockVerifyContext(context)
     block.foreach(_.verify(blockContext))
     depends = Some(context.dependencies)
-  }
-
-  override def resolve(index: CSTIndex): Unit = {
-    index.add(this)
-    val rc = new ResolveStmtContext(index)
-    block.foreach(b => b.resolve(rc))
-    rc.complete()
   }
 }
 

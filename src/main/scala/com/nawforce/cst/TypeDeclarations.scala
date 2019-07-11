@@ -74,11 +74,6 @@ final case class ClassDeclaration(_id: Id, _outerContext: Either[Name, TypeName]
     }
     super.verify(new TypeVerifyContext(Some(context), this))
   }
-
-  override def resolve(index: CSTIndex): Unit = {
-    index.add(this)
-    bodyDeclarations.foreach(_.resolve(index))
-  }
 }
 
 object ClassDeclaration {
@@ -135,10 +130,6 @@ final case class InterfaceDeclaration(_id: Id, _outerContext: Either[Name, TypeN
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     super.verify(new TypeVerifyContext(Some(context), this))
   }
-
-  override def resolve(index: CSTIndex): Unit = {
-    index.add(this)
-  }
 }
 
 object InterfaceDeclaration {
@@ -168,10 +159,6 @@ final case class EnumDeclaration(_id: Id, _outerContext: Either[Name, TypeName],
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     super.verify(new TypeVerifyContext(Some(context), this))
-  }
-
-  override def resolve(index: CSTIndex): Unit = {
-    index.add(this)
   }
 }
 

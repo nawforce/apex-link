@@ -35,7 +35,6 @@ import scala.collection.JavaConverters._
 
 trait ExpressionRHS extends CST {
   def verify(context: ExpressionVerifyContext): Unit
-  def resolve(context: ResolveExprContext)
 }
 
 sealed abstract class Expression extends CST {
@@ -43,7 +42,6 @@ sealed abstract class Expression extends CST {
   def verify(context: BlockVerifyContext): Unit = {
     verify(new ExpressionVerifyContext(context))
   }
-  def resolve(context: ResolveExprContext)
 }
 
 final case class LHSExpression(lhs: Expression, rhs: ExpressionRHS) extends Expression {
@@ -52,11 +50,6 @@ final case class LHSExpression(lhs: Expression, rhs: ExpressionRHS) extends Expr
   override def verify(context: ExpressionVerifyContext): Unit = {
     lhs.verify(context)
     rhs.verify(context)
-  }
-
-  override def resolve(context: ResolveExprContext): Unit = {
-    lhs.resolve(context)
-    rhs.resolve(context)
   }
 }
 
@@ -67,11 +60,6 @@ final case class FunctionCall(callee: Expression, arguments: List[Expression]) e
     callee.verify(context)
     arguments.foreach(_.verify(context))
   }
-
-  override def resolve(context: ResolveExprContext): Unit = {
-    callee.resolve(context)
-    arguments.foreach(_.resolve(context))
-  }
 }
 
 final case class NewExpression(creator: Creator) extends Expression {
@@ -80,8 +68,6 @@ final case class NewExpression(creator: Creator) extends Expression {
   override def verify(context: ExpressionVerifyContext): Unit = {
     creator.verify(context)
   }
-
-  def resolve(context: ResolveExprContext): Unit = {}
 }
 
 final case class CastExpression(typeName: TypeName, expression: Expression) extends Expression {
@@ -93,8 +79,6 @@ final case class CastExpression(typeName: TypeName, expression: Expression) exte
       Org.logMessage(textRange, s"No type declaration found for '$typeName'")
     expression.verify(context)
   }
-
-  def resolve(context: ResolveExprContext): Unit = expression.resolve(context)
 }
 
 final case class PostOpExpression(expression: Expression, op: String) extends Expression {
@@ -103,8 +87,6 @@ final case class PostOpExpression(expression: Expression, op: String) extends Ex
   override def verify(context: ExpressionVerifyContext): Unit = {
     expression.verify(context)
   }
-
-  def resolve(context: ResolveExprContext): Unit = expression.resolve(context)
 }
 
 final case class PreOpExpression(expression: Expression, op: String) extends Expression {
@@ -113,8 +95,6 @@ final case class PreOpExpression(expression: Expression, op: String) extends Exp
   override def verify(context: ExpressionVerifyContext): Unit = {
     expression.verify(context)
   }
-
-  def resolve(context: ResolveExprContext): Unit = expression.resolve(context)
 }
 
 final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) extends Expression {
@@ -123,11 +103,6 @@ final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) 
   override def verify(context: ExpressionVerifyContext): Unit = {
     lhs.verify(context)
     rhs.verify(context)
-  }
-
-  override def resolve(context: ResolveExprContext): Unit = {
-    lhs.resolve(context)
-    rhs.resolve(context)
   }
 }
 
@@ -140,8 +115,6 @@ final case class InstanceOfExpression(expression: Expression, typeName: TypeName
       Org.logMessage(textRange, s"No type declaration found for '$typeName'")
     expression.verify(context)
   }
-
-  override def resolve(context: ResolveExprContext): Unit = expression.resolve(context)
 }
 
 final case class QueryExpression(query: Expression, lhs: Expression, rhs: Expression) extends Expression {
@@ -152,12 +125,6 @@ final case class QueryExpression(query: Expression, lhs: Expression, rhs: Expres
     lhs.verify(context)
     rhs.verify(context)
   }
-
-  override def resolve(context: ResolveExprContext): Unit = {
-    query.resolve(context)
-    lhs.resolve(context)
-    rhs.resolve(context)
-  }
 }
 
 final case class PrimaryExpression(var primary: Primary) extends Expression {
@@ -166,26 +133,12 @@ final case class PrimaryExpression(var primary: Primary) extends Expression {
   override def verify(context: ExpressionVerifyContext): Unit = {
     primary.verify(context)
   }
-
-  override def resolve(context: ResolveExprContext): Unit = {
-    // Link variable reference
-    /* TODO: Do we need this
-    primary match {
-      case Id(name) =>
-        context.getVarDeclaration(name).foreach(declaration => {
-          primary = VarRef(declaration)
-        })
-      case _ =>
-    }*/
-  }
 }
 
 final case class RHSId(id: String) extends ExpressionRHS {
   override def children(): List[CST] = Nil
 
   override def verify(context: ExpressionVerifyContext): Unit = {}
-
-  override def resolve(context: ResolveExprContext): Unit = {}
 }
 
 final case class RHSArrayExpression(expression: Expression) extends ExpressionRHS {
@@ -194,8 +147,6 @@ final case class RHSArrayExpression(expression: Expression) extends ExpressionRH
   override def verify(context: ExpressionVerifyContext): Unit = {
     expression.verify(context)
   }
-
-  override def resolve(context: ResolveExprContext): Unit = expression.resolve(context)
 }
 
 object Expression {

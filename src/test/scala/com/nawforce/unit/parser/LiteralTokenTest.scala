@@ -35,7 +35,7 @@ import com.nawforce.utils.ThrowingErrorListener
 import org.antlr.v4.runtime.CommonTokenStream
 import org.scalatest.FunSuite
 
-class LiteralTest extends FunSuite {
+class LiteralTokenTest extends FunSuite {
 
   def literal(literal: String): LiteralContext = {
     val listener = new ThrowingErrorListener

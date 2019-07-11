@@ -80,7 +80,7 @@ object ArrayVariableInitializer {
   }
 }
 
-final case class VariableDeclarator(id: Id, init: Option[VariableInitializer]) extends CST with VarIntroducer {
+final case class VariableDeclarator(id: Id, init: Option[VariableInitializer]) extends CST {
   override def children(): List[CST] = List[CST](id) ++ init
 
   def verify(context: BlockVerifyContext): Unit = {
@@ -107,16 +107,6 @@ final case class VariableDeclarators(declarators: List[VariableDeclarator]) exte
   def verify(context: BlockVerifyContext): Unit = {
     declarators.foreach(_.verify(context))
   }
-
-  def resolve(typeRef: TypeName, context: ResolveStmtContext): Unit = {
-    declarators.foreach(x => {
-      context.addVarDeclaration(VarDeclaration(x.id, typeRef, x))
-      x.init.foreach {
-        case ExpressionVariableInitializer(expression) => x.addAssign(expression)
-        case _ =>
-      }
-    })
-  }
 }
 
 object VariableDeclarators {
@@ -139,8 +129,6 @@ final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeName: Ty
 
     variableDeclarators.verify(context)
   }
-
-  def resolve(context: ResolveStmtContext): Unit = variableDeclarators.resolve(typeName, context)
 }
 
 object LocalVariableDeclaration {

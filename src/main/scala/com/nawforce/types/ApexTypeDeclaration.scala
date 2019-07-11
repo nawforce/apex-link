@@ -156,8 +156,6 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
 
     depends = Some(context.dependencies)
   }
-
-  def resolve(index: CSTIndex)
 }
 
 object ApexTypeDeclaration {

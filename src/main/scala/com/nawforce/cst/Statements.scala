@@ -40,7 +40,6 @@ import scala.ref.WeakReference
 
 trait Statement extends CST {
   def verify(context: BlockVerifyContext): Unit
-  def resolve(context: ResolveStmtContext)
 }
 
 // Treat Block as Statement for blocks in blocks
@@ -70,12 +69,6 @@ final case class Block(path: Path, bytes: Array[Byte], lineAdjust: Int, position
   }
 
   override def children(): List[CST] = statements()
-
-  override def resolve(context: ResolveStmtContext): Unit = {
-    context.pushBlock()
-    statements().foreach(_.resolve(context))
-    context.popBlock()
-  }
 }
 
 object Block {
@@ -101,8 +94,6 @@ final case class LocalVariableDeclarationStatement(localVariableDeclaration: Loc
   override def verify(context: BlockVerifyContext): Unit = {
     localVariableDeclaration.verify(context)
   }
-
-  override def resolve(context: ResolveStmtContext): Unit = localVariableDeclaration.resolve(context)
 }
 
 object LocalVariableDeclarationStatement {
@@ -117,13 +108,6 @@ final case class IfStatement(expression: Expression, statements: List[Statement]
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
     statements.foreach(_.verify(context))
-  }
-
-  override def resolve(context: ResolveStmtContext): Unit = {
-    expression.resolve(new ResolveExprContext(context))
-    context.pushBlock()
-    statements.foreach(_.resolve(context))
-    context.popBlock()
   }
 }
 
@@ -141,12 +125,6 @@ final case class WhenControl(expressions: List[Expression], block: Block) extend
   def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
     block.verify(context)
-  }
-
-  def resolve(context: ResolveStmtContext): Unit = {
-    val erc = new ResolveExprContext(context)
-    expressions.foreach(_.resolve(erc))
-    block.resolve(context)
   }
 }
 
@@ -169,11 +147,6 @@ final case class SwitchStatement(expression: Expression, whenControls: List[When
     expression.verify(context)
     whenControls.foreach(_.verify(context))
   }
-
-  override def resolve(context: ResolveStmtContext): Unit = {
-    expression.resolve(new ResolveExprContext(context))
-    whenControls.foreach(_.resolve(context))
-  }
 }
 
 object SwitchStatement {
@@ -194,13 +167,6 @@ final case class ForStatement(control: ForControl, statement: Statement) extends
     control.verify(context)
     statement.verify(context)
   }
-
-  override def resolve(context: ResolveStmtContext): Unit = {
-    context.pushBlock()
-    control.resolve(context)
-    statement.resolve(context)
-    context.popBlock()
-  }
 }
 
 object ForStatement {
@@ -211,8 +177,6 @@ object ForStatement {
 
 sealed abstract class ForControl extends CST {
   def verify(context: BlockVerifyContext): Unit
-  def resolve(context: ResolveStmtContext): Unit
-
 }
 
 object ForControl {
@@ -228,7 +192,7 @@ object ForControl {
 }
 
 final case class EnhancedForControl(modifiers: Seq[Modifier], typeName: TypeName,
-                                    id: Id, expression: Expression) extends ForControl with VarIntroducer {
+                                    id: Id, expression: Expression) extends ForControl {
   override def children(): List[CST] = id :: expression :: Nil
 
   override def verify(context: BlockVerifyContext): Unit = {
@@ -236,11 +200,6 @@ final case class EnhancedForControl(modifiers: Seq[Modifier], typeName: TypeName
     if (forType.isEmpty)
       Org.logMessage(id.textRange, s"No type declaration found for '$typeName'")
     expression.verify(context)
-  }
-
-  def resolve(context: ResolveStmtContext): Unit = {
-    expression.resolve(new ResolveExprContext(context))
-    context.addVarDeclaration(VarDeclaration(id, typeName, this))
   }
 }
 
@@ -262,12 +221,6 @@ final case class BasicForControl(forInit: Option[ForInit], expression: Option[Ex
     forInit.foreach(_.verify(context))
     expression.foreach(_.verify(context))
     forUpdate.foreach(_.verify(context))
-  }
-
-  def resolve(context: ResolveStmtContext): Unit = {
-    forInit.foreach(_.resolve(context))
-    expression.foreach(_.resolve(new ResolveExprContext(context)))
-    forUpdate.foreach(_.resolve(context))
   }
 }
 
@@ -297,7 +250,6 @@ object BasicForControl {
 
 sealed abstract class ForInit extends CST {
   def verify(context: BlockVerifyContext): Unit
-  def resolve(context: ResolveStmtContext): Unit
 }
 
 final case class LocalVariableForInit(variable: LocalVariableDeclaration) extends ForInit {
@@ -306,8 +258,6 @@ final case class LocalVariableForInit(variable: LocalVariableDeclaration) extend
   override def verify(context: BlockVerifyContext): Unit = {
     variable.verify(context)
   }
-
-  def resolve(context: ResolveStmtContext): Unit = variable.resolve(context)
 }
 
 final case class ExpressionListForInit(expressions: List[Expression]) extends ForInit {
@@ -316,8 +266,6 @@ final case class ExpressionListForInit(expressions: List[Expression]) extends Fo
   override def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
   }
-
-  def resolve(context: ResolveStmtContext): Unit = expressions.foreach(_.resolve(new ResolveExprContext(context)))
 }
 
 object ForInit {
@@ -341,8 +289,6 @@ final case class ForUpdate(expressions: List[Expression]) extends CST {
   def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
   }
-
-  def resolve(context: ResolveStmtContext): Unit = expressions.foreach(_.resolve(new ResolveExprContext(context)))
 }
 
 object ForUpdate {
@@ -360,11 +306,6 @@ final case class WhileStatement(expression: Expression, statement: Statement) ex
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
     statement.verify(context)
-  }
-
-  override def resolve(context: ResolveStmtContext): Unit = {
-    expression.resolve(new ResolveExprContext(context))
-    statement.resolve(context)
   }
 }
 
@@ -384,11 +325,6 @@ final case class DoWhileStatement(statement: Statement, expression: Expression) 
     expression.verify(context)
     statement.verify(context)
   }
-
-  override def resolve(context: ResolveStmtContext): Unit = {
-    expression.resolve(new ResolveExprContext(context))
-    statement.resolve(context)
-  }
 }
 
 object DoWhileStatement {
@@ -406,12 +342,6 @@ final case class TryStatement(block: Block, catches: List[CatchClause], finallyB
     block.verify(context)
     catches.foreach(_.verify(context))
     finallyBlock.foreach(_.verify(context))
-  }
-
-  override def resolve(context: ResolveStmtContext): Unit = {
-    block.resolve(context)
-    catches.foreach(_.resolve(context))
-    finallyBlock.foreach(_.resolve(context))
   }
 }
 
@@ -459,10 +389,6 @@ final case class CatchClause(modifiers: Seq[Modifier], catchType: CatchType, id:
     catchType.verify(context)
     block.verify(context)
   }
-
-  def resolve(context: ResolveStmtContext): Unit = {
-    block.resolve(context)
-  }
 }
 
 object CatchClause {
@@ -489,8 +415,6 @@ final case class ReturnStatement(expression: Option[Expression]) extends Stateme
   override def verify(context: BlockVerifyContext): Unit = {
     expression.foreach(_.verify(context))
   }
-
-  override def resolve(context: ResolveStmtContext): Unit = expression.foreach(_.resolve(new ResolveExprContext(context)))
 }
 
 object ReturnStatement {
@@ -511,8 +435,6 @@ final case class ThrowStatement(expression: Expression) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
   }
-
-  override def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
 object ThrowStatement {
@@ -525,8 +447,6 @@ final case class BreakStatement() extends Statement {
   override def children(): List[CST] = Nil
 
   override def verify(context: BlockVerifyContext): Unit = {}
-
-  override def resolve(context: ResolveStmtContext): Unit = {}
 }
 
 object BreakStatement {
@@ -539,8 +459,6 @@ final case class ContinueStatement() extends Statement {
   override def children(): List[CST] = Nil
 
   override def verify(context: BlockVerifyContext): Unit = {}
-
-  override def resolve(context: ResolveStmtContext): Unit = {}
 }
 
 object ContinueStatement {
@@ -555,8 +473,6 @@ final case class InsertStatement(expression: Expression) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
   }
-
-  override def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
 object InsertStatement {
@@ -571,8 +487,6 @@ final case class UpdateStatement(expression: Expression) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
   }
-
-  override def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
 object UpdateStatement {
@@ -587,8 +501,6 @@ final case class DeleteStatement(expression: Expression) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
   }
-
-  override def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
 object DeleteStatement {
@@ -603,8 +515,6 @@ final case class UndeleteStatement(expression: Expression) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
   }
-
-  override def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
 object UndeleteStatement {
@@ -620,8 +530,6 @@ final case class UpsertStatement(expression: Expression, field: Option[Qualified
     expression.verify(context)
     // TODO: Field?
   }
-
-  override def resolve(context: ResolveStmtContext): Unit = expression.resolve(new ResolveExprContext(context))
 }
 
 object UpsertStatement {
@@ -643,11 +551,6 @@ final case class MergeStatement(expression1: Expression, expression2: Expression
     expression1.verify(context)
     expression2.verify(context)
   }
-
-  override def resolve(context: ResolveStmtContext): Unit = {
-    expression1.resolve(new ResolveExprContext(context))
-    expression2.resolve(new ResolveExprContext(context))
-  }
 }
 
 object MergeStatement {
@@ -662,11 +565,6 @@ final case class RunAsStatement(expressions: List[Expression], block: Option[Blo
   override def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
     block.foreach(_.verify(context))
-  }
-
-  override def resolve(context: ResolveStmtContext): Unit = {
-    expressions.foreach(_.resolve(new ResolveExprContext(context)))
-    block.foreach(_.resolve(context))
   }
 }
 
@@ -690,16 +588,6 @@ final case class ExpressionStatement(var expression: Expression) extends Stateme
 
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
-  }
-
-  override def resolve(context: ResolveStmtContext): Unit = {
-    expression.resolve(new ResolveExprContext(context))
-
-    // Link var assignment to declaration
-    expression match {
-      case BinaryExpression(PrimaryExpression(VarRef(decl)), rhs, "=") => decl.addAssign(rhs)
-      case _ =>
-    }
   }
 }
 

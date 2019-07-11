@@ -27,7 +27,6 @@
 */
 package com.nawforce.cst
 
-import com.nawforce.api.Org
 import com.nawforce.documents.TextRange
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types.TypeName
@@ -35,18 +34,12 @@ import com.nawforce.utils.Name
 import org.antlr.v4.runtime.ParserRuleContext
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 import scala.util.DynamicVariable
 
 class CSTException extends Exception
 
 abstract class CST {
   var textRange: TextRange = TextRange.empty
-
-  // TODO: Not all CST produce types
-  def getType(ctx: TypeContext): TypeName = {
-    throw new CSTException
-  }
 
   def children(): List[CST]
 
@@ -59,40 +52,10 @@ abstract class CST {
     textRange = TextRange(context).adjust(positionAdjust._1, positionAdjust._2)
     this
   }
-
-  def findExpressions(onlyOuter: Boolean): List[Expression] = {
-    this match {
-      case e: Expression => List(e) ++ (if (!onlyOuter) this.children().flatMap(_.findExpressions(onlyOuter)) else Nil)
-      case _ => this.children().flatMap(_.findExpressions(onlyOuter))
-    }
-  }
-
-  def findStatements(onlyOuter: Boolean): List[Statement] = {
-    this match {
-      case e: Statement => List(e) ++ (if (!onlyOuter) this.children().flatMap(_.findStatements(onlyOuter)) else Nil)
-      case _ => this.children().flatMap(_.findStatements(onlyOuter))
-    }
-  }
 }
 
 object CST {
   val rangeAdjust: DynamicVariable[(Int, Int)] = new DynamicVariable[(Int,Int)]((0,0))
-}
-
-class CSTIndex {
-  private val cstIndex = new mutable.HashMap[String, mutable.Set[CST]] with mutable.MultiMap[String, CST]
-
-  def add(cst: CST): Unit = {
-    cstIndex.addBinding(cst.getClass.getSimpleName, cst)
-  }
-
-  def get(name: String): mutable.Set[CST] = {
-    val nodes: Option[mutable.Set[CST]] = cstIndex.get(name)
-    if (nodes.isDefined)
-      nodes.get
-    else
-      mutable.Set[CST]()
-  }
 }
 
 final case class Id(name: Name) extends CST {
@@ -103,14 +66,6 @@ object Id {
   def construct(idContext: IdContext, context: ConstructContext): Id = {
     Id(Name(idContext.getText)).withContext(idContext, context)
   }
-}
-
-abstract class TypeContext {
-  def thisType: TypeName
-
-  def superType: TypeName
-
-  def getIdentifierType(id: String): TypeName
 }
 
 final case class QualifiedName(names: List[Name]) extends CST {

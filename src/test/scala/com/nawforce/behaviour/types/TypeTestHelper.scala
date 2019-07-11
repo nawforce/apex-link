@@ -57,18 +57,13 @@ class TypeContextTest(_thisType: TypeName = null, _superType: TypeName = null, i
 
 object TypeTestHelper {
 
-  def typePrimary(p: String, typeCtx: TypeContext): TypeName = {
+  def typeLiteral(p: String, typeCtx: TypeContext): TypeName = {
     val context = new ConstructContext()
-    Primary.construct(parse(p).primary(), context).getType(typeCtx)
+    Literal.construct(parse(p).literal(), context).getType(typeCtx)
   }
 
-  def typeExpression(p: String, typeCtx: TypeContext): Expression = {
-    val context = new ConstructContext()
-    Expression.construct(parse(p).expression(), context)
-  }
-
-  def comparePrimary(p: String, r: TypeName, typeCtx: TypeContext): Unit = {
-    val t = typePrimary(p, typeCtx)
+  def compareLiteral(p: String, r: TypeName, typeCtx: TypeContext): Unit = {
+    val t = typeLiteral(p, typeCtx)
     if (t == null)
       throw new CSTException
 

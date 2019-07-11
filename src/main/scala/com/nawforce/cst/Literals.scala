@@ -30,8 +30,18 @@ package com.nawforce.cst
 import com.nawforce.parsers.ApexParser.LiteralContext
 import com.nawforce.types.TypeName
 
+abstract class TypeContext {
+  def thisType: TypeName
+
+  def superType: TypeName
+
+  def getIdentifierType(id: String): TypeName
+}
+
 sealed abstract class Literal() extends CST {
   override def children(): List[CST] = Nil
+
+  def getType(ctx: TypeContext): TypeName
 }
 
 final case class IntegerLit(value: String) extends Literal {
