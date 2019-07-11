@@ -68,6 +68,8 @@ object Name {
   lazy val SObjects: Name = cache("SObjects")
   lazy val Internal: Name = cache("Internal")
   lazy val Boolean: Name = cache("Boolean")
+  lazy val ApexPages: Name = cache("ApexPages")
+  lazy val PageReference: Name = cache("PageReference")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 }
@@ -95,10 +97,6 @@ case class DotName(names: Seq[Name]) {
 }
 
 object DotName {
-  lazy val Object: DotName = DotName(Name.Object)
-  lazy val ObjectAlias: DotName = DotName(Seq(Name.Internal, Name.Object$))
-  lazy val Boolean: DotName = DotName(Name.Boolean)
-
   def apply(name: String): DotName = {
     DotName(name.split('.').toSeq.map(p => Name(p)))
   }

@@ -41,9 +41,9 @@ class DependencyTest extends FunSuite {
   private val defaultOrg: Org = new Org
 
   private val listClass = defaultOrg.getType(DotName(Seq(Name.System, Name.List))).get
-  private val objectClass = defaultOrg.getType(DotName.Object).get
+  private val objectClass = defaultOrg.getType(DotName(Name.Object)).get
   private val typeClass = defaultOrg.getType(DotName(Seq(Name.System, Name.Type))).get
-  private val booleanClass = defaultOrg.getType(DotName.Boolean).get
+  private val booleanClass = defaultOrg.getType(DotName(Name.Boolean)).get
 
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
     defaultOrg.clear()
