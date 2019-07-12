@@ -27,9 +27,9 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types.TypeName
-import com.nawforce.utils.Name
 
 sealed abstract class Primary extends CST {
   def verify(context: ExpressionVerifyContext): Unit = {}
@@ -55,13 +55,21 @@ final case class LiteralPrimary(literal: Literal) extends Primary {
   override def children(): List[CST] = literal :: Nil
 }
 
-final case class QualifiedNamePrimary(typeName: TypeName) extends Primary {
+final case class TypeRefPrimary(typeName: TypeName) extends Primary {
   override def children(): List[CST] = Nil
 
   override def verify(context: ExpressionVerifyContext): Unit = {
-    // TODO: Check not var & below
-    val isClassRef = typeName.name == Name.Class && typeName.outer.nonEmpty
-    context.getTypeAndAddDependency(if (isClassRef) typeName.outer.get else typeName)
+    val td = context.getTypeAndAddDependency(typeName)
+    if (td.isEmpty)
+      Org.logMessage(textRange, s"No type declaration found for '$typeName'")
+  }
+}
+
+final case class IdPrimary(id: Id) extends Primary {
+  override def children(): List[CST] = id :: Nil
+
+  override def verify(context: ExpressionVerifyContext): Unit = {
+    // TODO: Var or type name
   }
 }
 
@@ -81,8 +89,10 @@ object Primary {
           SuperPrimary()
         case ctx: LiteralPrimaryContext =>
           LiteralPrimary(Literal.construct(ctx.literal(), context))
-        case ctx: RefPrimaryContext =>
-          QualifiedNamePrimary(TypeRef.construct(ctx.typeRef(), context))
+        case ctx: TypeRefPrimaryContext =>
+          TypeRefPrimary(TypeRef.construct(ctx.typeRef(), context))
+        case id: IdPrimaryContext =>
+          IdPrimary(Id.construct(id.id(), context))
         case ctx: SoqlPrimaryContext =>
           SOQL(ctx.soqlLiteral().getText)
       }

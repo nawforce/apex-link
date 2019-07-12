@@ -75,13 +75,12 @@ object ApexLink {
         pkg.deployAll()
       }
     })
-    val resultJson = org.issues.asJSON(100)
     val parseEnd = System.currentTimeMillis()
 
     if (!json)
       org.issues.dumpMessages(json = false)
     else
-      println(resultJson)
+      println(org.issues.asJSON(100))
 
     if (verbose && org.typeCount>0)
       println(s"Loaded & checked ${org.typeCount} types, with average time/type of ${(parseEnd - parseStart) / org.typeCount}ms")

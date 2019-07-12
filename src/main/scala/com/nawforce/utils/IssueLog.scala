@@ -140,8 +140,8 @@ class IssueLog {
         }
         count += 1
       })
-      if (count - maxErrors > 0)
-        writer.writeSummary(count - maxErrors, count)
+      if (maxErrors < messages.size)
+        writer.writeSummary(messages.size - maxErrors, messages.size)
       writer.endDocument()
     }
   }

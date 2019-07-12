@@ -452,7 +452,8 @@ primary
     | THIS                                                                                           # thisPrimary
     | SUPER                                                                                          # superPrimary
     | literal                                                                                        # literalPrimary
-    | typeRef                                                                                        # refPrimary
+    | typeRef DOT CLASS                                                                              # typeRefPrimary
+    | id                                                                                             # idPrimary
     | soqlLiteral                                                                                    # soqlPrimary
     ;
 
