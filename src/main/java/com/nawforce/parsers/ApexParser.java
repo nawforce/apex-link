@@ -4470,88 +4470,44 @@ public class ApexParser extends Parser {
 			super.copyFrom(ctx);
 		}
 	}
-	public static class Alt18ExpressionContext extends ExpressionContext {
+	public static class PrimaryExpressionContext extends ExpressionContext {
+		public PrimaryContext primary() {
+			return getRuleContext(PrimaryContext.class,0);
+		}
+		public PrimaryExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+	}
+	public static class Arth1ExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public TerminalNode TRIPLEEQUAL() { return getToken(ApexParser.TRIPLEEQUAL, 0); }
-		public TerminalNode TRIPLENOTEQUAL() { return getToken(ApexParser.TRIPLENOTEQUAL, 0); }
-		public TerminalNode EQUAL() { return getToken(ApexParser.EQUAL, 0); }
-		public TerminalNode NOTEQUAL() { return getToken(ApexParser.NOTEQUAL, 0); }
-		public TerminalNode LESSANDGREATER() { return getToken(ApexParser.LESSANDGREATER, 0); }
-		public Alt18ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public TerminalNode MUL() { return getToken(ApexParser.MUL, 0); }
+		public TerminalNode DIV() { return getToken(ApexParser.DIV, 0); }
+		public TerminalNode MOD() { return getToken(ApexParser.MOD, 0); }
+		public Arth1ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
 	}
-	public static class Alt23ExpressionContext extends ExpressionContext {
+	public static class BitOrExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public TerminalNode OR() { return getToken(ApexParser.OR, 0); }
-		public Alt23ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public TerminalNode BITOR() { return getToken(ApexParser.BITOR, 0); }
+		public BitOrExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
 	}
-	public static class Alt1ExpressionContext extends ExpressionContext {
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
-		}
-		public TerminalNode DOT() { return getToken(ApexParser.DOT, 0); }
-		public IdContext id() {
-			return getRuleContext(IdContext.class,0);
-		}
-		public Alt1ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
-	}
-	public static class Alt10ExpressionContext extends ExpressionContext {
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
-		}
-		public TerminalNode INC() { return getToken(ApexParser.INC, 0); }
-		public TerminalNode DEC() { return getToken(ApexParser.DEC, 0); }
-		public Alt10ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
-	}
-	public static class Alt19ExpressionContext extends ExpressionContext {
+	public static class ArrayExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public TerminalNode BITAND() { return getToken(ApexParser.BITAND, 0); }
-		public Alt19ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
-	}
-	public static class Alt24ExpressionContext extends ExpressionContext {
-		public List<ExpressionContext> expression() {
-			return getRuleContexts(ExpressionContext.class);
-		}
-		public ExpressionContext expression(int i) {
-			return getRuleContext(ExpressionContext.class,i);
-		}
-		public TerminalNode QUESTION() { return getToken(ApexParser.QUESTION, 0); }
-		public TerminalNode COLON() { return getToken(ApexParser.COLON, 0); }
-		public Alt24ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
-	}
-	public static class Alt17ExpressionContext extends ExpressionContext {
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
-		}
-		public TerminalNode INSTANCEOF() { return getToken(ApexParser.INSTANCEOF, 0); }
-		public TypeRefContext typeRef() {
-			return getRuleContext(TypeRefContext.class,0);
-		}
-		public Alt17ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
-	}
-	public static class Alt11ExpressionContext extends ExpressionContext {
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
-		}
-		public TerminalNode ADD() { return getToken(ApexParser.ADD, 0); }
-		public TerminalNode SUB() { return getToken(ApexParser.SUB, 0); }
-		public TerminalNode INC() { return getToken(ApexParser.INC, 0); }
-		public TerminalNode DEC() { return getToken(ApexParser.DEC, 0); }
-		public Alt11ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public TerminalNode LBRACK() { return getToken(ApexParser.LBRACK, 0); }
+		public TerminalNode RBRACK() { return getToken(ApexParser.RBRACK, 0); }
+		public ArrayExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
 	}
 	public static class NewExpressionContext extends ExpressionContext {
 		public TerminalNode NEW() { return getToken(ApexParser.NEW, 0); }
@@ -4560,7 +4516,7 @@ public class ApexParser extends Parser {
 		}
 		public NewExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
 	}
-	public static class Alt25ExpressionContext extends ExpressionContext {
+	public static class AssignExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
@@ -4579,9 +4535,9 @@ public class ApexParser extends Parser {
 		public TerminalNode URSHIFT_ASSIGN() { return getToken(ApexParser.URSHIFT_ASSIGN, 0); }
 		public TerminalNode LSHIFT_ASSIGN() { return getToken(ApexParser.LSHIFT_ASSIGN, 0); }
 		public TerminalNode MOD_ASSIGN() { return getToken(ApexParser.MOD_ASSIGN, 0); }
-		public Alt25ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public AssignExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
 	}
-	public static class Alt20ExpressionContext extends ExpressionContext {
+	public static class BitNotExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
@@ -4589,15 +4545,28 @@ public class ApexParser extends Parser {
 			return getRuleContext(ExpressionContext.class,i);
 		}
 		public TerminalNode CARET() { return getToken(ApexParser.CARET, 0); }
-		public Alt20ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public BitNotExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
 	}
-	public static class Alt12ExpressionContext extends ExpressionContext {
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
+	public static class Arth2ExpressionContext extends ExpressionContext {
+		public List<ExpressionContext> expression() {
+			return getRuleContexts(ExpressionContext.class);
 		}
-		public TerminalNode TILDE() { return getToken(ApexParser.TILDE, 0); }
-		public TerminalNode BANG() { return getToken(ApexParser.BANG, 0); }
-		public Alt12ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public ExpressionContext expression(int i) {
+			return getRuleContext(ExpressionContext.class,i);
+		}
+		public TerminalNode ADD() { return getToken(ApexParser.ADD, 0); }
+		public TerminalNode SUB() { return getToken(ApexParser.SUB, 0); }
+		public Arth2ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+	}
+	public static class LogAndExpressionContext extends ExpressionContext {
+		public List<ExpressionContext> expression() {
+			return getRuleContexts(ExpressionContext.class);
+		}
+		public ExpressionContext expression(int i) {
+			return getRuleContext(ExpressionContext.class,i);
+		}
+		public TerminalNode AND() { return getToken(ApexParser.AND, 0); }
+		public LogAndExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
 	}
 	public static class CastExpressionContext extends ExpressionContext {
 		public TerminalNode LPAREN() { return getToken(ApexParser.LPAREN, 0); }
@@ -4610,81 +4579,62 @@ public class ApexParser extends Parser {
 		}
 		public CastExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
 	}
-	public static class Alt14ExpressionContext extends ExpressionContext {
+	public static class BitAndExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public TerminalNode ADD() { return getToken(ApexParser.ADD, 0); }
-		public TerminalNode SUB() { return getToken(ApexParser.SUB, 0); }
-		public Alt14ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public TerminalNode BITAND() { return getToken(ApexParser.BITAND, 0); }
+		public BitAndExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
 	}
-	public static class Alt13ExpressionContext extends ExpressionContext {
-		public List<ExpressionContext> expression() {
-			return getRuleContexts(ExpressionContext.class);
-		}
-		public ExpressionContext expression(int i) {
-			return getRuleContext(ExpressionContext.class,i);
-		}
-		public TerminalNode MUL() { return getToken(ApexParser.MUL, 0); }
-		public TerminalNode DIV() { return getToken(ApexParser.DIV, 0); }
-		public TerminalNode MOD() { return getToken(ApexParser.MOD, 0); }
-		public Alt13ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
-	}
-	public static class Alt26ExpressionContext extends ExpressionContext {
-		public PrimaryContext primary() {
-			return getRuleContext(PrimaryContext.class,0);
-		}
-		public Alt26ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
-	}
-	public static class Alt16ExpressionContext extends ExpressionContext {
-		public List<ExpressionContext> expression() {
-			return getRuleContexts(ExpressionContext.class);
-		}
-		public ExpressionContext expression(int i) {
-			return getRuleContext(ExpressionContext.class,i);
-		}
-		public TerminalNode LT() { return getToken(ApexParser.LT, 0); }
-		public TerminalNode ASSIGN() { return getToken(ApexParser.ASSIGN, 0); }
-		public TerminalNode GT() { return getToken(ApexParser.GT, 0); }
-		public TerminalNode LE() { return getToken(ApexParser.LE, 0); }
-		public TerminalNode GE() { return getToken(ApexParser.GE, 0); }
-		public Alt16ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
-	}
-	public static class Alt21ExpressionContext extends ExpressionContext {
-		public List<ExpressionContext> expression() {
-			return getRuleContexts(ExpressionContext.class);
-		}
-		public ExpressionContext expression(int i) {
-			return getRuleContext(ExpressionContext.class,i);
-		}
-		public TerminalNode BITOR() { return getToken(ApexParser.BITOR, 0); }
-		public Alt21ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
-	}
-	public static class FunctionCallExpressionContext extends ExpressionContext {
+	public static class IdExpressionContext extends ExpressionContext {
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public TerminalNode LPAREN() { return getToken(ApexParser.LPAREN, 0); }
-		public TerminalNode RPAREN() { return getToken(ApexParser.RPAREN, 0); }
-		public ExpressionListContext expressionList() {
-			return getRuleContext(ExpressionListContext.class,0);
+		public TerminalNode DOT() { return getToken(ApexParser.DOT, 0); }
+		public IdContext id() {
+			return getRuleContext(IdContext.class,0);
 		}
-		public FunctionCallExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public IdExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
 	}
-	public static class Alt22ExpressionContext extends ExpressionContext {
+	public static class LogOrExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public TerminalNode AND() { return getToken(ApexParser.AND, 0); }
-		public Alt22ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public TerminalNode OR() { return getToken(ApexParser.OR, 0); }
+		public LogOrExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
 	}
-	public static class Alt15ExpressionContext extends ExpressionContext {
+	public static class CondExpressionContext extends ExpressionContext {
+		public List<ExpressionContext> expression() {
+			return getRuleContexts(ExpressionContext.class);
+		}
+		public ExpressionContext expression(int i) {
+			return getRuleContext(ExpressionContext.class,i);
+		}
+		public TerminalNode QUESTION() { return getToken(ApexParser.QUESTION, 0); }
+		public TerminalNode COLON() { return getToken(ApexParser.COLON, 0); }
+		public CondExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+	}
+	public static class EqualityExpressionContext extends ExpressionContext {
+		public List<ExpressionContext> expression() {
+			return getRuleContexts(ExpressionContext.class);
+		}
+		public ExpressionContext expression(int i) {
+			return getRuleContext(ExpressionContext.class,i);
+		}
+		public TerminalNode TRIPLEEQUAL() { return getToken(ApexParser.TRIPLEEQUAL, 0); }
+		public TerminalNode TRIPLENOTEQUAL() { return getToken(ApexParser.TRIPLENOTEQUAL, 0); }
+		public TerminalNode EQUAL() { return getToken(ApexParser.EQUAL, 0); }
+		public TerminalNode NOTEQUAL() { return getToken(ApexParser.NOTEQUAL, 0); }
+		public TerminalNode LESSANDGREATER() { return getToken(ApexParser.LESSANDGREATER, 0); }
+		public EqualityExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+	}
+	public static class Cmp1ExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
@@ -4699,18 +4649,68 @@ public class ApexParser extends Parser {
 		public TerminalNode GT(int i) {
 			return getToken(ApexParser.GT, i);
 		}
-		public Alt15ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public Cmp1ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
 	}
-	public static class Alt6ExpressionContext extends ExpressionContext {
+	public static class FunctionCallExpressionContext extends ExpressionContext {
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
+		}
+		public TerminalNode LPAREN() { return getToken(ApexParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(ApexParser.RPAREN, 0); }
+		public ExpressionListContext expressionList() {
+			return getRuleContext(ExpressionListContext.class,0);
+		}
+		public FunctionCallExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+	}
+	public static class Cmp2ExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public TerminalNode LBRACK() { return getToken(ApexParser.LBRACK, 0); }
-		public TerminalNode RBRACK() { return getToken(ApexParser.RBRACK, 0); }
-		public Alt6ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public TerminalNode LT() { return getToken(ApexParser.LT, 0); }
+		public TerminalNode ASSIGN() { return getToken(ApexParser.ASSIGN, 0); }
+		public TerminalNode GT() { return getToken(ApexParser.GT, 0); }
+		public TerminalNode LE() { return getToken(ApexParser.LE, 0); }
+		public TerminalNode GE() { return getToken(ApexParser.GE, 0); }
+		public Cmp2ExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+	}
+	public static class PostOpExpressionContext extends ExpressionContext {
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
+		}
+		public TerminalNode INC() { return getToken(ApexParser.INC, 0); }
+		public TerminalNode DEC() { return getToken(ApexParser.DEC, 0); }
+		public PostOpExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+	}
+	public static class NegExpressionContext extends ExpressionContext {
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
+		}
+		public TerminalNode TILDE() { return getToken(ApexParser.TILDE, 0); }
+		public TerminalNode BANG() { return getToken(ApexParser.BANG, 0); }
+		public NegExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+	}
+	public static class PreOpExpressionContext extends ExpressionContext {
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
+		}
+		public TerminalNode ADD() { return getToken(ApexParser.ADD, 0); }
+		public TerminalNode SUB() { return getToken(ApexParser.SUB, 0); }
+		public TerminalNode INC() { return getToken(ApexParser.INC, 0); }
+		public TerminalNode DEC() { return getToken(ApexParser.DEC, 0); }
+		public PreOpExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+	}
+	public static class InstanceOfExpressionContext extends ExpressionContext {
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
+		}
+		public TerminalNode INSTANCEOF() { return getToken(ApexParser.INSTANCEOF, 0); }
+		public TypeRefContext typeRef() {
+			return getRuleContext(TypeRefContext.class,0);
+		}
+		public InstanceOfExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
 	}
 
 	public final ExpressionContext expression() throws RecognitionException {
@@ -4761,7 +4761,7 @@ public class ApexParser extends Parser {
 				break;
 			case 3:
 				{
-				_localctx = new Alt11ExpressionContext(_localctx);
+				_localctx = new PreOpExpressionContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(733);
@@ -4780,7 +4780,7 @@ public class ApexParser extends Parser {
 				break;
 			case 4:
 				{
-				_localctx = new Alt12ExpressionContext(_localctx);
+				_localctx = new NegExpressionContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(735);
@@ -4799,7 +4799,7 @@ public class ApexParser extends Parser {
 				break;
 			case 5:
 				{
-				_localctx = new Alt26ExpressionContext(_localctx);
+				_localctx = new PrimaryExpressionContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(737);
@@ -4821,7 +4821,7 @@ public class ApexParser extends Parser {
 					switch ( getInterpreter().adaptivePredict(_input,74,_ctx) ) {
 					case 1:
 						{
-						_localctx = new Alt13ExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new Arth1ExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(740);
 						if (!(precpred(_ctx, 14))) throw new FailedPredicateException(this, "precpred(_ctx, 14)");
@@ -4841,7 +4841,7 @@ public class ApexParser extends Parser {
 						break;
 					case 2:
 						{
-						_localctx = new Alt14ExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new Arth2ExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(743);
 						if (!(precpred(_ctx, 13))) throw new FailedPredicateException(this, "precpred(_ctx, 13)");
@@ -4861,7 +4861,7 @@ public class ApexParser extends Parser {
 						break;
 					case 3:
 						{
-						_localctx = new Alt15ExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new Cmp1ExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(746);
 						if (!(precpred(_ctx, 12))) throw new FailedPredicateException(this, "precpred(_ctx, 12)");
@@ -4901,7 +4901,7 @@ public class ApexParser extends Parser {
 						break;
 					case 4:
 						{
-						_localctx = new Alt16ExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new Cmp2ExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(757);
 						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
@@ -4955,7 +4955,7 @@ public class ApexParser extends Parser {
 						break;
 					case 5:
 						{
-						_localctx = new Alt18ExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new EqualityExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(769);
 						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
@@ -4975,7 +4975,7 @@ public class ApexParser extends Parser {
 						break;
 					case 6:
 						{
-						_localctx = new Alt19ExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new BitAndExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(772);
 						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
@@ -4987,7 +4987,7 @@ public class ApexParser extends Parser {
 						break;
 					case 7:
 						{
-						_localctx = new Alt20ExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new BitNotExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(775);
 						if (!(precpred(_ctx, 7))) throw new FailedPredicateException(this, "precpred(_ctx, 7)");
@@ -4999,7 +4999,7 @@ public class ApexParser extends Parser {
 						break;
 					case 8:
 						{
-						_localctx = new Alt21ExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new BitOrExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(778);
 						if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
@@ -5011,7 +5011,7 @@ public class ApexParser extends Parser {
 						break;
 					case 9:
 						{
-						_localctx = new Alt22ExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new LogAndExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(781);
 						if (!(precpred(_ctx, 5))) throw new FailedPredicateException(this, "precpred(_ctx, 5)");
@@ -5023,7 +5023,7 @@ public class ApexParser extends Parser {
 						break;
 					case 10:
 						{
-						_localctx = new Alt23ExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new LogOrExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(784);
 						if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
@@ -5035,7 +5035,7 @@ public class ApexParser extends Parser {
 						break;
 					case 11:
 						{
-						_localctx = new Alt24ExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new CondExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(787);
 						if (!(precpred(_ctx, 3))) throw new FailedPredicateException(this, "precpred(_ctx, 3)");
@@ -5051,7 +5051,7 @@ public class ApexParser extends Parser {
 						break;
 					case 12:
 						{
-						_localctx = new Alt25ExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new AssignExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(793);
 						if (!(precpred(_ctx, 2))) throw new FailedPredicateException(this, "precpred(_ctx, 2)");
@@ -5071,7 +5071,7 @@ public class ApexParser extends Parser {
 						break;
 					case 13:
 						{
-						_localctx = new Alt1ExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new IdExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(796);
 						if (!(precpred(_ctx, 22))) throw new FailedPredicateException(this, "precpred(_ctx, 22)");
@@ -5083,7 +5083,7 @@ public class ApexParser extends Parser {
 						break;
 					case 14:
 						{
-						_localctx = new Alt6ExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new ArrayExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(799);
 						if (!(precpred(_ctx, 21))) throw new FailedPredicateException(this, "precpred(_ctx, 21)");
@@ -5119,7 +5119,7 @@ public class ApexParser extends Parser {
 						break;
 					case 16:
 						{
-						_localctx = new Alt10ExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new PostOpExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(810);
 						if (!(precpred(_ctx, 17))) throw new FailedPredicateException(this, "precpred(_ctx, 17)");
@@ -5137,7 +5137,7 @@ public class ApexParser extends Parser {
 						break;
 					case 17:
 						{
-						_localctx = new Alt17ExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new InstanceOfExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(812);
 						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");

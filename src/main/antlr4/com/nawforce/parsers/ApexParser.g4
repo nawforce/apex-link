@@ -409,26 +409,26 @@ expressionList
     ;
 
 expression
-    : expression DOT id                                                                               # alt1Expression
-    | expression LBRACK expression RBRACK                                                             # alt6Expression
+    : expression DOT id                                                                               # idExpression
+    | expression LBRACK expression RBRACK                                                             # arrayExpression
     | expression LPAREN expressionList? RPAREN                                                        # functionCallExpression
     | NEW creator                                                                                     # newExpression
     | LPAREN typeRef RPAREN expression                                                                # castExpression
-    | expression (INC | DEC)                                                                          # alt10Expression
-    | (ADD|SUB|INC|DEC) expression                                                                    # alt11Expression
-    | (TILDE|BANG) expression                                                                         # alt12Expression
-    | expression (MUL|DIV|MOD) expression                                                             # alt13Expression
-    | expression (ADD|SUB) expression                                                                 # alt14Expression
-    | expression (LT LT | GT GT GT | GT GT) expression                                                # alt15Expression
-    | expression (LT ASSIGN | GT ASSIGN | LE | GE | GT | LT) expression                               # alt16Expression
-    | expression INSTANCEOF typeRef                                                                   # alt17Expression
-    | expression (TRIPLEEQUAL | TRIPLENOTEQUAL | EQUAL | NOTEQUAL | LESSANDGREATER ) expression       # alt18Expression
-    | expression BITAND expression                                                                    # alt19Expression
-    | expression CARET expression                                                                     # alt20Expression
-    | expression BITOR expression                                                                     # alt21Expression
-    | expression AND expression                                                                       # alt22Expression
-    | expression OR expression                                                                        # alt23Expression
-    | expression QUESTION expression COLON expression                                                 # alt24Expression
+    | expression (INC | DEC)                                                                          # postOpExpression
+    | (ADD|SUB|INC|DEC) expression                                                                    # preOpExpression
+    | (TILDE|BANG) expression                                                                         # negExpression
+    | expression (MUL|DIV|MOD) expression                                                             # arth1Expression
+    | expression (ADD|SUB) expression                                                                 # arth2Expression
+    | expression (LT LT | GT GT GT | GT GT) expression                                                # cmp1Expression
+    | expression (LT ASSIGN | GT ASSIGN | LE | GE | GT | LT) expression                               # cmp2Expression
+    | expression INSTANCEOF typeRef                                                                   # instanceOfExpression
+    | expression (TRIPLEEQUAL | TRIPLENOTEQUAL | EQUAL | NOTEQUAL | LESSANDGREATER ) expression       # equalityExpression
+    | expression BITAND expression                                                                    # bitAndExpression
+    | expression CARET expression                                                                     # bitNotExpression
+    | expression BITOR expression                                                                     # bitOrExpression
+    | expression AND expression                                                                       # logAndExpression
+    | expression OR expression                                                                        # logOrExpression
+    | expression QUESTION expression COLON expression                                                 # condExpression
     | <assoc=right> expression
       (   ASSIGN
       |   ADD_ASSIGN
@@ -443,8 +443,8 @@ expression
       |   LSHIFT_ASSIGN
       |   MOD_ASSIGN
       )
-      expression                                                                                     # alt25Expression
-    | primary                                                                                        # alt26Expression
+      expression                                                                                     # assignExpression
+    | primary                                                                                        # primaryExpression
     ;
 
 primary

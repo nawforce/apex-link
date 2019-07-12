@@ -33,10 +33,6 @@ import com.nawforce.types.TypeName
 
 import scala.collection.JavaConverters._
 
-trait ExpressionRHS extends CST {
-  def verify(context: ExpressionVerifyContext): Unit
-}
-
 sealed abstract class Expression extends CST {
   def verify(context: ExpressionVerifyContext): Unit
   def verify(context: BlockVerifyContext): Unit = {
@@ -44,12 +40,20 @@ sealed abstract class Expression extends CST {
   }
 }
 
-final case class LHSExpression(lhs: Expression, rhs: ExpressionRHS) extends Expression {
-  override def children(): List[CST] = lhs :: rhs :: Nil
+final case class IdExpression(expression: Expression, id: Id) extends Expression {
+  override def children(): List[CST] = expression :: id :: Nil
 
   override def verify(context: ExpressionVerifyContext): Unit = {
-    lhs.verify(context)
-    rhs.verify(context)
+    expression.verify(context)
+  }
+}
+
+final case class ArrayExpression(expression: Expression, arrayExpression: Expression) extends Expression {
+  override def children(): List[CST] = expression :: arrayExpression :: Nil
+
+  override def verify(context: ExpressionVerifyContext): Unit = {
+    expression.verify(context)
+    arrayExpression.verify(context)
   }
 }
 
@@ -97,6 +101,14 @@ final case class PreOpExpression(expression: Expression, op: String) extends Exp
   }
 }
 
+final case class NegExpression(expression: Expression, op: String) extends Expression {
+  override def children(): List[CST] = expression :: Nil
+
+  override def verify(context: ExpressionVerifyContext): Unit = {
+    expression.verify(context)
+  }
+}
+
 final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) extends Expression {
   override def children(): List[CST] = lhs :: rhs :: Nil
 
@@ -135,88 +147,81 @@ final case class PrimaryExpression(var primary: Primary) extends Expression {
   }
 }
 
-final case class RHSId(id: String) extends ExpressionRHS {
-  override def children(): List[CST] = Nil
-
-  override def verify(context: ExpressionVerifyContext): Unit = {}
-}
-
-final case class RHSArrayExpression(expression: Expression) extends ExpressionRHS {
-  override def children(): List[CST] = expression :: Nil
-
-  override def verify(context: ExpressionVerifyContext): Unit = {
-    expression.verify(context)
-  }
-}
-
 object Expression {
   def construct(from: ExpressionContext, context: ConstructContext): Expression = {
     val cst =
       from match {
-        case alt1: Alt1ExpressionContext =>
-          val lHSExpression = Expression.construct(alt1.expression(), context)
-          // TODO: Do we need this
-          /*
-          lHSExpression match {
-            case PrimaryExpression(Id(id)) =>
-              QName(id :: alt1.id().getText :: Nil)
-            case QName(ids) =>
-              QName(ids ::: (alt1.id().getText :: Nil))
-            case _ =>
-              LHSExpression(lHSExpression, RHSId(alt1.id().getText))
-          }*/
-          lHSExpression
-        case alt6: Alt6ExpressionContext =>
-          LHSExpression(Expression.construct(alt6.expression(0), context), RHSArrayExpression(
-            Expression.construct(alt6.expression(1), context)
-          ))
-        case alt7: FunctionCallExpressionContext =>
-          FunctionCall(Expression.construct(alt7.expression, context),
-            if (alt7.expressionList() != null) {
-              val expression: Seq[ExpressionContext] = alt7.expressionList().expression().asScala
+        case expr: IdExpressionContext =>
+          IdExpression(
+            Expression.construct(expr.expression(), context),
+            Id.construct(expr.id(), context)
+          )
+        case expr: ArrayExpressionContext =>
+          ArrayExpression(
+            Expression.construct(expr.expression(0), context),
+            Expression.construct(expr.expression(1), context)
+          )
+        case expr: FunctionCallExpressionContext =>
+          FunctionCall(
+            Expression.construct(expr.expression, context),
+            if (expr.expressionList() != null) {
+              val expression: Seq[ExpressionContext] = expr.expressionList().expression().asScala
               Expression.construct(expression.toList, context)
             } else {
               List()
             }
           )
-        case alt8: NewExpressionContext =>
-          NewExpression(Creator.construct(alt8.creator(), context))
-        case alt9: CastExpressionContext =>
-          CastExpression(TypeRef.construct(alt9.typeRef(), context), Expression.construct(alt9.expression(), context))
-        case alt10: Alt10ExpressionContext =>
-          PostOpExpression(Expression.construct(alt10.expression(), context), alt10.getChild(1).getText)
-        case alt11: Alt11ExpressionContext =>
-          PreOpExpression(Expression.construct(alt11.expression(), context), alt11.getChild(0).getText)
-        case alt12: Alt12ExpressionContext =>
-          PostOpExpression(Expression.construct(alt12.expression(), context), alt12.getChild(0).getText)
-        case alt13: Alt13ExpressionContext =>
-          BinaryExpression(Expression.construct(alt13.expression(0), context), Expression.construct(alt13.expression(1), context), alt13.getChild(1).getText)
-        case alt14: Alt14ExpressionContext =>
-          BinaryExpression(Expression.construct(alt14.expression(0), context), Expression.construct(alt14.expression(1), context), alt14.getChild(1).getText)
-        case alt15: Alt15ExpressionContext =>
-          BinaryExpression(Expression.construct(alt15.expression(0), context), Expression.construct(alt15.expression(1), context), alt15.getChild(1).getText)
-        case alt16: Alt16ExpressionContext =>
-          BinaryExpression(Expression.construct(alt16.expression(0), context), Expression.construct(alt16.expression(1), context), alt16.getChild(1).getText)
-        case alt17: Alt17ExpressionContext =>
-          InstanceOfExpression(Expression.construct(alt17.expression(), context), TypeRef.construct(alt17.typeRef(), context))
-        case alt18: Alt18ExpressionContext =>
-          BinaryExpression(Expression.construct(alt18.expression(0), context), Expression.construct(alt18.expression(1), context), alt18.getChild(1).getText)
-        case alt19: Alt19ExpressionContext =>
-          BinaryExpression(Expression.construct(alt19.expression(0), context), Expression.construct(alt19.expression(1), context), alt19.getChild(1).getText)
-        case alt20: Alt20ExpressionContext =>
-          BinaryExpression(Expression.construct(alt20.expression(0), context), Expression.construct(alt20.expression(1), context), alt20.getChild(1).getText)
-        case alt21: Alt21ExpressionContext =>
-          BinaryExpression(Expression.construct(alt21.expression(0), context), Expression.construct(alt21.expression(1), context), alt21.getChild(1).getText)
-        case alt22: Alt22ExpressionContext =>
-          BinaryExpression(Expression.construct(alt22.expression(0), context), Expression.construct(alt22.expression(1), context), alt22.getChild(1).getText)
-        case alt23: Alt23ExpressionContext =>
-          BinaryExpression(Expression.construct(alt23.expression(0), context), Expression.construct(alt23.expression(1), context), alt23.getChild(1).getText)
-        case alt24: Alt24ExpressionContext =>
-          QueryExpression(Expression.construct(alt24.expression(0), context), Expression.construct(alt24.expression(1), context), Expression.construct(alt24.expression(2), context))
-        case alt25: Alt25ExpressionContext =>
-          BinaryExpression(Expression.construct(alt25.expression(0), context), Expression.construct(alt25.expression(1), context), alt25.getChild(1).getText)
-        case alt26: Alt26ExpressionContext =>
-          PrimaryExpression(Primary.construct(alt26.primary(), context))
+        case expr: NewExpressionContext =>
+          NewExpression(Creator.construct(expr.creator(), context))
+        case expr: CastExpressionContext =>
+          CastExpression(TypeRef.construct(expr.typeRef(), context), Expression.construct(expr.expression(), context))
+        case expr: PostOpExpressionContext =>
+          PostOpExpression(Expression.construct(expr.expression(), context), expr.getChild(1).getText)
+        case expr: PreOpExpressionContext =>
+          PreOpExpression(Expression.construct(expr.expression(), context), expr.getChild(0).getText)
+        case expr: NegExpressionContext =>
+          NegExpression(Expression.construct(expr.expression(), context), expr.getChild(0).getText)
+        case expr: Arth1ExpressionContext =>
+          BinaryExpression(Expression.construct(expr.expression(0), context),
+            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+        case expr: Arth2ExpressionContext =>
+          BinaryExpression(Expression.construct(expr.expression(0), context),
+            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+        case expr: Cmp1ExpressionContext =>
+          BinaryExpression(Expression.construct(expr.expression(0), context),
+            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+        case expr: Cmp2ExpressionContext =>
+          BinaryExpression(Expression.construct(expr.expression(0), context),
+            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+        case expr: InstanceOfExpressionContext =>
+          InstanceOfExpression(Expression.construct(expr.expression(), context),
+            TypeRef.construct(expr.typeRef(), context))
+        case expr: EqualityExpressionContext =>
+          BinaryExpression(Expression.construct(expr.expression(0), context),
+            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+        case expr: BitAndExpressionContext =>
+          BinaryExpression(Expression.construct(expr.expression(0), context),
+            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+        case expr: BitNotExpressionContext =>
+          BinaryExpression(Expression.construct(expr.expression(0), context),
+            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+        case expr: BitOrExpressionContext =>
+          BinaryExpression(Expression.construct(expr.expression(0), context),
+            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+        case expr: LogAndExpressionContext =>
+          BinaryExpression(Expression.construct(expr.expression(0), context),
+            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+        case expr: LogOrExpressionContext =>
+          BinaryExpression(Expression.construct(expr.expression(0), context),
+            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+        case expr: CondExpressionContext =>
+          QueryExpression(Expression.construct(expr.expression(0), context),
+            Expression.construct(expr.expression(1), context), Expression.construct(expr.expression(2), context))
+        case expr: AssignExpressionContext =>
+          BinaryExpression(Expression.construct(expr.expression(0), context),
+            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+        case expr: PrimaryExpressionContext =>
+          PrimaryExpression(Primary.construct(expr.primary(), context))
       }
     cst.withContext(from, context)
   }
