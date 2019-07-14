@@ -29,7 +29,8 @@ package com.nawforce.cst
 
 import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.TypeName
+import com.nawforce.types.{TypeDeclaration, TypeName}
+import com.nawforce.utils.DotName
 
 import scala.collection.JavaConverters._
 
@@ -44,7 +45,12 @@ final case class IdExpression(expression: Expression, id: Id) extends Expression
   override def children(): List[CST] = expression :: id :: Nil
 
   override def verify(context: ExpressionVerifyContext): Unit = {
-    expression.verify(context)
+    val dotName = Expression.asDotName(this)
+    if (dotName.nonEmpty) {
+      Expression.verify(dotName.get, this, context)
+    } else {
+      expression.verify(context)
+    }
   }
 }
 
@@ -228,6 +234,40 @@ object Expression {
 
   def construct(expression: List[ExpressionContext], context: ConstructContext): List[Expression] = {
     expression.map(x => Expression.construct(x, context))
+  }
+
+  def asDotName(expr: Expression) : Option[DotName] = {
+    expr match {
+      case idExpr: IdExpression =>
+        asDotName(idExpr.expression).map(_.append(idExpr.id.name))
+      case primaryExpression: PrimaryExpression =>
+        primaryExpression.primary match {
+          case idPrimary: IdPrimary => Some(DotName(idPrimary.id.name))
+          case _ => None
+        }
+      case _ => None
+    }
+  }
+
+  def verify(dotName: DotName, expr: Expression, context: ExpressionVerifyContext): Unit = {
+    if (context.isVar(dotName.head))
+      return
+
+    val td = getType(dotName, context)
+    if (td.isEmpty)
+      Org.logMessage(expr.textRange, s"No type declaration found for '${dotName.head}'")
+  }
+
+  def getType(dotName: DotName, context: ExpressionVerifyContext, outer: Option[TypeName]=None):
+    Option[TypeDeclaration] = {
+    val typeName = TypeName(dotName.head, Nil, outer)
+    val td = context.getTypeAndAddDependency(typeName)
+    if (td.isEmpty && dotName.names.size>1) {
+      getType(dotName.tailNames, context, Some(typeName))
+    } else {
+      td
+    }
+
   }
 }
 

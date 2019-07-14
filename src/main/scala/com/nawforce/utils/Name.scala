@@ -81,7 +81,10 @@ case class DotName(names: Seq[Name]) {
 
   val isCompound: Boolean = names.size > 1
 
+  def head: Name = names.head
+  def tail: Seq[Name] = names.tail
   def headNames: DotName = DotName(names.reverse.tail.reverse)
+  def tailNames: DotName = DotName(names.tail)
   def lastName: Name = names.last
 
   def append(name: Name): DotName = DotName(names :+ name)

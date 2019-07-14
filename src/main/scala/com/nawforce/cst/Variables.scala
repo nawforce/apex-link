@@ -84,8 +84,14 @@ final case class VariableDeclarator(id: Id, init: Option[VariableInitializer]) e
   override def children(): List[CST] = List[CST](id) ++ init
 
   def verify(context: BlockVerifyContext): Unit = {
+    addVars(context) // Needed for non-for loop vars where addVars is not called
+
     val exprContext = new ExpressionVerifyContext(context)
     init.foreach(_.verify(exprContext))
+  }
+
+  def addVars(context: BlockVerifyContext): Unit = {
+    context.addVar(id.name)
   }
 }
 
@@ -106,6 +112,10 @@ final case class VariableDeclarators(declarators: List[VariableDeclarator]) exte
 
   def verify(context: BlockVerifyContext): Unit = {
     declarators.foreach(_.verify(context))
+  }
+
+  def addVars(context: BlockVerifyContext): Unit = {
+    declarators.foreach(_.addVars(context))
   }
 }
 
@@ -128,6 +138,10 @@ final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeName: Ty
       Org.logMessage(textRange, s"No type declaration found for '$typeName'")
 
     variableDeclarators.verify(context)
+  }
+
+  def addVars(context: BlockVerifyContext): Unit = {
+    variableDeclarators.addVars(context)
   }
 }
 

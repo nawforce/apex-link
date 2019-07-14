@@ -101,6 +101,10 @@ trait TypeResolver {
 
 trait VerifyContext {
   def parent(): Option[VerifyContext]
+
+  def isVar(name: Name): Boolean
+
+  def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration]
 }
 
 abstract class HolderVerifyContext {
@@ -155,15 +159,29 @@ class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDe
   override def getTypeFor(typeName: TypeName): Option[TypeDeclaration] = {
     parentContext.getTypeFor(typeName)
   }
+
+  def isVar(name: Name): Boolean = {
+    parentContext.isVar(name)
+  }
 }
 
-class BlockVerifyContext(parentContext: BodyDeclarationVerifyContext)
+class BlockVerifyContext(parentContext: VerifyContext)
   extends VerifyContext {
+
+  private val vars = mutable.Set[Name]()
 
   def parent(): Option[VerifyContext] = Some(parentContext)
 
   def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration] = {
     parentContext.getTypeAndAddDependency(typeName)
+  }
+
+  def addVar(name: Name): Unit = {
+    vars.add(name)
+  }
+
+  def isVar(name: Name): Boolean = {
+    vars.contains(name) || parentContext.isVar(name)
   }
 }
 
@@ -174,5 +192,9 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext)
 
   def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration] = {
     parentContext.getTypeAndAddDependency(typeName)
+  }
+
+  def isVar(name: Name): Boolean = {
+    parentContext.isVar(name)
   }
 }

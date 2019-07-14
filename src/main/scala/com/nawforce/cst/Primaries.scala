@@ -69,7 +69,7 @@ final case class IdPrimary(id: Id) extends Primary {
   override def children(): List[CST] = id :: Nil
 
   override def verify(context: ExpressionVerifyContext): Unit = {
-    // TODO: Var or type name
+    // This may be start of qname for type, IdExpression handles this
   }
 }
 

@@ -56,6 +56,7 @@ class Org extends TypeStore with LazyLogging {
     types.clear()
     inputStreams.clear()
     issues.clear()
+    LogUtils.setLoggingLevel(verbose = false)
   }
 
   /** Create a new package in the org, directories are priority ordered. Duplicate detection depends on metadata

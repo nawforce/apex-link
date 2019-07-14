@@ -49,7 +49,8 @@ final case class Block(path: Path, bytes: Array[Byte], lineAdjust: Int, position
   private var statementsRef: WeakReference[List[Statement]] = WeakReference(null)
 
   override def verify(context: BlockVerifyContext): Unit = {
-    statements().foreach(s => s.verify(context))
+    val blockContext = new BlockVerifyContext(context)
+    statements().foreach(s => s.verify(blockContext))
   }
 
   def statements(): List[Statement] = {
@@ -107,7 +108,7 @@ final case class IfStatement(expression: Expression, statements: List[Statement]
 
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
-    statements.foreach(_.verify(context))
+    statements.foreach(_.verify(new BlockVerifyContext(context)))
   }
 }
 
@@ -124,7 +125,7 @@ final case class WhenControl(expressions: List[Expression], block: Block) extend
 
   def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
-    block.verify(context)
+    block.verify(new BlockVerifyContext(context))
   }
 }
 
@@ -165,7 +166,10 @@ final case class ForStatement(control: ForControl, statement: Statement) extends
 
   override def verify(context: BlockVerifyContext): Unit = {
     control.verify(context)
-    statement.verify(context)
+
+    val loopContext = new BlockVerifyContext(context)
+    control.addVars(loopContext)
+    statement.verify(loopContext)
   }
 }
 
@@ -177,6 +181,7 @@ object ForStatement {
 
 sealed abstract class ForControl extends CST {
   def verify(context: BlockVerifyContext): Unit
+  def addVars(context: BlockVerifyContext): Unit
 }
 
 object ForControl {
@@ -201,6 +206,10 @@ final case class EnhancedForControl(modifiers: Seq[Modifier], typeName: TypeName
       Org.logMessage(id.textRange, s"No type declaration found for '$typeName'")
     expression.verify(context)
   }
+
+  def addVars(context: BlockVerifyContext): Unit = {
+    context.addVar(id.name)
+  }
 }
 
 object EnhancedForControl {
@@ -221,6 +230,10 @@ final case class BasicForControl(forInit: Option[ForInit], expression: Option[Ex
     forInit.foreach(_.verify(context))
     expression.foreach(_.verify(context))
     forUpdate.foreach(_.verify(context))
+  }
+
+  def addVars(context: BlockVerifyContext): Unit = {
+    forInit.foreach(_.addVars(context))
   }
 }
 
@@ -250,6 +263,7 @@ object BasicForControl {
 
 sealed abstract class ForInit extends CST {
   def verify(context: BlockVerifyContext): Unit
+  def addVars(context: BlockVerifyContext): Unit
 }
 
 final case class LocalVariableForInit(variable: LocalVariableDeclaration) extends ForInit {
@@ -258,6 +272,10 @@ final case class LocalVariableForInit(variable: LocalVariableDeclaration) extend
   override def verify(context: BlockVerifyContext): Unit = {
     variable.verify(context)
   }
+
+  override def addVars(context: BlockVerifyContext): Unit = {
+    variable.addVars(context)
+  }
 }
 
 final case class ExpressionListForInit(expressions: List[Expression]) extends ForInit {
@@ -265,6 +283,9 @@ final case class ExpressionListForInit(expressions: List[Expression]) extends Fo
 
   override def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
+  }
+
+  override def addVars(context: BlockVerifyContext): Unit = {
   }
 }
 

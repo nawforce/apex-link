@@ -134,6 +134,7 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: Type
     parameters.foreach(_.verify(context))
 
     val blockContext = new BlockVerifyContext(context)
+    parameters.foreach(param => blockContext.addVar(param.name))
     block.foreach(_.verify(blockContext))
     depends = Some(context.dependencies)
   }
@@ -206,6 +207,7 @@ final case class ApexConstructorDeclaration(_modifiers: Seq[Modifier], qualified
     parameters.foreach(_.verify(context))
 
     val blockContext = new BlockVerifyContext(context)
+    parameters.foreach(param => blockContext.addVar(param.name))
     block.verify(blockContext)
     depends = Some(context.dependencies)
   }
