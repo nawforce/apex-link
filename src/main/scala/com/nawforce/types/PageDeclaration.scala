@@ -27,14 +27,14 @@
 */
 package com.nawforce.types
 
-import java.io.InputStream
-import java.nio.file.Path
+import java.nio.file.{Path, Paths}
 
-import com.nawforce.documents.DocumentType
 import com.nawforce.utils.Name
 
-final case class CustomObjectDeclaration(path: Path, typeName: TypeName) extends TypeDeclaration {
-  val name: Name = typeName.name
+final case class PageDeclaration() extends TypeDeclaration {
+  val name: Name = Name.page
+  val path: Path = Paths.get("Page.xml")
+  val typeName: TypeName = TypeName(name)
   val outerTypeName: Option[TypeName] = None
   val nature: Nature = CLASS_NATURE
   val modifiers: Seq[Modifier] = Seq.empty
@@ -50,12 +50,4 @@ final case class CustomObjectDeclaration(path: Path, typeName: TypeName) extends
 
   def validate(): Unit = {}
   def dependencies(): Set[DependencyDeclaration] = Set.empty
-}
-
-object CustomObjectDeclaration {
-  def create(namespace: Name, path: Path, data: InputStream): Option[CustomObjectDeclaration] = {
-    val name = DocumentType.apply(path).get.name
-    Some(new CustomObjectDeclaration(path, TypeName(name, Nil,
-      if (namespace.value.isEmpty) None else Some(TypeName(namespace)))))
-  }
 }

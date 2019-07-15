@@ -70,6 +70,8 @@ object Name {
   lazy val Boolean: Name = cache("Boolean")
   lazy val ApexPages: Name = cache("ApexPages")
   lazy val PageReference: Name = cache("PageReference")
+  lazy val label: Name = cache("Label")
+  lazy val page: Name = cache("Page")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 }
