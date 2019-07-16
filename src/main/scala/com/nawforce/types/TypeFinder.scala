@@ -27,7 +27,71 @@
 */
 package com.nawforce.types
 
-class TypeFinder {
+import com.nawforce.api.Org
+import com.nawforce.utils.{DotName, Name}
+import scalaz.Memo
 
+trait TypeFinder {
+  /** Find a type relative to a starting type with a local or global name*/
+  def getTypeFor(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
+    typeCache(dotName, from)
+  }
 
+  private val typeCache = Memo.immutableHashMapMemo[(DotName, TypeDeclaration), Option[TypeDeclaration]] {
+    case (name: DotName, from: TypeDeclaration) => findTypeFor(name.demangled, from)
+  }
+
+  private def findTypeFor(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
+    getNestedType(dotName, from)
+      .orElse(getFromSuperType(dotName, from)
+        .orElse(getFromOuterType(dotName, from)
+          .orElse(
+            Org.getType(from.namespace.map(ns => dotName.prepend(ns)).getOrElse(dotName))
+              .orElse(Org.getType(dotName))
+          )
+        )
+      )
+  }
+
+  private def getNestedType(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
+    if (dotName.isCompound) {
+      None
+    } else {
+      val matched = from.nestedTypes.filter(_.name == dotName.names.head)
+      assert(matched.size < 2)
+      matched.headOption
+    }
+  }
+
+  private def getFromSuperType(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
+    if (from.superClass.isEmpty)
+      return None
+
+    // Avoid recursion of searching for super class in super class, will be found later
+    if (dotName == from.superClass.get.asDotName)
+      return None
+
+    val superType = getTypeFor(from.superClass.get.asDotName, from)
+    if (superType.exists(_.path != from.path)) {
+      superType.flatMap(st => getTypeFor(dotName, st))
+    } else {
+      None
+    }
+  }
+
+  private def getFromOuterType(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
+    if (dotName.isCompound || from.outerTypeName.isEmpty) {
+      None
+    } else {
+      val outerType = Org.getType(from.outerTypeName.get.asDotName)
+      if (outerType.nonEmpty) {
+        if (dotName.names.head == outerType.get.name)
+          outerType
+        else
+          getTypeFor(dotName, outerType.get)
+      } else {
+        None
+      }
+    }
+  }
 }

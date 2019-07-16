@@ -56,9 +56,11 @@ case class ApexDocument(_path: Path, _name: Name)
 case class CustomObjectDocument(_path: Path, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("object")
-  override val ignorable: Boolean = {
-    path.toFile.length() == 8 && new String(Files.readAllBytes(path)) == "(hidden)"
-  }
+}
+
+case class CustomMetadataDocument(_path: Path, _name: Name)
+  extends MetadataDocumentType(_path, _name) {
+  lazy val extension: Name = Name("object")
 }
 
 object DocumentType {
@@ -70,6 +72,11 @@ object DocumentType {
         Some(CustomObjectDocument(path, name))
       case Seq(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__c") =>
         Some(CustomObjectDocument(path, name))
+      case Seq(name, Name("object")) if name.value.endsWith("__mdt") =>
+        Some(CustomMetadataDocument(path, name))
+      case Seq(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__mdt") =>
+        Some(CustomMetadataDocument(path, name))
+
       case _ => None
     }
   }

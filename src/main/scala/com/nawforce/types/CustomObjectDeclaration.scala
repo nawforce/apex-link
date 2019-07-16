@@ -31,7 +31,7 @@ import java.io.InputStream
 import java.nio.file.Path
 
 import com.nawforce.documents.DocumentType
-import com.nawforce.utils.Name
+import com.nawforce.utils.{DotName, Name}
 
 final case class CustomObjectDeclaration(path: Path, typeName: TypeName) extends TypeDeclaration {
   val name: Name = typeName.name
@@ -54,8 +54,13 @@ final case class CustomObjectDeclaration(path: Path, typeName: TypeName) extends
 
 object CustomObjectDeclaration {
   def create(namespace: Name, path: Path, data: InputStream): Option[CustomObjectDeclaration] = {
-    val name = DocumentType.apply(path).get.name
-    Some(new CustomObjectDeclaration(path, TypeName(name, Nil,
-      if (namespace.value.isEmpty) None else Some(TypeName(namespace)))))
+    val name = DotName(DocumentType.apply(path).get.name).demangled
+    val ns = if (namespace.value.isEmpty) None else Some(TypeName(namespace))
+    val typeName =
+      if (!name.isCompound)
+        TypeName(name.head, Nil, ns)
+      else
+        TypeName(name.names(1), Nil, Some(TypeName(name.head)))
+    Some(new CustomObjectDeclaration(path, typeName))
   }
 }

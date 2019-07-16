@@ -98,6 +98,18 @@ case class DotName(names: Seq[Name]) {
     }
   }
 
+  def demangled: DotName = {
+    if (names.size == 1) {
+      // Extract namespace for custom object & metadata types
+      val split = head.value.split("__")
+      if (split.size == 3 && (split(2) == "c" || split(2) == "mdt")) {
+        return DotName(Seq(Name(split(0)), Name(split(1)+"__"+split(2))))
+      }
+    }
+    this
+  }
+
+
   override def toString: String = names.mkString(".")
 }
 
