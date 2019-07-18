@@ -109,15 +109,7 @@ class Org extends TypeStore with LazyLogging {
               logger.debug(s"Parsed ${docType.path.toString} in ${end - start}ms")
               typeDeclaration
             }
-          case Some(docType: CustomObjectDocument) =>
-            issues.context.withValue(path) {
-              val start = System.currentTimeMillis()
-              val typeDeclaration = CustomObjectDeclaration.create(namespace, docType.path, getInputStream(docType.path))
-              val end = System.currentTimeMillis()
-              logger.debug(s"Parsed ${docType.path.toString} in ${end - start}ms")
-              typeDeclaration
-            }
-          case Some(docType: CustomMetadataDocument) =>
+          case Some(docType: CustomTypeDocument) =>
             issues.context.withValue(path) {
               val start = System.currentTimeMillis()
               val typeDeclaration = CustomObjectDeclaration.create(namespace, docType.path, getInputStream(docType.path))

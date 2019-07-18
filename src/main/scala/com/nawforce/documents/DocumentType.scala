@@ -53,13 +53,20 @@ case class ApexDocument(_path: Path, _name: Name)
   }
 }
 
+abstract class CustomTypeDocument(_path: Path, _name: Name) extends MetadataDocumentType(_path, _name)
+
 case class CustomObjectDocument(_path: Path, _name: Name)
-  extends MetadataDocumentType(_path, _name) {
+  extends CustomTypeDocument(_path, _name) {
   lazy val extension: Name = Name("object")
 }
 
 case class CustomMetadataDocument(_path: Path, _name: Name)
-  extends MetadataDocumentType(_path, _name) {
+  extends CustomTypeDocument(_path, _name) {
+  lazy val extension: Name = Name("object")
+}
+
+case class PlatformEventDocument(_path: Path, _name: Name)
+  extends CustomTypeDocument(_path, _name) {
   lazy val extension: Name = Name("object")
 }
 
@@ -76,7 +83,10 @@ object DocumentType {
         Some(CustomMetadataDocument(path, name))
       case Seq(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__mdt") =>
         Some(CustomMetadataDocument(path, name))
-
+      case Seq(name, Name("object")) if name.value.endsWith("__e") =>
+        Some(PlatformEventDocument(path, name))
+      case Seq(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__e") =>
+        Some(CustomMetadataDocument(path, name))
       case _ => None
     }
   }
