@@ -104,6 +104,23 @@ class IdDependencyTest extends FunSuite {
     assert(tds.head.methods.head.dependencies().isEmpty)
   }
 
+  test("Outer class field is dependent") {
+    val tds = typeDeclarations(Map(
+      "Dummy" -> "public class Dummy {Object a; class B {void func() {a.b = null;} } }",
+    ))
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
+      "line 1 at 52-55: No type declaration found for 'a'\n")
+    assert(tds.head.nestedTypes.head.methods.head.dependencies().isEmpty)
+  }
+
+  test("Outer class static field not dependent") {
+    val tds = typeDeclarations(Map(
+      "Dummy" -> "public class Dummy {static Object a; class B {void func() {a.b = null;} } }",
+    ))
+    assert(!defaultOrg.issues.hasMessages)
+    assert(tds.head.nestedTypes.head.methods.head.dependencies().isEmpty)
+  }
+
   test("Property not dependent") {
     val tds = typeDeclarations(Map(
       "Dummy" -> "public class Dummy {Object a {get;} void func() {a.b = null;} }"

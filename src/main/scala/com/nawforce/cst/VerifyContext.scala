@@ -27,7 +27,7 @@
 */
 package com.nawforce.cst
 
-import com.nawforce.types.{DependencyDeclaration, TypeDeclaration, TypeFinder, TypeName}
+import com.nawforce.types.{DependencyDeclaration, STATIC_MODIFIER, TypeDeclaration, TypeFinder, TypeName}
 import com.nawforce.utils.Name
 
 import scala.collection.mutable
@@ -72,7 +72,9 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: T
   def parent(): Option[VerifyContext] = parentContext
 
   def isVar(name: Name): Boolean = {
-    typeDeclaration.fields.exists(_.name == name)
+    typeDeclaration.fields.exists(_.name == name) ||
+    typeDeclaration.outerTypeName.flatMap(getTypeFor).exists(
+      _.fields.exists(field => field.name == name && field.modifiers.contains(STATIC_MODIFIER)))
   }
 
   def addFieldDependency(name: Name): Unit = {
