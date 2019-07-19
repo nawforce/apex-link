@@ -38,19 +38,30 @@ trait TypeFinder {
   }
 
   private val typeCache = Memo.immutableHashMapMemo[(DotName, TypeDeclaration), Option[TypeDeclaration]] {
-    case (name: DotName, from: TypeDeclaration) => findTypeFor(name.demangled, from)
+    case (name: DotName, from: TypeDeclaration) => findTypeFor(name.demangled, from, localOnly = false)
   }
 
-  private def findTypeFor(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
-    getNestedType(dotName, from)
-      .orElse(getFromSuperType(dotName, from)
-        .orElse(getFromOuterType(dotName, from)
-          .orElse(
-            Org.getType(from.namespace.map(ns => dotName.prepend(ns)).getOrElse(dotName))
-              .orElse(Org.getType(dotName))
-          )
+  private def findTypeFor(dotName: DotName, from: TypeDeclaration, localOnly: Boolean): Option[TypeDeclaration] = {
+
+    if (dotName.firstName == from.name) {
+      if (dotName.isCompound)
+        findTypeFor(dotName.tail, from, localOnly = true)
+      else
+        Some(from)
+    } else {
+
+      val localType = getNestedType(dotName, from)
+        .orElse(getFromSuperType(dotName, from, localOnly)
+          .orElse(getFromOuterType(dotName, from, localOnly))
         )
-      )
+
+      if (localType.isEmpty && !localOnly) {
+        Org.getType(from.namespace.map(ns => dotName.prepend(ns)).getOrElse(dotName))
+          .orElse(Org.getType(dotName))
+      } else {
+        localType
+      }
+    }
   }
 
   private def getNestedType(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
@@ -63,7 +74,7 @@ trait TypeFinder {
     }
   }
 
-  private def getFromSuperType(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
+  private def getFromSuperType(dotName: DotName, from: TypeDeclaration, localOnly: Boolean): Option[TypeDeclaration] = {
     if (from.superClass.isEmpty)
       return None
 
@@ -73,13 +84,13 @@ trait TypeFinder {
 
     val superType = getTypeFor(from.superClass.get.asDotName, from)
     if (superType.exists(_.path != from.path)) {
-      superType.flatMap(st => getTypeFor(dotName, st))
+      superType.flatMap(st => findTypeFor(dotName, st, localOnly))
     } else {
       None
     }
   }
 
-  private def getFromOuterType(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
+  private def getFromOuterType(dotName: DotName, from: TypeDeclaration, localOnly: Boolean): Option[TypeDeclaration] = {
     if (dotName.isCompound || from.outerTypeName.isEmpty) {
       None
     } else {
@@ -88,7 +99,7 @@ trait TypeFinder {
         if (dotName.names.head == outerType.get.name)
           outerType
         else
-          getTypeFor(dotName, outerType.get)
+          findTypeFor(dotName, outerType.get, localOnly)
       } else {
         None
       }

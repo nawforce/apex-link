@@ -139,6 +139,25 @@ class DependencyTest extends FunSuite {
     assert(tds.head.blocks.head.dependencies() == Set(tds.tail.head, typeClass))
   }
 
+  test("Class self-reference creates dependency") {
+    val tds = typeDeclarations(Map(
+      "Dummy" -> "public class Dummy { {Type t = Dummy.class;} }"
+    ))
+    assert(!defaultOrg.issues.hasMessages)
+    assert(tds.head.blocks.head.dependencies() == Set(tds.head, typeClass))
+  }
+
+  test("Class reference via super types create dependency") {
+    val tds = typeDeclarations(Map(
+      "Dummy" -> "public class Dummy extends A { {Type t = A.C.class;} }",
+      "A" -> "public virtual class A extends B {}",
+      "B" -> "public virtual class B {public class C {} }"
+    ))
+    defaultOrg.issues.dumpMessages(json = false)
+    assert(!defaultOrg.issues.hasMessages)
+    assert(tds.head.blocks.head.dependencies() == Set(tds(2).nestedTypes.head, typeClass))
+  }
+
   test("Method return creates dependency") {
     val tds = typeDeclarations(Map(
       "Dummy" -> "public class Dummy { A func() {return null;} }",

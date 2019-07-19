@@ -250,7 +250,7 @@ object Expression {
   }
 
   def verify(dotName: DotName, expr: Expression, context: ExpressionVerifyContext): Unit = {
-    if (context.isVar(dotName.head))
+    if (context.isVar(dotName.firstName))
       return
 
     val td = getType(dotName, context)
@@ -260,10 +260,10 @@ object Expression {
 
   def getType(dotName: DotName, context: ExpressionVerifyContext, outer: Option[TypeName]=None):
     Option[TypeDeclaration] = {
-    val typeName = TypeName(dotName.head, Nil, outer)
+    val typeName = TypeName(dotName.firstName, Nil, outer)
     val td = context.getTypeAndAddDependency(typeName)
     if (td.isEmpty && dotName.names.size>1) {
-      getType(dotName.tailNames, context, Some(typeName))
+      getType(dotName.tail, context, Some(typeName))
     } else {
       td
     }

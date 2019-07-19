@@ -83,10 +83,11 @@ case class DotName(names: Seq[Name]) {
 
   val isCompound: Boolean = names.size > 1
 
-  def head: Name = names.head
-  def tail: Seq[Name] = names.tail
+  def head: DotName = DotName(Seq(names.head))
+  def tail: DotName = DotName(names.tail)
   def headNames: DotName = DotName(names.reverse.tail.reverse)
   def tailNames: DotName = DotName(names.tail)
+  def firstName: Name = names.head
   def lastName: Name = names.last
 
   def append(name: Name): DotName = DotName(names :+ name)
@@ -101,7 +102,7 @@ case class DotName(names: Seq[Name]) {
   def demangled: DotName = {
     if (names.size == 1) {
       // Extract namespace for custom object & metadata types
-      val split = head.value.split("__")
+      val split = firstName.value.split("__")
       if (split.size == 3 && (split(2) == "c" || split(2) == "mdt")) {
         return DotName(Seq(Name(split(0)), Name(split(1)+"__"+split(2))))
       }

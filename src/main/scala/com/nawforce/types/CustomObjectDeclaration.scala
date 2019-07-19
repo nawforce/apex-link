@@ -58,9 +58,9 @@ object CustomObjectDeclaration {
     val ns = if (namespace.value.isEmpty) None else Some(TypeName(namespace))
     val typeName =
       if (!name.isCompound)
-        TypeName(name.head, Nil, ns)
+        TypeName(name.firstName, Nil, ns)
       else
-        TypeName(name.names(1), Nil, Some(TypeName(name.head)))
+        TypeName(name.names(1), Nil, Some(TypeName(name.firstName)))
     Some(new CustomObjectDeclaration(path, typeName))
   }
 }
