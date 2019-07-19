@@ -44,6 +44,7 @@ class DependencyTest extends FunSuite {
   private val objectClass = defaultOrg.getType(DotName(Name.Object)).get
   private val typeClass = defaultOrg.getType(DotName(Seq(Name.System, Name.Type))).get
   private val booleanClass = defaultOrg.getType(DotName(Name.Boolean)).get
+  private val queryLocatorClass = defaultOrg.getType(DotName(Seq(Name("Database"), Name("QueryLocator")))).get
 
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
     defaultOrg.clear()
@@ -153,9 +154,19 @@ class DependencyTest extends FunSuite {
       "A" -> "public virtual class A extends B {}",
       "B" -> "public virtual class B {public class C {} }"
     ))
-    defaultOrg.issues.dumpMessages(json = false)
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.blocks.head.dependencies() == Set(tds(2).nestedTypes.head, typeClass))
+  }
+
+  test("Class reference with ambiguous name") {
+    val tds = typeDeclarations(Map(
+      "Dummy" -> "public class Dummy { class Database {Type t = Database.QueryLocator.class;} }",
+    ))
+    defaultOrg.issues.dumpMessages(json = false)
+    assert(!defaultOrg.issues.hasMessages)
+    Org.current.withValue(defaultOrg) {
+      assert(tds.head.nestedTypes.head.fields.head.dependencies() == Set(typeClass, queryLocatorClass))
+    }
   }
 
   test("Method return creates dependency") {

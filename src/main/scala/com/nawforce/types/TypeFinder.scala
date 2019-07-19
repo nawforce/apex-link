@@ -42,25 +42,31 @@ trait TypeFinder {
   }
 
   private def findTypeFor(dotName: DotName, from: TypeDeclaration, localOnly: Boolean): Option[TypeDeclaration] = {
-
-    if (dotName.firstName == from.name) {
-      if (dotName.isCompound)
-        findTypeFor(dotName.tail, from, localOnly = true)
-      else
-        Some(from)
-    } else {
-
-      val localType = getNestedType(dotName, from)
-        .orElse(getFromSuperType(dotName, from, localOnly)
-          .orElse(getFromOuterType(dotName, from, localOnly))
-        )
-
-      if (localType.isEmpty && !localOnly) {
-        Org.getType(from.namespace.map(ns => dotName.prepend(ns)).getOrElse(dotName))
-          .orElse(Org.getType(dotName))
+    var matched =
+      if (dotName.firstName == from.name) {
+        if (dotName.isCompound)
+          findTypeFor(dotName.tail, from, localOnly = true)
+        else
+          Some(from)
       } else {
-        localType
+        None
       }
+
+    if (matched.nonEmpty)
+      return matched
+
+    matched = getNestedType(dotName, from)
+      .orElse(getFromSuperType(dotName, from, localOnly)
+        .orElse(getFromOuterType(dotName, from, localOnly))
+      )
+    if (matched.nonEmpty)
+      return matched
+
+    if (!localOnly) {
+      Org.getType(from.namespace.map(ns => dotName.prepend(ns)).getOrElse(dotName))
+        .orElse(Org.getType(dotName))
+    } else {
+      None
     }
   }
 
