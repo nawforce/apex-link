@@ -72,6 +72,8 @@ object Name {
   lazy val PageReference: Name = cache("PageReference")
   lazy val label: Name = cache("Label")
   lazy val page: Name = cache("Page")
+  lazy val component: Name = cache("Component")
+  lazy val flow: Name = cache("Flow")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 }
