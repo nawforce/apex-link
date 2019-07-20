@@ -46,10 +46,11 @@ class Org extends TypeStore with LazyLogging {
   private var packages: List[Package] = Nil
   private val types = new ConcurrentHashMap[DotName, TypeDeclaration]()
   private val inputStreams = new ConcurrentHashMap[Path, InputStream]()
+  // TODO: Implement these declaration types
   private val labelDeclaration = new LabelDeclaration
   private val pageDeclaration = new PageDeclaration
   private val flowDeclaration = new FlowDeclaration
-  private val componentDeclaration = new ComponentDeclaration
+  private val componentDeclaration = ComponentDeclaration(super.getType(DotName("Component.Apex")).get)
   upsertType(labelDeclaration)
   upsertType(pageDeclaration)
   upsertType(flowDeclaration)

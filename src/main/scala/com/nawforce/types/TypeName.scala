@@ -72,7 +72,6 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
 }
 
 object TypeName {
-  lazy val ApexTypes: Set[TypeName] = Set(TypeName.Void, TypeName.Object, TypeName.Null)
   lazy val Void = TypeName(Name("void"))
   lazy val Object = TypeName(Name("Object"))
   lazy val System = TypeName(Name("System"))

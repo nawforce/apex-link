@@ -31,7 +31,7 @@ import java.nio.file.{Path, Paths}
 
 import com.nawforce.utils.Name
 
-final case class ComponentDeclaration() extends TypeDeclaration {
+final case class ComponentDeclaration(apexComponents: TypeDeclaration) extends TypeDeclaration {
   val name: Name = Name.component
   val path: Path = Paths.get("Component")
   val typeName: TypeName = TypeName(name)
@@ -41,7 +41,7 @@ final case class ComponentDeclaration() extends TypeDeclaration {
 
   val superClass: Option[TypeName] = Some(TypeName.SObject)
   val interfaces: Seq[TypeName] = Seq.empty
-  val nestedTypes: Seq[TypeDeclaration] = Seq.empty
+  val nestedTypes: Seq[TypeDeclaration] = Seq(apexComponents)
 
   val blocks: Seq[BlockDeclaration] = Seq.empty
   val fields: Seq[FieldDeclaration]= Seq.empty

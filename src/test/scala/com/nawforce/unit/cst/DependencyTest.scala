@@ -31,7 +31,7 @@ import java.io.ByteArrayInputStream
 import java.nio.file.{Path, Paths}
 
 import com.nawforce.api.Org
-import com.nawforce.types.TypeDeclaration
+import com.nawforce.types.{TypeDeclaration, TypeName}
 import com.nawforce.utils.{DotName, Name}
 import org.scalatest.FunSuite
 
@@ -162,10 +162,20 @@ class DependencyTest extends FunSuite {
     val tds = typeDeclarations(Map(
       "Dummy" -> "public class Dummy { class Database {Type t = Database.QueryLocator.class;} }",
     ))
-    defaultOrg.issues.dumpMessages(json = false)
     assert(!defaultOrg.issues.hasMessages)
     Org.current.withValue(defaultOrg) {
       assert(tds.head.nestedTypes.head.fields.head.dependencies() == Set(typeClass, queryLocatorClass))
+    }
+  }
+
+  test("Class reference for component") {
+    val tds = typeDeclarations(Map(
+      "Dummy" -> "public class Dummy { Type t = Component.Apex.OutputText.class; }",
+    ))
+    assert(!defaultOrg.issues.hasMessages)
+    Org.current.withValue(defaultOrg) {
+      val cmp = tds.head.fields.head.dependencies().filterNot(_ == typeClass)
+      assert(cmp.head.asInstanceOf[TypeDeclaration].typeName.toString == "Component.Apex.OutputText")
     }
   }
 
@@ -174,7 +184,6 @@ class DependencyTest extends FunSuite {
       "Dummy" -> "public class Dummy { A func() {return null;} }",
       "A" -> "public class A {}"
     ))
-    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.methods.head.dependencies() == tds.tail.toSet)
   }
