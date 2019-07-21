@@ -67,17 +67,21 @@ class DocumentLoader(paths: Seq[Path]) {
   private def insertDocument(documentType: Option[DocumentType]): Unit = {
     documentType match {
       case Some(docType: MetadataDocumentType) if !docType.ignorable =>
-        val duplicate = documentByName.get(docType.name)
-        if (duplicate.nonEmpty) {
-          Org.logMessage(LineLocation(docType.path, 0), s"File has same name as ${duplicate.get}, ignoring")
-        } else {
-          documentsByExtension.put(docType.extension, docType.path :: documentsByExtension(docType.extension))
-          documentByName.put(docType.name, docType.path)
+        if (docType.indexByName) {
+          val duplicate = documentByName.get(docType.name)
+          if (duplicate.nonEmpty) {
+            val duplicate = documentByName.get(docType.name)
+            Org.logMessage(LineLocation(docType.path, 0), s"File has same name as ${duplicate.get}, ignoring")
+          } else {
+            documentByName.put(docType.name, docType.path)
+          }
         }
+        documentsByExtension.put(docType.extension, docType.path :: documentsByExtension(docType.extension))
       case _ => ()
     }
   }
 
+  // TODO: Do we need to index by name anymore?
   def getByName(name: Name): Option[(Path, InputStream)] = {
     documentByName.get(name).map(path => (path, new FileInputStream(path.toFile)))
   }

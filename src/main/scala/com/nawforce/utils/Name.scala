@@ -48,6 +48,8 @@ case class Name(value: String) {
   override def hashCode(): Int = normalised.hashCode
 
   override def toString: String = value
+
+  def isEmpty: Boolean = value.isEmpty
 }
 
 object Name {

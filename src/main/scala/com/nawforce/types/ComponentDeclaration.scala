@@ -29,25 +29,91 @@ package com.nawforce.types
 
 import java.nio.file.{Path, Paths}
 
+import com.nawforce.documents.ComponentDocument
 import com.nawforce.utils.Name
 
+import scala.collection.mutable
+
 final case class ComponentDeclaration(apexComponents: TypeDeclaration) extends TypeDeclaration {
+  var components: mutable.Map[Name, TypeDeclaration] = mutable.Map(Name("Apex") -> apexComponents)
+
   val name: Name = Name.component
   val path: Path = Paths.get("Component")
   val typeName: TypeName = TypeName(name)
   val outerTypeName: Option[TypeName] = None
   val nature: Nature = CLASS_NATURE
-  val modifiers: Seq[Modifier] = Seq.empty
+  val modifiers: Seq[Modifier] = Nil
 
   val superClass: Option[TypeName] = Some(TypeName.SObject)
-  val interfaces: Seq[TypeName] = Seq.empty
-  val nestedTypes: Seq[TypeDeclaration] = Seq(apexComponents)
+  val interfaces: Seq[TypeName] = Nil
+  val nestedTypes: Seq[TypeDeclaration] = components.values.toSeq
 
-  val blocks: Seq[BlockDeclaration] = Seq.empty
-  val fields: Seq[FieldDeclaration]= Seq.empty
-  val constructors: Seq[ConstructorDeclaration] = Seq.empty
-  val methods: Seq[MethodDeclaration]= Seq.empty
+  val blocks: Seq[BlockDeclaration] =  Nil
+  val fields: Seq[FieldDeclaration] = Nil
+  val constructors: Seq[ConstructorDeclaration] =  Nil
+  val methods: Seq[MethodDeclaration] = Nil
+
+  def validate(): Unit = {}
+  def dependencies(): Set[DependencyDeclaration] = Set.empty
+
+  def upsertComponent(namespace: Name, component: ComponentDocument): Unit = {
+    getNamespaceContainer(namespace).foreach(_.upsertComponent(component))
+    components.put(component.name, CustomComponent(component.name, component.path))
+  }
+
+  private def getNamespaceContainer(namespace: Name): Option[ComponentNamespace] = {
+    val ns = if (namespace.isEmpty) Name("c") else namespace
+    val decl = components.getOrElseUpdate(namespace, ComponentNamespace(ns))
+    decl match {
+      case componentNamespace: ComponentNamespace => Some(componentNamespace)
+      case _ => None
+    }
+  }
+}
+
+final case class CustomComponent(name: Name, path: Path) extends TypeDeclaration {
+  val typeName: TypeName = TypeName(name)
+  val outerTypeName: Option[TypeName] = None
+  val nature: Nature = CLASS_NATURE
+  val modifiers: Seq[Modifier] = Nil
+
+  val superClass: Option[TypeName] = Some(TypeName.SObject)
+  val interfaces: Seq[TypeName] = Nil
+  val nestedTypes: Seq[TypeDeclaration] = Nil
+
+  val blocks: Seq[BlockDeclaration] = Nil
+  val fields: Seq[FieldDeclaration]= Nil
+  val constructors: Seq[ConstructorDeclaration] = Nil
+  val methods: Seq[MethodDeclaration]= Nil
 
   def validate(): Unit = {}
   def dependencies(): Set[DependencyDeclaration] = Set.empty
 }
+
+final case class ComponentNamespace(name: Name) extends TypeDeclaration {
+  var components: mutable.Map[Name, TypeDeclaration] = mutable.Map()
+
+  // TODO: Fix unknown path handling
+  val path: Path = Paths.get("ComponentNamespace")
+  val typeName: TypeName = TypeName(name)
+  val outerTypeName: Option[TypeName] = None
+  val nature: Nature = CLASS_NATURE
+  val modifiers: Seq[Modifier] = Nil
+
+  val superClass: Option[TypeName] = Some(TypeName.SObject)
+  val interfaces: Seq[TypeName] = Nil
+  val nestedTypes: Seq[TypeDeclaration] = components.values.toSeq
+
+  val blocks: Seq[BlockDeclaration] = Nil
+  val fields: Seq[FieldDeclaration]= Nil
+  val constructors: Seq[ConstructorDeclaration] = Nil
+  val methods: Seq[MethodDeclaration]= Nil
+
+  def validate(): Unit = {}
+  def dependencies(): Set[DependencyDeclaration] = Set.empty
+
+  def upsertComponent(component: ComponentDocument): Unit = {
+    components.put(component.name, CustomComponent(component.name, component.path))
+  }
+}
+

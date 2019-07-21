@@ -42,6 +42,7 @@ class PathDocument(val path: Path, val name: Name) extends DocumentType {
 abstract class MetadataDocumentType(_path: Path, _name: Name)
   extends PathDocument(_path, _name) {
   val extension: Name
+  val indexByName: Boolean = false
   val ignorable: Boolean = false
 }
 
@@ -51,6 +52,11 @@ case class ApexDocument(_path: Path, _name: Name)
   override val ignorable: Boolean = {
     path.toFile.length() == 8 && new String(Files.readAllBytes(path)) == "(hidden)"
   }
+}
+
+case class ComponentDocument(_path: Path, _name: Name)
+  extends MetadataDocumentType(_path, _name) {
+  lazy val extension: Name = Name("component")
 }
 
 abstract class CustomTypeDocument(_path: Path, _name: Name) extends MetadataDocumentType(_path, _name)
@@ -75,6 +81,8 @@ object DocumentType {
     splitFilename(path) match {
       case Seq(name, Name("cls")) =>
         Some(ApexDocument(path, name))
+      case Seq(name, Name("component")) =>
+        Some(ComponentDocument(path, name))
       case Seq(name, Name("object")) if name.value.endsWith("__c") =>
         Some(CustomObjectDocument(path, name))
       case Seq(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__c") =>

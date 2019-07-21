@@ -124,6 +124,9 @@ class Org extends TypeStore with LazyLogging {
               logger.debug(s"Parsed ${docType.path.toString} in ${end - start}ms")
               typeDeclaration
             }
+          case Some(docType: ComponentDocument) =>
+            upsertComponent(namespace, docType)
+            None
           case _ => None
         }
       })
@@ -149,11 +152,14 @@ class Org extends TypeStore with LazyLogging {
     })
   }
 
-  /** Upsert a type declaration in the Org */
   def upsertType(declaration: TypeDeclaration): Unit = {
     Org.current.withValue(this) {
       types.put(declaration.typeName.asDotName, declaration)
     }
+  }
+
+  private def upsertComponent(namespace: Name, component: ComponentDocument): Unit = {
+    componentDeclaration.upsertComponent(namespace, component)
   }
 
   private def getOrgType(name: DotName): Option[TypeDeclaration] = {
