@@ -28,14 +28,16 @@
 package com.nawforce.types
 
 import java.nio.file.{Path, Paths}
+import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.documents.ComponentDocument
 import com.nawforce.utils.Name
 
-import scala.collection.mutable
+import scala.collection.JavaConverters._
 
 final case class ComponentDeclaration(apexComponents: TypeDeclaration) extends TypeDeclaration {
-  var components: mutable.Map[Name, TypeDeclaration] = mutable.Map(Name("Apex") -> apexComponents)
+  private val components = new ConcurrentHashMap[Name, TypeDeclaration]()
+  components.put(Name("Apex"), apexComponents)
 
   val name: Name = Name.component
   val path: Path = Paths.get("Component")
@@ -46,7 +48,7 @@ final case class ComponentDeclaration(apexComponents: TypeDeclaration) extends T
 
   val superClass: Option[TypeName] = Some(TypeName.SObject)
   val interfaces: Seq[TypeName] = Nil
-  val nestedTypes: Seq[TypeDeclaration] = components.values.toSeq
+  val nestedTypes: Seq[TypeDeclaration] = components.values().asScala.toSeq
 
   val blocks: Seq[BlockDeclaration] =  Nil
   val fields: Seq[FieldDeclaration] = Nil
@@ -63,8 +65,8 @@ final case class ComponentDeclaration(apexComponents: TypeDeclaration) extends T
 
   private def getNamespaceContainer(namespace: Name): Option[ComponentNamespace] = {
     val ns = if (namespace.isEmpty) Name("c") else namespace
-    val decl = components.getOrElseUpdate(namespace, ComponentNamespace(ns))
-    decl match {
+    components.putIfAbsent(ns, ComponentNamespace(ns))
+    components.get(ns) match {
       case componentNamespace: ComponentNamespace => Some(componentNamespace)
       case _ => None
     }
@@ -91,7 +93,7 @@ final case class CustomComponent(name: Name, path: Path) extends TypeDeclaration
 }
 
 final case class ComponentNamespace(name: Name) extends TypeDeclaration {
-  var components: mutable.Map[Name, TypeDeclaration] = mutable.Map()
+  private val components = new ConcurrentHashMap[Name, TypeDeclaration]()
 
   // TODO: Fix unknown path handling
   val path: Path = Paths.get("ComponentNamespace")
@@ -102,7 +104,7 @@ final case class ComponentNamespace(name: Name) extends TypeDeclaration {
 
   val superClass: Option[TypeName] = Some(TypeName.SObject)
   val interfaces: Seq[TypeName] = Nil
-  val nestedTypes: Seq[TypeDeclaration] = components.values.toSeq
+  val nestedTypes: Seq[TypeDeclaration] = components.values.asScala.toSeq
 
   val blocks: Seq[BlockDeclaration] = Nil
   val fields: Seq[FieldDeclaration]= Nil
