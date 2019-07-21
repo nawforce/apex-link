@@ -48,7 +48,7 @@ final case class ComponentDeclaration(apexComponents: TypeDeclaration) extends T
 
   val superClass: Option[TypeName] = Some(TypeName.SObject)
   val interfaces: Seq[TypeName] = Nil
-  val nestedTypes: Seq[TypeDeclaration] = components.values().asScala.toSeq
+  def nestedTypes: Seq[TypeDeclaration] = components.values().asScala.toSeq
 
   val blocks: Seq[BlockDeclaration] =  Nil
   val fields: Seq[FieldDeclaration] = Nil
@@ -104,7 +104,7 @@ final case class ComponentNamespace(name: Name) extends TypeDeclaration {
 
   val superClass: Option[TypeName] = Some(TypeName.SObject)
   val interfaces: Seq[TypeName] = Nil
-  val nestedTypes: Seq[TypeDeclaration] = components.values.asScala.toSeq
+  def nestedTypes: Seq[TypeDeclaration] = components.values.asScala.toSeq
 
   val blocks: Seq[BlockDeclaration] = Nil
   val fields: Seq[FieldDeclaration]= Nil

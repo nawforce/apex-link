@@ -101,7 +101,7 @@ trait TypeDeclaration extends DependencyDeclaration {
 
   val superClass: Option[TypeName]
   val interfaces: Seq[TypeName]
-  val nestedTypes: Seq[TypeDeclaration]
+  def nestedTypes: Seq[TypeDeclaration]
 
   val blocks: Seq[BlockDeclaration]
   val fields: Seq[FieldDeclaration]
