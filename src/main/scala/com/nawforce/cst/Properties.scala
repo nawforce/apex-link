@@ -108,7 +108,9 @@ final case class GetterPropertyBlock(modifiers: Seq[Modifier], block: Option[Blo
 final case class SetterPropertyBlock(modifiers: Seq[Modifier], block: Option[Block]) extends PropertyBlock {
   override def children(): List[CST] = List() ++ block
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    block.foreach(_.verify(new BlockVerifyContext(context)))
+    val bc = new BlockVerifyContext(context)
+    bc.addVar(Name("value"))
+    block.foreach(_.verify(bc))
   }
 }
 

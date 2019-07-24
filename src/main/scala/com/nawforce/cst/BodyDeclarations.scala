@@ -118,7 +118,7 @@ object InitialiserBlock {
 }
 
 final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: TypeName, id: Id,
-                                       parameters: List[FormalParameter], block: Option[Block])
+                                       parameters: List[FormalParameter], block: Option[LazyBlock])
   extends ClassBodyDeclaration(_modifiers) with MethodDeclaration {
 
   override def children(): List[CST] = List() ++ parameters ++ block
@@ -143,7 +143,7 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: Type
 object ApexMethodDeclaration {
   def construct(modifiers: Seq[Modifier], from: MethodDeclarationContext, context: ConstructContext): ApexMethodDeclaration = {
     val typeName = if (from.typeRef() != null) TypeRef.construct(from.typeRef(), context) else TypeName.Void
-    val block = if (from.block != null) Some(Block.construct(from.block, context)) else None
+    val block = if (from.block != null) Some(Block.constructLazy(from.block, context)) else None
 
     ApexMethodDeclaration(modifiers,
       typeName,

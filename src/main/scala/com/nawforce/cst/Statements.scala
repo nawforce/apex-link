@@ -33,6 +33,7 @@ import java.nio.file.Path
 import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types.{ApexModifiers, ApexTypeDeclaration, Modifier, TypeName}
+import com.nawforce.utils.Name
 import org.antlr.v4.runtime.misc.Interval
 
 import scala.collection.JavaConverters._
@@ -43,10 +44,11 @@ trait Statement extends CST {
 }
 
 // Treat Block as Statement for blocks in blocks
-final case class Block(path: Path, bytes: Array[Byte], lineAdjust: Int, positionAdjust:Int,
+final case class LazyBlock(path: Path, bytes: Array[Byte], lineAdjust: Int, positionAdjust:Int,
                        var blockContextRef: WeakReference[BlockContext])
   extends CST with Statement {
   private var statementsRef: WeakReference[List[Statement]] = WeakReference(null)
+  private var reParsed = false
 
   override def verify(context: BlockVerifyContext): Unit = {
     val blockContext = new BlockVerifyContext(context)
@@ -56,29 +58,47 @@ final case class Block(path: Path, bytes: Array[Byte], lineAdjust: Int, position
   def statements(): List[Statement] = {
     if (statementsRef.get.isEmpty) {
       if (blockContextRef.get.isEmpty) {
-        val rangeAdjust = CST.rangeAdjust.value
-        assert(rangeAdjust._1 == 0 && rangeAdjust._2 == 0)
+        blockContextRef = WeakReference(ApexTypeDeclaration.parseBlock(path, new ByteArrayInputStream(bytes)).get)
+        reParsed = true
+      }
 
-        CST.rangeAdjust.withValue((lineAdjust, positionAdjust)) {
-          blockContextRef = WeakReference(ApexTypeDeclaration.parseBlock(path, new ByteArrayInputStream(bytes)).get)
-          val statementContexts: Seq[StatementContext] = blockContextRef.get.head.statement().asScala
-          statementsRef = WeakReference(Statement.construct(statementContexts.toList, new ConstructContext))
-        }
+      var rangeAdjust = CST.rangeAdjust.value
+      assert(rangeAdjust._1 == 0 && rangeAdjust._2 == 0)
+      if (reParsed)
+        rangeAdjust = (lineAdjust, positionAdjust)
+      CST.rangeAdjust.withValue(rangeAdjust) {
+        val statementContexts: Seq[StatementContext] = blockContextRef.get.head.statement().asScala
+        statementsRef = WeakReference(Statement.construct(statementContexts.toList, new ConstructContext))
       }
     }
-    statementsRef.get.getOrElse(List())
+    statementsRef.get.get
   }
 
   override def children(): List[CST] = statements()
 }
 
+final case class Block(statements: List[Statement])
+  extends CST with Statement {
+
+  override def children(): List[CST] = statements
+
+  override def verify(context: BlockVerifyContext): Unit = {
+    val blockContext = new BlockVerifyContext(context)
+    statements.foreach(s => s.verify(blockContext))
+  }
+}
+
 object Block {
-  def construct(blockContext: BlockContext, context: ConstructContext): Block = {
+  def constructLazy(blockContext: BlockContext, context: ConstructContext): LazyBlock = {
     val is = blockContext.start.getInputStream
     val text = is.getText(new Interval(blockContext.start.getStartIndex, blockContext.stop.getStopIndex))
     val path = Org.current.value.issues.context.value
-    Block(path, text.getBytes(), blockContext.start.getLine-1, blockContext.start.getCharPositionInLine,
+    LazyBlock(path, text.getBytes(), blockContext.start.getLine-1, blockContext.start.getCharPositionInLine,
       WeakReference(blockContext))
+  }
+
+  def construct(blockContext: BlockContext, context: ConstructContext): Block = {
+    Block(Statement.construct(blockContext.statement().asScala.toList, context)).withContext(blockContext, context)
   }
 
   def constructOption(blockContext: BlockContext, context: ConstructContext): Option[Block] = {
@@ -408,7 +428,10 @@ final case class CatchClause(modifiers: Seq[Modifier], catchType: CatchType, id:
 
   def verify(context: BlockVerifyContext): Unit = {
     catchType.verify(context)
-    block.verify(context)
+
+    val blockContext = new BlockVerifyContext(context)
+    blockContext.addVar(Name(id))
+    block.verify(blockContext)
   }
 }
 
