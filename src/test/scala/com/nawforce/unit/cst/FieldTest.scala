@@ -48,12 +48,12 @@ class FieldTest extends FunSuite {
         defaultOrg.issues.dumpMessages(json = false)
       else {
         Org.current.value.issues.context.withValue(defaultPath) {
-          td.get.validate()
+          td.head.validate()
         }
-        td.get.fields
+        td.head.fields
       }
       assert(defaultOrg.issues.hasMessages == hasMessages)
-      td.get
+      td.head
     }
   }
 

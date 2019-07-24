@@ -35,9 +35,9 @@ import com.nawforce.utils.Name
 
 import scala.collection.JavaConverters._
 
-final case class ComponentDeclaration(apexComponents: TypeDeclaration) extends TypeDeclaration {
+final case class ComponentDeclaration(standardComponents: Map[Name, TypeDeclaration]) extends TypeDeclaration {
   private val components = new ConcurrentHashMap[Name, TypeDeclaration]()
-  components.put(Name("Apex"), apexComponents)
+  standardComponents.foreach(kv => components.put(kv._1, kv._2))
 
   val name: Name = Name.component
   val path: Path = Paths.get("Component")

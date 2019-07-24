@@ -47,7 +47,7 @@ class SummaryTest extends FunSuite {
       if (td.isEmpty || defaultOrg.issues.hasMessages != hasMessages)
         defaultOrg.issues.dumpMessages(json = false)
       assert(defaultOrg.issues.hasMessages == hasMessages)
-      td.get.summary
+      td.head.summary
     }
   }
 

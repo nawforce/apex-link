@@ -32,7 +32,7 @@ import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.documents._
-import com.nawforce.types.{ApexTypeDeclaration, ComponentDeclaration, CustomObjectDeclaration, FlowDeclaration, LabelDeclaration, PageDeclaration, TypeDeclaration, TypeStore}
+import com.nawforce.types.{ApexTypeDeclaration, ComponentDeclaration, CustomMetadataDeclaration, CustomObjectDeclaration, FlowDeclaration, LabelDeclaration, PageDeclaration, PlatformEventDeclaration, TypeDeclaration, TypeStore}
 import com.nawforce.utils.{DotName, IssueLog, Name}
 import com.typesafe.scalalogging.LazyLogging
 
@@ -50,7 +50,10 @@ class Org extends TypeStore with LazyLogging {
   private val labelDeclaration = new LabelDeclaration
   private val pageDeclaration = new PageDeclaration
   private val flowDeclaration = new FlowDeclaration
-  private val componentDeclaration = ComponentDeclaration(super.getType(DotName("Component.Apex")).get)
+  private val componentDeclaration = ComponentDeclaration(Map(
+    Name("Apex") -> super.getType(DotName("Component.Apex")).get,
+    Name("Chatter") -> super.getType(DotName("Component.Chatter")).get
+  ))
   upsertType(labelDeclaration)
   upsertType(pageDeclaration)
   upsertType(flowDeclaration)
@@ -107,27 +110,27 @@ class Org extends TypeStore with LazyLogging {
   private def loadFromFiles(namespace: Name, files: Seq[Path]): Unit = {
     val newDeclarations = files.grouped(100).flatMap(group => {
       val parsed = group.par.flatMap(path => {
-        DocumentType(path) match {
-          case Some(docType: ApexDocument) =>
-            issues.context.withValue(path) {
-              val start = System.currentTimeMillis()
-              val typeDeclaration = ApexTypeDeclaration.create(namespace, docType.path, getInputStream(docType.path))
-              val end = System.currentTimeMillis()
-              logger.debug(s"Parsed ${docType.path.toString} in ${end - start}ms")
-              typeDeclaration
-            }
-          case Some(docType: CustomTypeDocument) =>
-            issues.context.withValue(path) {
-              val start = System.currentTimeMillis()
-              val typeDeclaration = CustomObjectDeclaration.create(namespace, docType.path, getInputStream(docType.path))
-              val end = System.currentTimeMillis()
-              logger.debug(s"Parsed ${docType.path.toString} in ${end - start}ms")
-              typeDeclaration
-            }
-          case Some(docType: ComponentDocument) =>
-            upsertComponent(namespace, docType)
-            None
-          case _ => None
+        issues.context.withValue(path) {
+          val start = System.currentTimeMillis()
+
+          val tds = DocumentType(path) match {
+            case Some(docType: ApexDocument) =>
+              ApexTypeDeclaration.create(namespace, docType.path, getInputStream(docType.path))
+            case Some(docType: CustomObjectDocument) =>
+              CustomObjectDeclaration.create(namespace, docType.path, getInputStream(docType.path))
+            case Some(docType: PlatformEventDocument) =>
+              PlatformEventDeclaration.create(namespace, docType.path, getInputStream(docType.path))
+            case Some(docType: CustomMetadataDocument) =>
+              CustomMetadataDeclaration.create(namespace, docType.path, getInputStream(docType.path))
+            case Some(docType: ComponentDocument) =>
+              upsertComponent(namespace, docType)
+              Nil
+            case _ => Nil
+          }
+
+          val end = System.currentTimeMillis()
+          logger.debug(s"Parsed ${path} in ${end - start}ms")
+          tds
         }
       })
       System.gc()

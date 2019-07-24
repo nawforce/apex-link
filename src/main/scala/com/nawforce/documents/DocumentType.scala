@@ -59,20 +59,18 @@ case class ComponentDocument(_path: Path, _name: Name)
   lazy val extension: Name = Name("component")
 }
 
-abstract class CustomTypeDocument(_path: Path, _name: Name) extends MetadataDocumentType(_path, _name)
-
 case class CustomObjectDocument(_path: Path, _name: Name)
-  extends CustomTypeDocument(_path, _name) {
+  extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("object")
 }
 
 case class CustomMetadataDocument(_path: Path, _name: Name)
-  extends CustomTypeDocument(_path, _name) {
+  extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("object")
 }
 
 case class PlatformEventDocument(_path: Path, _name: Name)
-  extends CustomTypeDocument(_path, _name) {
+  extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("object")
 }
 

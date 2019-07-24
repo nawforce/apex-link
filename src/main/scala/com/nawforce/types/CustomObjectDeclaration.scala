@@ -53,7 +53,7 @@ final case class CustomObjectDeclaration(path: Path, typeName: TypeName) extends
 }
 
 object CustomObjectDeclaration {
-  def create(namespace: Name, path: Path, data: InputStream): Option[CustomObjectDeclaration] = {
+  def create(namespace: Name, path: Path, data: InputStream): Seq[CustomObjectDeclaration] = {
     val name = DotName(DocumentType.apply(path).get.name).demangled
     val ns = if (namespace.value.isEmpty) None else Some(TypeName(namespace))
     val typeName =
@@ -61,6 +61,11 @@ object CustomObjectDeclaration {
         TypeName(name.firstName, Nil, ns)
       else
         TypeName(name.names(1), Nil, Some(TypeName(name.firstName)))
-    Some(new CustomObjectDeclaration(path, typeName))
+    Seq(
+      new CustomObjectDeclaration(path, typeName),
+      new CustomObjectDeclaration(path, typeName.withNameReplace("__c$", "__Share")),
+      new CustomObjectDeclaration(path, typeName.withNameReplace("__c$", "__Feed")),
+      new CustomObjectDeclaration(path, typeName.withNameReplace("__c$", "__History"))
+    )
   }
 }

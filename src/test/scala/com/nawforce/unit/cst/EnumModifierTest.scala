@@ -49,9 +49,9 @@ class EnumModifierTest extends FunSuite {
       if (td.isEmpty)
         defaultOrg.issues.dumpMessages(json = false)
       Org.current.value.issues.context.withValue(defaultPath) {
-        td.get.validate()
+        td.head.validate()
       }
-      td.get
+      td.head
     }
   }
 

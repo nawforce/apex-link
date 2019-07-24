@@ -105,9 +105,9 @@ case class DotName(names: Seq[Name]) {
 
   def demangled: DotName = {
     if (names.size == 1) {
-      // Extract namespace for custom object & metadata types
+      // Extract namespace for custom object, platform event &  metadata types
       val split = firstName.value.split("__")
-      if (split.size == 3 && (split(2) == "c" || split(2) == "mdt")) {
+      if (split.size == 3 && (split(2) == "c" || split(2) == "e" || split(2) == "mdt")) {
         return DotName(Seq(Name(split(0)), Name(split(1)+"__"+split(2))))
       }
     }

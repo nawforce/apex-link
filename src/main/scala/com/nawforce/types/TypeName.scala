@@ -53,6 +53,10 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
       this.asListOf.withArraySubscripts(count-1)
   }
 
+  def withNameReplace(regex: String, replacement: String) : TypeName = {
+    TypeName(Name(name.value.replaceAll(regex, replacement)), params, outer)
+  }
+
   def asDotName: DotName = {
     outer match {
       case None => DotName(Seq(name))

@@ -66,7 +66,12 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
 
   override val nature: Nature
 
-  private var superTypeDeclaration: Option[TypeDeclaration] = None
+  private lazy val superTypeDeclaration: Option[TypeDeclaration] = {
+    // TODO: Using a verify context here is a bit of a kludge
+    val typeDeclaration = superClass.flatMap(sc => new TypeVerifyContext(None, this).getTypeFor(sc))
+    isComplete = typeDeclaration.isDefined || superClass.isEmpty
+    typeDeclaration
+  }
   private var isComplete = false
 
   override val nestedTypes: Seq[ApexTypeDeclaration] = {
@@ -129,7 +134,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
     if (depends.nonEmpty)
       return
 
-    superTypeDeclaration = superClass.flatMap(superType => context.getTypeAndAddDependency(superType))
+    superTypeDeclaration.foreach(context.addDependency)
     if (superClass.nonEmpty) {
       if (superTypeDeclaration.isEmpty) {
         Org.logMessage(id.textRange, s"No type declaration found for '${superClass.get.asDotName}'")
@@ -139,7 +144,6 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
         Org.logMessage(id.textRange, s"Parent class '${superClass.get.asDotName}' must be declared virtual or abstract")
       }
     }
-    isComplete = superTypeDeclaration.isDefined || superClass.isEmpty
 
     val duplicateNestedType = (this +: nestedTypes).groupBy(_.name).collect { case (_, List(_, y, _*)) => y }
     duplicateNestedType.foreach(td =>
@@ -159,7 +163,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
 }
 
 object ApexTypeDeclaration {
-  def create(namespace: Name, path: Path, data: InputStream): Option[ApexTypeDeclaration] = {
+  def create(namespace: Name, path: Path, data: InputStream): Seq[ApexTypeDeclaration] = {
     Org.current.value.issues.context.withValue(path) {
       try {
         val listener = new ThrowingErrorListener
@@ -176,13 +180,13 @@ object ApexTypeDeclaration {
         parser.setTrace(false)
         parser.addErrorListener(listener)
 
-        Some(CompilationUnit.construct(namespace, path, parser.compilationUnit(), new ConstructContext()).typeDeclaration())
+        Seq(CompilationUnit.construct(namespace, path, parser.compilationUnit(), new ConstructContext()).typeDeclaration())
       }
       catch
       {
         case se: SyntaxException =>
           Org.logMessage(LineLocation(path, se.line), se.msg)
-          None
+          Nil
       }
     }
   }
