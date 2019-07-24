@@ -268,6 +268,7 @@ public with sharing class ChatterGameGoalAchievement {
         for (Goal__c thisGoal : goalList.values()) {
 
             // Have to get all FeedLikes because can't do WHERE on InsertedById
+	    /* 
             for (NewsFeed nf : [SELECT nf.Id, nf.InsertedById, nf.ParentId,
                     (SELECT fl.Id, fl.InsertedById FROM nf.FeedLikes fl 
                     WHERE CreatedDate >= :thisGoal.Last_Batch_Check_Time__c AND CreatedDate <= :now) 
@@ -286,6 +287,7 @@ public with sharing class ChatterGameGoalAchievement {
                     achievementList.add(achievement);
                 }
             }
+            */
 
             // Update last batch check time for all goals            
             thisGoal.Last_Batch_Check_Time__c = now;
