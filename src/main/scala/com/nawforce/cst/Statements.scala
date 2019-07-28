@@ -56,9 +56,12 @@ final case class LazyBlock(path: Path, bytes: Array[Byte], lineAdjust: Int, posi
   }
 
   def statements(): List[Statement] = {
-    if (statementsRef.get.isEmpty) {
-      if (blockContextRef.get.isEmpty) {
-        blockContextRef = WeakReference(ApexTypeDeclaration.parseBlock(path, new ByteArrayInputStream(bytes)).get)
+    var statements = statementsRef.get
+    if (statements.isEmpty) {
+      var statementContext = blockContextRef.get
+      if (statementContext.isEmpty) {
+        statementContext = ApexTypeDeclaration.parseBlock(path, new ByteArrayInputStream(bytes))
+        blockContextRef = WeakReference(statementContext.get)
         reParsed = true
       }
 
@@ -67,11 +70,12 @@ final case class LazyBlock(path: Path, bytes: Array[Byte], lineAdjust: Int, posi
       if (reParsed)
         rangeAdjust = (lineAdjust, positionAdjust)
       CST.rangeAdjust.withValue(rangeAdjust) {
-        val statementContexts: Seq[StatementContext] = blockContextRef.get.head.statement().asScala
-        statementsRef = WeakReference(Statement.construct(statementContexts.toList, new ConstructContext))
+        val statementContexts: Seq[StatementContext] = statementContext.get.statement().asScala
+        statements = Some(Statement.construct(statementContexts.toList, new ConstructContext))
+        statementsRef = WeakReference(statements.get)
       }
     }
-    statementsRef.get.get
+    statements.get
   }
 
   override def children(): List[CST] = statements()

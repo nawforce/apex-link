@@ -2,7 +2,7 @@
 
 rm -rf jars
 mkdir jars
-cp ../target/apexlink-0.4.jar jars/.
+cp ../target/apexlink-0.4.1.jar jars/.
 cp ../target/dependency/ST4-*.jar jars/.
 cp ../target/dependency/antlr-*.jar jars/.
 cp ../target/dependency/antlr-runtime-*.jar jars/.

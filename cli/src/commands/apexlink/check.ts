@@ -33,7 +33,6 @@ import Server from "../../api/server";
 import Org from "../../api/org";
 import { InfoMessages, MessageWriter } from "../../api/messages";
 import * as fs from "fs";
-import { DeployResult } from "jsforce";
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);

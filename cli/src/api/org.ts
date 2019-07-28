@@ -59,7 +59,9 @@ export default class Org {
     let results = []
     const names = this.getApexTypeNames();
     for (let name of names) {
-      results.push({name: name, dependencies: this.getTypeInfo(name).getDependsOn()})
+      let ti = this.getTypeInfo(name);
+      if (ti != null)
+        results.push({name: name, dependencies: ti.getDependsOn()})
     }
     return results;
   }

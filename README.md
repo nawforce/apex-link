@@ -38,7 +38,7 @@ syntactical problems in Apex code.
 
 To run just a scan of a package use:
 
-     java -jar target/uber-apexlink-0.4.jar <packagage directory>
+     java -jar target/uber-apexlink-0.4.1.jar <packagage directory>
      
 If any errors are found these will be reported back to the console.
      
@@ -49,7 +49,7 @@ To use in a maven project add the following to your pom.xml
     <dependency>
         <groupId>com.github.nawforce</groupId>
         <artifactId>apexlink</artifactId>
-        <version>0.4</version>
+        <version>0.4.1</version>
     </dependency>
 
 ### Source & Licenses

@@ -15,7 +15,7 @@ $ npm install -g apexlink
 $ sfdx COMMAND
 running command...
 $ sfdx (-v|--version|version)
-apexlink/0.3.1 darwin-x64 node-v10.15.3
+apexlink/0.4.0 darwin-x64 node-v10.15.3
 $ sfdx --help [COMMAND]
 USAGE
   $ sfdx COMMAND
@@ -23,22 +23,26 @@ USAGE
 ```
 <!-- usagestop -->
 <!-- commands -->
-* [`sfdx apexlink:check [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-apexlinkcheck---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+* [`sfdx apexlink:check [--depends] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-apexlinkcheck---depends---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx apexlink:retest [--all] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-apexlinkretest---all---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 
-## `sfdx apexlink:check [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+## `sfdx apexlink:check [--depends] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
 Validate Apex code in current or passed directories
 
 ```
 USAGE
-  $ sfdx apexlink:check [--verbose] [--json] [--loglevel 
+  $ sfdx apexlink:check [--depends] [--verbose] [--json] [--loglevel 
   trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
 
 ARGUMENTS
-  DIRECTORY  directory to search for Apex class files, defaults to current directory
+  DIRECTORIES  list of directories to search for Apex class files, defaults to current directory
+               use [<namespace>=]directory for multiple packages, packages are loaded in first seen order
 
 OPTIONS
+  --depends                                                                         show depenency information for Apex
+                                                                                    classes
+
   --json                                                                            show output in json format (disables
                                                                                     --verbose)
 
@@ -50,9 +54,10 @@ OPTIONS
 EXAMPLES
   $ sfdx apexlink:check
   $ sfdx apexlink:check --verbose projects/myproject
+  $ sfdx apexlink:check --json myns=projects/base projects/extension
 ```
 
-_See code: [src/commands/apexlink/check.ts](https://github.com/nawforce/apexlink/blob/v0.3.1/src/commands/apexlink/check.ts)_
+_See code: [src/commands/apexlink/check.ts](https://github.com/nawforce/apexlink/blob/v0.4.0/src/commands/apexlink/check.ts)_
 
 ## `sfdx apexlink:retest [--all] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -79,5 +84,5 @@ EXAMPLES
   $ sfdx apexlink:retest --all --verbose
 ```
 
-_See code: [src/commands/apexlink/retest.ts](https://github.com/nawforce/apexlink/blob/v0.3.1/src/commands/apexlink/retest.ts)_
+_See code: [src/commands/apexlink/retest.ts](https://github.com/nawforce/apexlink/blob/v0.4.0/src/commands/apexlink/retest.ts)_
 <!-- commandsstop -->

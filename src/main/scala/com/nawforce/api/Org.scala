@@ -90,7 +90,7 @@ class Org extends TypeStore with LazyLogging {
   def getApexTypeNames: java.util.List[String] = {
     types.elements().asScala
         .filter(_.isInstanceOf[ApexTypeDeclaration])
-        .map(_.name.toString).toList.asJava
+        .map(_.typeName.toString).toList.asJava
   }
 
   /** Retrieve type information for declaration. Separate compound names with a '.', e.g. 'System.String'. Returns
