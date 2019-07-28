@@ -33,6 +33,7 @@ import Server from "../../api/server";
 import Org from "../../api/org";
 import { InfoMessages, MessageWriter } from "../../api/messages";
 import * as fs from "fs";
+import { DeployResult } from "jsforce";
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -63,6 +64,9 @@ export default class Check extends SfdxCommand {
     json: flags.boolean({
       description: "show output in json format (disables --verbose)"
     }),
+    depends: flags.boolean({
+      description: "show depenency information for Apex classes"
+    }),
     verbose: flags.builtin({ description: "show progress messages" })
   };
 
@@ -74,19 +78,28 @@ export default class Check extends SfdxCommand {
   public async run(): Promise<AnyJson> {
     let verbose = this.flags.verbose || false;
     let json = this.flags.json || false;
+    let depends = this.flags.depends || false;
 
     let server = await Server.getInstance();
     server.setLoggingLevel(verbose && !json);
 
     const org = this.createOrg(server, this.directoryArgs());
-    const results = org.issues();
+    const issues = JSON.parse(org.issues()) as InfoMessages;
+    const dependResults = depends ? org.getApexDependencies() : [];
 
     if (json) {
-      return JSON.parse(results);
+      let results: any = issues;
+      results.dependencies = dependResults;
+      return results;
     } else {
       let writer = new MessageWriter();
-      writer.writeMessages(JSON.parse(results) as InfoMessages);
+      writer.writeMessages(issues);
       this.ux.log(writer.output());
+
+      for (let depenencyDetail of dependResults) {
+        this.ux.log(`${depenencyDetail.name}, ${depenencyDetail.dependencies.join(', ')}`)
+      }
+
       return {};
     }
   }
@@ -166,6 +179,7 @@ export default class Check extends SfdxCommand {
   private flagTypes(): Map<string, number> {
     let flagTypes = new Map<string, number>();
     flagTypes.set("--verbose", 0);
+    flagTypes.set("--depends", 0);
     flagTypes.set("--json", 0);
     flagTypes.set("--loglevel", 1);
     return flagTypes;

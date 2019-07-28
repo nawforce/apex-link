@@ -26,54 +26,21 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import * as java from "java";
-import Package from "./package";
-import TypeInfo from "./typeInfo";
+export default class TypeInfo {
+  private typeInfo: any;
 
-interface DependencyInfo {
-  name: string,
-  dependencies: string[]
-}
-
-export default class Org {
-  private org: any;
-
-  constructor() {
-    this.org = java.newInstanceSync("com.nawforce.api.Org");
+  constructor(typeInfo: any) {
+    this.typeInfo = typeInfo;
   }
 
-  issues(): string {
-    return this.org.issuesAsJSONSync();
+  getName(): string {
+    return this.typeInfo.nameSync;
   }
 
-  addPackage(namespace: string, directories: string[]): Package {
-    return new Package(
-      this.org.addPackageSync(
-        namespace,
-        java.newArray("java.lang.String", directories)
-      )
-    );
-  }
-
-  getApexDependencies(): DependencyInfo[] {
-    let results = []
-    const names = this.getApexTypeNames();
-    for (let name of names) {
-      results.push({name: name, dependencies: this.getTypeInfo(name).getDependsOn()})
-    }
-    return results;
-  }
-
-  getApexTypeNames(): string[] {
-    const nameList = this.org.getApexTypeNamesSync();
+  getDependsOn(): string[] {
+    const dependsOn = this.typeInfo.dependsOnSync();
     let results = [];
-    for (let i = 0; i < nameList.sizeSync(); i++) results.push(nameList.getSync(i));
+    for (let i = 0; i < dependsOn.sizeSync(); i++) results.push(dependsOn.getSync(i));
     return results;
-  }
-
-  getTypeInfo(name: string): TypeInfo {
-    const ti = this.org.getTypeInfoSync(name);
-    if (ti != null) return new TypeInfo(ti);
-    else return null;
   }
 }
