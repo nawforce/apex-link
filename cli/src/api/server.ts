@@ -70,7 +70,7 @@ export default class Server {
     }
 
     private static jarHome(): string {
-        const jarFile = path.join(__dirname, '..', '..', 'jars', 'apexlink-0.3.jar')
+        const jarFile = path.join(__dirname, '..', '..', 'jars', 'apexlink-0.4.jar')
         if (!fs.existsSync(jarFile) || !fs.lstatSync(jarFile).isFile()) {
             throw new Error(`No jar found at '${jarFile}'.`);
         }
