@@ -31,6 +31,8 @@ import java.nio.file.{Path, Paths}
 
 import com.nawforce.utils.Name
 
+import scala.collection.mutable
+
 final case class FlowDeclaration() extends TypeDeclaration {
   val name: Name = Name.flow
   val path: Path = Paths.get("Flow")
@@ -49,5 +51,6 @@ final case class FlowDeclaration() extends TypeDeclaration {
   val methods: Seq[MethodDeclaration]= Seq.empty
 
   def validate(): Unit = {}
-  def dependencies(): Set[DependencyDeclaration] = Set.empty
+  def dependencies(): Set[TypeDeclaration] = Set.empty
+  def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
 }

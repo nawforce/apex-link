@@ -41,11 +41,11 @@ trait VerifyContext {
 }
 
 abstract class HolderVerifyContext {
-  private val _dependencies = mutable.Set[DependencyDeclaration] ()
+  private val _dependencies = mutable.Set[TypeDeclaration] ()
 
-  def dependencies: Set[DependencyDeclaration] = _dependencies.toSet
+  def dependencies: Set[TypeDeclaration] = _dependencies.toSet
 
-  def addDependency(dependentDeclaration: DependencyDeclaration): Unit = {
+  def addDependency(dependentDeclaration: TypeDeclaration): Unit = {
     _dependencies += dependentDeclaration
   }
 
@@ -75,10 +75,6 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: T
     typeDeclaration.fields.exists(_.name == name) ||
     typeDeclaration.outerTypeName.flatMap(getTypeFor).exists(
       _.fields.exists(field => field.name == name && field.modifiers.contains(STATIC_MODIFIER)))
-  }
-
-  def addFieldDependency(name: Name): Unit = {
-    typeDeclaration.fields.find(_.name == name).foreach(addDependency)
   }
 
   override def getTypeFor(typeName: TypeName): Option[TypeDeclaration] = {

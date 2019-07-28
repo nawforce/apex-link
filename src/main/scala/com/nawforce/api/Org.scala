@@ -32,11 +32,13 @@ import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.documents._
-import com.nawforce.types.{ApexTypeDeclaration, ComponentDeclaration, CustomMetadataDeclaration, CustomObjectDeclaration, FlowDeclaration, LabelDeclaration, PageDeclaration, PlatformEventDeclaration, TypeDeclaration, TypeStore}
+import com.nawforce.types._
 import com.nawforce.utils.{DotName, IssueLog, Name}
 import com.typesafe.scalalogging.LazyLogging
 
+import scala.collection.mutable
 import scala.util.DynamicVariable
+import scala.collection.JavaConverters._
 
 /** Org abstraction, a simulation of the metadata installed on an org. Use the 'current' dynamic variable to access
   * the org being currently worked on. Typically only one org will be being used but some use cases might require
@@ -81,6 +83,24 @@ class Org extends TypeStore with LazyLogging {
     Org.current.withValue(this) {
       packages = Package(this, Name.safeApply(namespace), directories) :: packages
       packages.head
+    }
+  }
+
+  /** Get a list of Apex types in the org*/
+  def getApexTypeNames: java.util.List[String] = {
+    types.elements().asScala
+        .filter(_.isInstanceOf[ApexTypeDeclaration])
+        .map(_.name.toString).toList.asJava
+  }
+
+  /** Retrieve type information for declaration. Separate compound names with a '.', e.g. 'System.String'. Returns
+    * null if the type if not found */
+  def getTypeInfo(name: String): TypeInfo = {
+    val typeDeclaration = types.get(DotName(name))
+    if (typeDeclaration != null) {
+      TypeInfo(typeDeclaration)
+    } else {
+      null
     }
   }
 
@@ -129,7 +149,7 @@ class Org extends TypeStore with LazyLogging {
           }
 
           val end = System.currentTimeMillis()
-          logger.debug(s"Parsed ${path} in ${end - start}ms")
+          logger.debug(s"Parsed $path in ${end - start}ms")
           tds
         }
       })
@@ -148,7 +168,7 @@ class Org extends TypeStore with LazyLogging {
   }
 
   private def validateMetadata(): Unit = {
-    types.values.parallelStream().forEach(td => {
+    types.values.parallelStream().filter(_.isInstanceOf[ApexTypeDeclaration])forEach(td => {
       issues.context.withValue(td.path) {
         td.validate()
       }

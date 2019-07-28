@@ -34,6 +34,7 @@ import com.nawforce.documents.ComponentDocument
 import com.nawforce.utils.Name
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 final case class ComponentDeclaration(standardComponents: Map[Name, TypeDeclaration]) extends TypeDeclaration {
   private val components = new ConcurrentHashMap[Name, TypeDeclaration]()
@@ -56,7 +57,8 @@ final case class ComponentDeclaration(standardComponents: Map[Name, TypeDeclarat
   val methods: Seq[MethodDeclaration] = Nil
 
   def validate(): Unit = {}
-  def dependencies(): Set[DependencyDeclaration] = Set.empty
+  def dependencies(): Set[TypeDeclaration] = Set.empty
+  def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
 
   def upsertComponent(namespace: Name, component: ComponentDocument): Unit = {
     getNamespaceContainer(namespace).foreach(_.upsertComponent(component))
@@ -89,7 +91,8 @@ final case class CustomComponent(name: Name, path: Path) extends TypeDeclaration
   val methods: Seq[MethodDeclaration]= Nil
 
   def validate(): Unit = {}
-  def dependencies(): Set[DependencyDeclaration] = Set.empty
+  def dependencies(): Set[TypeDeclaration] = Set.empty
+  def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
 }
 
 final case class ComponentNamespace(name: Name) extends TypeDeclaration {
@@ -112,7 +115,8 @@ final case class ComponentNamespace(name: Name) extends TypeDeclaration {
   val methods: Seq[MethodDeclaration]= Nil
 
   def validate(): Unit = {}
-  def dependencies(): Set[DependencyDeclaration] = Set.empty
+  def dependencies(): Set[TypeDeclaration] = Set.empty
+  def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
 
   def upsertComponent(component: ComponentDocument): Unit = {
     components.put(component.name, CustomComponent(component.name, component.path))

@@ -32,13 +32,15 @@ import java.nio.file.Path
 import com.nawforce.api._
 import com.nawforce.utils.Name
 
+import scala.collection.mutable
+
 sealed trait Nature {def value: String}
 case object CLASS_NATURE extends Nature {override def value: String = "class"}
 case object INTERFACE_NATURE extends Nature {override def value: String = "interface"}
 case object ENUM_NATURE extends Nature {override def value: String = "enum"}
 
 trait DependencyDeclaration {
-  def dependencies(): Set[DependencyDeclaration]
+  def dependencies(): Set[TypeDeclaration]
 }
 
 trait BlockDeclaration extends DependencyDeclaration {
@@ -109,7 +111,8 @@ trait TypeDeclaration extends DependencyDeclaration {
   val methods: Seq[MethodDeclaration]
 
   def validate(): Unit
-  def dependencies(): Set[DependencyDeclaration]
+  def dependencies(): Set[TypeDeclaration]
+  def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit
 
   lazy val summary: TypeSummary = TypeSummary(
     name.toString, typeName.toString, nature.value, modifiers.map(_.toString).sorted.toList,

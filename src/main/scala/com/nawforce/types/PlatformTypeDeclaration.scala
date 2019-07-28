@@ -79,7 +79,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
     lazy val modifiers: Seq[Modifier] = PlatformModifiers.fieldOrMethodModifiers(field.getModifiers)
     lazy val readAccess: Modifier = PUBLIC_MODIFIER
     lazy val writeAccess: Modifier = PUBLIC_MODIFIER
-    lazy val dependencies: Set[DependencyDeclaration] = Set.empty
+    lazy val dependencies: Set[TypeDeclaration] = Set.empty
   }
 
   lazy val fields: Seq[FieldDeclaration] = cls.getFields.filter(
@@ -97,7 +97,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
     extends ConstructorDeclaration {
     lazy val modifiers: Seq[Modifier] = PlatformModifiers.methodModifiers(ctor.getModifiers, typeDeclaration.nature)
     lazy val parameters: Seq[Parameter] = ctor.getParameters.map(p => Parameter(p, ctor.getDeclaringClass))
-    lazy val dependencies: Set[DependencyDeclaration] = Set.empty
+    lazy val dependencies: Set[TypeDeclaration] = Set.empty
     def getDeclaringClass: Class[_] =  ctor.getDeclaringClass
 
     override def toString: String =
@@ -115,7 +115,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
     lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(method.getReturnType, method.getDeclaringClass)
     lazy val modifiers: Seq[Modifier] = PlatformModifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
     lazy val parameters: Seq[Parameter] = method.getParameters.map(p => Parameter(p, method.getDeclaringClass))
-    lazy val dependencies: Set[DependencyDeclaration] = Set.empty
+    lazy val dependencies: Set[TypeDeclaration] = Set.empty
     def getDeclaringClass: Class[_] =  method.getDeclaringClass
 
     override def toString: String =
@@ -140,10 +140,12 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
     // Always valid because javac said so
   }
 
-  override def dependencies(): Set[DependencyDeclaration] = {
+  override def dependencies(): Set[TypeDeclaration] = {
     // Not important what these are currently
     Set.empty
   }
+
+  def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
 }
 
 object PlatformTypeDeclaration {

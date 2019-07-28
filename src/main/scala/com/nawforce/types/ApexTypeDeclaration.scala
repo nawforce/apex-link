@@ -39,6 +39,7 @@ import com.nawforce.utils._
 import org.antlr.v4.runtime.CommonTokenStream
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 /** Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
 abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, TypeName],
@@ -159,6 +160,11 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
     bodyDeclarations.foreach(bd => bd.validate(new BodyDeclarationVerifyContext(context, bd)))
 
     depends = Some(context.dependencies)
+  }
+
+  override def collectDependencies(dependsOn: mutable.Set[TypeDeclaration]): Unit = {
+    super.collectDependencies(dependsOn)
+    bodyDeclarations.foreach(_.collectDependencies(dependsOn))
   }
 }
 

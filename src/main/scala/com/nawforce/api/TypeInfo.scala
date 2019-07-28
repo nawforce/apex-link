@@ -25,32 +25,23 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.types
 
-import java.nio.file.{Path, Paths}
+package com.nawforce.api
 
-import com.nawforce.utils.Name
+import com.nawforce.types.{ApexTypeDeclaration, TypeDeclaration}
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-final case class PageDeclaration() extends TypeDeclaration {
-  val name: Name = Name.page
-  val path: Path = Paths.get("Page.xml")
-  val typeName: TypeName = TypeName(name)
-  val outerTypeName: Option[TypeName] = None
-  val nature: Nature = CLASS_NATURE
-  val modifiers: Seq[Modifier] = Seq.empty
+case class TypeInfo(typeDeclaration: TypeDeclaration) {
 
-  val superClass: Option[TypeName] = Some(TypeName.SObject)
-  val interfaces: Seq[TypeName] = Seq.empty
-  val nestedTypes: Seq[TypeDeclaration] = Seq.empty
-
-  val blocks: Seq[BlockDeclaration] = Seq.empty
-  val fields: Seq[FieldDeclaration]= Seq.empty
-  val constructors: Seq[ConstructorDeclaration] = Seq.empty
-  val methods: Seq[MethodDeclaration]= Seq.empty
-
-  def validate(): Unit = {}
-  def dependencies(): Set[TypeDeclaration] = Set.empty
-  def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
+  def name: String = typeDeclaration.name.toString
+  def dependsOn: java.util.List[String] = {
+    val dependencies = mutable.Set[TypeDeclaration]()
+    typeDeclaration.collectDependencies(dependencies)
+    dependencies
+        .filter(_.isInstanceOf[ApexTypeDeclaration])
+        .filter(td => td.typeName.name != typeDeclaration.name)
+        .map(_.typeName.toString).toList.asJava
+  }
 }

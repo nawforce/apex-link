@@ -33,6 +33,8 @@ import java.nio.file.Path
 import com.nawforce.documents.DocumentType
 import com.nawforce.utils.{DotName, Name}
 
+import scala.collection.mutable
+
 final case class CustomMetadataDeclaration(path: Path, typeName: TypeName) extends TypeDeclaration {
   val name: Name = typeName.name
   val outerTypeName: Option[TypeName] = None
@@ -49,7 +51,8 @@ final case class CustomMetadataDeclaration(path: Path, typeName: TypeName) exten
   val methods: Seq[MethodDeclaration]= Seq.empty
 
   def validate(): Unit = {}
-  def dependencies(): Set[DependencyDeclaration] = Set.empty
+  def dependencies(): Set[TypeDeclaration] = Set.empty
+  def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
 }
 
 object CustomMetadataDeclaration {

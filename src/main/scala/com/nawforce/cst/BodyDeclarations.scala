@@ -38,23 +38,22 @@ import scala.collection.mutable
 abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST {
   lazy val isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER) || modifiers.contains(WEBSERVICE_MODIFIER)
 
-  protected var depends: Option[Set[DependencyDeclaration]] = None
-  private val dependencyHolder: mutable.Set[ClassBodyDeclaration] = mutable.Set()
-
-  def dependencies(): Set[DependencyDeclaration] = {
-    depends.getOrElse(Set())
-  }
+  protected var depends: Option[Set[TypeDeclaration]] = None
 
   def invalidate(): Unit = {
     depends = None
   }
 
-  def validate(context: BodyDeclarationVerifyContext): Unit = {
-    verify(context)
+  def dependencies(): Set[TypeDeclaration] = {
+    depends.get
   }
 
-  def addDependencyHolder(holder: ClassBodyDeclaration): Unit = {
-    dependencyHolder.add(holder)
+  def collectDependencies(dependsOn: mutable.Set[TypeDeclaration]): Unit = {
+    dependencies().foreach(dependsOn.add)
+  }
+
+  def validate(context: BodyDeclarationVerifyContext): Unit = {
+    verify(context)
   }
 
   protected def verify(context: BodyDeclarationVerifyContext): Unit
