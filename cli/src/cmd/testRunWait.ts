@@ -50,7 +50,7 @@ export default class TestRunWait {
           resolve(status);
         })
         .catch((status: CommandStatus) => {
-          if (status.statusCode == 100) {
+          if (status.statusCode === 100) {
             // 100 is a success code as well
             resolve(status);
           } else if (status.stderr.search(/reason: URI too long/) !== -1) {
@@ -59,8 +59,8 @@ export default class TestRunWait {
           } else if (status.stderr.search(/ENOTFOUND/) !== -1) {
             // It failed for unknown reasons, try again...
             this.execute().then(
-              status => resolve(status),
-              status => reject(status)
+              notFoundStatus => resolve(notFoundStatus),
+              notFoundStatus => reject(notFoundStatus)
             );
           } else {
             reject(status);

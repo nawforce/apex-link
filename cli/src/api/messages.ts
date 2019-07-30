@@ -27,63 +27,65 @@
 */
 
 export interface InfoMessages {
-    files: FileMessage[]
+  files: FileMessage[];
 }
 
 interface FileMessage {
-    path: string,
-    messages: PositionalMessage[]
+  path: string;
+  messages: PositionalMessage[];
 }
 
 interface PositionalMessage {
-    start: Position,
-    end: Position,
-    message: string
+  start: Position;
+  end: Position;
+  message: string;
 }
 
 interface Position {
-    line: number,
-    offset: number
+  line: number;
+  offset: number;
 }
 
 export class MessageWriter {
-    private buffer: string = ''
+  private buffer: string = "";
 
-    public constructor() {}
+  public constructor() {}
 
-    public output(): string {
-        return this.buffer
+  public output(): string {
+    return this.buffer;
+  }
+
+  public writeMessages(messages: InfoMessages) {
+    for (const fileMessage of messages.files) {
+      this.writeFileMessage(fileMessage);
     }
+  }
 
-    public writeMessages(messages: InfoMessages) {
-        for(let fileMessage of messages.files) {
-            this.writeFileMessage(fileMessage)
-        }
+  public writeFileMessage(fileMessage: FileMessage) {
+    this.buffer += fileMessage.path + "\n";
+    for (const positionalMessage of fileMessage.messages) {
+      this.writePositionalMessage(positionalMessage);
     }
+  }
 
-    public writeFileMessage(fileMessage: FileMessage) {
-        this.buffer += fileMessage.path + '\n'
-        for(let positionalMessage of fileMessage.messages) {
-            this.writePositionalMessage(positionalMessage)
-        }
-    }
+  public writePositionalMessage(positionalMessage: PositionalMessage) {
+    this.writePosition(positionalMessage.start, positionalMessage.end);
+    this.buffer += `: ${positionalMessage.message}\n`;
+  }
 
-    public writePositionalMessage(positionalMessage: PositionalMessage) {
-        this.writePosition(positionalMessage.start, positionalMessage.end)
-        this.buffer += `: ${positionalMessage.message}\n`
+  public writePosition(start: Position, end: Position) {
+    if (
+      typeof start.offset !== "undefined" &&
+      typeof end !== "undefined" &&
+      typeof end.offset !== "undefined"
+    ) {
+      if (start.line === end.line) {
+        this.buffer += `line ${start.line} at ${start.offset}-${end.offset}`;
+      } else {
+        this.buffer += `line ${start.line} to ${end.line}`;
+      }
+    } else {
+      this.buffer += `line ${start.line}`;
     }
-
-    public writePosition(start: Position, end: Position) {
-        if (typeof start.offset != 'undefined' && 
-                typeof end != undefined && 
-                typeof end.offset != 'undefined') {
-            if (start.line == end.line) {
-                this.buffer += `line ${start.line} at ${start.offset}-${end.offset}`
-            } else {
-                this.buffer += `line ${start.line} to ${end.line}`
-            }
-        } else {
-            this.buffer += `line ${start.line}`
-        }
-    }
+  }
 }

@@ -26,17 +26,17 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { SfdxCommand, flags } from "@salesforce/command";
+import { flags, SfdxCommand } from "@salesforce/command";
 import { Messages, SfdxError } from "@salesforce/core";
 import { AnyJson } from "@salesforce/ts-types";
-import TestRunStart from "../../cmd/testRunStart";
-import TestRunProgress from "../../cmd/testRunProgress";
-import TestRunWait from "../../cmd/testRunWait";
+import * as fs from "fs";
 import * as moment from "moment";
 import { CommandStatus } from "../../cmd/commandRunner";
+import TestRunProgress from "../../cmd/testRunProgress";
 import TestRunResults, { TestRunDetail } from "../../cmd/testRunResults";
 import TestRunSingle from "../../cmd/testRunSingle";
-import * as fs from "fs";
+import TestRunStart from "../../cmd/testRunStart";
+import TestRunWait from "../../cmd/testRunWait";
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -46,7 +46,7 @@ Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages("apexlink", "retest");
 
 // TODO: For future use
-//const includedExtensions = [".cls", ".trigger"];
+// const includedExtensions = [".cls", ".trigger"];
 
 export default class ReTest extends SfdxCommand {
   public static description = messages.getMessage("commandDescription");
@@ -87,18 +87,25 @@ export default class ReTest extends SfdxCommand {
     await new TestRunWait(this.testRunId)
       .execute()
       .then(async status => {
-        let testRunId = this.testRunId;
+        const testRunId = this.testRunId;
         this.testRunId = "";
         this.ux.log(
           `parallel Test run completed at ${moment().format("LLLL")}`
         );
         const failures = await this.sequentialTestAndReport(testRunId);
-        if (failures.length != 0) {
-          fs.writeFileSync("test-results.json", JSON.stringify(failures, null, 4));
+        if (failures.length !== 0) {
+          fs.writeFileSync(
+            "test-results.json",
+            JSON.stringify(failures, null, 4)
+          );
           this.ux.log("Review test-report.json for failure details");
         }
-        const timePassed = moment.duration(moment().diff(startMoment)).humanize();
-        this.ux.log(`Finished at ${moment().format("LLLL")}, took ${timePassed}`)
+        const timePassed = moment
+          .duration(moment().diff(startMoment))
+          .humanize();
+        this.ux.log(
+          `Finished at ${moment().format("LLLL")}, took ${timePassed}`
+        );
       })
       .catch(status =>
         this.throwFailure("When waiting for parallel test run to end", status)
@@ -107,12 +114,13 @@ export default class ReTest extends SfdxCommand {
   }
 
   private throwFailure(context: string, status: CommandStatus) {
-    if (status.stderr !== "")
+    if (status.stderr !== "") {
       throw new SfdxError(context + " " + JSON.parse(status.stderr).message);
-    else
+    } else {
       throw new SfdxError(
         context + " " + `a bad status code was returned: ${status.statusCode}`
       );
+    }
   }
 
   private async monitorProgress(startMoment: moment.Moment) {
@@ -139,9 +147,9 @@ export default class ReTest extends SfdxCommand {
     const results = await new TestRunResults(testRunId).execute();
     const locked = results.filter(
       result =>
-        result.Outcome != "Pass" &&
-        (result.Message.search(/UNABLE_TO_LOCK_ROW/) != -1 ||
-          result.Message.search(/deadlock detected/) != -1)
+        result.Outcome !== "Pass" &&
+        (result.Message.search(/UNABLE_TO_LOCK_ROW/) !== -1 ||
+          result.Message.search(/deadlock detected/) !== -1)
     );
     if (locked.length > 0) {
       this.ux.log(
@@ -157,11 +165,13 @@ export default class ReTest extends SfdxCommand {
       }
     }
     const failed = results.filter(result => result.Outcome !== "Pass");
-    if (failed.length !== 0)
+    if (failed.length !== 0) {
       this.ux.log(
         `Of ${results.length} tests run, ${failed.length} have failed :-(`
       );
-    else this.ux.log(`Of ${results.length} tests run, NONE have failed :-)`);
+    } else {
+      this.ux.log(`Of ${results.length} tests run, NONE have failed :-)`);
+    }
     return failed;
   }
 

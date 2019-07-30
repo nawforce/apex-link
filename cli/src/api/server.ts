@@ -26,54 +26,66 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import * as java from 'java'
-import * as fs from 'fs'
-import * as path from 'path'
-import Org from './org';
+import * as fs from "fs";
+import * as java from "java";
+import * as path from "path";
+import Org from "./org";
 
 export default class Server {
-
-    private static instance: Server
-
-    private constructor() {
-        if (Server.instance) {
-            throw new Error('Server instance already running - use Server.getInstance()')
-        }
-    }
-
-    static async getInstance(): Promise<Server> {
-        return new Promise<Server>(function (resolve, reject) {
+  public static async getInstance(): Promise<Server> {
+    return new Promise<Server>((resolve, reject) => {
+      if (!Server.instance) {
+        java.options.push("-XX:+UseG1GC");
+        java.classpath.push(Server.jarHome());
+        java.ensureJvm((err, result) => {
+          if (err) {
+            reject(err);
+          } else {
             if (!Server.instance) {
-                java.options.push('-XX:+UseG1GC')
-                java.classpath.push(Server.jarHome())
-                java.ensureJvm(function (err, result) {
-                    if (err) {
-                        reject(err)
-                    } else {
-                        if (!Server.instance)
-                            Server.instance = new Server()
-                        resolve(Server.instance)
-                    }
-                })
-            } else {
-                resolve(Server.instance)
+              Server.instance = new Server();
             }
+            resolve(Server.instance);
+          }
         });
-    }
+      } else {
+        resolve(Server.instance);
+      }
+    });
+  }
 
-    public createOrg(): Org {
-        return new Org()
-    }
+  private static instance: Server;
 
-    public setLoggingLevel(verbose: boolean) {
-        java.callStaticMethodSync('com.nawforce.api.LogUtils', 'setLoggingLevel', verbose)
+  private static jarHome(): string {
+    const jarFile = path.join(
+      __dirname,
+      "..",
+      "..",
+      "jars",
+      "apexlink-0.4.1.jar"
+    );
+    if (!fs.existsSync(jarFile) || !fs.lstatSync(jarFile).isFile()) {
+      throw new Error(`No jar found at '${jarFile}'.`);
     }
+    return jarFile;
+  }
 
-    private static jarHome(): string {
-        const jarFile = path.join(__dirname, '..', '..', 'jars', 'apexlink-0.4.1.jar')
-        if (!fs.existsSync(jarFile) || !fs.lstatSync(jarFile).isFile()) {
-            throw new Error(`No jar found at '${jarFile}'.`);
-        }
-        return jarFile
+  private constructor() {
+    if (Server.instance) {
+      throw new Error(
+        "Server instance already running - use Server.getInstance()"
+      );
     }
+  }
+
+  public createOrg(): Org {
+    return new Org();
+  }
+
+  public setLoggingLevel(verbose: boolean) {
+    java.callStaticMethodSync(
+      "com.nawforce.api.LogUtils",
+      "setLoggingLevel",
+      verbose
+    );
+  }
 }

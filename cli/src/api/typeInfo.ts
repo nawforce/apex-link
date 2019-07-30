@@ -33,14 +33,16 @@ export default class TypeInfo {
     this.typeInfo = typeInfo;
   }
 
-  getName(): string {
+  public getName(): string {
     return this.typeInfo.nameSync;
   }
 
-  getDependsOn(): string[] {
+  public getDependsOn(): string[] {
     const dependsOn = this.typeInfo.dependsOnSync();
-    let results = [];
-    for (let i = 0; i < dependsOn.sizeSync(); i++) results.push(dependsOn.getSync(i));
+    const results = [];
+    for (let i = 0; i < dependsOn.sizeSync(); i++) {
+      results.push(dependsOn.getSync(i));
+    }
     return results;
   }
 }

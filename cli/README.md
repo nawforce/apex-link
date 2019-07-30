@@ -15,7 +15,7 @@ $ npm install -g apexlink
 $ sfdx COMMAND
 running command...
 $ sfdx (-v|--version|version)
-apexlink/0.4.0 darwin-x64 node-v10.15.3
+apexlink/0.4.1 darwin-x64 node-v10.15.3
 $ sfdx --help [COMMAND]
 USAGE
   $ sfdx COMMAND
@@ -57,7 +57,7 @@ EXAMPLES
   $ sfdx apexlink:check --json myns=projects/base projects/extension
 ```
 
-_See code: [src/commands/apexlink/check.ts](https://github.com/nawforce/apexlink/blob/v0.4.0/src/commands/apexlink/check.ts)_
+_See code: [src/commands/apexlink/check.ts](https://github.com/nawforce/apexlink/blob/v0.4.1/src/commands/apexlink/check.ts)_
 
 ## `sfdx apexlink:retest [--all] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -84,5 +84,5 @@ EXAMPLES
   $ sfdx apexlink:retest --all --verbose
 ```
 
-_See code: [src/commands/apexlink/retest.ts](https://github.com/nawforce/apexlink/blob/v0.4.0/src/commands/apexlink/retest.ts)_
+_See code: [src/commands/apexlink/retest.ts](https://github.com/nawforce/apexlink/blob/v0.4.1/src/commands/apexlink/retest.ts)_
 <!-- commandsstop -->

@@ -26,9 +26,9 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+import * as crossspawn from "cross-spawn";
 import * as fs from "fs";
 import * as tmp from "tmp";
-import * as crossspawn from "cross-spawn";
 
 export interface CommandStatus {
   abortError: any;
@@ -40,9 +40,9 @@ export interface CommandStatus {
 export default class CommandRunner {
   private cwd: string;
   private cmd: string;
-  private args: Array<String>;
+  private args: string[];
 
-  public constructor(cmd: string, args: Array<String>, cwd?: string) {
+  public constructor(cmd: string, args: string[], cwd?: string) {
     this.cmd = cmd;
     this.args = args;
     this.cwd = cwd ? cwd : process.cwd();
@@ -51,14 +51,17 @@ export default class CommandRunner {
   public async execute(): Promise<CommandStatus> {
     const stdoutFile = tmp.tmpNameSync();
     const stderrFile = tmp.tmpNameSync();
-    const captureOutput = (abortError:any, statusCode: number): CommandStatus => {
+    const captureOutput = (
+      abortError: any,
+      statusCode: number
+    ): CommandStatus => {
       return {
-        abortError: abortError,
-        statusCode: statusCode,
+        abortError,
+        statusCode,
         stdout: fs.readFileSync(stdoutFile, "utf-8"),
         stderr: fs.readFileSync(stderrFile, "utf-8")
       };
-    }
+    };
 
     return new Promise((resolve, reject) => {
       const child = crossspawn.spawn(this.cmd, this.args, {
@@ -70,10 +73,10 @@ export default class CommandRunner {
         ]
       });
       child.on("error", (abortError: any) => {
-        reject(captureOutput(abortError, null))
-      })
+        reject(captureOutput(abortError, null));
+      });
       child.on("close", (statusCode: number) => {
-        if (statusCode == 0) {
+        if (statusCode === 0) {
           resolve(captureOutput(null, statusCode));
         } else {
           reject(captureOutput(null, statusCode));

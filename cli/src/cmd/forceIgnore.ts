@@ -26,10 +26,10 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+import { JsonArray, JsonMap } from "@salesforce/ts-types";
+import * as fs from "fs";
 import * as GitIgnoreParser from "gitignore-parser";
 import * as path from "path";
-import * as fs from "fs";
-import { JsonMap, JsonArray } from "@salesforce/ts-types";
 
 const excludedFiles = ["package2-descriptor.json", "package2-manifest.json"];
 
@@ -43,9 +43,9 @@ export default class ForceIgnore {
     this.projectPath = projectPath;
     this.projectConfig = projectConfig;
     this.packageDirectories = this.getPackageDirectories();
-    let forceIgnoreFile = path.join(this.projectPath, ".forceignore");
+    const forceIgnoreFile = path.join(this.projectPath, ".forceignore");
     if (fs.existsSync(forceIgnoreFile)) {
-      let contents = fs.readFileSync(forceIgnoreFile, "utf-8");
+      const contents = fs.readFileSync(forceIgnoreFile, "utf-8");
       this.parser = GitIgnoreParser.compile(this.normaliseContent(contents));
     }
   }
@@ -55,23 +55,26 @@ export default class ForceIgnore {
   }
 
   public isValid(fullPath: string): boolean {
-    let dirname = path.dirname(fullPath);
-    let basename = path.basename(fullPath);
+    const dirname = path.dirname(fullPath);
+    const basename = path.basename(fullPath);
     if (basename.startsWith(".") || basename.startsWith(".dot")) return false;
     if (
       this.packageDirectories.filter(packageDirectory => {
         return dirname.startsWith(packageDirectory);
-      }).length == 0
-    )
+      }).length === 0
+    ) {
       return false;
+    }
     if (excludedFiles.includes(basename)) return false;
     return this.accepts(fullPath);
   }
 
   private accepts(fullPath: string): boolean {
-    if (this.parser)
+    if (this.parser) {
       return this.parser.accepts(path.relative(this.projectPath, fullPath));
-    else return true;
+    } else {
+      return true;
+    }
   }
 
   private normaliseContent(content: string): string {

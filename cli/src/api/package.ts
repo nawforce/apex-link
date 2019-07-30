@@ -27,15 +27,13 @@
 */
 
 export default class Package {
+  private package: any;
 
-    private package: any
+  constructor(pkg: any) {
+    this.package = pkg;
+  }
 
-    constructor(pkg: any) {
-        this.package = pkg
-    }
-
-    deployAll(): string {
-        return this.package.deployAllSync()
-    }
+  public deployAll(): string {
+    return this.package.deployAllSync();
+  }
 }
-

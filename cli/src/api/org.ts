@@ -31,8 +31,8 @@ import Package from "./package";
 import TypeInfo from "./typeInfo";
 
 interface DependencyInfo {
-  name: string,
-  dependencies: string[]
+  name: string;
+  dependencies: string[];
 }
 
 export default class Org {
@@ -42,11 +42,11 @@ export default class Org {
     this.org = java.newInstanceSync("com.nawforce.api.Org");
   }
 
-  issues(): string {
+  public issues(): string {
     return this.org.issuesAsJSONSync();
   }
 
-  addPackage(namespace: string, directories: string[]): Package {
+  public addPackage(namespace: string, directories: string[]): Package {
     return new Package(
       this.org.addPackageSync(
         namespace,
@@ -55,25 +55,28 @@ export default class Org {
     );
   }
 
-  getApexDependencies(): DependencyInfo[] {
-    let results = []
+  public getApexDependencies(): DependencyInfo[] {
+    const results = [];
     const names = this.getApexTypeNames();
-    for (let name of names) {
-      let ti = this.getTypeInfo(name);
-      if (ti != null)
-        results.push({name: name, dependencies: ti.getDependsOn()})
+    for (const name of names) {
+      const ti = this.getTypeInfo(name);
+      if (ti != null) {
+        results.push({ name, dependencies: ti.getDependsOn() });
+      }
     }
     return results;
   }
 
-  getApexTypeNames(): string[] {
+  private getApexTypeNames(): string[] {
     const nameList = this.org.getApexTypeNamesSync();
-    let results = [];
-    for (let i = 0; i < nameList.sizeSync(); i++) results.push(nameList.getSync(i));
+    const results = [];
+    for (let i = 0; i < nameList.sizeSync(); i++) {
+      results.push(nameList.getSync(i));
+    }
     return results;
   }
 
-  getTypeInfo(name: string): TypeInfo {
+  private getTypeInfo(name: string): TypeInfo {
     const ti = this.org.getTypeInfoSync(name);
     if (ti != null) return new TypeInfo(ti);
     else return null;

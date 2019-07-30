@@ -26,13 +26,13 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { SfdxCommand, flags } from "@salesforce/command";
+import { flags, SfdxCommand } from "@salesforce/command";
 import { Messages, SfdxError } from "@salesforce/core";
 import { AnyJson } from "@salesforce/ts-types";
-import Server from "../../api/server";
-import Org from "../../api/org";
-import { InfoMessages, MessageWriter } from "../../api/messages";
 import * as fs from "fs";
+import { InfoMessages, MessageWriter } from "../../api/messages";
+import Org from "../../api/org";
+import Server from "../../api/server";
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -59,6 +59,8 @@ export default class Check extends SfdxCommand {
     }
   ];
 
+  public static strict = false;
+
   protected static flagsConfig = {
     json: flags.boolean({
       description: "show output in json format (disables --verbose)"
@@ -72,14 +74,13 @@ export default class Check extends SfdxCommand {
   protected static requiresUsername = false;
   protected static supportsDevhubUsername = false;
   protected static requiresProject = false;
-  public static strict = false;
 
   public async run(): Promise<AnyJson> {
-    let verbose = this.flags.verbose || false;
-    let json = this.flags.json || false;
-    let depends = this.flags.depends || false;
+    const verbose = this.flags.verbose || false;
+    const json = this.flags.json || false;
+    const depends = this.flags.depends || false;
 
-    let server = await Server.getInstance();
+    const server = await Server.getInstance();
     server.setLoggingLevel(verbose && !json);
 
     const org = this.createOrg(server, this.directoryArgs());
@@ -87,34 +88,36 @@ export default class Check extends SfdxCommand {
     const dependResults = depends ? org.getApexDependencies() : [];
 
     if (json) {
-      let results: any = issues;
+      const results: any = issues;
       results.dependencies = dependResults;
       return results;
     } else {
-      let writer = new MessageWriter();
+      const writer = new MessageWriter();
       writer.writeMessages(issues);
       this.ux.log(writer.output());
 
-      for (let depenencyDetail of dependResults) {
-        this.ux.log(`${depenencyDetail.name}, ${depenencyDetail.dependencies.join(', ')}`)
+      for (const depenencyDetail of dependResults) {
+        this.ux.log(
+          `${depenencyDetail.name}, ${depenencyDetail.dependencies.join(", ")}`
+        );
       }
 
       return {};
     }
   }
 
-  private createOrg(server: Server, directories: [string, string][]): Org {
+  private createOrg(server: Server, directories: Array<[string, string]>): Org {
     const org = server.createOrg();
     const namespaces = new Set<string>();
 
-    for (let directory of directories) {
+    for (const directory of directories) {
       if (!namespaces.has(directory[0])) {
         namespaces.add(directory[0]);
         const pkg = org.addPackage(
           directory[0],
           directories
             .filter(d => {
-              return d[0] == directory[0];
+              return d[0] === directory[0];
             })
             .map(d => d[1])
         );
@@ -125,17 +128,17 @@ export default class Check extends SfdxCommand {
     return org;
   }
 
-  private directoryArgs(): [string, string][] {
+  private directoryArgs(): Array<[string, string]> {
     const flagTypes = this.flagTypes();
-    let directoryArgs = [];
+    const directoryArgs = [];
     let skipArgs = 0;
 
-    for (let arg of this.argv) {
+    for (const arg of this.argv) {
       if (skipArgs > 0) {
         skipArgs -= 1;
       } else {
         skipArgs = flagTypes.get(arg);
-        if (skipArgs == undefined) {
+        if (skipArgs === undefined) {
           if (arg.startsWith("--")) {
             throw new SfdxError(
               messages.getMessage("expectingDirectory", [arg])
@@ -151,15 +154,15 @@ export default class Check extends SfdxCommand {
     else return [["", process.cwd()]];
   }
 
-  private collectNamespaces(directoryArgs: string[]): [string, string][] {
-    let namespaceDirectories = [];
+  private collectNamespaces(directoryArgs: string[]): Array<[string, string]> {
+    const namespaceDirectories = [];
 
-    for (let arg of directoryArgs) {
-      let parts = arg.split("=");
-      if (parts.length == 1) {
+    for (const arg of directoryArgs) {
+      const parts = arg.split("=");
+      if (parts.length === 1) {
         this.checkDirectoryExists(arg);
         namespaceDirectories.push(["", arg]);
-      } else if (parts.length == 2) {
+      } else if (parts.length === 2) {
         this.checkDirectoryExists(parts[1]);
         namespaceDirectories.push([parts[0], parts[1]]);
       } else {
@@ -176,7 +179,7 @@ export default class Check extends SfdxCommand {
   }
 
   private flagTypes(): Map<string, number> {
-    let flagTypes = new Map<string, number>();
+    const flagTypes = new Map<string, number>();
     flagTypes.set("--verbose", 0);
     flagTypes.set("--depends", 0);
     flagTypes.set("--json", 0);

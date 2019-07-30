@@ -26,8 +26,8 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import SOQLQuery, { SOQLQueryStatus } from "./soqlQuery";
 import { CommandStatus } from "./commandRunner";
+import SOQLQuery, { SOQLQueryStatus } from "./soqlQuery";
 
 export interface ApexClass {
   Id: string;

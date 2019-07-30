@@ -1,4 +1,4 @@
 {
-    "extends": "@salesforce/dev-config/tslint"
+    "extends": ["@salesforce/dev-config/tslint", "tslint-config-prettier"]
   }
   

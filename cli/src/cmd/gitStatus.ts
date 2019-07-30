@@ -26,8 +26,8 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import CommandRunner, { CommandStatus } from "./commandRunner";
 import * as path from "path";
+import CommandRunner, {CommandStatus} from "./commandRunner";
 
 export interface ChangedFile {
   status: string;
@@ -63,7 +63,7 @@ export default class GitStatus {
   }
 
   private parseFiles(gitRoot: string, status: CommandStatus): ChangedFile[] {
-    let fileEntries = status.stdout.split("\0");
+    const fileEntries = status.stdout.split("\0");
     if (fileEntries.length > 0) fileEntries.pop();
     return fileEntries.map(entry => {
       return {
