@@ -1,88 +1,71 @@
-apexlink
+ApexLink
 ========
 
 [![Version](https://img.shields.io/npm/v/apexlink.svg)](https://npmjs.org/package/apexlink)
 [![License](https://img.shields.io/npm/l/apexlink.svg)](https://github.com/nawforce/apexlink/blob/master/package.json)
 [![Known Vulnerabilities](https://snyk.io/test/github/nawforce/apexlink/badge.svg)](https://snyk.io/test/github/nawforce/apexlink)
 
-<!-- toc -->
+ApexLink is a Salesforce SFDX CLI plugin & Java library for supporting offline tooling around Salesforce Apex code aimed at
+improving developer productivity. The aim is to make the core library useful for any number of analysis problems
+while the CLI plugin acts as a demo of capability while the features of the library are built out.
+ 
+### SFDX CLI
 
-<!-- tocstop -->
-<!-- install -->
-<!-- usage -->
-```sh-session
-$ npm install -g apexlink
-$ sfdx COMMAND
-running command...
-$ sfdx (-v|--version|version)
-apexlink/0.4.1 darwin-x64 node-v10.15.3
-$ sfdx --help [COMMAND]
-USAGE
-  $ sfdx COMMAND
-...
-```
-<!-- usagestop -->
-<!-- commands -->
-* [`sfdx apexlink:check [--depends] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-apexlinkcheck---depends---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx apexlink:retest [--all] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-apexlinkretest---all---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+To install the CLI plugin (from npm)
 
-## `sfdx apexlink:check [--depends] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+    sfdx plugins:install apexlink
 
-Validate Apex code in current or passed directories
+To perform a simple validity check use:
 
-```
-USAGE
-  $ sfdx apexlink:check [--depends] [--verbose] [--json] [--loglevel 
-  trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
+    sfdx apexlink:check <directory>
 
-ARGUMENTS
-  DIRECTORIES  list of directories to search for Apex class files, defaults to current directory
-               use [<namespace>=]directory for multiple packages, packages are loaded in first seen order
+This parses and performs some semantic checks on the code and reports any errors, such as types not being found. The
+library contains a pretty comprehensive set of platform types that it validates against.
 
-OPTIONS
-  --depends                                                                         show depenency information for Apex
-                                                                                    classes
+More complex validations can be performed that support namespaced packages and multiple source directories, see the 
+command help for more details. Currently this command does not require an sfdx project, if you omit the directory it 
+will search the current directory for metadata.  
 
-  --json                                                                            show output in json format (disables
-                                                                                    --verbose)
+The checking command can also report Apex class dependencies with:
 
-  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)  [default: warn] logging level for
-                                                                                    this command invocation
+    sfdx apexlink:check --depends --json <directory>
 
-  --verbose                                                                         show progress messages
+If you omit the --json the dependency report is returned as CSV records. Understanding dependencies is useful when
+analysing [cold start behaviours](https://nawforce.blog/2019/02/25/apex-cold-starts-and-class-caching-misses/) but
+it has also been written with a view to supporting the identification of dead code/metadata. 
 
-EXAMPLES
-  $ sfdx apexlink:check
-  $ sfdx apexlink:check --verbose projects/myproject
-  $ sfdx apexlink:check --json myns=projects/base projects/extension
-```
+There is a WIP command included for parallel test execution
 
-_See code: [src/commands/apexlink/check.ts](https://github.com/nawforce/apexlink/blob/v0.4.1/src/commands/apexlink/check.ts)_
+    sfdx apexlink:retest
+    
+ For more information on this please see read [this post](https://nawforce.blog/2019/06/09/parallel-unit-testing-via-sfdx-cli/)   
 
-## `sfdx apexlink:retest [--all] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+### Other tools
+ 
+There are a few publicly available tools available for handling packaged metadata offline, notably Salesforce's own 
+Eclipse plugin provides Apex parsing and the derived PMD plugin utilises this but neither can offer full source code
+access at present, besides this project you may want to take a look at Andrey Gavrikov's 
+[Tooling-force.com](https://github.com/neowit/tooling-force.com) project which includes Apex & SOQL parsers.   
 
-Run tests for source files changed since last test run
+### Building
 
-```
-USAGE
-  $ sfdx apexlink:retest [--all] [--verbose] [--json] [--loglevel 
-  trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
+To create a jar use:
 
-OPTIONS
-  --all                                                                             run all local tests
+    mvn package
+     
+### Maven
 
-  --json                                                                            show output in json format (disables
-                                                                                    --verbose)
+To use the jar in a maven project add the following to your pom.xml
 
-  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)  [default: warn] logging level for
-                                                                                    this command invocation
+    <dependency>
+        <groupId>com.github.nawforce</groupId>
+        <artifactId>apexlink</artifactId>
+        <version>0.4.1</version>
+    </dependency>
 
-  --verbose                                                                         show progress messages
+### Source & Licenses
 
-EXAMPLES
-  $ sfdx apexlink:retest
-  $ sfdx apexlink:retest --all --verbose
-```
-
-_See code: [src/commands/apexlink/retest.ts](https://github.com/nawforce/apexlink/blob/v0.4.1/src/commands/apexlink/retest.ts)_
-<!-- commandsstop -->
+ApexLink is written in a combination of Java and Scala but should run on any fairly recent JVM. Please let me know if 
+you have trouble building or running it. All the source code included uses a 3-clause BSD license. The only third-party
+component included is the Apex Antlr4 grammar originally from [Tooling-force.com](https://github.com/neowit/tooling-force.com),
+although the version used is now markedly different from the original.  
