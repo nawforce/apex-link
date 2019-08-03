@@ -52,7 +52,7 @@ export class MessageWriter {
   public constructor() {}
 
   public output(): string {
-    return this.buffer;
+    return this.buffer.slice(0, -1);
   }
 
   public writeMessages(messages: InfoMessages) {

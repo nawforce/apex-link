@@ -57,7 +57,7 @@ export default class ReTest extends SfdxCommand {
   ];
 
   protected static flagsConfig = {
-    all: flags.boolean({ description: "run all local tests" }),
+    all: flags.boolean({ description: "run all local tests NOTE: this enabled by default currently" }),
     json: flags.boolean({
       description: "show output in json format (disables --verbose)"
     }),

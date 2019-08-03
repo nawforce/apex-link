@@ -55,7 +55,7 @@ class Package(org: Org, namespace: Name, paths: Seq[Path]) extends LazyLogging {
 
 object Package {
   def apply(org: Org, namespace: Name, directories: Seq[String]): Package = {
-    val paths = directories.map(directory => Paths.get(directory))
+    val paths = directories.filterNot(_.isEmpty).map(directory => Paths.get(directory))
     paths.foreach(path => {
       if (!path.toFile.isDirectory)
         throw new IllegalArgumentException(s"Package root '${path.toString}' must be a directory")

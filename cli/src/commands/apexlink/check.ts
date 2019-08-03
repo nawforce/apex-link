@@ -92,9 +92,11 @@ export default class Check extends SfdxCommand {
       results.dependencies = dependResults;
       return results;
     } else {
-      const writer = new MessageWriter();
-      writer.writeMessages(issues);
-      this.ux.log(writer.output());
+      if (issues.files.length > 0) {
+        const writer = new MessageWriter();
+        writer.writeMessages(issues);
+        this.ux.log(writer.output());
+      }
 
       for (const depenencyDetail of dependResults) {
         this.ux.log(
@@ -163,7 +165,9 @@ export default class Check extends SfdxCommand {
         this.checkDirectoryExists(arg);
         namespaceDirectories.push(["", arg]);
       } else if (parts.length === 2) {
-        this.checkDirectoryExists(parts[1]);
+        if (parts[1] !== "") {
+          this.checkDirectoryExists(parts[1]);
+        }
         namespaceDirectories.push([parts[0], parts[1]]);
       } else {
         throw new SfdxError(messages.getMessage("badNamespace", [arg]));
