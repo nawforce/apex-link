@@ -227,7 +227,7 @@ final case class EnhancedForControl(modifiers: Seq[Modifier], typeName: TypeName
   override def verify(context: BlockVerifyContext): Unit = {
     val forType = context.getTypeAndAddDependency(typeName)
     if (forType.isEmpty)
-      Org.logMessage(id.textRange, s"No type declaration found for '$typeName'")
+      Org.missingType(id.textRange, typeName)
     expression.verify(context)
   }
 

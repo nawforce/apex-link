@@ -61,7 +61,7 @@ final case class TypeRefPrimary(typeName: TypeName) extends Primary {
   override def verify(context: ExpressionVerifyContext): Unit = {
     val td = context.getTypeAndAddDependency(typeName)
     if (td.isEmpty)
-      Org.logMessage(textRange, s"No type declaration found for '$typeName'")
+      Org.missingType(textRange, typeName)
   }
 }
 

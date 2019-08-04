@@ -36,9 +36,8 @@ import com.nawforce.types._
 import com.nawforce.utils.{DotName, IssueLog, Name}
 import com.typesafe.scalalogging.LazyLogging
 
-import scala.collection.mutable
-import scala.util.DynamicVariable
 import scala.collection.JavaConverters._
+import scala.util.DynamicVariable
 
 /** Org abstraction, a simulation of the metadata installed on an org. Use the 'current' dynamic variable to access
   * the org being currently worked on. Typically only one org will be being used but some use cases might require
@@ -175,6 +174,12 @@ class Org extends TypeStore with LazyLogging {
     })
   }
 
+  def isGhostedType(typeName: TypeName): Boolean = {
+    packages.exists(pkg => pkg.paths.isEmpty &&
+      typeName.outer.nonEmpty &&
+      pkg.namespace == typeName.outerName)
+  }
+
   def upsertType(declaration: TypeDeclaration): Unit = {
     Org.current.withValue(this) {
       types.put(declaration.typeName.asDotName, declaration)
@@ -199,6 +204,11 @@ object Org {
 
   def getType(dotName: DotName): Option[TypeDeclaration] = {
     Org.current.value.getType(dotName)
+  }
+
+  def missingType(range: TextRange, typeName: TypeName): Unit = {
+    if (!Org.current.value.isGhostedType(typeName))
+      logMessage(range, s"No type declaration found for '$typeName'")
   }
 
   def logMessage(index: Integer, msg: String): Unit = {

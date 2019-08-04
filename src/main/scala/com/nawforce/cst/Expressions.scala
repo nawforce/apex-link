@@ -86,7 +86,7 @@ final case class CastExpression(typeName: TypeName, expression: Expression) exte
   override def verify(context: ExpressionVerifyContext): Unit = {
     val castType = context.getTypeAndAddDependency(typeName)
     if (castType.isEmpty)
-      Org.logMessage(textRange, s"No type declaration found for '$typeName'")
+      Org.missingType(textRange, typeName)
     expression.verify(context)
   }
 }
@@ -130,7 +130,7 @@ final case class InstanceOfExpression(expression: Expression, typeName: TypeName
   override def verify(context: ExpressionVerifyContext): Unit = {
     val instanceOfType = context.getTypeAndAddDependency(typeName)
     if (instanceOfType.isEmpty)
-      Org.logMessage(textRange, s"No type declaration found for '$typeName'")
+      Org.missingType(textRange, typeName)
     expression.verify(context)
   }
 }
@@ -255,7 +255,7 @@ object Expression {
 
     val td = getType(dotName, context)
     if (td.isEmpty)
-      Org.logMessage(expr.textRange, s"No type declaration found for '${dotName.head}'")
+      Org.missingType(expr.textRange, TypeName(dotName.head.names.reverse))
   }
 
   def getType(dotName: DotName, context: ExpressionVerifyContext, outer: Option[TypeName]=None):

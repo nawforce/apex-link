@@ -135,7 +135,7 @@ final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeName: Ty
   def verify(context: BlockVerifyContext): Unit = {
     val varType = context.getTypeAndAddDependency(typeName)
     if (varType.isEmpty)
-      Org.logMessage(textRange, s"No type declaration found for '$typeName'")
+      Org.missingType(textRange, typeName)
 
     variableDeclarators.verify(context)
   }

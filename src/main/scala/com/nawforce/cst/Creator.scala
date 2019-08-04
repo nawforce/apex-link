@@ -40,7 +40,7 @@ final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
     val typeName = createTypeName(None, idPairs.map(_.typeName))
     val newType = context.getTypeAndAddDependency(typeName)
     if (newType.isEmpty)
-      Org.logMessage(textRange, s"No type declaration found for '$typeName'")
+      Org.missingType(textRange, typeName)
   }
 
   private def createTypeName(outer: Option[TypeName], names: Seq[TypeName]): TypeName = {

@@ -60,7 +60,7 @@ final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: Ty
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     val propType = context.getTypeAndAddDependency(typeName)
     if (propType.isEmpty)
-      Org.logMessage(id.textRange, s"No type declaration found for '$typeName'")
+      Org.missingType(id.textRange, typeName)
 
     val setters = propertyBlocks.filter(_.isInstanceOf[SetterPropertyBlock])
     setters.foreach(_.verify(context))

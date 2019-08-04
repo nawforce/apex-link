@@ -33,7 +33,7 @@ import com.nawforce.documents.DocumentLoader
 import com.nawforce.utils.Name
 import com.typesafe.scalalogging.LazyLogging
 
-class Package(org: Org, namespace: Name, paths: Seq[Path]) extends LazyLogging {
+class Package(val org: Org, val namespace: Name, val paths: Seq[Path]) extends LazyLogging {
   private val documents = new DocumentLoader(paths)
 
   lazy val classCount: Int = documents.getByExtension(Name("cls")).size

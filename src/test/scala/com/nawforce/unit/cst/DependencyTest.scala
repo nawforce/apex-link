@@ -175,7 +175,7 @@ class DependencyTest extends FunSuite {
     assert(!defaultOrg.issues.hasMessages)
     Org.current.withValue(defaultOrg) {
       val cmp = tds.head.fields.head.dependencies().filterNot(_ == typeClass)
-      assert(cmp.head.asInstanceOf[TypeDeclaration].typeName.toString == "Component.Apex.OutputText")
+      assert(cmp.head.typeName.toString == "Component.Apex.OutputText")
     }
   }
 

@@ -128,7 +128,7 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: Type
     if (typeName != TypeName.Void) {
       val returnType = context.getTypeAndAddDependency(typeName)
       if (returnType.isEmpty)
-        Org.logMessage(id.textRange, s"No type declaration found for '$typeName'")
+        Org.missingType(id.textRange, typeName)
     }
     parameters.foreach(_.verify(context))
 
@@ -177,7 +177,7 @@ final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeN
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     val td = context.getTypeAndAddDependency(typeName)
     if (td.isEmpty)
-      Org.logMessage(variableDeclarator.id.textRange, s"No type declaration found for '${typeName.toString}'")
+      Org.missingType(variableDeclarator.id.textRange, typeName)
 
     variableDeclarator.verify(new BlockVerifyContext(context))
     depends = Some(context.dependencies)
@@ -232,7 +232,7 @@ final case class FormalParameter(modifiers: Seq[Modifier], typeName: TypeName, i
   def verify(context: BodyDeclarationVerifyContext): Unit = {
     val paramType = context.getTypeAndAddDependency(typeName)
     if (paramType.isEmpty)
-      Org.logMessage(id.textRange, s"No type declaration found for '$typeName'")
+      Org.missingType(id.textRange, typeName)
   }
 }
 

@@ -138,7 +138,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
     superTypeDeclaration.foreach(context.addDependency)
     if (superClass.nonEmpty) {
       if (superTypeDeclaration.isEmpty) {
-        Org.logMessage(id.textRange, s"No type declaration found for '${superClass.get.asDotName}'")
+        Org.missingType(id.textRange, superClass.get)
       } else if (superTypeDeclaration.get.nature != CLASS_NATURE) {
         Org.logMessage(id.textRange, s"Parent type '${superClass.get.asDotName}' must be a class")
       } else if (superTypeDeclaration.get.modifiers.intersect(Seq(VIRTUAL_MODIFIER, ABSTRACT_MODIFIER)).isEmpty) {

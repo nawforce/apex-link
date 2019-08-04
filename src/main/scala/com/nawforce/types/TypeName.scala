@@ -31,6 +31,8 @@ import com.nawforce.utils.{DotName, Name}
 
 case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeName]=None) {
 
+  lazy val outerName: Name = outer.map(_.outerName).getOrElse(name)
+
   def withParams(newParams: Seq[TypeName]): TypeName = {
     if (newParams != params)
       TypeName(name, newParams, outer)

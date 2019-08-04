@@ -55,7 +55,8 @@ export default class Check extends SfdxCommand {
       name: "directories",
       description:
         "list of directories to search for Apex class files, defaults to current directory\n" +
-        "use [<namespace>=]directory for multiple packages, packages are loaded in first seen order"
+        "use [<namespace>=]directory for multiple packages, packages are loaded in first seen order.\n" + 
+        "Use <namespace>= without a directory to disable type errors for that namespace"
     }
   ];
 
