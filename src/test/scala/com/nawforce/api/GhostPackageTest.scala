@@ -34,7 +34,7 @@ import com.nawforce.types.TypeDeclaration
 import com.nawforce.utils.{DotName, Name}
 import org.scalatest.FunSuite
 
-class PackageTest extends FunSuite {
+class GhostPackageTest extends FunSuite {
 
   private val defaultName: Name = Name("Dummy.cls")
   private val defaultPath: Path = Paths.get(defaultName.toString)
@@ -69,6 +69,26 @@ class PackageTest extends FunSuite {
 
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy extends package.Super {}"))
     assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 13-18: No type declaration found for 'package.Super'\n")
+    assert(tds.head.dependencies().isEmpty)
+
+    defaultOrg.clear()
+  }
+
+  test("Ghost package suppresses declared interface type error") {
+    defaultOrg.addPackage("package", Array())
+
+    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy implements package.Interface {}"))
+    assert(!defaultOrg.issues.hasMessages)
+    assert(tds.head.dependencies().isEmpty)
+
+    defaultOrg.clear()
+  }
+
+  test("Ghost package with wrong namespace has declared interface type error") {
+    defaultOrg.addPackage("silly", Array())
+
+    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy implements package.Interface {}"))
+    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 13-18: No declaration found for interface 'package.Interface'\n")
     assert(tds.head.dependencies().isEmpty)
 
     defaultOrg.clear()

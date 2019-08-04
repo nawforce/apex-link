@@ -25,9 +25,8 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.general
+package com.nawforce.api
 
-import com.nawforce.api.{LogUtils, Org}
 import org.scalatest.FunSuite
 
 class SampleTest extends FunSuite {

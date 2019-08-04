@@ -209,7 +209,7 @@
                 <configuration>
                     <args>
                         <arg>-deprecation</arg>
-                        <arg>-opt:l:method</arg>
+                        <arg>-opt:l:inline</arg>
                         <arg>-opt-inline-from:com.nawforce.**</arg>
                     </args>
                 </configuration>

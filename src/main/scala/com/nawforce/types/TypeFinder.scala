@@ -28,7 +28,7 @@
 package com.nawforce.types
 
 import com.nawforce.api.Org
-import com.nawforce.utils.{DotName, Name}
+import com.nawforce.utils.DotName
 import scalaz.Memo
 
 trait TypeFinder {

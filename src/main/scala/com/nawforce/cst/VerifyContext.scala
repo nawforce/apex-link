@@ -27,7 +27,7 @@
 */
 package com.nawforce.cst
 
-import com.nawforce.types.{DependencyDeclaration, STATIC_MODIFIER, TypeDeclaration, TypeFinder, TypeName}
+import com.nawforce.types.{STATIC_MODIFIER, TypeDeclaration, TypeFinder, TypeName}
 import com.nawforce.utils.Name
 
 import scala.collection.mutable

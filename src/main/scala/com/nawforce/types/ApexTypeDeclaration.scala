@@ -152,9 +152,10 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
 
     interfaces.foreach(interface => {
       val td = context.getTypeAndAddDependency(interface)
-      if (td.isEmpty)
-        Org.logMessage(id.textRange, s"No declaration found for interface '${interface.toString}'")
-      else if (td.get.nature != INTERFACE_NATURE)
+      if (td.isEmpty) {
+        if (!Org.current.value.isGhostedType(interface))
+          Org.logMessage(id.textRange, s"No declaration found for interface '${interface.toString}'")
+      } else if (td.get.nature != INTERFACE_NATURE)
         Org.logMessage(id.textRange, s"Type '${interface.toString}' must be an interface")
     })
     bodyDeclarations.foreach(bd => bd.validate(new BodyDeclarationVerifyContext(context, bd)))
