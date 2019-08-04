@@ -25,35 +25,64 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.behaviour.types
+package com.nawforce.general
 
-import com.nawforce.cst._
-import com.nawforce.types.TypeName
+import com.nawforce.api.{LogUtils, Org}
 import org.scalatest.FunSuite
 
-class LiteralTypeTest extends FunSuite
-{
-  def literal(p: String, r: TypeName, ctx: TypeContext = null) : Unit =
-    TypeTestHelper.compareLiteral(p, r, ctx)
+class SampleTest extends FunSuite {
 
-  test("Primary literal") {
-    literal("0", TypeName.Integer)
-    literal("1", TypeName.Integer)
-    literal("0l", TypeName.Long)
-    literal("1l", TypeName.Long)
-    literal("0L", TypeName.Long)
-    literal("1L", TypeName.Long)
-    literal("''", TypeName.String)
-    literal("'a'", TypeName.String)
-    literal("'az'", TypeName.String)
-    literal("'\t'", TypeName.String)
-    literal("true", TypeName.Boolean)
-    literal("False", TypeName.Boolean)
-    literal("null", TypeName.Null)
-    literal("0.0", TypeName.Decimal)
-    literal(".0", TypeName.Decimal)
-    literal("0.123", TypeName.Decimal)
-    literal("0.123456789012345678901234567890123456789012345678", TypeName.Decimal)
-    literal("0.1234567890123456789012345678901234567890123456789", TypeName.Double)
+  private def sample(path: String): Unit = {
+    LogUtils.setLoggingLevel(false)
+    val org = new Org()
+    Org.current.withValue(org) {
+      val pkg = org.addPackage(null, Array[String](path))
+      pkg.deployAll()
+      assert(org.issues.asJSON(100) == "{ \"files\": [\n]}\n")
+    }
+  }
+
+  test("forcedotcom-enterprise-architecture") {
+    sample("samples/forcedotcom-enterprise-architecture/src")
+  }
+
+  test("chatter=game") {
+    sample("samples/forcedotcomlabs/chatter-game/src")
+  }
+
+  test("Cumulus") {
+    sample("samples/SalesforceFoundation/Cumulus/src")
+  }
+
+  test("HEDAP") {
+    sample("samples/SalesforceFoundation/HEDAP/src")
+  }
+
+  test("CampaignTools") {
+    sample("samples/SalesforceFoundation/CampaignTools/src")
+  }
+
+  test("Volunteers-for-Salesforce") {
+    sample("samples/SalesforceFoundation/Volunteers-for-Salesforce/src")
+  }
+
+  test("Relationships") {
+    sample("samples/SalesforceFoundation/Relationships/src")
+  }
+
+  test("Households") {
+    sample("samples/SalesforceFoundation/Households/src")
+  }
+
+  test("Recurring_Donations") {
+    sample("samples/SalesforceFoundation/Recurring_Donations/src")
+  }
+
+  test("Contacts_and_Organizations") {
+    sample("samples/SalesforceFoundation/Contacts_and_Organizations/src")
+  }
+
+  test("Affiliations") {
+    sample("samples/SalesforceFoundation/Affiliations/src")
   }
 }

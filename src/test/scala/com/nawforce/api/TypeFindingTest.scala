@@ -25,12 +25,11 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.behaviour.api
+package com.nawforce.api
 
 import java.io.ByteArrayInputStream
 import java.nio.file.Paths
 
-import com.nawforce.api.Org
 import com.nawforce.types.{ApexTypeDeclaration, TypeName}
 import com.nawforce.utils.{DotName, Name}
 import org.scalatest.FunSuite

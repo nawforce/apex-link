@@ -25,13 +25,13 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.unit.cst
+package com.nawforce.cst
 
 import java.io.ByteArrayInputStream
 import java.nio.file.{Path, Paths}
 
 import com.nawforce.api.Org
-import com.nawforce.types.{TypeDeclaration, TypeName}
+import com.nawforce.types.TypeDeclaration
 import com.nawforce.utils.{DotName, Name}
 import org.scalatest.FunSuite
 

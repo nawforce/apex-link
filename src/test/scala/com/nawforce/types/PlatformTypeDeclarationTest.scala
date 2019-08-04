@@ -25,9 +25,8 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.unit.types
+package com.nawforce.types
 
-import com.nawforce.types._
 import com.nawforce.utils.DotName
 import org.scalatest.FunSuite
 

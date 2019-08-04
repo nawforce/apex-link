@@ -25,44 +25,50 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.unit.types
+package com.nawforce.cst
 
-import com.nawforce.types.TypeStore
-import com.nawforce.utils.{DotName, Name}
+import java.io.ByteArrayInputStream
+import java.nio.file.{Path, Paths}
+
+import com.nawforce.api.Org
+import com.nawforce.types._
+import com.nawforce.utils.Name
 import org.scalatest.FunSuite
 
-class TypeStoreTest extends FunSuite {
+class SwitchTest extends FunSuite {
 
-  test("Bad type not found") {
-    assert(new TypeStore().getType(DotName(Seq(Name("Hello")))).isEmpty)
+  private val defaultName: Name = Name("Dummy")
+  private val defaultPath: Path = Paths.get(defaultName.toString)
+  private val defaultOrg: Org = new Org
+
+  def typeDeclaration(clsText: String): Option[TypeDeclaration] = {
+    Org.current.withValue(defaultOrg) {
+      defaultOrg.clear()
+      val td = ApexTypeDeclaration.create(Name.Empty, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
+      td.headOption
+    }
   }
 
-  test("Scoped system class found") {
-    val typeName = DotName(Seq(Name("System"), Name("String")))
-    assert(new TypeStore().getType(typeName).get.typeName.asDotName == typeName)
+  test("Single control switch") {
+    typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} }}}")
+    assert(!defaultOrg.issues.hasMessages)
   }
 
-  test("Unscoped system class found") {
-    val typeName = DotName(Seq(Name("String")))
-    assert(new TypeStore().getType(typeName).get.typeName.asDotName == DotName(Seq(Name("System"), Name("String"))))
+  test("Multi control switch") {
+    typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} when 'B' {}}}}")
+    assert(!defaultOrg.issues.hasMessages)
   }
 
-  test("Unscoped schema class found") {
-    val typeName = DotName(Seq(Name("SObjectType")))
-    assert(new TypeStore().getType(typeName).get.typeName.asDotName == DotName(Seq(Name("Schema"), Name("SObjectType"))))
+  test("Else switch") {
+    typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} when else {}}}}")
+    assert(!defaultOrg.issues.hasMessages)
   }
 
-  test("Unscoped database class not found") {
-    assert(new TypeStore().getType(DotName(Seq(Name("QueryLocator")))).isEmpty)
+  test("Empty switch") {
+    typeDeclaration("public class Dummy {{switch on 'A' {}}}")
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
+      "line 1: mismatched input '}' expecting 'when'\n")
   }
 
-  test("Inner class found") {
-    val typeName = DotName(Seq(Name("Messaging"), Name("InboundEmail"), Name("Header")))
-    assert(new TypeStore().getType(typeName).get.typeName.asDotName == typeName)
-  }
-
-  test("Bad inner class not found") {
-    val typeName = DotName(Seq(Name("Messaging"), Name("InboundEmail"), Name("BadHeader")))
-    assert(new TypeStore().getType(typeName).isEmpty)
-  }
+  // TODO: Examine error handling of switch
 }

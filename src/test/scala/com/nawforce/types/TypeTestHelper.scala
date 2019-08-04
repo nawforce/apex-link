@@ -25,13 +25,12 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.behaviour.types
+package com.nawforce.types
 
 import java.io.StringReader
 
 import com.nawforce.cst._
 import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
-import com.nawforce.types.TypeName
 import com.nawforce.utils.ThrowingErrorListener
 import org.antlr.v4.runtime.CommonTokenStream
 

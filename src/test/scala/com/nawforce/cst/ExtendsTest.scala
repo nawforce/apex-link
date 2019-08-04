@@ -25,7 +25,7 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.unit.cst
+package com.nawforce.cst
 
 import java.io.ByteArrayInputStream
 import java.nio.file.{Path, Paths}
@@ -35,7 +35,7 @@ import com.nawforce.types.TypeDeclaration
 import com.nawforce.utils.{DotName, Name}
 import org.scalatest.FunSuite
 
-class ImplementsTest extends FunSuite {
+class ExtendsTest extends FunSuite {
 
   private val defaultName: Name = Name("Dummy")
   private val defaultPath: Path = Paths.get(defaultName.toString + ".cls")
@@ -55,69 +55,62 @@ class ImplementsTest extends FunSuite {
     }
   }
 
-  test("Missing class interface") {
-    assert(typeDeclarations(Map("Dummy" -> "global class Dummy implements A {}")).nonEmpty)
+  test("Duplicate inner type names") {
+    assert(typeDeclarations(Map("Dummy" -> "global class Dummy {class Inner {} interface Inner{}}")).nonEmpty)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: No declaration found for interface 'A'\n")
+      "line 1 at 45-50: Duplicate type name 'Inner'\n")
   }
 
-  test("Missing class second interface") {
-    val tds = typeDeclarations(Map(
-      "Dummy" -> "global class Dummy implements A, B {}",
-      "A" -> "public interface A {}"
-    ))
+  test("Duplicate outer & inner type names") {
+    assert(typeDeclarations(Map("Dummy" -> "global class Dummy {class Dummy{}}")).nonEmpty)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: No declaration found for interface 'B'\n")
+      "line 1 at 26-31: Duplicate type name 'Dummy'\n")
   }
 
-  test("Class implements class") {
-    val tds = typeDeclarations(Map(
-      "Dummy" -> "global class Dummy implements A {}",
-      "A" -> "public class A {}"
-    ))
+  test("Missing superclass") {
+    assert(typeDeclarations(Map("Dummy" -> "global class Dummy extends Foo {}")).nonEmpty)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: Type 'A' must be an interface\n")
+      "line 1 at 13-18: No type declaration found for 'Foo'\n")
   }
 
-  test("Class implements enum") {
-    val tds = typeDeclarations(Map(
-      "Dummy" -> "global class Dummy implements A {}",
-      "A" -> "public enum A {}"
-    ))
+  test("Non-virtual superclass") {
+    assert(typeDeclarations(Map(
+      "SuperClass" -> "global class SuperClass {}",
+      "Dummy" -> "global class Dummy extends SuperClass {}")).size == 2)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: Type 'A' must be an interface\n")
+      "line 1 at 13-18: Parent class 'SuperClass' must be declared virtual or abstract\n")
   }
 
-  test("Interface extends class") {
-    val tds = typeDeclarations(Map(
-      "Dummy" -> "global interface Dummy extends A {}",
-      "A" -> "public class A {}"
-    ))
+  test("Interface superclass") {
+    assert(typeDeclarations(Map(
+      "SuperInterface" -> "global interface SuperInterface {}",
+      "Dummy" -> "global class Dummy extends SuperInterface {}")).size == 2)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 17-22: Type 'A' must be an interface\n")
+      "line 1 at 13-18: Parent type 'SuperInterface' must be a class\n")
   }
 
-  test("Interface extends enum") {
-    val tds = typeDeclarations(Map(
-      "Dummy" -> "global interface Dummy extends A {}",
-      "A" -> "public enum A {}"
-    ))
+  test("Enum superclass") {
+    assert(typeDeclarations(Map(
+      "SuperEnum" -> "global enum SuperEnum {}",
+      "Dummy" -> "global class Dummy extends SuperEnum {}")).size == 2)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 17-22: Type 'A' must be an interface\n")
+      "line 1 at 13-18: Parent type 'SuperEnum' must be a class\n")
   }
 
-  test("Class implements Database.Batchable<sObject>") {
-    val tds = typeDeclarations(Map(
-      "Dummy" -> "global class Dummy implements Database.Batchable<sObject> {}"
-    ))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "")
+  test("External superclass") {
+    assert(typeDeclarations(Map(
+      "SuperClass" -> "global virtual class SuperClass {}",
+      "Dummy" -> "global class Dummy extends SuperClass {}")).size == 2)
+    assert(!defaultOrg.issues.hasMessages)
   }
 
-  test("Class implements Database.Batchable<Object>") {
-    val tds = typeDeclarations(Map(
-      "Dummy" -> "global class Dummy implements Database.Batchable<Object> {}"
-    ))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "")
+  test("Inner superclass") {
+    assert(typeDeclarations(Map("Dummy" -> "global class Dummy extends Inner {virtual class Inner{}}")).nonEmpty)
+    assert(!defaultOrg.issues.hasMessages)
   }
 
+  test("Outer superclass") {
+    assert(typeDeclarations(Map("Dummy" -> "global virtual class Dummy {class Inner extends Dummy {}}")).nonEmpty)
+    assert(!defaultOrg.issues.hasMessages)
+  }
 }
