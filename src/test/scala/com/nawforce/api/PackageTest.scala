@@ -84,11 +84,71 @@ class PackageTest extends FunSuite {
     defaultOrg.clear()
   }
 
-  test("Ghost package with wrong namespaces has implicit type error") {
+  test("Ghost package with wrong namespace has implicit type error") {
     defaultOrg.addPackage("silly", Array())
 
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = package.class;} }"))
     assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 33-46: No type declaration found for 'package'\n")
+    assert(tds.head.dependencies().isEmpty)
+
+    defaultOrg.clear()
+  }
+
+  test("Ghost package suppresses custom object error") {
+    defaultOrg.addPackage("package", Array())
+
+    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = new package__Foo__c();} }"))
+    assert(!defaultOrg.issues.hasMessages)
+    assert(tds.head.dependencies().isEmpty)
+
+    defaultOrg.clear()
+  }
+
+  test("Ghost package with wrong namespace has custom object error") {
+    defaultOrg.addPackage("silly", Array())
+
+    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = new package__Foo__c();} }"))
+    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 37-52: No type declaration found for 'package__Foo__c'\n")
+    assert(tds.head.dependencies().isEmpty)
+
+    defaultOrg.clear()
+  }
+
+  test("Ghost package suppresses custom metadata error") {
+    defaultOrg.addPackage("package", Array())
+
+    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = new package__Foo__mdt();} }"))
+    assert(!defaultOrg.issues.hasMessages)
+    assert(tds.head.dependencies().isEmpty)
+
+    defaultOrg.clear()
+  }
+
+  test("Ghost package with wrong namespace has custom metadata error") {
+    defaultOrg.addPackage("silly", Array())
+
+    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = new package__Foo__mdt();} }"))
+    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 37-54: No type declaration found for 'package__Foo__mdt'\n")
+    assert(tds.head.dependencies().isEmpty)
+
+    defaultOrg.clear()
+  }
+
+  test("Ghost package suppresses platform event error") {
+    defaultOrg.addPackage("package", Array())
+
+    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = new package__Foo__e();} }"))
+    assert(!defaultOrg.issues.hasMessages)
+    assert(tds.head.dependencies().isEmpty)
+
+    defaultOrg.clear()
+  }
+
+  test("Ghost package with wrong namespace has platform event error") {
+    defaultOrg.addPackage("silly", Array())
+
+    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = new package__Foo__e();} }"))
+    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 37-52: No type declaration found for 'package__Foo__e'\n")
     assert(tds.head.dependencies().isEmpty)
 
     defaultOrg.clear()

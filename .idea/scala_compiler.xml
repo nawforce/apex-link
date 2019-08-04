@@ -6,6 +6,10 @@
     <option name="featureWarnings" value="true" />
     <profile name="Maven 1" modules="ApexLink">
       <option name="deprecationWarnings" value="true" />
+      <parameters>
+        <parameter value="-opt:l:method" />
+        <parameter value="-opt-inline-from:com.nawforce.**" />
+      </parameters>
     </profile>
   </component>
 </project>

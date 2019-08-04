@@ -177,7 +177,7 @@ class Org extends TypeStore with LazyLogging {
   def isGhostedType(typeName: TypeName): Boolean = {
     typeName.params.exists(isGhostedType) ||
     packages.exists(pkg => pkg.paths.isEmpty &&
-      pkg.namespace == typeName.outerName)
+      pkg.namespace == typeName.asDotName.demangled.firstName)
   }
 
   def upsertType(declaration: TypeDeclaration): Unit = {
