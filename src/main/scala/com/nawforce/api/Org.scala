@@ -175,8 +175,8 @@ class Org extends TypeStore with LazyLogging {
   }
 
   def isGhostedType(typeName: TypeName): Boolean = {
+    typeName.params.exists(isGhostedType) ||
     packages.exists(pkg => pkg.paths.isEmpty &&
-      typeName.outer.nonEmpty &&
       pkg.namespace == typeName.outerName)
   }
 

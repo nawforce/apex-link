@@ -54,7 +54,7 @@ class PackageTest extends FunSuite {
     }
   }
 
-  test("Ghost package suppresses error") {
+  test("Ghost package suppresses declared type error") {
     defaultOrg.addPackage("package", Array())
 
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy extends package.Super {}"))
@@ -64,11 +64,31 @@ class PackageTest extends FunSuite {
     defaultOrg.clear()
   }
 
-  test("Ghost package with wrong namespace has error") {
+  test("Ghost package with wrong namespace has declared type error") {
     defaultOrg.addPackage("silly", Array())
 
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy extends package.Super {}"))
     assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 13-18: No type declaration found for 'package.Super'\n")
+    assert(tds.head.dependencies().isEmpty)
+
+    defaultOrg.clear()
+  }
+
+  test("Ghost package suppresses implicit type error") {
+    defaultOrg.addPackage("package", Array())
+
+    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = package.class;} }"))
+    assert(!defaultOrg.issues.hasMessages)
+    assert(tds.head.dependencies().isEmpty)
+
+    defaultOrg.clear()
+  }
+
+  test("Ghost package with wrong namespaces has implicit type error") {
+    defaultOrg.addPackage("silly", Array())
+
+    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = package.class;} }"))
+    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 33-46: No type declaration found for 'package'\n")
     assert(tds.head.dependencies().isEmpty)
 
     defaultOrg.clear()
