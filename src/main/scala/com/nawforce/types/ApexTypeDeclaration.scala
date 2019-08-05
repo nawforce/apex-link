@@ -69,11 +69,12 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
 
   private lazy val superTypeDeclaration: Option[TypeDeclaration] = {
     // TODO: Using a verify context here is a bit of a kludge
-    val typeDeclaration = superClass.flatMap(sc => new TypeVerifyContext(None, this).getTypeFor(sc))
-    isComplete = typeDeclaration.isDefined || superClass.isEmpty
-    typeDeclaration
+    superClass.flatMap(sc => new TypeVerifyContext(None, this).getTypeFor(sc))
   }
-  private var isComplete = false
+
+  override lazy val isComplete: Boolean = {
+    (superTypeDeclaration.nonEmpty && superTypeDeclaration.get.isComplete) || superClass.isEmpty
+  }
 
   override val nestedTypes: Seq[ApexTypeDeclaration] = {
     bodyDeclarations.flatMap {

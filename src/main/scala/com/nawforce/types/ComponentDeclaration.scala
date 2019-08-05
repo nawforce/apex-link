@@ -46,6 +46,7 @@ final case class ComponentDeclaration(standardComponents: Map[Name, TypeDeclarat
   val outerTypeName: Option[TypeName] = None
   val nature: Nature = CLASS_NATURE
   val modifiers: Seq[Modifier] = Nil
+  val isComplete: Boolean = true
 
   val superClass: Option[TypeName] = Some(TypeName.SObject)
   val interfaces: Seq[TypeName] = Nil
@@ -80,6 +81,7 @@ final case class CustomComponent(name: Name, path: Path) extends TypeDeclaration
   val outerTypeName: Option[TypeName] = None
   val nature: Nature = CLASS_NATURE
   val modifiers: Seq[Modifier] = Nil
+  val isComplete: Boolean = true
 
   val superClass: Option[TypeName] = Some(TypeName.SObject)
   val interfaces: Seq[TypeName] = Nil
@@ -104,6 +106,7 @@ final case class ComponentNamespace(name: Name) extends TypeDeclaration {
   val outerTypeName: Option[TypeName] = None
   val nature: Nature = CLASS_NATURE
   val modifiers: Seq[Modifier] = Nil
+  val isComplete: Boolean = true
 
   val superClass: Option[TypeName] = Some(TypeName.SObject)
   val interfaces: Seq[TypeName] = Nil

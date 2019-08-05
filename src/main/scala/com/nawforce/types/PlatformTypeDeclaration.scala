@@ -52,6 +52,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
       case _ => CLASS_NATURE
     }
   }
+  val isComplete: Boolean = true
 
   lazy val superClass: Option[TypeName] = {
     if (cls.getSuperclass != null) {

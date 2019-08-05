@@ -415,7 +415,7 @@ final case class CatchType(names: List[QualifiedName]) extends CST {
       val typeName = TypeName(name.names.reverse)
       val catchType = context.getTypeAndAddDependency(typeName)
       if (catchType.isEmpty)
-        Org.logMessage(name.textRange, s"No type declaration found for '$typeName'")
+        Org.missingType(name.textRange, typeName)
     })
   }
 }

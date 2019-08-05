@@ -94,6 +94,7 @@ trait TypeDeclaration extends DependencyDeclaration {
   val outerTypeName: Option[TypeName]
   val nature: Nature
   val modifiers: Seq[Modifier]
+  val isComplete: Boolean
 
   lazy val namespace: Option[Name] = {
     val outermostType = outerTypeName.getOrElse(typeName).outer

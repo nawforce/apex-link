@@ -173,4 +173,15 @@ class GhostPackageTest extends FunSuite {
 
     defaultOrg.clear()
   }
+
+  test("Ghost package suppresses possible field reference error") {
+    defaultOrg.addPackage("package", Array())
+
+    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy extends package.Super { {Object a = b.foo();} }"))
+    defaultOrg.issues.dumpMessages(false)
+    assert(!defaultOrg.issues.hasMessages)
+    assert(tds.head.dependencies().isEmpty)
+
+    defaultOrg.clear()
+  }
 }

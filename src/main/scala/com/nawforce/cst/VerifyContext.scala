@@ -72,6 +72,7 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: T
   def parent(): Option[VerifyContext] = parentContext
 
   def isVar(name: Name): Boolean = {
+    !typeDeclaration.isComplete ||
     typeDeclaration.fields.exists(_.name == name) ||
     typeDeclaration.outerTypeName.flatMap(getTypeFor).exists(
       _.fields.exists(field => field.name == name && field.modifiers.contains(STATIC_MODIFIER)))

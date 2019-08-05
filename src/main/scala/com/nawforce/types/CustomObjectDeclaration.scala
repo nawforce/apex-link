@@ -40,6 +40,7 @@ final case class CustomObjectDeclaration(path: Path, typeName: TypeName) extends
   val outerTypeName: Option[TypeName] = None
   val nature: Nature = CLASS_NATURE
   val modifiers: Seq[Modifier] = Seq.empty
+  val isComplete: Boolean = true
 
   val superClass: Option[TypeName] = Some(TypeName.SObject)
   val interfaces: Seq[TypeName] = Seq.empty
