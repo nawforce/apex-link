@@ -44,7 +44,7 @@ class InterfaceModifierTest extends FunSuite {
   def typeDeclaration(clsText: String): TypeDeclaration = {
     defaultOrg.clear()
     Org.current.withValue(defaultOrg) {
-      val td = ApexTypeDeclaration.create(Name.Empty, defaultPath, new ByteArrayInputStream(clsText.getBytes())).head
+      val td = ApexTypeDeclaration.create(defaultOrg.emptyUnmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes())).head
       Org.current.value.issues.context.withValue(defaultPath) {
         td.validate()
       }

@@ -46,15 +46,15 @@ final case class CompilationUnit(path: Path, private val _typeDeclaration: ApexT
 }
 
 object CompilationUnit {
-  def construct(namespace: Name, path: Path, compilationUnit: CompilationUnitContext,
+  def construct(pkg: PackageDeclaration, path: Path, compilationUnit: CompilationUnitContext,
                 context: ConstructContext): CompilationUnit = {
     CompilationUnit(path,
-      ApexTypeDeclaration.construct(Left(namespace), compilationUnit.typeDeclaration(), context))
+      ApexTypeDeclaration.construct(Left(pkg), compilationUnit.typeDeclaration(), context))
       .withContext(compilationUnit, context)
   }
 }
 
-final case class ClassDeclaration(_id: Id, _outerContext: Either[Name, TypeName], _modifiers: Seq[Modifier],
+final case class ClassDeclaration(_id: Id, _outerContext: Either[PackageDeclaration, TypeName], _modifiers: Seq[Modifier],
                                   _extendsType: Option[TypeName], _implementsTypes: Seq[TypeName],
                                   _bodyDeclarations: Seq[ClassBodyDeclaration]) extends
   ApexTypeDeclaration(_id, _outerContext, _modifiers, _extendsType, _implementsTypes, _bodyDeclarations) {
@@ -77,12 +77,12 @@ final case class ClassDeclaration(_id: Id, _outerContext: Either[Name, TypeName]
 }
 
 object ClassDeclaration {
-  def construct(outerContext: Either[Name, TypeName], modifiers: Seq[Modifier],
+  def construct(outerContext: Either[PackageDeclaration, TypeName], modifiers: Seq[Modifier],
                 classDeclaration: ClassDeclarationContext, context: ConstructContext): ClassDeclaration = {
 
     val nsOuter = outerContext match {
-      case Left(ns) if ns == Name.Empty => None
-      case Left(ns) => Some(TypeName(ns))
+      case Left(pkg) if pkg.namespace == Name.Empty => None
+      case Left(pkg) => Some(TypeName(pkg.namespace))
       case Right(outer) => Some(outer)
     }
     val thisType = TypeName(Name(classDeclaration.id().getText)).withOuter(nsOuter)
@@ -121,7 +121,7 @@ object ClassDeclaration {
   }
 }
 
-final case class InterfaceDeclaration(_id: Id, _outerContext: Either[Name, TypeName], _modifiers: Seq[Modifier],
+final case class InterfaceDeclaration(_id: Id, _outerContext: Either[PackageDeclaration, TypeName], _modifiers: Seq[Modifier],
                                       _implementsTypes: Seq[TypeName], _bodyDeclarations: Seq[ClassBodyDeclaration])
   extends ApexTypeDeclaration(_id, _outerContext, _modifiers, None, _implementsTypes, _bodyDeclarations) {
 
@@ -133,7 +133,9 @@ final case class InterfaceDeclaration(_id: Id, _outerContext: Either[Name, TypeN
 }
 
 object InterfaceDeclaration {
-  def construct(outerContext: Either[Name, TypeName], modifiers: Seq[Modifier], interfaceDeclaration: ApexParser.InterfaceDeclarationContext, context: ConstructContext): InterfaceDeclaration = {
+  def construct(outerContext: Either[PackageDeclaration, TypeName], modifiers: Seq[Modifier],
+                interfaceDeclaration: ApexParser.InterfaceDeclarationContext, context: ConstructContext)
+  : InterfaceDeclaration = {
     val implementsType =
       if (interfaceDeclaration.typeList() != null)
         TypeList.construct(interfaceDeclaration.typeList(), context)
@@ -151,7 +153,7 @@ object InterfaceDeclaration {
   }
 }
 
-final case class EnumDeclaration(_id: Id, _outerContext: Either[Name, TypeName], _modifiers: Seq[Modifier],
+final case class EnumDeclaration(_id: Id, _outerContext: Either[PackageDeclaration, TypeName], _modifiers: Seq[Modifier],
                                  _bodyDeclarations: Seq[ClassBodyDeclaration])
   extends ApexTypeDeclaration(_id, _outerContext, _modifiers, None, Seq(), _bodyDeclarations) {
 
@@ -163,16 +165,15 @@ final case class EnumDeclaration(_id: Id, _outerContext: Either[Name, TypeName],
 }
 
 object EnumDeclaration {
-  def construct(outerContext: Either[Name, TypeName], typeModifiers: Seq[Modifier],
+  def construct(outerContext: Either[PackageDeclaration, TypeName], typeModifiers: Seq[Modifier],
                 enumDeclaration: ApexParser.EnumDeclarationContext, context: ConstructContext): EnumDeclaration = {
-
 
     // TODO: Add standard enum methods
 
     val id = Id.construct(enumDeclaration.id(), context)
     val nsOuter = outerContext match {
-      case Left(ns) if ns == Name.Empty => None
-      case Left(ns) => Some(TypeName(ns))
+      case Left(pkg) if pkg.namespace == Name.Empty => None
+      case Left(pkg) => Some(TypeName(pkg.namespace))
       case Right(outer) => Some(outer)
     }
     val thisType = TypeName(id.name).withOuter(nsOuter)

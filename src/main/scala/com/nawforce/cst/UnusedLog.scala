@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
+ Copyright (c) 2017 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -25,35 +25,22 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.types
 
-import java.nio.file.{Path, Paths}
+package com.nawforce.cst
 
-import com.nawforce.utils.{Issue, IssueLog, Name}
+import com.nawforce.types.{LabelDeclaration, TypeDeclaration}
+import com.nawforce.utils.IssueLog
 
-import scala.collection.mutable
+class UnusedLog(types: Iterable[TypeDeclaration]) {
 
-final case class LabelDeclaration() extends TypeDeclaration {
-  val name: Name = Name.label
-  val path: Path = Paths.get("CustomLabels.labels")
-  val typeName: TypeName = TypeName(name)
-  val outerTypeName: Option[TypeName] = None
-  val nature: Nature = CLASS_NATURE
-  val modifiers: Seq[Modifier] = Seq.empty
-  val isComplete: Boolean = true
+  private val log: IssueLog = new IssueLog()
 
-  val superClass: Option[TypeName] = Some(TypeName.SObject)
-  val interfaces: Seq[TypeName] = Seq.empty
-  val nestedTypes: Seq[TypeDeclaration] = Seq.empty
+  collectUnused()
 
-  val blocks: Seq[BlockDeclaration] = Seq.empty
-  val fields: Seq[FieldDeclaration]= Seq.empty
-  val constructors: Seq[ConstructorDeclaration] = Seq.empty
-  val methods: Seq[MethodDeclaration]= Seq.empty
-
-  def validate(): Unit = {}
-  def dependencies(): Set[TypeDeclaration] = Set.empty
-  def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
-
-  def unused(): Seq[Issue] = Seq()
+  private def collectUnused(): Unit = {
+    types.par.foreach {
+      case labels: LabelDeclaration => labels.unused().foreach(log.add)
+      case _ => ()
+    }
+  }
 }

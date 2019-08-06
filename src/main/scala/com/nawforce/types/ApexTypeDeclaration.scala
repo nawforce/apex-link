@@ -42,7 +42,7 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 /** Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
-abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, TypeName],
+abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[PackageDeclaration, TypeName],
                                    _modifiers: Seq[Modifier], val superClass: Option[TypeName],
                                    val interfaces: Seq[TypeName], val bodyDeclarations: Seq[ClassBodyDeclaration])
   extends ClassBodyDeclaration(_modifiers) with TypeDeclaration {
@@ -53,8 +53,8 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
   override val path: Path = Org.current.value.issues.context.value
   override val typeName: TypeName = {
     outerContext match {
-      case Left(ns) if ns == Name.Empty => TypeName(name)
-      case Left(ns) => TypeName(name).withOuter(Some(TypeName(ns)))
+      case Left(pkg) if pkg.namespace == Name.Empty => TypeName(name)
+      case Left(pkg) => TypeName(name).withOuter(Some(TypeName(pkg.namespace)))
       case Right(outer) => TypeName(name).withOuter(Some(outer))
     }
   }
@@ -171,24 +171,11 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[Name, Ty
 }
 
 object ApexTypeDeclaration {
-  def create(namespace: Name, path: Path, data: InputStream): Seq[ApexTypeDeclaration] = {
+  def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[ApexTypeDeclaration] = {
     Org.current.value.issues.context.withValue(path) {
       try {
-        val listener = new ThrowingErrorListener
-        val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(data)
-        val lexer: ApexLexer = new ApexLexer(cis)
-        lexer.removeErrorListeners()
-        lexer.addErrorListener(listener)
-
-        val tokens: CommonTokenStream = new CommonTokenStream(lexer)
-        tokens.fill()
-
-        val parser: ApexParser = new ApexParser(tokens)
-        parser.removeErrorListeners()
-        parser.setTrace(false)
-        parser.addErrorListener(listener)
-
-        Seq(CompilationUnit.construct(namespace, path, parser.compilationUnit(), new ConstructContext()).typeDeclaration())
+        val parser = createParser(data)
+        Seq(CompilationUnit.construct(pkg, path, parser.compilationUnit(), new ConstructContext()).typeDeclaration())
       }
       catch
       {
@@ -199,7 +186,7 @@ object ApexTypeDeclaration {
     }
   }
 
-  def construct(outerContext: Either[Name, TypeName], typeDecl: TypeDeclarationContext, context: ConstructContext)
+  def construct(outerContext: Either[PackageDeclaration, TypeName], typeDecl: TypeDeclarationContext, context: ConstructContext)
   : ApexTypeDeclaration = {
 
     val modifiers: Seq[ModifierContext] = typeDecl.modifier().asScala
@@ -228,26 +215,29 @@ object ApexTypeDeclaration {
   def parseBlock(path: Path, data: InputStream): Option[ApexParser.BlockContext] = {
     Org.current.value.issues.context.withValue(path) {
       try {
-
-        val listener = new ThrowingErrorListener
-        val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(data)
-        val lexer: ApexLexer = new ApexLexer(cis)
-        lexer.removeErrorListeners()
-        lexer.addErrorListener(listener)
-
-        val tokens: CommonTokenStream = new CommonTokenStream(lexer)
-        tokens.fill()
-
-        val parser: ApexParser = new ApexParser(tokens)
-        parser.removeErrorListeners()
-        parser.setTrace(false)
-        parser.addErrorListener(listener)
-        Some(parser.block())
+        Some(createParser(data).block())
       } catch {
         case se: SyntaxException =>
           Org.logMessage(LineLocation(path, se.line), se.msg)
           None
       }
     }
+  }
+
+  private def createParser(data: InputStream): ApexParser = {
+    val listener = new ThrowingErrorListener
+    val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(data)
+    val lexer: ApexLexer = new ApexLexer(cis)
+    lexer.removeErrorListeners()
+    lexer.addErrorListener(listener)
+
+    val tokens: CommonTokenStream = new CommonTokenStream(lexer)
+    tokens.fill()
+
+    val parser: ApexParser = new ApexParser(tokens)
+    parser.removeErrorListeners()
+    parser.setTrace(false)
+    parser.addErrorListener(listener)
+    parser
   }
 }

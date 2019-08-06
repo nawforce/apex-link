@@ -31,6 +31,7 @@ import java.io.{FileInputStream, InputStream}
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 
+import com.nawforce.cst.UnusedLog
 import com.nawforce.documents._
 import com.nawforce.types._
 import com.nawforce.utils.{DotName, IssueLog, Name}
@@ -45,6 +46,8 @@ import scala.util.DynamicVariable
   */
 class Org extends TypeStore with LazyLogging {
   private var packages: List[Package] = Nil
+  lazy val emptyUnmanaged: Package = new Package(this, Name.Empty, Seq())
+
   private val types = new ConcurrentHashMap[DotName, TypeDeclaration]()
   private val inputStreams = new ConcurrentHashMap[Path, InputStream]()
   // TODO: Implement these declaration types
@@ -119,14 +122,18 @@ class Org extends TypeStore with LazyLogging {
   }
 
   /** Deploy some metadata to the org, if already present this will replace the existing metadata */
-  def deployMetadata(namespace: Name, files: Seq[Path]): Unit = {
+  def deployMetadata(pkg: Package, files: Seq[Path]): Unit = {
     Org.current.withValue(this) {
-      loadFromFiles(namespace, files)
+      loadFromFiles(pkg, files)
       validateMetadata()
     }
   }
 
-  private def loadFromFiles(namespace: Name, files: Seq[Path]): Unit = {
+  def reportUnused(): Unit = {
+    new UnusedLog(types.values().asScala)
+  }
+
+  private def loadFromFiles(pkg: Package, files: Seq[Path]): Unit = {
     val newDeclarations = files.grouped(100).flatMap(group => {
       val parsed = group.par.flatMap(path => {
         issues.context.withValue(path) {
@@ -134,15 +141,15 @@ class Org extends TypeStore with LazyLogging {
 
           val tds = DocumentType(path) match {
             case Some(docType: ApexDocument) =>
-              ApexTypeDeclaration.create(namespace, docType.path, getInputStream(docType.path))
+              ApexTypeDeclaration.create(pkg, docType.path, getInputStream(docType.path))
             case Some(docType: CustomObjectDocument) =>
-              CustomObjectDeclaration.create(namespace, docType.path, getInputStream(docType.path))
+              CustomObjectDeclaration.create(pkg, docType.path, getInputStream(docType.path))
             case Some(docType: PlatformEventDocument) =>
-              PlatformEventDeclaration.create(namespace, docType.path, getInputStream(docType.path))
+              PlatformEventDeclaration.create(pkg, docType.path, getInputStream(docType.path))
             case Some(docType: CustomMetadataDocument) =>
-              CustomMetadataDeclaration.create(namespace, docType.path, getInputStream(docType.path))
+              CustomMetadataDeclaration.create(pkg, docType.path, getInputStream(docType.path))
             case Some(docType: ComponentDocument) =>
-              upsertComponent(namespace, docType)
+              upsertComponent(pkg.namespace, docType)
               Nil
             case _ => Nil
           }

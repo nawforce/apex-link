@@ -46,6 +46,10 @@ abstract class MetadataDocumentType(_path: Path, _name: Name)
   val ignorable: Boolean = false
 }
 
+case class LabelsDocument(_path: Path, _name: Name) extends MetadataDocumentType(_path, _name) {
+  lazy val extension: Name = Name("labels")
+}
+
 case class ApexDocument(_path: Path, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("cls")
@@ -93,6 +97,10 @@ object DocumentType {
         Some(PlatformEventDocument(path, name))
       case Seq(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__e") =>
         Some(CustomMetadataDocument(path, name))
+      case Seq(name, Name("labels")) =>
+        Some(LabelsDocument(path, name))
+      case Seq(name, Name("labels-meta"), Name("xml")) =>
+        Some(LabelsDocument(path, name))
       case _ => None
     }
   }

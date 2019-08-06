@@ -44,7 +44,7 @@ class SwitchTest extends FunSuite {
   def typeDeclaration(clsText: String): Option[TypeDeclaration] = {
     Org.current.withValue(defaultOrg) {
       defaultOrg.clear()
-      val td = ApexTypeDeclaration.create(Name.Empty, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
+      val td = ApexTypeDeclaration.create(defaultOrg.emptyUnmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
       td.headOption
     }
   }

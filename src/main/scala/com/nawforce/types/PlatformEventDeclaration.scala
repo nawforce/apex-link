@@ -57,9 +57,9 @@ final case class PlatformEventDeclaration(path: Path, typeName: TypeName) extend
 }
 
 object PlatformEventDeclaration {
-  def create(namespace: Name, path: Path, data: InputStream): Seq[CustomObjectDeclaration] = {
+  def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[CustomObjectDeclaration] = {
     val name = DotName(DocumentType.apply(path).get.name).demangled
-    val ns = if (namespace.value.isEmpty) None else Some(TypeName(namespace))
+    val ns = if (pkg.namespace.value.isEmpty) None else Some(TypeName(pkg.namespace))
     val typeName =
       if (!name.isCompound)
         TypeName(name.firstName, Nil, ns)

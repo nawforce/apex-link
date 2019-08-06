@@ -29,27 +29,27 @@ package com.nawforce.api
 
 import java.nio.file.{Path, Paths}
 
-import com.nawforce.documents.DocumentLoader
+import com.nawforce.types.PackageDeclaration
 import com.nawforce.utils.Name
 import com.typesafe.scalalogging.LazyLogging
 
-class Package(val org: Org, val namespace: Name, val paths: Seq[Path]) extends LazyLogging {
-  private val documents = new DocumentLoader(paths)
+class Package(val org: Org, _namespace: Name, _paths: Seq[Path])
+  extends PackageDeclaration(_namespace, _paths) with LazyLogging {
 
   lazy val classCount: Int = documents.getByExtension(Name("cls")).size
 
   def deployAll(): Unit = {
     val components = documents.getByExtension(Name("component"))
     logger.debug(s"Found ${components.size} components to parse")
-    org.deployMetadata(namespace, components)
+    org.deployMetadata(this, components)
 
     val objects = documents.getByExtension(Name("object"))
     logger.debug(s"Found ${objects.size} custom objects to parse")
-    org.deployMetadata(namespace, objects)
+    org.deployMetadata(this, objects)
 
     val classes = documents.getByExtension(Name("cls"))
     logger.debug(s"Found ${classes.size} classes to parse")
-    org.deployMetadata(namespace, classes)
+    org.deployMetadata(this, classes)
   }
 }
 

@@ -52,7 +52,7 @@ class IdDependencyTest extends FunSuite {
     }).toSeq
 
     Org.current.withValue(defaultOrg) {
-      defaultOrg.deployMetadata(Name.Empty, paths)
+      defaultOrg.deployMetadata(defaultOrg.emptyUnmanaged, paths)
       defaultOrg.getTypes(classes.keys.map(k => DotName(k)).toSeq)
     }
   }

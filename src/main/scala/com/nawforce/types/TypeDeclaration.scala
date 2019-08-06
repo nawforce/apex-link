@@ -111,6 +111,7 @@ trait TypeDeclaration extends DependencyDeclaration {
   val constructors: Seq[ConstructorDeclaration]
   val methods: Seq[MethodDeclaration]
 
+  /** Validate must be called before examining dependencies */
   def validate(): Unit
   def dependencies(): Set[TypeDeclaration]
   def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit

@@ -40,10 +40,6 @@ abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST {
 
   protected var depends: Option[Set[TypeDeclaration]] = None
 
-  def invalidate(): Unit = {
-    depends = None
-  }
-
   def dependencies(): Set[TypeDeclaration] = {
     depends.get
   }

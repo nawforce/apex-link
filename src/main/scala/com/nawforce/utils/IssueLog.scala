@@ -35,15 +35,23 @@ import net.liftweb.json._
 import scala.collection.mutable
 import scala.util.DynamicVariable
 
+case class Issue(location: Location, msg: String)
+
 class IssueLog {
   val context: DynamicVariable[Path] = new DynamicVariable[Path](null)
 
   private[this] val lock = new Object()
-  private val log = mutable.HashMap[Path, List[(Location, String)]]() withDefaultValue List()
+  private val log = mutable.HashMap[Path, List[Issue]]() withDefaultValue List()
 
   def clear(): Unit = {
     lock.synchronized {
       log.clear()
+    }
+  }
+
+  def add(issue: Issue): Unit = {
+    lock.synchronized {
+      log.put(issue.location.path, issue :: log(issue.location.path))
     }
   }
 
@@ -69,9 +77,7 @@ class IssueLog {
   }
 
   def logMessage(location: Location, msg: String): Unit = {
-    lock.synchronized {
-      log.put(location.path, (location, msg) :: log(location.path))
-    }
+    add(Issue(location, msg))
   }
 
   def hasMessages: Boolean = lock.synchronized {log.nonEmpty}
@@ -134,9 +140,9 @@ class IssueLog {
     if (messages.nonEmpty) {
       writer.startDocument(path)
       var count = 0
-      messages.sortBy(_._1.startPosition).foreach(message => {
+      messages.sortBy(_.location.startPosition).foreach(message => {
         if (count < maxErrors) {
-          writer.writeMessage(message._1, message._2)
+          writer.writeMessage(message.location, message.msg)
         }
         count += 1
       })

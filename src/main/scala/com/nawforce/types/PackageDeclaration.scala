@@ -25,46 +25,14 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 package com.nawforce.types
 
-import java.io.InputStream
 import java.nio.file.Path
 
-import com.nawforce.documents.DocumentType
-import com.nawforce.utils.{DotName, Name}
+import com.nawforce.documents.DocumentLoader
+import com.nawforce.utils.Name
 
-import scala.collection.mutable
-
-final case class CustomMetadataDeclaration(path: Path, typeName: TypeName) extends TypeDeclaration {
-  val name: Name = typeName.name
-  val outerTypeName: Option[TypeName] = None
-  val nature: Nature = CLASS_NATURE
-  val modifiers: Seq[Modifier] = Seq.empty
-  val isComplete: Boolean = true
-
-  val superClass: Option[TypeName] = Some(TypeName.SObject)
-  val interfaces: Seq[TypeName] = Seq.empty
-  val nestedTypes: Seq[TypeDeclaration] = Seq.empty
-
-  val blocks: Seq[BlockDeclaration] = Seq.empty
-  val fields: Seq[FieldDeclaration]= Seq.empty
-  val constructors: Seq[ConstructorDeclaration] = Seq.empty
-  val methods: Seq[MethodDeclaration]= Seq.empty
-
-  def validate(): Unit = {}
-  def dependencies(): Set[TypeDeclaration] = Set.empty
-  def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
-}
-
-object CustomMetadataDeclaration {
-  def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[CustomObjectDeclaration] = {
-    val name = DotName(DocumentType.apply(path).get.name).demangled
-    val ns = if (pkg.namespace.value.isEmpty) None else Some(TypeName(pkg.namespace))
-    val typeName =
-      if (!name.isCompound)
-        TypeName(name.firstName, Nil, ns)
-      else
-        TypeName(name.names(1), Nil, Some(TypeName(name.firstName)))
-    Seq(new CustomObjectDeclaration(path, typeName))
-  }
+abstract class PackageDeclaration(val namespace: Name, val paths: Seq[Path]) {
+  protected val documents = new DocumentLoader(paths)
 }
