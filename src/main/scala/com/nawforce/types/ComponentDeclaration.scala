@@ -31,14 +31,15 @@ import java.nio.file.{Path, Paths}
 import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.documents.ComponentDocument
-import com.nawforce.utils.Name
+import com.nawforce.utils.{DotName, Name}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-final case class ComponentDeclaration(standardComponents: Map[Name, TypeDeclaration]) extends TypeDeclaration {
+final case class ComponentDeclaration() extends TypeDeclaration {
   private val components = new ConcurrentHashMap[Name, TypeDeclaration]()
-  standardComponents.foreach(kv => components.put(kv._1, kv._2))
+  components.put(Name("Apex"), PlatformTypes.getType(DotName("Component.Apex")).get)
+  components.put(Name("Chatter"), PlatformTypes.getType(DotName("Component.Chatter")).get)
 
   val name: Name = Name.component
   val path: Path = Paths.get("Component")

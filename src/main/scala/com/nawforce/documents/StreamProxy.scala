@@ -25,50 +25,25 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.cst
 
-import java.io.ByteArrayInputStream
-import java.nio.file.{Path, Paths}
+package com.nawforce.documents
 
-import com.nawforce.api.Org
-import com.nawforce.types._
-import com.nawforce.utils.Name
-import org.scalatest.FunSuite
+import java.io.{FileInputStream, InputStream}
+import java.nio.file.Path
+import java.util.concurrent.ConcurrentHashMap
 
-class SwitchTest extends FunSuite {
+object StreamProxy {
+  private val inputStreams = new ConcurrentHashMap[Path, InputStream]()
 
-  private val defaultName: Name = Name("Dummy")
-  private val defaultPath: Path = Paths.get(defaultName.toString)
-  private val defaultOrg: Org = new Org
-
-  def typeDeclaration(clsText: String): Option[TypeDeclaration] = {
-    Org.current.withValue(defaultOrg) {
-      defaultOrg.clear()
-      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
-      td.headOption
-    }
+  def clear(): Unit = {
+    inputStreams.clear()
   }
 
-  test("Single control switch") {
-    typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} }}}")
-    assert(!defaultOrg.issues.hasMessages)
+  def setInputStream(path: Path, inputStream: InputStream): Unit = {
+    inputStreams.put(path, inputStream)
   }
 
-  test("Multi control switch") {
-    typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} when 'B' {}}}}")
-    assert(!defaultOrg.issues.hasMessages)
+  def getInputStream(path: Path): InputStream = {
+    Option(inputStreams.get(path)).getOrElse(new FileInputStream(path.toFile))
   }
-
-  test("Else switch") {
-    typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} when else {}}}}")
-    assert(!defaultOrg.issues.hasMessages)
-  }
-
-  test("Empty switch") {
-    typeDeclaration("public class Dummy {{switch on 'A' {}}}")
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1: mismatched input '}' expecting 'when'\n")
-  }
-
-  // TODO: Examine error handling of switch
 }

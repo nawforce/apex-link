@@ -33,35 +33,35 @@ import org.scalatest.FunSuite
 class TypeStoreTest extends FunSuite {
 
   test("Bad type not found") {
-    assert(new TypeStore().getType(DotName(Seq(Name("Hello")))).isEmpty)
+    assert(PlatformTypes.getType(DotName(Seq(Name("Hello")))).isEmpty)
   }
 
   test("Scoped system class found") {
     val typeName = DotName(Seq(Name("System"), Name("String")))
-    assert(new TypeStore().getType(typeName).get.typeName.asDotName == typeName)
+    assert(PlatformTypes.getType(typeName).get.typeName.asDotName == typeName)
   }
 
   test("Unscoped system class found") {
     val typeName = DotName(Seq(Name("String")))
-    assert(new TypeStore().getType(typeName).get.typeName.asDotName == DotName(Seq(Name("System"), Name("String"))))
+    assert(PlatformTypes.getType(typeName).get.typeName.asDotName == DotName(Seq(Name("System"), Name("String"))))
   }
 
   test("Unscoped schema class found") {
     val typeName = DotName(Seq(Name("SObjectType")))
-    assert(new TypeStore().getType(typeName).get.typeName.asDotName == DotName(Seq(Name("Schema"), Name("SObjectType"))))
+    assert(PlatformTypes.getType(typeName).get.typeName.asDotName == DotName(Seq(Name("Schema"), Name("SObjectType"))))
   }
 
   test("Unscoped database class not found") {
-    assert(new TypeStore().getType(DotName(Seq(Name("QueryLocator")))).isEmpty)
+    assert(PlatformTypes.getType(DotName(Seq(Name("QueryLocator")))).isEmpty)
   }
 
   test("Inner class found") {
     val typeName = DotName(Seq(Name("Messaging"), Name("InboundEmail"), Name("Header")))
-    assert(new TypeStore().getType(typeName).get.typeName.asDotName == typeName)
+    assert(PlatformTypes.getType(typeName).get.typeName.asDotName == typeName)
   }
 
   test("Bad inner class not found") {
     val typeName = DotName(Seq(Name("Messaging"), Name("InboundEmail"), Name("BadHeader")))
-    assert(new TypeStore().getType(typeName).isEmpty)
+    assert(PlatformTypes.getType(typeName).isEmpty)
   }
 }

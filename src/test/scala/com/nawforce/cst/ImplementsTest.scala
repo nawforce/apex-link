@@ -31,6 +31,7 @@ import java.io.ByteArrayInputStream
 import java.nio.file.{Path, Paths}
 
 import com.nawforce.api.Org
+import com.nawforce.documents.StreamProxy
 import com.nawforce.types.TypeDeclaration
 import com.nawforce.utils.{DotName, Name}
 import org.scalatest.FunSuite
@@ -45,13 +46,13 @@ class ImplementsTest extends FunSuite {
     defaultOrg.clear()
     val paths = classes.map(kv => {
       val fakePath = Paths.get(kv._1 + ".cls")
-      defaultOrg.setInputStream(fakePath, new ByteArrayInputStream(kv._2.getBytes()))
+      StreamProxy.setInputStream(fakePath, new ByteArrayInputStream(kv._2.getBytes()))
       fakePath
     }).toSeq
 
     Org.current.withValue(defaultOrg) {
-      defaultOrg.deployMetadata(defaultOrg.emptyUnmanaged, paths)
-      defaultOrg.getTypes(classes.keys.map(k => DotName(k)).toSeq)
+      defaultOrg.unmanaged.deployMetadata(paths)
+      defaultOrg.unmanaged.getTypes(classes.keys.map(k => DotName(k)).toSeq)
     }
   }
 

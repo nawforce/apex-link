@@ -71,7 +71,7 @@ object ApexLink {
       if (!nsLoaded.contains(nsDirPair._1)) {
         nsLoaded.add(nsDirPair._1)
         val paths = nsSplit.filter(_._1 == nsDirPair._1).map(_._2)
-        val pkg = org.addPackage(nsDirPair._1, paths.toArray)
+        val pkg = org.addPackage(nsDirPair._1, paths.toArray, Array())
         pkg.deployAll()
       }
     })

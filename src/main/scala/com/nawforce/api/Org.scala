@@ -27,182 +27,91 @@
 */
 package com.nawforce.api
 
-import java.io.{FileInputStream, InputStream}
-import java.nio.file.Path
-import java.util.concurrent.ConcurrentHashMap
+import java.nio.file.Paths
 
-import com.nawforce.cst.UnusedLog
 import com.nawforce.documents._
 import com.nawforce.types._
 import com.nawforce.utils.{DotName, IssueLog, Name}
 import com.typesafe.scalalogging.LazyLogging
 
-import scala.collection.JavaConverters._
 import scala.util.DynamicVariable
 
 /** Org abstraction, a simulation of the metadata installed on an org. Use the 'current' dynamic variable to access
   * the org being currently worked on. Typically only one org will be being used but some use cases might require
   * multiple. Problems with the metadata are recorded in the the associated issue log.
   */
-class Org extends TypeStore with LazyLogging {
-  private var packages: List[Package] = Nil
-  lazy val emptyUnmanaged: Package = new Package(this, Name.Empty, Seq())
-
-  private val types = new ConcurrentHashMap[DotName, TypeDeclaration]()
-  private val inputStreams = new ConcurrentHashMap[Path, InputStream]()
-  // TODO: Implement these declaration types
-  private val labelDeclaration = new LabelDeclaration
-  private val pageDeclaration = new PageDeclaration
-  private val flowDeclaration = new FlowDeclaration
-  private val componentDeclaration = ComponentDeclaration(Map(
-    Name("Apex") -> super.getType(DotName("Component.Apex")).get,
-    Name("Chatter") -> super.getType(DotName("Component.Chatter")).get
-  ))
-  upsertType(labelDeclaration)
-  upsertType(pageDeclaration)
-  upsertType(flowDeclaration)
-  upsertType(componentDeclaration)
+class Org extends LazyLogging {
+  var unmanaged = new Package(this, Name.Empty, Seq(), Seq())
+  var packages: Map[Name, Package] = Map(Name.Empty -> unmanaged)
 
   val issues = new IssueLog
   def issuesAsJSON: String = issues.asJSON(maxErrors = 100)
-  def typeCount: Int= types.size()
+  def typeCount: Int= packages.values.map(_.typeCount).sum
 
+  // TODO: Get rid of this
   def clear(): Unit = {
     LogUtils.setLoggingLevel(verbose = false)
-    packages = Nil
-    types.clear()
-    inputStreams.clear()
+    StreamProxy.clear()
+    unmanaged = new Package(this, Name.Empty, Seq(), Seq())
+    packages = Map(Name.Empty -> unmanaged)
     issues.clear()
-    upsertType(labelDeclaration)
-    upsertType(pageDeclaration)
-    upsertType(flowDeclaration)
-    upsertType(componentDeclaration)
   }
 
-  /** Create a new package in the org, directories are priority ordered. Duplicate detection depends on metadata
-    * type. */
-  def addPackage(namespace: String, directories: Array[String]): Package = {
-    Org.current.withValue(this) {
-      packages = Package(this, Name.safeApply(namespace), directories) :: packages
-      packages.head
+  def getUnmanagedPackage: Package = unmanaged
+
+  /** Create a new package in the org, directories should be priority ordered for duplicate detection. Use
+    * namespaces to indicate dependant packages which must already have been created as packages. */
+  def addPackage(namespace: String, directories: Array[String], baseNamespaces: Array[String]): Package = {
+    val namespaceName = Name.safeApply(namespace)
+
+    if (!namespaceName.isEmpty) {
+      if (packages.contains(namespaceName))
+        throw new IllegalArgumentException(s"A package using namespace '$namespaceName' already exists")
     }
+
+    val basePackages = baseNamespaces.flatMap(ns => {
+      val pkg = packages.get(Name(ns))
+      if (pkg.isEmpty)
+        throw new IllegalArgumentException(s"No package found using namespace '$ns'")
+      pkg
+    })
+
+    val paths = directories.filterNot(_.isEmpty).map(directory => Paths.get(directory))
+    paths.foreach(path => {
+      if (!path.toFile.isDirectory)
+        throw new IllegalArgumentException(s"Package root '${path.toString}' must be a directory")
+    })
+
+    val pkg = new Package(this, namespaceName, paths, basePackages)
+    if (pkg.namespace.isEmpty) {
+      unmanaged = pkg
+    } else {
+      unmanaged.addDependency(pkg)
+    }
+    packages = packages + (pkg.namespace -> pkg)
+    pkg
   }
 
   /** Get a list of Apex types in the org*/
   def getApexTypeNames: java.util.List[String] = {
-    types.elements().asScala
-        .filter(_.isInstanceOf[ApexTypeDeclaration])
-        .map(_.typeName.toString).toList.asJava
+    scala.collection.JavaConverters.seqAsJavaList(packages.values.flatMap(_.getApexTypeNames).toSeq);
   }
 
   /** Retrieve type information for declaration. Separate compound names with a '.', e.g. 'System.String'. Returns
     * null if the type if not found */
   def getTypeInfo(name: String): TypeInfo = {
-    val typeDeclaration = types.get(DotName(name))
-    if (typeDeclaration != null) {
-      TypeInfo(typeDeclaration)
+    val typeDeclaration = unmanaged.getType(DotName(name))
+    if (typeDeclaration.nonEmpty) {
+      TypeInfo(typeDeclaration.get)
     } else {
       null
     }
   }
 
-  def getTypes(dotNames: Seq[DotName]): Seq[TypeDeclaration] = {
-    dotNames.flatMap(getType)
-  }
-
-  /** Find a type using a global name*/
-  override def getType(dotName: DotName): Option[TypeDeclaration] = {
-    Org.current.withValue(this) {
-      val declaration = getOrgType(dotName)
-      if (declaration.isEmpty)
-        super.getType(dotName)
-      else
-        declaration
-    }
-  }
-
-  /** Deploy some metadata to the org, if already present this will replace the existing metadata */
-  def deployMetadata(pkg: Package, files: Seq[Path]): Unit = {
-    Org.current.withValue(this) {
-      loadFromFiles(pkg, files)
-      validateMetadata()
-    }
-  }
-
-  def reportUnused(): Unit = {
-    new UnusedLog(types.values().asScala)
-  }
-
-  private def loadFromFiles(pkg: Package, files: Seq[Path]): Unit = {
-    val newDeclarations = files.grouped(100).flatMap(group => {
-      val parsed = group.par.flatMap(path => {
-        issues.context.withValue(path) {
-          val start = System.currentTimeMillis()
-
-          val tds = DocumentType(path) match {
-            case Some(docType: ApexDocument) =>
-              ApexTypeDeclaration.create(pkg, docType.path, getInputStream(docType.path))
-            case Some(docType: CustomObjectDocument) =>
-              CustomObjectDeclaration.create(pkg, docType.path, getInputStream(docType.path))
-            case Some(docType: PlatformEventDocument) =>
-              PlatformEventDeclaration.create(pkg, docType.path, getInputStream(docType.path))
-            case Some(docType: CustomMetadataDocument) =>
-              CustomMetadataDeclaration.create(pkg, docType.path, getInputStream(docType.path))
-            case Some(docType: ComponentDocument) =>
-              upsertComponent(pkg.namespace, docType)
-              Nil
-            case _ => Nil
-          }
-
-          val end = System.currentTimeMillis()
-          logger.debug(s"Parsed $path in ${end - start}ms")
-          tds
-        }
-      })
-      System.gc()
-      parsed
-    })
-    newDeclarations.foreach(td => upsertType(td))
-  }
-
-  def setInputStream(path: Path, inputStream: InputStream): Unit = {
-    inputStreams.put(path, inputStream)
-  }
-
-  private def getInputStream(path: Path): InputStream = {
-    Option(inputStreams.get(path)).getOrElse(new FileInputStream(path.toFile))
-  }
-
-  private def validateMetadata(): Unit = {
-    types.values.parallelStream().filter(_.isInstanceOf[ApexTypeDeclaration])forEach(td => {
-      issues.context.withValue(td.path) {
-        td.validate()
-      }
-    })
-  }
-
   def isGhostedType(typeName: TypeName): Boolean = {
     typeName.params.exists(isGhostedType) ||
-    packages.exists(pkg => pkg.paths.isEmpty &&
+    packages.values.exists(pkg => pkg.paths.isEmpty &&
       pkg.namespace == typeName.asDotName.demangled.firstName)
-  }
-
-  def upsertType(declaration: TypeDeclaration): Unit = {
-    Org.current.withValue(this) {
-      types.put(declaration.typeName.asDotName, declaration)
-    }
-  }
-
-  private def upsertComponent(namespace: Name, component: ComponentDocument): Unit = {
-    componentDeclaration.upsertComponent(namespace, component)
-  }
-
-  private def getOrgType(name: DotName): Option[TypeDeclaration] = {
-    val declaration = types.get(name)
-    if (declaration == null && name.isCompound)
-      getOrgType(name.headNames).flatMap(_.nestedTypes.find(td => td.name == name.lastName))
-    else
-      Option(declaration)
   }
 }
 
@@ -210,7 +119,7 @@ object Org {
   val current: DynamicVariable[Org] = new DynamicVariable[Org](null)
 
   def getType(dotName: DotName): Option[TypeDeclaration] = {
-    Org.current.value.getType(dotName)
+    Org.current.value.unmanaged.getType(dotName)
   }
 
   def missingType(range: TextRange, typeName: TypeName): Unit = {

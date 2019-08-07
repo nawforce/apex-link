@@ -29,11 +29,9 @@ package com.nawforce.types
 
 import com.nawforce.utils.{DotName, Name}
 
-class TypeStore {
-  /** Base implementation of locating a type declaration from a name */
+object PlatformTypes {
   def getType(dotName: DotName) : Option[TypeDeclaration] = {
-
-    TypeStore.aliasMap.get(dotName).flatMap(getPlatformType)
+    aliasMap.get(dotName).flatMap(getPlatformType)
       .orElse(getPlatformType(dotName))
       .orElse(getPlatformType(dotName.prepend(Name.System)))
       .orElse(getPlatformType(dotName.prepend(Name.Schema)))
@@ -46,10 +44,8 @@ class TypeStore {
     else
       declaration
   }
-}
 
-object TypeStore {
-  val aliasMap: Map[DotName, DotName] = Map(
+  private val aliasMap: Map[DotName, DotName] = Map(
     DotName(Name.Object) -> DotName(Seq(Name.Internal, Name.Object$)),
     DotName(Seq(Name.ApexPages, Name.PageReference)) -> DotName(Seq(Name.System, Name.PageReference))
   )

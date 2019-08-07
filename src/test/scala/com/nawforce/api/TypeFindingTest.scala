@@ -37,85 +37,86 @@ import org.scalatest.FunSuite
 class TypeFindingTest extends FunSuite {
 
   private val defaultOrg: Org = new Org
+  private val unmanaged: Package = defaultOrg.unmanaged
 
   test("Bad type not") {
-    assert(new Org().getType(DotName(Seq(Name("Hello")))).isEmpty)
+    assert(unmanaged.getType(DotName(Seq(Name("Hello")))).isEmpty)
   }
 
   test("Platform type") {
     val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Name.System)))
-    assert(new Org().getType(DotName(Seq(Name("String")))).get.typeName == typeName)
+    assert(unmanaged.getType(DotName(Seq(Name("String")))).get.typeName == typeName)
   }
 
   test("Platform type (wrong case)") {
     val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Name.System)))
-    assert(new Org().getType(DotName(Seq(Name("STRING")))).get.typeName == typeName)
+    assert(unmanaged.getType(DotName(Seq(Name("STRING")))).get.typeName == typeName)
   }
 
   test("Custom Outer type") {
     val org = new Org()
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(defaultOrg.emptyUnmanaged, Paths.get("Dummy.cls"),
+      val td = ApexTypeDeclaration.create(org.unmanaged, Paths.get("Dummy.cls"),
         new ByteArrayInputStream("public class Dummy {}".getBytes())).head
-      org.upsertType(td)
-      assert(org.getType(DotName(Seq(Name("Dummy")))).get.typeName == td.typeName)
+      org.unmanaged.upsertType(td)
+      assert(org.unmanaged.getType(DotName(Seq(Name("Dummy")))).get.typeName == td.typeName)
     }
   }
 
   test("Custom Outer type (Wrong Case)") {
     val org = new Org()
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(defaultOrg.emptyUnmanaged, Paths.get("Dummy.cls"),
+      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, Paths.get("Dummy.cls"),
         new ByteArrayInputStream("public class Dummy {}".getBytes())).head
-      org.upsertType(td)
-      assert(org.getType(DotName(Seq(Name("dummy")))).get.typeName == td.typeName)
+      org.unmanaged.upsertType(td)
+      assert(org.unmanaged.getType(DotName(Seq(Name("dummy")))).get.typeName == td.typeName)
     }
   }
 
   test("Custom Inner type") {
     val org = new Org()
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(defaultOrg.emptyUnmanaged, Paths.get("Dummy.cls"),
+      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, Paths.get("Dummy.cls"),
         new ByteArrayInputStream("public class Dummy {class Inner {}}".getBytes())).head
-      org.upsertType(td)
+      org.unmanaged.upsertType(td)
       val innerTypeName = DotName(Seq(Name("Dummy"), Name("Inner")))
-      assert(org.getType(innerTypeName).get.typeName.asDotName == innerTypeName)
+      assert(org.unmanaged.getType(innerTypeName).get.typeName.asDotName == innerTypeName)
     }
   }
 
   test("Custom Inner type (Wrong case)") {
     val org = new Org()
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(defaultOrg.emptyUnmanaged, Paths.get("Dummy.cls"),
+      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, Paths.get("Dummy.cls"),
         new ByteArrayInputStream("public class Dummy {class Inner {}}".getBytes())).head
-      org.upsertType(td)
+      org.unmanaged.upsertType(td)
       val innerTypeName = DotName(Seq(Name("Dummy"), Name("INner")))
-      assert(org.getType(innerTypeName).get.typeName.asDotName == innerTypeName)
+      assert(org.unmanaged.getType(innerTypeName).get.typeName.asDotName == innerTypeName)
     }
   }
 
   test("Custom Outer type with namespace") {
     val org = new Org()
-    val pkg = new Package(org, Name("NS"), Seq())
+    val pkg = org.addPackage("NS", Array(), Array())
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(pkg, Paths.get("Dummy.cls"),
         new ByteArrayInputStream("public class Dummy {}".getBytes())).head
-      org.upsertType(td)
-      assert(org.getType(DotName(Seq(Name("NS"), Name("Dummy")))).get.typeName == td.typeName)
-      assert(org.getType(DotName(Name("Dummy"))).isEmpty)
+      pkg.upsertType(td)
+      assert(org.unmanaged.getType(DotName(Seq(Name("NS"), Name("Dummy")))).get.typeName == td.typeName)
+      assert(org.unmanaged.getType(DotName(Name("Dummy"))).isEmpty)
     }
   }
 
   test("Custom Inner type with namespace") {
     val org = new Org()
-    val pkg = new Package(org, Name("NS"), Seq())
+    val pkg = org.addPackage("NS", Array(), Array())
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(pkg, Paths.get("Dummy.cls"),
         new ByteArrayInputStream("public class Dummy {class Inner {}}".getBytes())).head
-      org.upsertType(td)
+      pkg.upsertType(td)
       val innerTypeName = DotName(Seq(Name("NS"),Name("Dummy"), Name("Inner")))
-      assert(org.getType(innerTypeName).get.typeName.asDotName == innerTypeName)
-      assert(org.getType(DotName(Seq(Name("Dummy"), Name("Inner")))).isEmpty)
+      assert(org.unmanaged.getType(innerTypeName).get.typeName.asDotName == innerTypeName)
+      assert(org.unmanaged.getType(DotName(Seq(Name("Dummy"), Name("Inner")))).isEmpty)
     }
   }
 }

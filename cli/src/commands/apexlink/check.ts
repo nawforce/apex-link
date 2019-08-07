@@ -122,7 +122,8 @@ export default class Check extends SfdxCommand {
             .filter(d => {
               return d[0] === directory[0];
             })
-            .map(d => d[1])
+            .map(d => d[1]),
+            []
         );
         pkg.deployAll();
       }

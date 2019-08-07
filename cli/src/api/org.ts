@@ -37,6 +37,7 @@ interface DependencyInfo {
 
 export default class Org {
   private org: any;
+  private unmanaged: Package;
 
   constructor() {
     this.org = java.newInstanceSync("com.nawforce.api.Org");
@@ -46,11 +47,21 @@ export default class Org {
     return this.org.issuesAsJSONSync();
   }
 
-  public addPackage(namespace: string, directories: string[]): Package {
+  public unmanagedPackage(): Package {
+    if (this.unmanaged === null) {
+      this.unmanaged = new Package(
+        this.org.getUnmanagedPackageSync()
+      )
+    }
+    return this.unmanaged;
+  }
+
+  public addPackage(namespace: string, directories: string[], basePackages: string[]): Package {
     return new Package(
       this.org.addPackageSync(
         namespace,
-        java.newArray("java.lang.String", directories)
+        java.newArray("java.lang.String", directories),
+        java.newArray("java.lang.String", basePackages)
       )
     );
   }

@@ -27,39 +27,141 @@
 */
 package com.nawforce.api
 
-import java.nio.file.{Path, Paths}
+import java.nio.file.Path
+import java.util.concurrent.ConcurrentHashMap
 
-import com.nawforce.types.PackageDeclaration
-import com.nawforce.utils.Name
+import com.nawforce.cst.UnusedLog
+import com.nawforce.documents._
+import com.nawforce.types._
+import com.nawforce.utils.{DotName, Name}
 import com.typesafe.scalalogging.LazyLogging
 
-class Package(val org: Org, _namespace: Name, _paths: Seq[Path])
+import scala.collection.JavaConverters._
+
+class Package(val org: Org, _namespace: Name, _paths: Seq[Path], var basePackages: Seq[Package])
   extends PackageDeclaration(_namespace, _paths) with LazyLogging {
 
-  lazy val classCount: Int = documents.getByExtension(Name("cls")).size
+  private val labelDeclaration = new LabelDeclaration
+  private val pageDeclaration = new PageDeclaration
+  private val flowDeclaration = new FlowDeclaration
+  private val componentDeclaration = new ComponentDeclaration
+  private val types = initTypes()
+
+  private def initTypes() = {
+    val types = new ConcurrentHashMap[DotName, TypeDeclaration]()
+    types.put(labelDeclaration.typeName.asDotName, labelDeclaration)
+    types.put(pageDeclaration.typeName.asDotName, pageDeclaration)
+    types.put(flowDeclaration.typeName.asDotName, flowDeclaration)
+    types.put(componentDeclaration.typeName.asDotName, componentDeclaration)
+    types
+  }
+
+  def typeCount: Int = types.size
+
+  def addDependency(pkg: Package): Unit = basePackages = basePackages :+ pkg
+
+  def getApexTypeNames: Seq[String] = {
+    types.elements().asScala
+      .filter(_.isInstanceOf[ApexTypeDeclaration])
+      .map(_.typeName.toString).toSeq
+  }
+
+  def getTypes(dotNames: Seq[DotName]): Seq[TypeDeclaration] = {
+    dotNames.flatMap(getType)
+  }
+
+  /** Find a type using a global name*/
+  def getType(dotName: DotName): Option[TypeDeclaration] = {
+    val declaration = getPackageType(dotName)
+    if (declaration.isEmpty)
+      PlatformTypes.getType(dotName)
+    else
+      declaration
+  }
+
+  private def getPackageType(name: DotName): Option[TypeDeclaration] = {
+    val declaration = Option(types.get(name)).orElse(getDependentPackageType(name))
+    if (declaration.isEmpty && name.isCompound)
+      getPackageType(name.headNames).flatMap(_.nestedTypes.find(td => td.name == name.lastName))
+    else
+      declaration
+  }
+
+  private def getDependentPackageType(name: DotName): Option[TypeDeclaration] = {
+    basePackages.view.flatMap(pkg => pkg.getPackageType(name)).headOption
+  }
+
+  def upsertType(declaration: TypeDeclaration): Unit = {
+    types.put(declaration.typeName.asDotName, declaration)
+  }
 
   def deployAll(): Unit = {
     val components = documents.getByExtension(Name("component"))
     logger.debug(s"Found ${components.size} components to parse")
-    org.deployMetadata(this, components)
+    deployMetadata(components)
 
     val objects = documents.getByExtension(Name("object"))
     logger.debug(s"Found ${objects.size} custom objects to parse")
-    org.deployMetadata(this, objects)
+    deployMetadata(objects)
 
     val classes = documents.getByExtension(Name("cls"))
     logger.debug(s"Found ${classes.size} classes to parse")
-    org.deployMetadata(this, classes)
+    deployMetadata(classes)
   }
-}
 
-object Package {
-  def apply(org: Org, namespace: Name, directories: Seq[String]): Package = {
-    val paths = directories.filterNot(_.isEmpty).map(directory => Paths.get(directory))
-    paths.foreach(path => {
-      if (!path.toFile.isDirectory)
-        throw new IllegalArgumentException(s"Package root '${path.toString}' must be a directory")
+  def reportUnused(): Unit = {
+    new UnusedLog(types.values().asScala)
+  }
+
+  /** Deploy some metadata to the org, if already present this will replace the existing metadata */
+  def deployMetadata(files: Seq[Path]): Unit = {
+    Org.current.withValue(org) {
+      loadFromFiles(files)
+      validateMetadata()
+    }
+  }
+
+  private def loadFromFiles(files: Seq[Path]): Unit = {
+    val newDeclarations = files.grouped(100).flatMap(group => {
+      val parsed = group.par.flatMap(path => {
+        org.issues.context.withValue(path) {
+          val start = System.currentTimeMillis()
+
+          val tds = DocumentType(path) match {
+            case Some(docType: ApexDocument) =>
+              ApexTypeDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+            case Some(docType: CustomObjectDocument) =>
+              CustomObjectDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+            case Some(docType: PlatformEventDocument) =>
+              PlatformEventDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+            case Some(docType: CustomMetadataDocument) =>
+              CustomMetadataDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+            case Some(docType: ComponentDocument) =>
+              upsertComponent(namespace, docType)
+              Nil
+            case _ => Nil
+          }
+
+          val end = System.currentTimeMillis()
+          logger.debug(s"Parsed $path in ${end - start}ms")
+          tds
+        }
+      })
+      System.gc()
+      parsed
     })
-    new Package(org, namespace, paths)
+    newDeclarations.foreach(td => upsertType(td))
+  }
+
+  private def upsertComponent(namespace: Name, component: ComponentDocument): Unit = {
+    componentDeclaration.upsertComponent(namespace, component)
+  }
+
+  private def validateMetadata(): Unit = {
+    types.values.parallelStream().filter(_.isInstanceOf[ApexTypeDeclaration])forEach(td => {
+      org.issues.context.withValue(td.path) {
+        td.validate()
+      }
+    })
   }
 }
