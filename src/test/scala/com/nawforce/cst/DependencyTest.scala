@@ -34,12 +34,12 @@ import com.nawforce.api.Org
 import com.nawforce.documents.StreamProxy
 import com.nawforce.types.TypeDeclaration
 import com.nawforce.utils.{DotName, Name}
-import org.scalatest.FunSuite
+import org.scalatest.{BeforeAndAfter, FunSuite}
 
-class DependencyTest extends FunSuite {
+class DependencyTest extends FunSuite with BeforeAndAfter {
   private val defaultName: Name = Name("Dummy.cls")
   private val defaultPath: Path = Paths.get(defaultName.toString)
-  private val defaultOrg: Org = new Org
+  private var defaultOrg: Org = new Org
 
   private val listClass = defaultOrg.unmanaged.getType(DotName(Seq(Name.System, Name.List))).get
   private val objectClass = defaultOrg.unmanaged.getType(DotName(Name.Object)).get
@@ -48,7 +48,6 @@ class DependencyTest extends FunSuite {
   private val queryLocatorClass = defaultOrg.unmanaged.getType(DotName(Seq(Name("Database"), Name("QueryLocator")))).get
 
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
-    defaultOrg.clear()
     val paths = classes.map(kv => {
       val fakePath = Paths.get(kv._1 + ".cls")
       StreamProxy.setInputStream(fakePath, new ByteArrayInputStream(kv._2.getBytes()))
@@ -59,6 +58,11 @@ class DependencyTest extends FunSuite {
       defaultOrg.unmanaged.deployMetadata(paths)
       defaultOrg.unmanaged.getTypes(classes.keys.map(k => DotName(k)).toSeq)
     }
+  }
+
+  before {
+    StreamProxy.clear()
+    defaultOrg = new Org
   }
 
   test("Empty class has no imports") {

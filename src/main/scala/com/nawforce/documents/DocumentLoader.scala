@@ -81,11 +81,6 @@ class DocumentLoader(paths: Seq[Path]) {
     }
   }
 
-  // TODO: Do we need to index by name anymore?
-  def getByName(name: Name): Option[(Path, InputStream)] = {
-    documentByName.get(name).map(path => (path, new FileInputStream(path.toFile)))
-  }
-
   def getByExtension(name: Name): Seq[Path] = {
     documentsByExtension(name)
   }

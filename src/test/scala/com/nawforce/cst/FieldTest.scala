@@ -33,16 +33,15 @@ import java.nio.file.{Path, Paths}
 import com.nawforce.api.Org
 import com.nawforce.types._
 import com.nawforce.utils.Name
-import org.scalatest.FunSuite
+import org.scalatest.{BeforeAndAfter, FunSuite}
 
-class FieldTest extends FunSuite {
+class FieldTest extends FunSuite with BeforeAndAfter {
   private val defaultName: Name = Name("Dummy")
   private val defaultPath: Path = Paths.get(defaultName.toString)
-  private val defaultOrg: Org = new Org
+  private var defaultOrg: Org = new Org
 
   def typeDeclaration(clsText: String, hasMessages: Boolean = false): TypeDeclaration = {
     Org.current.withValue(defaultOrg) {
-      defaultOrg.clear()
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
       if (td.isEmpty)
         defaultOrg.issues.dumpMessages(json = false)
@@ -55,6 +54,10 @@ class FieldTest extends FunSuite {
       assert(defaultOrg.issues.hasMessages == hasMessages)
       td.head
     }
+  }
+
+  before {
+    defaultOrg = new Org
   }
 
   test("Empty class has no fields") {

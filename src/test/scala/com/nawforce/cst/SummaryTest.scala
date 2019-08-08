@@ -33,22 +33,25 @@ import java.nio.file.{Path, Paths}
 import com.nawforce.api._
 import com.nawforce.types._
 import com.nawforce.utils.Name
-import org.scalatest.FunSuite
+import org.scalatest.{BeforeAndAfter, FunSuite}
 
-class SummaryTest extends FunSuite {
+class SummaryTest extends FunSuite with BeforeAndAfter {
   private val defaultName: Name = Name("Dummy")
   private val defaultPath: Path = Paths.get(defaultName.toString)
-  private val defaultOrg: Org = new Org
+  private var defaultOrg: Org = new Org
 
   def typeDeclarationSummary(clsText: String, hasMessages: Boolean = false): TypeSummary = {
     Org.current.withValue(defaultOrg) {
-      defaultOrg.clear()
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
       if (td.isEmpty || defaultOrg.issues.hasMessages != hasMessages)
         defaultOrg.issues.dumpMessages(json = false)
       assert(defaultOrg.issues.hasMessages == hasMessages)
       td.head.summary
     }
+  }
+
+  before {
+    defaultOrg = new Org
   }
 
   test("Public outer class") {

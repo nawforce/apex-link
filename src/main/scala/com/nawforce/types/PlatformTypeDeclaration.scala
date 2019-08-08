@@ -194,9 +194,8 @@ object PlatformTypeDeclaration {
   private def indexDir(path: Path, prefix: DotName, accum: mutable.HashMap[DotName, DotName]): Unit = {
     Files.list(path).iterator.asScala.foreach(entry => {
       val filename = entry.getFileName.toString
-      // TODO: better test needed for $ files
       if (Files.isRegularFile(entry) && filename.endsWith(".class") &&
-        (filename == "Object$.class" || !filename.contains('$'))) {
+        (filename.endsWith("$.class") || !filename.contains('$'))) {
         val dotName = prefix.append(Name(filename.dropRight(".class".length)))
         if (dotName.names.head == Name.SObjects)
           accum.put(DotName(dotName.names.tail), dotName)

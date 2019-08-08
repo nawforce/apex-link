@@ -33,20 +33,23 @@ import java.nio.file.{Path, Paths}
 import com.nawforce.api.Org
 import com.nawforce.types._
 import com.nawforce.utils.Name
-import org.scalatest.FunSuite
+import org.scalatest.{BeforeAndAfter, FunSuite}
 
-class SwitchTest extends FunSuite {
+class SwitchTest extends FunSuite with BeforeAndAfter {
 
   private val defaultName: Name = Name("Dummy")
   private val defaultPath: Path = Paths.get(defaultName.toString)
-  private val defaultOrg: Org = new Org
+  private var defaultOrg: Org = new Org
 
   def typeDeclaration(clsText: String): Option[TypeDeclaration] = {
     Org.current.withValue(defaultOrg) {
-      defaultOrg.clear()
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
       td.headOption
     }
+  }
+
+  before {
+    defaultOrg = new Org
   }
 
   test("Single control switch") {

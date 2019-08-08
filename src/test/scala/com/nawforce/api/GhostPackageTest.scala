@@ -33,13 +33,13 @@ import java.nio.file.{Path, Paths}
 import com.nawforce.documents.StreamProxy
 import com.nawforce.types.TypeDeclaration
 import com.nawforce.utils.{DotName, Name}
-import org.scalatest.FunSuite
+import org.scalatest.{BeforeAndAfter, FunSuite}
 
-class GhostPackageTest extends FunSuite {
+class GhostPackageTest extends FunSuite with BeforeAndAfter{
 
   private val defaultName: Name = Name("Dummy.cls")
   private val defaultPath: Path = Paths.get(defaultName.toString)
-  private val defaultOrg: Org = new Org
+  private var defaultOrg: Org = new Org
 
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
     val paths = classes.map(kv => {
@@ -54,14 +54,17 @@ class GhostPackageTest extends FunSuite {
     }
   }
 
+  before {
+    StreamProxy.clear()
+    defaultOrg = new Org
+  }
+
   test("Ghost package suppresses declared type error") {
     defaultOrg.addPackage("package", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy extends package.Super {}"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
-
-    defaultOrg.clear()
   }
 
   test("Ghost package with wrong namespace has declared type error") {
@@ -70,8 +73,6 @@ class GhostPackageTest extends FunSuite {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy extends package.Super {}"))
     assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 13-18: No type declaration found for 'package.Super'\n")
     assert(tds.head.dependencies().isEmpty)
-
-    defaultOrg.clear()
   }
 
   test("Ghost package suppresses declared interface type error") {
@@ -80,8 +81,6 @@ class GhostPackageTest extends FunSuite {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy implements package.Interface {}"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
-
-    defaultOrg.clear()
   }
 
   test("Ghost package with wrong namespace has declared interface type error") {
@@ -90,8 +89,6 @@ class GhostPackageTest extends FunSuite {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy implements package.Interface {}"))
     assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 13-18: No declaration found for interface 'package.Interface'\n")
     assert(tds.head.dependencies().isEmpty)
-
-    defaultOrg.clear()
   }
 
   test("Ghost package suppresses implicit type error") {
@@ -100,8 +97,6 @@ class GhostPackageTest extends FunSuite {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = package.class;} }"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
-
-    defaultOrg.clear()
   }
 
   test("Ghost package with wrong namespace has implicit type error") {
@@ -110,8 +105,6 @@ class GhostPackageTest extends FunSuite {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = package.class;} }"))
     assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 33-46: No type declaration found for 'package'\n")
     assert(tds.head.dependencies().isEmpty)
-
-    defaultOrg.clear()
   }
 
   test("Ghost package suppresses custom object error") {
@@ -120,8 +113,6 @@ class GhostPackageTest extends FunSuite {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = new package__Foo__c();} }"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
-
-    defaultOrg.clear()
   }
 
   test("Ghost package with wrong namespace has custom object error") {
@@ -130,8 +121,6 @@ class GhostPackageTest extends FunSuite {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = new package__Foo__c();} }"))
     assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 37-52: No type declaration found for 'package__Foo__c'\n")
     assert(tds.head.dependencies().isEmpty)
-
-    defaultOrg.clear()
   }
 
   test("Ghost package suppresses custom metadata error") {
@@ -140,8 +129,6 @@ class GhostPackageTest extends FunSuite {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = new package__Foo__mdt();} }"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
-
-    defaultOrg.clear()
   }
 
   test("Ghost package with wrong namespace has custom metadata error") {
@@ -150,8 +137,6 @@ class GhostPackageTest extends FunSuite {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = new package__Foo__mdt();} }"))
     assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 37-54: No type declaration found for 'package__Foo__mdt'\n")
     assert(tds.head.dependencies().isEmpty)
-
-    defaultOrg.clear()
   }
 
   test("Ghost package suppresses platform event error") {
@@ -160,8 +145,6 @@ class GhostPackageTest extends FunSuite {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = new package__Foo__e();} }"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
-
-    defaultOrg.clear()
   }
 
   test("Ghost package with wrong namespace has platform event error") {
@@ -170,8 +153,6 @@ class GhostPackageTest extends FunSuite {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = new package__Foo__e();} }"))
     assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 37-52: No type declaration found for 'package__Foo__e'\n")
     assert(tds.head.dependencies().isEmpty)
-
-    defaultOrg.clear()
   }
 
   test("Ghost package suppresses possible field reference error") {
@@ -181,7 +162,5 @@ class GhostPackageTest extends FunSuite {
     defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
-
-    defaultOrg.clear()
   }
 }

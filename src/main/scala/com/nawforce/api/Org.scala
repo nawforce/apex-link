@@ -48,15 +48,6 @@ class Org extends LazyLogging {
   def issuesAsJSON: String = issues.asJSON(maxErrors = 100)
   def typeCount: Int= packages.values.map(_.typeCount).sum
 
-  // TODO: Get rid of this
-  def clear(): Unit = {
-    LogUtils.setLoggingLevel(verbose = false)
-    StreamProxy.clear()
-    unmanaged = new Package(this, Name.Empty, Seq(), Seq())
-    packages = Map(Name.Empty -> unmanaged)
-    issues.clear()
-  }
-
   def getUnmanagedPackage: Package = unmanaged
 
   /** Create a new package in the org, directories should be priority ordered for duplicate detection. Use
@@ -94,7 +85,7 @@ class Org extends LazyLogging {
 
   /** Get a list of Apex types in the org*/
   def getApexTypeNames: java.util.List[String] = {
-    scala.collection.JavaConverters.seqAsJavaList(packages.values.flatMap(_.getApexTypeNames).toSeq);
+    scala.collection.JavaConverters.seqAsJavaList(packages.values.flatMap(_.getApexTypeNames).toSeq)
   }
 
   /** Retrieve type information for declaration. Separate compound names with a '.', e.g. 'System.String'. Returns

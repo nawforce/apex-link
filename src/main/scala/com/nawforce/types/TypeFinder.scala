@@ -112,3 +112,5 @@ trait TypeFinder {
     }
   }
 }
+
+class StandardTypeFinder extends TypeFinder

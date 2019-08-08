@@ -68,8 +68,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[PackageD
   override val nature: Nature
 
   private lazy val superTypeDeclaration: Option[TypeDeclaration] = {
-    // TODO: Using a verify context here is a bit of a kludge
-    superClass.flatMap(sc => new TypeVerifyContext(None, this).getTypeFor(sc))
+    superClass.flatMap(sc => new StandardTypeFinder().getTypeFor(sc.asDotName, this))
   }
 
   override lazy val isComplete: Boolean = {

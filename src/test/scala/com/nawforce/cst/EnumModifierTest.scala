@@ -33,16 +33,15 @@ import java.nio.file.{Path, Paths}
 import com.nawforce.api.Org
 import com.nawforce.types._
 import com.nawforce.utils.Name
-import org.scalatest.FunSuite
+import org.scalatest.{BeforeAndAfter, FunSuite}
 
-class EnumModifierTest extends FunSuite {
+class EnumModifierTest extends FunSuite with BeforeAndAfter {
 
   private val defaultName: Name = Name("Dummy")
   private val defaultPath: Path = Paths.get(defaultName.toString)
-  private val defaultOrg: Org = new Org
+  private var defaultOrg: Org = new Org
 
   def typeDeclaration(clsText: String): TypeDeclaration = {
-    defaultOrg.clear()
     Org.current.withValue(defaultOrg) {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
       if (td.isEmpty)
@@ -57,6 +56,10 @@ class EnumModifierTest extends FunSuite {
   def typeDeclarationInner(clsText: String): TypeDeclaration = {
     typeDeclaration(clsText).asInstanceOf[ClassDeclaration]
       .bodyDeclarations.head.asInstanceOf[TypeDeclaration]
+  }
+
+  before {
+    defaultOrg = new Org
   }
 
   test("Global outer") {
