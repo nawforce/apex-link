@@ -50,6 +50,7 @@ case class Name(value: String) {
   override def toString: String = value
 
   def isEmpty: Boolean = value.isEmpty
+  def nonEmpty: Boolean = value.nonEmpty
 }
 
 object Name {
@@ -76,6 +77,7 @@ object Name {
   lazy val page: Name = cache("Page")
   lazy val component: Name = cache("Component")
   lazy val flow: Name = cache("Flow")
+  lazy val c: Name = cache("c")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 }

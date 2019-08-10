@@ -83,6 +83,15 @@ class Org extends LazyLogging {
     pkg
   }
 
+  def getType(namespace: String, dotName: String): TypeDeclaration = {
+    getType(Some(Name.safeApply(namespace)), DotName(dotName)).orNull
+  }
+
+  def getType(namespace: Option[Name], dotName: DotName): Option[TypeDeclaration] = {
+    val pkg = packages.get(namespace.getOrElse(Name.Empty))
+    pkg.flatMap(_.getType(dotName))
+  }
+
   /** Get a list of Apex types in the org*/
   def getApexTypeNames: java.util.List[String] = {
     scala.collection.JavaConverters.seqAsJavaList(packages.values.flatMap(_.getApexTypeNames).toSeq)
@@ -109,8 +118,8 @@ class Org extends LazyLogging {
 object Org {
   val current: DynamicVariable[Org] = new DynamicVariable[Org](null)
 
-  def getType(dotName: DotName): Option[TypeDeclaration] = {
-    Org.current.value.unmanaged.getType(dotName)
+  def getType(namespace: Option[Name], dotName: DotName): Option[TypeDeclaration] = {
+    Org.current.value.getType(namespace, dotName)
   }
 
   def missingType(range: TextRange, typeName: TypeName): Unit = {

@@ -25,27 +25,33 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 package com.nawforce.types
 
-import java.io.InputStream
 import java.nio.file.Path
 
-import com.nawforce.documents.DocumentType
-import com.nawforce.utils.DotName
+import com.nawforce.utils.Name
 
-final case class CustomMetadataDeclaration(_path: Path, _typeName: TypeName)
-  extends NamedTypeDeclaration(_path, _typeName) {
-}
+import scala.collection.mutable
 
-object CustomMetadataDeclaration {
-  def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[CustomObjectDeclaration] = {
-    val name = DotName(DocumentType.apply(path).get.name).demangled
-    val ns = if (pkg.namespace.value.isEmpty) None else Some(TypeName(pkg.namespace))
-    val typeName =
-      if (!name.isCompound)
-        TypeName(name.firstName, Nil, ns)
-      else
-        TypeName(name.names(1), Nil, Some(TypeName(name.firstName)))
-    Seq(new CustomObjectDeclaration(path, typeName))
-  }
+class NamedTypeDeclaration(val path: Path, val typeName: TypeName) extends TypeDeclaration {
+  override val name: Name = typeName.name
+  override val outerTypeName: Option[TypeName] = None
+  override val nature: Nature = CLASS_NATURE
+  override val modifiers: Seq[Modifier] = Seq.empty
+  override val isComplete: Boolean = true
+  override val isExternallyVisible: Boolean = true
+
+  override val superClass: Option[TypeName] = Some(TypeName.SObject)
+  override val interfaces: Seq[TypeName] = Seq.empty
+  override val nestedTypes: Seq[TypeDeclaration] = Seq.empty
+
+  override val blocks: Seq[BlockDeclaration] = Seq.empty
+  override val fields: Seq[FieldDeclaration]= Seq.empty
+  override val constructors: Seq[ConstructorDeclaration] = Seq.empty
+  override val methods: Seq[MethodDeclaration]= Seq.empty
+
+  override def validate(): Unit = {}
+  override def dependencies(): Set[TypeDeclaration] = Set.empty
+  override def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
 }

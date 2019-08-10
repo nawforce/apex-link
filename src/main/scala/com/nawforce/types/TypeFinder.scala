@@ -63,8 +63,7 @@ trait TypeFinder {
       return matched
 
     if (!localOnly) {
-      Org.getType(from.namespace.map(ns => dotName.prepend(ns)).getOrElse(dotName))
-        .orElse(Org.getType(dotName))
+      Org.getType(from.namespace, dotName)
     } else {
       None
     }
@@ -100,7 +99,7 @@ trait TypeFinder {
     if (dotName.isCompound || from.outerTypeName.isEmpty) {
       None
     } else {
-      val outerType = Org.getType(from.outerTypeName.get.asDotName)
+      val outerType = Org.getType(from.namespace, from.outerTypeName.get.asDotName)
       if (outerType.nonEmpty) {
         if (dotName.names.head == outerType.get.name)
           outerType

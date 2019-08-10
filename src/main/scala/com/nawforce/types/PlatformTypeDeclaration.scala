@@ -41,20 +41,21 @@ import scala.collection.mutable
 case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[PlatformTypeDeclaration])
   extends TypeDeclaration {
 
-  lazy val name: Name = typeName.name
-  lazy val path: Path = Paths.get(name.toString)
-  lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(cls, cls)
-  lazy val outerTypeName: Option[TypeName] = parent.map(_.typeName)
-  lazy val nature: Nature = {
+  override lazy val name: Name = typeName.name
+  override lazy val path: Path = Paths.get(name.toString)
+  override lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(cls, cls)
+  override lazy val outerTypeName: Option[TypeName] = parent.map(_.typeName)
+  override lazy val nature: Nature = {
     (cls.isEnum, cls.isInterface) match {
       case (true, _) => ENUM_NATURE
       case (_, true) => INTERFACE_NATURE
       case _ => CLASS_NATURE
     }
   }
-  val isComplete: Boolean = true
+  override val isComplete: Boolean = true
+  override val isExternallyVisible: Boolean = true
 
-  lazy val superClass: Option[TypeName] = {
+  override lazy val superClass: Option[TypeName] = {
     if (cls.getSuperclass != null) {
       cls.getSuperclass.getCanonicalName match {
         case "java.lang.Object" => None
@@ -65,14 +66,14 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
       None
     }
   }
-  lazy val interfaces: Seq[TypeName] = cls.getInterfaces.map(i => PlatformTypeDeclaration.typeName(i, cls))
+  override lazy val interfaces: Seq[TypeName] = cls.getInterfaces.map(i => PlatformTypeDeclaration.typeName(i, cls))
 
-  lazy val modifiers: Seq[Modifier] = PlatformModifiers.typeModifiers(cls.getModifiers, nature)
+  override lazy val modifiers: Seq[Modifier] = PlatformModifiers.typeModifiers(cls.getModifiers, nature)
 
-  lazy val nestedTypes: Seq[PlatformTypeDeclaration] =
+  override lazy val nestedTypes: Seq[PlatformTypeDeclaration] =
     cls.getClasses.map(nested => PlatformTypeDeclaration(nested, Some(this)))
 
-  lazy val blocks: Seq[BlockDeclaration] = Seq.empty
+  override lazy val blocks: Seq[BlockDeclaration] = Seq.empty
 
   case class Field(field: java.lang.reflect.Field) extends FieldDeclaration {
     lazy val name: Name = Name(field.getName)
@@ -83,7 +84,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
     lazy val dependencies: Set[TypeDeclaration] = Set.empty
   }
 
-  lazy val fields: Seq[FieldDeclaration] = cls.getFields.filter(
+  override lazy val fields: Seq[FieldDeclaration] = cls.getFields.filter(
     _.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
     .map(f => Field(f))
 
@@ -106,7 +107,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
         parameters.map(_.toString).mkString(", ") + ")"
   }
 
-  lazy val constructors: Seq[Constructor] = {
+  override lazy val constructors: Seq[Constructor] = {
     cls.getConstructors.map(c => Constructor(c, this))
   }
 
@@ -124,7 +125,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
         parameters.map(_.toString).mkString(", ") + ")"
   }
 
-  lazy val methods: Seq[MethodDeclaration] = {
+  override lazy val methods: Seq[MethodDeclaration] = {
     val localMethods = cls.getMethods.filter(
       _.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
     nature match {
@@ -146,7 +147,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
     Set.empty
   }
 
-  def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
+  override def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
 }
 
 object PlatformTypeDeclaration {

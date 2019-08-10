@@ -31,14 +31,12 @@ import org.scalatest.FunSuite
 
 class SampleTest extends FunSuite {
 
-  private def sample(path: String): Unit = {
+  private def sample(path: String, namespace: String = ""): Unit = {
     LogUtils.setLoggingLevel(false)
     val org = new Org()
-    Org.current.withValue(org) {
-      val pkg = org.addPackage("", Array[String](path), Array())
-      pkg.deployAll()
-      assert(org.issues.asJSON(100) == "{ \"files\": [\n]}\n")
-    }
+    val pkg = org.addPackage(namespace, Array[String](path), Array())
+    pkg.deployAll()
+    assert(org.issues.asJSON(100) == "{ \"files\": [\n]}\n")
   }
 
   test("forcedotcom-enterprise-architecture") {
@@ -83,5 +81,49 @@ class SampleTest extends FunSuite {
 
   test("Affiliations") {
     sample("samples/SalesforceFoundation/Affiliations/src")
+  }
+
+  test("forcedotcom-enterprise-architecture packaged") {
+    sample("samples/forcedotcom-enterprise-architecture/src", "namespace")
+  }
+
+  test("chatter=game packaged") {
+    sample("samples/forcedotcomlabs/chatter-game/src", "namespace")
+  }
+
+  test("Cumulus packaged") {
+    sample("samples/SalesforceFoundation/Cumulus/src", "namespace")
+  }
+
+  test("HEDAP packaged") {
+    sample("samples/SalesforceFoundation/HEDAP/src", "namespace")
+  }
+
+  test("CampaignTools packaged") {
+    sample("samples/SalesforceFoundation/CampaignTools/src", "namespace")
+  }
+
+  test("Volunteers-for-Salesforce packaged") {
+    sample("samples/SalesforceFoundation/Volunteers-for-Salesforce/src", "namespace")
+  }
+
+  test("Relationships packaged") {
+    sample("samples/SalesforceFoundation/Relationships/src", "namespace")
+  }
+
+  test("Households packaged") {
+    sample("samples/SalesforceFoundation/Households/src", "namespace")
+  }
+
+  test("Recurring_Donations packaged") {
+    sample("samples/SalesforceFoundation/Recurring_Donations/src", "namespace")
+  }
+
+  test("Contacts_and_Organizations packaged") {
+    sample("samples/SalesforceFoundation/Contacts_and_Organizations/src", "namespace")
+  }
+
+  test("Affiliations packaged") {
+    sample("samples/SalesforceFoundation/Affiliations/src", "namespace")
   }
 }

@@ -41,36 +41,39 @@ final case class ComponentDeclaration() extends TypeDeclaration {
   components.put(Name("Apex"), PlatformTypes.getType(DotName("Component.Apex")).get)
   components.put(Name("Chatter"), PlatformTypes.getType(DotName("Component.Chatter")).get)
 
-  val name: Name = Name.component
-  val path: Path = Paths.get("Component")
-  val typeName: TypeName = TypeName(name)
-  val outerTypeName: Option[TypeName] = None
-  val nature: Nature = CLASS_NATURE
-  val modifiers: Seq[Modifier] = Nil
-  val isComplete: Boolean = true
+  override val name: Name = Name.component
+  override val path: Path = Paths.get("Component")
+  override val typeName: TypeName = TypeName(name)
+  override val outerTypeName: Option[TypeName] = None
+  override val nature: Nature = CLASS_NATURE
+  override val modifiers: Seq[Modifier] = Nil
+  override val isComplete: Boolean = true
+  override val isExternallyVisible: Boolean = true
 
-  val superClass: Option[TypeName] = Some(TypeName.SObject)
-  val interfaces: Seq[TypeName] = Nil
-  def nestedTypes: Seq[TypeDeclaration] = components.values().asScala.toSeq
+  override val superClass: Option[TypeName] = Some(TypeName.SObject)
+  override val interfaces: Seq[TypeName] = Nil
+  override def nestedTypes: Seq[TypeDeclaration] = components.values().asScala.toSeq
 
-  val blocks: Seq[BlockDeclaration] =  Nil
-  val fields: Seq[FieldDeclaration] = Nil
-  val constructors: Seq[ConstructorDeclaration] =  Nil
-  val methods: Seq[MethodDeclaration] = Nil
+  override val blocks: Seq[BlockDeclaration] =  Nil
+  override val fields: Seq[FieldDeclaration] = Nil
+  override val constructors: Seq[ConstructorDeclaration] =  Nil
+  override val methods: Seq[MethodDeclaration] = Nil
 
-  def validate(): Unit = {}
-  def dependencies(): Set[TypeDeclaration] = Set.empty
-  def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
+  override def validate(): Unit = {}
+  override def dependencies(): Set[TypeDeclaration] = Set.empty
+  override def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
 
   def upsertComponent(namespace: Name, component: ComponentDocument): Unit = {
-    getNamespaceContainer(namespace).foreach(_.upsertComponent(component))
+    getNamespaceContainer(Name.c).foreach(_.upsertComponent(component))
+    if (namespace.nonEmpty)
+      getNamespaceContainer(namespace).foreach(_.upsertComponent(component))
+
     components.put(component.name, CustomComponent(component.name, component.path))
   }
 
   private def getNamespaceContainer(namespace: Name): Option[ComponentNamespace] = {
-    val ns = if (namespace.isEmpty) Name("c") else namespace
-    components.putIfAbsent(ns, ComponentNamespace(ns))
-    components.get(ns) match {
+    components.putIfAbsent(namespace, ComponentNamespace(namespace))
+    components.get(namespace) match {
       case componentNamespace: ComponentNamespace => Some(componentNamespace)
       case _ => None
     }
@@ -78,49 +81,51 @@ final case class ComponentDeclaration() extends TypeDeclaration {
 }
 
 final case class CustomComponent(name: Name, path: Path) extends TypeDeclaration {
-  val typeName: TypeName = TypeName(name)
-  val outerTypeName: Option[TypeName] = None
-  val nature: Nature = CLASS_NATURE
-  val modifiers: Seq[Modifier] = Nil
-  val isComplete: Boolean = true
+  override val typeName: TypeName = TypeName(name)
+  override val outerTypeName: Option[TypeName] = None
+  override val nature: Nature = CLASS_NATURE
+  override val modifiers: Seq[Modifier] = Nil
+  override val isComplete: Boolean = true
+  override val isExternallyVisible: Boolean = true
 
-  val superClass: Option[TypeName] = Some(TypeName.SObject)
-  val interfaces: Seq[TypeName] = Nil
-  val nestedTypes: Seq[TypeDeclaration] = Nil
+  override val superClass: Option[TypeName] = Some(TypeName.SObject)
+  override val interfaces: Seq[TypeName] = Nil
+  override val nestedTypes: Seq[TypeDeclaration] = Nil
 
-  val blocks: Seq[BlockDeclaration] = Nil
-  val fields: Seq[FieldDeclaration]= Nil
-  val constructors: Seq[ConstructorDeclaration] = Nil
-  val methods: Seq[MethodDeclaration]= Nil
+  override val blocks: Seq[BlockDeclaration] = Nil
+  override val fields: Seq[FieldDeclaration]= Nil
+  override val constructors: Seq[ConstructorDeclaration] = Nil
+  override val methods: Seq[MethodDeclaration]= Nil
 
-  def validate(): Unit = {}
-  def dependencies(): Set[TypeDeclaration] = Set.empty
-  def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
+  override def validate(): Unit = {}
+  override def dependencies(): Set[TypeDeclaration] = Set.empty
+  override def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
 }
 
 final case class ComponentNamespace(name: Name) extends TypeDeclaration {
   private val components = new ConcurrentHashMap[Name, TypeDeclaration]()
 
   // TODO: Fix unknown path handling
-  val path: Path = Paths.get("ComponentNamespace")
-  val typeName: TypeName = TypeName(name)
-  val outerTypeName: Option[TypeName] = None
-  val nature: Nature = CLASS_NATURE
-  val modifiers: Seq[Modifier] = Nil
-  val isComplete: Boolean = true
+  override val path: Path = Paths.get("ComponentNamespace")
+  override val typeName: TypeName = TypeName(name)
+  override val outerTypeName: Option[TypeName] = None
+  override val nature: Nature = CLASS_NATURE
+  override val modifiers: Seq[Modifier] = Nil
+  override val isComplete: Boolean = true
+  override val isExternallyVisible: Boolean = name != Name.c
 
-  val superClass: Option[TypeName] = Some(TypeName.SObject)
-  val interfaces: Seq[TypeName] = Nil
-  def nestedTypes: Seq[TypeDeclaration] = components.values.asScala.toSeq
+  override val superClass: Option[TypeName] = Some(TypeName.SObject)
+  override val interfaces: Seq[TypeName] = Nil
+  override def nestedTypes: Seq[TypeDeclaration] = components.values.asScala.toSeq
 
-  val blocks: Seq[BlockDeclaration] = Nil
-  val fields: Seq[FieldDeclaration]= Nil
-  val constructors: Seq[ConstructorDeclaration] = Nil
-  val methods: Seq[MethodDeclaration]= Nil
+  override val blocks: Seq[BlockDeclaration] = Nil
+  override val fields: Seq[FieldDeclaration]= Nil
+  override val constructors: Seq[ConstructorDeclaration] = Nil
+  override val methods: Seq[MethodDeclaration]= Nil
 
-  def validate(): Unit = {}
-  def dependencies(): Set[TypeDeclaration] = Set.empty
-  def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
+  override def validate(): Unit = {}
+  override def dependencies(): Set[TypeDeclaration] = Set.empty
+  override def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
 
   def upsertComponent(component: ComponentDocument): Unit = {
     components.put(component.name, CustomComponent(component.name, component.path))

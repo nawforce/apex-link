@@ -27,7 +27,6 @@
 */
 package com.nawforce.documents
 
-import java.io.{FileInputStream, InputStream}
 import java.nio.file.{Path, Paths}
 
 import com.nawforce.api.Org

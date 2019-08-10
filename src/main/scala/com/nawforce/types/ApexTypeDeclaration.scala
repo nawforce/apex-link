@@ -75,6 +75,10 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[PackageD
     (superTypeDeclaration.nonEmpty && superTypeDeclaration.get.isComplete) || superClass.isEmpty
   }
 
+  override lazy val isExternallyVisible: Boolean = {
+    modifiers.contains(GLOBAL_MODIFIER)
+  }
+
   override val nestedTypes: Seq[ApexTypeDeclaration] = {
     bodyDeclarations.flatMap {
       case x: ApexTypeDeclaration => Some(x)

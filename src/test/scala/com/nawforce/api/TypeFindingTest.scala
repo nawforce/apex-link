@@ -28,7 +28,7 @@
 package com.nawforce.api
 
 import java.io.ByteArrayInputStream
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
 
 import com.nawforce.types.{ApexTypeDeclaration, TypeName}
 import com.nawforce.utils.{DotName, Name}
@@ -37,6 +37,7 @@ import org.scalatest.FunSuite
 class TypeFindingTest extends FunSuite {
 
   private val defaultOrg: Org = new Org
+  private val defaultPath: Path = Paths.get("Dummy.cls")
   private val unmanaged: Package = defaultOrg.unmanaged
 
   test("Bad type not") {
@@ -56,7 +57,7 @@ class TypeFindingTest extends FunSuite {
   test("Custom Outer type") {
     val org = new Org()
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(org.unmanaged, Paths.get("Dummy.cls"),
+      val td = ApexTypeDeclaration.create(org.unmanaged, defaultPath,
         new ByteArrayInputStream("public class Dummy {}".getBytes())).head
       org.unmanaged.upsertType(td)
       assert(org.unmanaged.getType(DotName(Seq(Name("Dummy")))).get.typeName == td.typeName)
@@ -66,7 +67,7 @@ class TypeFindingTest extends FunSuite {
   test("Custom Outer type (Wrong Case)") {
     val org = new Org()
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, Paths.get("Dummy.cls"),
+      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath,
         new ByteArrayInputStream("public class Dummy {}".getBytes())).head
       org.unmanaged.upsertType(td)
       assert(org.unmanaged.getType(DotName(Seq(Name("dummy")))).get.typeName == td.typeName)
@@ -76,7 +77,7 @@ class TypeFindingTest extends FunSuite {
   test("Custom Inner type") {
     val org = new Org()
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, Paths.get("Dummy.cls"),
+      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath,
         new ByteArrayInputStream("public class Dummy {class Inner {}}".getBytes())).head
       org.unmanaged.upsertType(td)
       val innerTypeName = DotName(Seq(Name("Dummy"), Name("Inner")))
@@ -87,7 +88,7 @@ class TypeFindingTest extends FunSuite {
   test("Custom Inner type (Wrong case)") {
     val org = new Org()
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, Paths.get("Dummy.cls"),
+      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath,
         new ByteArrayInputStream("public class Dummy {class Inner {}}".getBytes())).head
       org.unmanaged.upsertType(td)
       val innerTypeName = DotName(Seq(Name("Dummy"), Name("INner")))
@@ -99,24 +100,54 @@ class TypeFindingTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackage("NS", Array(), Array())
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(pkg, Paths.get("Dummy.cls"),
-        new ByteArrayInputStream("public class Dummy {}".getBytes())).head
+      val td = ApexTypeDeclaration.create(pkg, defaultPath,
+        new ByteArrayInputStream("global class Dummy {}".getBytes())).head
       pkg.upsertType(td)
       assert(org.unmanaged.getType(DotName(Seq(Name("NS"), Name("Dummy")))).get.typeName == td.typeName)
       assert(org.unmanaged.getType(DotName(Name("Dummy"))).isEmpty)
     }
   }
 
+  test("Custom Outer type with namespace not visible") {
+    val org = new Org()
+    val pkg = org.addPackage("NS", Array(), Array())
+    Org.current.withValue(org) {
+      val td = ApexTypeDeclaration.create(pkg, defaultPath,
+        new ByteArrayInputStream("public class Dummy {}".getBytes())).head
+      pkg.upsertType(td)
+      assert(org.getType("", "NS.Dummy") == null)
+      assert(org.getType("", "Dummy") == null)
+      assert(org.getType("NS", "NS.Dummy") != null)
+      assert(org.getType("NS", "Dummy") != null)
+    }
+  }
+
+
   test("Custom Inner type with namespace") {
     val org = new Org()
     val pkg = org.addPackage("NS", Array(), Array())
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(pkg, Paths.get("Dummy.cls"),
-        new ByteArrayInputStream("public class Dummy {class Inner {}}".getBytes())).head
+      val td = ApexTypeDeclaration.create(pkg, defaultPath,
+        new ByteArrayInputStream("global class Dummy {class Inner {}}".getBytes())).head
       pkg.upsertType(td)
       val innerTypeName = DotName(Seq(Name("NS"),Name("Dummy"), Name("Inner")))
       assert(org.unmanaged.getType(innerTypeName).get.typeName.asDotName == innerTypeName)
       assert(org.unmanaged.getType(DotName(Seq(Name("Dummy"), Name("Inner")))).isEmpty)
+    }
+  }
+
+  test("Custom Inner type with namespace not visible") {
+    val org = new Org()
+    val pkg = org.addPackage("NS", Array(), Array())
+    Org.current.withValue(org) {
+      val td = ApexTypeDeclaration.create(pkg, defaultPath,
+        new ByteArrayInputStream("public class Dummy {class Inner {}}".getBytes())).head
+      pkg.upsertType(td)
+
+      assert(org.getType("", "NS.Dummy.Inner") == null)
+      assert(org.getType("", "Dummy.Inner") == null)
+      assert(org.getType("NS", "NS.Dummy.Inner") != null)
+      assert(org.getType("NS", "Dummy.Inner") != null)
     }
   }
 }

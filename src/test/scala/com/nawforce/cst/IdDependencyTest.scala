@@ -147,7 +147,6 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
     val tds = typeDeclarations(Map(
       "Dummy" -> "public class Dummy {void func() {Object a; a.b = null;} }"
     ))
-    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.methods.head.dependencies() == Set(objectClass))
   }

@@ -72,23 +72,44 @@ class Package(val org: Org, _namespace: Name, _paths: Seq[Path], var basePackage
 
   /** Find a type using a global name*/
   def getType(dotName: DotName): Option[TypeDeclaration] = {
-    val declaration = getPackageType(dotName)
-    if (declaration.isEmpty)
-      PlatformTypes.getType(dotName)
-    else
-      declaration
+    if (namespace.nonEmpty) {
+      val declaration = getPackageType(dotName.prepend(namespace), inPackage = true)
+      if (declaration.nonEmpty)
+        return declaration
+    }
+
+    val declaration = getPackageType(dotName, inPackage = true)
+    if (declaration.nonEmpty)
+      return declaration
+
+    PlatformTypes.getType(dotName)
   }
 
-  private def getPackageType(name: DotName): Option[TypeDeclaration] = {
-    val declaration = Option(types.get(name)).orElse(getDependentPackageType(name))
-    if (declaration.isEmpty && name.isCompound)
-      getPackageType(name.headNames).flatMap(_.nestedTypes.find(td => td.name == name.lastName))
-    else
-      declaration
+  private def getPackageType(name: DotName, inPackage: Boolean): Option[TypeDeclaration] = {
+    var declaration = Option(types.get(name))
+    if (declaration.nonEmpty) {
+      if (inPackage || declaration.get.isExternallyVisible)
+        return declaration
+      else
+        return None
+    }
+
+    if (name.isCompound) {
+      declaration = getPackageType(name.headNames, inPackage = inPackage).flatMap(
+        _.nestedTypes.find(td => td.name == name.lastName && (td.isExternallyVisible || inPackage)))
+      if (declaration.nonEmpty)
+        return declaration
+    }
+
+    declaration = getDependentPackageType(name)
+    if (declaration.nonEmpty)
+      return declaration
+
+    None
   }
 
   private def getDependentPackageType(name: DotName): Option[TypeDeclaration] = {
-    basePackages.view.flatMap(pkg => pkg.getPackageType(name)).headOption
+    basePackages.view.flatMap(pkg => pkg.getPackageType(name, inPackage = false)).headOption
   }
 
   def upsertType(declaration: TypeDeclaration): Unit = {
@@ -122,29 +143,32 @@ class Package(val org: Org, _namespace: Name, _paths: Seq[Path], var basePackage
   }
 
   private def loadFromFiles(files: Seq[Path]): Unit = {
+    val org = Org.current.value
     val newDeclarations = files.grouped(100).flatMap(group => {
       val parsed = group.par.flatMap(path => {
-        org.issues.context.withValue(path) {
-          val start = System.currentTimeMillis()
+        Org.current.withValue(org) {
+          org.issues.context.withValue(path) {
+            val start = System.currentTimeMillis()
 
-          val tds = DocumentType(path) match {
-            case Some(docType: ApexDocument) =>
-              ApexTypeDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
-            case Some(docType: CustomObjectDocument) =>
-              CustomObjectDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
-            case Some(docType: PlatformEventDocument) =>
-              PlatformEventDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
-            case Some(docType: CustomMetadataDocument) =>
-              CustomMetadataDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
-            case Some(docType: ComponentDocument) =>
-              upsertComponent(namespace, docType)
-              Nil
-            case _ => Nil
+            val tds = DocumentType(path) match {
+              case Some(docType: ApexDocument) =>
+                ApexTypeDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+              case Some(docType: CustomObjectDocument) =>
+                CustomObjectDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+              case Some(docType: PlatformEventDocument) =>
+                PlatformEventDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+              case Some(docType: CustomMetadataDocument) =>
+                CustomMetadataDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+              case Some(docType: ComponentDocument) =>
+                upsertComponent(namespace, docType)
+                Nil
+              case _ => Nil
+            }
+
+            val end = System.currentTimeMillis()
+            logger.debug(s"Parsed $path in ${end - start}ms")
+            tds
           }
-
-          val end = System.currentTimeMillis()
-          logger.debug(s"Parsed $path in ${end - start}ms")
-          tds
         }
       })
       System.gc()
@@ -158,9 +182,12 @@ class Package(val org: Org, _namespace: Name, _paths: Seq[Path], var basePackage
   }
 
   private def validateMetadata(): Unit = {
-    types.values.parallelStream().filter(_.isInstanceOf[ApexTypeDeclaration])forEach(td => {
-      org.issues.context.withValue(td.path) {
-        td.validate()
+    val org = Org.current.value
+    types.values.parallelStream().filter(_.isInstanceOf[ApexTypeDeclaration]).forEach(td => {
+      Org.current.withValue(org) {
+        org.issues.context.withValue(td.path) {
+          td.validate()
+        }
       }
     })
   }

@@ -29,31 +29,32 @@ package com.nawforce.types
 
 import java.nio.file.{Path, Paths}
 
-import com.nawforce.utils.{Issue, IssueLog, Name}
+import com.nawforce.utils.{Issue, Name}
 
 import scala.collection.mutable
 
 final case class LabelDeclaration() extends TypeDeclaration {
-  val name: Name = Name.label
-  val path: Path = Paths.get("CustomLabels.labels")
-  val typeName: TypeName = TypeName(name)
-  val outerTypeName: Option[TypeName] = None
-  val nature: Nature = CLASS_NATURE
-  val modifiers: Seq[Modifier] = Seq.empty
-  val isComplete: Boolean = true
+  override val name: Name = Name.label
+  override val path: Path = Paths.get("CustomLabels.labels")
+  override val typeName: TypeName = TypeName(name)
+  override val outerTypeName: Option[TypeName] = None
+  override val nature: Nature = CLASS_NATURE
+  override val modifiers: Seq[Modifier] = Seq.empty
+  override val isComplete: Boolean = true
+  override val isExternallyVisible: Boolean = true
 
-  val superClass: Option[TypeName] = Some(TypeName.SObject)
-  val interfaces: Seq[TypeName] = Seq.empty
-  val nestedTypes: Seq[TypeDeclaration] = Seq.empty
+  override val superClass: Option[TypeName] = Some(TypeName.SObject)
+  override val interfaces: Seq[TypeName] = Seq.empty
+  override val nestedTypes: Seq[TypeDeclaration] = Seq.empty
 
-  val blocks: Seq[BlockDeclaration] = Seq.empty
-  val fields: Seq[FieldDeclaration]= Seq.empty
-  val constructors: Seq[ConstructorDeclaration] = Seq.empty
-  val methods: Seq[MethodDeclaration]= Seq.empty
+  override val blocks: Seq[BlockDeclaration] = Seq.empty
+  override val fields: Seq[FieldDeclaration]= Seq.empty
+  override val constructors: Seq[ConstructorDeclaration] = Seq.empty
+  override val methods: Seq[MethodDeclaration]= Seq.empty
 
-  def validate(): Unit = {}
-  def dependencies(): Set[TypeDeclaration] = Set.empty
-  def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
+  override def validate(): Unit = {}
+  override def dependencies(): Set[TypeDeclaration] = Set.empty
+  override def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
 
   def unused(): Seq[Issue] = Seq()
 }

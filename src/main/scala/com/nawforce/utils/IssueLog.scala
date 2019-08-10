@@ -30,6 +30,7 @@ package com.nawforce.utils
 import java.nio.file.Path
 
 import com.nawforce.documents.{LineLocation, Location, RangeLocation, TextRange}
+import com.typesafe.scalalogging.LazyLogging
 import net.liftweb.json._
 
 import scala.collection.mutable
@@ -37,7 +38,7 @@ import scala.util.DynamicVariable
 
 case class Issue(location: Location, msg: String)
 
-class IssueLog {
+class IssueLog extends LazyLogging {
   val context: DynamicVariable[Path] = new DynamicVariable[Path](null)
 
   private[this] val lock = new Object()
