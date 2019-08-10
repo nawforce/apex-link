@@ -50,7 +50,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[PackageD
   override def children(): List[CST] = bodyDeclarations.toList
 
   override val name: Name = id.name
-  override val path: Path = Org.current.value.issues.context.value
+  override lazy val path: Path = getPath
   override val typeName: TypeName = {
     outerContext match {
       case Left(pkg) if pkg.namespace == Name.Empty => TypeName(name)
@@ -94,23 +94,20 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[PackageD
   }
 
   override lazy val fields: Seq[FieldDeclaration] = {
-    Org.current.value.issues.context.withValue(path) {
-
-      val fields = bodyDeclarations.flatMap {
-        case x: FieldDeclaration => Some(x)
-        case _ => None
-      }
-      val allFields = superTypeDeclaration.map(_.fields).getOrElse(Seq()) ++ fields.groupBy(f => f.name).collect {
-        case (_, y :: Nil) => y
-        case (_, duplicates) =>
-          duplicates.tail.foreach(d => {
-            Org.logMessage(d.textRange, s"Duplicate field/property: '${d.name}'")
-          })
-          duplicates.head
-      }.toSeq
-
-      allFields.map(f => (f.name, f)).toMap.values.toSeq
+    val fields = bodyDeclarations.flatMap {
+      case x: FieldDeclaration => Some(x)
+      case _ => None
     }
+    val allFields = superTypeDeclaration.map(_.fields).getOrElse(Seq()) ++ fields.groupBy(f => f.name).collect {
+      case (_, y :: Nil) => y
+      case (_, duplicates) =>
+        duplicates.tail.foreach(d => {
+          Org.logMessage(d.location, s"Duplicate field/property: '${d.name}'")
+        })
+        duplicates.head
+    }.toSeq
+
+    allFields.map(f => (f.name, f)).toMap.values.toSeq
   }
 
   override lazy val constructors: Seq[ConstructorDeclaration] = {
@@ -142,25 +139,25 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[PackageD
     superTypeDeclaration.foreach(context.addDependency)
     if (superClass.nonEmpty) {
       if (superTypeDeclaration.isEmpty) {
-        Org.missingType(id.textRange, superClass.get)
+        Org.missingType(id.location, superClass.get)
       } else if (superTypeDeclaration.get.nature != CLASS_NATURE) {
-        Org.logMessage(id.textRange, s"Parent type '${superClass.get.asDotName}' must be a class")
+        Org.logMessage(id.location, s"Parent type '${superClass.get.asDotName}' must be a class")
       } else if (superTypeDeclaration.get.modifiers.intersect(Seq(VIRTUAL_MODIFIER, ABSTRACT_MODIFIER)).isEmpty) {
-        Org.logMessage(id.textRange, s"Parent class '${superClass.get.asDotName}' must be declared virtual or abstract")
+        Org.logMessage(id.location, s"Parent class '${superClass.get.asDotName}' must be declared virtual or abstract")
       }
     }
 
     val duplicateNestedType = (this +: nestedTypes).groupBy(_.name).collect { case (_, List(_, y, _*)) => y }
     duplicateNestedType.foreach(td =>
-      Org.logMessage(td.id.textRange, s"Duplicate type name '${td.name.toString}'"))
+      Org.logMessage(td.id.location, s"Duplicate type name '${td.name.toString}'"))
 
     interfaces.foreach(interface => {
       val td = context.getTypeAndAddDependency(interface)
       if (td.isEmpty) {
         if (!Org.current.value.isGhostedType(interface))
-          Org.logMessage(id.textRange, s"No declaration found for interface '${interface.toString}'")
+          Org.logMessage(id.location, s"No declaration found for interface '${interface.toString}'")
       } else if (td.get.nature != INTERFACE_NATURE)
-        Org.logMessage(id.textRange, s"Type '${interface.toString}' must be an interface")
+        Org.logMessage(id.location, s"Type '${interface.toString}' must be an interface")
     })
     bodyDeclarations.foreach(bd => bd.validate(new BodyDeclarationVerifyContext(context, bd)))
 
@@ -175,17 +172,15 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[PackageD
 
 object ApexTypeDeclaration {
   def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[ApexTypeDeclaration] = {
-    Org.current.value.issues.context.withValue(path) {
-      try {
-        val parser = createParser(data)
-        Seq(CompilationUnit.construct(pkg, path, parser.compilationUnit(), new ConstructContext()).typeDeclaration())
-      }
-      catch
-      {
-        case se: SyntaxException =>
-          Org.logMessage(LineLocation(path, se.line), se.msg)
-          Nil
-      }
+    try {
+      val parser = createParser(path, data)
+      Seq(CompilationUnit.construct(pkg, path, parser.compilationUnit(), new ConstructContext()).typeDeclaration())
+    }
+    catch
+    {
+      case se: SyntaxException =>
+        Org.logMessage(LineLocation(path, se.line), se.msg)
+        Nil
     }
   }
 
@@ -216,20 +211,18 @@ object ApexTypeDeclaration {
   }
 
   def parseBlock(path: Path, data: InputStream): Option[ApexParser.BlockContext] = {
-    Org.current.value.issues.context.withValue(path) {
-      try {
-        Some(createParser(data).block())
-      } catch {
-        case se: SyntaxException =>
-          Org.logMessage(LineLocation(path, se.line), se.msg)
-          None
-      }
+    try {
+      Some(createParser(path, data).block())
+    } catch {
+      case se: SyntaxException =>
+        Org.logMessage(LineLocation(path, se.line), se.msg)
+        None
     }
   }
 
-  private def createParser(data: InputStream): ApexParser = {
+  private def createParser(path: Path, data: InputStream): ApexParser = {
     val listener = new ThrowingErrorListener
-    val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(data)
+    val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(path, data)
     val lexer: ApexLexer = new ApexLexer(cis)
     lexer.removeErrorListeners()
     lexer.addErrorListener(listener)

@@ -63,14 +63,14 @@ final case class ClassDeclaration(_id: Id, _outerContext: Either[PackageDeclarat
 
   override def verify(context: TypeVerifyContext): Unit = {
     if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL_MODIFIER)) {
-      Org.logMessage(id.textRange, "Classes enclosing globals or webservices must also be declared global")
+      Org.logMessage(id.location, "Classes enclosing globals or webservices must also be declared global")
     }
     super.verify(context)
   }
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL_MODIFIER)) {
-      Org.logMessage(id.textRange, "Classes enclosing globals or webservices must also be declared global")
+      Org.logMessage(id.location, "Classes enclosing globals or webservices must also be declared global")
     }
     super.verify(new TypeVerifyContext(Some(context), this))
   }

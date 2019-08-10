@@ -44,9 +44,7 @@ class ClassModifierTest extends FunSuite with BeforeAndAfter {
   def typeDeclaration(clsText: String): TypeDeclaration = {
     Org.current.withValue(defaultOrg) {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes())).head
-      Org.current.value.issues.context.withValue(defaultPath) {
-        td.validate()
-      }
+      td.validate()
       td
     }
   }

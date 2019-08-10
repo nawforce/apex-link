@@ -29,18 +29,15 @@ package com.nawforce.utils
 
 import java.nio.file.Path
 
-import com.nawforce.documents.{LineLocation, Location, RangeLocation, TextRange}
+import com.nawforce.documents.Location
 import com.typesafe.scalalogging.LazyLogging
 import net.liftweb.json._
 
 import scala.collection.mutable
-import scala.util.DynamicVariable
 
 case class Issue(location: Location, msg: String)
 
 class IssueLog extends LazyLogging {
-  val context: DynamicVariable[Path] = new DynamicVariable[Path](null)
-
   private[this] val lock = new Object()
   private val log = mutable.HashMap[Path, List[Issue]]() withDefaultValue List()
 
@@ -54,27 +51,6 @@ class IssueLog extends LazyLogging {
     lock.synchronized {
       log.put(issue.location.path, issue :: log(issue.location.path))
     }
-  }
-
-  def ifNotLogAndThrow(condition: Boolean, index: Integer, msg: String): Unit = {
-    if (ifNotLog(condition, index, msg)) {
-      throw new LinkerException()
-    }
-  }
-
-  def ifNotLog(condition: Boolean, index: Integer, msg: String): Boolean = {
-    if (!condition) {
-      logMessage(index, msg)
-    }
-    !condition
-  }
-
-  def logMessage(index: Integer, msg: String): Unit = {
-    logMessage(LineLocation(context.value, index), msg)
-  }
-
-  def logMessage(range: TextRange, msg: String): Unit = {
-    logMessage(RangeLocation(context.value, range), msg)
   }
 
   def logMessage(location: Location, msg: String): Unit = {

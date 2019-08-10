@@ -33,6 +33,7 @@ import com.nawforce.documents.{LineLocation, Location}
 import scala.xml.Elem
 
 object XMLUtils {
+  /*
 val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
 
   def getLine(elem: Elem): Integer = {
@@ -60,7 +61,7 @@ val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
 
   def ifNotLog(condition: Boolean, elem: Elem, msg: String): Boolean = {
     if (!condition) {
-      Org.current.value.issues.logMessage(getLine(elem), msg)
+      Org.logMessage(getLine(elem), msg)
     }
     !condition
   }
@@ -114,4 +115,5 @@ val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
   def getMultipleChildren(elem: Elem, name: String): List[Elem] = {
     (elem \ name).filter(x => x.namespace == sfNamespace).asInstanceOf[Seq[Elem]].toList
   }
+   */
 }

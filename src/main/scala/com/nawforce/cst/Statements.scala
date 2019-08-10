@@ -32,6 +32,7 @@ import java.nio.file.Path
 
 import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser._
+import com.nawforce.parsers.CaseInsensitiveInputStream
 import com.nawforce.types.{ApexModifiers, ApexTypeDeclaration, Modifier, TypeName}
 import com.nawforce.utils.Name
 import org.antlr.v4.runtime.misc.Interval
@@ -96,7 +97,7 @@ object Block {
   def constructLazy(blockContext: BlockContext, context: ConstructContext): LazyBlock = {
     val is = blockContext.start.getInputStream
     val text = is.getText(new Interval(blockContext.start.getStartIndex, blockContext.stop.getStopIndex))
-    val path = Org.current.value.issues.context.value
+    val path = blockContext.start.getInputStream.asInstanceOf[CaseInsensitiveInputStream].path
     LazyBlock(path, text.getBytes(), blockContext.start.getLine-1, blockContext.start.getCharPositionInLine,
       WeakReference(blockContext))
   }
@@ -227,7 +228,7 @@ final case class EnhancedForControl(modifiers: Seq[Modifier], typeName: TypeName
   override def verify(context: BlockVerifyContext): Unit = {
     val forType = context.getTypeAndAddDependency(typeName)
     if (forType.isEmpty)
-      Org.missingType(id.textRange, typeName)
+      Org.missingType(id.location, typeName)
     expression.verify(context)
   }
 
@@ -415,7 +416,7 @@ final case class CatchType(names: List[QualifiedName]) extends CST {
       val typeName = TypeName(name.names.reverse)
       val catchType = context.getTypeAndAddDependency(typeName)
       if (catchType.isEmpty)
-        Org.missingType(name.textRange, typeName)
+        Org.missingType(name.location, typeName)
     })
   }
 }

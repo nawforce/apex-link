@@ -29,6 +29,7 @@ package com.nawforce.documents
 
 import java.nio.file.Path
 
+import com.nawforce.parsers.CaseInsensitiveInputStream
 import org.antlr.v4.runtime.ParserRuleContext
 
 abstract class Location(val path: Path, val line: Int) {
@@ -114,5 +115,15 @@ object TextRange {
 object RangeLocation {
   def apply(path: Path, range: TextRange): RangeLocation = {
     RangeLocation(path, range.start, range.end)
+  }
+
+  def apply(context: ParserRuleContext, lineOffset: Int=0, positionOffset: Int=0): RangeLocation = {
+    RangeLocation(
+      context.start.getInputStream.asInstanceOf[CaseInsensitiveInputStream].path,
+      Position(context.start.getLine, context.start.getCharPositionInLine)
+        .adjust(lineOffset, positionOffset),
+      Position(context.stop.getLine, context.stop.getCharPositionInLine + context.stop.getText.length)
+        .adjust(lineOffset, positionOffset)
+    )
   }
 }

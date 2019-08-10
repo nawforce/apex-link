@@ -122,17 +122,9 @@ object Org {
     Org.current.value.getType(namespace, dotName)
   }
 
-  def missingType(range: TextRange, typeName: TypeName): Unit = {
+  def missingType(location: Location, typeName: TypeName): Unit = {
     if (!Org.current.value.isGhostedType(typeName))
-      logMessage(range, s"No type declaration found for '$typeName'")
-  }
-
-  def logMessage(index: Integer, msg: String): Unit = {
-    Org.current.value.issues.logMessage(index, msg)
-  }
-
-  def logMessage(range: TextRange, msg: String): Unit = {
-    Org.current.value.issues.logMessage(range, msg)
+      logMessage(location, s"No type declaration found for '$typeName'")
   }
 
   def logMessage(location: Location, msg: String): Unit = {

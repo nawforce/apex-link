@@ -46,9 +46,7 @@ class EnumModifierTest extends FunSuite with BeforeAndAfter {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
       if (td.isEmpty)
         defaultOrg.issues.dumpMessages(json = false)
-      Org.current.value.issues.context.withValue(defaultPath) {
-        td.head.validate()
-      }
+      td.head.validate()
       td.head
     }
   }

@@ -147,28 +147,26 @@ class Package(val org: Org, _namespace: Name, _paths: Seq[Path], var basePackage
     val newDeclarations = files.grouped(100).flatMap(group => {
       val parsed = group.par.flatMap(path => {
         Org.current.withValue(org) {
-          org.issues.context.withValue(path) {
-            val start = System.currentTimeMillis()
+          val start = System.currentTimeMillis()
 
-            val tds = DocumentType(path) match {
-              case Some(docType: ApexDocument) =>
-                ApexTypeDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
-              case Some(docType: CustomObjectDocument) =>
-                CustomObjectDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
-              case Some(docType: PlatformEventDocument) =>
-                PlatformEventDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
-              case Some(docType: CustomMetadataDocument) =>
-                CustomMetadataDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
-              case Some(docType: ComponentDocument) =>
-                upsertComponent(namespace, docType)
-                Nil
-              case _ => Nil
-            }
-
-            val end = System.currentTimeMillis()
-            logger.debug(s"Parsed $path in ${end - start}ms")
-            tds
+          val tds = DocumentType(path) match {
+            case Some(docType: ApexDocument) =>
+              ApexTypeDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+            case Some(docType: CustomObjectDocument) =>
+              CustomObjectDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+            case Some(docType: PlatformEventDocument) =>
+              PlatformEventDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+            case Some(docType: CustomMetadataDocument) =>
+              CustomMetadataDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+            case Some(docType: ComponentDocument) =>
+              upsertComponent(namespace, docType)
+              Nil
+            case _ => Nil
           }
+
+          val end = System.currentTimeMillis()
+          logger.debug(s"Parsed $path in ${end - start}ms")
+          tds
         }
       })
       System.gc()
@@ -185,9 +183,7 @@ class Package(val org: Org, _namespace: Name, _paths: Seq[Path], var basePackage
     val org = Org.current.value
     types.values.parallelStream().filter(_.isInstanceOf[ApexTypeDeclaration]).forEach(td => {
       Org.current.withValue(org) {
-        org.issues.context.withValue(td.path) {
-          td.validate()
-        }
+        td.validate()
       }
     })
   }

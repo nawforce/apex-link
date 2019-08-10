@@ -28,6 +28,7 @@
 package com.nawforce.types
 
 import java.io.StringReader
+import java.nio.file.{Path, Paths}
 
 import com.nawforce.cst._
 import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
@@ -56,9 +57,11 @@ class TypeContextTest(_thisType: TypeName = null, _superType: TypeName = null, i
 
 object TypeTestHelper {
 
-  def typeLiteral(p: String, typeCtx: TypeContext): TypeName = {
+  private val defaultPath = Paths.get("Dummy.cls")
+
+  def typeLiteral(data: String, typeCtx: TypeContext): TypeName = {
     val context = new ConstructContext()
-    Literal.construct(parse(p).literal(), context).getType(typeCtx)
+    Literal.construct(parse(defaultPath, data).literal(), context).getType(typeCtx)
   }
 
   def compareLiteral(p: String, r: TypeName, typeCtx: TypeContext): Unit = {
@@ -74,9 +77,9 @@ object TypeTestHelper {
     }
   }
 
-  private def parse(p: String) = {
+  private def parse(path: Path, data: String) = {
     val listener = new ThrowingErrorListener
-    val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(new StringReader(p))
+    val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(path, new StringReader(data))
 
     val lexer: ApexLexer = new ApexLexer(cis)
     lexer.removeErrorListeners()

@@ -31,7 +31,7 @@ import java.lang.reflect.{Modifier => JavaModifier}
 
 import com.nawforce.api.Org
 import com.nawforce.cst.ConstructContext
-import com.nawforce.documents.TextRange
+import com.nawforce.documents.{RangeLocation, TextRange}
 import com.nawforce.parsers.ApexParser.{AnnotationContext, IdContext, ModifierContext, PropertyBlockContext}
 
 sealed abstract class Modifier(val name: String, val order: Integer=0) {
@@ -102,7 +102,7 @@ object ApexModifiers {
           case "abstract" => Some(ABSTRACT_MODIFIER)
           case "virtual" => Some(VIRTUAL_MODIFIER)
           case _ =>
-            Org.logMessage(TextRange(modifierContext),
+            Org.logMessage(RangeLocation(modifierContext),
                 s"Modifier '${modifierContext.getText}' is not supported on classes")
             None
         }
@@ -112,21 +112,21 @@ object ApexModifiers {
     if (mods.size == modifierContexts.size) {
       val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
       if (duplicates.nonEmpty) {
-        Org.logMessage(TextRange(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
+        Org.logMessage(RangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
         mods.toSet.toSeq
       } else if (outer && !mods.contains(ISTEST_ANNOTATION) && mods.contains(PRIVATE_MODIFIER) ) {
-        Org.logMessage(TextRange(idContext),
+        Org.logMessage(RangeLocation(idContext),
           s"Private modifier is not allowed on outer classes")
         mods.filterNot(_ == PRIVATE_MODIFIER)
       } else if (outer && !mods.contains(ISTEST_ANNOTATION) && !(mods.contains(GLOBAL_MODIFIER) || mods.contains(PUBLIC_MODIFIER))) {
-        Org.logMessage(TextRange(idContext), s"Outer classes must be declared either 'global' or 'public'")
+        Org.logMessage(RangeLocation(idContext), s"Outer classes must be declared either 'global' or 'public'")
         PUBLIC_MODIFIER +: mods
       } else if (mods.intersect(typeVisibilityModifiers).size > 1) {
-        Org.logMessage(TextRange(idContext),
+        Org.logMessage(RangeLocation(idContext),
           s"Only one visibility modifier from 'global', 'public' & 'private' may be used on classes")
         PUBLIC_MODIFIER +: mods.diff(typeVisibilityModifiers)
       } else if (mods.intersect(sharingModifiers).size > 1) {
-        Org.logMessage(TextRange(idContext),
+        Org.logMessage(RangeLocation(idContext),
           s"Only one sharing modifier from 'with sharing', 'without sharing' & 'inherited sharing' may be used on classes")
         mods.diff(sharingModifiers)
       } else {
@@ -151,7 +151,7 @@ object ApexModifiers {
           case "private" => Some(PRIVATE_MODIFIER)
           case "virtual" => Some(VIRTUAL_MODIFIER)
           case _ =>
-            Org.logMessage(TextRange(modifierContext),
+            Org.logMessage(RangeLocation(modifierContext),
               s"Modifier '${modifierContext.getText}' is not supported on interfaces")
             None
         }
@@ -161,17 +161,17 @@ object ApexModifiers {
     if (mods.size == modifierContexts.size) {
       val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
       if (duplicates.nonEmpty) {
-        Org.logMessage(TextRange(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
+        Org.logMessage(RangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
         mods.toSet.toSeq
       } else if (outer && mods.contains(PRIVATE_MODIFIER)) {
-        Org.logMessage(TextRange(idContext),
+        Org.logMessage(RangeLocation(idContext),
           s"Private modifier is not allowed on outer interfaces")
         mods.filterNot(_ == PRIVATE_MODIFIER)
       } else if (outer && !(mods.contains(GLOBAL_MODIFIER) || mods.contains(PUBLIC_MODIFIER))) {
-        Org.logMessage(TextRange(idContext), s"Outer interfaces must be declared either 'global' or 'public'")
+        Org.logMessage(RangeLocation(idContext), s"Outer interfaces must be declared either 'global' or 'public'")
         PUBLIC_MODIFIER +: mods
       } else if (mods.intersect(typeVisibilityModifiers).size > 1) {
-        Org.logMessage(TextRange(idContext),
+        Org.logMessage(RangeLocation(idContext),
           s"Only one visibility modifier from 'global', 'public' & 'private' may be used on interfaces")
         PUBLIC_MODIFIER +: mods.diff(typeVisibilityModifiers)
       } else {
@@ -195,7 +195,7 @@ object ApexModifiers {
           case "public" => Some(PUBLIC_MODIFIER)
           case "private" => Some(PRIVATE_MODIFIER)
           case _ =>
-            Org.logMessage(TextRange(modifierContext),
+            Org.logMessage(RangeLocation(modifierContext),
               s"Modifier '${modifierContext.getText}' is not supported on enums")
             None
         }
@@ -205,17 +205,17 @@ object ApexModifiers {
     if (mods.size == modifierContexts.size) {
       val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
       if (duplicates.nonEmpty) {
-        Org.logMessage(TextRange(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
+        Org.logMessage(RangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
         mods.toSet.toSeq
       } else if (outer && mods.contains(PRIVATE_MODIFIER)) {
-        Org.logMessage(TextRange(idContext),
+        Org.logMessage(RangeLocation(idContext),
           s"Private modifier is not allowed on outer enums")
         mods.filterNot(_ == PRIVATE_MODIFIER)
       } else if (outer && !(mods.contains(GLOBAL_MODIFIER) || mods.contains(PUBLIC_MODIFIER))) {
-        Org.logMessage(TextRange(idContext), s"Outer enums must be declared either 'global' or 'public'")
+        Org.logMessage(RangeLocation(idContext), s"Outer enums must be declared either 'global' or 'public'")
         PUBLIC_MODIFIER +: mods
       } else if (mods.intersect(typeVisibilityModifiers).size > 1) {
-        Org.logMessage(TextRange(idContext),
+        Org.logMessage(RangeLocation(idContext),
           s"Only one visibility modifier from 'global', 'public' & 'private' may be used on enums")
         PUBLIC_MODIFIER +: mods.diff(typeVisibilityModifiers)
       } else {
@@ -243,7 +243,7 @@ object ApexModifiers {
           case "transient" => Some(TRANSIENT_MODIFIER)
           case "webservice" => Some(WEBSERVICE_MODIFIER)
           case _ =>
-            Org.logMessage(TextRange(modifierContext),
+            Org.logMessage(RangeLocation(modifierContext),
               s"Modifier '${modifierContext.getText}' is not supported on fields")
             None
         }
@@ -252,10 +252,10 @@ object ApexModifiers {
 
     val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
     if (duplicates.nonEmpty) {
-      Org.logMessage(TextRange(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
+      Org.logMessage(RangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
       mods.toSet.toSeq
     } else if (mods.intersect(allVisibilityModifiers).size > 1) {
-      Org.logMessage(TextRange(idContext),
+      Org.logMessage(RangeLocation(idContext),
         s"Only one visibility modifier from 'webservice', 'global', 'public', 'protected' & 'private' may be used on fields")
       PUBLIC_MODIFIER +: mods.diff(allVisibilityModifiers)
     } else if (mods.intersect(allVisibilityModifiers).isEmpty) {
@@ -275,7 +275,7 @@ object ApexModifiers {
           case "protected" => Some(PROTECTED_MODIFIER)
           case "private" => Some(PRIVATE_MODIFIER)
           case _ =>
-            Org.logMessage(TextRange(modifierContext),
+            Org.logMessage(RangeLocation(modifierContext),
               s"Modifier '${modifierContext.getText}' is not supported on property set/get")
             None
       }
@@ -283,10 +283,10 @@ object ApexModifiers {
 
     val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
     if (duplicates.nonEmpty) {
-      Org.logMessage(TextRange(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
+      Org.logMessage(RangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
       mods.toSet.toSeq
     } else if (mods.intersect(allVisibilityModifiers).size > 1) {
-      Org.logMessage(TextRange(idContext),
+      Org.logMessage(RangeLocation(idContext),
         s"Only one visibility modifier from 'global, 'public', 'protected' & 'private' may be used on property set/get")
       mods.diff(allVisibilityModifiers)
     } else {
@@ -303,7 +303,7 @@ object ApexModifiers {
       case "restresource" => Some(REST_RESOURCE_ANNOTATION)
       case "namespaceaccessible" => Some(NAMESPACE_ACCESSIBLE_ANNOTATION)
       case _ =>
-        Org.logMessage(TextRange(context),
+        Org.logMessage(RangeLocation(context),
           s"Unexpected annotation '${context.qualifiedName().getText}' on class declaration")
         None
     }
@@ -316,7 +316,7 @@ object ApexModifiers {
       case "suppresswarnings" => Some(SUPPRESS_WARNINGS_ANNOTATION)
       case "namespaceaccessible" => Some(NAMESPACE_ACCESSIBLE_ANNOTATION)
       case _ =>
-        Org.logMessage(TextRange(context),
+        Org.logMessage(RangeLocation(context),
           s"Unexpected annotation '${context.qualifiedName().getText}' on interface declaration")
         None
     }
@@ -331,7 +331,7 @@ object ApexModifiers {
       case "testvisible" => Some(TEST_VISIBLE_ANNOTATION)
       case "suppresswarnings" => Some(SUPPRESS_WARNINGS_ANNOTATION)
       case _ =>
-        Org.logMessage(TextRange(context),
+        Org.logMessage(RangeLocation(context),
           s"Unexpected annotation '${context.qualifiedName().getText}' on field/property declaration")
         None
     }

@@ -159,6 +159,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public virtual class A extends B {}",
       "B" -> "public virtual class B {public class C {} }"
     ))
+    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.blocks.head.dependencies() == Set(tds(2).nestedTypes.head, typeClass))
   }

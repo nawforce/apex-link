@@ -27,10 +27,13 @@
 */
 package com.nawforce.cst
 
-import com.nawforce.documents.TextRange
+import java.nio.file.Path
+
+import com.nawforce.documents.{Location, Position, RangeLocation, TextRange}
 import com.nawforce.parsers.ApexParser._
+import com.nawforce.parsers.CaseInsensitiveInputStream
 import com.nawforce.utils.Name
-import org.antlr.v4.runtime.ParserRuleContext
+import org.antlr.v4.runtime.{ParserRuleContext, Token}
 
 import scala.collection.JavaConverters._
 import scala.util.DynamicVariable
@@ -38,19 +41,32 @@ import scala.util.DynamicVariable
 class CSTException extends Exception
 
 abstract class CST {
-  var textRange: TextRange = TextRange.empty
+  private var path: Path = _
+  private var start: Token = _
+  private var stop: Token = _
+  private var positionAdjust: (Int, Int) = _
 
-  def children(): List[CST]
-
-  def descendants(cst: CST): List[CST] = {
-    List(cst) ++ cst.children().flatMap(x => descendants(x))
+  lazy val location: Location = {
+    RangeLocation(
+      path,
+      Position(start.getLine, start.getCharPositionInLine)
+        .adjust(positionAdjust._1, positionAdjust._2),
+      Position(stop.getLine, stop.getCharPositionInLine + stop.getText.length)
+        .adjust(positionAdjust._1, positionAdjust._2)
+    )
   }
+
+  def getPath: Path = path
 
   def withContext(context: ParserRuleContext, constructContext: ConstructContext): this.type = {
-    val positionAdjust = CST.rangeAdjust.value
-    textRange = TextRange(context).adjust(positionAdjust._1, positionAdjust._2)
+    start = context.getStart
+    stop = context.getStop
+    path = start.getInputStream.asInstanceOf[CaseInsensitiveInputStream].path
+    positionAdjust = CST.rangeAdjust.value
     this
   }
+
+  def children(): List[CST]
 }
 
 object CST {

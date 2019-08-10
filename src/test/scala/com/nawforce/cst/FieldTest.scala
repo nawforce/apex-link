@@ -43,12 +43,10 @@ class FieldTest extends FunSuite with BeforeAndAfter {
   def typeDeclaration(clsText: String, hasMessages: Boolean = false): TypeDeclaration = {
     Org.current.withValue(defaultOrg) {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
-      if (td.isEmpty)
+      if (td.isEmpty) {
         defaultOrg.issues.dumpMessages(json = false)
-      else {
-        Org.current.value.issues.context.withValue(defaultPath) {
-          td.head.validate()
-        }
+      } else {
+        td.head.validate()
         td.head.fields
       }
       assert(defaultOrg.issues.hasMessages == hasMessages)

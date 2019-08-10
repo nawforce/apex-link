@@ -61,7 +61,7 @@ final case class TypeRefPrimary(typeName: TypeName) extends Primary {
   override def verify(context: ExpressionVerifyContext): Unit = {
     val td = context.getTypeAndAddDependency(typeName)
     if (td.isEmpty)
-      Org.missingType(textRange, typeName)
+      Org.missingType(location, typeName)
   }
 }
 

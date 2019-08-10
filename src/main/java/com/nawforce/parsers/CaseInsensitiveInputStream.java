@@ -33,22 +33,28 @@ import org.antlr.v4.runtime.IntStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.nio.file.Path;
 
 /**
  * ANTLR4 stream handler that allows use of case insensitive handling.
  */
 @SuppressWarnings({"unused", "deprecation"})
 public class CaseInsensitiveInputStream extends org.antlr.v4.runtime.ANTLRInputStream {
-    public CaseInsensitiveInputStream(InputStream is) throws IOException {
+    public final Path path;
+
+    public CaseInsensitiveInputStream(Path path, InputStream is) throws IOException {
         super(is);
+        this.path = path;
     }
 
-    public CaseInsensitiveInputStream(Reader r) throws IOException {
+    public CaseInsensitiveInputStream(Path path, Reader r) throws IOException {
         super(r, 1024, 1024);
+        this.path = path;
     }
 
-    public CaseInsensitiveInputStream(Reader r, Integer initialSize, Integer readChunkSize) throws IOException {
+    public CaseInsensitiveInputStream(Path path, Reader r, Integer initialSize, Integer readChunkSize) throws IOException {
         super(r, initialSize, readChunkSize);
+        this.path = path;
     }
 
     @Override

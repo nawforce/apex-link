@@ -60,7 +60,7 @@ final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: Ty
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     val propType = context.getTypeAndAddDependency(typeName)
     if (propType.isEmpty)
-      Org.missingType(id.textRange, typeName)
+      Org.missingType(id.location, typeName)
 
     val setters = propertyBlocks.filter(_.isInstanceOf[SetterPropertyBlock])
     setters.foreach(_.verify(context))
@@ -68,15 +68,15 @@ final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: Ty
     getters.foreach(_.verify(context))
 
     if (setters.size > 1 || getters.size > 1 || propertyBlocks.isEmpty) {
-      Org.logMessage(textRange, "Properties must have either a single 'get' and/or a single 'set' block")
+      Org.logMessage(location, "Properties must have either a single 'get' and/or a single 'set' block")
     }
 
     if (visibility.nonEmpty && writeAccess.order > visibility.get.order) {
-      Org.logMessage(textRange, "Setter visibility must be same or less than property")
+      Org.logMessage(location, "Setter visibility must be same or less than property")
     }
 
     if (visibility.nonEmpty && readAccess.order > visibility.get.order) {
-      Org.logMessage(textRange, "Getter visibility must be same or less than property")
+      Org.logMessage(location, "Getter visibility must be same or less than property")
     }
 
     depends = Some(context.dependencies)

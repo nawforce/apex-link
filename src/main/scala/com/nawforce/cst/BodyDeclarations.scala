@@ -124,7 +124,7 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: Type
     if (typeName != TypeName.Void) {
       val returnType = context.getTypeAndAddDependency(typeName)
       if (returnType.isEmpty)
-        Org.missingType(id.textRange, typeName)
+        Org.missingType(id.location, typeName)
     }
     parameters.foreach(_.verify(context))
 
@@ -173,7 +173,7 @@ final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeN
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     val td = context.getTypeAndAddDependency(typeName)
     if (td.isEmpty)
-      Org.missingType(variableDeclarator.id.textRange, typeName)
+      Org.missingType(variableDeclarator.id.location, typeName)
 
     variableDeclarator.verify(new BlockVerifyContext(context))
     depends = Some(context.dependencies)
@@ -228,7 +228,7 @@ final case class FormalParameter(modifiers: Seq[Modifier], typeName: TypeName, i
   def verify(context: BodyDeclarationVerifyContext): Unit = {
     val paramType = context.getTypeAndAddDependency(typeName)
     if (paramType.isEmpty)
-      Org.missingType(id.textRange, typeName)
+      Org.missingType(id.location, typeName)
   }
 }
 
