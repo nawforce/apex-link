@@ -41,7 +41,7 @@ import scala.collection.JavaConverters._
 class Package(val org: Org, _namespace: Name, _paths: Seq[Path], var basePackages: Seq[Package])
   extends PackageDeclaration(_namespace, _paths) with LazyLogging {
 
-  private val labelDeclaration = new LabelDeclaration
+  private val labelDeclaration = LabelDeclaration(this)
   private val pageDeclaration = new PageDeclaration
   private val flowDeclaration = new FlowDeclaration
   private val componentDeclaration = new ComponentDeclaration
@@ -117,15 +117,15 @@ class Package(val org: Org, _namespace: Name, _paths: Seq[Path], var basePackage
   }
 
   def deployAll(): Unit = {
-    val components = documents.getByExtension(Name("component"))
+    val components = documentsByExtension(Name("component"))
     logger.debug(s"Found ${components.size} components to parse")
     deployMetadata(components)
 
-    val objects = documents.getByExtension(Name("object"))
+    val objects = documentsByExtension(Name("object"))
     logger.debug(s"Found ${objects.size} custom objects to parse")
     deployMetadata(objects)
 
-    val classes = documents.getByExtension(Name("cls"))
+    val classes = documentsByExtension(Name("cls"))
     logger.debug(s"Found ${classes.size} classes to parse")
     deployMetadata(classes)
   }

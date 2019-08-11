@@ -27,7 +27,7 @@
 */
 package com.nawforce.documents
 
-import java.nio.file.{Path, Paths}
+import java.nio.file.{Files, Path, Paths}
 
 import com.nawforce.api.Org
 import com.nawforce.utils.Name
@@ -44,23 +44,23 @@ class DocumentLoader(paths: Seq[Path]) {
   index()
 
   private def index(): Unit = {
-      paths.reverse.foreach(p => indexPath(cwd.resolve(p).normalize()))
+    paths.reverse.foreach(indexRoot)
+  }
+
+  private def indexRoot(path: Path): Unit = {
+    indexPath(if (path.isAbsolute) path else cwd.resolve(path).normalize())
   }
 
   private def indexPath(path: Path): Unit = {
-    if (!path.getFileName.toString.startsWith(".")) {
-      val directory = path.toFile
-      if (directory.isDirectory) {
-        directory.listFiles().foreach(file => {
-          if (file.isDirectory)
-           indexPath(file.toPath)
-          else
-            insertDocument(DocumentType(file))
-        })
-      } else {
-        throw new DocumentLoadingException(s"Expecting directory at $directory")
-      }
-    }
+    if (path.getFileName != null && path.getFileName.toString.startsWith("."))
+      return
+
+    Files.newDirectoryStream(path).forEach(file => {
+      if (Files.isDirectory(file))
+        indexPath(file)
+      else
+        insertDocument(DocumentType(file))
+    })
   }
 
   private def insertDocument(documentType: Option[DocumentType]): Unit = {

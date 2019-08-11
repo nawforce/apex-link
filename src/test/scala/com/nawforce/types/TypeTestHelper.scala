@@ -32,7 +32,6 @@ import java.nio.file.{Path, Paths}
 
 import com.nawforce.cst._
 import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
-import com.nawforce.utils.ThrowingErrorListener
 import org.antlr.v4.runtime.CommonTokenStream
 
 class TypeContextTest(_thisType: TypeName = null, _superType: TypeName = null, identifierTypes: Map[String, TypeName] = null) extends TypeContext {

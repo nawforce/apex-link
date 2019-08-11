@@ -29,7 +29,7 @@
 package com.nawforce.documents
 
 import java.io.{FileInputStream, InputStream}
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 import java.util.concurrent.ConcurrentHashMap
 
 object StreamProxy {
@@ -44,6 +44,6 @@ object StreamProxy {
   }
 
   def getInputStream(path: Path): InputStream = {
-    Option(inputStreams.get(path)).getOrElse(new FileInputStream(path.toFile))
+    Option(inputStreams.get(path)).getOrElse(Files.newInputStream(path))
   }
 }

@@ -110,6 +110,13 @@ object TextRange {
       Position(context.getStop.getLine, context.getStop.getCharPositionInLine + context.getStop.getText.length),
     )
   }
+
+  def apply(line: Int): TextRange = {
+    TextRange(
+      Position(line, 0),
+      Position(line+1, 0)
+    )
+  }
 }
 
 object RangeLocation {

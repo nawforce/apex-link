@@ -25,8 +25,15 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.utils
+package com.nawforce.types
 
-class LinkerException extends Exception {
+import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer}
 
+class SyntaxException(val line: Int, val position: Int, val msg: String) extends Exception {
+}
+
+class ThrowingErrorListener extends BaseErrorListener {
+  override def syntaxError(recognizer: Recognizer[_, _], offendingSymbol: Any, line: Int, charPositionInLine: Int, msg: String, e: RecognitionException) {
+    throw new SyntaxException(line, charPositionInLine, msg)
+  }
 }

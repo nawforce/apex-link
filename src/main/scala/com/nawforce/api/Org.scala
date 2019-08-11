@@ -27,7 +27,7 @@
 */
 package com.nawforce.api
 
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
 
 import com.nawforce.documents._
 import com.nawforce.types._
@@ -73,14 +73,20 @@ class Org extends LazyLogging {
         throw new IllegalArgumentException(s"Package root '${path.toString}' must be a directory")
     })
 
-    val pkg = new Package(this, namespaceName, paths, basePackages)
-    if (pkg.namespace.isEmpty) {
-      unmanaged = pkg
-    } else {
-      unmanaged.addDependency(pkg)
+    addPackageInternal(namespaceName, paths, basePackages)
+  }
+
+  def addPackageInternal(namespace: Name, paths: Seq[Path], basePackages: Seq[Package]): Package = {
+    Org.current.withValue(this) {
+      val pkg = new Package(this, namespace, paths, basePackages)
+      if (pkg.namespace.isEmpty) {
+        unmanaged = pkg
+      } else {
+        unmanaged.addDependency(pkg)
+      }
+      packages = packages + (pkg.namespace -> pkg)
+      pkg
     }
-    packages = packages + (pkg.namespace -> pkg)
-    pkg
   }
 
   def getType(namespace: String, dotName: String): TypeDeclaration = {

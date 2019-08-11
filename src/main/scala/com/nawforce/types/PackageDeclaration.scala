@@ -34,5 +34,7 @@ import com.nawforce.documents.DocumentLoader
 import com.nawforce.utils.Name
 
 abstract class PackageDeclaration(val namespace: Name, val paths: Seq[Path]) {
-  protected val documents = new DocumentLoader(paths)
+  private val documents = new DocumentLoader(paths)
+
+  def documentsByExtension(ext: Name): Seq[Path] = documents.getByExtension(ext)
 }

@@ -27,13 +27,21 @@
 */
 package com.nawforce.types
 
-import java.nio.file.{Path, Paths}
+import java.nio.file.{Files, Path, Paths}
 
+import com.nawforce.api.Org
+import com.nawforce.documents.{LineLocation, Location, PointLocation, Position, RangeLocation, StreamProxy, TextRange}
 import com.nawforce.utils.{Issue, Name}
+import com.nawforce.xml.XMLUtils.getLine
+import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
 
 import scala.collection.mutable
+import scala.xml.{Elem, SAXParseException}
 
-final case class LabelDeclaration() extends TypeDeclaration {
+final case class LabelDeclaration(pkg: PackageDeclaration) extends TypeDeclaration {
+
+  load()
+
   override val name: Name = Name.label
   override val path: Path = Paths.get("CustomLabels.labels")
   override val typeName: TypeName = TypeName(name)
@@ -57,4 +65,56 @@ final case class LabelDeclaration() extends TypeDeclaration {
   override def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
 
   def unused(): Seq[Issue] = Seq()
+
+  private def load(): Unit = {
+    pkg.documentsByExtension(Name("labels")).foreach(labelFile =>
+      parseLabels(labelFile)
+    )
+  }
+
+  private def parseLabels(path: Path): Seq[Label] = {
+    if (!Files.isRegularFile(path)) {
+      Org.logMessage(LineLocation(path, 0), s"Expecting labels to be in a normal file")
+      Seq()
+    } else if (!Files.isReadable(path)) {
+      Org.logMessage(LineLocation(path, 0), s"Labels file is not readable")
+      Seq()
+    } else {
+      try {
+        val root = XMLLineLoader.load(StreamProxy.getInputStream(path))
+        XMLUtils.assertIs(root, "CustomLabels")
+
+        root.child.flatMap {
+          case elem: Elem =>
+            XMLUtils.assertIs(elem, "labels")
+            Some(Label(path, elem))
+          case _ => None
+        }
+
+      } catch {
+        case e: XMLException => Org.logMessage(RangeLocation(path, e.where), e.msg); Seq()
+        case e: SAXParseException => Org.logMessage(PointLocation(path,
+          Position(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage); Seq()
+      }
+    }
+  }
+}
+
+case class Label(location: Location, fullName: String, protect: Boolean)
+
+object Label {
+  def apply(path: Path, element: Elem): Label = {
+
+    val fullName: Option[String] = XMLUtils.getSingleChildAsString(element, "fullName")
+    val protect: Option[Boolean] = XMLUtils.getSingleChildAsBoolean(element, "protected")
+
+    /*
+    val language: Option[String] = XMLUtils.getSingleChildAsString(element, "language")
+    val shortDescription: Option[String] = XMLUtils.getSingleChildAsString(element, "shortDescription")
+    val value: Option[String] = XMLUtils.getSingleChildAsString(element, "value")
+    val categories: Option[String] = XMLUtils.getOptionalSingleChildAsString(element, "categories")
+     */
+
+    Label(RangeLocation(path, TextRange(getLine(element))), fullName.get, protect.get)
+  }
 }
