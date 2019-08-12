@@ -42,7 +42,6 @@ final case class ComponentDeclaration() extends TypeDeclaration {
   components.put(Name("Chatter"), PlatformTypes.getType(DotName("Component.Chatter")).get)
 
   override val name: Name = Name.component
-  override val path: Path = Paths.get("Component")
   override val typeName: TypeName = TypeName(name)
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
@@ -105,8 +104,6 @@ final case class CustomComponent(name: Name, path: Path) extends TypeDeclaration
 final case class ComponentNamespace(name: Name) extends TypeDeclaration {
   private val components = new ConcurrentHashMap[Name, TypeDeclaration]()
 
-  // TODO: Fix unknown path handling
-  override val path: Path = Paths.get("ComponentNamespace")
   override val typeName: TypeName = TypeName(name)
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE

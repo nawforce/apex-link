@@ -35,7 +35,6 @@ import scala.collection.mutable
 
 final case class PageDeclaration() extends TypeDeclaration {
   override val name: Name = Name.page
-  override val path: Path = Paths.get("Page.xml")
   override val typeName: TypeName = TypeName(name)
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE

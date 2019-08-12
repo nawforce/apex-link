@@ -50,7 +50,6 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[PackageD
   override def children(): List[CST] = bodyDeclarations.toList
 
   override val name: Name = id.name
-  override lazy val path: Path = getPath
   override val typeName: TypeName = {
     outerContext match {
       case Left(pkg) if pkg.namespace == Name.Empty => TypeName(name)

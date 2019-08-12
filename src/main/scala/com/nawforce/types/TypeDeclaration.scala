@@ -89,7 +89,6 @@ trait MethodDeclaration extends DependencyDeclaration {
 
 trait TypeDeclaration extends DependencyDeclaration {
   val name: Name
-  val path: Path
   val typeName: TypeName
   val outerTypeName: Option[TypeName]
   val nature: Nature

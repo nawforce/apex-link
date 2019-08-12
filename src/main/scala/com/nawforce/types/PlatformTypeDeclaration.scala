@@ -42,7 +42,6 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
   extends TypeDeclaration {
 
   override lazy val name: Name = typeName.name
-  override lazy val path: Path = Paths.get(name.toString)
   override lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(cls, cls)
   override lazy val outerTypeName: Option[TypeName] = parent.map(_.typeName)
   override lazy val nature: Nature = {

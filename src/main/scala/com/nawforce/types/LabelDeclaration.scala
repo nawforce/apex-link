@@ -28,6 +28,7 @@
 package com.nawforce.types
 
 import java.nio.file.{Files, Path, Paths}
+import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.api.Org
 import com.nawforce.documents.{LineLocation, Location, PointLocation, Position, RangeLocation, StreamProxy, TextRange}
@@ -43,7 +44,6 @@ final case class LabelDeclaration(pkg: PackageDeclaration) extends TypeDeclarati
   load()
 
   override val name: Name = Name.label
-  override val path: Path = Paths.get("CustomLabels.labels")
   override val typeName: TypeName = TypeName(name)
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
@@ -68,7 +68,9 @@ final case class LabelDeclaration(pkg: PackageDeclaration) extends TypeDeclarati
 
   private def load(): Unit = {
     pkg.documentsByExtension(Name("labels")).foreach(labelFile =>
-      parseLabels(labelFile)
+      parseLabels(labelFile).foreach(label => {
+
+      })
     )
   }
 
@@ -118,3 +120,4 @@ object Label {
     Label(RangeLocation(path, TextRange(getLine(element))), fullName.get, protect.get)
   }
 }
+

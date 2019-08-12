@@ -35,7 +35,6 @@ import scala.collection.mutable
 
 final case class FlowDeclaration() extends TypeDeclaration {
   override val name: Name = Name.flow
-  override val path: Path = Paths.get("Flow")
   override val typeName: TypeName = TypeName(name)
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE

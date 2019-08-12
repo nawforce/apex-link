@@ -88,11 +88,11 @@ trait TypeFinder {
       return None
 
     val superType = getTypeFor(from.superClass.get.asDotName, from)
-    if (superType.exists(_.path != from.path)) {
-      superType.flatMap(st => findTypeFor(dotName, st, localOnly))
-    } else {
-      None
+    if (superType.nonEmpty) {
+      if (from.outerTypeName.isEmpty || superType.get.outerTypeName != from.outerTypeName)
+        return superType.flatMap(st => findTypeFor(dotName, st, localOnly))
     }
+    None
   }
 
   private def getFromOuterType(dotName: DotName, from: TypeDeclaration, localOnly: Boolean): Option[TypeDeclaration] = {
