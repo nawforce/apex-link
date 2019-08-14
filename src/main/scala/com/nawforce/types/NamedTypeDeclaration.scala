@@ -28,13 +28,11 @@
 
 package com.nawforce.types
 
-import java.nio.file.Path
-
 import com.nawforce.utils.Name
 
 import scala.collection.mutable
 
-class NamedTypeDeclaration(val path: Path, val typeName: TypeName) extends TypeDeclaration {
+class NamedTypeDeclaration(val typeName: TypeName) extends TypeDeclaration {
   override val name: Name = typeName.name
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE

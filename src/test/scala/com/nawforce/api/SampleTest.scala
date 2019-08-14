@@ -31,10 +31,14 @@ import org.scalatest.FunSuite
 
 class SampleTest extends FunSuite {
 
-  private def sample(path: String, namespace: String = ""): Unit = {
+  private val npExternalNamespaces = Set("npe01", "npo02", "npe03", "npe4", "npe5")
+
+  private def sample(path: String, namespace: String = "", externalNamespaces: Set[String] = Set()): Unit = {
     LogUtils.setLoggingLevel(false)
     val org = new Org()
-    val pkg = org.addPackage(namespace, Array[String](path), Array())
+    externalNamespaces.foreach(ens => org.addPackage(ens, Array(), Array()))
+    val pkg = org.addPackage(namespace, Array[String](path), externalNamespaces.toArray)
+
     pkg.deployAll()
     assert(org.issues.asJSON(100) == "{ \"files\": [\n]}\n")
   }
@@ -48,7 +52,7 @@ class SampleTest extends FunSuite {
   }
 
   test("Cumulus") {
-    sample("samples/SalesforceFoundation/Cumulus/src")
+    sample("samples/SalesforceFoundation/Cumulus/src", namespace = "", npExternalNamespaces)
   }
 
   test("HEDAP") {
@@ -92,7 +96,7 @@ class SampleTest extends FunSuite {
   }
 
   test("Cumulus packaged") {
-    sample("samples/SalesforceFoundation/Cumulus/src", "namespace")
+    sample("samples/SalesforceFoundation/Cumulus/src", "namespace", npExternalNamespaces)
   }
 
   test("HEDAP packaged") {

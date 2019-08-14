@@ -27,7 +27,7 @@
 */
 package com.nawforce.types
 
-import java.nio.file.{Path, Paths}
+import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.documents.ComponentDocument
@@ -41,7 +41,7 @@ final case class ComponentDeclaration() extends TypeDeclaration {
   components.put(Name("Apex"), PlatformTypes.getType(DotName("Component.Apex")).get)
   components.put(Name("Chatter"), PlatformTypes.getType(DotName("Component.Chatter")).get)
 
-  override val name: Name = Name.component
+  override val name: Name = Name.Component
   override val typeName: TypeName = TypeName(name)
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE

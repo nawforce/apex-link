@@ -35,7 +35,7 @@ import com.nawforce.utils.{DotName, Name}
 
 import scala.collection.mutable
 
-final case class PlatformEventDeclaration(path: Path, typeName: TypeName) extends TypeDeclaration {
+final case class PlatformEventDeclaration(_typeName: TypeName) extends NamedTypeDeclaration(_typeName) {
   override val name: Name = typeName.name
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
@@ -58,7 +58,7 @@ final case class PlatformEventDeclaration(path: Path, typeName: TypeName) extend
 }
 
 object PlatformEventDeclaration {
-  def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[CustomObjectDeclaration] = {
+  def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[PlatformEventDeclaration] = {
     val name = DotName(DocumentType.apply(path).get.name).demangled
     val ns = if (pkg.namespace.value.isEmpty) None else Some(TypeName(pkg.namespace))
     val typeName =
@@ -66,6 +66,6 @@ object PlatformEventDeclaration {
         TypeName(name.firstName, Nil, ns)
       else
         TypeName(name.names(1), Nil, Some(TypeName(name.firstName)))
-    Seq(new CustomObjectDeclaration(path, typeName))
+    Seq(new PlatformEventDeclaration(typeName))
   }
 }

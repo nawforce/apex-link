@@ -73,10 +73,10 @@ object Name {
   lazy val Boolean: Name = cache("Boolean")
   lazy val ApexPages: Name = cache("ApexPages")
   lazy val PageReference: Name = cache("PageReference")
-  lazy val label: Name = cache("Label")
-  lazy val page: Name = cache("Page")
-  lazy val component: Name = cache("Component")
-  lazy val flow: Name = cache("Flow")
+  lazy val Label: Name = cache("Label")
+  lazy val Page: Name = cache("Page")
+  lazy val Component: Name = cache("Component")
+  lazy val Flow: Name = cache("Flow")
   lazy val c: Name = cache("c")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }

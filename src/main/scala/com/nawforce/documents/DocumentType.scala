@@ -54,7 +54,7 @@ case class ApexDocument(_path: Path, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("cls")
   override val ignorable: Boolean = {
-    path.toFile.length() == 8 && new String(Files.readAllBytes(path)) == "(hidden)"
+    Files.exists(path) && Files.size(path) == 0 && new String(Files.readAllBytes(path)) == "(hidden)"
   }
 }
 

@@ -50,11 +50,16 @@ class Package(val org: Org, _namespace: Name, _paths: Seq[Path], var basePackage
   private def initTypes() = {
     val types = new ConcurrentHashMap[DotName, TypeDeclaration]()
     types.put(labelDeclaration.typeName.asDotName, labelDeclaration)
+    types.put(DotName(labelDeclaration.name), labelDeclaration)
     types.put(pageDeclaration.typeName.asDotName, pageDeclaration)
     types.put(flowDeclaration.typeName.asDotName, flowDeclaration)
     types.put(componentDeclaration.typeName.asDotName, componentDeclaration)
     types
   }
+
+  override def basePackage(): Seq[PackageDeclaration] = basePackages
+
+  override def labels(): LabelDeclaration = labelDeclaration
 
   def typeCount: Int = types.size
 

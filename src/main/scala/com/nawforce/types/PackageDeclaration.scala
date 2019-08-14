@@ -37,4 +37,8 @@ abstract class PackageDeclaration(val namespace: Name, val paths: Seq[Path]) {
   private val documents = new DocumentLoader(paths)
 
   def documentsByExtension(ext: Name): Seq[Path] = documents.getByExtension(ext)
+
+  def isGhosted: Boolean = paths.isEmpty
+  def basePackage(): Seq[PackageDeclaration]
+  def labels(): LabelDeclaration
 }

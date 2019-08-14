@@ -253,21 +253,26 @@ object Expression {
     if (context.isVar(dotName.firstName))
       return
 
-    val td = getType(dotName, context)
-    if (td.isEmpty)
-      Org.missingType(expr.location, TypeName(dotName.head.names.reverse))
+    val typeName = TypeName(dotName.names.reverse)
+    val tdAndTypeName = getType(typeName, context)
+    if (tdAndTypeName._1.isEmpty)
+      Org.missingType(expr.location, TypeName(dotName.firstName))
+    else {
+      var residual = typeName.asDotName.tailNames
+      if (tdAndTypeName._2.outer.nonEmpty)
+        residual = residual.tailNames
+      tdAndTypeName._1.get.validateReference(expr.location, residual)
+    }
   }
 
-  def getType(dotName: DotName, context: ExpressionVerifyContext, outer: Option[TypeName]=None):
-    Option[TypeDeclaration] = {
-    val typeName = TypeName(dotName.firstName, Nil, outer)
+  @scala.annotation.tailrec
+  private def getType(typeName: TypeName, context: ExpressionVerifyContext): (Option[TypeDeclaration], TypeName) = {
     val td = context.getTypeAndAddDependency(typeName)
-    if (td.isEmpty && dotName.names.size>1) {
-      getType(dotName.tail, context, Some(typeName))
+    if (td.isEmpty && typeName.outer.nonEmpty) {
+      getType(typeName.outer.get, context)
     } else {
-      td
+      (td, typeName)
     }
-
   }
 }
 

@@ -60,25 +60,148 @@ class LabelTest extends FunSuite {
 
   test("Valid label") {
     val fs = Jimfs.newFileSystem(Configuration.unix)
-    val labels = fs.getPath("CustomLabels.labels")
     val labelsContent =
       """<?xml version="1.0" encoding="UTF-8"?>
         |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
         |    <labels>
-        |        <fullName>ComplianceFailuresFound</fullName>
+        |        <fullName>TestLabel</fullName>
         |        <language>en_US</language>
         |        <protected>true</protected>
-        |        <shortDescription>ComplianceFailuresFound.</shortDescription>
-        |        <value>Compliance failures found.</value>
+        |        <shortDescription>TestLabel Description</shortDescription>
+        |        <value>TestLabel Value</value>
         |    </labels>
         |</CustomLabels>
         |""".stripMargin
-    Files.write(labels, labelsContent.getBytes())
+    Files.write(fs.getPath("CustomLabels.labels"), labelsContent.getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {String a = Label.TestLabel;} }".getBytes())
 
     val org = new Org()
-    org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
-    org.issues.dumpMessages(false)
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
 
+  test("Valid label (case insensitive)") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    val labelsContent =
+      """<?xml version="1.0" encoding="UTF-8"?>
+        |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+        |    <labels>
+        |        <fullName>TestLabel</fullName>
+        |        <language>en_US</language>
+        |        <protected>true</protected>
+        |        <shortDescription>TestLabel Description</shortDescription>
+        |        <value>TestLabel Value</value>
+        |    </labels>
+        |</CustomLabels>
+        |""".stripMargin
+    Files.write(fs.getPath("CustomLabels.labels"), labelsContent.getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {String a = laBel.TeStLaBel;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Missing label") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    val labelsContent =
+      """<?xml version="1.0" encoding="UTF-8"?>
+        |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+        |    <labels>
+        |        <fullName>TestLabel</fullName>
+        |        <language>en_US</language>
+        |        <protected>true</protected>
+        |        <shortDescription>TestLabel Description</shortDescription>
+        |        <value>TestLabel Value</value>
+        |    </labels>
+        |</CustomLabels>
+        |""".stripMargin
+    Files.write(fs.getPath("CustomLabels.labels"), labelsContent.getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {String a = Label.TestLabel2;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+      "line 1 at 33-49: Label does not exists for 'TestLabel2'\n")
+  }
+
+  test("Missing label (case insensitive)") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    val labelsContent =
+      """<?xml version="1.0" encoding="UTF-8"?>
+        |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+        |    <labels>
+        |        <fullName>TestLabel</fullName>
+        |        <language>en_US</language>
+        |        <protected>true</protected>
+        |        <shortDescription>TestLabel Description</shortDescription>
+        |        <value>TestLabel Value</value>
+        |    </labels>
+        |</CustomLabels>
+        |""".stripMargin
+    Files.write(fs.getPath("CustomLabels.labels"), labelsContent.getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {String a = laBel.TestLaBel2;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+      "line 1 at 33-49: Label does not exists for 'TestLaBel2'\n")
+  }
+
+  test("Base package label") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    val labelsContent =
+      """<?xml version="1.0" encoding="UTF-8"?>
+        |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+        |    <labels>
+        |        <fullName>TestLabel</fullName>
+        |        <language>en_US</language>
+        |        <protected>false</protected>
+        |        <shortDescription>TestLabel Description</shortDescription>
+        |        <value>TestLabel Value</value>
+        |    </labels>
+        |</CustomLabels>
+        |""".stripMargin
+    Files.createDirectory(fs.getPath("pkg1"))
+    Files.write(fs.getPath("pkg1/CustomLabels.labels"), labelsContent.getBytes())
+    Files.createDirectory(fs.getPath("pkg2"))
+    Files.write(fs.getPath("pkg2/Dummy.cls"),"public class Dummy { {String a = label.pkg1.TestLabel;} }".getBytes())
+
+    val org = new Org()
+    val pkg1 = org.addPackageInternal(Name("pkg1"), Seq(fs.getPath("/work/pkg1")), Seq())
+    val pkg2 = org.addPackageInternal(Name("pkg2"), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
+    pkg2.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Base package label protected") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    val labelsContent =
+      """<?xml version="1.0" encoding="UTF-8"?>
+        |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+        |    <labels>
+        |        <fullName>TestLabel</fullName>
+        |        <language>en_US</language>
+        |        <protected>true</protected>
+        |        <shortDescription>TestLabel Description</shortDescription>
+        |        <value>TestLabel Value</value>
+        |    </labels>
+        |</CustomLabels>
+        |""".stripMargin
+    Files.createDirectory(fs.getPath("pkg1"))
+    Files.write(fs.getPath("pkg1/CustomLabels.labels"), labelsContent.getBytes())
+    Files.createDirectory(fs.getPath("pkg2"))
+    Files.write(fs.getPath("pkg2/Dummy.cls"),"public class Dummy { {String a = label.pkg1.TestLabel;} }".getBytes())
+
+    val org = new Org()
+    val pkg1 = org.addPackageInternal(Name("pkg1"), Seq(fs.getPath("/work/pkg1")), Seq())
+    val pkg2 = org.addPackageInternal(Name("pkg2"), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
+    pkg2.deployAll()
+    assert(org.issues.getMessages(fs.getPath("/work/pkg2/Dummy.cls")) ==
+      "line 1 at 33-53: Label 'pkg1.TestLabel' is protected so can not be accessed externally\n")
+  }
 }

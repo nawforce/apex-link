@@ -27,10 +27,9 @@
 */
 package com.nawforce.types
 
-import java.nio.file.Path
-
 import com.nawforce.api._
-import com.nawforce.utils.Name
+import com.nawforce.documents.Location
+import com.nawforce.utils.{DotName, Name}
 
 import scala.collection.mutable
 
@@ -115,6 +114,8 @@ trait TypeDeclaration extends DependencyDeclaration {
   def validate(): Unit
   def dependencies(): Set[TypeDeclaration]
   def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit
+
+  def validateReference(location: Location, dotName: DotName): Unit = {}
 
   lazy val summary: TypeSummary = TypeSummary(
     name.toString, typeName.toString, nature.value, modifiers.map(_.toString).sorted.toList,

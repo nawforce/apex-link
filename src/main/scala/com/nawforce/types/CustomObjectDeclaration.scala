@@ -33,8 +33,8 @@ import java.nio.file.Path
 import com.nawforce.documents.DocumentType
 import com.nawforce.utils.DotName
 
-final case class CustomObjectDeclaration(_path: Path, _typeName: TypeName)
-  extends NamedTypeDeclaration(_path, _typeName) {
+final case class CustomObjectDeclaration(_typeName: TypeName)
+  extends NamedTypeDeclaration(_typeName) {
 }
 
 object CustomObjectDeclaration {
@@ -47,10 +47,10 @@ object CustomObjectDeclaration {
       else
         TypeName(name.names(1), Nil, Some(TypeName(name.firstName)))
     Seq(
-      new CustomObjectDeclaration(path, typeName),
-      new CustomObjectDeclaration(path, typeName.withNameReplace("__c$", "__Share")),
-      new CustomObjectDeclaration(path, typeName.withNameReplace("__c$", "__Feed")),
-      new CustomObjectDeclaration(path, typeName.withNameReplace("__c$", "__History"))
+      new CustomObjectDeclaration(typeName),
+      new CustomObjectDeclaration(typeName.withNameReplace("__c$", "__Share")),
+      new CustomObjectDeclaration(typeName.withNameReplace("__c$", "__Feed")),
+      new CustomObjectDeclaration(typeName.withNameReplace("__c$", "__History"))
     )
   }
 }

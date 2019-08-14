@@ -27,14 +27,12 @@
 */
 package com.nawforce.types
 
-import java.nio.file.{Path, Paths}
-
 import com.nawforce.utils.Name
 
 import scala.collection.mutable
 
 final case class PageDeclaration() extends TypeDeclaration {
-  override val name: Name = Name.page
+  override val name: Name = Name.Page
   override val typeName: TypeName = TypeName(name)
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
