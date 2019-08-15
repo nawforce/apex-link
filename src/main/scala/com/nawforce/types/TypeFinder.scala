@@ -83,13 +83,14 @@ trait TypeFinder {
     if (from.superClass.isEmpty)
       return None
 
-    // Avoid recursion of searching for super class in super class, will be found later
+    // Ignore if looking for the superType itself, must be found by other means to avoid recursion
     if (dotName == from.superClass.get.asDotName)
       return None
 
     val superType = getTypeFor(from.superClass.get.asDotName, from)
-    if (superType.nonEmpty) {
-      if (from.outerTypeName.isEmpty || superType.get.outerTypeName != from.outerTypeName)
+
+    // Ignore if a classes super type is an inner of that class to avoid recursion
+    if (superType.nonEmpty && !superType.get.outerTypeName.contains(from.typeName)) {
         return superType.flatMap(st => findTypeFor(dotName, st, localOnly))
     }
     None

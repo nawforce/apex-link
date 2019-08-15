@@ -125,7 +125,7 @@ class LabelTest extends FunSuite {
     val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 33-49: Label does not exists for 'TestLabel2'\n")
+      "line 1 at 33-49: Label 'TestLabel2' not found\n")
   }
 
   test("Missing label (case insensitive)") {
@@ -149,7 +149,7 @@ class LabelTest extends FunSuite {
     val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 33-49: Label does not exists for 'TestLaBel2'\n")
+      "line 1 at 33-49: Label 'TestLaBel2' not found\n")
   }
 
   test("Base package label") {

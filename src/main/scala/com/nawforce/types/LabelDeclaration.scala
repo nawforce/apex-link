@@ -79,7 +79,7 @@ final case class LabelDeclaration(pkg: PackageDeclaration) extends TypeDeclarati
     if (!labelDeclaration.get.pkg.isGhosted) {
       val label = labelDeclaration.get.labelFields.get(dotName.names(position))
       if (label.isEmpty)
-        Org.logMessage(location, s"Label does not exists for '$dotName'")
+        Org.logMessage(location, s"Label '$dotName' not found")
       else if (label.get.isProtected && !allowProtected)
         Org.logMessage(location, s"Label '$dotName' is protected so can not be accessed externally")
     }
