@@ -89,6 +89,11 @@ trait TypeFinder {
 
     val superType = getTypeFor(from.superClass.get.asDotName, from)
 
+    // TODO: Can you really do this?
+    // Ignore if super type is in another package to avoid rogue absolute matches
+    if (superType.nonEmpty && superType.get.namespace != from.namespace)
+      return None
+
     // Ignore if a classes super type is an inner of that class to avoid recursion
     if (superType.nonEmpty && !superType.get.outerTypeName.contains(from.typeName)) {
         return superType.flatMap(st => findTypeFor(dotName, st, localOnly))

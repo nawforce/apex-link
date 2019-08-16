@@ -115,7 +115,6 @@ export default class Check extends SfdxCommand {
 
     for (const directory of directories) {
       if (!namespaces.has(directory[0])) {
-        namespaces.add(directory[0]);
         const pkg = org.addPackage(
           directory[0],
           directories
@@ -123,9 +122,10 @@ export default class Check extends SfdxCommand {
               return d[0] === directory[0];
             })
             .map(d => d[1]),
-            []
+            Array.from(namespaces)
         );
         pkg.deployAll();
+        namespaces.add(directory[0]);
       }
     }
 
