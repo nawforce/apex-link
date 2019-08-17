@@ -31,15 +31,13 @@ package com.nawforce.cst
 import com.nawforce.types.{LabelDeclaration, TypeDeclaration}
 import com.nawforce.utils.IssueLog
 
-class UnusedLog(types: Iterable[TypeDeclaration]) {
-
-  private val log: IssueLog = new IssueLog()
+class UnusedLog(types: Iterable[TypeDeclaration]) extends IssueLog {
 
   collectUnused()
 
   private def collectUnused(): Unit = {
     types.par.foreach {
-      case labels: LabelDeclaration => labels.unused().foreach(log.add)
+      case labels: LabelDeclaration => labels.unused().foreach(add)
       case _ => ()
     }
   }

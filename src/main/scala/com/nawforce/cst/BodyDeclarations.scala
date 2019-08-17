@@ -35,16 +35,16 @@ import com.nawforce.utils.Name
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST {
+abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST with DependencyHolder {
   lazy val isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER) || modifiers.contains(WEBSERVICE_MODIFIER)
 
-  protected var depends: Option[Set[TypeDeclaration]] = None
+  protected var depends: Option[Set[Dependant]] = None
 
-  def dependencies(): Set[TypeDeclaration] = {
+  override def dependencies(): Set[Dependant] = {
     depends.get
   }
 
-  def collectDependencies(dependsOn: mutable.Set[TypeDeclaration]): Unit = {
+  def collectDependencies(dependsOn: mutable.Set[Dependant]): Unit = {
     dependencies().foreach(dependsOn.add)
   }
 
@@ -103,6 +103,7 @@ final case class InitialiserBlock(_modifiers: Seq[Modifier], block: Block)
     val blockContext = new BlockVerifyContext(context)
     block.verify(blockContext)
     depends = Some(context.dependencies)
+    propagateDependencies()
   }
 }
 
@@ -132,6 +133,7 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: Type
     parameters.foreach(param => blockContext.addVar(param.name))
     block.foreach(_.verify(blockContext))
     depends = Some(context.dependencies)
+    propagateDependencies()
   }
 }
 
@@ -177,6 +179,7 @@ final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeN
 
     variableDeclarator.verify(new BlockVerifyContext(context))
     depends = Some(context.dependencies)
+    propagateDependencies()
   }
 }
 
@@ -205,6 +208,7 @@ final case class ApexConstructorDeclaration(_modifiers: Seq[Modifier], qualified
     parameters.foreach(param => blockContext.addVar(param.name))
     block.verify(blockContext)
     depends = Some(context.dependencies)
+    propagateDependencies()
   }
 }
 

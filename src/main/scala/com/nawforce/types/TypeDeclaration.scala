@@ -38,15 +38,30 @@ case object CLASS_NATURE extends Nature {override def value: String = "class"}
 case object INTERFACE_NATURE extends Nature {override def value: String = "interface"}
 case object ENUM_NATURE extends Nature {override def value: String = "enum"}
 
-trait DependencyDeclaration {
-  def dependencies(): Set[TypeDeclaration]
+trait Dependant {
+  private val dependencyHolders = mutable.Set[DependencyHolder]()
+
+  def addDependencyHolder(dependencyHolder: DependencyHolder): Unit = {
+    dependencyHolders.add(dependencyHolder)
+  }
+
+  def hasHolders: Boolean = dependencyHolders.nonEmpty
+
+  def getDependencyHolders: Set[DependencyHolder] = dependencyHolders.toSet
 }
 
-trait BlockDeclaration extends DependencyDeclaration {
+trait DependencyHolder extends Dependant {
+  def dependencies(): Set[Dependant] = Set.empty
+  def propagateDependencies(): Unit = {
+    dependencies().foreach(_.addDependencyHolder(this))
+  }
+}
+
+trait BlockDeclaration extends DependencyHolder {
   val isStatic: Boolean
 }
 
-trait FieldDeclaration extends DependencyDeclaration {
+trait FieldDeclaration extends DependencyHolder {
   val name: Name
   val modifiers: Seq[Modifier]
   val typeName: TypeName
@@ -64,7 +79,7 @@ trait ParameterDeclaration {
   lazy val summary: ParameterSummary = ParameterSummary(name.toString, typeName.toString)
 }
 
-trait ConstructorDeclaration extends DependencyDeclaration {
+trait ConstructorDeclaration extends DependencyHolder {
   val modifiers: Seq[Modifier]
   val parameters: Seq[ParameterDeclaration]
 
@@ -74,7 +89,7 @@ trait ConstructorDeclaration extends DependencyDeclaration {
   )
 }
 
-trait MethodDeclaration extends DependencyDeclaration {
+trait MethodDeclaration extends DependencyHolder {
   val name: Name
   val modifiers: Seq[Modifier]
   val typeName: TypeName
@@ -86,7 +101,7 @@ trait MethodDeclaration extends DependencyDeclaration {
   )
 }
 
-trait TypeDeclaration extends DependencyDeclaration {
+trait TypeDeclaration extends DependencyHolder {
   val name: Name
   val typeName: TypeName
   val outerTypeName: Option[TypeName]
@@ -112,10 +127,9 @@ trait TypeDeclaration extends DependencyDeclaration {
 
   /** Validate must be called before examining dependencies */
   def validate(): Unit
-  def dependencies(): Set[TypeDeclaration]
-  def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit
+  def collectDependencies(dependencies: mutable.Set[Dependant]): Unit
 
-  def validateReference(location: Location, dotName: DotName): Unit = {}
+  def validateReference(location: Location, dotName: DotName): Option[Dependant] = None
 
   lazy val summary: TypeSummary = TypeSummary(
     name.toString, typeName.toString, nature.value, modifiers.map(_.toString).sorted.toList,

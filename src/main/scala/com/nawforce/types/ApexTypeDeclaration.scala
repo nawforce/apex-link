@@ -163,7 +163,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[PackageD
     depends = Some(context.dependencies)
   }
 
-  override def collectDependencies(dependsOn: mutable.Set[TypeDeclaration]): Unit = {
+  override def collectDependencies(dependsOn: mutable.Set[Dependant]): Unit = {
     super.collectDependencies(dependsOn)
     bodyDeclarations.foreach(_.collectDependencies(dependsOn))
   }

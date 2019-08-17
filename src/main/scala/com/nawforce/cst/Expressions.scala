@@ -262,6 +262,7 @@ object Expression {
       if (tdAndTypeName._2.outer.nonEmpty)
         residual = residual.tailNames
       tdAndTypeName._1.get.validateReference(expr.location, residual)
+        .foreach(context.addDependency)
     }
   }
 

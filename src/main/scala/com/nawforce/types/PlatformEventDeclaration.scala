@@ -53,8 +53,8 @@ final case class PlatformEventDeclaration(_typeName: TypeName) extends NamedType
   override val methods: Seq[MethodDeclaration]= Seq.empty
 
   override def validate(): Unit = {}
-  override def dependencies(): Set[TypeDeclaration] = Set.empty
-  override def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
+  override def dependencies(): Set[Dependant] = Set.empty
+  override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
 }
 
 object PlatformEventDeclaration {

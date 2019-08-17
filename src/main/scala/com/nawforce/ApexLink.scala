@@ -84,5 +84,12 @@ object ApexLink {
 
     if (verbose && org.typeCount>0)
       println(s"Loaded & checked ${org.typeCount} types, with average time/type of ${(parseEnd - parseStart) / org.typeCount}ms")
+
+    org.packages.values.foreach(pkg => {
+      if (!pkg.isGhosted) {
+        println(s"Package: ${pkg.namespace}")
+        pkg.reportUnused().dumpMessages(json=false)
+      }
+    })
   }
 }

@@ -59,8 +59,8 @@ final case class ComponentDeclaration() extends TypeDeclaration {
   override val methods: Seq[MethodDeclaration] = Nil
 
   override def validate(): Unit = {}
-  override def dependencies(): Set[TypeDeclaration] = Set.empty
-  override def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
+  override def dependencies(): Set[Dependant] = Set.empty
+  override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
 
   def upsertComponent(namespace: Name, component: ComponentDocument): Unit = {
     getNamespaceContainer(Name.c).foreach(_.upsertComponent(component))
@@ -97,8 +97,8 @@ final case class CustomComponent(name: Name, path: Path) extends TypeDeclaration
   override val methods: Seq[MethodDeclaration]= Nil
 
   override def validate(): Unit = {}
-  override def dependencies(): Set[TypeDeclaration] = Set.empty
-  override def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
+  override def dependencies(): Set[Dependant] = Set.empty
+  override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
 }
 
 final case class ComponentNamespace(name: Name) extends TypeDeclaration {
@@ -121,8 +121,8 @@ final case class ComponentNamespace(name: Name) extends TypeDeclaration {
   override val methods: Seq[MethodDeclaration]= Nil
 
   override def validate(): Unit = {}
-  override def dependencies(): Set[TypeDeclaration] = Set.empty
-  override def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
+  override def dependencies(): Set[Dependant] = Set.empty
+  override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
 
   def upsertComponent(component: ComponentDocument): Unit = {
     components.put(component.name, CustomComponent(component.name, component.path))

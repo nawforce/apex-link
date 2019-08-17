@@ -45,7 +45,14 @@ class Org extends LazyLogging {
   var packages: Map[Name, Package] = Map(Name.Empty -> unmanaged)
 
   val issues = new IssueLog
-  def issuesAsJSON: String = issues.asJSON(maxErrors = 100)
+  def issuesAsJSON(zombie: Boolean): String = {
+    if (zombie) {
+      packages.values.foreach(pkg => {
+        issues.merge(pkg.reportUnused())
+      })
+    }
+    issues.asJSON(maxErrors = 100)
+  }
   def typeCount: Int= packages.values.map(_.typeCount).sum
 
   def getUnmanagedPackage: Package = unmanaged

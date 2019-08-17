@@ -59,6 +59,10 @@ class IssueLog extends LazyLogging {
 
   def hasMessages: Boolean = lock.synchronized {log.nonEmpty}
 
+  def merge(issueLog: IssueLog): Unit = {
+    issueLog.log.foreach(kv => kv._2.foreach(add))
+  }
+
   private trait MessageWriter {
     def startOutput()
     def startDocument(path: Path)

@@ -32,7 +32,7 @@ import java.nio.file.{Path, Paths}
 
 import com.nawforce.api.Org
 import com.nawforce.documents.StreamProxy
-import com.nawforce.types.TypeDeclaration
+import com.nawforce.types.{PlatformTypeDeclaration, TypeDeclaration}
 import com.nawforce.utils.{DotName, Name}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
@@ -181,7 +181,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
     assert(!defaultOrg.issues.hasMessages)
     Org.current.withValue(defaultOrg) {
       val cmp = tds.head.fields.head.dependencies().filterNot(_ == typeClass)
-      assert(cmp.head.typeName.toString == "Component.Apex.OutputText")
+      assert(cmp.head.asInstanceOf[TypeDeclaration].typeName.toString == "Component.Apex.OutputText")
     }
   }
 

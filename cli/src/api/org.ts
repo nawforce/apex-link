@@ -43,8 +43,8 @@ export default class Org {
     this.org = java.newInstanceSync("com.nawforce.api.Org");
   }
 
-  public issues(): string {
-    return this.org.issuesAsJSONSync();
+  public issues(zombie: boolean): string {
+    return this.org.issuesAsJSONSync(zombie);
   }
 
   public unmanagedPackage(): Package {

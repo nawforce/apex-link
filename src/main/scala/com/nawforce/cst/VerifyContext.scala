@@ -27,7 +27,7 @@
 */
 package com.nawforce.cst
 
-import com.nawforce.types.{STATIC_MODIFIER, TypeDeclaration, TypeFinder, TypeName}
+import com.nawforce.types.{Dependant, STATIC_MODIFIER, TypeDeclaration, TypeFinder, TypeName}
 import com.nawforce.utils.Name
 
 import scala.collection.mutable
@@ -35,18 +35,23 @@ import scala.collection.mutable
 trait VerifyContext {
   def parent(): Option[VerifyContext]
 
+  /** Check if name is reference to an in-scope variable/field */
   def isVar(name: Name): Boolean
 
+  /** Declare a dependency on dependant */
+  def addDependency(dependant: Dependant): Unit
+
+  /** Helper to locate type and add as dependency if found */
   def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration]
 }
 
 abstract class HolderVerifyContext {
-  private val _dependencies = mutable.Set[TypeDeclaration] ()
+  private val _dependencies = mutable.Set[Dependant] ()
 
-  def dependencies: Set[TypeDeclaration] = _dependencies.toSet
+  def dependencies: Set[Dependant] = _dependencies.toSet
 
-  def addDependency(dependentDeclaration: TypeDeclaration): Unit = {
-    _dependencies += dependentDeclaration
+  def addDependency(dependant: Dependant): Unit = {
+    _dependencies += dependant
   }
 
   def getTypeFor(typeName: TypeName): Option[TypeDeclaration]
@@ -69,9 +74,9 @@ abstract class HolderVerifyContext {
 class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: TypeDeclaration)
   extends HolderVerifyContext with VerifyContext with TypeFinder {
 
-  def parent(): Option[VerifyContext] = parentContext
+  override def parent(): Option[VerifyContext] = parentContext
 
-  def isVar(name: Name): Boolean = {
+  override def isVar(name: Name): Boolean = {
     !typeDeclaration.isComplete ||
     typeDeclaration.fields.exists(_.name == name) ||
     typeDeclaration.outerTypeName.flatMap(getTypeFor).exists(
@@ -86,13 +91,13 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: T
 class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDeclaration: ClassBodyDeclaration)
   extends HolderVerifyContext with VerifyContext {
 
-  def parent(): Option[VerifyContext] = Some(parentContext)
+  override def parent(): Option[VerifyContext] = Some(parentContext)
 
   override def getTypeFor(typeName: TypeName): Option[TypeDeclaration] = {
     parentContext.getTypeFor(typeName)
   }
 
-  def isVar(name: Name): Boolean = {
+  override def isVar(name: Name): Boolean = {
     parentContext.isVar(name)
   }
 }
@@ -102,31 +107,39 @@ class BlockVerifyContext(parentContext: VerifyContext)
 
   private val vars = mutable.Set[Name]()
 
-  def parent(): Option[VerifyContext] = Some(parentContext)
+  override def parent(): Option[VerifyContext] = Some(parentContext)
 
-  def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration] = {
+  override def addDependency(dependant: Dependant): Unit = {
+    parentContext.addDependency(dependant)
+  }
+
+  override def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration] = {
     parentContext.getTypeAndAddDependency(typeName)
+  }
+
+  override def isVar(name: Name): Boolean = {
+    vars.contains(name) || parentContext.isVar(name)
   }
 
   def addVar(name: Name): Unit = {
     vars.add(name)
-  }
-
-  def isVar(name: Name): Boolean = {
-    vars.contains(name) || parentContext.isVar(name)
   }
 }
 
 class ExpressionVerifyContext(parentContext: BlockVerifyContext)
   extends VerifyContext {
 
-  def parent(): Option[VerifyContext] = Some(parentContext)
+  override def parent(): Option[VerifyContext] = Some(parentContext)
 
-  def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration] = {
+  override def addDependency(dependant: Dependant): Unit = {
+    parentContext.addDependency(dependant)
+  }
+
+  override def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration] = {
     parentContext.getTypeAndAddDependency(typeName)
   }
 
-  def isVar(name: Name): Boolean = {
+  override def isVar(name: Name): Boolean = {
     parentContext.isVar(name)
   }
 }

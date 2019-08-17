@@ -62,10 +62,9 @@ final case class LabelDeclaration(pkg: PackageDeclaration) extends TypeDeclarati
   override val methods: Seq[MethodDeclaration]= Seq.empty
 
   override def validate(): Unit = {}
-  override def dependencies(): Set[TypeDeclaration] = Set.empty
-  override def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
+  override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
 
-  override def validateReference(location: Location, dotName: DotName): Unit = {
+  override def validateReference(location: Location, dotName: DotName): Option[Dependant] = {
     var position = 0
     var allowProtected = true
     var labelDeclaration = if (dotName.names.size > 1) labelNamespaces.get(dotName.names.head) else None
@@ -82,10 +81,17 @@ final case class LabelDeclaration(pkg: PackageDeclaration) extends TypeDeclarati
         Org.logMessage(location, s"Label '$dotName' not found")
       else if (label.get.isProtected && !allowProtected)
         Org.logMessage(location, s"Label '$dotName' is protected so can not be accessed externally")
+      label
+    } else {
+      None
     }
   }
 
-  def unused(): Seq[Issue] = Seq()
+  def unused(): Seq[Issue] = {
+    labelFields.values.filterNot(_.hasHolders)
+      .map(label => Issue(label.location, s"Label '${pkg.namespaceWithDot}${label.name}' is not being used in Apex code"))
+      .toSeq
+  }
 
   private def load(): Unit = {
     pkg.documentsByExtension(Name("labels")).foreach(labelFile =>
@@ -130,7 +136,6 @@ case class Label(location: Location, fullName: String, isProtected: Boolean) ext
   override lazy val typeName: TypeName = TypeName.String
   override lazy val readAccess: Modifier = if (isProtected) PUBLIC_MODIFIER else GLOBAL_MODIFIER
   override lazy val writeAccess: Modifier = PRIVATE_MODIFIER
-  override def dependencies(): Set[TypeDeclaration] = Set()
 }
 
 object Label {

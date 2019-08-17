@@ -50,6 +50,6 @@ class NamedTypeDeclaration(val typeName: TypeName) extends TypeDeclaration {
   override val methods: Seq[MethodDeclaration]= Seq.empty
 
   override def validate(): Unit = {}
-  override def dependencies(): Set[TypeDeclaration] = Set.empty
-  override def collectDependencies(dependencies: mutable.Set[TypeDeclaration]): Unit = {}
+  override def dependencies(): Set[Dependant] = Set.empty
+  override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
 }

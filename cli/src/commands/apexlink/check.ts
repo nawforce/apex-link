@@ -69,6 +69,9 @@ export default class Check extends SfdxCommand {
     depends: flags.boolean({
       description: "show depenency information for Apex classes"
     }),
+    zombie: flags.boolean({
+      description: "show warnings for metadata that is no being refrenced"
+    }),
     verbose: flags.builtin({ description: "show progress messages" })
   };
 
@@ -80,12 +83,13 @@ export default class Check extends SfdxCommand {
     const verbose = this.flags.verbose || false;
     const json = this.flags.json || false;
     const depends = this.flags.depends || false;
+    const zombie = this.flags.zombie || false;
 
     const server = await Server.getInstance();
     server.setLoggingLevel(verbose && !json);
 
     const org = this.createOrg(server, this.directoryArgs());
-    const issues = JSON.parse(org.issues()) as InfoMessages;
+    const issues = JSON.parse(org.issues(zombie)) as InfoMessages;
     const dependResults = depends ? org.getApexDependencies() : [];
 
     if (json) {
@@ -188,6 +192,7 @@ export default class Check extends SfdxCommand {
     const flagTypes = new Map<string, number>();
     flagTypes.set("--verbose", 0);
     flagTypes.set("--depends", 0);
+    flagTypes.set("--zombie", 0);
     flagTypes.set("--json", 0);
     flagTypes.set("--loglevel", 1);
     return flagTypes;

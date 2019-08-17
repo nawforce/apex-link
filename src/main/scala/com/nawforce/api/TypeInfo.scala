@@ -28,7 +28,7 @@
 
 package com.nawforce.api
 
-import com.nawforce.types.{ApexTypeDeclaration, TypeDeclaration}
+import com.nawforce.types.{ApexTypeDeclaration, Dependant, TypeDeclaration}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -37,11 +37,13 @@ case class TypeInfo(typeDeclaration: TypeDeclaration) {
 
   def name: String = typeDeclaration.name.toString
   def dependsOn: java.util.List[String] = {
-    val dependencies = mutable.Set[TypeDeclaration]()
+    val dependencies = mutable.Set[Dependant]()
     typeDeclaration.collectDependencies(dependencies)
-    dependencies
-        .filter(_.isInstanceOf[ApexTypeDeclaration])
-        .filter(td => td.typeName.name != typeDeclaration.name)
-        .map(_.typeName.toString).toList.asJava
+    dependencies.flatMap {
+      case td: ApexTypeDeclaration => Some(td)
+      case _ => None
+    }
+      .filter(td => td.typeName.name != typeDeclaration.name)
+      .map(_.typeName.toString).toList.asJava
   }
 }
