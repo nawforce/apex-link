@@ -100,7 +100,7 @@ final case class InitialiserBlock(_modifiers: Seq[Modifier], block: Block)
   override val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    val blockContext = new BlockVerifyContext(context)
+    val blockContext = new OuterBlockVerifyContext(context, isStatic)
     block.verify(blockContext)
     depends = Some(context.dependencies)
     propagateDependencies()
@@ -129,7 +129,7 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: Type
     }
     parameters.foreach(_.verify(context))
 
-    val blockContext = new BlockVerifyContext(context)
+    val blockContext = new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))
     parameters.foreach(param => blockContext.addVar(param.name))
     block.foreach(_.verify(blockContext))
     depends = Some(context.dependencies)
@@ -139,8 +139,8 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: Type
 
 object ApexMethodDeclaration {
   def construct(modifiers: Seq[Modifier], from: MethodDeclarationContext, context: ConstructContext): ApexMethodDeclaration = {
-    val typeName = if (from.typeRef() != null) TypeRef.construct(from.typeRef(), context) else TypeName.Void
-    val block = if (from.block != null) Some(Block.constructLazy(from.block, context)) else None
+    val typeName = Option(from.typeRef()).map(tr => TypeRef.construct(tr, context)).getOrElse(TypeName.Void)
+    val block = Option(from.block).map(blk => Block.constructLazy(blk, context, modifiers.contains(STATIC_MODIFIER)))
 
     ApexMethodDeclaration(modifiers,
       typeName,
@@ -177,7 +177,7 @@ final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeN
     if (td.isEmpty)
       Org.missingType(variableDeclarator.id.location, typeName)
 
-    variableDeclarator.verify(new BlockVerifyContext(context))
+    variableDeclarator.verify(new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER)))
     depends = Some(context.dependencies)
     propagateDependencies()
   }
@@ -204,7 +204,7 @@ final case class ApexConstructorDeclaration(_modifiers: Seq[Modifier], qualified
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     parameters.foreach(_.verify(context))
 
-    val blockContext = new BlockVerifyContext(context)
+    val blockContext = new OuterBlockVerifyContext(context, isStaticContext = false)
     parameters.foreach(param => blockContext.addVar(param.name))
     block.verify(blockContext)
     depends = Some(context.dependencies)

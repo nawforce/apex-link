@@ -40,7 +40,8 @@ final case class PageDeclaration() extends TypeDeclaration {
   override val isComplete: Boolean = true
   override val isExternallyVisible: Boolean = true
 
-  override val superClass: Option[TypeName] = Some(TypeName.SObject)
+  override val superClass: Option[TypeName] = None
+  override def superClassDeclaration: Option[TypeDeclaration] = None
   override val interfaces: Seq[TypeName] = Seq.empty
   override val nestedTypes: Seq[TypeDeclaration] = Seq.empty
 

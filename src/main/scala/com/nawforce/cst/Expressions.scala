@@ -45,7 +45,7 @@ final case class IdExpression(expression: Expression, id: Id) extends Expression
   override def children(): List[CST] = expression :: id :: Nil
 
   override def verify(context: ExpressionVerifyContext): Unit = {
-    val dotName = Expression.asDotName(this)
+    val dotName = Expression.asDotName(this, context)
     if (dotName.nonEmpty) {
       Expression.verify(dotName.get, this, context)
     } else {
@@ -236,10 +236,10 @@ object Expression {
     expression.map(x => Expression.construct(x, context))
   }
 
-  def asDotName(expr: Expression) : Option[DotName] = {
+  def asDotName(expr: Expression, context: VerifyContext) : Option[DotName] = {
     expr match {
       case idExpr: IdExpression =>
-        asDotName(idExpr.expression).map(_.append(idExpr.id.name))
+        asDotName(idExpr.expression, context).map(_.append(idExpr.id.name))
       case primaryExpression: PrimaryExpression =>
         primaryExpression.primary match {
           case idPrimary: IdPrimary => Some(DotName(idPrimary.id.name))

@@ -35,6 +35,11 @@ import com.nawforce.utils.DotName
 
 final case class CustomObjectDeclaration(_typeName: TypeName)
   extends NamedTypeDeclaration(_typeName) {
+
+  override val superClass: Option[TypeName] = Some(TypeName.SObject)
+  override def superClassDeclaration: Option[TypeDeclaration] = {
+    new StandardTypeFinder().getTypeFor(TypeName.SObject.asDotName, this)
+  }
 }
 
 object CustomObjectDeclaration {

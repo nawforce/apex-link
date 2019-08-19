@@ -117,6 +117,7 @@ trait TypeDeclaration extends DependencyHolder {
   }
 
   val superClass: Option[TypeName]
+  def superClassDeclaration: Option[TypeDeclaration]
   val interfaces: Seq[TypeName]
   def nestedTypes: Seq[TypeDeclaration]
 

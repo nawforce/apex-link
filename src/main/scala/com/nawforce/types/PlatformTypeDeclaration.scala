@@ -65,6 +65,11 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
       None
     }
   }
+
+  override def superClassDeclaration: Option[TypeDeclaration] = {
+    superClass.flatMap(sc => PlatformTypes.getType(sc.asDotName))
+  }
+
   override lazy val interfaces: Seq[TypeName] = cls.getInterfaces.map(i => PlatformTypeDeclaration.typeName(i, cls))
 
   override lazy val modifiers: Seq[Modifier] = PlatformModifiers.typeModifiers(cls.getModifiers, nature)

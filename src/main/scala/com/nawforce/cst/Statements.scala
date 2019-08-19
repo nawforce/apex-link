@@ -46,13 +46,13 @@ trait Statement extends CST {
 
 // Treat Block as Statement for blocks in blocks
 final case class LazyBlock(path: Path, bytes: Array[Byte], lineAdjust: Int, positionAdjust:Int,
-                       var blockContextRef: WeakReference[BlockContext])
+                       var blockContextRef: WeakReference[BlockContext], isStatic: Boolean)
   extends CST with Statement {
   private var statementsRef: WeakReference[List[Statement]] = WeakReference(null)
   private var reParsed = false
 
   override def verify(context: BlockVerifyContext): Unit = {
-    val blockContext = new BlockVerifyContext(context)
+    val blockContext = new OuterBlockVerifyContext(context, isStatic)
     statements().foreach(s => s.verify(blockContext))
   }
 
@@ -88,18 +88,18 @@ final case class Block(statements: List[Statement])
   override def children(): List[CST] = statements
 
   override def verify(context: BlockVerifyContext): Unit = {
-    val blockContext = new BlockVerifyContext(context)
+    val blockContext = new InnerBlockVerifyContext(context)
     statements.foreach(s => s.verify(blockContext))
   }
 }
 
 object Block {
-  def constructLazy(blockContext: BlockContext, context: ConstructContext): LazyBlock = {
+  def constructLazy(blockContext: BlockContext, context: ConstructContext, isStatic: Boolean): LazyBlock = {
     val is = blockContext.start.getInputStream
     val text = is.getText(new Interval(blockContext.start.getStartIndex, blockContext.stop.getStopIndex))
     val path = blockContext.start.getInputStream.asInstanceOf[CaseInsensitiveInputStream].path
     LazyBlock(path, text.getBytes(), blockContext.start.getLine-1, blockContext.start.getCharPositionInLine,
-      WeakReference(blockContext))
+      WeakReference(blockContext), isStatic)
   }
 
   def construct(blockContext: BlockContext, context: ConstructContext): Block = {
@@ -133,7 +133,7 @@ final case class IfStatement(expression: Expression, statements: List[Statement]
 
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
-    statements.foreach(_.verify(new BlockVerifyContext(context)))
+    statements.foreach(_.verify(new InnerBlockVerifyContext(context)))
   }
 }
 
@@ -150,7 +150,7 @@ final case class WhenControl(expressions: List[Expression], block: Block) extend
 
   def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
-    block.verify(new BlockVerifyContext(context))
+    block.verify(new InnerBlockVerifyContext(context))
   }
 }
 
@@ -192,7 +192,7 @@ final case class ForStatement(control: ForControl, statement: Statement) extends
   override def verify(context: BlockVerifyContext): Unit = {
     control.verify(context)
 
-    val loopContext = new BlockVerifyContext(context)
+    val loopContext = new InnerBlockVerifyContext(context)
     control.addVars(loopContext)
     statement.verify(loopContext)
   }
@@ -434,7 +434,7 @@ final case class CatchClause(modifiers: Seq[Modifier], catchType: CatchType, id:
   def verify(context: BlockVerifyContext): Unit = {
     catchType.verify(context)
 
-    val blockContext = new BlockVerifyContext(context)
+    val blockContext = new InnerBlockVerifyContext(context)
     blockContext.addVar(Name(id))
     block.verify(blockContext)
   }

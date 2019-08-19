@@ -66,12 +66,12 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[PackageD
 
   override val nature: Nature
 
-  private lazy val superTypeDeclaration: Option[TypeDeclaration] = {
+  override def superClassDeclaration: Option[TypeDeclaration] = {
     superClass.flatMap(sc => new StandardTypeFinder().getTypeFor(sc.asDotName, this))
   }
 
   override lazy val isComplete: Boolean = {
-    (superTypeDeclaration.nonEmpty && superTypeDeclaration.get.isComplete) || superClass.isEmpty
+    (superClassDeclaration.nonEmpty && superClassDeclaration.get.isComplete) || superClass.isEmpty
   }
 
   override lazy val isExternallyVisible: Boolean = {
@@ -97,7 +97,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[PackageD
       case x: FieldDeclaration => Some(x)
       case _ => None
     }
-    val allFields = superTypeDeclaration.map(_.fields).getOrElse(Seq()) ++ fields.groupBy(f => f.name).collect {
+    val allFields = superClassDeclaration.map(_.fields).getOrElse(Seq()) ++ fields.groupBy(f => f.name).collect {
       case (_, y :: Nil) => y
       case (_, duplicates) =>
         duplicates.tail.foreach(d => {
@@ -135,13 +135,13 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[PackageD
     if (depends.nonEmpty)
       return
 
-    superTypeDeclaration.foreach(context.addDependency)
+    superClassDeclaration.foreach(context.addDependency)
     if (superClass.nonEmpty) {
-      if (superTypeDeclaration.isEmpty) {
+      if (superClassDeclaration.isEmpty) {
         Org.missingType(id.location, superClass.get)
-      } else if (superTypeDeclaration.get.nature != CLASS_NATURE) {
+      } else if (superClassDeclaration.get.nature != CLASS_NATURE) {
         Org.logMessage(id.location, s"Parent type '${superClass.get.asDotName}' must be a class")
-      } else if (superTypeDeclaration.get.modifiers.intersect(Seq(VIRTUAL_MODIFIER, ABSTRACT_MODIFIER)).isEmpty) {
+      } else if (superClassDeclaration.get.modifiers.intersect(Seq(VIRTUAL_MODIFIER, ABSTRACT_MODIFIER)).isEmpty) {
         Org.logMessage(id.location, s"Parent class '${superClass.get.asDotName}' must be declared virtual or abstract")
       }
     }

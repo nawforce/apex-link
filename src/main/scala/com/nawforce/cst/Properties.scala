@@ -101,14 +101,14 @@ sealed abstract class PropertyBlock extends CST {
 final case class GetterPropertyBlock(modifiers: Seq[Modifier], block: Option[Block]) extends PropertyBlock {
   override def children(): List[CST] = List() ++ block
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    block.foreach(_.verify(new BlockVerifyContext(context)))
+    block.foreach(_.verify(new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))))
   }
 }
 
 final case class SetterPropertyBlock(modifiers: Seq[Modifier], block: Option[Block]) extends PropertyBlock {
   override def children(): List[CST] = List() ++ block
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    val bc = new BlockVerifyContext(context)
+    val bc = new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))
     bc.addVar(Name("value"))
     block.foreach(_.verify(bc))
   }
