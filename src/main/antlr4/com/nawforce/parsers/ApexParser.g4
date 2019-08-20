@@ -519,11 +519,9 @@ id
     | EXTENDS
     | FINAL
     | FINALLY
-    | FLOAT
     | FOR
     | GET
     | GLOBAL
-    | GOTO
     | IF
     | IMPLEMENTS
     | INHERITED
@@ -531,18 +529,15 @@ id
     | INSTANCEOF
     | INTERFACE
     | MERGE
-    | NATIVE
     | NEW
     | NULL
     | ON
     | OVERRIDE
-    | PACKAGE
     | PRIVATE
     | PROTECTED
     | PUBLIC
     | RETURN
     | RUNAS
-    | SELECT
     | SET
     | SHARING
     | SHORT
