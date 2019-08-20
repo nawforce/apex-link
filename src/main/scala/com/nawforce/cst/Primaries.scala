@@ -29,52 +29,75 @@ package com.nawforce.cst
 
 import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.TypeName
+import com.nawforce.types.{DependencyHolder, PlatformTypes, TypeName}
 
 sealed abstract class Primary extends CST {
-  def verify(context: ExpressionVerifyContext): Unit = {}
+  def verify(context: ExpressionVerifyContext): Seq[DependencyHolder]
 }
 
 final case class ExpressionPrimary(expression: Expression) extends Primary {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(context: ExpressionVerifyContext): Unit = {
+  override def verify(context: ExpressionVerifyContext): Seq[DependencyHolder] = {
     expression.verify(context)
+
+    // TODO: Fix me
+    Seq()
   }
 }
 
 final case class ThisPrimary() extends Primary {
   override def children(): List[CST] = Nil
+
+  override def verify(context: ExpressionVerifyContext): Seq[DependencyHolder] = {
+    context.thisType.toSeq
+  }
 }
 
 final case class SuperPrimary() extends Primary {
   override def children(): List[CST] = Nil
+
+  override def verify(context: ExpressionVerifyContext): Seq[DependencyHolder] = {
+    context.superType.toSeq
+  }
 }
 
 final case class LiteralPrimary(literal: Literal) extends Primary {
   override def children(): List[CST] = literal :: Nil
+
+  override def verify(context: ExpressionVerifyContext): Seq[DependencyHolder] = {
+    Seq(literal.getType)
+  }
 }
 
 final case class TypeRefPrimary(typeName: TypeName) extends Primary {
   override def children(): List[CST] = Nil
 
-  override def verify(context: ExpressionVerifyContext): Unit = {
+  override def verify(context: ExpressionVerifyContext): Seq[DependencyHolder] = {
     val td = context.getTypeAndAddDependency(typeName)
     if (td.isEmpty)
       Org.missingType(location, typeName)
+    td.toSeq
   }
 }
 
 final case class IdPrimary(id: Id) extends Primary {
   override def children(): List[CST] = id :: Nil
 
-  override def verify(context: ExpressionVerifyContext): Unit = {
+  override def verify(context: ExpressionVerifyContext): Seq[DependencyHolder] = {
     // This may be start of qname for type, IdExpression handles this
+    // TODO: Fix me
+    Seq()
   }
 }
 
 final case class SOQL(soql: String) extends Primary {
   override def children(): List[CST] = Nil
+
+  override def verify(context: ExpressionVerifyContext): Seq[DependencyHolder] = {
+    // TODO: Handle driving object & aggregates
+    Seq(PlatformTypes.recordSetType)
+  }
 }
 
 object Primary {

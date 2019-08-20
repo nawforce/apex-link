@@ -25,35 +25,8 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.types
+package com.nawforce.platform.Internal;
 
-import com.nawforce.utils.{DotName, Name}
-
-object PlatformTypes {
-  lazy val nullType: TypeDeclaration = getType(DotName(Seq(Name.Internal, Name.Null$))).get
-  lazy val recordSetType: TypeDeclaration = getType(DotName(Seq(Name.Internal, Name.RecordSet$))).get
-
-  def getType(typeName: TypeName): Option[TypeDeclaration] = {
-    getType(typeName.asDotName)
-  }
-
-  def getType(dotName: DotName): Option[TypeDeclaration] = {
-    aliasMap.get(dotName).flatMap(getPlatformType)
-      .orElse(getPlatformType(dotName))
-      .orElse(getPlatformType(dotName.prepend(Name.System)))
-      .orElse(getPlatformType(dotName.prepend(Name.Schema)))
-  }
-
-  private def getPlatformType(name: DotName): Option[TypeDeclaration] = {
-    val declaration = PlatformTypeDeclaration.get(name)
-    if (declaration.isEmpty && name.isCompound)
-      getPlatformType(name.headNames).flatMap(_.nestedTypes.find(td => td.name == name.lastName))
-    else
-      declaration
-  }
-
-  private val aliasMap: Map[DotName, DotName] = Map(
-    DotName(Name.Object) -> DotName(Seq(Name.Internal, Name.Object$)),
-    DotName(Seq(Name.ApexPages, Name.PageReference)) -> DotName(Seq(Name.System, Name.PageReference))
-  )
+@SuppressWarnings("unused")
+public class Null$ {
 }

@@ -85,13 +85,12 @@ object TypeName {
   lazy val SObject = TypeName(Name.SObject, Nil, Some(TypeName.System))
   lazy val Label = TypeName(Name.Label, Nil, Some(TypeName.System))
 
-  lazy val Null = TypeName(Name("null"))
-  lazy val Long = TypeName(Name("Long"))
-  lazy val Integer = TypeName(Name("Integer"))
-  lazy val Double = TypeName(Name("Double"))
-  lazy val Decimal = TypeName(Name("Decimal"))
-  lazy val String = TypeName(Name("String"))
-  lazy val Boolean = TypeName(Name("Boolean"))
+  lazy val Long = TypeName(Name("Long"), Nil, Some(TypeName.System))
+  lazy val Integer = TypeName(Name("Integer"), Nil, Some(TypeName.System))
+  lazy val Double = TypeName(Name("Double"), Nil, Some(TypeName.System))
+  lazy val Decimal = TypeName(Name("Decimal"), Nil, Some(TypeName.System))
+  lazy val String = TypeName(Name("String"), Nil, Some(TypeName.System))
+  lazy val Boolean = TypeName(Name("Boolean"), Nil, Some(TypeName.System))
 
   def apply(names: Seq[Name]): TypeName = {
     names match {

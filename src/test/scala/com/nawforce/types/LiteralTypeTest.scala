@@ -27,13 +27,53 @@
 */
 package com.nawforce.types
 
+import java.io.StringReader
+import java.nio.file.{Path, Paths}
+
 import com.nawforce.cst._
+import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
+import com.nawforce.utils.Name
+import org.antlr.v4.runtime.CommonTokenStream
 import org.scalatest.FunSuite
 
 class LiteralTypeTest extends FunSuite
 {
-  def literal(p: String, r: TypeName, ctx: TypeContext = null) : Unit =
-    TypeTestHelper.compareLiteral(p, r, ctx)
+  private val defaultPath = Paths.get("Dummy.cls")
+
+  private def parse(path: Path, data: String) = {
+    val listener = new ThrowingErrorListener
+    val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(path, new StringReader(data))
+
+    val lexer: ApexLexer = new ApexLexer(cis)
+    lexer.removeErrorListeners()
+    lexer.addErrorListener(listener)
+
+    val tokens: CommonTokenStream = new CommonTokenStream(lexer)
+    val parser: ApexParser = new ApexParser(tokens)
+    parser.removeErrorListeners()
+    parser.addErrorListener(listener)
+    parser
+  }
+
+  def typeLiteral(data: String): DependencyHolder = {
+    val context = new ConstructContext()
+    Literal.construct(parse(defaultPath, data).literal(), context).getType
+  }
+
+  def compareLiteral(p: String, r: TypeName): Unit = {
+    val t = typeLiteral(p)
+    assert(t != null)
+
+    if (t.asInstanceOf[TypeDeclaration].typeName != r) {
+      System.out.println("Type mismatch:")
+      System.out.println("Expected: " + r)
+      System.out.println("Got: " + t)
+      assert(false)
+    }
+  }
+
+  def literal(value: String, r: TypeName = null) : Unit =
+    compareLiteral(value, r)
 
   test("Primary literal") {
     literal("0", TypeName.Integer)
@@ -48,7 +88,7 @@ class LiteralTypeTest extends FunSuite
     literal("'\t'", TypeName.String)
     literal("true", TypeName.Boolean)
     literal("False", TypeName.Boolean)
-    literal("null", TypeName.Null)
+    literal("null", TypeName(Name("Null$"), Nil, Some(TypeName(Name.Internal))))
     literal("0.0", TypeName.Decimal)
     literal(".0", TypeName.Decimal)
     literal("0.123", TypeName.Decimal)

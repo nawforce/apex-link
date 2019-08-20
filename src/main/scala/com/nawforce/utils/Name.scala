@@ -67,6 +67,8 @@ object Name {
   lazy val Type: Name = cache("Type")
   lazy val Object: Name = cache("Object")
   lazy val Object$: Name = cache("Object$")
+  lazy val Null$: Name = cache("Null$")
+  lazy val RecordSet$: Name = cache("RecordSet$")
   lazy val SObject: Name = cache("SObject")
   lazy val SObjects: Name = cache("SObjects")
   lazy val Internal: Name = cache("Internal")

@@ -28,48 +28,40 @@
 package com.nawforce.cst
 
 import com.nawforce.parsers.ApexParser.LiteralContext
-import com.nawforce.types.TypeName
-
-abstract class TypeContext {
-  def thisType: TypeName
-
-  def superType: TypeName
-
-  def getIdentifierType(id: String): TypeName
-}
+import com.nawforce.types.{DependencyHolder, PlatformTypes, TypeName}
 
 sealed abstract class Literal() extends CST {
   override def children(): List[CST] = Nil
 
-  def getType(ctx: TypeContext): TypeName
+  def getType: DependencyHolder
 }
 
 final case class IntegerLit(value: String) extends Literal {
-  override def getType(ctx: TypeContext): TypeName =
+  override def getType: DependencyHolder =
     if (value.endsWith("l") || value.endsWith("L"))
-      TypeName.Long
+      PlatformTypes.getType(TypeName.Long).get
     else
-      TypeName.Integer
+      PlatformTypes.getType(TypeName.Integer).get
 }
 
 final case class NumberLit(value: String) extends Literal {
-  override def getType(ctx: TypeContext): TypeName =
+  override def getType: DependencyHolder =
     if (value.length() > 50)
-      TypeName.Double
+      PlatformTypes.getType(TypeName.Double).get
     else
-      TypeName.Decimal
+      PlatformTypes.getType(TypeName.Decimal).get
 }
 
 final case class StringLit(value: String) extends Literal {
-  override def getType(ctx: TypeContext): TypeName = TypeName.String
+  override def getType: DependencyHolder = PlatformTypes.getType(TypeName.String).get
 }
 
 final case class BooleanLit(value: String) extends Literal {
-  override def getType(ctx: TypeContext): TypeName = TypeName.Boolean
+  override def getType: DependencyHolder = PlatformTypes.getType(TypeName.Boolean).get
 }
 
 final case class NullLit() extends Literal {
-  override def getType(ctx: TypeContext): TypeName = TypeName.Null
+  override def getType: DependencyHolder = PlatformTypes.nullType
 }
 
 object Literal {
