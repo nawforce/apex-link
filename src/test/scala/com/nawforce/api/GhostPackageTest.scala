@@ -62,7 +62,7 @@ class GhostPackageTest extends FunSuite with BeforeAndAfter{
   test("Ghost package suppresses declared type error") {
     defaultOrg.addPackage("package", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy extends package.Super {}"))
+    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy extends package.SuperClass {}"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
   }
@@ -70,8 +70,8 @@ class GhostPackageTest extends FunSuite with BeforeAndAfter{
   test("Ghost package with wrong namespace has declared type error") {
     defaultOrg.addPackage("silly", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy extends package.Super {}"))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 13-18: No type declaration found for 'package.Super'\n")
+    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy extends package.SuperClass {}"))
+    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 13-18: No type declaration found for 'package.SuperClass'\n")
     assert(tds.head.dependencies().isEmpty)
   }
 
@@ -158,7 +158,7 @@ class GhostPackageTest extends FunSuite with BeforeAndAfter{
   test("Ghost package suppresses possible field reference error") {
     defaultOrg.addPackage("package", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy extends package.Super { {Object a = b.foo();} }"))
+    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy extends package.SuperClass { {Object a = b.foo();} }"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
   }

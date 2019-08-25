@@ -68,6 +68,8 @@ trait FieldDeclaration extends DependencyHolder {
   val readAccess: Modifier
   val writeAccess: Modifier
 
+  lazy val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
+
   lazy val summary: FieldSummary = FieldSummary(name.toString, modifiers.map(_.toString).sorted.toList,
     typeName.toString, readAccess.toString, writeAccess.toString)
 }
@@ -130,7 +132,21 @@ trait TypeDeclaration extends DependencyHolder {
   def validate(): Unit
   def collectDependencies(dependencies: mutable.Set[Dependant]): Unit
 
+  // TODO Remove?
   def validateReference(location: Location, dotName: DotName): Option[Dependant] = None
+
+  def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
+    fieldsByName.get(name).filter(f => !staticOnly || f.isStatic)
+  }
+
+  private lazy val fieldsByName: Map[Name, FieldDeclaration] = {
+    // TODO: Should not be accessing Org here
+    val outerType = outerTypeName.flatMap(typeName => Org.getType(namespace, typeName.asDotName))
+    val fieldsByName =
+        outerType.map(td => td.fields.filter(_.isStatic).map(f => (f.name, f))).getOrElse(Seq()) ++
+        fields.map(f => (f.name, f))
+    fieldsByName.toMap
+  }
 
   lazy val summary: TypeSummary = TypeSummary(
     name.toString, typeName.toString, nature.value, modifiers.map(_.toString).sorted.toList,

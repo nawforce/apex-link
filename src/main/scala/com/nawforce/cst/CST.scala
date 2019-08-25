@@ -32,6 +32,7 @@ import java.nio.file.Path
 import com.nawforce.documents.{Location, Position, RangeLocation, TextRange}
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.parsers.CaseInsensitiveInputStream
+import com.nawforce.types.TypeName
 import com.nawforce.utils.Name
 import org.antlr.v4.runtime.{ParserRuleContext, Token}
 
@@ -85,6 +86,8 @@ object Id {
 
 final case class QualifiedName(names: List[Name]) extends CST {
   override def children(): List[CST] = Nil
+
+  def asTypeName(): TypeName = TypeName(names.reverse)
 }
 
 object QualifiedName {

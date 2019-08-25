@@ -43,6 +43,8 @@ class SampleTest extends FunSuite {
     assert(org.issues.asJSON(100) == "{ \"files\": [\n]}\n")
   }
 
+  // TODO: Somewhere else deal with keywords
+
   test("forcedotcom-enterprise-architecture") {
     sample("samples/forcedotcom-enterprise-architecture/src")
   }

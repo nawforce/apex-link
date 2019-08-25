@@ -59,6 +59,7 @@ class PlatformTypeValidationTest extends FunSuite {
       case "System.Map" => assert(typeDeclaration.typeName.toString == "System.Map<K, V>")
       case "System.Set" => assert(typeDeclaration.typeName.toString == "System.Set<T>")
       case "System.Iterable" => assert(typeDeclaration.typeName.toString == "System.Iterable<T>")
+      case "Internal.RecordSet$"  => assert(typeDeclaration.typeName.toString == "Internal.RecordSet$<T>")
       case _ => assert(typeDeclaration.typeName.toString == className.toString)
     }
 
@@ -124,7 +125,7 @@ class PlatformTypeValidationTest extends FunSuite {
         assert(td.superClass.get.toString == "System.Exception")
       assert(td.interfaces.isEmpty)
       assert(td.nature == CLASS_NATURE)
-      assert(td.modifiers == Seq(VIRTUAL_MODIFIER, PUBLIC_MODIFIER))
+      assert(td.modifiers == Seq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
       assert(td.parent.isEmpty)
       assert(td.nestedTypes.isEmpty)
 

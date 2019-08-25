@@ -27,6 +27,8 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.api.Org
+import com.nawforce.documents.Location
 import com.nawforce.types._
 import com.nawforce.utils.Name
 
@@ -40,9 +42,6 @@ trait VerifyContext {
 
   /** Get type declaration of 'super' */
   def superType: Option[TypeDeclaration]
-
-  /** Check if name is reference to an in-scope variable/field */
-  def isVar(name: Name): Boolean
 
   /** Declare a dependency on dependant */
   def addDependency(dependant: Dependant): Unit
@@ -86,13 +85,6 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: T
 
   override def superType: Option[TypeDeclaration] = typeDeclaration.superClassDeclaration
 
-  override def isVar(name: Name): Boolean = {
-    !typeDeclaration.isComplete ||
-      typeDeclaration.fields.exists(_.name == name) ||
-      typeDeclaration.outerTypeName.flatMap(getTypeFor).exists(
-        _.fields.exists(field => field.name == name && field.modifiers.contains(STATIC_MODIFIER)))
-  }
-
   override def getTypeFor(typeName: TypeName): Option[TypeDeclaration] = {
     getTypeFor(typeName.asDotName, typeDeclaration)
   }
@@ -108,14 +100,12 @@ class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDe
   override def superType: Option[TypeDeclaration] = parentContext.superType
 
   override def getTypeFor(typeName: TypeName): Option[TypeDeclaration] =  parentContext.getTypeFor(typeName)
-
-  override def isVar(name: Name): Boolean = parentContext.isVar(name)
 }
 
 abstract class BlockVerifyContext(parentContext: VerifyContext)
   extends VerifyContext {
 
-  private val vars = mutable.Set[Name]()
+  private val vars = mutable.Map[Name, TypeDeclaration]()
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
 
@@ -128,19 +118,31 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
   override def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration] =
     parentContext.getTypeAndAddDependency(typeName)
 
-  override def isVar(name: Name): Boolean = {
-    vars.contains(name) || parentContext.isVar(name)
+  def isVar(name: Name): Option[TypeDeclaration] = {
+    vars.get(name)
   }
 
-  def addVar(name: Name): Unit = {
-    vars.add(name)
+  def addVar(name: Name, typeDeclaration: TypeDeclaration): Unit = {
+    vars.put(name, typeDeclaration)
   }
+
+  def addVar(name: Name, location: Location, typeName: TypeName): Unit = {
+    val td = getTypeAndAddDependency(typeName)
+    if (td.isEmpty)
+      Org.missingType(location, typeName)
+
+    // TODO: This should really be an any
+    vars.put(name, td.getOrElse(PlatformTypes.objectType))
+  }
+
 
   def isStatic: Boolean
 }
 
 class OuterBlockVerifyContext(parentContext: VerifyContext, isStaticContext: Boolean)
   extends BlockVerifyContext(parentContext) {
+
+  assert(!parentContext.isInstanceOf[BlockVerifyContext])
 
   override val isStatic: Boolean = isStaticContext
 }
@@ -149,6 +151,10 @@ class InnerBlockVerifyContext(parentContext: BlockVerifyContext)
   extends BlockVerifyContext(parentContext) {
 
   override def isStatic: Boolean = parentContext.isStatic
+
+  override def isVar(name: Name): Option[TypeDeclaration] = {
+    super.isVar(name).orElse(parentContext.isVar(name))
+  }
 }
 
 class ExpressionVerifyContext(parentContext: BlockVerifyContext)
@@ -165,5 +171,5 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext)
   override def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration] =
     parentContext.getTypeAndAddDependency(typeName)
 
-  override def isVar(name: Name): Boolean = parentContext.isVar(name)
+  def isVar(name: Name): Option[TypeDeclaration] = parentContext.isVar(name)
 }

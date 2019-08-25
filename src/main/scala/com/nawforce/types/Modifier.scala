@@ -356,25 +356,23 @@ object PlatformModifiers {
     assert(!JavaModifier.isNative(javaBits))
     assert(!JavaModifier.isStrict(javaBits))
 
-    (if (nature == CLASS_NATURE) Seq(VIRTUAL_MODIFIER) else Seq()) ++
-    (if (JavaModifier.isStatic(javaBits)) Seq(STATIC_MODIFIER) else Seq()) ++
-    Seq(PUBLIC_MODIFIER)
+    Seq(PUBLIC_MODIFIER) ++
+      (if (nature == CLASS_NATURE) Seq(VIRTUAL_MODIFIER) else Seq()) ++
+      (if (JavaModifier.isStatic(javaBits)) Seq(STATIC_MODIFIER) else Seq())
   }
 
   def fieldOrMethodModifiers(javaBits: Int): Seq[Modifier] = {
     assert(JavaModifier.isPublic(javaBits))
     assert(!JavaModifier.isAbstract(javaBits))
-    assert(!JavaModifier.isFinal(javaBits))
     assert(!JavaModifier.isTransient(javaBits))
     assert(!JavaModifier.isVolatile(javaBits))
     assert(!JavaModifier.isSynchronized(javaBits))
     assert(!JavaModifier.isNative(javaBits))
     assert(!JavaModifier.isStrict(javaBits))
 
-    if (JavaModifier.isStatic(javaBits))
-      Seq(PUBLIC_MODIFIER, STATIC_MODIFIER)
-    else
-      Seq(PUBLIC_MODIFIER)
+    Seq(PUBLIC_MODIFIER) ++
+      (if (JavaModifier.isStatic(javaBits)) Seq(STATIC_MODIFIER) else Seq()) ++
+      (if (JavaModifier.isFinal(javaBits)) Seq(FINAL_MODIFIER) else Seq())
   }
 
   def methodModifiers(javaBits: Int, nature: Nature): Seq[Modifier] = {
@@ -390,10 +388,9 @@ object PlatformModifiers {
     assert(!JavaModifier.isNative(javaBits))
     assert(!JavaModifier.isStrict(javaBits))
 
-    if (JavaModifier.isStatic(javaBits))
-      Seq(PUBLIC_MODIFIER, STATIC_MODIFIER)
-    else
-      Seq(PUBLIC_MODIFIER)
+    Seq(PUBLIC_MODIFIER) ++
+      (if (JavaModifier.isStatic(javaBits)) Seq(STATIC_MODIFIER) else Seq())
+
   }
 
 }

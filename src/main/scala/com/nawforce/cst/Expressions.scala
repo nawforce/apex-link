@@ -29,127 +29,206 @@ package com.nawforce.cst
 
 import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{TypeDeclaration, TypeName}
+import com.nawforce.types.{DependencyHolder, TypeDeclaration, TypeName}
 import com.nawforce.utils.DotName
 
 import scala.collection.JavaConverters._
 
+case class ExprContext(isStatic: Boolean, declaration: Option[DependencyHolder])
+
+object ExprContext {
+  val empty = ExprContext(isStatic = false, None)
+}
+
 sealed abstract class Expression extends CST {
-  def verify(context: ExpressionVerifyContext): Unit
+  def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext
   def verify(context: BlockVerifyContext): Unit = {
-    verify(new ExpressionVerifyContext(context))
+    verify(ExprContext(isStatic = false, context.thisType), new ExpressionVerifyContext(context))
   }
 }
 
-final case class IdExpression(expression: Expression, id: Id) extends Expression {
-  override def children(): List[CST] = expression :: id :: Nil
+final case class DotExpression(expression: Expression, target: Either[Id, MethodCall]) extends Expression {
+  override def children(): List[CST] = expression :: target.right.toSeq.toList
 
-  override def verify(context: ExpressionVerifyContext): Unit = {
-    val dotName = Expression.asDotName(this, context)
-    if (dotName.nonEmpty) {
-      Expression.verify(dotName.get, this, context)
-    } else {
-      expression.verify(context)
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    assert(input.declaration.nonEmpty)
+
+    // Preemptive check for a preceding namespace
+    if (target.isLeft) {
+      expression match {
+        case PrimaryExpression(primary: IdPrimary) if context.isVar(primary.id.name).isEmpty =>
+          val typeName = TypeName(primary.id.name, Nil, Some(TypeName(target.left.get.name)))
+          val td = context.getTypeAndAddDependency(typeName)
+          if (td.nonEmpty)
+            return ExprContext(isStatic = true, td)
+        case _ =>
+      }
     }
+
+    val inter = expression.verify(input, context)
+    if (inter.declaration.nonEmpty) {
+      if (target.isLeft)
+        verifyWithId(inter, context)
+      else
+        verifyWithMethod(inter, context)
+    }
+    ExprContext.empty
+  }
+
+  def verifyWithId(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    assert(input.declaration.nonEmpty)
+
+    input.declaration.get match {
+      case td: TypeDeclaration =>
+        val field = td.findField(target.left.get.name, input.isStatic)
+        if (field.nonEmpty) {
+          val td = context.getTypeAndAddDependency(field.get.typeName)
+          ExprContext(isStatic = false, td)
+        }
+
+        ExprContext.empty
+      case _ =>
+        Org.logMessage(location, s"Identifier '${target.left.get.name}' not found")
+        ExprContext.empty
+    }
+  }
+
+  def verifyWithMethod(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    assert(input.declaration.nonEmpty)
+
+    // TODO
+    ExprContext.empty
   }
 }
 
 final case class ArrayExpression(expression: Expression, arrayExpression: Expression) extends Expression {
   override def children(): List[CST] = expression :: arrayExpression :: Nil
 
-  override def verify(context: ExpressionVerifyContext): Unit = {
-    expression.verify(context)
-    arrayExpression.verify(context)
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    val inter = expression.verify(input, context)
+    inter.declaration.map(_ => arrayExpression.verify(inter, context)).getOrElse(inter)
   }
 }
 
-final case class FunctionCall(callee: Expression, arguments: List[Expression]) extends Expression {
-  override def children(): List[CST] = callee :: arguments
+final case class MethodCall(callee: Either[Boolean, Id], arguments: List[Expression]) extends Expression {
+  override def children(): List[CST] = arguments
 
-  override def verify(context: ExpressionVerifyContext): Unit = {
-    callee.verify(context)
-    arguments.foreach(_.verify(context))
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    arguments.foreach(_.verify(input, context))
+    // TODO
+    ExprContext.empty
+  }
+}
+
+object MethodCall {
+  def construct(from: MethodCallContext, context: ConstructContext): MethodCall = {
+    val caller = Option(from.id()).map(id => Right(Id.construct(id, context))).getOrElse(
+      Left(Option(from.THIS()).nonEmpty)
+    )
+
+    MethodCall(caller,
+      if (from.expressionList() != null) {
+        val expression: Seq[ExpressionContext] = from.expressionList().expression().asScala
+        Expression.construct(expression.toList, context)
+      } else {
+        List()
+      }
+    )
   }
 }
 
 final case class NewExpression(creator: Creator) extends Expression {
   override def children(): List[CST] = creator :: Nil
 
-  override def verify(context: ExpressionVerifyContext): Unit = {
-    creator.verify(context)
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    creator.verify(input, context)
   }
 }
 
 final case class CastExpression(typeName: TypeName, expression: Expression) extends Expression {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(context: ExpressionVerifyContext): Unit = {
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     val castType = context.getTypeAndAddDependency(typeName)
     if (castType.isEmpty)
       Org.missingType(location, typeName)
-    expression.verify(context)
+    expression.verify(input, context)
+    // TODO
+    ExprContext.empty
   }
 }
 
 final case class PostOpExpression(expression: Expression, op: String) extends Expression {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(context: ExpressionVerifyContext): Unit = {
-    expression.verify(context)
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    expression.verify(input, context)
+    // TODO
+    ExprContext.empty
   }
 }
 
 final case class PreOpExpression(expression: Expression, op: String) extends Expression {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(context: ExpressionVerifyContext): Unit = {
-    expression.verify(context)
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    expression.verify(input, context)
+    // TODO
+    ExprContext.empty
   }
 }
 
 final case class NegExpression(expression: Expression, op: String) extends Expression {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(context: ExpressionVerifyContext): Unit = {
-    expression.verify(context)
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    expression.verify(input, context)
+    // TODO
+    ExprContext.empty
   }
 }
 
 final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) extends Expression {
   override def children(): List[CST] = lhs :: rhs :: Nil
 
-  override def verify(context: ExpressionVerifyContext): Unit = {
-    lhs.verify(context)
-    rhs.verify(context)
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    lhs.verify(input, context)
+    rhs.verify(input, context)
+    // TODO
+    ExprContext.empty
   }
 }
 
 final case class InstanceOfExpression(expression: Expression, typeName: TypeName) extends Expression {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(context: ExpressionVerifyContext): Unit = {
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     val instanceOfType = context.getTypeAndAddDependency(typeName)
     if (instanceOfType.isEmpty)
       Org.missingType(location, typeName)
-    expression.verify(context)
+    expression.verify(input, context)
+    // TODO
+    ExprContext.empty
   }
 }
 
 final case class QueryExpression(query: Expression, lhs: Expression, rhs: Expression) extends Expression {
   override def children(): List[CST] = query :: lhs :: rhs :: Nil
 
-  override def verify(context: ExpressionVerifyContext): Unit = {
-    query.verify(context)
-    lhs.verify(context)
-    rhs.verify(context)
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    query.verify(input, context)
+    lhs.verify(input, context)
+    rhs.verify(input, context)
+    // TODO
+    ExprContext.empty
   }
 }
 
 final case class PrimaryExpression(var primary: Primary) extends Expression {
   override def children(): List[CST] = primary :: Nil
 
-  override def verify(context: ExpressionVerifyContext): Unit = {
-    primary.verify(context)
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    primary.verify(ExprContext(isStatic = false, context.thisType), context)
   }
 }
 
@@ -157,26 +236,20 @@ object Expression {
   def construct(from: ExpressionContext, context: ConstructContext): Expression = {
     val cst =
       from match {
-        case expr: IdExpressionContext =>
-          IdExpression(
+        case expr: DotExpressionContext =>
+          DotExpression(
             Expression.construct(expr.expression(), context),
-            Id.construct(expr.id(), context)
+            Option(expr.id).map(id => Left(Id.construct(id, context))).getOrElse(
+              Right(MethodCall.construct(expr.methodCall(), context))
+            )
           )
         case expr: ArrayExpressionContext =>
           ArrayExpression(
             Expression.construct(expr.expression(0), context),
             Expression.construct(expr.expression(1), context)
           )
-        case expr: FunctionCallExpressionContext =>
-          FunctionCall(
-            Expression.construct(expr.expression, context),
-            if (expr.expressionList() != null) {
-              val expression: Seq[ExpressionContext] = expr.expressionList().expression().asScala
-              Expression.construct(expression.toList, context)
-            } else {
-              List()
-            }
-          )
+        case expr: MethodCallExpressionContext =>
+          MethodCall.construct(expr.methodCall(), context)
         case expr: NewExpressionContext =>
           NewExpression(Creator.construct(expr.creator(), context))
         case expr: CastExpressionContext =>
@@ -235,46 +308,6 @@ object Expression {
   def construct(expression: List[ExpressionContext], context: ConstructContext): List[Expression] = {
     expression.map(x => Expression.construct(x, context))
   }
-
-  def asDotName(expr: Expression, context: VerifyContext) : Option[DotName] = {
-    expr match {
-      case idExpr: IdExpression =>
-        asDotName(idExpr.expression, context).map(_.append(idExpr.id.name))
-      case primaryExpression: PrimaryExpression =>
-        primaryExpression.primary match {
-          case idPrimary: IdPrimary => Some(DotName(idPrimary.id.name))
-          case _ => None
-        }
-      case _ => None
-    }
-  }
-
-  def verify(dotName: DotName, expr: Expression, context: ExpressionVerifyContext): Unit = {
-    if (context.isVar(dotName.firstName))
-      return
-
-    val typeName = TypeName(dotName.names.reverse)
-    val tdAndTypeName = getType(typeName, context)
-    if (tdAndTypeName._1.isEmpty)
-      Org.missingType(expr.location, TypeName(dotName.firstName))
-    else {
-      var residual = typeName.asDotName.tailNames
-      if (tdAndTypeName._2.outer.nonEmpty)
-        residual = residual.tailNames
-      tdAndTypeName._1.get.validateReference(expr.location, residual)
-        .foreach(context.addDependency)
-    }
-  }
-
-  @scala.annotation.tailrec
-  private def getType(typeName: TypeName, context: ExpressionVerifyContext): (Option[TypeDeclaration], TypeName) = {
-    val td = context.getTypeAndAddDependency(typeName)
-    if (td.isEmpty && typeName.outer.nonEmpty) {
-      getType(typeName.outer.get, context)
-    } else {
-      (td, typeName)
-    }
-  }
 }
 
 final case class TypeArguments(typeList: List[TypeName]) extends CST {
@@ -285,54 +318,6 @@ object TypeArguments {
   def construct(from: TypeArgumentsContext, context: ConstructContext): TypeArguments = {
     val types: Seq[TypeRefContext] = from.typeList().typeRef().asScala
     TypeArguments(TypeRef.construct(types.toList, context)).withContext(from, context)
-  }
-}
-
-final case class ClassCreatorRest(arguments: List[Expression]) extends CST {
-  override def children(): List[CST] = arguments
-
-  def verify(context: ExpressionVerifyContext): Unit = {
-    arguments.foreach(_.verify(context))
-  }
-}
-
-object ClassCreatorRest {
-  def construct(from: ClassCreatorRestContext, context: ConstructContext): ClassCreatorRest = {
-    ClassCreatorRest(Arguments.construct(from.arguments(), context)).withContext(from, context)
-  }
-}
-
-final case class ArrayCreatorRest(expressions: Option[Expression], arrayInitializer: Option[ArrayInitializer],
-                                  ) extends CST {
-  override def children(): List[CST] = List[CST]() ++ expressions ++ arrayInitializer
-
-  def verify(context: ExpressionVerifyContext): Unit = {
-    expressions.foreach(_.verify(context))
-    arrayInitializer.foreach(_.verify(context))
-  }
-}
-
-object ArrayCreatorRest {
-  def construct(from: ArrayCreatorRestContext, context: ConstructContext): ArrayCreatorRest = {
-    ArrayCreatorRest(
-      Option(from.expression()).map(Expression.construct(_, context)),
-      Option(from.arrayInitializer()).map(ArrayInitializer.construct(_, context))
-    )
-  }
-}
-
-final case class ArrayInitializer(variableInitializers: List[VariableInitializer]) extends CST {
-  override def children(): List[CST] = variableInitializers
-
-  def verify(context: ExpressionVerifyContext): Unit = {
-    variableInitializers.foreach(_.verify(context))
-  }
-}
-
-object ArrayInitializer {
-  def construct(from: ArrayInitializerContext, context: ConstructContext): ArrayInitializer = {
-    val initializers: Seq[VariableInitializerContext] = from.variableInitializer().asScala
-    ArrayInitializer(VariableInitializer.construct(initializers.toList, context)).withContext(from, context)
   }
 }
 
@@ -347,54 +332,3 @@ object Arguments {
   }
 }
 
-final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends CST {
-  override def children(): List[CST] = pairs
-
-  def verify(context: ExpressionVerifyContext): Unit = {
-    pairs.foreach(_.verify(context))
-  }
-}
-
-object MapCreatorRest {
-  def construct(from: MapCreatorRestContext, context: ConstructContext): MapCreatorRest = {
-    val pairs: Seq[MapCreatorRestPairContext] = from.mapCreatorRestPair().asScala
-    MapCreatorRest(MapCreatorRestPair.construct(pairs.toList, context)).withContext(from, context)
-  }
-}
-
-final case class MapCreatorRestPair(from: Expression, to: Expression) extends CST {
-  override def children(): List[CST] = from :: to :: Nil
-
-  def verify(context: ExpressionVerifyContext): Unit = {
-    from.verify(context)
-    to.verify(context)
-  }
-}
-
-object MapCreatorRestPair {
-  def construct(aList: List[MapCreatorRestPairContext], context: ConstructContext): List[MapCreatorRestPair] = {
-    aList.map(x => MapCreatorRestPair.construct(x, context))
-  }
-
-  def construct(from: MapCreatorRestPairContext, context: ConstructContext): MapCreatorRestPair = {
-    MapCreatorRestPair(
-      Expression.construct(from.expression(0), context),
-      Expression.construct(from.expression(1), context)
-    ).withContext(from, context)
-  }
-}
-
-final case class SetCreatorRest(parts: List[Expression]) extends CST {
-  override def children(): List[CST] = parts
-
-  def verify(context: ExpressionVerifyContext): Unit = {
-    parts.foreach(_.verify(context))
-  }
-}
-
-object SetCreatorRest {
-  def construct(from: SetCreatorRestContext, context: ConstructContext): SetCreatorRest = {
-    val parts: Seq[ExpressionContext] = from.expression().asScala
-    SetCreatorRest(Expression.construct(parts.toList, context)).withContext(from, context)
-  }
-}

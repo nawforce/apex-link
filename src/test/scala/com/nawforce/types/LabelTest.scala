@@ -126,6 +126,7 @@ class LabelTest extends FunSuite {
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
       "line 1 at 33-49: Label 'TestLabel2' not found\n")
+    org.issues.dumpMessages(false)
   }
 
   test("Missing label (case insensitive)") {

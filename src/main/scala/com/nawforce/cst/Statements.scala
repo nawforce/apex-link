@@ -52,7 +52,7 @@ final case class LazyBlock(path: Path, bytes: Array[Byte], lineAdjust: Int, posi
   private var reParsed = false
 
   override def verify(context: BlockVerifyContext): Unit = {
-    val blockContext = new OuterBlockVerifyContext(context, isStatic)
+    val blockContext = new InnerBlockVerifyContext(context)
     statements().foreach(s => s.verify(blockContext))
   }
 
@@ -233,7 +233,7 @@ final case class EnhancedForControl(modifiers: Seq[Modifier], typeName: TypeName
   }
 
   def addVars(context: BlockVerifyContext): Unit = {
-    context.addVar(id.name)
+    context.addVar(id.name, location, typeName)
   }
 }
 
@@ -258,7 +258,7 @@ final case class BasicForControl(forInit: Option[ForInit], expression: Option[Ex
   }
 
   def addVars(context: BlockVerifyContext): Unit = {
-    forInit.foreach(_.addVars(context))
+    // Not needed, handled by forInit verify
   }
 }
 
@@ -409,33 +409,12 @@ object FinallyBlock {
   }
 }
 
-final case class CatchType(names: List[QualifiedName]) extends CST {
-  override def children(): List[CST] = names
-  def verify(context: BlockVerifyContext): Unit = {
-    names.foreach(name => {
-      val typeName = TypeName(name.names.reverse)
-      val catchType = context.getTypeAndAddDependency(typeName)
-      if (catchType.isEmpty)
-        Org.missingType(name.location, typeName)
-    })
-  }
-}
-
-object CatchType {
-  def construct(from: CatchTypeContext, context: ConstructContext): CatchType = {
-    val names: Seq[QualifiedNameContext] = from.qualifiedName().asScala
-    CatchType(QualifiedName.construct(names.toList, context)).withContext(from, context)
-  }
-}
-
-final case class CatchClause(modifiers: Seq[Modifier], catchType: CatchType, id: String, block: Block) extends CST {
-  override def children(): List[CST] = List(catchType) ++ List(block)
+final case class CatchClause(modifiers: Seq[Modifier], qname: QualifiedName, id: String, block: Block) extends CST {
+  override def children(): List[CST] = qname :: List(block)
 
   def verify(context: BlockVerifyContext): Unit = {
-    catchType.verify(context)
-
     val blockContext = new InnerBlockVerifyContext(context)
-    blockContext.addVar(Name(id))
+    blockContext.addVar(Name(id), qname.location, qname.asTypeName())
     block.verify(blockContext)
   }
 }
@@ -451,7 +430,7 @@ object CatchClause {
   def construct(from: CatchClauseContext, context: ConstructContext): CatchClause = {
     CatchClause(
       ApexModifiers.construct(from.modifier().asScala, context),
-      CatchType.construct(from.catchType(), context),
+      QualifiedName.construct(from.qualifiedName(), context),
       from.id().getText,
       Block.construct(from.block(), context)
     ).withContext(from, context)

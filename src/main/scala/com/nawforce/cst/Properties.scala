@@ -86,10 +86,11 @@ final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: Ty
 object ApexPropertyDeclaration {
   def construct(modifiers: Seq[Modifier], propertyDeclaration: PropertyDeclarationContext, context: ConstructContext)
   : ApexPropertyDeclaration = {
-    ApexPropertyDeclaration(modifiers,
-      TypeRef.construct(propertyDeclaration.typeRef(), context),
+
+    val typeName = TypeRef.construct(propertyDeclaration.typeRef(), context)
+    ApexPropertyDeclaration(modifiers, typeName,
       Id.construct(propertyDeclaration.id, context),
-      propertyDeclaration.propertyBlock().asScala.map(pb => PropertyBlock.construct(pb, context)),
+      propertyDeclaration.propertyBlock().asScala.map(pb => PropertyBlock.construct(pb, typeName, context)),
     ).withContext(propertyDeclaration, context)
   }
 }
@@ -105,17 +106,17 @@ final case class GetterPropertyBlock(modifiers: Seq[Modifier], block: Option[Blo
   }
 }
 
-final case class SetterPropertyBlock(modifiers: Seq[Modifier], block: Option[Block]) extends PropertyBlock {
+final case class SetterPropertyBlock(modifiers: Seq[Modifier], typeName: TypeName, block: Option[Block]) extends PropertyBlock {
   override def children(): List[CST] = List() ++ block
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     val bc = new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))
-    bc.addVar(Name("value"))
+    bc.addVar(Name("value"), location, typeName)
     block.foreach(_.verify(bc))
   }
 }
 
 object PropertyBlock {
-  def construct(propertyBlockContext: PropertyBlockContext, context: ConstructContext): PropertyBlock = {
+  def construct(propertyBlockContext: PropertyBlockContext, typeName: TypeName, context: ConstructContext): PropertyBlock = {
     val modifiers: Seq[Modifier] = ApexModifiers.propertyBlockModifiers(
       propertyBlockContext.modifier().asScala, context, propertyBlockContext)
     val cst =
@@ -123,7 +124,7 @@ object PropertyBlock {
         GetterPropertyBlock(modifiers,
           Block.constructOption(propertyBlockContext.getter().block(), context))
       } else if (propertyBlockContext.setter() != null) {
-        SetterPropertyBlock(modifiers,
+        SetterPropertyBlock(modifiers, typeName,
           Block.constructOption(propertyBlockContext.setter().block(), context))
       } else {
         throw new CSTException()

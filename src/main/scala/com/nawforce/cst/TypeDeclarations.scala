@@ -177,13 +177,14 @@ object EnumDeclaration {
       case Right(outer) => Some(outer)
     }
     val thisType = TypeName(id.name).withOuter(nsOuter)
-    val constants= Option(enumDeclaration.enumConstants()).map(_.id().asScala).getOrElse(Seq())
+    val constants = Option(enumDeclaration.enumConstants()).map(_.id().asScala).getOrElse(Seq())
     val fields = constants.map(constant => {
       ApexFieldDeclaration(Seq(PUBLIC_MODIFIER, STATIC_MODIFIER), thisType,
         VariableDeclarator(
+          thisType,
           Id.construct(constant, context),
           None
-        )
+        ).withContext(constant, context)
       )
     })
 

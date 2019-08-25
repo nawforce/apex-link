@@ -34,7 +34,7 @@ import com.nawforce.types.{ApexModifiers, Modifier, TypeName}
 import scala.collection.JavaConverters._
 
 sealed abstract class VariableInitializer() extends CST {
-  def verify(context: ExpressionVerifyContext): Unit
+  def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext
 }
 
 object VariableInitializer {
@@ -58,16 +58,20 @@ object VariableInitializer {
 final case class ArrayVariableInitializer(variableInitializers: List[VariableInitializer]) extends VariableInitializer {
   override def children(): List[CST] = variableInitializers
 
-  def verify(context: ExpressionVerifyContext): Unit = {
-    variableInitializers.foreach(_.verify(context))
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    variableInitializers.foreach(_.verify(input, context))
+    // TODO
+    ExprContext.empty
   }
 }
 
 final case class ExpressionVariableInitializer(expression: Expression) extends VariableInitializer {
   override def children(): List[CST] = expression :: Nil
 
-  def verify(context: ExpressionVerifyContext): Unit = {
-    expression.verify(context)
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    expression.verify(input, context)
+    // TODO
+    ExprContext.empty
   }
 }
 
@@ -80,38 +84,43 @@ object ArrayVariableInitializer {
   }
 }
 
-final case class VariableDeclarator(id: Id, init: Option[VariableInitializer]) extends CST {
+final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[VariableInitializer]) extends CST {
   override def children(): List[CST] = List[CST](id) ++ init
 
-  def verify(context: BlockVerifyContext): Unit = {
+  def verify(input: ExprContext, context: BlockVerifyContext): ExprContext = {
     addVars(context) // Needed for non-for loop vars where addVars is not called
 
     val exprContext = new ExpressionVerifyContext(context)
-    init.foreach(_.verify(exprContext))
+    init.foreach(_.verify(input, exprContext))
+    // TODO
+    ExprContext.empty
   }
 
   def addVars(context: BlockVerifyContext): Unit = {
-    context.addVar(id.name)
+    context.addVar(id.name, location, typeName)
   }
 }
 
 object VariableDeclarator {
-  def construct(variableDeclarator: VariableDeclaratorContext, context: ConstructContext): VariableDeclarator = {
+  def construct(typeName: TypeName, variableDeclarator: VariableDeclaratorContext, context: ConstructContext): VariableDeclarator = {
     val init =
       if (variableDeclarator.variableInitializer() != null) {
         Some(VariableInitializer.construct(variableDeclarator.variableInitializer(), context))
       } else {
         None
       }
-    VariableDeclarator(Id.construct(variableDeclarator.id(), context), init).withContext(variableDeclarator, context)
+    VariableDeclarator(typeName, Id.construct(variableDeclarator.id(), context), init)
+      .withContext(variableDeclarator, context)
   }
 }
 
 final case class VariableDeclarators(declarators: List[VariableDeclarator]) extends CST {
   override def children(): List[CST] = declarators
 
-  def verify(context: BlockVerifyContext): Unit = {
-    declarators.foreach(_.verify(context))
+  def verify(input: ExprContext, context: BlockVerifyContext): ExprContext = {
+    declarators.foreach(_.verify(input, context))
+    // TODO
+    ExprContext.empty
   }
 
   def addVars(context: BlockVerifyContext): Unit = {
@@ -120,9 +129,10 @@ final case class VariableDeclarators(declarators: List[VariableDeclarator]) exte
 }
 
 object VariableDeclarators {
-  def construct(variableDeclaratorsContext: VariableDeclaratorsContext, context: ConstructContext): VariableDeclarators = {
+  def construct(typeName: TypeName, variableDeclaratorsContext: VariableDeclaratorsContext, context: ConstructContext): VariableDeclarators = {
     val variableDeclarators: Seq[VariableDeclaratorContext] = variableDeclaratorsContext.variableDeclarator().asScala
-    VariableDeclarators(variableDeclarators.toList.map(x => VariableDeclarator.construct(x, context))).withContext(variableDeclaratorsContext, context)
+    VariableDeclarators(variableDeclarators.toList
+      .map(x => VariableDeclarator.construct(typeName, x, context))).withContext(variableDeclaratorsContext, context)
   }
 }
 
@@ -133,11 +143,7 @@ final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeName: Ty
   override def children(): List[CST] = variableDeclarators :: Nil
 
   def verify(context: BlockVerifyContext): Unit = {
-    val varType = context.getTypeAndAddDependency(typeName)
-    if (varType.isEmpty)
-      Org.missingType(location, typeName)
-
-    variableDeclarators.verify(context)
+    variableDeclarators.verify(ExprContext(isStatic = context.isStatic, context.thisType), context)
   }
 
   def addVars(context: BlockVerifyContext): Unit = {
@@ -147,9 +153,11 @@ final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeName: Ty
 
 object LocalVariableDeclaration {
   def construct(localVariableDeclaration: LocalVariableDeclarationContext, context: ConstructContext): LocalVariableDeclaration = {
+    val typeName = TypeRef.construct(localVariableDeclaration.typeRef(), context)
     LocalVariableDeclaration(
       ApexModifiers.construct(localVariableDeclaration.modifier().asScala, context),
-      TypeRef.construct(localVariableDeclaration.typeRef(), context),
-      VariableDeclarators.construct(localVariableDeclaration.variableDeclarators(), context)).withContext(localVariableDeclaration, context)
+      typeName,
+      VariableDeclarators.construct(typeName, localVariableDeclaration.variableDeclarators(),
+        context)).withContext(localVariableDeclaration, context)
   }
 }

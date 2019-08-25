@@ -29,74 +29,115 @@ package com.nawforce.cst
 
 import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{DependencyHolder, PlatformTypes, TypeName}
+import com.nawforce.types.{DependencyHolder, PlatformTypes, TypeDeclaration, TypeName}
+import com.nawforce.utils.DotName
 
 sealed abstract class Primary extends CST {
-  def verify(context: ExpressionVerifyContext): Seq[DependencyHolder]
+  def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext
 }
 
 final case class ExpressionPrimary(expression: Expression) extends Primary {
   override def children(): List[CST] = expression :: Nil
 
-  override def verify(context: ExpressionVerifyContext): Seq[DependencyHolder] = {
-    expression.verify(context)
-
-    // TODO: Fix me
-    Seq()
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    expression.verify(input, context)
   }
 }
 
 final case class ThisPrimary() extends Primary {
   override def children(): List[CST] = Nil
 
-  override def verify(context: ExpressionVerifyContext): Seq[DependencyHolder] = {
-    context.thisType.toSeq
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    assert(input.declaration.nonEmpty)
+    if (!input.isStatic)
+      return ExprContext(isStatic = false, context.thisType)
+    else
+      Org.logMessage(location, s"'this' can not be used in a static context")
+    ExprContext.empty
   }
 }
 
 final case class SuperPrimary() extends Primary {
   override def children(): List[CST] = Nil
 
-  override def verify(context: ExpressionVerifyContext): Seq[DependencyHolder] = {
-    context.superType.toSeq
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    assert(input.declaration.nonEmpty)
+    if (!input.isStatic)
+      return ExprContext(isStatic = false, context.superType)
+    else
+      Org.logMessage(location, s"'super' can not be used in a static context")
+    ExprContext.empty
   }
 }
 
 final case class LiteralPrimary(literal: Literal) extends Primary {
   override def children(): List[CST] = literal :: Nil
 
-  override def verify(context: ExpressionVerifyContext): Seq[DependencyHolder] = {
-    Seq(literal.getType)
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    assert(input.declaration.nonEmpty)
+    ExprContext(isStatic = false, Some(literal.getType))
   }
 }
 
 final case class TypeRefPrimary(typeName: TypeName) extends Primary {
   override def children(): List[CST] = Nil
 
-  override def verify(context: ExpressionVerifyContext): Seq[DependencyHolder] = {
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    assert(input.declaration.nonEmpty)
     val td = context.getTypeAndAddDependency(typeName)
     if (td.isEmpty)
       Org.missingType(location, typeName)
-    td.toSeq
+    ExprContext(isStatic = true, Some(PlatformTypes.typeType))
   }
 }
 
 final case class IdPrimary(id: Id) extends Primary {
   override def children(): List[CST] = id :: Nil
 
-  override def verify(context: ExpressionVerifyContext): Seq[DependencyHolder] = {
-    // This may be start of qname for type, IdExpression handles this
-    // TODO: Fix me
-    Seq()
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    assert(input.declaration.nonEmpty)
+
+    val td = context.isVar(id.name)
+    if (td.nonEmpty)
+      return ExprContext(isStatic = false, td)
+
+    input.declaration.get match {
+      case td: TypeDeclaration =>
+        val field = td.findField(id.name, input.isStatic)
+        if (field.nonEmpty) {
+          val td = context.getTypeAndAddDependency(field.get.typeName)
+          return ExprContext(isStatic = false, td)
+        }
+
+        val typeRef = context.getTypeAndAddDependency(TypeName(id.name))
+        if (typeRef.nonEmpty) {
+          return ExprContext(isStatic = true, typeRef)
+        }
+
+        if (!td.isComplete)
+          return ExprContext.empty
+
+      case _ => ()
+    }
+
+    val absTd = context.thisType.flatMap(td => Org.getType(td.namespace, DotName(id.name)))
+    if (absTd.nonEmpty) {
+      return ExprContext(isStatic = true, absTd)
+    }
+
+    Org.logMessage(location, s"Identifier '${id.name}' not found")
+    ExprContext.empty
   }
 }
 
 final case class SOQL(soql: String) extends Primary {
   override def children(): List[CST] = Nil
 
-  override def verify(context: ExpressionVerifyContext): Seq[DependencyHolder] = {
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    assert(input.declaration.nonEmpty)
+
     // TODO: Handle driving object & aggregates
-    Seq(PlatformTypes.recordSetType)
+    ExprContext(isStatic = false, Some(PlatformTypes.recordSetType))
   }
 }
 

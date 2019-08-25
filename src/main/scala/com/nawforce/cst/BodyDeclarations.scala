@@ -130,7 +130,7 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: Type
     parameters.foreach(_.verify(context))
 
     val blockContext = new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))
-    parameters.foreach(param => blockContext.addVar(param.name))
+    parameters.foreach(param => blockContext.addVar(param.name, param.location, param.typeName))
     block.foreach(_.verify(blockContext))
     depends = Some(context.dependencies)
     propagateDependencies()
@@ -173,11 +173,8 @@ final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeN
   override def children(): List[CST] = variableDeclarator :: Nil
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    val td = context.getTypeAndAddDependency(typeName)
-    if (td.isEmpty)
-      Org.missingType(variableDeclarator.id.location, typeName)
-
-    variableDeclarator.verify(new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER)))
+    variableDeclarator.verify(ExprContext(isStatic, context.thisType),
+      new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER)))
     depends = Some(context.dependencies)
     propagateDependencies()
   }
@@ -188,7 +185,7 @@ object ApexFieldDeclaration {
         Seq[ApexFieldDeclaration] = {
 
     val typeName = TypeRef.construct(fieldDeclaration.typeRef(), context)
-    VariableDeclarators.construct(fieldDeclaration.variableDeclarators(), context).declarators.map(vd => {
+    VariableDeclarators.construct(typeName, fieldDeclaration.variableDeclarators(), context).declarators.map(vd => {
       ApexFieldDeclaration(modifiers, typeName, vd).withContext(fieldDeclaration, context)
     })
   }
@@ -205,7 +202,7 @@ final case class ApexConstructorDeclaration(_modifiers: Seq[Modifier], qualified
     parameters.foreach(_.verify(context))
 
     val blockContext = new OuterBlockVerifyContext(context, isStaticContext = false)
-    parameters.foreach(param => blockContext.addVar(param.name))
+    parameters.foreach(param => blockContext.addVar(param.name, param.location, param.typeName))
     block.verify(blockContext)
     depends = Some(context.dependencies)
     propagateDependencies()
@@ -230,9 +227,7 @@ final case class FormalParameter(modifiers: Seq[Modifier], typeName: TypeName, i
   val name: Name = id.name
 
   def verify(context: BodyDeclarationVerifyContext): Unit = {
-    val paramType = context.getTypeAndAddDependency(typeName)
-    if (paramType.isEmpty)
-      Org.missingType(id.location, typeName)
+    // Nothing needed, type will be validated when added to block context
   }
 }
 

@@ -28,7 +28,7 @@
 package com.nawforce.cst
 
 import com.nawforce.api.Org
-import com.nawforce.parsers.ApexParser.{CreatedNameContext, CreatorContext, IdCreatedNamePairContext}
+import com.nawforce.parsers.ApexParser._
 import com.nawforce.types.TypeName
 
 import scala.collection.JavaConverters._
@@ -36,13 +36,18 @@ import scala.collection.JavaConverters._
 final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
   override def children(): List[CST] = idPairs
 
-  def verify(context: ExpressionVerifyContext): Unit = {
+  def verify(context: ExpressionVerifyContext): ExprContext = {
     val typeName = createTypeName(None, idPairs.map(_.typeName))
     val newType = context.getTypeAndAddDependency(typeName)
-    if (newType.isEmpty)
+    if (newType.nonEmpty) {
+      ExprContext(isStatic = false, Some(newType.get))
+    } else {
       Org.missingType(location, typeName)
+      ExprContext.empty
+    }
   }
 
+  @scala.annotation.tailrec
   private def createTypeName(outer: Option[TypeName], names: Seq[TypeName]): TypeName = {
     names match {
       case hd +: Seq() => hd.withOuter(outer)
@@ -87,12 +92,15 @@ final case class Creator(createdName: CreatedName,
   override def children(): List[CST] =
     List(createdName) ++ classCreatorRest ++ arrayCreatorRest ++ mapCreatorRest ++setCreatorRest
 
-  def verify(context: ExpressionVerifyContext): Unit = {
-    createdName.verify(context)
-    classCreatorRest.foreach(_.verify(context))
-    arrayCreatorRest.foreach(_.verify(context))
-    mapCreatorRest.foreach(_.verify(context))
-    setCreatorRest.foreach(_.verify(context))
+  def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    var inter = createdName.verify(context)
+    classCreatorRest.foreach(_.verify(input, context))
+    arrayCreatorRest.foreach(_.verify(input, context))
+    mapCreatorRest.foreach(_.verify(input, context))
+    setCreatorRest.foreach(_.verify(input, context))
+
+    // TODO
+    ExprContext.empty
   }
 }
 
@@ -107,3 +115,117 @@ object Creator {
     ).withContext(from, context)
   }
 }
+
+final case class ClassCreatorRest(arguments: List[Expression]) extends CST {
+  override def children(): List[CST] = arguments
+
+  def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    arguments.foreach(_.verify(input, context))
+    // TODO
+    ExprContext.empty
+  }
+}
+
+object ClassCreatorRest {
+  def construct(from: ClassCreatorRestContext, context: ConstructContext): ClassCreatorRest = {
+    ClassCreatorRest(Arguments.construct(from.arguments(), context)).withContext(from, context)
+  }
+}
+
+final case class ArrayCreatorRest(expressions: Option[Expression], arrayInitializer: Option[ArrayInitializer],
+                                 ) extends CST {
+  override def children(): List[CST] = List[CST]() ++ expressions ++ arrayInitializer
+
+  def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    expressions.foreach(_.verify(input, context))
+    arrayInitializer.foreach(_.verify(input, context))
+    // TODO
+    ExprContext.empty
+  }
+}
+
+object ArrayCreatorRest {
+  def construct(from: ArrayCreatorRestContext, context: ConstructContext): ArrayCreatorRest = {
+    ArrayCreatorRest(
+      Option(from.expression()).map(Expression.construct(_, context)),
+      Option(from.arrayInitializer()).map(ArrayInitializer.construct(_, context))
+    )
+  }
+}
+
+final case class ArrayInitializer(variableInitializers: List[VariableInitializer]) extends CST {
+  override def children(): List[CST] = variableInitializers
+
+  def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    variableInitializers.foreach(_.verify(input, context))
+    // TODO
+    ExprContext.empty
+  }
+}
+
+object ArrayInitializer {
+  def construct(from: ArrayInitializerContext, context: ConstructContext): ArrayInitializer = {
+    val initializers: Seq[VariableInitializerContext] = from.variableInitializer().asScala
+    ArrayInitializer(VariableInitializer.construct(initializers.toList, context)).withContext(from, context)
+  }
+}
+
+final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends CST {
+  override def children(): List[CST] = pairs
+
+  def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    pairs.foreach(_.verify(input, context))
+    // TODO
+    ExprContext.empty
+  }
+}
+
+object MapCreatorRest {
+  def construct(from: MapCreatorRestContext, context: ConstructContext): MapCreatorRest = {
+    val pairs: Seq[MapCreatorRestPairContext] = from.mapCreatorRestPair().asScala
+    MapCreatorRest(MapCreatorRestPair.construct(pairs.toList, context)).withContext(from, context)
+  }
+}
+
+final case class MapCreatorRestPair(from: Expression, to: Expression) extends CST {
+  override def children(): List[CST] = from :: to :: Nil
+
+  def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    from.verify(input, context)
+    to.verify(input, context)
+    // TODO
+    ExprContext.empty
+  }
+}
+
+object MapCreatorRestPair {
+  def construct(aList: List[MapCreatorRestPairContext], context: ConstructContext): List[MapCreatorRestPair] = {
+    aList.map(x => MapCreatorRestPair.construct(x, context))
+  }
+
+  def construct(from: MapCreatorRestPairContext, context: ConstructContext): MapCreatorRestPair = {
+    MapCreatorRestPair(
+      Expression.construct(from.expression(0), context),
+      Expression.construct(from.expression(1), context)
+    ).withContext(from, context)
+  }
+}
+
+final case class SetCreatorRest(parts: List[Expression]) extends CST {
+  override def children(): List[CST] = parts
+
+   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    parts.foreach(_.verify(input, context))
+    // TODO
+    ExprContext.empty
+  }
+}
+
+object SetCreatorRest {
+  def construct(from: SetCreatorRestContext, context: ConstructContext): SetCreatorRest = {
+    val parts: Seq[ExpressionContext] = from.expression().asScala
+    SetCreatorRest(Expression.construct(parts.toList, context)).withContext(from, context)
+  }
+}
+
+

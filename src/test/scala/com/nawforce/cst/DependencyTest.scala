@@ -32,7 +32,7 @@ import java.nio.file.{Path, Paths}
 
 import com.nawforce.api.Org
 import com.nawforce.documents.StreamProxy
-import com.nawforce.types.{PlatformTypeDeclaration, TypeDeclaration}
+import com.nawforce.types.TypeDeclaration
 import com.nawforce.utils.{DotName, Name}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
@@ -159,7 +159,6 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public virtual class A extends B {}",
       "B" -> "public virtual class B {public class C {} }"
     ))
-    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.blocks.head.dependencies() == Set(tds(2).nestedTypes.head, typeClass))
   }
@@ -215,7 +214,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
     val tds = typeDeclarations(Map(
       "Dummy" -> "public class Dummy { void func(A a) {} }"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 33-34: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 31-34: No type declaration found for 'A'\n")
     assert(tds.head.methods.head.dependencies().isEmpty)
   }
 
@@ -274,7 +273,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
     val tds = typeDeclarations(Map(
       "Dummy" -> "public class Dummy {static {A a;} }"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 28-31: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 30-31: No type declaration found for 'A'\n")
     assert(tds.head.blocks.head.dependencies().isEmpty)
   }
 
@@ -308,7 +307,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
     val tds = typeDeclarations(Map(
       "Dummy" -> "public class Dummy { void func() { for(A a;;) {}} }"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 39-42: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 41-42: No type declaration found for 'A'\n")
     assert(tds.head.methods.head.dependencies().isEmpty)
   }
 
@@ -484,4 +483,12 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.nestedTypes.head.blocks.head.dependencies() == Set(tds.tail.head, booleanClass))
   }
+
+  test("Scratch") {
+    val tds = typeDeclarations(Map(
+      "Dummy" -> "public class Dummy { public void construct(List<SObject> sObjectList)\n\t\t{\n\t\t\treturn new Dummy(sObjectList);\n\t\t} }"
+    ))
+    defaultOrg.issues.dumpMessages(false)
+  }
+
 }

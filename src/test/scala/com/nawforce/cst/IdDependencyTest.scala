@@ -62,85 +62,96 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
     defaultOrg = new Org
   }
 
-  test("Local func not dependent") {
+  test("Local func does not create dependencies") {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy {void func() {func();} }"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
+    assert(tds.head.methods.head.dependencies().isEmpty)
   }
 
-  test("Static func is dependent") {
+  test("Missing Static func creates error") {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy {void func() {A.func();} }"))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 33-39: No type declaration found for 'A'\n")
+      "line 1 at 33-34: Identifier 'A' not found\n")
     assert(tds.head.dependencies().isEmpty)
   }
 
-  test("Static func creates dependency") {
+  test("Static func creates method dependency") {
     val tds = typeDeclarations(Map(
       "Dummy" -> "public class Dummy {static void func() {A.func();} }",
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
+    assert(tds.head.dependencies().isEmpty)
     assert(tds.head.methods.head.dependencies() == tds.tail.toSet)
   }
 
-  test("Platform func creates dependency") {
+  test("Platform func creates method dependency") {
     val tds = typeDeclarations(Map(
       "Dummy" -> "public class Dummy {static void func() {System.debug('Hello');} }"
     ))
     assert(!defaultOrg.issues.hasMessages)
+    assert(tds.head.dependencies().isEmpty)
     assert(tds.head.methods.head.dependencies() == Set(systemClass))
   }
 
-  test("Field not dependent") {
+  test("Field reference creates method dependency") {
     val tds = typeDeclarations(Map(
       "Dummy" -> "public class Dummy {Object a; void func() {a.b = null;} }"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.head.dependencies().isEmpty)
+    assert(tds.head.dependencies().isEmpty)
+    assert(tds.head.methods.head.dependencies() == Set(objectClass))
   }
 
-  test("Superclass field not dependent") {
+  test("Superclass field reference creates method dependent") {
     val tds = typeDeclarations(Map(
       "Dummy" -> "public class Dummy extends A {void func() {a.b = null;} }",
       "A" -> "public virtual class A {Object a;}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.head.dependencies().isEmpty)
+    assert(tds.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.methods.head.dependencies() == Set(objectClass))
   }
 
-  test("Outer class field is dependent") {
+  test("Hidden outer class field reference creates error") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy {Object a; class B {void func() {a.b = null;} } }",
+      "Dummy" -> "public class Dummy {Object a; class B {void func() {a = null;} } }",
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 52-55: No type declaration found for 'a'\n")
+      "line 1 at 52-53: Identifier 'a' not found\n")
+    assert(tds.head.dependencies().isEmpty)
+    assert(tds.head.nestedTypes.head.dependencies().isEmpty)
     assert(tds.head.nestedTypes.head.methods.head.dependencies().isEmpty)
   }
 
-  test("Outer class static field not dependent") {
+  test("Outer class static field creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy {static Object a; class B {void func() {a.b = null;} } }",
+      "Dummy" -> "public class Dummy {static Object a; class B {void func() {a = null;} } }",
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.methods.head.dependencies().isEmpty)
+    assert(tds.head.dependencies().isEmpty)
+    assert(tds.head.nestedTypes.head.dependencies().isEmpty)
+    assert(tds.head.nestedTypes.head.methods.head.dependencies() == Set(objectClass))
   }
 
-  test("Property not dependent") {
+  test("Property creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy {Object a {get;} void func() {a.b = null;} }"
+      "Dummy" -> "public class Dummy {Object a {get;} void func() {a = null;} }"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.head.dependencies().isEmpty)
+    assert(tds.head.dependencies().isEmpty)
+    assert(tds.head.methods.head.dependencies() == Set(objectClass))
   }
 
-  test("Superclass property not dependent") {
+  test("Superclass property creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy extends A {void func() {a.b = null;} }",
+      "Dummy" -> "public class Dummy extends A {void func() {a = null;} }",
       "A" -> "public virtual class A {Object a {get;}}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.head.dependencies().isEmpty)
+    assert(tds.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.methods.head.dependencies() == Set(objectClass))
   }
 
   test("Local var not dependent") {
