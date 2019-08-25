@@ -34,6 +34,15 @@ object PlatformTypes {
   lazy val recordSetType: TypeDeclaration = getType(DotName(Seq(Name.Internal, Name.RecordSet$))).get
   lazy val typeType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Type))).get
   lazy val objectType: TypeDeclaration = getType(DotName(Seq(Name.Internal, Name.Object$))).get
+  lazy val stringType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.String))).get
+  lazy val idType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Id))).get
+  lazy val booleanType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Boolean))).get
+  lazy val decimalType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Decimal))).get
+  lazy val dateType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Date))).get
+  lazy val datetimeType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Datetime))).get
+  lazy val timeType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Time))).get
+  lazy val blobType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Blob))).get
+  lazy val locationType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Location))).get
 
   def getType(typeName: TypeName): Option[TypeDeclaration] = {
     getType(typeName.asDotName)

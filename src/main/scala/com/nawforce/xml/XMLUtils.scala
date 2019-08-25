@@ -51,24 +51,24 @@ object XMLUtils {
     }
   }
 
-  def getSingleChildAsString(elem: Elem, name: String): Option[String] = {
+  def getSingleChildAsString(elem: Elem, name: String): String = {
     val text = getOptionalSingleChildAsString(elem, name)
     if (text.isEmpty)
       throw XMLException(TextRange(getLine(elem)),
         s"Expecting element to have single '$name' child")
-    text
+    text.get
   }
 
   def getOptionalSingleChildAsString(elem: Elem, name: String): Option[String] = {
     getOptionalSingleChild(elem, name).map(e => e.text)
   }
 
-  def getSingleChildAsBoolean(elem: Elem, name: String): Option[Boolean] = {
+  def getSingleChildAsBoolean(elem: Elem, name: String): Boolean = {
     val value = getOptionalSingleChildAsBoolean(elem, name)
     if (value.isEmpty)
       throw XMLException(TextRange(getLine(elem)),
         s"Expecting element to have single '$name' child")
-    value
+    value.get
   }
 
   def getOptionalSingleChildAsBoolean(elem: Elem, name: String): Option[Boolean] = {

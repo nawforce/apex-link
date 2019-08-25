@@ -55,6 +55,7 @@ case class Name(value: String) {
 
 object Name {
   def apply(name: String): Name = cache(name)
+
   def safeApply(name: String): Name = Option(name).map(n => Name(n)).getOrElse(Name.Empty)
 
   lazy val Empty: Name = cache("")
@@ -80,6 +81,14 @@ object Name {
   lazy val Component: Name = cache("Component")
   lazy val Flow: Name = cache("Flow")
   lazy val c: Name = cache("c")
+  lazy val String: Name = cache("String")
+  lazy val Id: Name = cache("Id")
+  lazy val Date: Name = cache("Date")
+  lazy val Datetime: Name = cache("Datetime")
+  lazy val Time: Name = cache("Time")
+  lazy val Decimal: Name = cache("Decimal")
+  lazy val Blob: Name = cache("Blob")
+  lazy val Location: Name = cache("Location")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 }

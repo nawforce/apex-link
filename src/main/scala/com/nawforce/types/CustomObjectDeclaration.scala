@@ -30,10 +30,26 @@ package com.nawforce.types
 import java.io.InputStream
 import java.nio.file.Path
 
-import com.nawforce.documents.DocumentType
-import com.nawforce.utils.DotName
+import com.nawforce.api.Org
+import com.nawforce.documents._
+import com.nawforce.utils.{DotName, Name}
+import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
 
-final case class CustomObjectDeclaration(_typeName: TypeName)
+import scala.xml.{Elem, SAXParseException}
+
+final case class CustomFieldDeclaration(name: Name, dataType: TypeDeclaration)
+  extends FieldDeclaration {
+
+  override val modifiers: Seq[Modifier] = Seq(PUBLIC_MODIFIER)
+  override val typeName: TypeName = dataType.typeName
+  override val readAccess: Modifier = PUBLIC_MODIFIER
+  override val writeAccess: Modifier = PUBLIC_MODIFIER
+
+  override lazy val isStatic: Boolean = false
+}
+
+final case class CustomObjectDeclaration(_typeName: TypeName,
+                                         override val fields: Seq[CustomFieldDeclaration])
   extends NamedTypeDeclaration(_typeName) {
 
   override val superClass: Option[TypeName] = Some(TypeName.SObject)
@@ -51,11 +67,65 @@ object CustomObjectDeclaration {
         TypeName(name.firstName, Nil, ns)
       else
         TypeName(name.names(1), Nil, Some(TypeName(name.firstName)))
+    val fields = parse(path)
     Seq(
-      new CustomObjectDeclaration(typeName),
-      new CustomObjectDeclaration(typeName.withNameReplace("__c$", "__Share")),
-      new CustomObjectDeclaration(typeName.withNameReplace("__c$", "__Feed")),
-      new CustomObjectDeclaration(typeName.withNameReplace("__c$", "__History"))
+      new CustomObjectDeclaration(typeName, fields),
+      new CustomObjectDeclaration(typeName.withNameReplace("__c$", "__Share"), fields),
+      new CustomObjectDeclaration(typeName.withNameReplace("__c$", "__Feed"), fields),
+      new CustomObjectDeclaration(typeName.withNameReplace("__c$", "__History"), fields)
     )
   }
+
+  private def parse(path: Path): Seq[CustomFieldDeclaration] = {
+    try {
+      val root = XMLLineLoader.load(StreamProxy.getInputStream(path))
+      XMLUtils.assertIs(root, "CustomObject")
+
+      root.child.flatMap {
+        case elem: Elem if elem.namespace == XMLUtils.sfNamespace && elem.label == "fields" =>
+          Some(parseField(elem))
+        case _ => None
+      }
+
+    } catch {
+      case e: XMLException => Org.logMessage(RangeLocation(path, e.where), e.msg); Seq()
+      case e: SAXParseException => Org.logMessage(PointLocation(path,
+        Position(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage); Seq()
+    }
+  }
+
+  private def parseField(elem: Elem): CustomFieldDeclaration = {
+
+    val name = XMLUtils.getSingleChildAsString(elem, "fullName")
+    val rawType: String = XMLUtils.getSingleChildAsString(elem, "type")
+    val dataType = rawType match {
+      case "MasterDetail" => PlatformTypes.idType
+      case "AutoNumber" => PlatformTypes.stringType
+      case "Lookup" => PlatformTypes.idType
+      case "Checkbox" => PlatformTypes.booleanType
+      case "Currency" => PlatformTypes.decimalType
+      case "Date" => PlatformTypes.dateType
+      case "DateTime" => PlatformTypes.datetimeType
+      case "Email" => PlatformTypes.stringType
+      case "EncryptedText" => PlatformTypes.blobType
+      case "Number" => PlatformTypes.decimalType
+      case "Percent" => PlatformTypes.decimalType
+      case "Phone" => PlatformTypes.stringType
+      case "Picklist" => PlatformTypes.stringType
+      case "MultiselectPicklist" => PlatformTypes.stringType
+      case "Summary" => PlatformTypes.decimalType
+      case "Text" => PlatformTypes.stringType
+      case "TextArea" => PlatformTypes.stringType
+      case "LongTextArea" => PlatformTypes.stringType
+      case "Url" => PlatformTypes.stringType
+      case "File" => PlatformTypes.stringType
+      case "Location" => PlatformTypes.locationType
+      case "Time" => PlatformTypes.timeType
+      case "Html" => PlatformTypes.stringType
+      // TODO: Log a message on unexpected type
+    }
+
+    CustomFieldDeclaration(Name(name), dataType)
+  }
+
 }

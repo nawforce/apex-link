@@ -133,5 +133,4 @@ class PlatformTypeValidationTest extends FunSuite {
       assert(methods.size >= 7)
     })
   }
-
 }

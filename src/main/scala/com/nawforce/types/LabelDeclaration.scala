@@ -40,6 +40,8 @@ import scala.xml.{Elem, SAXParseException}
 
 final case class LabelDeclaration(pkg: PackageDeclaration) extends TypeDeclaration {
   private val labelNamespaces = mutable.Map[Name, LabelDeclaration]()
+
+  // TODO: Align to findFields model?
   private val labelFields = mutable.Map[Name, Label]()
 
   load()
@@ -142,8 +144,8 @@ case class Label(location: Location, fullName: String, isProtected: Boolean) ext
 object Label {
   def apply(path: Path, element: Elem): Label = {
 
-    val fullName: Option[String] = XMLUtils.getSingleChildAsString(element, "fullName")
-    val protect: Option[Boolean] = XMLUtils.getSingleChildAsBoolean(element, "protected")
+    val fullName: String = XMLUtils.getSingleChildAsString(element, "fullName")
+    val protect: Boolean = XMLUtils.getSingleChildAsBoolean(element, "protected")
 
     /* Not needed so save some time parsing for now
     val language: Option[String] = XMLUtils.getSingleChildAsString(element, "language")
@@ -152,7 +154,7 @@ object Label {
     val categories: Option[String] = XMLUtils.getOptionalSingleChildAsString(element, "categories")
      */
 
-    Label(RangeLocation(path, TextRange(getLine(element))), fullName.get, protect.get)
+    Label(RangeLocation(path, TextRange(getLine(element))), fullName, protect)
   }
 }
 
