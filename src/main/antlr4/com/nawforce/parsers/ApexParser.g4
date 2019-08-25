@@ -369,11 +369,7 @@ setter
     ;
 
 catchClause
-    : CATCH LPAREN modifier* catchType id RPAREN block
-    ;
-
-catchType
-    : qualifiedName (BITOR qualifiedName)*
+    : CATCH LPAREN modifier* qualifiedName id RPAREN block
     ;
 
 finallyBlock
@@ -409,9 +405,13 @@ expressionList
     ;
 
 expression
-    : expression DOT id                                                                               # idExpression
+    : primary                                                                                         # primaryExpression
+    | expression DOT
+        ( id
+        | methodCall
+        )                                                                                             # dotExpression
     | expression LBRACK expression RBRACK                                                             # arrayExpression
-    | expression LPAREN expressionList? RPAREN                                                        # functionCallExpression
+    | methodCall                                                                                      # methodCallExpression
     | NEW creator                                                                                     # newExpression
     | LPAREN typeRef RPAREN expression                                                                # castExpression
     | expression (INC | DEC)                                                                          # postOpExpression
@@ -444,7 +444,6 @@ expression
       |   MOD_ASSIGN
       )
       expression                                                                                     # assignExpression
-    | primary                                                                                        # primaryExpression
     ;
 
 primary
@@ -455,6 +454,12 @@ primary
     | typeRef DOT CLASS                                                                              # typeRefPrimary
     | id                                                                                             # idPrimary
     | soqlLiteral                                                                                    # soqlPrimary
+    ;
+
+methodCall
+    : id LPAREN expressionList? RPAREN
+    | THIS LPAREN expressionList? RPAREN
+    | SUPER LPAREN expressionList? RPAREN
     ;
 
 creator
@@ -543,9 +548,7 @@ id
     | SHORT
     | STATIC
     | SWITCH
-    | SUPER
     | TESTMETHOD
-    | THIS
     | THROW
     | TRANSIENT
     | TRY
