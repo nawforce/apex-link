@@ -28,7 +28,6 @@
 package com.nawforce.types
 
 import com.nawforce.api._
-import com.nawforce.documents.Location
 import com.nawforce.utils.{DotName, Name}
 
 import scala.collection.mutable
@@ -132,10 +131,7 @@ trait TypeDeclaration extends DependencyHolder {
   def validate(): Unit
   def collectDependencies(dependencies: mutable.Set[Dependant]): Unit
 
-  // TODO Remove?
-  def validateReference(location: Location, dotName: DotName): Option[Dependant] = None
-
-  def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
+  def findField(name: Name, namespace: Option[Name], staticOnly: Boolean): Option[FieldDeclaration] = {
     fieldsByName.get(name).filter(f => !staticOnly || f.isStatic)
   }
 
@@ -146,6 +142,11 @@ trait TypeDeclaration extends DependencyHolder {
         outerType.map(td => td.fields.filter(_.isStatic).map(f => (f.name, f))).getOrElse(Seq()) ++
         fields.map(f => (f.name, f))
     fieldsByName.toMap
+  }
+
+  def findType(name: Name, namespace: Option[Name], staticOnly: Boolean): Option[TypeDeclaration] = {
+    // TODO: Handle protected/private
+    new StandardTypeFinder().getTypeFor(DotName(name), this)
   }
 
   lazy val summary: TypeSummary = TypeSummary(

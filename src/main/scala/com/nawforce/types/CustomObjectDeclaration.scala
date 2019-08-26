@@ -31,6 +31,7 @@ import java.io.InputStream
 import java.nio.file.Path
 
 import com.nawforce.api.Org
+import com.nawforce.cst.{Creator, ExprContext}
 import com.nawforce.documents._
 import com.nawforce.utils.{DotName, Name}
 import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
@@ -55,6 +56,10 @@ final case class CustomObjectDeclaration(_typeName: TypeName,
   override val superClass: Option[TypeName] = Some(TypeName.SObject)
   override def superClassDeclaration: Option[TypeDeclaration] = {
     new StandardTypeFinder().getTypeFor(TypeName.SObject.asDotName, this)
+  }
+
+  def validateConstructor(input: ExprContext, creator: Creator): ExprContext = {
+    ExprContext(isStatic = false, Some(this))
   }
 }
 

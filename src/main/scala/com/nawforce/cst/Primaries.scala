@@ -103,7 +103,7 @@ final case class IdPrimary(id: Id) extends Primary {
 
     input.declaration.get match {
       case td: TypeDeclaration =>
-        val field = td.findField(id.name, input.isStatic)
+        val field = td.findField(id.name, td.namespace, input.isStatic)
         if (field.nonEmpty) {
           val td = context.getTypeAndAddDependency(field.get.typeName)
           return ExprContext(isStatic = false, td)
@@ -125,7 +125,7 @@ final case class IdPrimary(id: Id) extends Primary {
       return ExprContext(isStatic = true, absTd)
     }
 
-    Org.logMessage(location, s"Identifier '${id.name}' not found")
+    Org.missingIdentifier(location, id.name)
     ExprContext.empty
   }
 }

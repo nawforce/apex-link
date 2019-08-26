@@ -31,7 +31,7 @@ import java.nio.file.{Files, Path}
 
 import com.nawforce.api.Org
 import com.nawforce.documents._
-import com.nawforce.utils.{DotName, Issue, Name}
+import com.nawforce.utils.{Issue, Name}
 import com.nawforce.xml.XMLUtils.getLine
 import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
 
@@ -40,8 +40,6 @@ import scala.xml.{Elem, SAXParseException}
 
 final case class LabelDeclaration(pkg: PackageDeclaration) extends TypeDeclaration {
   private val labelNamespaces = mutable.Map[Name, LabelDeclaration]()
-
-  // TODO: Align to findFields model?
   private val labelFields = mutable.Map[Name, Label]()
 
   load()
@@ -67,27 +65,17 @@ final case class LabelDeclaration(pkg: PackageDeclaration) extends TypeDeclarati
   override def validate(): Unit = {}
   override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
 
-  override def validateReference(location: Location, dotName: DotName): Option[Dependant] = {
-    var position = 0
-    var allowProtected = true
-    var labelDeclaration = if (dotName.names.size > 1) labelNamespaces.get(dotName.names.head) else None
-    if (labelDeclaration.isEmpty) {
-      labelDeclaration = Some(this)
-    } else {
-      position = 1
-      allowProtected = false
-    }
+  override def findField(name: Name, namespace: Option[Name], staticOnly: Boolean): Option[FieldDeclaration] = {
+    val label = labelFields.get(name)
+    val allowProtected = namespace == pkg.namespaceOption
+    if (!allowProtected && label.nonEmpty && label.get.isProtected)
+      return None
+    label
+  }
 
-    if (!labelDeclaration.get.pkg.isGhosted) {
-      val label = labelDeclaration.get.labelFields.get(dotName.names(position))
-      if (label.isEmpty)
-        Org.logMessage(location, s"Label '$dotName' not found")
-      else if (label.get.isProtected && !allowProtected)
-        Org.logMessage(location, s"Label '$dotName' is protected so can not be accessed externally")
-      label
-    } else {
-      None
-    }
+  override def findType(name: Name, namespace: Option[Name], staticOnly: Boolean): Option[TypeDeclaration] = {
+    // TODO: Handle protected/private
+    labelNamespaces.get(name)
   }
 
   def unused(): Seq[Issue] = {

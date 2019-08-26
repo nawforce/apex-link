@@ -29,7 +29,7 @@ package com.nawforce.cst
 
 import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.TypeName
+import com.nawforce.types.{CustomObjectDeclaration, TypeName}
 
 import scala.collection.JavaConverters._
 
@@ -93,11 +93,25 @@ final case class Creator(createdName: CreatedName,
     List(createdName) ++ classCreatorRest ++ arrayCreatorRest ++ mapCreatorRest ++setCreatorRest
 
   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    var inter = createdName.verify(context)
+    assert(input.declaration.nonEmpty)
+
+    val inter = createdName.verify(context)
+    if (inter.declaration.isEmpty) {
+      return inter
+    }
+
+    inter.declaration.get match {
+      case co: CustomObjectDeclaration =>
+        return co.validateConstructor(input, this)
+      case _ => ()
+    }
+
+    /* TODO
     classCreatorRest.foreach(_.verify(input, context))
     arrayCreatorRest.foreach(_.verify(input, context))
     mapCreatorRest.foreach(_.verify(input, context))
     setCreatorRest.foreach(_.verify(input, context))
+     */
 
     // TODO
     ExprContext.empty

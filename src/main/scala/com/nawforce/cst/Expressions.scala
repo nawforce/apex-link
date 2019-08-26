@@ -57,7 +57,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
     if (target.isLeft) {
       expression match {
         case PrimaryExpression(primary: IdPrimary) if context.isVar(primary.id.name).isEmpty =>
-          val typeName = TypeName(primary.id.name, Nil, Some(TypeName(target.left.get.name)))
+          val typeName = TypeName(target.left.get.name, Nil, Some(TypeName(primary.id.name)))
           val td = context.getTypeAndAddDependency(typeName)
           if (td.nonEmpty)
             return ExprContext(isStatic = true, td)
@@ -71,8 +71,9 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
         verifyWithId(inter, context)
       else
         verifyWithMethod(inter, context)
+    } else {
+      ExprContext.empty
     }
-    ExprContext.empty
   }
 
   def verifyWithId(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
@@ -80,15 +81,22 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
 
     input.declaration.get match {
       case td: TypeDeclaration =>
-        val field = td.findField(target.left.get.name, input.isStatic)
+        val field = td.findField(target.left.get.name, context.namespace, input.isStatic)
         if (field.nonEmpty) {
           val td = context.getTypeAndAddDependency(field.get.typeName)
           ExprContext(isStatic = false, td)
+        } else {
+          // TODO: Private/protected types?
+          val nt = td.findType(target.left.get.name, context.namespace, input.isStatic)
+          if (nt.nonEmpty) {
+            ExprContext(isStatic = true, nt)
+          } else {
+            Org.logMessage(location, s"Unknown field or type '${target.left.get.name}' on '${td.typeName}'")
+            ExprContext.empty
+          }
         }
-
-        ExprContext.empty
       case _ =>
-        Org.logMessage(location, s"Identifier '${target.left.get.name}' not found")
+        Org.missingIdentifier(location, target.left.get.name)
         ExprContext.empty
     }
   }

@@ -125,8 +125,7 @@ class LabelTest extends FunSuite {
     val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 33-49: Label 'TestLabel2' not found\n")
-    org.issues.dumpMessages(false)
+      "line 1 at 33-49: Unknown field or type 'TestLabel2' on 'System.Label'\n")
   }
 
   test("Missing label (case insensitive)") {
@@ -150,7 +149,7 @@ class LabelTest extends FunSuite {
     val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 33-49: Label 'TestLaBel2' not found\n")
+      "line 1 at 33-49: Unknown field or type 'TestLaBel2' on 'System.Label'\n")
   }
 
   test("Base package label") {
@@ -176,6 +175,7 @@ class LabelTest extends FunSuite {
     val pkg1 = org.addPackageInternal(Name("pkg1"), Seq(fs.getPath("/work/pkg1")), Seq())
     val pkg2 = org.addPackageInternal(Name("pkg2"), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
     pkg2.deployAll()
+    org.issues.dumpMessages(false)
     assert(!org.issues.hasMessages)
   }
 
@@ -202,7 +202,8 @@ class LabelTest extends FunSuite {
     val pkg1 = org.addPackageInternal(Name("pkg1"), Seq(fs.getPath("/work/pkg1")), Seq())
     val pkg2 = org.addPackageInternal(Name("pkg2"), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
     pkg2.deployAll()
+    // TODO: This error massage should contain namespace
     assert(org.issues.getMessages(fs.getPath("/work/pkg2/Dummy.cls")) ==
-      "line 1 at 33-53: Label 'pkg1.TestLabel' is protected so can not be accessed externally\n")
+      "line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label'\n")
   }
 }

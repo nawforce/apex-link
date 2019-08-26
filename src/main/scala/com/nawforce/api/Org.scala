@@ -140,6 +140,11 @@ object Org {
       logMessage(location, s"No type declaration found for '$typeName'")
   }
 
+  def missingIdentifier(location: Location, name: Name): Unit = {
+    if (!Org.current.value.isGhostedType(TypeName(name)))
+      logMessage(location, s"No variable or type found for '$name'")
+  }
+
   def logMessage(location: Location, msg: String): Unit = {
     Org.current.value.issues.logMessage(location, msg)
   }

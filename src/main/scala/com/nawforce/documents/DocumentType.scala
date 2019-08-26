@@ -66,6 +66,9 @@ case class ComponentDocument(_path: Path, _name: Name)
 case class CustomObjectDocument(_path: Path, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("object")
+  override val ignorable: Boolean = {
+    Files.exists(path) && Files.size(path) == 0
+  }
 }
 
 case class CustomMetadataDocument(_path: Path, _name: Name)

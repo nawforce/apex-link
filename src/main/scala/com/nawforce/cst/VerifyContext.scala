@@ -37,7 +37,10 @@ import scala.collection.mutable
 trait VerifyContext {
   def parent(): Option[VerifyContext]
 
-  /** Get type declaration of 'this' */
+  /** Namespace of current code */
+  def namespace: Option[Name]
+
+  /** Get type declaration of 'this', option as not set in trigger */
   def thisType: Option[TypeDeclaration]
 
   /** Get type declaration of 'super' */
@@ -81,6 +84,8 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: T
 
   override def parent(): Option[VerifyContext] = parentContext
 
+  override def namespace: Option[Name] = typeDeclaration.namespace
+
   override def thisType: Option[TypeDeclaration] = Some(typeDeclaration)
 
   override def superType: Option[TypeDeclaration] = typeDeclaration.superClassDeclaration
@@ -95,6 +100,8 @@ class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDe
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
 
+  override def namespace: Option[Name] = parentContext.namespace
+
   override def thisType: Option[TypeDeclaration] = parentContext.thisType
 
   override def superType: Option[TypeDeclaration] = parentContext.superType
@@ -108,6 +115,8 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
   private val vars = mutable.Map[Name, TypeDeclaration]()
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
+
+  override def namespace: Option[Name] = parentContext.namespace
 
   override def thisType: Option[TypeDeclaration] = parentContext.thisType
 
@@ -161,6 +170,8 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext)
   extends VerifyContext {
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
+
+  override def namespace: Option[Name] = parentContext.namespace
 
   override def thisType: Option[TypeDeclaration] = parentContext.thisType
 

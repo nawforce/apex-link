@@ -72,7 +72,7 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
   test("Missing Static func creates error") {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy {void func() {A.func();} }"))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 33-34: Identifier 'A' not found\n")
+      "line 1 at 33-34: No variable or type found for 'A'\n")
     assert(tds.head.dependencies().isEmpty)
   }
 
@@ -97,7 +97,7 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
 
   test("Field reference creates method dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy {Object a; void func() {a.b = null;} }"
+      "Dummy" -> "public class Dummy {Object a; void func() {a = null;} }"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
@@ -106,7 +106,7 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
 
   test("Superclass field reference creates method dependent") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy extends A {void func() {a.b = null;} }",
+      "Dummy" -> "public class Dummy extends A {void func() {a = null;} }",
       "A" -> "public virtual class A {Object a;}"
     ))
     assert(!defaultOrg.issues.hasMessages)
@@ -119,7 +119,7 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy {Object a; class B {void func() {a = null;} } }",
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 52-53: Identifier 'a' not found\n")
+      "line 1 at 52-53: No variable or type found for 'a'\n")
     assert(tds.head.dependencies().isEmpty)
     assert(tds.head.nestedTypes.head.dependencies().isEmpty)
     assert(tds.head.nestedTypes.head.methods.head.dependencies().isEmpty)
@@ -156,7 +156,7 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
 
   test("Local var not dependent") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy {void func() {Object a; a.b = null;} }"
+      "Dummy" -> "public class Dummy {void func() {Object a; a = null;} }"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.methods.head.dependencies() == Set(objectClass))
