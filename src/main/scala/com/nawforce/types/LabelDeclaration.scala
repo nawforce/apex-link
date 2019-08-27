@@ -38,15 +38,13 @@ import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
 import scala.collection.mutable
 import scala.xml.{Elem, SAXParseException}
 
-final case class LabelDeclaration(pkg: PackageDeclaration) extends TypeDeclaration {
-  private val labelNamespaces = mutable.Map[Name, LabelDeclaration]()
-  private val labelFields = mutable.Map[Name, Label]()
+final case class LabelDeclaration(name: Name, labelFields: Seq[Label], labelNamespaces: Seq[LabelDeclaration])
+  extends TypeDeclaration {
 
-  load()
+  override val typeName: TypeName =
+    if (name == Name.Label) TypeName.Label else TypeName(name, Nil, Some(TypeName.Label))
+  override val outerTypeName: Option[TypeName] = typeName.outer
 
-  override val name: Name = Name.Label
-  override val typeName: TypeName = TypeName.Label
-  override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
   override val modifiers: Seq[Modifier] = Seq.empty
   override val isComplete: Boolean = true
@@ -55,42 +53,42 @@ final case class LabelDeclaration(pkg: PackageDeclaration) extends TypeDeclarati
   override val superClass: Option[TypeName] = None
   override def superClassDeclaration: Option[TypeDeclaration] = None
   override val interfaces: Seq[TypeName] = Seq.empty
-  override val nestedTypes: Seq[TypeDeclaration] = labelNamespaces.values.toSeq
+  override val nestedTypes: Seq[TypeDeclaration] = labelNamespaces
 
   override val blocks: Seq[BlockDeclaration] = Seq.empty
-  override val fields: Seq[FieldDeclaration] = labelFields.values.toSeq
+  override val fields: Seq[FieldDeclaration] = labelFields
   override val constructors: Seq[ConstructorDeclaration] = Seq.empty
   override val methods: Seq[MethodDeclaration]= Seq.empty
 
   override def validate(): Unit = {}
   override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
 
-  override def findField(name: Name, namespace: Option[Name], staticOnly: Boolean): Option[FieldDeclaration] = {
-    val label = labelFields.get(name)
-    val allowProtected = namespace == pkg.namespaceOption
-    if (!allowProtected && label.nonEmpty && label.get.isProtected)
-      return None
-    label
-  }
-
-  override def findType(name: Name, namespace: Option[Name], staticOnly: Boolean): Option[TypeDeclaration] = {
-    // TODO: Handle protected/private
-    labelNamespaces.get(name)
-  }
-
   def unused(): Seq[Issue] = {
-    labelFields.values.filterNot(_.hasHolders)
-      .map(label => Issue(label.location, s"Label '${pkg.namespaceWithDot}${label.name}' is not being used in Apex code"))
-      .toSeq
+    labelFields.filterNot(_.hasHolders)
+      .map(label => Issue(label.location, s"Label '$typeName.${label.name}' is not being used in Apex code"))
+  }
+}
+
+object LabelDeclaration {
+  def apply(pkg: PackageDeclaration): LabelDeclaration = {
+    val labels = pkg.documentsByExtension(Name("labels")).flatMap(labelFile => parseLabels(labelFile))
+    val baseLabels = collectBaseLabels(pkg)
+    LabelDeclaration(Name.Label, labels, baseLabels.values.toSeq)
   }
 
-  private def load(): Unit = {
-    pkg.documentsByExtension(Name("labels")).foreach(labelFile =>
-      parseLabels(labelFile).foreach(label => labelFields.put(label.name, label))
-    )
-    pkg.basePackage().foreach(pkg => {
-      labelNamespaces.put(pkg.namespace, pkg.labels())
+  private def collectBaseLabels(pkg: PackageDeclaration, collected: mutable.Map[Name, LabelDeclaration]=mutable.Map())
+    : mutable.Map[Name, LabelDeclaration] = {
+    pkg.basePackage().foreach(basePkg => {
+      if (!collected.contains(basePkg.namespace)) {
+        val labels = LabelDeclaration(basePkg.namespace,
+          basePkg.labels().labelFields.filterNot(label => label.isProtected),
+          Seq()
+        )
+        collected.put(basePkg.namespace, labels)
+        collectBaseLabels(basePkg, collected)
+      }
     })
+    collected
   }
 
   private def parseLabels(path: Path): Seq[Label] = {
@@ -119,13 +117,14 @@ final case class LabelDeclaration(pkg: PackageDeclaration) extends TypeDeclarati
       }
     }
   }
+
 }
 
 case class Label(location: Location, fullName: String, isProtected: Boolean) extends FieldDeclaration {
   override val name: Name = Name(fullName)
-  override lazy val modifiers: Seq[Modifier] = Seq(readAccess)
+  override lazy val modifiers: Seq[Modifier] = Seq(STATIC_MODIFIER, GLOBAL_MODIFIER)
   override lazy val typeName: TypeName = TypeName.String
-  override lazy val readAccess: Modifier = if (isProtected) PUBLIC_MODIFIER else GLOBAL_MODIFIER
+  override lazy val readAccess: Modifier = GLOBAL_MODIFIER
   override lazy val writeAccess: Modifier = PRIVATE_MODIFIER
 }
 
