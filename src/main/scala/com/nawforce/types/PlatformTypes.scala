@@ -32,6 +32,7 @@ import com.nawforce.utils.{DotName, Name}
 object PlatformTypes {
   lazy val nullType: TypeDeclaration = getType(DotName(Seq(Name.Internal, Name.Null$))).get
   lazy val recordSetType: TypeDeclaration = getType(DotName(Seq(Name.Internal, Name.RecordSet$))).get
+  lazy val sObjectType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.SObject))).get
   lazy val typeType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Type))).get
   lazy val objectType: TypeDeclaration = getType(DotName(Seq(Name.Internal, Name.Object$))).get
   lazy val stringType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.String))).get

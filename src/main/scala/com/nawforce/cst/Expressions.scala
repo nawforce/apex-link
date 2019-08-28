@@ -81,7 +81,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
 
     input.declaration.get match {
       case td: TypeDeclaration =>
-        val field = td.findField(target.left.get.name, context.namespace, input.isStatic)
+        val field = td.findField(target.left.get.name, input.isStatic)
         if (field.nonEmpty) {
           val td = context.getTypeAndAddDependency(field.get.typeName)
           ExprContext(isStatic = false, td)

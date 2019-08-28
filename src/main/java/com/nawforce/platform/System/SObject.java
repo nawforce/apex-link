@@ -33,6 +33,14 @@ import com.nawforce.platform.Schema.SObjectType;
 
 @SuppressWarnings("unused")
 public class SObject {
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id CreatedById;
+	public Datetime CreatedDate;
+	public Id LastModifiedById;
+	public Datetime LastModifiedDate;
+	public Datetime SystemModstamp;
+
 	public void addError(Object msg) {throw new java.lang.UnsupportedOperationException();}
 	public void addError(Object msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
 	public void addError(String msg) {throw new java.lang.UnsupportedOperationException();}

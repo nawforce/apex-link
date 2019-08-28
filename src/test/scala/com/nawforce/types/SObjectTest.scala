@@ -36,35 +36,181 @@ import org.scalatest.FunSuite
 
 class SObjectTest extends FunSuite {
 
-  def customObject(label: String, fields: Seq[(String, String)]): String = {
+  def customObject(label: String, fields: Seq[(String, String, Option[String])]): String = {
     val fieldMetadata = fields.map(field => {
       s"""
          |    <fields>
          |        <fullName>${field._1}</fullName>
          |        <type>${field._2}</type>
+         |        ${if (field._3.nonEmpty) s"<referenceTo>field._3.get</referenceTo>" else ""}
          |    </fields>
          |""".stripMargin
     })
 
     s"""<?xml version="1.0" encoding="UTF-8"?>
       |<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
-      |    <fullName>${label}</fullName>
-      |    ${fieldMetadata}
+      |    <fullName>$label</fullName>
+      |    $fieldMetadata
       |</CustomObject>
       |""".stripMargin
   }
 
-  test("Valid construction") {
+  test("Bad field type") {
     val fs = Jimfs.newFileSystem(Configuration.unix)
-    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar", "Text"))).getBytes())
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Silly", None))).getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(org.issues.getMessages(fs.getPath("/work/Foo__c.object")) ==
+      "line 5 to 6: Unexpected type 'Silly' on custom field\n")
+  }
+
+  test("Illegal Map construction") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObject a = new Foo__c{'a' => 'b'};} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+      "line 1 at 38-56: Map construction not supported on SObject type 'Foo__c'\n")
+  }
+
+  test("Illegal Set construction") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObject a = new Foo__c{'a', 'b'};} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+      "line 1 at 38-54: Set construction not supported on SObject type 'Foo__c'\n")
+  }
+
+  test("No-arg construction") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObject a = new Foo__c();} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Single arg construction") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__c = 'A');} }".getBytes())
 
     val org = new Org()
     val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    org.issues.dumpMessages(false)
     assert(!org.issues.hasMessages)
   }
 
-  // TODO: Complete impl & tests
+  test("Bad arg construction") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Baz__c = 'A');} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+      "line 1 at 44-50: Unknown field 'Baz__c' on SObject type 'Foo__c'\n")
+  }
+
+  test("Multi arg construction") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None), ("Baz__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Baz__c = 'A', Bar__c = 'B');} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Duplicate arg construction") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__c = 'A', Bar__c = 'A');} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+      "line 1 at 58-64: Duplicate assignment to field 'Bar__c' on SObject type 'Foo__c'\n")
+  }
+
+  test("None name=value construction") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c('Silly');} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+      "line 1 at 44-51: SObject type 'Foo__c' construction needs '<field name> = <value>' arguments\n")
+  }
+
+  test("Id & Name construction") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Id='', Name='');} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Lookup construction Id") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Lookup", Some("Account")))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__c = '');} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Lookup construction relationship") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Lookup", Some("Account")))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__r = null);} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("MasterDetail construction Id") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "MasterDetail", Some("Account")))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__c = '');} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("MasterDetail construction relationship") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "MasterDetail", Some("Account")))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__r = null);} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
 }

@@ -483,7 +483,8 @@ classCreatorRest
     ;
 
 arrayCreatorRest
-    : LBRACK expression? RBRACK arrayInitializer?
+    : LBRACK expression RBRACK
+    | LBRACK RBRACK arrayInitializer?
     ;
 
 mapCreatorRest

@@ -100,10 +100,13 @@ final case class Creator(createdName: CreatedName,
       return inter
     }
 
-    inter.declaration.get match {
-      case co: CustomObjectDeclaration =>
-        return co.validateConstructor(input, this)
-      case _ => ()
+    // Intercept CustomObject construction to handle name=value args
+    if (arrayCreatorRest.isEmpty) {
+      inter.declaration.get match {
+        case co: CustomObjectDeclaration =>
+          return co.validateConstructor(input, this)
+        case _ => ()
+      }
     }
 
     /* TODO

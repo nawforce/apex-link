@@ -131,7 +131,7 @@ trait TypeDeclaration extends DependencyHolder {
   def validate(): Unit
   def collectDependencies(dependencies: mutable.Set[Dependant]): Unit
 
-  def findField(name: Name, namespace: Option[Name], staticOnly: Boolean): Option[FieldDeclaration] = {
+  def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
     fieldsByName.get(name).filter(f => !staticOnly || f.isStatic)
   }
 
