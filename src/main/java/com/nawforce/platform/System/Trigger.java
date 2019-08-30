@@ -29,4 +29,18 @@ package com.nawforce.platform.System;
 
 @SuppressWarnings("unused")
 public class Trigger {
+    public static Boolean isAfter;
+    public static Boolean isBefore;
+    public static Boolean isDelete;
+    public static Boolean isExecuting;
+    public static Boolean isInsert;
+    public static Boolean isUndelete;
+    public static Boolean isUpdate;
+
+    public static List<SObject> New;
+    public static Map<Id, SObject> newMap;
+    public static List<SObject> old;
+    public static Map<Id, SObject> oldMap;
+    public static TriggerOperation operationType;
+    public static Integer size;
 }
