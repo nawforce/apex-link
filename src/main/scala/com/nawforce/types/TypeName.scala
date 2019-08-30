@@ -71,9 +71,12 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
   def asClassOf: TypeName = new TypeName(Name.Class$, Seq(this), Some(TypeName.System))
 
   override def toString: String = {
-    (if (outer.isEmpty) "" else outer.get.toString + ".") +
-    name.toString +
-      (if (params.isEmpty) "" else s"<${params.map(_.toString).mkString(", ")}>")
+    val alias = TypeName.aliasMap.get(this)
+    alias.getOrElse({
+      (if (outer.isEmpty) "" else outer.get.toString + ".") +
+        name.toString +
+        (if (params.isEmpty) "" else s"<${params.map(_.toString).mkString(", ")}>")
+    })
   }
 }
 
@@ -84,6 +87,7 @@ object TypeName {
   lazy val Schema = TypeName(Name("Schema"))
   lazy val SObject = TypeName(Name.SObject, Nil, Some(TypeName.System))
   lazy val Label = TypeName(Name.Label)
+  lazy val Internal = TypeName(Name.Internal)
 
   lazy val Long = TypeName(Name("Long"), Nil, Some(TypeName.System))
   lazy val Integer = TypeName(Name("Integer"), Nil, Some(TypeName.System))
@@ -91,6 +95,12 @@ object TypeName {
   lazy val Decimal = TypeName(Name("Decimal"), Nil, Some(TypeName.System))
   lazy val String = TypeName(Name("String"), Nil, Some(TypeName.System))
   lazy val Boolean = TypeName(Name("Boolean"), Nil, Some(TypeName.System))
+
+  private lazy val aliasMap = Map[TypeName, String](
+    TypeName(Name.Null$, Nil, Some(TypeName.Internal)) -> "null",
+    TypeName(Name.Object$, Nil, Some(TypeName.Internal)) -> "Object",
+    TypeName(Name.RecordSet$, Nil, Some(TypeName.Internal)) -> "[SOQL Results]"
+  )
 
   def apply(names: Seq[Name]): TypeName = {
     names match {

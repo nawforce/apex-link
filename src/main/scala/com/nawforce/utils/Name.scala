@@ -87,6 +87,7 @@ object Name {
   lazy val Datetime: Name = cache("Datetime")
   lazy val Time: Name = cache("Time")
   lazy val Decimal: Name = cache("Decimal")
+  lazy val Double: Name = cache("Double")
   lazy val Blob: Name = cache("Blob")
   lazy val Location: Name = cache("Location")
   lazy val NameName: Name = cache("Name")
@@ -109,6 +110,8 @@ object Name {
   lazy val Field: Name = cache("Field")
   lazy val NewValue: Name = cache("NewValue")
   lazy val OldValue: Name = cache("OldValue")
+  lazy val Integer: Name = cache("Integer")
+  lazy val Long: Name = cache("Long")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 }

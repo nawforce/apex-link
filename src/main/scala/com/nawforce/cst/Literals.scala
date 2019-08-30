@@ -28,55 +28,55 @@
 package com.nawforce.cst
 
 import com.nawforce.parsers.ApexParser.LiteralContext
-import com.nawforce.types.{DependencyHolder, PlatformTypes, TypeName}
+import com.nawforce.types.{PlatformTypes, TypeDeclaration}
 
 sealed abstract class Literal() extends CST {
   override def children(): List[CST] = Nil
 
-  def getType: DependencyHolder
+  def getType: TypeDeclaration
 }
 
-final case class IntegerLit(value: String) extends Literal {
-  override def getType: DependencyHolder =
+final case class IntegerLiteral(value: String) extends Literal {
+  override def getType: TypeDeclaration =
     if (value.endsWith("l") || value.endsWith("L"))
-      PlatformTypes.getType(TypeName.Long).get
+      PlatformTypes.longType
     else
-      PlatformTypes.getType(TypeName.Integer).get
+      PlatformTypes.integerType
 }
 
-final case class NumberLit(value: String) extends Literal {
-  override def getType: DependencyHolder =
+final case class NumberLiteral(value: String) extends Literal {
+  override def getType: TypeDeclaration =
     if (value.length() > 50)
-      PlatformTypes.getType(TypeName.Double).get
+      PlatformTypes.doubleType
     else
-      PlatformTypes.getType(TypeName.Decimal).get
+      PlatformTypes.decimalType
 }
 
-final case class StringLit(value: String) extends Literal {
-  override def getType: DependencyHolder = PlatformTypes.getType(TypeName.String).get
+final case class StringLiteral(value: String) extends Literal {
+  override def getType: TypeDeclaration = PlatformTypes.stringType
 }
 
-final case class BooleanLit(value: String) extends Literal {
-  override def getType: DependencyHolder = PlatformTypes.getType(TypeName.Boolean).get
+final case class BooleanLiteral(value: String) extends Literal {
+  override def getType: TypeDeclaration = PlatformTypes.booleanType
 }
 
-final case class NullLit() extends Literal {
-  override def getType: DependencyHolder = PlatformTypes.nullType
+final case class NullLiteral() extends Literal {
+  override def getType: TypeDeclaration = PlatformTypes.nullType
 }
 
 object Literal {
   def construct(from: LiteralContext, context: ConstructContext): Literal = {
     val cst =
       if (from.IntegerLiteral() != null)
-        IntegerLit(from.IntegerLiteral().getText)
+        IntegerLiteral(from.IntegerLiteral().getText)
       else if (from.NumberLiteral() != null)
-        NumberLit(from.NumberLiteral().getText)
+        NumberLiteral(from.NumberLiteral().getText)
       else if (from.StringLiteral() != null)
-        StringLit(from.StringLiteral().getText)
+        StringLiteral(from.StringLiteral().getText)
       else if (from.BooleanLiteral() != null)
-        BooleanLit(from.BooleanLiteral().getText)
+        BooleanLiteral(from.BooleanLiteral().getText)
       else
-        NullLit()
+        NullLiteral()
     cst.withContext(from, context)
   }
 }

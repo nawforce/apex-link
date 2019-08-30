@@ -29,12 +29,11 @@ package com.nawforce.cst
 
 import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{DependencyHolder, TypeDeclaration, TypeName}
-import com.nawforce.utils.DotName
+import com.nawforce.types.{PlatformTypes, TypeDeclaration, TypeName}
 
 import scala.collection.JavaConverters._
 
-case class ExprContext(isStatic: Boolean, declaration: Option[DependencyHolder])
+case class ExprContext(isStatic: Boolean, declaration: Option[TypeDeclaration])
 
 object ExprContext {
   val empty = ExprContext(isStatic = false, None)
@@ -113,8 +112,25 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
   override def children(): List[CST] = expression :: arrayExpression :: Nil
 
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+
+    val index = arrayExpression.verify(ExprContext(isStatic = false, context.thisType), context)
+    if (index.declaration.isEmpty)
+      return ExprContext.empty
+    if (index.declaration.get ne PlatformTypes.integerType) {
+      Org.logMessage(arrayExpression.location,
+        s"Array indexes must be Integers, found '${index.declaration.get.typeName}'")
+      return ExprContext.empty
+    }
+
     val inter = expression.verify(input, context)
-    inter.declaration.map(_ => arrayExpression.verify(inter, context)).getOrElse(inter)
+    if (inter.declaration.nonEmpty) {
+      if (inter.isStatic || (inter.declaration.get ne PlatformTypes.listType))
+        Org.logMessage(location, s"Only Lists can be de-referenced as an array")
+      else
+        // TODO: Extract type parameter of list
+        ExprContext.empty
+    }
+    ExprContext.empty
   }
 }
 
