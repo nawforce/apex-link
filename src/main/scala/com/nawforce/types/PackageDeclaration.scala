@@ -41,6 +41,7 @@ abstract class PackageDeclaration(val namespace: Name, val paths: Seq[Path]) {
   def isGhosted: Boolean = paths.isEmpty
   def basePackage(): Seq[PackageDeclaration]
   def labels(): LabelDeclaration
+  def pages(): PageDeclaration
 
   def namespaceOption: Option[Name] = if (namespace.isEmpty) None else Some(namespace)
   def namespaceWithDot: String = if (namespace.isEmpty) "" else namespace + "."

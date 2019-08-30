@@ -81,6 +81,12 @@ case class PlatformEventDocument(_path: Path, _name: Name)
   lazy val extension: Name = Name("object")
 }
 
+case class PageDocument(_path: Path, _name: Name)
+  extends MetadataDocumentType(_path, _name) {
+  lazy val extension: Name = Name("page")
+}
+
+
 object DocumentType {
   def apply(path: Path): Option[DocumentType] = {
     splitFilename(path) match {
@@ -104,6 +110,8 @@ object DocumentType {
         Some(LabelsDocument(path, name))
       case Seq(name, Name("labels-meta"), Name("xml")) =>
         Some(LabelsDocument(path, name))
+      case Seq(name, Name("page")) =>
+        Some(PageDocument(path, name))
       case _ => None
     }
   }

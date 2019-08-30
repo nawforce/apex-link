@@ -42,7 +42,7 @@ class Package(val org: Org, _namespace: Name, _paths: Seq[Path], var basePackage
   extends PackageDeclaration(_namespace, _paths) with LazyLogging {
 
   private val labelDeclaration = LabelDeclaration(this)
-  private val pageDeclaration = new PageDeclaration
+  private val pageDeclaration = PageDeclaration(this)
   private val flowDeclaration = new FlowDeclaration
   private val componentDeclaration = new ComponentDeclaration
   private val types = initTypes()
@@ -60,6 +60,8 @@ class Package(val org: Org, _namespace: Name, _paths: Seq[Path], var basePackage
   override def basePackage(): Seq[PackageDeclaration] = basePackages
 
   override def labels(): LabelDeclaration = labelDeclaration
+
+  override def pages(): PageDeclaration = pageDeclaration
 
   def typeCount: Int = types.size
 

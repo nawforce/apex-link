@@ -95,6 +95,7 @@ object TypeName {
   lazy val Decimal = TypeName(Name("Decimal"), Nil, Some(TypeName.System))
   lazy val String = TypeName(Name("String"), Nil, Some(TypeName.System))
   lazy val Boolean = TypeName(Name("Boolean"), Nil, Some(TypeName.System))
+  lazy val PageReference = TypeName(Name.PageReference, Nil, Some(TypeName.System))
 
   private lazy val aliasMap = Map[TypeName, String](
     TypeName(Name.Null$, Nil, Some(TypeName.Internal)) -> "null",

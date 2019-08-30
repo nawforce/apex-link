@@ -27,11 +27,12 @@
 */
 package com.nawforce.types
 
+import com.nawforce.documents.{DocumentType, LineLocation, Location, PageDocument}
 import com.nawforce.utils.Name
 
 import scala.collection.mutable
 
-final case class PageDeclaration() extends TypeDeclaration {
+final case class PageDeclaration(pages: Seq[Page]) extends TypeDeclaration {
   override val name: Name = Name.Page
   override val typeName: TypeName = TypeName(name)
   override val outerTypeName: Option[TypeName] = None
@@ -46,7 +47,7 @@ final case class PageDeclaration() extends TypeDeclaration {
   override val nestedTypes: Seq[TypeDeclaration] = Seq.empty
 
   override val blocks: Seq[BlockDeclaration] = Seq.empty
-  override val fields: Seq[FieldDeclaration]= Seq.empty
+  override val fields: Seq[FieldDeclaration]= pages
   override val constructors: Seq[ConstructorDeclaration] = Seq.empty
   override val methods: Seq[MethodDeclaration]= Seq.empty
 
@@ -54,3 +55,34 @@ final case class PageDeclaration() extends TypeDeclaration {
   override def dependencies(): Set[Dependant] = Set.empty
   override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
 }
+
+object PageDeclaration {
+  def apply(pkg: PackageDeclaration): PageDeclaration = {
+    val pages = collectBasePages(pkg).values.flatten ++
+      pkg.documentsByExtension(Name("page")).map(path => DocumentType(path)).flatMap {
+        case Some(page: PageDocument) => Some(Page(LineLocation(page.path, 0), page.name))
+        case _ => None
+      }
+    new PageDeclaration(pages.toSeq)
+  }
+
+  private def collectBasePages(pkg: PackageDeclaration, collected: mutable.Map[Name, Seq[Page]]=mutable.Map())
+  : mutable.Map[Name, Seq[Page]] = {
+    pkg.basePackage().foreach(basePkg => {
+      if (!collected.contains(basePkg.namespace)) {
+        val pages = basePkg.pages().pages.map(page => Page(page.location, Name(s"${basePkg.namespace}__${page.name}")))
+        collected.put(basePkg.namespace, pages)
+        collectBasePages(basePkg, collected)
+      }
+    })
+    collected
+  }
+}
+
+case class Page(location: Location, name: Name) extends FieldDeclaration {
+  override lazy val modifiers: Seq[Modifier] = Seq(STATIC_MODIFIER, GLOBAL_MODIFIER)
+  override lazy val typeName: TypeName = TypeName.PageReference
+  override lazy val readAccess: Modifier = GLOBAL_MODIFIER
+  override lazy val writeAccess: Modifier = PRIVATE_MODIFIER
+}
+
