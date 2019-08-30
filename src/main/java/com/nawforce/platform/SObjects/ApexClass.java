@@ -44,5 +44,5 @@ public class ApexClass extends SObject {
 	public String NamespacePrefix;
 	public String Status;
 
-	public SetupEntityAccess SetupEntityAccessItems;
+	public SetupEntityAccess[] SetupEntityAccessItems;
 }

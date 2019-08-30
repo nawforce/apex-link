@@ -58,16 +58,16 @@ public class SOSSession extends SObject {
 	public String SystemInfo;
 	public Integer WaitDuration;
 
-	public ActivityHistory ActivityHistories;
-	public AttachedContentDocument AttachedContentDocuments;
-	public CombinedAttachment CombinedAttachments;
-	public ContentDocumentLink ContentDocumentLinks;
-	public EmailMessage Emails;
-	public Event Events;
-	public EntitySubscription FeedSubscriptionsForEntity;
-	public SOSSessionFeed Feeds;
-	public SOSSessionHistory Histories;
-	public OpenActivity OpenActivities;
-	public SOSSessionActivity SOSSessionActivities;
-	public Task Tasks;
+	public ActivityHistory[] ActivityHistories;
+	public AttachedContentDocument[] AttachedContentDocuments;
+	public CombinedAttachment[] CombinedAttachments;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public EmailMessage[] Emails;
+	public Event[] Events;
+	public EntitySubscription[] FeedSubscriptionsForEntity;
+	public SOSSessionFeed[] Feeds;
+	public SOSSessionHistory[] Histories;
+	public OpenActivity[] OpenActivities;
+	public SOSSessionActivity[] SOSSessionActivities;
+	public Task[] Tasks;
 }

@@ -42,5 +42,5 @@ public class SecureAgentPlugin extends SObject {
 	public Datetime UpdateWindowEnd;
 	public Datetime UpdateWindowStart;
 
-	public SecureAgentPluginProperty SecureAgentPluginProperties;
+	public SecureAgentPluginProperty[] SecureAgentPluginProperties;
 }

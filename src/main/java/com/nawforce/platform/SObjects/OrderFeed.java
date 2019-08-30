@@ -51,9 +51,9 @@ public class OrderFeed extends SObject {
 	public String Title;
 	public String Type;
 
-	public FeedAttachment FeedAttachments;
-	public FeedComment FeedComments;
-	public FeedLike FeedLikes;
-	public FeedSignal FeedSignals;
-	public FeedTrackedChange FeedTrackedChanges;
+	public FeedAttachment[] FeedAttachments;
+	public FeedComment[] FeedComments;
+	public FeedLike[] FeedLikes;
+	public FeedSignal[] FeedSignals;
+	public FeedTrackedChange[] FeedTrackedChanges;
 }

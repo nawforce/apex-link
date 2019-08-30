@@ -47,5 +47,5 @@ public class Scontrol extends SObject {
 	public String NamespacePrefix;
 	public Boolean SupportsCaching;
 
-	public ScontrolLocalization Localization;
+	public ScontrolLocalization[] Localization;
 }

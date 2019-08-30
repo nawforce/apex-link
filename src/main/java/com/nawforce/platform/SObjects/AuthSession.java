@@ -52,5 +52,5 @@ public class AuthSession extends SObject {
 	public Id UsersId;
 	public User Users;
 
-	public SessionPermSetActivation SessionPermSetActivations;
+	public SessionPermSetActivation[] SessionPermSetActivations;
 }

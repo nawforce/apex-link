@@ -38,6 +38,6 @@ public class Stamp extends SObject {
 	public Id ParentId;
 	public Organization Parent;
 
-	public CustomBrand CustomBrands;
-	public StampLocalization Localization;
+	public CustomBrand[] CustomBrands;
+	public StampLocalization[] Localization;
 }

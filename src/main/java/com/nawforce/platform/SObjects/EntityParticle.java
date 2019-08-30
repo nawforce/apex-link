@@ -90,5 +90,5 @@ public class EntityParticle extends SObject {
 	public String ServiceDataTypeId;
 	public String ValueTypeId;
 
-	public PicklistValueInfo PicklistValues;
+	public PicklistValueInfo[] PicklistValues;
 }

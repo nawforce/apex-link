@@ -54,12 +54,12 @@ public class ListEmail extends SObject {
 	public String TextBody;
 	public Integer TotalSent;
 
-	public ActivityHistory ActivityHistories;
-	public AttachedContentDocument AttachedContentDocuments;
-	public CombinedAttachment CombinedAttachments;
-	public ContentDocumentLink ContentDocumentLinks;
-	public EmailMessage Emails;
-	public Event Events;
-	public OpenActivity OpenActivities;
-	public Task Tasks;
+	public ActivityHistory[] ActivityHistories;
+	public AttachedContentDocument[] AttachedContentDocuments;
+	public CombinedAttachment[] CombinedAttachments;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public EmailMessage[] Emails;
+	public Event[] Events;
+	public OpenActivity[] OpenActivities;
+	public Task[] Tasks;
 }

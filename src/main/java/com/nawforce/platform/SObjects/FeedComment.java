@@ -58,7 +58,7 @@ public class FeedComment extends SObject {
 	public Id ThreadParentId;
 	public FeedComment ThreadParent;
 
-	public FeedAttachment FeedAttachments;
-	public FeedRevision FeedRevisions;
-	public FeedComment FeedThreadedComments;
+	public FeedAttachment[] FeedAttachments;
+	public FeedRevision[] FeedRevisions;
+	public FeedComment[] FeedThreadedComments;
 }

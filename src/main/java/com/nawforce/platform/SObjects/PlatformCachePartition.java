@@ -40,5 +40,5 @@ public class PlatformCachePartition extends SObject {
 	public String MasterLabel;
 	public String NamespacePrefix;
 
-	public PlatformCachePartitionType PlatforCachePartitionTypes;
+	public PlatformCachePartitionType[] PlatforCachePartitionTypes;
 }

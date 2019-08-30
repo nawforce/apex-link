@@ -35,5 +35,5 @@ public class CustomBrand extends SObject {
 	public Id ParentId;
 	public Organization Parent;
 
-	public CustomBrandAsset CustomBrandAssets;
+	public CustomBrandAsset[] CustomBrandAssets;
 }

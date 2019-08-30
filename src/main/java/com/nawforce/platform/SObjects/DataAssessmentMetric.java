@@ -42,5 +42,5 @@ public class DataAssessmentMetric extends SObject {
 	public Integer NumTotal;
 	public Integer NumUnmatched;
 
-	public DataAssessmentFieldMetric DataAssessmentMetrics;
+	public DataAssessmentFieldMetric[] DataAssessmentMetrics;
 }

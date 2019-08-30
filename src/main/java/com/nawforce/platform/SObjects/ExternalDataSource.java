@@ -52,7 +52,7 @@ public class ExternalDataSource extends SObject {
 	public StaticResource SmallIcon;
 	public String Type;
 
-	public CustomHttpHeader CustomHttpHeaders;
-	public SetupEntityAccess SetupEntityAccessItems;
-	public ExternalDataUserAuth UserAuths;
+	public CustomHttpHeader[] CustomHttpHeaders;
+	public SetupEntityAccess[] SetupEntityAccessItems;
+	public ExternalDataUserAuth[] UserAuths;
 }

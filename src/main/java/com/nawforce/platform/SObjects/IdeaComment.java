@@ -46,5 +46,5 @@ public class IdeaComment extends SObject {
 	public Boolean IsHtml;
 	public Integer UpVotes;
 
-	public Vote Votes;
+	public Vote[] Votes;
 }

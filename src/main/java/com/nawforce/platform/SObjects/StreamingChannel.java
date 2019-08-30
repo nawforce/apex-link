@@ -43,6 +43,6 @@ public class StreamingChannel extends SObject {
 	public Id OwnerId;
 	public Group Owner;
 
-	public ProcessInstance ProcessInstances;
-	public ProcessInstanceHistory ProcessSteps;
+	public ProcessInstance[] ProcessInstances;
+	public ProcessInstanceHistory[] ProcessSteps;
 }

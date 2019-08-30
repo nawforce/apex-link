@@ -52,11 +52,11 @@ public class OrderItem extends SObject {
 	public Decimal TotalPrice;
 	public Decimal UnitPrice;
 
-	public AttachedContentDocument AttachedContentDocuments;
-	public OrderItem ChildOrderItems;
-	public CombinedAttachment CombinedAttachments;
-	public ContentDocumentLink ContentDocumentLinks;
-	public EntitySubscription FeedSubscriptionsForEntity;
-	public OrderItemFeed Feeds;
-	public OrderItemHistory Histories;
+	public AttachedContentDocument[] AttachedContentDocuments;
+	public OrderItem[] ChildOrderItems;
+	public CombinedAttachment[] CombinedAttachments;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public EntitySubscription[] FeedSubscriptionsForEntity;
+	public OrderItemFeed[] Feeds;
+	public OrderItemHistory[] Histories;
 }

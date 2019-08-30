@@ -56,5 +56,5 @@ public class BackgroundOperation extends SObject {
 	public Integer Timeout;
 	public String WorkerUri;
 
-	public BackgroundOperation MergedOperations;
+	public BackgroundOperation[] MergedOperations;
 }

@@ -259,6 +259,6 @@ public class PermissionSetLicense extends SObject {
 	public com.nawforce.platform.System.Integer TotalLicenses;
 	public Integer UsedLicenses;
 
-	public GrantedByLicense GrantedByLicenses;
-	public PermissionSetLicenseAssign PermissionSetLicenseAssignments;
+	public GrantedByLicense[] GrantedByLicenses;
+	public PermissionSetLicenseAssign[] PermissionSetLicenseAssignments;
 }

@@ -39,9 +39,9 @@ public class DashboardComponent extends SObject {
 	public Dashboard Dashboard;
 	public String Name;
 
-	public AttachedContentDocument AttachedContentDocuments;
-	public CombinedAttachment CombinedAttachments;
-	public ContentDocumentLink ContentDocumentLinks;
-	public EntitySubscription FeedSubscriptionsForEntity;
-	public DashboardComponentFeed Feeds;
+	public AttachedContentDocument[] AttachedContentDocuments;
+	public CombinedAttachment[] CombinedAttachments;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public EntitySubscription[] FeedSubscriptionsForEntity;
+	public DashboardComponentFeed[] Feeds;
 }

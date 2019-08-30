@@ -60,5 +60,5 @@ public class ContentDistribution extends SObject {
 	public Account RelatedRecord;
 	public Integer ViewCount;
 
-	public ContentDistributionView ContentDistributionViews;
+	public ContentDistributionView[] ContentDistributionViews;
 }

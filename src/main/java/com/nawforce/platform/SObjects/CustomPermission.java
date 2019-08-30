@@ -40,8 +40,8 @@ public class CustomPermission extends SObject {
 	public String MasterLabel;
 	public String NamespacePrefix;
 
-	public CustomPermissionDependency CustomPermissionDependencyItem;
-	public CustomPermissionDependency CustomPermissionItem;
-	public GrantedByLicense GrantedByLicenses;
-	public SetupEntityAccess SetupEntityAccessItems;
+	public CustomPermissionDependency[] CustomPermissionDependencyItem;
+	public CustomPermissionDependency[] CustomPermissionItem;
+	public GrantedByLicense[] GrantedByLicenses;
+	public SetupEntityAccess[] SetupEntityAccessItems;
 }

@@ -51,5 +51,5 @@ public class ApexTestResult extends SObject {
 	public String StackTrace;
 	public Datetime TestTimestamp;
 
-	public ApexTestResultLimits ApexTestResults;
+	public ApexTestResultLimits[] ApexTestResults;
 }

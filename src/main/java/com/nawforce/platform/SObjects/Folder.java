@@ -43,5 +43,5 @@ public class Folder extends SObject {
 	public Folder Parent;
 	public String Type;
 
-	public Folder SubFolders;
+	public Folder[] SubFolders;
 }

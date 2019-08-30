@@ -147,6 +147,6 @@ public class DandBCompany extends SObject {
 	public String WomenOwned;
 	public String YearStarted;
 
-	public Account Accounts;
-	public Lead Leads;
+	public Account[] Accounts;
+	public Lead[] Leads;
 }

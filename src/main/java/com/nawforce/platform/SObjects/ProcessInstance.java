@@ -47,8 +47,8 @@ public class ProcessInstance extends SObject {
 	public Id TargetObjectId;
 	public Account TargetObject;
 
-	public ProcessInstanceNode Nodes;
-	public ProcessInstanceStep Steps;
-	public ProcessInstanceHistory StepsAndWorkitems;
-	public ProcessInstanceWorkitem Workitems;
+	public ProcessInstanceNode[] Nodes;
+	public ProcessInstanceStep[] Steps;
+	public ProcessInstanceHistory[] StepsAndWorkitems;
+	public ProcessInstanceWorkitem[] Workitems;
 }

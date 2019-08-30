@@ -45,5 +45,5 @@ public class ApexPage extends SObject {
 	public String Name;
 	public String NamespacePrefix;
 
-	public SetupEntityAccess SetupEntityAccessItems;
+	public SetupEntityAccess[] SetupEntityAccessItems;
 }

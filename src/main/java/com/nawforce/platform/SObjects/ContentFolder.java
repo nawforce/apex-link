@@ -38,5 +38,5 @@ public class ContentFolder extends SObject {
 	public Id ParentContentFolderId;
 	public ContentFolder ParentContentFolder;
 
-	public ContentFolderLink ContentFolderLinks;
+	public ContentFolderLink[] ContentFolderLinks;
 }

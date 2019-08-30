@@ -48,6 +48,6 @@ public class OutgoingEmail extends SObject {
 	public Id WhoId;
 	public Contact Who;
 
-	public ContentDocumentLink ContentDocumentLinks;
-	public OutgoingEmailRelation OutgoingEmailRelations;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public OutgoingEmailRelation[] OutgoingEmailRelations;
 }

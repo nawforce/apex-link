@@ -42,7 +42,7 @@ public class TabDefinition extends SObject {
 	public String SobjectName;
 	public String Url;
 
-	public AppTabMember AppTabs;
-	public ColorDefinition Colors;
-	public IconDefinition Icons;
+	public AppTabMember[] AppTabs;
+	public ColorDefinition[] Colors;
+	public IconDefinition[] Icons;
 }

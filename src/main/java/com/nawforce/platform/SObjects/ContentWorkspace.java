@@ -51,9 +51,9 @@ public class ContentWorkspace extends SObject {
 	public ContentAsset WorkspaceImage;
 	public String WorkspaceType;
 
-	public AttachedContentDocument AttachedContentDocuments;
-	public CombinedAttachment CombinedAttachments;
-	public ContentDocumentLink ContentDocumentLinks;
-	public ContentFolderLink ContentFolderLinks;
-	public ContentWorkspaceMember ContentWorkspaceMembers;
+	public AttachedContentDocument[] AttachedContentDocuments;
+	public CombinedAttachment[] CombinedAttachments;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public ContentFolderLink[] ContentFolderLinks;
+	public ContentWorkspaceMember[] ContentWorkspaceMembers;
 }

@@ -37,10 +37,10 @@ public class Topic extends SObject {
 	public String Name;
 	public Integer TalkingAbout;
 
-	public ContentDocumentLink ContentDocumentLinks;
-	public CustomBrand CustomBrands;
-	public EntitySubscription FeedSubscriptionsForEntity;
-	public TopicFeed Feeds;
-	public TopicLocalization Localization;
-	public TopicAssignment TopicAssignments;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public CustomBrand[] CustomBrands;
+	public EntitySubscription[] FeedSubscriptionsForEntity;
+	public TopicFeed[] Feeds;
+	public TopicLocalization[] Localization;
+	public TopicAssignment[] TopicAssignments;
 }

@@ -41,5 +41,5 @@ public class EmailRelay extends SObject {
 	public String TlsSetting;
 	public String Username;
 
-	public EmailDomainFilter Filters;
+	public EmailDomainFilter[] Filters;
 }

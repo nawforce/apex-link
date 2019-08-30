@@ -80,16 +80,16 @@ public class Event extends SObject {
 	public Id WhoId;
 	public Contact Who;
 
-	public AcceptedEventRelation AcceptedEventRelations;
-	public AttachedContentDocument AttachedContentDocuments;
-	public Attachment Attachments;
-	public CombinedAttachment CombinedAttachments;
-	public ContentDocumentLink ContentDocumentLinks;
-	public DeclinedEventRelation DeclinedEventRelations;
-	public EventRelation EventRelations;
-	public EntitySubscription FeedSubscriptionsForEntity;
-	public EventFeed Feeds;
-	public Event RecurringEvents;
-	public TopicAssignment TopicAssignments;
-	public UndecidedEventRelation UndecidedEventRelations;
+	public AcceptedEventRelation[] AcceptedEventRelations;
+	public AttachedContentDocument[] AttachedContentDocuments;
+	public Attachment[] Attachments;
+	public CombinedAttachment[] CombinedAttachments;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public DeclinedEventRelation[] DeclinedEventRelations;
+	public EventRelation[] EventRelations;
+	public EntitySubscription[] FeedSubscriptionsForEntity;
+	public EventFeed[] Feeds;
+	public Event[] RecurringEvents;
+	public TopicAssignment[] TopicAssignments;
+	public UndecidedEventRelation[] UndecidedEventRelations;
 }

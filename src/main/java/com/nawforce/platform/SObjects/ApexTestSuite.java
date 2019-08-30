@@ -34,5 +34,5 @@ import com.nawforce.platform.System.String;
 public class ApexTestSuite extends SObject {
 	public String TestSuiteName;
 
-	public TestSuiteMembership ApexClassJunctions;
+	public TestSuiteMembership[] ApexClassJunctions;
 }

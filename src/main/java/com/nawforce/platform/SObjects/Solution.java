@@ -50,21 +50,21 @@ public class Solution extends SObject {
 	public String Status;
 	public Integer TimesUsed;
 
-	public ActivityHistory ActivityHistories;
-	public AttachedContentDocument AttachedContentDocuments;
-	public Attachment Attachments;
-	public CaseSolution CaseSolutions;
-	public CombinedAttachment CombinedAttachments;
-	public ContentDocumentLink ContentDocumentLinks;
-	public EmailMessage Emails;
-	public Event Events;
-	public EntitySubscription FeedSubscriptionsForEntity;
-	public SolutionFeed Feeds;
-	public SolutionHistory Histories;
-	public OpenActivity OpenActivities;
-	public ProcessInstance ProcessInstances;
-	public ProcessInstanceHistory ProcessSteps;
-	public Task Tasks;
-	public TopicAssignment TopicAssignments;
-	public Vote Votes;
+	public ActivityHistory[] ActivityHistories;
+	public AttachedContentDocument[] AttachedContentDocuments;
+	public Attachment[] Attachments;
+	public CaseSolution[] CaseSolutions;
+	public CombinedAttachment[] CombinedAttachments;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public EmailMessage[] Emails;
+	public Event[] Events;
+	public EntitySubscription[] FeedSubscriptionsForEntity;
+	public SolutionFeed[] Feeds;
+	public SolutionHistory[] Histories;
+	public OpenActivity[] OpenActivities;
+	public ProcessInstance[] ProcessInstances;
+	public ProcessInstanceHistory[] ProcessSteps;
+	public Task[] Tasks;
+	public TopicAssignment[] TopicAssignments;
+	public Vote[] Votes;
 }

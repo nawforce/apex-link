@@ -41,5 +41,5 @@ public class OwnerChangeOptionInfo extends SObject {
 	public String Name;
 	public String ParentId;
 
-	public OwnerChangeOptionInfo ChildOwnerChangeOptionInfo;
+	public OwnerChangeOptionInfo[] ChildOwnerChangeOptionInfo;
 }

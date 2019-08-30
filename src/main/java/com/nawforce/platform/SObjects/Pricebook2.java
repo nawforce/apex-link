@@ -43,9 +43,9 @@ public class Pricebook2 extends SObject {
 	public Datetime LastViewedDate;
 	public String Name;
 
-	public Contract Contracts;
-	public Pricebook2History Histories;
-	public Opportunity Opportunities;
-	public Order Orders;
-	public PricebookEntry PricebookEntries;
+	public Contract[] Contracts;
+	public Pricebook2History[] Histories;
+	public Opportunity[] Opportunities;
+	public Order[] Orders;
+	public PricebookEntry[] PricebookEntries;
 }

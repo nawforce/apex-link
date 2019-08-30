@@ -43,5 +43,5 @@ public class MatchingRule extends SObject {
 	public String SobjectSubtype;
 	public String SobjectType;
 
-	public MatchingRuleItem MatchingRuleItems;
+	public MatchingRuleItem[] MatchingRuleItems;
 }

@@ -41,5 +41,5 @@ public class RelationshipInfo extends SObject {
 	public Boolean IsRestrictedDelete;
 	public Object JunctionIdListNames;
 
-	public RelationshipDomain RelationshipDomains;
+	public RelationshipDomain[] RelationshipDomains;
 }

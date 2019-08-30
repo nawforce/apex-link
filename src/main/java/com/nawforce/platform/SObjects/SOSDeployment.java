@@ -46,5 +46,5 @@ public class SOSDeployment extends SObject {
 	public String RecordingStorageBucket;
 	public String RecordingStorageType;
 
-	public SOSSession SOSSessions;
+	public SOSSession[] SOSSessions;
 }

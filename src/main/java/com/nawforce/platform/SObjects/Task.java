@@ -72,14 +72,14 @@ public class Task extends SObject {
 	public Id WhoId;
 	public Contact Who;
 
-	public AttachedContentDocument AttachedContentDocuments;
-	public Attachment Attachments;
-	public CombinedAttachment CombinedAttachments;
-	public ContentDocumentLink ContentDocumentLinks;
-	public EntitySubscription FeedSubscriptionsForEntity;
-	public TaskFeed Feeds;
-	public RecordActionHistory RecordActionHistories;
-	public RecordAction RecordActions;
-	public Task RecurringTasks;
-	public TopicAssignment TopicAssignments;
+	public AttachedContentDocument[] AttachedContentDocuments;
+	public Attachment[] Attachments;
+	public CombinedAttachment[] CombinedAttachments;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public EntitySubscription[] FeedSubscriptionsForEntity;
+	public TaskFeed[] Feeds;
+	public RecordActionHistory[] RecordActionHistories;
+	public RecordAction[] RecordActions;
+	public Task[] RecurringTasks;
+	public TopicAssignment[] TopicAssignments;
 }

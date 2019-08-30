@@ -43,5 +43,5 @@ public class RecordType extends SObject {
 	public String NamespacePrefix;
 	public String SobjectType;
 
-	public RecordTypeLocalization Localization;
+	public RecordTypeLocalization[] Localization;
 }

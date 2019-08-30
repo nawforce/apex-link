@@ -38,5 +38,5 @@ public class ContentDistributionView extends SObject {
 	public Boolean IsDownload;
 	public Boolean IsInternal;
 	public Id ParentViewId;
-	public ContentDistributionView ParentView;
+	public ContentDistributionView[] ParentView;
 }

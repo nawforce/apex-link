@@ -51,5 +51,5 @@ public class UserRole extends SObject {
 	public String PortalType;
 	public String RollupDescription;
 
-	public User Users;
+	public User[] Users;
 }

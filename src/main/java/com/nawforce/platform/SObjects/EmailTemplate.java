@@ -58,8 +58,8 @@ public class EmailTemplate extends SObject {
 	public Integer TimesUsed;
 	public String UiType;
 
-	public AttachedContentDocument AttachedContentDocuments;
-	public Attachment Attachments;
-	public CombinedAttachment CombinedAttachments;
-	public ContentDocumentLink ContentDocumentLinks;
+	public AttachedContentDocument[] AttachedContentDocuments;
+	public Attachment[] Attachments;
+	public CombinedAttachment[] CombinedAttachments;
+	public ContentDocumentLink[] ContentDocumentLinks;
 }

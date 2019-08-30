@@ -57,6 +57,6 @@ public class UserProvisioningRequest extends SObject {
 	public Id UserProvConfigId;
 	public UserProvisioningConfig UserProvConfig;
 
-	public ProcessInstance ProcessInstances;
-	public ProcessInstanceHistory ProcessSteps;
+	public ProcessInstance[] ProcessInstances;
+	public ProcessInstanceHistory[] ProcessSteps;
 }

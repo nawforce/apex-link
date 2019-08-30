@@ -44,5 +44,5 @@ public class QuickText extends SObject {
 	public Id OwnerId;
 	public Group Owner;
 
-	public QuickTextHistory Histories;
+	public QuickTextHistory[] Histories;
 }

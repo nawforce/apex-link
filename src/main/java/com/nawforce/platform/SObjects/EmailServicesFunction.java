@@ -51,5 +51,5 @@ public class EmailServicesFunction extends SObject {
 	public Boolean IsTlsRequired;
 	public String OverLimitAction;
 
-	public EmailServicesAddress Addresses;
+	public EmailServicesAddress[] Addresses;
 }

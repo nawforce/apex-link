@@ -42,5 +42,5 @@ public class DatasetExport extends SObject {
 	public String PublisherType;
 	public String Status;
 
-	public DatasetExportPart DatasetExportParts;
+	public DatasetExportPart[] DatasetExportParts;
 }

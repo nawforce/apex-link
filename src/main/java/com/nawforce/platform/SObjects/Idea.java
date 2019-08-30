@@ -58,6 +58,6 @@ public class Idea extends SObject {
 	public Decimal VoteScore;
 	public Decimal VoteTotal;
 
-	public IdeaComment Comments;
-	public Vote Votes;
+	public IdeaComment[] Comments;
+	public Vote[] Votes;
 }

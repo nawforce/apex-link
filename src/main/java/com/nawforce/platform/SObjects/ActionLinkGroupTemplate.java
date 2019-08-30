@@ -43,5 +43,5 @@ public class ActionLinkGroupTemplate extends SObject {
 	public String MasterLabel;
 	public String NamespacePrefix;
 
-	public ActionLinkTemplate ActionLinkTemplates;
+	public ActionLinkTemplate[] ActionLinkTemplates;
 }

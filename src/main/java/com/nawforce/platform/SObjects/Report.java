@@ -46,9 +46,9 @@ public class Report extends SObject {
 	public Id OwnerId;
 	public Folder Owner;
 
-	public AttachedContentDocument AttachedContentDocuments;
-	public CombinedAttachment CombinedAttachments;
-	public ContentDocumentLink ContentDocumentLinks;
-	public EntitySubscription FeedSubscriptionsForEntity;
-	public ReportFeed Feeds;
+	public AttachedContentDocument[] AttachedContentDocuments;
+	public CombinedAttachment[] CombinedAttachments;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public EntitySubscription[] FeedSubscriptionsForEntity;
+	public ReportFeed[] Feeds;
 }

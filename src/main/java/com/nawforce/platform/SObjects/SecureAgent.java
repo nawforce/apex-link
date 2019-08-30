@@ -44,5 +44,5 @@ public class SecureAgent extends SObject {
 	public Id SecureAgentsClusterId;
 	public SecureAgentsCluster SecureAgentsCluster;
 
-	public SecureAgentPlugin SecureAgentPlugins;
+	public SecureAgentPlugin[] SecureAgentPlugins;
 }

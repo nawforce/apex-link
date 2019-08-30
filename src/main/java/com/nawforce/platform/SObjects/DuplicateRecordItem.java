@@ -40,6 +40,6 @@ public class DuplicateRecordItem extends SObject {
 	public Id RecordId;
 	public Account Record;
 
-	public ProcessInstance ProcessInstances;
-	public ProcessInstanceHistory ProcessSteps;
+	public ProcessInstance[] ProcessInstances;
+	public ProcessInstanceHistory[] ProcessSteps;
 }

@@ -39,5 +39,5 @@ public class FeedPollChoice extends SObject {
 	public AccountFeed FeedItem;
 	public Integer Position;
 
-	public FeedPollVote FeedPollVotes;
+	public FeedPollVote[] FeedPollVotes;
 }

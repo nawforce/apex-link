@@ -57,5 +57,5 @@ public class OpportunityLineItem extends SObject {
 	public Decimal TotalPrice;
 	public Decimal UnitPrice;
 
-	public OpportunityLineItemSchedule OpportunityLineItemSchedules;
+	public OpportunityLineItemSchedule[] OpportunityLineItemSchedules;
 }

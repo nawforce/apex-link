@@ -41,6 +41,6 @@ public class Publisher extends SObject {
 	public String Name;
 	public String NamespacePrefix;
 
-	public EntityDefinition InstalledEntityDefinitions;
-	public FieldDefinition InstalledFieldDefinitions;
+	public EntityDefinition[] InstalledEntityDefinitions;
+	public FieldDefinition[] InstalledFieldDefinitions;
 }

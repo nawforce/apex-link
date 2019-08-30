@@ -46,6 +46,6 @@ public class ConnectedApplication extends SObject {
 	public Integer RefreshTokenValidityPeriod;
 	public String StartUrl;
 
-	public InstalledMobileApp InstalledMobileApps;
-	public SetupEntityAccess SetupEntityAccessItems;
+	public InstalledMobileApp[] InstalledMobileApps;
+	public SetupEntityAccess[] SetupEntityAccessItems;
 }

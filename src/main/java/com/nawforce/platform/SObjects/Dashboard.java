@@ -59,10 +59,10 @@ public class Dashboard extends SObject {
 	public Integer TitleSize;
 	public String Type;
 
-	public AttachedContentDocument AttachedContentDocuments;
-	public CombinedAttachment CombinedAttachments;
-	public ContentDocumentLink ContentDocumentLinks;
-	public DashboardComponent DashboardComponents;
-	public EntitySubscription FeedSubscriptionsForEntity;
-	public DashboardFeed Feeds;
+	public AttachedContentDocument[] AttachedContentDocuments;
+	public CombinedAttachment[] CombinedAttachments;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public DashboardComponent[] DashboardComponents;
+	public EntitySubscription[] FeedSubscriptionsForEntity;
+	public DashboardFeed[] Feeds;
 }

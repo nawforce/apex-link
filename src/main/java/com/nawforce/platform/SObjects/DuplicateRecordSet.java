@@ -42,7 +42,7 @@ public class DuplicateRecordSet extends SObject {
 	public String Name;
 	public Integer RecordCount;
 
-	public DuplicateRecordItem DuplicateRecordItems;
-	public ProcessInstance ProcessInstances;
-	public ProcessInstanceHistory ProcessSteps;
+	public DuplicateRecordItem[] DuplicateRecordItems;
+	public ProcessInstance[] ProcessInstances;
+	public ProcessInstanceHistory[] ProcessSteps;
 }

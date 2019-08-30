@@ -42,5 +42,5 @@ public class ListView extends SObject {
 	public String NamespacePrefix;
 	public String SobjectType;
 
-	public ListEmailRecipientSource ListEmailRecipientSources;
+	public ListEmailRecipientSource[] ListEmailRecipientSources;
 }

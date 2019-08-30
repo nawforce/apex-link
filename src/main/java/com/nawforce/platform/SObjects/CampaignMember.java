@@ -70,5 +70,5 @@ public class CampaignMember extends SObject {
 	public String Title;
 	public String Type;
 
-	public ListEmailIndividualRecipient ListEmailIndividualRecipients;
+	public ListEmailIndividualRecipient[] ListEmailIndividualRecipients;
 }

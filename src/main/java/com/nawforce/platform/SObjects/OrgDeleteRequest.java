@@ -39,6 +39,6 @@ public class OrgDeleteRequest extends SObject {
 	public Group Owner;
 	public String RequestType;
 
-	public ProcessInstance ProcessInstances;
-	public ProcessInstanceHistory ProcessSteps;
+	public ProcessInstance[] ProcessInstances;
+	public ProcessInstanceHistory[] ProcessSteps;
 }

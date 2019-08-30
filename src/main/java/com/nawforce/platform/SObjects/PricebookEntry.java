@@ -45,6 +45,6 @@ public class PricebookEntry extends SObject {
 	public Decimal UnitPrice;
 	public Boolean UseStandardPrice;
 
-	public OpportunityLineItem OpportunityLineItems;
-	public OrderItem OrderItems;
+	public OpportunityLineItem[] OpportunityLineItems;
+	public OrderItem[] OrderItems;
 }

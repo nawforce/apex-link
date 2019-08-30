@@ -261,9 +261,9 @@ public class PermissionSet extends SObject {
 	public Id ProfileId;
 	public Profile Profile;
 
-	public PermissionSetAssignment Assignments;
-	public FieldPermissions FieldPerms;
-	public ObjectPermissions ObjectPerms;
-	public SessionPermSetActivation SessionActivations;
-	public SetupEntityAccess SetupEntityAccessItems;
+	public PermissionSetAssignment[] Assignments;
+	public FieldPermissions[] FieldPerms;
+	public ObjectPermissions[] ObjectPerms;
+	public SessionPermSetActivation[] SessionActivations;
+	public SetupEntityAccess[] SetupEntityAccessItems;
 }

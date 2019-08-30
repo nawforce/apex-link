@@ -56,11 +56,11 @@ public class ContentDocument extends SObject {
 	public com.nawforce.platform.System.String SharingPrivacy;
 	public String Title;
 
-	public ContentDistribution ContentDistributions;
-	public ContentDocumentLink ContentDocumentLinks;
-	public ContentVersion ContentVersions;
-	public EntitySubscription FeedSubscriptionsForEntity;
-	public ContentDocumentFeed Feeds;
-	public ContentDocumentHistory Histories;
-	public TopicAssignment TopicAssignments;
+	public ContentDistribution[] ContentDistributions;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public ContentVersion[] ContentVersions;
+	public EntitySubscription[] FeedSubscriptionsForEntity;
+	public ContentDocumentFeed[] Feeds;
+	public ContentDocumentHistory[] Histories;
+	public TopicAssignment[] TopicAssignments;
 }

@@ -77,5 +77,5 @@ public class ContentVersion extends SObject {
 	public Blob VersionData;
 	public String VersionNumber;
 
-	public ContentVersionHistory Histories;
+	public ContentVersionHistory[] Histories;
 }

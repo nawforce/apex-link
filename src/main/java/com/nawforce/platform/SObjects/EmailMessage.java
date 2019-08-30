@@ -66,11 +66,11 @@ public class EmailMessage extends SObject {
 	public String ToAddress;
 	public String ValidatedFromAddress;
 
-	public AttachedContentDocument AttachedContentDocuments;
-	public Attachment Attachments;
-	public CombinedAttachment CombinedAttachments;
-	public ContentDocumentLink ContentDocumentLinks;
-	public EmailMessageRelation EmailMessageRelations;
-	public ProcessInstance ProcessInstances;
-	public ProcessInstanceHistory ProcessSteps;
+	public AttachedContentDocument[] AttachedContentDocuments;
+	public Attachment[] Attachments;
+	public CombinedAttachment[] CombinedAttachments;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public EmailMessageRelation[] EmailMessageRelations;
+	public ProcessInstance[] ProcessInstances;
+	public ProcessInstanceHistory[] ProcessSteps;
 }

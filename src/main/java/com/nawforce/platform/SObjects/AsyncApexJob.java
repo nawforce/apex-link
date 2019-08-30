@@ -49,5 +49,5 @@ public class AsyncApexJob extends SObject {
 	public String Status;
 	public Integer TotalJobItems;
 
-	public ApexTestRunResult AsyncApex;
+	public ApexTestRunResult[] AsyncApex;
 }

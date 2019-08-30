@@ -45,5 +45,5 @@ public class WaveAutoInstallRequest extends SObject {
 	public String TemplateApiName;
 	public String TemplateVersion;
 
-	public WaveCompatibilityCheckItem WaveCompatibilityCheckItems;
+	public WaveCompatibilityCheckItem[] WaveCompatibilityCheckItems;
 }

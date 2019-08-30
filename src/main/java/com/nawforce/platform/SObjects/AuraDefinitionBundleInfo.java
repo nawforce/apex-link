@@ -39,5 +39,5 @@ public class AuraDefinitionBundleInfo extends SObject {
 	public String DurableId;
 	public String NamespacePrefix;
 
-	public AuraDefinitionInfo Bundle;
+	public AuraDefinitionInfo[] Bundle;
 }

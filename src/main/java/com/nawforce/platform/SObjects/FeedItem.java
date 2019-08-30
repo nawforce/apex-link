@@ -61,11 +61,11 @@ public class FeedItem extends SObject {
 	public String Title;
 	public String Type;
 
-	public FeedAttachment FeedAttachments;
-	public FeedComment FeedComments;
-	public FeedLike FeedLikes;
-	public FeedRevision FeedRevisions;
-	public FeedSignal FeedSignals;
-	public FeedTrackedChange FeedTrackedChanges;
-	public TopicAssignment TopicAssignments;
+	public FeedAttachment[] FeedAttachments;
+	public FeedComment[] FeedComments;
+	public FeedLike[] FeedLikes;
+	public FeedRevision[] FeedRevisions;
+	public FeedSignal[] FeedSignals;
+	public FeedTrackedChange[] FeedTrackedChanges;
+	public TopicAssignment[] TopicAssignments;
 }

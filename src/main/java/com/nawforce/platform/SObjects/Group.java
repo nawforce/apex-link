@@ -45,7 +45,7 @@ public class Group extends SObject {
 	public User Related;
 	public String Type;
 
-	public User DelegatedUsers;
-	public GroupMember GroupMembers;
-	public QueueSobject QueueSobjects;
+	public User[] DelegatedUsers;
+	public GroupMember[] GroupMembers;
+	public QueueSobject[] QueueSobjects;
 }

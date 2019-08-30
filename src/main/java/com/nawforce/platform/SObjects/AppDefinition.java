@@ -51,5 +51,5 @@ public class AppDefinition extends SObject {
 	public String UiType;
 	public String UtilityBar;
 
-	public AppTabMember AppTabs;
+	public AppTabMember[] AppTabs;
 }

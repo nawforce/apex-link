@@ -87,8 +87,8 @@ public class Organization extends SObject {
 	public Boolean UsesStartDateAsFiscalYearName;
 	public String WebToCaseDefaultOrigin;
 
-	public AttachedContentDocument AttachedContentDocuments;
-	public CombinedAttachment CombinedAttachments;
-	public ContentDocumentLink ContentDocumentLinks;
-	public CustomBrand CustomBrands;
+	public AttachedContentDocument[] AttachedContentDocuments;
+	public CombinedAttachment[] CombinedAttachments;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public CustomBrand[] CustomBrands;
 }

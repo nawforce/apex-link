@@ -58,12 +58,12 @@ public class CollaborationGroup extends SObject {
 	public User Owner;
 	public String SmallPhotoUrl;
 
-	public AttachedContentDocument AttachedContentDocuments;
-	public CollaborationGroupRecord CollaborationGroupRecords;
-	public CombinedAttachment CombinedAttachments;
-	public ContentDocumentLink ContentDocumentLinks;
-	public EntitySubscription FeedSubscriptionsForEntity;
-	public CollaborationGroupFeed Feeds;
-	public CollaborationGroupMemberRequest GroupMemberRequests;
-	public CollaborationGroupMember GroupMembers;
+	public AttachedContentDocument[] AttachedContentDocuments;
+	public CollaborationGroupRecord[] CollaborationGroupRecords;
+	public CombinedAttachment[] CombinedAttachments;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public EntitySubscription[] FeedSubscriptionsForEntity;
+	public CollaborationGroupFeed[] Feeds;
+	public CollaborationGroupMemberRequest[] GroupMemberRequests;
+	public CollaborationGroupMember[] GroupMembers;
 }

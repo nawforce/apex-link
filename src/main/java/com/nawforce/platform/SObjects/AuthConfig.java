@@ -44,5 +44,5 @@ public class AuthConfig extends SObject {
 	public String Type;
 	public String Url;
 
-	public AuthConfigProviders AuthProvidersForConfig;
+	public AuthConfigProviders[] AuthProvidersForConfig;
 }

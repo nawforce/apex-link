@@ -46,7 +46,7 @@ public class NamedCredential extends SObject {
 	public String NamespacePrefix;
 	public String PrincipalType;
 
-	public CustomHttpHeader CustomHttpHeaders;
-	public SetupEntityAccess SetupEntityAccessItems;
-	public ExternalDataUserAuth UserAuths;
+	public CustomHttpHeader[] CustomHttpHeaders;
+	public SetupEntityAccess[] SetupEntityAccessItems;
+	public ExternalDataUserAuth[] UserAuths;
 }

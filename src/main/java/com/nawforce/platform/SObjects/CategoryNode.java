@@ -40,5 +40,5 @@ public class CategoryNode extends SObject {
 	public Integer SortOrder;
 	public String SortStyle;
 
-	public CategoryNodeLocalization Localization;
+	public CategoryNodeLocalization[] Localization;
 }

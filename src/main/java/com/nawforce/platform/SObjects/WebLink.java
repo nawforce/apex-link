@@ -59,5 +59,5 @@ public class WebLink extends SObject {
 	public String Url;
 	public Integer Width;
 
-	public WebLinkLocalization Localization;
+	public WebLinkLocalization[] Localization;
 }

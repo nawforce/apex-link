@@ -50,5 +50,5 @@ public class FiscalYearSettings extends SObject {
 	public Integer WeekStartDay;
 	public String YearType;
 
-	public Period Periods;
+	public Period[] Periods;
 }

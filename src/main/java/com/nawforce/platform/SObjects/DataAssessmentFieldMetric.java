@@ -44,5 +44,5 @@ public class DataAssessmentFieldMetric extends SObject {
 	public Integer NumMatchedInSync;
 	public Integer NumUnmatchedBlanks;
 
-	public DataAssessmentValueMetric DataAssessmentValueMetrics;
+	public DataAssessmentValueMetric[] DataAssessmentValueMetrics;
 }

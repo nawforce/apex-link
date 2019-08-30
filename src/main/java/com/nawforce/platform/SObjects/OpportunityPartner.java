@@ -40,6 +40,6 @@ public class OpportunityPartner extends SObject {
 	public Id OpportunityId;
 	public Opportunity Opportunity;
 	public Id ReversePartnerId;
-	public OpportunityPartner ReversePartner;
+	public OpportunityPartner[] ReversePartner;
 	public String Role;
 }

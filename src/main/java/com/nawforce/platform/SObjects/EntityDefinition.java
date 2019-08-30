@@ -80,10 +80,10 @@ public class EntityDefinition extends SObject {
 	public Object RecordTypesSupported;
 	public String RunningUserEntityAccessId;
 
-	public RelationshipInfo ChildRelationships;
-	public FieldDefinition Fields;
-	public OwnerChangeOptionInfo OwnerChangeOptions;
-	public EntityParticle Particles;
-	public RelationshipDomain RelationshipDomains;
-	public SearchLayout SearchLayouts;
+	public RelationshipInfo[] ChildRelationships;
+	public FieldDefinition[] Fields;
+	public OwnerChangeOptionInfo[] OwnerChangeOptions;
+	public EntityParticle[] Particles;
+	public RelationshipDomain[] RelationshipDomains;
+	public SearchLayout[] SearchLayouts;
 }

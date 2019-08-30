@@ -56,5 +56,5 @@ public class InsightsExternalData extends SObject {
 	public Datetime SubmittedDate;
 	public String Target;
 
-	public InsightsExternalDataPart ExternalDataIds;
+	public InsightsExternalDataPart[] ExternalDataIds;
 }

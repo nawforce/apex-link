@@ -66,12 +66,12 @@ public class Site extends SObject {
 	public String Subdomain;
 	public String UrlPathPrefix;
 
-	public AttachedContentDocument AttachedContentDocuments;
-	public CombinedAttachment CombinedAttachments;
-	public ContentDocumentLink ContentDocumentLinks;
-	public EntitySubscription FeedSubscriptionsForEntity;
-	public SiteFeed Feeds;
-	public SiteHistory Histories;
-	public DomainSite SiteDomainPaths;
-	public SiteIframeWhiteListUrl SiteIframeWhiteListUrls;
+	public AttachedContentDocument[] AttachedContentDocuments;
+	public CombinedAttachment[] CombinedAttachments;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public EntitySubscription[] FeedSubscriptionsForEntity;
+	public SiteFeed[] Feeds;
+	public SiteHistory[] Histories;
+	public DomainSite[] SiteDomainPaths;
+	public SiteIframeWhiteListUrl[] SiteIframeWhiteListUrls;
 }

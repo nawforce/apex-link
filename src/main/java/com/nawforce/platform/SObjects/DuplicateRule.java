@@ -43,5 +43,5 @@ public class DuplicateRule extends SObject {
 	public String SobjectSubtype;
 	public String SobjectType;
 
-	public DuplicateRecordSet DuplicateRecordSets;
+	public DuplicateRecordSet[] DuplicateRecordSets;
 }

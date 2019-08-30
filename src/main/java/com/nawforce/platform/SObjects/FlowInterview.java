@@ -41,7 +41,7 @@ public class FlowInterview extends SObject {
 	public Group Owner;
 	public String PauseLabel;
 
-	public RecordAction RecordActions;
-	public FlowRecordRelation RecordRelations;
-	public FlowStageRelation StageRelations;
+	public RecordAction[] RecordActions;
+	public FlowRecordRelation[] RecordRelations;
+	public FlowStageRelation[] StageRelations;
 }

@@ -49,5 +49,5 @@ public class ChatterExtension extends SObject {
 	public String RenderComponentEnumOrId;
 	public String Type;
 
-	public ChatterExtensionLocalization Localization;
+	public ChatterExtensionLocalization[] Localization;
 }
