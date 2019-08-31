@@ -29,7 +29,6 @@ package com.nawforce.cst
 
 import java.nio.file.Path
 
-import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types._

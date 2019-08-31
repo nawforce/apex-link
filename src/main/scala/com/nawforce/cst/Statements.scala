@@ -30,7 +30,6 @@ package com.nawforce.cst
 import java.io.ByteArrayInputStream
 import java.nio.file.Path
 
-import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.parsers.CaseInsensitiveInputStream
 import com.nawforce.types.{ApexModifiers, ApexTypeDeclaration, Modifier, TypeName}

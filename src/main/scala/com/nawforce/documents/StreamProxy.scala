@@ -28,7 +28,7 @@
 
 package com.nawforce.documents
 
-import java.io.{FileInputStream, InputStream}
+import java.io.InputStream
 import java.nio.file.{Files, Path}
 import java.util.concurrent.ConcurrentHashMap
 

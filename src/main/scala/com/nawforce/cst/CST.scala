@@ -29,7 +29,7 @@ package com.nawforce.cst
 
 import java.nio.file.Path
 
-import com.nawforce.documents.{Location, Position, RangeLocation, TextRange}
+import com.nawforce.documents.{Location, Position, RangeLocation}
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.parsers.CaseInsensitiveInputStream
 import com.nawforce.types.TypeName

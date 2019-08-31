@@ -29,7 +29,7 @@ package com.nawforce.cst
 
 import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{DependencyHolder, PlatformTypes, TypeDeclaration, TypeName}
+import com.nawforce.types.{PlatformTypes, TypeDeclaration, TypeName}
 import com.nawforce.utils.DotName
 
 sealed abstract class Primary extends CST {

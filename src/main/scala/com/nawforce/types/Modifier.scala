@@ -31,7 +31,7 @@ import java.lang.reflect.{Modifier => JavaModifier}
 
 import com.nawforce.api.Org
 import com.nawforce.cst.ConstructContext
-import com.nawforce.documents.{RangeLocation, TextRange}
+import com.nawforce.documents.RangeLocation
 import com.nawforce.parsers.ApexParser.{AnnotationContext, IdContext, ModifierContext, PropertyBlockContext}
 
 sealed abstract class Modifier(val name: String, val order: Integer=0) {

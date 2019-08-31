@@ -27,7 +27,6 @@
 */
 package com.nawforce.cst
 
-import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types._
 import com.nawforce.utils.Name
