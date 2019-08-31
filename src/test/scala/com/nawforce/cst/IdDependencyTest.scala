@@ -72,7 +72,7 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
   test("Missing Static func creates error") {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy {void func() {A.func();} }"))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 33-34: No variable or type found for 'A'\n")
+      "line 1 at 33-34: No variable or type found for 'A' on 'Dummy'\n")
     assert(tds.head.dependencies().isEmpty)
   }
 
@@ -119,7 +119,7 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy {Object a; class B {void func() {a = null;} } }",
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 52-53: No variable or type found for 'a'\n")
+      "line 1 at 52-53: No variable or type found for 'a' on 'Dummy.B'\n")
     assert(tds.head.dependencies().isEmpty)
     assert(tds.head.nestedTypes.head.dependencies().isEmpty)
     assert(tds.head.nestedTypes.head.methods.head.dependencies().isEmpty)

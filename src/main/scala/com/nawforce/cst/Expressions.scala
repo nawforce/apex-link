@@ -32,7 +32,9 @@ import com.nawforce.types.{PlatformTypes, TypeDeclaration, TypeName}
 
 import scala.collection.JavaConverters._
 
-case class ExprContext(isStatic: Boolean, declaration: Option[TypeDeclaration])
+case class ExprContext(isStatic: Boolean, declaration: Option[TypeDeclaration]) {
+  def isDefined: Boolean = declaration.nonEmpty && !declaration.exists(_.isAny)
+}
 
 object ExprContext {
   val empty = ExprContext(isStatic = false, None)
@@ -64,7 +66,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
     }
 
     val inter = expression.verify(input, context)
-    if (inter.declaration.nonEmpty) {
+    if (inter.isDefined) {
       if (target.isLeft)
         verifyWithId(inter, context)
       else
@@ -94,7 +96,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
           }
         }
       case _ =>
-        context.missingIdentifier(location, target.left.get.name)
+        context.missingIdentifier(location, input.declaration.get.typeName, target.left.get.name)
         ExprContext.empty
     }
   }

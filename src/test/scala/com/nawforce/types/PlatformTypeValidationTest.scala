@@ -60,6 +60,8 @@ class PlatformTypeValidationTest extends FunSuite {
       case "System.Set" => assert(typeDeclaration.typeName.toString == "System.Set<T>")
       case "System.Iterable" => assert(typeDeclaration.typeName.toString == "System.Iterable<T>")
       case "Internal.RecordSet$"  => assert(typeDeclaration.typeName.toString == "Internal.RecordSet$<T>")
+      case "Internal.Object$"  => assert(typeDeclaration.typeName.toString == "Object")
+      case "Internal.Null$"  => assert(typeDeclaration.typeName.toString == "null")
       case _ => assert(typeDeclaration.typeName.toString == className.toString)
     }
 

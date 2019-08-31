@@ -81,6 +81,8 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
 }
 
 object TypeName {
+  lazy val Any = TypeName(Name.Any$, Nil, Some(TypeName.Internal))
+
   lazy val Void = TypeName(Name("void"))
   lazy val Object = TypeName(Name("Object"))
   lazy val System = TypeName(Name("System"))
@@ -99,6 +101,7 @@ object TypeName {
 
   private lazy val aliasMap = Map[TypeName, String](
     TypeName(Name.Null$, Nil, Some(TypeName.Internal)) -> "null",
+    Any -> "any",
     TypeName(Name.Object$, Nil, Some(TypeName.Internal)) -> "Object",
     TypeName(Name.RecordSet$, Nil, Some(TypeName.Internal)) -> "[SOQL Results]"
   )

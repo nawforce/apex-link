@@ -112,10 +112,12 @@ object CustomObjectDeclaration {
         TypeName(name.firstName, Nil, ns)
       else
         TypeName(name.names(1), Nil, Some(TypeName(name.firstName)))
+    if (Org.isGhostedType(typeName))
+      return Seq()
+
     val fields = CustomFieldDeclaration(Name.NameName, PlatformTypes.stringType.typeName) +:
       (PlatformTypes.sObjectType.fields ++ parse(path))
 
-    // TODO: field types
     Seq(
       new CustomObjectDeclaration(typeName, fields),
 

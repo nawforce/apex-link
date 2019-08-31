@@ -59,9 +59,9 @@ trait VerifyContext {
       logMessage(location, s"No type declaration found for '$typeName'")
   }
 
-  def missingIdentifier(location: Location, name: Name): Unit = {
+  def missingIdentifier(location: Location, typeName: TypeName, name: Name): Unit = {
     if (!Org.isGhostedType(TypeName(name)))
-      logMessage(location, s"No variable or type found for '$name'")
+      logMessage(location, s"No variable or type found for '$name' on '$typeName'")
   }
 
   def logMessage(location: Location, msg: String): Unit = {
@@ -163,10 +163,8 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
     if (td.isEmpty)
       missingType(location, typeName)
 
-    // TODO: This should really be an any
-    vars.put(name, td.getOrElse(PlatformTypes.objectType))
+    vars.put(name, td.getOrElse(AnyDeclaration()))
   }
-
 
   def isStatic: Boolean
 }
