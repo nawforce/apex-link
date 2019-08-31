@@ -28,16 +28,21 @@
 package com.nawforce.platform.System;
 
 import com.nawforce.platform.Database.DMLOptions;
+import com.nawforce.platform.SObjects.User;
 import com.nawforce.platform.Schema.SObjectField;
 import com.nawforce.platform.Schema.SObjectType;
 
 @SuppressWarnings("unused")
 public class SObject {
 	public Id Id;
+
+	// TODO: These need to be auto-generated on each SObject
 	public Boolean IsDeleted;
 	public Id CreatedById;
+	public User CreatedBy;
 	public Datetime CreatedDate;
 	public Id LastModifiedById;
+	public User LastModifiedBy;
 	public Datetime LastModifiedDate;
 	public Datetime SystemModstamp;
 

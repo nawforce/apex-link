@@ -27,7 +27,7 @@
 */
 package com.nawforce.types
 
-import java.nio.file.{Files, Path}
+import java.nio.file.{Files, Path, Paths}
 
 import com.nawforce.api.Org
 import com.nawforce.documents._
@@ -38,7 +38,7 @@ import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
 import scala.collection.mutable
 import scala.xml.{Elem, SAXParseException}
 
-final case class LabelDeclaration(name: Name, labelFields: Seq[Label], labelNamespaces: Seq[LabelDeclaration])
+final case class LabelDeclaration(name: Name, labelFields: Seq[Label], labelNamespaces: Seq[TypeDeclaration])
   extends TypeDeclaration {
 
   override val typeName: TypeName =
@@ -69,6 +69,35 @@ final case class LabelDeclaration(name: Name, labelFields: Seq[Label], labelName
   }
 }
 
+final case class GhostedLabelDeclaration(name: Name)
+  extends TypeDeclaration {
+
+  override val typeName: TypeName = TypeName(name, Nil, Some(TypeName.Label))
+  override val outerTypeName: Option[TypeName] = typeName.outer
+
+  override val nature: Nature = CLASS_NATURE
+  override val modifiers: Seq[Modifier] = Seq.empty
+  override val isComplete: Boolean = false
+  override val isExternallyVisible: Boolean = true
+
+  override val superClass: Option[TypeName] = None
+  override def superClassDeclaration: Option[TypeDeclaration] = None
+  override val interfaces: Seq[TypeName] = Seq.empty
+  override val nestedTypes: Seq[TypeDeclaration] = Seq.empty
+
+  override val blocks: Seq[BlockDeclaration] = Seq.empty
+  override val fields: Seq[FieldDeclaration] = Seq.empty
+  override val constructors: Seq[ConstructorDeclaration] = Seq.empty
+  override val methods: Seq[MethodDeclaration]= Seq.empty
+
+  override def validate(): Unit = {}
+  override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
+
+  override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
+    Some(Label(LineLocation(Paths.get(s"$name.labels"), 0), name, isProtected = false))
+  }
+}
+
 object LabelDeclaration {
   def apply(pkg: PackageDeclaration): LabelDeclaration = {
     val labels = pkg.documentsByExtension(Name("labels")).flatMap(labelFile => parseLabels(labelFile))
@@ -76,16 +105,20 @@ object LabelDeclaration {
     LabelDeclaration(Name.Label, labels, baseLabels.values.toSeq)
   }
 
-  private def collectBaseLabels(pkg: PackageDeclaration, collected: mutable.Map[Name, LabelDeclaration]=mutable.Map())
-    : mutable.Map[Name, LabelDeclaration] = {
+  private def collectBaseLabels(pkg: PackageDeclaration, collected: mutable.Map[Name, TypeDeclaration]=mutable.Map())
+    : mutable.Map[Name, TypeDeclaration] = {
     pkg.basePackage().foreach(basePkg => {
       if (!collected.contains(basePkg.namespace)) {
-        val labels = LabelDeclaration(basePkg.namespace,
-          basePkg.labels().labelFields.filterNot(label => label.isProtected),
-          Seq()
-        )
-        collected.put(basePkg.namespace, labels)
-        collectBaseLabels(basePkg, collected)
+        if (basePkg.isGhosted) {
+          collected.put(basePkg.namespace, GhostedLabelDeclaration(basePkg.namespace))
+        } else {
+          val labels = LabelDeclaration(basePkg.namespace,
+            basePkg.labels().labelFields.filterNot(label => label.isProtected),
+            Seq()
+          )
+          collected.put(basePkg.namespace, labels)
+          collectBaseLabels(basePkg, collected)
+        }
       }
     })
     collected
@@ -120,8 +153,7 @@ object LabelDeclaration {
 
 }
 
-case class Label(location: Location, fullName: String, isProtected: Boolean) extends FieldDeclaration {
-  override val name: Name = Name(fullName)
+case class Label(location: Location, name: Name, isProtected: Boolean) extends FieldDeclaration {
   override lazy val modifiers: Seq[Modifier] = Seq(STATIC_MODIFIER, GLOBAL_MODIFIER)
   override lazy val typeName: TypeName = TypeName.String
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER
@@ -141,8 +173,6 @@ object Label {
     val categories: Option[String] = XMLUtils.getOptionalSingleChildAsString(element, "categories")
      */
 
-    Label(RangeLocation(path, TextRange(getLine(element))), fullName, protect)
+    Label(RangeLocation(path, TextRange(getLine(element))), Name(fullName), protect)
   }
 }
-
-

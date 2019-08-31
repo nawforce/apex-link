@@ -97,9 +97,6 @@ final case class IdPrimary(id: Id) extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
 
-    if (input.declaration.exists(_.isAny))
-      return input
-
     val td = context.isVar(id.name)
     if (td.nonEmpty)
       return ExprContext(isStatic = false, td)
