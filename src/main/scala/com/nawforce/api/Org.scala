@@ -135,14 +135,8 @@ object Org {
     Org.current.value.getType(namespace, dotName)
   }
 
-  def missingType(location: Location, typeName: TypeName): Unit = {
-    if (!Org.current.value.isGhostedType(typeName))
-      logMessage(location, s"No type declaration found for '$typeName'")
-  }
-
-  def missingIdentifier(location: Location, name: Name): Unit = {
-    if (!Org.current.value.isGhostedType(TypeName(name)))
-      logMessage(location, s"No variable or type found for '$name'")
+  def isGhostedType(typeName: TypeName): Boolean = {
+    Org.current.value.isGhostedType(typeName)
   }
 
   def logMessage(location: Location, msg: String): Unit = {

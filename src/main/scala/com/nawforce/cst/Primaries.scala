@@ -52,7 +52,7 @@ final case class ThisPrimary() extends Primary {
     if (!input.isStatic)
       return ExprContext(isStatic = false, context.thisType)
     else
-      Org.logMessage(location, s"'this' can not be used in a static context")
+      context.logMessage(location, s"'this' can not be used in a static context")
     ExprContext.empty
   }
 }
@@ -65,7 +65,7 @@ final case class SuperPrimary() extends Primary {
     if (!input.isStatic)
       return ExprContext(isStatic = false, context.superType)
     else
-      Org.logMessage(location, s"'super' can not be used in a static context")
+      context.logMessage(location, s"'super' can not be used in a static context")
     ExprContext.empty
   }
 }
@@ -86,7 +86,7 @@ final case class TypeRefPrimary(typeName: TypeName) extends Primary {
     assert(input.declaration.nonEmpty)
     val td = context.getTypeAndAddDependency(typeName)
     if (td.isEmpty)
-      Org.missingType(location, typeName)
+      context.missingType(location, typeName)
     ExprContext(isStatic = true, Some(PlatformTypes.typeType))
   }
 }
@@ -125,7 +125,7 @@ final case class IdPrimary(id: Id) extends Primary {
       return ExprContext(isStatic = true, absTd)
     }
 
-    Org.missingIdentifier(location, id.name)
+    context.missingIdentifier(location, id.name)
     ExprContext.empty
   }
 }

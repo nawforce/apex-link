@@ -51,6 +51,23 @@ trait VerifyContext {
 
   /** Helper to locate type and add as dependency if found */
   def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration]
+
+  def suppressWarnings: Boolean = parent().exists(_.suppressWarnings)
+
+  def missingType(location: Location, typeName: TypeName): Unit = {
+    if (!Org.isGhostedType(typeName))
+      logMessage(location, s"No type declaration found for '$typeName'")
+  }
+
+  def missingIdentifier(location: Location, name: Name): Unit = {
+    if (!Org.isGhostedType(TypeName(name)))
+      logMessage(location, s"No variable or type found for '$name'")
+  }
+
+  def logMessage(location: Location, msg: String): Unit = {
+    if (!suppressWarnings)
+      Org.logMessage(location, msg)
+  }
 }
 
 abstract class HolderVerifyContext {
@@ -93,6 +110,9 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: T
   override def getTypeFor(typeName: TypeName): Option[TypeDeclaration] = {
     getTypeFor(typeName.asDotName, typeDeclaration)
   }
+
+  override def suppressWarnings: Boolean =
+    typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressWarnings)
 }
 
 class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDeclaration: ClassBodyDeclaration)
@@ -107,6 +127,9 @@ class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDe
   override def superType: Option[TypeDeclaration] = parentContext.superType
 
   override def getTypeFor(typeName: TypeName): Option[TypeDeclaration] =  parentContext.getTypeFor(typeName)
+
+  override def suppressWarnings: Boolean =
+    classBodyDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressWarnings)
 }
 
 abstract class BlockVerifyContext(parentContext: VerifyContext)
@@ -138,7 +161,7 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
   def addVar(name: Name, location: Location, typeName: TypeName): Unit = {
     val td = getTypeAndAddDependency(typeName)
     if (td.isEmpty)
-      Org.missingType(location, typeName)
+      missingType(location, typeName)
 
     // TODO: This should really be an any
     vars.put(name, td.getOrElse(PlatformTypes.objectType))

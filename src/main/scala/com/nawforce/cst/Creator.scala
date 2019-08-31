@@ -42,7 +42,7 @@ final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
     if (newType.nonEmpty) {
       ExprContext(isStatic = false, Some(newType.get))
     } else {
-      Org.missingType(location, typeName)
+      context.missingType(location, typeName)
       ExprContext.empty
     }
   }

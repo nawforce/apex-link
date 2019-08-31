@@ -125,7 +125,7 @@ class LabelTest extends FunSuite {
     val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 33-49: Unknown field or type 'TestLabel2' on 'Label'\n")
+      "line 1 at 33-49: Unknown field or type 'TestLabel2' on 'System.Label'\n")
   }
 
   test("Missing label (case insensitive)") {
@@ -149,7 +149,7 @@ class LabelTest extends FunSuite {
     val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 33-49: Unknown field or type 'TestLaBel2' on 'Label'\n")
+      "line 1 at 33-49: Unknown field or type 'TestLaBel2' on 'System.Label'\n")
   }
 
   test("Base package label") {
@@ -203,6 +203,56 @@ class LabelTest extends FunSuite {
     val pkg2 = org.addPackageInternal(Name("pkg2"), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
     pkg2.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/pkg2/Dummy.cls")) ==
-      "line 1 at 33-53: Unknown field or type 'TestLabel' on 'Label.pkg1'\n")
+      "line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label.pkg1'\n")
+  }
+
+  test("System reference to label") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    val labelsContent =
+      """<?xml version="1.0" encoding="UTF-8"?>
+        |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+        |    <labels>
+        |        <fullName>TestLabel</fullName>
+        |        <language>en_US</language>
+        |        <protected>true</protected>
+        |        <shortDescription>TestLabel Description</shortDescription>
+        |        <value>TestLabel Value</value>
+        |    </labels>
+        |</CustomLabels>
+        |""".stripMargin
+    Files.write(fs.getPath("CustomLabels.labels"), labelsContent.getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {String a = System.Label.TestLabel;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("System reference to base package label") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    val labelsContent =
+      """<?xml version="1.0" encoding="UTF-8"?>
+        |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+        |    <labels>
+        |        <fullName>TestLabel</fullName>
+        |        <language>en_US</language>
+        |        <protected>false</protected>
+        |        <shortDescription>TestLabel Description</shortDescription>
+        |        <value>TestLabel Value</value>
+        |    </labels>
+        |</CustomLabels>
+        |""".stripMargin
+    Files.createDirectory(fs.getPath("pkg1"))
+    Files.write(fs.getPath("pkg1/CustomLabels.labels"), labelsContent.getBytes())
+    Files.createDirectory(fs.getPath("pkg2"))
+    Files.write(fs.getPath("pkg2/Dummy.cls"),"public class Dummy { {String a = System.label.pkg1.TestLabel;} }".getBytes())
+
+    val org = new Org()
+    val pkg1 = org.addPackageInternal(Name("pkg1"), Seq(fs.getPath("/work/pkg1")), Seq())
+    val pkg2 = org.addPackageInternal(Name("pkg2"), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
+    pkg2.deployAll()
+    org.issues.dumpMessages(false)
+    assert(!org.issues.hasMessages)
   }
 }

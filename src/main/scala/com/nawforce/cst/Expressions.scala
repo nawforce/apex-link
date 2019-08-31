@@ -90,12 +90,12 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
           if (nt.nonEmpty) {
             ExprContext(isStatic = true, nt)
           } else {
-            Org.logMessage(location, s"Unknown field or type '${target.left.get.name}' on '${td.typeName}'")
+            context.logMessage(location, s"Unknown field or type '${target.left.get.name}' on '${td.typeName}'")
             ExprContext.empty
           }
         }
       case _ =>
-        Org.missingIdentifier(location, target.left.get.name)
+        context.missingIdentifier(location, target.left.get.name)
         ExprContext.empty
     }
   }
@@ -117,7 +117,7 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
     if (index.declaration.isEmpty)
       return ExprContext.empty
     if (index.declaration.get ne PlatformTypes.integerType) {
-      Org.logMessage(arrayExpression.location,
+      context.logMessage(arrayExpression.location,
         s"Array indexes must be Integers, found '${index.declaration.get.typeName}'")
       return ExprContext.empty
     }
@@ -125,7 +125,7 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
     val inter = expression.verify(input, context)
     if (inter.declaration.nonEmpty) {
       if (inter.isStatic || (inter.declaration.get ne PlatformTypes.listType))
-        Org.logMessage(location, s"Only Lists can be de-referenced as an array")
+        context.logMessage(location, s"Only Lists can be de-referenced as an array")
       else
         // TODO: Extract type parameter of list
         ExprContext.empty
@@ -175,7 +175,7 @@ final case class CastExpression(typeName: TypeName, expression: Expression) exte
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     val castType = context.getTypeAndAddDependency(typeName)
     if (castType.isEmpty)
-      Org.missingType(location, typeName)
+      context.missingType(location, typeName)
     expression.verify(input, context)
     // TODO
     ExprContext.empty
@@ -229,7 +229,7 @@ final case class InstanceOfExpression(expression: Expression, typeName: TypeName
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     val instanceOfType = context.getTypeAndAddDependency(typeName)
     if (instanceOfType.isEmpty)
-      Org.missingType(location, typeName)
+      context.missingType(location, typeName)
     expression.verify(input, context)
     // TODO
     ExprContext.empty

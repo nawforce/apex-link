@@ -337,6 +337,7 @@ object ApexModifiers {
     }
   }
 
+  // TODO: Remove general use of this
   def construct(modifiers: Seq[ModifierContext], context: ConstructContext): Seq[Modifier] = {
     modifiers.map(_.getText.toLowerCase).flatMap {
       case "public" => Some(PUBLIC_MODIFIER)

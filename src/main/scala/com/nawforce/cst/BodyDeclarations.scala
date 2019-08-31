@@ -125,7 +125,7 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: Type
     if (typeName != TypeName.Void) {
       val returnType = context.getTypeAndAddDependency(typeName)
       if (returnType.isEmpty)
-        Org.missingType(id.location, typeName)
+        context.missingType(id.location, typeName)
     }
     parameters.foreach(_.verify(context))
 

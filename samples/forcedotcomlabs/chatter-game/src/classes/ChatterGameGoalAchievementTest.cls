@@ -28,7 +28,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 By: Chris Kemp <ckemp@salesforce.com>
 */
 
-@isTest
+@isTest @SuppressWarnings
 private class ChatterGameGoalAchievementTest {
 
     static User user1 = null;
