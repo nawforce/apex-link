@@ -34,23 +34,11 @@ import com.nawforce.api.Org
 import com.nawforce.cst._
 import com.nawforce.documents._
 import com.nawforce.utils.{DotName, Name}
-import com.nawforce.xml.XMLUtils.getLine
-import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
 
-import scala.xml.{Elem, SAXParseException}
+import scala.collection.mutable
 
-final case class CustomFieldDeclaration(name: Name, typeName: TypeName)
-  extends FieldDeclaration {
-
-  override val modifiers: Seq[Modifier] = Seq(PUBLIC_MODIFIER)
-  override val readAccess: Modifier = PUBLIC_MODIFIER
-  override val writeAccess: Modifier = PUBLIC_MODIFIER
-
-  override lazy val isStatic: Boolean = false
-}
-
-final case class CustomObjectDeclaration(_typeName: TypeName,
-                                         override val fields: Seq[FieldDeclaration])
+final case class SObjectDeclaration(_typeName: TypeName,
+                                    override val fields: Seq[FieldDeclaration], override val isComplete: Boolean)
   extends NamedTypeDeclaration(_typeName) {
 
   override val superClass: Option[TypeName] = Some(TypeName.SObject)
@@ -76,10 +64,11 @@ final case class CustomObjectDeclaration(_typeName: TypeName,
   def validateConstructorArguments(arguments: Seq[Expression]): ExprContext = {
     val validArgs = arguments.flatMap(argument => {
       argument match {
-        case BinaryExpression(PrimaryExpression(IdPrimary(id)), rhs, "=") =>
+        case BinaryExpression(PrimaryExpression(IdPrimary(id)), _, "=") =>
           val field = findField(id.name, staticOnly = false)
           if (field.isEmpty) {
-            Org.logMessage(id.location, s"Unknown field '${id.name}' on SObject type '$typeName'")
+            if (isComplete)
+              Org.logMessage(id.location, s"Unknown field '${id.name}' on SObject type '$typeName'")
             return ExprContext.empty
           } else {
             Some(id)
@@ -103,23 +92,36 @@ final case class CustomObjectDeclaration(_typeName: TypeName,
   }
 }
 
-object CustomObjectDeclaration {
-  def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[CustomObjectDeclaration] = {
-    val name = DotName(DocumentType.apply(path).get.name).demangled
-    val ns = if (pkg.namespace.value.isEmpty) None else Some(TypeName(pkg.namespace))
-    val typeName =
-      if (!name.isCompound)
-        TypeName(name.firstName, Nil, ns)
-      else
-        TypeName(name.names(1), Nil, Some(TypeName(name.firstName)))
-    if (Org.isGhostedType(typeName))
+object SObjectDeclaration {
+  def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[TypeDeclaration] = {
+    val typeNameOption = parseName(path, pkg.namespaceOption)
+    if (typeNameOption.isEmpty)
       return Seq()
 
+    val typeName = typeNameOption.get
+
+    if (typeName.name.value.endsWith("__c") && typeName.outer.map(_.name) == pkg.namespaceOption) {
+      createNew(path, typeName, pkg)
+    } else {
+        if (Org.isGhostedType(typeName))
+          Seq(extendExisting(path, typeName, pkg, None))
+        else {
+          val sobjectType = pkg.getType(typeName.asDotName)
+          if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
+            Org.logMessage(LineLocation(path, 0), s"No sObject declaration found for '$typeName'")
+            return Seq()
+          }
+          Seq(extendExisting(path, typeName, pkg, sobjectType))
+        }
+    }
+  }
+
+  private def createNew(path: Path, typeName: TypeName, pkg: PackageDeclaration): Seq[TypeDeclaration] = {
     val fields = CustomFieldDeclaration(Name.NameName, PlatformTypes.stringType.typeName) +:
-      (PlatformTypes.sObjectType.fields ++ parse(path))
+      (PlatformTypes.sObjectType.fields ++ CustomFieldDeclaration.parse(path, pkg.namespaceOption))
 
     Seq(
-      new CustomObjectDeclaration(typeName, fields),
+      new SObjectDeclaration(typeName, fields, isComplete = true),
 
       // TODO: Check fields & when should be available
       createShare(typeName),
@@ -128,67 +130,47 @@ object CustomObjectDeclaration {
     )
   }
 
-  private def parse(path: Path): Seq[CustomFieldDeclaration] = {
-    try {
-      val root = XMLLineLoader.load(StreamProxy.getInputStream(path))
-      XMLUtils.assertIs(root, "CustomObject")
+  private def extendExisting(path: Path, typeName: TypeName, pkg: PackageDeclaration, base: Option[TypeDeclaration]): TypeDeclaration = {
+    val isComplete = base.nonEmpty && pkg.basePackage().forall(!_.isGhosted)
+    val fields = collectBaseFields(typeName.asDotName, pkg)
+    base.getOrElse(PlatformTypes.sObjectType).fields.foreach(field => fields.put(field.name, field))
+    CustomFieldDeclaration.parse(path, pkg.namespaceOption).foreach(field => {fields.put(field.name, field)})
+    new SObjectDeclaration(typeName, fields.values.toSeq, isComplete)
+  }
 
-      root.child.flatMap {
-        case elem: Elem if elem.namespace == XMLUtils.sfNamespace && elem.label == "fields" =>
-          parseField(elem)
-        case _ => None
-      }
+  private def collectBaseFields(sObject: DotName, pkg: PackageDeclaration): mutable.Map[Name, FieldDeclaration] = {
+    val collected: mutable.Map[Name, FieldDeclaration] = mutable.Map()
+    pkg.basePackage().filterNot(_.isGhosted).foreach(basePkg => {
+      val fields: Seq[FieldDeclaration] = basePkg.getType(sObject).map {
+        case baseTd: SObjectDeclaration => baseTd.fields
+        case _ => Nil
+      }.getOrElse(Seq())
+      fields.foreach(field => {collected.put(field.name, field)})
+    })
+    collected
+  }
 
-    } catch {
-      case e: XMLException => Org.logMessage(RangeLocation(path, e.where), e.msg); Seq()
-      case e: SAXParseException => Org.logMessage(PointLocation(path,
-        Position(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage); Seq()
+  private def parseName(path: Path, namespace: Option[Name]): Option[TypeName] = {
+    val dt = DocumentType.apply(path)
+    assert(dt.exists(_.isInstanceOf[SObjectDocument]))
+
+    DotName(dt.get.name).demangled match {
+      case DotName(Seq(name)) if name.value.endsWith("__c") =>
+        Some(TypeName(name, Nil, namespace.map(ns => TypeName(ns))))
+      case DotName(Seq(name)) if !name.value.contains("__") =>
+        Some(TypeName(name))
+      case DotName(Seq(ns, name)) if name.value.endsWith("__c") =>
+        Some(TypeName(name, Nil, Some(TypeName(ns))))
+      case _ =>
+        Org.logMessage(LineLocation(path,0),
+          s"Expecting either standard or custom object name format, found '${dt.get.name}'")
+        None
     }
   }
 
-  private def parseField(elem: Elem): Seq[CustomFieldDeclaration] = {
-
-    val name = XMLUtils.getSingleChildAsString(elem, "fullName")
-    val rawType: String = XMLUtils.getSingleChildAsString(elem, "type")
-
-    val dataType = rawType match {
-      case "MasterDetail" => PlatformTypes.idType
-      case "Lookup" => PlatformTypes.idType
-      case "AutoNumber" => PlatformTypes.stringType
-      case "Checkbox" => PlatformTypes.booleanType
-      case "Currency" => PlatformTypes.decimalType
-      case "Date" => PlatformTypes.dateType
-      case "DateTime" => PlatformTypes.datetimeType
-      case "Email" => PlatformTypes.stringType
-      case "EncryptedText" => PlatformTypes.blobType
-      case "Number" => PlatformTypes.decimalType
-      case "Percent" => PlatformTypes.decimalType
-      case "Phone" => PlatformTypes.stringType
-      case "Picklist" => PlatformTypes.stringType
-      case "MultiselectPicklist" => PlatformTypes.stringType
-      case "Summary" => PlatformTypes.decimalType
-      case "Text" => PlatformTypes.stringType
-      case "TextArea" => PlatformTypes.stringType
-      case "LongTextArea" => PlatformTypes.stringType
-      case "Url" => PlatformTypes.stringType
-      case "File" => PlatformTypes.stringType
-      case "Location" => PlatformTypes.locationType
-      case "Time" => PlatformTypes.timeType
-      case "Html" => PlatformTypes.stringType
-      case _ => throw XMLException(TextRange(getLine(elem)), s"Unexpected type '$rawType' on custom field")
-    }
-
-    Seq(CustomFieldDeclaration(Name(name), dataType.typeName)) ++
-      (if (rawType == "Lookup" || rawType == "MasterDetail") {
-        val refType = TypeName(Name(XMLUtils.getSingleChildAsString(elem, "referenceTo")))
-        Seq(CustomFieldDeclaration(Name(name.replaceAll("__c$", "__r")), refType))
-      } else
-        Seq())
-  }
-
-  private def createShare(typeName: TypeName): CustomObjectDeclaration = {
+  private def createShare(typeName: TypeName): SObjectDeclaration = {
     val shareName = typeName.withNameReplace("__c$", "__Share")
-    CustomObjectDeclaration(shareName, shareFields)
+    SObjectDeclaration(shareName, shareFields, isComplete = true)
   }
 
   private lazy val shareFields = PlatformTypes.sObjectType.fields ++ Seq(
@@ -198,9 +180,9 @@ object CustomObjectDeclaration {
     CustomFieldDeclaration(Name.UserOrGroupId, PlatformTypes.idType.typeName)
   )
 
-  private def createFeed(typeName: TypeName): CustomObjectDeclaration = {
+  private def createFeed(typeName: TypeName): SObjectDeclaration = {
     val shareName = typeName.withNameReplace("__c$", "__Feed")
-    CustomObjectDeclaration(shareName, feedFields)
+    SObjectDeclaration(shareName, feedFields, isComplete = true)
   }
 
   private lazy val feedFields = PlatformTypes.sObjectType.fields ++ Seq(
@@ -220,9 +202,9 @@ object CustomObjectDeclaration {
     CustomFieldDeclaration(Name.Visibility, PlatformTypes.stringType.typeName),
   )
 
-  private def createHistory(typeName: TypeName): CustomObjectDeclaration = {
+  private def createHistory(typeName: TypeName): SObjectDeclaration = {
     val shareName = typeName.withNameReplace("__c$", "__Feed")
-    CustomObjectDeclaration(shareName, historyFields)
+    SObjectDeclaration(shareName, historyFields, isComplete = true)
   }
 
   private lazy val historyFields = PlatformTypes.sObjectType.fields ++ Seq(

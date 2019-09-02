@@ -31,7 +31,7 @@ package com.nawforce.types
 import java.nio.file.Path
 
 import com.nawforce.documents.DocumentLoader
-import com.nawforce.utils.Name
+import com.nawforce.utils.{DotName, Name}
 
 abstract class PackageDeclaration(val namespace: Name, val paths: Seq[Path]) {
   private val documents = new DocumentLoader(paths)
@@ -45,4 +45,6 @@ abstract class PackageDeclaration(val namespace: Name, val paths: Seq[Path]) {
 
   def namespaceOption: Option[Name] = if (namespace.isEmpty) None else Some(namespace)
   def namespaceWithDot: String = if (namespace.isEmpty) "" else namespace + "."
+
+  def getType(dotName: DotName): Option[TypeDeclaration]
 }

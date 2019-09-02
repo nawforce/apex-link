@@ -140,6 +140,7 @@ case class DotName(names: Seq[Name]) {
     }
   }
 
+  // TODO: Create a Class to handle these
   def demangled: DotName = {
     if (names.size == 1) {
       // Extract namespace for custom object, platform event &  metadata types

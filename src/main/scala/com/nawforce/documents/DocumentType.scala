@@ -63,7 +63,7 @@ case class ComponentDocument(_path: Path, _name: Name)
   lazy val extension: Name = Name("component")
 }
 
-case class CustomObjectDocument(_path: Path, _name: Name)
+case class SObjectDocument(_path: Path, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("object")
   override val ignorable: Boolean = {
@@ -92,24 +92,30 @@ object DocumentType {
     splitFilename(path) match {
       case Seq(name, Name("cls")) =>
         Some(ApexDocument(path, name))
+
       case Seq(name, Name("component")) =>
         Some(ComponentDocument(path, name))
-      case Seq(name, Name("object")) if name.value.endsWith("__c") =>
-        Some(CustomObjectDocument(path, name))
-      case Seq(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__c") =>
-        Some(CustomObjectDocument(path, name))
+
       case Seq(name, Name("object")) if name.value.endsWith("__mdt") =>
         Some(CustomMetadataDocument(path, name))
       case Seq(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__mdt") =>
         Some(CustomMetadataDocument(path, name))
+
       case Seq(name, Name("object")) if name.value.endsWith("__e") =>
         Some(PlatformEventDocument(path, name))
       case Seq(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__e") =>
-        Some(CustomMetadataDocument(path, name))
+        Some(PlatformEventDocument(path, name))
+
+      case Seq(name, Name("object")) =>
+        Some(SObjectDocument(path, name))
+      case Seq(name, Name("object-meta"), Name("xml")) =>
+        Some(SObjectDocument(path, name))
+
       case Seq(name, Name("labels")) =>
         Some(LabelsDocument(path, name))
       case Seq(name, Name("labels-meta"), Name("xml")) =>
         Some(LabelsDocument(path, name))
+
       case Seq(name, Name("page")) =>
         Some(PageDocument(path, name))
       case _ => None

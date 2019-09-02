@@ -28,7 +28,7 @@
 package com.nawforce.cst
 
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{CustomObjectDeclaration, TypeName}
+import com.nawforce.types.{SObjectDeclaration, TypeName}
 
 import scala.collection.JavaConverters._
 
@@ -102,7 +102,7 @@ final case class Creator(createdName: CreatedName,
     // Intercept CustomObject construction to handle name=value args
     if (arrayCreatorRest.isEmpty) {
       inter.declaration.get match {
-        case co: CustomObjectDeclaration =>
+        case co: SObjectDeclaration =>
           return co.validateConstructor(input, this)
         case _ => ()
       }

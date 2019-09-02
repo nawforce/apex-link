@@ -91,7 +91,8 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
           if (nt.nonEmpty) {
             ExprContext(isStatic = true, nt)
           } else {
-            context.logMessage(location, s"Unknown field or type '${target.left.get.name}' on '${td.typeName}'")
+            if (td.isComplete)
+              context.logMessage(location, s"Unknown field or type '${target.left.get.name}' on '${td.typeName}'")
             ExprContext.empty
           }
         }

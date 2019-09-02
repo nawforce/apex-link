@@ -159,8 +159,8 @@ class Package(val org: Org, _namespace: Name, _paths: Seq[Path], var basePackage
           val tds = DocumentType(path) match {
             case Some(docType: ApexDocument) =>
               ApexTypeDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
-            case Some(docType: CustomObjectDocument) =>
-              CustomObjectDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+            case Some(docType: SObjectDocument) =>
+              SObjectDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
             case Some(docType: PlatformEventDocument) =>
               PlatformEventDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
             case Some(docType: CustomMetadataDocument) =>

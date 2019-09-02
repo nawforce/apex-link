@@ -34,7 +34,7 @@ import com.nawforce.api.Org
 import com.nawforce.utils.Name
 import org.scalatest.FunSuite
 
-class SObjectTest extends FunSuite {
+class CustomObjectTest extends FunSuite {
 
   def customObject(label: String, fields: Seq[(String, String, Option[String])]): String = {
     val fieldMetadata = fields.map(field => {
