@@ -34,6 +34,7 @@ import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class Order extends SObject {
+	public Id RecordTypeId;
 	public Id AccountId;
 	public Account Account;
 	public Id ActivatedById;

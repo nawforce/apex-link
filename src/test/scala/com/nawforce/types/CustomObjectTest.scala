@@ -213,4 +213,15 @@ class CustomObjectTest extends FunSuite {
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
+
+  test("RecordTypeId field") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Foo__c a; a.RecordTypeId = '';} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
 }

@@ -34,6 +34,7 @@ import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class Campaign extends SObject {
+	public Id RecordTypeId;
 	public Decimal ActualCost;
 	public Decimal AmountAllOpportunities;
 	public Decimal AmountWonOpportunities;

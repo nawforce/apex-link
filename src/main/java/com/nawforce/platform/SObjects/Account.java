@@ -33,6 +33,7 @@ import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class Account extends SObject {
+	public Id RecordTypeId;
 	public String AccountNumber;
 	public String AccountSource;
 	public Decimal AnnualRevenue;

@@ -35,6 +35,7 @@ import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class Lead extends SObject {
+	public Id RecordTypeId;
 	public com.nawforce.platform.System.Address Address;
 	public Decimal AnnualRevenue;
 	public String City;

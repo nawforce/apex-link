@@ -117,8 +117,10 @@ object SObjectDeclaration {
   }
 
   private def createNew(path: Path, typeName: TypeName, pkg: PackageDeclaration): Seq[TypeDeclaration] = {
-    val fields = CustomFieldDeclaration(Name.NameName, PlatformTypes.stringType.typeName) +:
-      (PlatformTypes.sObjectType.fields ++ CustomFieldDeclaration.parse(path, pkg.namespaceOption))
+    val fields =
+      CustomFieldDeclaration(Name.NameName, PlatformTypes.stringType.typeName) +:
+      CustomFieldDeclaration(Name.RecordTypeId, PlatformTypes.idType.typeName) +:
+        (PlatformTypes.sObjectType.fields ++ CustomFieldDeclaration.parse(path, pkg.namespaceOption))
 
     Seq(
       new SObjectDeclaration(typeName, fields, isComplete = true),

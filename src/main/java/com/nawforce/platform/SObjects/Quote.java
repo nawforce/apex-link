@@ -32,40 +32,8 @@ import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
-
+// TODO: Enable on org via QuoteSettings
 @SuppressWarnings("unused")
-public class Solution extends SObject {
-	public Id RecordTypeId;
-	public String CurrencyIsoCode;
-	public Boolean IsHtml;
-	public Boolean IsPublished;
-	public Boolean IsPublishedInPublicKb;
-	public Boolean IsReviewed;
-	public Datetime LastReferencedDate;
-	public Datetime LastViewedDate;
-	public Id OwnerId;
-	public User Owner;
-	public String SolutionName;
-	public String SolutionNote;
-	public String SolutionNumber;
-	public String Status;
-	public Integer TimesUsed;
-
-	public ActivityHistory[] ActivityHistories;
-	public AttachedContentDocument[] AttachedContentDocuments;
-	public Attachment[] Attachments;
-	public CaseSolution[] CaseSolutions;
-	public CombinedAttachment[] CombinedAttachments;
-	public ContentDocumentLink[] ContentDocumentLinks;
-	public EmailMessage[] Emails;
-	public Event[] Events;
-	public EntitySubscription[] FeedSubscriptionsForEntity;
-	public SolutionFeed[] Feeds;
-	public SolutionHistory[] Histories;
-	public OpenActivity[] OpenActivities;
-	public ProcessInstance[] ProcessInstances;
-	public ProcessInstanceHistory[] ProcessSteps;
-	public Task[] Tasks;
-	public TopicAssignment[] TopicAssignments;
-	public Vote[] Votes;
+public class Quote extends SObject {
+    public Id RecordTypeId;
 }

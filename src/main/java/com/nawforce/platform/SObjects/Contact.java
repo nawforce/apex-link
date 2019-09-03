@@ -33,6 +33,7 @@ import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class Contact extends SObject {
+	public Id RecordTypeId;
 	public Id AccountId;
 	public Account Account;
 	public String AssistantName;

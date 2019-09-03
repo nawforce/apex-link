@@ -105,4 +105,14 @@ class StandardObjectTest extends FunSuite {
     assert(org.issues.getMessages(fs.getPath("/work/pkg2/Dummy.cls")) ==
       "line 1 at 33-41: Unknown field or type 'Bar__c' on 'Account'\n")
   }
+
+  test("RecordTypeId field") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Account a; a.RecordTypeId = '';} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
 }

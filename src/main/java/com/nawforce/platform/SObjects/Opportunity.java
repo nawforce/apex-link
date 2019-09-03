@@ -33,6 +33,7 @@ import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class Opportunity extends SObject {
+	public Id RecordTypeId;
 	public Id AccountId;
 	public Account Account;
 	public Decimal Amount;

@@ -113,6 +113,7 @@ object Name {
   lazy val OldValue: Name = cache("OldValue")
   lazy val Integer: Name = cache("Integer")
   lazy val Long: Name = cache("Long")
+  lazy val RecordTypeId: Name = cache("RecordTypeId")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 }
