@@ -39,7 +39,8 @@ abstract class PackageDeclaration(val namespace: Name, val paths: Seq[Path]) {
   def documentsByExtension(ext: Name): Seq[Path] = documents.getByExtension(ext)
 
   def isGhosted: Boolean = paths.isEmpty
-  def basePackage(): Seq[PackageDeclaration]
+  def basePackages(): Seq[PackageDeclaration]
+  def schema(): SchemaManager
   def labels(): LabelDeclaration
   def pages(): PageDeclaration
 

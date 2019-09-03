@@ -36,14 +36,15 @@ import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
 
 import scala.xml.{Elem, SAXParseException}
 
-final case class CustomFieldDeclaration(name: Name, typeName: TypeName)
+final case class CustomFieldDeclaration(name: Name, typeName: TypeName, asStatic: Boolean = false)
   extends FieldDeclaration {
 
-  override val modifiers: Seq[Modifier] = Seq(PUBLIC_MODIFIER)
+  override val modifiers: Seq[Modifier] = Seq(PUBLIC_MODIFIER) ++
+    (if (asStatic) Seq(STATIC_MODIFIER) else Seq())
   override val readAccess: Modifier = PUBLIC_MODIFIER
   override val writeAccess: Modifier = PUBLIC_MODIFIER
 
-  override lazy val isStatic: Boolean = false
+  override lazy val isStatic: Boolean = asStatic
 }
 
 object CustomFieldDeclaration {

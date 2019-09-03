@@ -45,6 +45,7 @@ public class Contact extends SObject {
 	public String Email;
 	public Datetime EmailBouncedDate;
 	public String EmailBouncedReason;
+	public Boolean HasOptedOutOfEmail;
 	public String Fax;
 	public String FirstName;
 	public String HomePhone;

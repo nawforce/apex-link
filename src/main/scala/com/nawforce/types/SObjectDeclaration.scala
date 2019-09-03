@@ -122,7 +122,7 @@ object SObjectDeclaration {
       CustomFieldDeclaration(Name.RecordTypeId, PlatformTypes.idType.typeName) +:
         (PlatformTypes.sObjectType.fields ++ CustomFieldDeclaration.parse(path, pkg.namespaceOption))
 
-    Seq(
+    val sobjects: Seq[SObjectDeclaration] = Seq(
       new SObjectDeclaration(typeName, fields, isComplete = true),
 
       // TODO: Check fields & when should be available
@@ -130,10 +130,12 @@ object SObjectDeclaration {
       createFeed(typeName),
       createHistory(typeName)
     )
+    sobjects.foreach(pkg.schema().sobjectTypes.add)
+    sobjects
   }
 
   private def extendExisting(path: Path, typeName: TypeName, pkg: PackageDeclaration, base: Option[TypeDeclaration]): TypeDeclaration = {
-    val isComplete = base.nonEmpty && pkg.basePackage().forall(!_.isGhosted)
+    val isComplete = base.nonEmpty && pkg.basePackages().forall(!_.isGhosted)
     val fields = collectBaseFields(typeName.asDotName, pkg)
     base.getOrElse(PlatformTypes.sObjectType).fields.foreach(field => fields.put(field.name, field))
     CustomFieldDeclaration.parse(path, pkg.namespaceOption).foreach(field => {fields.put(field.name, field)})
@@ -142,7 +144,7 @@ object SObjectDeclaration {
 
   private def collectBaseFields(sObject: DotName, pkg: PackageDeclaration): mutable.Map[Name, FieldDeclaration] = {
     val collected: mutable.Map[Name, FieldDeclaration] = mutable.Map()
-    pkg.basePackage().filterNot(_.isGhosted).foreach(basePkg => {
+    pkg.basePackages().filterNot(_.isGhosted).foreach(basePkg => {
       val fields: Seq[FieldDeclaration] = basePkg.getType(sObject).map {
         case baseTd: SObjectDeclaration => baseTd.fields
         case _ => Nil

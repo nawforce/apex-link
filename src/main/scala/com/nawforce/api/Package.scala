@@ -41,14 +41,17 @@ import scala.collection.JavaConverters._
 class Package(val org: Org, _namespace: Name, _paths: Seq[Path], var basePackages: Seq[Package])
   extends PackageDeclaration(_namespace, _paths) with LazyLogging {
 
+  private val schemaManager = new SchemaManager(this)
   private val labelDeclaration = LabelDeclaration(this)
   private val pageDeclaration = PageDeclaration(this)
   private val flowDeclaration = new FlowDeclaration
   private val componentDeclaration = new ComponentDeclaration
   private val types = initTypes()
 
-  private def initTypes() = {
+  private def initTypes(): ConcurrentHashMap[DotName, TypeDeclaration] = {
     val types = new ConcurrentHashMap[DotName, TypeDeclaration]()
+    types.put(schemaManager.sobjectTypes.typeName.asDotName, schemaManager.sobjectTypes)
+    types.put(DotName(schemaManager.sobjectTypes.name), schemaManager.sobjectTypes)
     types.put(labelDeclaration.typeName.asDotName, labelDeclaration)
     types.put(DotName(labelDeclaration.name), labelDeclaration)
     types.put(pageDeclaration.typeName.asDotName, pageDeclaration)
@@ -57,10 +60,8 @@ class Package(val org: Org, _namespace: Name, _paths: Seq[Path], var basePackage
     types
   }
 
-  override def basePackage(): Seq[PackageDeclaration] = basePackages
-
+  override def schema(): SchemaManager = schemaManager
   override def labels(): LabelDeclaration = labelDeclaration
-
   override def pages(): PageDeclaration = pageDeclaration
 
   def typeCount: Int = types.size
