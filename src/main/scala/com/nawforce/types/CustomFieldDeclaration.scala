@@ -104,6 +104,11 @@ object CustomFieldDeclaration {
       (if (rawType == "Lookup" || rawType == "MasterDetail") {
         val refType = TypeName(Name(XMLUtils.getSingleChildAsString(elem, "referenceTo")))
         Seq(CustomFieldDeclaration(Name(name.replaceAll("__c$", "__r")), refType))
+      } else if (rawType == "Location") {
+        Seq(
+          CustomFieldDeclaration(Name(name.replaceAll("__c$", "__latitude__s")), TypeName.Double),
+          CustomFieldDeclaration(Name(name.replaceAll("__c$", "__longitude__s")), TypeName.Double)
+        )
       } else
         Seq())
     }
