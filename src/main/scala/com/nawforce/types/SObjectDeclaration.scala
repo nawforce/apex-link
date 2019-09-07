@@ -90,6 +90,10 @@ final case class SObjectDeclaration(_typeName: TypeName,
     }
     ExprContext.empty
   }
+
+  override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
+    super.findFieldSObject(name, staticOnly)
+  }
 }
 
 object SObjectDeclaration {

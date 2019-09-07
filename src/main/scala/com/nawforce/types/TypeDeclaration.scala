@@ -137,13 +137,32 @@ trait TypeDeclaration extends DependencyHolder {
     fieldsByName.get(name).filter(f => !staticOnly || f.isStatic)
   }
 
-  private lazy val fieldsByName: Map[Name, FieldDeclaration] = {
+  protected def findFieldSObject(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
+    this.synchronized {
+      val fieldOption = fieldsByName.get(name)
+      if (fieldOption.isEmpty)
+        return None
+
+      val field = fieldOption.get
+      if (staticOnly == field.isStatic) {
+        fieldOption
+      } else if (staticOnly) {
+        val staticRef = CustomFieldDeclaration(field.name, TypeName.SObjectField, asStatic = true)
+        fieldsByName.put(staticRef.name, staticRef)
+        Some(staticRef)
+      } else {
+        None
+      }
+    }
+  }
+
+  private lazy val fieldsByName: mutable.Map[Name, FieldDeclaration] = {
     // TODO: Should not be accessing Org here
     val outerType = outerTypeName.flatMap(typeName => Org.getType(namespace, typeName.asDotName))
     val fieldsByName =
         outerType.map(td => td.fields.filter(_.isStatic).map(f => (f.name, f))).getOrElse(Seq()) ++
         fields.map(f => (f.name, f))
-    fieldsByName.toMap
+    mutable.Map(fieldsByName: _*)
   }
 
   def findType(name: Name, namespace: Option[Name], staticOnly: Boolean): Option[TypeDeclaration] = {

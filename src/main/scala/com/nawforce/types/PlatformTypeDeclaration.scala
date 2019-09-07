@@ -53,6 +53,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
   }
   override val isComplete: Boolean = true
   override val isExternallyVisible: Boolean = true
+  private lazy val isSObject: Boolean = superClass.contains(TypeName.SObject)
 
   override lazy val superClass: Option[TypeName] = {
     if (cls.getSuperclass != null) {
@@ -90,6 +91,14 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
   override lazy val fields: Seq[FieldDeclaration] = cls.getFields.filter(
     _.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
     .map(f => Field(f))
+
+  override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
+    if (isSObject) {
+      super.findFieldSObject(name, staticOnly)
+    } else {
+      super.findField(name, staticOnly)
+    }
+  }
 
   case class Parameter(parameter: java.lang.reflect.Parameter, declaringClass: Class[_]) extends ParameterDeclaration {
     lazy val name: Name = Name(parameter.getName)

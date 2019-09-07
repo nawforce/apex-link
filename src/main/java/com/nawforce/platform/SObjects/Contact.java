@@ -42,6 +42,7 @@ public class Contact extends SObject {
 	public String CurrencyIsoCode;
 	public String Department;
 	public String Description;
+	public Boolean DoNotCall;
 	public String Email;
 	public Datetime EmailBouncedDate;
 	public String EmailBouncedReason;

@@ -224,4 +224,39 @@ class CustomObjectTest extends FunSuite {
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
+
+  test("Standard field reference") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Foo__c.Name;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Custom field reference") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Foo__c.Bar__c;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    org.issues.dumpMessages(false)
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Invalid field reference") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Foo__c.Baz__c;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+      "line 1 at 39-52: Unknown field or type 'Baz__c' on 'Foo__c'\n")
+  }
 }

@@ -115,4 +115,37 @@ class StandardObjectTest extends FunSuite {
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
+
+  test("Standard field reference") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Account.Fax;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Custom field reference") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Account.object"), customObject("Account", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Account.Bar__c;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Invalid field reference") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Account.object"), customObject("Account", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Account.Baz__c;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+      "line 1 at 39-53: Unknown field or type 'Baz__c' on 'Account'\n")
+  }
 }

@@ -99,6 +99,7 @@ object TypeName {
   lazy val Boolean = TypeName(Name("Boolean"), Nil, Some(TypeName.System))
   lazy val PageReference = TypeName(Name.PageReference, Nil, Some(TypeName.System))
   lazy val SObjectType = TypeName(Name.SObjectType, Nil, Some(TypeName.Schema))
+  lazy val SObjectField = TypeName(Name.SObjectField, Nil, Some(TypeName.Schema))
   lazy val DescribeSObjectResult = TypeName(Name.DescribeSObjectResult, Nil, Some(TypeName.Schema))
 
   private lazy val aliasMap = Map[TypeName, String](
