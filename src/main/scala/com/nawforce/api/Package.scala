@@ -125,13 +125,16 @@ class Package(val org: Org, _namespace: Name, _paths: Seq[Path], var basePackage
   }
 
   def deployAll(): Unit = {
-    val components = documentsByExtension(Name("component"))
-    logger.debug(s"Found ${components.size} components to parse")
-    deployMetadata(components)
-
     val objects = documentsByExtension(Name("object"))
     logger.debug(s"Found ${objects.size} custom objects to parse")
     deployMetadata(objects)
+    Org.current.withValue(org) {
+      schemaManager.relatedLists.validate()
+    }
+
+    val components = documentsByExtension(Name("component"))
+    logger.debug(s"Found ${components.size} components to parse")
+    deployMetadata(components)
 
     val classes = documentsByExtension(Name("cls"))
     logger.debug(s"Found ${classes.size} classes to parse")

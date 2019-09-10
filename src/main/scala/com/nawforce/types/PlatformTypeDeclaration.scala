@@ -53,7 +53,6 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
   }
   override val isComplete: Boolean = true
   override val isExternallyVisible: Boolean = true
-  private lazy val isSObject: Boolean = superClass.contains(TypeName.SObject)
 
   override lazy val superClass: Option[TypeName] = {
     if (cls.getSuperclass != null) {

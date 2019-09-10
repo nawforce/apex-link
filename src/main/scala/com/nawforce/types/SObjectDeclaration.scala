@@ -37,7 +37,7 @@ import com.nawforce.utils.{DotName, Name}
 
 import scala.collection.mutable
 
-final case class SObjectDeclaration(_typeName: TypeName,
+final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName,
                                     override val fields: Seq[FieldDeclaration], override val isComplete: Boolean)
   extends NamedTypeDeclaration(_typeName) {
 
@@ -92,7 +92,9 @@ final case class SObjectDeclaration(_typeName: TypeName,
   }
 
   override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
-    super.findFieldSObject(name, staticOnly)
+    super.findFieldSObject(name, staticOnly).orElse({
+      pkg.schema().relatedLists.findField(typeName, name, staticOnly)
+    })
   }
 }
 
@@ -124,15 +126,15 @@ object SObjectDeclaration {
     val fields =
       CustomFieldDeclaration(Name.NameName, PlatformTypes.stringType.typeName) +:
       CustomFieldDeclaration(Name.RecordTypeId, PlatformTypes.idType.typeName) +:
-        (PlatformTypes.sObjectType.fields ++ CustomFieldDeclaration.parse(path, pkg.namespaceOption))
+        (PlatformTypes.sObjectType.fields ++ CustomFieldDeclaration.parse(path, pkg, typeName))
 
     val sobjects: Seq[SObjectDeclaration] = Seq(
-      new SObjectDeclaration(typeName, fields, isComplete = true),
+      new SObjectDeclaration(pkg, typeName, fields, isComplete = true),
 
       // TODO: Check fields & when should be available
-      createShare(typeName),
-      createFeed(typeName),
-      createHistory(typeName)
+      createShare(pkg, typeName),
+      createFeed(pkg, typeName),
+      createHistory(pkg, typeName)
     )
     sobjects.foreach(pkg.schema().sobjectTypes.add)
     sobjects
@@ -142,8 +144,8 @@ object SObjectDeclaration {
     val isComplete = base.nonEmpty && pkg.basePackages().forall(!_.isGhosted)
     val fields = collectBaseFields(typeName.asDotName, pkg)
     base.getOrElse(PlatformTypes.sObjectType).fields.foreach(field => fields.put(field.name, field))
-    CustomFieldDeclaration.parse(path, pkg.namespaceOption).foreach(field => {fields.put(field.name, field)})
-    new SObjectDeclaration(typeName, fields.values.toSeq, isComplete)
+    CustomFieldDeclaration.parse(path, pkg, typeName).foreach(field => {fields.put(field.name, field)})
+    new SObjectDeclaration(pkg, typeName, fields.values.toSeq, isComplete)
   }
 
   private def collectBaseFields(sObject: DotName, pkg: PackageDeclaration): mutable.Map[Name, FieldDeclaration] = {
@@ -176,9 +178,9 @@ object SObjectDeclaration {
     }
   }
 
-  private def createShare(typeName: TypeName): SObjectDeclaration = {
+  private def createShare(pkg: PackageDeclaration, typeName: TypeName): SObjectDeclaration = {
     val shareName = typeName.withNameReplace("__c$", "__Share")
-    SObjectDeclaration(shareName, shareFields, isComplete = true)
+    SObjectDeclaration(pkg, shareName, shareFields, isComplete = true)
   }
 
   private lazy val shareFields = PlatformTypes.sObjectType.fields ++ Seq(
@@ -188,9 +190,9 @@ object SObjectDeclaration {
     CustomFieldDeclaration(Name.UserOrGroupId, PlatformTypes.idType.typeName)
   )
 
-  private def createFeed(typeName: TypeName): SObjectDeclaration = {
+  private def createFeed(pkg: PackageDeclaration, typeName: TypeName): SObjectDeclaration = {
     val shareName = typeName.withNameReplace("__c$", "__Feed")
-    SObjectDeclaration(shareName, feedFields, isComplete = true)
+    SObjectDeclaration(pkg, shareName, feedFields, isComplete = true)
   }
 
   private lazy val feedFields = PlatformTypes.sObjectType.fields ++ Seq(
@@ -210,9 +212,9 @@ object SObjectDeclaration {
     CustomFieldDeclaration(Name.Visibility, PlatformTypes.stringType.typeName),
   )
 
-  private def createHistory(typeName: TypeName): SObjectDeclaration = {
+  private def createHistory(pkg: PackageDeclaration, typeName: TypeName): SObjectDeclaration = {
     val shareName = typeName.withNameReplace("__c$", "__Feed")
-    SObjectDeclaration(shareName, historyFields, isComplete = true)
+    SObjectDeclaration(pkg, shareName, historyFields, isComplete = true)
   }
 
   private lazy val historyFields = PlatformTypes.sObjectType.fields ++ Seq(

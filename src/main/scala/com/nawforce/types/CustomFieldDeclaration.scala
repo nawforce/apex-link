@@ -31,7 +31,7 @@ import java.nio.file.Path
 
 import com.nawforce.api.Org
 import com.nawforce.documents._
-import com.nawforce.utils.Name
+import com.nawforce.utils.{DotName, Name}
 import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
 
 import scala.xml.{Elem, SAXParseException}
@@ -48,14 +48,14 @@ final case class CustomFieldDeclaration(name: Name, typeName: TypeName, asStatic
 }
 
 object CustomFieldDeclaration {
-  def parse(path: Path, namespace: Option[Name]): Seq[CustomFieldDeclaration] = {
+  def parse(path: Path, pkg: PackageDeclaration, sObjectType: TypeName): Seq[CustomFieldDeclaration] = {
     try {
       val root = XMLLineLoader.load(StreamProxy.getInputStream(path))
       XMLUtils.assertIs(root, "CustomObject")
 
       root.child.flatMap {
         case elem: Elem if elem.namespace == XMLUtils.sfNamespace && elem.label == "fields" =>
-          parseField(elem, namespace)
+          parseField(elem, path, pkg, sObjectType)
         case _ => None
       }
 
@@ -67,10 +67,10 @@ object CustomFieldDeclaration {
     }
   }
 
-  private def parseField(elem: Elem, namespace: Option[Name]): Seq[CustomFieldDeclaration] = {
+  private def parseField(elem: Elem, path: Path, pkg: PackageDeclaration, sObjectType: TypeName): Seq[CustomFieldDeclaration] = {
 
     val rawName: String = XMLUtils.getSingleChildAsString(elem, "fullName")
-    val name = namespace.map(ns => s"${ns.value}__$rawName").getOrElse(rawName)
+    val name = Name(pkg.namespaceOption.map(ns => s"${ns.value}__$rawName").getOrElse(rawName))
     val rawType: String = XMLUtils.getSingleChildAsString(elem, "type")
 
     val dataType = rawType match {
@@ -100,14 +100,20 @@ object CustomFieldDeclaration {
       case _ => throw XMLException(TextRange(XMLUtils.getLine(elem)), s"Unexpected type '$rawType' on custom field")
     }
 
-    Seq(CustomFieldDeclaration(Name(name), dataType.typeName)) ++
+    Seq(CustomFieldDeclaration(name, dataType.typeName)) ++
       (if (rawType == "Lookup" || rawType == "MasterDetail") {
-        val refType = TypeName(Name(XMLUtils.getSingleChildAsString(elem, "referenceTo")))
-        Seq(CustomFieldDeclaration(Name(name.replaceAll("__c$", "__r")), refType))
+        val referenceTo = Name(XMLUtils.getSingleChildAsString(elem, "referenceTo"))
+        val relName = Name(XMLUtils.getSingleChildAsString(elem, "relationshipName")+"__r")
+        val refTypeName = TypeName(DotName(referenceTo).demangled.names.reverse)
+
+        pkg.schema().relatedLists.add(refTypeName, relName, name, sObjectType,
+          RangeLocation(path, TextRange(XMLUtils.getLine(elem))))
+
+        Seq(CustomFieldDeclaration(name.replaceAll("__c$", "__r"), refTypeName))
       } else if (rawType == "Location") {
         Seq(
-          CustomFieldDeclaration(Name(name.replaceAll("__c$", "__latitude__s")), TypeName.Double),
-          CustomFieldDeclaration(Name(name.replaceAll("__c$", "__longitude__s")), TypeName.Double)
+          CustomFieldDeclaration(name.replaceAll("__c$", "__latitude__s"), TypeName.Double),
+          CustomFieldDeclaration(name.replaceAll("__c$", "__longitude__s"), TypeName.Double)
         )
       } else
         Seq())

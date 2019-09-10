@@ -42,7 +42,8 @@ class CustomObjectTest extends FunSuite {
          |    <fields>
          |        <fullName>${field._1}</fullName>
          |        <type>${field._2}</type>
-         |        ${if (field._3.nonEmpty) s"<referenceTo>field._3.get</referenceTo>" else ""}
+         |        ${if (field._3.nonEmpty) s"<referenceTo>${field._3.get}</referenceTo>" else ""}
+         |        ${if (field._3.nonEmpty) s"<relationshipName>${field._1.replaceAll("__c$","")}</relationshipName>" else ""}
          |    </fields>
          |""".stripMargin
     })

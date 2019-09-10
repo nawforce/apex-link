@@ -51,6 +51,10 @@ case class Name(value: String) {
 
   def isEmpty: Boolean = value.isEmpty
   def nonEmpty: Boolean = value.nonEmpty
+
+  def replaceAll(regex: String, replace: String): Name = {
+    Name(value.replaceAll(regex, replace))
+  }
 }
 
 object Name {

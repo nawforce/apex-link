@@ -27,12 +27,47 @@
 */
 package com.nawforce.types
 
+import com.nawforce.api.Org
+import com.nawforce.documents.Location
 import com.nawforce.utils.{DotName, Name}
 
-import scala.collection.mutable
+import scala.collection.{mutable, _}
 
 class SchemaManager(pkg: PackageDeclaration) {
   val sobjectTypes: SchemaSObjectType = new SchemaSObjectType(pkg)
+  val relatedLists: RelatedLists = new RelatedLists(pkg)
+}
+
+class RelatedLists(pkg: PackageDeclaration) {
+  private val relationshipFields = mutable.Map[TypeName, Seq[(CustomFieldDeclaration, Name, Location)]]() withDefaultValue Seq()
+
+  def add(sObject: TypeName, relationshipName: Name, holdingFieldName: Name, holdingSObject: TypeName, location: Location): Unit = {
+    val field = CustomFieldDeclaration(relationshipName, TypeName(Name.List, Seq(holdingSObject), None))
+    synchronized {
+      relationshipFields.put(sObject, (field, holdingFieldName, location) +: relationshipFields(sObject))
+    }
+  }
+
+  def validate(): Unit = {
+    synchronized {
+      val names = relationshipFields.keys.toSet
+      names.foreach(sObject => {
+        val td = pkg.getType(sObject.asDotName.demangled)
+        if (td.isEmpty || !td.exists(_.isSObject)) {
+          relationshipFields(sObject).foreach(field => {
+            Org.logMessage(field._3,
+              s"Lookup object $sObject does not exist for field '${field._2}'")
+          })
+        }
+      })
+    }
+  }
+
+  def findField(sobjectType: TypeName, name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
+    synchronized {
+      relationshipFields(sobjectType).find(field => field._1.name == name).map(_._1)
+    }
+  }
 }
 
 class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDeclaration(TypeName.SObjectType) {

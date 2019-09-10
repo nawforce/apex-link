@@ -109,10 +109,6 @@ trait TypeDeclaration extends DependencyHolder {
   val nature: Nature
   val modifiers: Seq[Modifier]
 
-  val isComplete: Boolean
-  val isExternallyVisible: Boolean
-  val isAny: Boolean = false
-
   lazy val namespace: Option[Name] = {
     val outermostType = outerTypeName.getOrElse(typeName).outer
     assert(outermostType.forall(_.outer.isEmpty))
@@ -128,6 +124,11 @@ trait TypeDeclaration extends DependencyHolder {
   val fields: Seq[FieldDeclaration]
   val constructors: Seq[ConstructorDeclaration]
   val methods: Seq[MethodDeclaration]
+
+  val isComplete: Boolean
+  val isExternallyVisible: Boolean
+  val isAny: Boolean = false
+  lazy val isSObject: Boolean = superClass.contains(TypeName.SObject)
 
   /** Validate must be called before examining dependencies */
   def validate(): Unit
