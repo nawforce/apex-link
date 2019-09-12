@@ -149,7 +149,7 @@ trait TypeDeclaration extends DependencyHolder {
         fieldOption
       } else if (staticOnly) {
         val staticRef = CustomFieldDeclaration(field.name, TypeName.SObjectField, asStatic = true)
-        fieldsByName.put(staticRef.name, staticRef)
+        // TODO: Link static field back to instance field
         Some(staticRef)
       } else {
         None

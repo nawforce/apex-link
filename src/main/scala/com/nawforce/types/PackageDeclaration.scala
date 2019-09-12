@@ -48,4 +48,36 @@ abstract class PackageDeclaration(val namespace: Name, val paths: Seq[Path]) {
   def namespaceWithDot: String = if (namespace.isEmpty) "" else namespace + "."
 
   def getType(dotName: DotName): Option[TypeDeclaration]
+
+  def upsertType(declaration: TypeDeclaration): Unit
+
+  def isGhostedName(name: Name): Boolean = {
+    val demangled = DotName(name).demangled
+    demangled.isCompound && basePackages().filter(_.isGhosted).exists(_.namespace == demangled.firstName)
+  }
+
+  def isGhostedType(typeName: TypeName): Boolean = {
+    typeName.outer.nonEmpty && basePackages().filter(_.isGhosted).exists(_.namespace == typeName.outer.get.name)
+  }
+
+  def defaultNamespaceAsTypeName(name: Name): TypeName = {
+    val dotName = DotName(name).demangled
+    namespaceOption.map(ns => {
+      if (dotName.isCompound)
+        TypeName(dotName.names.reverse)
+      else if (!dotName.firstName.value.endsWith("__c"))
+        TypeName(name)
+      else
+        TypeName(name, Nil, Some(TypeName(ns)))
+    }).getOrElse(TypeName(dotName.names.reverse))
+  }
+
+  def wrapSObject(typeName: TypeName): Option[TypeDeclaration] = {
+    val tdOption = getType(typeName.asDotName)
+    tdOption.filter(td => td.isSObject && td.isInstanceOf[PlatformTypeDeclaration]).map(td =>{
+      val wrapped = SObjectDeclaration(this, td.typeName, td.fields, isComplete = true)
+      upsertType(wrapped)
+      wrapped
+    })
+  }
 }

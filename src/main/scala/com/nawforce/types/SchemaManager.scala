@@ -49,24 +49,27 @@ class RelatedLists(pkg: PackageDeclaration) {
   }
 
   def validate(): Unit = {
-    synchronized {
-      val names = relationshipFields.keys.toSet
-      names.foreach(sObject => {
-        val td = pkg.getType(sObject.asDotName.demangled)
-        if (td.isEmpty || !td.exists(_.isSObject)) {
-          relationshipFields(sObject).foreach(field => {
-            Org.logMessage(field._3,
-              s"Lookup object $sObject does not exist for field '${field._2}'")
-          })
-        }
-      })
-    }
+    val changedObjects = mutable.Set[TypeName]()
+    val names = relationshipFields.keys.toSet
+    names.foreach(sObject => {
+      val td = pkg.getType(sObject.asDotName)
+      if ((td.isEmpty || !td.exists(_.isSObject)) && !pkg.isGhostedType(sObject)) {
+        relationshipFields(sObject).foreach(field => {
+          Org.logMessage(field._3,
+            s"Lookup object $sObject does not exist for field '${field._2}'")
+        })
+      } else if (td.nonEmpty && td.exists(_.isInstanceOf[PlatformTypeDeclaration])) {
+        changedObjects.add(sObject)
+      }
+    })
+
+    changedObjects.foreach(sObject => {
+      pkg.wrapSObject(sObject)
+    })
   }
 
   def findField(sobjectType: TypeName, name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
-    synchronized {
-      relationshipFields(sobjectType).find(field => field._1.name == name).map(_._1)
-    }
+    relationshipFields(sobjectType).find(field => field._1.name == name).map(_._1)
   }
 }
 
@@ -82,8 +85,7 @@ class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDeclaration(Ty
     if (!staticOnly)
       return None
 
-    val demangled = DotName(name).demangled
-    if (demangled.isCompound && pkg.basePackages().filter(_.isGhosted).exists(_.namespace == demangled.firstName)) {
+    if (pkg.isGhostedName(name)) {
       return Some(createField(name))
     }
 

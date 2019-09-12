@@ -103,7 +103,7 @@ final case class Creator(createdName: CreatedName,
     if (arrayCreatorRest.isEmpty) {
       inter.declaration.get match {
         case co: SObjectDeclaration =>
-          return co.validateConstructor(input, this)
+          return co.validateConstructor(input, this, context)
         case _ => ()
       }
     }

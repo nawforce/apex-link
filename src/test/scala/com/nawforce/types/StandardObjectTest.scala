@@ -15,7 +15,8 @@ class StandardObjectTest extends FunSuite {
          |    <fields>
          |        <fullName>${field._1}</fullName>
          |        <type>${field._2}</type>
-         |        ${if (field._3.nonEmpty) s"<referenceTo>field._3.get</referenceTo>" else ""}
+         |        ${if (field._3.nonEmpty) s"<referenceTo>${field._3.get}</referenceTo>" else ""}
+         |        ${if (field._3.nonEmpty) s"<relationshipName>${field._1.replaceAll("__c$", "")}</relationshipName>" else ""}
          |    </fields>
          |""".stripMargin
     })
@@ -147,5 +148,32 @@ class StandardObjectTest extends FunSuite {
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
       "line 1 at 39-53: Unknown field or type 'Baz__c' on 'Account'\n")
+  }
+
+  test("Lookup related list") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Lookup__c", "Lookup", Some("Account")))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Account.Lookup__r;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    org.issues.dumpMessages(false)
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Lookup related list (packaged)") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+
+    Files.createDirectory(fs.getPath("pkg1"))
+    Files.write(fs.getPath("pkg1/Foo__c.object"), customObject("Foo", Seq(("Lookup__c", "Lookup", Some("Account")))).getBytes())
+    Files.createDirectory(fs.getPath("pkg2"))
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Account.pkg1__Lookup__r;} }".getBytes())
+
+    val org = new Org()
+    val pkg1 = org.addPackageInternal(Name("pkg1"), Seq(fs.getPath("/work/pkg1")), Seq())
+    val pkg2 = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
+    pkg2.deployAll()
+    assert(!org.issues.hasMessages)
   }
 }

@@ -28,7 +28,7 @@
 package com.nawforce.cst
 
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{PlatformTypes, TypeDeclaration, TypeName}
+import com.nawforce.types.{FieldDeclaration, PlatformTypes, TypeDeclaration, TypeName}
 
 import scala.collection.JavaConverters._
 
@@ -81,20 +81,30 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
 
     input.declaration.get match {
       case td: TypeDeclaration =>
-        val field = td.findField(target.left.get.name, input.isStatic)
+        var field: Option[FieldDeclaration] = None
+
+        if (context.namespace.nonEmpty) {
+          field = td.findField(context.defaultNamespace(target.left.get.name), input.isStatic)
+          if (field.nonEmpty) {
+            val td = context.getTypeAndAddDependency(field.get.typeName)
+            return ExprContext(isStatic = false, td)
+          }
+        }
+
+        field = td.findField(target.left.get.name, input.isStatic)
         if (field.nonEmpty) {
           val td = context.getTypeAndAddDependency(field.get.typeName)
-          ExprContext(isStatic = false, td)
+          return ExprContext(isStatic = false, td)
+        }
+
+        // TODO: Private/protected types?
+        val nt = td.findType(target.left.get.name, context.namespace, input.isStatic)
+        if (nt.nonEmpty) {
+          ExprContext(isStatic = true, nt)
         } else {
-          // TODO: Private/protected types?
-          val nt = td.findType(target.left.get.name, context.namespace, input.isStatic)
-          if (nt.nonEmpty) {
-            ExprContext(isStatic = true, nt)
-          } else {
-            if (td.isComplete)
-              context.logMessage(location, s"Unknown field or type '${target.left.get.name}' on '${td.typeName}'")
-            ExprContext.empty
-          }
+          if (td.isComplete)
+            context.logMessage(location, s"Unknown field or type '${target.left.get.name}' on '${td.typeName}'")
+          ExprContext.empty
         }
       case _ =>
         context.missingIdentifier(location, input.declaration.get.typeName, target.left.get.name)

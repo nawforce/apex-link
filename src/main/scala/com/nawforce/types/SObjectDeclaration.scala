@@ -46,7 +46,7 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
     new StandardTypeFinder().getTypeFor(TypeName.SObject.asDotName, this)
   }
 
-  def validateConstructor(input: ExprContext, creator: Creator): ExprContext = {
+  def validateConstructor(input: ExprContext, creator: Creator, context: ExpressionVerifyContext): ExprContext = {
     assert(creator.arrayCreatorRest.isEmpty)
 
     if (creator.mapCreatorRest.nonEmpty) {
@@ -54,18 +54,26 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
     } else if (creator.setCreatorRest.nonEmpty) {
       Org.logMessage(creator.location, s"Set construction not supported on SObject type '$typeName'")
     } else if (creator.classCreatorRest.nonEmpty) {
-      validateConstructorArguments(creator.classCreatorRest.get.arguments)
+      validateConstructorArguments(creator.classCreatorRest.get.arguments, context)
     } else {
       ExprContext(isStatic = false, Some(this))
     }
     ExprContext.empty
   }
 
-  def validateConstructorArguments(arguments: Seq[Expression]): ExprContext = {
+  def validateConstructorArguments(arguments: Seq[Expression], context: ExpressionVerifyContext): ExprContext = {
     val validArgs = arguments.flatMap(argument => {
       argument match {
         case BinaryExpression(PrimaryExpression(IdPrimary(id)), _, "=") =>
-          val field = findField(id.name, staticOnly = false)
+          var field : Option[FieldDeclaration] = None
+
+          if (context.namespace.nonEmpty) {
+            field = findField(context.defaultNamespace(id.name), staticOnly = false)
+          }
+
+          if (field.isEmpty)
+            field = findField(id.name, staticOnly = false)
+
           if (field.isEmpty) {
             if (isComplete)
               Org.logMessage(id.location, s"Unknown field '${id.name}' on SObject type '$typeName'")

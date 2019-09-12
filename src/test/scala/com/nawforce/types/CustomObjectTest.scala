@@ -260,4 +260,28 @@ class CustomObjectTest extends FunSuite {
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
       "line 1 at 39-52: Unknown field or type 'Baz__c' on 'Foo__c'\n")
   }
+
+  test("Lookup related list") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Bar__c.object"), customObject("Bar", Seq()).getBytes())
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Lookup__c", "Lookup", Some("Bar__c")))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Bar__c.Lookup__r;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Lookup related list (ghosted target)") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Lookup__c", "Lookup", Some("ghosted__Bar__c")))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = ghosted__Bar__c.Lookup__r;} }".getBytes())
+
+    val org = new Org()
+    val pkg1 = org.addPackageInternal(Name("ghosted"), Seq(), Seq())
+    val pkg2 = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq(pkg1))
+    pkg2.deployAll()
+    assert(!org.issues.hasMessages)
+  }
 }

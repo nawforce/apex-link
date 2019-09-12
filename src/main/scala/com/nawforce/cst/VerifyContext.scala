@@ -30,7 +30,7 @@ package com.nawforce.cst
 import com.nawforce.api.Org
 import com.nawforce.documents.Location
 import com.nawforce.types._
-import com.nawforce.utils.Name
+import com.nawforce.utils.{DotName, Name}
 
 import scala.collection.mutable
 
@@ -204,4 +204,14 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext)
     parentContext.getTypeAndAddDependency(typeName)
 
   def isVar(name: Name): Option[TypeDeclaration] = parentContext.isVar(name)
+
+  def defaultNamespace(name: Name): Name = {
+    namespace.map(ns => {
+      val dotName = DotName(name).demangled
+      if (dotName.isCompound)
+        name
+      else
+        Name(s"${ns}__${name.value}")
+    }).getOrElse(name)
+  }
 }

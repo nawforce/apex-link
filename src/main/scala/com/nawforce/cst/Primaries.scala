@@ -29,7 +29,7 @@ package com.nawforce.cst
 
 import com.nawforce.api.Org
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{PlatformTypes, TypeDeclaration, TypeName}
+import com.nawforce.types.{FieldDeclaration, PlatformTypes, TypeDeclaration, TypeName}
 import com.nawforce.utils.DotName
 
 sealed abstract class Primary extends CST {
@@ -103,7 +103,17 @@ final case class IdPrimary(id: Id) extends Primary {
 
     input.declaration.get match {
       case td: TypeDeclaration =>
-        val field = td.findField(id.name, input.isStatic)
+        var field: Option[FieldDeclaration] = None
+
+        if (context.namespace.nonEmpty) {
+          field = td.findField(context.defaultNamespace(id.name), input.isStatic)
+          if (field.nonEmpty) {
+            val td = context.getTypeAndAddDependency(field.get.typeName)
+            return ExprContext(isStatic = false, td)
+          }
+        }
+
+        field = td.findField(id.name, input.isStatic)
         if (field.nonEmpty) {
           val td = context.getTypeAndAddDependency(field.get.typeName)
           return ExprContext(isStatic = false, td)
