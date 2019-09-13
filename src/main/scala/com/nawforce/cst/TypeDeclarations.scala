@@ -29,10 +29,10 @@ package com.nawforce.cst
 
 import java.nio.file.Path
 
+import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types._
-import com.nawforce.utils.Name
 
 import scala.collection.JavaConverters._
 
@@ -87,12 +87,12 @@ object ClassDeclaration {
     val thisType = TypeName(Name(classDeclaration.id().getText)).withOuter(nsOuter)
     val extendType =
       if (classDeclaration.typeRef() != null)
-        Some(TypeRef.construct(classDeclaration.typeRef(), context))
+        Some(TypeRef.construct(classDeclaration.typeRef()))
       else
         None
     val implementsType =
       if (classDeclaration.typeList() != null)
-        TypeList.construct(classDeclaration.typeList(), context)
+        TypeList.construct(classDeclaration.typeList())
       else
         Seq()
 
@@ -137,7 +137,7 @@ object InterfaceDeclaration {
   : InterfaceDeclaration = {
     val implementsType =
       if (interfaceDeclaration.typeList() != null)
-        TypeList.construct(interfaceDeclaration.typeList(), context)
+        TypeList.construct(interfaceDeclaration.typeList())
       else
         Seq()
 

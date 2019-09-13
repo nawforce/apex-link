@@ -28,7 +28,7 @@
 package com.nawforce.types
 
 import com.nawforce.api.Org
-import com.nawforce.utils.DotName
+import com.nawforce.names.{DotName, Name}
 import scalaz.Memo
 
 trait TypeFinder {
@@ -38,7 +38,18 @@ trait TypeFinder {
   }
 
   private val typeCache = Memo.immutableHashMapMemo[(DotName, TypeDeclaration), Option[TypeDeclaration]] {
-    case (name: DotName, from: TypeDeclaration) => findTypeFor(name.demangled, from, localOnly = false)
+    case (name: DotName, from: TypeDeclaration) => findTypeFor(demangle(name), from, localOnly = false)
+  }
+
+  private def demangle(name: DotName) : DotName = {
+    if (name.names.size == 1) {
+      // Extract namespace for custom object, platform event &  metadata types
+      val split = name.firstName.value.split("__")
+      if (split.size == 3 && (split(2) == "c" || split(2) == "e" || split(2) == "mdt")) {
+        return DotName(Seq(Name(split(0)), Name(split(1)+"__"+split(2))))
+      }
+    }
+    name
   }
 
   private def findTypeFor(dotName: DotName, from: TypeDeclaration, localOnly: Boolean): Option[TypeDeclaration] = {

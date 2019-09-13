@@ -27,41 +27,56 @@
 */
 package com.nawforce.cst
 
-import com.nawforce.parsers.ApexParser.{TypeListContext, TypeNameContext, TypeRefContext}
-import com.nawforce.types.TypeName
-import com.nawforce.utils.Name
+import com.nawforce.names.{EncodedName, Name, TypeName}
+import com.nawforce.parsers.ApexParser.{TypeArgumentsContext, TypeListContext, TypeNameContext, TypeRefContext}
 
 import scala.collection.JavaConverters._
 
 object TypeRef {
-  def construct(aList: List[TypeRefContext], context: ConstructContext): List[TypeName] = {
-    aList.map(x => TypeRef.construct(x, context))
+  def construct(aList: List[TypeRefContext]): List[TypeName] = {
+    aList.map(x => TypeRef.construct(x))
   }
 
-  def construct(typeRef: TypeRefContext, context: ConstructContext): TypeName = {
+  def construct(typeRef: TypeRefContext): TypeName = {
     val arraySubs = typeRef.arraySubscripts().getText.count(_ == '[')
-    createTypeName(None, typeRef.typeName().asScala, context).withArraySubscripts(arraySubs)
+    val names = typeRef.typeName().asScala
+
+    // Only decode head as rest can't legally be in EncodedName format
+    createTypeName(
+      decodeName(names.head), names.tail).withArraySubscripts(arraySubs)
   }
 
-  private def createTypeName(outer: Option[TypeName], names: Seq[TypeNameContext], context: ConstructContext)
+  private def decodeName(name: TypeNameContext): TypeName = {
+    EncodedName(name.id().getText).asTypeName.withParams(
+      createTypeParams(name.typeArguments())
+    )
+  }
+
+  @scala.annotation.tailrec
+  private def createTypeName(outer: TypeName, names: Seq[TypeNameContext])
   : TypeName = {
-
-    val params = Option(names.head.typeArguments()).map(_.typeList().typeRef().asScala.toSeq).getOrElse(Seq())
-    val paramsTypes = params.map(param => TypeRef.construct(param, context))
-
     names match {
-      case hd +: Seq() =>
-        TypeName(Name(hd.id().getText), paramsTypes, outer)
+      case Nil => outer
       case hd +: tl =>
-        createTypeName(Some(TypeName(Name(hd.id().getText), paramsTypes, outer)), tl, context)
+        createTypeName(
+          TypeName(Name(hd.id().getText), createTypeParams(hd.typeArguments()), Some(outer)),
+          tl
+        )
     }
+  }
+
+  private def createTypeParams(typeArguments: TypeArgumentsContext): Seq[TypeName] = {
+    Option(typeArguments)
+      .map(_.typeList().typeRef().asScala.toSeq)
+      .getOrElse(Seq())
+      .map(param => TypeRef.construct(param))
   }
 }
 
 object TypeList {
-  def construct(typeList: TypeListContext, context: ConstructContext): Seq[TypeName] = {
+  def construct(typeList: TypeListContext): Seq[TypeName] = {
     val types: Seq[TypeRefContext] = typeList.typeRef().asScala
-    types.toList.map(t => TypeRef.construct(t, context))
+    types.toList.map(t => TypeRef.construct(t))
   }
 }
 

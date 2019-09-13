@@ -30,7 +30,7 @@ package com.nawforce.types
 import java.nio.file.{FileSystems, Files, Path, Paths}
 import java.util
 
-import com.nawforce.utils.{DotName, Name}
+import com.nawforce.names.{DotName, Name, TypeName}
 import scalaz.Memo
 
 import scala.collection.JavaConverters._

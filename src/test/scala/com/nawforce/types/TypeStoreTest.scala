@@ -27,7 +27,7 @@
 */
 package com.nawforce.types
 
-import com.nawforce.utils.{DotName, Name}
+import com.nawforce.names.{DotName, Name}
 import org.scalatest.FunSuite
 
 class TypeStoreTest extends FunSuite {

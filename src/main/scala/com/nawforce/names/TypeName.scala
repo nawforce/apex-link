@@ -25,9 +25,7 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.types
-
-import com.nawforce.utils.{DotName, Name}
+package com.nawforce.names
 
 case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeName]=None) {
 

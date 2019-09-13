@@ -4,7 +4,7 @@ import java.nio.file.Files
 
 import com.google.common.jimfs.{Configuration, Jimfs}
 import com.nawforce.api.Org
-import com.nawforce.utils.Name
+import com.nawforce.names.Name
 import org.scalatest.FunSuite
 
 class SchemaManagerTest extends FunSuite {
@@ -57,7 +57,6 @@ class SchemaManagerTest extends FunSuite {
     val ghosted = org.addPackageInternal(Name("ghosted"), Seq(), Seq())
     val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq(ghosted))
     pkg.deployAll()
-    org.issues.dumpMessages(false)
     assert(!org.issues.hasMessages)
   }
 }

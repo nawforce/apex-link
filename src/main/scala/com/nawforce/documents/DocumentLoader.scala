@@ -30,7 +30,7 @@ package com.nawforce.documents
 import java.nio.file.{Files, Path, Paths}
 
 import com.nawforce.api.Org
-import com.nawforce.utils.Name
+import com.nawforce.names.Name
 
 import scala.collection.mutable
 

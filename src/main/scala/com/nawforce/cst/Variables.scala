@@ -27,8 +27,9 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.names.TypeName
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{ApexModifiers, Modifier, TypeName}
+import com.nawforce.types.{ApexModifiers, Modifier}
 
 import scala.collection.JavaConverters._
 
@@ -152,7 +153,7 @@ final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeName: Ty
 
 object LocalVariableDeclaration {
   def construct(localVariableDeclaration: LocalVariableDeclarationContext, context: ConstructContext): LocalVariableDeclaration = {
-    val typeName = TypeRef.construct(localVariableDeclaration.typeRef(), context)
+    val typeName = TypeRef.construct(localVariableDeclaration.typeRef())
     LocalVariableDeclaration(
       ApexModifiers.construct(localVariableDeclaration.modifier().asScala, context),
       typeName,

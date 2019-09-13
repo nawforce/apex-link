@@ -25,32 +25,39 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.types
+package com.nawforce.names
 
-import com.nawforce.names.{Name, TypeName}
+/**
+  * A qualified name with notional 'dot' separators
+  */
+case class DotName(names: Seq[Name]) {
 
-import scala.collection.mutable
+  val isCompound: Boolean = names.size > 1
 
-final case class FlowDeclaration() extends TypeDeclaration {
-  override val name: Name = Name.Flow
-  override val typeName: TypeName = TypeName(name)
-  override val outerTypeName: Option[TypeName] = None
-  override val nature: Nature = CLASS_NATURE
-  override val modifiers: Seq[Modifier] = Seq.empty
-  override val isComplete: Boolean = true
-  override val isExternallyVisible: Boolean = true
+  def head: DotName = DotName(Seq(names.head))
+  def tail: DotName = DotName(names.tail)
+  def headNames: DotName = DotName(names.reverse.tail.reverse)
+  def tailNames: DotName = DotName(names.tail)
+  def firstName: Name = names.head
+  def lastName: Name = names.last
 
-  override val superClass: Option[TypeName] = None
-  override def superClassDeclaration: Option[TypeDeclaration] = None
-  override val interfaces: Seq[TypeName] = Seq.empty
-  override val nestedTypes: Seq[TypeDeclaration] = Seq.empty
+  def append(name: Name): DotName = DotName(names :+ name)
+  def prepend(name: Name): DotName = DotName(name +: names)
+  def prepend(name: Option[Name]): DotName = {
+    name match {
+      case Some(value) => DotName(value +: names)
+      case _ => this
+    }
+  }
 
-  override val blocks: Seq[BlockDeclaration] = Seq.empty
-  override val fields: Seq[FieldDeclaration]= Seq.empty
-  override val constructors: Seq[ConstructorDeclaration] = Seq.empty
-  override val methods: Seq[MethodDeclaration]= Seq.empty
+  override def toString: String = names.mkString(".")
+}
 
-  override def validate(): Unit = {}
-  override def dependencies(): Set[Dependant] = Set.empty
-  override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
+object DotName {
+  def apply(name: String): DotName = {
+    DotName(name.split('.').toSeq.map(p => Name(p)))
+  }
+  def apply(name: Name): DotName = {
+    DotName(Seq(name))
+  }
 }

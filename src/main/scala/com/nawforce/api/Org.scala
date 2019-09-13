@@ -30,8 +30,9 @@ package com.nawforce.api
 import java.nio.file.{Path, Paths}
 
 import com.nawforce.documents._
+import com.nawforce.names.{DotName, Name, TypeName}
 import com.nawforce.types._
-import com.nawforce.utils.{DotName, IssueLog, Name}
+import com.nawforce.utils.IssueLog
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.DynamicVariable
@@ -123,8 +124,7 @@ class Org extends LazyLogging {
 
   def isGhostedType(typeName: TypeName): Boolean = {
     typeName.params.exists(isGhostedType) ||
-    packages.values.exists(pkg => pkg.paths.isEmpty &&
-      pkg.namespace == typeName.asDotName.demangled.firstName)
+    packages.values.exists(pkg => pkg.isGhosted && pkg.namespace == typeName.outerName)
   }
 }
 

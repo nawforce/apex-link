@@ -27,6 +27,8 @@
 */
 package com.nawforce.types
 
+import com.nawforce.names.TypeName
+
 final class AnyDeclaration extends NamedTypeDeclaration(TypeName.Any) {
   override val isAny: Boolean = true
 }

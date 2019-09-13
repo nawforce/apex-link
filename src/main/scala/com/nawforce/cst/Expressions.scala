@@ -27,8 +27,9 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.names.TypeName
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{FieldDeclaration, PlatformTypes, TypeDeclaration, TypeName}
+import com.nawforce.types.{FieldDeclaration, PlatformTypes, TypeDeclaration}
 
 import scala.collection.JavaConverters._
 
@@ -289,7 +290,7 @@ object Expression {
         case expr: NewExpressionContext =>
           NewExpression(Creator.construct(expr.creator(), context))
         case expr: CastExpressionContext =>
-          CastExpression(TypeRef.construct(expr.typeRef(), context), Expression.construct(expr.expression(), context))
+          CastExpression(TypeRef.construct(expr.typeRef()), Expression.construct(expr.expression(), context))
         case expr: PostOpExpressionContext =>
           PostOpExpression(Expression.construct(expr.expression(), context), expr.getChild(1).getText)
         case expr: PreOpExpressionContext =>
@@ -310,7 +311,7 @@ object Expression {
             Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
         case expr: InstanceOfExpressionContext =>
           InstanceOfExpression(Expression.construct(expr.expression(), context),
-            TypeRef.construct(expr.typeRef(), context))
+            TypeRef.construct(expr.typeRef()))
         case expr: EqualityExpressionContext =>
           BinaryExpression(Expression.construct(expr.expression(0), context),
             Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
@@ -353,7 +354,7 @@ final case class TypeArguments(typeList: List[TypeName]) extends CST {
 object TypeArguments {
   def construct(from: TypeArgumentsContext, context: ConstructContext): TypeArguments = {
     val types: Seq[TypeRefContext] = from.typeList().typeRef().asScala
-    TypeArguments(TypeRef.construct(types.toList, context)).withContext(from, context)
+    TypeArguments(TypeRef.construct(types.toList)).withContext(from, context)
   }
 }
 

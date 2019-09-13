@@ -32,8 +32,8 @@ import java.nio.file.{Path, Paths}
 
 import com.nawforce.api.Org
 import com.nawforce.documents.StreamProxy
+import com.nawforce.names.{DotName, Name}
 import com.nawforce.types.TypeDeclaration
-import com.nawforce.utils.{DotName, Name}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
 class DependencyTest extends FunSuite with BeforeAndAfter {
@@ -483,12 +483,4 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.nestedTypes.head.blocks.head.dependencies() == Set(tds.tail.head, booleanClass))
   }
-
-  test("Scratch") {
-    val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { public void construct(List<SObject> sObjectList)\n\t\t{\n\t\t\treturn new Dummy(sObjectList);\n\t\t} }"
-    ))
-    defaultOrg.issues.dumpMessages(false)
-  }
-
 }

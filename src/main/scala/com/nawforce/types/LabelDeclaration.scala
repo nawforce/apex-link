@@ -31,7 +31,8 @@ import java.nio.file.{Files, Path, Paths}
 
 import com.nawforce.api.Org
 import com.nawforce.documents._
-import com.nawforce.utils.{Issue, Name}
+import com.nawforce.names.{Name, TypeName}
+import com.nawforce.utils.Issue
 import com.nawforce.xml.XMLUtils.getLine
 import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
 

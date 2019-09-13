@@ -31,8 +31,8 @@ import java.io.ByteArrayInputStream
 import java.nio.file.{Path, Paths}
 
 import com.nawforce.api.Org
+import com.nawforce.names.Name
 import com.nawforce.types.{ApexTypeDeclaration, TypeDeclaration}
-import com.nawforce.utils.Name
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
 class ArrayTest extends FunSuite with BeforeAndAfter {

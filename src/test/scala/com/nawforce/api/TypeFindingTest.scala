@@ -30,8 +30,8 @@ package com.nawforce.api
 import java.io.ByteArrayInputStream
 import java.nio.file.{Path, Paths}
 
-import com.nawforce.types.{ApexTypeDeclaration, TypeName}
-import com.nawforce.utils.{DotName, Name}
+import com.nawforce.names.{DotName, Name, TypeName}
+import com.nawforce.types.ApexTypeDeclaration
 import org.scalatest.FunSuite
 
 class TypeFindingTest extends FunSuite {

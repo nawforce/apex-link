@@ -31,7 +31,7 @@ import java.nio.file.Files
 
 import com.google.common.jimfs.{Configuration, Jimfs}
 import com.nawforce.api.Org
-import com.nawforce.utils.Name
+import com.nawforce.names.Name
 import org.scalatest.FunSuite
 
 class PageTest extends FunSuite {
@@ -81,7 +81,6 @@ class PageTest extends FunSuite {
     val pkg1 = org.addPackageInternal(Name("pkg1"), Seq(fs.getPath("/work/pkg1")), Seq())
     val pkg2 = org.addPackageInternal(Name("pkg2"), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
     pkg2.deployAll()
-    org.issues.dumpMessages(false)
     assert(!org.issues.hasMessages)
   }
 }

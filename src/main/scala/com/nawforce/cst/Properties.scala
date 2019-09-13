@@ -27,9 +27,9 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
 import com.nawforce.types._
-import com.nawforce.utils.Name
 
 import scala.collection.JavaConverters._
 
@@ -86,7 +86,7 @@ object ApexPropertyDeclaration {
   def construct(modifiers: Seq[Modifier], propertyDeclaration: PropertyDeclarationContext, context: ConstructContext)
   : ApexPropertyDeclaration = {
 
-    val typeName = TypeRef.construct(propertyDeclaration.typeRef(), context)
+    val typeName = TypeRef.construct(propertyDeclaration.typeRef())
     ApexPropertyDeclaration(modifiers, typeName,
       Id.construct(propertyDeclaration.id, context),
       propertyDeclaration.propertyBlock().asScala.map(pb => PropertyBlock.construct(pb, typeName, context)),

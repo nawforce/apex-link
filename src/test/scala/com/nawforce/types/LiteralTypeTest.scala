@@ -31,8 +31,8 @@ import java.io.StringReader
 import java.nio.file.{Path, Paths}
 
 import com.nawforce.cst._
+import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
-import com.nawforce.utils.Name
 import org.antlr.v4.runtime.CommonTokenStream
 import org.scalatest.FunSuite
 

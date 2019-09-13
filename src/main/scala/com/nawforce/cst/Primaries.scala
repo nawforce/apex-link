@@ -28,9 +28,9 @@
 package com.nawforce.cst
 
 import com.nawforce.api.Org
+import com.nawforce.names.{DotName, TypeName}
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{FieldDeclaration, PlatformTypes, TypeDeclaration, TypeName}
-import com.nawforce.utils.DotName
+import com.nawforce.types.{FieldDeclaration, PlatformTypes, TypeDeclaration}
 
 sealed abstract class Primary extends CST {
   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext
@@ -164,7 +164,7 @@ object Primary {
         case ctx: LiteralPrimaryContext =>
           LiteralPrimary(Literal.construct(ctx.literal(), context))
         case ctx: TypeRefPrimaryContext =>
-          TypeRefPrimary(TypeRef.construct(ctx.typeRef(), context))
+          TypeRefPrimary(TypeRef.construct(ctx.typeRef()))
         case id: IdPrimaryContext =>
           IdPrimary(Id.construct(id.id(), context))
         case ctx: SoqlPrimaryContext =>

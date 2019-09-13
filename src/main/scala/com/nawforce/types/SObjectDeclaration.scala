@@ -33,7 +33,7 @@ import java.nio.file.Path
 import com.nawforce.api.Org
 import com.nawforce.cst._
 import com.nawforce.documents._
-import com.nawforce.utils.{DotName, Name}
+import com.nawforce.names.{DotName, EncodedName, Name, TypeName}
 
 import scala.collection.mutable
 
@@ -108,16 +108,11 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
 
 object SObjectDeclaration {
   def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[TypeDeclaration] = {
-    val typeNameOption = parseName(path, pkg.namespaceOption)
-    if (typeNameOption.isEmpty)
-      return Seq()
-
-    val typeName = typeNameOption.get
-
+    val typeName = parseName(path, pkg.namespaceOption)
     if (typeName.name.value.endsWith("__c") && typeName.outer.map(_.name) == pkg.namespaceOption) {
       createNew(path, typeName, pkg)
     } else {
-        if (Org.isGhostedType(typeName))
+        if (pkg.isGhostedType(typeName))
           Seq(extendExisting(path, typeName, pkg, None))
         else {
           val sobjectType = pkg.getType(typeName.asDotName)
@@ -168,22 +163,10 @@ object SObjectDeclaration {
     collected
   }
 
-  private def parseName(path: Path, namespace: Option[Name]): Option[TypeName] = {
+  private def parseName(path: Path, namespace: Option[Name]): TypeName = {
     val dt = DocumentType.apply(path)
     assert(dt.exists(_.isInstanceOf[SObjectDocument]))
-
-    DotName(dt.get.name).demangled match {
-      case DotName(Seq(name)) if name.value.endsWith("__c") =>
-        Some(TypeName(name, Nil, namespace.map(ns => TypeName(ns))))
-      case DotName(Seq(name)) if !name.value.contains("__") =>
-        Some(TypeName(name))
-      case DotName(Seq(ns, name)) if name.value.endsWith("__c") =>
-        Some(TypeName(name, Nil, Some(TypeName(ns))))
-      case _ =>
-        Org.logMessage(LineLocation(path,0),
-          s"Expecting either standard or custom object name format, found '${dt.get.name}'")
-        None
-    }
+    EncodedName(dt.get.name).defaultNamespace(namespace).asTypeName
   }
 
   private def createShare(pkg: PackageDeclaration, typeName: TypeName): SObjectDeclaration = {

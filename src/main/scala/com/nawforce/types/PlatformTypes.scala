@@ -27,7 +27,7 @@
 */
 package com.nawforce.types
 
-import com.nawforce.utils.{DotName, Name}
+import com.nawforce.names.{DotName, Name, TypeName}
 
 object PlatformTypes {
   lazy val nullType: TypeDeclaration = getType(DotName(Seq(Name.Internal, Name.Null$))).get

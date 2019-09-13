@@ -4,7 +4,7 @@ import java.nio.file.Files
 
 import com.google.common.jimfs.{Configuration, Jimfs}
 import com.nawforce.api.Org
-import com.nawforce.utils.Name
+import com.nawforce.names.Name
 import org.scalatest.FunSuite
 
 class StandardObjectTest extends FunSuite {
@@ -158,7 +158,6 @@ class StandardObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    org.issues.dumpMessages(false)
     assert(!org.issues.hasMessages)
   }
 

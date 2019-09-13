@@ -31,7 +31,7 @@ import java.io.InputStream
 import java.nio.file.Path
 
 import com.nawforce.documents.DocumentType
-import com.nawforce.utils.DotName
+import com.nawforce.names.{EncodedName, TypeName}
 
 final case class CustomMetadataDeclaration(_typeName: TypeName)
   extends NamedTypeDeclaration(_typeName) {
@@ -39,13 +39,7 @@ final case class CustomMetadataDeclaration(_typeName: TypeName)
 
 object CustomMetadataDeclaration {
   def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[CustomMetadataDeclaration] = {
-    val name = DotName(DocumentType.apply(path).get.name).demangled
-    val ns = if (pkg.namespace.value.isEmpty) None else Some(TypeName(pkg.namespace))
-    val typeName =
-      if (!name.isCompound)
-        TypeName(name.firstName, Nil, ns)
-      else
-        TypeName(name.names(1), Nil, Some(TypeName(name.firstName)))
-    Seq(new CustomMetadataDeclaration(typeName))
+    val name = EncodedName(DocumentType(path).get.name).defaultNamespace(pkg.namespaceOption)
+    Seq(new CustomMetadataDeclaration(name.asTypeName))
   }
 }

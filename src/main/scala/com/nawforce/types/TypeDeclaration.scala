@@ -28,7 +28,7 @@
 package com.nawforce.types
 
 import com.nawforce.api._
-import com.nawforce.utils.{DotName, Name}
+import com.nawforce.names.{DotName, Name, TypeName}
 
 import scala.collection.mutable
 

@@ -29,7 +29,7 @@ package com.nawforce.types
 
 import com.nawforce.api.Org
 import com.nawforce.documents.Location
-import com.nawforce.utils.{DotName, Name}
+import com.nawforce.names.{DotName, Name, TypeName}
 
 import scala.collection.{mutable, _}
 

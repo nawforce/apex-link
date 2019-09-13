@@ -29,8 +29,8 @@ package com.nawforce.cst
 
 import com.nawforce.api.Org
 import com.nawforce.documents.Location
+import com.nawforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.types._
-import com.nawforce.utils.{DotName, Name}
 
 import scala.collection.mutable
 
@@ -60,7 +60,7 @@ trait VerifyContext {
   }
 
   def missingIdentifier(location: Location, typeName: TypeName, name: Name): Unit = {
-    if (!Org.isGhostedType(TypeName(name)))
+    if (!Org.isGhostedType(EncodedName(name).asTypeName))
       logMessage(location, s"No variable or type found for '$name' on '$typeName'")
   }
 
@@ -206,12 +206,6 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext)
   def isVar(name: Name): Option[TypeDeclaration] = parentContext.isVar(name)
 
   def defaultNamespace(name: Name): Name = {
-    namespace.map(ns => {
-      val dotName = DotName(name).demangled
-      if (dotName.isCompound)
-        name
-      else
-        Name(s"${ns}__${name.value}")
-    }).getOrElse(name)
+    EncodedName(name).defaultNamespace(namespace).fullName
   }
 }

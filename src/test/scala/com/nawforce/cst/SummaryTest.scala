@@ -31,8 +31,8 @@ import java.io.ByteArrayInputStream
 import java.nio.file.{Path, Paths}
 
 import com.nawforce.api._
+import com.nawforce.names.Name
 import com.nawforce.types._
-import com.nawforce.utils.Name
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
 class SummaryTest extends FunSuite with BeforeAndAfter {

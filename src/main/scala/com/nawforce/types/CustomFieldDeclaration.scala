@@ -31,7 +31,7 @@ import java.nio.file.Path
 
 import com.nawforce.api.Org
 import com.nawforce.documents._
-import com.nawforce.utils.Name
+import com.nawforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
 
 import scala.xml.{Elem, SAXParseException}
@@ -104,7 +104,7 @@ object CustomFieldDeclaration {
       (if (rawType == "Lookup" || rawType == "MasterDetail") {
         val referenceTo = Name(XMLUtils.getSingleChildAsString(elem, "referenceTo"))
         val relName = Name(XMLUtils.getSingleChildAsString(elem, "relationshipName")+"__r")
-        val refTypeName = pkg.defaultNamespaceAsTypeName(referenceTo)
+        val refTypeName = EncodedName(referenceTo).defaultNamespace(pkg.namespaceOption).asTypeName
 
         pkg.schema().relatedLists.add(refTypeName, relName, name, sObjectType,
           RangeLocation(path, TextRange(XMLUtils.getLine(elem))))

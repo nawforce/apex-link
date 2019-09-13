@@ -30,10 +30,10 @@ package com.nawforce.cst
 import java.io.ByteArrayInputStream
 import java.nio.file.Path
 
+import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.parsers.CaseInsensitiveInputStream
-import com.nawforce.types.{ApexModifiers, ApexTypeDeclaration, Modifier, TypeName}
-import com.nawforce.utils.Name
+import com.nawforce.types.{ApexModifiers, ApexTypeDeclaration, Modifier}
 import org.antlr.v4.runtime.misc.Interval
 
 import scala.collection.JavaConverters._
@@ -240,7 +240,7 @@ object EnhancedForControl {
   def construct(from: EnhancedForControlContext, context: ConstructContext): EnhancedForControl = {
     EnhancedForControl(
       ApexModifiers.construct(from.modifier().asScala, context),
-      TypeRef.construct(from.typeRef(), context),
+      TypeRef.construct(from.typeRef()),
       Id.construct(from.id(), context),
       Expression.construct(from.expression(), context).withContext(from, context)
     )

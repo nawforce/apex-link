@@ -30,10 +30,9 @@ package com.nawforce.cst
 import java.nio.file.Path
 
 import com.nawforce.documents.{Location, Position, RangeLocation}
+import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.parsers.CaseInsensitiveInputStream
-import com.nawforce.types.TypeName
-import com.nawforce.utils.Name
 import org.antlr.v4.runtime.{ParserRuleContext, Token}
 
 import scala.collection.JavaConverters._

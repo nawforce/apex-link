@@ -27,8 +27,9 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.names.{EncodedName, TypeName}
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{SObjectDeclaration, TypeName}
+import com.nawforce.types.SObjectDeclaration
 
 import scala.collection.JavaConverters._
 
@@ -36,21 +37,17 @@ final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
   override def children(): List[CST] = idPairs
 
   def verify(context: ExpressionVerifyContext): ExprContext = {
-    val typeName = createTypeName(None, idPairs.map(_.typeName))
+    // TODO: withOuter may overwite inner namespace, how do we check for nonsense
+    val typeName = idPairs.tail.map(_.typeName).foldLeft(idPairs.head.typeName){
+      (acc: TypeName, typeName: TypeName) => typeName.withOuter(Some(acc))
+    }
+
     val newType = context.getTypeAndAddDependency(typeName)
     if (newType.nonEmpty) {
       ExprContext(isStatic = false, Some(newType.get))
     } else {
       context.missingType(location, typeName)
       ExprContext.empty
-    }
-  }
-
-  @scala.annotation.tailrec
-  private def createTypeName(outer: Option[TypeName], names: Seq[TypeName]): TypeName = {
-    names match {
-      case hd +: Seq() => hd.withOuter(outer)
-      case hd +: tl => createTypeName(Some(hd.withOuter(outer)), tl)
     }
   }
 }
@@ -65,7 +62,7 @@ object CreatedName {
 final case class IdCreatedNamePair(id: Id, types: Seq[TypeName]) extends CST {
   override def children(): List[CST] = Nil
 
-  val typeName: TypeName = TypeName(id.name, types, None)
+  val typeName: TypeName = EncodedName(id.name).asTypeName.withParams(types)
 }
 
 object IdCreatedNamePair {
@@ -76,7 +73,7 @@ object IdCreatedNamePair {
   def construct(from: IdCreatedNamePairContext, context: ConstructContext): IdCreatedNamePair = {
     IdCreatedNamePair(Id.construct(from.id(), context),
       if (from.typeList() != null)
-        TypeList.construct(from.typeList(), context)
+        TypeList.construct(from.typeList())
       else
         Seq()
     ).withContext(from, context)

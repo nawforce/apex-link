@@ -27,9 +27,9 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types._
-import com.nawforce.utils.Name
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -138,7 +138,7 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: Type
 
 object ApexMethodDeclaration {
   def construct(modifiers: Seq[Modifier], from: MethodDeclarationContext, context: ConstructContext): ApexMethodDeclaration = {
-    val typeName = Option(from.typeRef()).map(tr => TypeRef.construct(tr, context)).getOrElse(TypeName.Void)
+    val typeName = Option(from.typeRef()).map(tr => TypeRef.construct(tr)).getOrElse(TypeName.Void)
     val block = Option(from.block).map(blk => Block.constructLazy(blk, context, modifiers.contains(STATIC_MODIFIER)))
 
     ApexMethodDeclaration(modifiers,
@@ -150,7 +150,7 @@ object ApexMethodDeclaration {
   }
 
   def construct(modifiers: Seq[Modifier], from: InterfaceMethodDeclarationContext, context: ConstructContext): ApexMethodDeclaration = {
-    val typeName = if (from.typeRef() != null) TypeRef.construct(from.typeRef(), context) else TypeName.Void
+    val typeName = if (from.typeRef() != null) TypeRef.construct(from.typeRef()) else TypeName.Void
 
     ApexMethodDeclaration(modifiers,
       typeName,
@@ -183,7 +183,7 @@ object ApexFieldDeclaration {
   def construct(modifiers: Seq[Modifier], fieldDeclaration: FieldDeclarationContext, context: ConstructContext):
         Seq[ApexFieldDeclaration] = {
 
-    val typeName = TypeRef.construct(fieldDeclaration.typeRef(), context)
+    val typeName = TypeRef.construct(fieldDeclaration.typeRef())
     VariableDeclarators.construct(typeName, fieldDeclaration.variableDeclarators(), context).declarators.map(vd => {
       ApexFieldDeclaration(modifiers, typeName, vd).withContext(fieldDeclaration, context)
     })
@@ -238,7 +238,7 @@ object FormalParameter {
   def construct(from: FormalParameterContext, context: ConstructContext): FormalParameter = {
     FormalParameter(
       ApexModifiers.construct(from.modifier().asScala, context),
-      TypeRef.construct(from.typeRef(), context), Id.construct(from.id, context)).withContext(from, context)
+      TypeRef.construct(from.typeRef()), Id.construct(from.id, context)).withContext(from, context)
   }
 }
 

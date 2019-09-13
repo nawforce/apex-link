@@ -30,7 +30,7 @@ package com.nawforce.documents
 import java.io.File
 import java.nio.file.{Files, Path}
 
-import com.nawforce.utils.Name
+import com.nawforce.names.Name
 
 trait DocumentType {
   val name: Name

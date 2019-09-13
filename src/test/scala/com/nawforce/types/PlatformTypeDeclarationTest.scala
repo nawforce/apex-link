@@ -27,7 +27,7 @@
 */
 package com.nawforce.types
 
-import com.nawforce.utils.DotName
+import com.nawforce.names.DotName
 import org.scalatest.FunSuite
 
 class PlatformTypeDeclarationTest extends FunSuite {

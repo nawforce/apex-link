@@ -32,8 +32,8 @@ import java.nio.file.{Path, Paths}
 
 import com.nawforce.api.Org
 import com.nawforce.documents.StreamProxy
+import com.nawforce.names.{DotName, Name}
 import com.nawforce.types.TypeDeclaration
-import com.nawforce.utils.{DotName, Name}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
 class ExtendsTest extends FunSuite with BeforeAndAfter {

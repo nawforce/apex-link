@@ -33,9 +33,9 @@ import java.nio.file.Path
 import com.nawforce.api.Org
 import com.nawforce.cst._
 import com.nawforce.documents.LineLocation
+import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
-import com.nawforce.utils._
 import org.antlr.v4.runtime.CommonTokenStream
 
 import scala.collection.JavaConverters._
@@ -153,7 +153,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[PackageD
     interfaces.foreach(interface => {
       val td = context.getTypeAndAddDependency(interface)
       if (td.isEmpty) {
-        if (!Org.current.value.isGhostedType(interface))
+        if (!Org.isGhostedType(interface))
           Org.logMessage(id.location, s"No declaration found for interface '${interface.toString}'")
       } else if (td.get.nature != INTERFACE_NATURE)
         Org.logMessage(id.location, s"Type '${interface.toString}' must be an interface")

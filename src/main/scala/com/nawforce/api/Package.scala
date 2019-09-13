@@ -32,8 +32,9 @@ import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.cst.UnusedLog
 import com.nawforce.documents._
+import com.nawforce.names.{DotName, Name}
 import com.nawforce.types._
-import com.nawforce.utils.{DotName, IssueLog, Name}
+import com.nawforce.utils.IssueLog
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.JavaConverters._

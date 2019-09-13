@@ -25,7 +25,7 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.utils
+package com.nawforce.names
 
 import scalaz.Memo
 
@@ -124,54 +124,5 @@ object Name {
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 }
-
-/**
-  * A qualified name with notional 'dot' separators
-  */
-case class DotName(names: Seq[Name]) {
-
-  val isCompound: Boolean = names.size > 1
-
-  def head: DotName = DotName(Seq(names.head))
-  def tail: DotName = DotName(names.tail)
-  def headNames: DotName = DotName(names.reverse.tail.reverse)
-  def tailNames: DotName = DotName(names.tail)
-  def firstName: Name = names.head
-  def lastName: Name = names.last
-
-  def append(name: Name): DotName = DotName(names :+ name)
-  def prepend(name: Name): DotName = DotName(name +: names)
-  def prepend(name: Option[Name]): DotName = {
-    name match {
-      case Some(value) => DotName(value +: names)
-      case _ => this
-    }
-  }
-
-  // TODO: Create a Class to handle these
-  def demangled: DotName = {
-    if (names.size == 1) {
-      // Extract namespace for custom object, platform event &  metadata types
-      val split = firstName.value.split("__")
-      if (split.size == 3 && (split(2) == "c" || split(2) == "e" || split(2) == "mdt")) {
-        return DotName(Seq(Name(split(0)), Name(split(1)+"__"+split(2))))
-      }
-    }
-    this
-  }
-
-
-  override def toString: String = names.mkString(".")
-}
-
-object DotName {
-  def apply(name: String): DotName = {
-    DotName(name.split('.').toSeq.map(p => Name(p)))
-  }
-  def apply(name: Name): DotName = {
-    DotName(Seq(name))
-  }
-}
-
 
 
