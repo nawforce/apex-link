@@ -28,30 +28,72 @@
 package com.nawforce.types
 
 import com.nawforce.names.{DotName, Name, TypeName}
+import scalaz.Scalaz._
+import scalaz.{Failure, Success, ValidationNel}
+
 
 object PlatformTypes {
-  lazy val nullType: TypeDeclaration = getType(DotName(Seq(Name.Internal, Name.Null$))).get
-  lazy val recordSetType: TypeDeclaration = getType(DotName(Seq(Name.Internal, Name.RecordSet$))).get
-  lazy val sObjectType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.SObject))).get
-  lazy val typeType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Type))).get
-  lazy val objectType: TypeDeclaration = getType(DotName(Seq(Name.Internal, Name.Object$))).get
-  lazy val stringType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.String))).get
-  lazy val idType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Id))).get
-  lazy val integerType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Integer))).get
-  lazy val longType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Long))).get
-  lazy val doubleType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Double))).get
-  lazy val booleanType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Boolean))).get
-  lazy val decimalType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Decimal))).get
-  lazy val dateType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Date))).get
-  lazy val datetimeType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Datetime))).get
-  lazy val timeType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Time))).get
-  lazy val blobType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Blob))).get
-  lazy val locationType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.Location))).get
-  lazy val listType: TypeDeclaration = getType(DotName(Seq(Name.System, Name.List))).get
+  lazy val nullType: TypeDeclaration = loadType(TypeName.Null)
+  lazy val recordSetType: TypeDeclaration = loadType(TypeName.RecordSet)
+  lazy val objectType: TypeDeclaration = loadType(TypeName.InternalObject)
+  lazy val sObjectType: TypeDeclaration = loadType(TypeName.SObject)
+  lazy val typeType: TypeDeclaration = loadType(TypeName.TypeType)
+  lazy val stringType: TypeDeclaration = loadType(TypeName.String)
+  lazy val idType: TypeDeclaration = loadType(TypeName.Id)
+  lazy val integerType: TypeDeclaration = loadType(TypeName.Integer)
+  lazy val longType: TypeDeclaration = loadType(TypeName.Long)
+  lazy val doubleType: TypeDeclaration = loadType(TypeName.Double)
+  lazy val booleanType: TypeDeclaration = loadType(TypeName.Boolean)
+  lazy val decimalType: TypeDeclaration = loadType(TypeName.Decimal)
+  lazy val dateType: TypeDeclaration = loadType(TypeName.Date)
+  lazy val datetimeType: TypeDeclaration = loadType(TypeName.Datetime)
+  lazy val timeType: TypeDeclaration = loadType(TypeName.Time)
+  lazy val blobType: TypeDeclaration = loadType(TypeName.Blob)
+  lazy val locationType: TypeDeclaration = loadType(TypeName.Location)
 
-  def getType(typeName: TypeName): Option[TypeDeclaration] = {
-    getType(typeName.asDotName)
+  private def loadType(typeName: TypeName): TypeDeclaration = {
+    PlatformTypeDeclaration.get(typeName).toOption.get
   }
+
+  def getType(typeName: TypeName): Either[String, TypeDeclaration] = {
+    val alias = typeAliasMap.getOrElse(typeName, typeName)
+
+    val firstResult = findPlatformType(alias)
+    if (firstResult.isSuccess)
+      return result(firstResult)
+
+    val systemResult = findPlatformType(alias.wrap(TypeName.System))
+    if (systemResult.isSuccess)
+      return result(systemResult)
+
+    val schemaResult = findPlatformType(alias.wrap(TypeName.Schema))
+    if (schemaResult.isSuccess)
+      return result(schemaResult)
+
+    result(firstResult)
+  }
+
+  private def result(value: ValidationNel[PlatformTypeGetError, PlatformTypeDeclaration]):
+    Either[String, TypeDeclaration] = {
+    value match {
+      case Success(td) => Right(td)
+      case Failure(e) => Left(e.head.toString)
+    }
+  }
+
+  @scala.annotation.tailrec
+  private def findPlatformType(typeName: TypeName): ValidationNel[PlatformTypeGetError, PlatformTypeDeclaration] = {
+    PlatformTypeDeclaration.get(typeName) match {
+      case Success(td) => td.successNel
+      case Failure(_) if typeName.outer.nonEmpty => findPlatformType(typeName.outer.get)
+      case Failure(_) => (MissingPlatformType(typeName): PlatformTypeGetError).failureNel
+    }
+  }
+
+  private val typeAliasMap: Map[TypeName, TypeName] = Map(
+    TypeName.Object -> TypeName.InternalObject,
+    TypeName.ApexPagesPageReference -> TypeName.PageReference
+  )
 
   def getType(dotName: DotName): Option[TypeDeclaration] = {
     aliasMap.get(dotName).flatMap(getPlatformType)

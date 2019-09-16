@@ -27,93 +27,125 @@
 */
 package com.nawforce.platform.Component;
 
+import com.nawforce.platform.ApexPages.Component;
+import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
+
 @SuppressWarnings("unused")
 public class Apex {
-    public class ActionFunction {}
-    public class ActionPoller {}
-    public class ActionRegion {}
-    public class ActionStatus {}
-    public class ActionSupport {}
-    public class AreaSeries {}
-    public class Axis {}
-    public class BarSeries {}
-    public class CanvasApp {}
-    public class Chart {}
-    public class ChartLabel {}
-    public class ChartTips {}
-    public class Column {}
-    public class CommandButton {}
-    public class CommandLink {}
-    public class DataList {}
-    public class DataTable {}
-    public class Detail {}
-    public class EmailPublisher {}
-    public class EnhancedList {}
-    public class Facet {}
-    public class Flash {}
-    public class Form {}
-    public class GaugeSeries {}
-    public class Iframe {}
-    public class Image {}
-    public class IncludeLightning {}
-    public class IncludeScript {}
-    public class InlineEditSupport {}
-    public class Input {}
-    public class InputCheckbox {}
-    public class InputField {}
-    public class InputFile {}
-    public class InputHidden {}
-    public class InputSecret {}
-    public class InputText {}
-    public class InputTextarea {}
-    public class Legend {}
-    public class LineSeries {}
-    public class ListViews {}
-    public class LogCallPublisher {}
-    public class Map {}
-    public class MapInfoWindow {}
-    public class MapMarker {}
-    public class Message {}
-    public class Messages {}
-    public class MilestoneTracker {}
-    public class OutputField {}
-    public class OutputLabel {}
-    public class OutputLink {}
-    public class OutputPanel {}
-    public class OutputText {}
-    public class Page {}
-    public class PageBlock {}
-    public class PageBlockButtons {}
-    public class PageBlockSection {}
-    public class PageBlockSectionItem {}
-    public class PageBlockTable {}
-    public class PageMessage {}
-    public class PageMessages {}
-    public class PanelBar {}
-    public class PanelBarItem {}
-    public class PanelGrid {}
-    public class PanelGroup {}
-    public class PieSeries {}
-    public class RadarSeries {}
-    public class RelatedList {}
-    public class RemoteObjectField {}
-    public class RemoteObjectModel {}
-    public class RemoteObjects {}
-    public class Repeat {}
-    public class ScatterSeries {}
-    public class Scontrol {}
-    public class SectionHeader {}
-    public class SelectCheckboxes {}
-    public class SelectList {}
-    public class SelectOption {}
-    public class SelectOptions {}
-    public class SelectRadio {}
-    public class Slds {}
-    public class Stylesheet {}
-    public class Tab {}
-    public class TabPanel {}
-    public class Toolbar {}
-    public class ToolbarGroup {}
-    public class Variable {}
-    public class Vote {}
+    public static class ActionFunction extends Component {}
+    public static class ActionPoller extends Component {}
+    public static class ActionRegion extends Component {}
+    public static class ActionStatus extends Component {}
+    public static class ActionSupport extends Component {}
+    public static class AreaSeries extends Component {}
+    public static class Axis extends Component {}
+    public static class BarSeries extends Component {}
+    public static class CanvasApp extends Component {}
+    public static class Chart extends Component {}
+    public static class ChartLabel extends Component {}
+    public static class ChartTips extends Component {}
+    public static class Column extends Component {}
+    public static class CommandButton extends Component {}
+    public static class CommandLink extends Component {}
+    public static class DataList extends Component {}
+    public static class DataTable extends Component {}
+    public static class Detail extends Component {}
+    public static class EmailPublisher extends Component {}
+    public static class EnhancedList extends Component {}
+    public static class Facet extends Component {}
+    public static class Flash extends Component {}
+    public static class Form extends Component {}
+    public static class GaugeSeries extends Component {}
+    public static class Iframe extends Component {}
+    public static class Image extends Component {}
+    public static class IncludeLightning extends Component {}
+    public static class IncludeScript extends Component {}
+    public static class InlineEditSupport extends Component {}
+    public static class Input extends Component {}
+    public static class InputCheckbox extends Component {}
+    public static class InputField extends Component {}
+    public static class InputFile extends Component {}
+    public static class InputHidden extends Component {}
+    public static class InputSecret extends Component {}
+    public static class InputText extends Component {}
+    public static class InputTextarea extends Component {}
+    public static class Legend extends Component {}
+    public static class LineSeries extends Component {}
+    public static class ListViews extends Component {}
+    public static class LogCallPublisher extends Component {}
+    public static class Map extends Component {}
+    public static class MapInfoWindow extends Component {}
+    public static class MapMarker extends Component {}
+    public static class Message extends Component {}
+    public static class Messages extends Component {}
+    public static class MilestoneTracker extends Component {}
+    public static class OutputField extends Component {}
+
+    public static class OutputLabel extends Component {
+        public String accessKey;
+        public String dir;
+        public Boolean escape;
+        public String for$;
+        public String id;
+        public String lang;
+        public String onblur;
+        public String onclick;
+        public String ondblclick;
+        public String onfocus;
+        public String onkeydown;
+        public String onkeypress;
+        public String onkeyup;
+        public String onmousedown;
+        public String onmousemove;
+        public String onmouseout;
+        public String onmouseover;
+        public String onmouseup;
+        public Boolean rendered;
+        public String style;
+        public String styleClass;
+        public String tabIndex;
+        public String title;
+        public String value;
+    }
+
+    public static class OutputLink extends Component {}
+    public static class OutputPanel extends Component {}
+    public static class OutputText extends Component {}
+    public static class Page extends Component {}
+    public static class PageBlock extends Component {}
+    public static class PageBlockButtons extends Component {}
+    public static class PageBlockSection extends Component {}
+    public static class PageBlockSectionItem extends Component {}
+    public static class PageBlockTable extends Component {}
+    public static class PageMessage extends Component {}
+    public static class PageMessages extends Component {}
+    public static class PanelBar extends Component {}
+    public static class PanelBarItem extends Component {}
+    public static class PanelGrid extends Component {}
+    public static class PanelGroup extends Component {}
+    public static class PieSeries extends Component {}
+    public static class RadarSeries extends Component {}
+    public static class RelatedList extends Component {}
+    public static class RemoteObjectField extends Component {}
+    public static class RemoteObjectModel extends Component {}
+    public static class RemoteObjects extends Component {}
+    public static class Repeat extends Component {}
+    public static class ScatterSeries extends Component {}
+    public static class Scontrol extends Component {}
+    public static class SectionHeader extends Component {}
+    public static class SelectCheckboxes extends Component {}
+    public static class SelectList extends Component {}
+    public static class SelectOption extends Component {}
+    public static class SelectOptions extends Component {}
+    public static class SelectRadio extends Component {}
+    public static class Slds extends Component {}
+    public static class Stylesheet extends Component {}
+    public static class Tab extends Component {}
+    public static class TabPanel extends Component {}
+    public static class Toolbar extends Component {}
+    public static class ToolbarGroup extends Component {}
+    public static class Variable extends Component {}
+    public static class Vote extends Component {}
 }

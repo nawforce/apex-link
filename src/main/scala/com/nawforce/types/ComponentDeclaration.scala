@@ -38,8 +38,10 @@ import scala.collection.mutable
 
 final case class ComponentDeclaration() extends TypeDeclaration {
   private val components = new ConcurrentHashMap[Name, TypeDeclaration]()
-  components.put(Name("Apex"), PlatformTypes.getType(DotName("Component.Apex")).get)
-  components.put(Name("Chatter"), PlatformTypes.getType(DotName("Component.Chatter")).get)
+  components.put(Name("Apex"),
+    PlatformTypeDeclaration.get(TypeName(Name("Apex"), Nil, Some(TypeName(Name("Component"))))).toOption.get)
+  components.put(Name("Chatter"),
+    PlatformTypeDeclaration.get(TypeName(Name("Chatter"), Nil, Some(TypeName(Name("Component"))))).toOption.get)
 
   override val name: Name = Name.Component
   override val typeName: TypeName = TypeName(name)

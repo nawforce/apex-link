@@ -27,23 +27,25 @@
 */
 package com.nawforce.types
 
+import java.lang.reflect.TypeVariable
 import java.nio.file.{FileSystems, Files, Path, Paths}
 import java.util
 
 import com.nawforce.names.{DotName, Name, TypeName}
-import scalaz.Memo
+import scalaz.Scalaz._
+import scalaz._
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.HashMap
 import scala.collection.mutable
 
 /** Platform type declaration, a wrapper around a com.nawforce.platform Java classes */
-case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[PlatformTypeDeclaration])
+case class PlatformTypeDeclaration(cls: java.lang.Class[_], outer: Option[PlatformTypeDeclaration])
   extends TypeDeclaration {
 
   override lazy val name: Name = typeName.name
-  override lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(cls, cls)
-  override lazy val outerTypeName: Option[TypeName] = parent.map(_.typeName)
+  override lazy val typeName: TypeName = PlatformTypeDeclaration.typeNameFromClass(cls, cls)
+  override lazy val outerTypeName: Option[TypeName] = outer.map(_.typeName)
   override lazy val nature: Nature = {
     (cls.isEnum, cls.isInterface) match {
       case (true, _) => ENUM_NATURE
@@ -54,7 +56,9 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
   override val isComplete: Boolean = true
   override val isExternallyVisible: Boolean = true
 
-  override lazy val superClass: Option[TypeName] = {
+  override lazy val superClass: Option[TypeName] = getSuperClass
+
+  protected def getSuperClass: Option[TypeName] = {
     if (cls.getSuperclass != null) {
       cls.getSuperclass.getCanonicalName match {
         case "java.lang.Object" => None
@@ -67,29 +71,27 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
   }
 
   override def superClassDeclaration: Option[TypeDeclaration] = {
-    superClass.flatMap(sc => PlatformTypes.getType(sc.asDotName))
+    superClass.flatMap(sc => PlatformTypeDeclaration.get(sc).toOption)
   }
 
-  override lazy val interfaces: Seq[TypeName] = cls.getInterfaces.map(i => PlatformTypeDeclaration.typeName(i, cls))
+  override lazy val interfaces: Seq[TypeName] = getInterfaces
+
+  protected def getInterfaces: Seq[TypeName] = cls.getInterfaces.map(i => PlatformTypeDeclaration.typeNameFromClass(i, cls))
 
   override lazy val modifiers: Seq[Modifier] = PlatformModifiers.typeModifiers(cls.getModifiers, nature)
+
+  override lazy val constructors: Seq[PlatformConstructor] = {
+    cls.getConstructors.map(c => new PlatformConstructor(c, this))
+  }
 
   override lazy val nestedTypes: Seq[PlatformTypeDeclaration] =
     cls.getClasses.map(nested => PlatformTypeDeclaration(nested, Some(this)))
 
   override lazy val blocks: Seq[BlockDeclaration] = Seq.empty
 
-  case class Field(field: java.lang.reflect.Field) extends FieldDeclaration {
-    lazy val name: Name = Name(field.getName)
-    lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(field.getType, field.getDeclaringClass)
-    lazy val modifiers: Seq[Modifier] = PlatformModifiers.fieldOrMethodModifiers(field.getModifiers)
-    lazy val readAccess: Modifier = PUBLIC_MODIFIER
-    lazy val writeAccess: Modifier = PUBLIC_MODIFIER
-  }
-
   override lazy val fields: Seq[FieldDeclaration] = cls.getFields.filter(
     _.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
-    .map(f => Field(f))
+    .map(f => new PlatformField(f))
 
   override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
     if (isSObject) {
@@ -99,42 +101,9 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
     }
   }
 
-  case class Parameter(parameter: java.lang.reflect.Parameter, declaringClass: Class[_]) extends ParameterDeclaration {
-    lazy val name: Name = Name(parameter.getName)
-    lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(parameter.getType, declaringClass)
+  override lazy val methods: Seq[MethodDeclaration] = getMethods
 
-    override def toString: String = typeName.toString + " " + name.toString
-  }
-
-  case class Constructor(ctor: java.lang.reflect.Constructor[_], typeDeclaration: PlatformTypeDeclaration)
-    extends ConstructorDeclaration {
-    lazy val modifiers: Seq[Modifier] = PlatformModifiers.methodModifiers(ctor.getModifiers, typeDeclaration.nature)
-    lazy val parameters: Seq[Parameter] = ctor.getParameters.map(p => Parameter(p, ctor.getDeclaringClass))
-    def getDeclaringClass: Class[_] =  ctor.getDeclaringClass
-
-    override def toString: String =
-      modifiers.map(_.toString).mkString(" ") + " " + typeName.toString + "(" +
-        parameters.map(_.toString).mkString(", ") + ")"
-  }
-
-  override lazy val constructors: Seq[Constructor] = {
-    cls.getConstructors.map(c => Constructor(c, this))
-  }
-
-  case class Method(method: java.lang.reflect.Method, typeDeclaration: PlatformTypeDeclaration)
-    extends MethodDeclaration {
-    lazy val name: Name = Name(method.getName)
-    lazy val typeName: TypeName = PlatformTypeDeclaration.typeName(method.getReturnType, method.getDeclaringClass)
-    lazy val modifiers: Seq[Modifier] = PlatformModifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
-    lazy val parameters: Seq[Parameter] = method.getParameters.map(p => Parameter(p, method.getDeclaringClass))
-    def getDeclaringClass: Class[_] =  method.getDeclaringClass
-
-    override def toString: String =
-      modifiers.map(_.toString).mkString(" ") + " " + typeName.toString + " " + name.toString + "(" +
-        parameters.map(_.toString).mkString(", ") + ")"
-  }
-
-  override lazy val methods: Seq[MethodDeclaration] = {
+  protected def getMethods: Seq[PlatformMethod] = {
     val localMethods = cls.getMethods.filter(
       _.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
     nature match {
@@ -143,7 +112,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
           s"Enum $name has locally defined methods which are not supported in platform types")
         Seq()
       case _ =>
-        localMethods.map(m => Method(m, this))
+        localMethods.map(m => new PlatformMethod(m, this))
     }
   }
 
@@ -157,6 +126,69 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], parent: Option[Platf
   }
 
   override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
+}
+
+class PlatformField(field: java.lang.reflect.Field) extends FieldDeclaration {
+  lazy val name: Name = Name(decodeName(field.getName))
+  lazy val typeName: TypeName = PlatformTypeDeclaration.typeNameFromClass(field.getType, field.getDeclaringClass)
+  lazy val modifiers: Seq[Modifier] = PlatformModifiers.fieldOrMethodModifiers(field.getModifiers)
+  lazy val readAccess: Modifier = PUBLIC_MODIFIER
+  lazy val writeAccess: Modifier = PUBLIC_MODIFIER
+
+  private def decodeName(name: String): String = {
+    if (name.endsWith("$"))
+      name.substring(0, name.length-1)
+    else
+      name
+  }
+}
+
+class PlatformParameter(val parameter: java.lang.reflect.Parameter, val declaringClass: Class[_]) extends ParameterDeclaration {
+  override lazy val name: Name = Name(parameter.getName)
+  override lazy val typeName: TypeName = PlatformTypeDeclaration.typeNameFromType(parameter.getParameterizedType, declaringClass)
+
+  override def toString: String = typeName.toString + " " + name.toString
+}
+
+class PlatformConstructor(ctor: java.lang.reflect.Constructor[_], typeDeclaration: PlatformTypeDeclaration)
+  extends ConstructorDeclaration {
+  lazy val modifiers: Seq[Modifier] = PlatformModifiers.methodModifiers(ctor.getModifiers, typeDeclaration.nature)
+  lazy val parameters: Seq[PlatformParameter] = ctor.getParameters.map(p => new PlatformParameter(p, ctor.getDeclaringClass))
+  def getDeclaringClass: Class[_] =  ctor.getDeclaringClass
+
+  override def toString: String =
+    modifiers.map(_.toString).mkString(" ") + " " + typeDeclaration.typeName.toString + "(" +
+      parameters.map(_.toString).mkString(", ") + ")"
+}
+
+class PlatformMethod(val method: java.lang.reflect.Method, val typeDeclaration: PlatformTypeDeclaration)
+  extends MethodDeclaration {
+  lazy val name: Name = Name(decodeName(method.getName))
+  lazy val typeName: TypeName = PlatformTypeDeclaration.typeNameFromClass(method.getReturnType, method.getDeclaringClass)
+  lazy val modifiers: Seq[Modifier] = PlatformModifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
+  lazy val parameters: Seq[ParameterDeclaration] = getParameters
+  def getDeclaringClass: Class[_] =  method.getDeclaringClass
+
+  def getParameters: Seq[PlatformParameter] = method.getParameters.map(p => new PlatformParameter(p, method.getDeclaringClass))
+
+  override def toString: String =
+    modifiers.map(_.toString).mkString(" ") + " " + typeName.toString + " " + name.toString + "(" +
+      parameters.map(_.toString).mkString(", ") + ")"
+
+  private def decodeName(name: String): String = {
+    if (name.endsWith("$"))
+      name.substring(0, name.length-1)
+    else
+      name
+  }
+}
+
+class PlatformTypeGetError
+case class MissingPlatformType(typeName: TypeName) extends PlatformTypeGetError {
+  override def toString: String = s"No type declaration found for '$typeName'"
+}
+case class WrongTypeArguments(typeName: TypeName, expected: Integer) extends PlatformTypeGetError {
+  override def toString: String = s"Wrong number of type arguments for '$typeName', expected $expected"
 }
 
 object PlatformTypeDeclaration {
@@ -176,6 +208,21 @@ object PlatformTypeDeclaration {
   /* Get a declaration for a class from a name, if one exists, searching of inner classes is not supported here */
   def get(name: DotName): Option[PlatformTypeDeclaration] = {
     declarationCache(name)
+  }
+
+  def get(typeName: TypeName): ValidationNel[PlatformTypeGetError, PlatformTypeDeclaration] = {
+    val tdOption = declarationCache(typeName.asDotName)
+    if (tdOption.isEmpty)
+      return (MissingPlatformType(typeName): PlatformTypeGetError).failureNel
+
+    val td = tdOption.get
+    if (td.typeName.params.size != typeName.params.size)
+      return (WrongTypeArguments(typeName, td.typeName.params.size): PlatformTypeGetError).failureNel
+
+    if (td.typeName.params.nonEmpty)
+      GenericPlatformTypeDeclaration.get(typeName)
+    else
+      td.successNel
   }
 
   private val declarationCache: DotName => Option[PlatformTypeDeclaration] =
@@ -223,12 +270,26 @@ object PlatformTypeDeclaration {
   private def typeNameOptional(cls: java.lang.Class[_], contextCls: java.lang.Class[_]): Option[TypeName] = {
     cls match {
       case null => None
-      case _ => Some(typeName(cls, contextCls))
+      case _ => Some(typeNameFromClass(cls, contextCls))
+    }
+  }
+
+  /** Create a TypeName from a Java Type, handles type variables as well as classes */
+  def typeNameFromType(paramType: java.lang.reflect.Type, contextCls: java.lang.Class[_]): TypeName = {
+    paramType match {
+      case cls: Class[_] => PlatformTypeDeclaration.typeNameFromClass(cls, contextCls)
+      case tv: java.lang.reflect.TypeVariable[_] => TypeName(Name(tv.getName))
+      case pt: java.lang.reflect.ParameterizedType =>
+        val cname = pt.getRawType.getTypeName
+        assert(cname.startsWith(platformPackage), s"Reference to non-platform type $cname in ${contextCls.getCanonicalName}")
+        val names = cname.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse
+        val params = pt.getActualTypeArguments.map(ta => Name(ta.getTypeName))
+        TypeName(names).withParams(params.toSeq.map(TypeName(_)))
     }
   }
 
   /** Create a TypeName from a Java class */
-  private def typeName(cls: java.lang.Class[_], contextCls: java.lang.Class[_]): TypeName = {
+  def typeNameFromClass(cls: java.lang.Class[_], contextCls: java.lang.Class[_]): TypeName = {
     val cname = cls.getCanonicalName
     if (cname == "java.lang.Object") {
       TypeName.Object
@@ -246,7 +307,6 @@ object PlatformTypeDeclaration {
     }
   }
 }
-
 
 
 

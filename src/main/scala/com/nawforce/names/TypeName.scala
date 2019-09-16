@@ -64,6 +64,15 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
     }
   }
 
+  def wrap(typeName: TypeName): TypeName = {
+    outer match {
+      case None => TypeName(name, params, Some(typeName))
+      case Some(o) => TypeName(name, params, Some(o.wrap(typeName)))
+    }
+  }
+
+  def isList: Boolean = name == Name.List && outer.contains(TypeName.System)
+
   def asListOf: TypeName = new TypeName(Name.List, Seq(this), Some(TypeName.System))
 
   def asClassOf: TypeName = new TypeName(Name.Class$, Seq(this), Some(TypeName.System))
@@ -79,32 +88,47 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
 }
 
 object TypeName {
-  lazy val Any = TypeName(Name.Any$, Nil, Some(TypeName.Internal))
-
   lazy val Void = TypeName(Name("void"))
   lazy val Object = TypeName(Name("Object"))
-  lazy val System = TypeName(Name("System"))
-  lazy val Schema = TypeName(Name("Schema"))
+
+  lazy val Internal = TypeName(Name.Internal)
+  lazy val Null = TypeName(Name.Null$, Nil, Some(TypeName.Internal))
+  lazy val Any = TypeName(Name.Any$, Nil, Some(TypeName.Internal))
+  lazy val RecordSet = TypeName(Name.RecordSet$, Seq(TypeName.SObject), Some(TypeName.Internal))
+  lazy val InternalObject = TypeName(Name.Object$, Nil, Some(TypeName.Internal))
+
+  lazy val System = TypeName(Name.System)
+  lazy val Long = TypeName(Name.Long, Nil, Some(TypeName.System))
+  lazy val Integer = TypeName(Name.Integer, Nil, Some(TypeName.System))
+  lazy val Double = TypeName(Name.Double, Nil, Some(TypeName.System))
+  lazy val Decimal = TypeName(Name.Decimal, Nil, Some(TypeName.System))
+  lazy val String = TypeName(Name.String, Nil, Some(TypeName.System))
+  lazy val Boolean = TypeName(Name.Boolean, Nil, Some(TypeName.System))
+  lazy val Date = TypeName(Name.Date, Nil, Some(TypeName.System))
+  lazy val Datetime = TypeName(Name.Datetime, Nil, Some(TypeName.System))
+  lazy val Time = TypeName(Name.Time, Nil, Some(TypeName.System))
+  lazy val Blob = TypeName(Name.Blob, Nil, Some(TypeName.System))
+  lazy val Location = TypeName(Name.Location, Nil, Some(TypeName.System))
+
+  lazy val Id = TypeName(Name.Id, Nil, Some(TypeName.System))
+  lazy val TypeType = TypeName(Name.Type, Nil, Some(TypeName.System))
+  lazy val PageReference = TypeName(Name.PageReference, Nil, Some(TypeName.System))
   lazy val SObject = TypeName(Name.SObject, Nil, Some(TypeName.System))
   lazy val Label = TypeName(Name.Label, Nil, Some(TypeName.System))
-  lazy val Internal = TypeName(Name.Internal)
 
-  lazy val Long = TypeName(Name("Long"), Nil, Some(TypeName.System))
-  lazy val Integer = TypeName(Name("Integer"), Nil, Some(TypeName.System))
-  lazy val Double = TypeName(Name("Double"), Nil, Some(TypeName.System))
-  lazy val Decimal = TypeName(Name("Decimal"), Nil, Some(TypeName.System))
-  lazy val String = TypeName(Name("String"), Nil, Some(TypeName.System))
-  lazy val Boolean = TypeName(Name("Boolean"), Nil, Some(TypeName.System))
-  lazy val PageReference = TypeName(Name.PageReference, Nil, Some(TypeName.System))
+  lazy val ApexPages = TypeName(Name.ApexPages)
+  lazy val ApexPagesPageReference = TypeName(Name.PageReference, Nil, Some(TypeName.ApexPages))
+
+  lazy val Schema = TypeName(Name.Schema)
   lazy val SObjectType = TypeName(Name.SObjectType, Nil, Some(TypeName.Schema))
   lazy val SObjectField = TypeName(Name.SObjectField, Nil, Some(TypeName.Schema))
   lazy val DescribeSObjectResult = TypeName(Name.DescribeSObjectResult, Nil, Some(TypeName.Schema))
 
   private lazy val aliasMap = Map[TypeName, String](
-    TypeName(Name.Null$, Nil, Some(TypeName.Internal)) -> "null",
+    Null -> "null",
     Any -> "any",
-    TypeName(Name.Object$, Nil, Some(TypeName.Internal)) -> "Object",
-    TypeName(Name.RecordSet$, Nil, Some(TypeName.Internal)) -> "[SOQL Results]"
+    InternalObject -> "Object",
+    RecordSet -> "[SOQL Results]"
   )
 
   def apply(names: Seq[Name]): TypeName = {
