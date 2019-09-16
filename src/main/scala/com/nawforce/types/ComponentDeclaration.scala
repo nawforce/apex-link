@@ -31,7 +31,7 @@ import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.documents.ComponentDocument
-import com.nawforce.names.{DotName, Name, TypeName}
+import com.nawforce.names.{Name, TypeName}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable

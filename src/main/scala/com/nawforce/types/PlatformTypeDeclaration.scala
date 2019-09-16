@@ -27,7 +27,6 @@
 */
 package com.nawforce.types
 
-import java.lang.reflect.TypeVariable
 import java.nio.file.{FileSystems, Files, Path, Paths}
 import java.util
 

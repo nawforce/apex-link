@@ -29,7 +29,7 @@ package com.nawforce.types
 
 import com.nawforce.names.{Name, TypeName}
 import org.scalatest.FunSuite
-import scalaz.{Failure, NonEmptyList, Success}
+import scalaz.{Failure, NonEmptyList}
 
 class PlatformTypeDeclarationTest extends FunSuite  {
 
@@ -274,35 +274,35 @@ class PlatformTypeDeclarationTest extends FunSuite  {
   test("Non-generic type") {
     val td = PlatformTypeDeclaration.get(TypeName(Name("String"), Seq(TypeName.Integer), Some(TypeName.System)))
     td match {
-      case Success(_) => assert(false)
-      case Failure(NonEmptyList(e)) => assert(e.toString ==
-        "(Wrong number of type arguments for 'System.String<System.Integer>', expected 0,[])")
+      case Failure(e : NonEmptyList[_]) => assert(e.head.toString ==
+        "Wrong number of type arguments for 'System.String<System.Integer>', expected 0")
+      case _ => assert(true)
     }
   }
 
   test("Too many type params") {
     val td = PlatformTypeDeclaration.get(TypeName(Name("List"), Seq(TypeName(Name.String), TypeName(Name.String)), Some(TypeName.System)))
     td match {
-      case Success(_) => assert(false)
-      case Failure(NonEmptyList(e)) => assert(e.toString ==
-        "(Wrong number of type arguments for 'System.List<String, String>', expected 1,[])")
+      case Failure(e: NonEmptyList[_]) => assert(e.head.toString ==
+        "Wrong number of type arguments for 'System.List<String, String>', expected 1")
+      case _ => assert(false)
     }
   }
 
   test("Too few type params") {
     val td = PlatformTypeDeclaration.get(TypeName(Name("List"), Seq(), Some(TypeName.System)))
     td match {
-      case Success(_) => assert(false)
-      case Failure(NonEmptyList(e)) => assert(e.toString ==
-        "(Wrong number of type arguments for 'System.List', expected 1,[])")
+      case Failure(e: NonEmptyList[_]) => assert(e.head.toString ==
+        "Wrong number of type arguments for 'System.List', expected 1")
+      case _ => assert(false)
     }
   }
 
   test("Relative type in param") {
     val td = PlatformTypeDeclaration.get(TypeName(Name("List"), Seq(TypeName(Name.String)), Some(TypeName.System)))
     td match {
-      case Success(_) => assert(false)
-      case Failure(NonEmptyList(e)) => assert(e.toString == "(No type declaration found for 'String',[])")
+      case Failure(e: NonEmptyList[_]) => assert(e.head.toString == "No type declaration found for 'String'")
+      case _ => assert(false)
     }
   }
 }
