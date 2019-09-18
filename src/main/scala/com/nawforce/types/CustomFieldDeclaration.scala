@@ -70,7 +70,7 @@ object CustomFieldDeclaration {
   private def parseField(elem: Elem, path: Path, pkg: PackageDeclaration, sObjectType: TypeName): Seq[CustomFieldDeclaration] = {
 
     val rawName: String = XMLUtils.getSingleChildAsString(elem, "fullName")
-    val name = Name(pkg.namespaceOption.map(ns => s"${ns.value}__$rawName").getOrElse(rawName))
+    val name = Name(pkg.namespace.map(ns => s"${ns.value}__$rawName").getOrElse(rawName))
     val rawType: String = XMLUtils.getSingleChildAsString(elem, "type")
 
     val dataType = rawType match {
@@ -104,7 +104,7 @@ object CustomFieldDeclaration {
       (if (rawType == "Lookup" || rawType == "MasterDetail") {
         val referenceTo = Name(XMLUtils.getSingleChildAsString(elem, "referenceTo"))
         val relName = Name(XMLUtils.getSingleChildAsString(elem, "relationshipName")+"__r")
-        val refTypeName = EncodedName(referenceTo).defaultNamespace(pkg.namespaceOption).asTypeName
+        val refTypeName = EncodedName(referenceTo).defaultNamespace(pkg.namespace).asTypeName
 
         pkg.schema().relatedLists.add(refTypeName, relName, name, sObjectType,
           RangeLocation(path, TextRange(XMLUtils.getLine(elem))))

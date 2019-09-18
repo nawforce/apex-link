@@ -33,13 +33,13 @@ import java.nio.file.Path
 import com.nawforce.documents.DocumentType
 import com.nawforce.names.{EncodedName, TypeName}
 
-final case class CustomMetadataDeclaration(_typeName: TypeName)
-  extends NamedTypeDeclaration(_typeName) {
+final case class CustomMetadataDeclaration(pkg: PackageDeclaration, _typeName: TypeName)
+  extends NamedTypeDeclaration(pkg, _typeName) {
 }
 
 object CustomMetadataDeclaration {
   def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[CustomMetadataDeclaration] = {
-    val name = EncodedName(DocumentType(path).get.name).defaultNamespace(pkg.namespaceOption)
-    Seq(new CustomMetadataDeclaration(name.asTypeName))
+    val name = EncodedName(DocumentType(path).get.name).defaultNamespace(pkg.namespace)
+    Seq(new CustomMetadataDeclaration(pkg, name.asTypeName))
   }
 }

@@ -33,7 +33,7 @@ class SchemaManagerTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult r = SObjectType.Account;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -44,7 +44,7 @@ class SchemaManagerTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult r = SObjectType.Foo__c;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -54,8 +54,8 @@ class SchemaManagerTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult r = SObjectType.ghosted__Foo__c;} }".getBytes())
 
     val org = new Org()
-    val ghosted = org.addPackageInternal(Name("ghosted"), Seq(), Seq())
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq(ghosted))
+    val ghosted = org.addPackageInternal(Some(Name("ghosted")), Seq(), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq(ghosted))
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }

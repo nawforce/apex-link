@@ -42,6 +42,7 @@ import scala.collection.mutable
 case class PlatformTypeDeclaration(cls: java.lang.Class[_], outer: Option[PlatformTypeDeclaration])
   extends TypeDeclaration {
 
+  override lazy val packageDeclaration: Option[PackageDeclaration] = None
   override lazy val name: Name = typeName.name
   override lazy val typeName: TypeName = PlatformTypeDeclaration.typeNameFromClass(cls, cls)
   override lazy val outerTypeName: Option[TypeName] = outer.map(_.typeName)

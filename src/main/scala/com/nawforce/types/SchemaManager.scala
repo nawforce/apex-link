@@ -73,7 +73,7 @@ class RelatedLists(pkg: PackageDeclaration) {
   }
 }
 
-class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDeclaration(TypeName.SObjectType) {
+class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDeclaration(pkg, TypeName.SObjectType) {
   private val sobjectFields: mutable.Map[Name, FieldDeclaration] = mutable.Map()
 
   def add(sObject: SObjectDeclaration): Unit = {

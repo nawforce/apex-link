@@ -42,32 +42,25 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 /** Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
-abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[PackageDeclaration, TypeName],
-                                   _modifiers: Seq[Modifier], val superClass: Option[TypeName],
-                                   val interfaces: Seq[TypeName], val bodyDeclarations: Seq[ClassBodyDeclaration])
+abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeName: Option[TypeName],
+                                   val id: Id, _modifiers: Seq[Modifier],
+                                   val superClass: Option[TypeName], val interfaces: Seq[TypeName],
+                                   val bodyDeclarations: Seq[ClassBodyDeclaration])
   extends ClassBodyDeclaration(_modifiers) with TypeDeclaration {
 
   override def children(): List[CST] = bodyDeclarations.toList
 
+  override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
   override val name: Name = id.name
   override val typeName: TypeName = {
-    outerContext match {
-      case Left(pkg) if pkg.namespace == Name.Empty => TypeName(name)
-      case Left(pkg) => TypeName(name).withOuter(Some(TypeName(pkg.namespace)))
-      case Right(outer) => TypeName(name).withOuter(Some(outer))
-    }
-  }
-  override val outerTypeName: Option[TypeName] = {
-    outerContext match {
-      case Left(_) => None
-      case Right(outer) => Some(outer)
-    }
+    outerTypeName.map(outer => TypeName(name).withOuter(Some(outer)))
+      .getOrElse(TypeName(name, Nil, pkg.namespace.map(TypeName(_))))
   }
 
   override val nature: Nature
 
   override def superClassDeclaration: Option[TypeDeclaration] = {
-    superClass.flatMap(sc => new StandardTypeFinder().getTypeFor(sc.asDotName, this))
+    superClass.flatMap(sc => new TypeFinder(pkg).getTypeFor(sc.asDotName, this))
   }
 
   override lazy val isComplete: Boolean = {
@@ -153,7 +146,7 @@ abstract class ApexTypeDeclaration(val id: Id, val outerContext: Either[PackageD
     interfaces.foreach(interface => {
       val td = context.getTypeAndAddDependency(interface)
       if (td.isEmpty) {
-        if (!Org.isGhostedType(interface))
+        if (!context.pkg.isGhostedType(interface))
           Org.logMessage(id.location, s"No declaration found for interface '${interface.toString}'")
       } else if (td.get.nature != INTERFACE_NATURE)
         Org.logMessage(id.location, s"Type '${interface.toString}' must be an interface")
@@ -183,26 +176,26 @@ object ApexTypeDeclaration {
     }
   }
 
-  def construct(outerContext: Either[PackageDeclaration, TypeName], typeDecl: TypeDeclarationContext, context: ConstructContext)
+  def construct(pkg: PackageDeclaration, outerTypeName: Option[TypeName], typeDecl: TypeDeclarationContext, context: ConstructContext)
   : ApexTypeDeclaration = {
 
     val modifiers: Seq[ModifierContext] = typeDecl.modifier().asScala
-    val isOuter = outerContext.isLeft
+    val isOuter = outerTypeName.isEmpty
     val cst =
       if (typeDecl.classDeclaration() != null) {
         ClassDeclaration.construct(
-          outerContext,
+          pkg, outerTypeName,
           ApexModifiers.classModifiers(modifiers, context, outer = isOuter, typeDecl.classDeclaration().id()),
           typeDecl.classDeclaration(), context)
       } else if (typeDecl.interfaceDeclaration() != null) {
         InterfaceDeclaration.construct(
-          outerContext,
+          pkg, outerTypeName,
           ApexModifiers.interfaceModifiers(modifiers, context, outer = isOuter, typeDecl.interfaceDeclaration().id()),
           typeDecl.interfaceDeclaration(), context)
       } else {
         assert(typeDecl.enumDeclaration() != null)
         EnumDeclaration.construct(
-          outerContext,
+          pkg, outerTypeName,
           ApexModifiers.enumModifiers(modifiers, context, outer = isOuter, typeDecl.enumDeclaration().id()),
           typeDecl.enumDeclaration(), context)
       }

@@ -103,6 +103,7 @@ trait MethodDeclaration extends DependencyHolder {
 }
 
 trait TypeDeclaration extends DependencyHolder {
+  val packageDeclaration: Option[PackageDeclaration]
   val name: Name
   val typeName: TypeName
   val outerTypeName: Option[TypeName]
@@ -159,16 +160,19 @@ trait TypeDeclaration extends DependencyHolder {
 
   private lazy val fieldsByName: mutable.Map[Name, FieldDeclaration] = {
     // TODO: Should not be accessing Org here
-    val outerType = outerTypeName.flatMap(typeName => Org.getType(namespace, typeName.asDotName))
+    val outerType = outerTypeName.flatMap(typeName => getType(typeName.asDotName))
     val fieldsByName =
         outerType.map(td => td.fields.filter(_.isStatic).map(f => (f.name, f))).getOrElse(Seq()) ++
         fields.map(f => (f.name, f))
     mutable.Map(fieldsByName: _*)
   }
 
-  def findType(name: Name, namespace: Option[Name], staticOnly: Boolean): Option[TypeDeclaration] = {
-    // TODO: Handle protected/private
-    new StandardTypeFinder().getTypeFor(DotName(name), this)
+  private def getType(dotName: DotName): Option[TypeDeclaration] = {
+    packageDeclaration.map(_.getType(dotName)).getOrElse(PlatformTypes.getType(dotName))
+  }
+
+  def findType(dotName: DotName): Option[TypeDeclaration] = {
+    packageDeclaration.flatMap(pkg => new TypeFinder(pkg).getTypeFor(dotName, this, localOnly = true))
   }
 
   lazy val summary: TypeSummary = TypeSummary(

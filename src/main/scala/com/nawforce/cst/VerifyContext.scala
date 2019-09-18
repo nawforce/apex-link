@@ -29,7 +29,7 @@ package com.nawforce.cst
 
 import com.nawforce.api.Org
 import com.nawforce.documents.Location
-import com.nawforce.names.{EncodedName, Name, TypeName}
+import com.nawforce.names.{DotName, EncodedName, Name, TypeName}
 import com.nawforce.types._
 
 import scala.collection.mutable
@@ -37,14 +37,17 @@ import scala.collection.mutable
 trait VerifyContext {
   def parent(): Option[VerifyContext]
 
-  /** Namespace of current code */
-  def namespace: Option[Name]
+  /** Package for current outer type */
+  def pkg: PackageDeclaration
 
   /** Get type declaration of 'this', option as not set in trigger */
   def thisType: Option[TypeDeclaration]
 
   /** Get type declaration of 'super' */
   def superType: Option[TypeDeclaration]
+
+  /** Locate a type from a (possible relative) DotName */
+  def getType(dotName: DotName): Option[TypeDeclaration]
 
   /** Declare a dependency on dependant */
   def addDependency(dependant: Dependant): Unit
@@ -55,12 +58,12 @@ trait VerifyContext {
   def suppressWarnings: Boolean = parent().exists(_.suppressWarnings)
 
   def missingType(location: Location, typeName: TypeName): Unit = {
-    if (!Org.isGhostedType(typeName))
+    if (!pkg.isGhostedType(typeName))
       logMessage(location, s"No type declaration found for '$typeName'")
   }
 
   def missingIdentifier(location: Location, typeName: TypeName, name: Name): Unit = {
-    if (!Org.isGhostedType(EncodedName(name).asTypeName))
+    if (!pkg.isGhostedType(EncodedName(name).asTypeName))
       logMessage(location, s"No variable or type found for '$name' on '$typeName'")
   }
 
@@ -70,7 +73,7 @@ trait VerifyContext {
   }
 }
 
-abstract class HolderVerifyContext {
+trait HolderVerifyContext {
   private val _dependencies = mutable.Set[Dependant]()
 
   def dependencies: Set[Dependant] = _dependencies.toSet
@@ -96,16 +99,21 @@ abstract class HolderVerifyContext {
   }
 }
 
-class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: TypeDeclaration)
-  extends HolderVerifyContext with VerifyContext with TypeFinder {
+class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: ApexTypeDeclaration)
+  extends TypeFinder(typeDeclaration.pkg)
+    with HolderVerifyContext with VerifyContext {
 
   override def parent(): Option[VerifyContext] = parentContext
 
-  override def namespace: Option[Name] = typeDeclaration.namespace
+  override def pkg: PackageDeclaration = typeDeclaration.pkg
 
   override def thisType: Option[TypeDeclaration] = Some(typeDeclaration)
 
   override def superType: Option[TypeDeclaration] = typeDeclaration.superClassDeclaration
+
+  override def getType(dotName: DotName): Option[TypeDeclaration] = {
+    getTypeFor(dotName, typeDeclaration)
+  }
 
   override def getTypeFor(typeName: TypeName): Option[TypeDeclaration] = {
     getTypeFor(typeName.asDotName, typeDeclaration)
@@ -120,11 +128,13 @@ class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDe
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
 
-  override def namespace: Option[Name] = parentContext.namespace
+  override def pkg: PackageDeclaration = parentContext.pkg
 
   override def thisType: Option[TypeDeclaration] = parentContext.thisType
 
   override def superType: Option[TypeDeclaration] = parentContext.superType
+
+  override def getType(dotName: DotName): Option[TypeDeclaration] = parentContext.getType(dotName)
 
   override def getTypeFor(typeName: TypeName): Option[TypeDeclaration] =  parentContext.getTypeFor(typeName)
 
@@ -139,11 +149,13 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
 
-  override def namespace: Option[Name] = parentContext.namespace
+  override def pkg: PackageDeclaration = parentContext.pkg
 
   override def thisType: Option[TypeDeclaration] = parentContext.thisType
 
   override def superType: Option[TypeDeclaration] = parentContext.superType
+
+  override def getType(dotName: DotName): Option[TypeDeclaration] = parentContext.getType(dotName)
 
   override def addDependency(dependant: Dependant): Unit = parentContext.addDependency(dependant)
 
@@ -163,7 +175,7 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
     if (td.isEmpty)
       missingType(location, typeName)
 
-    vars.put(name, td.getOrElse(AnyDeclaration()))
+    vars.put(name, td.getOrElse(AnyDeclaration(pkg)))
   }
 
   def isStatic: Boolean
@@ -192,11 +204,13 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext)
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
 
-  override def namespace: Option[Name] = parentContext.namespace
+  override def pkg: PackageDeclaration = parentContext.pkg
 
   override def thisType: Option[TypeDeclaration] = parentContext.thisType
 
   override def superType: Option[TypeDeclaration] = parentContext.superType
+
+  override def getType(dotName: DotName): Option[TypeDeclaration] = parentContext.getType(dotName)
 
   override def addDependency(dependant: Dependant): Unit = parentContext.addDependency(dependant)
 
@@ -206,6 +220,6 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext)
   def isVar(name: Name): Option[TypeDeclaration] = parentContext.isVar(name)
 
   def defaultNamespace(name: Name): Name = {
-    EncodedName(name).defaultNamespace(namespace).fullName
+    EncodedName(name).defaultNamespace(pkg.namespace).fullName
   }
 }

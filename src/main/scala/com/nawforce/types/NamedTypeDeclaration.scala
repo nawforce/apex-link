@@ -32,7 +32,10 @@ import com.nawforce.names.{Name, TypeName}
 
 import scala.collection.mutable
 
-class NamedTypeDeclaration(val typeName: TypeName) extends TypeDeclaration {
+class NamedTypeDeclaration(pkg: PackageDeclaration, val typeName: TypeName)
+  extends TypeDeclaration {
+
+  override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
   override val name: Name = typeName.name
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE

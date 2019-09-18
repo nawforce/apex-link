@@ -61,7 +61,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Silly", None))).getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Foo__c.object")) ==
       "line 5 to 6: Unexpected type 'Silly' on custom field\n")
@@ -73,7 +73,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObject a = new Foo__c{'a' => 'b'};} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
       "line 1 at 38-56: Map construction not supported on SObject type 'Foo__c'\n")
@@ -85,7 +85,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObject a = new Foo__c{'a', 'b'};} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
       "line 1 at 38-54: Set construction not supported on SObject type 'Foo__c'\n")
@@ -97,7 +97,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObject a = new Foo__c();} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -108,7 +108,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__c = 'A');} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -119,7 +119,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Baz__c = 'A');} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
       "line 1 at 44-50: Unknown field 'Baz__c' on SObject type 'Foo__c'\n")
@@ -131,7 +131,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Baz__c = 'A', Bar__c = 'B');} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -142,7 +142,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__c = 'A', Bar__c = 'A');} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
       "line 1 at 58-64: Duplicate assignment to field 'Bar__c' on SObject type 'Foo__c'\n")
@@ -154,7 +154,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c('Silly');} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
       "line 1 at 44-51: SObject type 'Foo__c' construction needs '<field name> = <value>' arguments\n")
@@ -166,7 +166,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Id='', Name='');} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -177,7 +177,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__c = '');} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -188,7 +188,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__r = null);} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -199,7 +199,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__c = '');} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -210,7 +210,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__r = null);} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -221,7 +221,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Foo__c a; a.RecordTypeId = '';} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -232,7 +232,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Foo__c.Name;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -243,7 +243,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Foo__c.Bar__c;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -254,7 +254,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Foo__c.Baz__c;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
       "line 1 at 39-52: Unknown field or type 'Baz__c' on 'Foo__c'\n")
@@ -267,7 +267,7 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Bar__c.Lookup__r;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -278,9 +278,10 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = ghosted__Bar__c.Lookup__r;} }".getBytes())
 
     val org = new Org()
-    val pkg1 = org.addPackageInternal(Name("ghosted"), Seq(), Seq())
-    val pkg2 = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq(pkg1))
+    val pkg1 = org.addPackageInternal(Some(Name("ghosted")), Seq(), Seq())
+    val pkg2 = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq(pkg1))
     pkg2.deployAll()
+    org.issues.dumpMessages(true)
     assert(!org.issues.hasMessages)
   }
 }

@@ -42,7 +42,7 @@ class PageTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {PageReference a = Page.TestPage;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -53,7 +53,7 @@ class PageTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {PageReference a = Page.tesTPage;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -64,7 +64,7 @@ class PageTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {PageReference a = Page.AnotherPage;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
       "line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n")
@@ -78,8 +78,8 @@ class PageTest extends FunSuite {
     Files.write(fs.getPath("pkg2/Dummy.cls"),"public class Dummy { {PageReference a = Page.pkg1__TestPage;} }".getBytes())
 
     val org = new Org()
-    val pkg1 = org.addPackageInternal(Name("pkg1"), Seq(fs.getPath("/work/pkg1")), Seq())
-    val pkg2 = org.addPackageInternal(Name("pkg2"), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
+    val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(fs.getPath("/work/pkg1")), Seq())
+    val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
     pkg2.deployAll()
     assert(!org.issues.hasMessages)
   }

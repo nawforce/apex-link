@@ -27,7 +27,6 @@
 */
 package com.nawforce.cst
 
-import com.nawforce.api.Org
 import com.nawforce.names.{DotName, TypeName}
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types.{FieldDeclaration, PlatformTypes, TypeDeclaration}
@@ -105,7 +104,7 @@ final case class IdPrimary(id: Id) extends Primary {
       case td: TypeDeclaration =>
         var field: Option[FieldDeclaration] = None
 
-        if (context.namespace.nonEmpty) {
+        if (context.pkg.namespace.nonEmpty) {
           field = td.findField(context.defaultNamespace(id.name), input.isStatic)
           if (field.nonEmpty) {
             val td = context.getTypeAndAddDependency(field.get.typeName)
@@ -130,7 +129,7 @@ final case class IdPrimary(id: Id) extends Primary {
       case _ => ()
     }
 
-    val absTd = context.thisType.flatMap(td => Org.getType(td.namespace, DotName(id.name)))
+    val absTd = context.pkg.getType(DotName(id.name))
     if (absTd.nonEmpty) {
       return ExprContext(isStatic = true, absTd)
     }

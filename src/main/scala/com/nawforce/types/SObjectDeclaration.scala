@@ -39,11 +39,11 @@ import scala.collection.mutable
 
 final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName,
                                     override val fields: Seq[FieldDeclaration], override val isComplete: Boolean)
-  extends NamedTypeDeclaration(_typeName) {
+  extends NamedTypeDeclaration(pkg, _typeName) {
 
   override val superClass: Option[TypeName] = Some(TypeName.SObject)
   override def superClassDeclaration: Option[TypeDeclaration] = {
-    new StandardTypeFinder().getTypeFor(TypeName.SObject.asDotName, this)
+    new TypeFinder(pkg).getTypeFor(TypeName.SObject.asDotName, this)
   }
 
   def validateConstructor(input: ExprContext, creator: Creator, context: ExpressionVerifyContext): ExprContext = {
@@ -67,7 +67,7 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
         case BinaryExpression(PrimaryExpression(IdPrimary(id)), _, "=") =>
           var field : Option[FieldDeclaration] = None
 
-          if (context.namespace.nonEmpty) {
+          if (context.pkg.namespace.nonEmpty) {
             field = findField(context.defaultNamespace(id.name), staticOnly = false)
           }
 
@@ -108,8 +108,8 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
 
 object SObjectDeclaration {
   def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[TypeDeclaration] = {
-    val typeName = parseName(path, pkg.namespaceOption)
-    if (typeName.name.value.endsWith("__c") && typeName.outer.map(_.name) == pkg.namespaceOption) {
+    val typeName = parseName(path, pkg.namespace)
+    if (typeName.name.value.endsWith("__c") && typeName.outer.map(_.name) == pkg.namespace) {
       createNew(path, typeName, pkg)
     } else {
         if (pkg.isGhostedType(typeName))

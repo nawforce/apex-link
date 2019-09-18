@@ -94,7 +94,8 @@ class GhostPackageTest extends FunSuite with BeforeAndAfter{
   test("Ghost package suppresses implicit type error") {
     defaultOrg.addPackage("package", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = package.class;} }"))
+    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = package.A.class;} }"))
+    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
   }
@@ -102,8 +103,8 @@ class GhostPackageTest extends FunSuite with BeforeAndAfter{
   test("Ghost package with wrong namespace has implicit type error") {
     defaultOrg.addPackage("silly", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = package.class;} }"))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 33-46: No type declaration found for 'package'\n")
+    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = package.A.class;} }"))
+    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 33-48: No type declaration found for 'package.A'\n")
     assert(tds.head.dependencies().isEmpty)
   }
 

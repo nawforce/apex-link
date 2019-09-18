@@ -27,7 +27,7 @@
 */
 package com.nawforce.cst
 
-import com.nawforce.names.TypeName
+import com.nawforce.names.{DotName, TypeName}
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types.{FieldDeclaration, PlatformTypes, TypeDeclaration}
 
@@ -84,7 +84,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
       case td: TypeDeclaration =>
         var field: Option[FieldDeclaration] = None
 
-        if (context.namespace.nonEmpty) {
+        if (context.pkg.namespace.nonEmpty) {
           field = td.findField(context.defaultNamespace(target.left.get.name), input.isStatic)
           if (field.nonEmpty) {
             val td = context.getTypeAndAddDependency(field.get.typeName)
@@ -99,14 +99,17 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
         }
 
         // TODO: Private/protected types?
-        val nt = td.findType(target.left.get.name, context.namespace, input.isStatic)
-        if (nt.nonEmpty) {
-          ExprContext(isStatic = true, nt)
-        } else {
-          if (td.isComplete)
-            context.logMessage(location, s"Unknown field or type '${target.left.get.name}' on '${td.typeName}'")
-          ExprContext.empty
+        if (input.isStatic) {
+          val nt = input.declaration.get.findType(DotName(target.left.get.name))
+          if (nt.nonEmpty) {
+            return ExprContext(isStatic = true, nt)
+          }
         }
+
+        if (td.isComplete)
+          context.logMessage(location, s"Unknown field or type '${target.left.get.name}' on '${td.typeName}'")
+        ExprContext.empty
+
       case _ =>
         context.missingIdentifier(location, input.declaration.get.typeName, target.left.get.name)
         ExprContext.empty

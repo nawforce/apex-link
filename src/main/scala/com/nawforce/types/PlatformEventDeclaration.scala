@@ -35,7 +35,9 @@ import com.nawforce.names.{EncodedName, Name, TypeName}
 
 import scala.collection.mutable
 
-final case class PlatformEventDeclaration(_typeName: TypeName) extends NamedTypeDeclaration(_typeName) {
+final case class PlatformEventDeclaration(pkg: PackageDeclaration, _typeName: TypeName)
+  extends NamedTypeDeclaration(pkg, _typeName) {
+
   override val name: Name = typeName.name
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
@@ -59,7 +61,7 @@ final case class PlatformEventDeclaration(_typeName: TypeName) extends NamedType
 
 object PlatformEventDeclaration {
   def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[PlatformEventDeclaration] = {
-    val name = EncodedName(DocumentType(path).get.name).defaultNamespace(pkg.namespaceOption)
-    Seq(new PlatformEventDeclaration(name.asTypeName))
+    val name = EncodedName(DocumentType(path).get.name).defaultNamespace(pkg.namespace)
+    Seq(new PlatformEventDeclaration(pkg, name.asTypeName))
   }
 }

@@ -55,7 +55,7 @@ abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST wi
 }
 
 object ClassBodyDeclaration {
-  def construct(outerTypeName: TypeName, modifiers: List[ModifierContext],
+  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, modifiers: List[ModifierContext],
                 memberDeclarationContext: MemberDeclarationContext, context: ConstructContext)
   : Seq[ClassBodyDeclaration] = {
     val m = ApexModifiers.construct(modifiers, context)
@@ -70,11 +70,11 @@ object ClassBodyDeclaration {
       } else if (memberDeclarationContext.constructorDeclaration() != null) {
         Seq(ApexConstructorDeclaration.construct(m, memberDeclarationContext.constructorDeclaration(), context))
       } else if (memberDeclarationContext.interfaceDeclaration() != null) {
-        Seq(InterfaceDeclaration.construct(Right(outerTypeName),
+        Seq(InterfaceDeclaration.construct(pkg, Some(outerTypeName),
           ApexModifiers.interfaceModifiers(modifiers, context, outer = false, memberDeclarationContext.interfaceDeclaration().id()),
           memberDeclarationContext.interfaceDeclaration(), context))
       } else if (memberDeclarationContext.enumDeclaration() != null) {
-        Seq(EnumDeclaration.construct(Right(outerTypeName),
+        Seq(EnumDeclaration.construct(pkg, Some(outerTypeName),
           ApexModifiers.enumModifiers(modifiers, context, outer = false, memberDeclarationContext.enumDeclaration().id()),
           memberDeclarationContext.enumDeclaration(), context))
       } else if (memberDeclarationContext.propertyDeclaration() != null) {
@@ -82,7 +82,7 @@ object ClassBodyDeclaration {
             ApexModifiers.fieldModifiers(modifiers, context, memberDeclarationContext.propertyDeclaration().id()),
             memberDeclarationContext.propertyDeclaration(), context))
       } else if (memberDeclarationContext.classDeclaration() != null) {
-        Seq(ClassDeclaration.construct(Right(outerTypeName),
+        Seq(ClassDeclaration.construct(pkg, Some(outerTypeName),
           ApexModifiers.classModifiers(modifiers, context, outer = false, memberDeclarationContext.classDeclaration().id()),
           memberDeclarationContext.classDeclaration(), context))
       } else {

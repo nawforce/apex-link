@@ -33,7 +33,7 @@ import java.nio.file.Path
 import com.nawforce.documents.DocumentLoader
 import com.nawforce.names.{DotName, EncodedName, Name, TypeName}
 
-abstract class PackageDeclaration(val namespace: Name, val paths: Seq[Path]) {
+abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Path]) {
   private val documents = new DocumentLoader(paths)
 
   def documentsByExtension(ext: Name): Seq[Path] = documents.getByExtension(ext)
@@ -44,8 +44,7 @@ abstract class PackageDeclaration(val namespace: Name, val paths: Seq[Path]) {
   def labels(): LabelDeclaration
   def pages(): PageDeclaration
 
-  def namespaceOption: Option[Name] = if (namespace.isEmpty) None else Some(namespace)
-  def namespaceWithDot: String = if (namespace.isEmpty) "" else namespace + "."
+  def namespaceWithDot: String = namespace.map(_.value + ".").getOrElse("")
 
   def getType(dotName: DotName): Option[TypeDeclaration]
 
@@ -53,11 +52,11 @@ abstract class PackageDeclaration(val namespace: Name, val paths: Seq[Path]) {
 
   def isGhostedName(name: Name): Boolean = {
     val decodedName = EncodedName(name)
-    decodedName.namespace.nonEmpty && basePackages().filter(_.isGhosted).exists(_.namespace == decodedName.namespace.get)
+    basePackages().filter(_.isGhosted).exists(_.namespace == decodedName.namespace)
   }
 
   def isGhostedType(typeName: TypeName): Boolean = {
-    typeName.outer.nonEmpty && basePackages().filter(_.isGhosted).exists(_.namespace == typeName.outer.get.name)
+    basePackages().filter(_.isGhosted).exists(_.namespace == typeName.outer.map(_.name))
   }
 
   def wrapSObject(typeName: TypeName): Option[TypeDeclaration] = {

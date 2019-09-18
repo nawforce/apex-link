@@ -43,7 +43,7 @@ class LabelTest extends FunSuite {
     Files.createFile(labels)
 
     val org = new Org()
-    org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     assert(org.issues.getMessages(fs.getPath("/work/CustomLabels.labels")) ==
       "line 1 at 1: Premature end of file.\n")
   }
@@ -54,7 +54,7 @@ class LabelTest extends FunSuite {
     Files.write(labels, "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>".getBytes())
 
     val org = new Org()
-    org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     assert(!org.issues.hasMessages)
   }
 
@@ -76,7 +76,7 @@ class LabelTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {String a = Label.TestLabel;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -99,7 +99,7 @@ class LabelTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {String a = laBel.TeStLaBel;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -122,7 +122,7 @@ class LabelTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {String a = Label.TestLabel2;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
       "line 1 at 33-49: Unknown field or type 'TestLabel2' on 'System.Label'\n")
@@ -146,7 +146,7 @@ class LabelTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {String a = laBel.TestLaBel2;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
       "line 1 at 33-49: Unknown field or type 'TestLaBel2' on 'System.Label'\n")
@@ -172,8 +172,8 @@ class LabelTest extends FunSuite {
     Files.write(fs.getPath("pkg2/Dummy.cls"),"public class Dummy { {String a = label.pkg1.TestLabel;} }".getBytes())
 
     val org = new Org()
-    val pkg1 = org.addPackageInternal(Name("pkg1"), Seq(fs.getPath("/work/pkg1")), Seq())
-    val pkg2 = org.addPackageInternal(Name("pkg2"), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
+    val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(fs.getPath("/work/pkg1")), Seq())
+    val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
     pkg2.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -198,8 +198,8 @@ class LabelTest extends FunSuite {
     Files.write(fs.getPath("pkg2/Dummy.cls"),"public class Dummy { {String a = label.pkg1.TestLabel;} }".getBytes())
 
     val org = new Org()
-    val pkg1 = org.addPackageInternal(Name("pkg1"), Seq(fs.getPath("/work/pkg1")), Seq())
-    val pkg2 = org.addPackageInternal(Name("pkg2"), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
+    val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(fs.getPath("/work/pkg1")), Seq())
+    val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
     pkg2.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/pkg2/Dummy.cls")) ==
       "line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label.pkg1'\n")
@@ -223,7 +223,7 @@ class LabelTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {String a = System.Label.TestLabel;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -248,8 +248,8 @@ class LabelTest extends FunSuite {
     Files.write(fs.getPath("pkg2/Dummy.cls"),"public class Dummy { {String a = System.label.pkg1.TestLabel;} }".getBytes())
 
     val org = new Org()
-    val pkg1 = org.addPackageInternal(Name("pkg1"), Seq(fs.getPath("/work/pkg1")), Seq())
-    val pkg2 = org.addPackageInternal(Name("pkg2"), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
+    val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(fs.getPath("/work/pkg1")), Seq())
+    val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
     pkg2.deployAll()
     assert(!org.issues.hasMessages)
   }

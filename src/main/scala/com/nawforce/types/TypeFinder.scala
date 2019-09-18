@@ -27,20 +27,23 @@
 */
 package com.nawforce.types
 
-import com.nawforce.api.Org
 import com.nawforce.names.{DotName, Name}
 import scalaz.Memo
 
-trait TypeFinder {
+class TypeFinder(pkg: PackageDeclaration) {
   /** Find a type relative to a starting type with a local or global name*/
-  def getTypeFor(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
-    typeCache(dotName, from)
+  def getTypeFor(dotName: DotName, from: TypeDeclaration, localOnly: Boolean = false): Option[TypeDeclaration] = {
+    if (localOnly)
+      findTypeFor(dotName, from, localOnly)
+    else
+      typeCache(dotName, from)
   }
 
   private val typeCache = Memo.immutableHashMapMemo[(DotName, TypeDeclaration), Option[TypeDeclaration]] {
     case (name: DotName, from: TypeDeclaration) => findTypeFor(demangle(name), from, localOnly = false)
   }
 
+  // TODO: Replace this
   private def demangle(name: DotName) : DotName = {
     if (name.names.size == 1) {
       // Extract namespace for custom object, platform event &  metadata types
@@ -74,7 +77,7 @@ trait TypeFinder {
       return matched
 
     if (!localOnly) {
-      Org.getType(from.namespace, dotName)
+      pkg.getType(dotName)
     } else {
       None
     }
@@ -116,7 +119,7 @@ trait TypeFinder {
     if (dotName.isCompound || from.outerTypeName.isEmpty) {
       None
     } else {
-      val outerType = Org.getType(from.namespace, from.outerTypeName.get.asDotName)
+      val outerType = pkg.getType(from.outerTypeName.get.asDotName)
       if (outerType.nonEmpty) {
         if (dotName.names.head == outerType.get.name)
           outerType
@@ -128,5 +131,3 @@ trait TypeFinder {
     }
   }
 }
-
-class StandardTypeFinder extends TypeFinder

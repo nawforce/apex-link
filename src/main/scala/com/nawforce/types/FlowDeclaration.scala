@@ -31,7 +31,9 @@ import com.nawforce.names.{Name, TypeName}
 
 import scala.collection.mutable
 
-final case class FlowDeclaration() extends TypeDeclaration {
+final case class FlowDeclaration(pkg: PackageDeclaration) extends TypeDeclaration {
+
+  override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
   override val name: Name = Name.Flow
   override val typeName: TypeName = TypeName(name)
   override val outerTypeName: Option[TypeName] = None

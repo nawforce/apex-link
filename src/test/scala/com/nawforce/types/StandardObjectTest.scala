@@ -34,7 +34,7 @@ class StandardObjectTest extends FunSuite {
     Files.write(fs.getPath("Foo.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Foo.object")) ==
       "line 0: No sObject declaration found for 'Foo'\n")
@@ -45,7 +45,7 @@ class StandardObjectTest extends FunSuite {
     Files.write(fs.getPath("String.object"), customObject("String", Seq(("Bar__c", "Text", None))).getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/String.object")) ==
       "line 0: No sObject declaration found for 'String'\n")
@@ -57,7 +57,7 @@ class StandardObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Account a; a.Bar__c = '';} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -68,7 +68,7 @@ class StandardObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Account a; a.Baz__c = '';} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
       "line 1 at 33-41: Unknown field or type 'Baz__c' on 'Account'\n")
@@ -83,8 +83,8 @@ class StandardObjectTest extends FunSuite {
     Files.write(fs.getPath("pkg2/Dummy.cls"),"public class Dummy { {Account a; a.pkg1__Bar__c = '';} }".getBytes())
 
     val org = new Org()
-    val pkg1 = org.addPackageInternal(Name("pkg1"), Seq(fs.getPath("/work/pkg1")), Seq())
-    val pkg2 = org.addPackageInternal(Name("pkg2"), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
+    val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(fs.getPath("/work/pkg1")), Seq())
+    val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
     pkg1.deployAll()
     pkg2.deployAll()
     assert(!org.issues.hasMessages)
@@ -99,8 +99,8 @@ class StandardObjectTest extends FunSuite {
     Files.write(fs.getPath("pkg2/Dummy.cls"),"public class Dummy { {Account a; a.Bar__c = '';} }".getBytes())
 
     val org = new Org()
-    val pkg1 = org.addPackageInternal(Name("pkg1"), Seq(fs.getPath("/work/pkg1")), Seq())
-    val pkg2 = org.addPackageInternal(Name("pkg2"), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
+    val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(fs.getPath("/work/pkg1")), Seq())
+    val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
     pkg1.deployAll()
     pkg2.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/pkg2/Dummy.cls")) ==
@@ -112,7 +112,7 @@ class StandardObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Account a; a.RecordTypeId = '';} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -122,7 +122,7 @@ class StandardObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Account.Fax;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -133,7 +133,7 @@ class StandardObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Account.Bar__c;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -144,7 +144,7 @@ class StandardObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Account.Baz__c;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
       "line 1 at 39-53: Unknown field or type 'Baz__c' on 'Account'\n")
@@ -156,7 +156,7 @@ class StandardObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Account.Lookup__r;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -170,8 +170,8 @@ class StandardObjectTest extends FunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Account.pkg1__Lookup__r;} }".getBytes())
 
     val org = new Org()
-    val pkg1 = org.addPackageInternal(Name("pkg1"), Seq(fs.getPath("/work/pkg1")), Seq())
-    val pkg2 = org.addPackageInternal(Name.Empty, Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
+    val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(fs.getPath("/work/pkg1")), Seq())
+    val pkg2 = org.addPackageInternal(None, Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
     pkg2.deployAll()
     assert(!org.issues.hasMessages)
   }

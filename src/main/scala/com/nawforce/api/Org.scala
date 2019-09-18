@@ -30,7 +30,7 @@ package com.nawforce.api
 import java.nio.file.{Path, Paths}
 
 import com.nawforce.documents._
-import com.nawforce.names.{DotName, Name, TypeName}
+import com.nawforce.names.{DotName, Name}
 import com.nawforce.types._
 import com.nawforce.utils.IssueLog
 import com.typesafe.scalalogging.LazyLogging
@@ -42,8 +42,8 @@ import scala.util.DynamicVariable
   * multiple. Problems with the metadata are recorded in the the associated issue log.
   */
 class Org extends LazyLogging {
-  var unmanaged = new Package(this, Name.Empty, Seq(), Seq())
-  var packages: Map[Name, Package] = Map(Name.Empty -> unmanaged)
+  var unmanaged = new Package(this, None, Seq(), Seq())
+  var packages: Map[Option[Name], Package] = Map(None -> unmanaged)
 
   val issues = new IssueLog
   def issuesAsJSON(zombie: Boolean): String = {
@@ -61,15 +61,15 @@ class Org extends LazyLogging {
   /** Create a new package in the org, directories should be priority ordered for duplicate detection. Use
     * namespaces to indicate dependant packages which must already have been created as packages. */
   def addPackage(namespace: String, directories: Array[String], baseNamespaces: Array[String]): Package = {
-    val namespaceName = Name.safeApply(namespace)
+    val namespaceName: Option[Name] = Name.safeApply(namespace)
 
-    if (!namespaceName.isEmpty) {
+    if (namespaceName.nonEmpty) {
       if (packages.contains(namespaceName))
         throw new IllegalArgumentException(s"A package using namespace '$namespaceName' already exists")
     }
 
     val basePackages = baseNamespaces.flatMap(ns => {
-      val pkg = packages.get(Name(ns))
+      val pkg = packages.get(Some(Name(ns))).filterNot(_.namespace.isEmpty)
       if (pkg.isEmpty)
         throw new IllegalArgumentException(s"No package found using namespace '$ns'")
       pkg
@@ -84,7 +84,7 @@ class Org extends LazyLogging {
     addPackageInternal(namespaceName, paths, basePackages)
   }
 
-  def addPackageInternal(namespace: Name, paths: Seq[Path], basePackages: Seq[Package]): Package = {
+  def addPackageInternal(namespace: Option[Name], paths: Seq[Path], basePackages: Seq[Package]): Package = {
     Org.current.withValue(this) {
       val pkg = new Package(this, namespace, paths, basePackages)
       if (pkg.namespace.isEmpty) {
@@ -98,11 +98,11 @@ class Org extends LazyLogging {
   }
 
   def getType(namespace: String, dotName: String): TypeDeclaration = {
-    getType(Some(Name.safeApply(namespace)), DotName(dotName)).orNull
+    getType(Name.safeApply(namespace), DotName(dotName)).orNull
   }
 
   def getType(namespace: Option[Name], dotName: DotName): Option[TypeDeclaration] = {
-    val pkg = packages.get(namespace.getOrElse(Name.Empty))
+    val pkg = packages.get(namespace)
     pkg.flatMap(_.getType(dotName))
   }
 
@@ -121,23 +121,10 @@ class Org extends LazyLogging {
       null
     }
   }
-
-  def isGhostedType(typeName: TypeName): Boolean = {
-    typeName.params.exists(isGhostedType) ||
-    packages.values.exists(pkg => pkg.isGhosted && pkg.namespace == typeName.outerName)
-  }
 }
 
 object Org {
   val current: DynamicVariable[Org] = new DynamicVariable[Org](null)
-
-  def getType(namespace: Option[Name], dotName: DotName): Option[TypeDeclaration] = {
-    Org.current.value.getType(namespace, dotName)
-  }
-
-  def isGhostedType(typeName: TypeName): Boolean = {
-    Org.current.value.isGhostedType(typeName)
-  }
 
   def logMessage(location: Location, msg: String): Unit = {
     Org.current.value.issues.logMessage(location, msg)

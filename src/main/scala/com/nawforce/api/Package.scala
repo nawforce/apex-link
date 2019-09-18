@@ -39,14 +39,14 @@ import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.JavaConverters._
 
-class Package(val org: Org, _namespace: Name, _paths: Seq[Path], var basePackages: Seq[Package])
+class Package(val org: Org, _namespace: Option[Name], _paths: Seq[Path], var basePackages: Seq[Package])
   extends PackageDeclaration(_namespace, _paths) with LazyLogging {
 
   private val schemaManager = new SchemaManager(this)
   private val labelDeclaration = LabelDeclaration(this)
   private val pageDeclaration = PageDeclaration(this)
-  private val flowDeclaration = new FlowDeclaration
-  private val componentDeclaration = new ComponentDeclaration
+  private val flowDeclaration = FlowDeclaration(this)
+  private val componentDeclaration = ComponentDeclaration(this)
   private val types = initTypes()
 
   private def initTypes(): ConcurrentHashMap[DotName, TypeDeclaration] = {
@@ -187,7 +187,7 @@ class Package(val org: Org, _namespace: Name, _paths: Seq[Path], var basePackage
     newDeclarations.foreach(td => upsertType(td))
   }
 
-  private def upsertComponent(namespace: Name, component: ComponentDocument): Unit = {
+  private def upsertComponent(namespace: Option[Name], component: ComponentDocument): Unit = {
     componentDeclaration.upsertComponent(namespace, component)
   }
 

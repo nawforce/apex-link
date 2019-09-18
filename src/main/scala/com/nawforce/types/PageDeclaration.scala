@@ -32,7 +32,9 @@ import com.nawforce.names.{Name, TypeName}
 
 import scala.collection.mutable
 
-final case class PageDeclaration(pages: Seq[Page]) extends TypeDeclaration {
+final case class PageDeclaration(pkg: PackageDeclaration, pages: Seq[Page]) extends TypeDeclaration {
+
+  override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
   override val name: Name = Name.Page
   override val typeName: TypeName = TypeName(name)
   override val outerTypeName: Option[TypeName] = None
@@ -63,15 +65,16 @@ object PageDeclaration {
         case Some(page: PageDocument) => Some(Page(LineLocation(page.path, 0), page.name))
         case _ => None
       }
-    new PageDeclaration(pages.toSeq)
+    new PageDeclaration(pkg, pages.toSeq)
   }
 
   private def collectBasePages(pkg: PackageDeclaration, collected: mutable.Map[Name, Seq[Page]]=mutable.Map())
   : mutable.Map[Name, Seq[Page]] = {
     pkg.basePackages().foreach(basePkg => {
-      if (!collected.contains(basePkg.namespace)) {
-        val pages = basePkg.pages().pages.map(page => Page(page.location, Name(s"${basePkg.namespace}__${page.name}")))
-        collected.put(basePkg.namespace, pages)
+      val ns = basePkg.namespace.get
+      if (!collected.contains(ns)) {
+        val pages = basePkg.pages().pages.map(page => Page(page.location, Name(s"${ns}__${page.name}")))
+        collected.put(ns, pages)
         collectBasePages(basePkg, collected)
       }
     })

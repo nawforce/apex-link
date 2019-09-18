@@ -48,15 +48,15 @@ object CompilationUnit {
   def construct(pkg: PackageDeclaration, path: Path, compilationUnit: CompilationUnitContext,
                 context: ConstructContext): CompilationUnit = {
     CompilationUnit(path,
-      ApexTypeDeclaration.construct(Left(pkg), compilationUnit.typeDeclaration(), context))
+      ApexTypeDeclaration.construct(pkg, None, compilationUnit.typeDeclaration(), context))
       .withContext(compilationUnit, context)
   }
 }
 
-final case class ClassDeclaration(_id: Id, _outerContext: Either[PackageDeclaration, TypeName], _modifiers: Seq[Modifier],
-                                  _extendsType: Option[TypeName], _implementsTypes: Seq[TypeName],
+final case class ClassDeclaration(_pkg: PackageDeclaration, _outerTypeName: Option[TypeName], _id: Id,
+                                  _modifiers: Seq[Modifier], _extendsType: Option[TypeName], _implementsTypes: Seq[TypeName],
                                   _bodyDeclarations: Seq[ClassBodyDeclaration]) extends
-  ApexTypeDeclaration(_id, _outerContext, _modifiers, _extendsType, _implementsTypes, _bodyDeclarations) {
+  ApexTypeDeclaration(_pkg, _outerTypeName, _id, _modifiers, _extendsType, _implementsTypes, _bodyDeclarations) {
 
   override val nature: Nature = CLASS_NATURE
 
@@ -76,15 +76,11 @@ final case class ClassDeclaration(_id: Id, _outerContext: Either[PackageDeclarat
 }
 
 object ClassDeclaration {
-  def construct(outerContext: Either[PackageDeclaration, TypeName], modifiers: Seq[Modifier],
+  def construct(pkg: PackageDeclaration, outerTypeName: Option[TypeName], modifiers: Seq[Modifier],
                 classDeclaration: ClassDeclarationContext, context: ConstructContext): ClassDeclaration = {
 
-    val nsOuter = outerContext match {
-      case Left(pkg) if pkg.namespace == Name.Empty => None
-      case Left(pkg) => Some(TypeName(pkg.namespace))
-      case Right(outer) => Some(outer)
-    }
-    val thisType = TypeName(Name(classDeclaration.id().getText)).withOuter(nsOuter)
+    val thisType = TypeName(Name(classDeclaration.id().getText), Nil,
+      outerTypeName.orElse(pkg.namespace.map(TypeName(_))))
     val extendType =
       if (classDeclaration.typeRef() != null)
         Some(TypeRef.construct(classDeclaration.typeRef()))
@@ -106,7 +102,7 @@ object ClassDeclaration {
             Seq(InitialiserBlock.construct(if (cbd.STATIC()==null) Seq() else Seq(STATIC_MODIFIER), cbd.block(), context))
           } else if (cbd.memberDeclaration() != null) {
             val modifiers: Seq[ModifierContext] = cbd.modifier().asScala
-            ClassBodyDeclaration.construct(thisType, modifiers.toList, cbd.memberDeclaration(), context)
+            ClassBodyDeclaration.construct(pkg, thisType, modifiers.toList, cbd.memberDeclaration(), context)
           } else {
             throw new CSTException()
           }
@@ -115,14 +111,15 @@ object ClassDeclaration {
         List()
       }
 
-    ClassDeclaration(Id.construct(classDeclaration.id(), context), outerContext, modifiers, extendType,
+    ClassDeclaration(pkg, outerTypeName, Id.construct(classDeclaration.id(), context), modifiers, extendType,
       implementsType, bodyDeclarations).withContext(classDeclaration, context)
   }
 }
 
-final case class InterfaceDeclaration(_id: Id, _outerContext: Either[PackageDeclaration, TypeName], _modifiers: Seq[Modifier],
-                                      _implementsTypes: Seq[TypeName], _bodyDeclarations: Seq[ClassBodyDeclaration])
-  extends ApexTypeDeclaration(_id, _outerContext, _modifiers, None, _implementsTypes, _bodyDeclarations) {
+final case class InterfaceDeclaration(_pkg: PackageDeclaration, _outerTypeName: Option[TypeName], _id: Id,
+                                      _modifiers: Seq[Modifier], _implementsTypes: Seq[TypeName],
+                                      _bodyDeclarations: Seq[ClassBodyDeclaration])
+  extends ApexTypeDeclaration(_pkg, _outerTypeName, _id, _modifiers, None, _implementsTypes, _bodyDeclarations) {
 
   override val nature: Nature = INTERFACE_NATURE
 
@@ -132,7 +129,7 @@ final case class InterfaceDeclaration(_id: Id, _outerContext: Either[PackageDecl
 }
 
 object InterfaceDeclaration {
-  def construct(outerContext: Either[PackageDeclaration, TypeName], modifiers: Seq[Modifier],
+  def construct(pkg: PackageDeclaration, outerTypeName: Option[TypeName], modifiers: Seq[Modifier],
                 interfaceDeclaration: ApexParser.InterfaceDeclarationContext, context: ConstructContext)
   : InterfaceDeclaration = {
     val implementsType =
@@ -146,15 +143,14 @@ object InterfaceDeclaration {
             ApexMethodDeclaration.construct(ApexModifiers.construct(m.modifier().asScala, context), m, context)
     )
 
-    InterfaceDeclaration(Id.construct(interfaceDeclaration.id(), context), outerContext, modifiers,
-      implementsType, methods)
-      .withContext(interfaceDeclaration, context)
+    InterfaceDeclaration(pkg, outerTypeName, Id.construct(interfaceDeclaration.id(), context), modifiers,
+      implementsType, methods).withContext(interfaceDeclaration, context)
   }
 }
 
-final case class EnumDeclaration(_id: Id, _outerContext: Either[PackageDeclaration, TypeName], _modifiers: Seq[Modifier],
-                                 _bodyDeclarations: Seq[ClassBodyDeclaration])
-  extends ApexTypeDeclaration(_id, _outerContext, _modifiers, None, Seq(), _bodyDeclarations) {
+final case class EnumDeclaration(_pkg: PackageDeclaration, _outerTypeName: Option[TypeName],_id: Id,
+                                 _modifiers: Seq[Modifier], _bodyDeclarations: Seq[ClassBodyDeclaration])
+  extends ApexTypeDeclaration(_pkg, _outerTypeName, _id, _modifiers, None, Seq(), _bodyDeclarations) {
 
   override val nature: Nature = ENUM_NATURE
 
@@ -164,18 +160,15 @@ final case class EnumDeclaration(_id: Id, _outerContext: Either[PackageDeclarati
 }
 
 object EnumDeclaration {
-  def construct(outerContext: Either[PackageDeclaration, TypeName], typeModifiers: Seq[Modifier],
+  def construct(pkg: PackageDeclaration, outerTypeName: Option[TypeName], typeModifiers: Seq[Modifier],
                 enumDeclaration: ApexParser.EnumDeclarationContext, context: ConstructContext): EnumDeclaration = {
 
     // TODO: Add standard enum methods
 
     val id = Id.construct(enumDeclaration.id(), context)
-    val nsOuter = outerContext match {
-      case Left(pkg) if pkg.namespace == Name.Empty => None
-      case Left(pkg) => Some(TypeName(pkg.namespace))
-      case Right(outer) => Some(outer)
-    }
-    val thisType = TypeName(id.name).withOuter(nsOuter)
+    val thisType = TypeName(id.name, Nil,
+      outerTypeName.orElse(pkg.namespace.map(TypeName(_)))
+    )
     val constants = Option(enumDeclaration.enumConstants()).map(_.id().asScala).getOrElse(Seq())
     val fields = constants.map(constant => {
       ApexFieldDeclaration(Seq(PUBLIC_MODIFIER, STATIC_MODIFIER), thisType,
@@ -187,7 +180,6 @@ object EnumDeclaration {
       )
     })
 
-    EnumDeclaration(id, outerContext, typeModifiers, fields)
-      .withContext(enumDeclaration, context)
+    EnumDeclaration(pkg, outerTypeName,id, typeModifiers, fields).withContext(enumDeclaration, context)
   }
 }

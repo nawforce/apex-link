@@ -39,9 +39,10 @@ import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
 import scala.collection.mutable
 import scala.xml.{Elem, SAXParseException}
 
-final case class LabelDeclaration(name: Name, labelFields: Seq[Label], labelNamespaces: Seq[TypeDeclaration])
+final case class LabelDeclaration(pkg: PackageDeclaration, name: Name, labelFields: Seq[Label], labelNamespaces: Seq[TypeDeclaration])
   extends TypeDeclaration {
 
+  override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
   override val typeName: TypeName =
     if (name == Name.Label) TypeName.Label else TypeName(name, Nil, Some(TypeName.Label))
   override val outerTypeName: Option[TypeName] = typeName.outer
@@ -70,9 +71,10 @@ final case class LabelDeclaration(name: Name, labelFields: Seq[Label], labelName
   }
 }
 
-final case class GhostedLabelDeclaration(name: Name)
+final case class GhostedLabelDeclaration(pkg: PackageDeclaration, name: Name)
   extends TypeDeclaration {
 
+  override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
   override val typeName: TypeName = TypeName(name, Nil, Some(TypeName.Label))
   override val outerTypeName: Option[TypeName] = typeName.outer
 
@@ -103,21 +105,22 @@ object LabelDeclaration {
   def apply(pkg: PackageDeclaration): LabelDeclaration = {
     val labels = pkg.documentsByExtension(Name("labels")).flatMap(labelFile => parseLabels(labelFile))
     val baseLabels = collectBaseLabels(pkg)
-    LabelDeclaration(Name.Label, labels, baseLabels.values.toSeq)
+    LabelDeclaration(pkg, Name.Label, labels, baseLabels.values.toSeq)
   }
 
   private def collectBaseLabels(pkg: PackageDeclaration, collected: mutable.Map[Name, TypeDeclaration]=mutable.Map())
     : mutable.Map[Name, TypeDeclaration] = {
     pkg.basePackages().foreach(basePkg => {
-      if (!collected.contains(basePkg.namespace)) {
+      val ns = basePkg.namespace.get
+      if (!collected.contains(ns)) {
         if (basePkg.isGhosted) {
-          collected.put(basePkg.namespace, GhostedLabelDeclaration(basePkg.namespace))
+          collected.put(ns, GhostedLabelDeclaration(pkg, ns))
         } else {
-          val labels = LabelDeclaration(basePkg.namespace,
+          val labels = LabelDeclaration(pkg, ns,
             basePkg.labels().labelFields.filterNot(label => label.isProtected),
             Seq()
           )
-          collected.put(basePkg.namespace, labels)
+          collected.put(ns, labels)
           collectBaseLabels(basePkg, collected)
         }
       }

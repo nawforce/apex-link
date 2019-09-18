@@ -60,7 +60,7 @@ case class Name(value: String) {
 object Name {
   def apply(name: String): Name = cache(name)
 
-  def safeApply(name: String): Name = Option(name).map(n => Name(n)).getOrElse(Name.Empty)
+  def safeApply(name: String): Option[Name] = Option(name).filterNot(_.isEmpty).map(n => Name(n))
 
   lazy val Empty: Name = cache("")
   lazy val System: Name = cache("System")
