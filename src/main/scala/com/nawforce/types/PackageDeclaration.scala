@@ -59,6 +59,10 @@ abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Pa
     basePackages().filter(_.isGhosted).exists(_.namespace == typeName.outer.map(_.name))
   }
 
+  lazy val namespaces: Set[Name] = {
+    namespace.toSet ++ basePackages().flatMap(_.namespaces) ++ PlatformTypeDeclaration.namespaces
+  }
+
   def wrapSObject(typeName: TypeName): Option[TypeDeclaration] = {
     val tdOption = getType(typeName.asDotName)
     tdOption.filter(td => td.isSObject && td.isInstanceOf[PlatformTypeDeclaration]).map(td =>{

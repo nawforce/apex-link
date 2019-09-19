@@ -239,6 +239,10 @@ object PlatformTypeDeclaration {
   /* Valid platform class names */
   lazy val classNames: Iterable[DotName] = classNameMap.keys
 
+  /* All the namespaces - excluding our special ones! */
+  lazy val namespaces: Set[Name] = classNameMap.keys.map(_.firstName)
+    .filterNot(name => name == Name.SObjects || name == Name.Internal).toSet
+
   /** Map of class names, it's a map just to allow easy recovery of the original case by looking at value */
   private lazy val classNameMap: HashMap[DotName, DotName] = {
     val names = mutable.HashMap[DotName, DotName]()

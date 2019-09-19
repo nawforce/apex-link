@@ -27,9 +27,9 @@
 */
 package com.nawforce.cst
 
-import com.nawforce.names.{DotName, TypeName}
+import com.nawforce.names.{DotName, Name, TypeName}
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{FieldDeclaration, PlatformTypes, TypeDeclaration}
+import com.nawforce.types.{FieldDeclaration, PlatformTypeDeclaration, PlatformTypes, TypeDeclaration}
 
 import scala.collection.JavaConverters._
 
@@ -53,11 +53,12 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
 
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
+    val td = input.declaration.get
 
     // Preemptive check for a preceding namespace
     if (target.isLeft) {
       expression match {
-        case PrimaryExpression(primary: IdPrimary) if context.isVar(primary.id.name).isEmpty =>
+        case PrimaryExpression(primary: IdPrimary) if isNamespace(primary.id.name, td) =>
           val typeName = TypeName(target.left.get.name, Nil, Some(TypeName(primary.id.name)))
           val td = context.getTypeAndAddDependency(typeName)
           if (td.nonEmpty)
@@ -75,6 +76,13 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
     } else {
       ExprContext.empty
     }
+  }
+
+  private def isNamespace(name: Name, td: TypeDeclaration): Boolean = {
+    if (td.packageDeclaration.nonEmpty)
+      td.packageDeclaration.get.namespaces.contains(name)
+    else
+      PlatformTypeDeclaration.namespaces.contains(name)
   }
 
   def verifyWithId(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
