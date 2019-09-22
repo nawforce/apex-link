@@ -60,7 +60,7 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
   override val nature: Nature
 
   override def superClassDeclaration: Option[TypeDeclaration] = {
-    superClass.flatMap(sc => new TypeFinder(pkg).getTypeFor(sc.asDotName, this))
+    superClass.flatMap(sc => pkg.getTypeFor(sc, this))
   }
 
   override lazy val isComplete: Boolean = {
@@ -144,7 +144,7 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
       Org.logMessage(td.id.location, s"Duplicate type name '${td.name.toString}'"))
 
     interfaces.foreach(interface => {
-      val td = context.getTypeAndAddDependency(interface)
+      val td = context.getTypeAndAddDependency(interface, context.thisType).right.toOption
       if (td.isEmpty) {
         if (!context.pkg.isGhostedType(interface))
           Org.logMessage(id.location, s"No declaration found for interface '${interface.toString}'")

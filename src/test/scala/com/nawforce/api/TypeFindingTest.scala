@@ -30,7 +30,7 @@ package com.nawforce.api
 import java.io.ByteArrayInputStream
 import java.nio.file.{Path, Paths}
 
-import com.nawforce.names.{DotName, Name, TypeName}
+import com.nawforce.names.{Name, TypeName}
 import com.nawforce.types.ApexTypeDeclaration
 import org.scalatest.FunSuite
 
@@ -41,17 +41,17 @@ class TypeFindingTest extends FunSuite {
   private val unmanaged: Package = defaultOrg.unmanaged
 
   test("Bad type not") {
-    assert(unmanaged.getType(DotName(Seq(Name("Hello")))).isEmpty)
+    assert(unmanaged.getTypeOption(TypeName(Name("Hello"))).isEmpty)
   }
 
   test("Platform type") {
     val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Name.System)))
-    assert(unmanaged.getType(DotName(Seq(Name("String")))).get.typeName == typeName)
+    assert(unmanaged.getTypeOption(TypeName(Name("String"))).get.typeName == typeName)
   }
 
   test("Platform type (wrong case)") {
     val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Name.System)))
-    assert(unmanaged.getType(DotName(Seq(Name("STRING")))).get.typeName == typeName)
+    assert(unmanaged.getTypeOption(TypeName(Name("STRING"))).get.typeName == typeName)
   }
 
   test("Custom Outer type") {
@@ -60,7 +60,7 @@ class TypeFindingTest extends FunSuite {
       val td = ApexTypeDeclaration.create(org.unmanaged, defaultPath,
         new ByteArrayInputStream("public class Dummy {}".getBytes())).head
       org.unmanaged.upsertType(td)
-      assert(org.unmanaged.getType(DotName(Seq(Name("Dummy")))).get.typeName == td.typeName)
+      assert(org.unmanaged.getTypeOption(TypeName(Name("Dummy"))).get.typeName == td.typeName)
     }
   }
 
@@ -70,7 +70,7 @@ class TypeFindingTest extends FunSuite {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath,
         new ByteArrayInputStream("public class Dummy {}".getBytes())).head
       org.unmanaged.upsertType(td)
-      assert(org.unmanaged.getType(DotName(Seq(Name("dummy")))).get.typeName == td.typeName)
+      assert(org.unmanaged.getTypeOption(TypeName(Name("dummy"))).get.typeName == td.typeName)
     }
   }
 
@@ -80,8 +80,8 @@ class TypeFindingTest extends FunSuite {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath,
         new ByteArrayInputStream("public class Dummy {class Inner {}}".getBytes())).head
       org.unmanaged.upsertType(td)
-      val innerTypeName = DotName(Seq(Name("Dummy"), Name("Inner")))
-      assert(org.unmanaged.getType(innerTypeName).get.typeName.asDotName == innerTypeName)
+      val innerTypeName = TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"))))
+      assert(org.unmanaged.getTypeOption(innerTypeName).get.typeName == innerTypeName)
     }
   }
 
@@ -91,8 +91,8 @@ class TypeFindingTest extends FunSuite {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath,
         new ByteArrayInputStream("public class Dummy {class Inner {}}".getBytes())).head
       org.unmanaged.upsertType(td)
-      val innerTypeName = DotName(Seq(Name("Dummy"), Name("INner")))
-      assert(org.unmanaged.getType(innerTypeName).get.typeName.asDotName == innerTypeName)
+      val innerTypeName = TypeName(Name("iNner"), Nil, Some(TypeName(Name("Dummy"))))
+      assert(org.unmanaged.getTypeOption(innerTypeName).get.typeName == innerTypeName)
     }
   }
 
@@ -103,8 +103,8 @@ class TypeFindingTest extends FunSuite {
       val td = ApexTypeDeclaration.create(pkg, defaultPath,
         new ByteArrayInputStream("global class Dummy {}".getBytes())).head
       pkg.upsertType(td)
-      assert(org.unmanaged.getType(DotName(Seq(Name("NS"), Name("Dummy")))).get.typeName == td.typeName)
-      assert(org.unmanaged.getType(DotName(Name("Dummy"))).isEmpty)
+      assert(org.unmanaged.getTypeOption(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("NS"))))).get.typeName == td.typeName)
+      assert(org.unmanaged.getTypeOption(TypeName(Name("Dummy"))).isEmpty)
     }
   }
 
@@ -122,7 +122,6 @@ class TypeFindingTest extends FunSuite {
     }
   }
 
-
   test("Custom Inner type with namespace") {
     val org = new Org()
     val pkg = org.addPackage("NS", Array(), Array())
@@ -130,9 +129,9 @@ class TypeFindingTest extends FunSuite {
       val td = ApexTypeDeclaration.create(pkg, defaultPath,
         new ByteArrayInputStream("global class Dummy {class Inner {}}".getBytes())).head
       pkg.upsertType(td)
-      val innerTypeName = DotName(Seq(Name("NS"),Name("Dummy"), Name("Inner")))
-      assert(org.unmanaged.getType(innerTypeName).get.typeName.asDotName == innerTypeName)
-      assert(org.unmanaged.getType(DotName(Seq(Name("Dummy"), Name("Inner")))).isEmpty)
+      val innerTypeName = TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("NS"))))))
+      assert(org.unmanaged.getTypeOption(innerTypeName).get.typeName == innerTypeName)
+      assert(org.unmanaged.getTypeOption(TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"))))).isEmpty)
     }
   }
 

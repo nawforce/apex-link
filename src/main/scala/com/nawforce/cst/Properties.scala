@@ -57,7 +57,7 @@ final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: Ty
   override def children(): List[CST] = List(id) ++ propertyBlocks.toList
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    val propType = context.getTypeAndAddDependency(typeName)
+    val propType = context.getTypeAndAddDependency(typeName, context.thisType).right.toOption
     if (propType.isEmpty)
       context.missingType(id.location, typeName)
 

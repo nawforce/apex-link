@@ -27,39 +27,38 @@
 */
 package com.nawforce.types
 
-import com.nawforce.names.{DotName, Name}
+import com.nawforce.names.{DotName, TypeName}
 import scalaz.Memo
 
-class TypeFinder(pkg: PackageDeclaration) {
+trait TypeFinder {
+  this: PackageDeclaration =>
+
   /** Find a type relative to a starting type with a local or global name*/
-  def getTypeFor(dotName: DotName, from: TypeDeclaration, localOnly: Boolean = false): Option[TypeDeclaration] = {
-    if (localOnly)
-      findTypeFor(dotName, from, localOnly)
+  def getTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {
+      typeCache(typeName, from)
+  }
+
+  def getLocalTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {
+    // Only non-generics can be locally defined, currently
+    if (typeName.params.isEmpty)
+      findLocalTypeFor(typeName.asDotName, from)
     else
-      typeCache(dotName, from)
+      None
   }
 
-  private val typeCache = Memo.immutableHashMapMemo[(DotName, TypeDeclaration), Option[TypeDeclaration]] {
-    case (name: DotName, from: TypeDeclaration) => findTypeFor(demangle(name), from, localOnly = false)
+  private val typeCache = Memo.immutableHashMapMemo[(TypeName, TypeDeclaration), Option[TypeDeclaration]] {
+    case (name: TypeName, from: TypeDeclaration) => findTypeFor(name, from)
   }
 
-  // TODO: Replace this
-  private def demangle(name: DotName) : DotName = {
-    if (name.names.size == 1) {
-      // Extract namespace for custom object, platform event &  metadata types
-      val split = name.firstName.value.split("__")
-      if (split.size == 3 && (split(2) == "c" || split(2) == "e" || split(2) == "mdt")) {
-        return DotName(Seq(Name(split(0)), Name(split(1)+"__"+split(2))))
-      }
-    }
-    name
+  private def findTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {
+    getLocalTypeFor(typeName, from).orElse(this.getTypeOption(PlatformGetRequest(typeName, Some(from))))
   }
 
-  private def findTypeFor(dotName: DotName, from: TypeDeclaration, localOnly: Boolean): Option[TypeDeclaration] = {
-    var matched =
+  private def findLocalTypeFor(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
+    val matched =
       if (dotName.firstName == from.name) {
         if (dotName.isCompound)
-          findTypeFor(dotName.tail, from, localOnly = true)
+          findLocalTypeFor(dotName.tail, from)
         else
           Some(from)
       } else {
@@ -69,18 +68,10 @@ class TypeFinder(pkg: PackageDeclaration) {
     if (matched.nonEmpty)
       return matched
 
-    matched = getNestedType(dotName, from)
-      .orElse(getFromSuperType(dotName, from, localOnly)
-        .orElse(getFromOuterType(dotName, from, localOnly))
+    getNestedType(dotName, from)
+      .orElse(getFromSuperType(dotName, from)
+        .orElse(getFromOuterType(dotName, from))
       )
-    if (matched.nonEmpty)
-      return matched
-
-    if (!localOnly) {
-      pkg.getType(dotName)
-    } else {
-      None
-    }
   }
 
   private def getNestedType(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
@@ -93,7 +84,7 @@ class TypeFinder(pkg: PackageDeclaration) {
     }
   }
 
-  private def getFromSuperType(dotName: DotName, from: TypeDeclaration, localOnly: Boolean): Option[TypeDeclaration] = {
+  private def getFromSuperType(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
     if (from.superClass.isEmpty)
       return None
 
@@ -101,7 +92,7 @@ class TypeFinder(pkg: PackageDeclaration) {
     if (dotName == from.superClass.get.asDotName)
       return None
 
-    val superType = getTypeFor(from.superClass.get.asDotName, from)
+    val superType = getTypeFor(from.superClass.get, from)
 
     // TODO: Can you really do this?
     // Ignore if super type is in another package to avoid rogue absolute matches
@@ -110,21 +101,21 @@ class TypeFinder(pkg: PackageDeclaration) {
 
     // Ignore if a classes super type is an inner of that class to avoid recursion
     if (superType.nonEmpty && !superType.get.outerTypeName.contains(from.typeName)) {
-        return superType.flatMap(st => findTypeFor(dotName, st, localOnly))
+        return superType.flatMap(st => findLocalTypeFor(dotName, st))
     }
     None
   }
 
-  private def getFromOuterType(dotName: DotName, from: TypeDeclaration, localOnly: Boolean): Option[TypeDeclaration] = {
+  private def getFromOuterType(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
     if (dotName.isCompound || from.outerTypeName.isEmpty) {
       None
     } else {
-      val outerType = pkg.getType(from.outerTypeName.get.asDotName)
+      val outerType = this.getTypeOption(PlatformGetRequest(from.outerTypeName.get, Some(from)))
       if (outerType.nonEmpty) {
         if (dotName.names.head == outerType.get.name)
           outerType
         else
-          findTypeFor(dotName, outerType.get, localOnly)
+          findLocalTypeFor(dotName, outerType.get)
       } else {
         None
       }

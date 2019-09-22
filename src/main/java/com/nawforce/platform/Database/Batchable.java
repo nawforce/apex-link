@@ -31,8 +31,8 @@ import com.nawforce.platform.System.Iterable;
 import com.nawforce.platform.System.List;
 
 @SuppressWarnings("unused")
-public interface Batchable {
+public interface Batchable<T> {
 	void execute(BatchableContext param1, List<Object> param2);
 	void finish(BatchableContext param1);
-	Iterable start(BatchableContext param1);
+	Iterable<T> start(BatchableContext param1);
 }

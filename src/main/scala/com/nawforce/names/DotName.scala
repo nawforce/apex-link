@@ -50,6 +50,10 @@ case class DotName(names: Seq[Name]) {
     }
   }
 
+  def asTypeName() : TypeName = {
+    TypeName(names.reverse)
+  }
+
   override def toString: String = names.mkString(".")
 }
 

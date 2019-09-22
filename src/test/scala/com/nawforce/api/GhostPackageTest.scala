@@ -31,7 +31,7 @@ import java.io.ByteArrayInputStream
 import java.nio.file.{Path, Paths}
 
 import com.nawforce.documents.StreamProxy
-import com.nawforce.names.{DotName, Name}
+import com.nawforce.names.{Name, TypeName}
 import com.nawforce.types.TypeDeclaration
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
@@ -50,7 +50,7 @@ class GhostPackageTest extends FunSuite with BeforeAndAfter{
 
     Org.current.withValue(defaultOrg) {
       defaultOrg.unmanaged.deployMetadata(paths)
-      defaultOrg.unmanaged.getTypes(classes.keys.map(k => DotName(k)).toSeq)
+      defaultOrg.unmanaged.getTypes(classes.keys.map(k => TypeName(Name(k))).toSeq)
     }
   }
 

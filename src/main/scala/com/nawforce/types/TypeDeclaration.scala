@@ -28,7 +28,7 @@
 package com.nawforce.types
 
 import com.nawforce.api._
-import com.nawforce.names.{DotName, Name, TypeName}
+import com.nawforce.names.{Name, TypeName}
 
 import scala.collection.mutable
 
@@ -159,20 +159,17 @@ trait TypeDeclaration extends DependencyHolder {
   }
 
   private lazy val fieldsByName: mutable.Map[Name, FieldDeclaration] = {
-    // TODO: Should not be accessing Org here
-    val outerType = outerTypeName.flatMap(typeName => getType(typeName.asDotName))
+    val outerType = packageDeclaration.flatMap(pkg =>
+      outerTypeName.flatMap(typeName => pkg.getTypeOption(PlatformGetRequest(typeName, Some(this)))))
+
     val fieldsByName =
         outerType.map(td => td.fields.filter(_.isStatic).map(f => (f.name, f))).getOrElse(Seq()) ++
         fields.map(f => (f.name, f))
     mutable.Map(fieldsByName: _*)
   }
 
-  private def getType(dotName: DotName): Option[TypeDeclaration] = {
-    packageDeclaration.map(_.getType(dotName)).getOrElse(PlatformTypes.getType(dotName))
-  }
-
-  def findType(dotName: DotName): Option[TypeDeclaration] = {
-    packageDeclaration.flatMap(pkg => new TypeFinder(pkg).getTypeFor(dotName, this, localOnly = true))
+  def findLocalType(typeName: TypeName): Option[TypeDeclaration] = {
+    packageDeclaration.flatMap(pkg => pkg.getLocalTypeFor(typeName, this))
   }
 
   lazy val summary: TypeSummary = TypeSummary(

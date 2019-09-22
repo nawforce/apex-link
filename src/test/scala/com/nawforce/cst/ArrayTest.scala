@@ -44,6 +44,7 @@ class ArrayTest extends FunSuite with BeforeAndAfter {
   def typeDeclaration(clsText: String): TypeDeclaration = {
     Org.current.withValue(defaultOrg) {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes())).head
+      defaultOrg.unmanaged.upsertType(td)
       td.validate()
       td
     }

@@ -29,46 +29,95 @@
 package com.nawforce.types
 
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentHashMap
 
+import com.nawforce.api.Package
 import com.nawforce.documents.DocumentLoader
-import com.nawforce.names.{DotName, EncodedName, Name, TypeName}
+import com.nawforce.names.{Name, TypeName}
 
-abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Path]) {
-  private val documents = new DocumentLoader(paths)
+abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Path], var basePackages: Seq[PackageDeclaration])
+  extends TypeFinder {
+  protected val documents = new DocumentLoader(paths)
+  protected val types = new ConcurrentHashMap[TypeName, TypeDeclaration]()
 
   def documentsByExtension(ext: Name): Seq[Path] = documents.getByExtension(ext)
 
   def isGhosted: Boolean = paths.isEmpty
-  def basePackages(): Seq[PackageDeclaration]
   def schema(): SchemaManager
   def labels(): LabelDeclaration
   def pages(): PageDeclaration
 
-  def namespaceWithDot: String = namespace.map(_.value + ".").getOrElse("")
-
-  def getType(dotName: DotName): Option[TypeDeclaration]
-
-  def upsertType(declaration: TypeDeclaration): Unit
-
-  def isGhostedName(name: Name): Boolean = {
-    val decodedName = EncodedName(name)
-    basePackages().filter(_.isGhosted).exists(_.namespace == decodedName.namespace)
-  }
-
-  def isGhostedType(typeName: TypeName): Boolean = {
-    basePackages().filter(_.isGhosted).exists(_.namespace == typeName.outer.map(_.name))
-  }
-
+  /** Set of namespaces used by this package and its base packages */
   lazy val namespaces: Set[Name] = {
-    namespace.toSet ++ basePackages().flatMap(_.namespaces) ++ PlatformTypeDeclaration.namespaces
+    namespace.toSet ++ basePackages.flatMap(_.namespaces) ++ PlatformTypeDeclaration.namespaces
   }
 
-  def wrapSObject(typeName: TypeName): Option[TypeDeclaration] = {
-    val tdOption = getType(typeName.asDotName)
-    tdOption.filter(td => td.isSObject && td.isInstanceOf[PlatformTypeDeclaration]).map(td =>{
-      val wrapped = SObjectDeclaration(this, td.typeName, td.fields, isComplete = true)
-      upsertType(wrapped)
-      wrapped
-    })
+  /** Check if a type is ghost in this package */
+  def isGhostedType(typeName: TypeName): Boolean = {
+    basePackages.filter(_.isGhosted).exists(_.namespace.contains(typeName.outerName))
+  }
+
+  def addDependency(pkg: Package): Unit = {
+    // TODO: Make immutable
+    basePackages = basePackages :+ pkg
+  }
+
+  /* Find a package/platform type, can return an error messages, typically for missing type or bad use of generic */
+  def getType(request: PlatformGetRequest): Either[String, TypeDeclaration] = {
+
+    var td = getPackageType(request.typeName).map(Right(_))
+    if (td.nonEmpty)
+      return td.get
+
+    if (namespace.nonEmpty && request.typeName.outerName != namespace.get) {
+      td = getPackageType(request.typeName.withTail(TypeName(namespace.get))).map(Right(_))
+      if (td.nonEmpty)
+        return td.get
+    }
+
+    PlatformTypes.getType(request)
+  }
+
+  def getTypeOption(request: PlatformGetRequest): Option[TypeDeclaration] = {
+    getType(request).right.toOption
+  }
+
+  def getTypeOption(typeName: TypeName): Option[TypeDeclaration] = {
+    getType(PlatformGetRequest(typeName, None)).right.toOption
+  }
+
+  private def getPackageType(typeName: TypeName, inPackage: Boolean=true): Option[TypeDeclaration] = {
+    var declaration = Option(types.get(typeName))
+    if (declaration.nonEmpty) {
+      if (inPackage || declaration.get.isExternallyVisible)
+        return declaration
+      else
+        return None
+    }
+
+    if (typeName.outer.nonEmpty) {
+      declaration = getPackageType(typeName.outer.get, inPackage = inPackage).flatMap(
+        _.nestedTypes.find(td => td.typeName == typeName && (td.isExternallyVisible || inPackage)))
+      if (declaration.nonEmpty)
+        return declaration
+    }
+
+    declaration = getDependentPackageType(typeName)
+    if (declaration.nonEmpty)
+      return declaration
+
+    None
+  }
+
+  private def getDependentPackageType(typeName: TypeName): Option[TypeDeclaration] = {
+    basePackages.view.flatMap(pkg => pkg.getPackageType(typeName, inPackage = false)).headOption
+  }
+
+  def upsertType(declaration: TypeDeclaration): Unit = {
+    upsertType(declaration.typeName, declaration)
+  }
+
+  protected def upsertType(typeName: TypeName, declaration: TypeDeclaration): Unit = {
+    types.put(typeName, declaration)
   }
 }

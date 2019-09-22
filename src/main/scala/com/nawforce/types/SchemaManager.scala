@@ -29,7 +29,7 @@ package com.nawforce.types
 
 import com.nawforce.api.Org
 import com.nawforce.documents.Location
-import com.nawforce.names.{DotName, Name, TypeName}
+import com.nawforce.names.{EncodedName, Name, TypeName}
 
 import scala.collection.{mutable, _}
 
@@ -49,22 +49,25 @@ class RelatedLists(pkg: PackageDeclaration) {
   }
 
   def validate(): Unit = {
-    val changedObjects = mutable.Set[TypeName]()
-    val names = relationshipFields.keys.toSet
-    names.foreach(sObject => {
-      val td = pkg.getType(sObject.asDotName)
-      if ((td.isEmpty || !td.exists(_.isSObject)) && !pkg.isGhostedType(sObject)) {
-        relationshipFields(sObject).foreach(field => {
+    val changedObjects = mutable.Set[TypeDeclaration]()
+
+    // Validate lookups will function
+    val sobjects = relationshipFields.keys.toSet
+    sobjects.foreach(sobject => {
+      val td = pkg.getTypeOption(PlatformGetRequest(sobject, None))
+      if ((td.isEmpty || !td.exists(_.isSObject)) && !pkg.isGhostedType(sobject)) {
+        relationshipFields(sobject).foreach(field => {
           Org.logMessage(field._3,
-            s"Lookup object $sObject does not exist for field '${field._2}'")
+            s"Lookup object $sobject does not exist for field '${field._2}'")
         })
-      } else if (td.nonEmpty && td.exists(_.isInstanceOf[PlatformTypeDeclaration])) {
-        changedObjects.add(sObject)
+      } else if (td.exists(sobject => sobject.isInstanceOf[PlatformTypeDeclaration] && sobject.isSObject)) {
+        changedObjects.add(td.get)
       }
     })
 
-    changedObjects.foreach(sObject => {
-      pkg.wrapSObject(sObject)
+    // Wrap any objects with lookups relationships so they are visible
+    changedObjects.foreach(td => {
+      pkg.upsertType(SObjectDeclaration(pkg, td.typeName, td.fields, isComplete = true))
     })
   }
 
@@ -77,7 +80,7 @@ class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDeclaration(pk
   private val sobjectFields: mutable.Map[Name, FieldDeclaration] = mutable.Map()
 
   def add(sObject: SObjectDeclaration): Unit = {
-    val fd = CustomFieldDeclaration(sObject.name, TypeName.DescribeSObjectResult, asStatic = true)
+    val fd = CustomFieldDeclaration(sObject.name, TypeName.describeSObjectResultOf(sObject.typeName), asStatic = true)
     sobjectFields.put(name, fd)
   }
 
@@ -85,22 +88,23 @@ class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDeclaration(pk
     if (!staticOnly)
       return None
 
-    if (pkg.isGhostedName(name)) {
-      return Some(createField(name))
+    val typeName = EncodedName(name).asTypeName
+    if (pkg.isGhostedType(typeName)) {
+      return Some(createField(name, typeName))
     }
 
     sobjectFields.get(name).orElse({
-      val td = pkg.getType(DotName(name))
+      val td = pkg.getTypeOption(PlatformGetRequest(typeName, None))
       if (td.nonEmpty && td.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
-        Some(createField(name))
+        Some(createField(name, td.get.typeName))
       } else {
         None
       }
     })
   }
 
-  private def createField(name:Name): FieldDeclaration = {
-    val fd = CustomFieldDeclaration(name, TypeName.DescribeSObjectResult, asStatic = true)
+  private def createField(name: Name, typeName: TypeName): FieldDeclaration = {
+    val fd = CustomFieldDeclaration(name, TypeName.describeSObjectResultOf(typeName), asStatic = true)
     sobjectFields.put(name, fd)
     fd
   }

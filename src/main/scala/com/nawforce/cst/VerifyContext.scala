@@ -29,7 +29,7 @@ package com.nawforce.cst
 
 import com.nawforce.api.Org
 import com.nawforce.documents.Location
-import com.nawforce.names.{DotName, EncodedName, Name, TypeName}
+import com.nawforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.types._
 
 import scala.collection.mutable
@@ -46,14 +46,15 @@ trait VerifyContext {
   /** Get type declaration of 'super' */
   def superType: Option[TypeDeclaration]
 
-  /** Locate a type from a (possible relative) DotName */
-  def getType(dotName: DotName): Option[TypeDeclaration]
-
   /** Declare a dependency on dependant */
   def addDependency(dependant: Dependant): Unit
 
-  /** Helper to locate type and add as dependency if found */
-  def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration]
+  /** Helper to locate a relative or absolute type and add as dependency if found */
+  def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[String, TypeDeclaration]
+
+  def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): Either[String, TypeDeclaration] = {
+    getTypeAndAddDependency(typeName, Some(from))
+  }
 
   def suppressWarnings: Boolean = parent().exists(_.suppressWarnings)
 
@@ -78,30 +79,22 @@ trait HolderVerifyContext {
 
   def dependencies: Set[Dependant] = _dependencies.toSet
 
+  /* Locate a type, typeName may be relative so searching must be performed wrt a typeDeclaration */
+  def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[String, TypeDeclaration]
+
   def addDependency(dependant: Dependant): Unit = {
     _dependencies += dependant
   }
 
-  def getTypeFor(typeName: TypeName): Option[TypeDeclaration]
-
-  def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration] = {
-    val paramTypes = typeName.params.flatMap(getTypeFor)
-    if (paramTypes.size == typeName.params.size) {
-      val tdOpt = getTypeFor(typeName)
-      tdOpt.foreach(td => {
-        addDependency(td)
-        paramTypes.foreach(addDependency)
-      })
-      tdOpt
-    } else {
-      None
-    }
+  def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[String, TypeDeclaration] = {
+    val result = getTypeFor(typeName, from)
+    result.foreach(addDependency)
+    result
   }
 }
 
 class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: ApexTypeDeclaration)
-  extends TypeFinder(typeDeclaration.pkg)
-    with HolderVerifyContext with VerifyContext {
+    extends HolderVerifyContext with VerifyContext {
 
   override def parent(): Option[VerifyContext] = parentContext
 
@@ -111,12 +104,20 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: A
 
   override def superType: Option[TypeDeclaration] = typeDeclaration.superClassDeclaration
 
-  override def getType(dotName: DotName): Option[TypeDeclaration] = {
-    getTypeFor(dotName, typeDeclaration)
-  }
-
-  override def getTypeFor(typeName: TypeName): Option[TypeDeclaration] = {
-    getTypeFor(typeName.asDotName, typeDeclaration)
+  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[String, TypeDeclaration] = {
+    val pkg = thisType.flatMap(_.packageDeclaration)
+    if (pkg.nonEmpty) {
+      val td =
+        if (from.nonEmpty)
+          pkg.get.getTypeFor(typeName, from.get)
+        else
+          pkg.get.getTypeOption(PlatformGetRequest(typeName, from))
+      td match {
+          case Some(td) => Right(td)
+          case _ => Left(s"No type declaration found for '$typeName'")
+        }
+    } else
+      PlatformTypes.getType(PlatformGetRequest(typeName, Some(typeDeclaration)))
   }
 
   override def suppressWarnings: Boolean =
@@ -134,9 +135,9 @@ class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDe
 
   override def superType: Option[TypeDeclaration] = parentContext.superType
 
-  override def getType(dotName: DotName): Option[TypeDeclaration] = parentContext.getType(dotName)
-
-  override def getTypeFor(typeName: TypeName): Option[TypeDeclaration] =  parentContext.getTypeFor(typeName)
+  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[String, TypeDeclaration] = {
+    parentContext.getTypeFor(typeName, from)
+  }
 
   override def suppressWarnings: Boolean =
     classBodyDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressWarnings)
@@ -155,12 +156,11 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
 
   override def superType: Option[TypeDeclaration] = parentContext.superType
 
-  override def getType(dotName: DotName): Option[TypeDeclaration] = parentContext.getType(dotName)
-
   override def addDependency(dependant: Dependant): Unit = parentContext.addDependency(dependant)
 
-  override def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration] =
-    parentContext.getTypeAndAddDependency(typeName)
+  override def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[String, TypeDeclaration] = {
+    parentContext.getTypeAndAddDependency(typeName, from)
+  }
 
   def isVar(name: Name): Option[TypeDeclaration] = {
     vars.get(name)
@@ -171,7 +171,7 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
   }
 
   def addVar(name: Name, location: Location, typeName: TypeName): Unit = {
-    val td = getTypeAndAddDependency(typeName)
+    val td = getTypeAndAddDependency(typeName, thisType.get).right.toOption
     if (td.isEmpty)
       missingType(location, typeName)
 
@@ -210,12 +210,11 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext)
 
   override def superType: Option[TypeDeclaration] = parentContext.superType
 
-  override def getType(dotName: DotName): Option[TypeDeclaration] = parentContext.getType(dotName)
-
   override def addDependency(dependant: Dependant): Unit = parentContext.addDependency(dependant)
 
-  override def getTypeAndAddDependency(typeName: TypeName): Option[TypeDeclaration] =
-    parentContext.getTypeAndAddDependency(typeName)
+  override def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[String, TypeDeclaration] = {
+    parentContext.getTypeAndAddDependency(typeName, from)
+  }
 
   def isVar(name: Name): Option[TypeDeclaration] = parentContext.isVar(name)
 

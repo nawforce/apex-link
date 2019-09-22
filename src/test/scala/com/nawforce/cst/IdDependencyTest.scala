@@ -32,7 +32,7 @@ import java.nio.file.{Path, Paths}
 
 import com.nawforce.api.Org
 import com.nawforce.documents.StreamProxy
-import com.nawforce.names.{DotName, Name}
+import com.nawforce.names.{Name, TypeName}
 import com.nawforce.types.TypeDeclaration
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
@@ -41,8 +41,8 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
   private val defaultPath: Path = Paths.get(defaultName.toString)
   private var defaultOrg: Org = new Org
 
-  private val systemClass = defaultOrg.unmanaged.getType(DotName(Name.System)).get
-  private val objectClass = defaultOrg.unmanaged.getType(DotName(Name.Object)).get
+  private val systemClass = defaultOrg.unmanaged.getTypeOption(TypeName.System).get
+  private val objectClass = defaultOrg.unmanaged.getTypeOption(TypeName.Object).get
 
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
     val paths = classes.map(kv => {
@@ -53,7 +53,7 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
 
     Org.current.withValue(defaultOrg) {
       defaultOrg.unmanaged.deployMetadata(paths)
-      defaultOrg.unmanaged.getTypes(classes.keys.map(k => DotName(k)).toSeq)
+      defaultOrg.unmanaged.getTypes(classes.keys.map(k => TypeName(Name(k))).toSeq)
     }
   }
 

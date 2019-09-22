@@ -45,6 +45,13 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
       this
   }
 
+  def withTail(newOuter: TypeName): TypeName = {
+    if (outer.isEmpty)
+      withOuter(Some(newOuter))
+    else
+      TypeName(name, params, Some(outer.get.withTail(newOuter)))
+  }
+
   def withArraySubscripts(count: Int): TypeName = {
     assert(count >= 0)
     if (count == 0)
@@ -123,6 +130,9 @@ object TypeName {
   lazy val SObjectType = TypeName(Name.SObjectType, Nil, Some(TypeName.Schema))
   lazy val SObjectField = TypeName(Name.SObjectField, Nil, Some(TypeName.Schema))
   lazy val DescribeSObjectResult = TypeName(Name.DescribeSObjectResult, Nil, Some(TypeName.Schema))
+  lazy val DescribeSObjectResult$ = TypeName(Name.DescribeSObjectResult$, Nil, Some(TypeName.Internal))
+
+  def describeSObjectResultOf(typeName: TypeName): TypeName = DescribeSObjectResult$.withParams(Seq(typeName))
 
   private lazy val aliasMap = Map[TypeName, String](
     Null -> "null",

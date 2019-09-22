@@ -122,7 +122,7 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: Type
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     if (typeName != TypeName.Void) {
-      val returnType = context.getTypeAndAddDependency(typeName)
+      val returnType = context.getTypeAndAddDependency(typeName, context.thisType).right.toOption
       if (returnType.isEmpty)
         context.missingType(id.location, typeName)
     }

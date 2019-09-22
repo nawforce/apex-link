@@ -33,7 +33,7 @@ import org.scalatest.FunSuite
 class PlatformTypeValidationTest extends FunSuite {
 
   test("Right number of types (should exclude inners)") {
-    assert(PlatformTypeDeclaration.classNames.size == 1306)
+    assert(PlatformTypeDeclaration.classNames.size == 1309)
   }
 
   test("SObject type is visible") {
@@ -59,9 +59,13 @@ class PlatformTypeValidationTest extends FunSuite {
       case "System.Map" => assert(typeDeclaration.typeName.toString == "System.Map<K, V>")
       case "System.Set" => assert(typeDeclaration.typeName.toString == "System.Set<T>")
       case "System.Iterable" => assert(typeDeclaration.typeName.toString == "System.Iterable<T>")
+      case "Database.Batchable" => assert(typeDeclaration.typeName.toString == "Database.Batchable<T>")
       case "Internal.RecordSet$"  => assert(typeDeclaration.typeName.toString == "Internal.RecordSet$<T>")
       case "Internal.Object$"  => assert(typeDeclaration.typeName.toString == "Object")
       case "Internal.Null$"  => assert(typeDeclaration.typeName.toString == "null")
+      case "Internal.DescribeSObjectResult$" => assert(typeDeclaration.typeName.toString == "Internal.DescribeSObjectResult$<T>")
+      case "Internal.SObjectTypeFields$" => assert(typeDeclaration.typeName.toString == "Internal.SObjectTypeFields$<T>")
+      case "Internal.SObjectTypeFieldSets$" => assert(typeDeclaration.typeName.toString == "Internal.SObjectTypeFieldSets$<T>")
       case _ => assert(typeDeclaration.typeName.toString == className.toString)
     }
 

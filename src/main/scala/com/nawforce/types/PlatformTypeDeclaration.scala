@@ -71,7 +71,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], outer: Option[Platfo
   }
 
   override def superClassDeclaration: Option[TypeDeclaration] = {
-    superClass.flatMap(sc => PlatformTypeDeclaration.get(sc).toOption)
+    superClass.flatMap(sc => PlatformTypeDeclaration.get(PlatformGetRequest(sc, None)).toOption)
   }
 
   override lazy val interfaces: Seq[TypeName] = getInterfaces
@@ -184,12 +184,18 @@ class PlatformMethod(val method: java.lang.reflect.Method, val typeDeclaration: 
 }
 
 class PlatformTypeGetError
-case class MissingPlatformType(typeName: TypeName) extends PlatformTypeGetError {
+case class MissingType(typeName: TypeName) extends PlatformTypeGetError {
   override def toString: String = s"No type declaration found for '$typeName'"
 }
 case class WrongTypeArguments(typeName: TypeName, expected: Integer) extends PlatformTypeGetError {
   override def toString: String = s"Wrong number of type arguments for '$typeName', expected $expected"
 }
+case class PackageGetError(error: String) extends PlatformTypeGetError {
+  override def toString: String = error
+}
+
+/* TODO: Turn into standalone class that has resolve logic */
+case class PlatformGetRequest(typeName: TypeName, from: Option[TypeDeclaration])
 
 object PlatformTypeDeclaration {
   val platformPackage = "com.nawforce.platform"
@@ -210,17 +216,22 @@ object PlatformTypeDeclaration {
     declarationCache(name)
   }
 
-  def get(typeName: TypeName): ValidationNel[PlatformTypeGetError, PlatformTypeDeclaration] = {
+  def get(typeName: TypeName, td: Option[TypeDeclaration]=None): ValidationNel[PlatformTypeGetError, TypeDeclaration] = {
+    get(PlatformGetRequest(typeName, td))
+  }
+
+  def get(request: PlatformGetRequest): ValidationNel[PlatformTypeGetError, TypeDeclaration] = {
+    val typeName = request.typeName
     val tdOption = declarationCache(typeName.asDotName)
     if (tdOption.isEmpty)
-      return (MissingPlatformType(typeName): PlatformTypeGetError).failureNel
+      return (MissingType(typeName): PlatformTypeGetError).failureNel
 
     val td = tdOption.get
     if (td.typeName.params.size != typeName.params.size)
       return (WrongTypeArguments(typeName, td.typeName.params.size): PlatformTypeGetError).failureNel
 
     if (td.typeName.params.nonEmpty)
-      GenericPlatformTypeDeclaration.get(typeName)
+      GenericPlatformTypeDeclaration.get(request)
     else
       td.successNel
   }
@@ -240,7 +251,7 @@ object PlatformTypeDeclaration {
   lazy val classNames: Iterable[DotName] = classNameMap.keys
 
   /* All the namespaces - excluding our special ones! */
-  lazy val namespaces: Set[Name] = classNameMap.keys.map(_.firstName)
+  lazy val namespaces: Set[Name] = classNameMap.keys.filter(_.isCompound).map(_.firstName)
     .filterNot(name => name == Name.SObjects || name == Name.Internal).toSet
 
   /** Map of class names, it's a map just to allow easy recovery of the original case by looking at value */

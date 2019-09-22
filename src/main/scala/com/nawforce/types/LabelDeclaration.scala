@@ -110,7 +110,7 @@ object LabelDeclaration {
 
   private def collectBaseLabels(pkg: PackageDeclaration, collected: mutable.Map[Name, TypeDeclaration]=mutable.Map())
     : mutable.Map[Name, TypeDeclaration] = {
-    pkg.basePackages().foreach(basePkg => {
+    pkg.basePackages.foreach(basePkg => {
       val ns = basePkg.namespace.get
       if (!collected.contains(ns)) {
         if (basePkg.isGhosted) {

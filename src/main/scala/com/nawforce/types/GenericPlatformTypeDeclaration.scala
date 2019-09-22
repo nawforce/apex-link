@@ -72,19 +72,39 @@ class GenericPlatformParameter(platformParameter: PlatformParameter, _typeDeclar
 }
 
 object GenericPlatformTypeDeclaration {
-  def get(typeName: TypeName): ValidationNel[PlatformTypeGetError, PlatformTypeDeclaration] = {
-    declarationCache(typeName)
+  def get(request: PlatformGetRequest): ValidationNel[PlatformTypeGetError, TypeDeclaration] = {
+    declarationCache(request)
   }
 
-  private val declarationCache: TypeName => ValidationNel[PlatformTypeGetError, PlatformTypeDeclaration] =
-    Memo.immutableHashMapMemo { typeName: TypeName => find(typeName) }
+  private val declarationCache: PlatformGetRequest => ValidationNel[PlatformTypeGetError, TypeDeclaration] =
+    Memo.immutableHashMapMemo {request: PlatformGetRequest => find(request)}
 
-  private def find(typeName: TypeName): ValidationNel[PlatformTypeGetError, PlatformTypeDeclaration] = {
+  private def find(request: PlatformGetRequest): ValidationNel[PlatformTypeGetError, TypeDeclaration] = {
+    val typeName = request.typeName
+    val pkg = request.from.flatMap(_.packageDeclaration)
+
+    def getParamType(typeName: TypeName): ValidationNel[PlatformTypeGetError, TypeDeclaration] = {
+      if (pkg.nonEmpty) {
+        if (request.from.nonEmpty) {
+          pkg.get.getTypeFor(typeName, request.from.get) match {
+            case None => (MissingType(typeName): PlatformTypeGetError).failureNel
+            case Some(td) => td.successNel
+          }
+        } else {
+          pkg.get.getType(PlatformGetRequest(typeName, request.from)) match {
+            case Left(error) => (PackageGetError(error): PlatformTypeGetError).failureNel
+            case Right(td) => td.successNel
+          }
+        }
+      } else {
+        PlatformTypeDeclaration.get(PlatformGetRequest(typeName, request.from))
+      }
+    }
 
     // Make sure params are resolvable first
-    val failedParam = typeName.params.map(pt => (pt, PlatformTypeDeclaration.get(pt))).find(_._2.isFailure)
+    val failedParam = typeName.params.map(pt => (pt, getParamType(pt))).find(_._2.isFailure)
     if (failedParam.nonEmpty) {
-      return (MissingPlatformType(failedParam.get._1): PlatformTypeGetError).failureNel
+      return (MissingType(failedParam.get._1): PlatformTypeGetError).failureNel
     }
 
     // And the base type
@@ -92,6 +112,6 @@ object GenericPlatformTypeDeclaration {
     if (genericDecl.nonEmpty)
       new GenericPlatformTypeDeclaration(typeName, genericDecl.get).successNel
     else
-      (MissingPlatformType(typeName): PlatformTypeGetError).failureNel
+      (MissingType(typeName): PlatformTypeGetError).failureNel
   }
 }

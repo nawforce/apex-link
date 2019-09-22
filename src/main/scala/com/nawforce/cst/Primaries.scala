@@ -27,9 +27,9 @@
 */
 package com.nawforce.cst
 
-import com.nawforce.names.{DotName, TypeName}
+import com.nawforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{FieldDeclaration, PlatformTypes, TypeDeclaration}
+import com.nawforce.types.{FieldDeclaration, PlatformGetRequest, PlatformTypes, TypeDeclaration}
 
 sealed abstract class Primary extends CST {
   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext
@@ -83,7 +83,7 @@ final case class TypeRefPrimary(typeName: TypeName) extends Primary {
 
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
-    val td = context.getTypeAndAddDependency(typeName)
+    val td = context.getTypeAndAddDependency(typeName, context.thisType).right.toOption
     if (td.isEmpty)
       context.missingType(location, typeName)
     ExprContext(isStatic = true, Some(PlatformTypes.typeType))
@@ -102,23 +102,14 @@ final case class IdPrimary(id: Id) extends Primary {
 
     input.declaration.get match {
       case td: TypeDeclaration =>
-        var field: Option[FieldDeclaration] = None
-
-        if (context.pkg.namespace.nonEmpty) {
-          field = td.findField(context.defaultNamespace(id.name), input.isStatic)
-          if (field.nonEmpty) {
-            val td = context.getTypeAndAddDependency(field.get.typeName)
-            return ExprContext(isStatic = false, td)
-          }
-        }
-
-        field = td.findField(id.name, input.isStatic)
+        val name = id.name
+        val field = findField(name, td, input.isStatic)
         if (field.nonEmpty) {
-          val td = context.getTypeAndAddDependency(field.get.typeName)
-          return ExprContext(isStatic = false, td)
+          val target = context.getTypeAndAddDependency(field.get.typeName, td).right.toOption
+          return ExprContext(isStatic = false, target)
         }
 
-        val typeRef = context.getTypeAndAddDependency(TypeName(id.name))
+        val typeRef = td.findLocalType(TypeName(id.name))
         if (typeRef.nonEmpty) {
           return ExprContext(isStatic = true, typeRef)
         }
@@ -129,13 +120,22 @@ final case class IdPrimary(id: Id) extends Primary {
       case _ => ()
     }
 
-    val absTd = context.pkg.getType(DotName(id.name))
+    val absTd = context.pkg.getTypeOption(PlatformGetRequest(TypeName(id.name), None))
     if (absTd.nonEmpty) {
+      context.addDependency(absTd.get)
       return ExprContext(isStatic = true, absTd)
     }
 
     context.missingIdentifier(location, input.declaration.get.typeName, id.name)
     ExprContext.empty
+  }
+
+  private def findField(name: Name, td: TypeDeclaration, staticOnly: Boolean) : Option[FieldDeclaration] = {
+    val encodedName = EncodedName(name)
+    val namespaceName = encodedName.defaultNamespace(td.packageDeclaration.flatMap(_.namespace))
+    td.findField(namespaceName.fullName, staticOnly).orElse({
+      if (encodedName != namespaceName) td.findField(encodedName.fullName, staticOnly) else None
+    })
   }
 }
 

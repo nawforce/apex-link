@@ -52,11 +52,30 @@ object PlatformTypes {
   lazy val locationType: TypeDeclaration = loadType(TypeName.Location)
 
   private def loadType(typeName: TypeName): TypeDeclaration = {
-    PlatformTypeDeclaration.get(typeName).toOption.get
+    PlatformTypeDeclaration.get(PlatformGetRequest(typeName, None)).toOption.get
   }
 
-  def getType(typeName: TypeName): Either[String, TypeDeclaration] = {
-    val alias = typeAliasMap.getOrElse(typeName, typeName)
+  def getType(request: PlatformGetRequest): Either[String, TypeDeclaration] = {
+
+
+
+    @scala.annotation.tailrec
+    def findPlatformType(typeName: TypeName): ValidationNel[PlatformTypeGetError, TypeDeclaration] = {
+      PlatformTypeDeclaration.get(PlatformGetRequest(typeName, request.from)) match {
+        case Success(td) => td.successNel
+        case Failure(_) if typeName.outer.nonEmpty => findPlatformType(typeName.outer.get)
+        case Failure(_) => (MissingType(typeName): PlatformTypeGetError).failureNel
+      }
+    }
+
+    def result(value: ValidationNel[PlatformTypeGetError, TypeDeclaration]): Either[String, TypeDeclaration] = {
+      value match {
+        case Success(td) => Right(td)
+        case Failure(e) => Left(e.head.toString)
+      }
+    }
+
+    val alias = typeAliasMap.getOrElse(request.typeName, request.typeName)
 
     val firstResult = findPlatformType(alias)
     if (firstResult.isSuccess)
@@ -71,23 +90,6 @@ object PlatformTypes {
       return result(schemaResult)
 
     result(firstResult)
-  }
-
-  private def result(value: ValidationNel[PlatformTypeGetError, PlatformTypeDeclaration]):
-    Either[String, TypeDeclaration] = {
-    value match {
-      case Success(td) => Right(td)
-      case Failure(e) => Left(e.head.toString)
-    }
-  }
-
-  @scala.annotation.tailrec
-  private def findPlatformType(typeName: TypeName): ValidationNel[PlatformTypeGetError, PlatformTypeDeclaration] = {
-    PlatformTypeDeclaration.get(typeName) match {
-      case Success(td) => td.successNel
-      case Failure(_) if typeName.outer.nonEmpty => findPlatformType(typeName.outer.get)
-      case Failure(_) => (MissingPlatformType(typeName): PlatformTypeGetError).failureNel
-    }
   }
 
   private val typeAliasMap: Map[TypeName, TypeName] = Map(

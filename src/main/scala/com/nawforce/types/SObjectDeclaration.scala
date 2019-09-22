@@ -43,7 +43,7 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
 
   override val superClass: Option[TypeName] = Some(TypeName.SObject)
   override def superClassDeclaration: Option[TypeDeclaration] = {
-    new TypeFinder(pkg).getTypeFor(TypeName.SObject.asDotName, this)
+    pkg.getTypeFor(TypeName.SObject, this)
   }
 
   def validateConstructor(input: ExprContext, creator: Creator, context: ExpressionVerifyContext): ExprContext = {
@@ -115,7 +115,7 @@ object SObjectDeclaration {
         if (pkg.isGhostedType(typeName))
           Seq(extendExisting(path, typeName, pkg, None))
         else {
-          val sobjectType = pkg.getType(typeName.asDotName)
+          val sobjectType = pkg.getTypeOption(PlatformGetRequest(typeName, None))
           if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
             Org.logMessage(LineLocation(path, 0), s"No sObject declaration found for '$typeName'")
             return Seq()
@@ -144,7 +144,7 @@ object SObjectDeclaration {
   }
 
   private def extendExisting(path: Path, typeName: TypeName, pkg: PackageDeclaration, base: Option[TypeDeclaration]): TypeDeclaration = {
-    val isComplete = base.nonEmpty && pkg.basePackages().forall(!_.isGhosted)
+    val isComplete = base.nonEmpty && pkg.basePackages.forall(!_.isGhosted)
     val fields = collectBaseFields(typeName.asDotName, pkg)
     base.getOrElse(PlatformTypes.sObjectType).fields.foreach(field => fields.put(field.name, field))
     CustomFieldDeclaration.parse(path, pkg, typeName).foreach(field => {fields.put(field.name, field)})
@@ -153,8 +153,8 @@ object SObjectDeclaration {
 
   private def collectBaseFields(sObject: DotName, pkg: PackageDeclaration): mutable.Map[Name, FieldDeclaration] = {
     val collected: mutable.Map[Name, FieldDeclaration] = mutable.Map()
-    pkg.basePackages().filterNot(_.isGhosted).foreach(basePkg => {
-      val fields: Seq[FieldDeclaration] = basePkg.getType(sObject).map {
+    pkg.basePackages.filterNot(_.isGhosted).foreach(basePkg => {
+      val fields: Seq[FieldDeclaration] = basePkg.getTypeOption(PlatformGetRequest(sObject.asTypeName(), None)).map {
         case baseTd: SObjectDeclaration => baseTd.fields
         case _ => Nil
       }.getOrElse(Seq())

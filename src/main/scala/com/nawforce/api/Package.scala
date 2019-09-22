@@ -28,37 +28,34 @@
 package com.nawforce.api
 
 import java.nio.file.Path
-import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.cst.UnusedLog
 import com.nawforce.documents._
-import com.nawforce.names.{DotName, Name}
+import com.nawforce.names.{Name, TypeName}
 import com.nawforce.types._
 import com.nawforce.utils.IssueLog
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.JavaConverters._
 
-class Package(val org: Org, _namespace: Option[Name], _paths: Seq[Path], var basePackages: Seq[Package])
-  extends PackageDeclaration(_namespace, _paths) with LazyLogging {
+class Package(val org: Org, _namespace: Option[Name], _paths: Seq[Path], _basePackages: Seq[Package])
+  extends PackageDeclaration(_namespace, _paths, _basePackages) with LazyLogging {
 
   private val schemaManager = new SchemaManager(this)
   private val labelDeclaration = LabelDeclaration(this)
   private val pageDeclaration = PageDeclaration(this)
   private val flowDeclaration = FlowDeclaration(this)
   private val componentDeclaration = ComponentDeclaration(this)
-  private val types = initTypes()
+  initTypes()
 
-  private def initTypes(): ConcurrentHashMap[DotName, TypeDeclaration] = {
-    val types = new ConcurrentHashMap[DotName, TypeDeclaration]()
-    types.put(schemaManager.sobjectTypes.typeName.asDotName, schemaManager.sobjectTypes)
-    types.put(DotName(schemaManager.sobjectTypes.name), schemaManager.sobjectTypes)
-    types.put(labelDeclaration.typeName.asDotName, labelDeclaration)
-    types.put(DotName(labelDeclaration.name), labelDeclaration)
-    types.put(pageDeclaration.typeName.asDotName, pageDeclaration)
-    types.put(flowDeclaration.typeName.asDotName, flowDeclaration)
-    types.put(componentDeclaration.typeName.asDotName, componentDeclaration)
-    types
+  private def initTypes(): Unit = {
+    upsertType(schemaManager.sobjectTypes.typeName, schemaManager.sobjectTypes)
+    upsertType(TypeName(schemaManager.sobjectTypes.name), schemaManager.sobjectTypes)
+    upsertType(labelDeclaration.typeName, labelDeclaration)
+    upsertType(TypeName(labelDeclaration.name), labelDeclaration)
+    upsertType(pageDeclaration.typeName, pageDeclaration)
+    upsertType(flowDeclaration.typeName, flowDeclaration)
+    upsertType(componentDeclaration.typeName, componentDeclaration)
   }
 
   override def schema(): SchemaManager = schemaManager
@@ -67,62 +64,14 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[Path], var bas
 
   def typeCount: Int = types.size
 
-  def addDependency(pkg: Package): Unit = basePackages = basePackages :+ pkg
-
   def getApexTypeNames: Seq[String] = {
     types.elements().asScala
       .filter(_.isInstanceOf[ApexTypeDeclaration])
       .map(_.typeName.toString).toSeq
   }
 
-  def getTypes(dotNames: Seq[DotName]): Seq[TypeDeclaration] = {
-    dotNames.flatMap(getType)
-  }
-
-  /** Find a type using a global name*/
-  def getType(dotName: DotName): Option[TypeDeclaration] = {
-    if (namespace.nonEmpty) {
-      val declaration = getPackageType(dotName.prepend(namespace), inPackage = true)
-      if (declaration.nonEmpty)
-        return declaration
-    }
-
-    val declaration = getPackageType(dotName, inPackage = true)
-    if (declaration.nonEmpty)
-      return declaration
-
-    PlatformTypes.getType(dotName)
-  }
-
-  private def getPackageType(name: DotName, inPackage: Boolean): Option[TypeDeclaration] = {
-    var declaration = Option(types.get(name))
-    if (declaration.nonEmpty) {
-      if (inPackage || declaration.get.isExternallyVisible)
-        return declaration
-      else
-        return None
-    }
-
-    if (name.isCompound) {
-      declaration = getPackageType(name.headNames, inPackage = inPackage).flatMap(
-        _.nestedTypes.find(td => td.name == name.lastName && (td.isExternallyVisible || inPackage)))
-      if (declaration.nonEmpty)
-        return declaration
-    }
-
-    declaration = getDependentPackageType(name)
-    if (declaration.nonEmpty)
-      return declaration
-
-    None
-  }
-
-  private def getDependentPackageType(name: DotName): Option[TypeDeclaration] = {
-    basePackages.view.flatMap(pkg => pkg.getPackageType(name, inPackage = false)).headOption
-  }
-
-  def upsertType(declaration: TypeDeclaration): Unit = {
-    types.put(declaration.typeName.asDotName, declaration)
+  def getTypes(typeNames: Seq[TypeName]): Seq[TypeDeclaration] = {
+    typeNames.flatMap(typeName => getType(PlatformGetRequest(typeName, None)).right.toOption)
   }
 
   def deployAll(): Unit = {

@@ -70,7 +70,7 @@ object PageDeclaration {
 
   private def collectBasePages(pkg: PackageDeclaration, collected: mutable.Map[Name, Seq[Page]]=mutable.Map())
   : mutable.Map[Name, Seq[Page]] = {
-    pkg.basePackages().foreach(basePkg => {
+    pkg.basePackages.foreach(basePkg => {
       val ns = basePkg.namespace.get
       if (!collected.contains(ns)) {
         val pages = basePkg.pages().pages.map(page => Page(page.location, Name(s"${ns}__${page.name}")))
