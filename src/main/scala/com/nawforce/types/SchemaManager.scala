@@ -29,6 +29,7 @@ package com.nawforce.types
 
 import com.nawforce.api.Org
 import com.nawforce.documents.Location
+import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{EncodedName, Name, TypeName}
 
 import scala.collection.{mutable, _}
@@ -54,7 +55,7 @@ class RelatedLists(pkg: PackageDeclaration) {
     // Validate lookups will function
     val sobjects = relationshipFields.keys.toSet
     sobjects.foreach(sobject => {
-      val td = pkg.getTypeOption(PlatformGetRequest(sobject, None))
+      val td = TypeRequest(sobject, pkg).right.toOption
       if ((td.isEmpty || !td.exists(_.isSObject)) && !pkg.isGhostedType(sobject)) {
         relationshipFields(sobject).foreach(field => {
           Org.logMessage(field._3,
@@ -94,7 +95,7 @@ class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDeclaration(pk
     }
 
     sobjectFields.get(name).orElse({
-      val td = pkg.getTypeOption(PlatformGetRequest(typeName, None))
+      val td = TypeRequest(typeName, pkg).right.toOption
       if (td.nonEmpty && td.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
         Some(createField(name, td.get.typeName))
       } else {

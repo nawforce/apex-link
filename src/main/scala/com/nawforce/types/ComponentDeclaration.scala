@@ -31,6 +31,7 @@ import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.documents.ComponentDocument
+import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{Name, TypeName}
 
 import scala.collection.JavaConverters._
@@ -40,9 +41,9 @@ final case class ComponentDeclaration(pkg: PackageDeclaration) extends TypeDecla
 
   private val components = new ConcurrentHashMap[Option[Name], TypeDeclaration]()
   components.put(Some(Name("Apex")),
-    PlatformTypeDeclaration.get(PlatformGetRequest(TypeName(Name("Apex"), Nil, Some(TypeName(Name("Component")))), None)).toOption.get)
+    TypeRequest(TypeName(Name("Apex"), Nil, Some(TypeName(Name("Component"))))).right.toOption.get)
   components.put(Some(Name("Chatter")),
-    PlatformTypeDeclaration.get(PlatformGetRequest(TypeName(Name("Chatter"), Nil, Some(TypeName(Name("Component")))), None)).toOption.get)
+    TypeRequest(TypeName(Name("Chatter"), Nil, Some(TypeName(Name("Component"))))).right.toOption.get)
 
   override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
   override val name: Name = Name.Component

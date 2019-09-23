@@ -33,6 +33,7 @@ import java.nio.file.Path
 import com.nawforce.api.Org
 import com.nawforce.cst._
 import com.nawforce.documents._
+import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{DotName, EncodedName, Name, TypeName}
 
 import scala.collection.mutable
@@ -115,7 +116,7 @@ object SObjectDeclaration {
         if (pkg.isGhostedType(typeName))
           Seq(extendExisting(path, typeName, pkg, None))
         else {
-          val sobjectType = pkg.getTypeOption(PlatformGetRequest(typeName, None))
+          val sobjectType = TypeRequest(typeName, pkg).right.toOption
           if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
             Org.logMessage(LineLocation(path, 0), s"No sObject declaration found for '$typeName'")
             return Seq()
@@ -154,7 +155,7 @@ object SObjectDeclaration {
   private def collectBaseFields(sObject: DotName, pkg: PackageDeclaration): mutable.Map[Name, FieldDeclaration] = {
     val collected: mutable.Map[Name, FieldDeclaration] = mutable.Map()
     pkg.basePackages.filterNot(_.isGhosted).foreach(basePkg => {
-      val fields: Seq[FieldDeclaration] = basePkg.getTypeOption(PlatformGetRequest(sObject.asTypeName(), None)).map {
+      val fields: Seq[FieldDeclaration] = TypeRequest(sObject.asTypeName(), basePkg).right.toOption.map {
         case baseTd: SObjectDeclaration => baseTd.fields
         case _ => Nil
       }.getOrElse(Seq())

@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.api.Package
 import com.nawforce.documents.DocumentLoader
+import com.nawforce.finding.TypeFinder
 import com.nawforce.names.{Name, TypeName}
 
 abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Path], var basePackages: Seq[PackageDeclaration])

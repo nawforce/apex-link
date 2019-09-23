@@ -27,9 +27,10 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.{FieldDeclaration, PlatformGetRequest, PlatformTypes, TypeDeclaration}
+import com.nawforce.types.{FieldDeclaration, PlatformTypes, TypeDeclaration}
 
 sealed abstract class Primary extends CST {
   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext
@@ -120,10 +121,10 @@ final case class IdPrimary(id: Id) extends Primary {
       case _ => ()
     }
 
-    val absTd = context.pkg.getTypeOption(PlatformGetRequest(TypeName(id.name), None))
-    if (absTd.nonEmpty) {
-      context.addDependency(absTd.get)
-      return ExprContext(isStatic = true, absTd)
+    val absTd = TypeRequest(TypeName(id.name), context.pkg)
+    if (absTd.isRight) {
+      context.addDependency(absTd.right.get)
+      return ExprContext(isStatic = true, absTd.right.toOption)
     }
 
     context.missingIdentifier(location, input.declaration.get.typeName, id.name)

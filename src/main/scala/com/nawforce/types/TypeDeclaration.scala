@@ -28,6 +28,7 @@
 package com.nawforce.types
 
 import com.nawforce.api._
+import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{Name, TypeName}
 
 import scala.collection.mutable
@@ -159,9 +160,7 @@ trait TypeDeclaration extends DependencyHolder {
   }
 
   private lazy val fieldsByName: mutable.Map[Name, FieldDeclaration] = {
-    val outerType = packageDeclaration.flatMap(pkg =>
-      outerTypeName.flatMap(typeName => pkg.getTypeOption(PlatformGetRequest(typeName, Some(this)))))
-
+    val outerType = outerTypeName.flatMap(typeName => TypeRequest(typeName, this).right.toOption)
     val fieldsByName =
         outerType.map(td => td.fields.filter(_.isStatic).map(f => (f.name, f))).getOrElse(Seq()) ++
         fields.map(f => (f.name, f))

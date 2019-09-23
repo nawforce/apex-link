@@ -31,6 +31,7 @@ import java.nio.file.Path
 
 import com.nawforce.cst.UnusedLog
 import com.nawforce.documents._
+import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.types._
 import com.nawforce.utils.IssueLog
@@ -71,7 +72,7 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[Path], _basePa
   }
 
   def getTypes(typeNames: Seq[TypeName]): Seq[TypeDeclaration] = {
-    typeNames.flatMap(typeName => getType(PlatformGetRequest(typeName, None)).right.toOption)
+    typeNames.flatMap(typeName => TypeRequest(typeName, this).right.toOption)
   }
 
   def deployAll(): Unit = {

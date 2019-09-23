@@ -30,6 +30,7 @@ package com.nawforce.api
 import java.nio.file.{Path, Paths}
 
 import com.nawforce.documents._
+import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{DotName, Name}
 import com.nawforce.types._
 import com.nawforce.utils.IssueLog
@@ -102,8 +103,8 @@ class Org extends LazyLogging {
   }
 
   def getType(namespace: Option[Name], dotName: DotName): Option[TypeDeclaration] = {
-    val pkg = packages.get(namespace)
-    pkg.flatMap(_.getTypeOption(PlatformGetRequest(dotName.asTypeName(), None)))
+    val pkgOpt = packages.get(namespace)
+    pkgOpt.flatMap(pkg => TypeRequest(dotName.asTypeName(), pkg).right.toOption)
   }
 
   /** Get a list of Apex types in the org*/
@@ -114,12 +115,7 @@ class Org extends LazyLogging {
   /** Retrieve type information for declaration. Separate compound names with a '.', e.g. 'System.String'. Returns
     * null if the type if not found */
   def getTypeInfo(name: String): TypeInfo = {
-    val typeDeclaration = unmanaged.getTypeOption(PlatformGetRequest(DotName(name).asTypeName(), None))
-    if (typeDeclaration.nonEmpty) {
-      TypeInfo(typeDeclaration.get)
-    } else {
-      null
-    }
+    TypeRequest(DotName(name).asTypeName(), unmanaged).right.toOption.map(td => TypeInfo(td)).orNull
   }
 }
 

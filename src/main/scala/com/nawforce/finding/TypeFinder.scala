@@ -25,11 +25,13 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.types
+package com.nawforce.finding
 
 import com.nawforce.names.{DotName, TypeName}
+import com.nawforce.types.{PackageDeclaration, PlatformGetRequest, TypeDeclaration}
 import scalaz.Memo
 
+/** Helper that implements local type searching, extracted out as logic is a bit involved */
 trait TypeFinder {
   this: PackageDeclaration =>
 

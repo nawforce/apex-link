@@ -29,6 +29,7 @@ package com.nawforce.cst
 
 import com.nawforce.api.Org
 import com.nawforce.documents.Location
+import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.types._
 
@@ -105,19 +106,7 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: A
   override def superType: Option[TypeDeclaration] = typeDeclaration.superClassDeclaration
 
   override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[String, TypeDeclaration] = {
-    val pkg = thisType.flatMap(_.packageDeclaration)
-    if (pkg.nonEmpty) {
-      val td =
-        if (from.nonEmpty)
-          pkg.get.getTypeFor(typeName, from.get)
-        else
-          pkg.get.getTypeOption(PlatformGetRequest(typeName, from))
-      td match {
-          case Some(td) => Right(td)
-          case _ => Left(s"No type declaration found for '$typeName'")
-        }
-    } else
-      PlatformTypes.getType(PlatformGetRequest(typeName, Some(typeDeclaration)))
+    TypeRequest(typeName, from, thisType.flatMap(_.packageDeclaration))
   }
 
   override def suppressWarnings: Boolean =
