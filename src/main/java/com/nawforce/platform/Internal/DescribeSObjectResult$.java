@@ -25,44 +25,12 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.platform.Database;
+package com.nawforce.platform.Internal;
 
-import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.String;
+import com.nawforce.platform.Schema.DescribeSObjectResult;
 
 @SuppressWarnings("unused")
-public class DMLOptions {
-	public Boolean AllowFieldTruncation;
-	public AssignmentRuleHeader AssignmentRuleHeader;
-	public DuplicateRuleHeader DuplicateRuleHeader;
-	public EmailHeader EmailHeader;
-	public String LocaleOptions;
-	public Boolean OptAllOrNone;
-
-	public DMLOptions() {throw new java.lang.UnsupportedOperationException();}
-
-	public static class AssignmentRuleHeader
-	{
-		public Id AssignmentRuleId;
-		public Boolean UseDefaultRule;
-
-		public AssignmentRuleHeader() {throw new java.lang.UnsupportedOperationException();}
-	}
-
-	public static class DuplicateRuleHeader
-	{
-		public Boolean AllowSave;
-		public Boolean RunAsCurrentUser;
-
-		public DuplicateRuleHeader() {throw new java.lang.UnsupportedOperationException();}
-	}
-
-	public static class EmailHeader {
-		public Boolean TriggerAutoResponseEmail;
-		public Boolean TriggerOtherEmail;
-		public Boolean TriggerUserEmail;
-
-		public EmailHeader() {throw new java.lang.UnsupportedOperationException();}
-	}
+public class DescribeSObjectResult$<T> extends DescribeSObjectResult {
+    public SObjectTypeFields$<T> Fields;
+    public SObjectTypeFieldSets$<T> FieldSets;
 }

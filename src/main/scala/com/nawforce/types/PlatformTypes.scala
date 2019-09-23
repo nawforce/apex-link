@@ -57,13 +57,17 @@ object PlatformTypes {
 
   def getType(request: PlatformGetRequest): Either[String, TypeDeclaration] = {
 
-
-
-    @scala.annotation.tailrec
     def findPlatformType(typeName: TypeName): ValidationNel[PlatformTypeGetError, TypeDeclaration] = {
       PlatformTypeDeclaration.get(PlatformGetRequest(typeName, request.from)) match {
         case Success(td) => td.successNel
-        case Failure(_) if typeName.outer.nonEmpty => findPlatformType(typeName.outer.get)
+        case Failure(_) if typeName.outer.nonEmpty =>
+          findPlatformType(typeName.outer.get) match {
+            case Success(outerTd) => outerTd.nestedTypes.find(_.name == typeName.name) match {
+              case Some(td) => td.successNel
+              case _ => (MissingType(typeName): PlatformTypeGetError).failureNel
+            }
+            case Failure(error) => error.head.failureNel
+          }
         case Failure(_) => (MissingType(typeName): PlatformTypeGetError).failureNel
       }
     }
