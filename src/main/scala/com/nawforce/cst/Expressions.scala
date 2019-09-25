@@ -60,7 +60,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
       expression match {
         case PrimaryExpression(primary: IdPrimary) if isNamespace(primary.id.name, td) =>
           val typeName = TypeName(target.left.get.name, Nil, Some(TypeName(primary.id.name)))
-          val td = context.getTypeAndAddDependency(typeName, None).right.toOption
+          val td = context.getTypeAndAddDependency(typeName, None).toOption
           if (td.nonEmpty)
             return ExprContext(isStatic = true, td)
         case _ =>
@@ -93,7 +93,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
         val name = target.left.get.name
         val field: Option[FieldDeclaration] = findField(name, td, context.pkg, input.isStatic)
         if (field.nonEmpty) {
-          val target = context.getTypeAndAddDependency(field.get.typeName, td).right.toOption
+          val target = context.getTypeAndAddDependency(field.get.typeName, td).toOption
           return ExprContext(isStatic = false, target)
         }
 
@@ -196,7 +196,7 @@ final case class CastExpression(typeName: TypeName, expression: Expression) exte
   override def children(): List[CST] = expression :: Nil
 
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    val castType = context.getTypeAndAddDependency(typeName, context.thisType).right.toOption
+    val castType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
     if (castType.isEmpty)
       context.missingType(location, typeName)
     expression.verify(input, context)
@@ -250,7 +250,7 @@ final case class InstanceOfExpression(expression: Expression, typeName: TypeName
   override def children(): List[CST] = expression :: Nil
 
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    val instanceOfType = context.getTypeAndAddDependency(typeName, context.thisType).right.toOption
+    val instanceOfType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
     if (instanceOfType.isEmpty)
       context.missingType(location, typeName)
     expression.verify(input, context)

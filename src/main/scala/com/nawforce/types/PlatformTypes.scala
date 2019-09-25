@@ -27,10 +27,9 @@
 */
 package com.nawforce.types
 
-import com.nawforce.names.{DotName, Name, TypeName}
-import scalaz.Scalaz._
-import scalaz.{Failure, Success, ValidationNel}
-
+import com.nawforce.finding.MissingType
+import com.nawforce.finding.TypeRequest.TypeRequest
+import com.nawforce.names.TypeName
 
 object PlatformTypes {
   lazy val nullType: TypeDeclaration = loadType(TypeName.Null)
@@ -52,72 +51,49 @@ object PlatformTypes {
   lazy val locationType: TypeDeclaration = loadType(TypeName.Location)
 
   private def loadType(typeName: TypeName): TypeDeclaration = {
-    PlatformTypeDeclaration.get(PlatformGetRequest(typeName, None)).toOption.get
+    PlatformTypeDeclaration.get(typeName, None).right.get
   }
 
-  def getType(request: PlatformGetRequest): Either[String, TypeDeclaration] = {
+  /* Get a type, in general don't call this direct, use TypeRequest which will delegate here if
+   * needed. The builds over PlatformTypeDeclaration by adding support for typeName aliases, nested
+   * types and namespace defaulting.
+   */
+  def get(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {
 
-    def findPlatformType(typeName: TypeName): ValidationNel[PlatformTypeGetError, TypeDeclaration] = {
-      PlatformTypeDeclaration.get(PlatformGetRequest(typeName, request.from)) match {
-        case Success(td) => td.successNel
-        case Failure(_) if typeName.outer.nonEmpty =>
-          findPlatformType(typeName.outer.get) match {
-            case Success(outerTd) => outerTd.nestedTypes.find(_.name == typeName.name) match {
-              case Some(td) => td.successNel
-              case _ => (MissingType(typeName): PlatformTypeGetError).failureNel
+    def findOuterOrNestedPlatformType(localTypeName: TypeName): TypeRequest = {
+      PlatformTypeDeclaration.get(localTypeName, from) match {
+        case Left(_) if localTypeName.outer.nonEmpty =>
+          findOuterOrNestedPlatformType(localTypeName.outer.get) match {
+            case Left(error) => Left(error)
+            case Right(outerTd) => outerTd.nestedTypes.find(_.name == localTypeName.name) match {
+              case Some(td) => Right(td)
+              case _ => Left(MissingType(localTypeName))
             }
-            case Failure(error) => error.head.failureNel
           }
-        case Failure(_) => (MissingType(typeName): PlatformTypeGetError).failureNel
+        case Left(_) => Left(MissingType(localTypeName))
+        case Right(td) => Right(td)
       }
     }
 
-    def result(value: ValidationNel[PlatformTypeGetError, TypeDeclaration]): Either[String, TypeDeclaration] = {
-      value match {
-        case Success(td) => Right(td)
-        case Failure(e) => Left(e.head.toString)
-      }
-    }
+    val alias = typeAliasMap.getOrElse(typeName, typeName)
 
-    val alias = typeAliasMap.getOrElse(request.typeName, request.typeName)
+    val firstResult = findOuterOrNestedPlatformType(alias)
+    if (firstResult.isRight)
+      return firstResult
 
-    val firstResult = findPlatformType(alias)
-    if (firstResult.isSuccess)
-      return result(firstResult)
+    val systemResult = findOuterOrNestedPlatformType(alias.wrap(TypeName.System))
+    if (systemResult.isRight)
+      return systemResult
 
-    val systemResult = findPlatformType(alias.wrap(TypeName.System))
-    if (systemResult.isSuccess)
-      return result(systemResult)
+    val schemaResult = findOuterOrNestedPlatformType(alias.wrap(TypeName.Schema))
+    if (schemaResult.isRight)
+      return schemaResult
 
-    val schemaResult = findPlatformType(alias.wrap(TypeName.Schema))
-    if (schemaResult.isSuccess)
-      return result(schemaResult)
-
-    result(firstResult)
+    firstResult
   }
 
   private val typeAliasMap: Map[TypeName, TypeName] = Map(
     TypeName.Object -> TypeName.InternalObject,
     TypeName.ApexPagesPageReference -> TypeName.PageReference
-  )
-
-  def getType(dotName: DotName): Option[TypeDeclaration] = {
-    aliasMap.get(dotName).flatMap(getPlatformType)
-      .orElse(getPlatformType(dotName))
-      .orElse(getPlatformType(dotName.prepend(Name.System)))
-      .orElse(getPlatformType(dotName.prepend(Name.Schema)))
-  }
-
-  private def getPlatformType(name: DotName): Option[TypeDeclaration] = {
-    val declaration = PlatformTypeDeclaration.get(name)
-    if (declaration.isEmpty && name.isCompound)
-      getPlatformType(name.headNames).flatMap(_.nestedTypes.find(td => td.name == name.lastName))
-    else
-      declaration
-  }
-
-  private val aliasMap: Map[DotName, DotName] = Map(
-    DotName(Name.Object) -> DotName(Seq(Name.Internal, Name.Object$)),
-    DotName(Seq(Name.ApexPages, Name.PageReference)) -> DotName(Seq(Name.System, Name.PageReference))
   )
 }

@@ -116,7 +116,7 @@ object SObjectDeclaration {
         if (pkg.isGhostedType(typeName))
           Seq(extendExisting(path, typeName, pkg, None))
         else {
-          val sobjectType = TypeRequest(typeName, pkg).right.toOption
+          val sobjectType = TypeRequest(typeName, pkg).toOption
           if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
             Org.logMessage(LineLocation(path, 0), s"No sObject declaration found for '$typeName'")
             return Seq()
@@ -155,7 +155,7 @@ object SObjectDeclaration {
   private def collectBaseFields(sObject: DotName, pkg: PackageDeclaration): mutable.Map[Name, FieldDeclaration] = {
     val collected: mutable.Map[Name, FieldDeclaration] = mutable.Map()
     pkg.basePackages.filterNot(_.isGhosted).foreach(basePkg => {
-      val fields: Seq[FieldDeclaration] = TypeRequest(sObject.asTypeName(), basePkg).right.toOption.map {
+      val fields: Seq[FieldDeclaration] = TypeRequest(sObject.asTypeName(), basePkg).toOption.map {
         case baseTd: SObjectDeclaration => baseTd.fields
         case _ => Nil
       }.getOrElse(Seq())

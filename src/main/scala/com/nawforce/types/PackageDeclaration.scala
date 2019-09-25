@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap
 import com.nawforce.api.Package
 import com.nawforce.documents.DocumentLoader
 import com.nawforce.finding.TypeFinder
+import com.nawforce.finding.TypeRequest.TypeRequest
 import com.nawforce.names.{Name, TypeName}
 
 abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Path], var basePackages: Seq[PackageDeclaration])
@@ -48,12 +49,12 @@ abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Pa
   def labels(): LabelDeclaration
   def pages(): PageDeclaration
 
-  /** Set of namespaces used by this package and its base packages */
+  /* Set of namespaces used by this package and its base packages */
   lazy val namespaces: Set[Name] = {
     namespace.toSet ++ basePackages.flatMap(_.namespaces) ++ PlatformTypeDeclaration.namespaces
   }
 
-  /** Check if a type is ghost in this package */
+  /* Check if a type is ghost in this package */
   def isGhostedType(typeName: TypeName): Boolean = {
     basePackages.filter(_.isGhosted).exists(_.namespace.contains(typeName.outerName))
   }
@@ -63,28 +64,34 @@ abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Pa
     basePackages = basePackages :+ pkg
   }
 
-  /* Find a package/platform type, can return an error messages, typically for missing type or bad use of generic */
-  def getType(request: PlatformGetRequest): Either[String, TypeDeclaration] = {
+  /* Find a package/platform type. For general needs don't call this direct, use TypeRequest which will delegate here
+   * if needed. This is the fallback handling for the TypeFinder which performs local searching for types, so this is
+   * only useful if *you* know local searching is not required.
+   */
+  def getType(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {
 
-    var td = getPackageType(request.typeName).map(Right(_))
+    var td = getPackageType(typeName).map(Right(_))
     if (td.nonEmpty)
       return td.get
 
-    if (namespace.nonEmpty && request.typeName.outerName != namespace.get) {
-      td = getPackageType(request.typeName.withTail(TypeName(namespace.get))).map(Right(_))
+    if (namespace.nonEmpty && typeName.outerName != namespace.get) {
+      td = getPackageType(typeName.withTail(TypeName(namespace.get))).map(Right(_))
       if (td.nonEmpty)
         return td.get
     }
 
-    PlatformTypes.getType(request)
+    // From may be used to locate type variable types so must be accurate even for a platform type request
+    PlatformTypes.get(typeName, from)
   }
 
-  def getTypeOption(request: PlatformGetRequest): Option[TypeDeclaration] = {
-    getType(request).right.toOption
+  // TODO: Remove this
+  def getTypeOption(typeName: TypeName, from: Option[TypeDeclaration]): Option[TypeDeclaration] = {
+    getType(typeName, from).toOption
   }
 
+  // TODO: Remove this
   def getTypeOption(typeName: TypeName): Option[TypeDeclaration] = {
-    getType(PlatformGetRequest(typeName, None)).right.toOption
+    getType(typeName, None).toOption
   }
 
   private def getPackageType(typeName: TypeName, inPackage: Boolean=true): Option[TypeDeclaration] = {

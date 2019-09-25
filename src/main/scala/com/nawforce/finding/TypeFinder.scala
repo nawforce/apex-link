@@ -28,7 +28,7 @@
 package com.nawforce.finding
 
 import com.nawforce.names.{DotName, TypeName}
-import com.nawforce.types.{PackageDeclaration, PlatformGetRequest, TypeDeclaration}
+import com.nawforce.types.{PackageDeclaration, TypeDeclaration}
 import scalaz.Memo
 
 /** Helper that implements local type searching, extracted out as logic is a bit involved */
@@ -53,7 +53,7 @@ trait TypeFinder {
   }
 
   private def findTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {
-    getLocalTypeFor(typeName, from).orElse(this.getTypeOption(PlatformGetRequest(typeName, Some(from))))
+    getLocalTypeFor(typeName, from).orElse(this.getTypeOption(typeName, Some(from)))
   }
 
   private def findLocalTypeFor(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
@@ -112,12 +112,12 @@ trait TypeFinder {
     if (dotName.isCompound || from.outerTypeName.isEmpty) {
       None
     } else {
-      val outerType = this.getTypeOption(PlatformGetRequest(from.outerTypeName.get, Some(from)))
-      if (outerType.nonEmpty) {
-        if (dotName.names.head == outerType.get.name)
-          outerType
+      val outerType = this.getType(from.outerTypeName.get, Some(from))
+      if (outerType.isRight) {
+        if (dotName.names.head == outerType.right.get.name)
+          outerType.toOption
         else
-          findLocalTypeFor(dotName, outerType.get)
+          findLocalTypeFor(dotName, outerType.right.get)
       } else {
         None
       }

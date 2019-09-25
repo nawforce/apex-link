@@ -72,7 +72,7 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[Path], _basePa
   }
 
   def getTypes(typeNames: Seq[TypeName]): Seq[TypeDeclaration] = {
-    typeNames.flatMap(typeName => TypeRequest(typeName, this).right.toOption)
+    typeNames.flatMap(typeName => TypeRequest(typeName, this).toOption)
   }
 
   def deployAll(): Unit = {

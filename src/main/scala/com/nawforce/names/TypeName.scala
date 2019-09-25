@@ -133,6 +133,7 @@ object TypeName {
   lazy val DescribeSObjectResult$ = TypeName(Name.DescribeSObjectResult$, Nil, Some(TypeName.Internal))
 
   def describeSObjectResultOf(typeName: TypeName): TypeName = DescribeSObjectResult$.withParams(Seq(typeName))
+  def listOf(typeName: TypeName): TypeName = TypeName(Name.List, Seq(typeName), Some(TypeName.System))
 
   private lazy val aliasMap = Map[TypeName, String](
     Null -> "null",

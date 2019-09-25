@@ -30,23 +30,38 @@ package com.nawforce.types
 import com.nawforce.names.{DotName, Name, TypeName}
 import org.scalatest.FunSuite
 
-class PlatformTypeValidationTest extends FunSuite {
+class PlatformTypesValidationTest extends FunSuite {
+
+  private val generics = Map[String, String] (
+    "System.List" -> "System.List<T>",
+    "System.Iterator" -> "System.Iterator<T>",
+    "System.Map" -> "System.Map<K, V>",
+    "System.Set" -> "System.Set<T>",
+    "System.Iterable" -> "System.Iterable<T>",
+    "Database.Batchable" -> "Database.Batchable<T>",
+    "Internal.RecordSet$" -> "Internal.RecordSet$<T>",
+    "Internal.DescribeSObjectResult$" -> "Internal.DescribeSObjectResult$<T>",
+    "Internal.SObjectTypeFields$" -> "Internal.SObjectTypeFields$<T>",
+    "Internal.SObjectTypeFieldSets$" -> "Internal.SObjectTypeFieldSets$<T>"
+  )
 
   test("Right number of types (should exclude inners)") {
     assert(PlatformTypeDeclaration.classNames.size == 1309)
   }
 
   test("SObject type is visible") {
-    val td = PlatformTypeDeclaration.get(DotName(Name("User")))
-    assert(td.nonEmpty)
-    assert(td.get.typeName == TypeName(Name("User"), Nil, None))
+    val td = PlatformTypes.get(TypeName(Name("User")), None)
+    assert(td.isRight)
+    assert(td.right.get.typeName == TypeName(Name("User"), Nil, None))
   }
 
   test("All outer types are valid") {
     PlatformTypeDeclaration.classNames.foreach(className => {
-      val typeDeclaration = PlatformTypeDeclaration.get(className)
-      assert(typeDeclaration.nonEmpty)
-      validateTypeDeclaration(className, typeDeclaration.get)
+      if (!generics.contains(className.toString)) {
+        val typeDeclaration = PlatformTypeDeclaration.get(className.asTypeName(), None)
+        assert(typeDeclaration.isRight)
+        validateTypeDeclaration(className, typeDeclaration.right.get.asInstanceOf[PlatformTypeDeclaration])
+      }
     })
   }
 
@@ -54,25 +69,15 @@ class PlatformTypeValidationTest extends FunSuite {
     // name & typeName are valid
     assert(typeDeclaration.name.toString == className.lastName.toString)
     className.toString match {
-      case "System.List" => assert(typeDeclaration.typeName.toString == "System.List<T>")
-      case "System.Iterator" => assert(typeDeclaration.typeName.toString == "System.Iterator<T>")
-      case "System.Map" => assert(typeDeclaration.typeName.toString == "System.Map<K, V>")
-      case "System.Set" => assert(typeDeclaration.typeName.toString == "System.Set<T>")
-      case "System.Iterable" => assert(typeDeclaration.typeName.toString == "System.Iterable<T>")
-      case "Database.Batchable" => assert(typeDeclaration.typeName.toString == "Database.Batchable<T>")
-      case "Internal.RecordSet$"  => assert(typeDeclaration.typeName.toString == "Internal.RecordSet$<T>")
-      case "Internal.Object$"  => assert(typeDeclaration.typeName.toString == "Object")
-      case "Internal.Null$"  => assert(typeDeclaration.typeName.toString == "null")
-      case "Internal.DescribeSObjectResult$" => assert(typeDeclaration.typeName.toString == "Internal.DescribeSObjectResult$<T>")
-      case "Internal.SObjectTypeFields$" => assert(typeDeclaration.typeName.toString == "Internal.SObjectTypeFields$<T>")
-      case "Internal.SObjectTypeFieldSets$" => assert(typeDeclaration.typeName.toString == "Internal.SObjectTypeFieldSets$<T>")
+      case "Internal.Object$" => assert(typeDeclaration.typeName.toString == "Object")
+      case "Internal.Null$" => assert(typeDeclaration.typeName.toString == "null")
       case _ => assert(typeDeclaration.typeName.toString == className.toString)
     }
 
     // superClass & interfaces reference platform types
     if (typeDeclaration.superClass.nonEmpty)
-      assert(PlatformTypeDeclaration.get(typeDeclaration.superClass.get.asDotName).nonEmpty)
-    typeDeclaration.interfaces.foreach(tn => PlatformTypeDeclaration.get(tn.asDotName))
+      assert(PlatformTypeDeclaration.get(typeDeclaration.superClass.get, None).isRight)
+    typeDeclaration.interfaces.foreach(tn => PlatformTypeDeclaration.get(tn, None).isRight)
 
     // nature valid and superClass & interfaces are valid for it
     typeDeclaration.nature match {
@@ -110,8 +115,9 @@ class PlatformTypeValidationTest extends FunSuite {
         assert(typeDeclaration.fields.filter(_.typeName.toString == typeDeclaration.typeName.toString)
           == typeDeclaration.fields)
       case CLASS_NATURE =>
-        assert(typeDeclaration.fields.map(f =>PlatformTypeDeclaration.get(f.typeName.asDotName)).size
-          == typeDeclaration.fields.size)
+        typeDeclaration.fields.foreach(f =>{
+          assert(PlatformTypes.get(f.typeName, Some(typeDeclaration)).isRight)
+        })
     }
 
     // Constructors (make sure we can decompose them via toString)
@@ -123,9 +129,9 @@ class PlatformTypeValidationTest extends FunSuite {
 
   test("Exceptions are valid") {
     PlatformTypeDeclaration.classNames.filter(_.lastName.toString.endsWith("Exception")).foreach(className => {
-      val typeDeclaration = PlatformTypeDeclaration.get(className)
-      assert(typeDeclaration.nonEmpty)
-      val td = typeDeclaration.get
+      val typeDeclaration = PlatformTypeDeclaration.get(className.asTypeName(), None)
+      assert(typeDeclaration.isRight)
+      val td = typeDeclaration.right.get.asInstanceOf[PlatformTypeDeclaration]
 
       if (td.name.toString() != "Exception")
         assert(td.superClass.get.toString == "System.Exception")

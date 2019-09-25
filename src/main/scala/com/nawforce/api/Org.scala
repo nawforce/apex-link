@@ -104,7 +104,7 @@ class Org extends LazyLogging {
 
   def getType(namespace: Option[Name], dotName: DotName): Option[TypeDeclaration] = {
     val pkgOpt = packages.get(namespace)
-    pkgOpt.flatMap(pkg => TypeRequest(dotName.asTypeName(), pkg).right.toOption)
+    pkgOpt.flatMap(pkg => TypeRequest(dotName.asTypeName(), pkg).toOption)
   }
 
   /** Get a list of Apex types in the org*/
@@ -115,7 +115,7 @@ class Org extends LazyLogging {
   /** Retrieve type information for declaration. Separate compound names with a '.', e.g. 'System.String'. Returns
     * null if the type if not found */
   def getTypeInfo(name: String): TypeInfo = {
-    TypeRequest(DotName(name).asTypeName(), unmanaged).right.toOption.map(td => TypeInfo(td)).orNull
+    TypeRequest(DotName(name).asTypeName(), unmanaged).toOption.map(td => TypeInfo(td)).orNull
   }
 }
 

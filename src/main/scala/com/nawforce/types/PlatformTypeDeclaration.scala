@@ -30,15 +30,16 @@ package com.nawforce.types
 import java.nio.file.{FileSystems, Files, Path, Paths}
 import java.util
 
+import com.nawforce.finding.TypeRequest.TypeRequest
+import com.nawforce.finding.{MissingType, TypeError, WrongTypeArguments}
 import com.nawforce.names.{DotName, Name, TypeName}
-import scalaz.Scalaz._
 import scalaz._
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.HashMap
 import scala.collection.mutable
 
-/** Platform type declaration, a wrapper around a com.nawforce.platform Java classes */
+/* Platform type declaration, a wrapper around a com.nawforce.platform Java classes */
 case class PlatformTypeDeclaration(cls: java.lang.Class[_], outer: Option[PlatformTypeDeclaration])
   extends TypeDeclaration {
 
@@ -71,7 +72,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], outer: Option[Platfo
   }
 
   override def superClassDeclaration: Option[TypeDeclaration] = {
-    superClass.flatMap(sc => PlatformTypeDeclaration.get(PlatformGetRequest(sc, None)).toOption)
+    superClass.flatMap(sc => PlatformTypes.get(sc, None).toOption)
   }
 
   override lazy val interfaces: Seq[TypeName] = getInterfaces
@@ -130,7 +131,8 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], outer: Option[Platfo
 
 class PlatformField(field: java.lang.reflect.Field) extends FieldDeclaration {
   lazy val name: Name = Name(decodeName(field.getName))
-  lazy val typeName: TypeName = PlatformTypeDeclaration.typeNameFromClass(field.getType, field.getDeclaringClass)
+  lazy val typeName: TypeName =
+    PlatformTypeDeclaration.typeNameFromType(field.getGenericType, field.getDeclaringClass)
   lazy val modifiers: Seq[Modifier] = PlatformModifiers.fieldOrMethodModifiers(field.getModifiers)
   lazy val readAccess: Modifier = PUBLIC_MODIFIER
   lazy val writeAccess: Modifier = PUBLIC_MODIFIER
@@ -183,24 +185,10 @@ class PlatformMethod(val method: java.lang.reflect.Method, val typeDeclaration: 
   }
 }
 
-class PlatformTypeGetError
-case class MissingType(typeName: TypeName) extends PlatformTypeGetError {
-  override def toString: String = s"No type declaration found for '$typeName'"
-}
-case class WrongTypeArguments(typeName: TypeName, expected: Integer) extends PlatformTypeGetError {
-  override def toString: String = s"Wrong number of type arguments for '$typeName', expected $expected"
-}
-case class PackageGetError(error: String) extends PlatformTypeGetError {
-  override def toString: String = error
-}
-
-/* TODO: Turn into standalone class that has resolve logic */
-case class PlatformGetRequest(typeName: TypeName, from: Option[TypeDeclaration])
-
 object PlatformTypeDeclaration {
   val platformPackage = "com.nawforce.platform"
 
-  /** Get a Path that leads to platform classes */
+  /* Get a Path that leads to platform classes */
   lazy val platformPackagePath: Path = {
     val path = "/" + platformPackage.replaceAll("\\.", "/")
     val uri = classOf[PlatformTypeDeclaration].getResource(path).toURI
@@ -211,29 +199,31 @@ object PlatformTypeDeclaration {
     }
   }
 
-  /* Get a declaration for a class from a name, if one exists, searching of inner classes is not supported here */
-  def get(name: DotName): Option[PlatformTypeDeclaration] = {
-    declarationCache(name)
-  }
-
-  def get(typeName: TypeName, td: Option[TypeDeclaration]=None): ValidationNel[PlatformTypeGetError, TypeDeclaration] = {
-    get(PlatformGetRequest(typeName, td))
-  }
-
-  def get(request: PlatformGetRequest): ValidationNel[PlatformTypeGetError, TypeDeclaration] = {
-    val typeName = request.typeName
+  /* Get a type, in general don't call this direct, use TypeRequest which will delegate here if
+   * needed. If needed this will construct a GenericPlatformTypeDeclaration to specialise a
+   * PlatformTypeDeclaration but it does not handle nested classes, see PlatformTypes for that.
+   */
+  def get(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {
     val tdOption = declarationCache(typeName.asDotName)
     if (tdOption.isEmpty)
-      return (MissingType(typeName): PlatformTypeGetError).failureNel
+      return Left(MissingType(typeName))
 
+    // Quick fail on wrong number of type variables
     val td = tdOption.get
     if (td.typeName.params.size != typeName.params.size)
-      return (WrongTypeArguments(typeName, td.typeName.params.size): PlatformTypeGetError).failureNel
+      return Left(WrongTypeArguments(typeName, td.typeName.params.size))
 
     if (td.typeName.params.nonEmpty)
-      GenericPlatformTypeDeclaration.get(request)
+      GenericPlatformTypeDeclaration.get(typeName, from)
     else
-      td.successNel
+      Right(td)
+  }
+
+  /* Get a declaration for a class from a DotName, in general don't call this direct, use TypeRequest which will
+   * delegate here if needed. This does not handle generics or inner classes
+   */
+  def getDeclaration(name: DotName): Option[PlatformTypeDeclaration] = {
+    declarationCache(name)
   }
 
   private val declarationCache: DotName => Option[PlatformTypeDeclaration] =
@@ -254,7 +244,7 @@ object PlatformTypeDeclaration {
   lazy val namespaces: Set[Name] = classNameMap.keys.filter(_.isCompound).map(_.firstName)
     .filterNot(name => name == Name.SObjects || name == Name.Internal).toSet
 
-  /** Map of class names, it's a map just to allow easy recovery of the original case by looking at value */
+  /* Map of class names, it's a map just to allow easy recovery of the original case by looking at value */
   private lazy val classNameMap: HashMap[DotName, DotName] = {
     val names = mutable.HashMap[DotName, DotName]()
     indexDir(platformPackagePath, DotName(Seq()), names)
@@ -262,7 +252,8 @@ object PlatformTypeDeclaration {
   }
 
   /* Index .class files, we have to index to make sure we get natural case sensitive names, but also used
-  * to re-map SObject so they appear in root of platform namespace */
+   * to re-map SObject so they appear in root of platform namespace.
+   */
   private def indexDir(path: Path, prefix: DotName, accum: mutable.HashMap[DotName, DotName]): Unit = {
     Files.list(path).iterator.asScala.foreach(entry => {
       val filename = entry.getFileName.toString
@@ -281,7 +272,7 @@ object PlatformTypeDeclaration {
     })
   }
 
-  /** Create a TypeName from a Java class with null checking */
+  /* Create a TypeName from a Java class with null checking */
   private def typeNameOptional(cls: java.lang.Class[_], contextCls: java.lang.Class[_]): Option[TypeName] = {
     cls match {
       case null => None
@@ -289,7 +280,7 @@ object PlatformTypeDeclaration {
     }
   }
 
-  /** Create a TypeName from a Java Type, handles type variables as well as classes */
+  /* Create a TypeName from a Java Type, handles type variables as well as classes */
   def typeNameFromType(paramType: java.lang.reflect.Type, contextCls: java.lang.Class[_]): TypeName = {
     paramType match {
       case cls: Class[_] => PlatformTypeDeclaration.typeNameFromClass(cls, contextCls)
@@ -298,28 +289,33 @@ object PlatformTypeDeclaration {
         val cname = pt.getRawType.getTypeName
         assert(cname.startsWith(platformPackage), s"Reference to non-platform type $cname in ${contextCls.getCanonicalName}")
         val names = cname.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse
-        val params = pt.getActualTypeArguments.map(ta => Name(ta.getTypeName))
-        TypeName(names).withParams(params.toSeq.map(TypeName(_)))
+        val params = pt.getActualTypeArguments.map(ta => typeNameFromType(ta, contextCls))
+        TypeName(names).withParams(params)
     }
   }
 
-  /** Create a TypeName from a Java class */
+  /* Create a TypeName from a Java class */
   def typeNameFromClass(cls: java.lang.Class[_], contextCls: java.lang.Class[_]): TypeName = {
-    val cname = cls.getCanonicalName
-    if (cname == "java.lang.Object") {
-      TypeName.Object
-    } else if (cname == "void") {
-      TypeName.Void
-    } else if (cname.startsWith(platformPackage+".SObjects")) {
-      val names = cls.getCanonicalName.drop(platformPackage.length + 10).split('.').map(n => Name(n)).reverse
-      val params = cls.getTypeParameters.map(tp => Name(tp.getName))
-      TypeName(names).withParams(params.toSeq.map(TypeName(_)))
-    } else {
-      assert(cname.startsWith(platformPackage), s"Reference to non-platform type $cname in ${contextCls.getCanonicalName}")
-      val names = cls.getCanonicalName.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse
-      val params = cls.getTypeParameters.map(tp => Name(tp.getName))
-      TypeName(names).withParams(params.toSeq.map(TypeName(_)))
-    }
+    val cname = if (cls.isArray) cls.getComponentType.getCanonicalName else cls.getCanonicalName
+    val typeName =
+      if (cname == "java.lang.Object") {
+        TypeName.Object
+      } else if (cname == "void") {
+        TypeName.Void
+      } else if (cname.startsWith(platformPackage+".SObjects")) {
+        val names = cname.drop(platformPackage.length + 10).split('.').map(n => Name(n)).reverse
+        val params = cls.getTypeParameters.map(tp => Name(tp.getName))
+        TypeName(names).withParams(params.toSeq.map(TypeName(_)))
+      } else {
+        assert(cname.startsWith(platformPackage), s"Reference to non-platform type $cname in ${contextCls.getCanonicalName}")
+        val names = cname.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse
+        val params = cls.getTypeParameters.map(tp => Name(tp.getName))
+        TypeName(names).withParams(params.toSeq.map(TypeName(_)))
+      }
+    if (cls.isArray)
+      TypeName.listOf(typeName)
+    else
+      typeName
   }
 }
 

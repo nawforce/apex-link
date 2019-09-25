@@ -29,7 +29,7 @@ package com.nawforce.cst
 
 import com.nawforce.api.Org
 import com.nawforce.documents.Location
-import com.nawforce.finding.TypeRequest
+import com.nawforce.finding.{TypeError, TypeRequest}
 import com.nawforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.types._
 
@@ -51,9 +51,9 @@ trait VerifyContext {
   def addDependency(dependant: Dependant): Unit
 
   /** Helper to locate a relative or absolute type and add as dependency if found */
-  def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[String, TypeDeclaration]
+  def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration]
 
-  def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): Either[String, TypeDeclaration] = {
+  def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): Either[TypeError, TypeDeclaration] = {
     getTypeAndAddDependency(typeName, Some(from))
   }
 
@@ -81,13 +81,13 @@ trait HolderVerifyContext {
   def dependencies: Set[Dependant] = _dependencies.toSet
 
   /* Locate a type, typeName may be relative so searching must be performed wrt a typeDeclaration */
-  def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[String, TypeDeclaration]
+  def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration]
 
   def addDependency(dependant: Dependant): Unit = {
     _dependencies += dependant
   }
 
-  def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[String, TypeDeclaration] = {
+  def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration] = {
     val result = getTypeFor(typeName, from)
     result.foreach(addDependency)
     result
@@ -105,7 +105,7 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: A
 
   override def superType: Option[TypeDeclaration] = typeDeclaration.superClassDeclaration
 
-  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[String, TypeDeclaration] = {
+  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration] = {
     TypeRequest(typeName, from, thisType.flatMap(_.packageDeclaration))
   }
 
@@ -124,7 +124,7 @@ class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDe
 
   override def superType: Option[TypeDeclaration] = parentContext.superType
 
-  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[String, TypeDeclaration] = {
+  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration] = {
     parentContext.getTypeFor(typeName, from)
   }
 
@@ -147,7 +147,7 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
 
   override def addDependency(dependant: Dependant): Unit = parentContext.addDependency(dependant)
 
-  override def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[String, TypeDeclaration] = {
+  override def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration] = {
     parentContext.getTypeAndAddDependency(typeName, from)
   }
 
@@ -160,7 +160,7 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
   }
 
   def addVar(name: Name, location: Location, typeName: TypeName): Unit = {
-    val td = getTypeAndAddDependency(typeName, thisType.get).right.toOption
+    val td = getTypeAndAddDependency(typeName, thisType.get).toOption
     if (td.isEmpty)
       missingType(location, typeName)
 
@@ -201,7 +201,7 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext)
 
   override def addDependency(dependant: Dependant): Unit = parentContext.addDependency(dependant)
 
-  override def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[String, TypeDeclaration] = {
+  override def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration] = {
     parentContext.getTypeAndAddDependency(typeName, from)
   }
 

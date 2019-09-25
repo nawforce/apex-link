@@ -1,9 +1,13 @@
 package com.nawforce.types
 
+import com.nawforce.finding.TypeRequest.TypeRequest
+import com.nawforce.finding.{MissingType, TypeError, TypeRequest}
 import com.nawforce.names.{Name, TypeName}
-import scalaz.Scalaz._
 import scalaz._
 
+/* Wrapper for the few generic types we support, this specialises the methods of the type so that
+ * List<T> presents as say a List<Foo>.
+ */
 class GenericPlatformTypeDeclaration(_typeName: TypeName, genericDecl: PlatformTypeDeclaration)
   extends PlatformTypeDeclaration(genericDecl.cls, genericDecl.outer) {
 
@@ -72,46 +76,35 @@ class GenericPlatformParameter(platformParameter: PlatformParameter, _typeDeclar
 }
 
 object GenericPlatformTypeDeclaration {
-  def get(request: PlatformGetRequest): ValidationNel[PlatformTypeGetError, TypeDeclaration] = {
-    declarationCache(request)
+
+  /* Get a generic type, in general don't call this direct, use TypeRequest which will delegate here if
+   * needed. Implicit in this model is that all generics are currently platform types, hopefully that
+   * won't be true forever.
+   */
+  def get(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {
+    declarationCache((typeName, from))
   }
 
-  private val declarationCache: PlatformGetRequest => ValidationNel[PlatformTypeGetError, TypeDeclaration] =
-    Memo.immutableHashMapMemo {request: PlatformGetRequest => find(request)}
+  private val declarationCache = Memo.immutableHashMapMemo
+    [(TypeName, Option[TypeDeclaration]), TypeRequest] {
+    case (typeName: TypeName, from: Option[TypeDeclaration]) => find(typeName, from)
+  }
 
-  private def find(request: PlatformGetRequest): ValidationNel[PlatformTypeGetError, TypeDeclaration] = {
-    val typeName = request.typeName
-    val pkg = request.from.flatMap(_.packageDeclaration)
-
-    def getParamType(typeName: TypeName): ValidationNel[PlatformTypeGetError, TypeDeclaration] = {
-      if (pkg.nonEmpty) {
-        if (request.from.nonEmpty) {
-          pkg.get.getTypeFor(typeName, request.from.get) match {
-            case None => (MissingType(typeName): PlatformTypeGetError).failureNel
-            case Some(td) => td.successNel
-          }
-        } else {
-          pkg.get.getType(PlatformGetRequest(typeName, request.from)) match {
-            case Left(error) => (PackageGetError(error): PlatformTypeGetError).failureNel
-            case Right(td) => td.successNel
-          }
-        }
-      } else {
-        PlatformTypeDeclaration.get(PlatformGetRequest(typeName, request.from))
-      }
-    }
-
+  private def find(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {
     // Make sure params are resolvable first
-    val failedParam = typeName.params.map(pt => (pt, getParamType(pt))).find(_._2.isFailure)
-    if (failedParam.nonEmpty) {
-      return (MissingType(failedParam.get._1): PlatformTypeGetError).failureNel
+    val params = typeName.params.map(pt => (pt, TypeRequest(pt, from, None)))
+    val failedParams = params.find(_._2.isLeft)
+    if (failedParams.nonEmpty) {
+      return Left(MissingType(failedParams.get._1))
     }
 
-    // And the base type
-    val genericDecl = PlatformTypeDeclaration.get(typeName.asDotName)
-    if (genericDecl.nonEmpty)
-      new GenericPlatformTypeDeclaration(typeName, genericDecl.get).successNel
-    else
-      (MissingType(typeName): PlatformTypeGetError).failureNel
+    // And then create off base type
+    val genericDecl = PlatformTypeDeclaration.getDeclaration(typeName.asDotName)
+    if (genericDecl.nonEmpty) {
+      val absoluteParamTypes = params.map(_._2.right.get.typeName)
+      Right(new GenericPlatformTypeDeclaration(typeName.withParams(absoluteParamTypes), genericDecl.get))
+    } else {
+      Left(MissingType(typeName))
+    }
   }
 }

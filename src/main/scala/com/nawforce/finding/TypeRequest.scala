@@ -28,29 +28,25 @@
 package com.nawforce.finding
 
 import com.nawforce.names.TypeName
-import com.nawforce.types.{PackageDeclaration, PlatformGetRequest, PlatformTypeDeclaration, TypeDeclaration}
-import scalaz.{Failure, Success}
+import com.nawforce.types.{PackageDeclaration, PlatformTypeDeclaration, PlatformTypes, TypeDeclaration}
 
 /** Helper for abstracting various ways of finding types based on context info, these are:
-  *   None - Can only be used for platform type search
+  *   None - Can only be used for a platform type search
   *   PackageDeclaration - Package, dependant package & platform type search
   *   TypeDeclaration (where code is located) - Local, (package, dependant package if packaged) & platform type search
   *
   *   Note: Platform TypeDeclarations are not packaged & not all code (triggers, anon) comes from TypeDeclarations,
-  *   unmanaged code is part of a special package declaration with no namespace
+  *   unmanaged code is part of a special package declaration with no namespace.
   **/
 object TypeRequest {
-  type TypeRequest = Either[String, TypeDeclaration]
+  type TypeRequest = Either[TypeError, TypeDeclaration]
 
   def apply(typeName: TypeName): TypeRequest = {
-    PlatformTypeDeclaration.get(typeName, None) match {
-      case Success(td) => Right(td)
-      case Failure(e) => Left(e.head.toString)
-    }
+    PlatformTypes.get(typeName, None)
   }
 
   def apply(typeName: TypeName, pkg: PackageDeclaration): TypeRequest = {
-    pkg.getType(PlatformGetRequest(typeName, None))
+    pkg.getType(typeName, None)
   }
 
   def apply(typeName: TypeName, from: TypeDeclaration): TypeRequest = {
@@ -58,13 +54,10 @@ object TypeRequest {
     if (pkg.nonEmpty) {
       pkg.get.getTypeFor(typeName, from) match {
         case Some(td) => Right(td)
-        case None => Left(s"No type declaration found for '$typeName'")
+        case None => Left(MissingType(typeName))
       }
     } else {
-      PlatformTypeDeclaration.get(typeName, Some(from)) match {
-        case Success(td) => Right(td)
-        case Failure(e) => Left(e.head.toString)
-      }
+      PlatformTypes.get(typeName, Some(from))
     }
   }
 

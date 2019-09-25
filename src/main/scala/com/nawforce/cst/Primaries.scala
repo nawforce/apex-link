@@ -84,7 +84,7 @@ final case class TypeRefPrimary(typeName: TypeName) extends Primary {
 
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
-    val td = context.getTypeAndAddDependency(typeName, context.thisType).right.toOption
+    val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
     if (td.isEmpty)
       context.missingType(location, typeName)
     ExprContext(isStatic = true, Some(PlatformTypes.typeType))
@@ -106,7 +106,7 @@ final case class IdPrimary(id: Id) extends Primary {
         val name = id.name
         val field = findField(name, td, input.isStatic)
         if (field.nonEmpty) {
-          val target = context.getTypeAndAddDependency(field.get.typeName, td).right.toOption
+          val target = context.getTypeAndAddDependency(field.get.typeName, td).toOption
           return ExprContext(isStatic = false, target)
         }
 
@@ -124,7 +124,7 @@ final case class IdPrimary(id: Id) extends Primary {
     val absTd = TypeRequest(TypeName(id.name), context.pkg)
     if (absTd.isRight) {
       context.addDependency(absTd.right.get)
-      return ExprContext(isStatic = true, absTd.right.toOption)
+      return ExprContext(isStatic = true, absTd.toOption)
     }
 
     context.missingIdentifier(location, input.declaration.get.typeName, id.name)

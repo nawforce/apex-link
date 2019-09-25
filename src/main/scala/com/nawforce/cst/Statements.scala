@@ -225,7 +225,7 @@ final case class EnhancedForControl(modifiers: Seq[Modifier], typeName: TypeName
   override def children(): List[CST] = id :: expression :: Nil
 
   override def verify(context: BlockVerifyContext): Unit = {
-    val forType = context.getTypeAndAddDependency(typeName, context.thisType).right.toOption
+    val forType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
     if (forType.isEmpty)
       context.missingType(id.location, typeName)
     expression.verify(context)

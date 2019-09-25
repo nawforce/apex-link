@@ -41,7 +41,7 @@ import org.antlr.v4.runtime.CommonTokenStream
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-/** Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
+/* Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
 abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeName: Option[TypeName],
                                    val id: Id, _modifiers: Seq[Modifier],
                                    val superClass: Option[TypeName], val interfaces: Seq[TypeName],
@@ -144,7 +144,7 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
       Org.logMessage(td.id.location, s"Duplicate type name '${td.name.toString}'"))
 
     interfaces.foreach(interface => {
-      val td = context.getTypeAndAddDependency(interface, context.thisType).right.toOption
+      val td = context.getTypeAndAddDependency(interface, context.thisType).toOption
       if (td.isEmpty) {
         if (!context.pkg.isGhostedType(interface))
           Org.logMessage(id.location, s"No declaration found for interface '${interface.toString}'")
