@@ -185,7 +185,16 @@ class StandardObjectTest extends FunSuite {
     assert(!org.issues.hasMessages)
   }
 
-  /* TODO: Fix me !
+  test("Unknown Object describe error") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Foo;} }".getBytes())
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+      "line 1 at 48-63: Unknown field or type 'Foo' on 'Schema.SObjectType'\n")
+  }
+
   test("Field describable") {
     val fs = Jimfs.newFileSystem(Configuration.unix)
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Account.Fields.Fax;} }".getBytes())
@@ -195,5 +204,24 @@ class StandardObjectTest extends FunSuite {
     org.issues.dumpMessages(false)
     assert(!org.issues.hasMessages)
   }
-  */
+
+  test("Unknown Field describe error") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Account.Fields.Foo;} }".getBytes())
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+      "line 1 at 48-78: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.Fields'\n")
+  }
+
+  test("Unknown FieldSet describe error") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Account.FieldSets.Foo;} }".getBytes())
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+      "line 1 at 48-81: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.FieldSets'\n")
+  }
 }

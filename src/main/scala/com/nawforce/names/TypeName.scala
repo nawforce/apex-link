@@ -85,12 +85,23 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
   def asClassOf: TypeName = new TypeName(Name.Class$, Seq(this), Some(TypeName.System))
 
   override def toString: String = {
-    val alias = TypeName.aliasMap.get(this)
-    alias.getOrElse({
-      (if (outer.isEmpty) "" else outer.get.toString + ".") +
-        name.toString +
-        (if (params.isEmpty) "" else s"<${params.map(_.toString).mkString(", ")}>")
-    })
+    this match {
+      case TypeName.Null => "null"
+      case TypeName.Any => "any"
+      case TypeName.InternalObject => "Object"
+      case TypeName.RecordSet => "[SOQL Results]"
+      case TypeName(Name.DescribeSObjectResult$, Seq(TypeName(name, Nil, None)), Some(TypeName.Internal)) =>
+        s"Schema.SObjectType.$name"
+      case TypeName(Name.SObjectTypeFields$, Seq(TypeName(name, Nil, None)), Some(TypeName.Internal)) =>
+        s"Schema.SObjectType.$name.Fields"
+      case TypeName(Name.SObjectTypeFieldSets$, Seq(TypeName(name, Nil, None)), Some(TypeName.Internal)) =>
+        s"Schema.SObjectType.$name.FieldSets"
+
+      case _ =>
+        (if (outer.isEmpty) "" else outer.get.toString + ".") +
+          name.toString +
+          (if (params.isEmpty) "" else s"<${params.map(_.toString).mkString(", ")}>")
+    }
   }
 }
 
@@ -129,18 +140,18 @@ object TypeName {
   lazy val Schema = TypeName(Name.Schema)
   lazy val SObjectType = TypeName(Name.SObjectType, Nil, Some(TypeName.Schema))
   lazy val SObjectField = TypeName(Name.SObjectField, Nil, Some(TypeName.Schema))
+  lazy val FieldSet = TypeName(Name.FieldSet, Nil, Some(TypeName.Schema))
   lazy val DescribeSObjectResult = TypeName(Name.DescribeSObjectResult, Nil, Some(TypeName.Schema))
+  lazy val DescribeFieldResult = TypeName(Name.DescribeFieldResult, Nil, Some(TypeName.Schema))
   lazy val DescribeSObjectResult$ = TypeName(Name.DescribeSObjectResult$, Nil, Some(TypeName.Internal))
+  lazy val SObjectTypeFields$ = TypeName(Name.SObjectTypeFields$, Nil, Some(TypeName.Internal))
+  lazy val SObjectTypeFieldSets$ = TypeName(Name.SObjectTypeFieldSets$, Nil, Some(TypeName.Internal))
 
   def describeSObjectResultOf(typeName: TypeName): TypeName = DescribeSObjectResult$.withParams(Seq(typeName))
-  def listOf(typeName: TypeName): TypeName = TypeName(Name.List, Seq(typeName), Some(TypeName.System))
+  def sObjectTypeFields$(typeName: TypeName): TypeName = SObjectTypeFields$.withParams(Seq(typeName))
+  def sObjectTypeFieldSets$(typeName: TypeName): TypeName = SObjectTypeFieldSets$.withParams(Seq(typeName))
 
-  private lazy val aliasMap = Map[TypeName, String](
-    Null -> "null",
-    Any -> "any",
-    InternalObject -> "Object",
-    RecordSet -> "[SOQL Results]"
-  )
+  def listOf(typeName: TypeName): TypeName = TypeName(Name.List, Seq(typeName), Some(TypeName.System))
 
   def apply(names: Seq[Name]): TypeName = {
     names match {

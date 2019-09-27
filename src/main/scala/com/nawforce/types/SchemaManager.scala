@@ -32,16 +32,19 @@ import com.nawforce.documents.Location
 import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{EncodedName, Name, TypeName}
 
-import scala.collection.{mutable, _}
+import scala.collection.mutable
 
+/* Support for Schema.* handling in Apex */
 class SchemaManager(pkg: PackageDeclaration) {
   val sobjectTypes: SchemaSObjectType = new SchemaSObjectType(pkg)
   val relatedLists: RelatedLists = new RelatedLists(pkg)
 }
 
+/* Relationship field tracker, handles finding related lists */
 class RelatedLists(pkg: PackageDeclaration) {
   private val relationshipFields = mutable.Map[TypeName, Seq[(CustomFieldDeclaration, Name, Location)]]() withDefaultValue Seq()
 
+  /* Declare a new relationship field */
   def add(sObject: TypeName, relationshipName: Name, holdingFieldName: Name, holdingSObject: TypeName, location: Location): Unit = {
     val field = CustomFieldDeclaration(relationshipName, TypeName(Name.List, Seq(holdingSObject), None))
     synchronized {
@@ -49,6 +52,7 @@ class RelatedLists(pkg: PackageDeclaration) {
     }
   }
 
+  /* Post object loading validation to make sure relationships exist */
   def validate(): Unit = {
     val changedObjects = mutable.Set[TypeDeclaration]()
 
@@ -68,45 +72,87 @@ class RelatedLists(pkg: PackageDeclaration) {
 
     // Wrap any objects with lookups relationships so they are visible
     changedObjects.foreach(td => {
-      pkg.upsertType(SObjectDeclaration(pkg, td.typeName, td.fields, isComplete = true))
+      pkg.upsertType(SObjectDeclaration(pkg, td.typeName, Set(), td.fields, isComplete = true))
     })
   }
 
+  /* Find for a relationship field on an SObject*/
   def findField(sobjectType: TypeName, name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
     relationshipFields(sobjectType).find(field => field._1.name == name).map(_._1)
   }
 }
 
-class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDeclaration(pkg, TypeName.SObjectType) {
+/* Schema.SObjectType implementation */
+final case class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDeclaration(pkg, TypeName.SObjectType) {
   private val sobjectFields: mutable.Map[Name, FieldDeclaration] = mutable.Map()
 
+  /* Allow adding of virtual SObjects such as for shares etc */
   def add(sObject: SObjectDeclaration): Unit = {
-    val fd = CustomFieldDeclaration(sObject.name, TypeName.describeSObjectResultOf(sObject.typeName), asStatic = true)
-    sobjectFields.put(name, fd)
+    createSObjectDescribeField(sObject.name, sObject.typeName)
   }
 
+  /* Find a specific SObject */
   override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
     if (!staticOnly)
       return None
 
     val typeName = EncodedName(name).asTypeName
     if (pkg.isGhostedType(typeName)) {
-      return Some(createField(name, typeName))
+      return Some(createSObjectDescribeField(name, typeName))
     }
 
     sobjectFields.get(name).orElse({
+      /* If not yet present check if we should create and cache */
       val td = TypeRequest(typeName, pkg).toOption
       if (td.nonEmpty && td.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
-        Some(createField(name, td.get.typeName))
+        Some(createSObjectDescribeField(name, td.get.typeName))
       } else {
         None
       }
     })
   }
 
-  private def createField(name: Name, typeName: TypeName): FieldDeclaration = {
-    val fd = CustomFieldDeclaration(name, TypeName.describeSObjectResultOf(typeName), asStatic = true)
-    sobjectFields.put(name, fd)
-    fd
+  /* Create the describe entries for an SObject, note we are using generics to tunnel the type so that
+   * we can support Field & FieldSet access via injecting virtual TypeDeclarations for these.
+   */
+  private def createSObjectDescribeField(sobjectName: Name, typeName: TypeName): FieldDeclaration = {
+    pkg.upsertType(new SchemaSObjectTypeFields(sobjectName, pkg))
+    pkg.upsertType(new SchemaSObjectTypeFieldSets(sobjectName, pkg))
+
+    val describeField = CustomFieldDeclaration(sobjectName, TypeName.describeSObjectResultOf(typeName), asStatic = true)
+    sobjectFields.put(sobjectName, describeField)
+    describeField
+  }
+}
+
+final case class SchemaSObjectTypeFields(sobjectName: Name, pkg: PackageDeclaration)
+  extends NamedTypeDeclaration(pkg, TypeName.sObjectTypeFields$(TypeName(sobjectName))) {
+
+  private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
+    TypeRequest(TypeName(sobjectName), pkg).toOption match {
+      case Some(sobject: TypeDeclaration) =>
+        sobject.fields.map(field => (field.name, CustomFieldDeclaration(field.name, TypeName.SObjectField))).toMap
+      case _ => Map()
+    }
+  }
+
+  override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
+    sobjectFields.get(name)
+  }
+}
+
+final case class SchemaSObjectTypeFieldSets(sobjectName: Name, pkg: PackageDeclaration)
+  extends NamedTypeDeclaration(pkg, TypeName.sObjectTypeFieldSets$(TypeName(sobjectName))) {
+
+  private lazy val sobjectFieldSets: Map[Name, FieldDeclaration] = {
+    TypeRequest(TypeName(sobjectName), pkg).toOption match {
+      case Some(sobject: SObjectDeclaration) =>
+        sobject.fieldSets.map(name => (name, CustomFieldDeclaration(name, TypeName.FieldSet))).toMap
+      case _ => Map()
+    }
+  }
+
+  override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
+    sobjectFieldSets.get(name)
   }
 }

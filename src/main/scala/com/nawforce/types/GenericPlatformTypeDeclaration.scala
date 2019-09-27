@@ -1,7 +1,7 @@
 package com.nawforce.types
 
 import com.nawforce.finding.TypeRequest.TypeRequest
-import com.nawforce.finding.{MissingType, TypeError, TypeRequest}
+import com.nawforce.finding.{MissingType, TypeRequest}
 import com.nawforce.names.{Name, TypeName}
 import scalaz._
 
@@ -20,6 +20,10 @@ class GenericPlatformTypeDeclaration(_typeName: TypeName, genericDecl: PlatformT
   override lazy val superClass: Option[TypeName] = getSuperClass.map(replaceParams)
   override lazy val interfaces: Seq[TypeName] = getInterfaces.map(replaceParams)
 
+  override lazy val fields: Seq[FieldDeclaration] = {
+    getFields.map(f => new GenericPlatformField(f, this))
+  }
+
   override lazy val methods: Seq[MethodDeclaration] = {
     getMethods.map(m => new GenericPlatformMethod(m, this))
   }
@@ -37,6 +41,22 @@ class GenericPlatformTypeDeclaration(_typeName: TypeName, genericDecl: PlatformT
   }
 }
 
+class GenericPlatformField(platformField: PlatformField, _typeDeclaration: GenericPlatformTypeDeclaration)
+  extends FieldDeclaration {
+
+  override val name: Name = platformField.name
+  override val modifiers: Seq[Modifier] = platformField.modifiers
+  override val readAccess: Modifier = platformField.readAccess
+  override val writeAccess: Modifier = platformField.writeAccess
+
+  override lazy val typeName: TypeName = {
+    val fieldType = _typeDeclaration.replaceParams(
+      PlatformTypeDeclaration.typeNameFromType(platformField.field.getGenericType, platformField.field.getDeclaringClass)
+    )
+    _typeDeclaration.getTypeVariable(fieldType).getOrElse(fieldType)
+  }
+}
+
 class GenericPlatformMethod(platformMethod: PlatformMethod, _typeDeclaration: GenericPlatformTypeDeclaration)
   extends MethodDeclaration {
 
@@ -45,7 +65,8 @@ class GenericPlatformMethod(platformMethod: PlatformMethod, _typeDeclaration: Ge
 
   override lazy val typeName: TypeName = {
     val paramType = _typeDeclaration.replaceParams(
-      PlatformTypeDeclaration.typeNameFromType(platformMethod.method.getGenericReturnType,  platformMethod.getDeclaringClass)
+      PlatformTypeDeclaration.typeNameFromType(platformMethod.method.getGenericReturnType,
+        platformMethod.method.getDeclaringClass)
     )
     _typeDeclaration.getTypeVariable(paramType).getOrElse(paramType)
   }

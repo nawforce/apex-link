@@ -32,9 +32,48 @@ import java.nio.file.Path
 import com.nawforce.api.Org
 import com.nawforce.documents._
 import com.nawforce.names.{EncodedName, Name, TypeName}
+import com.nawforce.types.CustomFieldDeclaration.parseField
 import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
 
 import scala.xml.{Elem, SAXParseException}
+
+final case class SObjectDetails(fields: Seq[CustomFieldDeclaration], fieldSets: Set[Name])
+
+object SObjectDetails {
+  def parseSObject(path: Path, sObjectType: TypeName, pkg: PackageDeclaration): SObjectDetails = {
+    try {
+      val root = XMLLineLoader.load(StreamProxy.getInputStream(path))
+      XMLUtils.assertIs(root, "CustomObject")
+
+      val fields = root.child.flatMap {
+        case elem: Elem if elem.namespace == XMLUtils.sfNamespace && elem.label == "fields" =>
+          parseField(elem, path, pkg, sObjectType)
+        case _ => None
+      }
+
+      val fieldsSets = root.child.flatMap {
+        case elem: Elem if elem.namespace == XMLUtils.sfNamespace && elem.label == "fieldSets" =>
+          Some(parseFieldSet(elem, path, pkg, sObjectType))
+        case _ => None
+      }
+
+      SObjectDetails(fields, fieldsSets.toSet)
+
+    } catch {
+      case e: XMLException =>
+        Org.logMessage(RangeLocation(path, e.where), e.msg)
+        SObjectDetails(Seq(), Set())
+      case e: SAXParseException => Org.logMessage(PointLocation(path,
+        Position(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage)
+        SObjectDetails(Seq(), Set())
+    }
+  }
+
+  private def parseFieldSet(elem: Elem, path: Path, pkg: PackageDeclaration, name: TypeName): Name = {
+    EncodedName(XMLUtils.getSingleChildAsString(elem, "fullName"))
+      .defaultNamespace(pkg.namespace).fullName
+  }
+}
 
 final case class CustomFieldDeclaration(name: Name, typeName: TypeName, asStatic: Boolean = false)
   extends FieldDeclaration {
@@ -47,28 +86,10 @@ final case class CustomFieldDeclaration(name: Name, typeName: TypeName, asStatic
   override lazy val isStatic: Boolean = asStatic
 }
 
+
 object CustomFieldDeclaration {
-  def parse(path: Path, pkg: PackageDeclaration, sObjectType: TypeName): Seq[CustomFieldDeclaration] = {
-    try {
-      val root = XMLLineLoader.load(StreamProxy.getInputStream(path))
-      XMLUtils.assertIs(root, "CustomObject")
 
-      root.child.flatMap {
-        case elem: Elem if elem.namespace == XMLUtils.sfNamespace && elem.label == "fields" =>
-          parseField(elem, path, pkg, sObjectType)
-        case _ => None
-      }
-
-    } catch {
-      case e: XMLException => Org.logMessage(RangeLocation(path, e.where), e.msg); Seq()
-      case e: SAXParseException => Org.logMessage(PointLocation(path,
-        Position(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage)
-        Seq()
-    }
-  }
-
-  private def parseField(elem: Elem, path: Path, pkg: PackageDeclaration, sObjectType: TypeName): Seq[CustomFieldDeclaration] = {
-
+  def parseField(elem: Elem, path: Path, pkg: PackageDeclaration, sObjectType: TypeName): Seq[CustomFieldDeclaration] = {
     val rawName: String = XMLUtils.getSingleChildAsString(elem, "fullName")
     val name = Name(pkg.namespace.map(ns => s"${ns.value}__$rawName").getOrElse(rawName))
     val rawType: String = XMLUtils.getSingleChildAsString(elem, "type")

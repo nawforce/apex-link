@@ -120,8 +120,12 @@ object Name {
   lazy val RecordTypeId: Name = cache("RecordTypeId")
   lazy val SObjectType: Name = cache("SObjectType")
   lazy val SObjectField: Name = cache("SObjectField")
+  lazy val FieldSet: Name = cache("FieldSet")
   lazy val DescribeSObjectResult: Name = cache("DescribeSObjectResult")
+  lazy val DescribeFieldResult: Name = cache("DescribeFieldResult")
   lazy val DescribeSObjectResult$: Name = cache("DescribeSObjectResult$")
+  lazy val SObjectTypeFields$: Name = cache("SObjectTypeFields$")
+  lazy val SObjectTypeFieldSets$: Name = cache("SObjectTypeFieldSets$")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 }

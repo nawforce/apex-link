@@ -36,7 +36,7 @@ import org.scalatest.FunSuite
 
 class CustomObjectTest extends FunSuite {
 
-  def customObject(label: String, fields: Seq[(String, String, Option[String])]): String = {
+  def customObject(label: String, fields: Seq[(String, String, Option[String])], fieldSets: Set[String]=Set()): String = {
     val fieldMetadata = fields.map(field => {
       s"""
          |    <fields>
@@ -48,10 +48,20 @@ class CustomObjectTest extends FunSuite {
          |""".stripMargin
     })
 
+    val fieldSetMetadata = fieldSets.map(fieldSet => {
+      s"""
+         |    <fieldSets>
+         |        <fullName>$fieldSet</fullName>
+         |    </fieldSets>
+         |""".stripMargin
+    })
+
+
     s"""<?xml version="1.0" encoding="UTF-8"?>
       |<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
       |    <fullName>$label</fullName>
       |    $fieldMetadata
+      |    $fieldSetMetadata
       |</CustomObject>
       |""".stripMargin
   }
@@ -282,5 +292,67 @@ class CustomObjectTest extends FunSuite {
     val pkg2 = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq(pkg1))
     pkg2.deployAll()
     assert(!org.issues.hasMessages)
+  }
+
+  test("Object describable") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c;} }".getBytes())
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Unknown Object describe error") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c;} }".getBytes())
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+      "line 1 at 48-66: Unknown field or type 'Foo__c' on 'Schema.SObjectType'\n")
+  }
+
+  test("Field describable") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.Fields.Bar__c;} }".getBytes())
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Unknown Field describe error") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.Fields.Baz__c;} }".getBytes())
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+      "line 1 at 48-80: Unknown field or type 'Baz__c' on 'Schema.SObjectType.Foo__c.Fields'\n")
+  }
+
+  test("FieldSet describable") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(), Set("TestFS")).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.FieldSets.TestFS;} }".getBytes())
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Unknown FieldSet describe error") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(), Set("TestFS")).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.FieldSets.OtherFS;} }".getBytes())
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+      "line 1 at 48-84: Unknown field or type 'OtherFS' on 'Schema.SObjectType.Foo__c.FieldSets'\n")
   }
 }

@@ -90,9 +90,22 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], outer: Option[Platfo
 
   override lazy val blocks: Seq[BlockDeclaration] = Seq.empty
 
-  override lazy val fields: Seq[FieldDeclaration] = cls.getFields.filter(
-    _.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
-    .map(f => new PlatformField(f))
+  override lazy val fields: Seq[FieldDeclaration] = getFields
+
+  protected def getFields: Seq[PlatformField] = collectFields(cls).values.toSeq
+
+  private def collectFields(cls: Class[_],
+                            accum: mutable.Map[Name, PlatformField]=mutable.Map()): mutable.Map[Name, PlatformField] = {
+    if (cls.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage)) {
+      cls.getDeclaredFields.filter(!_.isSynthetic).foreach(f => {
+        val name = Name(f.getName)
+        if (!accum.contains(name))
+          accum.put(name, new PlatformField(f))
+      })
+      Option(cls.getSuperclass).foreach(superClass => collectFields(superClass, accum))
+    }
+    accum
+  }
 
   override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
     if (isSObject) {
@@ -129,7 +142,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], outer: Option[Platfo
   override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
 }
 
-class PlatformField(field: java.lang.reflect.Field) extends FieldDeclaration {
+class PlatformField(val field: java.lang.reflect.Field) extends FieldDeclaration {
   lazy val name: Name = Name(decodeName(field.getName))
   lazy val typeName: TypeName =
     PlatformTypeDeclaration.typeNameFromType(field.getGenericType, field.getDeclaringClass)
@@ -169,7 +182,6 @@ class PlatformMethod(val method: java.lang.reflect.Method, val typeDeclaration: 
   lazy val typeName: TypeName = PlatformTypeDeclaration.typeNameFromClass(method.getReturnType, method.getDeclaringClass)
   lazy val modifiers: Seq[Modifier] = PlatformModifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
   lazy val parameters: Seq[ParameterDeclaration] = getParameters
-  def getDeclaringClass: Class[_] =  method.getDeclaringClass
 
   def getParameters: Seq[PlatformParameter] = method.getParameters.map(p => new PlatformParameter(p, method.getDeclaringClass))
 

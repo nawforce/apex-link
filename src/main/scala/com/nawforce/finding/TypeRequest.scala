@@ -62,9 +62,13 @@ object TypeRequest {
   }
 
   def apply(typeName: TypeName, from: Option[TypeDeclaration], pkg: Option[PackageDeclaration]): TypeRequest = {
-    if (from.nonEmpty)
-      apply(typeName, from.get)
-    else if (pkg.nonEmpty)
+    if (from.nonEmpty) {
+      // Allow override of platform types in packages to support Schema.SObjectType handling
+      if (from.get.packageDeclaration.isEmpty && pkg.nonEmpty)
+        apply(typeName, pkg.get)
+      else
+        apply(typeName, from.get)
+    } else if (pkg.nonEmpty)
       apply(typeName, pkg.get)
     else
       apply(typeName)

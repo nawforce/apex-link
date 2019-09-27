@@ -30,7 +30,7 @@ package com.nawforce.types
 import com.nawforce.names.TypeName
 import scalaz.Memo
 
-final class AnyDeclaration(pkg: PackageDeclaration) extends NamedTypeDeclaration(pkg, TypeName.Any) {
+final case class AnyDeclaration(pkg: PackageDeclaration) extends NamedTypeDeclaration(pkg, TypeName.Any) {
   override val isAny: Boolean = true
 }
 
