@@ -131,13 +131,23 @@ final case class SchemaSObjectTypeFields(sobjectName: Name, pkg: PackageDeclarat
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
     TypeRequest(TypeName(sobjectName), pkg).toOption match {
       case Some(sobject: TypeDeclaration) =>
-        sobject.fields.map(field => (field.name, CustomFieldDeclaration(field.name, TypeName.SObjectField))).toMap
+        sobject.fields.map(field => (field.name, CustomFieldDeclaration(field.name, TypeName.DescribeFieldResult))).toMap
       case _ => Map()
     }
   }
 
+  private val ghostedSobjectFields: mutable.Map[Name, FieldDeclaration] = mutable.Map()
+
   override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
     sobjectFields.get(name)
+      .orElse(ghostedSobjectFields.get(name))
+      .orElse(synchronized {
+        val typeName = EncodedName(name).asTypeName
+        if (pkg.isGhostedType(typeName)) {
+          ghostedSobjectFields.put(name, CustomFieldDeclaration(name, TypeName.DescribeFieldResult))
+        }
+        ghostedSobjectFields.get(name)
+      })
   }
 }
 

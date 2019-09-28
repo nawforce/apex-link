@@ -1,7 +1,7 @@
 package com.nawforce.types
 
 import com.nawforce.finding.TypeRequest.TypeRequest
-import com.nawforce.finding.{MissingType, TypeRequest}
+import com.nawforce.finding.{MissingType, TypeError, TypeRequest}
 import com.nawforce.names.{Name, TypeName}
 import scalaz._
 
@@ -114,7 +114,8 @@ object GenericPlatformTypeDeclaration {
   private def find(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {
     // Make sure params are resolvable first
     val params = typeName.params.map(pt => (pt, TypeRequest(pt, from, None)))
-    val failedParams = params.find(_._2.isLeft)
+    val pkg = from.flatMap(_.packageDeclaration)
+    val failedParams = params.find(_._2.isLeft).filterNot(p => pkg.exists(_.isGhostedType(p._1)))
     if (failedParams.nonEmpty) {
       return Left(MissingType(failedParams.get._1))
     }
@@ -122,7 +123,10 @@ object GenericPlatformTypeDeclaration {
     // And then create off base type
     val genericDecl = PlatformTypeDeclaration.getDeclaration(typeName.asDotName)
     if (genericDecl.nonEmpty) {
-      val absoluteParamTypes = params.map(_._2.right.get.typeName)
+      val absoluteParamTypes = params.map(p => p._2 match {
+        case Left(error: TypeError) => error.typeName
+        case Right(paramType: TypeDeclaration) => paramType.typeName
+      })
       Right(new GenericPlatformTypeDeclaration(typeName.withParams(absoluteParamTypes), genericDecl.get))
     } else {
       Left(MissingType(typeName))

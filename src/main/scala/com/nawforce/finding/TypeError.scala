@@ -30,13 +30,16 @@ package com.nawforce.finding
 import com.nawforce.names.TypeName
 
 /** Collection of error types returned from type requests */
-class TypeError
-case class MissingType(typeName: TypeName) extends TypeError {
+sealed abstract class TypeError(val typeName: TypeName)
+
+final case class MissingType(_typeName: TypeName) extends TypeError(_typeName) {
   override def toString: String = s"No type declaration found for '$typeName'"
 }
-case class WrongTypeArguments(typeName: TypeName, expected: Integer) extends TypeError {
+
+final case class WrongTypeArguments(_typeName: TypeName, expected: Integer) extends TypeError(_typeName) {
   override def toString: String = s"Wrong number of type arguments for '$typeName', expected $expected"
 }
-case class PackageGetError(error: String) extends TypeError {
+
+final case class PackageGetError(_typeName: TypeName, error: String) extends TypeError(_typeName) {
   override def toString: String = error
 }
