@@ -31,6 +31,13 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
 
   lazy val outerName: Name = outer.map(_.outerName).getOrElse(name)
 
+  def withName(newName: Name): TypeName = {
+    if (newName != name)
+      TypeName(newName, params, outer)
+    else
+      this
+  }
+
   def withParams(newParams: Seq[TypeName]): TypeName = {
     if (newParams != params)
       TypeName(name, newParams, outer)

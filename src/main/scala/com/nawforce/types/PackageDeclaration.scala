@@ -45,6 +45,7 @@ abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Pa
   def documentsByExtension(ext: Name): Seq[Path] = documents.getByExtension(ext)
 
   def isGhosted: Boolean = paths.isEmpty
+  def any(): AnyDeclaration
   def schema(): SchemaManager
   def labels(): LabelDeclaration
   def pages(): PageDeclaration
@@ -105,7 +106,7 @@ abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Pa
 
     if (typeName.outer.nonEmpty) {
       declaration = getPackageType(typeName.outer.get, inPackage = inPackage).flatMap(
-        _.nestedTypes.find(td => td.typeName == typeName && (td.isExternallyVisible || inPackage)))
+        _.nestedTypes.find(td => td.name == typeName.name && (td.isExternallyVisible || inPackage)))
       if (declaration.nonEmpty)
         return declaration
     }

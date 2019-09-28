@@ -28,16 +28,7 @@
 package com.nawforce.types
 
 import com.nawforce.names.TypeName
-import scalaz.Memo
 
 final case class AnyDeclaration(pkg: PackageDeclaration) extends NamedTypeDeclaration(pkg, TypeName.Any) {
   override val isAny: Boolean = true
-}
-
-object AnyDeclaration {
-  def apply(pkg: PackageDeclaration): AnyDeclaration = anyCache(pkg)
-
-  private val anyCache : PackageDeclaration => AnyDeclaration =
-    Memo.immutableHashMapMemo { pkg: PackageDeclaration => new AnyDeclaration(pkg) }
-
 }

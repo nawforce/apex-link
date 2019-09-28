@@ -39,10 +39,10 @@ import scala.collection.mutable
 
 final case class ComponentDeclaration(pkg: PackageDeclaration) extends TypeDeclaration {
 
-  private val components = new ConcurrentHashMap[Option[Name], TypeDeclaration]()
-  components.put(Some(Name("Apex")),
+  private val components = new ConcurrentHashMap[Name, TypeDeclaration]()
+  components.put(Name("Apex"),
     TypeRequest(TypeName(Name("Apex"), Nil, Some(TypeName(Name("Component"))))).toOption.get)
-  components.put(Some(Name("Chatter")),
+  components.put(Name("Chatter"),
     TypeRequest(TypeName(Name("Chatter"), Nil, Some(TypeName(Name("Component"))))).toOption.get)
 
   override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
@@ -57,7 +57,9 @@ final case class ComponentDeclaration(pkg: PackageDeclaration) extends TypeDecla
   override val superClass: Option[TypeName] = None
   override def superClassDeclaration: Option[TypeDeclaration] = None
   override val interfaces: Seq[TypeName] = Nil
-  override def nestedTypes: Seq[TypeDeclaration] = components.values().asScala.toSeq
+  override def nestedTypes: Seq[TypeDeclaration] = {
+    components.values().asScala.toSeq
+  }
 
   override val blocks: Seq[BlockDeclaration] =  Nil
   override val fields: Seq[FieldDeclaration] = Nil
@@ -73,11 +75,11 @@ final case class ComponentDeclaration(pkg: PackageDeclaration) extends TypeDecla
     if (namespace.nonEmpty)
       getNamespaceContainer(namespace.get).foreach(_.upsertComponent(component))
 
-    components.put(Some(component.name), CustomComponent(pkg, component.name, component.path))
+    components.put(component.name, CustomComponent(pkg, component.name, component.path))
   }
 
   private def getNamespaceContainer(namespace: Name): Option[ComponentNamespace] = {
-    components.putIfAbsent(Some(namespace), ComponentNamespace(pkg, namespace))
+    components.putIfAbsent(namespace, ComponentNamespace(pkg, namespace))
     components.get(namespace) match {
       case componentNamespace: ComponentNamespace => Some(componentNamespace)
       case _ => None

@@ -117,13 +117,23 @@ object SObjectDeclaration {
         if (pkg.isGhostedType(typeName))
           Seq(extendExisting(path, typeName, pkg, None))
         else {
-          val sobjectType = TypeRequest(typeName, pkg).toOption
-          if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
-            Org.logMessage(LineLocation(path, 0), s"No sObject declaration found for '$typeName'")
-            return Seq()
-          }
-          Seq(extendExisting(path, typeName, pkg, sobjectType))
+          createExisting(typeName, path, pkg)
         }
+    }
+  }
+
+  private def createExisting(typeName: TypeName, path: Path, pkg: PackageDeclaration) : Seq[TypeDeclaration] = {
+    if (typeName.name == Name.Activity) {
+      // Fake Activity as applying to Task & Event, how bizarre is that
+      createExisting(typeName.withName(Name.Task), path, pkg) ++
+        createExisting(typeName.withName(Name.Event), path, pkg)
+    } else {
+      val sobjectType = TypeRequest(typeName, pkg).toOption
+      if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
+        Org.logMessage(LineLocation(path, 0), s"No sObject declaration found for '$typeName'")
+        return Seq()
+      }
+      Seq(extendExisting(path, typeName, pkg, sobjectType))
     }
   }
 

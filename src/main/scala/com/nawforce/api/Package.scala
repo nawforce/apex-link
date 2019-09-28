@@ -43,6 +43,7 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[Path], _basePa
   extends PackageDeclaration(_namespace, _paths, _basePackages) with LazyLogging {
 
   private val schemaManager = new SchemaManager(this)
+  private val anyDeclaration = AnyDeclaration(this)
   private val labelDeclaration = LabelDeclaration(this)
   private val pageDeclaration = PageDeclaration(this)
   private val flowDeclaration = FlowDeclaration(this)
@@ -50,6 +51,7 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[Path], _basePa
   initTypes()
 
   private def initTypes(): Unit = {
+    upsertType(anyDeclaration.typeName, anyDeclaration)
     upsertType(schemaManager.sobjectTypes.typeName, schemaManager.sobjectTypes)
     upsertType(TypeName(schemaManager.sobjectTypes.name), schemaManager.sobjectTypes)
     upsertType(labelDeclaration.typeName, labelDeclaration)
@@ -59,6 +61,7 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[Path], _basePa
     upsertType(componentDeclaration.typeName, componentDeclaration)
   }
 
+  override def any(): AnyDeclaration = anyDeclaration
   override def schema(): SchemaManager = schemaManager
   override def labels(): LabelDeclaration = labelDeclaration
   override def pages(): PageDeclaration = pageDeclaration

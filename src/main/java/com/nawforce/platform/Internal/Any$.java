@@ -25,17 +25,8 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.platform.ApexPages;
-
-import com.nawforce.platform.Internal.Any$;
-import com.nawforce.platform.System.List;
-import com.nawforce.platform.System.String;
+package com.nawforce.platform.Internal;
 
 @SuppressWarnings("unused")
-public class Component {
-	public List<Component> childComponents;
-	public Any$ expressions;
-	public String facets;
-
-	public Component getComponentById(String id) {throw new java.lang.UnsupportedOperationException();}
+public class Any$ {
 }

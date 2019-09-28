@@ -164,7 +164,7 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
     if (td.isEmpty)
       missingType(location, typeName)
 
-    vars.put(name, td.getOrElse(AnyDeclaration(pkg)))
+    vars.put(name, td.getOrElse(pkg.any()))
   }
 
   def isStatic: Boolean
