@@ -33,17 +33,34 @@ import com.nawforce.api.Org
 import com.nawforce.documents._
 import com.nawforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.types.CustomFieldDeclaration.parseField
+import com.nawforce.xml.XMLUtils.getLine
 import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
 
 import scala.xml.{Elem, SAXParseException}
 
-final case class SObjectDetails(fields: Seq[CustomFieldDeclaration], fieldSets: Set[Name])
+sealed abstract class CustomSettingType(val setting: String) {
+  override def toString: String = setting
+}
+case object ListCustomSettingType extends CustomSettingType("List")
+case object HierarchyCustomSettingsType extends CustomSettingType("Hierarchy")
+
+final case class SObjectDetails(customSettingType: Option[CustomSettingType], fields: Seq[CustomFieldDeclaration], fieldSets: Set[Name])
 
 object SObjectDetails {
   def parseSObject(path: Path, sObjectType: TypeName, pkg: PackageDeclaration): SObjectDetails = {
     try {
       val root = XMLLineLoader.load(StreamProxy.getInputStream(path))
       XMLUtils.assertIs(root, "CustomObject")
+
+      val customSettingsType = XMLUtils.getOptionalSingleChildAsString(root, "customSettingsType") match {
+        case Some("List") => Some(ListCustomSettingType)
+        case Some("Hierarchy") => Some(HierarchyCustomSettingsType)
+        case Some(x) =>
+          Org.logMessage(RangeLocation(path, TextRange(XMLUtils.getLine(root))),
+            s"Unexpected customSettingsType value '$x', should be 'List' or 'Hierarchy'")
+          None
+        case _ => None
+      }
 
       val fields = root.child.flatMap {
         case elem: Elem if elem.namespace == XMLUtils.sfNamespace && elem.label == "fields" =>
@@ -57,15 +74,15 @@ object SObjectDetails {
         case _ => None
       }
 
-      SObjectDetails(fields, fieldsSets.toSet)
+      SObjectDetails(customSettingsType, fields, fieldsSets.toSet)
 
     } catch {
       case e: XMLException =>
         Org.logMessage(RangeLocation(path, e.where), e.msg)
-        SObjectDetails(Seq(), Set())
+        SObjectDetails(None, Seq(), Set())
       case e: SAXParseException => Org.logMessage(PointLocation(path,
         Position(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage)
-        SObjectDetails(Seq(), Set())
+        SObjectDetails(None, Seq(), Set())
     }
   }
 

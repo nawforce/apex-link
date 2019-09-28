@@ -38,7 +38,8 @@ import com.nawforce.names.{DotName, EncodedName, Name, TypeName}
 
 import scala.collection.mutable
 
-final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName, fieldSets: Set[Name],
+final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName,
+                                    customSettingType: Option[CustomSettingType], fieldSets: Set[Name],
                                     override val fields: Seq[FieldDeclaration], override val isComplete: Boolean)
   extends NamedTypeDeclaration(pkg, _typeName) {
 
@@ -132,18 +133,29 @@ object SObjectDeclaration {
     val fields =
       CustomFieldDeclaration(Name.NameName, PlatformTypes.stringType.typeName) +:
       CustomFieldDeclaration(Name.RecordTypeId, PlatformTypes.idType.typeName) +:
-        (PlatformTypes.sObjectType.fields ++ sobjectDetails.fields)
+        (PlatformTypes.sObjectType.fields ++
+          sobjectDetails.fields ++
+          (if (sobjectDetails.customSettingType.contains(HierarchyCustomSettingsType))
+            Seq(CustomFieldDeclaration(Name.SetupOwnerId, PlatformTypes.idType.typeName))
+          else Seq())
+          )
 
-    val sobjects: Seq[SObjectDeclaration] = Seq(
-      new SObjectDeclaration(pkg, typeName, sobjectDetails.fieldSets, fields, isComplete = true),
+    val supportObjects: Seq[SObjectDeclaration] =
+      if (sobjectDetails.customSettingType.isEmpty) {
+        Seq(
+          // TODO: Check fields & when should be available
+          createShare(pkg, typeName),
+          createFeed(pkg, typeName),
+          createHistory(pkg, typeName)
+        )
+      } else Seq()
 
-      // TODO: Check fields & when should be available
-      createShare(pkg, typeName),
-      createFeed(pkg, typeName),
-      createHistory(pkg, typeName)
-    )
-    sobjects.foreach(pkg.schema().sobjectTypes.add)
-    sobjects
+    val allObjects =
+      new SObjectDeclaration(pkg, typeName, sobjectDetails.customSettingType, sobjectDetails.fieldSets, fields, isComplete = true) +:
+      supportObjects
+
+    allObjects.foreach(pkg.schema().sobjectTypes.add)
+    allObjects
   }
 
   private def extendExisting(path: Path, typeName: TypeName, pkg: PackageDeclaration, base: Option[TypeDeclaration]): TypeDeclaration = {
@@ -156,7 +168,8 @@ object SObjectDeclaration {
 
     // TODO: Collect base fieldsets ?
 
-    new SObjectDeclaration(pkg, typeName, sobjectDetails.fieldSets, fields.values.toSeq, isComplete)
+    new SObjectDeclaration(pkg, typeName, sobjectDetails.customSettingType, sobjectDetails.fieldSets,
+      fields.values.toSeq, isComplete)
   }
 
   private def collectBaseFields(sObject: DotName, pkg: PackageDeclaration): mutable.Map[Name, FieldDeclaration] = {
@@ -179,7 +192,7 @@ object SObjectDeclaration {
 
   private def createShare(pkg: PackageDeclaration, typeName: TypeName): SObjectDeclaration = {
     val shareName = typeName.withNameReplace("__c$", "__Share")
-    SObjectDeclaration(pkg, shareName, Set(), shareFields, isComplete = true)
+    SObjectDeclaration(pkg, shareName, None, Set(), shareFields, isComplete = true)
   }
 
   private lazy val shareFields = PlatformTypes.sObjectType.fields ++ Seq(
@@ -191,7 +204,7 @@ object SObjectDeclaration {
 
   private def createFeed(pkg: PackageDeclaration, typeName: TypeName): SObjectDeclaration = {
     val shareName = typeName.withNameReplace("__c$", "__Feed")
-    SObjectDeclaration(pkg, shareName, Set(), feedFields, isComplete = true)
+    SObjectDeclaration(pkg, shareName, None, Set(), feedFields, isComplete = true)
   }
 
   private lazy val feedFields = PlatformTypes.sObjectType.fields ++ Seq(
@@ -213,7 +226,7 @@ object SObjectDeclaration {
 
   private def createHistory(pkg: PackageDeclaration, typeName: TypeName): SObjectDeclaration = {
     val shareName = typeName.withNameReplace("__c$", "__Feed")
-    SObjectDeclaration(pkg, shareName, Set(), historyFields, isComplete = true)
+    SObjectDeclaration(pkg, shareName, None, Set(), historyFields, isComplete = true)
   }
 
   private lazy val historyFields = PlatformTypes.sObjectType.fields ++ Seq(

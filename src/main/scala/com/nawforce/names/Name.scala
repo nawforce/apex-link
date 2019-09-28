@@ -118,6 +118,7 @@ object Name {
   lazy val Integer: Name = cache("Integer")
   lazy val Long: Name = cache("Long")
   lazy val RecordTypeId: Name = cache("RecordTypeId")
+  lazy val SetupOwnerId: Name = cache("SetupOwnerId")
   lazy val SObjectType: Name = cache("SObjectType")
   lazy val SObjectField: Name = cache("SObjectField")
   lazy val FieldSet: Name = cache("FieldSet")

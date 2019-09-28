@@ -36,7 +36,7 @@ import scala.collection.mutable
 
 /* Support for Schema.* handling in Apex */
 class SchemaManager(pkg: PackageDeclaration) {
-  val sobjectTypes: SchemaSObjectType = new SchemaSObjectType(pkg)
+  val sobjectTypes: SchemaSObjectType = SchemaSObjectType(pkg)
   val relatedLists: RelatedLists = new RelatedLists(pkg)
 }
 
@@ -72,7 +72,7 @@ class RelatedLists(pkg: PackageDeclaration) {
 
     // Wrap any objects with lookups relationships so they are visible
     changedObjects.foreach(td => {
-      pkg.upsertType(SObjectDeclaration(pkg, td.typeName, Set(), td.fields, isComplete = true))
+      pkg.upsertType(SObjectDeclaration(pkg, td.typeName, None, Set(), td.fields, isComplete = true))
     })
   }
 
@@ -116,8 +116,8 @@ final case class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDec
    * we can support Field & FieldSet access via injecting virtual TypeDeclarations for these.
    */
   private def createSObjectDescribeField(sobjectName: Name, typeName: TypeName): FieldDeclaration = {
-    pkg.upsertType(new SchemaSObjectTypeFields(sobjectName, pkg))
-    pkg.upsertType(new SchemaSObjectTypeFieldSets(sobjectName, pkg))
+    pkg.upsertType(SchemaSObjectTypeFields(sobjectName, pkg))
+    pkg.upsertType(SchemaSObjectTypeFieldSets(sobjectName, pkg))
 
     val describeField = CustomFieldDeclaration(sobjectName, TypeName.describeSObjectResultOf(typeName), asStatic = true)
     sobjectFields.put(sobjectName, describeField)
