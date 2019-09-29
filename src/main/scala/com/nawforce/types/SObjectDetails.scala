@@ -27,15 +27,15 @@
 */
 package com.nawforce.types
 
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 
 import com.nawforce.api.Org
 import com.nawforce.documents._
 import com.nawforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.types.CustomFieldDeclaration.parseField
-import com.nawforce.xml.XMLUtils.getLine
 import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
 
+import scala.collection.JavaConverters._
 import scala.xml.{Elem, SAXParseException}
 
 sealed abstract class CustomSettingType(val setting: String) {
@@ -67,14 +67,16 @@ object SObjectDetails {
           parseField(elem, path, pkg, sObjectType)
         case _ => None
       }
+      val sfdxFields = parseSfdxFields(path, pkg, sObjectType)
 
       val fieldsSets = root.child.flatMap {
         case elem: Elem if elem.namespace == XMLUtils.sfNamespace && elem.label == "fieldSets" =>
-          Some(parseFieldSet(elem, path, pkg, sObjectType))
+          Some(parseFieldSet(elem, path, pkg))
         case _ => None
       }
+      val sfdxFieldSets = parseSfdxFieldSets(path, pkg)
 
-      SObjectDetails(customSettingsType, fields, fieldsSets.toSet)
+      SObjectDetails(customSettingsType, fields ++ sfdxFields, (fieldsSets ++ sfdxFieldSets).toSet)
 
     } catch {
       case e: XMLException =>
@@ -86,9 +88,61 @@ object SObjectDetails {
     }
   }
 
-  private def parseFieldSet(elem: Elem, path: Path, pkg: PackageDeclaration, name: TypeName): Name = {
+  private def parseFieldSet(elem: Elem, path: Path, pkg: PackageDeclaration): Name = {
     EncodedName(XMLUtils.getSingleChildAsString(elem, "fullName"))
       .defaultNamespace(pkg.namespace).fullName
+  }
+
+  private def parseSfdxFields(path: Path, pkg: PackageDeclaration, sObjectType: TypeName): Seq[CustomFieldDeclaration] = {
+    val fieldsDir = path.getParent.resolve("fields")
+    if (Files.isDirectory(fieldsDir)) {
+      Files.newDirectoryStream(fieldsDir).asScala.flatMap(file => {
+        if (Files.isRegularFile(file) && file.toString.endsWith(".field-meta.xml")) {
+          try {
+            val root = XMLLineLoader.load(StreamProxy.getInputStream(file))
+            XMLUtils.assertIs(root, "CustomField")
+            parseField(root, path, pkg, sObjectType)
+          } catch {
+            case e: XMLException =>
+              Org.logMessage(RangeLocation(file, e.where), e.msg)
+              None
+            case e: SAXParseException => Org.logMessage(PointLocation(file,
+              Position(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage)
+              None
+          }
+        } else {
+          None
+        }
+      }).toSeq
+    } else {
+      Seq()
+    }
+  }
+
+  private def parseSfdxFieldSets(path: Path, pkg: PackageDeclaration): Seq[Name] = {
+    val fieldsDir = path.getParent.resolve("fieldSets")
+    if (Files.isDirectory(fieldsDir)) {
+      Files.newDirectoryStream(fieldsDir).asScala.flatMap(file => {
+        if (Files.isRegularFile(file) && file.toString.endsWith(".fieldSet-meta.xml")) {
+          try {
+            val root = XMLLineLoader.load(StreamProxy.getInputStream(file))
+            XMLUtils.assertIs(root, "FieldSet")
+            Some(parseFieldSet(root, path, pkg))
+          } catch {
+            case e: XMLException =>
+              Org.logMessage(RangeLocation(file, e.where), e.msg)
+              None
+            case e: SAXParseException => Org.logMessage(PointLocation(file,
+              Position(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage)
+              None
+          }
+        } else {
+          None
+        }
+      }).toSeq
+    } else {
+      Seq()
+    }
   }
 }
 

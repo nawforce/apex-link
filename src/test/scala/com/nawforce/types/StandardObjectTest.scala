@@ -29,6 +29,25 @@ class StandardObjectTest extends FunSuite {
        |""".stripMargin
   }
 
+  def customField(name: String, fieldType: String, relationshipName: Option[String]): String = {
+    s"""<?xml version="1.0" encoding="UTF-8"?>
+       |<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+       |    <fullName>$name</fullName>
+       |    <type>$fieldType</type>
+       |    ${if (relationshipName.nonEmpty) s"<referenceTo>${relationshipName.get}</referenceTo>" else ""}
+       |    ${if (relationshipName.nonEmpty) s"<relationshipName>${name.replaceAll("__c$","")}</relationshipName>" else ""}
+       |</CustomField>
+       |""".stripMargin
+  }
+
+  def customFieldSet(name: String): String = {
+    s"""<?xml version="1.0" encoding="UTF-8"?>
+       |<FieldSet xmlns="http://soap.sforce.com/2006/04/metadata">
+       |    <fullName>$name</fullName>
+       |</FieldSet>
+       |""".stripMargin
+  }
+
   test("Not a standard object") {
     val fs = Jimfs.newFileSystem(Configuration.unix)
     Files.write(fs.getPath("Foo.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
@@ -223,5 +242,32 @@ class StandardObjectTest extends FunSuite {
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
       "line 1 at 48-81: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.FieldSets'\n")
+  }
+
+  test("Sfdx field reference") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.createDirectory(fs.getPath("Account"))
+    Files.createDirectory(fs.getPath("Account/fields"))
+    Files.write(fs.getPath("Account/Account.object-meta.xml"), customObject("Account", Seq()).getBytes())
+    Files.write(fs.getPath("Account/fields/Bar__c.field-meta.xml"), customField("Bar__c", "Text", None).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Account.Bar__c;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Sfdx FieldSet describable") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.createDirectory(fs.getPath("Account"))
+    Files.createDirectory(fs.getPath("Account/fieldSets"))
+    Files.write(fs.getPath("Account/Account.object-meta.xml"), customObject("Account", Seq()).getBytes())
+    Files.write(fs.getPath("Account/fieldSets/TestFS.fieldSet-meta.xml"), customFieldSet("TestFS").getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Account.FieldSets.TestFS;} }".getBytes())
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
   }
 }
