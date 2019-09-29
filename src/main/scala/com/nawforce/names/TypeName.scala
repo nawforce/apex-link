@@ -143,6 +143,7 @@ object TypeName {
 
   lazy val ApexPages = TypeName(Name.ApexPages)
   lazy val ApexPagesPageReference = TypeName(Name.PageReference, Nil, Some(TypeName.ApexPages))
+  lazy val ApexPagesComponent = TypeName(Name.Component, Nil, Some(TypeName.ApexPages))
 
   lazy val Schema = TypeName(Name.Schema)
   lazy val SObjectType = TypeName(Name.SObjectType, Nil, Some(TypeName.Schema))

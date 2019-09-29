@@ -49,6 +49,7 @@ object PlatformTypes {
   lazy val timeType: TypeDeclaration = loadType(TypeName.Time)
   lazy val blobType: TypeDeclaration = loadType(TypeName.Blob)
   lazy val locationType: TypeDeclaration = loadType(TypeName.Location)
+  lazy val componentType: TypeDeclaration = loadType(TypeName.ApexPagesComponent)
 
   private def loadType(typeName: TypeName): TypeDeclaration = {
     PlatformTypeDeclaration.get(typeName, None).right.get

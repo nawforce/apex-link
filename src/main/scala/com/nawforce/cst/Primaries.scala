@@ -146,8 +146,7 @@ final case class SOQL(soql: String) extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
 
-    // TODO: Handle driving object & aggregates
-    ExprContext(isStatic = false, Some(PlatformTypes.recordSetType))
+    ExprContext(isStatic = false, Some(context.pkg.any()))
   }
 }
 

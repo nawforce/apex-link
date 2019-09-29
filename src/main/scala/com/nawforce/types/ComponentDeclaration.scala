@@ -103,7 +103,7 @@ final case class CustomComponent(pkg: PackageDeclaration, name: Name, path: Path
   override val nestedTypes: Seq[TypeDeclaration] = Nil
 
   override val blocks: Seq[BlockDeclaration] = Nil
-  override val fields: Seq[FieldDeclaration]= Nil
+  override val fields: Seq[FieldDeclaration]= PlatformTypes.componentType.fields
   override val constructors: Seq[ConstructorDeclaration] = Nil
   override val methods: Seq[MethodDeclaration]= Nil
 

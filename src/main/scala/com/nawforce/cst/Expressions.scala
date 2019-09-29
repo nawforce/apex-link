@@ -146,9 +146,9 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
     }
 
     val inter = expression.verify(input, context)
-    if (inter.declaration.nonEmpty) {
+    if (inter.isDefined) {
       if (inter.isStatic || !inter.declaration.get.typeName.isList)
-        context.logMessage(location, s"Only Lists can be de-referenced as an array")
+        context.logMessage(location, s"Only Lists can be de-referenced as an array, found '${inter.declaration.get.typeName}'")
       else
         // TODO: Extract type parameter of list
         ExprContext.empty
