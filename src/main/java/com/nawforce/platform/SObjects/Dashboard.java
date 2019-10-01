@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class Dashboard extends SObject {
+	public static SObjectType$<Dashboard> SObjectType;
 	public String BackgroundDirection;
 	public Integer BackgroundEnd;
 	public Integer BackgroundStart;

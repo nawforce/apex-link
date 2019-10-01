@@ -111,7 +111,7 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
 object SObjectDeclaration {
   def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[TypeDeclaration] = {
     val typeName = parseName(path, pkg.namespace)
-    if (typeName.name.value.endsWith("__c") && typeName.outer.map(_.name) == pkg.namespace) {
+    if (isIntroducing(typeName, pkg)) {
       createNew(path, typeName, pkg)
     } else {
         if (pkg.isGhostedType(typeName))
@@ -122,6 +122,11 @@ object SObjectDeclaration {
     }
   }
 
+  private def isIntroducing(typeName: TypeName, pkg: PackageDeclaration): Boolean = {
+    (typeName.name.value.endsWith("__c") && typeName.outer.map(_.name) == pkg.namespace) ||
+      typeName.name.value.endsWith("__mdt")
+  }
+
   private def createExisting(typeName: TypeName, path: Path, pkg: PackageDeclaration) : Seq[TypeDeclaration] = {
     if (typeName.name == Name.Activity) {
       // Fake Activity as applying to Task & Event, how bizarre is that
@@ -130,7 +135,7 @@ object SObjectDeclaration {
     } else {
       val sobjectType = TypeRequest(typeName, pkg).toOption
       if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
-        Org.logMessage(LineLocation(path, 0), s"No sObject declaration found for '$typeName'")
+        Org.logMessage(LineLocation(path, 0), s"No SObject declaration found for '$typeName'")
         return Seq()
       }
       Seq(extendExisting(path, typeName, pkg, sobjectType))
@@ -143,7 +148,8 @@ object SObjectDeclaration {
     val fields =
       CustomFieldDeclaration(Name.NameName, PlatformTypes.stringType.typeName) +:
       CustomFieldDeclaration(Name.RecordTypeId, PlatformTypes.idType.typeName) +:
-        (PlatformTypes.sObjectType.fields ++
+      CustomFieldDeclaration(Name.SObjectType, TypeName.sObjectType$(typeName), asStatic = true) +:
+        (PlatformTypes.sObjectType.fields.filterNot(f => f.name == Name.SObjectType) ++
           sobjectDetails.fields ++
           (if (sobjectDetails.customSettingType.contains(HierarchyCustomSettingsType))
             Seq(CustomFieldDeclaration(Name.SetupOwnerId, PlatformTypes.idType.typeName))
@@ -151,7 +157,7 @@ object SObjectDeclaration {
           )
 
     val supportObjects: Seq[SObjectDeclaration] =
-      if (sobjectDetails.customSettingType.isEmpty) {
+      if (sobjectDetails.customSettingType.isEmpty && !typeName.name.value.endsWith("__mdt")) {
         Seq(
           // TODO: Check fields & when should be available
           createShare(pkg, typeName),
@@ -196,7 +202,7 @@ object SObjectDeclaration {
 
   private def parseName(path: Path, namespace: Option[Name]): TypeName = {
     val dt = DocumentType.apply(path)
-    assert(dt.exists(_.isInstanceOf[SObjectDocument]))
+    assert(dt.exists(_.isInstanceOf[SObjectLike]))
     EncodedName(dt.get.name).defaultNamespace(namespace).asTypeName
   }
 

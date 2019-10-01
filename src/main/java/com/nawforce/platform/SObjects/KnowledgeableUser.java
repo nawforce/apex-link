@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class KnowledgeableUser extends SObject {
+	public static SObjectType$<KnowledgeableUser> SObjectType;
 	public Integer RawRank;
 	public Id TopicId;
 	public Topic Topic;

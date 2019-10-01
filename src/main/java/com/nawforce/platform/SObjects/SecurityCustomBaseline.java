@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class SecurityCustomBaseline extends SObject {
+	public static SObjectType$<SecurityCustomBaseline> SObjectType;
 	public String Baseline;
 	public String DeveloperName;
 	public Boolean IsDefault;

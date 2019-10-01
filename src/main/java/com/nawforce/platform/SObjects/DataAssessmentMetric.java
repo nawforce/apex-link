@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class DataAssessmentMetric extends SObject {
+	public static SObjectType$<DataAssessmentMetric> SObjectType;
 	public String CurrencyIsoCode;
 	public String Name;
 	public Integer NumDuplicates;

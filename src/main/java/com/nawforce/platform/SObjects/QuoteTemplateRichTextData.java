@@ -27,11 +27,13 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class QuoteTemplateRichTextData extends SObject {
+	public static SObjectType$<QuoteTemplateRichTextData> SObjectType;
 	public String CurrencyIsoCode;
 	public String Data;
 	public String Name;

@@ -27,11 +27,13 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class CollaborationGroupRecord extends SObject {
+	public static SObjectType$<CollaborationGroupRecord> SObjectType;
 	public Id CollaborationGroupId;
 	public CollaborationGroup CollaborationGroup;
 	public Id RecordId;

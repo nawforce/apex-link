@@ -27,11 +27,13 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class UserPackageLicense extends SObject {
+	public static SObjectType$<UserPackageLicense> SObjectType;
 	public Id PackageLicenseId;
 	public PackageLicense PackageLicense;
 	public Id UserId;

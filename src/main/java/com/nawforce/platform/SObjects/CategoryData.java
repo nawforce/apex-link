@@ -27,11 +27,13 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class CategoryData extends SObject {
+	public static SObjectType$<CategoryData> SObjectType;
 	public Id CategoryNodeId;
 	public CategoryNode CategoryNode;
 	public Id RelatedSobjectId;

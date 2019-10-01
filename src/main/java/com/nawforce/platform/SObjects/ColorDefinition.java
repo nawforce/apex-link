@@ -27,11 +27,13 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class ColorDefinition extends SObject {
+	public static SObjectType$<ColorDefinition> SObjectType;
 	public String Color;
 	public String Context;
 	public String DurableId;

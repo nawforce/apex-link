@@ -35,9 +35,17 @@ import com.nawforce.names.{EncodedName, Name, TypeName}
 import scala.collection.mutable
 
 /* Support for Schema.* handling in Apex */
-class SchemaManager(pkg: PackageDeclaration) {
+class SchemaManager(pkg: PackageDeclaration) extends PlatformTypes.PlatformTypeObserver {
   val sobjectTypes: SchemaSObjectType = SchemaSObjectType(pkg)
   val relatedLists: RelatedLists = new RelatedLists(pkg)
+
+  PlatformTypes.addLoadingObserver(this)
+
+  override def loaded(td: PlatformTypeDeclaration): Unit = {
+    if (td.isSObject) {
+      sobjectTypes.createSObjectTypeDeclarations(td.name)
+    }
+  }
 }
 
 /* Relationship field tracker, handles finding related lists */
@@ -85,6 +93,7 @@ class RelatedLists(pkg: PackageDeclaration) {
 /* Schema.SObjectType implementation */
 final case class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDeclaration(pkg, TypeName.SObjectType) {
   private val sobjectFields: mutable.Map[Name, FieldDeclaration] = mutable.Map()
+  private val sobjectTypeDeclarationsCreated = mutable.Set[Name]()
 
   /* Allow adding of virtual SObjects such as for shares etc */
   def add(sObject: SObjectDeclaration): Unit = {
@@ -116,12 +125,21 @@ final case class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDec
    * we can support Field & FieldSet access via injecting virtual TypeDeclarations for these.
    */
   private def createSObjectDescribeField(sobjectName: Name, typeName: TypeName): FieldDeclaration = {
-    pkg.upsertType(SchemaSObjectTypeFields(sobjectName, pkg))
-    pkg.upsertType(SchemaSObjectTypeFieldSets(sobjectName, pkg))
+    createSObjectTypeDeclarations(sobjectName)
 
     val describeField = CustomFieldDeclaration(sobjectName, TypeName.describeSObjectResultOf(typeName), asStatic = true)
     sobjectFields.put(sobjectName, describeField)
     describeField
+  }
+
+  /* Inject virtual type declarations for an sobject to override the platform generic versions. This is done
+   * dynamically so we don't need to create for every SObject */
+  def createSObjectTypeDeclarations(sobjectName: Name): Unit = {
+    if (!sobjectTypeDeclarationsCreated.contains(sobjectName)) {
+      sobjectTypeDeclarationsCreated.add(sobjectName)
+      pkg.upsertType(SchemaSObjectTypeFields(sobjectName, pkg))
+      pkg.upsertType(SchemaSObjectTypeFieldSets(sobjectName, pkg))
+    }
   }
 }
 

@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Decimal;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class ProcessInstanceWorkitem extends SObject {
+	public static SObjectType$<ProcessInstanceWorkitem> SObjectType;
 	public Id ActorId;
 	public Group Actor;
 	public Decimal ElapsedTimeInDays;

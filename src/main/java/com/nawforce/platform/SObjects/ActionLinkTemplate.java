@@ -27,6 +27,7 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -35,6 +36,7 @@ import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class ActionLinkTemplate extends SObject {
+	public static SObjectType$<ActionLinkTemplate> SObjectType;
 	public Id ActionLinkGroupTemplateId;
 	public ActionLinkGroupTemplate ActionLinkGroupTemplate;
 	public String ActionUrl;

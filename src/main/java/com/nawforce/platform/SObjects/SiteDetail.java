@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class SiteDetail extends SObject {
+	public static SObjectType$<SiteDetail> SObjectType;
 	public String DurableId;
 	public Boolean IsRegistrationEnabled;
 	public String SecureUrl;

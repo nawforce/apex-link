@@ -41,12 +41,13 @@ class PlatformTypesValidationTest extends FunSuite {
     "Database.Batchable" -> "Database.Batchable<T>",
     "Internal.RecordSet$" -> "Internal.RecordSet$<T>",
     "Internal.DescribeSObjectResult$" -> "Internal.DescribeSObjectResult$<T>",
+    "Internal.SObjectType$" -> "Internal.SObjectType$<T>",
     "Internal.SObjectTypeFields$" -> "Internal.SObjectTypeFields$<T>",
     "Internal.SObjectTypeFieldSets$" -> "Internal.SObjectTypeFieldSets$<T>"
   )
 
   test("Right number of types (should exclude inners)") {
-    assert(PlatformTypeDeclaration.classNames.size == 1310)
+    assert(PlatformTypeDeclaration.classNames.size == 1311)
   }
 
   test("SObject type is visible") {

@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class Domain extends SObject {
+	public static SObjectType$<Domain> SObjectType;
 	public String CnameTarget;
 	public String Domain;
 	public String DomainType;

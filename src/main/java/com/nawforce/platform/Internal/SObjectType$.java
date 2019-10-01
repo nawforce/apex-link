@@ -25,21 +25,13 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.types
+package com.nawforce.platform.Internal;
 
-import java.io.InputStream
-import java.nio.file.Path
+import com.nawforce.platform.Schema.SObjectType;
 
-import com.nawforce.documents.DocumentType
-import com.nawforce.names.{EncodedName, TypeName}
+@SuppressWarnings("unused")
 
-final case class CustomMetadataDeclaration(pkg: PackageDeclaration, _typeName: TypeName)
-  extends NamedTypeDeclaration(pkg, _typeName) {
-}
-
-object CustomMetadataDeclaration {
-  def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[CustomMetadataDeclaration] = {
-    val name = EncodedName(DocumentType(path).get.name).defaultNamespace(pkg.namespace)
-    Seq(new CustomMetadataDeclaration(pkg, name.asTypeName))
-  }
+public class SObjectType$<T> extends SObjectType {
+    public SObjectTypeFields$<T> Fields;
+    public SObjectTypeFieldSets$<T> FieldSets;
 }

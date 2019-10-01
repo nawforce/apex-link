@@ -27,11 +27,13 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class GroupMember extends SObject {
+	public static SObjectType$<GroupMember> SObjectType;
 	public Id GroupId;
 	public Group Group;
 	public Id UserOrGroupId;

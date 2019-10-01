@@ -27,6 +27,7 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -34,6 +35,7 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class DataAssessmentFieldMetric extends SObject {
+	public static SObjectType$<DataAssessmentFieldMetric> SObjectType;
 	public String CurrencyIsoCode;
 	public Id DataAssessmentMetricId;
 	public DataAssessmentMetric DataAssessmentMetric;

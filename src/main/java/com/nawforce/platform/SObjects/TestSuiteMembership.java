@@ -27,11 +27,13 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class TestSuiteMembership extends SObject {
+	public static SObjectType$<TestSuiteMembership> SObjectType;
 	public Id ApexClassId;
 	public ApexClass ApexClass;
 	public Id ApexTestSuiteId;

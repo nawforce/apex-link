@@ -34,8 +34,6 @@ import com.nawforce.platform.Schema.SObjectType;
 
 @SuppressWarnings("unused")
 public class SObject {
-	public static SObjectType SObjectType;
-
 	public Id Id;
 
 	// TODO: These need to be auto-generated on each SObject

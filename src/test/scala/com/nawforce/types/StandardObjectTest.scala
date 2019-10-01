@@ -56,7 +56,7 @@ class StandardObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Foo.object")) ==
-      "line 0: No sObject declaration found for 'Foo'\n")
+      "line 0: No SObject declaration found for 'Foo'\n")
   }
 
   test("Not a sObject") {
@@ -67,7 +67,7 @@ class StandardObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/String.object")) ==
-      "line 0: No sObject declaration found for 'String'\n")
+      "line 0: No SObject declaration found for 'String'\n")
   }
 
   test("Custom field") {
@@ -217,6 +217,16 @@ class StandardObjectTest extends FunSuite {
   test("Field describable") {
     val fs = Jimfs.newFileSystem(Configuration.unix)
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Account.Fields.Fax;} }".getBytes())
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    org.issues.dumpMessages(false)
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Field describable via Object") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeFieldResult a = Contact.SObjectType.Fields.Fax;} }".getBytes())
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()

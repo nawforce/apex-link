@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class Approval extends SObject {
+	public static SObjectType$<Approval> SObjectType;
 	public String ApproveComment;
 	public Id OwnerId;
 	public User Owner;

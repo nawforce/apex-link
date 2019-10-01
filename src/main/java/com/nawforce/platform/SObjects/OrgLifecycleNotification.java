@@ -27,11 +27,13 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class OrgLifecycleNotification extends SObject {
+	public static SObjectType$<OrgLifecycleNotification> SObjectType;
 	public String LifecycleRequestId;
 	public String LifecycleRequestType;
 	public String OrgId;

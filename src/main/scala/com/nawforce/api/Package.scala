@@ -122,7 +122,7 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[Path], _basePa
             case Some(docType: PlatformEventDocument) =>
               PlatformEventDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
             case Some(docType: CustomMetadataDocument) =>
-              CustomMetadataDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+              SObjectDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
             case Some(docType: ComponentDocument) =>
               upsertComponent(namespace, docType)
               Nil

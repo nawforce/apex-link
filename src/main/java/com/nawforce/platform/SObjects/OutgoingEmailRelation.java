@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class OutgoingEmailRelation extends SObject {
+	public static SObjectType$<OutgoingEmailRelation> SObjectType;
 	public String ExternalId;
 	public String OutgoingEmailId;
 	public String RelationAddress;

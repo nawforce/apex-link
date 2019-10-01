@@ -27,12 +27,15 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class Account extends SObject {
+	public static SObjectType$<Account> SObjectType;
+
 	public Id RecordTypeId;
 	public String AccountNumber;
 	public String AccountSource;

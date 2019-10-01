@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class TabDefinition extends SObject {
+	public static SObjectType$<TabDefinition> SObjectType;
 	public String DurableId;
 	public Boolean IsAvailableInAloha;
 	public Boolean IsAvailableInLightning;

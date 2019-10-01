@@ -27,8 +27,10 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class AggregateResult extends SObject {
+	public static SObjectType$<AggregateResult> SObjectType;
 }

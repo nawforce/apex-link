@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class SessionPermSetActivation extends SObject {
+	public static SObjectType$<SessionPermSetActivation> SObjectType;
 	public Id AuthSessionId;
 	public AuthSession AuthSession;
 	public String Description;

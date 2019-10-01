@@ -27,11 +27,13 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class SecureAgentsCluster extends SObject {
+	public static SObjectType$<SecureAgentsCluster> SObjectType;
 	public String Description;
 	public String DeveloperName;
 	public String Language;

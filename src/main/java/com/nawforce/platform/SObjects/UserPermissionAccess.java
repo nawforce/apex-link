@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class UserPermissionAccess extends SObject {
+	public static SObjectType$<UserPermissionAccess> SObjectType;
 	public Datetime LastCacheUpdate;
 	public Boolean PermissionsAccessCMC;
 	public Boolean PermissionsAccountIQUser;

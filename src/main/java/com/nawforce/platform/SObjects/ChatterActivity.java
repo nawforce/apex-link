@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class ChatterActivity extends SObject {
+	public static SObjectType$<ChatterActivity> SObjectType;
 	public Integer CommentCount;
 	public Integer CommentReceivedCount;
 	public Integer InfluenceRawRank;

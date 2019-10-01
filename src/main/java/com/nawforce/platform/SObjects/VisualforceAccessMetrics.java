@@ -27,6 +27,7 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Date;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
@@ -34,6 +35,7 @@ import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class VisualforceAccessMetrics extends SObject {
+	public static SObjectType$<VisualforceAccessMetrics> SObjectType;
 	public Id ApexPageId;
 	public ApexPage ApexPage;
 	public Integer DailyPageViewCount;

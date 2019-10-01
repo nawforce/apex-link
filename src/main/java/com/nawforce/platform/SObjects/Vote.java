@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class Vote extends SObject {
+	public static SObjectType$<Vote> SObjectType;
 	public Id ParentId;
 	public Idea Parent;
 	public String Type;

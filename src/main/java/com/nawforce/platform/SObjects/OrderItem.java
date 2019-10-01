@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
 
 @SuppressWarnings("unused")
 public class OrderItem extends SObject {
+	public static SObjectType$<OrderItem> SObjectType;
 	public Decimal AvailableQuantity;
 	public String CurrencyIsoCode;
 	public String Description;

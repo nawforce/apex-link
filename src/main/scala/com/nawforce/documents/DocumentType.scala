@@ -46,11 +46,11 @@ abstract class MetadataDocumentType(_path: Path, _name: Name)
   val ignorable: Boolean = false
 }
 
-case class LabelsDocument(_path: Path, _name: Name) extends MetadataDocumentType(_path, _name) {
+final case class LabelsDocument(_path: Path, _name: Name) extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("labels")
 }
 
-case class ApexDocument(_path: Path, _name: Name)
+final case class ApexDocument(_path: Path, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("cls")
   override val ignorable: Boolean = {
@@ -58,34 +58,35 @@ case class ApexDocument(_path: Path, _name: Name)
   }
 }
 
-case class ComponentDocument(_path: Path, _name: Name)
+final case class ComponentDocument(_path: Path, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("component")
 }
 
-case class SObjectDocument(_path: Path, _name: Name)
-  extends MetadataDocumentType(_path, _name) {
+abstract class SObjectLike(_path: Path, _name: Name) extends MetadataDocumentType(_path, _name)
+
+final case class SObjectDocument(_path: Path, _name: Name)
+  extends SObjectLike(_path, _name) {
   lazy val extension: Name = Name("object")
   override val ignorable: Boolean = {
     Files.exists(path) && Files.size(path) == 0
   }
 }
 
-case class CustomMetadataDocument(_path: Path, _name: Name)
+final case class CustomMetadataDocument(_path: Path, _name: Name)
+  extends SObjectLike(_path, _name) {
+  lazy val extension: Name = Name("object")
+}
+
+final case class PlatformEventDocument(_path: Path, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("object")
 }
 
-case class PlatformEventDocument(_path: Path, _name: Name)
-  extends MetadataDocumentType(_path, _name) {
-  lazy val extension: Name = Name("object")
-}
-
-case class PageDocument(_path: Path, _name: Name)
+final case class PageDocument(_path: Path, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("page")
 }
-
 
 object DocumentType {
   def apply(path: Path): Option[DocumentType] = {

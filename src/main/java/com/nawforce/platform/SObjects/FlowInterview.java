@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class FlowInterview extends SObject {
+	public static SObjectType$<FlowInterview> SObjectType;
 	public String CurrentElement;
 	public String Guid;
 	public String InterviewLabel;

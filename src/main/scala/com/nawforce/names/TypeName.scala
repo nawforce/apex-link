@@ -99,6 +99,8 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
       case TypeName.RecordSet => "[SOQL Results]"
       case TypeName(Name.DescribeSObjectResult$, Seq(TypeName(name, Nil, None)), Some(TypeName.Internal)) =>
         s"Schema.SObjectType.$name"
+      case TypeName(Name.SObjectType$, Seq(TypeName(name, Nil, None)), Some(TypeName.Internal)) =>
+        s"$name.SObjectType"
       case TypeName(Name.SObjectTypeFields$, Seq(TypeName(name, Nil, None)), Some(TypeName.Internal)) =>
         s"Schema.SObjectType.$name.Fields"
       case TypeName(Name.SObjectTypeFieldSets$, Seq(TypeName(name, Nil, None)), Some(TypeName.Internal)) =>
@@ -152,10 +154,12 @@ object TypeName {
   lazy val DescribeSObjectResult = TypeName(Name.DescribeSObjectResult, Nil, Some(TypeName.Schema))
   lazy val DescribeFieldResult = TypeName(Name.DescribeFieldResult, Nil, Some(TypeName.Schema))
   lazy val DescribeSObjectResult$ = TypeName(Name.DescribeSObjectResult$, Nil, Some(TypeName.Internal))
+  lazy val SObjectType$ = TypeName(Name.SObjectType$, Nil, Some(TypeName.Internal))
   lazy val SObjectTypeFields$ = TypeName(Name.SObjectTypeFields$, Nil, Some(TypeName.Internal))
   lazy val SObjectTypeFieldSets$ = TypeName(Name.SObjectTypeFieldSets$, Nil, Some(TypeName.Internal))
 
   def describeSObjectResultOf(typeName: TypeName): TypeName = DescribeSObjectResult$.withParams(Seq(typeName))
+  def sObjectType$(typeName: TypeName): TypeName = SObjectType$.withParams(Seq(typeName))
   def sObjectTypeFields$(typeName: TypeName): TypeName = SObjectTypeFields$.withParams(Seq(typeName))
   def sObjectTypeFieldSets$(typeName: TypeName): TypeName = SObjectTypeFieldSets$.withParams(Seq(typeName))
 

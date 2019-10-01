@@ -31,6 +31,8 @@ import com.nawforce.finding.MissingType
 import com.nawforce.finding.TypeRequest.TypeRequest
 import com.nawforce.names.TypeName
 
+import scala.ref.WeakReference
+
 object PlatformTypes {
   lazy val nullType: TypeDeclaration = loadType(TypeName.Null)
   lazy val recordSetType: TypeDeclaration = loadType(TypeName.RecordSet)
@@ -53,6 +55,16 @@ object PlatformTypes {
 
   private def loadType(typeName: TypeName): TypeDeclaration = {
     PlatformTypeDeclaration.get(typeName, None).right.get
+  }
+
+  trait PlatformTypeObserver {
+    def loaded(td: PlatformTypeDeclaration)
+  }
+
+  private var loadingObservers: Seq[WeakReference[PlatformTypeObserver]] = Seq()
+
+  def addLoadingObserver(observer: PlatformTypeObserver): Unit = {
+    loadingObservers = loadingObservers :+ WeakReference(observer)
   }
 
   /* Get a type, in general don't call this direct, use TypeRequest which will delegate here if
@@ -78,19 +90,34 @@ object PlatformTypes {
 
     val alias = typeAliasMap.getOrElse(typeName, typeName)
 
+    // TODO: Tidy up with Either orElse
     val firstResult = findOuterOrNestedPlatformType(alias)
-    if (firstResult.isRight)
+    if (firstResult.isRight) {
+      fireLoadingEvents(firstResult.right.get)
       return firstResult
+    }
 
     val systemResult = findOuterOrNestedPlatformType(alias.wrap(TypeName.System))
-    if (systemResult.isRight)
+    if (systemResult.isRight) {
+      fireLoadingEvents(systemResult.right.get)
       return systemResult
+    }
 
     val schemaResult = findOuterOrNestedPlatformType(alias.wrap(TypeName.Schema))
-    if (schemaResult.isRight)
+    if (schemaResult.isRight) {
+      fireLoadingEvents(schemaResult.right.get)
       return schemaResult
+    }
 
     firstResult
+  }
+
+  private def fireLoadingEvents(td: TypeDeclaration): Unit= {
+    synchronized {
+      loadingObservers = loadingObservers.filter(_.get.nonEmpty)
+      val ptd = td.asInstanceOf[PlatformTypeDeclaration]
+      loadingObservers.foreach(_.get.map(_.loaded(ptd)))
+    }
   }
 
   private val typeAliasMap: Map[TypeName, TypeName] = Map(
@@ -98,3 +125,4 @@ object PlatformTypes {
     TypeName.ApexPagesPageReference -> TypeName.PageReference
   )
 }
+

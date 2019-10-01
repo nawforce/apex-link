@@ -27,11 +27,13 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class EntitySubscription extends SObject {
+	public static SObjectType$<EntitySubscription> SObjectType;
 	public Id ParentId;
 	public Account Parent;
 	public Id SubscriberId;

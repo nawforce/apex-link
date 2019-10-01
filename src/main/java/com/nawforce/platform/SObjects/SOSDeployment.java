@@ -27,6 +27,7 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -34,6 +35,7 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class SOSDeployment extends SObject {
+	public static SObjectType$<SOSDeployment> SObjectType;
 	public String DeveloperName;
 	public String Language;
 	public String MasterLabel;

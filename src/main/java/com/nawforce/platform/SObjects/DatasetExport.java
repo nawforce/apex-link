@@ -27,6 +27,7 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Blob;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -34,6 +35,7 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class DatasetExport extends SObject {
+	public static SObjectType$<DatasetExport> SObjectType;
 	public Integer CompressedMetadataLength;
 	public Blob Metadata;
 	public Integer MetadataLength;

@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
 
 @SuppressWarnings("unused")
 public class ProcessInstanceNode extends SObject {
+	public static SObjectType$<ProcessInstanceNode> SObjectType;
 	public Datetime CompletedDate;
 	public Decimal ElapsedTimeInDays;
 	public Decimal ElapsedTimeInHours;

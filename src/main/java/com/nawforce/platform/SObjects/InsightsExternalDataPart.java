@@ -27,6 +27,7 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Blob;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
@@ -34,6 +35,7 @@ import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class InsightsExternalDataPart extends SObject {
+	public static SObjectType$<InsightsExternalDataPart> SObjectType;
 	public Integer CompressedDataLength;
 	public Blob DataFile;
 	public Integer DataLength;

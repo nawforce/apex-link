@@ -27,11 +27,13 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class ContentFolderMember extends SObject {
+	public static SObjectType$<ContentFolderMember> SObjectType;
 	public Id ChildRecordId;
 	public ContentDocument ChildRecord;
 	public Id ParentContentFolderId;

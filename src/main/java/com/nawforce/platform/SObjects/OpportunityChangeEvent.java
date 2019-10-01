@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
 
 @SuppressWarnings("unused")
 public class OpportunityChangeEvent extends SObject {
+	public static SObjectType$<OpportunityChangeEvent> SObjectType;
 	public Id AccountId;
 	public Account Account;
 	public Decimal Amount;

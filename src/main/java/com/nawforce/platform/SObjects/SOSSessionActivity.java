@@ -27,6 +27,7 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -34,6 +35,7 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class SOSSessionActivity extends SObject {
+	public static SObjectType$<SOSSessionActivity> SObjectType;
 	public Datetime ActivityTime;
 	public String CurrencyIsoCode;
 	public String Name;

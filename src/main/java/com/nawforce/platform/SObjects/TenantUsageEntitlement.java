@@ -27,6 +27,7 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -34,6 +35,7 @@ import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class TenantUsageEntitlement extends SObject {
+	public static SObjectType$<TenantUsageEntitlement> SObjectType;
 	public Decimal AmountUsed;
 	public Decimal CurrentAmountAllowed;
 	public Date EndDate;

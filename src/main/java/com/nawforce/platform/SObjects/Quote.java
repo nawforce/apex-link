@@ -27,13 +27,13 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.System.String;
-import com.nawforce.platform.System.*;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Id;
+import com.nawforce.platform.System.SObject;
 
 // TODO: Enable on org via QuoteSettings
 @SuppressWarnings("unused")
 public class Quote extends SObject {
+	public static SObjectType$<Quote> SObjectType;
     public Id RecordTypeId;
 }

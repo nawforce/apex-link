@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class ExternalDataUserAuth extends SObject {
+	public static SObjectType$<ExternalDataUserAuth> SObjectType;
 	public Id AuthProviderId;
 	public AuthProvider AuthProvider;
 	public Id ExternalDataSourceId;

@@ -27,6 +27,7 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -34,6 +35,7 @@ import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class VerificationHistory extends SObject {
+	public static SObjectType$<VerificationHistory> SObjectType;
 	public String Activity;
 	public Integer EventGroup;
 	public Id LoginGeoId;

@@ -27,12 +27,14 @@
 */
 package com.nawforce.platform.SObjects;
 
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class AppTabMember extends SObject {
+	public static SObjectType$<AppTabMember> SObjectType;
 	public String AppDefinitionId;
 	public String DurableId;
 	public Integer SortOrder;

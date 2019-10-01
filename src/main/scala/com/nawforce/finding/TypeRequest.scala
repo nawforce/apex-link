@@ -28,7 +28,7 @@
 package com.nawforce.finding
 
 import com.nawforce.names.TypeName
-import com.nawforce.types.{PackageDeclaration, PlatformTypeDeclaration, PlatformTypes, TypeDeclaration}
+import com.nawforce.types.{PackageDeclaration, PlatformTypes, TypeDeclaration}
 
 /** Helper for abstracting various ways of finding types based on context info, these are:
   *   None - Can only be used for a platform type search
@@ -38,6 +38,7 @@ import com.nawforce.types.{PackageDeclaration, PlatformTypeDeclaration, Platform
   *   Note: Platform TypeDeclarations are not packaged & not all code (triggers, anon) comes from TypeDeclarations,
   *   unmanaged code is part of a special package declaration with no namespace.
   **/
+
 object TypeRequest {
   type TypeRequest = Either[TypeError, TypeDeclaration]
 
@@ -74,3 +75,5 @@ object TypeRequest {
       apply(typeName)
   }
 }
+
+
