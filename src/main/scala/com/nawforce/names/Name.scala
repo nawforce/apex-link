@@ -131,6 +131,12 @@ object Name {
   lazy val Activity: Name = cache("Activity")
   lazy val Task: Name = cache("Task")
   lazy val Event: Name = cache("Event")
+  lazy val DeveloperName: Name = cache("DeveloperName")
+  lazy val IsProtected: Name = cache("IsProtected")
+  lazy val Language: Name = cache("Language")
+  lazy val MasterLabel: Name = cache("MasterLabel")
+  lazy val NamespacePrefix: Name = cache("NamespacePrefix")
+  lazy val QualifiedAPIName: Name = cache("QualifiedAPIName")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 }

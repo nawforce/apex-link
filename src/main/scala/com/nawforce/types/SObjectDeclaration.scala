@@ -34,12 +34,12 @@ import com.nawforce.api.Org
 import com.nawforce.cst._
 import com.nawforce.documents._
 import com.nawforce.finding.TypeRequest
-import com.nawforce.names.{DotName, EncodedName, Name, TypeName}
+import com.nawforce.names.{DotName, Name, TypeName}
 
 import scala.collection.mutable
 
 final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName,
-                                    customSettingType: Option[CustomSettingType], fieldSets: Set[Name],
+                                    sobjectNature: SObjectNature, fieldSets: Set[Name],
                                     override val fields: Seq[FieldDeclaration], override val isComplete: Boolean)
   extends NamedTypeDeclaration(pkg, _typeName) {
 
@@ -110,54 +110,51 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
 
 object SObjectDeclaration {
   def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[TypeDeclaration] = {
-    val typeName = parseName(path, pkg.namespace)
-    if (isIntroducing(typeName, pkg)) {
-      createNew(path, typeName, pkg)
+    val sobjectDetailsOpt = SObjectDetails.parseSObject(path, pkg)
+    if (sobjectDetailsOpt.isEmpty)
+      return Seq()
+    val sobjectDetails = sobjectDetailsOpt.get
+
+    if (sobjectDetails.isIntroducing(pkg)) {
+      createNew(sobjectDetails, pkg)
     } else {
-        if (pkg.isGhostedType(typeName))
-          Seq(extendExisting(path, typeName, pkg, None))
+        if (pkg.isGhostedType(sobjectDetails.typeName))
+          Seq(extendExisting(sobjectDetails, pkg, None))
         else {
-          createExisting(typeName, path, pkg)
+          createExisting(sobjectDetails, path, pkg)
         }
     }
   }
 
-  private def isIntroducing(typeName: TypeName, pkg: PackageDeclaration): Boolean = {
-    (typeName.name.value.endsWith("__c") && typeName.outer.map(_.name) == pkg.namespace) ||
-      typeName.name.value.endsWith("__mdt")
-  }
+  private def createExisting(sobjectDetails: SObjectDetails, path: Path, pkg: PackageDeclaration) : Seq[TypeDeclaration] = {
+    val typeName = sobjectDetails.typeName
 
-  private def createExisting(typeName: TypeName, path: Path, pkg: PackageDeclaration) : Seq[TypeDeclaration] = {
     if (typeName.name == Name.Activity) {
       // Fake Activity as applying to Task & Event, how bizarre is that
-      createExisting(typeName.withName(Name.Task), path, pkg) ++
-        createExisting(typeName.withName(Name.Event), path, pkg)
+      createExisting(sobjectDetails.withTypeName(typeName.withName(Name.Task)), path, pkg) ++
+        createExisting(sobjectDetails.withTypeName(typeName.withName(Name.Event)), path, pkg)
     } else {
       val sobjectType = TypeRequest(typeName, pkg).toOption
       if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
         Org.logMessage(LineLocation(path, 0), s"No SObject declaration found for '$typeName'")
         return Seq()
       }
-      Seq(extendExisting(path, typeName, pkg, sobjectType))
+      Seq(extendExisting(sobjectDetails, pkg, sobjectType))
     }
   }
 
-  private def createNew(path: Path, typeName: TypeName, pkg: PackageDeclaration): Seq[TypeDeclaration] = {
-    val sobjectDetails = SObjectDetails.parseSObject(path, typeName, pkg)
+
+  private def createNew(sobjectDetails: SObjectDetails, pkg: PackageDeclaration): Seq[TypeDeclaration] = {
+    val typeName = sobjectDetails.typeName
 
     val fields =
-      CustomFieldDeclaration(Name.NameName, PlatformTypes.stringType.typeName) +:
-      CustomFieldDeclaration(Name.RecordTypeId, PlatformTypes.idType.typeName) +:
-      CustomFieldDeclaration(Name.SObjectType, TypeName.sObjectType$(typeName), asStatic = true) +:
-        (PlatformTypes.sObjectType.fields.filterNot(f => f.name == Name.SObjectType) ++
-          sobjectDetails.fields ++
-          (if (sobjectDetails.customSettingType.contains(HierarchyCustomSettingsType))
-            Seq(CustomFieldDeclaration(Name.SetupOwnerId, PlatformTypes.idType.typeName))
-          else Seq())
-          )
+      if (sobjectDetails.sobjectNature == CustomMetadataNature)
+        customMetadataFields(sobjectDetails)
+       else
+        customObjectFields(sobjectDetails)
 
     val supportObjects: Seq[SObjectDeclaration] =
-      if (sobjectDetails.customSettingType.isEmpty && !typeName.name.value.endsWith("__mdt")) {
+      if (sobjectDetails.isIntroducing(pkg) && sobjectDetails.sobjectNature != CustomMetadataNature) {
         Seq(
           // TODO: Check fields & when should be available
           createShare(pkg, typeName),
@@ -167,15 +164,49 @@ object SObjectDeclaration {
       } else Seq()
 
     val allObjects =
-      new SObjectDeclaration(pkg, typeName, sobjectDetails.customSettingType, sobjectDetails.fieldSets, fields, isComplete = true) +:
+      new SObjectDeclaration(pkg, typeName, sobjectDetails.sobjectNature, sobjectDetails.fieldSets, fields, isComplete = true) +:
       supportObjects
 
     allObjects.foreach(pkg.schema().sobjectTypes.add)
     allObjects
   }
 
-  private def extendExisting(path: Path, typeName: TypeName, pkg: PackageDeclaration, base: Option[TypeDeclaration]): TypeDeclaration = {
-    val sobjectDetails = SObjectDetails.parseSObject(path, typeName, pkg)
+  private lazy val standardCustomObjectFields: Seq[FieldDeclaration] = {
+    CustomFieldDeclaration(Name.NameName, PlatformTypes.stringType.typeName) +:
+      CustomFieldDeclaration(Name.RecordTypeId, PlatformTypes.idType.typeName) +:
+      PlatformTypes.sObjectType.fields.filterNot(f => f.name == Name.SObjectType)
+  }
+
+  private def customObjectFields(sobjectDetails: SObjectDetails): Seq[FieldDeclaration] = {
+    standardCustomObjectFields ++
+      sobjectDetails.fields ++
+      (if (sobjectDetails.sobjectNature == HierarchyCustomSettingsNature)
+        Seq(CustomFieldDeclaration(Name.SetupOwnerId, PlatformTypes.idType.typeName))
+      else Seq()
+        ) :+
+      CustomFieldDeclaration(Name.SObjectType, TypeName.sObjectType$(sobjectDetails.typeName), asStatic = true)
+  }
+
+  private lazy val standardCustomMetadataFields: Seq[FieldDeclaration] = {
+    Seq(
+      CustomFieldDeclaration(Name.Id, TypeName.Id),
+      CustomFieldDeclaration(Name.DeveloperName, TypeName.String),
+      CustomFieldDeclaration(Name.IsProtected, TypeName.Boolean),
+      CustomFieldDeclaration(Name.Label, TypeName.String),
+      CustomFieldDeclaration(Name.Language, TypeName.String),
+      CustomFieldDeclaration(Name.MasterLabel, TypeName.String),
+      CustomFieldDeclaration(Name.NamespacePrefix, TypeName.String),
+      CustomFieldDeclaration(Name.QualifiedAPIName, TypeName.String))
+  }
+
+  private def customMetadataFields(sobjectDetails: SObjectDetails): Seq[FieldDeclaration] = {
+    standardCustomMetadataFields ++
+      sobjectDetails.fields :+
+      CustomFieldDeclaration(Name.SObjectType, TypeName.sObjectType$(sobjectDetails.typeName), asStatic = true)
+  }
+
+  private def extendExisting(sobjectDetails: SObjectDetails, pkg: PackageDeclaration, base: Option[TypeDeclaration]): TypeDeclaration = {
+    val typeName = sobjectDetails.typeName
     val isComplete = base.nonEmpty && pkg.basePackages.forall(!_.isGhosted)
 
     val fields = collectBaseFields(typeName.asDotName, pkg)
@@ -184,7 +215,7 @@ object SObjectDeclaration {
 
     // TODO: Collect base fieldsets ?
 
-    new SObjectDeclaration(pkg, typeName, sobjectDetails.customSettingType, sobjectDetails.fieldSets,
+    new SObjectDeclaration(pkg, typeName, sobjectDetails.sobjectNature, sobjectDetails.fieldSets,
       fields.values.toSeq, isComplete)
   }
 
@@ -200,15 +231,9 @@ object SObjectDeclaration {
     collected
   }
 
-  private def parseName(path: Path, namespace: Option[Name]): TypeName = {
-    val dt = DocumentType.apply(path)
-    assert(dt.exists(_.isInstanceOf[SObjectLike]))
-    EncodedName(dt.get.name).defaultNamespace(namespace).asTypeName
-  }
-
   private def createShare(pkg: PackageDeclaration, typeName: TypeName): SObjectDeclaration = {
     val shareName = typeName.withNameReplace("__c$", "__Share")
-    SObjectDeclaration(pkg, shareName, None, Set(), shareFields, isComplete = true)
+    SObjectDeclaration(pkg, shareName, CustomObjectNature, Set(), shareFields, isComplete = true)
   }
 
   private lazy val shareFields = PlatformTypes.sObjectType.fields ++ Seq(
@@ -220,7 +245,7 @@ object SObjectDeclaration {
 
   private def createFeed(pkg: PackageDeclaration, typeName: TypeName): SObjectDeclaration = {
     val shareName = typeName.withNameReplace("__c$", "__Feed")
-    SObjectDeclaration(pkg, shareName, None, Set(), feedFields, isComplete = true)
+    SObjectDeclaration(pkg, shareName, CustomObjectNature, Set(), feedFields, isComplete = true)
   }
 
   private lazy val feedFields = PlatformTypes.sObjectType.fields ++ Seq(
@@ -242,7 +267,7 @@ object SObjectDeclaration {
 
   private def createHistory(pkg: PackageDeclaration, typeName: TypeName): SObjectDeclaration = {
     val shareName = typeName.withNameReplace("__c$", "__Feed")
-    SObjectDeclaration(pkg, shareName, None, Set(), historyFields, isComplete = true)
+    SObjectDeclaration(pkg, shareName, CustomObjectNature, Set(), historyFields, isComplete = true)
   }
 
   private lazy val historyFields = PlatformTypes.sObjectType.fields ++ Seq(

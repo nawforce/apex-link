@@ -80,7 +80,7 @@ class RelatedLists(pkg: PackageDeclaration) {
 
     // Wrap any objects with lookups relationships so they are visible
     changedObjects.foreach(td => {
-      pkg.upsertType(SObjectDeclaration(pkg, td.typeName, None, Set(), td.fields, isComplete = true))
+      pkg.upsertType(SObjectDeclaration(pkg, td.typeName, CustomObjectNature, Set(), td.fields, isComplete = true))
     })
   }
 

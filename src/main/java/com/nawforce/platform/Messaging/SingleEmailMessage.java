@@ -53,6 +53,7 @@ public class SingleEmailMessage {
 	public Boolean TreatTargetObjectAsRecipient;
 	public Boolean UserMail;
 	public Id WhatId;
+	public Boolean SaveAsActivity;
 
 	public SingleEmailMessage() {throw new java.lang.UnsupportedOperationException();}
 

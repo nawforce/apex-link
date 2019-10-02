@@ -32,7 +32,7 @@ import com.nawforce.platform.System.List;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class Layout {
+public class Layout extends Metadata {
 	public List<String> customButtons;
 	public CustomConsoleComponents customConsoleComponents;
 	public Boolean emailDefault;
