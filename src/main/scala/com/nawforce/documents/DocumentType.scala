@@ -89,7 +89,7 @@ final case class CustomMetadataDocument(_path: Path, _name: Name)
 }
 
 final case class PlatformEventDocument(_path: Path, _name: Name)
-  extends MetadataDocumentType(_path, _name) {
+  extends SObjectLike(_path, _name) {
   lazy val extension: Name = Name("object")
 }
 

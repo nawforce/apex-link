@@ -47,13 +47,14 @@ case object HierarchyCustomSettingsNature extends IntroducingNature("Hierarchy")
 case object CustomObjectNature extends IntroducingNature("CustomObject")
 case object CustomMetadataNature extends SObjectNature("CustomMetadata")
 case object PlatformObjectNature extends SObjectNature("PlatformObject")
+case object PlatformEventNature extends SObjectNature("PlatformEvent")
 
 final case class SObjectDetails(sobjectNature: SObjectNature, typeName: TypeName,
                                 fields: Seq[CustomFieldDeclaration], fieldSets: Set[Name]) {
 
   def isIntroducing(pkg: PackageDeclaration): Boolean = {
     (sobjectNature.isInstanceOf[IntroducingNature] && typeName.outer.map(_.name) == pkg.namespace) ||
-      sobjectNature == CustomMetadataNature
+      sobjectNature == CustomMetadataNature || sobjectNature == PlatformEventNature
   }
 
   def withTypeName(newTypeName: TypeName): SObjectDetails = {
@@ -64,7 +65,7 @@ final case class SObjectDetails(sobjectNature: SObjectNature, typeName: TypeName
 object SObjectDetails {
   def parseSObject(path: Path, pkg: PackageDeclaration): Option[SObjectDetails] = {
     try {
-      val dt = DocumentType.apply(path)
+      val dt = DocumentType(path)
       assert(dt.exists(_.isInstanceOf[SObjectLike]))
       val typeName = EncodedName(dt.get.name).defaultNamespace(pkg.namespace).asTypeName
 
@@ -85,6 +86,7 @@ object SObjectDetails {
 
       val sobjectNature: SObjectNature = dt match {
         case Some(_: CustomMetadataDocument) => CustomMetadataNature
+        case Some(_: PlatformEventDocument) => PlatformEventNature
         case Some(x: SObjectDocument) if x.name.value.endsWith("__c") =>
           XMLUtils.getOptionalSingleChildAsString(root, "customSettingsType") match {
             case Some("List") => ListCustomSettingNature

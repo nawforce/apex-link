@@ -142,18 +142,20 @@ object SObjectDeclaration {
     }
   }
 
-
   private def createNew(sobjectDetails: SObjectDetails, pkg: PackageDeclaration): Seq[TypeDeclaration] = {
     val typeName = sobjectDetails.typeName
 
     val fields =
       if (sobjectDetails.sobjectNature == CustomMetadataNature)
         customMetadataFields(sobjectDetails)
-       else
+      else if (sobjectDetails.sobjectNature == PlatformEventNature)
+        platformEventFields(sobjectDetails)
+      else
         customObjectFields(sobjectDetails)
 
     val supportObjects: Seq[SObjectDeclaration] =
-      if (sobjectDetails.isIntroducing(pkg) && sobjectDetails.sobjectNature != CustomMetadataNature) {
+      if (sobjectDetails.isIntroducing(pkg) &&
+        sobjectDetails.sobjectNature != CustomMetadataNature && sobjectDetails.sobjectNature != PlatformEventNature) {
         Seq(
           // TODO: Check fields & when should be available
           createShare(pkg, typeName),
@@ -200,6 +202,16 @@ object SObjectDeclaration {
 
   private def customMetadataFields(sobjectDetails: SObjectDetails): Seq[FieldDeclaration] = {
     standardCustomMetadataFields ++
+      sobjectDetails.fields :+
+      CustomFieldDeclaration(Name.SObjectType, TypeName.sObjectType$(sobjectDetails.typeName), asStatic = true)
+  }
+
+  private lazy val standardPlatformEventFields: Seq[FieldDeclaration] = {
+    Seq(CustomFieldDeclaration(Name.ReplayId, TypeName.String))
+  }
+
+  private def platformEventFields(sobjectDetails: SObjectDetails): Seq[FieldDeclaration] = {
+    standardPlatformEventFields ++
       sobjectDetails.fields :+
       CustomFieldDeclaration(Name.SObjectType, TypeName.sObjectType$(sobjectDetails.typeName), asStatic = true)
   }
