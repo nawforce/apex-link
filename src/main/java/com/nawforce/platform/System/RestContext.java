@@ -29,6 +29,6 @@ package com.nawforce.platform.System;
 
 @SuppressWarnings("unused")
 public class RestContext {
-	public RestRequest request;
-	public RestResponse response;
+	public static RestRequest request;
+	public static RestResponse response;
 }
