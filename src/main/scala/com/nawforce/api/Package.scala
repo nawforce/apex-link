@@ -118,11 +118,11 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[Path], _basePa
             case Some(docType: ApexDocument) =>
               ApexTypeDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
             case Some(docType: SObjectDocument) =>
-              SObjectDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+              SObjectDeclaration.create(this, docType.path)
             case Some(docType: PlatformEventDocument) =>
               PlatformEventDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
             case Some(docType: CustomMetadataDocument) =>
-              SObjectDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+              SObjectDeclaration.create(this, docType.path)
             case Some(docType: ComponentDocument) =>
               upsertComponent(namespace, docType)
               Nil

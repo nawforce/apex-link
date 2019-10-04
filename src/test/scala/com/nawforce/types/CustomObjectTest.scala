@@ -350,7 +350,6 @@ class CustomObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    org.issues.dumpMessages(false)
     assert(!org.issues.hasMessages)
   }
 

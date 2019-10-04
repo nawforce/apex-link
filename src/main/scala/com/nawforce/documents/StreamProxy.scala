@@ -46,4 +46,13 @@ object StreamProxy {
   def getInputStream(path: Path): InputStream = {
     Option(inputStreams.get(path)).getOrElse(Files.newInputStream(path))
   }
+
+  def getOptionalInputStream(path: Path): Option[InputStream] = {
+    Option(inputStreams.get(path)).orElse({
+      if (Files.exists(path))
+        Some(Files.newInputStream(path))
+      else
+        None
+    })
+  }
 }

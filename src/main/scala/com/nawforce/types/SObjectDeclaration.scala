@@ -27,7 +27,6 @@
 */
 package com.nawforce.types
 
-import java.io.InputStream
 import java.nio.file.Path
 
 import com.nawforce.api.Org
@@ -109,7 +108,7 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
 }
 
 object SObjectDeclaration {
-  def create(pkg: PackageDeclaration, path: Path, data: InputStream): Seq[TypeDeclaration] = {
+  def create(pkg: PackageDeclaration, path: Path): Seq[TypeDeclaration] = {
     val sobjectDetailsOpt = SObjectDetails.parseSObject(path, pkg)
     if (sobjectDetailsOpt.isEmpty)
       return Seq()

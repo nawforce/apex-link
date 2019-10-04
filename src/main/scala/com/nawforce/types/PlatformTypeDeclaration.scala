@@ -31,7 +31,7 @@ import java.nio.file.{FileSystems, Files, Path, Paths}
 import java.util
 
 import com.nawforce.finding.TypeRequest.TypeRequest
-import com.nawforce.finding.{MissingType, TypeError, WrongTypeArguments}
+import com.nawforce.finding.{MissingType, WrongTypeArguments}
 import com.nawforce.names.{DotName, Name, TypeName}
 import scalaz._
 

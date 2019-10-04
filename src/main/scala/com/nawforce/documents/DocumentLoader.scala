@@ -43,8 +43,14 @@ class DocumentLoader(paths: Seq[Path]) {
 
   index()
 
+  def getByExtension(name: Name): Seq[Path] = {
+    documentsByExtension(name)
+  }
+
   private def index(): Unit = {
     paths.reverse.foreach(indexRoot)
+    createGhostSObjectFiles(Name("field"))
+    createGhostSObjectFiles(Name("fieldSet"))
   }
 
   private def indexRoot(path: Path): Unit = {
@@ -80,7 +86,17 @@ class DocumentLoader(paths: Seq[Path]) {
     }
   }
 
-  def getByExtension(name: Name): Seq[Path] = {
-    documentsByExtension(name)
+  private def createGhostSObjectFiles(name: Name): Unit = {
+    getByExtension(name).foreach(path => {
+      val metaPath = Option(path.getParent).flatMap(p => Option(p.getParent))
+      metaPath.foreach(path => {
+        val metaFile = path.resolve(path.getFileName+".object-meta.xml")
+        if (!Files.exists(metaFile)) {
+          if (!documentsByExtension.getOrElse(Name("object"), Seq()).contains(metaFile)) {
+            documentsByExtension.put(Name("object"), metaFile :: documentsByExtension(Name("object")))
+          }
+        }
+      })
+    })
   }
 }

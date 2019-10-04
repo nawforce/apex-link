@@ -64,14 +64,26 @@ final case class SObjectDetails(sobjectNature: SObjectNature, typeName: TypeName
 object SObjectDetails {
   def parseSObject(path: Path, pkg: PackageDeclaration): Option[SObjectDetails] = {
     try {
-      val root = XMLLineLoader.load(StreamProxy.getInputStream(path))
-      XMLUtils.assertIs(root, "CustomObject")
-
       val dt = DocumentType.apply(path)
       assert(dt.exists(_.isInstanceOf[SObjectLike]))
       val typeName = EncodedName(dt.get.name).defaultNamespace(pkg.namespace).asTypeName
 
-      val sobjectNature: SObjectNature = DocumentType(path) match {
+      // TODO: Improve handling of ghosted SObject types
+      if (!Files.exists(path)) {
+        val sobjectNature: SObjectNature = dt match {
+          case Some(x: SObjectDocument) if x.name.value.endsWith("__c") => CustomObjectNature
+          case Some(_: SObjectDocument) => PlatformObjectNature
+        }
+
+        val sfdxFields = parseSfdxFields(path, pkg, typeName)
+        val sfdxFieldSets = parseSfdxFieldSets(path, pkg)
+        return Some(SObjectDetails(sobjectNature, typeName, sfdxFields, sfdxFieldSets.toSet))
+      }
+
+      val root = XMLLineLoader.load(StreamProxy.getInputStream(path))
+      XMLUtils.assertIs(root, "CustomObject")
+
+      val sobjectNature: SObjectNature = dt match {
         case Some(_: CustomMetadataDocument) => CustomMetadataNature
         case Some(x: SObjectDocument) if x.name.value.endsWith("__c") =>
           XMLUtils.getOptionalSingleChildAsString(root, "customSettingsType") match {

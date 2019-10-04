@@ -73,6 +73,16 @@ final case class SObjectDocument(_path: Path, _name: Name)
   }
 }
 
+final case class SObjectFieldDocument(_path: Path, _name: Name)
+  extends MetadataDocumentType(_path, _name) {
+  lazy val extension: Name = Name("field")
+}
+
+final case class SObjectFieldSetDocument(_path: Path, _name: Name)
+  extends MetadataDocumentType(_path, _name) {
+  lazy val extension: Name = Name("fieldSet")
+}
+
 final case class CustomMetadataDocument(_path: Path, _name: Name)
   extends SObjectLike(_path, _name) {
   lazy val extension: Name = Name("object")
@@ -111,6 +121,12 @@ object DocumentType {
         Some(SObjectDocument(path, name))
       case Seq(name, Name("object-meta"), Name("xml")) =>
         Some(SObjectDocument(path, name))
+
+      case Seq(name, Name("field-meta"), Name("xml")) =>
+        Some(SObjectFieldDocument(path, name))
+
+      case Seq(name, Name("fieldSet-meta"), Name("xml")) =>
+        Some(SObjectFieldSetDocument(path, name))
 
       case Seq(name, Name("labels")) =>
         Some(LabelsDocument(path, name))

@@ -95,7 +95,6 @@ class GhostPackageTest extends FunSuite with BeforeAndAfter{
     defaultOrg.addPackage("package", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = package.A.class;} }"))
-    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
   }
