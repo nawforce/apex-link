@@ -3035,10 +3035,10 @@ public class ApexParser extends Parser {
 		public BlockContext block() {
 			return getRuleContext(BlockContext.class,0);
 		}
+		public TerminalNode ELSE() { return getToken(ApexParser.ELSE, 0); }
 		public ExpressionListContext expressionList() {
 			return getRuleContext(ExpressionListContext.class,0);
 		}
-		public TerminalNode ELSE() { return getToken(ApexParser.ELSE, 0); }
 		public WhenControlContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -3059,13 +3059,13 @@ public class ApexParser extends Parser {
 			case 1:
 				{
 				setState(547);
-				expressionList();
+				match(ELSE);
 				}
 				break;
 			case 2:
 				{
 				setState(548);
-				match(ELSE);
+				expressionList();
 				}
 				break;
 			}
@@ -6352,7 +6352,7 @@ public class ApexParser extends Parser {
 		"\37\2\2\u021b\u021c\5\u008cG\2\u021c\u021e\7B\2\2\u021d\u021f\5T+\2\u021e"+
 		"\u021d\3\2\2\2\u021f\u0220\3\2\2\2\u0220\u021e\3\2\2\2\u0220\u0221\3\2"+
 		"\2\2\u0221\u0222\3\2\2\2\u0222\u0223\7C\2\2\u0223S\3\2\2\2\u0224\u0227"+
-		"\7\67\2\2\u0225\u0228\5\u008aF\2\u0226\u0228\7\16\2\2\u0227\u0225\3\2"+
+		"\7\67\2\2\u0225\u0228\7\16\2\2\u0226\u0228\5\u008aF\2\u0227\u0225\3\2"+
 		"\2\2\u0227\u0226\3\2\2\2\u0228\u0229\3\2\2\2\u0229\u022a\5H%\2\u022aU"+
 		"\3\2\2\2\u022b\u022c\7\23\2\2\u022c\u022d\7@\2\2\u022d\u022e\5\u0080A"+
 		"\2\u022e\u022f\7A\2\2\u022f\u0230\5N(\2\u0230W\3\2\2\2\u0231\u0232\78"+

@@ -37,6 +37,7 @@ import com.nawforce.platform.Schema.SObjectType;
 @SuppressWarnings("unused")
 public class SObject {
 	public Id Id;
+	public Id OwnerId;
 	public UserRecordAccess UserRecordAccess;
 	public List<Attachment> Attachments;
 

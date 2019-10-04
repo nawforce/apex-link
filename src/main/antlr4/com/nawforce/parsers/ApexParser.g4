@@ -289,7 +289,7 @@ switchStatement
     ;
 
 whenControl
-    : WHEN (expressionList| ELSE) block
+    : WHEN (ELSE | expressionList) block
     ;
 
 forStatement
