@@ -289,6 +289,17 @@ class CustomObjectTest extends FunSuite {
       "line 1 at 39-52: Unknown field or type 'Baz__c' on 'Foo__c'\n")
   }
 
+  test("UserRecordAccess available") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo__c", Seq()).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Foo__c a; Boolean x = a.UserRecordAccess.HasDeleteAccess;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
   test("Lookup related list") {
     val fs = Jimfs.newFileSystem(Configuration.unix)
     Files.write(fs.getPath("Bar__c.object"), customObject("Bar", Seq()).getBytes())

@@ -70,6 +70,16 @@ class StandardObjectTest extends FunSuite {
       "line 0: No SObject declaration found for 'String'\n")
   }
 
+  test("UserRecordAccess available") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Account a; Boolean x = a.UserRecordAccess.HasDeleteAccess;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
   test("Custom field") {
     val fs = Jimfs.newFileSystem(Configuration.unix)
     Files.write(fs.getPath("Account.object"), customObject("Account", Seq(("Bar__c", "Text", None))).getBytes())

@@ -29,12 +29,14 @@ package com.nawforce.platform.System;
 
 import com.nawforce.platform.Database.DMLOptions;
 import com.nawforce.platform.SObjects.User;
+import com.nawforce.platform.SObjects.UserRecordAccess;
 import com.nawforce.platform.Schema.SObjectField;
 import com.nawforce.platform.Schema.SObjectType;
 
 @SuppressWarnings("unused")
 public class SObject {
 	public Id Id;
+	public UserRecordAccess UserRecordAccess;
 
 	// TODO: These need to be auto-generated on each SObject
 	public Boolean IsDeleted;

@@ -137,6 +137,7 @@ object Name {
   lazy val MasterLabel: Name = cache("MasterLabel")
   lazy val NamespacePrefix: Name = cache("NamespacePrefix")
   lazy val QualifiedAPIName: Name = cache("QualifiedAPIName")
+  lazy val UserRecordAccess: Name = cache("UserRecordAccess")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 }

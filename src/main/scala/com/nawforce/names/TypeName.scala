@@ -158,6 +158,8 @@ object TypeName {
   lazy val SObjectTypeFields$ = TypeName(Name.SObjectTypeFields$, Nil, Some(TypeName.Internal))
   lazy val SObjectTypeFieldSets$ = TypeName(Name.SObjectTypeFieldSets$, Nil, Some(TypeName.Internal))
 
+  lazy val UserRecordAccess = TypeName(Name.UserRecordAccess)
+
   def describeSObjectResultOf(typeName: TypeName): TypeName = DescribeSObjectResult$.withParams(Seq(typeName))
   def sObjectType$(typeName: TypeName): TypeName = SObjectType$.withParams(Seq(typeName))
   def sObjectTypeFields$(typeName: TypeName): TypeName = SObjectTypeFields$.withParams(Seq(typeName))
