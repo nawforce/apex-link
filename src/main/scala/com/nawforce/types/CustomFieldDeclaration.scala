@@ -46,13 +46,12 @@ final case class CustomFieldDeclaration(name: Name, typeName: TypeName, asStatic
   override lazy val isStatic: Boolean = asStatic
 }
 
-
 object CustomFieldDeclaration {
 
   def parseField(elem: Elem, path: Path, pkg: PackageDeclaration, sObjectType: TypeName): Seq[CustomFieldDeclaration] = {
-    val rawName: String = XMLUtils.getSingleChildAsString(elem, "fullName")
+    val rawName: String = XMLUtils.getSingleChildAsString(elem, "fullName").trim
     val name = Name(pkg.namespace.map(ns => s"${ns.value}__$rawName").getOrElse(rawName))
-    val rawType: String = XMLUtils.getSingleChildAsString(elem, "type")
+    val rawType: String = XMLUtils.getSingleChildAsString(elem, "type").trim
 
     val dataType = rawType match {
       case "MasterDetail" => PlatformTypes.idType
@@ -84,8 +83,8 @@ object CustomFieldDeclaration {
 
     Seq(CustomFieldDeclaration(name, dataType.typeName)) ++
       (if (rawType == "Lookup" || rawType == "MasterDetail" || rawType == "MetadataRelationship") {
-        val referenceTo = Name(XMLUtils.getSingleChildAsString(elem, "referenceTo"))
-        val relName = Name(XMLUtils.getSingleChildAsString(elem, "relationshipName")+"__r")
+        val referenceTo = Name(XMLUtils.getSingleChildAsString(elem, "referenceTo").trim)
+        val relName = Name(XMLUtils.getSingleChildAsString(elem, "relationshipName").trim+"__r")
         val refTypeName = EncodedName(referenceTo).defaultNamespace(pkg.namespace).asTypeName
 
         pkg.schema().relatedLists.add(refTypeName, relName, name, sObjectType,
