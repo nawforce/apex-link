@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -37,6 +39,9 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class LeadChangeEvent extends SObject {
 	public static SObjectType$<LeadChangeEvent> SObjectType;
+	public static SObjectTypeFields$<LeadChangeEvent> Fields;
+	public static SObjectTypeFieldSets$<LeadChangeEvent> FieldSets;
+
 	public com.nawforce.platform.System.Address Address;
 	public Decimal AnnualRevenue;
 	public Object ChangeEventHeader;

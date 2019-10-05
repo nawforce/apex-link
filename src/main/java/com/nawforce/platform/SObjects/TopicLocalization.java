@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class TopicLocalization extends SObject {
 	public static SObjectType$<TopicLocalization> SObjectType;
+	public static SObjectTypeFields$<TopicLocalization> Fields;
+	public static SObjectTypeFieldSets$<TopicLocalization> FieldSets;
 	public String Language;
 	public String NamespacePrefix;
 	public Id ParentId;

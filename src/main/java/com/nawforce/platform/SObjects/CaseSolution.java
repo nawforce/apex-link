@@ -28,12 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class CaseSolution extends SObject {
 	public static SObjectType$<CaseSolution> SObjectType;
+	public static SObjectTypeFields$<CaseSolution> Fields;
+	public static SObjectTypeFieldSets$<CaseSolution> FieldSets;
 	public Id CaseId;
 	public Case Case;
 	public Id SolutionId;

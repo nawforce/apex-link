@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class Product2History extends SObject {
 	public static SObjectType$<Product2History> SObjectType;
+	public static SObjectTypeFields$<Product2History> Fields;
+	public static SObjectTypeFieldSets$<Product2History> FieldSets;
 	public String Field;
 	public Object NewValue;
 	public Object OldValue;

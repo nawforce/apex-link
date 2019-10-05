@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -36,6 +38,9 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class AccountChangeEvent extends SObject {
 	public static SObjectType$<AccountChangeEvent> SObjectType;
+	public static SObjectTypeFields$<AccountChangeEvent> Fields;
+	public static SObjectTypeFieldSets$<AccountChangeEvent> FieldSets;
+
 	public String AccountNumber;
 	public String AccountSource;
 	public Decimal AnnualRevenue;

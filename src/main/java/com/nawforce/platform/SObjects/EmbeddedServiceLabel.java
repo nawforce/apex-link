@@ -28,12 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class EmbeddedServiceLabel extends SObject {
 	public static SObjectType$<EmbeddedServiceLabel> SObjectType;
+	public static SObjectTypeFields$<EmbeddedServiceLabel> Fields;
+	public static SObjectTypeFieldSets$<EmbeddedServiceLabel> FieldSets;
 	public String CustomLabelName;
 	public String DurableId;
 	public String EmbeddedServiceConfigDeveloperName;

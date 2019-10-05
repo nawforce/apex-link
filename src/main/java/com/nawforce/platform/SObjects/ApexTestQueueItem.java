@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class ApexTestQueueItem extends SObject {
 	public static SObjectType$<ApexTestQueueItem> SObjectType;
+	public static SObjectTypeFields$<ApexTestQueueItem> Fields;
+	public static SObjectTypeFieldSets$<ApexTestQueueItem> FieldSets;
 	public Id ApexClassId;
 	public ApexClass ApexClass;
 	public String ExtendedStatus;

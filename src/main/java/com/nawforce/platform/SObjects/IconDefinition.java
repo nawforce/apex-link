@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class IconDefinition extends SObject {
 	public static SObjectType$<IconDefinition> SObjectType;
+	public static SObjectTypeFields$<IconDefinition> Fields;
+	public static SObjectTypeFieldSets$<IconDefinition> FieldSets;
 	public String ContentType;
 	public String DurableId;
 	public Integer Height;

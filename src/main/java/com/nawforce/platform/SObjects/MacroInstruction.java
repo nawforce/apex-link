@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class MacroInstruction extends SObject {
 	public static SObjectType$<MacroInstruction> SObjectType;
+	public static SObjectTypeFields$<MacroInstruction> Fields;
+	public static SObjectTypeFieldSets$<MacroInstruction> FieldSets;
 	public String CurrencyIsoCode;
 	public Id MacroId;
 	public Macro Macro;

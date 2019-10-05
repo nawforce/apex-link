@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class NoteAndAttachment extends SObject {
 	public static SObjectType$<NoteAndAttachment> SObjectType;
+	public static SObjectTypeFields$<NoteAndAttachment> Fields;
+	public static SObjectTypeFieldSets$<NoteAndAttachment> FieldSets;
 	public Boolean IsNote;
 	public Boolean IsPrivate;
 	public Id OwnerId;

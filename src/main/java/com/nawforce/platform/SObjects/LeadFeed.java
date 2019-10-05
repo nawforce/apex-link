@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -37,6 +39,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class LeadFeed extends SObject {
 	public static SObjectType$<LeadFeed> SObjectType;
+	public static SObjectTypeFields$<LeadFeed> Fields;
+	public static SObjectTypeFieldSets$<LeadFeed> FieldSets;
 	public Id BestCommentId;
 	public FeedComment BestComment;
 	public String Body;

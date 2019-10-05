@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class ContactChangeEvent extends SObject {
 	public static SObjectType$<ContactChangeEvent> SObjectType;
+	public static SObjectTypeFields$<ContactChangeEvent> Fields;
+	public static SObjectTypeFieldSets$<ContactChangeEvent> FieldSets;
 	public Id AccountId;
 	public Account Account;
 	public String AssistantName;

@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Decimal;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class CallCenter extends SObject {
 	public static SObjectType$<CallCenter> SObjectType;
+	public static SObjectTypeFields$<CallCenter> Fields;
+	public static SObjectTypeFieldSets$<CallCenter> FieldSets;
 	public String AdapterUrl;
 	public String CustomSettings;
 	public String InternalName;

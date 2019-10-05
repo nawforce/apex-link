@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Date;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.SObject;
 @SuppressWarnings("unused")
 public class VisualforceAccessMetrics extends SObject {
 	public static SObjectType$<VisualforceAccessMetrics> SObjectType;
+	public static SObjectTypeFields$<VisualforceAccessMetrics> Fields;
+	public static SObjectTypeFieldSets$<VisualforceAccessMetrics> FieldSets;
 	public Id ApexPageId;
 	public ApexPage ApexPage;
 	public Integer DailyPageViewCount;

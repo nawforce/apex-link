@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class ThirdPartyAccountLink extends SObject {
 	public static SObjectType$<ThirdPartyAccountLink> SObjectType;
+	public static SObjectTypeFields$<ThirdPartyAccountLink> Fields;
+	public static SObjectTypeFieldSets$<ThirdPartyAccountLink> FieldSets;
 	public String Handle;
 	public Boolean IsNotSsoUsable;
 	public String Provider;

@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class ChatterExtension extends SObject {
 	public static SObjectType$<ChatterExtension> SObjectType;
+	public static SObjectTypeFields$<ChatterExtension> Fields;
+	public static SObjectTypeFieldSets$<ChatterExtension> FieldSets;
 	public String CompositionComponentEnumOrId;
 	public String Description;
 	public String DeveloperName;

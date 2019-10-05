@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Decimal;
 import com.nawforce.platform.System.SObject;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class LoginGeo extends SObject {
 	public static SObjectType$<LoginGeo> SObjectType;
+	public static SObjectTypeFields$<LoginGeo> Fields;
+	public static SObjectTypeFieldSets$<LoginGeo> FieldSets;
 	public String City;
 	public String Country;
 	public String CountryIso;

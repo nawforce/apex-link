@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class DataStatistics extends SObject {
 	public static SObjectType$<DataStatistics> SObjectType;
+	public static SObjectTypeFields$<DataStatistics> Fields;
+	public static SObjectTypeFieldSets$<DataStatistics> FieldSets;
 	public String ExternalId;
 	public String StatType;
 	public Integer StatValue;

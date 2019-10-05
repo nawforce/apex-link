@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class EventBusSubscriber extends SObject {
 	public static SObjectType$<EventBusSubscriber> SObjectType;
+	public static SObjectTypeFields$<EventBusSubscriber> Fields;
+	public static SObjectTypeFieldSets$<EventBusSubscriber> FieldSets;
 	public String CurrencyIsoCode;
 	public String ExternalId;
 	public String LastError;

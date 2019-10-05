@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class CaseHistory extends SObject {
 	public static SObjectType$<CaseHistory> SObjectType;
+	public static SObjectTypeFields$<CaseHistory> Fields;
+	public static SObjectTypeFieldSets$<CaseHistory> FieldSets;
 	public Id CaseId;
 	public Case Case;
 	public String Field;

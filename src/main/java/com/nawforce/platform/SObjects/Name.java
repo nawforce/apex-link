@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class Name extends SObject {
 	public static SObjectType$<Name> SObjectType;
+	public static SObjectTypeFields$<Name> Fields;
+	public static SObjectTypeFieldSets$<Name> FieldSets;
 	public String Alias;
 	public String Email;
 	public String FirstName;

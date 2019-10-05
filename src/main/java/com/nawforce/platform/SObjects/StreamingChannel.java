@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class StreamingChannel extends SObject {
 	public static SObjectType$<StreamingChannel> SObjectType;
+	public static SObjectTypeFields$<StreamingChannel> Fields;
+	public static SObjectTypeFieldSets$<StreamingChannel> FieldSets;
 	public String CurrencyIsoCode;
 	public String Description;
 	public Boolean IsDynamic;

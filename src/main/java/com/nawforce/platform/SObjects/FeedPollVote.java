@@ -28,12 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class FeedPollVote extends SObject {
 	public static SObjectType$<FeedPollVote> SObjectType;
+	public static SObjectTypeFields$<FeedPollVote> Fields;
+	public static SObjectTypeFieldSets$<FeedPollVote> FieldSets;
 	public Id ChoiceId;
 	public FeedPollChoice Choice;
 	public Id FeedItemId;

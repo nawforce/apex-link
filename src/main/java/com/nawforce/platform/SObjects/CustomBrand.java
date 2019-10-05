@@ -28,12 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class CustomBrand extends SObject {
 	public static SObjectType$<CustomBrand> SObjectType;
+	public static SObjectTypeFields$<CustomBrand> Fields;
+	public static SObjectTypeFieldSets$<CustomBrand> FieldSets;
 	public Id ParentId;
 	public Organization Parent;
 

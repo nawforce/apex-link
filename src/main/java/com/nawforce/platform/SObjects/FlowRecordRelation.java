@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class FlowRecordRelation extends SObject {
 	public static SObjectType$<FlowRecordRelation> SObjectType;
+	public static SObjectTypeFields$<FlowRecordRelation> Fields;
+	public static SObjectTypeFieldSets$<FlowRecordRelation> FieldSets;
 	public String CurrencyIsoCode;
 	public String Name;
 	public Id ParentId;

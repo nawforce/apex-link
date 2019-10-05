@@ -28,12 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class AuthConfigProviders extends SObject {
 	public static SObjectType$<AuthConfigProviders> SObjectType;
+	public static SObjectTypeFields$<AuthConfigProviders> Fields;
+	public static SObjectTypeFieldSets$<AuthConfigProviders> FieldSets;
 	public Id AuthConfigId;
 	public AuthConfig AuthConfig;
 	public Id AuthProviderId;

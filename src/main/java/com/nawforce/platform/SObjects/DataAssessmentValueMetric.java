@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class DataAssessmentValueMetric extends SObject {
 	public static SObjectType$<DataAssessmentValueMetric> SObjectType;
+	public static SObjectTypeFields$<DataAssessmentValueMetric> Fields;
+	public static SObjectTypeFieldSets$<DataAssessmentValueMetric> FieldSets;
 	public String CurrencyIsoCode;
 	public Id DataAssessmentFieldMetricId;
 	public DataAssessmentFieldMetric DataAssessmentFieldMetric;

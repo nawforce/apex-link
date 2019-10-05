@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class WaveCompatibilityCheckItem extends SObject {
 	public static SObjectType$<WaveCompatibilityCheckItem> SObjectType;
+	public static SObjectTypeFields$<WaveCompatibilityCheckItem> Fields;
+	public static SObjectTypeFieldSets$<WaveCompatibilityCheckItem> FieldSets;
 	public String CurrencyIsoCode;
 	public String Name;
 	public String Payload;

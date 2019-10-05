@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class CategoryNode extends SObject {
 	public static SObjectType$<CategoryNode> SObjectType;
+	public static SObjectTypeFields$<CategoryNode> Fields;
+	public static SObjectTypeFieldSets$<CategoryNode> FieldSets;
 	public String MasterLabel;
 	public Id ParentId;
 	public CategoryNode Parent;

@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class Community extends SObject {
 	public static SObjectType$<Community> SObjectType;
+	public static SObjectTypeFields$<Community> Fields;
+	public static SObjectTypeFieldSets$<Community> FieldSets;
 	public String Description;
 	public Boolean IsActive;
 	public Boolean IsPublished;

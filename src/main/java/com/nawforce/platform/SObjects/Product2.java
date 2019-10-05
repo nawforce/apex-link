@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -37,6 +39,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class Product2 extends SObject {
 	public static SObjectType$<Product2> SObjectType;
+	public static SObjectTypeFields$<Product2> Fields;
+	public static SObjectTypeFieldSets$<Product2> FieldSets;
 	public Boolean CanUseQuantitySchedule;
 	public Boolean CanUseRevenueSchedule;
 	public String CurrencyIsoCode;

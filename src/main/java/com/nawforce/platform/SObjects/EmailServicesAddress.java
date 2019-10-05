@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class EmailServicesAddress extends SObject {
 	public static SObjectType$<EmailServicesAddress> SObjectType;
+	public static SObjectTypeFields$<EmailServicesAddress> Fields;
+	public static SObjectTypeFieldSets$<EmailServicesAddress> FieldSets;
 	public String AuthorizedSenders;
 	public String DeveloperName;
 	public String EmailDomainName;

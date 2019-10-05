@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class Event extends SObject {
 	public static SObjectType$<Event> SObjectType;
+	public static SObjectTypeFields$<Event> Fields;
+	public static SObjectTypeFieldSets$<Event> FieldSets;
 	public Id AccountId;
 	public Account Account;
 	public Date ActivityDate;

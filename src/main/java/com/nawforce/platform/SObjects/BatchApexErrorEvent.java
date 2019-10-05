@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class BatchApexErrorEvent extends SObject {
 	public static SObjectType$<BatchApexErrorEvent> SObjectType;
+	public static SObjectTypeFields$<BatchApexErrorEvent> Fields;
+	public static SObjectTypeFieldSets$<BatchApexErrorEvent> FieldSets;
 	public String AsyncApexJobId;
 	public Boolean DoesExceedJobScopeMaxLength;
 	public String ExceptionType;
