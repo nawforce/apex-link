@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class Contract extends SObject {
 	public static SObjectType$<Contract> SObjectType;
+	public static SObjectTypeFields$<Contract> Fields;
+	public static SObjectTypeFieldSets$<Contract> FieldSets;
 	public Id AccountId;
 	public Account Account;
 	public Id ActivatedById;

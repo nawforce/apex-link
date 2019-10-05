@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class LightningUsageByPageMetrics extends SObject {
 	public static SObjectType$<LightningUsageByPageMetrics> SObjectType;
+	public static SObjectTypeFields$<LightningUsageByPageMetrics> Fields;
+	public static SObjectTypeFieldSets$<LightningUsageByPageMetrics> FieldSets;
 	public Integer EptBin3To5;
 	public Integer EptBin5To8;
 	public Integer EptBin8To10;

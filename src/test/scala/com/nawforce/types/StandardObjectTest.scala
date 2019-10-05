@@ -156,6 +156,17 @@ class StandardObjectTest extends FunSuite {
     assert(!org.issues.hasMessages)
   }
 
+  test("Standard field reference (ambiguous)") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = BusinessHours.FridayEndTime;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    org.issues.dumpMessages(false)
+    assert(!org.issues.hasMessages)
+  }
+
   test("Custom field reference") {
     val fs = Jimfs.newFileSystem(Configuration.unix)
     Files.write(fs.getPath("Account.object"), customObject("Account", Seq(("Bar__c", "Text", None))).getBytes())

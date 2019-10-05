@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class ListViewChartInstance extends SObject {
 	public static SObjectType$<ListViewChartInstance> SObjectType;
+	public static SObjectTypeFields$<ListViewChartInstance> Fields;
+	public static SObjectTypeFieldSets$<ListViewChartInstance> FieldSets;
 	public String AggregateField;
 	public String AggregateType;
 	public String ChartType;

@@ -97,16 +97,16 @@ object PlatformTypes {
       return firstResult
     }
 
-    val systemResult = findOuterOrNestedPlatformType(alias.wrap(TypeName.System))
-    if (systemResult.isRight) {
-      fireLoadingEvents(systemResult.right.get)
-      return systemResult
-    }
-
     val schemaResult = findOuterOrNestedPlatformType(alias.wrap(TypeName.Schema))
     if (schemaResult.isRight) {
       fireLoadingEvents(schemaResult.right.get)
       return schemaResult
+    }
+
+    val systemResult = findOuterOrNestedPlatformType(alias.wrap(TypeName.System))
+    if (systemResult.isRight) {
+      fireLoadingEvents(systemResult.right.get)
+      return systemResult
     }
 
     firstResult

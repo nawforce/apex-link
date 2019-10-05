@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class EmailDomainKey extends SObject {
 	public static SObjectType$<EmailDomainKey> SObjectType;
+	public static SObjectTypeFields$<EmailDomainKey> Fields;
+	public static SObjectTypeFieldSets$<EmailDomainKey> FieldSets;
 	public String Domain;
 	public String DomainMatch;
 	public Boolean IsActive;

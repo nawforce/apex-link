@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class ApexTestRunResult extends SObject {
 	public static SObjectType$<ApexTestRunResult> SObjectType;
+	public static SObjectTypeFields$<ApexTestRunResult> Fields;
+	public static SObjectTypeFieldSets$<ApexTestRunResult> FieldSets;
 	public Id AsyncApexJobId;
 	public AsyncApexJob AsyncApexJob;
 	public Integer ClassesCompleted;

@@ -28,12 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class DatasetExportEvent extends SObject {
 	public static SObjectType$<DatasetExportEvent> SObjectType;
+	public static SObjectTypeFields$<DatasetExportEvent> Fields;
+	public static SObjectTypeFieldSets$<DatasetExportEvent> FieldSets;
 	public String DataflowInstanceId;
 	public String DatasetExportId;
 	public String Message;

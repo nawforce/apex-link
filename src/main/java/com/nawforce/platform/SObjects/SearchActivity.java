@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class SearchActivity extends SObject {
 	public static SObjectType$<SearchActivity> SObjectType;
+	public static SObjectTypeFields$<SearchActivity> Fields;
+	public static SObjectTypeFieldSets$<SearchActivity> FieldSets;
 	public Decimal AvgNumResults;
 	public Decimal ClickRank;
 	public String ClickedRecordName;

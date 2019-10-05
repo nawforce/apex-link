@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class Document extends SObject {
 	public static SObjectType$<Document> SObjectType;
+	public static SObjectTypeFields$<Document> Fields;
+	public static SObjectTypeFieldSets$<Document> FieldSets;
 	public Id AuthorId;
 	public User Author;
 	public Blob Body;

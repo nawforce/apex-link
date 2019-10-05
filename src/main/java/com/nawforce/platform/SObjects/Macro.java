@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class Macro extends SObject {
 	public static SObjectType$<Macro> SObjectType;
+	public static SObjectTypeFields$<Macro> Fields;
+	public static SObjectTypeFieldSets$<Macro> FieldSets;
 	public String CurrencyIsoCode;
 	public String Description;
 	public Boolean IsAlohaSupported;

@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class ProcessInstanceNode extends SObject {
 	public static SObjectType$<ProcessInstanceNode> SObjectType;
+	public static SObjectTypeFields$<ProcessInstanceNode> Fields;
+	public static SObjectTypeFieldSets$<ProcessInstanceNode> FieldSets;
 	public Datetime CompletedDate;
 	public Decimal ElapsedTimeInDays;
 	public Decimal ElapsedTimeInHours;

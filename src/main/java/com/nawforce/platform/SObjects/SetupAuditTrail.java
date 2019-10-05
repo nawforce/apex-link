@@ -28,12 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class SetupAuditTrail extends SObject {
 	public static SObjectType$<SetupAuditTrail> SObjectType;
+	public static SObjectTypeFields$<SetupAuditTrail> Fields;
+	public static SObjectTypeFieldSets$<SetupAuditTrail> FieldSets;
 	public String Action;
 	public String DelegateUser;
 	public String Display;

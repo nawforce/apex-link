@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class RelationshipInfo extends SObject {
 	public static SObjectType$<RelationshipInfo> SObjectType;
+	public static SObjectTypeFields$<RelationshipInfo> Fields;
+	public static SObjectTypeFieldSets$<RelationshipInfo> FieldSets;
 	public String ChildSobjectId;
 	public String DurableId;
 	public String FieldId;

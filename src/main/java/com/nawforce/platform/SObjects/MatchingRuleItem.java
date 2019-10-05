@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class MatchingRuleItem extends SObject {
 	public static SObjectType$<MatchingRuleItem> SObjectType;
+	public static SObjectTypeFields$<MatchingRuleItem> Fields;
+	public static SObjectTypeFieldSets$<MatchingRuleItem> FieldSets;
 	public String BlankValueBehavior;
 	public String Field;
 	public String MatchingMethod;

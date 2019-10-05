@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class ProcessInstanceHistory extends SObject {
 	public static SObjectType$<ProcessInstanceHistory> SObjectType;
+	public static SObjectTypeFields$<ProcessInstanceHistory> Fields;
+	public static SObjectTypeFieldSets$<ProcessInstanceHistory> FieldSets;
 	public Id ActorId;
 	public Group Actor;
 	public String Comments;

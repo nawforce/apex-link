@@ -28,12 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class EntitySubscription extends SObject {
 	public static SObjectType$<EntitySubscription> SObjectType;
+	public static SObjectTypeFields$<EntitySubscription> Fields;
+	public static SObjectTypeFieldSets$<EntitySubscription> FieldSets;
 	public Id ParentId;
 	public Account Parent;
 	public Id SubscriberId;

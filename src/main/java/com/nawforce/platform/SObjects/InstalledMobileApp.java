@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class InstalledMobileApp extends SObject {
 	public static SObjectType$<InstalledMobileApp> SObjectType;
+	public static SObjectTypeFields$<InstalledMobileApp> Fields;
+	public static SObjectTypeFieldSets$<InstalledMobileApp> FieldSets;
 	public Id ConnectedApplicationId;
 	public ConnectedApplication ConnectedApplication;
 	public String CurrencyIsoCode;

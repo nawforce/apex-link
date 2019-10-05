@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -35,6 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class QueueSobject extends SObject {
 	public static SObjectType$<QueueSobject> SObjectType;
+	public static SObjectTypeFields$<QueueSobject> Fields;
+	public static SObjectTypeFieldSets$<QueueSobject> FieldSets;
 	public Id QueueId;
 	public Group Queue;
 	public String SobjectType;

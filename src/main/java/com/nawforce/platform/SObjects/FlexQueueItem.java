@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class FlexQueueItem extends SObject {
 	public static SObjectType$<FlexQueueItem> SObjectType;
+	public static SObjectTypeFields$<FlexQueueItem> Fields;
+	public static SObjectTypeFieldSets$<FlexQueueItem> FieldSets;
 	public Id AsyncApexJobId;
 	public AsyncApexJob AsyncApexJob;
 	public String FlexQueueItemId;

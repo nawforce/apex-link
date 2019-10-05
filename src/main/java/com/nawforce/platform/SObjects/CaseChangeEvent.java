@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class CaseChangeEvent extends SObject {
 	public static SObjectType$<CaseChangeEvent> SObjectType;
+	public static SObjectTypeFields$<CaseChangeEvent> Fields;
+	public static SObjectTypeFieldSets$<CaseChangeEvent> FieldSets;
 	public Id AccountId;
 	public Account Account;
 	public Id AssetId;

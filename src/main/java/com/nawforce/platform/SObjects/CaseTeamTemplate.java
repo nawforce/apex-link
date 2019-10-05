@@ -28,12 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class CaseTeamTemplate extends SObject {
 	public static SObjectType$<CaseTeamTemplate> SObjectType;
+	public static SObjectTypeFields$<CaseTeamTemplate> Fields;
+	public static SObjectTypeFieldSets$<CaseTeamTemplate> FieldSets;
 	public String Description;
 	public String Name;
 }

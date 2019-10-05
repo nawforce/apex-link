@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class DuplicateRecordSet extends SObject {
 	public static SObjectType$<DuplicateRecordSet> SObjectType;
+	public static SObjectTypeFields$<DuplicateRecordSet> Fields;
+	public static SObjectTypeFieldSets$<DuplicateRecordSet> FieldSets;
 	public String CurrencyIsoCode;
 	public Id DuplicateRuleId;
 	public DuplicateRule DuplicateRule;

@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -36,6 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class LoginHistory extends SObject {
 	public static SObjectType$<LoginHistory> SObjectType;
+	public static SObjectTypeFields$<LoginHistory> Fields;
+	public static SObjectTypeFieldSets$<LoginHistory> FieldSets;
 	public String ApiType;
 	public String ApiVersion;
 	public String Application;

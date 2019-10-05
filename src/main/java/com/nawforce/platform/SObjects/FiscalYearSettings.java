@@ -28,6 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -37,6 +39,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class FiscalYearSettings extends SObject {
 	public static SObjectType$<FiscalYearSettings> SObjectType;
+	public static SObjectTypeFields$<FiscalYearSettings> Fields;
+	public static SObjectTypeFieldSets$<FiscalYearSettings> FieldSets;
 	public String Description;
 	public Date EndDate;
 	public Boolean IsStandardYear;

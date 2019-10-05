@@ -28,12 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class CategoryData extends SObject {
 	public static SObjectType$<CategoryData> SObjectType;
+	public static SObjectTypeFields$<CategoryData> Fields;
+	public static SObjectTypeFieldSets$<CategoryData> FieldSets;
 	public Id CategoryNodeId;
 	public CategoryNode CategoryNode;
 	public Id RelatedSobjectId;

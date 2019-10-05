@@ -28,12 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class SearchLayout extends SObject {
 	public static SObjectType$<SearchLayout> SObjectType;
+	public static SObjectTypeFields$<SearchLayout> Fields;
+	public static SObjectTypeFieldSets$<SearchLayout> FieldSets;
 	public Object ButtonsDisplayed;
 	public String DurableId;
 	public String EntityDefinitionId;

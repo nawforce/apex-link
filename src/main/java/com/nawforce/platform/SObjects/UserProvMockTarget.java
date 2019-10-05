@@ -28,12 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class UserProvMockTarget extends SObject {
 	public static SObjectType$<UserProvMockTarget> SObjectType;
+	public static SObjectTypeFields$<UserProvMockTarget> Fields;
+	public static SObjectTypeFieldSets$<UserProvMockTarget> FieldSets;
 	public String ExternalEmail;
 	public String ExternalFirstName;
 	public String ExternalLastName;
