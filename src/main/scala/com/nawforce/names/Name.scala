@@ -139,6 +139,8 @@ object Name {
   lazy val QualifiedAPIName: Name = cache("QualifiedAPIName")
   lazy val UserRecordAccess: Name = cache("UserRecordAccess")
   lazy val ReplayId: Name = cache("ReplayId")
+  lazy val Fields: Name = cache("Fields")
+  lazy val FieldSets: Name = cache("FieldSets")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 }

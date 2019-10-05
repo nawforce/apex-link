@@ -29,7 +29,7 @@ class GenericPlatformTypeDeclaration(_typeName: TypeName, genericDecl: PlatformT
   }
 
   def replaceParams(typeName: TypeName): TypeName = {
-    typeName.withParams(typeName.params.map(p => paramsMap(p.name)))
+    typeName.withParams(typeName.params.map(p => paramsMap.get(p.name).getOrElse(p)))
   }
 
   def getTypeVariable(typeName: TypeName): Option[TypeName] = {
