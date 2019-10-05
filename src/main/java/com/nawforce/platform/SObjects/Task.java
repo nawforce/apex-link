@@ -36,6 +36,7 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class Task extends SObject {
 	public static SObjectType$<Task> SObjectType;
+	public String Type;
 	public Id AccountId;
 	public Account Account;
 	public Date ActivityDate;
