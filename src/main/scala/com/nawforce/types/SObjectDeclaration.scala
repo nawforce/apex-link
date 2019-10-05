@@ -173,13 +173,15 @@ object SObjectDeclaration {
   }
 
   private lazy val standardCustomObjectFields: Seq[FieldDeclaration] = {
-    CustomFieldDeclaration(Name.NameName, PlatformTypes.stringType.typeName) +:
-      CustomFieldDeclaration(Name.RecordTypeId, PlatformTypes.idType.typeName) +:
+    CustomFieldDeclaration(Name.NameName, TypeName.String) +:
+      CustomFieldDeclaration(Name.RecordTypeId, TypeName.Id) +:
       PlatformTypes.sObjectType.fields.filterNot(f => f.name == Name.SObjectType)
   }
 
   private def customObjectFields(sobjectDetails: SObjectDetails): Seq[FieldDeclaration] = {
-    standardCustomObjectFields ++
+    Seq(CustomFieldDeclaration(Name.Fields, TypeName.sObjectTypeFields$(sobjectDetails.typeName), true),
+      CustomFieldDeclaration(Name.FieldSets, TypeName.sObjectTypeFieldSets$(sobjectDetails.typeName), true)) ++
+      standardCustomObjectFields ++
       sobjectDetails.fields ++
       (if (sobjectDetails.sobjectNature == HierarchyCustomSettingsNature)
         Seq(CustomFieldDeclaration(Name.SetupOwnerId, PlatformTypes.idType.typeName))
