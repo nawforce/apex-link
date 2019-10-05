@@ -111,7 +111,28 @@ public class Apex {
     }
 
     public static class OutputLink extends Component {}
-    public static class OutputPanel extends Component {}
+    public static class OutputPanel extends Component {
+        public String dir;
+        public String id;
+        public String lang;
+        public String layout;
+        public String onclick;
+        public String ondblclick;
+        public String onkeydown;
+        public String onkeypress;
+        public String onkeyup;
+        public String onmousedown;
+        public String onmousemove;
+        public String onmouseout;
+        public String onmouseover;
+        public String onmouseup;
+        public Boolean rendered;
+        public String style;
+        public String styleClass;
+        public String title;
+        public String value;
+    }
+
     public static class OutputText extends Component {}
     public static class Page extends Component {}
     public static class PageBlock extends Component {}

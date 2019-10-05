@@ -27,11 +27,46 @@
 */
 package com.nawforce.platform.Component;
 
+import com.nawforce.platform.Internal.Object$;
+import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Id;
+import com.nawforce.platform.System.String;
+
 @SuppressWarnings("unused")
 public class Chatter {
-    public class Feed {}
-    public class FeedWithFollowers {}
-    public class Follow {}
-    public class Followers {}
-    public class Newsfeed {}
+    public static class Feed {
+        Id EntityId;
+        String FeedItemType;
+        Id Id;
+        String OnComplete;
+        Boolean Rendered;
+        Object$ ReRender;
+        Boolean ShowPublisher;
+    }
+    public static class FeedWithFollowers {
+        Id EntityId;
+        Id Id;
+        String OnComplete;
+        Boolean Rendered;
+        Object$ ReRender;
+        Boolean ShowHeader;
+    }
+    public static class Follow {
+        Id EntityId;
+        Id Id;
+        String OnComplete;
+        Boolean Rendered;
+        Object$ ReRender;
+    }
+    public static class Followers {
+        Id EntityId;
+        Id Id;
+        Boolean Rendered;
+    }
+    public static class Newsfeed {
+        Id Id;
+        String OnComplete;
+        Boolean Rendered;
+        Object$ ReRender;
+    }
 }
