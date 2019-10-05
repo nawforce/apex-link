@@ -31,6 +31,20 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
 
   lazy val outerName: Name = outer.map(_.outerName).getOrElse(name)
 
+  def outerNth(index: Int): Option[Name] = {
+    if (index > 0 && outer.nonEmpty) {
+      outer.get.outerNth(index-1)
+    } else if (index == 0) {
+      Some(name)
+    } else {
+      None
+    }
+  }
+
+  def inner() : TypeName = {
+    TypeName(name, params, None)
+  }
+
   def withName(newName: Name): TypeName = {
     if (newName != name)
       TypeName(newName, params, outer)
@@ -99,11 +113,11 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
       case TypeName.RecordSet => "[SOQL Results]"
       case TypeName(Name.DescribeSObjectResult$, Seq(TypeName(name, Nil, None)), Some(TypeName.Internal)) =>
         s"Schema.SObjectType.$name"
-      case TypeName(Name.SObjectType$, Seq(TypeName(name, Nil, None)), Some(TypeName.Internal)) =>
+      case TypeName(Name.SObjectType$, Seq(TypeName(name, Nil, Some(TypeName.Schema))), Some(TypeName.Internal)) =>
         s"$name.SObjectType"
-      case TypeName(Name.SObjectTypeFields$, Seq(TypeName(name, Nil, None)), Some(TypeName.Internal)) =>
+      case TypeName(Name.SObjectTypeFields$, Seq(TypeName(name, Nil, Some(TypeName.Schema))), Some(TypeName.Internal)) =>
         s"Schema.SObjectType.$name.Fields"
-      case TypeName(Name.SObjectTypeFieldSets$, Seq(TypeName(name, Nil, None)), Some(TypeName.Internal)) =>
+      case TypeName(Name.SObjectTypeFieldSets$, Seq(TypeName(name, Nil, Some(TypeName.Schema))), Some(TypeName.Internal)) =>
         s"Schema.SObjectType.$name.FieldSets"
 
       case _ =>

@@ -35,7 +35,7 @@ import com.nawforce.api.Package
 import com.nawforce.documents.DocumentLoader
 import com.nawforce.finding.TypeFinder
 import com.nawforce.finding.TypeRequest.TypeRequest
-import com.nawforce.names.{Name, TypeName}
+import com.nawforce.names.{EncodedName, Name, TypeName}
 
 abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Path], var basePackages: Seq[PackageDeclaration])
   extends TypeFinder {
@@ -57,7 +57,12 @@ abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Pa
 
   /* Check if a type is ghost in this package */
   def isGhostedType(typeName: TypeName): Boolean = {
-    basePackages.filter(_.isGhosted).exists(_.namespace.contains(typeName.outerName))
+    if (typeName.outer.contains(TypeName.Schema)) {
+      val encName = EncodedName(typeName.name)
+      basePackages.filter(_.isGhosted).exists(_.namespace == encName.namespace)
+    } else {
+      basePackages.filter(_.isGhosted).exists(_.namespace.contains(typeName.outerName))
+    }
   }
 
   def addDependency(pkg: Package): Unit = {
@@ -96,7 +101,7 @@ abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Pa
   }
 
   private def getPackageType(typeName: TypeName, inPackage: Boolean=true): Option[TypeDeclaration] = {
-    var declaration = Option(types.get(typeName))
+    var declaration = findType(typeName)
     if (declaration.nonEmpty) {
       if (inPackage || declaration.get.isExternallyVisible)
         return declaration
@@ -115,6 +120,21 @@ abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Pa
     if (declaration.nonEmpty)
       return declaration
 
+    None
+  }
+
+  private def findType(typeName: TypeName): Option[TypeDeclaration] = {
+    val declaration = Option(types.get(typeName))
+      .orElse(Option(types.get(typeName.withOuter(Some(TypeName.Schema)))))
+    if (declaration.nonEmpty)
+      return declaration
+
+    if (typeName.params.isEmpty && (typeName.outer.isEmpty || typeName.outer.contains(TypeName.Schema))) {
+      val encName = EncodedName(typeName.name).defaultNamespace(namespace)
+      if (encName.ext.nonEmpty) {
+        return Option(types.get(TypeName(encName.fullName, Nil, Some(TypeName.Schema))))
+      }
+    }
     None
   }
 

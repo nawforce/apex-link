@@ -53,8 +53,11 @@ final case class SObjectDetails(sobjectNature: SObjectNature, typeName: TypeName
                                 fields: Seq[CustomFieldDeclaration], fieldSets: Set[Name]) {
 
   def isIntroducing(pkg: PackageDeclaration): Boolean = {
-    (sobjectNature.isInstanceOf[IntroducingNature] && typeName.outer.map(_.name) == pkg.namespace) ||
+    if (sobjectNature.isInstanceOf[IntroducingNature]) {
+      EncodedName(typeName.name).namespace == pkg.namespace
+    } else{
       sobjectNature == CustomMetadataNature || sobjectNature == PlatformEventNature
+    }
   }
 
   def withTypeName(newTypeName: TypeName): SObjectDetails = {
@@ -67,7 +70,7 @@ object SObjectDetails {
     try {
       val dt = DocumentType(path)
       assert(dt.exists(_.isInstanceOf[SObjectLike]))
-      val typeName = EncodedName(dt.get.name).defaultNamespace(pkg.namespace).asTypeName
+      val typeName = TypeName(EncodedName(dt.get.name).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeName.Schema))
 
       // TODO: Improve handling of ghosted SObject types
       if (!Files.exists(path)) {

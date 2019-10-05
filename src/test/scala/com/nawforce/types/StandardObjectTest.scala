@@ -56,7 +56,7 @@ class StandardObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Foo.object")) ==
-      "line 0: No SObject declaration found for 'Foo'\n")
+      "line 0: No SObject declaration found for 'Schema.Foo'\n")
   }
 
   test("Not a sObject") {
@@ -67,7 +67,7 @@ class StandardObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/String.object")) ==
-      "line 0: No SObject declaration found for 'String'\n")
+      "line 0: No SObject declaration found for 'Schema.String'\n")
   }
 
   test("UserRecordAccess available") {
@@ -100,7 +100,7 @@ class StandardObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 33-41: Unknown field or type 'Baz__c' on 'Account'\n")
+      "line 1 at 33-41: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
   }
 
   test("Custom base package field") {
@@ -133,7 +133,7 @@ class StandardObjectTest extends FunSuite {
     pkg1.deployAll()
     pkg2.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/pkg2/Dummy.cls")) ==
-      "line 1 at 33-41: Unknown field or type 'Bar__c' on 'Account'\n")
+      "line 1 at 33-41: Unknown field or type 'Bar__c' on 'Schema.Account'\n")
   }
 
   test("RecordTypeId field") {
@@ -176,7 +176,7 @@ class StandardObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 39-53: Unknown field or type 'Baz__c' on 'Account'\n")
+      "line 1 at 39-53: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
   }
 
   test("Lookup related list") {
@@ -283,6 +283,15 @@ class StandardObjectTest extends FunSuite {
     Files.write(fs.getPath("Account/Account.object-meta.xml"), customObject("Account", Seq()).getBytes())
     Files.write(fs.getPath("Account/fieldSets/TestFS.fieldSet-meta.xml"), customFieldSet("TestFS").getBytes())
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Account.FieldSets.TestFS;} }".getBytes())
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Schema sObject access describable") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectType a = Schema.Account.SObjectType;} }".getBytes())
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
