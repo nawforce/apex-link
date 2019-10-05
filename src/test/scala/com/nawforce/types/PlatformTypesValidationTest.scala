@@ -53,7 +53,7 @@ class PlatformTypesValidationTest extends FunSuite {
   test("SObject type is visible") {
     val td = PlatformTypes.get(TypeName(Name("User")), None)
     assert(td.isRight)
-    assert(td.right.get.typeName == TypeName(Name("User"), Nil, None))
+    assert(td.right.get.typeName == TypeName(Name("User"), Nil, Some(TypeName.Schema)))
   }
 
   test("All outer types are valid") {

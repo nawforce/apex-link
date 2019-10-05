@@ -85,7 +85,7 @@ object CustomFieldDeclaration {
       (if (rawType == "Lookup" || rawType == "MasterDetail" || rawType == "MetadataRelationship") {
         val referenceTo = Name(XMLUtils.getSingleChildAsString(elem, "referenceTo").trim)
         val relName = Name(XMLUtils.getSingleChildAsString(elem, "relationshipName").trim+"__r")
-        val refTypeName = EncodedName(referenceTo).defaultNamespace(pkg.namespace).asTypeName
+        val refTypeName = TypeName(EncodedName(referenceTo).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeName.Schema))
 
         pkg.schema().relatedLists.add(refTypeName, relName, name, sObjectType,
           RangeLocation(path, TextRange(XMLUtils.getLine(elem))))

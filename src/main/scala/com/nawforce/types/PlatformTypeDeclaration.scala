@@ -264,7 +264,7 @@ object PlatformTypeDeclaration {
   }
 
   /* Index .class files, we have to index to make sure we get natural case sensitive names, but also used
-   * to re-map SObject so they appear in root of platform namespace.
+   * to re-map SObject so they appear in Schema namespace.
    */
   private def indexDir(path: Path, prefix: DotName, accum: mutable.HashMap[DotName, DotName]): Unit = {
     Files.list(path).iterator.asScala.foreach(entry => {
@@ -272,10 +272,11 @@ object PlatformTypeDeclaration {
       if (Files.isRegularFile(entry) && filename.endsWith(".class") &&
         (filename.endsWith("$.class") || !filename.contains('$'))) {
         val dotName = prefix.append(Name(filename.dropRight(".class".length)))
-        if (dotName.names.head == Name.SObjects)
-          accum.put(DotName(dotName.names.tail), dotName)
-        else
+        if (dotName.names.head == Name.SObjects) {
+          accum.put(DotName(Name.Schema +: dotName.names.tail), dotName)
+        } else {
           accum.put(dotName, dotName)
+        }
       }
       else if (Files.isDirectory(entry)) {
         val safeFilename = filename.replace("/", "").replace("\\", "")
@@ -317,7 +318,7 @@ object PlatformTypeDeclaration {
       } else if (cname.startsWith(platformPackage+".SObjects")) {
         val names = cname.drop(platformPackage.length + 10).split('.').map(n => Name(n)).reverse
         val params = cls.getTypeParameters.map(tp => Name(tp.getName))
-        TypeName(names).withParams(params.toSeq.map(TypeName(_)))
+        TypeName(names :+ Name.Schema).withParams(params.toSeq.map(TypeName(_)))
       } else {
         assert(cname.startsWith(platformPackage), s"Reference to non-platform type $cname in ${contextCls.getCanonicalName}")
         val names = cname.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse

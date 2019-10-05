@@ -76,6 +76,10 @@ class RelatedLists(pkg: PackageDeclaration) {
       } else if (td.exists(sobject => sobject.isInstanceOf[PlatformTypeDeclaration] && sobject.isSObject)) {
         changedObjects.add(td.get)
       }
+      if (td.nonEmpty && sobject != td.get.typeName) {
+        relationshipFields.put(td.get.typeName, relationshipFields(sobject))
+        relationshipFields.remove(sobject)
+      }
     })
 
     // Wrap any objects with lookups relationships so they are visible
@@ -144,7 +148,7 @@ final case class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDec
 }
 
 final case class SchemaSObjectTypeFields(sobjectName: Name, pkg: PackageDeclaration)
-  extends NamedTypeDeclaration(pkg, TypeName.sObjectTypeFields$(TypeName(sobjectName))) {
+  extends NamedTypeDeclaration(pkg, TypeName.sObjectTypeFields$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
     TypeRequest(TypeName(sobjectName), pkg).toOption match {
@@ -170,7 +174,7 @@ final case class SchemaSObjectTypeFields(sobjectName: Name, pkg: PackageDeclarat
 }
 
 final case class SchemaSObjectTypeFieldSets(sobjectName: Name, pkg: PackageDeclaration)
-  extends NamedTypeDeclaration(pkg, TypeName.sObjectTypeFieldSets$(TypeName(sobjectName))) {
+  extends NamedTypeDeclaration(pkg, TypeName.sObjectTypeFieldSets$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
   private lazy val sobjectFieldSets: Map[Name, FieldDeclaration] = {
     TypeRequest(TypeName(sobjectName), pkg).toOption match {

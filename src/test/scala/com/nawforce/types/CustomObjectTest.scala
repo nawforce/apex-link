@@ -105,7 +105,7 @@ class CustomObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 38-56: Map construction not supported on SObject type 'Foo__c'\n")
+      "line 1 at 38-56: Map construction not supported on SObject type 'Schema.Foo__c'\n")
   }
 
   test("Illegal Set construction") {
@@ -117,7 +117,7 @@ class CustomObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 38-54: Set construction not supported on SObject type 'Foo__c'\n")
+      "line 1 at 38-54: Set construction not supported on SObject type 'Schema.Foo__c'\n")
   }
 
   test("No-arg construction") {
@@ -151,7 +151,7 @@ class CustomObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 44-50: Unknown field 'Baz__c' on SObject type 'Foo__c'\n")
+      "line 1 at 44-50: Unknown field 'Baz__c' on SObject type 'Schema.Foo__c'\n")
   }
 
   test("Multi arg construction") {
@@ -174,7 +174,7 @@ class CustomObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 58-64: Duplicate assignment to field 'Bar__c' on SObject type 'Foo__c'\n")
+      "line 1 at 58-64: Duplicate assignment to field 'Bar__c' on SObject type 'Schema.Foo__c'\n")
   }
 
   test("None name=value construction") {
@@ -186,7 +186,7 @@ class CustomObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 44-51: SObject type 'Foo__c' construction needs '<field name> = <value>' arguments\n")
+      "line 1 at 44-51: SObject type 'Schema.Foo__c' construction needs '<field name> = <value>' arguments\n")
   }
 
   test("Id & Name construction") {
@@ -286,7 +286,7 @@ class CustomObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 39-52: Unknown field or type 'Baz__c' on 'Foo__c'\n")
+      "line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__c'\n")
   }
 
   test("UserRecordAccess available") {
@@ -309,6 +309,7 @@ class CustomObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
+    org.issues.dumpMessages(false)
     assert(!org.issues.hasMessages)
   }
 
@@ -417,6 +418,16 @@ class CustomObjectTest extends FunSuite {
     Files.write(fs.getPath("Foo__c/Foo__c.object-meta.xml"), customObject("Foo", Seq()).getBytes())
     Files.write(fs.getPath("Foo__c/fieldSets/TestFS.fieldSet-meta.xml"), customFieldSet("TestFS").getBytes())
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.FieldSets.TestFS;} }".getBytes())
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Schema sObject access describable") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectType a = Schema.Foo__c.SObjectType;} }".getBytes())
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
