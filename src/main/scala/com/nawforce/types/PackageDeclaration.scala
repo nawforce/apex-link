@@ -125,9 +125,14 @@ abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Pa
 
   private def findType(typeName: TypeName): Option[TypeDeclaration] = {
     val declaration = Option(types.get(typeName))
-      .orElse(Option(types.get(typeName.withOuter(Some(TypeName.Schema)))))
     if (declaration.nonEmpty)
       return declaration
+
+    if (typeName.outer.isEmpty) {
+      val declaration = Option(types.get(typeName.withOuter(Some(TypeName.Schema))))
+      if (declaration.nonEmpty)
+        return declaration
+    }
 
     if (typeName.params.isEmpty && (typeName.outer.isEmpty || typeName.outer.contains(TypeName.Schema))) {
       val encName = EncodedName(typeName.name).defaultNamespace(namespace)
