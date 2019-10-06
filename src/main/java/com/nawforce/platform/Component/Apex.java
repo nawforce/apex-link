@@ -110,7 +110,40 @@ public class Apex {
         public String value;
     }
 
-    public static class OutputLink extends Component {}
+    public static class OutputLink extends Component {
+        public String accessKey;
+        public String charset;
+        public String coords;
+        public String dir;
+        public Boolean disabled;
+        public String hreflang;
+        public String id;
+        public String lang;
+        public String onblur;
+        public String onclick;
+        public String ondblclick;
+        public String onfocus;
+        public String onkeydown;
+        public String onkeypress;
+        public String onkeyup;
+        public String onmousedown;
+        public String onmousemove;
+        public String onmouseout;
+        public String onmouseover;
+        public String onmouseup;
+        public String rel;
+        public Boolean rendered;
+        public String rev;
+        public String shape;
+        public String style;
+        public String styleClass;
+        public String tabIndex;
+        public String target;
+        public String title;
+        public String type;
+        public String value;
+    }
+
     public static class OutputPanel extends Component {
         public String dir;
         public String id;
