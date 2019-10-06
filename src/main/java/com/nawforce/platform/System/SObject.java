@@ -28,20 +28,20 @@
 package com.nawforce.platform.System;
 
 import com.nawforce.platform.Database.DMLOptions;
-import com.nawforce.platform.SObjects.Attachment;
-import com.nawforce.platform.SObjects.User;
-import com.nawforce.platform.SObjects.UserRecordAccess;
+import com.nawforce.platform.SObjects.*;
 import com.nawforce.platform.Schema.SObjectField;
 import com.nawforce.platform.Schema.SObjectType;
 
 @SuppressWarnings("unused")
 public class SObject {
+	// TODO: These need to be auto-generated on each SObject
 	public Id Id;
 	public Id OwnerId;
+	public UserGroup Owner;
 	public UserRecordAccess UserRecordAccess;
 	public List<Attachment> Attachments;
-
-	// TODO: These need to be auto-generated on each SObject
+	public RecordType RecordType;
+	public String CurrencyIsoCode;
 	public Boolean IsDeleted;
 	public Id CreatedById;
 	public User CreatedBy;
