@@ -289,6 +289,22 @@ class CustomObjectTest extends FunSuite {
       "line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__c'\n")
   }
 
+  test("Cross package field reference") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.createDirectory(fs.getPath("pkg1"))
+    Files.write(fs.getPath("pkg1/Foo__c.object"), customObject("Foo__c", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.createDirectory(fs.getPath("pkg2"))
+    Files.write(fs.getPath("pkg2/Dummy.cls"),"public class Dummy { {pkg1__Foo__c a = null;} }".getBytes())
+
+    val org = new Org()
+    val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(fs.getPath("/work/pkg1")), Seq())
+    val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
+    pkg1.deployAll()
+    pkg2.deployAll()
+    org.issues.dumpMessages(false)
+    assert(!org.issues.hasMessages)
+  }
+
   test("UserRecordAccess available") {
     val fs = Jimfs.newFileSystem(Configuration.unix)
     Files.write(fs.getPath("Foo__c.object"), customObject("Foo__c", Seq()).getBytes())
