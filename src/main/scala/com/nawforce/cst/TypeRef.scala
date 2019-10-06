@@ -47,9 +47,12 @@ object TypeRef {
   }
 
   private def decodeName(name: TypeNameContext): TypeName = {
-    EncodedName(name.id().getText).asTypeName.withParams(
-      createTypeParams(name.typeArguments())
-    )
+    val params = createTypeParams(name.typeArguments())
+    val encType = EncodedName(Name(name.id().getText))
+    if (encType.ext.nonEmpty)
+      TypeName(encType.fullName, params, Some(TypeName.Schema))
+    else
+      TypeName(Name(name.id().getText), params, None)
   }
 
   @scala.annotation.tailrec
