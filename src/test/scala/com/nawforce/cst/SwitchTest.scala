@@ -44,6 +44,7 @@ class SwitchTest extends FunSuite with BeforeAndAfter {
   def typeDeclaration(clsText: String): Option[TypeDeclaration] = {
     Org.current.withValue(defaultOrg) {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
+      td.headOption.foreach(_.validate())
       td.headOption
     }
   }
@@ -71,6 +72,11 @@ class SwitchTest extends FunSuite with BeforeAndAfter {
     typeDeclaration("public class Dummy {{switch on 'A' {}}}")
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1: mismatched input '}' expecting 'when'\n")
+  }
+
+  test("Enum switch") {
+    typeDeclaration("public class Dummy {{switch on 'A' {when EnumValue {} when else {}}}}")
+    assert(!defaultOrg.issues.hasMessages)
   }
 
   // TODO: Examine error handling of switch

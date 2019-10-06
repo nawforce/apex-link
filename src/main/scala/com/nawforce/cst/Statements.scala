@@ -148,7 +148,8 @@ final case class WhenControl(expressions: List[Expression], block: Block) extend
   override def children(): List[CST] = expressions ++ List(block)
 
   def verify(context: BlockVerifyContext): Unit = {
-    expressions.foreach(_.verify(context))
+    // TYPING: This requires type knowledge when used with enum, disable for now
+    // expressions.foreach(_.verify(context))
     block.verify(new InnerBlockVerifyContext(context))
   }
 }
