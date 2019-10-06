@@ -119,7 +119,7 @@ class GhostPackageTest extends FunSuite with BeforeAndAfter{
     defaultOrg.addPackage("silly", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = new package__Foo__c();} }"))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 37-52: No type declaration found for 'package.Foo__c'\n")
+    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 37-52: No type declaration found for 'Schema.package__Foo__c'\n")
     assert(tds.head.dependencies().isEmpty)
   }
 
@@ -135,7 +135,7 @@ class GhostPackageTest extends FunSuite with BeforeAndAfter{
     defaultOrg.addPackage("silly", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = new package__Foo__mdt();} }"))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 37-54: No type declaration found for 'package.Foo__mdt'\n")
+    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 37-54: No type declaration found for 'Schema.package__Foo__mdt'\n")
     assert(tds.head.dependencies().isEmpty)
   }
 
@@ -151,7 +151,7 @@ class GhostPackageTest extends FunSuite with BeforeAndAfter{
     defaultOrg.addPackage("silly", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy { {Object a = new package__Foo__e();} }"))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 37-52: No type declaration found for 'package.Foo__e'\n")
+    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 37-52: No type declaration found for 'Schema.package__Foo__e'\n")
     assert(tds.head.dependencies().isEmpty)
   }
 

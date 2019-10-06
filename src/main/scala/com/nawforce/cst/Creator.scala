@@ -62,7 +62,13 @@ object CreatedName {
 final case class IdCreatedNamePair(id: Id, types: Seq[TypeName]) extends CST {
   override def children(): List[CST] = Nil
 
-  val typeName: TypeName = EncodedName(id.name).asTypeName.withParams(types)
+  val typeName: TypeName = {
+    val encName = EncodedName(id.name)
+    if (encName.ext.nonEmpty)
+      TypeName(encName.fullName, types, Some(TypeName.Schema))
+    else
+      TypeName(encName.fullName, types, None)
+  }
 }
 
 object IdCreatedNamePair {
