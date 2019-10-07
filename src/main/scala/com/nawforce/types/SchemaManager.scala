@@ -54,7 +54,8 @@ class RelatedLists(pkg: PackageDeclaration) {
 
   /* Declare a new relationship field */
   def add(sObject: TypeName, relationshipName: Name, holdingFieldName: Name, holdingSObject: TypeName, location: Location): Unit = {
-    val field = CustomFieldDeclaration(relationshipName, TypeName(Name.List, Seq(holdingSObject), None))
+    val encodedName = EncodedName(relationshipName).defaultNamespace(pkg.namespace).fullName
+    val field = CustomFieldDeclaration(encodedName, TypeName(Name.List, Seq(holdingSObject), None))
     synchronized {
       relationshipFields.put(sObject, (field, holdingFieldName, location) +: relationshipFields(sObject))
     }
@@ -90,7 +91,12 @@ class RelatedLists(pkg: PackageDeclaration) {
 
   /* Find for a relationship field on an SObject*/
   def findField(sobjectType: TypeName, name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
-    relationshipFields(sobjectType).find(field => field._1.name == name).map(_._1)
+    val encodedName = EncodedName(name).defaultNamespace(pkg.namespace).fullName
+    relationshipFields(sobjectType).find(field => field._1.name == encodedName).map(_._1).orElse({
+      pkg.basePackages.flatMap(basePkg => {
+        basePkg.schema().relatedLists.findField(sobjectType, encodedName, staticOnly)
+      }).headOption
+    })
   }
 }
 
@@ -116,7 +122,7 @@ final case class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDec
 
     sobjectFields.get(name).orElse({
       /* If not yet present check if we should create and cache */
-      val td = TypeRequest(typeName, pkg).toOption
+      val td = TypeRequest(TypeName(name), pkg).toOption
       if (td.nonEmpty && td.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
         Some(createSObjectDescribeField(name, td.get.typeName))
       } else {
@@ -141,13 +147,32 @@ final case class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDec
   def createSObjectTypeDeclarations(sobjectName: Name): Unit = {
     if (!sobjectTypeDeclarationsCreated.contains(sobjectName)) {
       sobjectTypeDeclarationsCreated.add(sobjectName)
-      pkg.upsertType(SchemaSObjectTypeFields(sobjectName, pkg))
-      pkg.upsertType(SchemaSObjectTypeFieldSets(sobjectName, pkg))
+      val fields = SObjectTypeFields(sobjectName, pkg)
+      pkg.upsertType(SObjectTypeImpl(sobjectName, fields, pkg))
+      pkg.upsertType(fields)
+      pkg.upsertType(SObjectTypeFieldSets(sobjectName, pkg))
     }
   }
 }
 
-final case class SchemaSObjectTypeFields(sobjectName: Name, pkg: PackageDeclaration)
+final case class SObjectTypeImpl(sobjectName: Name, sobjectTypeFields: SObjectTypeFields, pkg: PackageDeclaration)
+  extends NamedTypeDeclaration(pkg, TypeName.sObjectType$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
+
+  private lazy val fieldField = CustomFieldDeclaration(Name.Fields,
+    TypeName.sObjectTypeFields$(TypeName(sobjectName, Nil, Some(TypeName.Schema))), true)
+  private lazy val fieldSetsField = CustomFieldDeclaration(Name.FieldSets,
+    TypeName.sObjectTypeFieldSets$(TypeName(sobjectName, Nil, Some(TypeName.Schema))), true)
+
+  override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
+    (name, staticOnly) match {
+      case (Name.Fields, false) => Some(fieldField)
+      case (Name.FieldSets, false) => Some(fieldSetsField)
+      case _ => sobjectTypeFields.findField(name, staticOnly)
+    }
+  }
+}
+
+final case class SObjectTypeFields(sobjectName: Name, pkg: PackageDeclaration)
   extends NamedTypeDeclaration(pkg, TypeName.sObjectTypeFields$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
@@ -173,7 +198,7 @@ final case class SchemaSObjectTypeFields(sobjectName: Name, pkg: PackageDeclarat
   }
 }
 
-final case class SchemaSObjectTypeFieldSets(sobjectName: Name, pkg: PackageDeclaration)
+final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageDeclaration)
   extends NamedTypeDeclaration(pkg, TypeName.sObjectTypeFieldSets$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
   private lazy val sobjectFieldSets: Map[Name, FieldDeclaration] = {
