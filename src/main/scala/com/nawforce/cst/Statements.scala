@@ -132,7 +132,16 @@ final case class IfStatement(expression: Expression, statements: List[Statement]
 
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
-    statements.foreach(_.verify(new InnerBlockVerifyContext(context)))
+
+    // This is replicating a feature where non-block statements can pass declarations forward
+    var stmtContext = new InnerBlockVerifyContext(context)
+    statements.foreach(stmt => {
+      if (stmt.isInstanceOf[Block]) {
+        stmtContext = new InnerBlockVerifyContext(context)
+      } else {
+        stmt.verify(stmtContext)
+      }
+    })
   }
 }
 
