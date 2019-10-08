@@ -33,7 +33,7 @@ import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
-// TODO: Enable on org via QuoteSettings
+// To see Quote Enable on org via QuoteSettings
 @SuppressWarnings("unused")
 public class Quote extends SObject {
 	public static SObjectType$<Quote> SObjectType;
