@@ -27,9 +27,9 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.api.Org
 import com.nawforce.names.{EncodedName, TypeName}
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.types.SObjectDeclaration
 
 import scala.collection.JavaConverters._
 
@@ -86,13 +86,9 @@ object IdCreatedNamePair {
   }
 }
 
-final case class Creator(createdName: CreatedName,
-                         classCreatorRest: Option[ClassCreatorRest],
-                         arrayCreatorRest: Option[ArrayCreatorRest],
-                         mapCreatorRest: Option[MapCreatorRest],
-                         setCreatorRest: Option[SetCreatorRest]) extends CST {
-  override def children(): List[CST] =
-    List(createdName) ++ classCreatorRest ++ arrayCreatorRest ++ mapCreatorRest ++setCreatorRest
+final case class Creator(createdName: CreatedName, creatorRest: CreatorRest) extends CST {
+
+  override def children(): List[CST] = List(createdName, creatorRest)
 
   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
@@ -102,46 +98,51 @@ final case class Creator(createdName: CreatedName,
       return inter
     }
 
-    // Intercept CustomObject construction to handle name=value args
-    if (arrayCreatorRest.isEmpty) {
-      inter.declaration.get match {
-        case co: SObjectDeclaration =>
-          return co.validateConstructor(input, this, context)
-        case _ => ()
-      }
-    }
-
-    /* TODO
-    classCreatorRest.foreach(_.verify(input, context))
-    arrayCreatorRest.foreach(_.verify(input, context))
-    mapCreatorRest.foreach(_.verify(input, context))
-    setCreatorRest.foreach(_.verify(input, context))
-     */
-
-    // TODO
-    ExprContext.empty
+    creatorRest.verify(inter, context)
+    inter
   }
 }
 
 object Creator {
   def construct(from: CreatorContext, context: ConstructContext): Creator = {
-    Creator(
-      CreatedName.construct(from.createdName(), context),
-      Option(from.classCreatorRest()).map(ClassCreatorRest.construct(_, context)),
-      Option(from.arrayCreatorRest()).map(ArrayCreatorRest.construct(_, context)),
-      Option(from.mapCreatorRest()).map(MapCreatorRest.construct(_, context)),
-      Option(from.setCreatorRest()).map(SetCreatorRest.construct(_, context))
-    ).withContext(from, context)
+    val rest: Option[CreatorRest] =
+      Option(from.noRest()).map(NoRest.construct(_, context))
+          .orElse(Option(from.classCreatorRest()).map(ClassCreatorRest.construct(_, context)))
+          .orElse(Option(from.arrayCreatorRest()).map(ArrayCreatorRest.construct(_, context)))
+          .orElse(Option(from.mapCreatorRest()).map(MapCreatorRest.construct(_, context)))
+          .orElse(Option(from.setCreatorRest()).map(SetCreatorRest.construct(_, context)))
+
+    Creator(CreatedName.construct(from.createdName(), context), rest.get).withContext(from, context)
   }
 }
 
-final case class ClassCreatorRest(arguments: List[Expression]) extends CST {
+sealed abstract class CreatorRest extends CST {
+  def verify(input: ExprContext, context: ExpressionVerifyContext): Unit
+}
+
+final class NoRest extends CreatorRest {
+  override def children(): List[CST] = Nil
+
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): Unit = {}
+}
+
+object NoRest {
+  def construct(from: NoRestContext, context: ConstructContext): NoRest = {
+    new NoRest().withContext(from, context)
+  }
+}
+
+final case class ClassCreatorRest(arguments: List[Expression]) extends CreatorRest {
   override def children(): List[CST] = arguments
 
-  def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    arguments.foreach(_.verify(input, context))
-    // TODO
-    ExprContext.empty
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): Unit = {
+    assert(input.declaration.nonEmpty)
+    val td = input.declaration.get
+
+    if (td.isFieldConstructed)
+      input.declaration.get.validateFieldConstructorArguments(arguments, context)
+    else
+      arguments.foreach(_.verify(input, context))
   }
 }
 
@@ -151,15 +152,17 @@ object ClassCreatorRest {
   }
 }
 
-final case class ArrayCreatorRest(expressions: Option[Expression], arrayInitializer: Option[ArrayInitializer],
-                                 ) extends CST {
+final case class ArrayCreatorRest(expressions: Option[Expression], arrayInitializer: Option[ArrayInitializer])
+  extends CreatorRest {
   override def children(): List[CST] = List[CST]() ++ expressions ++ arrayInitializer
 
-  def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): Unit = {
+    /*
     expressions.foreach(_.verify(input, context))
     arrayInitializer.foreach(_.verify(input, context))
     // TODO
     ExprContext.empty
+     */
   }
 }
 
@@ -189,13 +192,23 @@ object ArrayInitializer {
   }
 }
 
-final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends CST {
+final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends CreatorRest {
   override def children(): List[CST] = pairs
 
-  def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): Unit = {
+    assert(input.declaration.nonEmpty)
+    val td = input.declaration.get
+
+    if (td.isFieldConstructed) {
+      Org.logMessage(location, s"Map construction not supported on type using a field constructor '${input.declaration.get.typeName}'")
+    }
+
+
+    /*
     pairs.foreach(_.verify(input, context))
     // TODO
     ExprContext.empty
+     */
   }
 }
 
@@ -230,13 +243,22 @@ object MapCreatorRestPair {
   }
 }
 
-final case class SetCreatorRest(parts: List[Expression]) extends CST {
+final case class SetCreatorRest(parts: List[Expression]) extends CreatorRest {
   override def children(): List[CST] = parts
 
-   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+   override def verify(input: ExprContext, context: ExpressionVerifyContext): Unit = {
+     assert(input.declaration.nonEmpty)
+     val td = input.declaration.get
+
+     if (td.isFieldConstructed) {
+       Org.logMessage(location, s"Set construction not supported on type using a field constructor '${input.declaration.get.typeName}'")
+     }
+
+     /*
     parts.foreach(_.verify(input, context))
     // TODO
     ExprContext.empty
+      */
   }
 }
 

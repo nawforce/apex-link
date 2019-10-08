@@ -27,8 +27,11 @@
 */
 package com.nawforce.platform.Component;
 
+import com.nawforce.platform.ApexPages.Action;
 import com.nawforce.platform.ApexPages.Component;
+import com.nawforce.platform.Internal.Object$;
 import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
@@ -47,7 +50,40 @@ public class Apex {
     public static class ChartLabel extends Component {}
     public static class ChartTips extends Component {}
     public static class Column extends Component {}
-    public static class CommandButton extends Component {}
+
+    public static class CommandButton extends Component {
+        public String accessKey;
+        public Action action;
+        public String alt;
+        public String dir;
+        public Boolean disabled;
+        public String id;
+        public String image;
+        public Boolean immediate;
+        public String lang;
+        public String onblur;
+        public String onclick;
+        public String ondblclick;
+        public String onfocus;
+        public String onkeydown;
+        public String onkeypress;
+        public String onkeyup;
+        public String onmousedown;
+        public String onmousemove;
+        public String onmouseout;
+        public String onmouseover;
+        public String onmouseup;
+        public Boolean rendered;
+        public Object$ reRender;
+        public String status;
+        public String style;
+        public String styleClass;
+        public String tabIndex;
+        public Integer timeout;
+        public String title;
+        public String value;
+    }
+
     public static class CommandLink extends Component {}
     public static class DataList extends Component {}
     public static class DataTable extends Component {}
@@ -70,7 +106,40 @@ public class Apex {
     public static class InputHidden extends Component {}
     public static class InputSecret extends Component {}
     public static class InputText extends Component {}
-    public static class InputTextarea extends Component {}
+
+    public static class InputTextarea extends Component {
+        public String accessKey;
+        public Integer cols;
+        public String dir;
+        public Boolean disabled;
+        public String id;
+        public String label;
+        public String lang;
+        public String onblur;
+        public String onclick;
+        public String ondblclick;
+        public String onfocus;
+        public String onkeydown;
+        public String onkeypress;
+        public String onkeyup;
+        public String onmousedown;
+        public String onmousemove;
+        public String onmouseout;
+        public String onmouseover;
+        public String onmouseup;
+        public String onselect;
+        public Boolean readonly;
+        public Boolean rendered;
+        public Boolean required;
+        public Boolean richText;
+        public Integer rows;
+        public String style;
+        public String styleClass;
+        public String tabIndex;
+        public String title;
+        public String value;
+    }
+
     public static class Legend extends Component {}
     public static class LineSeries extends Component {}
     public static class ListViews extends Component {}
@@ -166,7 +235,19 @@ public class Apex {
         public String value;
     }
 
-    public static class OutputText extends Component {}
+    public static class OutputText extends Component {
+        public String dir;
+        public Boolean escape;
+        public String id;
+        public String label;
+        public String lang;
+        public Boolean rendered;
+        public String style;
+        public String styleClass;
+        public String title;
+        public String value;
+    }
+
     public static class Page extends Component {}
     public static class PageBlock extends Component {}
     public static class PageBlockButtons extends Component {}
@@ -190,7 +271,41 @@ public class Apex {
     public static class Scontrol extends Component {}
     public static class SectionHeader extends Component {}
     public static class SelectCheckboxes extends Component {}
-    public static class SelectList extends Component {}
+
+    public static class SelectList extends Component {
+        public String accessKey;
+        public String dir;
+        public Boolean disabled;
+        public String disabledClass;
+        public String enabledClass;
+        public String id;
+        public String label;
+        public String lang;
+        public Boolean multiselect;
+        public String onblur;
+        public String onclick;
+        public String ondblclick;
+        public String onfocus;
+        public String onkeydown;
+        public String onkeypress;
+        public String onkeyup;
+        public String onmousedown;
+        public String onmousemove;
+        public String onmouseout;
+        public String onmouseover;
+        public String onmouseup;
+        public String onselect;
+        public Boolean readonly;
+        public Boolean rendered;
+        public Boolean required;
+        public Integer size;
+        public String style;
+        public String styleClass;
+        public String tabIndex;
+        public String title;
+        public String value;
+    }
+
     public static class SelectOption extends Component {}
     public static class SelectOptions extends Component {}
     public static class SelectRadio extends Component {}

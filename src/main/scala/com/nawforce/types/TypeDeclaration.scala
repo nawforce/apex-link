@@ -28,6 +28,7 @@
 package com.nawforce.types
 
 import com.nawforce.api._
+import com.nawforce.cst.{BinaryExpression, Expression, ExpressionVerifyContext, IdPrimary, PrimaryExpression}
 import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{Name, TypeName}
 
@@ -130,7 +131,9 @@ trait TypeDeclaration extends DependencyHolder {
   val isComplete: Boolean
   val isExternallyVisible: Boolean
   val isAny: Boolean = false
+  lazy val isFieldConstructed: Boolean = isSObject || isApexPagesComponent
   lazy val isSObject: Boolean = superClass.contains(TypeName.SObject)
+  lazy val isApexPagesComponent: Boolean = superClass.contains(TypeName.ApexPagesComponent)
 
   /* Validate must be called before examining dependencies */
   def validate(): Unit
@@ -170,6 +173,48 @@ trait TypeDeclaration extends DependencyHolder {
   def findLocalType(typeName: TypeName): Option[TypeDeclaration] = {
     packageDeclaration.flatMap(pkg => pkg.getLocalTypeFor(typeName, this))
   }
+
+  def validateFieldConstructorArguments(arguments: Seq[Expression], context: ExpressionVerifyContext): Unit = {
+    assert(isFieldConstructed)
+
+    // FUTURE: Disable this bypass once VF parsing supported
+    if (isInstanceOf[CustomComponent])
+      return;
+
+    val validArgs = arguments.flatMap(argument => {
+      argument match {
+        case BinaryExpression(PrimaryExpression(IdPrimary(id)), _, "=") =>
+          var field : Option[FieldDeclaration] = None
+
+          if (context.pkg.namespace.nonEmpty) {
+            field = findField(context.defaultNamespace(id.name), staticOnly = false)
+          }
+
+          if (field.isEmpty)
+            field = findField(id.name, staticOnly = false)
+
+          if (field.isEmpty) {
+            if (isComplete)
+              Org.logMessage(id.location, s"Unknown field '${id.name}' on SObject type '$typeName'")
+            None
+          } else {
+            Some(id)
+          }
+        case _ =>
+          Org.logMessage(argument.location, s"SObject type '$typeName' construction needs '<field name> = <value>' arguments")
+          None
+      }
+    })
+
+    if (validArgs.size == arguments.size) {
+      val duplicates = validArgs.groupBy(_.name).collect { case (_, List(_, y, _*)) => y }
+      if (duplicates.nonEmpty) {
+        Org.logMessage(duplicates.head.location,
+          s"Duplicate assignment to field '${duplicates.head.name}' on SObject type '$typeName'")
+      }
+    }
+  }
+
 
   lazy val summary: TypeSummary = TypeSummary(
     name.toString, typeName.toString, nature.value, modifiers.map(_.toString).sorted.toList,

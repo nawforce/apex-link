@@ -47,59 +47,6 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
     pkg.getTypeFor(TypeName.SObject, this)
   }
 
-  def validateConstructor(input: ExprContext, creator: Creator, context: ExpressionVerifyContext): ExprContext = {
-    assert(creator.arrayCreatorRest.isEmpty)
-
-    if (creator.mapCreatorRest.nonEmpty) {
-      Org.logMessage(creator.location, s"Map construction not supported on SObject type '$typeName'")
-    } else if (creator.setCreatorRest.nonEmpty) {
-      Org.logMessage(creator.location, s"Set construction not supported on SObject type '$typeName'")
-    } else if (creator.classCreatorRest.nonEmpty) {
-      validateConstructorArguments(creator.classCreatorRest.get.arguments, context)
-    } else {
-      ExprContext(isStatic = false, Some(this))
-    }
-    ExprContext.empty
-  }
-
-  def validateConstructorArguments(arguments: Seq[Expression], context: ExpressionVerifyContext): ExprContext = {
-    val validArgs = arguments.flatMap(argument => {
-      argument match {
-        case BinaryExpression(PrimaryExpression(IdPrimary(id)), _, "=") =>
-          var field : Option[FieldDeclaration] = None
-
-          if (context.pkg.namespace.nonEmpty) {
-            field = findField(context.defaultNamespace(id.name), staticOnly = false)
-          }
-
-          if (field.isEmpty)
-            field = findField(id.name, staticOnly = false)
-
-          if (field.isEmpty) {
-            if (isComplete)
-              Org.logMessage(id.location, s"Unknown field '${id.name}' on SObject type '$typeName'")
-            return ExprContext.empty
-          } else {
-            Some(id)
-          }
-        case _ =>
-          Org.logMessage(argument.location, s"SObject type '$typeName' construction needs '<field name> = <value>' arguments")
-          return ExprContext.empty
-      }
-    })
-
-    if (validArgs.size == arguments.size) {
-      val duplicates = validArgs.groupBy(_.name).collect { case (_, List(_, y, _*)) => y }
-      if (duplicates.nonEmpty) {
-        Org.logMessage(duplicates.head.location,
-          s"Duplicate assignment to field '${duplicates.head.name}' on SObject type '$typeName'")
-      } else {
-        return ExprContext(isStatic = false, Some(this))
-      }
-    }
-    ExprContext.empty
-  }
-
   override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
     super.findFieldSObject(name, staticOnly).orElse({
       pkg.schema().relatedLists.findField(typeName, name, staticOnly)
