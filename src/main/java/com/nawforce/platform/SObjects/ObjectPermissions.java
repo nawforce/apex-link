@@ -27,7 +27,6 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
 import com.nawforce.platform.Internal.SObjectTypeFields$;
 import com.nawforce.platform.System.Boolean;
@@ -37,7 +36,6 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class ObjectPermissions extends SObject {
-	public static SObjectType$<ObjectPermissions> SObjectType;
 	public static SObjectTypeFields$<ObjectPermissions> Fields;
 	public static SObjectTypeFieldSets$<ObjectPermissions> FieldSets;
 	public Id ParentId;

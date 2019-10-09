@@ -105,7 +105,7 @@ class CustomObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 44-56: Map construction not supported on type using a field constructor 'Schema.Foo__c'\n")
+      "line 1 at 44-56: Expression pair list construction is only supported for Map types, not 'Schema.Foo__c'\n")
   }
 
   test("Illegal Set construction") {
@@ -117,7 +117,7 @@ class CustomObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 44-54: Set construction not supported on type using a field constructor 'Schema.Foo__c'\n")
+      "line 1 at 44-54: Expression list construction is only supported for Set or List types, not 'Schema.Foo__c'\n")
   }
 
   test("No-arg construction") {
@@ -139,6 +139,7 @@ class CustomObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
+    org.issues.dumpMessages(false)
     assert(!org.issues.hasMessages)
   }
 
