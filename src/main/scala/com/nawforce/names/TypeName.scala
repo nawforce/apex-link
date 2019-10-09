@@ -99,6 +99,22 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
     }
   }
 
+  def getSetOrListType: Option[TypeName] = {
+    if ((name == Name.Set  || name == Name.List) && outer.contains(TypeName.System) && params.size == 1) {
+      params.headOption
+    } else {
+      None
+    }
+  }
+
+  def getMapType: Option[(TypeName, TypeName)] = {
+    if (name == Name.Map && outer.contains(TypeName.System) && params.size == 2) {
+      Some(params.head, params(1))
+    } else {
+      None
+    }
+  }
+
   def isList: Boolean = name == Name.List && outer.contains(TypeName.System)
 
   def asListOf: TypeName = new TypeName(Name.List, Seq(this), Some(TypeName.System))
