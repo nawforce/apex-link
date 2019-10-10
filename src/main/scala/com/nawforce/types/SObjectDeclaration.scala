@@ -30,7 +30,6 @@ package com.nawforce.types
 import java.nio.file.Path
 
 import com.nawforce.api.Org
-import com.nawforce.cst._
 import com.nawforce.documents._
 import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{DotName, Name, TypeName}
@@ -126,15 +125,18 @@ object SObjectDeclaration {
   }
 
   private def customObjectFields(sobjectDetails: SObjectDetails): Seq[FieldDeclaration] = {
-    Seq(CustomFieldDeclaration(Name.Fields, TypeName.sObjectTypeFields$(sobjectDetails.typeName), true),
-      CustomFieldDeclaration(Name.FieldSets, TypeName.sObjectTypeFieldSets$(sobjectDetails.typeName), true)) ++
+    Seq(
+      CustomFieldDeclaration(Name.SObjectType, TypeName.sObjectType$(sobjectDetails.typeName), asStatic = true),
+      CustomFieldDeclaration(Name.Fields, TypeName.sObjectTypeFields$(sobjectDetails.typeName), asStatic = true),
+      CustomFieldDeclaration(Name.FieldSets, TypeName.sObjectTypeFieldSets$(sobjectDetails.typeName), asStatic = true)
+    ) ++
       standardCustomObjectFields ++
       sobjectDetails.fields ++
       (if (sobjectDetails.sobjectNature == HierarchyCustomSettingsNature)
         Seq(CustomFieldDeclaration(Name.SetupOwnerId, PlatformTypes.idType.typeName))
-      else Seq()
-        ) :+
-      CustomFieldDeclaration(Name.SObjectType, TypeName.sObjectType$(sobjectDetails.typeName), asStatic = true)
+      else
+        Seq()
+        )
   }
 
   private lazy val standardCustomMetadataFields: Seq[FieldDeclaration] = {
@@ -193,7 +195,9 @@ object SObjectDeclaration {
 
   private def createShare(pkg: PackageDeclaration, typeName: TypeName): SObjectDeclaration = {
     val shareName = typeName.withNameReplace("__c$", "__Share")
-    SObjectDeclaration(pkg, shareName, CustomObjectNature, Set(), shareFields, isComplete = true)
+    val sobjectDetails = SObjectDetails(CustomObjectNature, shareName, Seq(), Set())
+    SObjectDeclaration(pkg, shareName, CustomObjectNature, Set(),
+      customObjectFields(sobjectDetails) ++ shareFields, isComplete = true)
   }
 
   private lazy val shareFields = PlatformTypes.sObjectType.fields ++ Seq(
@@ -204,8 +208,10 @@ object SObjectDeclaration {
   )
 
   private def createFeed(pkg: PackageDeclaration, typeName: TypeName): SObjectDeclaration = {
-    val shareName = typeName.withNameReplace("__c$", "__Feed")
-    SObjectDeclaration(pkg, shareName, CustomObjectNature, Set(), feedFields, isComplete = true)
+    val feedName = typeName.withNameReplace("__c$", "__Feed")
+    val sobjectDetails = SObjectDetails(CustomObjectNature, feedName, Seq(), Set())
+    SObjectDeclaration(pkg, feedName, CustomObjectNature, Set(),
+      customObjectFields(sobjectDetails) ++ feedFields, isComplete = true)
   }
 
   private lazy val feedFields = PlatformTypes.sObjectType.fields ++ Seq(
@@ -226,8 +232,10 @@ object SObjectDeclaration {
   )
 
   private def createHistory(pkg: PackageDeclaration, typeName: TypeName): SObjectDeclaration = {
-    val shareName = typeName.withNameReplace("__c$", "__Feed")
-    SObjectDeclaration(pkg, shareName, CustomObjectNature, Set(), historyFields, isComplete = true)
+    val historyName = typeName.withNameReplace("__c$", "__History")
+    val sobjectDetails = SObjectDetails(CustomObjectNature, historyName, Seq(), Set())
+    SObjectDeclaration(pkg, historyName, CustomObjectNature, Set(),
+      customObjectFields(sobjectDetails) ++ historyFields, isComplete = true)
   }
 
   private lazy val historyFields = PlatformTypes.sObjectType.fields ++ Seq(
