@@ -78,7 +78,6 @@ object VariableDeclarators {
   }
 }
 
-
 final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeName: TypeName, variableDeclarators: VariableDeclarators)
   extends CST {
 
