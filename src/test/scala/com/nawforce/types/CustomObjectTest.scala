@@ -139,7 +139,6 @@ class CustomObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    org.issues.dumpMessages(false)
     assert(!org.issues.hasMessages)
   }
 
@@ -340,7 +339,6 @@ class CustomObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    org.issues.dumpMessages(false)
     assert(!org.issues.hasMessages)
   }
 
@@ -393,7 +391,6 @@ class CustomObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    org.issues.dumpMessages(false)
     assert(!org.issues.hasMessages)
   }
 
@@ -470,6 +467,39 @@ class CustomObjectTest extends FunSuite {
     val fs = Jimfs.newFileSystem(Configuration.unix)
     Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectType a = Schema.Foo__c.SObjectType;} }".getBytes())
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Share visible") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectType a = Foo__Share.SObjectType;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("History visible") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectType a = Foo__History.SObjectType;} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Feed visible") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectType a = Foo__Feed.SObjectType;} }".getBytes())
+
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
