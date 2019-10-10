@@ -37,6 +37,7 @@ public class SObject {
 	// TODO: These need to be auto-generated on each SObject
 	public Id Id;
 	public Id OwnerId;
+	public String Name;
 	public UserGroup Owner;
 	public UserRecordAccess UserRecordAccess;
 	public List<Attachment> Attachments;

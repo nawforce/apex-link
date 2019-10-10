@@ -148,7 +148,7 @@ class StandardObjectTest extends FunSuite {
 
   test("Standard field reference") {
     val fs = Jimfs.newFileSystem(Configuration.unix)
-    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Account.Fax;} }".getBytes())
+    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Contract.Name;} }".getBytes())
 
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
