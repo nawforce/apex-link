@@ -163,7 +163,7 @@ object EnumDeclaration {
   def construct(pkg: PackageDeclaration, outerTypeName: Option[TypeName], typeModifiers: Seq[Modifier],
                 enumDeclaration: ApexParser.EnumDeclarationContext, context: ConstructContext): EnumDeclaration = {
 
-    // TODO: Add standard enum methods
+    // FUTURE: Add standard enum methods
 
     val id = Id.construct(enumDeclaration.id(), context)
     val thisType = TypeName(id.name, Nil,

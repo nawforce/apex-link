@@ -166,16 +166,11 @@ variableDeclarators
     ;
 
 variableDeclarator
-    : id (ASSIGN variableInitializer)?
-    ;
-
-variableInitializer
-    : arrayInitializer
-    | expression
+    : id (ASSIGN expression)?
     ;
 
 arrayInitializer
-    : LBRACE (variableInitializer (COMMA variableInitializer)* (COMMA)? )? RBRACE
+    : LBRACE (expression (COMMA expression)* (COMMA)? )? RBRACE
     ;
 
 typeRef

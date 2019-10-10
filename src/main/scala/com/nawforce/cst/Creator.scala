@@ -158,7 +158,6 @@ final case class ArrayCreatorRest(expressions: Option[Expression], arrayInitiali
 
   override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {
     assert(creating.declaration.nonEmpty)
-    val td = creating.declaration.get
 
     // FUTURE: Expression type should be number
     expressions.foreach(_.verify(input, context))
@@ -177,18 +176,18 @@ object ArrayCreatorRest {
   }
 }
 
-final case class ArrayInitializer(variableInitializers: List[VariableInitializer]) extends CST {
-  override def children(): List[CST] = variableInitializers
+final case class ArrayInitializer(expressions: List[Expression]) extends CST {
+  override def children(): List[CST] = expressions
 
   def verify(input: ExprContext, context: ExpressionVerifyContext): Unit = {
-    variableInitializers.foreach(_.verify(input, context))
+    expressions.foreach(_.verify(input, context))
   }
 }
 
 object ArrayInitializer {
   def construct(from: ArrayInitializerContext, context: ConstructContext): ArrayInitializer = {
-    val initializers: Seq[VariableInitializerContext] = from.variableInitializer().asScala
-    ArrayInitializer(VariableInitializer.construct(initializers.toList, context)).withContext(from, context)
+    val initializers: Seq[ExpressionContext] = from.expression().asScala
+    ArrayInitializer(Expression.construct(initializers.toList, context)).withContext(from, context)
   }
 }
 
