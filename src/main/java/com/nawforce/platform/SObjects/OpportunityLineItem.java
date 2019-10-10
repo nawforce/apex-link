@@ -45,6 +45,7 @@ public class OpportunityLineItem extends SObject {
 	public Boolean CanUseRevenueSchedule;
 	public String CurrencyIsoCode;
 	public String Description;
+	public Decimal Discount;
 	public Boolean HasQuantitySchedule;
 	public Boolean HasRevenueSchedule;
 	public Boolean HasSchedule;
