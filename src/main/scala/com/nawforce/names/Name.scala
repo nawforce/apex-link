@@ -154,26 +154,24 @@ object Name {
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 
-  // This is the official reserved keyword list, not all are actually reserved, some are for "future" use
+  // This is the official reserved keyword list, not all are actually reserved, some are for "future" use, I have
+  // removed those known not to be enforced
   lazy val reservedIdentifiers: Set[Name] = Set(
     Name("abstract"), Name("activate"), Name("and"), Name("any"), Name("array"), Name("as"), Name("asc"), Name("autonomous"),
     Name("begin"), Name("bigdecimal"), Name("blob"), Name("break"), Name("bulk"), Name("by"), Name("byte"), Name("case"),
     Name("cast"), Name("catch"), Name("char"), Name("class"), Name("collect"), Name("commit"), Name("const"), Name("continue"),
-    Name("convertcurrency"), Name("decimal"), Name("default"), Name("delete"), Name("desc"), Name("do"), Name("else"), Name("end"),
+    Name("decimal"), Name("default"), Name("delete"), Name("desc"), Name("do"), Name("else"), Name("end"),
     Name("enum"), Name("exception"), Name("exit"), Name("export"), Name("extends"), Name("false"), Name("final"), Name("finally"),
-    Name("float"), Name("for"), Name("from"), Name("future"), Name("global"), Name("goto"), Name("group"), Name(""), Name(" "),
+    Name("float"), Name("for"), Name("from"), Name("global"), Name("goto"), Name("group"), Name(""), Name(" "),
     Name(""), Name("having"), Name("hint"), Name("if"), Name("implements"), Name("import"), Name("in"), Name("inner"),
-    Name("insert"), Name("instanceof"), Name("interface"), Name("into"), Name("int"), Name("join"), Name("last_90_days"),
-    Name("last_month"), Name("last_n_days"), Name("last_week"), Name("like"), Name("limit"), Name("list"), Name("long"),
-    Name("loop"), Name("map"), Name("merge"), Name("new"), Name("next_90_days"), Name("next_month"), Name("next_n_days"),
-    Name("next_week"), Name("not"), Name("null"), Name("nulls"), Name("number"), Name("object"), Name("of"), Name("on"),
-    Name("or"), Name("outer"), Name("override"), Name("package"), Name("parallel"), Name("pragma"), Name("private"),
-    Name("protected"), Name("public"), Name("retrieve"), Name("return"), Name("returning"), Name("rollback"), Name("savepoint"),
-    Name("search"), Name("select"), Name("set"), Name("short"), Name("sort"), Name("stat"), Name("static"), Name("super"),
-    Name("switch"), Name("synchronized"), Name("system"), Name("testmethod"), Name("then"), Name("this"), Name("this_month"),
-    Name("this_week"), Name("throw"), Name("today"), Name("tolabel"), Name("tomorrow"), Name("transaction"), Name("trigger"),
-    Name("true"), Name("try"), Name("type"), Name("undelete"), Name("update"), Name("upsert"), Name("using"), Name("virtual"),
-    Name("webservice"), Name("when"), Name("where"), Name("while"), Name("yesterday")
+    Name("insert"), Name("instanceof"), Name("interface"), Name("into"), Name("int"), Name("join"), Name("like"), Name("limit"),
+    Name("list"), Name("long"),Name("loop"), Name("map"), Name("merge"), Name("new"),  Name("not"), Name("null"), Name("nulls"),
+    Name("number"), Name("object"), Name("of"), Name("on"), Name("or"), Name("outer"), Name("override"), Name("package"),
+    Name("parallel"), Name("pragma"), Name("private"), Name("protected"), Name("public"), Name("retrieve"), Name("return"),
+    Name("rollback"), Name("select"), Name("set"), Name("short"), Name("sort"), Name("static"), Name("super"),
+    Name("switch"), Name("synchronized"), Name("system"), Name("testmethod"), Name("then"), Name("this"), Name("throw"),
+    Name("transaction"), Name("trigger"), Name("true"), Name("try"), Name("undelete"), Name("update"), Name("upsert"),
+    Name("using"), Name("virtual"), Name("webservice"), Name("when"), Name("where"), Name("while"),
   )
 
   // These are identifiers that don't work but are not reserved, yeah go figure
