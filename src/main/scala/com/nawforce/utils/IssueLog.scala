@@ -38,18 +38,19 @@ import scala.collection.mutable
 case class Issue(location: Location, msg: String)
 
 class IssueLog extends LazyLogging {
-  private[this] val lock = new Object()
+  var logCount: Int = 0
   private val log = mutable.HashMap[Path, List[Issue]]() withDefaultValue List()
 
   def clear(): Unit = {
-    lock.synchronized {
+    synchronized {
       log.clear()
     }
   }
 
   def add(issue: Issue): Unit = {
-    lock.synchronized {
+    synchronized {
       log.put(issue.location.path, issue :: log(issue.location.path))
+      logCount += 1
     }
   }
 
@@ -57,7 +58,7 @@ class IssueLog extends LazyLogging {
     add(Issue(location, msg))
   }
 
-  def hasMessages: Boolean = lock.synchronized {log.nonEmpty}
+  def hasMessages: Boolean = synchronized {log.nonEmpty}
 
   def merge(issueLog: IssueLog): Unit = {
     issueLog.log.foreach(kv => kv._2.foreach(add))
@@ -134,7 +135,7 @@ class IssueLog extends LazyLogging {
   }
 
   def getMessages(path: Path, showPath: Boolean = false, maxErrors: Int = 10): String = {
-    lock.synchronized {
+    synchronized {
       val writer: MessageWriter= new TextMessageWriter(showPath = showPath)
       writeMessages(writer, path, maxErrors)
       writer.output
@@ -144,7 +145,7 @@ class IssueLog extends LazyLogging {
   def asJSON(maxErrors: Int): String = {
     val writer = new JSONMessageWriter()
     writer.startOutput()
-    lock.synchronized {
+    synchronized {
       log.keys.foreach(path => {
         writeMessages(writer, path, maxErrors)
       })
@@ -159,7 +160,7 @@ class IssueLog extends LazyLogging {
       else
         new TextMessageWriter(true)
     writer.startOutput()
-    lock.synchronized {
+    synchronized {
       log.keys.foreach(path => {
         writeMessages(writer, path, if (json) 100 else 10)
       })

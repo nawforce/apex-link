@@ -34,7 +34,7 @@ import com.nawforce.platform.Schema.SObjectType;
 
 @SuppressWarnings("unused")
 public class SObject {
-	// TODO: These need to be auto-generated on each SObject
+	// Future: This set is not consistent across SObjects, surprise, need to generate individually
 	public Id Id;
 	public Id OwnerId;
 	public String Name;

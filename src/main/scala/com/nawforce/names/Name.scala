@@ -35,6 +35,14 @@ import scalaz.Memo
 case class Name(value: String) {
   private val normalised = value.toLowerCase
 
+  lazy val isLegalIdentifier: Boolean = {
+    value.nonEmpty && value(0) != '_' && !value(0).isDigit && !value.contains("__") && !value.contains('$')
+  }
+
+  lazy val isReservedIdentifier: Boolean = {
+    Name.allReservedIdentifiers.contains(this)
+  }
+
   def canEqual(that: Any): Boolean = that.isInstanceOf[Name]
 
   override def equals(that: Any): Boolean = {
@@ -58,8 +66,8 @@ case class Name(value: String) {
 }
 
 object Name {
-  def apply(name: String): Name = cache(name)
 
+  def apply(name: String): Name = cache(name)
   def safeApply(name: String): Option[Name] = Option(name).filterNot(_.isEmpty).map(n => Name(n))
 
   lazy val Empty: Name = cache("")
@@ -68,9 +76,9 @@ object Name {
   lazy val Void: Name = cache("void")
   lazy val Class$: Name = cache("Class$")
   lazy val Class: Name = cache("Class")
-  lazy val List: Name = cache("List")
-  lazy val Set: Name = cache("Set")
-  lazy val Map: Name = cache("Map")
+  lazy val List$: Name = cache("List")
+  lazy val Set$: Name = cache("Set")
+  lazy val Map$: Name = cache("Map")
   lazy val Type: Name = cache("Type")
   lazy val Object: Name = cache("Object")
   lazy val Object$: Name = cache("Object$")
@@ -145,6 +153,36 @@ object Name {
   lazy val FieldSets: Name = cache("FieldSets")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
+
+  // This is the official reserved keyword list, not all are actually reserved, some are for "future" use
+  lazy val reservedIdentifiers: Set[Name] = Set(
+    Name("abstract"), Name("activate"), Name("and"), Name("any"), Name("array"), Name("as"), Name("asc"), Name("autonomous"),
+    Name("begin"), Name("bigdecimal"), Name("blob"), Name("break"), Name("bulk"), Name("by"), Name("byte"), Name("case"),
+    Name("cast"), Name("catch"), Name("char"), Name("class"), Name("collect"), Name("commit"), Name("const"), Name("continue"),
+    Name("convertcurrency"), Name("decimal"), Name("default"), Name("delete"), Name("desc"), Name("do"), Name("else"), Name("end"),
+    Name("enum"), Name("exception"), Name("exit"), Name("export"), Name("extends"), Name("false"), Name("final"), Name("finally"),
+    Name("float"), Name("for"), Name("from"), Name("future"), Name("global"), Name("goto"), Name("group"), Name(""), Name(" "),
+    Name(""), Name("having"), Name("hint"), Name("if"), Name("implements"), Name("import"), Name("in"), Name("inner"),
+    Name("insert"), Name("instanceof"), Name("interface"), Name("into"), Name("int"), Name("join"), Name("last_90_days"),
+    Name("last_month"), Name("last_n_days"), Name("last_week"), Name("like"), Name("limit"), Name("list"), Name("long"),
+    Name("loop"), Name("map"), Name("merge"), Name("new"), Name("next_90_days"), Name("next_month"), Name("next_n_days"),
+    Name("next_week"), Name("not"), Name("null"), Name("nulls"), Name("number"), Name("object"), Name("of"), Name("on"),
+    Name("or"), Name("outer"), Name("override"), Name("package"), Name("parallel"), Name("pragma"), Name("private"),
+    Name("protected"), Name("public"), Name("retrieve"), Name("return"), Name("returning"), Name("rollback"), Name("savepoint"),
+    Name("search"), Name("select"), Name("set"), Name("short"), Name("sort"), Name("stat"), Name("static"), Name("super"),
+    Name("switch"), Name("synchronized"), Name("system"), Name("testmethod"), Name("then"), Name("this"), Name("this_month"),
+    Name("this_week"), Name("throw"), Name("today"), Name("tolabel"), Name("tomorrow"), Name("transaction"), Name("trigger"),
+    Name("true"), Name("try"), Name("type"), Name("undelete"), Name("update"), Name("upsert"), Name("using"), Name("virtual"),
+    Name("webservice"), Name("when"), Name("where"), Name("while"), Name("yesterday")
+  )
+
+  // These are identifiers that don't work but are not reserved, yeah go figure
+  lazy val badIdentifiers: Set[Name] = Set(
+    Name("boolean"), Name("currency"), Name("date"), Name("datetime"), Name("double"), Name("integer"), Name("string"),
+    Name("time")
+  )
+
+  lazy val allReservedIdentifiers: Set[Name] = reservedIdentifiers ++ badIdentifiers
 }
 
 

@@ -100,7 +100,7 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
   }
 
   def getSetOrListType: Option[TypeName] = {
-    if ((name == Name.Set  || name == Name.List) && outer.contains(TypeName.System) && params.size == 1) {
+    if ((name == Name.Set$  || name == Name.List$) && outer.contains(TypeName.System) && params.size == 1) {
       params.headOption
     } else {
       None
@@ -108,16 +108,16 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
   }
 
   def getMapType: Option[(TypeName, TypeName)] = {
-    if (name == Name.Map && outer.contains(TypeName.System) && params.size == 2) {
+    if (name == Name.Map$ && outer.contains(TypeName.System) && params.size == 2) {
       Some(params.head, params(1))
     } else {
       None
     }
   }
 
-  def isList: Boolean = name == Name.List && outer.contains(TypeName.System)
+  def isList: Boolean = name == Name.List$ && outer.contains(TypeName.System)
 
-  def asListOf: TypeName = new TypeName(Name.List, Seq(this), Some(TypeName.System))
+  def asListOf: TypeName = new TypeName(Name.List$, Seq(this), Some(TypeName.System))
 
   def asClassOf: TypeName = new TypeName(Name.Class$, Seq(this), Some(TypeName.System))
 
@@ -195,7 +195,7 @@ object TypeName {
   def sObjectTypeFields$(typeName: TypeName): TypeName = SObjectTypeFields$.withParams(Seq(typeName))
   def sObjectTypeFieldSets$(typeName: TypeName): TypeName = SObjectTypeFieldSets$.withParams(Seq(typeName))
 
-  def listOf(typeName: TypeName): TypeName = TypeName(Name.List, Seq(typeName), Some(TypeName.System))
+  def listOf(typeName: TypeName): TypeName = TypeName(Name.List$, Seq(typeName), Some(TypeName.System))
 
   def apply(names: Seq[Name]): TypeName = {
     names match {

@@ -37,6 +37,8 @@ final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Exp
   override def children(): List[CST] = List[CST](id) ++ init
 
   def verify(input: ExprContext, context: BlockVerifyContext): Unit = {
+    id.validate()
+
     // FUTURE: Make sure expression type(s) matches
     val exprContext = new ExpressionVerifyContext(context)
     init.foreach(_.verify(input, exprContext))
