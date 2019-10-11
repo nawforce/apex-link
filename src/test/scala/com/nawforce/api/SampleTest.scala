@@ -33,17 +33,19 @@ class SampleTest extends FunSuite {
 
   private val npExternalNamespaces = Set("npe01", "npo02", "npe03", "npe4", "npe5")
 
-  private def sample(path: String, namespace: String = "", externalNamespaces: Set[String] = Set()): Unit = {
+  private def sample(path: String, namespace: String = "", externalNamespaces: Set[String] = Set(),
+                     expectedCount: Int = 0): Unit = {
     LogUtils.setLoggingLevel(false)
     val org = new Org()
     externalNamespaces.foreach(ens => org.addPackage(ens, Array(), Array()))
     val pkg = org.addPackage(namespace, Array[String](path), externalNamespaces.toArray)
 
     pkg.deployAll()
-    assert(org.issues.asJSON(100) == "{ \"files\": [\n]}\n")
+    if (org.issues.logCount != expectedCount) {
+      org.issues.dumpMessages(false)
+      assert(false)
+    }
   }
-
-  // TODO: Somewhere else deal with keywords
 
   test("forcedotcom-enterprise-architecture") {
     sample("samples/forcedotcom-enterprise-architecture/src")
@@ -54,7 +56,7 @@ class SampleTest extends FunSuite {
   }
 
   test("Cumulus") {
-    sample("samples/SalesforceFoundation/Cumulus/src", namespace = "", npExternalNamespaces)
+    sample("samples/SalesforceFoundation/Cumulus/src", namespace = "", npExternalNamespaces, expectedCount = 1)
   }
 
   test("HEDAP") {
@@ -98,7 +100,7 @@ class SampleTest extends FunSuite {
   }
 
   test("Cumulus packaged") {
-    sample("samples/SalesforceFoundation/Cumulus/src", "namespace", npExternalNamespaces)
+    sample("samples/SalesforceFoundation/Cumulus/src", "namespace", npExternalNamespaces, expectedCount = 1)
   }
 
   test("HEDAP packaged") {

@@ -55,7 +55,7 @@ class RelatedLists(pkg: PackageDeclaration) {
   /* Declare a new relationship field */
   def add(sObject: TypeName, relationshipName: Name, holdingFieldName: Name, holdingSObject: TypeName, location: Location): Unit = {
     val encodedName = EncodedName(relationshipName).defaultNamespace(pkg.namespace).fullName
-    val field = CustomFieldDeclaration(encodedName, TypeName(Name.List, Seq(holdingSObject), None))
+    val field = CustomFieldDeclaration(encodedName, TypeName(Name.List$, Seq(holdingSObject), None))
     synchronized {
       relationshipFields.put(sObject, (field, holdingFieldName, location) +: relationshipFields(sObject))
     }

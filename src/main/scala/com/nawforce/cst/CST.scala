@@ -29,6 +29,7 @@ package com.nawforce.cst
 
 import java.nio.file.Path
 
+import com.nawforce.api.Org
 import com.nawforce.documents.{Location, Position, RangeLocation}
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser._
@@ -75,6 +76,13 @@ object CST {
 
 final case class Id(name: Name) extends CST {
   override def children(): List[CST] = List()
+
+  def validate(): Unit = {
+    if (!name.isLegalIdentifier)
+      Org.logMessage(location, s"This identifier is not legal in Apex, '$name'")
+    else if (name.isReservedIdentifier)
+      Org.logMessage(location, s"This identifier is reserved in Apex, '$name'")
+  }
 }
 
 object Id {

@@ -36,7 +36,7 @@ import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 /* This is synthetic amalgam of User & Group for handling polymorphic Owner on SObject */
-/* TODO: Determine how this is handled on platform */
+/* Future: Determine how this is handled on platform */
 public class UserGroup extends SObject {
 	public static SObjectType$<UserGroup> SObjectType;
 	public static SObjectTypeFields$<UserGroup> Fields;
