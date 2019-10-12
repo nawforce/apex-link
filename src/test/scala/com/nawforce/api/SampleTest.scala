@@ -56,7 +56,7 @@ class SampleTest extends FunSuite {
   }
 
   test("Cumulus") {
-    sample("samples/SalesforceFoundation/Cumulus/src", namespace = "", npExternalNamespaces, expectedCount = 1)
+    sample("samples/SalesforceFoundation/Cumulus/src", namespace = "", npExternalNamespaces)
   }
 
   test("HEDAP") {
@@ -100,7 +100,7 @@ class SampleTest extends FunSuite {
   }
 
   test("Cumulus packaged") {
-    sample("samples/SalesforceFoundation/Cumulus/src", "namespace", npExternalNamespaces, expectedCount = 1)
+    sample("samples/SalesforceFoundation/Cumulus/src", "namespace", npExternalNamespaces)
   }
 
   test("HEDAP packaged") {

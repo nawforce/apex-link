@@ -27,6 +27,7 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.api.Org
 import com.nawforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types._
@@ -146,14 +147,22 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
     }
 
     val inter = expression.verify(input, context)
-    if (inter.isDefined) {
-      if (inter.isStatic || !inter.declaration.get.typeName.isList)
-        context.logMessage(location, s"Only Lists can be de-referenced as an array, found '${inter.declaration.get.typeName}'")
-      else
-        // TODO: Extract type parameter of list
-        ExprContext.empty
+    if (!inter.isDefined)
+      return ExprContext.empty
+
+    val listType = inter.declaration.get.typeName.getListType
+    if (inter.isStatic || listType.isEmpty) {
+      context.logMessage(location, s"Only Lists can be de-referenced as an array, found '${inter.declaration.get.typeName}'")
+      return ExprContext.empty
     }
-    ExprContext.empty
+
+    context.getTypeAndAddDependency(listType.get, context.thisType) match {
+      case Left(error) =>
+        context.missingType(location, listType.get)
+        ExprContext.empty
+      case Right(td) =>
+        ExprContext(isStatic = false, Some(td))
+    }
   }
 }
 
@@ -200,8 +209,7 @@ final case class CastExpression(typeName: TypeName, expression: Expression) exte
     if (castType.isEmpty)
       context.missingType(location, typeName)
     expression.verify(input, context)
-    // TODO
-    ExprContext.empty
+    ExprContext(isStatic = false, castType)
   }
 }
 
@@ -254,8 +262,7 @@ final case class InstanceOfExpression(expression: Expression, typeName: TypeName
     if (instanceOfType.isEmpty)
       context.missingType(location, typeName)
     expression.verify(input, context)
-    // TODO
-    ExprContext.empty
+    ExprContext(isStatic = false, Some(PlatformTypes.booleanType))
   }
 }
 
