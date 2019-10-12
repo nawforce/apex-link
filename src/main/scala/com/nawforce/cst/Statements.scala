@@ -565,7 +565,7 @@ final case class UpsertStatement(expression: Expression, field: Option[Qualified
 
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
-    // TODO: Field?
+    // Future: Verify Field
   }
 }
 
@@ -619,11 +619,11 @@ object RunAsStatement {
   }
 }
 
-// TODO: What causes expression can not be a statement
 final case class ExpressionStatement(var expression: Expression) extends Statement {
   override def children(): List[CST] = expression :: Nil
 
   override def verify(context: BlockVerifyContext): Unit = {
+    // Future: What causes 'expression can not be a statement' error
     expression.verify(context)
   }
 }

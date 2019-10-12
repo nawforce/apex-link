@@ -99,6 +99,14 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
     }
   }
 
+  def getListType: Option[TypeName] = {
+    if (name == Name.List$ && outer.contains(TypeName.System) && params.size == 1) {
+      params.headOption
+    } else {
+      None
+    }
+  }
+
   def getSetOrListType: Option[TypeName] = {
     if ((name == Name.Set$  || name == Name.List$) && outer.contains(TypeName.System) && params.size == 1) {
       params.headOption
