@@ -59,8 +59,12 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
 
   override val nature: Nature
 
-  override def superClassDeclaration: Option[TypeDeclaration] = {
+  override lazy val superClassDeclaration: Option[TypeDeclaration] = {
     superClass.flatMap(sc => pkg.getTypeFor(sc, this))
+  }
+
+  override lazy val interfaceDeclarations: Seq[TypeDeclaration] = {
+    interfaces.flatMap(i => pkg.getTypeFor(i, this))
   }
 
   override lazy val isComplete: Boolean = {

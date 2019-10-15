@@ -42,7 +42,7 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
   extends NamedTypeDeclaration(pkg, _typeName) {
 
   override val superClass: Option[TypeName] = Some(TypeName.SObject)
-  override def superClassDeclaration: Option[TypeDeclaration] = {
+  override lazy val superClassDeclaration: Option[TypeDeclaration] = {
     pkg.getTypeFor(TypeName.SObject, this)
   }
 

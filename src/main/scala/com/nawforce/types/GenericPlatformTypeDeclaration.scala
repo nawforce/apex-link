@@ -18,7 +18,16 @@ class GenericPlatformTypeDeclaration(_typeName: TypeName, genericDecl: PlatformT
 
   override lazy val typeName: TypeName = _typeName
   override lazy val superClass: Option[TypeName] = getSuperClass.map(replaceParams)
+
+  override lazy val superClassDeclaration: Option[TypeDeclaration] = {
+    superClass.flatMap(sc => PlatformTypes.get(sc, None).toOption)
+  }
+
   override lazy val interfaces: Seq[TypeName] = getInterfaces.map(replaceParams)
+
+  override lazy val interfaceDeclarations: Seq[TypeDeclaration] = {
+    getInterfaces.flatMap(id => PlatformTypes.get(replaceParams(id), None).toOption)
+  }
 
   override lazy val fields: Seq[FieldDeclaration] = {
     getFields.map(f => new GenericPlatformField(f, this))
@@ -108,10 +117,10 @@ object GenericPlatformTypeDeclaration {
 
   private val declarationCache = Memo.immutableHashMapMemo
     [(TypeName, Option[TypeDeclaration]), TypeRequest] {
-    case (typeName: TypeName, from: Option[TypeDeclaration]) => find(typeName, from)
+    case (typeName: TypeName, from: Option[TypeDeclaration]) => create(typeName, from)
   }
 
-  private def find(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {
+  private def create(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {
     // Make sure params are resolvable first
     val params = typeName.params.map(pt => (pt, TypeRequest(pt, from, None)))
     val pkg = from.flatMap(_.packageDeclaration)

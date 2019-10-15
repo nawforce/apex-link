@@ -44,7 +44,6 @@ final case class PageDeclaration(pkg: PackageDeclaration, pages: Seq[Page]) exte
   override val isExternallyVisible: Boolean = true
 
   override val superClass: Option[TypeName] = None
-  override def superClassDeclaration: Option[TypeDeclaration] = None
   override val interfaces: Seq[TypeName] = Seq.empty
   override val nestedTypes: Seq[TypeDeclaration] = Seq.empty
 

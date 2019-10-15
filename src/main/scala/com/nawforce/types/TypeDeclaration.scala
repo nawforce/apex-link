@@ -119,8 +119,9 @@ trait TypeDeclaration extends DependencyHolder {
   }
 
   val superClass: Option[TypeName]
-  def superClassDeclaration: Option[TypeDeclaration]
+  lazy val superClassDeclaration: Option[TypeDeclaration] = None
   val interfaces: Seq[TypeName]
+  lazy val interfaceDeclarations: Seq[TypeDeclaration] = Nil
   def nestedTypes: Seq[TypeDeclaration]
 
   val blocks: Seq[BlockDeclaration]
@@ -215,6 +216,12 @@ trait TypeDeclaration extends DependencyHolder {
     }
   }
 
+  def extendsOrImplements(typeName: TypeName): Boolean = {
+    if (superClassDeclaration.exists(_.typeName == typeName) || interfaceDeclarations.exists(_.typeName == typeName))
+      true
+    else
+      superClassDeclaration.exists(_.extendsOrImplements(typeName))
+  }
 
   lazy val summary: TypeSummary = TypeSummary(
     name.toString, typeName.toString, nature.value, modifiers.map(_.toString).sorted.toList,

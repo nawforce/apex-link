@@ -163,6 +163,12 @@ final case class SObjectTypeImpl(sobjectName: Name, sobjectTypeFields: SObjectTy
   private lazy val fieldSetsField = CustomFieldDeclaration(Name.FieldSets,
     TypeName.sObjectTypeFieldSets$(TypeName(sobjectName, Nil, Some(TypeName.Schema))), true)
 
+  override val superClass: Option[TypeName] = Some(TypeName.SObjectType)
+
+  override lazy val superClassDeclaration: Option[TypeDeclaration] = {
+    superClass.flatMap(sc => PlatformTypes.get(sc, None).toOption)
+  }
+
   override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
     (name, staticOnly) match {
       case (Name.Fields, false) => Some(fieldField)
