@@ -55,7 +55,6 @@ final case class ComponentDeclaration(pkg: PackageDeclaration) extends TypeDecla
   override val isExternallyVisible: Boolean = true
 
   override val superClass: Option[TypeName] = None
-  override def superClassDeclaration: Option[TypeDeclaration] = None
   override val interfaces: Seq[TypeName] = Nil
   override def nestedTypes: Seq[TypeDeclaration] = {
     components.values().asScala.toSeq
@@ -98,7 +97,6 @@ final case class CustomComponent(pkg: PackageDeclaration, name: Name, path: Path
   override val isExternallyVisible: Boolean = true
 
   override val superClass: Option[TypeName] = Some(TypeName.ApexPagesComponent)
-  override def superClassDeclaration: Option[TypeDeclaration] = None
   override val interfaces: Seq[TypeName] = Nil
   override val nestedTypes: Seq[TypeDeclaration] = Nil
 
@@ -124,7 +122,6 @@ final case class ComponentNamespace(pkg: PackageDeclaration, name: Name) extends
   override val isExternallyVisible: Boolean = name != Name.c
 
   override val superClass: Option[TypeName] = None
-  override def superClassDeclaration: Option[TypeDeclaration] = None
   override val interfaces: Seq[TypeName] = Nil
   override def nestedTypes: Seq[TypeDeclaration] = components.values.asScala.toSeq
 

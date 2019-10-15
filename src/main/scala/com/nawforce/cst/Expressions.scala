@@ -36,6 +36,9 @@ import scala.collection.JavaConverters._
 
 case class ExprContext(isStatic: Boolean, declaration: Option[TypeDeclaration]) {
   def isDefined: Boolean = declaration.nonEmpty && !declaration.exists(_.isAny)
+
+  def typeDeclaration: TypeDeclaration = declaration.get
+  def typeName: TypeName = typeDeclaration.typeName
 }
 
 object ExprContext {
@@ -111,7 +114,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
         ExprContext.empty
 
       case _ =>
-        context.missingIdentifier(location, input.declaration.get.typeName, target.left.get.name)
+        context.missingIdentifier(location, input.typeName, target.left.get.name)
         ExprContext.empty
     }
   }
@@ -142,7 +145,7 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
       return ExprContext.empty
     if (index.declaration.get ne PlatformTypes.integerType) {
       context.logMessage(arrayExpression.location,
-        s"Array indexes must be Integers, found '${index.declaration.get.typeName}'")
+        s"Array indexes must be Integers, found '${index.typeName}'")
       return ExprContext.empty
     }
 
@@ -150,9 +153,9 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
     if (!inter.isDefined)
       return ExprContext.empty
 
-    val listType = inter.declaration.get.typeName.getListType
+    val listType = inter.typeName.getListType
     if (inter.isStatic || listType.isEmpty) {
-      context.logMessage(location, s"Only Lists can be de-referenced as an array, found '${inter.declaration.get.typeName}'")
+      context.logMessage(location, s"Only Lists can be de-referenced as an array, found '${inter.typeName}'")
       return ExprContext.empty
     }
 
@@ -213,44 +216,108 @@ final case class CastExpression(typeName: TypeName, expression: Expression) exte
   }
 }
 
-final case class PostOpExpression(expression: Expression, op: String) extends Expression {
+final case class PostfixExpression(expression: Expression, op: String) extends Expression {
   override def children(): List[CST] = expression :: Nil
 
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    expression.verify(input, context)
-    // TODO
-    ExprContext.empty
+    val inter = expression.verify(input, context)
+    if (!inter.isDefined)
+      return inter
+
+    val td = inter.declaration.get
+    td.typeName match {
+      case TypeName.Integer | TypeName.Long | TypeName.Decimal | TypeName.Double if !inter.isStatic => inter
+      case _ =>
+        Org.logMessage(location, s"Postfix increment/decrement is not supported on type '${td.typeName}'")
+        ExprContext.empty
+    }
   }
 }
 
-final case class PreOpExpression(expression: Expression, op: String) extends Expression {
+final case class PrefixExpression(expression: Expression, op: String) extends Expression {
   override def children(): List[CST] = expression :: Nil
 
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    expression.verify(input, context)
-    // TODO
-    ExprContext.empty
+    val inter = expression.verify(input, context)
+    if (!inter.isDefined)
+      return inter
+
+    val td = inter.declaration.get
+    td.typeName match {
+      case TypeName.Integer | TypeName.Long | TypeName.Decimal | TypeName.Double if !inter.isStatic => inter
+      case TypeName.String if !inter.isStatic && op == "+" => inter  // Apex Compiler bug
+      case _ =>
+        Org.logMessage(location, s"Prefix operations are not supported on type '${td.typeName}'")
+        ExprContext.empty
+    }
   }
 }
 
-final case class NegExpression(expression: Expression, op: String) extends Expression {
+final case class NegationExpression(expression: Expression, isBitwise: Boolean) extends Expression {
   override def children(): List[CST] = expression :: Nil
 
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    expression.verify(input, context)
-    // TODO
-    ExprContext.empty
+    val inter = expression.verify(input, context)
+    if (!inter.isDefined)
+      return inter
+
+    val td = inter.declaration.get
+    td.typeName match {
+      case TypeName.Boolean if !isBitwise && !inter.isStatic => inter
+      case TypeName.Integer if isBitwise && !inter.isStatic => inter
+      case TypeName.Long if isBitwise && !inter.isStatic => inter
+      case _ =>
+        Org.logMessage(location, s"Negation operations is not supported on type '${td.typeName}'")
+        ExprContext.empty
+    }
   }
 }
 
 final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) extends Expression {
   override def children(): List[CST] = lhs :: rhs :: Nil
 
+  /* https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/langCon_apex_expressions_operators_understanding.htm */
+  /* & | ^ ^= << >> >>> */
+  /* += -= *= /= |= &= <<= >>= >>>= */
+
+  private lazy val operation = op match {
+    case "=" => AssignmentOperation
+    case "&&" => LogicalOperation
+    case "||" => LogicalOperation
+    case "==" => EqualityOperation
+    case "!=" => EqualityOperation
+    case "===" => ExactEqualityOperation
+    case "!==" => ExactEqualityOperation
+    case "<" => CompareOperation
+    case ">" => CompareOperation
+    case "<=" => CompareOperation
+    case ">=" => CompareOperation
+    case "+" => PlusOperation
+    case "-" => ArithmeticOperation
+    case "*" => ArithmeticOperation
+    case "/" => ArithmeticOperation
+    case _ => NopOperation
+  }
+
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    lhs.verify(input, context)
-    rhs.verify(input, context)
-    // TODO
-    ExprContext.empty
+    val leftInter = lhs.verify(input, context)
+    val rightInter = rhs.verify(input, context)
+
+    if (!leftInter.isDefined || !rightInter.isDefined)
+      return ExprContext.empty
+
+    if (leftInter.isStatic)
+      Org.logMessage(location, s"Expecting instance for operation, not type '${leftInter.typeName}")
+
+    if (rightInter.isStatic)
+      Org.logMessage(location, s"Expecting instance for operation, not type '${rightInter.typeName}")
+
+    operation.verify(leftInter, rightInter, op) match {
+      case Left(error) =>
+        Org.logMessage(location, error)
+        ExprContext.empty
+      case Right(context) => context
+    }
   }
 }
 
@@ -309,11 +376,11 @@ object Expression {
         case expr: CastExpressionContext =>
           CastExpression(TypeRef.construct(expr.typeRef()), Expression.construct(expr.expression(), context))
         case expr: PostOpExpressionContext =>
-          PostOpExpression(Expression.construct(expr.expression(), context), expr.getChild(1).getText)
+          PostfixExpression(Expression.construct(expr.expression(), context), expr.getChild(1).getText)
         case expr: PreOpExpressionContext =>
-          PreOpExpression(Expression.construct(expr.expression(), context), expr.getChild(0).getText)
+          PrefixExpression(Expression.construct(expr.expression(), context), expr.getChild(0).getText)
         case expr: NegExpressionContext =>
-          NegExpression(Expression.construct(expr.expression(), context), expr.getChild(0).getText)
+          NegationExpression(Expression.construct(expr.expression(), context), expr.getChild(0).getText == "~")
         case expr: Arth1ExpressionContext =>
           BinaryExpression(Expression.construct(expr.expression(0), context),
             Expression.construct(expr.expression(1), context), expr.getChild(1).getText)

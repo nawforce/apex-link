@@ -71,11 +71,15 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], outer: Option[Platfo
     }
   }
 
-  override def superClassDeclaration: Option[TypeDeclaration] = {
+  override lazy val superClassDeclaration: Option[TypeDeclaration] = {
     superClass.flatMap(sc => PlatformTypes.get(sc, None).toOption)
   }
 
   override lazy val interfaces: Seq[TypeName] = getInterfaces
+
+  override lazy val interfaceDeclarations: Seq[TypeDeclaration] = {
+    getInterfaces.flatMap(id => PlatformTypes.get(id, None).toOption)
+  }
 
   protected def getInterfaces: Seq[TypeName] = cls.getInterfaces.map(i => PlatformTypeDeclaration.typeNameFromClass(i, cls))
 
@@ -95,7 +99,7 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], outer: Option[Platfo
   protected def getFields: Seq[PlatformField] = collectFields(cls).values.toSeq
 
   private def collectFields(cls: Class[_],
-                            accum: mutable.Map[Name, PlatformField]=mutable.Map()): mutable.Map[Name, PlatformField] = {
+                            accum: mutable.Map[Name, PlatformField] = mutable.Map()): mutable.Map[Name, PlatformField] = {
     if (cls.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage)) {
       cls.getDeclaredFields.filter(!_.isSynthetic).foreach(f => {
         val name = Name(f.getName)
