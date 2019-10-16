@@ -31,18 +31,44 @@ import com.nawforce.names.TypeName
 import com.nawforce.types.{PlatformTypes, TypeDeclaration}
 
 abstract class Operation {
-  def verify(leftType: ExprContext, rightContext: ExprContext, op: String): Either[String, ExprContext]
+  def verify(leftType: ExprContext, rightContext: ExprContext, op: String,
+             context: ExpressionVerifyContext): Either[String, ExprContext]
 
-  def isAssignable(toType: TypeDeclaration, fromType: TypeDeclaration): Boolean = {
-    (fromType.typeName == TypeName.Null) ||
-    (fromType.typeName == toType.typeName) ||
-    (toType.typeName == TypeName.InternalObject) ||
-    Operation.baseAssignable.contains(toType.typeName, fromType.typeName) ||
-    fromType.extendsOrImplements(toType.typeName)
+  def isAssignable(toType: TypeName, fromType: TypeDeclaration, context: ExpressionVerifyContext): Boolean = {
+    if (fromType.typeName == TypeName.Null)
+      true
+    else if (toType.params.nonEmpty || fromType.typeName.params.nonEmpty)
+      isAssignableGeneric(toType, fromType, context)
+    else
+      (fromType.typeName == toType) ||
+      (toType == TypeName.InternalObject) ||
+      Operation.baseAssignable.contains(toType, fromType.typeName) ||
+      fromType.extendsOrImplements(toType)
   }
 
-  def couldBeEqual(toType: TypeDeclaration, fromType: TypeDeclaration): Boolean = {
-    isAssignable(toType, fromType) || isAssignable(fromType, toType)
+  def isAssignable(toType: TypeName, fromType: TypeName, context: ExpressionVerifyContext): Boolean = {
+    context.getTypeFor(fromType, context.thisType) match {
+      case Left(_) => false
+      case Right(fromDeclaration) => isAssignable(toType, fromDeclaration, context)
+    }
+  }
+
+  def isAssignableGeneric(toType: TypeName, fromType: TypeDeclaration, context: ExpressionVerifyContext): Boolean = {
+    if (toType == fromType.typeName) {
+      true
+    } else if (toType.params.size == fromType.typeName.params.size) {
+      val sameParams = toType.withParams(fromType.typeName.params)
+      (fromType.typeName == sameParams || fromType.extendsOrImplements(sameParams)) &&
+        toType.params.zip(fromType.typeName.params).map(p => isAssignable(p._1, p._2, context)).forall(b =>b)
+    } else if (toType.params.isEmpty) {
+      fromType.extendsOrImplements(toType)
+    } else {
+      false
+    }
+  }
+
+  def couldBeEqual(toType: TypeDeclaration, fromType: TypeDeclaration, context: ExpressionVerifyContext): Boolean = {
+    isAssignable(toType.typeName, fromType, context) || isAssignable(fromType.typeName, toType, context)
   }
 
   def isNumericKind(typeName: TypeName): Boolean = {
@@ -116,28 +142,30 @@ object Operation {
     (TypeName.Double, TypeName.Decimal) -> PlatformTypes.doubleType,
     (TypeName.Double, TypeName.Double) -> PlatformTypes.doubleType,
   )
-
 }
 
 case object NopOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext, op: String): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext, rightContext: ExprContext, op: String,
+                      context: ExpressionVerifyContext): Either[String, ExprContext] = {
     // TODO Remove Nop
     Right(leftContext)
   }
 }
 
 case object BNopOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext, op: String): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext, rightContext: ExprContext,
+                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
     // TODO Remove Nop
     Right(ExprContext(isStatic = false, Some(PlatformTypes.booleanType)))
   }
 }
 
 case object AssignmentOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext, op: String): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext, rightContext: ExprContext,
+                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
     if (rightContext.typeName == TypeName.Null)
       Right(leftContext)
-    else if (isAssignable(leftContext.typeDeclaration, rightContext.typeDeclaration))
+    else if (isAssignable(leftContext.typeName, rightContext.typeDeclaration, context))
       Right(leftContext)
     else
       Left(s"Incompatible types in assignment, from '${rightContext.typeName}' to '${leftContext.typeName}")
@@ -145,10 +173,11 @@ case object AssignmentOperation extends Operation {
 }
 
 case object LogicalOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext, op: String): Either[String, ExprContext] = {
-    if (!isAssignable(PlatformTypes.booleanType, rightContext.typeDeclaration))
+  override def verify(leftContext: ExprContext, rightContext: ExprContext,
+                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
+    if (!isAssignable(TypeName.Boolean, rightContext.typeDeclaration, context))
       Left(s"Right expression of logical $op must a boolean, not '${rightContext.typeName}'")
-    else if (!isAssignable(PlatformTypes.booleanType, leftContext.typeDeclaration))
+    else if (!isAssignable(TypeName.Boolean, leftContext.typeDeclaration, context))
       Left(s"Left expression of logical $op must a boolean, not '${leftContext.typeName}'")
     else
       Right(leftContext)
@@ -156,7 +185,8 @@ case object LogicalOperation extends Operation {
 }
 
 case object CompareOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext, op: String): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext, rightContext: ExprContext,
+                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
 
     if (isNumericKind(leftContext.typeName)) {
       if (!isNumericKind(rightContext.typeName))
@@ -175,7 +205,8 @@ case object CompareOperation extends Operation {
 }
 
 case object ExactEqualityOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext, op: String): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext, rightContext: ExprContext,
+                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
 
     if (isNonReferenceKind(leftContext.typeName)) {
       Left(s"Exact equality/inequality requires is not supported on non-reference types '${leftContext.typeName}'")
@@ -193,8 +224,9 @@ case object ExactEqualityOperation extends Operation {
 }
 
 case object EqualityOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext, op: String): Either[String, ExprContext] = {
-    if (couldBeEqual(leftContext.typeDeclaration, rightContext.typeDeclaration))
+  override def verify(leftContext: ExprContext, rightContext: ExprContext,
+                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
+    if (couldBeEqual(leftContext.typeDeclaration, rightContext.typeDeclaration, context))
       Right(ExprContext(isStatic = false, Some(PlatformTypes.booleanType)))
     else
       Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
@@ -202,8 +234,8 @@ case object EqualityOperation extends Operation {
 }
 
 case object PlusOperation extends Operation {
-
-  override def verify(leftContext: ExprContext, rightContext: ExprContext, op: String): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext, rightContext: ExprContext,
+                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
     if (leftContext.typeName == TypeName.String || rightContext.typeName == TypeName.String) {
       Right(ExprContext(isStatic = false, Some(PlatformTypes.stringType)))
     }
@@ -218,8 +250,8 @@ case object PlusOperation extends Operation {
 }
 
 case object ArithmeticOperation extends Operation {
-
-  override def verify(leftContext: ExprContext, rightContext: ExprContext, op: String): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext, rightContext: ExprContext,
+                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
     val td = getArithmeticResult(leftContext.typeName, rightContext.typeName)
     if (td.isEmpty) {
       return Left(s"Arithmetic operation not allowed between non-numeric types '${leftContext.typeName}' and '${rightContext.typeName}'")

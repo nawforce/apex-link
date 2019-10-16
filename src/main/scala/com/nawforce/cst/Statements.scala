@@ -44,7 +44,7 @@ trait Statement extends CST {
 }
 
 // Treat Block as Statement for blocks in blocks
-final case class LazyBlock(path: Path, bytes: Array[Byte], lineAdjust: Int, positionAdjust:Int,
+final case class LazyBlock(path: Path, bytes: Array[Byte], lineAdjust: Int, positionAdjust: Int,
                        var blockContextRef: WeakReference[BlockContext], isStatic: Boolean)
   extends CST with Statement {
   private var statementsRef: WeakReference[List[Statement]] = WeakReference(null)
