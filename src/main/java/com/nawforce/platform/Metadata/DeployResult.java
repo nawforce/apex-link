@@ -56,7 +56,7 @@ public class DeployResult {
 	public Datetime startDate;
 	public String stateDetail;
 	public DeployStatus status;
-	public String success;
+	public Boolean success;
 
 	public DeployResult() {throw new java.lang.UnsupportedOperationException();}
 }

@@ -87,7 +87,7 @@ final case class TypeRefPrimary(typeName: TypeName) extends Primary {
     val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
     if (td.isEmpty)
       context.missingType(location, typeName)
-    ExprContext(isStatic = true, Some(PlatformTypes.typeType))
+    ExprContext(isStatic = false, Some(PlatformTypes.typeType))
   }
 }
 
