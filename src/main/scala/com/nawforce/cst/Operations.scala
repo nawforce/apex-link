@@ -214,6 +214,8 @@ case object ExactEqualityOperation extends Operation {
       Left(s"Exact equality/inequality requires is not supported on non-reference types '${rightContext.typeName}'")
     } else if (
       leftContext.typeName == rightContext.typeName ||
+      leftContext.typeName == TypeName.InternalObject ||
+      rightContext.typeName == TypeName.InternalObject ||
       leftContext.typeDeclaration.extendsOrImplements(rightContext.typeName) ||
       rightContext.typeDeclaration.extendsOrImplements(leftContext.typeName)
     )

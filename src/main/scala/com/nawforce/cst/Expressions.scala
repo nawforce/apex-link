@@ -307,10 +307,10 @@ final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) 
       return ExprContext.empty
 
     if (leftInter.isStatic)
-      Org.logMessage(location, s"Expecting instance for operation, not type '${leftInter.typeName}")
+      Org.logMessage(location, s"Expecting instance for operation, not type '${leftInter.typeName}'")
 
     if (rightInter.isStatic)
-      Org.logMessage(location, s"Expecting instance for operation, not type '${rightInter.typeName}")
+      Org.logMessage(location, s"Expecting instance for operation, not type '${rightInter.typeName}'")
 
     operation.verify(leftInter, rightInter, op, context) match {
       case Left(error) =>
