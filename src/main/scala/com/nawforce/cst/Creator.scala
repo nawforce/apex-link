@@ -98,7 +98,13 @@ final case class Creator(createdName: CreatedName, creatorRest: CreatorRest) ext
     }
 
     creatorRest.verify(inter, input, context)
-    inter
+    if (creatorRest.isInstanceOf[ArrayCreatorRest]) {
+      val listType = inter.typeName.asListOf
+      val listDeclaration = context.getTypeAndAddDependency(listType, context.thisType)
+      ExprContext(isStatic = false, listDeclaration.toOption)
+    } else {
+      inter
+    }
   }
 }
 
