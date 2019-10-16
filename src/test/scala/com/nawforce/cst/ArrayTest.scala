@@ -64,5 +64,11 @@ class ArrayTest extends FunSuite with BeforeAndAfter {
     assert(!defaultOrg.issues.hasMessages)
   }
 
+  test("Array init") {
+    typeDeclaration("public class Dummy {{String[] a; a=new String[]{'a'}; }}")
+    defaultOrg.issues.dumpMessages(false)
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
   // TODO: Complete testing
 }
