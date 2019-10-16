@@ -38,19 +38,22 @@ import scala.collection.mutable
 trait VerifyContext {
   def parent(): Option[VerifyContext]
 
-  /** Package for current outer type */
+  /* Package for current outer type */
   def pkg: PackageDeclaration
 
-  /** Get type declaration of 'this', option as not set in trigger */
+  /* Get type declaration of 'this', option as not set in trigger */
   def thisType: Option[TypeDeclaration]
 
-  /** Get type declaration of 'super' */
+  /* Get type declaration of 'super' */
   def superType: Option[TypeDeclaration]
 
-  /** Declare a dependency on dependant */
+  /* Declare a dependency on dependant */
   def addDependency(dependant: Dependant): Unit
 
-  /** Helper to locate a relative or absolute type and add as dependency if found */
+  /* Locate a type, typeName may be relative so searching must be performed wrt a typeDeclaration */
+  def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration]
+
+  /* Helper to locate a relative or absolute type and add as dependency if found */
   def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration]
 
   def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): Either[TypeError, TypeDeclaration] = {
@@ -147,6 +150,10 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
 
   override def addDependency(dependant: Dependant): Unit = parentContext.addDependency(dependant)
 
+  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration] = {
+    parentContext.getTypeFor(typeName, from)
+  }
+
   override def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration] = {
     parentContext.getTypeAndAddDependency(typeName, from)
   }
@@ -200,6 +207,10 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext)
   override def superType: Option[TypeDeclaration] = parentContext.superType
 
   override def addDependency(dependant: Dependant): Unit = parentContext.addDependency(dependant)
+
+  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration] = {
+    parentContext.getTypeFor(typeName, from)
+  }
 
   override def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration] = {
     parentContext.getTypeAndAddDependency(typeName, from)
