@@ -245,7 +245,7 @@ final case class PrefixExpression(expression: Expression, op: String) extends Ex
     val td = inter.declaration.get
     td.typeName match {
       case TypeName.Integer | TypeName.Long | TypeName.Decimal | TypeName.Double if !inter.isStatic => inter
-      case TypeName.String if !inter.isStatic && op == "+" => inter  // Apex Compiler bug
+      case _ if !inter.isStatic && op == "+" => ExprContext(isStatic = false, Some(PlatformTypes.stringType))
       case _ =>
         Org.logMessage(location, s"Prefix operations are not supported on type '${td.typeName}'")
         ExprContext.empty
