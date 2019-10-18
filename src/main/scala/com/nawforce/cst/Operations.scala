@@ -141,6 +141,12 @@ object Operation {
     (TypeName.Double, TypeName.Long) -> PlatformTypes.doubleType,
     (TypeName.Double, TypeName.Decimal) -> PlatformTypes.doubleType,
     (TypeName.Double, TypeName.Double) -> PlatformTypes.doubleType,
+    (TypeName.Date, TypeName.Integer) -> PlatformTypes.dateType,
+    (TypeName.Date, TypeName.Long) -> PlatformTypes.dateType,
+    (TypeName.Datetime, TypeName.Integer) -> PlatformTypes.datetimeType,
+    (TypeName.Datetime, TypeName.Long) -> PlatformTypes.datetimeType,
+    (TypeName.Time, TypeName.Integer) -> PlatformTypes.timeType,
+    (TypeName.Time, TypeName.Long) -> PlatformTypes.timeType,
   )
 }
 
