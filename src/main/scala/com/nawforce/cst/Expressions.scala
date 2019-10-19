@@ -276,16 +276,13 @@ final case class NegationExpression(expression: Expression, isBitwise: Boolean) 
 final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) extends Expression {
   override def children(): List[CST] = lhs :: rhs :: Nil
 
-  /* https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/langCon_apex_expressions_operators_understanding.htm */
-  /* & | ^ ^= << >> >>> */
-  /* += -= *= /= |= &= <<= >>= >>>= */
-
   private lazy val operation = op match {
     case "=" => AssignmentOperation
     case "&&" => LogicalOperation
     case "||" => LogicalOperation
     case "==" => EqualityOperation
     case "!=" => EqualityOperation
+    case "<>" => EqualityOperation
     case "===" => ExactEqualityOperation
     case "!==" => ExactEqualityOperation
     case "<" => CompareOperation
@@ -296,7 +293,22 @@ final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) 
     case "-" => ArithmeticOperation
     case "*" => ArithmeticOperation
     case "/" => ArithmeticOperation
-    case _ => NopOperation
+    case "+=" => ArithmeticAddAssignmentOperation
+    case "-=" => ArithmeticSubtractAssignmentOperation
+    case "*=" => ArithmeticMultiplyDivideAssignmentOperation
+    case "/=" => ArithmeticMultiplyDivideAssignmentOperation
+    case "&" => BitwiseOperation
+    case "|" => BitwiseOperation
+    case "^" => BitwiseOperation
+    case "<<" => BitwiseOperation
+    case ">>" => BitwiseOperation
+    case ">>>" => BitwiseOperation
+    case "^=" => BitwiseAssignmentOperation
+    case "&=" => BitwiseAssignmentOperation
+    case "|=" => BitwiseAssignmentOperation
+    case "<<=" => BitwiseAssignmentOperation
+    case ">>=" => BitwiseAssignmentOperation
+    case ">>>=" => BitwiseAssignmentOperation
   }
 
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
