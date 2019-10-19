@@ -35,13 +35,13 @@ abstract class Operation {
              context: ExpressionVerifyContext): Either[String, ExprContext]
 
   def isAssignable(toType: TypeName, fromType: TypeDeclaration, context: ExpressionVerifyContext): Boolean = {
-    if (fromType.typeName == TypeName.Null)
+    if (fromType.typeName == TypeName.Null ||
+      (fromType.typeName == toType) ||
+      (toType == TypeName.InternalObject))
       true
     else if (toType.params.nonEmpty || fromType.typeName.params.nonEmpty)
       isAssignableGeneric(toType, fromType, context)
     else
-      (fromType.typeName == toType) ||
-      (toType == TypeName.InternalObject) ||
       Operation.baseAssignable.contains(toType, fromType.typeName) ||
       fromType.extendsOrImplements(toType)
   }
@@ -53,15 +53,30 @@ abstract class Operation {
     }
   }
 
-  def isAssignableGeneric(toType: TypeName, fromType: TypeDeclaration, context: ExpressionVerifyContext): Boolean = {
+  private def isAssignableGeneric(toType: TypeName, fromType: TypeDeclaration, context: ExpressionVerifyContext): Boolean = {
     if (toType == fromType.typeName) {
       true
     } else if (toType.params.size == fromType.typeName.params.size) {
-      val sameParams = toType.withParams(fromType.typeName.params)
-      (fromType.typeName == sameParams || fromType.extendsOrImplements(sameParams)) &&
-        toType.params.zip(fromType.typeName.params).map(p => isAssignable(p._1, p._2, context)).forall(b =>b)
+      isSObjectListAssignment(toType, fromType, context) || {
+        val sameParams = toType.withParams(fromType.typeName.params)
+        (fromType.typeName == sameParams || fromType.extendsOrImplements(sameParams)) &&
+          toType.params.zip(fromType.typeName.params).map(p => isAssignable(p._1, p._2, context)).forall(b =>b)
+      }
     } else if (toType.params.isEmpty) {
       fromType.extendsOrImplements(toType)
+    } else {
+      false
+    }
+  }
+
+  private def isSObjectListAssignment(toType: TypeName, fromType: TypeDeclaration, context: ExpressionVerifyContext): Boolean = {
+    if (toType.isList && fromType.typeName.isList &&
+      fromType.typeName.params.head == TypeName.SObject &&
+      toType.params.head != TypeName.SObject) {
+      context.getTypeFor(toType.params.head, context.thisType) match {
+        case Left(_) => false
+        case Right(toDeclaration) => toDeclaration.isSObject
+      }
     } else {
       false
     }
@@ -174,7 +189,7 @@ case object AssignmentOperation extends Operation {
     else if (isAssignable(leftContext.typeName, rightContext.typeDeclaration, context))
       Right(leftContext)
     else
-      Left(s"Incompatible types in assignment, from '${rightContext.typeName}' to '${leftContext.typeName}")
+      Left(s"Incompatible types in assignment, from '${rightContext.typeName}' to '${leftContext.typeName}'")
   }
 }
 

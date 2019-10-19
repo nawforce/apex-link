@@ -56,43 +56,48 @@ class OperationsTests extends FunSuite with BeforeAndAfter {
 
   test("String prefix bug on SObject") {
     typeDeclaration("public class Dummy {{Object a;  String b = '' + + a;}}")
-    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Date addition") {
     typeDeclaration("public class Dummy {{Date a;  Date b = a + 1;}}")
-    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Date subtraction") {
     typeDeclaration("public class Dummy {{Date a;  Date b = a - 12l;}}")
-    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Datetime addition") {
     typeDeclaration("public class Dummy {{Datetime a;  Datetime b = a + 1;}}")
-    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Datetime subtraction") {
     typeDeclaration("public class Dummy {{Datetime a;  Datetime b = a - 12l;}}")
-    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Time addition") {
     typeDeclaration("public class Dummy {{Time a;  Time b = a + 1;}}")
-    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Time subtraction") {
     typeDeclaration("public class Dummy {{Time a;  Time b = a - 12l;}}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
+  test("List assignment to Object") {
+    typeDeclaration("public class Dummy {{Object a; a = new List<String>{''}; }}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
+  test("sObject List to Specific Object List") {
+    typeDeclaration("public class Dummy {{List<Account> a; a = new List<sObject>(); }}")
     defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
   }
+
 }
