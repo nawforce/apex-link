@@ -96,8 +96,42 @@ class OperationsTests extends FunSuite with BeforeAndAfter {
 
   test("sObject List to Specific Object List") {
     typeDeclaration("public class Dummy {{List<Account> a; a = new List<sObject>(); }}")
-    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
   }
 
+  test("Alternative not equal") {
+    typeDeclaration("public class Dummy {{Boolean a; a = 1 <> 2; }}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
+  test("Bitwise Integer to Integer") {
+    typeDeclaration("public class Dummy {{Integer a; a = a & 2; }}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
+  test("Bitwise Long to Integer") {
+    typeDeclaration("public class Dummy {{Long a; a = a | 2; }}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
+  test("Bitwise Boolean to Boolean") {
+    typeDeclaration("public class Dummy {{Boolean a; a = a ^ false; }}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
+  test("Bitwise Assigment Integer to Integer") {
+    typeDeclaration("public class Dummy {{Integer a; a ^= a; }}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
+  test("Bitwise Assigment Integer to Long") {
+    typeDeclaration("public class Dummy {{Long a; a &= 2; }}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
+  test("Bitwise Assigment Long to Integer") {
+    typeDeclaration("public class Dummy {{Integer a; a |= 22l; }}")
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
+      "line 1 at 32-40: Bitwise operation only allowed between Integer, Long & Boolean types, not 'System.Integer' and 'System.Long'\n")
+  }
 }
