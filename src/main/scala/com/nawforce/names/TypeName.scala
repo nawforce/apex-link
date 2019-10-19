@@ -123,7 +123,7 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
     }
   }
 
-  def isList: Boolean = name == Name.List$ && outer.contains(TypeName.System)
+  def isList: Boolean = name == Name.List$ && outer.contains(TypeName.System) && params.size == 1
 
   def asListOf: TypeName = new TypeName(Name.List$, Seq(this), Some(TypeName.System))
 
