@@ -134,4 +134,9 @@ class OperationsTests extends FunSuite with BeforeAndAfter {
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 32-40: Bitwise operation only allowed between Integer, Long & Boolean types, not 'System.Integer' and 'System.Long'\n")
   }
+
+  test("Bitwise Shift in Array Index") {
+    typeDeclaration("public class Dummy {{List<String> a; Integer b; String c = a[b << 2];}}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
 }

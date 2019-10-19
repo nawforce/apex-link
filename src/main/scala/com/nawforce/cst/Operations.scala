@@ -251,7 +251,6 @@ object Operation {
     (TypeName.Long, TypeName.Long) -> PlatformTypes.longType,
     (TypeName.Boolean, TypeName.Boolean) -> PlatformTypes.longType,
   )
-
 }
 
 case object AssignmentOperation extends Operation {

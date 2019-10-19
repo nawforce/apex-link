@@ -31,6 +31,7 @@ import com.nawforce.api.Org
 import com.nawforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types._
+import org.antlr.v4.runtime.tree.TerminalNode
 
 import scala.collection.JavaConverters._
 
@@ -388,54 +389,65 @@ object Expression {
         case expr: CastExpressionContext =>
           CastExpression(TypeRef.construct(expr.typeRef()), Expression.construct(expr.expression(), context))
         case expr: PostOpExpressionContext =>
-          PostfixExpression(Expression.construct(expr.expression(), context), expr.getChild(1).getText)
+          PostfixExpression(Expression.construct(expr.expression(), context), getTerminals(expr, 1))
         case expr: PreOpExpressionContext =>
-          PrefixExpression(Expression.construct(expr.expression(), context), expr.getChild(0).getText)
+          PrefixExpression(Expression.construct(expr.expression(), context), getTerminals(expr, 0))
         case expr: NegExpressionContext =>
-          NegationExpression(Expression.construct(expr.expression(), context), expr.getChild(0).getText == "~")
+          NegationExpression(Expression.construct(expr.expression(), context), getTerminals(expr, 0) == "~")
         case expr: Arth1ExpressionContext =>
           BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
         case expr: Arth2ExpressionContext =>
           BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
         case expr: Cmp1ExpressionContext =>
           BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
         case expr: Cmp2ExpressionContext =>
           BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
         case expr: InstanceOfExpressionContext =>
           InstanceOfExpression(Expression.construct(expr.expression(), context),
             TypeRef.construct(expr.typeRef()))
         case expr: EqualityExpressionContext =>
           BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
         case expr: BitAndExpressionContext =>
           BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
         case expr: BitNotExpressionContext =>
           BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
         case expr: BitOrExpressionContext =>
           BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
         case expr: LogAndExpressionContext =>
           BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
         case expr: LogOrExpressionContext =>
           BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
         case expr: CondExpressionContext =>
           QueryExpression(Expression.construct(expr.expression(0), context),
             Expression.construct(expr.expression(1), context), Expression.construct(expr.expression(2), context))
         case expr: AssignExpressionContext =>
           BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), expr.getChild(1).getText)
+            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
         case expr: PrimaryExpressionContext =>
           PrimaryExpression(Primary.construct(expr.primary(), context))
       }
     cst.withContext(from, context)
+  }
+
+  private def getTerminals(from: ExpressionContext, index: Integer): String = {
+    if (index < from.children.size()) {
+      from.children.get(index) match {
+        case tn: TerminalNode => tn.getText + getTerminals(from, index + 1)
+        case _ => ""
+      }
+    } else {
+      ""
+    }
   }
 
   def construct(expression: List[ExpressionContext], context: ConstructContext): List[Expression] = {
