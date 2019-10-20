@@ -109,6 +109,10 @@ export default class Check extends SfdxCommand {
         );
       }
 
+      if (issues.files.length > 0) {
+        throw new SfdxError("Problems detected in project")
+      }
+
       return {};
     }
   }
