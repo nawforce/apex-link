@@ -139,4 +139,15 @@ class OperationsTests extends FunSuite with BeforeAndAfter {
     typeDeclaration("public class Dummy {{List<String> a; Integer b; String c = a[b << 2];}}")
     assert(!defaultOrg.issues.hasMessages)
   }
+
+  test("String concat assignment") {
+    typeDeclaration("public class Dummy {{String a; a += 12;}}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
+  test("Enum value assignment") {
+    typeDeclaration("public class Dummy {enum MyEnum{A} String A; {MyEnum a; a = Dummy.MyEnum.A;}}")
+    defaultOrg.issues.dumpMessages(false)
+    assert(!defaultOrg.issues.hasMessages)
+  }
 }

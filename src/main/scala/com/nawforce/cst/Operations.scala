@@ -111,12 +111,8 @@ abstract class Operation {
     Operation.arithmeticOps.get((leftType, rightType))
   }
 
-  def getArithmeticAddAssigmentResult(leftType: TypeName, rightType: TypeName): Option[TypeDeclaration] = {
-    Operation.arithmeticAddAssigmentOps.get((leftType, rightType))
-  }
-
-  def getArithmeticSubtractAssigmentResult(leftType: TypeName, rightType: TypeName): Option[TypeDeclaration] = {
-    Operation.arithmeticSubtractAssigmentOps.get((leftType, rightType))
+  def getArithmeticAddSubtractAssigmentResult(leftType: TypeName, rightType: TypeName): Option[TypeDeclaration] = {
+    Operation.arithmeticAddSubtractAssigmentOps.get((leftType, rightType))
   }
 
   def getArithmeticMultiplyDivideAssigmentResult(leftType: TypeName, rightType: TypeName): Option[TypeDeclaration] = {
@@ -184,28 +180,7 @@ object Operation {
     (TypeName.Time, TypeName.Long) -> PlatformTypes.timeType,
   )
 
-  private lazy val arithmeticAddAssigmentOps: Map[(TypeName, TypeName), TypeDeclaration] = Map(
-    (TypeName.Integer, TypeName.Integer) -> PlatformTypes.integerType,
-    (TypeName.Long, TypeName.Integer) -> PlatformTypes.longType,
-    (TypeName.Long, TypeName.Long) -> PlatformTypes.longType,
-    (TypeName.Decimal, TypeName.Integer) -> PlatformTypes.decimalType,
-    (TypeName.Decimal, TypeName.Long) -> PlatformTypes.decimalType,
-    (TypeName.Decimal, TypeName.Decimal) -> PlatformTypes.decimalType,
-    (TypeName.Double, TypeName.Integer) -> PlatformTypes.doubleType,
-    (TypeName.Double, TypeName.Long) -> PlatformTypes.doubleType,
-    (TypeName.Double, TypeName.Decimal) -> PlatformTypes.doubleType,
-    (TypeName.Double, TypeName.Double) -> PlatformTypes.doubleType,
-    (TypeName.Date, TypeName.Integer) -> PlatformTypes.dateType,
-    (TypeName.Date, TypeName.Long) -> PlatformTypes.dateType,
-    (TypeName.Datetime, TypeName.Integer) -> PlatformTypes.datetimeType,
-    (TypeName.Datetime, TypeName.Long) -> PlatformTypes.datetimeType,
-    (TypeName.Time, TypeName.Integer) -> PlatformTypes.timeType,
-    (TypeName.Time, TypeName.Long) -> PlatformTypes.timeType,
-    (TypeName.String, TypeName.String) -> PlatformTypes.stringType,
-    (TypeName.String, TypeName.Id) -> PlatformTypes.stringType,
-  )
-
-  private lazy val arithmeticSubtractAssigmentOps: Map[(TypeName, TypeName), TypeDeclaration] = Map(
+  private lazy val arithmeticAddSubtractAssigmentOps: Map[(TypeName, TypeName), TypeDeclaration] = Map(
     (TypeName.Integer, TypeName.Integer) -> PlatformTypes.integerType,
     (TypeName.Long, TypeName.Integer) -> PlatformTypes.longType,
     (TypeName.Long, TypeName.Long) -> PlatformTypes.longType,
@@ -355,25 +330,18 @@ case object ArithmeticOperation extends Operation {
   }
 }
 
-case object ArithmeticAddAssignmentOperation extends Operation {
+case object ArithmeticAddSubtractAssignmentOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
                       op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
-    val td = getArithmeticAddAssigmentResult(leftContext.typeName, rightContext.typeName)
-    if (td.isEmpty) {
-      return Left(s"Arithmetic operation not allowed between types '${leftContext.typeName}' and '${rightContext.typeName}'")
+    if (leftContext.typeName == TypeName.String && op == "+=") {
+      Right(ExprContext(isStatic = false, Some(PlatformTypes.stringType)))
+    } else {
+      val td = getArithmeticAddSubtractAssigmentResult(leftContext.typeName, rightContext.typeName)
+      if (td.isEmpty) {
+        return Left(s"Arithmetic operation not allowed between types '${leftContext.typeName}' and '${rightContext.typeName}'")
+      }
+      Right(ExprContext(isStatic = false, td))
     }
-    Right(ExprContext(isStatic = false, td))
-  }
-}
-
-case object ArithmeticSubtractAssignmentOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
-    val td = getArithmeticSubtractAssigmentResult(leftContext.typeName, rightContext.typeName)
-    if (td.isEmpty) {
-      return Left(s"Arithmetic operation not allowed between types '${leftContext.typeName}' and '${rightContext.typeName}'")
-    }
-    Right(ExprContext(isStatic = false, td))
   }
 }
 

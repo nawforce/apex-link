@@ -294,8 +294,8 @@ final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) 
     case "-" => ArithmeticOperation
     case "*" => ArithmeticOperation
     case "/" => ArithmeticOperation
-    case "+=" => ArithmeticAddAssignmentOperation
-    case "-=" => ArithmeticSubtractAssignmentOperation
+    case "+=" => ArithmeticAddSubtractAssignmentOperation
+    case "-=" => ArithmeticAddSubtractAssignmentOperation
     case "*=" => ArithmeticMultiplyDivideAssignmentOperation
     case "/=" => ArithmeticMultiplyDivideAssignmentOperation
     case "&" => BitwiseOperation
