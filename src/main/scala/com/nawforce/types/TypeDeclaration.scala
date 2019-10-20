@@ -165,10 +165,12 @@ trait TypeDeclaration extends DependencyHolder {
 
   private lazy val fieldsByName: mutable.Map[Name, FieldDeclaration] = {
     val outerType = outerTypeName.flatMap(typeName => TypeRequest(typeName, this).toOption)
-    val fieldsByName =
-        fields.map(f => (f.name, f)) ++
-        outerType.map(td => td.fields.filter(_.isStatic).map(f => (f.name, f))).getOrElse(Seq())
-    mutable.Map(fieldsByName: _*)
+    val fieldsByName = mutable.Map(fields.map(f => (f.name, f)) : _*)
+    outerType.foreach(td => td.fields.filter(_.isStatic).foreach(f => {
+      if (!fieldsByName.contains(f.name))
+        fieldsByName.put(f.name, f)
+    }))
+    fieldsByName
   }
 
   def findLocalType(typeName: TypeName): Option[TypeDeclaration] = {
