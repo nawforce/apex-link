@@ -114,7 +114,9 @@ export default class ReTest extends SfdxCommand {
   }
 
   private throwFailure(context: string, status: CommandStatus) {
-    if (status.stderr !== "") {
+    if (status instanceof SfdxError) {
+      throw status;
+    } else if (status.stderr !== "") {
       throw new SfdxError(context + " " + JSON.parse(status.stderr).message);
     } else {
       throw new SfdxError(
