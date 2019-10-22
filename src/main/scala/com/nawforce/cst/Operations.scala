@@ -378,3 +378,16 @@ case object BitwiseAssignmentOperation extends Operation {
   }
 }
 
+case object ConditionalOperation extends Operation {
+  override def verify(leftContext: ExprContext, rightContext: ExprContext,
+                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
+
+    if (isAssignable(leftContext.typeName, rightContext.typeDeclaration, context)) {
+      Right(rightContext)
+    } else if (isAssignable(rightContext.typeName, leftContext.typeDeclaration, context)) {
+      Right(leftContext)
+    } else {
+       Left(s"Incompatible types in ternary operation '${leftContext.typeName}' and '${rightContext.typeName}'")
+    }
+  }
+}

@@ -145,7 +145,7 @@ final case class ClassCreatorRest(arguments: List[Expression]) extends CreatorRe
     val td = creating.declaration.get
 
     if (td.isFieldConstructed)
-      td.validateFieldConstructorArguments(arguments, context)
+      td.validateFieldConstructorArguments(input, arguments, context)
     else
       // FUTURE: Is constructor available
       arguments.foreach(_.verify(input, context))

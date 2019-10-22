@@ -106,6 +106,7 @@ final case class IdPrimary(id: Id) extends Primary {
         val name = id.name
         val field = findField(name, td, input.isStatic)
         if (field.nonEmpty) {
+          field.get.addDependencyHolder(context.holder)
           val target = context.getTypeAndAddDependency(field.get.typeName, td).toOption
           return ExprContext(isStatic = false, target)
         }

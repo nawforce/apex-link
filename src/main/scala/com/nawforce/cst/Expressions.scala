@@ -98,6 +98,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
         val name = target.left.get.name
         val field: Option[FieldDeclaration] = findField(name, td, context.pkg, input.isStatic)
         if (field.nonEmpty) {
+          field.get.addDependencyHolder(context.holder)
           val target = context.getTypeAndAddDependency(field.get.typeName, td).toOption
           return ExprContext(isStatic = false, target)
         }
@@ -123,8 +124,8 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
   def verifyWithMethod(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
 
-    // TODO
-    ExprContext.empty
+    val method = target.right.get
+    method.verify(input, context)
   }
 
   private def findField(name: Name, td: TypeDeclaration, pkg: PackageDeclaration, staticOnly: Boolean) : Option[FieldDeclaration] = {
@@ -351,10 +352,18 @@ final case class QueryExpression(query: Expression, lhs: Expression, rhs: Expres
 
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     query.verify(input, context)
-    lhs.verify(input, context)
-    rhs.verify(input, context)
-    // TODO
-    ExprContext.empty
+    val leftInter = lhs.verify(input, context)
+    val rightInter = rhs.verify(input, context)
+
+    if (!leftInter.isDefined || !rightInter.isDefined)
+      return ExprContext.empty
+
+    ConditionalOperation.verify(leftInter, rightInter, "?", context) match {
+      case Left(error) =>
+        Org.logMessage(location, error)
+        ExprContext.empty
+      case Right(context) => context
+    }
   }
 }
 
