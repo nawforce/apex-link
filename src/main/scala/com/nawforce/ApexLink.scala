@@ -52,12 +52,17 @@ object ApexLink {
     var paths: Seq[String] = validArgs.filterNot(options.contains)
     if (paths.isEmpty)
       paths = Seq(Paths.get("").toAbsolutePath.toString)
-    val nsSplit = paths.map(_.split("=") match {
-      case Array(d) => ("", d)
-      case Array(ns, d) => (ns, d)
-      case _ =>
-        println(usage)
-        return
+    val nsSplit = paths.map(path => {
+      if (path.endsWith("="))
+        (path.take(path.length-1), "")
+      else
+        path.split("=") match {
+          case Array(d) => ("", d)
+          case Array(ns, d) => (ns, d)
+          case _ =>
+            println(usage)
+            return
+        }
     })
     val json = validArgs.contains("-json")
     val verbose = !json && validArgs.contains("-verbose")
@@ -69,7 +74,7 @@ object ApexLink {
     val nsLoaded = mutable.Set[String]()
     nsSplit.foreach(nsDirPair => {
       if (!nsLoaded.contains(nsDirPair._1)) {
-        val paths = nsSplit.filter(_._1 == nsDirPair._1).map(_._2)
+        val paths = nsSplit.filter(_._1 == nsDirPair._1).map(_._2).filterNot(_.isEmpty)
         val pkg = org.addPackage(nsDirPair._1, paths.toArray, nsLoaded.toArray)
         pkg.deployAll()
         nsLoaded.add(nsDirPair._1)

@@ -182,7 +182,7 @@ trait TypeDeclaration extends DependencyHolder {
 
     // FUTURE: Disable this bypass once VF parsing supported
     if (isInstanceOf[CustomComponent])
-      return;
+      return
 
     val validArgs = arguments.flatMap(argument => {
       argument match {
