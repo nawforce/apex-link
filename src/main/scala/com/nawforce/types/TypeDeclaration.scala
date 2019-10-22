@@ -28,7 +28,7 @@
 package com.nawforce.types
 
 import com.nawforce.api._
-import com.nawforce.cst.{BinaryExpression, Expression, ExpressionVerifyContext, IdPrimary, PrimaryExpression}
+import com.nawforce.cst.{BinaryExpression, ExprContext, Expression, ExpressionVerifyContext, IdPrimary, PrimaryExpression}
 import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{Name, TypeName}
 
@@ -177,7 +177,7 @@ trait TypeDeclaration extends DependencyHolder {
     packageDeclaration.flatMap(pkg => pkg.getLocalTypeFor(typeName, this))
   }
 
-  def validateFieldConstructorArguments(arguments: Seq[Expression], context: ExpressionVerifyContext): Unit = {
+  def validateFieldConstructorArguments(input: ExprContext, arguments: Seq[Expression], context: ExpressionVerifyContext): Unit = {
     assert(isFieldConstructed)
 
     // FUTURE: Disable this bypass once VF parsing supported
@@ -186,7 +186,10 @@ trait TypeDeclaration extends DependencyHolder {
 
     val validArgs = arguments.flatMap(argument => {
       argument match {
-        case BinaryExpression(PrimaryExpression(IdPrimary(id)), _, "=") =>
+        case BinaryExpression(PrimaryExpression(IdPrimary(id)), rhs, "=") =>
+          rhs.verify(input, context)
+          // Future: check type against field being assigned
+
           var field : Option[FieldDeclaration] = None
 
           if (context.pkg.namespace.nonEmpty) {
@@ -201,6 +204,7 @@ trait TypeDeclaration extends DependencyHolder {
               Org.logMessage(id.location, s"Unknown field '${id.name}' on SObject type '$typeName'")
             None
           } else {
+            field.get.addDependencyHolder(context.holder)
             Some(id)
           }
         case _ =>

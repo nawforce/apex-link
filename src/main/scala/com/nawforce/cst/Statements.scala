@@ -138,9 +138,8 @@ final case class IfStatement(expression: Expression, statements: List[Statement]
     statements.foreach(stmt => {
       if (stmt.isInstanceOf[Block]) {
         stmtContext = new InnerBlockVerifyContext(context)
-      } else {
-        stmt.verify(stmtContext)
       }
+      stmt.verify(stmtContext)
     })
   }
 }
