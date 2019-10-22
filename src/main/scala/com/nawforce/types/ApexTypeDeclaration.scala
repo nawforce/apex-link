@@ -36,6 +36,7 @@ import com.nawforce.documents.LineLocation
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
+import com.nawforce.utils.Issue
 import org.antlr.v4.runtime.CommonTokenStream
 
 import scala.collection.JavaConverters._
@@ -106,6 +107,14 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
     allFields.map(f => (f.name, f)).toMap.values.toSeq
   }
 
+  lazy val localFields: Seq[FieldDeclaration] = {
+    bodyDeclarations.flatMap {
+      case x: ApexFieldDeclaration => Some(x)
+      case x: ApexPropertyDeclaration => Some(x)
+      case _ => None
+    }
+  }
+
   override lazy val constructors: Seq[ConstructorDeclaration] = {
     bodyDeclarations.flatMap {
       case x: ConstructorDeclaration => Some(x)
@@ -163,6 +172,16 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
   override def collectDependencies(dependsOn: mutable.Set[Dependant]): Unit = {
     super.collectDependencies(dependsOn)
     bodyDeclarations.foreach(_.collectDependencies(dependsOn))
+  }
+
+  def unused(): Seq[Issue] = {
+    localFields.filterNot(_.hasHolders)
+      .map({
+        case field: ApexFieldDeclaration =>
+          Issue(field.location, s"Field '$typeName.${field.name}' is not being used in Apex code")
+        case property: ApexPropertyDeclaration =>
+          Issue(property.location, s"Property '$typeName.${property.name}' is not being used in Apex code")
+      })
   }
 }
 
