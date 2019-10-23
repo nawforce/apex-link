@@ -71,8 +71,8 @@ trait TypeFinder {
       return matched
 
     getNestedType(dotName, from)
-      .orElse(getFromSuperType(dotName, from)
-        .orElse(getFromOuterType(dotName, from))
+      .orElse(getFromOuterType(dotName, from)
+        .orElse(getFromSuperType(dotName, from))
       )
   }
 
