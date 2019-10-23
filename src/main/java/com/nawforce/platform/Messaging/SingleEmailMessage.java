@@ -45,6 +45,7 @@ public class SingleEmailMessage {
 	public Id OrgWideEmailAddressId;
 	public String PlainTextBody;
 	public String References;
+	public String Subject;
 	public Id TargetObjectId;
 	public Id TemplateId;
 	public String TemplateName;

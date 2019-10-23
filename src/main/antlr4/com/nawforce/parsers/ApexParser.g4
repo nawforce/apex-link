@@ -423,7 +423,7 @@ expression
     | expression BITOR expression                                                                     # bitOrExpression
     | expression AND expression                                                                       # logAndExpression
     | expression OR expression                                                                        # logOrExpression
-    | expression QUESTION expression COLON expression                                                 # condExpression
+    | <assoc=right> expression QUESTION expression COLON expression                                   # condExpression
     | <assoc=right> expression
       (   ASSIGN
       |   ADD_ASSIGN
