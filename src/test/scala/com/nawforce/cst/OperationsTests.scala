@@ -147,6 +147,11 @@ class OperationsTests extends FunSuite with BeforeAndAfter {
 
   test("Enum value assignment") {
     typeDeclaration("public class Dummy {enum MyEnum{A} String A; {MyEnum a; a = Dummy.MyEnum.A;}}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
+  test("Nested ternary") {
+    typeDeclaration("public class Dummy {{ String a; a = (1==0) ? 'a' : (1==-1) ? null : 'b';}}")
     defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
   }

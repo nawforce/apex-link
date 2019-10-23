@@ -4871,7 +4871,7 @@ public class ApexParser extends Parser {
 						setState(777);
 						match(COLON);
 						setState(778);
-						expression(3);
+						expression(2);
 						}
 						break;
 					case 12:
@@ -6309,7 +6309,7 @@ public class ApexParser extends Parser {
 		"\u008aF\b\u0302\u0303\f\6\2\2\u0303\u0304\7W\2\2\u0304\u0322\5\u008aF"+
 		"\7\u0305\u0306\f\5\2\2\u0306\u0307\7X\2\2\u0307\u0322\5\u008aF\6\u0308"+
 		"\u0309\f\4\2\2\u0309\u030a\7P\2\2\u030a\u030b\5\u008aF\2\u030b\u030c\7"+
-		"Q\2\2\u030c\u030d\5\u008aF\5\u030d\u0322\3\2\2\2\u030e\u030f\f\3\2\2\u030f"+
+		"Q\2\2\u030c\u030d\5\u008aF\4\u030d\u0322\3\2\2\2\u030e\u030f\f\3\2\2\u030f"+
 		"\u0310\t\b\2\2\u0310\u0322\5\u008aF\3\u0311\u0312\f\27\2\2\u0312\u0315"+
 		"\7H\2\2\u0313\u0316\5\u00a6T\2\u0314\u0316\5\u008eH\2\u0315\u0313\3\2"+
 		"\2\2\u0315\u0314\3\2\2\2\u0316\u0322\3\2\2\2\u0317\u0318\f\26\2\2\u0318"+
