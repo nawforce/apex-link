@@ -223,10 +223,17 @@ trait TypeDeclaration extends DependencyHolder {
   }
 
   def extendsOrImplements(typeName: TypeName): Boolean = {
-    if (superClassDeclaration.exists(_.typeName == typeName) || interfaceDeclarations.exists(_.typeName == typeName))
-      true
-    else
-      superClassDeclaration.exists(_.extendsOrImplements(typeName))
+    superClassDeclaration.exists(_.typeName == typeName) ||
+      interfaceDeclarations.exists(_.typeName == typeName) ||
+      superClassDeclaration.exists(_.extendsOrImplements(typeName)) ||
+      interfaceDeclarations.exists(_.extendsOrImplements(typeName))
+  }
+
+  def superTypes(): List[TypeName] = {
+    superClassDeclaration.map(_.typeName).toList ++
+      interfaceDeclarations.map(_.typeName).toList ++
+      superClassDeclaration.map(_.superTypes()).getOrElse(Nil) ++
+      interfaceDeclarations.flatMap(_.superTypes())
   }
 
   lazy val summary: TypeSummary = TypeSummary(

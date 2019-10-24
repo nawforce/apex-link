@@ -152,7 +152,20 @@ class OperationsTests extends FunSuite with BeforeAndAfter {
 
   test("Nested ternary") {
     typeDeclaration("public class Dummy {{ String a; a = (1==0) ? 'a' : (1==-1) ? null : 'b';}}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
+  test("Ternary common base") {
+    typeDeclaration("public virtual class Dummy {class A extends Dummy {} class B extends Dummy {} { A a; B b; Object a = 2>0 ? a : b;}}")
     defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
   }
+
+  test("Ternary SObjectType") {
+    typeDeclaration("public virtual class Dummy {{ SObjectType a = 2>0 ? Account.SObjectType : Contact.SObjectType;}}")
+    defaultOrg.issues.dumpMessages(false)
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
+
 }
