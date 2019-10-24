@@ -58,11 +58,12 @@ abstract class Operation {
       true
     } else if (toType.params.size == fromType.typeName.params.size) {
       isSObjectListAssignment(toType, fromType, context) || {
+        // Future: This is over general, not supported on Set & Map, doh
         val sameParams = toType.withParams(fromType.typeName.params)
         (fromType.typeName == sameParams || fromType.extendsOrImplements(sameParams)) &&
           toType.params.zip(fromType.typeName.params).map(p => isAssignable(p._1, p._2, context)).forall(b =>b)
       }
-    } else if (toType.params.isEmpty) {
+    } else if (toType.params.isEmpty || fromType.typeName.params.isEmpty) {
       fromType.extendsOrImplements(toType)
     } else {
       false
@@ -84,6 +85,13 @@ abstract class Operation {
 
   def couldBeEqual(toType: TypeDeclaration, fromType: TypeDeclaration, context: ExpressionVerifyContext): Boolean = {
     isAssignable(toType.typeName, fromType, context) || isAssignable(fromType.typeName, toType, context)
+  }
+
+  def commonBase(toType: TypeDeclaration, fromType: TypeDeclaration, context: ExpressionVerifyContext): Option[TypeDeclaration] = {
+    val toSupertypes = toType.superTypes()
+    val fromSupertypes = fromType.superTypes()
+    val common = toSupertypes.intersect(fromSupertypes)
+    common.headOption.flatMap(context.getTypeFor(_, context.thisType).toOption)
   }
 
   def isNumericKind(typeName: TypeName): Boolean = {
@@ -382,12 +390,17 @@ case object ConditionalOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
                       op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
 
+    // Future: How does this really function, Java mechanics are very complex
     if (isAssignable(leftContext.typeName, rightContext.typeDeclaration, context)) {
       Right(rightContext)
     } else if (isAssignable(rightContext.typeName, leftContext.typeDeclaration, context)) {
       Right(leftContext)
     } else {
-       Left(s"Incompatible types in ternary operation '${leftContext.typeName}' and '${rightContext.typeName}'")
+      commonBase(leftContext.typeDeclaration, rightContext.typeDeclaration, context)
+          .map(td => Right(ExprContext(isStatic = false, Some(td))))
+          .getOrElse({
+            Left(s"Incompatible types in ternary operation '${leftContext.typeName}' and '${rightContext.typeName}'")
+          })
     }
   }
 }
