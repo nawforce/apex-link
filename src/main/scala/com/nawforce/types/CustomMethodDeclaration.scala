@@ -25,11 +25,17 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.platform.Schema;
+package com.nawforce.types
 
-import com.nawforce.platform.System.Map;
-import com.nawforce.platform.System.String;
+import com.nawforce.names.{Name, TypeName}
 
-public class SObjectTypeFields {
-    public Map<String, SObjectField> getMap() {throw new java.lang.UnsupportedOperationException();}
+final case class CustomParameterDeclaration(name: Name, typeName: TypeName) extends ParameterDeclaration
+
+final case class CustomMethodDeclaration(name: Name, typeName: TypeName, parameters: Seq[CustomParameterDeclaration], asStatic: Boolean = false)
+  extends MethodDeclaration {
+
+  override val modifiers: Seq[Modifier] = Seq(PUBLIC_MODIFIER) ++
+    (if (asStatic) Seq(STATIC_MODIFIER) else Seq())
+
+  override lazy val isStatic: Boolean = asStatic
 }

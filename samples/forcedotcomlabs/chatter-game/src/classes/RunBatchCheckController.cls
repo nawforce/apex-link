@@ -36,7 +36,7 @@ global with sharing class RunBatchCheckController implements Schedulable {
         return pageRef;
     }
     
-    global static public void execute(SchedulableContext sc) {
+    global static void execute(SchedulableContext sc) {
         ChatterGameGoalAchievement.checkFollows();
         ChatterGameGoalAchievement.checkLikes();
     }

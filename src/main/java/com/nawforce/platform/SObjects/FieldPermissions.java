@@ -37,7 +37,6 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class FieldPermissions extends SObject {
-	public static SObjectType$<FieldPermissions> SObjectType;
 	public static SObjectTypeFields$<FieldPermissions> Fields;
 	public static SObjectTypeFieldSets$<FieldPermissions> FieldSets;
 	public String Field;

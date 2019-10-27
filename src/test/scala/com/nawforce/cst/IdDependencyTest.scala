@@ -79,8 +79,9 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
   test("Static func creates method dependency") {
     val tds = typeDeclarations(Map(
       "Dummy" -> "public class Dummy {static void func() {A.func();} }",
-      "A" -> "public class A {}"
+      "A" -> "public class A {public static void func() {}}"
     ))
+    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
     assert(tds.head.methods.head.dependencies() == tds.tail.toSet)

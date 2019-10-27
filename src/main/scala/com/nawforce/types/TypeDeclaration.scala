@@ -98,6 +98,8 @@ trait MethodDeclaration extends DependencyHolder {
   val typeName: TypeName
   val parameters: Seq[ParameterDeclaration]
 
+  lazy val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
+
   lazy val summary: MethodSummary = MethodSummary(
     name.toString, modifiers.map(_.toString).sorted.toList, typeName.toString,
     parameters.map(_.summary).sortBy(_.name).toList
@@ -171,6 +173,21 @@ trait TypeDeclaration extends DependencyHolder {
         fieldsByName.put(f.name, f)
     }))
     fieldsByName
+  }
+
+  def findMethod(name: Name, paramCount: Int, staticOnly: Boolean): Option[MethodDeclaration] = {
+    methodsByNameAndParamCount.get((name, paramCount))
+      .filter(m => !staticOnly || m.isStatic)
+  }
+
+  private lazy val methodsByNameAndParamCount: mutable.Map[(Name, Int), MethodDeclaration] = {
+    val outerType = outerTypeName.flatMap(typeName => TypeRequest(typeName, this).toOption)
+    val methodsByName = mutable.Map(methods.map(m => ((m.name, m.parameters.size), m)) : _*)
+    outerType.foreach(td => td.methods.filter(_.isStatic).foreach(m => {
+      if (!methodsByName.contains((m.name, m.parameters.size)))
+        methodsByName.put((m.name, m.parameters.size), m)
+    }))
+    methodsByName
   }
 
   def findLocalType(typeName: TypeName): Option[TypeDeclaration] = {

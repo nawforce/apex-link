@@ -183,7 +183,7 @@ class PlatformConstructor(ctor: java.lang.reflect.Constructor[_], typeDeclaratio
 class PlatformMethod(val method: java.lang.reflect.Method, val typeDeclaration: PlatformTypeDeclaration)
   extends MethodDeclaration {
   lazy val name: Name = Name(decodeName(method.getName))
-  lazy val typeName: TypeName = PlatformTypeDeclaration.typeNameFromClass(method.getReturnType, method.getDeclaringClass)
+  lazy val typeName: TypeName = PlatformTypeDeclaration.typeNameFromType(method.getGenericReturnType, method.getDeclaringClass)
   lazy val modifiers: Seq[Modifier] = PlatformModifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
   lazy val parameters: Seq[ParameterDeclaration] = getParameters
 
