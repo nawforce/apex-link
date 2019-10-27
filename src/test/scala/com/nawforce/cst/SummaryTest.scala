@@ -157,7 +157,7 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
         "", Nil,
         Nil,
         List(
-          ConstructorSummary(Nil, Nil),
+          ConstructorSummary(List("private"), Nil),
           ConstructorSummary(List("public"), List(ParameterSummary("a", "String")))
         ), Nil,
         Nil)
@@ -171,7 +171,7 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
         Nil,
         Nil,
         List(
-          MethodSummary("bar", Nil, "void", Nil),
+          MethodSummary("bar", List("private"), "void", Nil),
           MethodSummary("foo", List("public"), "String", List(ParameterSummary("a", "String")))
         ),
         Nil)
@@ -185,7 +185,7 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
         Nil,
         Nil,
         List(
-          MethodSummary("bar", Nil, "void", Nil),
+          MethodSummary("bar", List(), "void", Nil),
           MethodSummary("foo", List("public"), "String", List(ParameterSummary("a", "String")))
         ),
         Nil)

@@ -202,6 +202,17 @@ final case class SObjectTypeFields(sobjectName: Name, pkg: PackageDeclaration)
         ghostedSobjectFields.get(name)
       })
   }
+
+  override def findMethod(name: Name, paramCount: Int, staticOnly: Boolean): Option[MethodDeclaration] = {
+    methodMap.get((name, paramCount)).orElse(
+      super.findMethod(name, paramCount, staticOnly)
+    )
+  }
+
+  lazy val methodMap: Map[(Name, Int), MethodDeclaration] =
+    Seq(
+      CustomMethodDeclaration(Name("getMap"), TypeName.mapOf(TypeName.String, TypeName.SObjectField), Seq()),
+    ).map(m => ((m.name, m.parameters.size),m)).toMap
 }
 
 final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageDeclaration)

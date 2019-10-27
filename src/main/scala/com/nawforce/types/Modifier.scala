@@ -33,6 +33,7 @@ import com.nawforce.api.Org
 import com.nawforce.cst.ConstructContext
 import com.nawforce.documents.RangeLocation
 import com.nawforce.parsers.ApexParser.{AnnotationContext, IdContext, ModifierContext, PropertyBlockContext}
+import org.antlr.v4.runtime.ParserRuleContext
 
 sealed abstract class Modifier(val name: String, val order: Integer=0) {
   override def toString: String = name
@@ -294,6 +295,82 @@ object ApexModifiers {
     }
   }
 
+  def constructorModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext, parserContext: ParserRuleContext)
+  : Seq[Modifier] = {
+
+    val mods = modifierContexts.flatMap(modifierContext =>
+      if (modifierContext.annotation() != null) {
+        constructorAnnotation(modifierContext.annotation())
+      } else {
+        modifierContext.getText.toLowerCase match {
+          case "global" => Some(GLOBAL_MODIFIER)
+          case "public" => Some(PUBLIC_MODIFIER)
+          case "protected" => Some(PROTECTED_MODIFIER)
+          case "private" => Some(PRIVATE_MODIFIER)
+          case _ =>
+            Org.logMessage(RangeLocation(modifierContext),
+              s"Modifier '${modifierContext.getText}' is not supported on constructors")
+            None
+        }
+      }
+    )
+
+    val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
+    if (duplicates.nonEmpty) {
+      Org.logMessage(RangeLocation(parserContext), s"Modifier '${duplicates.head.toString}' is used more than once")
+      mods.toSet.toSeq
+    } else if (mods.intersect(allVisibilityModifiers).size > 1) {
+      Org.logMessage(RangeLocation(parserContext),
+        s"Only one visibility modifier from 'webservice', 'global', 'public', 'protected' & 'private' may be used on methods")
+      PUBLIC_MODIFIER +: mods.diff(allVisibilityModifiers)
+    } else if (mods.intersect(allVisibilityModifiers).isEmpty) {
+      PRIVATE_MODIFIER +: mods
+    } else {
+      mods
+    }
+  }
+
+  def methodModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext, idContext: IdContext)
+  : Seq[Modifier] = {
+
+    val mods = modifierContexts.flatMap(modifierContext =>
+      if (modifierContext.annotation() != null) {
+        methodAnnotation(modifierContext.annotation())
+      } else {
+        modifierContext.getText.toLowerCase match {
+          case "abstract" => Some(ABSTRACT_MODIFIER)
+          case "global" => Some(GLOBAL_MODIFIER)
+          case "override" => Some(OVERRIDE_MODIFIER)
+          case "public" => Some(PUBLIC_MODIFIER)
+          case "protected" => Some(PROTECTED_MODIFIER)
+          case "private" => Some(PRIVATE_MODIFIER)
+          case "static" => Some(STATIC_MODIFIER)
+          case "testmethod" => Some(TEST_CLASS_MODIFIER)
+          case "webservice" => Some(WEBSERVICE_MODIFIER)
+          case "virtual" => Some(VIRTUAL_MODIFIER)
+          case _ =>
+            Org.logMessage(RangeLocation(modifierContext),
+              s"Modifier '${modifierContext.getText}' is not supported on methods")
+            None
+        }
+      }
+    )
+
+    val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
+    if (duplicates.nonEmpty) {
+      Org.logMessage(RangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
+      mods.toSet.toSeq
+    } else if (mods.intersect(allVisibilityModifiers).size > 1) {
+      Org.logMessage(RangeLocation(idContext),
+        s"Only one visibility modifier from 'webservice', 'global', 'public', 'protected' & 'private' may be used on methods")
+      PUBLIC_MODIFIER +: mods.diff(allVisibilityModifiers)
+    } else if (mods.intersect(allVisibilityModifiers).isEmpty) {
+      PRIVATE_MODIFIER +: mods
+    } else {
+      mods
+    }
+  }
+
   private def classAnnotation(context: AnnotationContext): Option[Modifier] = {
     context.qualifiedName().getText.toLowerCase match {
       case "deprecated" => Some(DEPRECATED_ANNOTATION)
@@ -333,6 +410,46 @@ object ApexModifiers {
       case _ =>
         Org.logMessage(RangeLocation(context),
           s"Unexpected annotation '${context.qualifiedName().getText}' on field/property declaration")
+        None
+    }
+  }
+
+  private def constructorAnnotation(context: AnnotationContext): Option[Modifier] = {
+    // TODO: Validate arguments of the annotations
+    context.qualifiedName().getText.toLowerCase match {
+      case "deprecated" => Some(DEPRECATED_ANNOTATION)
+      case "testvisible" => Some(TEST_VISIBLE_ANNOTATION)
+      case "namespaceaccessible" => Some(NAMESPACE_ACCESSIBLE_ANNOTATION)
+      case "suppresswarnings" => Some(SUPPRESS_WARNINGS_ANNOTATION)
+      case _ =>
+        Org.logMessage(RangeLocation(context),
+          s"Unexpected annotation '${context.qualifiedName().getText}' on method declaration")
+        None
+    }
+  }
+
+  private def methodAnnotation(context: AnnotationContext): Option[Modifier] = {
+    // TODO: Validate arguments of the annotations
+    context.qualifiedName().getText.toLowerCase match {
+      case "auraenabled" => Some(AURA_ENABLED_ANNOTATION)
+      case "deprecated" => Some(DEPRECATED_ANNOTATION)
+      case "future" => Some(FUTURE_ANNOTATION)
+      case "invocablemethod" => Some(INVOCABLE_VARIABLE_ANNOTATION)
+      case "istest" => Some(ISTEST_ANNOTATION)
+      case "testvisible" => Some(TEST_VISIBLE_ANNOTATION)
+      case "namespaceaccessible" => Some(NAMESPACE_ACCESSIBLE_ANNOTATION)
+      case "readonly" => Some(READ_ONLY_ANNOTATION)
+      case "suppresswarnings" => Some(SUPPRESS_WARNINGS_ANNOTATION)
+      case "testsetup" => Some(TEST_SETUP_ANNOTATION)
+      case "httpdelete" => Some(HTTP_DELETE_ANNOTATION)
+      case "httpget" => Some(HTTP_GET_ANNOTATION)
+      case "httppath" => Some(HTTP_PATCH_ANNOTATION)
+      case "httppost" => Some(HTTP_POST_ANNOTATION)
+      case "httpput" => Some(HTTP_PUT_ANNOTATION)
+      case "remoteaction" => Some(REMOTE_ACTION_ANNOTATION)
+      case _ =>
+        Org.logMessage(RangeLocation(context),
+          s"Unexpected annotation '${context.qualifiedName().getText}' on method declaration")
         None
     }
   }

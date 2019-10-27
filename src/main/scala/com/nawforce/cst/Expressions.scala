@@ -28,6 +28,7 @@
 package com.nawforce.cst
 
 import com.nawforce.api.Org
+import com.nawforce.documents.Location
 import com.nawforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types._
@@ -77,7 +78,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
       if (target.isLeft)
         verifyWithId(inter, context)
       else
-        verifyWithMethod(inter, context)
+        verifyWithMethod(inter, input, context)
     } else {
       ExprContext.empty
     }
@@ -121,11 +122,11 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
     }
   }
 
-  def verifyWithMethod(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+  def verifyWithMethod(callee: ExprContext, input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
 
     val method = target.right.get
-    method.verify(input, context)
+    method.verify(location, callee, input, context)
   }
 
   private def findField(name: Name, td: TypeDeclaration, pkg: PackageDeclaration, staticOnly: Boolean) : Option[FieldDeclaration] = {
@@ -171,13 +172,42 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
   }
 }
 
-final case class MethodCall(callee: Either[Boolean, Id], arguments: List[Expression]) extends Expression {
+final case class MethodCall(target: Either[Boolean, Id], arguments: List[Expression]) extends Expression {
   override def children(): List[CST] = arguments
 
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    arguments.foreach(_.verify(input, context))
-    // TODO
-    ExprContext.empty
+    verify(location, input, input, context)
+  }
+
+  def verify(location: Location, callee: ExprContext, input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    val args = arguments.map(_.verify(input, context))
+    if (args.exists(!_.isDefined))
+      return ExprContext.empty
+
+    target match {
+      case Right(id) =>
+        val methods = callee.typeDeclaration.findMethod(id.name, arguments.size, callee.isStatic)
+        if (methods.isEmpty) {
+          context.logMessage(location,
+            s"No matching method found for '${id.name}' on '${callee.typeDeclaration.typeName}'")
+          ExprContext.empty
+        } else if (methods.head.typeName != TypeName.Void) {
+          val td = context.getTypeAndAddDependency(methods.head.typeName, context.thisType)
+          td match {
+            case Left(error) =>
+              context.logMessage(location, error.toString)
+              ExprContext.empty
+            case Right(td) =>
+              ExprContext(isStatic = false, Some(td))
+          }
+        } else {
+          // TODO: How to error if attempt to use return
+          ExprContext.empty
+        }
+      case Left(_) =>
+        // TODO:
+        ExprContext.empty
+    }
   }
 }
 

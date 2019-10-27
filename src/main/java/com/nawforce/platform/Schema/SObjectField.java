@@ -27,7 +27,11 @@
 */
 package com.nawforce.platform.Schema;
 
+import com.nawforce.platform.System.String;
+
 @SuppressWarnings("unused")
 public class SObjectField {
+	public String Name;
+
 	public DescribeFieldResult getDescribe() {throw new java.lang.UnsupportedOperationException();}
 }

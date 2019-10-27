@@ -36,7 +36,6 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class QueueSobject extends SObject {
-	public static SObjectType$<QueueSobject> SObjectType;
 	public static SObjectTypeFields$<QueueSobject> Fields;
 	public static SObjectTypeFieldSets$<QueueSobject> FieldSets;
 	public Id QueueId;

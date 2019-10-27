@@ -51,6 +51,35 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
       pkg.schema().relatedLists.findField(typeName, name, staticOnly)
     })
   }
+
+  override def findMethod(name: Name, paramCount: Int, staticOnly: Boolean): Option[MethodDeclaration] = {
+    val customMethods = sobjectNature match {
+      case HierarchyCustomSettingsNature => hierarchyCustomSettingsMethods
+      case ListCustomSettingNature => listCustomSettingsMethods
+      case _ => methodMap
+    }
+    customMethods.get((name, paramCount)).orElse(
+      super.findMethod(name, paramCount, staticOnly)
+    )
+  }
+
+  private lazy val methodMap: Map[(Name, Int), MethodDeclaration] =
+    PlatformTypes.sObjectType.methods.map(m => ((m.name, m.parameters.size),m)).toMap
+
+  private lazy val hierarchyCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
+    Seq(
+      CustomMethodDeclaration(Name("getInstance"), typeName, Seq()),
+      CustomMethodDeclaration(Name("getInstance"), typeName, Seq(CustomParameterDeclaration(Name("Id"), TypeName.Id))),
+      CustomMethodDeclaration(Name("getOrgDefaults"), typeName, Seq()),
+      CustomMethodDeclaration(Name("getValues"), typeName, Seq(CustomParameterDeclaration(Name("Id"), TypeName.Id))),
+    ).map(m => ((m.name, m.parameters.size),m)).toMap
+
+  private lazy val listCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
+    Seq(
+      CustomMethodDeclaration(Name("getAll"), TypeName.mapOf(TypeName.String, typeName), Seq()),
+      CustomMethodDeclaration(Name("getInstance"), typeName, Seq(CustomParameterDeclaration(Name("Name"), TypeName.String))),
+      CustomMethodDeclaration(Name("getValues"), typeName, Seq(CustomParameterDeclaration(Name("Name"), TypeName.String))),
+    ).map(m => ((m.name, m.parameters.size),m)).toMap
 }
 
 object SObjectDeclaration {

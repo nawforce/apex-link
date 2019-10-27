@@ -58,17 +58,21 @@ object ClassBodyDeclaration {
   def construct(pkg: PackageDeclaration, outerTypeName: TypeName, modifiers: List[ModifierContext],
                 memberDeclarationContext: MemberDeclarationContext, context: ConstructContext)
   : Seq[ClassBodyDeclaration] = {
-    val m = ApexModifiers.construct(modifiers, context)
     val declarations =
       if (memberDeclarationContext.methodDeclaration() != null) {
-        Seq(ApexMethodDeclaration.construct(m, memberDeclarationContext.methodDeclaration(), context))
+        val id = memberDeclarationContext.methodDeclaration().id()
+        Seq(ApexMethodDeclaration.construct(
+          ApexModifiers.methodModifiers(modifiers, context, id),
+          memberDeclarationContext.methodDeclaration(), context))
       } else if (memberDeclarationContext.fieldDeclaration() != null) {
         val id = memberDeclarationContext.fieldDeclaration().variableDeclarators().variableDeclarator().get(0).id()
         ApexFieldDeclaration.construct(
           ApexModifiers.fieldModifiers(modifiers, context, id),
           memberDeclarationContext.fieldDeclaration(), context)
       } else if (memberDeclarationContext.constructorDeclaration() != null) {
-        Seq(ApexConstructorDeclaration.construct(m, memberDeclarationContext.constructorDeclaration(), context))
+        Seq(ApexConstructorDeclaration.construct(
+          ApexModifiers.constructorModifiers(modifiers, context, memberDeclarationContext.constructorDeclaration),
+          memberDeclarationContext.constructorDeclaration(), context))
       } else if (memberDeclarationContext.interfaceDeclaration() != null) {
         Seq(InterfaceDeclaration.construct(pkg, Some(outerTypeName),
           ApexModifiers.interfaceModifiers(modifiers, context, outer = false, memberDeclarationContext.interfaceDeclaration().id()),
