@@ -31,8 +31,6 @@ import com.nawforce.parsers.ApexParser.LiteralContext
 import com.nawforce.types.{PlatformTypes, TypeDeclaration}
 
 sealed abstract class Literal() extends CST {
-  override def children(): List[CST] = Nil
-
   def getType: TypeDeclaration
 }
 

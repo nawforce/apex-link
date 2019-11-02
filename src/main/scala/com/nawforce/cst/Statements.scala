@@ -77,15 +77,10 @@ final case class LazyBlock(path: Path, bytes: Array[Byte], lineAdjust: Int, posi
     }
     statements.get
   }
-
-  override def children(): List[CST] = statements()
 }
 
 final case class Block(statements: List[Statement])
   extends CST with Statement {
-
-  override def children(): List[CST] = statements
-
   override def verify(context: BlockVerifyContext): Unit = {
     val blockContext = new InnerBlockVerifyContext(context)
     statements.foreach(s => s.verify(blockContext))
@@ -113,23 +108,22 @@ object Block {
   }
 }
 
-final case class LocalVariableDeclarationStatement(localVariableDeclaration: LocalVariableDeclaration) extends Statement {
-  override def children(): List[CST] = localVariableDeclaration :: Nil
-
+final case class LocalVariableDeclarationStatement(localVariableDeclaration: LocalVariableDeclaration)
+  extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
     localVariableDeclaration.verify(context)
   }
 }
 
 object LocalVariableDeclarationStatement {
-  def construct(from: LocalVariableDeclarationStatementContext, context: ConstructContext): LocalVariableDeclarationStatement = {
-    LocalVariableDeclarationStatement(LocalVariableDeclaration.construct(from.localVariableDeclaration(), context)).withContext(from, context)
+  def construct(from: LocalVariableDeclarationStatementContext,
+                context: ConstructContext): LocalVariableDeclarationStatement = {
+    LocalVariableDeclarationStatement(
+      LocalVariableDeclaration.construct(from.localVariableDeclaration(), context)).withContext(from, context)
   }
 }
 
 final case class IfStatement(expression: Expression, statements: List[Statement]) extends Statement {
-  override def children(): List[CST] = expression :: statements
-
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
 
@@ -153,8 +147,6 @@ object IfStatement {
 }
 
 final case class WhenControl(expressions: List[Expression], block: Block) extends CST {
-  override def children(): List[CST] = expressions ++ List(block)
-
   def verify(context: BlockVerifyContext): Unit = {
     // TYPING: This requires type knowledge when used with enum, disable for now
     // expressions.foreach(_.verify(context))
@@ -175,8 +167,6 @@ object WhenControl {
 }
 
 final case class SwitchStatement(expression: Expression, whenControls: List[WhenControl]) extends Statement {
-  override def children(): List[CST] = expression :: whenControls
-
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
     whenControls.foreach(_.verify(context))
@@ -193,10 +183,6 @@ object SwitchStatement {
 }
 
 final case class ForStatement(control: ForControl, statement: Statement) extends Statement {
-  override def children(): List[CST] = {
-    control :: statement :: Nil
-  }
-
   override def verify(context: BlockVerifyContext): Unit = {
     control.verify(context)
 
@@ -208,7 +194,8 @@ final case class ForStatement(control: ForControl, statement: Statement) extends
 
 object ForStatement {
   def construct(statement: ForStatementContext, context: ConstructContext): ForStatement = {
-    ForStatement(ForControl.construct(statement.forControl(), context), Statement.construct(statement.statement(), context)).withContext(statement, context)
+    ForStatement(ForControl.construct(statement.forControl(), context),
+      Statement.construct(statement.statement(), context)).withContext(statement, context)
   }
 }
 
@@ -231,8 +218,6 @@ object ForControl {
 
 final case class EnhancedForControl(modifiers: Seq[Modifier], typeName: TypeName,
                                     id: Id, expression: Expression) extends ForControl {
-  override def children(): List[CST] = id :: expression :: Nil
-
   override def verify(context: BlockVerifyContext): Unit = {
     val forType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
     if (forType.isEmpty)
@@ -256,9 +241,8 @@ object EnhancedForControl {
   }
 }
 
-final case class BasicForControl(forInit: Option[ForInit], expression: Option[Expression], forUpdate: Option[ForUpdate]) extends ForControl {
-  override def children(): List[CST] = List[CST]() ++ forInit ++ expression ++ forUpdate
-
+final case class BasicForControl(forInit: Option[ForInit], expression: Option[Expression],
+                                 forUpdate: Option[ForUpdate]) extends ForControl {
   override def verify(context: BlockVerifyContext): Unit = {
     forInit.foreach(_.verify(context))
     expression.foreach(_.verify(context))
@@ -300,8 +284,6 @@ sealed abstract class ForInit extends CST {
 }
 
 final case class LocalVariableForInit(variable: LocalVariableDeclaration) extends ForInit {
-  override def children(): List[CST] = variable :: Nil
-
   override def verify(context: BlockVerifyContext): Unit = {
     variable.verify(context)
   }
@@ -312,8 +294,6 @@ final case class LocalVariableForInit(variable: LocalVariableDeclaration) extend
 }
 
 final case class ExpressionListForInit(expressions: List[Expression]) extends ForInit {
-  override def children(): List[CST] = expressions
-
   override def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
   }
@@ -338,8 +318,6 @@ object ForInit {
 }
 
 final case class ForUpdate(expressions: List[Expression]) extends CST {
-  override def children(): List[CST] = expressions
-
   def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
   }
@@ -353,10 +331,6 @@ object ForUpdate {
 }
 
 final case class WhileStatement(expression: Expression, statement: Statement) extends Statement {
-  override def children(): List[CST] = {
-    expression :: statement :: Nil
-  }
-
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
     statement.verify(context)
@@ -371,10 +345,6 @@ object WhileStatement {
 }
 
 final case class DoWhileStatement(statement: Statement, expression: Expression) extends Statement {
-  override def children(): List[CST] = {
-    expression :: statement :: Nil
-  }
-
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
     statement.verify(context)
@@ -390,8 +360,6 @@ object DoWhileStatement {
 }
 
 final case class TryStatement(block: Block, catches: List[CatchClause], finallyBlock: Option[Block]) extends Statement {
-  override def children(): List[CST] = List(block) ++ catches ++ finallyBlock
-
   override def verify(context: BlockVerifyContext): Unit = {
     block.verify(context)
     catches.foreach(_.verify(context))
@@ -418,8 +386,6 @@ object FinallyBlock {
 }
 
 final case class CatchClause(modifiers: Seq[Modifier], qname: QualifiedName, id: String, block: Block) extends CST {
-  override def children(): List[CST] = qname :: List(block)
-
   def verify(context: BlockVerifyContext): Unit = {
     val blockContext = new InnerBlockVerifyContext(context)
     blockContext.addVar(Name(id), qname.location, qname.asTypeName())
@@ -446,8 +412,6 @@ object CatchClause {
 }
 
 final case class ReturnStatement(expression: Option[Expression]) extends Statement {
-  override def children(): List[CST] = List() ++ expression
-
   override def verify(context: BlockVerifyContext): Unit = {
     expression.foreach(_.verify(context))
   }
@@ -466,8 +430,6 @@ object ReturnStatement {
 }
 
 final case class ThrowStatement(expression: Expression) extends Statement {
-  override def children(): List[CST] = Nil
-
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
   }
@@ -480,8 +442,6 @@ object ThrowStatement {
 }
 
 final case class BreakStatement() extends Statement {
-  override def children(): List[CST] = Nil
-
   override def verify(context: BlockVerifyContext): Unit = {}
 }
 
@@ -492,8 +452,6 @@ object BreakStatement {
 }
 
 final case class ContinueStatement() extends Statement {
-  override def children(): List[CST] = Nil
-
   override def verify(context: BlockVerifyContext): Unit = {}
 }
 
@@ -504,8 +462,6 @@ object ContinueStatement {
 }
 
 final case class InsertStatement(expression: Expression) extends Statement {
-  override def children(): List[CST] = expression :: Nil
-
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
   }
@@ -518,8 +474,6 @@ object InsertStatement {
 }
 
 final case class UpdateStatement(expression: Expression) extends Statement {
-  override def children(): List[CST] = expression :: Nil
-
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
   }
@@ -532,8 +486,6 @@ object UpdateStatement {
 }
 
 final case class DeleteStatement(expression: Expression) extends Statement {
-  override def children(): List[CST] = expression :: Nil
-
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
   }
@@ -546,8 +498,6 @@ object DeleteStatement {
 }
 
 final case class UndeleteStatement(expression: Expression) extends Statement {
-  override def children(): List[CST] = expression :: Nil
-
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
   }
@@ -560,8 +510,6 @@ object UndeleteStatement {
 }
 
 final case class UpsertStatement(expression: Expression, field: Option[QualifiedName]) extends Statement {
-  override def children(): List[CST] = expression :: Nil
-
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
     // Future: Verify Field
@@ -581,8 +529,6 @@ object UpsertStatement {
 }
 
 final case class MergeStatement(expression1: Expression, expression2: Expression) extends Statement {
-  override def children(): List[CST] = expression1 :: expression2 :: Nil
-
   override def verify(context: BlockVerifyContext): Unit = {
     expression1.verify(context)
     expression2.verify(context)
@@ -591,13 +537,12 @@ final case class MergeStatement(expression1: Expression, expression2: Expression
 
 object MergeStatement {
   def construct(statement: MergeStatementContext, context: ConstructContext): MergeStatement = {
-    MergeStatement(Expression.construct(statement.expression(0), context), Expression.construct(statement.expression(1), context)).withContext(statement, context)
+    MergeStatement(Expression.construct(statement.expression(0), context),
+      Expression.construct(statement.expression(1), context)).withContext(statement, context)
   }
 }
 
 final case class RunAsStatement(expressions: List[Expression], block: Option[Block]) extends Statement {
-  override def children(): List[CST] = expressions ++ block
-
   override def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
     block.foreach(_.verify(context))
@@ -619,8 +564,6 @@ object RunAsStatement {
 }
 
 final case class ExpressionStatement(var expression: Expression) extends Statement {
-  override def children(): List[CST] = expression :: Nil
-
   override def verify(context: BlockVerifyContext): Unit = {
     // Future: What causes 'expression can not be a statement' error
     expression.verify(context)

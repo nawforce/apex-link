@@ -34,8 +34,6 @@ import com.nawforce.types.{ApexModifiers, Modifier}
 import scala.collection.JavaConverters._
 
 final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Expression]) extends CST {
-  override def children(): List[CST] = List[CST](id) ++ init
-
   def verify(input: ExprContext, context: BlockVerifyContext): Unit = {
     id.validate()
 
@@ -61,8 +59,6 @@ object VariableDeclarator {
 }
 
 final case class VariableDeclarators(declarators: List[VariableDeclarator]) extends CST {
-  override def children(): List[CST] = declarators
-
   def verify(input: ExprContext, context: BlockVerifyContext): Unit = {
     declarators.foreach(_.verify(input, context))
   }
@@ -82,9 +78,6 @@ object VariableDeclarators {
 
 final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeName: TypeName, variableDeclarators: VariableDeclarators)
   extends CST {
-
-  override def children(): List[CST] = variableDeclarators :: Nil
-
   def verify(context: BlockVerifyContext): Unit = {
     variableDeclarators.verify(ExprContext(isStatic = context.isStatic, context.thisType), context)
   }

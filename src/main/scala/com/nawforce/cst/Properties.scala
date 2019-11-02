@@ -54,7 +54,6 @@ final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: Ty
     getter.flatMap(_.modifiers.headOption).getOrElse(visibility.getOrElse(PRIVATE_MODIFIER))
   override val writeAccess: Modifier =
     setter.flatMap(_.modifiers.headOption).getOrElse(visibility.getOrElse(PRIVATE_MODIFIER))
-  override def children(): List[CST] = List(id) ++ propertyBlocks.toList
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     val propType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
@@ -99,14 +98,12 @@ sealed abstract class PropertyBlock extends CST {
 }
 
 final case class GetterPropertyBlock(modifiers: Seq[Modifier], block: Option[Block]) extends PropertyBlock {
-  override def children(): List[CST] = List() ++ block
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     block.foreach(_.verify(new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))))
   }
 }
 
 final case class SetterPropertyBlock(modifiers: Seq[Modifier], typeName: TypeName, block: Option[Block]) extends PropertyBlock {
-  override def children(): List[CST] = List() ++ block
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     val bc = new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))
     bc.addVar(Name("value"), location, typeName)
