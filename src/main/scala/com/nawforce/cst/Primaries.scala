@@ -37,16 +37,12 @@ sealed abstract class Primary extends CST {
 }
 
 final case class ExpressionPrimary(expression: Expression) extends Primary {
-  override def children(): List[CST] = expression :: Nil
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     expression.verify(input, context)
   }
 }
 
 final case class ThisPrimary() extends Primary {
-  override def children(): List[CST] = Nil
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
     if (!input.isStatic)
@@ -58,8 +54,6 @@ final case class ThisPrimary() extends Primary {
 }
 
 final case class SuperPrimary() extends Primary {
-  override def children(): List[CST] = Nil
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
     if (!input.isStatic)
@@ -71,8 +65,6 @@ final case class SuperPrimary() extends Primary {
 }
 
 final case class LiteralPrimary(literal: Literal) extends Primary {
-  override def children(): List[CST] = literal :: Nil
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
     ExprContext(isStatic = false, Some(literal.getType))
@@ -80,8 +72,6 @@ final case class LiteralPrimary(literal: Literal) extends Primary {
 }
 
 final case class TypeRefPrimary(typeName: TypeName) extends Primary {
-  override def children(): List[CST] = Nil
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
     val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
@@ -92,8 +82,6 @@ final case class TypeRefPrimary(typeName: TypeName) extends Primary {
 }
 
 final case class IdPrimary(id: Id) extends Primary {
-  override def children(): List[CST] = id :: Nil
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
 
@@ -142,8 +130,6 @@ final case class IdPrimary(id: Id) extends Primary {
 }
 
 final case class SOQL(soql: String) extends Primary {
-  override def children(): List[CST] = Nil
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
 

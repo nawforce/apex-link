@@ -43,6 +43,7 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
   def typeDeclarationSummary(clsText: String, hasMessages: Boolean = false): TypeSummary = {
     Org.current.withValue(defaultOrg) {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
+      td.headOption.foreach(defaultOrg.getUnmanagedPackage.upsertType)
       if (td.isEmpty || defaultOrg.issues.hasMessages != hasMessages)
         defaultOrg.issues.dumpMessages(json = false)
       assert(defaultOrg.issues.hasMessages == hasMessages)
@@ -158,7 +159,7 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
         Nil,
         List(
           ConstructorSummary(List("private"), Nil),
-          ConstructorSummary(List("public"), List(ParameterSummary("a", "String")))
+          ConstructorSummary(List("public"), List(ParameterSummary("a", "System.String")))
         ), Nil,
         Nil)
     )
@@ -172,7 +173,7 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
         Nil,
         List(
           MethodSummary("bar", List("private"), "void", Nil),
-          MethodSummary("foo", List("public"), "String", List(ParameterSummary("a", "String")))
+          MethodSummary("foo", List("public"), "System.String", List(ParameterSummary("a", "System.String")))
         ),
         Nil)
     )
@@ -186,7 +187,7 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
         Nil,
         List(
           MethodSummary("bar", List(), "void", Nil),
-          MethodSummary("foo", List("public"), "String", List(ParameterSummary("a", "String")))
+          MethodSummary("foo", List("public"), "System.String", List(ParameterSummary("a", "System.String")))
         ),
         Nil)
     )

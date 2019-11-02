@@ -49,8 +49,6 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
                                    val bodyDeclarations: Seq[ClassBodyDeclaration])
   extends ClassBodyDeclaration(_modifiers) with TypeDeclaration {
 
-  override def children(): List[CST] = bodyDeclarations.toList
-
   override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
   override val name: Name = id.name
   override val typeName: TypeName = {

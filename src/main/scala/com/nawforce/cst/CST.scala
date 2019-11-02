@@ -34,7 +34,7 @@ import com.nawforce.documents.{Location, Position, RangeLocation}
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.parsers.CaseInsensitiveInputStream
-import org.antlr.v4.runtime.{ParserRuleContext, Token}
+import org.antlr.v4.runtime.ParserRuleContext
 
 import scala.collection.JavaConverters._
 import scala.util.DynamicVariable
@@ -43,16 +43,18 @@ class CSTException extends Exception
 
 abstract class CST {
   private var path: Path = _
-  private var start: Token = _
-  private var stop: Token = _
+  private var startLine: Int = _
+  private var startPosition: Int = _
+  private var stopLine: Int = _
+  private var stopPosition: Int = _
   private var positionAdjust: (Int, Int) = _
 
   lazy val location: Location = {
     RangeLocation(
       path,
-      Position(start.getLine, start.getCharPositionInLine)
+      Position(startLine, startPosition)
         .adjust(positionAdjust._1, positionAdjust._2),
-      Position(stop.getLine, stop.getCharPositionInLine + stop.getText.length)
+      Position(stopLine, stopPosition)
         .adjust(positionAdjust._1, positionAdjust._2)
     )
   }
@@ -60,14 +62,14 @@ abstract class CST {
   def getPath: Path = path
 
   def withContext(context: ParserRuleContext, constructContext: ConstructContext): this.type = {
-    start = context.getStart
-    stop = context.getStop
-    path = start.getInputStream.asInstanceOf[CaseInsensitiveInputStream].path
+    startLine = context.getStart.getLine
+    startPosition = context.getStart.getCharPositionInLine
+    stopLine = context.getStop.getLine
+    stopPosition = context.getStop.getCharPositionInLine + context.getStop.getText.length
+    path = context.getStart.getInputStream.asInstanceOf[CaseInsensitiveInputStream].path
     positionAdjust = CST.rangeAdjust.value
     this
   }
-
-  def children(): List[CST]
 }
 
 object CST {
@@ -75,8 +77,6 @@ object CST {
 }
 
 final case class Id(name: Name) extends CST {
-  override def children(): List[CST] = List()
-
   def validate(): Unit = {
     if (!name.isLegalIdentifier)
       Org.logMessage(location, s"This identifier is not legal in Apex, '$name'")
@@ -92,8 +92,6 @@ object Id {
 }
 
 final case class QualifiedName(names: List[Name]) extends CST {
-  override def children(): List[CST] = Nil
-
   def asTypeName(): TypeName = TypeName(names.reverse)
 }
 
@@ -108,9 +106,7 @@ object QualifiedName {
   }
 }
 
-final case class Annotation(name: QualifiedName, elementValuePairs: List[ElementValuePair], elementValue: Option[ElementValue]) extends CST {
-  override def children(): List[CST] = List[CST]() ++ elementValuePairs ++ elementValue
-}
+final case class Annotation(name: QualifiedName, elementValuePairs: List[ElementValuePair], elementValue: Option[ElementValue]) extends CST
 
 object Annotation {
   def construct(annotation: AnnotationContext, context: ConstructContext): Annotation = {
@@ -128,17 +124,11 @@ object Annotation {
 
 sealed abstract class ElementValue() extends CST
 
-final case class ExpressionElementValue(expression: Expression) extends ElementValue {
-  override def children(): List[CST] = expression :: Nil
-}
+final case class ExpressionElementValue(expression: Expression) extends ElementValue
 
-final case class AnnotationElementValue(annotation: Annotation) extends ElementValue {
-  override def children(): List[CST] = annotation :: Nil
-}
+final case class AnnotationElementValue(annotation: Annotation) extends ElementValue
 
-final case class ArrayInitializerElementValue(arrayInitializer: ElementValueArrayInitializer) extends ElementValue {
-  override def children(): List[CST] = arrayInitializer :: Nil
-}
+final case class ArrayInitializerElementValue(arrayInitializer: ElementValueArrayInitializer) extends ElementValue
 
 object ElementValue {
   def construct(aList: List[ElementValueContext], context: ConstructContext): List[ElementValue] = {
@@ -159,9 +149,7 @@ object ElementValue {
   }
 }
 
-final case class ElementValueArrayInitializer(elementValues: List[ElementValue]) extends CST {
-  override def children(): List[CST] = elementValues
-}
+final case class ElementValueArrayInitializer(elementValues: List[ElementValue]) extends CST
 
 object ElementValueArrayInitializer {
   def construct(from: ElementValueArrayInitializerContext, context: ConstructContext): ElementValueArrayInitializer = {
@@ -170,9 +158,7 @@ object ElementValueArrayInitializer {
   }
 }
 
-final case class ElementValuePair(id: String, elementValue: ElementValue) extends CST {
-  override def children(): List[CST] = elementValue :: Nil
-}
+final case class ElementValuePair(id: String, elementValue: ElementValue) extends CST
 
 object ElementValuePair {
   def construct(aList: List[ElementValuePairContext], context: ConstructContext): List[ElementValuePair] = {

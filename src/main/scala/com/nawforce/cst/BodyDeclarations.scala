@@ -27,6 +27,7 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.finding.RelativeTypeName
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types._
@@ -61,7 +62,7 @@ object ClassBodyDeclaration {
     val declarations =
       if (memberDeclarationContext.methodDeclaration() != null) {
         val id = memberDeclarationContext.methodDeclaration().id()
-        Seq(ApexMethodDeclaration.construct(
+        Seq(ApexMethodDeclaration.construct(pkg, outerTypeName,
           ApexModifiers.methodModifiers(modifiers, context, id),
           memberDeclarationContext.methodDeclaration(), context))
       } else if (memberDeclarationContext.fieldDeclaration() != null) {
@@ -70,7 +71,7 @@ object ClassBodyDeclaration {
           ApexModifiers.fieldModifiers(modifiers, context, id),
           memberDeclarationContext.fieldDeclaration(), context)
       } else if (memberDeclarationContext.constructorDeclaration() != null) {
-        Seq(ApexConstructorDeclaration.construct(
+        Seq(ApexConstructorDeclaration.construct(pkg, outerTypeName,
           ApexModifiers.constructorModifiers(modifiers, context, memberDeclarationContext.constructorDeclaration),
           memberDeclarationContext.constructorDeclaration(), context))
       } else if (memberDeclarationContext.interfaceDeclaration() != null) {
@@ -98,7 +99,6 @@ object ClassBodyDeclaration {
 
 final case class InitialiserBlock(_modifiers: Seq[Modifier], block: Block)
   extends ClassBodyDeclaration(_modifiers) with BlockDeclaration {
-  override def children(): List[CST] = block.children()
 
   override val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
 
@@ -116,20 +116,21 @@ object InitialiserBlock {
   }
 }
 
-final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: TypeName, id: Id,
+final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], relativeTypeName: RelativeTypeName, id: Id,
                                        parameters: List[FormalParameter], block: Option[LazyBlock])
   extends ClassBodyDeclaration(_modifiers) with MethodDeclaration {
 
-  override def children(): List[CST] = List() ++ parameters ++ block
-
   override val name: Name = id.name
 
+  override lazy val typeName: TypeName = relativeTypeName.typeName
+
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    if (typeName != TypeName.Void) {
-      val returnType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
-      if (returnType.isEmpty)
-        context.missingType(id.location, typeName)
+    relativeTypeName.typeRequest match {
+      case Some(Left(error)) => context.logMessage(id.location, error.toString)
+      case Some(Right(td)) => context.addDependency(td)
+      case _ => ()
     }
+
     parameters.foreach(_.verify(context))
 
     val blockContext = new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))
@@ -141,39 +142,40 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], typeName: Type
 }
 
 object ApexMethodDeclaration {
-  def construct(modifiers: Seq[Modifier], from: MethodDeclarationContext, context: ConstructContext): ApexMethodDeclaration = {
+  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, modifiers: Seq[Modifier],
+                from: MethodDeclarationContext, context: ConstructContext): ApexMethodDeclaration = {
     val typeName = Option(from.typeRef()).map(tr => TypeRef.construct(tr)).getOrElse(TypeName.Void)
     val block = Option(from.block).map(blk => Block.constructLazy(blk, context, modifiers.contains(STATIC_MODIFIER)))
 
-    ApexMethodDeclaration(modifiers,
-      typeName,
+    ApexMethodDeclaration(
+      modifiers, RelativeTypeName(pkg, outerTypeName, typeName),
       Id.construct(from.id(), context),
-      FormalParameters.construct(from.formalParameters(), context),
+      FormalParameters.construct(pkg, outerTypeName, from.formalParameters(), context),
       block
     ).withContext(from, context)
   }
 
-  def construct(modifiers: Seq[Modifier], from: InterfaceMethodDeclarationContext, context: ConstructContext): ApexMethodDeclaration = {
+  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, modifiers: Seq[Modifier],
+                from: InterfaceMethodDeclarationContext, context: ConstructContext): ApexMethodDeclaration = {
     val typeName = if (from.typeRef() != null) TypeRef.construct(from.typeRef()) else TypeName.Void
 
-    ApexMethodDeclaration(modifiers,
-      typeName,
+    ApexMethodDeclaration(
+      modifiers, RelativeTypeName(pkg, outerTypeName, typeName),
       Id.construct(from.id(), context),
-      FormalParameters.construct(from.formalParameters(), context),
+      FormalParameters.construct(pkg, outerTypeName, from.formalParameters(), context),
       None
     ).withContext(from, context)
   }
 }
 
-final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeName, variableDeclarator: VariableDeclarator)
+final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeName,
+                                      variableDeclarator: VariableDeclarator)
   extends ClassBodyDeclaration(_modifiers) with FieldDeclaration {
 
   override val name: Name = variableDeclarator.id.name
   private val visibility: Option[Modifier] = _modifiers.find(m => ApexModifiers.allVisibilityModifiers.contains(m))
   override val readAccess: Modifier = visibility.getOrElse(PRIVATE_MODIFIER)
   override val writeAccess: Modifier = readAccess
-
-  override def children(): List[CST] = variableDeclarator :: Nil
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     variableDeclarator.verify(ExprContext(isStatic, context.thisType),
@@ -199,8 +201,6 @@ final case class ApexConstructorDeclaration(_modifiers: Seq[Modifier], qualified
                                             block: Block)
   extends ClassBodyDeclaration(_modifiers) with ConstructorDeclaration {
 
-  override def children(): List[CST] = parameters ++ List(block)
-
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     parameters.foreach(_.verify(context))
 
@@ -213,44 +213,50 @@ final case class ApexConstructorDeclaration(_modifiers: Seq[Modifier], qualified
 }
 
 object ApexConstructorDeclaration {
-  def construct(modifiers: Seq[Modifier], from: ConstructorDeclarationContext, context: ConstructContext): ApexConstructorDeclaration = {
+  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, modifiers: Seq[Modifier],
+                from: ConstructorDeclarationContext, context: ConstructContext): ApexConstructorDeclaration = {
     ApexConstructorDeclaration(modifiers,
       QualifiedName.construct(from.qualifiedName(), context),
-      FormalParameters.construct(from.formalParameters(), context),
+      FormalParameters.construct(pkg, outerTypeName, from.formalParameters(), context),
       Block.construct(from.block(), context)
     ).withContext(from, context)
   }
 }
 
-final case class FormalParameter(modifiers: Seq[Modifier], typeName: TypeName, id: Id)
+final case class FormalParameter(pkg: PackageDeclaration, outerTypeName: TypeName, modifiers: Seq[Modifier],
+                                 relativeTypeName: RelativeTypeName, id: Id)
   extends CST with ParameterDeclaration {
 
-  override def children(): List[CST] = List(id)
+  override val name: Name = id.name
 
-  val name: Name = id.name
+  override lazy val typeName: TypeName = relativeTypeName.typeName
 
   def verify(context: BodyDeclarationVerifyContext): Unit = {
-    // Nothing needed, type will be validated when added to block context
+    // This is validated when made available to a Block
   }
 }
 
 object FormalParameter {
-  def construct(aList: List[FormalParameterContext], context: ConstructContext): List[FormalParameter] = {
-    aList.map(x => FormalParameter.construct(x, context))
+  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, aList: List[FormalParameterContext],
+                context: ConstructContext): List[FormalParameter] = {
+    aList.map(x => FormalParameter.construct(pkg, outerTypeName, x, context))
   }
 
-  def construct(from: FormalParameterContext, context: ConstructContext): FormalParameter = {
-    FormalParameter(
+  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, from: FormalParameterContext,
+                context: ConstructContext): FormalParameter = {
+    FormalParameter(pkg, outerTypeName,
       ApexModifiers.construct(from.modifier().asScala, context),
-      TypeRef.construct(from.typeRef()), Id.construct(from.id, context)).withContext(from, context)
+      RelativeTypeName(pkg, outerTypeName, TypeRef.construct(from.typeRef())),
+      Id.construct(from.id, context)).withContext(from, context)
   }
 }
 
 object FormalParameterList {
-  def construct(from: FormalParameterListContext, context: ConstructContext): List[FormalParameter] = {
+  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, from: FormalParameterListContext,
+                context: ConstructContext): List[FormalParameter] = {
     if (from.formalParameter() != null) {
       val m: Seq[FormalParameterContext] = from.formalParameter().asScala
-      FormalParameter.construct(m.toList, context)
+      FormalParameter.construct(pkg, outerTypeName, m.toList, context)
     } else {
       List()
     }
@@ -258,9 +264,10 @@ object FormalParameterList {
 }
 
 object FormalParameters {
-  def construct(from: FormalParametersContext, context: ConstructContext): List[FormalParameter] = {
+  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, from: FormalParametersContext,
+                context: ConstructContext): List[FormalParameter] = {
     if (from.formalParameterList() != null) {
-      FormalParameterList.construct(from.formalParameterList(), context)
+      FormalParameterList.construct(pkg, outerTypeName, from.formalParameterList(), context)
     } else {
       List()
     }

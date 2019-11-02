@@ -132,6 +132,9 @@ object InterfaceDeclaration {
   def construct(pkg: PackageDeclaration, outerTypeName: Option[TypeName], modifiers: Seq[Modifier],
                 interfaceDeclaration: ApexParser.InterfaceDeclarationContext, context: ConstructContext)
   : InterfaceDeclaration = {
+    val thisType = TypeName(Name(interfaceDeclaration.id().getText), Nil,
+      outerTypeName.orElse(pkg.namespace.map(TypeName(_))))
+
     val implementsType =
       if (interfaceDeclaration.typeList() != null)
         TypeList.construct(interfaceDeclaration.typeList())
@@ -140,7 +143,8 @@ object InterfaceDeclaration {
 
     val methods: Seq[ApexMethodDeclaration]
         = interfaceDeclaration.interfaceBody().interfaceMethodDeclaration().asScala.map(m =>
-            ApexMethodDeclaration.construct(ApexModifiers.construct(m.modifier().asScala, context), m, context)
+            ApexMethodDeclaration.construct(pkg, thisType,
+              ApexModifiers.construct(m.modifier().asScala, context), m, context)
     )
 
     InterfaceDeclaration(pkg, outerTypeName, Id.construct(interfaceDeclaration.id(), context), modifiers,

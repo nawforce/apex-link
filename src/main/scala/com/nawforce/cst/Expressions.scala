@@ -55,8 +55,6 @@ sealed abstract class Expression extends CST {
 }
 
 final case class DotExpression(expression: Expression, target: Either[Id, MethodCall]) extends Expression {
-  override def children(): List[CST] = expression :: target.right.toSeq.toList
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
     val td = input.declaration.get
@@ -139,8 +137,6 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
 }
 
 final case class ArrayExpression(expression: Expression, arrayExpression: Expression) extends Expression {
-  override def children(): List[CST] = expression :: arrayExpression :: Nil
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
 
     val index = arrayExpression.verify(ExprContext(isStatic = false, context.thisType), context)
@@ -173,8 +169,6 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
 }
 
 final case class MethodCall(target: Either[Boolean, Id], arguments: List[Expression]) extends Expression {
-  override def children(): List[CST] = arguments
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     verify(location, input, input, context)
   }
@@ -229,16 +223,12 @@ object MethodCall {
 }
 
 final case class NewExpression(creator: Creator) extends Expression {
-  override def children(): List[CST] = creator :: Nil
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     creator.verify(input, context)
   }
 }
 
 final case class CastExpression(typeName: TypeName, expression: Expression) extends Expression {
-  override def children(): List[CST] = expression :: Nil
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     val castType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
     if (castType.isEmpty)
@@ -249,8 +239,6 @@ final case class CastExpression(typeName: TypeName, expression: Expression) exte
 }
 
 final case class PostfixExpression(expression: Expression, op: String) extends Expression {
-  override def children(): List[CST] = expression :: Nil
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     val inter = expression.verify(input, context)
     if (!inter.isDefined)
@@ -267,8 +255,6 @@ final case class PostfixExpression(expression: Expression, op: String) extends E
 }
 
 final case class PrefixExpression(expression: Expression, op: String) extends Expression {
-  override def children(): List[CST] = expression :: Nil
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     val inter = expression.verify(input, context)
     if (!inter.isDefined)
@@ -286,8 +272,6 @@ final case class PrefixExpression(expression: Expression, op: String) extends Ex
 }
 
 final case class NegationExpression(expression: Expression, isBitwise: Boolean) extends Expression {
-  override def children(): List[CST] = expression :: Nil
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     val inter = expression.verify(input, context)
     if (!inter.isDefined)
@@ -306,8 +290,6 @@ final case class NegationExpression(expression: Expression, isBitwise: Boolean) 
 }
 
 final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) extends Expression {
-  override def children(): List[CST] = lhs :: rhs :: Nil
-
   private lazy val operation = op match {
     case "=" => AssignmentOperation
     case "&&" => LogicalOperation
@@ -366,8 +348,6 @@ final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) 
 }
 
 final case class InstanceOfExpression(expression: Expression, typeName: TypeName) extends Expression {
-  override def children(): List[CST] = expression :: Nil
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     val instanceOfType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
     if (instanceOfType.isEmpty)
@@ -378,8 +358,6 @@ final case class InstanceOfExpression(expression: Expression, typeName: TypeName
 }
 
 final case class QueryExpression(query: Expression, lhs: Expression, rhs: Expression) extends Expression {
-  override def children(): List[CST] = query :: lhs :: rhs :: Nil
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     query.verify(input, context)
     val leftInter = lhs.verify(input, context)
@@ -398,8 +376,6 @@ final case class QueryExpression(query: Expression, lhs: Expression, rhs: Expres
 }
 
 final case class PrimaryExpression(var primary: Primary) extends Expression {
-  override def children(): List[CST] = primary :: Nil
-
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     primary.verify(ExprContext(isStatic = false, context.thisType), context)
   }
@@ -494,9 +470,7 @@ object Expression {
   }
 }
 
-final case class TypeArguments(typeList: List[TypeName]) extends CST {
-  override def children(): List[CST] = Nil
-}
+final case class TypeArguments(typeList: List[TypeName]) extends CST
 
 object TypeArguments {
   def construct(from: TypeArgumentsContext, context: ConstructContext): TypeArguments = {

@@ -34,8 +34,6 @@ import com.nawforce.parsers.ApexParser._
 import scala.collection.JavaConverters._
 
 final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
-  override def children(): List[CST] = idPairs
-
   def verify(context: ExpressionVerifyContext): ExprContext = {
     val typeName = idPairs.tail.map(_.typeName).foldLeft(idPairs.head.typeName){
       (acc: TypeName, typeName: TypeName) => typeName.withTail(acc)
@@ -59,8 +57,6 @@ object CreatedName {
 }
 
 final case class IdCreatedNamePair(id: Id, types: Seq[TypeName]) extends CST {
-  override def children(): List[CST] = Nil
-
   val typeName: TypeName = {
     val encName = EncodedName(id.name)
     if (encName.ext.nonEmpty)
@@ -86,9 +82,6 @@ object IdCreatedNamePair {
 }
 
 final case class Creator(createdName: CreatedName, creatorRest: CreatorRest) extends CST {
-
-  override def children(): List[CST] = List(createdName, creatorRest)
-
   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
 
@@ -126,8 +119,6 @@ sealed abstract class CreatorRest extends CST {
 }
 
 final class NoRest extends CreatorRest {
-  override def children(): List[CST] = Nil
-
   override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {}
 }
 
@@ -138,8 +129,6 @@ object NoRest {
 }
 
 final case class ClassCreatorRest(arguments: List[Expression]) extends CreatorRest {
-  override def children(): List[CST] = arguments
-
   override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {
     assert(creating.declaration.nonEmpty)
     val td = creating.declaration.get
@@ -160,8 +149,6 @@ object ClassCreatorRest {
 
 final case class ArrayCreatorRest(expressions: Option[Expression], arrayInitializer: Option[ArrayInitializer])
   extends CreatorRest {
-  override def children(): List[CST] = List[CST]() ++ expressions ++ arrayInitializer
-
   override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {
     assert(creating.declaration.nonEmpty)
 
@@ -183,8 +170,6 @@ object ArrayCreatorRest {
 }
 
 final case class ArrayInitializer(expressions: List[Expression]) extends CST {
-  override def children(): List[CST] = expressions
-
   def verify(input: ExprContext, context: ExpressionVerifyContext): Unit = {
     expressions.foreach(_.verify(input, context))
   }
@@ -198,8 +183,6 @@ object ArrayInitializer {
 }
 
 final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends CreatorRest {
-  override def children(): List[CST] = pairs
-
   override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {
     assert(creating.declaration.nonEmpty)
     val td = creating.declaration.get
@@ -234,8 +217,6 @@ object MapCreatorRest {
 }
 
 final case class MapCreatorRestPair(from: Expression, to: Expression) extends CST {
-  override def children(): List[CST] = from :: to :: Nil
-
   def verify(input: ExprContext, context: ExpressionVerifyContext): Unit = {
     // FUTURE: Validate the expressions are assignable to Map
     from.verify(input, context)
@@ -258,9 +239,7 @@ object MapCreatorRestPair {
 
 /* This is really Set & List creator, where TYPE{expr, expr, ...} form is allowed, it's different from array */
 final case class SetCreatorRest(parts: List[Expression]) extends CreatorRest {
-  override def children(): List[CST] = parts
-
-   override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {
+  override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {
      assert(creating.declaration.nonEmpty)
      val td = creating.declaration.get
      val enclosedType = td.typeName.getSetOrListType
