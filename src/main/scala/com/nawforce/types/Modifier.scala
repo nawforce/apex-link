@@ -363,9 +363,9 @@ object ApexModifiers {
     } else if (mods.intersect(allVisibilityModifiers).size > 1) {
       Org.logMessage(RangeLocation(idContext),
         s"Only one visibility modifier from 'webservice', 'global', 'public', 'protected' & 'private' may be used on methods")
-      PUBLIC_MODIFIER +: mods.diff(allVisibilityModifiers)
+      mods.diff(allVisibilityModifiers)
     } else if (mods.intersect(allVisibilityModifiers).isEmpty) {
-      PRIVATE_MODIFIER +: mods
+      mods
     } else {
       mods
     }

@@ -63,7 +63,12 @@ final case class ClassDeclaration(_pkg: PackageDeclaration, _outerTypeName: Opti
   override def verify(context: TypeVerifyContext): Unit = {
     if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL_MODIFIER)) {
       context.logMessage(id.location, "Classes enclosing globals or webservices must also be declared global")
+    } else if (!modifiers.contains(ABSTRACT_MODIFIER) && methods.exists(_.isAbstract)) {
+      context.logMessage(id.location, "Classes with abstract methods must be abstract")
+    } else if(modifiers.contains(ABSTRACT_MODIFIER) && modifiers.contains(VIRTUAL_MODIFIER)) {
+      context.logMessage(id.location, "Abstract classes do not need virtual keyword")
     }
+
     super.verify(context)
   }
 
@@ -144,7 +149,7 @@ object InterfaceDeclaration {
     val methods: Seq[ApexMethodDeclaration]
         = interfaceDeclaration.interfaceBody().interfaceMethodDeclaration().asScala.map(m =>
             ApexMethodDeclaration.construct(pkg, thisType,
-              ApexModifiers.construct(m.modifier().asScala, context), m, context)
+              ApexModifiers.methodModifiers(m.modifier().asScala, context, m.id()), m, context)
     )
 
     InterfaceDeclaration(pkg, outerTypeName, Id.construct(interfaceDeclaration.id(), context), modifiers,

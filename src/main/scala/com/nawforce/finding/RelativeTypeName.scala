@@ -29,7 +29,7 @@ package com.nawforce.finding
 
 import com.nawforce.finding.TypeRequest.TypeRequest
 import com.nawforce.names.TypeName
-import com.nawforce.types.{PackageDeclaration, TypeDeclaration}
+import com.nawforce.types.{Nature, PackageDeclaration, TypeDeclaration}
 
 /* Lazy TypeName resolver for relative types. The package & enclosing (outer) typename are used to allow
  * the relative TypeName to be converted to an absolute form. Assumes outerTypeName can always be resolved
@@ -53,6 +53,9 @@ final case class RelativeTypeName(pkg: PackageDeclaration, outerTypeName: TypeNa
     else
       None
   }
+
+  // Recover outer types nature, bit of a hack but sometimes useful
+  lazy val outerNature: Nature = outerTypeDeclaration.nature
 
   private lazy val outerTypeDeclaration: TypeDeclaration = TypeRequest(outerTypeName, pkg).right.get
 }

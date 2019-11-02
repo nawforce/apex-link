@@ -44,6 +44,7 @@ class ClassModifierTest extends FunSuite with BeforeAndAfter {
   def typeDeclaration(clsText: String): TypeDeclaration = {
     Org.current.withValue(defaultOrg) {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes())).head
+      defaultOrg.unmanaged.upsertType(td)
       td.validate()
       td
     }
@@ -220,9 +221,39 @@ class ClassModifierTest extends FunSuite with BeforeAndAfter {
     assert(!defaultOrg.issues.hasMessages)
   }
 
-  test("Inherited sharing inner  class") {
+  test("Inherited sharing inner class") {
     val modifiers = typeDeclarationInner("public inherited sharing class Dummy {inherited sharing class Inner {}}").modifiers
     assert(modifiers.toSet == Set(INHERITED_SHARING_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
+  }
+
+  test("Abstract methods must be in abstract class") {
+    typeDeclaration("public class Dummy {abstract void func();}")
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
+      "line 1 at 13-18: Classes with abstract methods must be abstract\n")
+  }
+
+  test("Virtual no needed on abstract class") {
+    typeDeclaration("public virtual abstract class Dummy {}")
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
+      "line 1 at 30-35: Abstract classes do not need virtual keyword\n")
+  }
+
+  test("Non abstract methods must have a body") {
+    typeDeclaration("public class Dummy {void func();}")
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
+      "line 1 at 25-29: Method must have an implementations or be marked abstract\n")
+  }
+
+  test("Abstract methods must not have a body") {
+    typeDeclaration("public abstract class Dummy {abstract void func() {}}")
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
+      "line 1 at 43-47: Abstract methods can not have an implementation\n")
+  }
+
+  test("Virtual not needed on abstract method") {
+    typeDeclaration("public abstract class Dummy {abstract virtual void func();}")
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
+      "line 1 at 51-55: Abstract methods do not need virtual keyword\n")
   }
 }

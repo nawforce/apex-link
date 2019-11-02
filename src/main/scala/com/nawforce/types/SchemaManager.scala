@@ -203,10 +203,14 @@ final case class SObjectTypeFields(sobjectName: Name, pkg: PackageDeclaration)
       })
   }
 
-  override def findMethod(name: Name, paramCount: Int, staticOnly: Boolean): Option[MethodDeclaration] = {
-    methodMap.get((name, paramCount)).orElse(
-      super.findMethod(name, paramCount, staticOnly)
-    )
+  override def findMethod(name: Name, paramCount: Int, staticContext: Option[Boolean]): Option[MethodDeclaration] = {
+    if (staticContext.contains(false)) {
+      methodMap.get((name, paramCount)).orElse(
+        super.findMethod(name, paramCount, staticContext)
+      )
+    } else {
+      super.findMethod(name, paramCount, staticContext)
+    }
   }
 
   lazy val methodMap: Map[(Name, Int), MethodDeclaration] =

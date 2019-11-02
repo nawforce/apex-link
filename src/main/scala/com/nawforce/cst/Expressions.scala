@@ -124,7 +124,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
     assert(input.declaration.nonEmpty)
 
     val method = target.right.get
-    method.verify(location, callee, input, context)
+    method.verify(location, callee.typeDeclaration, Some(callee.isStatic), input, context)
   }
 
   private def findField(name: Name, td: TypeDeclaration, pkg: PackageDeclaration, staticOnly: Boolean) : Option[FieldDeclaration] = {
@@ -170,20 +170,21 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
 
 final case class MethodCall(target: Either[Boolean, Id], arguments: List[Expression]) extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    verify(location, input, input, context)
+    verify(location, input.typeDeclaration, None, input, context)
   }
 
-  def verify(location: Location, callee: ExprContext, input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+  def verify(location: Location, callee: TypeDeclaration, staticContext: Option[Boolean], input: ExprContext,
+             context: ExpressionVerifyContext): ExprContext = {
     val args = arguments.map(_.verify(input, context))
     if (args.exists(!_.isDefined))
       return ExprContext.empty
 
     target match {
       case Right(id) =>
-        val methods = callee.typeDeclaration.findMethod(id.name, arguments.size, callee.isStatic)
+        val methods = callee.findMethod(id.name, arguments.size, staticContext)
         if (methods.isEmpty) {
           context.logMessage(location,
-            s"No matching method found for '${id.name}' on '${callee.typeDeclaration.typeName}'")
+            s"No matching method found for '${id.name}' on '${callee.typeName}'")
           ExprContext.empty
         } else if (methods.head.typeName != TypeName.Void) {
           val td = context.getTypeAndAddDependency(methods.head.typeName, context.thisType)
