@@ -125,6 +125,19 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], relativeTypeNa
   override lazy val typeName: TypeName = relativeTypeName.typeName
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
+
+    if (relativeTypeName.outerNature == CLASS_NATURE) {
+      if (isAbstract && block.nonEmpty)
+        context.logMessage(id.location, "Abstract methods can not have an implementation")
+      else if (!isAbstract && block.isEmpty)
+        context.logMessage(id.location, "Method must have an implementations or be marked abstract")
+      else if (isAbstract && isVirtual)
+        context.logMessage(id.location, "Abstract methods do not need virtual keyword")
+    } else if (relativeTypeName.outerNature == INTERFACE_NATURE) {
+      if (modifiers.nonEmpty)
+        context.logMessage(id.location, s"Modifier '${modifiers.head.name}' is not supported on interface methods")
+    }
+
     relativeTypeName.typeRequest match {
       case Some(Left(error)) => context.logMessage(id.location, error.toString)
       case Some(Right(td)) => context.addDependency(td)
@@ -133,11 +146,13 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], relativeTypeNa
 
     parameters.foreach(_.verify(context))
 
-    val blockContext = new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))
-    parameters.foreach(param => blockContext.addVar(param.name, param.location, param.typeName))
-    block.foreach(_.verify(blockContext))
-    depends = Some(context.dependencies)
-    propagateDependencies()
+    block.foreach(blk => {
+      val blockContext = new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))
+      parameters.foreach(param => blockContext.addVar(param.name, param.location, param.typeName))
+      blk.verify(blockContext)
+      depends = Some(context.dependencies)
+      propagateDependencies()
+    })
   }
 }
 

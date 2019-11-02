@@ -172,7 +172,7 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
         Nil,
         Nil,
         List(
-          MethodSummary("bar", List("private"), "void", Nil),
+          MethodSummary("bar", List(), "void", Nil),
           MethodSummary("foo", List("public"), "System.String", List(ParameterSummary("a", "System.String")))
         ),
         Nil)

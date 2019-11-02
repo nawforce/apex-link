@@ -120,11 +120,26 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
     }
   }
 
-  override lazy val methods: Seq[MethodDeclaration] = {
-    bodyDeclarations.flatMap {
-      case x: MethodDeclaration => Some(x)
+  private lazy val methodMap: MethodMap = {
+    val localMethods = bodyDeclarations.flatMap({
+      case m: ApexMethodDeclaration => Some(m)
       case _ => None
+    })
+    val interfaces = interfaceDeclarations.flatMap({
+      case i: InterfaceDeclaration => Some(i)
+      case _ => None
+    })
+    superClassDeclaration match {
+      case Some(at: ApexTypeDeclaration) => MethodMap(at.methodMap, localMethods, interfaces)
+      case Some(td: TypeDeclaration) => MethodMap(MethodMap(MethodMap.empty(), td.methods, Seq()), localMethods, interfaces)
+      case _ => MethodMap(MethodMap.empty(), localMethods, interfaces)
     }
+  }
+
+  override lazy val methods: Seq[MethodDeclaration] = methodMap.allMethods.toSeq
+
+  override def findMethod(name: Name, paramCount: Int, staticContext: Option[Boolean]): Option[MethodDeclaration] = {
+    methodMap.findMethod(name, paramCount, staticContext)
   }
 
   override def validate(): Unit = {

@@ -98,7 +98,13 @@ trait MethodDeclaration extends DependencyHolder {
   val typeName: TypeName
   val parameters: Seq[ParameterDeclaration]
 
+  lazy val signature: String = s"$typeName $name($parameterTypes)"
+  lazy val parameterTypes: String = parameters.map(_.typeName).mkString(", ")
+
   lazy val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
+  lazy val isAbstract: Boolean = modifiers.contains(ABSTRACT_MODIFIER)
+  lazy val isVirtual: Boolean = modifiers.contains(VIRTUAL_MODIFIER)
+  lazy val isGlobalOrPublic: Boolean = modifiers.exists(m => m == GLOBAL_MODIFIER || m == PUBLIC_MODIFIER)
 
   lazy val summary: MethodSummary = MethodSummary(
     name.toString, modifiers.map(_.toString).sorted.toList, typeName.toString,
@@ -175,9 +181,12 @@ trait TypeDeclaration extends DependencyHolder {
     fieldsByName
   }
 
-  def findMethod(name: Name, paramCount: Int, staticOnly: Boolean): Option[MethodDeclaration] = {
-    methodsByNameAndParamCount.get((name, paramCount))
-      .filter(m => !staticOnly || m.isStatic)
+  def findMethod(name: Name, paramCount: Int, staticContext: Option[Boolean]): Option[MethodDeclaration] = {
+    val matches = methodsByNameAndParamCount.get((name, paramCount))
+    staticContext match {
+      case Some(x) => matches.filter(_.isStatic == x)
+      case None => matches
+    }
   }
 
   private lazy val methodsByNameAndParamCount: mutable.Map[(Name, Int), MethodDeclaration] = {

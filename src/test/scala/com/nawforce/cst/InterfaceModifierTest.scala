@@ -44,6 +44,7 @@ class InterfaceModifierTest extends FunSuite with BeforeAndAfter {
   def typeDeclaration(clsText: String): TypeDeclaration = {
     Org.current.withValue(defaultOrg) {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes())).head
+      defaultOrg.unmanaged.upsertType(td)
       td.validate()
       td
     }
@@ -163,5 +164,17 @@ class InterfaceModifierTest extends FunSuite with BeforeAndAfter {
     assert(typeDeclarationInner("global class Dummy {static interface Inner{}}").modifiers.isEmpty)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 20-26: Modifier 'static' is not supported on interfaces\n")
+  }
+
+  test("Illegal method modifier") {
+    typeDeclaration("global interface Dummy {public void foo();}")
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
+      "line 1 at 36-39: Modifier 'public' is not supported on interface methods\n")
+  }
+
+  test("Illegal method annotation") {
+    typeDeclaration("global interface Dummy {@isTest void foo();}")
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
+      "line 1 at 37-40: Modifier '@IsTest' is not supported on interface methods\n")
   }
 }

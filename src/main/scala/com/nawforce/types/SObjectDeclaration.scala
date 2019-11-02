@@ -52,15 +52,19 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
     })
   }
 
-  override def findMethod(name: Name, paramCount: Int, staticOnly: Boolean): Option[MethodDeclaration] = {
-    val customMethods = sobjectNature match {
-      case HierarchyCustomSettingsNature => hierarchyCustomSettingsMethods
-      case ListCustomSettingNature => listCustomSettingsMethods
-      case _ => methodMap
+  override def findMethod(name: Name, paramCount: Int, staticContext: Option[Boolean]): Option[MethodDeclaration] = {
+    if (staticContext.contains(true)) {
+      val customMethods = sobjectNature match {
+        case HierarchyCustomSettingsNature => hierarchyCustomSettingsMethods
+        case ListCustomSettingNature => listCustomSettingsMethods
+        case _ => methodMap
+      }
+      customMethods.get((name, paramCount)).orElse(
+        super.findMethod(name, paramCount, staticContext)
+      )
+    } else {
+      super.findMethod(name, paramCount, staticContext)
     }
-    customMethods.get((name, paramCount)).orElse(
-      super.findMethod(name, paramCount, staticOnly)
-    )
   }
 
   private lazy val methodMap: Map[(Name, Int), MethodDeclaration] =
