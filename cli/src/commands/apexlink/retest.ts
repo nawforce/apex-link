@@ -98,7 +98,7 @@ export default class ReTest extends SfdxCommand {
             "test-results.json",
             JSON.stringify(failures, null, 4)
           );
-          throw new SfdxError("Some tests failed, review test-report.json for failure details");
+          throw new SfdxError("Some tests failed, review test-results.json for failure details");
         }
         const timePassed = moment
           .duration(moment().diff(startMoment))
