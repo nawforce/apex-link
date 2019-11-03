@@ -14,7 +14,7 @@ public class Set<T> {
     public Boolean add(T setElement) {throw new java.lang.UnsupportedOperationException();}
     public Boolean addAll(List<T> fromList) {throw new java.lang.UnsupportedOperationException();}
     public Boolean addAll(Set<T> fromSet) {throw new java.lang.UnsupportedOperationException();}
-    void clear() {throw new java.lang.UnsupportedOperationException();}
+    public void clear() {throw new java.lang.UnsupportedOperationException();}
     public Boolean contains(T setElement) {throw new java.lang.UnsupportedOperationException();}
     public Boolean containsAll(List<T> listToCompare) {throw new java.lang.UnsupportedOperationException();}
     public Boolean containsAll(Set<T> setToCompare) {throw new java.lang.UnsupportedOperationException();}

@@ -82,4 +82,10 @@ public class SObject {
 	public SObject putSObject(String field, SObject value) {throw new java.lang.UnsupportedOperationException();}
 	public void recalculateFormulas() {throw new java.lang.UnsupportedOperationException();}
 	public void setOptions(Object options) {throw new java.lang.UnsupportedOperationException();}
+
+	public SObject clone() {throw new java.lang.UnsupportedOperationException();}
+	public SObject clone(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public SObject clone(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public SObject clone(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public SObject clone(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

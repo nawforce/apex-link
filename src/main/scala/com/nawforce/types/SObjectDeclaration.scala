@@ -62,18 +62,32 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
       val customMethods = sobjectNature match {
         case HierarchyCustomSettingsNature => hierarchyCustomSettingsMethods
         case ListCustomSettingNature => listCustomSettingsMethods
-        case _ => methodMap
+        case _ => SObjectDeclaration.sObjectMethodMap
       }
-      customMethods.get((name, paramCount)).orElse(
-        super.findMethod(name, paramCount, staticContext)
-      )
+      customMethods.get((name, paramCount)).orElse(defaultFindMethod(name, paramCount, staticContext))
     } else {
-      super.findMethod(name, paramCount, staticContext)
+      defaultFindMethod(name, paramCount, staticContext)
     }
   }
 
-  private lazy val methodMap: Map[(Name, Int), MethodDeclaration] =
-    PlatformTypes.sObjectType.methods.map(m => ((m.name, m.parameters.size),m)).toMap
+  def defaultFindMethod(name: Name, paramCount: Int, staticContext: Option[Boolean]): Option[MethodDeclaration] = {
+    cloneMethods.get((name, paramCount, staticContext.contains(true)))
+      .orElse(PlatformTypes.sObjectType.findMethod(name, paramCount, staticContext))
+  }
+
+  private lazy val cloneMethods: Map[(Name, Int, Boolean), MethodDeclaration] = {
+    val preserveId = CustomParameterDeclaration(Name("preserveId"), TypeName.Boolean)
+    val isDeepClone = CustomParameterDeclaration(Name("isDeepClone"), TypeName.Boolean)
+    val preserveReadOnlyTimestamps = CustomParameterDeclaration(Name("preserveReadOnlyTimestamps"), TypeName.Boolean)
+    val preserveAutonumber = CustomParameterDeclaration(Name("preserveAutonumber"), TypeName.Boolean)
+    Seq(
+      CustomMethodDeclaration(Name("clone"), typeName, Seq()),
+      CustomMethodDeclaration(Name("clone"), typeName, Seq(preserveId)),
+      CustomMethodDeclaration(Name("clone"), typeName, Seq(preserveId, isDeepClone)),
+      CustomMethodDeclaration(Name("clone"), typeName, Seq(preserveId, isDeepClone, preserveReadOnlyTimestamps)),
+      CustomMethodDeclaration(Name("clone"), typeName, Seq(preserveId, isDeepClone, preserveReadOnlyTimestamps, preserveAutonumber))
+    ).map(m => ((m.name, m.parameters.size, m.isStatic),m)).toMap
+  }
 
   private lazy val hierarchyCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
     Seq(
@@ -92,6 +106,9 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
 }
 
 object SObjectDeclaration {
+  private lazy val sObjectMethodMap: Map[(Name, Int), MethodDeclaration] =
+    PlatformTypes.sObjectType.methods.map(m => ((m.name, m.parameters.size),m)).toMap
+
   def create(pkg: PackageDeclaration, path: Path): Seq[TypeDeclaration] = {
     val sobjectDetailsOpt = SObjectDetails.parseSObject(path, pkg)
     if (sobjectDetailsOpt.isEmpty)

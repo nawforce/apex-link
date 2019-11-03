@@ -29,7 +29,7 @@ package com.nawforce.cst
 
 import com.nawforce.documents.Location
 import com.nawforce.names.Name
-import com.nawforce.types.MethodDeclaration
+import com.nawforce.types.{INTERFACE_NATURE, MethodDeclaration, TypeDeclaration}
 
 import scala.collection.mutable
 
@@ -56,18 +56,28 @@ object MethodMap {
   }
 
   def apply(superClassMap: MethodMap, localMethods: Seq[MethodDeclaration],
-            interfaces: Seq[InterfaceDeclaration]): MethodMap = {
+            interfaces: Seq[TypeDeclaration]): MethodMap = {
 
     val workingMap = collection.mutable.Map[(Name, Int), Seq[MethodDeclaration]]() ++= superClassMap.methodsByName
     val errors = mutable.Map[Location, String]()
 
-    interfaces.foreach(interface => applyInterface(workingMap, interface, errors))
+    applyInterfaces(workingMap, interfaces, errors)
     localMethods.foreach(method => applyMethod(workingMap, method, errors))
 
     new MethodMap(workingMap.toMap, errors.toMap)
   }
 
-  private def applyInterface(workingMap: WorkingMap, interface: InterfaceDeclaration, errors: ErrorMap): Unit = {
+  private def applyInterfaces(workingMap: WorkingMap, interfaces: Seq[TypeDeclaration], errors: ErrorMap): Unit = {
+    interfaces.foreach({
+      case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
+        applyInterface(workingMap, i, errors)
+      case _ => ()
+    })
+  }
+
+  private def applyInterface(workingMap: WorkingMap, interface: TypeDeclaration, errors: ErrorMap): Unit = {
+    if (interface.isInstanceOf[InterfaceDeclaration])
+      applyInterfaces(workingMap, interface.interfaceDeclarations, errors)
     interface.methods.foreach(method => {
       if (findMatches(workingMap, method).isEmpty) {
         addMethod(workingMap, method)

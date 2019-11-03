@@ -30,6 +30,7 @@ package com.nawforce.platform.System;
 @SuppressWarnings("unused")
 public class Limits {
 	public static Integer getAggregateQueries() {throw new java.lang.UnsupportedOperationException();}
+	public static Integer getAsyncCalls() {throw new java.lang.UnsupportedOperationException();}
 	public static Integer getCallouts() {throw new java.lang.UnsupportedOperationException();}
 	public static Integer getChildRelationshipsDescribes() {throw new java.lang.UnsupportedOperationException();}
 	public static Integer getCpuTime() {throw new java.lang.UnsupportedOperationException();}
@@ -43,6 +44,7 @@ public class Limits {
 	public static Integer getFutureCalls() {throw new java.lang.UnsupportedOperationException();}
 	public static Integer getHeapSize() {throw new java.lang.UnsupportedOperationException();}
 	public static Integer getLimitAggregateQueries() {throw new java.lang.UnsupportedOperationException();}
+	public static Integer getLimitAsyncCalls() {throw new java.lang.UnsupportedOperationException();}
 	public static Integer getLimitCallouts() {throw new java.lang.UnsupportedOperationException();}
 	public static Integer getLimitChildRelationshipsDescribes() {throw new java.lang.UnsupportedOperationException();}
 	public static Integer getLimitCpuTime() {throw new java.lang.UnsupportedOperationException();}

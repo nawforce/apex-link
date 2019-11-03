@@ -119,7 +119,13 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], outer: Option[Platfo
     }
   }
 
-  override lazy val methods: Seq[MethodDeclaration] = getMethods
+  override lazy val methods: Seq[MethodDeclaration] = {
+    val localMethods = getMethods
+    nature match {
+      case ENUM_NATURE => PlatformTypeDeclaration.enumMethods
+      case _  => localMethods
+    }
+  }
 
   protected def getMethods: Seq[PlatformMethod] = {
     val localMethods = cls.getMethods.filter(
@@ -334,6 +340,14 @@ object PlatformTypeDeclaration {
     else
       typeName
   }
+
+  /* Standard methods to be exposed on enums */
+  private lazy val enumMethods: Seq[MethodDeclaration] =
+    Seq(
+      CustomMethodDeclaration(Name("name"), TypeName.String, Seq()),
+      CustomMethodDeclaration(Name("original"), TypeName.Integer, Seq()),
+      CustomMethodDeclaration(Name("values"), TypeName.listOf(TypeName.String), Seq(), asStatic = true),
+    )
 }
 
 

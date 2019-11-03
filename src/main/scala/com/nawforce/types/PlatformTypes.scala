@@ -38,6 +38,7 @@ object PlatformTypes {
   lazy val recordSetType: TypeDeclaration = loadType(TypeName.RecordSet)
   lazy val objectType: TypeDeclaration = loadType(TypeName.InternalObject)
   lazy val sObjectType: TypeDeclaration = loadType(TypeName.SObject)
+  lazy val sObjectTypeType: TypeDeclaration = loadType(TypeName.SObjectType)
   lazy val typeType: TypeDeclaration = loadType(TypeName.TypeType)
   lazy val stringType: TypeDeclaration = loadType(TypeName.String)
   lazy val idType: TypeDeclaration = loadType(TypeName.Id)
