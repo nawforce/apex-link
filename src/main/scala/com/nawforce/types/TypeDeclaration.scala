@@ -148,20 +148,24 @@ trait TypeDeclaration extends DependencyHolder {
   def validate(): Unit
   def collectDependencies(dependencies: mutable.Set[Dependant]): Unit
 
-  def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
-    fieldsByName.get(name).filter(f => !staticOnly || f.isStatic)
+  def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
+    val matches = fieldsByName.get(name)
+    staticContext match {
+      case Some(x) => matches.find(f => f.isStatic == x)
+      case None => matches
+    }
   }
 
-  protected def findFieldSObject(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
+  protected def findFieldSObject(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     this.synchronized {
       val fieldOption = fieldsByName.get(name)
       if (fieldOption.isEmpty)
         return None
 
       val field = fieldOption.get
-      if (staticOnly == field.isStatic) {
+      if (staticContext.contains(field.isStatic)) {
         fieldOption
-      } else if (staticOnly) {
+      } else if (staticContext.contains(true)) {
         val staticRef = CustomFieldDeclaration(field.name, TypeName.SObjectField, asStatic = true)
         // TODO: Link static field back to instance field
         Some(staticRef)
@@ -219,11 +223,11 @@ trait TypeDeclaration extends DependencyHolder {
           var field : Option[FieldDeclaration] = None
 
           if (context.pkg.namespace.nonEmpty) {
-            field = findField(context.defaultNamespace(id.name), staticOnly = false)
+            field = findField(context.defaultNamespace(id.name), staticContext = Some(false))
           }
 
           if (field.isEmpty)
-            field = findField(id.name, staticOnly = false)
+            field = findField(id.name, staticContext = Some(false))
 
           if (field.isEmpty) {
             if (isComplete)

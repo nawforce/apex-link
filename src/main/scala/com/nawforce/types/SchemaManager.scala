@@ -90,11 +90,11 @@ class RelatedLists(pkg: PackageDeclaration) {
   }
 
   /* Find for a relationship field on an SObject*/
-  def findField(sobjectType: TypeName, name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
+  def findField(sobjectType: TypeName, name: Name): Option[FieldDeclaration] = {
     val encodedName = EncodedName(name).defaultNamespace(pkg.namespace).fullName
     relationshipFields(sobjectType).find(field => field._1.name == encodedName).map(_._1).orElse({
       pkg.basePackages.flatMap(basePkg => {
-        basePkg.schema().relatedLists.findField(sobjectType, encodedName, staticOnly)
+        basePkg.schema().relatedLists.findField(sobjectType, encodedName)
       }).headOption
     })
   }
@@ -111,8 +111,8 @@ final case class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDec
   }
 
   /* Find a specific SObject */
-  override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
-    if (!staticOnly)
+  override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
+    if (!staticContext.contains(true))
       return None
 
     val typeName = EncodedName(name).asTypeName
@@ -169,11 +169,11 @@ final case class SObjectTypeImpl(sobjectName: Name, sobjectTypeFields: SObjectTy
     superClass.flatMap(sc => PlatformTypes.get(sc, None).toOption)
   }
 
-  override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
-    (name, staticOnly) match {
-      case (Name.Fields, false) => Some(fieldField)
-      case (Name.FieldSets, false) => Some(fieldSetsField)
-      case _ => sobjectTypeFields.findField(name, staticOnly)
+  override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
+    (name, staticContext) match {
+      case (Name.Fields, Some(false)) => Some(fieldField)
+      case (Name.FieldSets, Some(false)) => Some(fieldSetsField)
+      case _ => sobjectTypeFields.findField(name, staticContext)
     }
   }
 }
@@ -191,7 +191,9 @@ final case class SObjectTypeFields(sobjectName: Name, pkg: PackageDeclaration)
 
   private val ghostedSobjectFields: mutable.Map[Name, FieldDeclaration] = mutable.Map()
 
-  override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
+  override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
+    // TODO: check staticContext
+
     sobjectFields.get(name)
       .orElse(ghostedSobjectFields.get(name))
       .orElse(synchronized {
@@ -230,7 +232,7 @@ final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageDeclaration
     }
   }
 
-  override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
+  override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     sobjectFieldSets.get(name)
   }
 }

@@ -111,11 +111,11 @@ case class PlatformTypeDeclaration(cls: java.lang.Class[_], outer: Option[Platfo
     accum
   }
 
-  override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
+  override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     if (isSObject) {
-      super.findFieldSObject(name, staticOnly)
+      super.findFieldSObject(name, staticContext)
     } else {
-      super.findField(name, staticOnly)
+      super.findField(name, staticContext)
     }
   }
 

@@ -92,7 +92,7 @@ final case class IdPrimary(id: Id) extends Primary {
     input.declaration.get match {
       case td: TypeDeclaration =>
         val name = id.name
-        val field = findField(name, td, input.isStatic)
+        val field = findField(name, td)
         if (field.nonEmpty) {
           field.get.addDependencyHolder(context.holder)
           val target = context.getTypeAndAddDependency(field.get.typeName, td).toOption
@@ -120,11 +120,12 @@ final case class IdPrimary(id: Id) extends Primary {
     ExprContext.empty
   }
 
-  private def findField(name: Name, td: TypeDeclaration, staticOnly: Boolean) : Option[FieldDeclaration] = {
+  private def findField(name: Name, td: TypeDeclaration) : Option[FieldDeclaration] = {
     val encodedName = EncodedName(name)
     val namespaceName = encodedName.defaultNamespace(td.packageDeclaration.flatMap(_.namespace))
-    td.findField(namespaceName.fullName, staticOnly).orElse({
-      if (encodedName != namespaceName) td.findField(encodedName.fullName, staticOnly) else None
+    td.findField(namespaceName.fullName, None).orElse({
+      if (encodedName != namespaceName)
+        td.findField(encodedName.fullName, None) else None
     })
   }
 }
