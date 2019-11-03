@@ -94,8 +94,12 @@ final case class GhostedLabelDeclaration(pkg: PackageDeclaration, name: Name)
   override def validate(): Unit = {}
   override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
 
-  override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
-    Some(Label(LineLocation(Paths.get(s"$name.labels"), 0), name, isProtected = false))
+  override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
+    if (staticContext.contains(true)) {
+      Some(Label(LineLocation(Paths.get(s"$name.labels"), 0), name, isProtected = false))
+    } else {
+      None
+    }
   }
 }
 

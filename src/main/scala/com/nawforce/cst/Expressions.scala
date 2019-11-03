@@ -127,11 +127,11 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
     method.verify(location, callee.typeDeclaration, Some(callee.isStatic), input, context)
   }
 
-  private def findField(name: Name, td: TypeDeclaration, pkg: PackageDeclaration, staticOnly: Boolean) : Option[FieldDeclaration] = {
+  private def findField(name: Name, td: TypeDeclaration, pkg: PackageDeclaration, isStatic: Boolean) : Option[FieldDeclaration] = {
     val encodedName = EncodedName(name)
     val namespaceName = encodedName.defaultNamespace(pkg.namespace)
-    td.findField(namespaceName.fullName, staticOnly).orElse({
-      if (encodedName != namespaceName) td.findField(encodedName.fullName, staticOnly) else None
+    td.findField(namespaceName.fullName, Some(isStatic)).orElse({
+      if (encodedName != namespaceName) td.findField(encodedName.fullName, Some(isStatic)) else None
     })
   }
 }

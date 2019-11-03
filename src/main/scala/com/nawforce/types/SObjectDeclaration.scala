@@ -46,9 +46,14 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
     pkg.getTypeFor(TypeName.SObject, this)
   }
 
-  override def findField(name: Name, staticOnly: Boolean): Option[FieldDeclaration] = {
-    super.findFieldSObject(name, staticOnly).orElse({
-      pkg.schema().relatedLists.findField(typeName, name, staticOnly)
+  override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
+    super.findFieldSObject(name, staticContext).orElse({
+      val field = pkg.schema().relatedLists.findField(typeName, name)
+      if (field.nonEmpty && staticContext.contains(true)) {
+        Some(CustomFieldDeclaration(field.get.name, TypeName.SObjectField, asStatic = true))
+      } else {
+        field
+      }
     })
   }
 
