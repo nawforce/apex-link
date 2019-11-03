@@ -90,7 +90,7 @@ object ClassDeclaration {
       if (classDeclaration.typeRef() != null)
         Some(TypeRef.construct(classDeclaration.typeRef()))
       else
-        None
+        Some(TypeName.InternalObject)
     val implementsType =
       if (classDeclaration.typeList() != null)
         TypeList.construct(classDeclaration.typeList())
@@ -166,6 +166,13 @@ final case class EnumDeclaration(_pkg: PackageDeclaration, _outerTypeName: Optio
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     super.verify(new TypeVerifyContext(Some(context), this))
   }
+
+  override def findMethod(name: Name, paramCount: Int, staticContext: Option[Boolean]): Option[MethodDeclaration] = {
+    staticContext match {
+      case Some(x) => EnumDeclaration.methodMap.get((name, paramCount)).filter(_.isStatic == x)
+      case _ => None
+    }
+  }
 }
 
 object EnumDeclaration {
@@ -191,4 +198,11 @@ object EnumDeclaration {
 
     EnumDeclaration(pkg, outerTypeName,id, typeModifiers, fields).withContext(enumDeclaration, context)
   }
+
+  private lazy val methodMap: Map[(Name, Int), MethodDeclaration] =
+    Seq(
+      CustomMethodDeclaration(Name("name"), TypeName.String, Seq()),
+      CustomMethodDeclaration(Name("original"), TypeName.Integer, Seq()),
+      CustomMethodDeclaration(Name("values"), TypeName.listOf(TypeName.String), Seq(), asStatic = true),
+    ).map(m => ((m.name, m.parameters.size),m)).toMap
 }

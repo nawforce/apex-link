@@ -33,6 +33,7 @@ import java.nio.file.Path
 import com.nawforce.api.Org
 import com.nawforce.cst._
 import com.nawforce.documents.LineLocation
+import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
@@ -120,19 +121,31 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
     }
   }
 
-  private lazy val methodMap: MethodMap = {
-    val localMethods = bodyDeclarations.flatMap({
+  private def localMethods: Seq[ApexMethodDeclaration] = {
+    bodyDeclarations.flatMap({
       case m: ApexMethodDeclaration => Some(m)
       case _ => None
     })
-    val interfaces = interfaceDeclarations.flatMap({
-      case i: InterfaceDeclaration => Some(i)
-      case _ => None
-    })
+  }
+
+  private def outerStaticMethods: Seq[ApexMethodDeclaration] = {
+    outerTypeName.flatMap(ot => TypeRequest(ot, this).toOption) match {
+      case Some(td: ApexTypeDeclaration) => td.localMethods.filter(_.isStatic)
+      case _ => Seq()
+    }
+  }
+
+
+  private lazy val methodMap: MethodMap = {
+    val allMethods = outerStaticMethods ++ localMethods
     superClassDeclaration match {
-      case Some(at: ApexTypeDeclaration) => MethodMap(at.methodMap, localMethods, interfaces)
-      case Some(td: TypeDeclaration) => MethodMap(MethodMap(MethodMap.empty(), td.methods, Seq()), localMethods, interfaces)
-      case _ => MethodMap(MethodMap.empty(), localMethods, interfaces)
+      case Some(at: ApexTypeDeclaration) =>
+        MethodMap(at.methodMap, allMethods, interfaceDeclarations)
+      case Some(td: TypeDeclaration) =>
+        MethodMap(MethodMap(MethodMap.empty(), td.methods, Seq()),
+          allMethods, interfaceDeclarations)
+      case _ =>
+        MethodMap(MethodMap.empty(), allMethods, interfaceDeclarations)
     }
   }
 

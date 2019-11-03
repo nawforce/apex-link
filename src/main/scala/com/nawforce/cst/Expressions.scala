@@ -186,7 +186,7 @@ final case class MethodCall(target: Either[Boolean, Id], arguments: List[Express
           context.logMessage(location,
             s"No matching method found for '${id.name}' on '${callee.typeName}'")
           ExprContext.empty
-        } else if (methods.head.typeName != TypeName.Void) {
+        } else if (methods.head.typeName != TypeName.Void && !context.pkg.isGhostedType(methods.head.typeName)) {
           val td = context.getTypeAndAddDependency(methods.head.typeName, context.thisType)
           td match {
             case Left(error) =>

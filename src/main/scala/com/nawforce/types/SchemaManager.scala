@@ -131,6 +131,10 @@ final case class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDec
     })
   }
 
+  override def findMethod(name: Name, paramCount: Int, staticContext: Option[Boolean]): Option[MethodDeclaration] = {
+    PlatformTypes.sObjectTypeType.findMethod(name, paramCount, staticContext)
+  }
+
   /* Create the describe entries for an SObject, note we are using generics to tunnel the type so that
    * we can support Field & FieldSet access via injecting virtual TypeDeclarations for these.
    */
@@ -175,6 +179,10 @@ final case class SObjectTypeImpl(sobjectName: Name, sobjectTypeFields: SObjectTy
       case (Name.FieldSets, Some(false)) => Some(fieldSetsField)
       case _ => sobjectTypeFields.findField(name, staticContext)
     }
+  }
+
+  override def findMethod(name: Name, paramCount: Int, staticContext: Option[Boolean]): Option[MethodDeclaration] = {
+    PlatformTypes.sObjectTypeType.findMethod(name, paramCount, staticContext)
   }
 }
 
