@@ -74,7 +74,8 @@ final case class ComponentDeclaration(pkg: PackageDeclaration) extends TypeDecla
     if (namespace.nonEmpty)
       getNamespaceContainer(namespace.get).foreach(_.upsertComponent(component))
 
-    components.put(component.name, CustomComponent(pkg, component.name, component.path))
+    val typeName = TypeName(component.name)
+    components.put(component.name, CustomComponent(pkg, component.name, typeName, component.path))
   }
 
   private def getNamespaceContainer(namespace: Name): Option[ComponentNamespace] = {
@@ -86,10 +87,10 @@ final case class ComponentDeclaration(pkg: PackageDeclaration) extends TypeDecla
   }
 }
 
-final case class CustomComponent(pkg: PackageDeclaration, name: Name, path: Path) extends TypeDeclaration {
+final case class CustomComponent(pkg: PackageDeclaration, name: Name, typeName: TypeName, path: Path) extends TypeDeclaration {
 
   override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
-  override val typeName: TypeName = TypeName(name)
+  override lazy val namespace: Option[Name] = None
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
   override val modifiers: Seq[Modifier] = Nil
@@ -101,12 +102,14 @@ final case class CustomComponent(pkg: PackageDeclaration, name: Name, path: Path
   override val nestedTypes: Seq[TypeDeclaration] = Nil
 
   override val blocks: Seq[BlockDeclaration] = Nil
-  override val fields: Seq[FieldDeclaration]= PlatformTypes.componentType.fields
+  override val fields: Seq[FieldDeclaration] = PlatformTypes.componentType.fields
   override val constructors: Seq[ConstructorDeclaration] = Nil
-  override val methods: Seq[MethodDeclaration]= Nil
+  override val methods: Seq[MethodDeclaration] = Nil
 
   override def validate(): Unit = {}
+
   override def dependencies(): Set[Dependant] = Set.empty
+
   override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
 }
 
@@ -135,7 +138,8 @@ final case class ComponentNamespace(pkg: PackageDeclaration, name: Name) extends
   override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
 
   def upsertComponent(component: ComponentDocument): Unit = {
-    components.put(component.name, CustomComponent(pkg, component.name, component.path))
+    val typeName = TypeName(component.name, Nil, Some(TypeName(name, Nil, Some(TypeName(Name.Component)))))
+    components.put(component.name, CustomComponent(pkg, component.name, typeName, component.path))
   }
 }
 

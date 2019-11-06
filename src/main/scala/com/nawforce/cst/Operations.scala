@@ -37,13 +37,17 @@ abstract class Operation {
   def isAssignable(toType: TypeName, fromType: TypeDeclaration, context: ExpressionVerifyContext): Boolean = {
     if (fromType.typeName == TypeName.Null ||
       (fromType.typeName == toType) ||
-      (toType == TypeName.InternalObject))
+      (toType == TypeName.InternalObject) ||
+      context.pkg.isGhostedType(toType)) {
       true
-    else if (toType.params.nonEmpty || fromType.typeName.params.nonEmpty)
+    } else if (fromType.typeName.isRecordSet) {
+      isRecordSetAssignable(toType, context)
+    } else if (toType.params.nonEmpty || fromType.typeName.params.nonEmpty) {
       isAssignableGeneric(toType, fromType, context)
-    else
+    } else {
       Operation.baseAssignable.contains(toType, fromType.typeName) ||
       fromType.extendsOrImplements(toType)
+    }
   }
 
   def isAssignable(toType: TypeName, fromType: TypeName, context: ExpressionVerifyContext): Boolean = {
@@ -82,6 +86,21 @@ abstract class Operation {
       false
     }
   }
+
+  @scala.annotation.tailrec
+  private def isRecordSetAssignable(toType: TypeName, context: ExpressionVerifyContext): Boolean = {
+    if (toType == TypeName.SObject || toType.isSObjectList) {
+      true
+    } else if (toType.isList) {
+      isRecordSetAssignable(toType.params.head, context)
+    } else {
+      context.getTypeFor(toType, context.thisType) match {
+        case Left(_) => false
+        case Right(toDeclaration) => toDeclaration.isSObject
+      }
+    }
+  }
+
 
   def couldBeEqual(toType: TypeDeclaration, fromType: TypeDeclaration, context: ExpressionVerifyContext): Boolean = {
     isAssignable(toType.typeName, fromType, context) || isAssignable(fromType.typeName, toType, context)
@@ -239,24 +258,26 @@ object Operation {
 case object AssignmentOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
                       op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
-    if (rightContext.typeName == TypeName.Null)
+    if (rightContext.typeName == TypeName.Null) {
       Right(leftContext)
-    else if (isAssignable(leftContext.typeName, rightContext.typeDeclaration, context))
+    } else if (isAssignable(leftContext.typeName, rightContext.typeDeclaration, context)) {
       Right(leftContext)
-    else
+    } else {
       Left(s"Incompatible types in assignment, from '${rightContext.typeName}' to '${leftContext.typeName}'")
+    }
   }
 }
 
 case object LogicalOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
                       op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
-    if (!isAssignable(TypeName.Boolean, rightContext.typeDeclaration, context))
+    if (!isAssignable(TypeName.Boolean, rightContext.typeDeclaration, context)) {
       Left(s"Right expression of logical $op must a boolean, not '${rightContext.typeName}'")
-    else if (!isAssignable(TypeName.Boolean, leftContext.typeDeclaration, context))
+    } else if (!isAssignable(TypeName.Boolean, leftContext.typeDeclaration, context)) {
       Left(s"Left expression of logical $op must a boolean, not '${leftContext.typeName}'")
-    else
+    } else {
       Right(leftContext)
+    }
   }
 }
 
@@ -265,14 +286,16 @@ case object CompareOperation extends Operation {
                       op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
 
     if (isNumericKind(leftContext.typeName)) {
-      if (!isNumericKind(rightContext.typeName))
+      if (!isNumericKind(rightContext.typeName)) {
         return Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
+      }
     } else if (isStringKind(leftContext.typeName)) {
       if (!isStringKind(rightContext.typeName))
         return Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
     } else if (isDateKind(leftContext.typeName)) {
-      if (!isDateKind(rightContext.typeName))
+      if (!isDateKind(rightContext.typeName)) {
         return Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
+      }
     } else {
       return Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
     }

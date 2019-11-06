@@ -74,7 +74,6 @@ object Name {
   lazy val System: Name = cache("System")
   lazy val Schema: Name = cache("Schema")
   lazy val Void: Name = cache("void")
-  lazy val Class$: Name = cache("Class$")
   lazy val Class: Name = cache("Class")
   lazy val List$: Name = cache("List")
   lazy val Set$: Name = cache("Set")

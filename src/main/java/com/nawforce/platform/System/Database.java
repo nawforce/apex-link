@@ -28,6 +28,7 @@
 package com.nawforce.platform.System;
 
 import com.nawforce.platform.Database.*;
+import com.nawforce.platform.Internal.RecordSet$;
 import com.nawforce.platform.Schema.SObjectField;
 
 @SuppressWarnings("unused")
@@ -82,7 +83,7 @@ public class Database {
 	public static List<MergeResult> merge(SObject master, List<Object> duplicates, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
 	public static MergeResult merge(SObject master, SObject duplicate) {throw new java.lang.UnsupportedOperationException();}
 	public static MergeResult merge(SObject master, SObject duplicate, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
-	public static List<SObject> query(String query) {throw new java.lang.UnsupportedOperationException();}
+	public static RecordSet$<SObject> query(String query) {throw new java.lang.UnsupportedOperationException();}
 	public static void rollback(Savepoint savepoint) {throw new java.lang.UnsupportedOperationException();}
 	public static Savepoint setSavepoint() {throw new java.lang.UnsupportedOperationException();}
 	public static UndeleteResult undelete(Id id) {throw new java.lang.UnsupportedOperationException();}
