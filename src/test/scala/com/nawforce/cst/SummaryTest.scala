@@ -58,27 +58,42 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
   test("Public outer class") {
     assert(typeDeclarationSummary("public class Dummy {}") ==
       TypeSummary("Dummy", "Dummy", "class", List("public"),
-        "", Nil,
-        Nil, Nil, Nil,
-        Nil)
+        "Object", Nil,
+        Nil, Nil,
+        List(
+          MethodSummary("hashCode",List("public"),"System.Integer",List()),
+          MethodSummary("toString",List("public"),"System.String",List())
+        ),
+        Nil
       )
+    )
   }
 
   test("Global outer class") {
     assert(typeDeclarationSummary("global class Dummy {}") ==
       TypeSummary("Dummy", "Dummy", "class", List("global"),
-        "", Nil,
-        Nil, Nil, Nil,
-        Nil)
+        "Object", Nil,
+        Nil, Nil,
+        List(
+          MethodSummary("hashCode",List("public"),"System.Integer",List()),
+          MethodSummary("toString",List("public"),"System.String",List())
+        ),
+        Nil
+      )
     )
   }
 
   test("Global outer class with isTest") {
     assert(typeDeclarationSummary("@isTest global class Dummy {}") ==
       TypeSummary("Dummy", "Dummy", "class", List("@IsTest", "global"),
-        "", Nil,
-        Nil, Nil, Nil,
-        Nil)
+        "Object", Nil,
+        Nil, Nil,
+        List(
+          MethodSummary("hashCode",List("public"),"System.Integer",List()),
+          MethodSummary("toString",List("public"),"System.String",List())
+        ),
+        Nil
+      )
     )
   }
 
@@ -87,7 +102,8 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
       TypeSummary("Dummy", "Dummy", "interface", List("public"),
         "", Nil,
         Nil, Nil, Nil,
-        Nil)
+        Nil
+      )
     )
   }
 
@@ -112,9 +128,14 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
   test("Class with interfaces") {
     assert(typeDeclarationSummary("public class Dummy implements A, B {}") ==
       TypeSummary("Dummy", "Dummy", "class", List("public"),
-        "", List("A", "B"),
-        Nil, Nil, Nil,
-        Nil)
+        "Object", List("A", "B"),
+        Nil, Nil,
+        List(
+          MethodSummary("hashCode",List("public"),"System.Integer",List()),
+          MethodSummary("toString",List("public"),"System.String",List())
+        ),
+        Nil
+      )
     )
   }
 
@@ -130,12 +151,18 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
   test("Class with fields") {
     assert(typeDeclarationSummary("public class Dummy {private String B; public Integer A;}") ==
       TypeSummary("Dummy", "Dummy", "class", List("public"),
-        "", Nil,
+        "Object", Nil,
         List(
           FieldSummary("A", List("public"), "Integer", "public", "public"),
           FieldSummary("B", List("private"), "String", "private", "private"),
-        ), Nil, Nil,
-        Nil)
+        ),
+        Nil,
+        List(
+          MethodSummary("hashCode",List("public"),"System.Integer",List()),
+          MethodSummary("toString",List("public"),"System.String",List())
+        ),
+        Nil
+      )
     )
   }
 
@@ -143,37 +170,50 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
     assert(typeDeclarationSummary("public class Dummy {" +
       "private String B {get; set;} public Integer A {private set; get;} }") ==
       TypeSummary("Dummy", "Dummy", "class", List("public"),
-        "", Nil,
+        "Object", Nil,
         List(
           FieldSummary("A", List("public"), "Integer", "public", "private"),
           FieldSummary("B", List("private"), "String", "private", "private"),
-        ), Nil, Nil,
-        Nil)
+        ),
+        Nil,
+        List(
+          MethodSummary("hashCode",List("public"),"System.Integer",List()),
+          MethodSummary("toString",List("public"),"System.String",List())
+        ),
+        Nil
+      )
     )
   }
 
   test("Class with constructors") {
     assert(typeDeclarationSummary("public class Dummy {public Dummy(String a) {} Dummy() {} }") ==
       TypeSummary("Dummy", "Dummy", "class", List("public"),
-        "", Nil,
+        "Object", Nil,
         Nil,
         List(
           ConstructorSummary(List("private"), Nil),
           ConstructorSummary(List("public"), List(ParameterSummary("a", "System.String")))
-        ), Nil,
-        Nil)
+        ),
+        List(
+          MethodSummary("hashCode",List("public"),"System.Integer",List()),
+          MethodSummary("toString",List("public"),"System.String",List())
+        ),
+        Nil
+      )
     )
   }
 
   test("Class with methods") {
     assert(typeDeclarationSummary("public class Dummy {public String foo(String a) {} void bar() {} }") ==
       TypeSummary("Dummy", "Dummy", "class", List("public"),
-        "", Nil,
+        "Object", Nil,
         Nil,
         Nil,
         List(
           MethodSummary("bar", List(), "void", Nil),
-          MethodSummary("foo", List("public"), "System.String", List(ParameterSummary("a", "System.String")))
+          MethodSummary("foo", List("public"), "System.String", List(ParameterSummary("a", "System.String"))),
+          MethodSummary("hashCode",List("public"),"System.Integer",List()),
+          MethodSummary("toString",List("public"),"System.String",List())
         ),
         Nil)
     )
