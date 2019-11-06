@@ -124,10 +124,10 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
   }
 
   def isList: Boolean = name == Name.List$ && outer.contains(TypeName.System) && params.size == 1
-
   def asListOf: TypeName = new TypeName(Name.List$, Seq(this), Some(TypeName.System))
 
-  def asClassOf: TypeName = new TypeName(Name.Class$, Seq(this), Some(TypeName.System))
+  def isRecordSet: Boolean = name == Name.RecordSet$ && outer.contains(TypeName.Internal) && params.size == 1
+  def isSObjectList: Boolean = isList && params.head == TypeName.SObject
 
   override def toString: String = {
     this match {
