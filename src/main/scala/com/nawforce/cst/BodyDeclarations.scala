@@ -150,9 +150,10 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], relativeTypeNa
       val blockContext = new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))
       parameters.foreach(param => blockContext.addVar(param.name, param.location, param.typeName))
       blk.verify(blockContext)
-      depends = Some(context.dependencies)
-      propagateDependencies()
     })
+
+    depends = Some(context.dependencies)
+    propagateDependencies()
   }
 }
 

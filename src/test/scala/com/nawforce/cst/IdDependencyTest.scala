@@ -65,7 +65,7 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
   test("Local func does not create dependencies") {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy {void func() {func();} }"))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.dependencies().isEmpty)
+    assert(tds.head.dependencies() == Set(objectClass))
     assert(tds.head.methods.head.dependencies().isEmpty)
   }
 
@@ -73,7 +73,7 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy {void func() {A.func();} }"))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 33-34: No variable or type found for 'A' on 'Dummy'\n")
-    assert(tds.head.dependencies().isEmpty)
+    assert(tds.head.dependencies() == Set(objectClass))
   }
 
   test("Static func creates method dependency") {
@@ -83,8 +83,8 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
     ))
     defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.dependencies().isEmpty)
-    assert(tds.head.methods.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.dependencies() == Set(objectClass))
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
   }
 
   test("Platform func creates method dependency") {
@@ -92,8 +92,8 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy {static void func() {System.debug('Hello');} }"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.dependencies().isEmpty)
-    assert(tds.head.methods.head.dependencies() == Set(systemClass))
+    assert(tds.head.dependencies() == Set(objectClass))
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == Set(systemClass))
   }
 
   test("Field reference creates method dependency") {
@@ -101,8 +101,8 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy {Object a; void func() {a = null;} }"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.dependencies().isEmpty)
-    assert(tds.head.methods.head.dependencies() == Set(objectClass))
+    assert(tds.head.dependencies() == Set(objectClass))
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == Set(objectClass))
   }
 
   test("Superclass field reference creates method dependent") {
@@ -112,7 +112,7 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies() == tds.tail.toSet)
-    assert(tds.head.methods.head.dependencies() == Set(objectClass))
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == Set(objectClass))
   }
 
   test("Hidden outer class field reference creates error") {
@@ -121,8 +121,8 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 52-53: No variable or type found for 'a' on 'Dummy.B'\n")
-    assert(tds.head.dependencies().isEmpty)
-    assert(tds.head.nestedTypes.head.dependencies().isEmpty)
+    assert(tds.head.dependencies() == Set(objectClass))
+    assert(tds.head.nestedTypes.head.dependencies() == Set(objectClass))
     assert(tds.head.nestedTypes.head.methods.head.dependencies().isEmpty)
   }
 
@@ -131,9 +131,9 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy {static Object a; class B {void func() {a = null;} } }",
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.dependencies().isEmpty)
-    assert(tds.head.nestedTypes.head.dependencies().isEmpty)
-    assert(tds.head.nestedTypes.head.methods.head.dependencies() == Set(objectClass))
+    assert(tds.head.dependencies() == Set(objectClass))
+    assert(tds.head.nestedTypes.head.dependencies() == Set(objectClass))
+    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == Set(objectClass))
   }
 
   test("Property creates dependency") {
@@ -141,8 +141,8 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy {Object a {get;} void func() {a = null;} }"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.dependencies().isEmpty)
-    assert(tds.head.methods.head.dependencies() == Set(objectClass))
+    assert(tds.head.dependencies() == Set(objectClass))
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == Set(objectClass))
   }
 
   test("Superclass property creates dependency") {
@@ -152,7 +152,7 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies() == tds.tail.toSet)
-    assert(tds.head.methods.head.dependencies() == Set(objectClass))
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == Set(objectClass))
   }
 
   test("Local var not dependent") {
@@ -160,6 +160,6 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy {void func() {Object a; a = null;} }"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.head.dependencies() == Set(objectClass))
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == Set(objectClass))
   }
 }

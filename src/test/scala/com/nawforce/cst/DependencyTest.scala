@@ -41,7 +41,6 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
   private val defaultPath: Path = Paths.get(defaultName.toString)
   private var defaultOrg: Org = new Org
 
-  //private val listClass = defaultOrg.unmanaged.getTypeOption(TypeName.List))).get
   private val objectClass = defaultOrg.unmanaged.getTypeOption(TypeName.Object).get
   private val typeClass = defaultOrg.unmanaged.getTypeOption(TypeName.TypeType).get
   private val booleanClass = defaultOrg.unmanaged.getTypeOption(TypeName.Boolean).get
@@ -68,7 +67,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
 
   test("Empty class has no imports") {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy {}"))
-    assert(tds.head.dependencies().isEmpty)
+    assert(tds.head.dependencies() == Set(objectClass))
   }
 
   test("Class depends on superclass") {
@@ -87,7 +86,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "B" -> "public interface B {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.dependencies() == (objectClass +: tds.tail).toSet)
   }
 
   test("Interface depends on interface") {
@@ -105,7 +104,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy { class Inner {} }"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.dependencies().isEmpty)
+    assert(tds.head.nestedTypes.head.dependencies() == Set(objectClass))
   }
 
   test("Inner class depends on superclass") {
@@ -124,7 +123,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "B" -> "public interface B {}",
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.nestedTypes.head.dependencies() == (objectClass +: tds.tail).toSet)
   }
 
   test("Inner interface depends on interface") {
@@ -190,7 +189,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
   }
 
   test("Unknown method return") {
@@ -198,7 +197,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy { A func() {return null;} }"
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 23-27: No type declaration found for 'A'\n")
-    assert(tds.head.methods.head.dependencies().isEmpty)
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
 
   test("Method parameter creates dependency") {
@@ -207,7 +206,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
   }
 
   test("Unknown method parameter") {
@@ -215,7 +214,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy { void func(A a) {} }"
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 31-34: No type declaration found for 'A'\n")
-    assert(tds.head.methods.head.dependencies().isEmpty)
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
 
   test("Field type creates dependency") {
@@ -300,7 +299,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
   }
 
   test("Unknown for control type") {
@@ -308,7 +307,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy { void func() { for(A a;;) {}} }"
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 41-42: No type declaration found for 'A'\n")
-    assert(tds.head.methods.head.dependencies().isEmpty)
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
 
   test("Catch creates dependency") {
@@ -317,7 +316,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
   }
 
   test("Unknown catch type") {
@@ -325,7 +324,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy { void func() { try {} catch(A a){} } }"
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 48-49: No type declaration found for 'A'\n")
-    assert(tds.head.methods.head.dependencies().isEmpty)
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
 
   test("New creates dependency") {
@@ -334,7 +333,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.head.dependencies() == Set(tds.tail.head, objectClass))
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == (objectClass +: tds.tail).toSet)
   }
 
   /* TODO Update
@@ -344,7 +343,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.head.dependencies() == Set(tds.tail.head, listClass, objectClass))
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == Set(tds.tail.head, listClass, objectClass))
   } */
 
   test("Unknown new type") {
@@ -352,7 +351,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy { void func() { Object a = new A(); } }"
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 50-51: No type declaration found for 'A'\n")
-    assert(tds.head.methods.head.dependencies() == Set(objectClass))
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == Set(objectClass))
   }
 
   test("InstanceOf creates dependency") {
@@ -388,7 +387,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.methods.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
   }
 
   test("Method parameter in Inner creates dependency") {
@@ -397,7 +396,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.methods.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
   }
 
   test("Inner Field type creates dependency") {
@@ -446,7 +445,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.methods.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
   }
 
   test("Inner Catch creates dependency") {
@@ -455,7 +454,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.methods.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
   }
 
   test("Inner New creates dependency") {
@@ -464,7 +463,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.methods.head.dependencies() == Set(tds.tail.head, objectClass))
+    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == Set(tds.tail.head, objectClass))
   }
 
   /* TODO Update
@@ -474,7 +473,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.methods.head.dependencies() == Set(tds.tail.head,listClass, objectClass))
+    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == Set(tds.tail.head,listClass, objectClass))
   }
   */
 
