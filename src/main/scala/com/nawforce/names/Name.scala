@@ -150,6 +150,7 @@ object Name {
   lazy val ReplayId: Name = cache("ReplayId")
   lazy val Fields: Name = cache("Fields")
   lazy val FieldSets: Name = cache("FieldSets")
+  lazy val GetSObjectType: Name = cache("GetSObjectType")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 

@@ -42,15 +42,15 @@ import com.nawforce.types.{PackageDeclaration, PlatformTypes, TypeDeclaration}
 object TypeRequest {
   type TypeRequest = Either[TypeError, TypeDeclaration]
 
-  def apply(typeName: TypeName): TypeRequest = {
-    PlatformTypes.get(typeName, None)
+  def apply(typeName: TypeName, excludeSObjects: Boolean): TypeRequest = {
+    PlatformTypes.get(typeName, None, excludeSObjects)
   }
 
-  def apply(typeName: TypeName, pkg: PackageDeclaration): TypeRequest = {
-    pkg.getType(typeName, None)
+  def apply(typeName: TypeName, pkg: PackageDeclaration, excludeSObjects: Boolean): TypeRequest = {
+    pkg.getType(typeName, None, excludeSObjects)
   }
 
-  def apply(typeName: TypeName, from: TypeDeclaration): TypeRequest = {
+  def apply(typeName: TypeName, from: TypeDeclaration, excludeSObjects: Boolean): TypeRequest = {
     val pkg = from.packageDeclaration
     if (pkg.nonEmpty) {
       pkg.get.getTypeFor(typeName, from) match {
@@ -58,21 +58,22 @@ object TypeRequest {
         case None => Left(MissingType(typeName))
       }
     } else {
-      PlatformTypes.get(typeName, Some(from))
+      PlatformTypes.get(typeName, Some(from), excludeSObjects)
     }
   }
 
-  def apply(typeName: TypeName, from: Option[TypeDeclaration], pkg: Option[PackageDeclaration]): TypeRequest = {
+  def apply(typeName: TypeName, from: Option[TypeDeclaration], pkg: Option[PackageDeclaration],
+            excludeSObjects: Boolean): TypeRequest = {
     if (from.nonEmpty) {
       // Allow override of platform types in packages to support Schema.SObjectType handling
       if (from.get.packageDeclaration.isEmpty && pkg.nonEmpty)
-        apply(typeName, pkg.get)
+        apply(typeName, pkg.get, excludeSObjects)
       else
-        apply(typeName, from.get)
+        apply(typeName, from.get, excludeSObjects)
     } else if (pkg.nonEmpty)
-      apply(typeName, pkg.get)
+      apply(typeName, pkg.get, excludeSObjects)
     else
-      apply(typeName)
+      apply(typeName, excludeSObjects)
   }
 }
 

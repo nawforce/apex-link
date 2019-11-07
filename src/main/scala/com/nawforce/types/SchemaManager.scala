@@ -68,7 +68,7 @@ class RelatedLists(pkg: PackageDeclaration) {
     // Validate lookups will function
     val sobjects = relationshipFields.keys.toSet
     sobjects.foreach(sobject => {
-      val td = TypeRequest(sobject, pkg).toOption
+      val td = TypeRequest(sobject, pkg, excludeSObjects = false).toOption
       if ((td.isEmpty || !td.exists(_.isSObject)) && !pkg.isGhostedType(sobject)) {
         relationshipFields(sobject).foreach(field => {
           Org.logMessage(field._3,
@@ -122,7 +122,7 @@ final case class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDec
 
     sobjectFields.get(name).orElse({
       /* If not yet present check if we should create and cache */
-      val td = TypeRequest(TypeName(name), pkg).toOption
+      val td = TypeRequest(TypeName(name), pkg, excludeSObjects = false).toOption
       if (td.nonEmpty && td.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
         Some(createSObjectDescribeField(name, td.get.typeName))
       } else {
@@ -190,7 +190,7 @@ final case class SObjectTypeFields(sobjectName: Name, pkg: PackageDeclaration)
   extends NamedTypeDeclaration(pkg, TypeName.sObjectTypeFields$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
-    TypeRequest(TypeName(sobjectName), pkg).toOption match {
+    TypeRequest(TypeName(sobjectName), pkg, excludeSObjects = false).toOption match {
       case Some(sobject: TypeDeclaration) =>
         sobject.fields.map(field => (field.name, CustomFieldDeclaration(field.name, TypeName.DescribeFieldResult))).toMap
       case _ => Map()
@@ -233,7 +233,7 @@ final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageDeclaration
   extends NamedTypeDeclaration(pkg, TypeName.sObjectTypeFieldSets$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
   private lazy val sobjectFieldSets: Map[Name, FieldDeclaration] = {
-    TypeRequest(TypeName(sobjectName), pkg).toOption match {
+    TypeRequest(TypeName(sobjectName), pkg, excludeSObjects = false).toOption match {
       case Some(sobject: SObjectDeclaration) =>
         sobject.fieldSets.map(name => (name, CustomFieldDeclaration(name, TypeName.FieldSet))).toMap
       case _ => Map()

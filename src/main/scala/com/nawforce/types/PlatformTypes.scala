@@ -72,7 +72,7 @@ object PlatformTypes {
    * needed. The builds over PlatformTypeDeclaration by adding support for typeName aliases, nested
    * types and namespace defaulting.
    */
-  def get(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {
+  def get(typeName: TypeName, from: Option[TypeDeclaration], excludeSObjects: Boolean=false): TypeRequest = {
 
     def findOuterOrNestedPlatformType(localTypeName: TypeName): TypeRequest = {
       PlatformTypeDeclaration.get(localTypeName, from) match {
@@ -98,10 +98,12 @@ object PlatformTypes {
       return firstResult
     }
 
-    val schemaResult = findOuterOrNestedPlatformType(alias.wrap(TypeName.Schema))
-    if (schemaResult.isRight) {
-      fireLoadingEvents(schemaResult.right.get)
-      return schemaResult
+    if (!excludeSObjects) {
+      val schemaResult = findOuterOrNestedPlatformType(alias.wrap(TypeName.Schema))
+      if (schemaResult.isRight) {
+        fireLoadingEvents(schemaResult.right.get)
+        return schemaResult
+      }
     }
 
     val systemResult = findOuterOrNestedPlatformType(alias.wrap(TypeName.System))

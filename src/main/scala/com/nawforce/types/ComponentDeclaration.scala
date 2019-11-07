@@ -41,9 +41,9 @@ final case class ComponentDeclaration(pkg: PackageDeclaration) extends TypeDecla
 
   private val components = new ConcurrentHashMap[Name, TypeDeclaration]()
   components.put(Name("Apex"),
-    TypeRequest(TypeName(Name("Apex"), Nil, Some(TypeName(Name("Component"))))).toOption.get)
+    TypeRequest(TypeName(Name("Apex"), Nil, Some(TypeName(Name("Component")))), excludeSObjects = false).toOption.get)
   components.put(Name("Chatter"),
-    TypeRequest(TypeName(Name("Chatter"), Nil, Some(TypeName(Name("Component"))))).toOption.get)
+    TypeRequest(TypeName(Name("Chatter"), Nil, Some(TypeName(Name("Component")))), excludeSObjects = false).toOption.get)
 
   override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
   override val name: Name = Name.Component

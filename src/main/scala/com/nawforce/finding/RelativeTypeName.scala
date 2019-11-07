@@ -49,7 +49,7 @@ final case class RelativeTypeName(pkg: PackageDeclaration, outerTypeName: TypeNa
   // TypeRequest for the relative type, None if not required
   lazy val typeRequest: Option[TypeRequest] = {
     if (relativeTypeName != TypeName.Void && !pkg.isGhostedType(relativeTypeName))
-      Some(TypeRequest(relativeTypeName, outerTypeDeclaration))
+      Some(TypeRequest(relativeTypeName, outerTypeDeclaration, excludeSObjects = false))
     else
       None
   }
@@ -57,5 +57,7 @@ final case class RelativeTypeName(pkg: PackageDeclaration, outerTypeName: TypeNa
   // Recover outer types nature, bit of a hack but sometimes useful
   lazy val outerNature: Nature = outerTypeDeclaration.nature
 
-  private lazy val outerTypeDeclaration: TypeDeclaration = TypeRequest(outerTypeName, pkg).right.get
+  private lazy val outerTypeDeclaration: TypeDeclaration = {
+    TypeRequest(outerTypeName, pkg, excludeSObjects = false).right.get
+  }
 }

@@ -71,6 +71,19 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
       }
     }
 
+    // Intercept static call to System Type that may clash with SObject, there currently only three of these
+    // Approval, BusinessHours & Site so we could handle non-generically if needed to bypass
+    if (target.isRight) {
+      expression match {
+        case PrimaryExpression(primary: IdPrimary) if context.isVar(primary.id.name).isEmpty =>
+          val td = context.getTypeAndAddDependency(TypeName(primary.id.name), None, excludeSObjects = true).toOption
+          if (td.nonEmpty) {
+            return verifyWithMethod(ExprContext(isStatic = true, td), input, context)
+          }
+        case _ =>
+      }
+    }
+
     val inter = expression.verify(input, context)
     if (inter.isDefined) {
       if (target.isLeft)
@@ -98,7 +111,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
         val field: Option[FieldDeclaration] = findField(name, td, context.pkg, input.isStatic)
         if (field.nonEmpty) {
           field.get.addDependencyHolder(context.holder)
-          val target = context.getTypeAndAddDependency(field.get.typeName, td).toOption
+          val target = context.getTypeAndAddDependency(field.get.typeName, Some(td)).toOption
           return ExprContext(isStatic = false, target)
         }
 

@@ -54,14 +54,12 @@ trait VerifyContext {
   def addDependency(dependant: Dependant): Unit
 
   /* Locate a type, typeName may be relative so searching must be performed wrt a typeDeclaration */
-  def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration]
+  def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
+                 excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration]
 
   /* Helper to locate a relative or absolute type and add as dependency if found */
-  def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration]
-
-  def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): Either[TypeError, TypeDeclaration] = {
-    getTypeAndAddDependency(typeName, Some(from))
-  }
+  def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration],
+                              excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration]
 
   def suppressWarnings: Boolean = parent().exists(_.suppressWarnings)
 
@@ -87,14 +85,16 @@ trait HolderVerifyContext {
   def dependencies: Set[Dependant] = _dependencies.toSet
 
   /* Locate a type, typeName may be relative so searching must be performed wrt a typeDeclaration */
-  def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration]
+  def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
+                 excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration]
 
   def addDependency(dependant: Dependant): Unit = {
     _dependencies += dependant
   }
 
-  def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration] = {
-    val result = getTypeFor(typeName, from)
+  def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration],
+                              excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {
+    val result = getTypeFor(typeName, from, excludeSObjects)
     result.foreach(addDependency)
     result
   }
@@ -113,8 +113,9 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: A
 
   override def holder: DependencyHolder = typeDeclaration
 
-  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration] = {
-    TypeRequest(typeName, from, thisType.flatMap(_.packageDeclaration))
+  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
+                          excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {
+    TypeRequest(typeName, from, thisType.flatMap(_.packageDeclaration), excludeSObjects)
   }
 
   override def suppressWarnings: Boolean =
@@ -134,8 +135,9 @@ class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDe
 
   override def holder: DependencyHolder = classBodyDeclaration
 
-  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration] = {
-    parentContext.getTypeFor(typeName, from)
+  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
+                          excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {
+    parentContext.getTypeFor(typeName, from, excludeSObjects)
   }
 
   override def suppressWarnings: Boolean =
@@ -159,12 +161,14 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
 
   override def addDependency(dependant: Dependant): Unit = parentContext.addDependency(dependant)
 
-  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration] = {
-    parentContext.getTypeFor(typeName, from)
+  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
+                          excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {
+    parentContext.getTypeFor(typeName, from, excludeSObjects)
   }
 
-  override def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration] = {
-    parentContext.getTypeAndAddDependency(typeName, from)
+  override def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration],
+                                       excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {
+    parentContext.getTypeAndAddDependency(typeName, from, excludeSObjects)
   }
 
   def isVar(name: Name): Option[TypeDeclaration] = {
@@ -176,7 +180,7 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
   }
 
   def addVar(name: Name, location: Location, typeName: TypeName): Unit = {
-    val td = getTypeAndAddDependency(typeName, thisType.get).toOption
+    val td = getTypeAndAddDependency(typeName, thisType).toOption
     if (td.isEmpty)
       missingType(location, typeName)
 
@@ -219,12 +223,14 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext)
 
   override def addDependency(dependant: Dependant): Unit = parentContext.addDependency(dependant)
 
-  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration] = {
-    parentContext.getTypeFor(typeName, from)
+  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
+                          excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {
+    parentContext.getTypeFor(typeName, from, excludeSObjects)
   }
 
-  override def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration]): Either[TypeError, TypeDeclaration] = {
-    parentContext.getTypeAndAddDependency(typeName, from)
+  override def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration],
+                                       excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {
+    parentContext.getTypeAndAddDependency(typeName, from, excludeSObjects)
   }
 
   def isVar(name: Name): Option[TypeDeclaration] = parentContext.isVar(name)
