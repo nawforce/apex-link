@@ -134,7 +134,7 @@ object SObjectDeclaration {
       createExisting(sobjectDetails.withTypeName(typeName.withName(Name.Task)), path, pkg) ++
         createExisting(sobjectDetails.withTypeName(typeName.withName(Name.Event)), path, pkg)
     } else {
-      val sobjectType = TypeRequest(typeName, pkg).toOption
+      val sobjectType = TypeRequest(typeName, pkg, excludeSObjects = false).toOption
       if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
         Org.logMessage(LineLocation(path, 0), s"No SObject declaration found for '$typeName'")
         return Seq()
@@ -239,7 +239,7 @@ object SObjectDeclaration {
   private def collectBaseFields(sObject: DotName, pkg: PackageDeclaration): mutable.Map[Name, FieldDeclaration] = {
     val collected: mutable.Map[Name, FieldDeclaration] = mutable.Map()
     pkg.basePackages.filterNot(_.isGhosted).foreach(basePkg => {
-      val fields: Seq[FieldDeclaration] = TypeRequest(sObject.asTypeName(), basePkg).toOption.map {
+      val fields: Seq[FieldDeclaration] = TypeRequest(sObject.asTypeName(), basePkg, excludeSObjects = false).toOption.map {
         case baseTd: SObjectDeclaration => baseTd.fields
         case _ => Nil
       }.getOrElse(Seq())

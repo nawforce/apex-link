@@ -176,7 +176,7 @@ trait TypeDeclaration extends DependencyHolder {
   }
 
   private lazy val fieldsByName: mutable.Map[Name, FieldDeclaration] = {
-    val outerType = outerTypeName.flatMap(typeName => TypeRequest(typeName, this).toOption)
+    val outerType = outerTypeName.flatMap(typeName => TypeRequest(typeName, this, excludeSObjects = false).toOption)
     val fieldsByName = mutable.Map(fields.map(f => (f.name, f)) : _*)
     outerType.foreach(td => td.fields.filter(_.isStatic).foreach(f => {
       if (!fieldsByName.contains(f.name))
@@ -187,14 +187,22 @@ trait TypeDeclaration extends DependencyHolder {
 
   def findMethod(name: Name, paramCount: Int, staticContext: Option[Boolean]): Option[MethodDeclaration] = {
     val matches = methodsByNameAndParamCount.get((name, paramCount))
-    staticContext match {
+    val found = staticContext match {
       case Some(x) => matches.filter(_.isStatic == x)
       case None => matches
     }
+
+    // Horrible skulduggery to support SObject.GetSObjectType()
+    if (found.isEmpty && name == Name.GetSObjectType && paramCount == 0 && staticContext.contains(true)) {
+      findMethod(name, paramCount, Some(false))
+    } else {
+      found
+    }
+
   }
 
   private lazy val methodsByNameAndParamCount: mutable.Map[(Name, Int), MethodDeclaration] = {
-    val outerType = outerTypeName.flatMap(typeName => TypeRequest(typeName, this).toOption)
+    val outerType = outerTypeName.flatMap(typeName => TypeRequest(typeName, this, excludeSObjects = false).toOption)
     val methodsByName = mutable.Map(methods.map(m => ((m.name, m.parameters.size), m)) : _*)
     outerType.foreach(td => td.methods.filter(_.isStatic).foreach(m => {
       if (!methodsByName.contains((m.name, m.parameters.size)))

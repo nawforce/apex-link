@@ -95,7 +95,7 @@ final case class IdPrimary(id: Id) extends Primary {
         val field = findField(name, td)
         if (field.nonEmpty) {
           field.get.addDependencyHolder(context.holder)
-          val target = context.getTypeAndAddDependency(field.get.typeName, td).toOption
+          val target = context.getTypeAndAddDependency(field.get.typeName, Some(td)).toOption
           return ExprContext(isStatic = false, target)
         }
 
@@ -110,7 +110,7 @@ final case class IdPrimary(id: Id) extends Primary {
       case _ => ()
     }
 
-    val absTd = TypeRequest(TypeName(id.name), context.pkg)
+    val absTd = TypeRequest(TypeName(id.name), context.pkg, excludeSObjects = false)
     if (absTd.isRight) {
       context.addDependency(absTd.right.get)
       return ExprContext(isStatic = true, absTd.toOption)

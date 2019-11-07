@@ -129,7 +129,7 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
   }
 
   private def outerStaticMethods: Seq[ApexMethodDeclaration] = {
-    outerTypeName.flatMap(ot => TypeRequest(ot, this).toOption) match {
+    outerTypeName.flatMap(ot => TypeRequest(ot, this, excludeSObjects = false).toOption) match {
       case Some(td: ApexTypeDeclaration) => td.localMethods.filter(_.isStatic)
       case _ => Seq()
     }

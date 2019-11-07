@@ -74,20 +74,22 @@ abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Pa
    * if needed. This is the fallback handling for the TypeFinder which performs local searching for types, so this is
    * only useful if *you* know local searching is not required.
    */
-  def getType(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {
+  def getType(typeName: TypeName, from: Option[TypeDeclaration], excludeSObjects: Boolean = false): TypeRequest = {
 
-    var td = getPackageType(typeName).map(Right(_))
-    if (td.nonEmpty)
-      return td.get
-
-    if (namespace.nonEmpty && typeName.outerName != namespace.get) {
-      td = getPackageType(typeName.withTail(TypeName(namespace.get))).map(Right(_))
+    if (!excludeSObjects) {
+      var td = getPackageType(typeName).map(Right(_))
       if (td.nonEmpty)
         return td.get
+
+      if (namespace.nonEmpty && typeName.outerName != namespace.get) {
+        td = getPackageType(typeName.withTail(TypeName(namespace.get))).map(Right(_))
+        if (td.nonEmpty)
+          return td.get
+      }
     }
 
     // From may be used to locate type variable types so must be accurate even for a platform type request
-    PlatformTypes.get(typeName, from)
+    PlatformTypes.get(typeName, from, excludeSObjects)
   }
 
   // TODO: Remove this
