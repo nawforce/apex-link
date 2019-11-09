@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class LightningToggleMetrics extends SObject {
 	public static SObjectType$<LightningToggleMetrics> SObjectType;
-	public static SObjectTypeFields$<LightningToggleMetrics> Fields;
-	public static SObjectTypeFieldSets$<LightningToggleMetrics> FieldSets;
+	public static SObjectFields$<LightningToggleMetrics> Fields;
+
 	public String Action;
 	public Date MetricsDate;
 	public Integer RecordCount;

@@ -28,16 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class GrantedByLicense extends SObject {
 	public static SObjectType$<GrantedByLicense> SObjectType;
-	public static SObjectTypeFields$<GrantedByLicense> Fields;
-	public static SObjectTypeFieldSets$<GrantedByLicense> FieldSets;
+	public static SObjectFields$<GrantedByLicense> Fields;
+
 	public Id CustomPermissionId;
 	public CustomPermission CustomPermission;
 	public Id PermissionSetLicenseId;

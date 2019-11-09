@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class UserListView extends SObject {
 	public static SObjectType$<UserListView> SObjectType;
-	public static SObjectTypeFields$<UserListView> Fields;
-	public static SObjectTypeFieldSets$<UserListView> FieldSets;
+	public static SObjectFields$<UserListView> Fields;
+
 	public String LastViewedChart;
 	public Id ListViewId;
 	public ListView ListView;

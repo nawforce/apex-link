@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class CampaignShare extends SObject {
 	public static SObjectType$<CampaignShare> SObjectType;
-	public static SObjectTypeFields$<CampaignShare> Fields;
-	public static SObjectTypeFieldSets$<CampaignShare> FieldSets;
+	public static SObjectFields$<CampaignShare> Fields;
+
 	public String CampaignAccessLevel;
 	public Id CampaignId;
 	public Campaign Campaign;

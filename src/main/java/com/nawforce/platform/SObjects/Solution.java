@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -39,8 +39,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class Solution extends SObject {
 	public static SObjectType$<Solution> SObjectType;
-	public static SObjectTypeFields$<Solution> Fields;
-	public static SObjectTypeFieldSets$<Solution> FieldSets;
+	public static SObjectFields$<Solution> Fields;
+
 	public Id RecordTypeId;
 	public String CurrencyIsoCode;
 	public Boolean IsHtml;

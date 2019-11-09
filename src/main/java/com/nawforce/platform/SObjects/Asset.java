@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -39,8 +39,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class Asset extends SObject {
 	public static SObjectType$<Asset> SObjectType;
-	public static SObjectTypeFields$<Asset> Fields;
-	public static SObjectTypeFieldSets$<Asset> FieldSets;
+	public static SObjectFields$<Asset> Fields;
+
 	public Id AccountId;
 	public Account Account;
 	public Integer AssetLevel;

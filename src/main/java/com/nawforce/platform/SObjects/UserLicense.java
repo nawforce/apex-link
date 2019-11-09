@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class UserLicense extends SObject {
 	public static SObjectType$<UserLicense> SObjectType;
-	public static SObjectTypeFields$<UserLicense> Fields;
-	public static SObjectTypeFieldSets$<UserLicense> FieldSets;
+	public static SObjectFields$<UserLicense> Fields;
+
 	public String LicenseDefinitionKey;
 	public String MasterLabel;
 	public Integer MonthlyLoginsEntitlement;

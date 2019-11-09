@@ -28,16 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class PermissionSetAssignment extends SObject {
 	public static SObjectType$<PermissionSetAssignment> SObjectType;
-	public static SObjectTypeFields$<PermissionSetAssignment> Fields;
-	public static SObjectTypeFieldSets$<PermissionSetAssignment> FieldSets;
+	public static SObjectFields$<PermissionSetAssignment> Fields;
+
 	public Id AssigneeId;
 	public User Assignee;
 	public Id PermissionSetId;

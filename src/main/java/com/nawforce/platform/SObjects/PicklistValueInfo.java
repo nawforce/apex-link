@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class PicklistValueInfo extends SObject {
 	public static SObjectType$<PicklistValueInfo> SObjectType;
-	public static SObjectTypeFields$<PicklistValueInfo> Fields;
-	public static SObjectTypeFieldSets$<PicklistValueInfo> FieldSets;
+	public static SObjectFields$<PicklistValueInfo> Fields;
+
 	public String DurableId;
 	public String EntityParticleId;
 	public Boolean IsActive;

@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class Group extends SObject {
 	public static SObjectType$<Group> SObjectType;
-	public static SObjectTypeFields$<Group> Fields;
-	public static SObjectTypeFieldSets$<Group> FieldSets;
+	public static SObjectFields$<Group> Fields;
+
 	public String DeveloperName;
 	public Boolean DoesIncludeBosses;
 	public Boolean DoesSendEmailToMembers;

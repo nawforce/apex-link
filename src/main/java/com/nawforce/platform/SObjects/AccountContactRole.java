@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class AccountContactRole extends SObject {
 	public static SObjectType$<AccountContactRole> SObjectType;
-	public static SObjectTypeFields$<AccountContactRole> Fields;
-	public static SObjectTypeFieldSets$<AccountContactRole> FieldSets;
+	public static SObjectFields$<AccountContactRole> Fields;
+
 	public Id AccountId;
 	public Account Account;
 	public Id ContactId;

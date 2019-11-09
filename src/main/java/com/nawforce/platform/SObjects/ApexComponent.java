@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Decimal;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class ApexComponent extends SObject {
 	public static SObjectType$<ApexComponent> SObjectType;
-	public static SObjectTypeFields$<ApexComponent> Fields;
-	public static SObjectTypeFieldSets$<ApexComponent> FieldSets;
+	public static SObjectFields$<ApexComponent> Fields;
+
 	public Decimal ApiVersion;
 	public String ControllerKey;
 	public String ControllerType;

@@ -28,7 +28,7 @@
 package com.nawforce.types
 
 import com.nawforce.api._
-import com.nawforce.cst.{BinaryExpression, ExprContext, Expression, ExpressionVerifyContext, IdPrimary, PrimaryExpression}
+import com.nawforce.cst.{BinaryExpression, ExprContext, Expression, ExpressionVerifyContext, IdPrimary, MethodMap, PrimaryExpression, VerifyContext}
 import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{Name, TypeName}
 
@@ -185,30 +185,18 @@ trait TypeDeclaration extends DependencyHolder {
     fieldsByName
   }
 
-  def findMethod(name: Name, paramCount: Int, staticContext: Option[Boolean]): Option[MethodDeclaration] = {
-    val matches = methodsByNameAndParamCount.get((name, paramCount))
-    val found = staticContext match {
-      case Some(x) => matches.filter(_.isStatic == x)
-      case None => matches
-    }
+  private lazy val methodMap: MethodMap = MethodMap(MethodMap.empty(), methods, Seq())
+
+  def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
+                 verifyContext: VerifyContext): Seq[MethodDeclaration] = {
+    val found = methodMap.findMethod(name, params, staticContext, verifyContext)
 
     // Horrible skulduggery to support SObject.GetSObjectType()
-    if (found.isEmpty && name == Name.GetSObjectType && paramCount == 0 && staticContext.contains(true)) {
-      findMethod(name, paramCount, Some(false))
+    if (found.isEmpty && name == Name.GetSObjectType && params.isEmpty && staticContext.contains(true)) {
+      findMethod(name, params, Some(false), verifyContext)
     } else {
       found
     }
-
-  }
-
-  private lazy val methodsByNameAndParamCount: mutable.Map[(Name, Int), MethodDeclaration] = {
-    val outerType = outerTypeName.flatMap(typeName => TypeRequest(typeName, this, excludeSObjects = false).toOption)
-    val methodsByName = mutable.Map(methods.map(m => ((m.name, m.parameters.size), m)) : _*)
-    outerType.foreach(td => td.methods.filter(_.isStatic).foreach(m => {
-      if (!methodsByName.contains((m.name, m.parameters.size)))
-        methodsByName.put((m.name, m.parameters.size), m)
-    }))
-    methodsByName
   }
 
   def findLocalType(typeName: TypeName): Option[TypeDeclaration] = {

@@ -28,21 +28,40 @@
 package com.nawforce.cst
 
 import com.nawforce.documents.Location
-import com.nawforce.names.Name
+import com.nawforce.names.{Name, TypeName}
 import com.nawforce.types.{INTERFACE_NATURE, MethodDeclaration, TypeDeclaration}
 
 import scala.collection.mutable
 
-final case class MethodMap(methodsByName: Map[(Name, Int), Seq[MethodDeclaration]], errors: Map[Location, String]) {
+final case class MethodMap(methodsByName: Map[(Name, Int), Seq[MethodDeclaration]], errors: Map[Location, String])
+  extends AssignableSupport {
 
   lazy val externalMethods: Iterable[MethodDeclaration] = methodsByName.values.flatMap(_.filter(_.isGlobalOrPublic))
   val allMethods: Iterable[MethodDeclaration] = methodsByName.values.flatten
 
-  def findMethod(name: Name, paramCount: Int, staticContext: Option[Boolean]): Option[MethodDeclaration] = {
-    val matches = methodsByName.getOrElse((name, paramCount),Seq())
-    staticContext match {
-      case None => matches.headOption
-      case Some(x) => matches.find(m => m.isStatic == x)
+  def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
+                 context: VerifyContext): Seq[MethodDeclaration] = {
+    val matches = methodsByName.getOrElse((name, params.size),Seq())
+    val filteredMatches = staticContext match {
+      case None => matches
+      case Some(x) => matches.filter(m => m.isStatic == x)
+    }
+    val exactMatches = filteredMatches.filter(_.parameterTypes == params.mkString(", "))
+    if (exactMatches.nonEmpty)
+      Seq(exactMatches.head)
+
+    val assignableMatches = filteredMatches.map(m => {
+      val argZip = m.parameters.map(_.typeName).zip(params)
+      (argZip.forall(argPair => isAssignable(argPair._1, argPair._2, context)),
+        argZip.count(argPair => argPair._1 == argPair._2),
+        m)
+    }).filter(_._1).map(m => (m._2, m._3))
+
+    if (assignableMatches.nonEmpty) {
+      val maxIdentical = assignableMatches.map(_._1).max
+      assignableMatches.filter(_._1 == maxIdentical).map(_._2)
+    } else {
+      Seq()
     }
   }
 }

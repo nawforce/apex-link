@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -39,8 +39,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class PlatformAction extends SObject {
 	public static SObjectType$<PlatformAction> SObjectType;
-	public static SObjectTypeFields$<PlatformAction> Fields;
-	public static SObjectTypeFieldSets$<PlatformAction> FieldSets;
+	public static SObjectFields$<PlatformAction> Fields;
+
 	public String ActionListContext;
 	public String ActionTarget;
 	public String ActionTargetType;

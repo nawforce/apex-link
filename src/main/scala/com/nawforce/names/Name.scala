@@ -137,6 +137,7 @@ object Name {
   lazy val SObjectType$: Name = cache("SObjectType$")
   lazy val SObjectTypeFields$: Name = cache("SObjectTypeFields$")
   lazy val SObjectTypeFieldSets$: Name = cache("SObjectTypeFieldSets$")
+  lazy val SObjectFields$: Name = cache("SObjectFields$")
   lazy val Activity: Name = cache("Activity")
   lazy val Task: Name = cache("Task")
   lazy val Event: Name = cache("Event")

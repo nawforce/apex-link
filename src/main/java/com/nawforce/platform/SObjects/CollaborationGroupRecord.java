@@ -28,16 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class CollaborationGroupRecord extends SObject {
 	public static SObjectType$<CollaborationGroupRecord> SObjectType;
-	public static SObjectTypeFields$<CollaborationGroupRecord> Fields;
-	public static SObjectTypeFieldSets$<CollaborationGroupRecord> FieldSets;
+	public static SObjectFields$<CollaborationGroupRecord> Fields;
+
 	public Id CollaborationGroupId;
 	public CollaborationGroup CollaborationGroup;
 	public Id RecordId;

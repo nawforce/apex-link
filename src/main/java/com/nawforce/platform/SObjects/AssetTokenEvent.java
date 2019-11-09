@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class AssetTokenEvent extends SObject {
 	public static SObjectType$<AssetTokenEvent> SObjectType;
-	public static SObjectTypeFields$<AssetTokenEvent> Fields;
-	public static SObjectTypeFieldSets$<AssetTokenEvent> FieldSets;
+	public static SObjectFields$<AssetTokenEvent> Fields;
+
 	public String ActorTokenPayload;
 	public Id AssetId;
 	public Asset Asset;

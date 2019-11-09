@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class Approval extends SObject {
 	public static SObjectType$<Approval> SObjectType;
-	public static SObjectTypeFields$<Approval> Fields;
-	public static SObjectTypeFieldSets$<Approval> FieldSets;
+	public static SObjectFields$<Approval> Fields;
+
 	public String ApproveComment;
 	public Id OwnerId;
 	public User Owner;

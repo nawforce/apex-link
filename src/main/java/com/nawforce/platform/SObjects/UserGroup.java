@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -39,8 +39,8 @@ import com.nawforce.platform.System.*;
 /* Future: Determine how this is handled on platform */
 public class UserGroup extends SObject {
 	public static SObjectType$<UserGroup> SObjectType;
-	public static SObjectTypeFields$<UserGroup> Fields;
-	public static SObjectTypeFieldSets$<UserGroup> FieldSets;
+	public static SObjectFields$<UserGroup> Fields;
+
 
 	// Group fields
 	public String DeveloperName;

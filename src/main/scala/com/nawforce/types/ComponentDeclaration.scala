@@ -98,6 +98,7 @@ final case class CustomComponent(pkg: PackageDeclaration, name: Name, typeName: 
   override val isExternallyVisible: Boolean = true
 
   override val superClass: Option[TypeName] = Some(TypeName.ApexPagesComponent)
+  override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.componentType)
   override val interfaces: Seq[TypeName] = Nil
   override val nestedTypes: Seq[TypeDeclaration] = Nil
 

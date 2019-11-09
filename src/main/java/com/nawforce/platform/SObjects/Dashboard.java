@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class Dashboard extends SObject {
 	public static SObjectType$<Dashboard> SObjectType;
-	public static SObjectTypeFields$<Dashboard> Fields;
-	public static SObjectTypeFieldSets$<Dashboard> FieldSets;
+	public static SObjectFields$<Dashboard> Fields;
+
 	public String BackgroundDirection;
 	public Integer BackgroundEnd;
 	public Integer BackgroundStart;

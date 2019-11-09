@@ -28,16 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class CaseTeamTemplateRecord extends SObject {
 	public static SObjectType$<CaseTeamTemplateRecord> SObjectType;
-	public static SObjectTypeFields$<CaseTeamTemplateRecord> Fields;
-	public static SObjectTypeFieldSets$<CaseTeamTemplateRecord> FieldSets;
+	public static SObjectFields$<CaseTeamTemplateRecord> Fields;
+
 	public Id ParentId;
 	public Case Parent;
 	public Id TeamTemplateId;

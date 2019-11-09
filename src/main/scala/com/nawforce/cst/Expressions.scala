@@ -194,10 +194,15 @@ final case class MethodCall(target: Either[Boolean, Id], arguments: List[Express
 
     target match {
       case Right(id) =>
-        val methods = callee.findMethod(id.name, arguments.size, staticContext)
+        val argTypes = args.map(_.typeName)
+        val methods = callee.findMethod(id.name, argTypes, staticContext, context)
         if (methods.isEmpty) {
-          context.logMessage(location,
-            s"No matching method found for '${id.name}' on '${callee.typeName}'")
+          if (argTypes.isEmpty)
+            context.logMessage(location,
+              s"No matching method found for '${id.name}' on '${callee.typeName}' taking no arguments")
+            else
+              context.logMessage(location,
+                s"No matching method found for '${id.name}' on '${callee.typeName}' taking arguments '${argTypes.mkString(", ")}'")
           ExprContext.empty
         } else if (methods.head.typeName != TypeName.Void && !context.pkg.isGhostedType(methods.head.typeName)) {
           val td = context.getTypeAndAddDependency(methods.head.typeName, context.thisType)

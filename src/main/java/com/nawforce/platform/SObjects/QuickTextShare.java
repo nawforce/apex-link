@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class QuickTextShare extends SObject {
 	public static SObjectType$<QuickTextShare> SObjectType;
-	public static SObjectTypeFields$<QuickTextShare> Fields;
-	public static SObjectTypeFieldSets$<QuickTextShare> FieldSets;
+	public static SObjectFields$<QuickTextShare> Fields;
+
 	public String AccessLevel;
 	public Id ParentId;
 	public QuickText Parent;

@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class OpportunityLineItemSchedule extends SObject {
 	public static SObjectType$<OpportunityLineItemSchedule> SObjectType;
-	public static SObjectTypeFields$<OpportunityLineItemSchedule> Fields;
-	public static SObjectTypeFieldSets$<OpportunityLineItemSchedule> FieldSets;
+	public static SObjectFields$<OpportunityLineItemSchedule> Fields;
+
 	public String CurrencyIsoCode;
 	public String Description;
 	public Id OpportunityLineItemId;

@@ -143,6 +143,8 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
         s"Schema.SObjectType.$name.Fields"
       case TypeName(Name.SObjectTypeFieldSets$, Seq(TypeName(name, Nil, Some(TypeName.Schema))), Some(TypeName.Internal)) =>
         s"Schema.SObjectType.$name.FieldSets"
+      case TypeName(Name.SObjectFields$, Seq(TypeName(name, Nil, Some(TypeName.Schema))), Some(TypeName.Internal)) =>
+        s"Schema.$name.Fields"
 
       case _ =>
         (if (outer.isEmpty) "" else outer.get.toString + ".") +
@@ -195,6 +197,7 @@ object TypeName {
   lazy val SObjectType$ = TypeName(Name.SObjectType$, Nil, Some(TypeName.Internal))
   lazy val SObjectTypeFields$ = TypeName(Name.SObjectTypeFields$, Nil, Some(TypeName.Internal))
   lazy val SObjectTypeFieldSets$ = TypeName(Name.SObjectTypeFieldSets$, Nil, Some(TypeName.Internal))
+  lazy val SObjectFields$ = TypeName(Name.SObjectFields$, Nil, Some(TypeName.Internal))
 
   lazy val UserRecordAccess = TypeName(Name.UserRecordAccess)
 
@@ -202,6 +205,7 @@ object TypeName {
   def sObjectType$(typeName: TypeName): TypeName = SObjectType$.withParams(Seq(typeName))
   def sObjectTypeFields$(typeName: TypeName): TypeName = SObjectTypeFields$.withParams(Seq(typeName))
   def sObjectTypeFieldSets$(typeName: TypeName): TypeName = SObjectTypeFieldSets$.withParams(Seq(typeName))
+  def sObjectFields$(typeName: TypeName): TypeName = SObjectFields$.withParams(Seq(typeName))
 
   def listOf(typeName: TypeName): TypeName = TypeName(Name.List$, Seq(typeName), Some(TypeName.System))
   def mapOf(keyType: TypeName, valueType: TypeName): TypeName = TypeName(Name.Map$, Seq(keyType, valueType), Some(TypeName.System))

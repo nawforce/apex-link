@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class OpportunityHistory extends SObject {
 	public static SObjectType$<OpportunityHistory> SObjectType;
-	public static SObjectTypeFields$<OpportunityHistory> Fields;
-	public static SObjectTypeFieldSets$<OpportunityHistory> FieldSets;
+	public static SObjectFields$<OpportunityHistory> Fields;
+
 	public Decimal Amount;
 	public Date CloseDate;
 	public String CurrencyIsoCode;

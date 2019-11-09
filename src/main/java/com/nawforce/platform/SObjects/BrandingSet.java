@@ -28,16 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class BrandingSet extends SObject {
 	public static SObjectType$<BrandingSet> SObjectType;
-	public static SObjectTypeFields$<BrandingSet> Fields;
-	public static SObjectTypeFieldSets$<BrandingSet> FieldSets;
+	public static SObjectFields$<BrandingSet> Fields;
+
 	public String Description;
 	public String DeveloperName;
 	public String Language;

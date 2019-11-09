@@ -28,7 +28,7 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
+
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -37,7 +37,7 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class EntityDefinition extends SObject {
 	public static SObjectType$<EntityDefinition> SObjectType;
-	public static SObjectTypeFieldSets$<EntityDefinition> FieldSets;
+
 
 	public Id DataStewardId;
 	public Group DataSteward;

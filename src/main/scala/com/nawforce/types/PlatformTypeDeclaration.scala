@@ -322,7 +322,7 @@ object PlatformTypeDeclaration {
     val cname = if (cls.isArray) cls.getComponentType.getCanonicalName else cls.getCanonicalName
     val typeName =
       if (cname == "java.lang.Object") {
-        TypeName.Object
+        TypeName.InternalObject
       } else if (cname == "void") {
         TypeName.Void
       } else if (cname.startsWith(platformPackage+".SObjects")) {

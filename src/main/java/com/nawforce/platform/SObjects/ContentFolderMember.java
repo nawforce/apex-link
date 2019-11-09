@@ -28,16 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class ContentFolderMember extends SObject {
 	public static SObjectType$<ContentFolderMember> SObjectType;
-	public static SObjectTypeFields$<ContentFolderMember> Fields;
-	public static SObjectTypeFieldSets$<ContentFolderMember> FieldSets;
+	public static SObjectFields$<ContentFolderMember> Fields;
+
 	public Id ChildRecordId;
 	public ContentDocument ChildRecord;
 	public Id ParentContentFolderId;

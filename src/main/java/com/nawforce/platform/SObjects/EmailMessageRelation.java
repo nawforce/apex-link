@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class EmailMessageRelation extends SObject {
 	public static SObjectType$<EmailMessageRelation> SObjectType;
-	public static SObjectTypeFields$<EmailMessageRelation> Fields;
-	public static SObjectTypeFieldSets$<EmailMessageRelation> FieldSets;
+	public static SObjectFields$<EmailMessageRelation> Fields;
+
 	public Id EmailMessageId;
 	public EmailMessage EmailMessage;
 	public String RelationAddress;

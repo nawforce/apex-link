@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.SObject;
 @SuppressWarnings("unused")
 public class ChatterActivity extends SObject {
 	public static SObjectType$<ChatterActivity> SObjectType;
-	public static SObjectTypeFields$<ChatterActivity> Fields;
-	public static SObjectTypeFieldSets$<ChatterActivity> FieldSets;
+	public static SObjectFields$<ChatterActivity> Fields;
+
 	public Integer CommentCount;
 	public Integer CommentReceivedCount;
 	public Integer InfluenceRawRank;

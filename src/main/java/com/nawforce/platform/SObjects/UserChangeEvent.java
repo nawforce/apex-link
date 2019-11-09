@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class UserChangeEvent extends SObject {
 	public static SObjectType$<UserChangeEvent> SObjectType;
-	public static SObjectTypeFields$<UserChangeEvent> Fields;
-	public static SObjectTypeFieldSets$<UserChangeEvent> FieldSets;
+	public static SObjectFields$<UserChangeEvent> Fields;
+
 	public String AboutMe;
 	public Id AccountId;
 	public Account Account;

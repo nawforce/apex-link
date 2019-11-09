@@ -41,7 +41,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
   private val defaultPath: Path = Paths.get(defaultName.toString)
   private var defaultOrg: Org = new Org
 
-  private val objectClass = defaultOrg.unmanaged.getTypeOption(TypeName.Object).get
+  private val objectClass = defaultOrg.unmanaged.getTypeOption(TypeName.InternalObject).get
   private val typeClass = defaultOrg.unmanaged.getTypeOption(TypeName.TypeType).get
   private val booleanClass = defaultOrg.unmanaged.getTypeOption(TypeName.Boolean).get
   private val queryLocatorClass = defaultOrg.unmanaged.getTypeOption(

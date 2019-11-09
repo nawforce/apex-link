@@ -32,6 +32,5 @@ import com.nawforce.platform.Schema.SObjectType;
 @SuppressWarnings("unused")
 
 public class SObjectType$<T> extends SObjectType {
-    public SObjectTypeFields$<T> Fields;
-    public SObjectTypeFieldSets$<T> FieldSets;
+    public SObjectFields$<T> Fields;
 }

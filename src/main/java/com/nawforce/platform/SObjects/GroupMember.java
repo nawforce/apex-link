@@ -28,16 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class GroupMember extends SObject {
 	public static SObjectType$<GroupMember> SObjectType;
-	public static SObjectTypeFields$<GroupMember> Fields;
-	public static SObjectTypeFieldSets$<GroupMember> FieldSets;
+	public static SObjectFields$<GroupMember> Fields;
+
 	public Id GroupId;
 	public Group Group;
 	public Id UserOrGroupId;

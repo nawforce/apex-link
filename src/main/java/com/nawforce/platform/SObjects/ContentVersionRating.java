@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class ContentVersionRating extends SObject {
 	public static SObjectType$<ContentVersionRating> SObjectType;
-	public static SObjectTypeFields$<ContentVersionRating> Fields;
-	public static SObjectTypeFieldSets$<ContentVersionRating> FieldSets;
+	public static SObjectFields$<ContentVersionRating> Fields;
+
 	public Id ContentVersionId;
 	public ContentVersion ContentVersion;
 	public Integer Rating;

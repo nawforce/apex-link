@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -39,8 +39,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class AppMenuItem extends SObject {
 	public static SObjectType$<AppMenuItem> SObjectType;
-	public static SObjectTypeFields$<AppMenuItem> Fields;
-	public static SObjectTypeFieldSets$<AppMenuItem> FieldSets;
+	public static SObjectFields$<AppMenuItem> Fields;
+
 	public Id ApplicationId;
 	public SObject Application;
 	public String CanvasAccessMethod;

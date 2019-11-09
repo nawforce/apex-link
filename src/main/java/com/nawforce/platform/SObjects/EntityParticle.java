@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class EntityParticle extends SObject {
 	public static SObjectType$<EntityParticle> SObjectType;
-	public static SObjectTypeFields$<EntityParticle> Fields;
-	public static SObjectTypeFieldSets$<EntityParticle> FieldSets;
+	public static SObjectFields$<EntityParticle> Fields;
+
 	public Integer ByteLength;
 	public String DataType;
 	public String DefaultValueFormula;

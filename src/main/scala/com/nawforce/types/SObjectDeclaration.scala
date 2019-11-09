@@ -30,6 +30,7 @@ package com.nawforce.types
 import java.nio.file.Path
 
 import com.nawforce.api.Org
+import com.nawforce.cst.VerifyContext
 import com.nawforce.documents._
 import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{DotName, Name, TypeName}
@@ -57,22 +58,28 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
     })
   }
 
-  override def findMethod(name: Name, paramCount: Int, staticContext: Option[Boolean]): Option[MethodDeclaration] = {
+  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
+                          verifyContext: VerifyContext): Seq[MethodDeclaration] = {
     if (staticContext.contains(true)) {
       val customMethods = sobjectNature match {
         case HierarchyCustomSettingsNature => hierarchyCustomSettingsMethods
         case ListCustomSettingNature => listCustomSettingsMethods
         case _ => SObjectDeclaration.sObjectMethodMap
       }
-      customMethods.get((name, paramCount)).orElse(defaultFindMethod(name, paramCount, staticContext))
-    } else {
-      defaultFindMethod(name, paramCount, staticContext)
+      val customMethod = customMethods.get((name, params.size))
+      if (customMethod.nonEmpty)
+        return customMethod.toSeq
     }
+    defaultFindMethod(name, params, staticContext, verifyContext)
   }
 
-  def defaultFindMethod(name: Name, paramCount: Int, staticContext: Option[Boolean]): Option[MethodDeclaration] = {
-    cloneMethods.get((name, paramCount, staticContext.contains(true)))
-      .orElse(PlatformTypes.sObjectType.findMethod(name, paramCount, staticContext))
+  def defaultFindMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
+                        verifyContext: VerifyContext): Seq[MethodDeclaration] = {
+    val clone = cloneMethods.get((name, params.size, staticContext.contains(true)))
+    if (clone.nonEmpty)
+      clone.toSeq
+    else
+      PlatformTypes.sObjectType.findMethod(name, params, staticContext, verifyContext)
   }
 
   private lazy val cloneMethods: Map[(Name, Int, Boolean), MethodDeclaration] = {
@@ -182,8 +189,7 @@ object SObjectDeclaration {
   private def customObjectFields(sobjectDetails: SObjectDetails): Seq[FieldDeclaration] = {
     Seq(
       CustomFieldDeclaration(Name.SObjectType, TypeName.sObjectType$(sobjectDetails.typeName), asStatic = true),
-      CustomFieldDeclaration(Name.Fields, TypeName.sObjectTypeFields$(sobjectDetails.typeName), asStatic = true),
-      CustomFieldDeclaration(Name.FieldSets, TypeName.sObjectTypeFieldSets$(sobjectDetails.typeName), asStatic = true)
+      CustomFieldDeclaration(Name.Fields, TypeName.sObjectFields$(sobjectDetails.typeName), asStatic = true),
     ) ++
       standardCustomObjectFields ++
       sobjectDetails.fields ++

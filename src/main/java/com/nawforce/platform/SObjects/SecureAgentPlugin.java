@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class SecureAgentPlugin extends SObject {
 	public static SObjectType$<SecureAgentPlugin> SObjectType;
-	public static SObjectTypeFields$<SecureAgentPlugin> Fields;
-	public static SObjectTypeFieldSets$<SecureAgentPlugin> FieldSets;
+	public static SObjectFields$<SecureAgentPlugin> Fields;
+
 	public String PluginName;
 	public String PluginType;
 	public String RequestedVersion;

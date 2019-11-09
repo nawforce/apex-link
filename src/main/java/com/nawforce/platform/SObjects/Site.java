@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class Site extends SObject {
 	public static SObjectType$<Site> SObjectType;
-	public static SObjectTypeFields$<Site> Fields;
-	public static SObjectTypeFieldSets$<Site> FieldSets;
+	public static SObjectFields$<Site> Fields;
+
 	public Id AdminId;
 	public User Admin;
 	public String AnalyticsTrackingCode;

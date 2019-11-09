@@ -28,16 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class ContentDocument extends SObject {
 	public static SObjectType$<ContentDocument> SObjectType;
-	public static SObjectTypeFields$<ContentDocument> Fields;
-	public static SObjectTypeFieldSets$<ContentDocument> FieldSets;
+	public static SObjectFields$<ContentDocument> Fields;
+
 	public Id ArchivedById;
 	public User ArchivedBy;
 	public Date ArchivedDate;

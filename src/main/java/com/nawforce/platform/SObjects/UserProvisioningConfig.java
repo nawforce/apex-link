@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class UserProvisioningConfig extends SObject {
 	public static SObjectType$<UserProvisioningConfig> SObjectType;
-	public static SObjectTypeFields$<UserProvisioningConfig> Fields;
-	public static SObjectTypeFieldSets$<UserProvisioningConfig> FieldSets;
+	public static SObjectFields$<UserProvisioningConfig> Fields;
+
 	public String ApprovalRequired;
 	public Id ConnectedAppId;
 	public ConnectedApplication ConnectedApp;

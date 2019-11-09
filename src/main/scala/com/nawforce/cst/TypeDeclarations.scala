@@ -167,10 +167,11 @@ final case class EnumDeclaration(_pkg: PackageDeclaration, _outerTypeName: Optio
     super.verify(new TypeVerifyContext(Some(context), this))
   }
 
-  override def findMethod(name: Name, paramCount: Int, staticContext: Option[Boolean]): Option[MethodDeclaration] = {
+  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
+                          verifyContext: VerifyContext): Seq[MethodDeclaration] = {
     staticContext match {
-      case Some(x) => EnumDeclaration.methodMap.get((name, paramCount)).filter(_.isStatic == x)
-      case _ => None
+      case Some(x) => EnumDeclaration.methodMap.get((name, params.size)).filter(_.isStatic == x).toSeq
+      case _ => Seq()
     }
   }
 }

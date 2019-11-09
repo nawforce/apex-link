@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.SObject;
 @SuppressWarnings("unused")
 public class KnowledgeableUser extends SObject {
 	public static SObjectType$<KnowledgeableUser> SObjectType;
-	public static SObjectTypeFields$<KnowledgeableUser> Fields;
-	public static SObjectTypeFieldSets$<KnowledgeableUser> FieldSets;
+	public static SObjectFields$<KnowledgeableUser> Fields;
+
 	public Integer RawRank;
 	public Id TopicId;
 	public Topic Topic;

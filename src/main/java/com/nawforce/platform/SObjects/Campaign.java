@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class Campaign extends SObject {
 	public static SObjectType$<Campaign> SObjectType;
-	public static SObjectTypeFields$<Campaign> Fields;
-	public static SObjectTypeFieldSets$<Campaign> FieldSets;
+	public static SObjectFields$<Campaign> Fields;
+
 	public Id RecordTypeId;
 	public Decimal ActualCost;
 	public Decimal AmountAllOpportunities;

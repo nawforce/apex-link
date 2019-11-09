@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.SObject;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class Pricebook2 extends SObject {
 	public static SObjectType$<Pricebook2> SObjectType;
-	public static SObjectTypeFields$<Pricebook2> Fields;
-	public static SObjectTypeFieldSets$<Pricebook2> FieldSets;
+	public static SObjectFields$<Pricebook2> Fields;
+
 	public String CurrencyIsoCode;
 	public String Description;
 	public Boolean IsActive;

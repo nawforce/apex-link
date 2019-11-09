@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class CaseTeamRole extends SObject {
 	public static SObjectType$<CaseTeamRole> SObjectType;
-	public static SObjectTypeFields$<CaseTeamRole> Fields;
-	public static SObjectTypeFieldSets$<CaseTeamRole> FieldSets;
+	public static SObjectFields$<CaseTeamRole> Fields;
+
 	public String AccessLevel;
 	public String Name;
 	public Boolean PreferencesVisibleInCSP;
