@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class OrderItemHistory extends SObject {
 	public static SObjectType$<OrderItemHistory> SObjectType;
-	public static SObjectTypeFields$<OrderItemHistory> Fields;
-	public static SObjectTypeFieldSets$<OrderItemHistory> FieldSets;
+	public static SObjectFields$<OrderItemHistory> Fields;
+
 	public String Field;
 	public Object NewValue;
 	public Object OldValue;

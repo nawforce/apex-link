@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class CaseStatus extends SObject {
 	public static SObjectType$<CaseStatus> SObjectType;
-	public static SObjectTypeFields$<CaseStatus> Fields;
-	public static SObjectTypeFieldSets$<CaseStatus> FieldSets;
+	public static SObjectFields$<CaseStatus> Fields;
+
 	public String ApiName;
 	public Boolean IsClosed;
 	public Boolean IsDefault;

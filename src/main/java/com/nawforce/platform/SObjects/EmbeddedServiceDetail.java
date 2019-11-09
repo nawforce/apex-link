@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class EmbeddedServiceDetail extends SObject {
 	public static SObjectType$<EmbeddedServiceDetail> SObjectType;
-	public static SObjectTypeFields$<EmbeddedServiceDetail> Fields;
-	public static SObjectTypeFieldSets$<EmbeddedServiceDetail> FieldSets;
+	public static SObjectFields$<EmbeddedServiceDetail> Fields;
+
 	public String AvatarImg;
 	public String CancelApptBookingFlowName;
 	public String ContrastInvertedColor;

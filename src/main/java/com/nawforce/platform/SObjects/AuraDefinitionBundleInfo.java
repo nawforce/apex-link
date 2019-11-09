@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Decimal;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class AuraDefinitionBundleInfo extends SObject {
 	public static SObjectType$<AuraDefinitionBundleInfo> SObjectType;
-	public static SObjectTypeFields$<AuraDefinitionBundleInfo> Fields;
-	public static SObjectTypeFieldSets$<AuraDefinitionBundleInfo> FieldSets;
+	public static SObjectFields$<AuraDefinitionBundleInfo> Fields;
+
 	public Decimal ApiVersion;
 	public String AuraDefinitionBundleId;
 	public String DeveloperName;

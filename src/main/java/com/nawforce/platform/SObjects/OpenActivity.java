@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class OpenActivity extends SObject {
 	public static SObjectType$<OpenActivity> SObjectType;
-	public static SObjectTypeFields$<OpenActivity> Fields;
-	public static SObjectTypeFieldSets$<OpenActivity> FieldSets;
+	public static SObjectFields$<OpenActivity> Fields;
+
 	public Id AccountId;
 	public Account Account;
 	public Date ActivityDate;

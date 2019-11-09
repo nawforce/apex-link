@@ -42,7 +42,7 @@ class IdDependencyTest extends FunSuite with BeforeAndAfter {
   private var defaultOrg: Org = new Org
 
   private val systemClass = defaultOrg.unmanaged.getTypeOption(TypeName.System).get
-  private val objectClass = defaultOrg.unmanaged.getTypeOption(TypeName.Object).get
+  private val objectClass = defaultOrg.unmanaged.getTypeOption(TypeName.InternalObject).get
 
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
     val paths = classes.map(kv => {

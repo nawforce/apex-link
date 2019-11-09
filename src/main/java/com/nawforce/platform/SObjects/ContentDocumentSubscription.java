@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.SObject;
 @SuppressWarnings("unused")
 public class ContentDocumentSubscription extends SObject {
 	public static SObjectType$<ContentDocumentSubscription> SObjectType;
-	public static SObjectTypeFields$<ContentDocumentSubscription> Fields;
-	public static SObjectTypeFieldSets$<ContentDocumentSubscription> FieldSets;
+	public static SObjectFields$<ContentDocumentSubscription> Fields;
+
 	public Id ContentDocumentId;
 	public ContentDocument ContentDocument;
 	public Boolean IsCommentSub;

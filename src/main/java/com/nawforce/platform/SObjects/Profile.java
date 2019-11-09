@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class Profile extends SObject {
 	public static SObjectType$<Profile> SObjectType;
-	public static SObjectTypeFields$<Profile> Fields;
-	public static SObjectTypeFieldSets$<Profile> FieldSets;
+	public static SObjectFields$<Profile> Fields;
+
 	public String Description;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;

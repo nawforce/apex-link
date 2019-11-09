@@ -135,7 +135,6 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
     }
   }
 
-
   private lazy val methodMap: MethodMap = {
     val allMethods = outerStaticMethods ++ localMethods
     superClassDeclaration match {
@@ -151,8 +150,9 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
 
   override lazy val methods: Seq[MethodDeclaration] = methodMap.allMethods.toSeq
 
-  override def findMethod(name: Name, paramCount: Int, staticContext: Option[Boolean]): Option[MethodDeclaration] = {
-    methodMap.findMethod(name, paramCount, staticContext)
+  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
+                          verifyContext: VerifyContext): Seq[MethodDeclaration] = {
+    methodMap.findMethod(name, params, staticContext, verifyContext)
   }
 
   override def validate(): Unit = {

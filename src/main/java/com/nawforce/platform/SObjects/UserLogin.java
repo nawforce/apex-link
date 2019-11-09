@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.SObject;
 @SuppressWarnings("unused")
 public class UserLogin extends SObject {
 	public static SObjectType$<UserLogin> SObjectType;
-	public static SObjectTypeFields$<UserLogin> Fields;
-	public static SObjectTypeFieldSets$<UserLogin> FieldSets;
+	public static SObjectFields$<UserLogin> Fields;
+
 	public Boolean IsFrozen;
 	public Boolean IsPasswordLocked;
 	public Id UserId;

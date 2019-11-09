@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class AsyncApexJob extends SObject {
 	public static SObjectType$<AsyncApexJob> SObjectType;
-	public static SObjectTypeFields$<AsyncApexJob> Fields;
-	public static SObjectTypeFieldSets$<AsyncApexJob> FieldSets;
+	public static SObjectFields$<AsyncApexJob> Fields;
+
 	public Id ApexClassId;
 	public ApexClass ApexClass;
 	public Datetime CompletedDate;

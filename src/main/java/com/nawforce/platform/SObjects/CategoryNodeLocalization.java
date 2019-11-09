@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class CategoryNodeLocalization extends SObject {
 	public static SObjectType$<CategoryNodeLocalization> SObjectType;
-	public static SObjectTypeFields$<CategoryNodeLocalization> Fields;
-	public static SObjectTypeFieldSets$<CategoryNodeLocalization> FieldSets;
+	public static SObjectFields$<CategoryNodeLocalization> Fields;
+
 	public Id CategoryNodeId;
 	public CategoryNode CategoryNode;
 	public String Language;

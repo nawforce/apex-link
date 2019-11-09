@@ -33,7 +33,7 @@ import com.nawforce.platform.System.List;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class SingleEmailMessage {
+public class SingleEmailMessage extends Email {
 	public List<String> BccAddresses;
 	public List<String> CcAddresses;
 	public String Charset;

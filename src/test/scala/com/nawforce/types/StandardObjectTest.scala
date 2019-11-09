@@ -148,11 +148,47 @@ class StandardObjectTest extends FunSuite {
 
   test("Standard field reference") {
     val fs = Jimfs.newFileSystem(Configuration.unix)
-    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Contract.Name;} }".getBytes())
+    Files.write(fs.getPath("Dummy.cls"),
+      "public class Dummy { {DescribeFieldResult a = Contract.Name.getDescribe();} }".getBytes())
 
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Standard field reference via fields") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),
+      "public class Dummy { {DescribeFieldResult a = Contract.fields.Name.getDescribe();} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    org.issues.dumpMessages(false)
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Standard field reference via SObjectType fields") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),
+      "public class Dummy { {DescribeFieldResult a = SObjectType.Contract.fields.BillingCity.getDefaultValue();} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Standard field reference via SObjectType fields (alt)") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),
+      "public class Dummy { {Object a = Contract.SObjectType.fields.BillingCity.getDescribe();} }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    org.issues.dumpMessages(false)
     assert(!org.issues.hasMessages)
   }
 

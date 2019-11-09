@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class FlowInterview extends SObject {
 	public static SObjectType$<FlowInterview> SObjectType;
-	public static SObjectTypeFields$<FlowInterview> Fields;
-	public static SObjectTypeFieldSets$<FlowInterview> FieldSets;
+	public static SObjectFields$<FlowInterview> Fields;
+
 	public String CurrentElement;
 	public String Guid;
 	public String InterviewLabel;

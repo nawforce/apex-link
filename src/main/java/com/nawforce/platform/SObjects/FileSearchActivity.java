@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class FileSearchActivity extends SObject {
 	public static SObjectType$<FileSearchActivity> SObjectType;
-	public static SObjectTypeFields$<FileSearchActivity> Fields;
-	public static SObjectTypeFieldSets$<FileSearchActivity> FieldSets;
+	public static SObjectFields$<FileSearchActivity> Fields;
+
 	public Decimal AvgNumResults;
 	public Decimal ClickRank;
 	public Integer CountQueries;

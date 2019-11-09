@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Blob;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.SObject;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class EmailRelay extends SObject {
 	public static SObjectType$<EmailRelay> SObjectType;
-	public static SObjectTypeFields$<EmailRelay> Fields;
-	public static SObjectTypeFieldSets$<EmailRelay> FieldSets;
+	public static SObjectFields$<EmailRelay> Fields;
+
 	public String Host;
 	public Boolean IsRequireAuth;
 	public Blob Password;

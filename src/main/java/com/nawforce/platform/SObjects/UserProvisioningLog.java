@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class UserProvisioningLog extends SObject {
 	public static SObjectType$<UserProvisioningLog> SObjectType;
-	public static SObjectTypeFields$<UserProvisioningLog> Fields;
-	public static SObjectTypeFieldSets$<UserProvisioningLog> FieldSets;
+	public static SObjectFields$<UserProvisioningLog> Fields;
+
 	public String Details;
 	public String ExternalUserId;
 	public String ExternalUsername;

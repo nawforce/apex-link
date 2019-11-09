@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -39,8 +39,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class ActionLinkTemplate extends SObject {
 	public static SObjectType$<ActionLinkTemplate> SObjectType;
-	public static SObjectTypeFields$<ActionLinkTemplate> Fields;
-	public static SObjectTypeFieldSets$<ActionLinkTemplate> FieldSets;
+	public static SObjectFields$<ActionLinkTemplate> Fields;
+
 	public Id ActionLinkGroupTemplateId;
 	public ActionLinkGroupTemplate ActionLinkGroupTemplate;
 	public String ActionUrl;

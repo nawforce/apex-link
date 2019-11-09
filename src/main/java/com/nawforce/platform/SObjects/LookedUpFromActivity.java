@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class LookedUpFromActivity extends SObject {
 	public static SObjectType$<LookedUpFromActivity> SObjectType;
-	public static SObjectTypeFields$<LookedUpFromActivity> Fields;
-	public static SObjectTypeFieldSets$<LookedUpFromActivity> FieldSets;
+	public static SObjectFields$<LookedUpFromActivity> Fields;
+
 	public Id AccountId;
 	public Account Account;
 	public Date ActivityDate;

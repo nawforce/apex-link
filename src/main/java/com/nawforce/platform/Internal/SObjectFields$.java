@@ -25,25 +25,8 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.platform.SObjects;
-
-import com.nawforce.platform.Internal.SObjectType$;
-
-import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.System.SObject;
-import com.nawforce.platform.System.String;
+package com.nawforce.platform.Internal;
 
 @SuppressWarnings("unused")
-public class PlatformCachePartitionType extends SObject {
-	public static SObjectType$<PlatformCachePartitionType> SObjectType;
-	public static SObjectFields$<PlatformCachePartitionType> Fields;
-
-	public Integer AllocatedCapacity;
-	public Integer AllocatedPurchasedCapacity;
-	public Integer AllocatedTrialCapacity;
-	public String CacheType;
-	public Id PlatformCachePartitionId;
-	public PlatformCachePartition PlatformCachePartition;
+public class SObjectFields$<T> {
 }

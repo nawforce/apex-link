@@ -28,15 +28,15 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class SearchPromotionRule extends SObject {
 	public static SObjectType$<SearchPromotionRule> SObjectType;
-	public static SObjectTypeFields$<SearchPromotionRule> Fields;
-	public static SObjectTypeFieldSets$<SearchPromotionRule> FieldSets;
+	public static SObjectFields$<SearchPromotionRule> Fields;
+
 	public String Query;
 }

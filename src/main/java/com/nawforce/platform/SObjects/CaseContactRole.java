@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class CaseContactRole extends SObject {
 	public static SObjectType$<CaseContactRole> SObjectType;
-	public static SObjectTypeFields$<CaseContactRole> Fields;
-	public static SObjectTypeFieldSets$<CaseContactRole> FieldSets;
+	public static SObjectFields$<CaseContactRole> Fields;
+
 	public Id CasesId;
 	public Case Cases;
 	public Id ContactId;

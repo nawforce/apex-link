@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class AccountPartner extends SObject {
 	public static SObjectType$<AccountPartner> SObjectType;
-	public static SObjectTypeFields$<AccountPartner> Fields;
-	public static SObjectTypeFieldSets$<AccountPartner> FieldSets;
+	public static SObjectFields$<AccountPartner> Fields;
+
 	public Id AccountFromId;
 	public Account AccountFrom;
 	public Id AccountToId;

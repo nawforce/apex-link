@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Decimal;
 import com.nawforce.platform.System.SObject;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class ApexPageInfo extends SObject {
 	public static SObjectType$<ApexPageInfo> SObjectType;
-	public static SObjectTypeFields$<ApexPageInfo> Fields;
-	public static SObjectTypeFieldSets$<ApexPageInfo> FieldSets;
+	public static SObjectFields$<ApexPageInfo> Fields;
+
 	public String ApexPageId;
 	public Decimal ApiVersion;
 	public String Description;

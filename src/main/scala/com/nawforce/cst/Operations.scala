@@ -30,11 +30,8 @@ package com.nawforce.cst
 import com.nawforce.names.TypeName
 import com.nawforce.types.{PlatformTypes, TypeDeclaration}
 
-abstract class Operation {
-  def verify(leftType: ExprContext, rightContext: ExprContext, op: String,
-             context: ExpressionVerifyContext): Either[String, ExprContext]
-
-  def isAssignable(toType: TypeName, fromType: TypeDeclaration, context: ExpressionVerifyContext): Boolean = {
+trait AssignableSupport {
+  def isAssignable(toType: TypeName, fromType: TypeDeclaration, context: VerifyContext): Boolean = {
     if (fromType.typeName == TypeName.Null ||
       (fromType.typeName == toType) ||
       (toType == TypeName.InternalObject) ||
@@ -45,19 +42,19 @@ abstract class Operation {
     } else if (toType.params.nonEmpty || fromType.typeName.params.nonEmpty) {
       isAssignableGeneric(toType, fromType, context)
     } else {
-      Operation.baseAssignable.contains(toType, fromType.typeName) ||
-      fromType.extendsOrImplements(toType)
+      AssignableSupport.baseAssignable.contains(toType, fromType.typeName) ||
+        fromType.extendsOrImplements(toType)
     }
   }
 
-  def isAssignable(toType: TypeName, fromType: TypeName, context: ExpressionVerifyContext): Boolean = {
+  def isAssignable(toType: TypeName, fromType: TypeName, context: VerifyContext): Boolean = {
     context.getTypeFor(fromType, context.thisType) match {
       case Left(_) => false
       case Right(fromDeclaration) => isAssignable(toType, fromDeclaration, context)
     }
   }
 
-  private def isAssignableGeneric(toType: TypeName, fromType: TypeDeclaration, context: ExpressionVerifyContext): Boolean = {
+  private def isAssignableGeneric(toType: TypeName, fromType: TypeDeclaration, context: VerifyContext): Boolean = {
     if (toType == fromType.typeName) {
       true
     } else if (toType.params.size == fromType.typeName.params.size) {
@@ -74,7 +71,7 @@ abstract class Operation {
     }
   }
 
-  private def isSObjectListAssignment(toType: TypeName, fromType: TypeDeclaration, context: ExpressionVerifyContext): Boolean = {
+  private def isSObjectListAssignment(toType: TypeName, fromType: TypeDeclaration, context: VerifyContext): Boolean = {
     if (toType.isList && fromType.typeName.isList &&
       fromType.typeName.params.head == TypeName.SObject &&
       toType.params.head != TypeName.SObject) {
@@ -88,7 +85,7 @@ abstract class Operation {
   }
 
   @scala.annotation.tailrec
-  private def isRecordSetAssignable(toType: TypeName, context: ExpressionVerifyContext): Boolean = {
+  private def isRecordSetAssignable(toType: TypeName, context: VerifyContext): Boolean = {
     if (toType == TypeName.SObject || toType.isSObjectList) {
       true
     } else if (toType.isList) {
@@ -102,11 +99,31 @@ abstract class Operation {
   }
 
 
-  def couldBeEqual(toType: TypeDeclaration, fromType: TypeDeclaration, context: ExpressionVerifyContext): Boolean = {
+  def couldBeEqual(toType: TypeDeclaration, fromType: TypeDeclaration, context: VerifyContext): Boolean = {
     isAssignable(toType.typeName, fromType, context) || isAssignable(fromType.typeName, toType, context)
   }
+}
 
-  def commonBase(toType: TypeDeclaration, fromType: TypeDeclaration, context: ExpressionVerifyContext): Option[TypeDeclaration] = {
+object AssignableSupport {
+  private lazy val baseAssignable: Set[(TypeName, TypeName)] = Set(
+    (TypeName.Long, TypeName.Integer),
+    (TypeName.Decimal, TypeName.Integer),
+    (TypeName.Double, TypeName.Integer),
+    (TypeName.Decimal, TypeName.Long),
+    (TypeName.Double, TypeName.Long),
+    (TypeName.Double, TypeName.Decimal),
+    (TypeName.Decimal, TypeName.Double),
+    (TypeName.Id, TypeName.String),
+    (TypeName.String, TypeName.Id),
+    (TypeName.Datetime, TypeName.Date)
+  )
+}
+
+abstract class Operation extends AssignableSupport {
+  def verify(leftType: ExprContext, rightContext: ExprContext, op: String,
+             context: VerifyContext): Either[String, ExprContext]
+
+  def getCommonBase(toType: TypeDeclaration, fromType: TypeDeclaration, context: VerifyContext): Option[TypeDeclaration] = {
     val toSupertypes = toType.superTypes()
     val fromSupertypes = fromType.superTypes()
     val common = toSupertypes.intersect(fromSupertypes)
@@ -167,19 +184,6 @@ object Operation {
     TypeName.Time,
     TypeName.Blob,
     TypeName.Id
-  )
-
-  private lazy val baseAssignable: Set[(TypeName, TypeName)] = Set(
-    (TypeName.Long, TypeName.Integer),
-    (TypeName.Decimal, TypeName.Integer),
-    (TypeName.Double, TypeName.Integer),
-    (TypeName.Decimal, TypeName.Long),
-    (TypeName.Double, TypeName.Long),
-    (TypeName.Double, TypeName.Decimal),
-    (TypeName.Decimal, TypeName.Double),
-    (TypeName.Id, TypeName.String),
-    (TypeName.String, TypeName.Id),
-    (TypeName.Datetime, TypeName.Date)
   )
 
   private lazy val arithmeticOps: Map[(TypeName, TypeName), TypeDeclaration] = Map(
@@ -257,7 +261,7 @@ object Operation {
 
 case object AssignmentOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
+                      op: String, context: VerifyContext): Either[String, ExprContext] = {
     if (rightContext.typeName == TypeName.Null) {
       Right(leftContext)
     } else if (isAssignable(leftContext.typeName, rightContext.typeDeclaration, context)) {
@@ -270,7 +274,7 @@ case object AssignmentOperation extends Operation {
 
 case object LogicalOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
+                      op: String, context: VerifyContext): Either[String, ExprContext] = {
     if (!isAssignable(TypeName.Boolean, rightContext.typeDeclaration, context)) {
       Left(s"Right expression of logical $op must a boolean, not '${rightContext.typeName}'")
     } else if (!isAssignable(TypeName.Boolean, leftContext.typeDeclaration, context)) {
@@ -283,7 +287,7 @@ case object LogicalOperation extends Operation {
 
 case object CompareOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
+                      op: String, context: VerifyContext): Either[String, ExprContext] = {
 
     if (isNumericKind(leftContext.typeName)) {
       if (!isNumericKind(rightContext.typeName)) {
@@ -305,7 +309,7 @@ case object CompareOperation extends Operation {
 
 case object ExactEqualityOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
+                      op: String, context: VerifyContext): Either[String, ExprContext] = {
 
     if (isNonReferenceKind(leftContext.typeName)) {
       Left(s"Exact equality/inequality requires is not supported on non-reference types '${leftContext.typeName}'")
@@ -326,7 +330,7 @@ case object ExactEqualityOperation extends Operation {
 
 case object EqualityOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
+                      op: String, context: VerifyContext): Either[String, ExprContext] = {
     if (couldBeEqual(leftContext.typeDeclaration, rightContext.typeDeclaration, context))
       Right(ExprContext(isStatic = false, Some(PlatformTypes.booleanType)))
     else
@@ -336,7 +340,7 @@ case object EqualityOperation extends Operation {
 
 case object PlusOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
+                      op: String, context: VerifyContext): Either[String, ExprContext] = {
     if (leftContext.typeName == TypeName.String || rightContext.typeName == TypeName.String) {
       Right(ExprContext(isStatic = false, Some(PlatformTypes.stringType)))
     }
@@ -352,7 +356,7 @@ case object PlusOperation extends Operation {
 
 case object ArithmeticOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
+                      op: String, context: VerifyContext): Either[String, ExprContext] = {
     val td = getArithmeticResult(leftContext.typeName, rightContext.typeName)
     if (td.isEmpty) {
       return Left(s"Arithmetic operation not allowed between types '${leftContext.typeName}' and '${rightContext.typeName}'")
@@ -363,7 +367,7 @@ case object ArithmeticOperation extends Operation {
 
 case object ArithmeticAddSubtractAssignmentOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
+                      op: String, context: VerifyContext): Either[String, ExprContext] = {
     if (leftContext.typeName == TypeName.String && op == "+=") {
       Right(ExprContext(isStatic = false, Some(PlatformTypes.stringType)))
     } else {
@@ -378,7 +382,7 @@ case object ArithmeticAddSubtractAssignmentOperation extends Operation {
 
 case object ArithmeticMultiplyDivideAssignmentOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
+                      op: String, context: VerifyContext): Either[String, ExprContext] = {
     val td = getArithmeticMultiplyDivideAssigmentResult(leftContext.typeName, rightContext.typeName)
     if (td.isEmpty) {
       return Left(s"Arithmetic operation not allowed between types '${leftContext.typeName}' and '${rightContext.typeName}'")
@@ -389,7 +393,7 @@ case object ArithmeticMultiplyDivideAssignmentOperation extends Operation {
 
 case object BitwiseOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
+                      op: String, context: VerifyContext): Either[String, ExprContext] = {
     val td = getBitwiseResult(leftContext.typeName, rightContext.typeName)
     if (td.isEmpty) {
       return Left(s"Bitwise operation only allowed between Integer, Long & Boolean types, not '${leftContext.typeName}' and '${rightContext.typeName}'")
@@ -400,7 +404,7 @@ case object BitwiseOperation extends Operation {
 
 case object BitwiseAssignmentOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
+                      op: String, context: VerifyContext): Either[String, ExprContext] = {
     val td = getBitwiseAssignmentResult(leftContext.typeName, rightContext.typeName)
     if (td.isEmpty) {
       return Left(s"Bitwise operation only allowed between Integer, Long & Boolean types, not '${leftContext.typeName}' and '${rightContext.typeName}'")
@@ -411,7 +415,7 @@ case object BitwiseAssignmentOperation extends Operation {
 
 case object ConditionalOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: ExpressionVerifyContext): Either[String, ExprContext] = {
+                      op: String, context: VerifyContext): Either[String, ExprContext] = {
 
     // Future: How does this really function, Java mechanics are very complex
     if (isAssignable(leftContext.typeName, rightContext.typeDeclaration, context)) {
@@ -419,7 +423,7 @@ case object ConditionalOperation extends Operation {
     } else if (isAssignable(rightContext.typeName, leftContext.typeDeclaration, context)) {
       Right(leftContext)
     } else {
-      commonBase(leftContext.typeDeclaration, rightContext.typeDeclaration, context)
+      getCommonBase(leftContext.typeDeclaration, rightContext.typeDeclaration, context)
           .map(td => Right(ExprContext(isStatic = false, Some(td))))
           .getOrElse({
             Left(s"Incompatible types in ternary operation '${leftContext.typeName}' and '${rightContext.typeName}'")

@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Decimal;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class TodayGoal extends SObject {
 	public static SObjectType$<TodayGoal> SObjectType;
-	public static SObjectTypeFields$<TodayGoal> Fields;
-	public static SObjectTypeFieldSets$<TodayGoal> FieldSets;
+	public static SObjectFields$<TodayGoal> Fields;
+
 	public String CurrencyIsoCode;
 	public String Name;
 	public Id OwnerId;

@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class ApexTestResult extends SObject {
 	public static SObjectType$<ApexTestResult> SObjectType;
-	public static SObjectTypeFields$<ApexTestResult> Fields;
-	public static SObjectTypeFieldSets$<ApexTestResult> FieldSets;
+	public static SObjectFields$<ApexTestResult> Fields;
+
 	public Id ApexClassId;
 	public ApexClass ApexClass;
 	public Id ApexLogId;

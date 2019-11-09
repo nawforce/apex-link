@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class DatasetExportPart extends SObject {
 	public static SObjectType$<DatasetExportPart> SObjectType;
-	public static SObjectTypeFields$<DatasetExportPart> Fields;
-	public static SObjectTypeFieldSets$<DatasetExportPart> FieldSets;
+	public static SObjectFields$<DatasetExportPart> Fields;
+
 	public Integer CompressedDataFileLength;
 	public Blob DataFile;
 	public Integer DataFileLength;

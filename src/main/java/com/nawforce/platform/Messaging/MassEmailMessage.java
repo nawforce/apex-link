@@ -33,7 +33,7 @@ import com.nawforce.platform.System.List;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class MassEmailMessage {
+public class MassEmailMessage extends Email {
 	public String Description;
 	public List<Id> TargetObjectIds;
 	public Id TemplateId;

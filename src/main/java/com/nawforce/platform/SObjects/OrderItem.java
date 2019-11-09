@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class OrderItem extends SObject {
 	public static SObjectType$<OrderItem> SObjectType;
-	public static SObjectTypeFields$<OrderItem> Fields;
-	public static SObjectTypeFieldSets$<OrderItem> FieldSets;
+	public static SObjectFields$<OrderItem> Fields;
+
 	public Decimal AvailableQuantity;
 	public String CurrencyIsoCode;
 	public String Description;

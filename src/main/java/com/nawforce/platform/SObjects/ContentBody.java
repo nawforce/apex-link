@@ -28,13 +28,13 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class ContentBody extends SObject {
 	public static SObjectType$<ContentBody> SObjectType;
-	public static SObjectTypeFields$<ContentBody> Fields;
-	public static SObjectTypeFieldSets$<ContentBody> FieldSets;
+	public static SObjectFields$<ContentBody> Fields;
+
 }

@@ -28,16 +28,16 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
 public class StampAssignment extends SObject {
 	public static SObjectType$<StampAssignment> SObjectType;
-	public static SObjectTypeFields$<StampAssignment> Fields;
-	public static SObjectTypeFieldSets$<StampAssignment> FieldSets;
+	public static SObjectFields$<StampAssignment> Fields;
+
 	public Id StampId;
 	public Stamp Stamp;
 	public Id SubjectId;

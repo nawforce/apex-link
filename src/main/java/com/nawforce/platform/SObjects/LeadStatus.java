@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class LeadStatus extends SObject {
 	public static SObjectType$<LeadStatus> SObjectType;
-	public static SObjectTypeFields$<LeadStatus> Fields;
-	public static SObjectTypeFieldSets$<LeadStatus> FieldSets;
+	public static SObjectFields$<LeadStatus> Fields;
+
 	public String ApiName;
 	public Boolean IsConverted;
 	public Boolean IsDefault;

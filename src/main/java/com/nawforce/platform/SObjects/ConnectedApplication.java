@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -38,8 +38,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class ConnectedApplication extends SObject {
 	public static SObjectType$<ConnectedApplication> SObjectType;
-	public static SObjectTypeFields$<ConnectedApplication> Fields;
-	public static SObjectTypeFieldSets$<ConnectedApplication> FieldSets;
+	public static SObjectFields$<ConnectedApplication> Fields;
+
 	public String MobileSessionTimeout;
 	public String MobileStartUrl;
 	public String Name;

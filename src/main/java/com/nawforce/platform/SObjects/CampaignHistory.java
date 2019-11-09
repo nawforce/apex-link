@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class CampaignHistory extends SObject {
 	public static SObjectType$<CampaignHistory> SObjectType;
-	public static SObjectTypeFields$<CampaignHistory> Fields;
-	public static SObjectTypeFieldSets$<CampaignHistory> FieldSets;
+	public static SObjectFields$<CampaignHistory> Fields;
+
 	public Id CampaignId;
 	public Campaign Campaign;
 	public String Field;

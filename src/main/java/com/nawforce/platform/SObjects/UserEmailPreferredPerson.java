@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class UserEmailPreferredPerson extends SObject {
 	public static SObjectType$<UserEmailPreferredPerson> SObjectType;
-	public static SObjectTypeFields$<UserEmailPreferredPerson> Fields;
-	public static SObjectTypeFieldSets$<UserEmailPreferredPerson> FieldSets;
+	public static SObjectFields$<UserEmailPreferredPerson> Fields;
+
 	public String CurrencyIsoCode;
 	public String Email;
 	public String Name;

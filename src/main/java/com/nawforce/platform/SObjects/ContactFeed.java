@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -39,8 +39,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class ContactFeed extends SObject {
 	public static SObjectType$<ContactFeed> SObjectType;
-	public static SObjectTypeFields$<ContactFeed> Fields;
-	public static SObjectTypeFieldSets$<ContactFeed> FieldSets;
+	public static SObjectFields$<ContactFeed> Fields;
+
 	public Id BestCommentId;
 	public FeedComment BestComment;
 	public String Body;

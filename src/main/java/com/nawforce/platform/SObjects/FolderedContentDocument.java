@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -39,8 +39,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class FolderedContentDocument extends SObject {
 	public static SObjectType$<FolderedContentDocument> SObjectType;
-	public static SObjectTypeFields$<FolderedContentDocument> Fields;
-	public static SObjectTypeFieldSets$<FolderedContentDocument> FieldSets;
+	public static SObjectFields$<FolderedContentDocument> Fields;
+
 	public Id ContentDocumentId;
 	public ContentDocument ContentDocument;
 	public Integer ContentSize;

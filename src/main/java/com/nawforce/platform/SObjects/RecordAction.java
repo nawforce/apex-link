@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -39,8 +39,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class RecordAction extends SObject {
 	public static SObjectType$<RecordAction> SObjectType;
-	public static SObjectTypeFields$<RecordAction> Fields;
-	public static SObjectTypeFieldSets$<RecordAction> FieldSets;
+	public static SObjectFields$<RecordAction> Fields;
+
 	public String ActionDefinition;
 	public String CurrencyIsoCode;
 	public String FlowDefinition;

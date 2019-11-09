@@ -28,8 +28,8 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.Internal.SObjectTypeFieldSets$;
-import com.nawforce.platform.Internal.SObjectTypeFields$;
+
+import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -37,8 +37,8 @@ import com.nawforce.platform.System.*;
 @SuppressWarnings("unused")
 public class Account extends SObject {
 	public static SObjectType$<Account> SObjectType;
-	public static SObjectTypeFields$<Account> Fields;
-	public static SObjectTypeFieldSets$<Account> FieldSets;
+	public static SObjectFields$<Account> Fields;
+
 
 	public Id RecordTypeId;
 	public String AccountNumber;
