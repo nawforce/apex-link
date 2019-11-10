@@ -152,6 +152,7 @@ object Name {
   lazy val Fields: Name = cache("Fields")
   lazy val FieldSets: Name = cache("FieldSets")
   lazy val GetSObjectType: Name = cache("GetSObjectType")
+  lazy val Clone: Name = cache("clone")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 

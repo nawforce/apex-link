@@ -163,8 +163,8 @@ class PropertyTest extends FunSuite with BeforeAndAfter {
 
   test("Webservice property access" ) {
     val property = typeDeclaration("public class Dummy {webservice String foo{get; set;}}", hasMessages = true).fields.head
-    assert(property.modifiers == Seq(WEBSERVICE_MODIFIER))
-    assert(property.readAccess == WEBSERVICE_MODIFIER)
+    assert(property.modifiers == Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
+    assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
@@ -172,15 +172,15 @@ class PropertyTest extends FunSuite with BeforeAndAfter {
 
   test("Webservice property access with get/set modifiers" ) {
     val property = typeDeclaration("global class Dummy {webservice String foo{global get; public set;}}").fields.head
-    assert(property.modifiers == Seq(WEBSERVICE_MODIFIER))
+    assert(property.modifiers == Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == PUBLIC_MODIFIER)
   }
 
   test("Webservice property access in global class" ) {
     val property = typeDeclaration("global class Dummy {webservice String foo{get; set;}}").fields.head
-    assert(property.modifiers == Seq(WEBSERVICE_MODIFIER))
-    assert(property.readAccess == WEBSERVICE_MODIFIER)
+    assert(property.modifiers == Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
+    assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == property.readAccess)
   }
 
@@ -250,11 +250,11 @@ class PropertyTest extends FunSuite with BeforeAndAfter {
   test("Mixed access property" ) {
     val property = typeDeclaration("public class Dummy {global webservice String foo{get; set;}}",
       hasMessages = true).fields.head
-    assert(property.modifiers == Seq(PUBLIC_MODIFIER))
-    assert(property.readAccess == PUBLIC_MODIFIER)
+    assert(property.modifiers == Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
+    assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 45-48: Only one visibility modifier from 'webservice', 'global', 'public', 'protected' & 'private' may be used on fields\n")
+      "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
   test("AuraEnabled property" ) {

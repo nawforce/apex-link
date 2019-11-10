@@ -29,7 +29,7 @@ package com.nawforce.cst
 
 import com.nawforce.documents.Location
 import com.nawforce.names.{Name, TypeName}
-import com.nawforce.types.{INTERFACE_NATURE, MethodDeclaration, TypeDeclaration}
+import com.nawforce.types.{CLASS_NATURE, CustomMethodDeclaration, INTERFACE_NATURE, MethodDeclaration, Nature, TypeDeclaration}
 
 import scala.collection.mutable
 
@@ -74,7 +74,7 @@ object MethodMap {
     new MethodMap(Map(), Map())
   }
 
-  def apply(superClassMap: MethodMap, localMethods: Seq[MethodDeclaration],
+  def apply(nature: Nature, typeName: TypeName, superClassMap: MethodMap, localMethods: Seq[MethodDeclaration],
             interfaces: Seq[TypeDeclaration]): MethodMap = {
 
     val workingMap = collection.mutable.Map[(Name, Int), Seq[MethodDeclaration]]() ++= superClassMap.methodsByName
@@ -82,6 +82,8 @@ object MethodMap {
 
     applyInterfaces(workingMap, interfaces, errors)
     localMethods.foreach(method => applyMethod(workingMap, method, errors))
+    if (nature == CLASS_NATURE)
+      workingMap.put((Name.Clone, 0), Seq(CustomMethodDeclaration(Name.Clone, typeName, Seq())))
 
     new MethodMap(workingMap.toMap, errors.toMap)
   }

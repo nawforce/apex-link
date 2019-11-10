@@ -128,9 +128,19 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
     })
   }
 
-  private def outerStaticMethods: Seq[ApexMethodDeclaration] = {
+  private def staticMethods: Seq[MethodDeclaration] = {
+    localMethods.filter(_.isStatic) ++
+      (superClassDeclaration match {
+        case Some(td: ApexTypeDeclaration) =>
+          td.localMethods.filter(_.isStatic) ++ td.staticMethods
+        case _ =>
+          Seq()
+      })
+  }
+
+  private def outerStaticMethods: Seq[MethodDeclaration] = {
     outerTypeName.flatMap(ot => TypeRequest(ot, this, excludeSObjects = false).toOption) match {
-      case Some(td: ApexTypeDeclaration) => td.localMethods.filter(_.isStatic)
+      case Some(td: ApexTypeDeclaration) => td.staticMethods
       case _ => Seq()
     }
   }
@@ -139,12 +149,12 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
     val allMethods = outerStaticMethods ++ localMethods
     superClassDeclaration match {
       case Some(at: ApexTypeDeclaration) =>
-        MethodMap(at.methodMap, allMethods, interfaceDeclarations)
+        MethodMap(nature, typeName, at.methodMap, allMethods, interfaceDeclarations)
       case Some(td: TypeDeclaration) =>
-        MethodMap(MethodMap(MethodMap.empty(), td.methods, Seq()),
+        MethodMap(nature, typeName, MethodMap(td.nature, td.typeName, MethodMap.empty(), td.methods, Seq()),
           allMethods, interfaceDeclarations)
       case _ =>
-        MethodMap(MethodMap.empty(), allMethods, interfaceDeclarations)
+        MethodMap(nature, typeName, MethodMap.empty(), allMethods, interfaceDeclarations)
     }
   }
 

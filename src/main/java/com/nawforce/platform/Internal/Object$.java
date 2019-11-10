@@ -29,9 +29,11 @@ package com.nawforce.platform.Internal;
 
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.Boolean;
 
 @SuppressWarnings("unused")
 public class Object$ {
     public Integer hashCode$() {throw new java.lang.UnsupportedOperationException();}
     public String toString$() {throw new java.lang.UnsupportedOperationException();}
+    public Boolean equals$(Object other) {throw new java.lang.UnsupportedOperationException();}
 }

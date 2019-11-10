@@ -36,12 +36,5 @@ public class EmailException extends Exception {
 	public EmailException(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public EmailException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
 
-	public List<String> getDmlFieldNames(Integer index) {throw new java.lang.UnsupportedOperationException();}
-	public List<SObjectField> getDmlFields(Integer index) {throw new java.lang.UnsupportedOperationException();}
-	public String getDmlId(Integer index) {throw new java.lang.UnsupportedOperationException();}
-	public Integer getDmlIndex(Integer index) {throw new java.lang.UnsupportedOperationException();}
-	public String getDmlMessage(Integer index) {throw new java.lang.UnsupportedOperationException();}
-	public String getDmlStatusCode(Integer index) {throw new java.lang.UnsupportedOperationException();}
-	public StatusCode getDmlType(Integer index) {throw new java.lang.UnsupportedOperationException();}
-	public Integer getNumDml() {throw new java.lang.UnsupportedOperationException();}
+	// See base Exception for methods
 }

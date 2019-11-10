@@ -12,8 +12,7 @@ public class List<T> implements Iterable<T> {
     public List(List<T> listToCopy) {throw new java.lang.UnsupportedOperationException();}
     public List(Set<T> setToCopy) {throw new java.lang.UnsupportedOperationException();}
 
-    public List<T> clone$() {throw new java.lang.UnsupportedOperationException();}
-    public void add(T listElement) {throw new java.lang.UnsupportedOperationException();}
+     public void add(T listElement) {throw new java.lang.UnsupportedOperationException();}
     public void add(Integer index, T listElement) {throw new java.lang.UnsupportedOperationException();}
     public void addAll(List<T> fromList) {throw new java.lang.UnsupportedOperationException();}
     public void addAll(Set<T> fromSet) {throw new java.lang.UnsupportedOperationException();}
@@ -32,4 +31,8 @@ public class List<T> implements Iterable<T> {
     public void set(Integer index, T listElement) {throw new java.lang.UnsupportedOperationException();}
     public Integer size() {throw new java.lang.UnsupportedOperationException();}
     public void sort() {throw new java.lang.UnsupportedOperationException();}
+
+    public List<T> clone$() {throw new java.lang.UnsupportedOperationException();}
+    public Integer hashCode$() {throw new java.lang.UnsupportedOperationException();}
+    public Boolean equals(List<T> other) {throw new java.lang.UnsupportedOperationException();}
 }

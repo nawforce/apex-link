@@ -10,7 +10,6 @@ public class Set<T> {
     Set(Set<T> setToCopy) {throw new java.lang.UnsupportedOperationException();}
     Set(List<T> listToCopy) {throw new java.lang.UnsupportedOperationException();}
 
-    public Set<T> clone$() {throw new java.lang.UnsupportedOperationException();}
     public Boolean add(T setElement) {throw new java.lang.UnsupportedOperationException();}
     public Boolean addAll(List<T> fromList) {throw new java.lang.UnsupportedOperationException();}
     public Boolean addAll(Set<T> fromSet) {throw new java.lang.UnsupportedOperationException();}
@@ -26,4 +25,8 @@ public class Set<T> {
     public Boolean retainAll(Set<T> setOfElementsToRetain) {throw new java.lang.UnsupportedOperationException();}
     public Integer size() {throw new java.lang.UnsupportedOperationException();}
     public Iterator<T> iterator() {throw new java.lang.UnsupportedOperationException();}
+
+    public Set<T> clone$() {throw new java.lang.UnsupportedOperationException();}
+    public Integer hashCode$() {throw new java.lang.UnsupportedOperationException();}
+    public Boolean equals(Set<T> other) {throw new java.lang.UnsupportedOperationException();}
 }
