@@ -12,7 +12,6 @@ public class Map<K, V> {
     Map(Map<K,V> mapToCopy) {throw new java.lang.UnsupportedOperationException();}
     Map(List<SObject> recordList) {throw new java.lang.UnsupportedOperationException();}
 
-    public Map<K, V> clone$() {throw new java.lang.UnsupportedOperationException();}
     public void clear() {throw new java.lang.UnsupportedOperationException();}
     public Boolean containsKey(K key) {throw new java.lang.UnsupportedOperationException();}
     public Map<K, V> deepClone() {throw new java.lang.UnsupportedOperationException();}
@@ -26,4 +25,8 @@ public class Map<K, V> {
     public V remove(K key) {throw new java.lang.UnsupportedOperationException();}
     public Integer size() {throw new java.lang.UnsupportedOperationException();}
     public List<V> values() {throw new java.lang.UnsupportedOperationException();}
+
+    public Map<K, V> clone$() {throw new java.lang.UnsupportedOperationException();}
+    public Integer hashCode$() {throw new java.lang.UnsupportedOperationException();}
+    public Boolean equals(Map<K, V> other) {throw new java.lang.UnsupportedOperationException();}
 }

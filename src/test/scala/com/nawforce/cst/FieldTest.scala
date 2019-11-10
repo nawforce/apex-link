@@ -137,8 +137,8 @@ class FieldTest extends FunSuite with BeforeAndAfter {
 
   test("Webservice field access" ) {
     val field = typeDeclaration("public class Dummy {webservice String foo;}", hasMessages = true).fields.head
-    assert(field.modifiers == Seq(WEBSERVICE_MODIFIER))
-    assert(field.readAccess == WEBSERVICE_MODIFIER)
+    assert(field.modifiers == Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
+    assert(field.readAccess == GLOBAL_MODIFIER)
     assert(field.writeAccess == field.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
@@ -146,8 +146,8 @@ class FieldTest extends FunSuite with BeforeAndAfter {
 
   test("Webservice field access in global class" ) {
     val field = typeDeclaration("global class Dummy {webservice String foo;}").fields.head
-    assert(field.modifiers == Seq(WEBSERVICE_MODIFIER))
-    assert(field.readAccess == WEBSERVICE_MODIFIER)
+    assert(field.modifiers == Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
+    assert(field.readAccess == GLOBAL_MODIFIER)
     assert(field.writeAccess == field.readAccess)
   }
 
@@ -185,11 +185,11 @@ class FieldTest extends FunSuite with BeforeAndAfter {
   test("Mixed access field" ) {
     val field = typeDeclaration("public class Dummy {global webservice String foo;}",
       hasMessages = true).fields.head
-    assert(field.modifiers == Seq(PUBLIC_MODIFIER))
-    assert(field.readAccess == PUBLIC_MODIFIER)
+    assert(field.modifiers ==Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
+    assert(field.readAccess == GLOBAL_MODIFIER)
     assert(field.writeAccess == field.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 45-48: Only one visibility modifier from 'webservice', 'global', 'public', 'protected' & 'private' may be used on fields\n")
+      "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
   test("AuraEnabled field" ) {

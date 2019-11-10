@@ -82,4 +82,40 @@ class BugTest extends FunSuite {
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
+
+  test("Clone apex type") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),
+      "public class Dummy {{Dummy a,b; b = a.clone();}}".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("System type name clash with field") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),
+      "public class Dummy {String Matcher; {Matcher.capitalize();}}".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Static method of super class of outer") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),
+      "public class Dummy extends SuperClass {class Inner {public void ifunc(){ func(); } }}".getBytes())
+    Files.write(fs.getPath("Super.cls"),
+      "public virtual class SuperClass {public static void func() {}}".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    org.issues.dumpMessages(false)
+    assert(!org.issues.hasMessages)
+  }
 }

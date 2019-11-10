@@ -76,9 +76,11 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
     if (target.isRight) {
       expression match {
         case PrimaryExpression(primary: IdPrimary) if context.isVar(primary.id.name).isEmpty =>
-          val td = context.getTypeAndAddDependency(TypeName(primary.id.name), None, excludeSObjects = true).toOption
-          if (td.nonEmpty) {
-            return verifyWithMethod(ExprContext(isStatic = true, td), input, context)
+          if (findField(primary.id.name, input.typeDeclaration, context.pkg, None).isEmpty) {
+            val td = context.getTypeAndAddDependency(TypeName(primary.id.name), None, excludeSObjects = true).toOption
+            if (td.nonEmpty) {
+              return verifyWithMethod(ExprContext(isStatic = true, td), input, context)
+            }
           }
         case _ =>
       }
@@ -108,7 +110,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
     input.declaration.get match {
       case td: TypeDeclaration =>
         val name = target.left.get.name
-        val field: Option[FieldDeclaration] = findField(name, td, context.pkg, input.isStatic)
+        val field: Option[FieldDeclaration] = findField(name, td, context.pkg, Some(input.isStatic))
         if (field.nonEmpty) {
           field.get.addDependencyHolder(context.holder)
           val target = context.getTypeAndAddDependency(field.get.typeName, Some(td)).toOption
@@ -140,11 +142,11 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
     method.verify(location, callee.typeDeclaration, Some(callee.isStatic), input, context)
   }
 
-  private def findField(name: Name, td: TypeDeclaration, pkg: PackageDeclaration, isStatic: Boolean) : Option[FieldDeclaration] = {
+  private def findField(name: Name, td: TypeDeclaration, pkg: PackageDeclaration, staticContext: Option[Boolean]) : Option[FieldDeclaration] = {
     val encodedName = EncodedName(name)
     val namespaceName = encodedName.defaultNamespace(pkg.namespace)
-    td.findField(namespaceName.fullName, Some(isStatic)).orElse({
-      if (encodedName != namespaceName) td.findField(encodedName.fullName, Some(isStatic)) else None
+    td.findField(namespaceName.fullName, staticContext).orElse({
+      if (encodedName != namespaceName) td.findField(encodedName.fullName, staticContext) else None
     })
   }
 }

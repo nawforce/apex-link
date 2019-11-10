@@ -31,5 +31,5 @@ package com.nawforce.platform.System;
 public class WebServiceCallout {
 	public static Object beginInvoke(Object stub, Object request, Object returnType, Object continuation, List info) {throw new java.lang.UnsupportedOperationException();}
 	public static Object endInvoke(Object future) {throw new java.lang.UnsupportedOperationException();}
-	public static void invoke(Object stub, Object request, Map response, List info) {throw new java.lang.UnsupportedOperationException();}
+	public static void invoke(Object stub, Object request, Map<String, Object> response, List<String> info) {throw new java.lang.UnsupportedOperationException();}
 }

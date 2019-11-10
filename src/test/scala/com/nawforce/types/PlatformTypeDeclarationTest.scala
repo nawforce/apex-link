@@ -200,17 +200,11 @@ class PlatformTypeDeclarationTest extends FunSuite  {
     assert(td.get.nestedTypes.isEmpty)
 
     val methods = td.get.methods.sortBy(_.name.toString)
-    assert(methods.size == 7)
-    assert(methods.map(_.name.toString) == Seq("getCause", "getLineNumber", "getMessage", "getStackTraceString",
-      "getTypeName", "initCause", "setMessage"))
+    assert(methods.size == 15)
+    assert(methods.map(_.name.toString) == Seq("getCause", "getDmlFieldNames", "getDmlFields", "getDmlId",
+      "getDmlIndex", "getDmlMessage", "getDmlStatusCode", "getDmlType", "getLineNumber", "getMessage", "getNumDml",
+      "getStackTraceString", "getTypeName", "initCause", "setMessage"))
     assert(methods.filter(_.modifiers == Seq(PUBLIC_MODIFIER)) == methods)
-    assert(methods.filter(_.name.toString == "getCause").head.toString == "public System.Exception getCause()")
-    assert(methods.filter(_.name.toString == "getLineNumber").head.toString == "public System.Integer getLineNumber()")
-    assert(methods.filter(_.name.toString == "getMessage").head.toString == "public System.String getMessage()")
-    assert(methods.filter(_.name.toString == "getStackTraceString").head.toString == "public System.String getStackTraceString()")
-    assert(methods.filter(_.name.toString == "getTypeName").head.toString == "public System.String getTypeName()")
-    assert(methods.filter(_.name.toString == "initCause").head.toString == "public void initCause(System.Exception cause)")
-    assert(methods.filter(_.name.toString == "setMessage").head.toString == "public void setMessage(System.String message)")
   }
 
   test("Generic class") {
@@ -246,7 +240,9 @@ class PlatformTypeDeclarationTest extends FunSuite  {
       "public System.String remove(System.Integer index)",
       "public void set(System.Integer index, System.String listElement)",
       "public System.Integer size()",
-      "public void sort()"
+      "public void sort()",
+      "public System.Boolean equals(System.List<System.String> other)",
+      "public System.Integer hashCode()"
     ).sorted.mkString("\n"))
   }
 

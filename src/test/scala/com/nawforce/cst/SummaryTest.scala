@@ -61,6 +61,8 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
         "Object", Nil,
         Nil, Nil,
         List(
+          MethodSummary("clone",List("public"),"Dummy",List()),
+          MethodSummary("equals",List("public"),"System.Boolean",List(ParameterSummary("other","Object"))),
           MethodSummary("hashCode",List("public"),"System.Integer",List()),
           MethodSummary("toString",List("public"),"System.String",List())
         ),
@@ -75,6 +77,8 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
         "Object", Nil,
         Nil, Nil,
         List(
+          MethodSummary("clone",List("public"),"Dummy",List()),
+          MethodSummary("equals",List("public"),"System.Boolean",List(ParameterSummary("other","Object"))),
           MethodSummary("hashCode",List("public"),"System.Integer",List()),
           MethodSummary("toString",List("public"),"System.String",List())
         ),
@@ -89,6 +93,8 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
         "Object", Nil,
         Nil, Nil,
         List(
+          MethodSummary("clone",List("public"),"Dummy",List()),
+          MethodSummary("equals",List("public"),"System.Boolean",List(ParameterSummary("other","Object"))),
           MethodSummary("hashCode",List("public"),"System.Integer",List()),
           MethodSummary("toString",List("public"),"System.String",List())
         ),
@@ -116,11 +122,14 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
     )
   }
 
-  test("Class with super class") {
+  test("Class with unknown super class") {
     assert(typeDeclarationSummary("public class Dummy extends Bar {}") ==
       TypeSummary("Dummy", "Dummy", "class", List("public"),
         "Bar", Nil,
-        Nil, Nil, Nil,
+        Nil, Nil,
+        List(
+          MethodSummary("clone",List("public"),"Dummy",List())
+        ),
         Nil)
     )
   }
@@ -131,6 +140,8 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
         "Object", List("A", "B"),
         Nil, Nil,
         List(
+          MethodSummary("clone",List("public"),"Dummy",List()),
+          MethodSummary("equals",List("public"),"System.Boolean",List(ParameterSummary("other","Object"))),
           MethodSummary("hashCode",List("public"),"System.Integer",List()),
           MethodSummary("toString",List("public"),"System.String",List())
         ),
@@ -158,6 +169,8 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
         ),
         Nil,
         List(
+          MethodSummary("clone",List("public"),"Dummy",List()),
+          MethodSummary("equals",List("public"),"System.Boolean",List(ParameterSummary("other","Object"))),
           MethodSummary("hashCode",List("public"),"System.Integer",List()),
           MethodSummary("toString",List("public"),"System.String",List())
         ),
@@ -177,6 +190,8 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
         ),
         Nil,
         List(
+          MethodSummary("clone",List("public"),"Dummy",List()),
+          MethodSummary("equals",List("public"),"System.Boolean",List(ParameterSummary("other","Object"))),
           MethodSummary("hashCode",List("public"),"System.Integer",List()),
           MethodSummary("toString",List("public"),"System.String",List())
         ),
@@ -195,6 +210,8 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
           ConstructorSummary(List("public"), List(ParameterSummary("a", "System.String")))
         ),
         List(
+          MethodSummary("clone",List("public"),"Dummy",List()),
+          MethodSummary("equals",List("public"),"System.Boolean",List(ParameterSummary("other","Object"))),
           MethodSummary("hashCode",List("public"),"System.Integer",List()),
           MethodSummary("toString",List("public"),"System.String",List())
         ),
@@ -211,6 +228,8 @@ class SummaryTest extends FunSuite with BeforeAndAfter {
         Nil,
         List(
           MethodSummary("bar", List(), "void", Nil),
+          MethodSummary("clone",List("public"),"Dummy",List()),
+          MethodSummary("equals",List("public"),"System.Boolean",List(ParameterSummary("other","Object"))),
           MethodSummary("foo", List("public"), "System.String", List(ParameterSummary("a", "System.String"))),
           MethodSummary("hashCode",List("public"),"System.Integer",List()),
           MethodSummary("toString",List("public"),"System.String",List())

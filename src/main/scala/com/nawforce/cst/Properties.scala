@@ -49,7 +49,7 @@ final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: Ty
       case _ => None
     }.headOption
 
-  private val visibility: Option[Modifier] = _modifiers.find(m => ApexModifiers.allVisibilityModifiers.contains(m))
+  private val visibility: Option[Modifier] = _modifiers.find(m => ApexModifiers.visibilityModifiers.contains(m))
   override val readAccess: Modifier =
     getter.flatMap(_.modifiers.headOption).getOrElse(visibility.getOrElse(PRIVATE_MODIFIER))
   override val writeAccess: Modifier =

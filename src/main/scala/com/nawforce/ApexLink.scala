@@ -37,7 +37,7 @@ object ApexLink {
   val usage = "Usage: ApexLink [-json] [-verbose] <[namespace=]directory>..."
 
   def main(args: Array[String]): Unit = {
-    val options = Set("-verbose", "-json")
+    val options = Set("-verbose", "-json", "-zombie")
 
     val validArgs = args.flatMap {
       case option if options.contains(option) => Some(option)
@@ -66,6 +66,7 @@ object ApexLink {
     })
     val json = validArgs.contains("-json")
     val verbose = !json && validArgs.contains("-verbose")
+    val zombie = validArgs.contains("-zombie")
     LogUtils.setLoggingLevel(verbose)
 
     val parseStart = System.currentTimeMillis()
@@ -90,11 +91,13 @@ object ApexLink {
     if (verbose && org.typeCount>0)
       println(s"Loaded & checked ${org.typeCount} types, with average time/type of ${(parseEnd - parseStart) / org.typeCount}ms")
 
-    org.packages.values.foreach(pkg => {
-      if (!pkg.isGhosted) {
-        println(s"Package: ${pkg.namespace}")
-        pkg.reportUnused().dumpMessages(json=false)
-      }
-    })
+    if (zombie) {
+      org.packages.values.foreach(pkg => {
+        if (!pkg.isGhosted) {
+          println(s"Package: ${pkg.namespace}")
+          pkg.reportUnused().dumpMessages(json = false)
+        }
+      })
+    }
   }
 }
