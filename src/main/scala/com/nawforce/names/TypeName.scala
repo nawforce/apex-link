@@ -99,8 +99,10 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
     }
   }
 
-  def getListType: Option[TypeName] = {
+  def getArrayType: Option[TypeName] = {
     if (name == Name.List$ && outer.contains(TypeName.System) && params.size == 1) {
+      params.headOption
+    } else if (name == Name.RecordSet$ && outer.contains(TypeName.Internal) && params.size == 1) {
       params.headOption
     } else {
       None
@@ -128,6 +130,8 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
 
   def isRecordSet: Boolean = name == Name.RecordSet$ && outer.contains(TypeName.Internal) && params.size == 1
   def isSObjectList: Boolean = isList && params.head == TypeName.SObject
+
+  def isBatchable: Boolean = name == Name.Batchable && outer.contains(TypeName.Database)
 
   override def toString: String = {
     this match {
@@ -199,6 +203,9 @@ object TypeName {
   lazy val SObjectTypeFieldSets$ = TypeName(Name.SObjectTypeFieldSets$, Nil, Some(TypeName.Internal))
   lazy val SObjectFields$ = TypeName(Name.SObjectFields$, Nil, Some(TypeName.Internal))
 
+  lazy val Database = TypeName(Name.Database)
+  lazy val BatchableContext = TypeName(Name.BatchableContext, Nil, Some(TypeName.Database))
+
   lazy val UserRecordAccess = TypeName(Name.UserRecordAccess)
 
   def describeSObjectResultOf(typeName: TypeName): TypeName = DescribeSObjectResult$.withParams(Seq(typeName))
@@ -209,6 +216,7 @@ object TypeName {
 
   def listOf(typeName: TypeName): TypeName = TypeName(Name.List$, Seq(typeName), Some(TypeName.System))
   def mapOf(keyType: TypeName, valueType: TypeName): TypeName = TypeName(Name.Map$, Seq(keyType, valueType), Some(TypeName.System))
+  def recordSetOf(typeName: TypeName): TypeName = TypeName(Name.RecordSet$, Seq(typeName), Some(TypeName.Internal))
 
   def apply(names: Seq[Name]): TypeName = {
     names match {

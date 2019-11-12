@@ -73,6 +73,8 @@ object Name {
   lazy val Empty: Name = cache("")
   lazy val System: Name = cache("System")
   lazy val Schema: Name = cache("Schema")
+  lazy val Database: Name = cache("Database")
+  lazy val Batchable: Name = cache("Batchable")
   lazy val Void: Name = cache("void")
   lazy val Class: Name = cache("Class")
   lazy val List$: Name = cache("List")
@@ -153,6 +155,8 @@ object Name {
   lazy val FieldSets: Name = cache("FieldSets")
   lazy val GetSObjectType: Name = cache("GetSObjectType")
   lazy val Clone: Name = cache("clone")
+  lazy val Execute: Name = cache("execute")
+  lazy val BatchableContext: Name = cache("BatchableContext")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 

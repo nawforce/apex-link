@@ -155,6 +155,24 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], relativeTypeNa
     depends = Some(context.dependencies)
     propagateDependencies()
   }
+
+  // Populated by type MethodMap construction
+  lazy val shadows: mutable.Set[MethodDeclaration] = mutable.Set()
+
+  lazy val isEntry: Boolean = {
+    modifiers.contains(ISTEST_ANNOTATION) ||
+      modifiers.contains(TEST_METHOD_MODIFIER) ||
+      modifiers.contains(GLOBAL_MODIFIER)
+  }
+
+  def isUsed: Boolean = {
+    isEntry || hasHolders ||
+      shadows.exists({
+        case am: ApexMethodDeclaration => am.isUsed
+        case _: MethodDeclaration => true
+        case _ => false
+      })
+  }
 }
 
 object ApexMethodDeclaration {

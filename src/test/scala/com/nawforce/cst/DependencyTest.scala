@@ -41,12 +41,6 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
   private val defaultPath: Path = Paths.get(defaultName.toString)
   private var defaultOrg: Org = new Org
 
-  private val objectClass = defaultOrg.unmanaged.getTypeOption(TypeName.InternalObject).get
-  private val typeClass = defaultOrg.unmanaged.getTypeOption(TypeName.TypeType).get
-  private val booleanClass = defaultOrg.unmanaged.getTypeOption(TypeName.Boolean).get
-  private val queryLocatorClass = defaultOrg.unmanaged.getTypeOption(
-    TypeName(Name("QueryLocator"), Nil, Some(TypeName(Name("Database"))))).get
-
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
     val paths = classes.map(kv => {
       val fakePath = Paths.get(kv._1 + ".cls")
@@ -67,7 +61,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
 
   test("Empty class has no imports") {
     val tds = typeDeclarations(Map("Dummy" -> "public class Dummy {}"))
-    assert(tds.head.dependencies() == Set(objectClass))
+    assert(tds.head.dependencies().isEmpty)
   }
 
   test("Class depends on superclass") {
@@ -86,7 +80,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "B" -> "public interface B {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.dependencies() == (objectClass +: tds.tail).toSet)
+    assert(tds.head.dependencies() == tds.tail.toSet)
   }
 
   test("Interface depends on interface") {
@@ -104,7 +98,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy { class Inner {} }"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.dependencies() == Set(objectClass))
+    assert(tds.head.nestedTypes.head.dependencies().isEmpty)
   }
 
   test("Inner class depends on superclass") {
@@ -123,7 +117,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "B" -> "public interface B {}",
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.dependencies() == (objectClass +: tds.tail).toSet)
+    assert(tds.head.nestedTypes.head.dependencies() == tds.tail.toSet)
   }
 
   test("Inner interface depends on interface") {
@@ -142,7 +136,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.blocks.head.dependencies() == Set(tds.tail.head, typeClass))
+    assert(tds.head.blocks.head.dependencies() == tds.tail.toSet)
   }
 
   test("Class self-reference creates dependency") {
@@ -150,7 +144,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy { {Type t = Dummy.class;} }"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.blocks.head.dependencies() == Set(tds.head, typeClass))
+    assert(tds.head.blocks.head.dependencies() == Set(tds.head))
   }
 
   test("Class reference via super types create dependency") {
@@ -159,7 +153,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public virtual class A extends B {}",
       "B" -> "public virtual class B {public class C {} }"
     ))
-    assert(tds.head.blocks.head.dependencies() == Set(tds(2).nestedTypes.head, typeClass))
+    assert(tds.head.blocks.head.dependencies() == Set(tds(2).nestedTypes.head))
   }
 
   test("Class reference with ambiguous name") {
@@ -168,7 +162,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
     ))
     assert(!defaultOrg.issues.hasMessages)
     Org.current.withValue(defaultOrg) {
-      assert(tds.head.nestedTypes.head.fields.head.dependencies() == Set(typeClass, queryLocatorClass))
+      assert(tds.head.nestedTypes.head.fields.head.dependencies().isEmpty)
     }
   }
 
@@ -177,10 +171,6 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy { Type t = Component.Apex.OutputText.class; }",
     ))
     assert(!defaultOrg.issues.hasMessages)
-    Org.current.withValue(defaultOrg) {
-      val cmp = tds.head.fields.head.dependencies().filterNot(_ == typeClass)
-      assert(cmp.head.asInstanceOf[TypeDeclaration].typeName.toString == "Component.Apex.OutputText")
-    }
   }
 
   test("Method return creates dependency") {
@@ -282,7 +272,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.blocks.head.dependencies() == Set(objectClass, tds.tail.head))
+    assert(tds.head.blocks.head.dependencies() == Set(tds.tail.head))
   }
 
   test("Unknown cast type") {
@@ -290,7 +280,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy {static {Object a=(A)null;} }"
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 37-44: No type declaration found for 'A'\n")
-    assert(tds.head.blocks.head.dependencies() == Set(objectClass))
+    assert(tds.head.blocks.head.dependencies().isEmpty)
   }
 
   test("For control creates dependency") {
@@ -333,7 +323,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == (objectClass +: tds.tail).toSet)
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
   }
 
   /* TODO Update
@@ -351,7 +341,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy { void func() { Object a = new A(); } }"
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 50-51: No type declaration found for 'A'\n")
-    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == Set(objectClass))
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
 
   test("InstanceOf creates dependency") {
@@ -360,7 +350,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.blocks.head.dependencies() == Set(tds.tail.head, booleanClass))
+    assert(tds.head.blocks.head.dependencies() == Set(tds.tail.head))
   }
 
   test("Unknown instanceOf type") {
@@ -368,7 +358,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "Dummy" -> "public class Dummy { { Boolean a = null instanceOf A; } }"
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 35-52: No type declaration found for 'A'\n")
-    assert(tds.head.blocks.head.dependencies() == Set(booleanClass))
+    assert(tds.head.blocks.head.dependencies().isEmpty)
   }
 
   test("Class reference in Inner creates dependency") {
@@ -378,7 +368,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
     ))
     assert(!defaultOrg.issues.hasMessages)
 
-    assert(tds.head.nestedTypes.head.blocks.head.dependencies() == Set(tds.tail.head, typeClass))
+    assert(tds.head.nestedTypes.head.blocks.head.dependencies() == Set(tds.tail.head))
   }
 
   test("Method return in Inner creates dependency") {
@@ -436,7 +426,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.blocks.head.dependencies() == Set(tds.tail.head, objectClass))
+    assert(tds.head.nestedTypes.head.blocks.head.dependencies() == Set(tds.tail.head))
   }
 
   test("Inner For control creates dependency") {
@@ -463,7 +453,7 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == Set(tds.tail.head, objectClass))
+    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == Set(tds.tail.head))
   }
 
   /* TODO Update
@@ -483,6 +473,6 @@ class DependencyTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.blocks.head.dependencies() == Set(tds.tail.head, booleanClass))
+    assert(tds.head.nestedTypes.head.blocks.head.dependencies() == Set(tds.tail.head))
   }
 }

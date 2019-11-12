@@ -45,6 +45,7 @@ case object PUBLIC_MODIFIER extends Modifier("public", order = 2)
 case object PROTECTED_MODIFIER extends Modifier("protected", order = 1)
 case object PRIVATE_MODIFIER extends Modifier("private", order = 0)
 case object TEST_CLASS_MODIFIER extends Modifier("@isTest")
+case object TEST_METHOD_MODIFIER extends Modifier("testmethod")
 
 case object STATIC_MODIFIER extends Modifier("static")
 case object ABSTRACT_MODIFIER extends Modifier("abstract")
@@ -339,7 +340,7 @@ object ApexModifiers {
   def methodModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext, idContext: IdContext)
   : Seq[Modifier] = {
 
-    val mods = modifierContexts.flatMap(modifierContext =>
+    var mods = modifierContexts.flatMap(modifierContext =>
       if (modifierContext.annotation() != null) {
         methodAnnotation(modifierContext.annotation())
       } else {
@@ -351,7 +352,7 @@ object ApexModifiers {
           case "protected" => Some(PROTECTED_MODIFIER)
           case "private" => Some(PRIVATE_MODIFIER)
           case "static" => Some(STATIC_MODIFIER)
-          case "testmethod" => Some(TEST_CLASS_MODIFIER)
+          case "testmethod" => Some(TEST_METHOD_MODIFIER)
           case "webservice" => Some(WEBSERVICE_MODIFIER)
           case "virtual" => Some(VIRTUAL_MODIFIER)
           case _ =>
