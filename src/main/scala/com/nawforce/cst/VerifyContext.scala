@@ -89,7 +89,13 @@ trait HolderVerifyContext {
                  excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration]
 
   def addDependency(dependant: Dependant): Unit = {
-    _dependencies += dependant
+    dependant match {
+      case _: ApexTypeDeclaration => _dependencies += dependant
+      case _: ApexFieldDeclaration => _dependencies += dependant
+      case _: ApexPropertyDeclaration => _dependencies += dependant
+      case _: ApexMethodDeclaration => _dependencies += dependant
+      case _ => ()
+    }
   }
 
   def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration],

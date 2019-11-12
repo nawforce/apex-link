@@ -131,7 +131,7 @@ final case class IfStatement(expression: Expression, statements: List[Statement]
     var stmtContext = new InnerBlockVerifyContext(context)
     statements.foreach(stmt => {
       if (stmt.isInstanceOf[Block]) {
-        stmtContext = new InnerBlockVerifyContext(context)
+        stmtContext = new InnerBlockVerifyContext(stmtContext)
       }
       stmt.verify(stmtContext)
     })

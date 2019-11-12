@@ -115,16 +115,15 @@ class ImplementsTest extends FunSuite with BeforeAndAfter {
 
   test("Class implements Database.Batchable<sObject>") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "global class Dummy implements Database.Batchable<sObject> {}"
+      "Dummy" ->
+        """
+          | global class Dummy implements Database.Batchable<sObject> {
+          |   Iterable<sObject> start(Database.BatchableContext param1) {}
+          |   void execute(Database.BatchableContext param1, List<Object> param2) {}
+          |   void finish(Database.BatchableContext param1) {}
+          | }
+          |""".stripMargin
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) == "")
   }
-
-  test("Class implements Database.Batchable<Object>") {
-    val tds = typeDeclarations(Map(
-      "Dummy" -> "global class Dummy implements Database.Batchable<Object> {}"
-    ))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "")
-  }
-
 }

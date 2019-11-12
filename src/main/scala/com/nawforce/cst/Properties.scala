@@ -78,6 +78,7 @@ final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: Ty
     }
 
     depends = Some(context.dependencies)
+    propagateDependencies()
   }
 }
 

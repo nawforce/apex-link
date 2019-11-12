@@ -121,14 +121,14 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
     }
   }
 
-  private def localMethods: Seq[ApexMethodDeclaration] = {
+  def localMethods: Seq[ApexMethodDeclaration] = {
     bodyDeclarations.flatMap({
       case m: ApexMethodDeclaration => Some(m)
       case _ => None
     })
   }
 
-  private def staticMethods: Seq[MethodDeclaration] = {
+  def staticMethods: Seq[MethodDeclaration] = {
     localMethods.filter(_.isStatic) ++
       (superClassDeclaration match {
         case Some(td: ApexTypeDeclaration) =>
@@ -138,25 +138,7 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
       })
   }
 
-  private def outerStaticMethods: Seq[MethodDeclaration] = {
-    outerTypeName.flatMap(ot => TypeRequest(ot, this, excludeSObjects = false).toOption) match {
-      case Some(td: ApexTypeDeclaration) => td.staticMethods
-      case _ => Seq()
-    }
-  }
-
-  private lazy val methodMap: MethodMap = {
-    val allMethods = outerStaticMethods ++ localMethods
-    superClassDeclaration match {
-      case Some(at: ApexTypeDeclaration) =>
-        MethodMap(nature, typeName, at.methodMap, allMethods, interfaceDeclarations)
-      case Some(td: TypeDeclaration) =>
-        MethodMap(nature, typeName, MethodMap(td.nature, td.typeName, MethodMap.empty(), td.methods, Seq()),
-          allMethods, interfaceDeclarations)
-      case _ =>
-        MethodMap(nature, typeName, MethodMap.empty(), allMethods, interfaceDeclarations)
-    }
-  }
+  val methodMap: MethodMap
 
   override lazy val methods: Seq[MethodDeclaration] = methodMap.allMethods.toSeq
 
@@ -214,10 +196,12 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
     localFields.filterNot(_.hasHolders)
       .map({
         case field: ApexFieldDeclaration =>
-          Issue(field.location, s"Field '$typeName.${field.name}' is not being used in Apex code")
+          Issue(field.location, s"Field '${field.name}' is not being used in Apex code")
         case property: ApexPropertyDeclaration =>
-          Issue(property.location, s"Property '$typeName.${property.name}' is not being used in Apex code")
-      })
+          Issue(property.location, s"Property '${property.name}' is not being used in Apex code")
+      }) ++
+    localMethods.filterNot(_.isUsed)
+      .map(method => Issue(method.location, s"Method '${method.signature}' is not being used in Apex code"))
   }
 }
 

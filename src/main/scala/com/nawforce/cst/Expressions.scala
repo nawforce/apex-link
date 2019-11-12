@@ -167,7 +167,7 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
     if (!inter.isDefined)
       return ExprContext.empty
 
-    val listType = inter.typeName.getListType
+    val listType = inter.typeName.getArrayType
     if (inter.isStatic || listType.isEmpty) {
       context.logMessage(location, s"Only Lists can be de-referenced as an array, found '${inter.typeName}'")
       return ExprContext.empty
@@ -190,6 +190,7 @@ final case class MethodCall(target: Either[Boolean, Id], arguments: List[Express
 
   def verify(location: Location, callee: TypeDeclaration, staticContext: Option[Boolean], input: ExprContext,
              context: ExpressionVerifyContext): ExprContext = {
+
     val args = arguments.map(_.verify(input, context))
     if (args.exists(!_.isDefined))
       return ExprContext.empty
@@ -198,6 +199,7 @@ final case class MethodCall(target: Either[Boolean, Id], arguments: List[Express
       case Right(id) =>
         val argTypes = args.map(_.typeName)
         val methods = callee.findMethod(id.name, argTypes, staticContext, context)
+        methods.foreach(context.addDependency)
         if (methods.isEmpty) {
           if (argTypes.isEmpty)
             context.logMessage(location,

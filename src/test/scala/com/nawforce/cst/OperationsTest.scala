@@ -35,7 +35,7 @@ import com.nawforce.names.Name
 import com.nawforce.types.{ApexTypeDeclaration, TypeDeclaration}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
-class OperationsTests extends FunSuite with BeforeAndAfter {
+class OperationsTest extends FunSuite with BeforeAndAfter {
 
   private val defaultName: Name = Name("Dummy")
   private val defaultPath: Path = Paths.get(defaultName.toString)

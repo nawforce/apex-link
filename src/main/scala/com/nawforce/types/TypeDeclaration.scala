@@ -104,7 +104,26 @@ trait MethodDeclaration extends DependencyHolder {
   lazy val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
   lazy val isAbstract: Boolean = modifiers.contains(ABSTRACT_MODIFIER)
   lazy val isVirtual: Boolean = modifiers.contains(VIRTUAL_MODIFIER)
+  lazy val isVirtualOrOverride: Boolean = isVirtual || modifiers.contains(OVERRIDE_MODIFIER)
   lazy val isGlobalOrPublic: Boolean = modifiers.exists(m => m == GLOBAL_MODIFIER || m == PUBLIC_MODIFIER)
+
+  def hasSameSignature(other: MethodDeclaration): Boolean = {
+    name == other.name &&
+    typeName == other.typeName &&
+    hasSameParameters(other)
+  }
+
+  def hasSameParameters(other: MethodDeclaration): Boolean = {
+    hasParameters(other.parameters.map(_.typeName))
+  }
+
+  def hasParameters(params: Seq[TypeName]): Boolean = {
+    if (parameters.size == params.size) {
+      parameters.zip(params).forall(z => z._1.typeName == z._2)
+    } else {
+      false
+    }
+  }
 
   lazy val summary: MethodSummary = MethodSummary(
     name.toString, modifiers.map(_.toString).sorted.toList, typeName.toString,
@@ -185,7 +204,7 @@ trait TypeDeclaration extends DependencyHolder {
     fieldsByName
   }
 
-  private lazy val methodMap: MethodMap = MethodMap(nature, typeName, MethodMap.empty(), methods, Seq())
+  private lazy val methodMap: MethodMap = MethodMap(None, nature, typeName, MethodMap.empty(), methods, Seq())
 
   def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
                  verifyContext: VerifyContext): Seq[MethodDeclaration] = {

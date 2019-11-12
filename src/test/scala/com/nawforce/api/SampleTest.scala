@@ -45,6 +45,8 @@ class SampleTest extends FunSuite {
       org.issues.dumpMessages(false)
       assert(false)
     }
+    val log = pkg.reportUnused()
+    log.dumpMessages(false)
   }
 
   test("forcedotcom-enterprise-architecture") {

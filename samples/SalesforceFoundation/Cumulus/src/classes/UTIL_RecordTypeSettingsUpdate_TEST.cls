@@ -168,7 +168,7 @@ private class UTIL_RecordTypeSettingsUpdate_TEST {
     private class NameMappingStub extends UTIL_RecordTypeSettingsUpdate {
         public Map<String, Id> opportunityNameMap;
         public Map<String, Id> contactNameMap;
-        private Map<String, Id> getNameToRecordTypeIdMap(Schema.SObjectType sot) {
+        private override Map<String, Id> getNameToRecordTypeIdMap(Schema.SObjectType sot) {
             if (sot == Contact.sObjectType) {
                 return contactNameMap;
             } else if (sot == Opportunity.sObjectType) {

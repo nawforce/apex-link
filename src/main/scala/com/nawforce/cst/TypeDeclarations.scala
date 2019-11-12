@@ -29,6 +29,8 @@ package com.nawforce.cst
 
 import java.nio.file.Path
 
+import com.nawforce.api.Org
+import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser
 import com.nawforce.parsers.ApexParser._
@@ -59,6 +61,34 @@ final case class ClassDeclaration(_pkg: PackageDeclaration, _outerTypeName: Opti
   ApexTypeDeclaration(_pkg, _outerTypeName, _id, _modifiers, _extendsType, _implementsTypes, _bodyDeclarations) {
 
   override val nature: Nature = CLASS_NATURE
+
+  private def outerStaticMethods: Seq[MethodDeclaration] = {
+    outerTypeName.flatMap(ot => TypeRequest(ot, this, excludeSObjects = false).toOption) match {
+      case Some(td: ApexTypeDeclaration) => td.staticMethods
+      case _ => Seq()
+    }
+  }
+
+  override lazy val methodMap: MethodMap = {
+    val allMethods = outerStaticMethods ++ localMethods
+    val loc = Some(id.location)
+    val mmap = superClassDeclaration match {
+      case Some(at: ApexTypeDeclaration) =>
+        MethodMap(loc, nature, typeName, at.methodMap, allMethods, interfaceDeclarations)
+      case Some(td: TypeDeclaration) =>
+        MethodMap(loc, nature, typeName,
+          MethodMap(None, td.nature, td.typeName, MethodMap.empty(), td.methods, Seq()),
+          allMethods, interfaceDeclarations)
+      case _ =>
+        MethodMap(loc, nature, typeName, MethodMap.empty(), allMethods, interfaceDeclarations)
+    }
+
+    mmap.errors.foreach(err =>{
+      Org.logMessage(err._1, err._2)
+    })
+
+    mmap
+  }
 
   override def verify(context: TypeVerifyContext): Unit = {
     if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL_MODIFIER)) {
@@ -128,6 +158,14 @@ final case class InterfaceDeclaration(_pkg: PackageDeclaration, _outerTypeName: 
 
   override val nature: Nature = INTERFACE_NATURE
 
+  override lazy val methodMap: MethodMap = {
+    val mmap = MethodMap(Some(id.location), nature, typeName, MethodMap.empty(), localMethods, interfaceDeclarations)
+    mmap.errors.foreach(err =>{
+      Org.logMessage(err._1, err._2)
+    })
+    mmap
+  }
+
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     super.verify(new TypeVerifyContext(Some(context), this))
   }
@@ -162,6 +200,14 @@ final case class EnumDeclaration(_pkg: PackageDeclaration, _outerTypeName: Optio
   extends ApexTypeDeclaration(_pkg, _outerTypeName, _id, _modifiers, None, Seq(), _bodyDeclarations) {
 
   override val nature: Nature = ENUM_NATURE
+
+  override lazy val methodMap: MethodMap = {
+    val mmap = MethodMap(Some(id.location), nature, typeName, MethodMap.empty(), localMethods, interfaceDeclarations)
+    mmap.errors.foreach(err =>{
+      Org.logMessage(err._1, err._2)
+    })
+    mmap
+  }
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     super.verify(new TypeVerifyContext(Some(context), this))
