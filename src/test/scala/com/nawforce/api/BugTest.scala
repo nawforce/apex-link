@@ -118,4 +118,23 @@ class BugTest extends FunSuite {
     org.issues.dumpMessages(false)
     assert(!org.issues.hasMessages)
   }
+
+  test("Static name clash") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),
+      s"""
+         |public class Dummy {
+         |  public static void pop() {}
+         |  public interface API { void pop(); }
+         |  private class Impl implements API { public void pop() {}}
+         |}
+         |""".stripMargin.getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    org.issues.dumpMessages(false)
+    assert(!org.issues.hasMessages)
+  }
+
 }

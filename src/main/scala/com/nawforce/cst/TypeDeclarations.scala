@@ -69,18 +69,20 @@ final case class ClassDeclaration(_pkg: PackageDeclaration, _outerTypeName: Opti
     }
   }
 
+  private lazy val isAbstract: Boolean = modifiers.contains(ABSTRACT_MODIFIER)
+
   override lazy val methodMap: MethodMap = {
     val allMethods = outerStaticMethods ++ localMethods
     val loc = Some(id.location)
     val mmap = superClassDeclaration match {
       case Some(at: ApexTypeDeclaration) =>
-        MethodMap(loc, nature, typeName, at.methodMap, allMethods, interfaceDeclarations)
+        MethodMap(loc, nature, isAbstract, typeName, at.methodMap, allMethods, interfaceDeclarations)
       case Some(td: TypeDeclaration) =>
-        MethodMap(loc, nature, typeName,
-          MethodMap(None, td.nature, td.typeName, MethodMap.empty(), td.methods, Seq()),
+        MethodMap(loc, nature, isAbstract, typeName,
+          MethodMap(None, td.nature, false, td.typeName, MethodMap.empty(), td.methods, Seq()),
           allMethods, interfaceDeclarations)
       case _ =>
-        MethodMap(loc, nature, typeName, MethodMap.empty(), allMethods, interfaceDeclarations)
+        MethodMap(loc, nature, false, typeName, MethodMap.empty(), allMethods, interfaceDeclarations)
     }
 
     mmap.errors.foreach(err =>{
@@ -91,6 +93,16 @@ final case class ClassDeclaration(_pkg: PackageDeclaration, _outerTypeName: Opti
   }
 
   override def verify(context: TypeVerifyContext): Unit = {
+    verifyCommon(context)
+    super.verify(context)
+  }
+
+  override def verify(context: BodyDeclarationVerifyContext): Unit = {
+    verifyCommon(context)
+    super.verify(new TypeVerifyContext(Some(context), this))
+  }
+
+  private def verifyCommon(context: VerifyContext): Unit = {
     if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL_MODIFIER)) {
       context.logMessage(id.location, "Classes enclosing globals or webservices must also be declared global")
     } else if (!modifiers.contains(ABSTRACT_MODIFIER) && methods.exists(_.isAbstract)) {
@@ -98,15 +110,6 @@ final case class ClassDeclaration(_pkg: PackageDeclaration, _outerTypeName: Opti
     } else if(modifiers.contains(ABSTRACT_MODIFIER) && modifiers.contains(VIRTUAL_MODIFIER)) {
       context.logMessage(id.location, "Abstract classes do not need virtual keyword")
     }
-
-    super.verify(context)
-  }
-
-  override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL_MODIFIER)) {
-      context.logMessage(id.location, "Classes enclosing globals or webservices must also be declared global")
-    }
-    super.verify(new TypeVerifyContext(Some(context), this))
   }
 }
 
@@ -159,7 +162,7 @@ final case class InterfaceDeclaration(_pkg: PackageDeclaration, _outerTypeName: 
   override val nature: Nature = INTERFACE_NATURE
 
   override lazy val methodMap: MethodMap = {
-    val mmap = MethodMap(Some(id.location), nature, typeName, MethodMap.empty(), localMethods, interfaceDeclarations)
+    val mmap = MethodMap(Some(id.location), nature, false, typeName, MethodMap.empty(), localMethods, interfaceDeclarations)
     mmap.errors.foreach(err =>{
       Org.logMessage(err._1, err._2)
     })
@@ -202,7 +205,7 @@ final case class EnumDeclaration(_pkg: PackageDeclaration, _outerTypeName: Optio
   override val nature: Nature = ENUM_NATURE
 
   override lazy val methodMap: MethodMap = {
-    val mmap = MethodMap(Some(id.location), nature, typeName, MethodMap.empty(), localMethods, interfaceDeclarations)
+    val mmap = MethodMap(Some(id.location), nature, false, typeName, MethodMap.empty(), localMethods, interfaceDeclarations)
     mmap.errors.foreach(err =>{
       Org.logMessage(err._1, err._2)
     })
