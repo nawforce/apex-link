@@ -74,16 +74,30 @@ object MethodMap {
     new MethodMap(Map(), Map())
   }
 
-  def apply(location: Option[Location], nature: Nature, typeName: TypeName, superClassMap: MethodMap,
-            localMethods: Seq[MethodDeclaration], interfaces: Seq[TypeDeclaration]): MethodMap = {
+  def apply(location: Option[Location], nature: Nature, isAbstract: Boolean, typeName: TypeName,
+            superClassMap: MethodMap, localMethods: Seq[MethodDeclaration], interfaces: Seq[TypeDeclaration]): MethodMap = {
 
     val workingMap = collection.mutable.Map[(Name, Int), Seq[MethodDeclaration]]() ++= superClassMap.methodsByName
     val errors = mutable.Map[Location, String]()
 
-    localMethods.foreach(method => applyMethod(workingMap, method, errors))
+    // Add instance methods first with validation checks
+    localMethods.filterNot(_.isStatic).foreach(method => applyInstanceMethod(workingMap, method, errors))
+
+    // Add statics is they are not being shadowed by an instance method
+    localMethods.filter(_.isStatic).foreach(method => {
+      val key = (method.name, method.parameters.size)
+      val methods = workingMap.getOrElse(key, Seq())
+      val matched = methods.find(m => m.hasSameParameters(method))
+      if (matched.isEmpty)
+        workingMap.put(key, method +: methods)
+      else if (matched.get.isStatic)
+        workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method)))
+    })
+
+    // Validate any interfaces over the full set
     if (nature == CLASS_NATURE) {
       workingMap.put((Name.Clone, 0), Seq(CustomMethodDeclaration(Name.Clone, typeName, Seq())))
-      checkInterfaces(location, workingMap, interfaces, errors)
+      checkInterfaces(location, isAbstract, workingMap, interfaces, errors)
     } else if (nature == INTERFACE_NATURE) {
       mergeInterfaces(workingMap, interfaces)
     }
@@ -119,17 +133,19 @@ object MethodMap {
     })
   }
 
-  private def checkInterfaces(location: Option[Location], workingMap: WorkingMap, interfaces: Seq[TypeDeclaration], errors: ErrorMap): Unit = {
+  private def checkInterfaces(location: Option[Location], isAbstract: Boolean, workingMap: WorkingMap,
+                              interfaces: Seq[TypeDeclaration], errors: ErrorMap): Unit = {
     interfaces.foreach({
       case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
-        checkInterface(location, workingMap, i, errors)
+        checkInterface(location, isAbstract, workingMap, i, errors)
       case _ => ()
     })
   }
 
-  private def checkInterface(location: Option[Location], workingMap: WorkingMap, interface: TypeDeclaration, errors: ErrorMap): Unit = {
+  private def checkInterface(location: Option[Location], isAbstract: Boolean, workingMap: WorkingMap,
+                             interface: TypeDeclaration, errors: ErrorMap): Unit = {
     if (interface.isInstanceOf[InterfaceDeclaration])
-      checkInterfaces(location, workingMap, interface.interfaceDeclarations, errors)
+      checkInterfaces(location, isAbstract, workingMap, interface.interfaceDeclarations, errors)
 
     interface.methods.filterNot(_.isStatic).foreach(method => {
       val key = (method.name, method.parameters.size)
@@ -140,7 +156,8 @@ object MethodMap {
         matched = methods.find(isBatchableExecute)
 
       if (matched.isEmpty) {
-        location.foreach(errors.put(_, s"Method '${method.signature}' from interface '${interface.typeName}' must be implemented"))
+        if (!isAbstract)
+          location.foreach(errors.put(_, s"Method '${method.signature}' from interface '${interface.typeName}' must be implemented"))
       } else {
         matched.get match {
           case am: ApexMethodDeclaration => am.shadows.add(method)
@@ -158,28 +175,29 @@ object MethodMap {
       method.parameters(1).typeName.isList
   }
 
-  private def applyMethod(workingMap: WorkingMap, method: MethodDeclaration, errors: ErrorMap): Unit = {
+  private def applyInstanceMethod(workingMap: WorkingMap, method: MethodDeclaration, errors: ErrorMap): Unit = {
+    assert(!method.isStatic)
+
     val key = (method.name, method.parameters.size)
     val methods = workingMap.getOrElse(key, Seq())
 
-    if (!method.isStatic) {
-      val matched = methods.find(_.hasSameParameters(method))
+    val matched = methods.find(_.hasSameParameters(method))
 
-      if (matched.nonEmpty && (matched.get.typeName != method.typeName)) {
-        setMethodError(method, s"Method '${method.name}' has wrong return type to override, should be '${matched.get.typeName}'", errors)
-      } else if (matched.nonEmpty && matched.get.isInstanceOf[ApexMethodDeclaration]) {
-        if (!matched.get.isAbstract) {
-          if (!matched.get.isVirtualOrOverride) {
-            setMethodError(method, s"Method '${method.name}' can not override non-virtual method", errors)
-          } else if (!method.isVirtualOrOverride) {
-            setMethodError(method, s"Method '${method.name}' must use override or virtual keyword", errors)
-          }
+    if (matched.nonEmpty && (matched.get.typeName != method.typeName)) {
+      setMethodError(method, s"Method '${method.name}' has wrong return type to override, should be '${matched.get.typeName}'", errors)
+    } else if (matched.nonEmpty && matched.get.isInstanceOf[ApexMethodDeclaration]) {
+      val am = matched.get.asInstanceOf[ApexMethodDeclaration]
+      if (am.block.nonEmpty) {
+        if (!am.isVirtualOrOverride) {
+          setMethodError(method, s"Method '${method.name}' can not override non-virtual method", errors)
+        } else if (!method.isVirtualOrOverride) {
+          setMethodError(method, s"Method '${method.name}' must use override or virtual keyword", errors)
         }
       }
-      method match {
-        case am: ApexMethodDeclaration => matched.foreach(am.shadows.add)
-        case _ => ()
-      }
+    }
+    method match {
+      case am: ApexMethodDeclaration => matched.foreach(am.shadows.add)
+      case _ => ()
     }
 
     workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method)))

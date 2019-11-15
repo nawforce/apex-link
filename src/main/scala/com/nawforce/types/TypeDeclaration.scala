@@ -204,7 +204,7 @@ trait TypeDeclaration extends DependencyHolder {
     fieldsByName
   }
 
-  private lazy val methodMap: MethodMap = MethodMap(None, nature, typeName, MethodMap.empty(), methods, Seq())
+  private lazy val methodMap: MethodMap = MethodMap(None, nature, false, typeName, MethodMap.empty(), methods, Seq())
 
   def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
                  verifyContext: VerifyContext): Seq[MethodDeclaration] = {
