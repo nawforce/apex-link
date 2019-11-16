@@ -74,7 +74,7 @@ final case class ComponentDeclaration(pkg: PackageDeclaration) extends TypeDecla
     if (namespace.nonEmpty)
       getNamespaceContainer(namespace.get).foreach(_.upsertComponent(component))
 
-    val typeName = TypeName(component.name)
+    val typeName = TypeName(component.name, Nil, Some(TypeName(Name.Component)))
     components.put(component.name, CustomComponent(pkg, component.name, typeName, component.path))
   }
 

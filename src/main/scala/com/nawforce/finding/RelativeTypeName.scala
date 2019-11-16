@@ -27,8 +27,10 @@
 */
 package com.nawforce.finding
 
+import com.nawforce.cst.BlockVerifyContext
+import com.nawforce.documents.Location
 import com.nawforce.finding.TypeRequest.TypeRequest
-import com.nawforce.names.TypeName
+import com.nawforce.names.{Name, TypeName}
 import com.nawforce.types.{Nature, PackageDeclaration, TypeDeclaration}
 
 /* Lazy TypeName resolver for relative types. The package & enclosing (outer) typename are used to allow
@@ -36,6 +38,17 @@ import com.nawforce.types.{Nature, PackageDeclaration, TypeDeclaration}
  * against the package!
  */
 final case class RelativeTypeName(pkg: PackageDeclaration, outerTypeName: TypeName, relativeTypeName: TypeName) {
+
+  def addVar(location: Location, name: Name, context: BlockVerifyContext): Unit = {
+    typeRequest match {
+      case Some(Right(td)) =>
+        context.addVar(name, td)
+        context.addDependency(td)
+      case _ =>
+        context.missingType(location, relativeTypeName)
+        context.addVar(name, pkg.any())
+    }
+  }
 
   // Returns absolute type or may fallback to relative if not found, use typeRequest for error detection
   lazy val typeName: TypeName = {
@@ -48,10 +61,20 @@ final case class RelativeTypeName(pkg: PackageDeclaration, outerTypeName: TypeNa
 
   // TypeRequest for the relative type, None if not required
   lazy val typeRequest: Option[TypeRequest] = {
-    if (relativeTypeName != TypeName.Void && !pkg.isGhostedType(relativeTypeName))
-      Some(TypeRequest(relativeTypeName, outerTypeDeclaration, excludeSObjects = false))
-    else
+    if (relativeTypeName != TypeName.Void && !pkg.isGhostedType(relativeTypeName)) {
+
+      // Simulation of a bug, the type resolves against package, ignoring outer, sometimes..
+      if (relativeTypeName.outer.nonEmpty) {
+        TypeRequest(relativeTypeName, pkg, excludeSObjects = false) match {
+          case Right(td) => Some(Right(td))
+          case Left(_) => Some(TypeRequest(relativeTypeName, outerTypeDeclaration, excludeSObjects = false))
+        }
+      } else {
+        Some(TypeRequest(relativeTypeName, outerTypeDeclaration, excludeSObjects = false))
+      }
+    } else {
       None
+    }
   }
 
   // Recover outer types nature, bit of a hack but sometimes useful

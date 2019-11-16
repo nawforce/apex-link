@@ -133,8 +133,73 @@ class BugTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    org.issues.dumpMessages(false)
     assert(!org.issues.hasMessages)
   }
 
+  test("Type name clash") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Other.cls"),
+      "public class Other {public class Inner{ public String a; } }".getBytes())
+    Files.write(fs.getPath("Dummy.cls"),
+      s"""
+         |public class Dummy {
+         |  public class Inner{}
+         |  public class Other {
+         |    void something(Other.Inner x) { x.a = 'Hello';}
+         |  }
+         |}
+         |""".stripMargin.getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Platform enum equals") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),
+      s"""
+         |public class Dummy {
+         |  {DisplayType a,b; Boolean c = a.equals(b);}
+         |}
+         |""".stripMargin.getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("CreateBy.Id access") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),
+      s"""
+         |public class Dummy {
+         |  {SObjectField f = Account.CreatedBy.Id;}
+         |}
+         |""".stripMargin.getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Static call via an interface") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Other.cls"),
+      "public class Other {public static void func() {} public interface MyInterface{ } }".getBytes())
+    Files.write(fs.getPath("Dummy.cls"),
+      s"""
+         |public class Dummy {
+         |  {Other.MyInterface.func();}
+         |}
+         |""".stripMargin.getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
 }

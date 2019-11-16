@@ -161,8 +161,16 @@ final case class InterfaceDeclaration(_pkg: PackageDeclaration, _outerTypeName: 
 
   override val nature: Nature = INTERFACE_NATURE
 
+  private def outerStaticMethods: Seq[MethodDeclaration] = {
+    outerTypeName.flatMap(ot => TypeRequest(ot, this, excludeSObjects = false).toOption) match {
+      case Some(td: ApexTypeDeclaration) => td.staticMethods
+      case _ => Seq()
+    }
+  }
+
   override lazy val methodMap: MethodMap = {
-    val mmap = MethodMap(Some(id.location), nature, false, typeName, MethodMap.empty(), localMethods, interfaceDeclarations)
+    val allMethods = outerStaticMethods ++ localMethods
+    val mmap = MethodMap(Some(id.location), nature, false, typeName, MethodMap.empty(), allMethods, interfaceDeclarations)
     mmap.errors.foreach(err =>{
       Org.logMessage(err._1, err._2)
     })
