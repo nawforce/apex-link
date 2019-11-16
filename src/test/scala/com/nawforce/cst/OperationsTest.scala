@@ -132,7 +132,7 @@ class OperationsTest extends FunSuite with BeforeAndAfter {
   test("Bitwise Assigment Long to Integer") {
     typeDeclaration("public class Dummy {{Integer a; a |= 22l; }}")
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 32-40: Bitwise operation only allowed between Integer, Long & Boolean types, not 'System.Integer' and 'System.Long'\n")
+      "Error: line 1 at 32-40: Bitwise operation only allowed between Integer, Long & Boolean types, not 'System.Integer' and 'System.Long'\n")
   }
 
   test("Bitwise Shift in Array Index") {

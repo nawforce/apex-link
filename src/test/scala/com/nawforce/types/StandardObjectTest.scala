@@ -56,7 +56,7 @@ class StandardObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Foo.object")) ==
-      "line 0: No SObject declaration found for 'Schema.Foo'\n")
+      "Error: line 0: No SObject declaration found for 'Schema.Foo'\n")
   }
 
   test("Not a sObject") {
@@ -67,7 +67,7 @@ class StandardObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/String.object")) ==
-      "line 0: No SObject declaration found for 'Schema.String'\n")
+      "Error: line 0: No SObject declaration found for 'Schema.String'\n")
   }
 
   test("UserRecordAccess available") {
@@ -100,7 +100,7 @@ class StandardObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 33-41: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
+      "Error: line 1 at 33-41: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
   }
 
   test("Custom base package field") {
@@ -133,7 +133,7 @@ class StandardObjectTest extends FunSuite {
     pkg1.deployAll()
     pkg2.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/pkg2/Dummy.cls")) ==
-      "line 1 at 33-41: Unknown field or type 'Bar__c' on 'Schema.Account'\n")
+      "Error: line 1 at 33-41: Unknown field or type 'Bar__c' on 'Schema.Account'\n")
   }
 
   test("RecordTypeId field") {
@@ -223,7 +223,7 @@ class StandardObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 39-53: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
+      "Error: line 1 at 39-53: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
   }
 
   test("Lookup related list") {
@@ -268,7 +268,7 @@ class StandardObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 48-63: Unknown field or type 'Foo' on 'Schema.SObjectType'\n")
+      "Error: line 1 at 48-63: Unknown field or type 'Foo' on 'Schema.SObjectType'\n")
   }
 
   test("Field describable") {
@@ -296,7 +296,7 @@ class StandardObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 48-78: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.Fields'\n")
+      "Error: line 1 at 48-78: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.Fields'\n")
   }
 
   test("Unknown FieldSet describe error") {
@@ -306,7 +306,7 @@ class StandardObjectTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 48-81: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.FieldSets'\n")
+      "Error: line 1 at 48-81: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.FieldSets'\n")
   }
 
   test("Sfdx field reference") {

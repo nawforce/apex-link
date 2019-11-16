@@ -38,6 +38,7 @@ interface FileMessage {
 interface PositionalMessage {
   start: Position;
   end: Position;
+  category: string;
   message: string;
 }
 
@@ -69,6 +70,7 @@ export class MessageWriter {
   }
 
   public writePositionalMessage(positionalMessage: PositionalMessage) {
+    this.buffer += `${positionalMessage.category}: `;
     this.writePosition(positionalMessage.start, positionalMessage.end);
     this.buffer += `: ${positionalMessage.message}\n`;
   }

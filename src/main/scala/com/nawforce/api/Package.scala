@@ -79,16 +79,17 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[Path], _basePa
   }
 
   def deployAll(): Unit = {
+    // Future: Make fully parallel
     val objects = documentsByExtension(Name("object"))
     logger.debug(s"Found ${objects.size} custom objects to parse")
-    deployMetadata(objects)
+    deployMetadata(objects, parallel = false)
     Org.current.withValue(org) {
       schemaManager.relatedLists.validate()
     }
 
     val components = documentsByExtension(Name("component"))
     logger.debug(s"Found ${components.size} components to parse")
-    deployMetadata(components)
+    deployMetadata(components, parallel = false)
 
     val classes = documentsByExtension(Name("cls"))
     logger.debug(s"Found ${classes.size} classes to parse")
@@ -100,44 +101,51 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[Path], _basePa
   }
 
   /** Deploy some metadata to the org, if already present this will replace the existing metadata */
-  def deployMetadata(files: Seq[Path]): Unit = {
+  def deployMetadata(files: Seq[Path], parallel: Boolean = true): Unit = {
     Org.current.withValue(org) {
-      loadFromFiles(files)
+      loadFromFiles(files, parallel)
       validateMetadata()
     }
   }
 
-  private def loadFromFiles(files: Seq[Path]): Unit = {
-    val org = Org.current.value
-    val newDeclarations = files.grouped(100).flatMap(group => {
-      val parsed = group.par.flatMap(path => {
-        Org.current.withValue(org) {
-          val start = System.currentTimeMillis()
-
-          val tds = DocumentType(path) match {
-            case Some(docType: ApexDocument) =>
-              ApexTypeDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
-            case Some(docType: SObjectDocument) =>
-              SObjectDeclaration.create(this, docType.path)
-            case Some(docType: PlatformEventDocument) =>
-              SObjectDeclaration.create(this, docType.path)
-            case Some(docType: CustomMetadataDocument) =>
-              SObjectDeclaration.create(this, docType.path)
-            case Some(docType: ComponentDocument) =>
-              upsertComponent(namespace, docType)
-              Nil
-            case _ => Nil
-          }
-
-          val end = System.currentTimeMillis()
-          logger.debug(s"Parsed $path in ${end - start}ms")
-          tds
-        }
+  private def loadFromFiles(files: Seq[Path], parallel: Boolean): Unit = {
+    if (parallel) {
+      val newDeclarations = files.grouped(100).flatMap(group => {
+        val parsed = group.par.flatMap(loadFromFile)
+        System.gc()
+        parsed
       })
+      newDeclarations.foreach(td => upsertType(td))
+    } else {
+      val newDeclarations = files.flatMap(loadFromFile)
+      newDeclarations.foreach(td => upsertType(td))
       System.gc()
-      parsed
-    })
-    newDeclarations.foreach(td => upsertType(td))
+    }
+  }
+
+  private def loadFromFile(path: Path): Seq[TypeDeclaration] = {
+    Org.current.withValue(org) {
+      val start = System.currentTimeMillis()
+
+      val tds = DocumentType(path) match {
+        case Some(docType: ApexDocument) =>
+          ApexTypeDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+        case Some(docType: SObjectDocument) =>
+          SObjectDeclaration.create(this, docType.path)
+        case Some(docType: PlatformEventDocument) =>
+          SObjectDeclaration.create(this, docType.path)
+        case Some(docType: CustomMetadataDocument) =>
+          SObjectDeclaration.create(this, docType.path)
+        case Some(docType: ComponentDocument) =>
+          upsertComponent(namespace, docType)
+          Nil
+        case _ => Nil
+      }
+
+      val end = System.currentTimeMillis()
+      logger.debug(s"Parsed $path in ${end - start}ms")
+      tds
+    }
   }
 
   private def upsertComponent(namespace: Option[Name], component: ComponentDocument): Unit = {

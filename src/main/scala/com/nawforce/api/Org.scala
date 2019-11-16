@@ -33,7 +33,7 @@ import com.nawforce.documents._
 import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{DotName, Name}
 import com.nawforce.types._
-import com.nawforce.utils.IssueLog
+import com.nawforce.utils.{IssueLog, WARNING_CATEGORY}
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.DynamicVariable
@@ -47,13 +47,13 @@ class Org extends LazyLogging {
   var packages: Map[Option[Name], Package] = Map(None -> unmanaged)
 
   val issues = new IssueLog
-  def issuesAsJSON(zombie: Boolean): String = {
+  def issuesAsJSON(warnings: Boolean, zombie: Boolean): String = {
     if (zombie) {
       packages.values.foreach(pkg => {
         issues.merge(pkg.reportUnused())
       })
     }
-    issues.asJSON(maxErrors = 100)
+    issues.asJSON(warnings, maxErrors = 100)
   }
   def typeCount: Int= packages.values.map(_.typeCount).sum
 
@@ -125,4 +125,9 @@ object Org {
   def logMessage(location: Location, msg: String): Unit = {
     Org.current.value.issues.logMessage(location, msg)
   }
+
+  def logWarning(location: Location, msg: String): Unit = {
+    Org.current.value.issues.logMessage(location, msg, WARNING_CATEGORY)
+  }
+
 }

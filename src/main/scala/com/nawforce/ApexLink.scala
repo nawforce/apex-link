@@ -86,7 +86,7 @@ object ApexLink {
     if (!json)
       org.issues.dumpMessages(json = false)
     else
-      println(org.issues.asJSON(100))
+      println(org.issues.asJSON(true, 100))
 
     if (verbose && org.typeCount>0)
       println(s"Loaded & checked ${org.typeCount} types, with average time/type of ${(parseEnd - parseStart) / org.typeCount}ms")

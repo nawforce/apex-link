@@ -32,7 +32,7 @@ import java.nio.file.{Files, Path, Paths}
 import com.nawforce.api.Org
 import com.nawforce.documents._
 import com.nawforce.names.{Name, TypeName}
-import com.nawforce.utils.Issue
+import com.nawforce.utils.{Issue, UNUSED_CATEGORY}
 import com.nawforce.xml.XMLUtils.getLine
 import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
 
@@ -66,7 +66,7 @@ final case class LabelDeclaration(pkg: PackageDeclaration, name: Name, labelFiel
 
   def unused(): Seq[Issue] = {
     labelFields.filterNot(_.hasHolders)
-      .map(label => Issue(label.location, s"Label '$typeName.${label.name}' is not being used in Apex code"))
+      .map(label => Issue(UNUSED_CATEGORY, label.location, s"Label '$typeName.${label.name}'"))
   }
 }
 

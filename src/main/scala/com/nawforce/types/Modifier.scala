@@ -124,7 +124,7 @@ object ApexModifiers {
         Org.logMessage(RangeLocation(idContext), s"Outer classes must be declared either 'global' or 'public'")
         PUBLIC_MODIFIER +: mods
       } else if (mods.intersect(visibilityModifiers).size > 1) {
-        Org.logMessage(RangeLocation(idContext),
+        Org.logWarning(RangeLocation(idContext),
           s"Only one visibility modifier from 'global', 'public' & 'private' may be used on classes")
         PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
       } else if (mods.intersect(sharingModifiers).size > 1) {
@@ -173,7 +173,7 @@ object ApexModifiers {
         Org.logMessage(RangeLocation(idContext), s"Outer interfaces must be declared either 'global' or 'public'")
         PUBLIC_MODIFIER +: mods
       } else if (mods.intersect(visibilityModifiers).size > 1) {
-        Org.logMessage(RangeLocation(idContext),
+        Org.logWarning(RangeLocation(idContext),
           s"Only one visibility modifier from 'global', 'public' & 'private' may be used on interfaces")
         PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
       } else {
@@ -217,7 +217,7 @@ object ApexModifiers {
         Org.logMessage(RangeLocation(idContext), s"Outer enums must be declared either 'global' or 'public'")
         PUBLIC_MODIFIER +: mods
       } else if (mods.intersect(visibilityModifiers).size > 1) {
-        Org.logMessage(RangeLocation(idContext),
+        Org.logWarning(RangeLocation(idContext),
           s"Only one visibility modifier from 'global', 'public' & 'private' may be used on enums")
         PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
       } else {
@@ -257,7 +257,7 @@ object ApexModifiers {
       Org.logMessage(RangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
       mods.toSet.toSeq
     } else if (mods.intersect(visibilityModifiers).size > 1) {
-      Org.logMessage(RangeLocation(idContext),
+      Org.logWarning(RangeLocation(idContext),
         s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' may be used on fields")
       PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
     } else if (mods.intersect(visibilityModifiers).isEmpty && mods.contains(WEBSERVICE_MODIFIER)) {
@@ -294,7 +294,7 @@ object ApexModifiers {
       Org.logMessage(RangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
       mods.toSet.toSeq
     } else if (mods.intersect(visibilityModifiers).size > 1) {
-      Org.logMessage(RangeLocation(idContext),
+      Org.logWarning(RangeLocation(idContext),
         s"Only one visibility modifier from 'global, 'public', 'protected' & 'private' may be used on property set/get")
       mods.diff(visibilityModifiers)
     } else {
@@ -327,7 +327,7 @@ object ApexModifiers {
       Org.logMessage(RangeLocation(parserContext), s"Modifier '${duplicates.head.toString}' is used more than once")
       mods.toSet.toSeq
     } else if (mods.intersect(visibilityModifiers).size > 1) {
-      Org.logMessage(RangeLocation(parserContext),
+      Org.logWarning(RangeLocation(parserContext),
         s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' may be used on methods")
       PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
     } else if (mods.intersect(visibilityModifiers).isEmpty) {
@@ -370,7 +370,7 @@ object ApexModifiers {
       Org.logMessage(RangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
       mods.toSet.toSeq
     } else if (mods.intersect(visibilityModifiers).size > 1) {
-      Org.logMessage(RangeLocation(idContext),
+      Org.logWarning(RangeLocation(idContext),
         s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' may be used on methods")
       mods.diff(visibilityModifiers)
     } else if (mods.intersect(visibilityModifiers).isEmpty && mods.contains(WEBSERVICE_MODIFIER)) {

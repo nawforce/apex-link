@@ -65,7 +65,7 @@ class ImplementsTest extends FunSuite with BeforeAndAfter {
   test("Missing class interface") {
     assert(typeDeclarations(Map("Dummy" -> "global class Dummy implements A {}")).nonEmpty)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: No declaration found for interface 'A'\n")
+      "Error: line 1 at 13-18: No declaration found for interface 'A'\n")
   }
 
   test("Missing class second interface") {
@@ -74,7 +74,7 @@ class ImplementsTest extends FunSuite with BeforeAndAfter {
       "A" -> "public interface A {}"
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: No declaration found for interface 'B'\n")
+      "Error: line 1 at 13-18: No declaration found for interface 'B'\n")
   }
 
   test("Class implements class") {
@@ -83,7 +83,7 @@ class ImplementsTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: Type 'A' must be an interface\n")
+      "Error: line 1 at 13-18: Type 'A' must be an interface\n")
   }
 
   test("Class implements enum") {
@@ -92,7 +92,7 @@ class ImplementsTest extends FunSuite with BeforeAndAfter {
       "A" -> "public enum A {}"
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: Type 'A' must be an interface\n")
+      "Error: line 1 at 13-18: Type 'A' must be an interface\n")
   }
 
   test("Interface extends class") {
@@ -101,7 +101,7 @@ class ImplementsTest extends FunSuite with BeforeAndAfter {
       "A" -> "public class A {}"
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 17-22: Type 'A' must be an interface\n")
+      "Error: line 1 at 17-22: Type 'A' must be an interface\n")
   }
 
   test("Interface extends enum") {
@@ -110,7 +110,7 @@ class ImplementsTest extends FunSuite with BeforeAndAfter {
       "A" -> "public enum A {}"
     ))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 17-22: Type 'A' must be an interface\n")
+      "Error: line 1 at 17-22: Type 'A' must be an interface\n")
   }
 
   test("Class implements Database.Batchable<sObject>") {

@@ -46,8 +46,8 @@ export default class Check extends SfdxCommand {
 
   public static examples = [
     `$ sfdx apexlink:check`,
-    `$ sfdx apexlink:check --verbose projects/myproject`,
-    `$ sfdx apexlink:check --json myns=projects/base projects/extension`
+    `$ sfdx apexlink:check --verbose --warnings projects/myproject`,
+    `$ sfdx apexlink:check --zombies --json myns=projects/base projects/extension`
   ];
 
   public static args = [
@@ -55,7 +55,7 @@ export default class Check extends SfdxCommand {
       name: "directories",
       description:
         "list of directories to search for Apex class files, defaults to current directory\n" +
-        "use [<namespace>=]directory for multiple packages, packages are loaded in first seen order.\n" + 
+        "use [<namespace>=]directory for multiple packages, packages are loaded in first seen order.\n" +
         "Use <namespace>= without a directory to disable type errors for that namespace"
     }
   ];
@@ -67,12 +67,17 @@ export default class Check extends SfdxCommand {
       description: "show output in json format (disables --verbose)"
     }),
     depends: flags.boolean({
-      description: "show depenency information for Apex classes"
+      description: "show dependency information for Apex classes"
     }),
-    zombie: flags.boolean({
-      description: "show warnings for metadata that is no being refrenced"
+    zombies: flags.boolean({
+      description: "show class fields, properties & methods that are not being used"
     }),
-    verbose: flags.builtin({ description: "show progress messages" })
+    warnings: flags.boolean({
+      description: "show warnings messages for legal but possibly faulty code "
+    }),
+    verbose: flags.builtin({
+      description: "show progress messages"
+    })
   };
 
   protected static requiresUsername = false;
@@ -80,16 +85,17 @@ export default class Check extends SfdxCommand {
   protected static requiresProject = false;
 
   public async run(): Promise<AnyJson> {
-    const verbose = this.flags.verbose || false;
     const json = this.flags.json || false;
     const depends = this.flags.depends || false;
-    const zombie = this.flags.zombie || false;
+    const zombies = this.flags.zombies || false;
+    const warnings = this.flags.warnings || false;
+    const verbose = this.flags.verbose || false;
 
     const server = await Server.getInstance();
     server.setLoggingLevel(verbose && !json);
 
     const org = this.createOrg(server, this.directoryArgs());
-    const issues = JSON.parse(org.issues(zombie)) as InfoMessages;
+    const issues = JSON.parse(org.issues(warnings, zombies)) as InfoMessages;
     const dependResults = depends ? org.getApexDependencies() : [];
 
     if (json) {
@@ -196,7 +202,8 @@ export default class Check extends SfdxCommand {
     const flagTypes = new Map<string, number>();
     flagTypes.set("--verbose", 0);
     flagTypes.set("--depends", 0);
-    flagTypes.set("--zombie", 0);
+    flagTypes.set("--zombies", 0);
+    flagTypes.set("--warnings", 0);
     flagTypes.set("--json", 0);
     flagTypes.set("--loglevel", 1);
     return flagTypes;

@@ -71,7 +71,7 @@ class SwitchTest extends FunSuite with BeforeAndAfter {
   test("Empty switch") {
     typeDeclaration("public class Dummy {{switch on 'A' {}}}")
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1: mismatched input '}' expecting 'when'\n")
+      "Error: line 1: mismatched input '}' expecting 'when'\n")
   }
 
   test("Enum switch") {

@@ -56,7 +56,7 @@ class SuppressWarningsTest extends FunSuite with BeforeAndAfter{
 
   test("Suppress disabled") {
     typeDeclaration("public class Dummy {class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
-    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 74-78: Array indexes must be Integers, found 'null'\n")
+    assert(defaultOrg.issues.getMessages(defaultPath) == "Error: line 1 at 74-78: Array indexes must be Integers, found 'null'\n")
   }
 
   test("Outer Suppress") {
