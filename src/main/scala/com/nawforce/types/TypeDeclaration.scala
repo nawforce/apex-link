@@ -185,9 +185,13 @@ trait TypeDeclaration extends DependencyHolder {
       if (staticContext.contains(field.isStatic)) {
         fieldOption
       } else if (staticContext.contains(true)) {
-        val staticRef = CustomFieldDeclaration(field.name, TypeName.SObjectField, asStatic = true)
-        // TODO: Link static field back to instance field
-        Some(staticRef)
+        if (CustomFieldDeclaration.isSObjectPrimitive(field.typeName)) {
+          Some(CustomFieldDeclaration(field.name, TypeName.SObjectField, asStatic = true))
+        } else {
+          // Make sure SObject is loaded so fields can be found
+          PlatformTypes.get(field.typeName, None)
+          Some(CustomFieldDeclaration(field.name, TypeName.sObjectFields$(field.typeName), asStatic = true))
+        }
       } else {
         None
       }

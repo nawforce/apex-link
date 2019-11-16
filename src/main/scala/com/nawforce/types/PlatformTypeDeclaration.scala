@@ -347,6 +347,9 @@ object PlatformTypeDeclaration {
       CustomMethodDeclaration(Name("name"), TypeName.String, Seq()),
       CustomMethodDeclaration(Name("original"), TypeName.Integer, Seq()),
       CustomMethodDeclaration(Name("values"), TypeName.listOf(TypeName.String), Seq(), asStatic = true),
+      CustomMethodDeclaration(Name("equals"), TypeName.Boolean,
+        Seq(CustomParameterDeclaration(Name("other"), TypeName.InternalObject))),
+      CustomMethodDeclaration(Name("hashCode"), TypeName.Integer, Seq())
     )
 }
 

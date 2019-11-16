@@ -148,7 +148,7 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], relativeTypeNa
 
     block.foreach(blk => {
       val blockContext = new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))
-      parameters.foreach(param => blockContext.addVar(param.name, param.location, param.typeName))
+      parameters.foreach(param => param.addVar(blockContext))
       blk.verify(blockContext)
     })
 
@@ -264,6 +264,10 @@ final case class FormalParameter(pkg: PackageDeclaration, outerTypeName: TypeNam
   override val name: Name = id.name
 
   override lazy val typeName: TypeName = relativeTypeName.typeName
+
+  def addVar(context: BlockVerifyContext): Unit = {
+    relativeTypeName.addVar(location, id.name, context: BlockVerifyContext)
+  }
 
   def verify(context: BodyDeclarationVerifyContext): Unit = {
     // This is validated when made available to a Block

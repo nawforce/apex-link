@@ -39,7 +39,6 @@ public class Account extends SObject {
 	public static SObjectType$<Account> SObjectType;
 	public static SObjectFields$<Account> Fields;
 
-
 	public Id RecordTypeId;
 	public String AccountNumber;
 	public String AccountSource;

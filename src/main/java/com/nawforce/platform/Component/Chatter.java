@@ -35,38 +35,38 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class Chatter {
     public static class Feed {
-        Id EntityId;
-        String FeedItemType;
-        Id Id;
-        String OnComplete;
-        Boolean Rendered;
-        Object$ ReRender;
-        Boolean ShowPublisher;
+        public Id EntityId;
+        public String FeedItemType;
+        public Id Id;
+        public String OnComplete;
+        public Boolean Rendered;
+        public Object$ ReRender;
+        public Boolean ShowPublisher;
     }
     public static class FeedWithFollowers {
-        Id EntityId;
-        Id Id;
-        String OnComplete;
-        Boolean Rendered;
-        Object$ ReRender;
-        Boolean ShowHeader;
+        public Id EntityId;
+        public Id Id;
+        public String OnComplete;
+        public Boolean Rendered;
+        public Object$ ReRender;
+        public Boolean ShowHeader;
     }
     public static class Follow {
-        Id EntityId;
-        Id Id;
-        String OnComplete;
-        Boolean Rendered;
-        Object$ ReRender;
+        public Id EntityId;
+        public Id Id;
+        public String OnComplete;
+        public Boolean Rendered;
+        public Object$ ReRender;
     }
     public static class Followers {
-        Id EntityId;
-        Id Id;
-        Boolean Rendered;
+        public Id EntityId;
+        public Id Id;
+        public Boolean Rendered;
     }
     public static class Newsfeed {
-        Id Id;
-        String OnComplete;
-        Boolean Rendered;
-        Object$ ReRender;
+        public Id Id;
+        public String OnComplete;
+        public Boolean Rendered;
+        public Object$ ReRender;
     }
 }

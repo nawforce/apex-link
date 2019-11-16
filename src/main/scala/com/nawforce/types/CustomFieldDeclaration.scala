@@ -99,5 +99,14 @@ object CustomFieldDeclaration {
       } else
         Seq())
   }
+
+  /* TypeNames that may be used in SObjects (see above for when */
+  def isSObjectPrimitive(typeName: TypeName): Boolean = {
+    typeName match {
+      case TypeName.Id | TypeName.String | TypeName.Boolean | TypeName.Decimal | TypeName.Integer |
+           TypeName.Date | TypeName.Datetime | TypeName.Time | TypeName.Blob | TypeName.Location=> true
+      case _ => false
+    }
+  }
 }
 
