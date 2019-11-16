@@ -63,19 +63,19 @@ class ExtendsTest extends FunSuite with BeforeAndAfter {
   test("Duplicate inner type names") {
     assert(typeDeclarations(Map("Dummy" -> "global class Dummy {class Inner {} interface Inner{}}")).nonEmpty)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 45-50: Duplicate type name 'Inner'\n")
+      "Error: line 1 at 45-50: Duplicate type name 'Inner'\n")
   }
 
   test("Duplicate outer & inner type names") {
     assert(typeDeclarations(Map("Dummy" -> "global class Dummy {class Dummy{}}")).nonEmpty)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 26-31: Duplicate type name 'Dummy'\n")
+      "Error: line 1 at 26-31: Duplicate type name 'Dummy'\n")
   }
 
   test("Missing superclass") {
     assert(typeDeclarations(Map("Dummy" -> "global class Dummy extends Foo {}")).nonEmpty)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: No type declaration found for 'Foo'\n")
+      "Error: line 1 at 13-18: No type declaration found for 'Foo'\n")
   }
 
   test("Non-virtual superclass") {
@@ -83,7 +83,7 @@ class ExtendsTest extends FunSuite with BeforeAndAfter {
       "SuperClass" -> "global class SuperClass {}",
       "Dummy" -> "global class Dummy extends SuperClass {}")).size == 2)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: Parent class 'SuperClass' must be declared virtual or abstract\n")
+      "Error: line 1 at 13-18: Parent class 'SuperClass' must be declared virtual or abstract\n")
   }
 
   test("Interface superclass") {
@@ -91,7 +91,7 @@ class ExtendsTest extends FunSuite with BeforeAndAfter {
       "SuperInterface" -> "global interface SuperInterface {}",
       "Dummy" -> "global class Dummy extends SuperInterface {}")).size == 2)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: Parent type 'SuperInterface' must be a class\n")
+      "Error: line 1 at 13-18: Parent type 'SuperInterface' must be a class\n")
   }
 
   test("Enum superclass") {
@@ -99,7 +99,7 @@ class ExtendsTest extends FunSuite with BeforeAndAfter {
       "SuperEnum" -> "global enum SuperEnum {}",
       "Dummy" -> "global class Dummy extends SuperEnum {}")).size == 2)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: Parent type 'SuperEnum' must be a class\n")
+      "Error: line 1 at 13-18: Parent type 'SuperEnum' must be a class\n")
   }
 
   test("External superclass") {

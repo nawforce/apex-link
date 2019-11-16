@@ -44,7 +44,7 @@ class MethodShadowTest extends FunSuite with BeforeAndAfter {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 52-56: Method 'func' can not override non-virtual method\n")
+      "Error: line 1 at 52-56: Method 'func' can not override non-virtual method\n")
   }
 
   test("Override of public virtual without override") {
@@ -56,7 +56,7 @@ class MethodShadowTest extends FunSuite with BeforeAndAfter {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 52-56: Method 'func' must use override or virtual keyword\n")
+      "Error: line 1 at 52-56: Method 'func' must use override or virtual keyword\n")
   }
 
 }

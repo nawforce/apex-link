@@ -56,7 +56,7 @@ class ArrayTest extends FunSuite with BeforeAndAfter {
 
   test("Non-Integer index") {
     typeDeclaration("public class Dummy {Integer b; {List<Dummy> a;  Integer b = a[null].b;}}")
-    assert(defaultOrg.issues.getMessages(defaultPath) == "line 1 at 62-66: Array indexes must be Integers, found 'null'\n")
+    assert(defaultOrg.issues.getMessages(defaultPath) == "Error: line 1 at 62-66: Array indexes must be Integers, found 'null'\n")
   }
 
   test("Integer index") {

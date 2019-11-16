@@ -77,28 +77,28 @@ class PropertyTest extends FunSuite with BeforeAndAfter {
     assert(fields.size == 1)
     assert(fields.head.name == Name("foo"))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 42-63: Duplicate field/property: 'foo'\n")
+      "Error: line 1 at 42-63: Duplicate field/property: 'foo'\n")
   }
 
   test("Property without blocks") {
     val property = typeDeclaration("public class Dummy {String foo{} }", hasMessages = true).fields.head
     assert(property.name == Name("foo"))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 20-32: Properties must have either a single 'get' and/or a single 'set' block\n")
+      "Error: line 1 at 20-32: Properties must have either a single 'get' and/or a single 'set' block\n")
   }
 
   test("Property with dual set") {
     val property = typeDeclaration("public class Dummy {String foo{set; set;} }", hasMessages = true).fields.head
     assert(property.name == Name("foo"))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 20-41: Properties must have either a single 'get' and/or a single 'set' block\n")
+      "Error: line 1 at 20-41: Properties must have either a single 'get' and/or a single 'set' block\n")
   }
 
   test("Property with dual get & a set") {
     val property = typeDeclaration("public class Dummy {String foo{get; set; get;} }", hasMessages = true).fields.head
     assert(property.name == Name("foo"))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 20-46: Properties must have either a single 'get' and/or a single 'set' block\n")
+      "Error: line 1 at 20-46: Properties must have either a single 'get' and/or a single 'set' block\n")
   }
 
   test("More than one duplicate property reports error on duplicates") {
@@ -107,7 +107,7 @@ class PropertyTest extends FunSuite with BeforeAndAfter {
     assert(fields.size == 1)
     assert(fields.head.name == Name("foo"))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 42-64: Duplicate field/property: 'foo'\nline 1 at 65-86: Duplicate field/property: 'foo'\n")
+      "Error: line 1 at 42-64: Duplicate field/property: 'foo'\nError: line 1 at 65-86: Duplicate field/property: 'foo'\n")
   }
 
   test("Default property access private" ) {
@@ -144,7 +144,7 @@ class PropertyTest extends FunSuite with BeforeAndAfter {
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
+      "Error: line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
   test("Global property access in global class" ) {
@@ -167,7 +167,7 @@ class PropertyTest extends FunSuite with BeforeAndAfter {
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
+      "Error: line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
   test("Webservice property access with get/set modifiers" ) {
@@ -197,7 +197,7 @@ class PropertyTest extends FunSuite with BeforeAndAfter {
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == PUBLIC_MODIFIER)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 28-56: Setter visibility must be same or less than property\n")
+      "Error: line 1 at 28-56: Setter visibility must be same or less than property\n")
   }
 
   test("Property getter lower visibility" ) {
@@ -213,7 +213,7 @@ class PropertyTest extends FunSuite with BeforeAndAfter {
     assert(property.readAccess == PUBLIC_MODIFIER)
     assert(property.writeAccess == PRIVATE_MODIFIER)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 28-56: Getter visibility must be same or less than property\n")
+      "Error: line 1 at 28-56: Getter visibility must be same or less than property\n")
   }
 
   test("Static property" ) {
@@ -244,7 +244,7 @@ class PropertyTest extends FunSuite with BeforeAndAfter {
     assert(property.readAccess == PROTECTED_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 47-50: Modifier 'protected' is used more than once\n")
+      "Error: line 1 at 47-50: Modifier 'protected' is used more than once\n")
   }
 
   test("Mixed access property" ) {
@@ -254,7 +254,7 @@ class PropertyTest extends FunSuite with BeforeAndAfter {
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
+      "Error: line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
   test("AuraEnabled property" ) {
@@ -298,7 +298,7 @@ class PropertyTest extends FunSuite with BeforeAndAfter {
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 20-30: Unexpected annotation 'TestSetup' on field/property declaration\n")
+      "Error: line 1 at 20-30: Unexpected annotation 'TestSetup' on field/property declaration\n")
   }
 
   test("Duplicate annotation property" ) {
@@ -307,6 +307,6 @@ class PropertyTest extends FunSuite with BeforeAndAfter {
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 53-56: Modifier '@TestVisible' is used more than once\n")
+      "Error: line 1 at 53-56: Modifier '@TestVisible' is used more than once\n")
   }
 }

@@ -45,7 +45,7 @@ class LabelTest extends FunSuite {
     val org = new Org()
     org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     assert(org.issues.getMessages(fs.getPath("/work/CustomLabels.labels")) ==
-      "line 1 at 1: Premature end of file.\n")
+      "Error: line 1 at 1: Premature end of file.\n")
   }
 
   test("Minimal labels file") {
@@ -125,7 +125,7 @@ class LabelTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 33-49: Unknown field or type 'TestLabel2' on 'System.Label'\n")
+      "Error: line 1 at 33-49: Unknown field or type 'TestLabel2' on 'System.Label'\n")
   }
 
   test("Missing label (case insensitive)") {
@@ -149,7 +149,7 @@ class LabelTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 33-49: Unknown field or type 'TestLaBel2' on 'System.Label'\n")
+      "Error: line 1 at 33-49: Unknown field or type 'TestLaBel2' on 'System.Label'\n")
   }
 
   test("Base package label") {
@@ -202,7 +202,7 @@ class LabelTest extends FunSuite {
     val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
     pkg2.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/pkg2/Dummy.cls")) ==
-      "line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label.pkg1'\n")
+      "Error: line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label.pkg1'\n")
   }
 
   test("System reference to label") {

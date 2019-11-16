@@ -79,7 +79,7 @@ class FieldTest extends FunSuite with BeforeAndAfter {
     assert(fields.size == 1)
     assert(fields.head.name == Name("foo"))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 32-43: Duplicate field/property: 'foo'\n")
+      "Error: line 1 at 32-43: Duplicate field/property: 'foo'\n")
   }
 
   test("More than one duplicate field reports error on duplicates") {
@@ -88,7 +88,7 @@ class FieldTest extends FunSuite with BeforeAndAfter {
     assert(fields.size == 1)
     assert(fields.head.name == Name("foo"))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 32-44: Duplicate field/property: 'foo'\nline 1 at 45-56: Duplicate field/property: 'foo'\n")
+      "Error: line 1 at 32-44: Duplicate field/property: 'foo'\nError: line 1 at 45-56: Duplicate field/property: 'foo'\n")
   }
 
   test("Default field access private" ) {
@@ -125,7 +125,7 @@ class FieldTest extends FunSuite with BeforeAndAfter {
     assert(field.readAccess == GLOBAL_MODIFIER)
     assert(field.writeAccess == field.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
+      "Error: line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
   test("Global field access in global class" ) {
@@ -141,7 +141,7 @@ class FieldTest extends FunSuite with BeforeAndAfter {
     assert(field.readAccess == GLOBAL_MODIFIER)
     assert(field.writeAccess == field.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
+      "Error: line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
   test("Webservice field access in global class" ) {
@@ -179,7 +179,7 @@ class FieldTest extends FunSuite with BeforeAndAfter {
     assert(field.readAccess == PROTECTED_MODIFIER)
     assert(field.writeAccess == field.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 47-50: Modifier 'protected' is used more than once\n")
+      "Error: line 1 at 47-50: Modifier 'protected' is used more than once\n")
   }
 
   test("Mixed access field" ) {
@@ -189,7 +189,7 @@ class FieldTest extends FunSuite with BeforeAndAfter {
     assert(field.readAccess == GLOBAL_MODIFIER)
     assert(field.writeAccess == field.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
+      "Error: line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
   test("AuraEnabled field" ) {
@@ -233,7 +233,7 @@ class FieldTest extends FunSuite with BeforeAndAfter {
     assert(field.readAccess == PRIVATE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 20-30: Unexpected annotation 'TestSetup' on field/property declaration\n")
+      "Error: line 1 at 20-30: Unexpected annotation 'TestSetup' on field/property declaration\n")
   }
 
   test("Duplicate annotation field" ) {
@@ -242,6 +242,6 @@ class FieldTest extends FunSuite with BeforeAndAfter {
     assert(field.readAccess == PRIVATE_MODIFIER)
     assert(field.writeAccess == field.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "line 1 at 53-56: Modifier '@TestVisible' is used more than once\n")
+      "Error: line 1 at 53-56: Modifier '@TestVisible' is used more than once\n")
   }
 }

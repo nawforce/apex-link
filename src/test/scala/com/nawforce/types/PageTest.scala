@@ -67,7 +67,7 @@ class PageTest extends FunSuite {
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
-      "line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n")
+      "Error: line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n")
   }
 
   test("Base package page") {

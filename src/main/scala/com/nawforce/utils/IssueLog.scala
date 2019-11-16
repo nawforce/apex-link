@@ -35,7 +35,13 @@ import net.liftweb.json._
 
 import scala.collection.mutable
 
-case class Issue(location: Location, msg: String)
+sealed class IssueCategory(val value: String)
+
+case object ERROR_CATEGORY extends IssueCategory("Error")
+case object WARNING_CATEGORY extends IssueCategory("Warning")
+case object UNUSED_CATEGORY extends IssueCategory("Unused")
+
+case class Issue(category: IssueCategory, location: Location, msg: String)
 
 class IssueLog extends LazyLogging {
   var logCount: Int = 0
@@ -54,8 +60,8 @@ class IssueLog extends LazyLogging {
     }
   }
 
-  def logMessage(location: Location, msg: String): Unit = {
-    add(Issue(location, msg))
+  def logMessage(location: Location, msg: String, category: IssueCategory=ERROR_CATEGORY): Unit = {
+    add(Issue(category, location, msg))
   }
 
   def hasMessages: Boolean = synchronized {log.nonEmpty}
@@ -67,7 +73,7 @@ class IssueLog extends LazyLogging {
   private trait MessageWriter {
     def startOutput()
     def startDocument(path: Path)
-    def writeMessage(location: Location, message: String)
+    def writeMessage(category: IssueCategory, location: Location, message: String)
     def writeSummary(notShown: Int, total: Int)
     def endDocument()
     def output: String
@@ -78,8 +84,8 @@ class IssueLog extends LazyLogging {
 
     override def startOutput(): Unit = buffer.clear()
     override def startDocument(path: Path): Unit = if (showPath) buffer ++= path.toString + '\n'
-    override def writeMessage(location: Location, message: String): Unit =
-      buffer ++= location.displayPosition + ": " + message + "\n"
+    override def writeMessage(category: IssueCategory, location: Location, message: String): Unit =
+      buffer ++= s"${category.value}: ${location.displayPosition}: $message\n"
     override def writeSummary(notShown: Int, total: Int): Unit =
       buffer ++= notShown + " of " + total + " errors not shown" + "\n"
     override def endDocument(): Unit = {}
@@ -102,9 +108,9 @@ class IssueLog extends LazyLogging {
       firstDocument = false
       firstMessage = true
     }
-    override def writeMessage(location: Location, message: String): Unit = {
+    override def writeMessage(category: IssueCategory, location: Location, message: String): Unit = {
       buffer ++= (if (firstMessage) "" else ",\n")
-      buffer ++= s"""{${location.asJSON}, "message": ${encode(message)}}"""
+      buffer ++= s"""{${location.asJSON}, "category": ${encode(category.value)}, "message": ${encode(message)}}"""
       firstMessage = false
     }
     override def writeSummary(notShown: Int, total: Int): Unit = ()
@@ -117,14 +123,16 @@ class IssueLog extends LazyLogging {
     private def encode(value: String): String = compactRender(JString(value))
   }
 
-  private def writeMessages(writer: MessageWriter, path: Path, maxErrors: Int): Unit = {
+  private def writeMessages(writer: MessageWriter, path: Path, warnings: Boolean, maxErrors: Int): Unit = {
     val messages = log.getOrElse(path, List())
+      .filterNot(!warnings && _.category == WARNING_CATEGORY)
     if (messages.nonEmpty) {
       writer.startDocument(path)
       var count = 0
-      messages.sortBy(_.location.startPosition).foreach(message => {
+      messages.sortBy(_.location.startPosition)
+        .foreach(message => {
         if (count < maxErrors) {
-          writer.writeMessage(message.location, message.msg)
+          writer.writeMessage(message.category, message.location, message.msg)
         }
         count += 1
       })
@@ -137,17 +145,17 @@ class IssueLog extends LazyLogging {
   def getMessages(path: Path, showPath: Boolean = false, maxErrors: Int = 10): String = {
     synchronized {
       val writer: MessageWriter= new TextMessageWriter(showPath = showPath)
-      writeMessages(writer, path, maxErrors)
+      writeMessages(writer, path, warnings = true, maxErrors)
       writer.output
     }
   }
 
-  def asJSON(maxErrors: Int): String = {
+  def asJSON(warnings: Boolean, maxErrors: Int): String = {
     val writer = new JSONMessageWriter()
     writer.startOutput()
     synchronized {
       log.keys.foreach(path => {
-        writeMessages(writer, path, maxErrors)
+        writeMessages(writer, path, warnings, maxErrors)
       })
     }
     writer.output
@@ -162,7 +170,7 @@ class IssueLog extends LazyLogging {
     writer.startOutput()
     synchronized {
       log.keys.foreach(path => {
-        writeMessages(writer, path, if (json) 100 else 10)
+        writeMessages(writer, path, warnings = true, if (json) 100 else 10)
       })
     }
     print(writer.output)

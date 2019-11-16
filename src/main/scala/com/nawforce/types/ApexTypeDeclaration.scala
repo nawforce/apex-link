@@ -37,7 +37,7 @@ import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
-import com.nawforce.utils.Issue
+import com.nawforce.utils.{Issue, UNUSED_CATEGORY}
 import org.antlr.v4.runtime.CommonTokenStream
 
 import scala.collection.JavaConverters._
@@ -196,12 +196,12 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
     localFields.filterNot(_.hasHolders)
       .map({
         case field: ApexFieldDeclaration =>
-          Issue(field.location, s"Field '${field.name}' is not being used in Apex code")
+          Issue(UNUSED_CATEGORY, field.location, s"Field '${field.name}'")
         case property: ApexPropertyDeclaration =>
-          Issue(property.location, s"Property '${property.name}' is not being used in Apex code")
+          Issue(UNUSED_CATEGORY, property.location, s"Property '${property.name}'")
       }) ++
     localMethods.filterNot(_.isUsed)
-      .map(method => Issue(method.location, s"Method '${method.signature}' is not being used in Apex code"))
+      .map(method => Issue(UNUSED_CATEGORY, method.location, s"Method '${method.signature}'"))
   }
 }
 
