@@ -33,6 +33,8 @@ import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class MessageSegmentInput {
+	public MessageSegmentType type;
+
 	public Boolean equals$(Object obj) {throw new java.lang.UnsupportedOperationException();}
 	public Integer hashCode$() {throw new java.lang.UnsupportedOperationException();}
 	public String toString$() {throw new java.lang.UnsupportedOperationException();}
