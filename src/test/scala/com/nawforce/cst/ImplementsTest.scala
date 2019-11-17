@@ -119,7 +119,7 @@ class ImplementsTest extends FunSuite with BeforeAndAfter {
         """
           | global class Dummy implements Database.Batchable<sObject> {
           |   Iterable<sObject> start(Database.BatchableContext param1) {}
-          |   void execute(Database.BatchableContext param1, List<Object> param2) {}
+          |   void execute(Database.BatchableContext param1, List<SObject> param2) {}
           |   void finish(Database.BatchableContext param1) {}
           | }
           |""".stripMargin

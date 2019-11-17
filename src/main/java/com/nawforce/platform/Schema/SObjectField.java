@@ -32,6 +32,7 @@ import com.nawforce.platform.System.String;
 @SuppressWarnings("unused")
 public class SObjectField {
 	public String Name;
+	public SObjectType sObjectType;
 
 	public DescribeFieldResult getDescribe() {throw new java.lang.UnsupportedOperationException();}
 	public DescribeFieldResult getDescribe(Object options) {throw new java.lang.UnsupportedOperationException();}

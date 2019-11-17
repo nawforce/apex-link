@@ -69,20 +69,18 @@ final case class ClassDeclaration(_pkg: PackageDeclaration, _outerTypeName: Opti
     }
   }
 
-  private lazy val isAbstract: Boolean = modifiers.contains(ABSTRACT_MODIFIER)
-
   override lazy val methodMap: MethodMap = {
     val allMethods = outerStaticMethods ++ localMethods
     val loc = Some(id.location)
     val mmap = superClassDeclaration match {
       case Some(at: ApexTypeDeclaration) =>
-        MethodMap(loc, nature, isAbstract, typeName, at.methodMap, allMethods, interfaceDeclarations)
+        MethodMap(this, loc, at.methodMap, allMethods, interfaceDeclarations)
       case Some(td: TypeDeclaration) =>
-        MethodMap(loc, nature, isAbstract, typeName,
-          MethodMap(None, td.nature, false, td.typeName, MethodMap.empty(), td.methods, Seq()),
+        MethodMap(this, loc,
+          MethodMap(td, None, MethodMap.empty(), td.methods, Seq()),
           allMethods, interfaceDeclarations)
       case _ =>
-        MethodMap(loc, nature, false, typeName, MethodMap.empty(), allMethods, interfaceDeclarations)
+        MethodMap(this, loc, MethodMap.empty(), allMethods, interfaceDeclarations)
     }
 
     mmap.errors.foreach(err =>{
@@ -170,7 +168,7 @@ final case class InterfaceDeclaration(_pkg: PackageDeclaration, _outerTypeName: 
 
   override lazy val methodMap: MethodMap = {
     val allMethods = outerStaticMethods ++ localMethods
-    val mmap = MethodMap(Some(id.location), nature, false, typeName, MethodMap.empty(), allMethods, interfaceDeclarations)
+    val mmap = MethodMap(this, Some(id.location), MethodMap.empty(), allMethods, interfaceDeclarations)
     mmap.errors.foreach(err =>{
       Org.logMessage(err._1, err._2)
     })
@@ -213,7 +211,7 @@ final case class EnumDeclaration(_pkg: PackageDeclaration, _outerTypeName: Optio
   override val nature: Nature = ENUM_NATURE
 
   override lazy val methodMap: MethodMap = {
-    val mmap = MethodMap(Some(id.location), nature, false, typeName, MethodMap.empty(), localMethods, interfaceDeclarations)
+    val mmap = MethodMap(this, Some(id.location), MethodMap.empty(), localMethods, interfaceDeclarations)
     mmap.errors.foreach(err =>{
       Org.logMessage(err._1, err._2)
     })
@@ -262,5 +260,8 @@ object EnumDeclaration {
       CustomMethodDeclaration(Name("name"), TypeName.String, Seq()),
       CustomMethodDeclaration(Name("original"), TypeName.Integer, Seq()),
       CustomMethodDeclaration(Name("values"), TypeName.listOf(TypeName.String), Seq(), asStatic = true),
+      CustomMethodDeclaration(Name("equals"), TypeName.Boolean, Seq(
+        CustomParameterDeclaration(Name("other"), TypeName.InternalObject))),
+      CustomMethodDeclaration(Name("hashCode"), TypeName.Integer, Seq())
     ).map(m => ((m.name, m.parameters.size),m)).toMap
 }

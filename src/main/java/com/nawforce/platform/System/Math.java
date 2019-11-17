@@ -62,10 +62,12 @@ public class Math {
 	public static Double log(Double x) {throw new java.lang.UnsupportedOperationException();}
 	public static Decimal log10(Decimal x) {throw new java.lang.UnsupportedOperationException();}
 	public static Double log10(Double x) {throw new java.lang.UnsupportedOperationException();}
+	public static Decimal max(Decimal x, Double y) {throw new java.lang.UnsupportedOperationException();}
 	public static Decimal max(Decimal x, Decimal y) {throw new java.lang.UnsupportedOperationException();}
 	public static Double max(Double x, Double y) {throw new java.lang.UnsupportedOperationException();}
 	public static Integer max(Integer x, Integer y) {throw new java.lang.UnsupportedOperationException();}
 	public static Long max(Long x, Long y) {throw new java.lang.UnsupportedOperationException();}
+	public static Decimal min(Decimal x, Double y) {throw new java.lang.UnsupportedOperationException();}
 	public static Decimal min(Decimal x, Decimal y) {throw new java.lang.UnsupportedOperationException();}
 	public static Double min(Double x, Double y) {throw new java.lang.UnsupportedOperationException();}
 	public static Integer min(Integer x, Integer y) {throw new java.lang.UnsupportedOperationException();}

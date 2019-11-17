@@ -86,7 +86,7 @@ trait AssignableSupport {
 
   @scala.annotation.tailrec
   private def isRecordSetAssignable(toType: TypeName, context: VerifyContext): Boolean = {
-    if (toType == TypeName.SObject || toType.isSObjectList) {
+    if (toType == TypeName.SObject || toType.isSObjectList || toType.isObjectList) {
       true
     } else if (toType.isList) {
       isRecordSetAssignable(toType.params.head, context)
@@ -198,10 +198,10 @@ object Operation {
     (TypeName.Decimal, TypeName.Integer) -> PlatformTypes.decimalType,
     (TypeName.Decimal, TypeName.Long) -> PlatformTypes.decimalType,
     (TypeName.Decimal, TypeName.Decimal) -> PlatformTypes.decimalType,
-    (TypeName.Decimal, TypeName.Double) -> PlatformTypes.doubleType,
+    (TypeName.Decimal, TypeName.Double) -> PlatformTypes.decimalType,
     (TypeName.Double, TypeName.Integer) -> PlatformTypes.doubleType,
     (TypeName.Double, TypeName.Long) -> PlatformTypes.doubleType,
-    (TypeName.Double, TypeName.Decimal) -> PlatformTypes.doubleType,
+    (TypeName.Double, TypeName.Decimal) -> PlatformTypes.decimalType,
     (TypeName.Double, TypeName.Double) -> PlatformTypes.doubleType,
     (TypeName.Date, TypeName.Integer) -> PlatformTypes.dateType,
     (TypeName.Date, TypeName.Long) -> PlatformTypes.dateType,
@@ -217,10 +217,11 @@ object Operation {
     (TypeName.Long, TypeName.Long) -> PlatformTypes.longType,
     (TypeName.Decimal, TypeName.Integer) -> PlatformTypes.decimalType,
     (TypeName.Decimal, TypeName.Long) -> PlatformTypes.decimalType,
+    (TypeName.Decimal, TypeName.Double) -> PlatformTypes.decimalType,
     (TypeName.Decimal, TypeName.Decimal) -> PlatformTypes.decimalType,
     (TypeName.Double, TypeName.Integer) -> PlatformTypes.doubleType,
     (TypeName.Double, TypeName.Long) -> PlatformTypes.doubleType,
-    (TypeName.Double, TypeName.Decimal) -> PlatformTypes.doubleType,
+    (TypeName.Double, TypeName.Decimal) -> PlatformTypes.decimalType,
     (TypeName.Double, TypeName.Double) -> PlatformTypes.doubleType,
     (TypeName.Date, TypeName.Integer) -> PlatformTypes.dateType,
     (TypeName.Date, TypeName.Long) -> PlatformTypes.dateType,
@@ -236,10 +237,11 @@ object Operation {
     (TypeName.Long, TypeName.Long) -> PlatformTypes.longType,
     (TypeName.Decimal, TypeName.Integer) -> PlatformTypes.decimalType,
     (TypeName.Decimal, TypeName.Long) -> PlatformTypes.decimalType,
+    (TypeName.Decimal, TypeName.Double) -> PlatformTypes.decimalType,
     (TypeName.Decimal, TypeName.Decimal) -> PlatformTypes.decimalType,
     (TypeName.Double, TypeName.Integer) -> PlatformTypes.doubleType,
     (TypeName.Double, TypeName.Long) -> PlatformTypes.doubleType,
-    (TypeName.Double, TypeName.Decimal) -> PlatformTypes.doubleType,
+    (TypeName.Double, TypeName.Decimal) -> PlatformTypes.decimalType,
     (TypeName.Double, TypeName.Double) -> PlatformTypes.doubleType,
   )
 
