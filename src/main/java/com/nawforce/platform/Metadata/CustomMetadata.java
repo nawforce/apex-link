@@ -32,7 +32,7 @@ import com.nawforce.platform.System.List;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class CustomMetadata {
+public class CustomMetadata extends Metadata {
 	public String description;
 	public String label;
 	public Boolean protected_x;

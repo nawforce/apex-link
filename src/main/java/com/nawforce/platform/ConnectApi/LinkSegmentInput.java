@@ -27,22 +27,7 @@
 */
 package com.nawforce.platform.ConnectApi;
 
-import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.System.String;
-
 @SuppressWarnings("unused")
-public class FeedItemInput extends FeedElementInput {
-	public FeedItemAttachmentInput attachment;
-	public MessageBodyInput body;
-	public Boolean isBookmarkedByCurrentUser;
-	public String originalFeedElementId;
-	public String originalFeedItemId;
-	public FeedItemVisibilityType visibility;
-
-	public FeedItemInput() {throw new java.lang.UnsupportedOperationException();}
-
-	public Boolean equals$(Object obj) {throw new java.lang.UnsupportedOperationException();}
-	public Integer hashCode$() {throw new java.lang.UnsupportedOperationException();}
-	public String toString$() {throw new java.lang.UnsupportedOperationException();}
+public class LinkSegmentInput extends MessageSegmentInput {
+    public String url;
 }
