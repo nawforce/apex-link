@@ -125,6 +125,25 @@ trait MethodDeclaration extends DependencyHolder {
     }
   }
 
+  def hasSameErasedParameters(pkg: Option[PackageDeclaration], other: MethodDeclaration): Boolean = {
+    hasErasedParameters(pkg, other.parameters.map(_.typeName))
+  }
+
+  def hasErasedParameters(pkg: Option[PackageDeclaration], params: Seq[TypeName]): Boolean = {
+    if (parameters.size == params.size) {
+      parameters.zip(params).forall(z =>
+        z._1.typeName == z._2 ||
+          (z._2.isSObjectList && z._1.typeName.isList &&
+            (TypeRequest(z._1.typeName.params.head, None, pkg, excludeSObjects = false) match {
+              case Right(td) => td.isSObject
+              case Left(_) => false
+            }))
+      )
+    } else {
+      false
+    }
+  }
+
   lazy val summary: MethodSummary = MethodSummary(
     name.toString, modifiers.map(_.toString).sorted.toList, typeName.toString,
     parameters.map(_.summary).sortBy(_.name).toList
@@ -159,6 +178,7 @@ trait TypeDeclaration extends DependencyHolder {
   val isComplete: Boolean
   val isExternallyVisible: Boolean
   val isAny: Boolean = false
+  lazy val isAbstract: Boolean = modifiers.contains(ABSTRACT_MODIFIER)
   lazy val isFieldConstructed: Boolean = isSObject || isApexPagesComponent
   lazy val isSObject: Boolean = superClass.contains(TypeName.SObject)
   lazy val isApexPagesComponent: Boolean = superClass.contains(TypeName.ApexPagesComponent)
@@ -208,7 +228,7 @@ trait TypeDeclaration extends DependencyHolder {
     fieldsByName
   }
 
-  private lazy val methodMap: MethodMap = MethodMap(None, nature, false, typeName, MethodMap.empty(), methods, Seq())
+  private lazy val methodMap: MethodMap = MethodMap(this, None, MethodMap.empty(), methods, Seq())
 
   def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
                  verifyContext: VerifyContext): Seq[MethodDeclaration] = {

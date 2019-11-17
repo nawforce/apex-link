@@ -130,6 +130,7 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
 
   def isRecordSet: Boolean = name == Name.RecordSet$ && outer.contains(TypeName.Internal) && params.size == 1
   def isSObjectList: Boolean = isList && params.head == TypeName.SObject
+  def isObjectList: Boolean = isList && params.head == TypeName.InternalObject
 
   def isBatchable: Boolean = name == Name.Batchable && outer.contains(TypeName.Database)
 

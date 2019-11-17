@@ -202,4 +202,45 @@ class BugTest extends FunSuite {
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
+
+  test("Add Double onto Decimal") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"), "public class Dummy { {Decimal a; Double b; a+=b; } }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("max(decimal, double) is a Decimal") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),
+      "public class Dummy { {Decimal a; Double b; Math.max(a * b, b).round(System.RoundingMode.DOWN); } }".getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("SObject erasure via an interface") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),
+      s"""
+         | public class Dummy implements MyInterface{
+         |  public void func(List<Account> a) {}
+         |  public interface MyInterface {
+         |    void func(List<SObject> a);
+         |  }
+         |}
+         |""".stripMargin.getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    org.issues.dumpMessages(false)
+    assert(!org.issues.hasMessages)
+  }
+
 }

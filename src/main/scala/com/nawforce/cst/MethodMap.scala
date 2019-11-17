@@ -29,7 +29,7 @@ package com.nawforce.cst
 
 import com.nawforce.documents.Location
 import com.nawforce.names.{Name, TypeName}
-import com.nawforce.types.{CLASS_NATURE, CustomMethodDeclaration, INTERFACE_NATURE, MethodDeclaration, Nature, TypeDeclaration}
+import com.nawforce.types.{CLASS_NATURE, CustomMethodDeclaration, INTERFACE_NATURE, MethodDeclaration, Nature, PackageDeclaration, TypeDeclaration}
 
 import scala.collection.mutable
 
@@ -74,7 +74,7 @@ object MethodMap {
     new MethodMap(Map(), Map())
   }
 
-  def apply(location: Option[Location], nature: Nature, isAbstract: Boolean, typeName: TypeName,
+  def apply(td: TypeDeclaration, location: Option[Location],
             superClassMap: MethodMap, localMethods: Seq[MethodDeclaration], interfaces: Seq[TypeDeclaration]): MethodMap = {
 
     val workingMap = collection.mutable.Map[(Name, Int), Seq[MethodDeclaration]]() ++= superClassMap.methodsByName
@@ -82,6 +82,11 @@ object MethodMap {
 
     // Add instance methods first with validation checks
     localMethods.filterNot(_.isStatic).foreach(method => applyInstanceMethod(workingMap, method, errors))
+
+    // For interfaces make sure we have all methods
+    if (td.nature == INTERFACE_NATURE) {
+      mergeInterfaces(workingMap, interfaces)
+    }
 
     // Add statics is they are not being shadowed by an instance method
     localMethods.filter(_.isStatic).foreach(method => {
@@ -94,12 +99,10 @@ object MethodMap {
         workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method)))
     })
 
-    // Validate any interfaces over the full set
-    if (nature == CLASS_NATURE) {
-      workingMap.put((Name.Clone, 0), Seq(CustomMethodDeclaration(Name.Clone, typeName, Seq())))
-      checkInterfaces(location, isAbstract, workingMap, interfaces, errors)
-    } else if (nature == INTERFACE_NATURE) {
-      mergeInterfaces(workingMap, interfaces)
+    // Validate any interface use in classes
+    if (td.nature == CLASS_NATURE) {
+      workingMap.put((Name.Clone, 0), Seq(CustomMethodDeclaration(Name.Clone, td.typeName, Seq())))
+      checkInterfaces(td.packageDeclaration, location, td.isAbstract, workingMap, interfaces, errors)
     }
 
     new MethodMap(workingMap.toMap, errors.toMap)
@@ -133,27 +136,27 @@ object MethodMap {
     })
   }
 
-  private def checkInterfaces(location: Option[Location], isAbstract: Boolean, workingMap: WorkingMap,
-                              interfaces: Seq[TypeDeclaration], errors: ErrorMap): Unit = {
+  private def checkInterfaces(pkg: Option[PackageDeclaration], location: Option[Location], isAbstract: Boolean,
+                              workingMap: WorkingMap, interfaces: Seq[TypeDeclaration], errors: ErrorMap): Unit = {
     interfaces.foreach({
       case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
-        checkInterface(location, isAbstract, workingMap, i, errors)
+        checkInterface(pkg, location, isAbstract, workingMap, i, errors)
       case _ => ()
     })
   }
 
-  private def checkInterface(location: Option[Location], isAbstract: Boolean, workingMap: WorkingMap,
-                             interface: TypeDeclaration, errors: ErrorMap): Unit = {
+  private def checkInterface(pkg: Option[PackageDeclaration], location: Option[Location], isAbstract: Boolean,
+                             workingMap: WorkingMap, interface: TypeDeclaration, errors: ErrorMap): Unit = {
     if (interface.isInstanceOf[InterfaceDeclaration])
-      checkInterfaces(location, isAbstract, workingMap, interface.interfaceDeclarations, errors)
+      checkInterfaces(pkg, location, isAbstract, workingMap, interface.interfaceDeclarations, errors)
 
     interface.methods.filterNot(_.isStatic).foreach(method => {
       val key = (method.name, method.parameters.size)
       val methods = workingMap.getOrElse(key, Seq())
 
       var matched = methods.find(m => m.hasSameParameters(method))
-      if (matched.isEmpty && interface.typeName.isBatchable)
-        matched = methods.find(isBatchableExecute)
+      if (matched.isEmpty)
+        matched = methods.find(m => m.hasSameErasedParameters(pkg, method))
 
       if (matched.isEmpty) {
         if (!isAbstract)
@@ -165,14 +168,6 @@ object MethodMap {
         }
       }
     })
-  }
-
-  private def isBatchableExecute(method: MethodDeclaration): Boolean = {
-    method.name == Name.Execute &&
-      method.typeName == TypeName.Void &&
-      method.parameters.size == 2 &&
-      method.parameters(0).typeName == TypeName.BatchableContext &&
-      method.parameters(1).typeName.isList
   }
 
   private def applyInstanceMethod(workingMap: WorkingMap, method: MethodDeclaration, errors: ErrorMap): Unit = {
