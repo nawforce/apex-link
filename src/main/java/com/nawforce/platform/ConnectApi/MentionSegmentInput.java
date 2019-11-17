@@ -27,6 +27,8 @@
 */
 package com.nawforce.platform.ConnectApi;
 
+import com.nawforce.platform.System.String;
+
 @SuppressWarnings("unused")
 public class MentionSegmentInput extends MessageSegmentInput {
     public String id;

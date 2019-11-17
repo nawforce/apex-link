@@ -27,6 +27,8 @@
 */
 package com.nawforce.platform.ConnectApi;
 
+import com.nawforce.platform.System.String;
+
 @SuppressWarnings("unused")
 public class HashtagSegmentInput extends MessageSegmentInput {
     public String tag;
