@@ -28,6 +28,6 @@
 package com.nawforce.platform.Messaging;
 
 @SuppressWarnings("unused")
-public class InboundEmailHandler {
-	public InboundEmailResult handleInboundEmail(InboundEmail param1, InboundEnvelope param2) {throw new java.lang.UnsupportedOperationException();}
+public interface InboundEmailHandler {
+	InboundEmailResult handleInboundEmail(InboundEmail email, InboundEnvelope env);
 }

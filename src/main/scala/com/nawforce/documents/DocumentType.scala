@@ -125,7 +125,7 @@ object DocumentType {
       case Seq(name, Name("field-meta"), Name("xml")) =>
         Some(SObjectFieldDocument(path, name))
 
-      case Seq(name, Name("fieldSet-meta"), Name("xml")) =>
+      case Seq(name, Name("fieldset-meta"), Name("xml")) =>
         Some(SObjectFieldSetDocument(path, name))
 
       case Seq(name, Name("labels")) =>
@@ -142,7 +142,16 @@ object DocumentType {
   def apply(file: File): Option[DocumentType] = apply(file.toPath)
 
   private def splitFilename(path: Path): Seq[Name] = {
-    path.getFileName.toString.split('.').map(part => Name(part))
+    var parts = path.getFileName.toString.split('.')
+    if (parts.length > 3) {
+      parts = List(parts.slice(0, parts.length-2).mkString("."),
+        parts(parts.length-2).toLowerCase(), parts(parts.length-1).toLowerCase).toArray
+    } else if (parts.length == 3) {
+      parts = List(parts(0), parts(1).toLowerCase, parts(2).toLowerCase).toArray
+    } else if (parts.length == 2) {
+      parts = List(parts(0), parts(1).toLowerCase).toArray
+    }
+    parts.map(Name(_))
   }
 }
 

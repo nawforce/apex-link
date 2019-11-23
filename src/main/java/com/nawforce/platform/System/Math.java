@@ -29,8 +29,8 @@ package com.nawforce.platform.System;
 
 @SuppressWarnings("unused")
 public class Math {
-	public Double E;
-	public Double PI;
+	public static Double E;
+	public static Double PI;
 
 	public Math() {throw new java.lang.UnsupportedOperationException();}
 

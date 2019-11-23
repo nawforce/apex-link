@@ -153,16 +153,17 @@ final case class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDec
   def createSObjectTypeDeclarations(sobjectName: Name): Unit = {
     if (!sobjectTypeDeclarationsCreated.contains(sobjectName)) {
       sobjectTypeDeclarationsCreated.add(sobjectName)
-      val fields = SObjectTypeFields(sobjectName, pkg)
-      pkg.upsertType(SObjectTypeImpl(sobjectName, fields, pkg))
+      val fields = SObjectFields(sobjectName, pkg)
+      val typeFields = SObjectTypeFields(sobjectName, pkg)
+      pkg.upsertType(typeFields)
       pkg.upsertType(fields)
-      pkg.upsertType(SObjectFields(sobjectName, pkg))
+      pkg.upsertType(SObjectTypeImpl(sobjectName, fields, pkg))
       pkg.upsertType(SObjectTypeFieldSets(sobjectName, pkg))
     }
   }
 }
 
-final case class SObjectTypeImpl(sobjectName: Name, sobjectTypeFields: SObjectTypeFields, pkg: PackageDeclaration)
+final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields, pkg: PackageDeclaration)
   extends NamedTypeDeclaration(pkg, TypeName.sObjectType$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
   private lazy val fieldField = CustomFieldDeclaration(Name.Fields,
@@ -177,7 +178,9 @@ final case class SObjectTypeImpl(sobjectName: Name, sobjectTypeFields: SObjectTy
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     (name, staticContext) match {
       case (Name.Fields, Some(false)) => Some(fieldField)
-      case _ => sobjectTypeFields.findField(name, staticContext)
+      // Workaround for bug when doing Account.SObjectType.SObjectType
+      case (Name.SObjectType, Some(false)) => Some(CustomFieldDeclaration(Name.SObjectType, typeName))
+      case _ => sobjectFields.findField(name, staticContext)
     }
   }
 
@@ -266,7 +269,8 @@ final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageDeclaration
   extends NamedTypeDeclaration(pkg, TypeName.sObjectTypeFieldSets$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
   private lazy val sobjectFieldSets: Map[Name, FieldDeclaration] = {
-    TypeRequest(TypeName(sobjectName), pkg, excludeSObjects = false).toOption match {
+    val typeName = TypeName(sobjectName)
+    TypeRequest(typeName, pkg, excludeSObjects = false).toOption match {
       case Some(sobject: SObjectDeclaration) =>
         sobject.fieldSets.map(name => (name, CustomFieldDeclaration(name, TypeName.FieldSet))).toMap
       case _ => Map()
@@ -275,5 +279,10 @@ final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageDeclaration
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     sobjectFieldSets.get(name)
+  }
+
+  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
+                          verifyContext: VerifyContext): Seq[MethodDeclaration] = {
+    PlatformTypes.sObjectTypeFieldSets.findMethod(name, params, staticContext, verifyContext)
   }
 }

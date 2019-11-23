@@ -33,7 +33,8 @@ import com.nawforce.documents._
 import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{DotName, Name}
 import com.nawforce.types._
-import com.nawforce.utils.{IssueLog, WARNING_CATEGORY}
+import com.nawforce.utils.{ERROR_CATEGORY, IssueCategory, IssueLog, WARNING_CATEGORY}
+import com.sforce.soap.tooling.LogCategory
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.DynamicVariable
@@ -122,12 +123,11 @@ class Org extends LazyLogging {
 object Org {
   val current: DynamicVariable[Org] = new DynamicVariable[Org](null)
 
+  def log(location: Location, msg: String, category: IssueCategory): Unit = {
+    Org.current.value.issues.logMessage(location, msg, category)
+  }
+
   def logMessage(location: Location, msg: String): Unit = {
-    Org.current.value.issues.logMessage(location, msg)
+    log(location, msg, ERROR_CATEGORY)
   }
-
-  def logWarning(location: Location, msg: String): Unit = {
-    Org.current.value.issues.logMessage(location, msg, WARNING_CATEGORY)
-  }
-
 }

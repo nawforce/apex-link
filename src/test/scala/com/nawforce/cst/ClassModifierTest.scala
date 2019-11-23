@@ -83,7 +83,7 @@ class ClassModifierTest extends FunSuite with BeforeAndAfter {
   test("Private outer") {
     assert(typeDeclaration("private class Dummy {}").modifiers.isEmpty)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 14-19: Private modifier is not allowed on outer classes\n")
+      "Warning: line 1 at 14-19: Private modifier is not allowed on outer classes\n")
   }
 
   test("No modifier class") {

@@ -125,6 +125,8 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
     }
   }
 
+  def isStringOrId: Boolean = this == TypeName.String || this == TypeName.Id
+
   def isList: Boolean = name == Name.List$ && outer.contains(TypeName.System) && params.size == 1
   def asListOf: TypeName = new TypeName(Name.List$, Seq(this), Some(TypeName.System))
 
@@ -156,6 +158,13 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
           name.toString +
           (if (params.isEmpty) "" else s"<${params.map(_.toString).mkString(", ")}>")
     }
+  }
+
+  def equalsIgnoreParams(other: TypeName): Boolean = {
+    this.name == other.name &&
+    this.params.size == other.params.size &&
+    this.outer.nonEmpty == other.outer.nonEmpty &&
+    this.outer.forall(_.equalsIgnoreParams(other.outer.get))
   }
 }
 
@@ -198,6 +207,8 @@ object TypeName {
   lazy val FieldSet = TypeName(Name.FieldSet, Nil, Some(TypeName.Schema))
   lazy val DescribeSObjectResult = TypeName(Name.DescribeSObjectResult, Nil, Some(TypeName.Schema))
   lazy val DescribeFieldResult = TypeName(Name.DescribeFieldResult, Nil, Some(TypeName.Schema))
+  lazy val SObjectTypeFieldSets = TypeName(Name.SObjectTypeFieldSets, Nil, Some(TypeName.Schema))
+
   lazy val DescribeSObjectResult$ = TypeName(Name.DescribeSObjectResult$, Nil, Some(TypeName.Internal))
   lazy val SObjectType$ = TypeName(Name.SObjectType$, Nil, Some(TypeName.Internal))
   lazy val SObjectTypeFields$ = TypeName(Name.SObjectTypeFields$, Nil, Some(TypeName.Internal))

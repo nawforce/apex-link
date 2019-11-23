@@ -28,6 +28,8 @@
 package com.nawforce.platform.System;
 
 import com.nawforce.platform.Approval.LockResult;
+import com.nawforce.platform.Approval.ProcessRequest;
+import com.nawforce.platform.Approval.ProcessResult;
 import com.nawforce.platform.Approval.UnlockResult;
 
 @SuppressWarnings("unused")
@@ -41,6 +43,10 @@ public class Approval {
 	public static List<LockResult> lock(List<Object> objects, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
 	public static LockResult lock(SObject sobject) {throw new java.lang.UnsupportedOperationException();}
 	public static LockResult lock(SObject sobject, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
+	public static List<ProcessResult> process(ProcessRequest approvalRequest) {throw new java.lang.UnsupportedOperationException();}
+	public static List<ProcessResult> process(ProcessRequest approvalRequest, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
+	public static List<ProcessResult> process(List<ProcessRequest> approvalRequests) {throw new java.lang.UnsupportedOperationException();}
+	public static List<ProcessResult> process(List<ProcessRequest> approvalRequests, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
 	public static UnlockResult unlock(Id id) {throw new java.lang.UnsupportedOperationException();}
 	public static UnlockResult unlock(Id id, Boolean allOrNothing) {throw new java.lang.UnsupportedOperationException();}
 	public static List<UnlockResult> unlock(List<Object> objects) {throw new java.lang.UnsupportedOperationException();}

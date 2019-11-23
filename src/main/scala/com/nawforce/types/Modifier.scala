@@ -33,6 +33,7 @@ import com.nawforce.api.Org
 import com.nawforce.cst.ConstructContext
 import com.nawforce.documents.RangeLocation
 import com.nawforce.parsers.ApexParser.{AnnotationContext, IdContext, ModifierContext, PropertyBlockContext}
+import com.nawforce.utils.WARNING_CATEGORY
 import org.antlr.v4.runtime.ParserRuleContext
 
 sealed abstract class Modifier(val name: String, val order: Integer=0) {
@@ -117,15 +118,15 @@ object ApexModifiers {
         Org.logMessage(RangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
         mods.toSet.toSeq
       } else if (outer && !mods.contains(ISTEST_ANNOTATION) && mods.contains(PRIVATE_MODIFIER) ) {
-        Org.logMessage(RangeLocation(idContext),
-          s"Private modifier is not allowed on outer classes")
+        Org.log(RangeLocation(idContext),
+          s"Private modifier is not allowed on outer classes", WARNING_CATEGORY)
         mods.filterNot(_ == PRIVATE_MODIFIER)
       } else if (outer && !mods.contains(ISTEST_ANNOTATION) && !(mods.contains(GLOBAL_MODIFIER) || mods.contains(PUBLIC_MODIFIER))) {
         Org.logMessage(RangeLocation(idContext), s"Outer classes must be declared either 'global' or 'public'")
         PUBLIC_MODIFIER +: mods
       } else if (mods.intersect(visibilityModifiers).size > 1) {
-        Org.logWarning(RangeLocation(idContext),
-          s"Only one visibility modifier from 'global', 'public' & 'private' may be used on classes")
+        Org.log(RangeLocation(idContext),
+          s"Only one visibility modifier from 'global', 'public' & 'private' may be used on classes", WARNING_CATEGORY)
         PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
       } else if (mods.intersect(sharingModifiers).size > 1) {
         Org.logMessage(RangeLocation(idContext),
@@ -173,8 +174,8 @@ object ApexModifiers {
         Org.logMessage(RangeLocation(idContext), s"Outer interfaces must be declared either 'global' or 'public'")
         PUBLIC_MODIFIER +: mods
       } else if (mods.intersect(visibilityModifiers).size > 1) {
-        Org.logWarning(RangeLocation(idContext),
-          s"Only one visibility modifier from 'global', 'public' & 'private' may be used on interfaces")
+        Org.log(RangeLocation(idContext),
+          s"Only one visibility modifier from 'global', 'public' & 'private' may be used on interfaces", WARNING_CATEGORY)
         PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
       } else {
         mods
@@ -217,8 +218,8 @@ object ApexModifiers {
         Org.logMessage(RangeLocation(idContext), s"Outer enums must be declared either 'global' or 'public'")
         PUBLIC_MODIFIER +: mods
       } else if (mods.intersect(visibilityModifiers).size > 1) {
-        Org.logWarning(RangeLocation(idContext),
-          s"Only one visibility modifier from 'global', 'public' & 'private' may be used on enums")
+        Org.log(RangeLocation(idContext),
+          s"Only one visibility modifier from 'global', 'public' & 'private' may be used on enums", WARNING_CATEGORY)
         PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
       } else {
         mods
@@ -257,8 +258,9 @@ object ApexModifiers {
       Org.logMessage(RangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
       mods.toSet.toSeq
     } else if (mods.intersect(visibilityModifiers).size > 1) {
-      Org.logWarning(RangeLocation(idContext),
-        s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' may be used on fields")
+      Org.log(RangeLocation(idContext),
+        s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' may be used on fields",
+        WARNING_CATEGORY)
       PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
     } else if (mods.intersect(visibilityModifiers).isEmpty && mods.contains(WEBSERVICE_MODIFIER)) {
       GLOBAL_MODIFIER +: mods
@@ -294,8 +296,9 @@ object ApexModifiers {
       Org.logMessage(RangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
       mods.toSet.toSeq
     } else if (mods.intersect(visibilityModifiers).size > 1) {
-      Org.logWarning(RangeLocation(idContext),
-        s"Only one visibility modifier from 'global, 'public', 'protected' & 'private' may be used on property set/get")
+      Org.log(RangeLocation(idContext),
+        s"Only one visibility modifier from 'global, 'public', 'protected' & 'private' may be used on property set/get",
+        WARNING_CATEGORY)
       mods.diff(visibilityModifiers)
     } else {
       mods
@@ -327,8 +330,9 @@ object ApexModifiers {
       Org.logMessage(RangeLocation(parserContext), s"Modifier '${duplicates.head.toString}' is used more than once")
       mods.toSet.toSeq
     } else if (mods.intersect(visibilityModifiers).size > 1) {
-      Org.logWarning(RangeLocation(parserContext),
-        s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' may be used on methods")
+      Org.log(RangeLocation(parserContext),
+        s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' may be used on methods",
+        WARNING_CATEGORY)
       PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
     } else if (mods.intersect(visibilityModifiers).isEmpty) {
       PRIVATE_MODIFIER +: mods
@@ -370,8 +374,9 @@ object ApexModifiers {
       Org.logMessage(RangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
       mods.toSet.toSeq
     } else if (mods.intersect(visibilityModifiers).size > 1) {
-      Org.logWarning(RangeLocation(idContext),
-        s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' may be used on methods")
+      Org.log(RangeLocation(idContext),
+        s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' may be used on methods",
+        WARNING_CATEGORY)
       mods.diff(visibilityModifiers)
     } else if (mods.intersect(visibilityModifiers).isEmpty && mods.contains(WEBSERVICE_MODIFIER)) {
       GLOBAL_MODIFIER +: mods
@@ -456,7 +461,7 @@ object ApexModifiers {
       case "testsetup" => Some(TEST_SETUP_ANNOTATION)
       case "httpdelete" => Some(HTTP_DELETE_ANNOTATION)
       case "httpget" => Some(HTTP_GET_ANNOTATION)
-      case "httppath" => Some(HTTP_PATCH_ANNOTATION)
+      case "httppatch" => Some(HTTP_PATCH_ANNOTATION)
       case "httppost" => Some(HTTP_POST_ANNOTATION)
       case "httpput" => Some(HTTP_PUT_ANNOTATION)
       case "remoteaction" => Some(REMOTE_ACTION_ANNOTATION)

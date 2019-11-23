@@ -63,7 +63,7 @@ object CustomFieldDeclaration {
       case "Date" => PlatformTypes.dateType
       case "DateTime" => PlatformTypes.datetimeType
       case "Email" => PlatformTypes.stringType
-      case "EncryptedText" => PlatformTypes.blobType
+      case "EncryptedText" => PlatformTypes.stringType
       case "Number" => PlatformTypes.decimalType
       case "Percent" => PlatformTypes.decimalType
       case "Phone" => PlatformTypes.stringType

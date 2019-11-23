@@ -41,7 +41,7 @@ final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
 
     val newType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
     if (newType.nonEmpty) {
-      ExprContext(isStatic = false, Some(newType.get))
+      ExprContext(isStatic = Some(false), Some(newType.get))
     } else {
       context.missingType(location, typeName)
       ExprContext.empty
@@ -94,7 +94,7 @@ final case class Creator(createdName: CreatedName, creatorRest: CreatorRest) ext
     if (creatorRest.isInstanceOf[ArrayCreatorRest]) {
       val listType = inter.typeName.asListOf
       val listDeclaration = context.getTypeAndAddDependency(listType, context.thisType)
-      ExprContext(isStatic = false, listDeclaration.toOption)
+      ExprContext(isStatic = Some(false), listDeclaration.toOption)
     } else {
       inter
     }

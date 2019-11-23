@@ -79,7 +79,8 @@ object VariableDeclarators {
 final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeName: TypeName, variableDeclarators: VariableDeclarators)
   extends CST {
   def verify(context: BlockVerifyContext): Unit = {
-    variableDeclarators.verify(ExprContext(isStatic = context.isStatic, context.thisType), context)
+    val staticContext = if (context.isStatic) Some(true) else None
+    variableDeclarators.verify(ExprContext(isStatic = staticContext, context.thisType), context)
   }
 
   def addVars(context: BlockVerifyContext): Unit = {
