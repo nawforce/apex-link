@@ -207,6 +207,8 @@ object Operation {
     (TypeName.Date, TypeName.Long) -> PlatformTypes.dateType,
     (TypeName.Datetime, TypeName.Integer) -> PlatformTypes.datetimeType,
     (TypeName.Datetime, TypeName.Long) -> PlatformTypes.datetimeType,
+    (TypeName.Datetime, TypeName.Decimal) -> PlatformTypes.datetimeType,
+    (TypeName.Datetime, TypeName.Double) -> PlatformTypes.datetimeType,
     (TypeName.Time, TypeName.Integer) -> PlatformTypes.timeType,
     (TypeName.Time, TypeName.Long) -> PlatformTypes.timeType,
   )
@@ -305,7 +307,7 @@ case object CompareOperation extends Operation {
     } else {
       return Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
     }
-    Right(ExprContext(isStatic = false, Some(PlatformTypes.booleanType)))
+    Right(ExprContext(isStatic = Some(false), Some(PlatformTypes.booleanType)))
   }
 }
 
@@ -324,7 +326,7 @@ case object ExactEqualityOperation extends Operation {
       leftContext.typeDeclaration.extendsOrImplements(rightContext.typeName) ||
       rightContext.typeDeclaration.extendsOrImplements(leftContext.typeName)
     )
-      Right(ExprContext(isStatic = false, Some(PlatformTypes.booleanType)))
+      Right(ExprContext(isStatic = Some(false), Some(PlatformTypes.booleanType)))
     else
       Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
   }
@@ -334,7 +336,7 @@ case object EqualityOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
                       op: String, context: VerifyContext): Either[String, ExprContext] = {
     if (couldBeEqual(leftContext.typeDeclaration, rightContext.typeDeclaration, context))
-      Right(ExprContext(isStatic = false, Some(PlatformTypes.booleanType)))
+      Right(ExprContext(isStatic = Some(false), Some(PlatformTypes.booleanType)))
     else
       Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
   }
@@ -344,14 +346,14 @@ case object PlusOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
                       op: String, context: VerifyContext): Either[String, ExprContext] = {
     if (leftContext.typeName == TypeName.String || rightContext.typeName == TypeName.String) {
-      Right(ExprContext(isStatic = false, Some(PlatformTypes.stringType)))
+      Right(ExprContext(isStatic = Some(false), Some(PlatformTypes.stringType)))
     }
     else {
       val td = getArithmeticResult(leftContext.typeName, rightContext.typeName)
       if (td.isEmpty) {
         return Left(s"Addition operation not allowed between types '${leftContext.typeName}' and '${rightContext.typeName}'")
       }
-      Right(ExprContext(isStatic = false, td))
+      Right(ExprContext(isStatic = Some(false), td))
     }
   }
 }
@@ -363,7 +365,7 @@ case object ArithmeticOperation extends Operation {
     if (td.isEmpty) {
       return Left(s"Arithmetic operation not allowed between types '${leftContext.typeName}' and '${rightContext.typeName}'")
     }
-    Right(ExprContext(isStatic = false, td))
+    Right(ExprContext(isStatic = Some(false), td))
   }
 }
 
@@ -371,13 +373,13 @@ case object ArithmeticAddSubtractAssignmentOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
                       op: String, context: VerifyContext): Either[String, ExprContext] = {
     if (leftContext.typeName == TypeName.String && op == "+=") {
-      Right(ExprContext(isStatic = false, Some(PlatformTypes.stringType)))
+      Right(ExprContext(isStatic = Some(false), Some(PlatformTypes.stringType)))
     } else {
       val td = getArithmeticAddSubtractAssigmentResult(leftContext.typeName, rightContext.typeName)
       if (td.isEmpty) {
         return Left(s"Arithmetic operation not allowed between types '${leftContext.typeName}' and '${rightContext.typeName}'")
       }
-      Right(ExprContext(isStatic = false, td))
+      Right(ExprContext(isStatic = Some(false), td))
     }
   }
 }
@@ -389,7 +391,7 @@ case object ArithmeticMultiplyDivideAssignmentOperation extends Operation {
     if (td.isEmpty) {
       return Left(s"Arithmetic operation not allowed between types '${leftContext.typeName}' and '${rightContext.typeName}'")
     }
-    Right(ExprContext(isStatic = false, td))
+    Right(ExprContext(isStatic = Some(false), td))
   }
 }
 
@@ -400,7 +402,7 @@ case object BitwiseOperation extends Operation {
     if (td.isEmpty) {
       return Left(s"Bitwise operation only allowed between Integer, Long & Boolean types, not '${leftContext.typeName}' and '${rightContext.typeName}'")
     }
-    Right(ExprContext(isStatic = false, td))
+    Right(ExprContext(isStatic = Some(false), td))
   }
 }
 
@@ -411,7 +413,7 @@ case object BitwiseAssignmentOperation extends Operation {
     if (td.isEmpty) {
       return Left(s"Bitwise operation only allowed between Integer, Long & Boolean types, not '${leftContext.typeName}' and '${rightContext.typeName}'")
     }
-    Right(ExprContext(isStatic = false, td))
+    Right(ExprContext(isStatic = Some(false), td))
   }
 }
 
@@ -421,12 +423,12 @@ case object ConditionalOperation extends Operation {
 
     // Future: How does this really function, Java mechanics are very complex
     if (isAssignable(leftContext.typeName, rightContext.typeDeclaration, context)) {
-      Right(rightContext)
-    } else if (isAssignable(rightContext.typeName, leftContext.typeDeclaration, context)) {
       Right(leftContext)
+    } else if (isAssignable(rightContext.typeName, leftContext.typeDeclaration, context)) {
+      Right(rightContext)
     } else {
       getCommonBase(leftContext.typeDeclaration, rightContext.typeDeclaration, context)
-          .map(td => Right(ExprContext(isStatic = false, Some(td))))
+          .map(td => Right(ExprContext(isStatic = Some(false), Some(td))))
           .getOrElse({
             Left(s"Incompatible types in ternary operation '${leftContext.typeName}' and '${rightContext.typeName}'")
           })

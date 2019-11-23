@@ -61,9 +61,9 @@ final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: Ty
       context.missingType(id.location, typeName)
 
     val setters = propertyBlocks.filter(_.isInstanceOf[SetterPropertyBlock])
-    setters.foreach(_.verify(context))
+    setters.foreach(_.verify(context, isStatic))
     val getters = propertyBlocks.filter(_.isInstanceOf[GetterPropertyBlock])
-    getters.foreach(_.verify(context))
+    getters.foreach(_.verify(context, isStatic))
 
     if (setters.size > 1 || getters.size > 1 || propertyBlocks.isEmpty) {
       context.logMessage(location, "Properties must have either a single 'get' and/or a single 'set' block")
@@ -95,18 +95,18 @@ object ApexPropertyDeclaration {
 }
 
 sealed abstract class PropertyBlock extends CST {
-  def verify(context: BodyDeclarationVerifyContext): Unit
+  def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean): Unit
 }
 
 final case class GetterPropertyBlock(modifiers: Seq[Modifier], block: Option[Block]) extends PropertyBlock {
-  override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    block.foreach(_.verify(new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))))
+  override def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean): Unit = {
+    block.foreach(_.verify(new OuterBlockVerifyContext(context, isStatic)))
   }
 }
 
 final case class SetterPropertyBlock(modifiers: Seq[Modifier], typeName: TypeName, block: Option[Block]) extends PropertyBlock {
-  override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    val bc = new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))
+  override def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean): Unit = {
+    val bc = new OuterBlockVerifyContext(context, isStatic)
     bc.addVar(Name("value"), location, typeName)
     block.foreach(_.verify(bc))
   }

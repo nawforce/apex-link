@@ -29,11 +29,13 @@ package com.nawforce.cst
 
 import com.nawforce.documents.Location
 import com.nawforce.names.{Name, TypeName}
-import com.nawforce.types.{CLASS_NATURE, CustomMethodDeclaration, INTERFACE_NATURE, MethodDeclaration, Nature, PackageDeclaration, TypeDeclaration}
+import com.nawforce.types._
+import com.nawforce.utils.{ERROR_CATEGORY, IssueCategory, WARNING_CATEGORY}
 
 import scala.collection.mutable
 
-final case class MethodMap(methodsByName: Map[(Name, Int), Seq[MethodDeclaration]], errors: Map[Location, String])
+final case class MethodMap(methodsByName: Map[(Name, Int), Seq[MethodDeclaration]],
+                           errors: Map[Location, (IssueCategory, String)])
   extends AssignableSupport {
 
   lazy val externalMethods: Iterable[MethodDeclaration] = methodsByName.values.flatMap(_.filter(_.isGlobalOrPublic))
@@ -46,9 +48,14 @@ final case class MethodMap(methodsByName: Map[(Name, Int), Seq[MethodDeclaration
       case None => matches
       case Some(x) => matches.filter(m => m.isStatic == x)
     }
+
     val exactMatches = filteredMatches.filter(_.hasParameters(params))
     if (exactMatches.nonEmpty)
-      Seq(exactMatches.head)
+      return Seq(exactMatches.head)
+
+    val erasedMatches = filteredMatches.filter(_.hasCallErasedParameters(context.pkg, params))
+    if (erasedMatches.nonEmpty)
+      return Seq(erasedMatches.head)
 
     val assignableMatches = filteredMatches.map(m => {
       val argZip = m.parameters.map(_.typeName).zip(params)
@@ -68,7 +75,7 @@ final case class MethodMap(methodsByName: Map[(Name, Int), Seq[MethodDeclaration
 
 object MethodMap {
   type WorkingMap = mutable.Map[(Name, Int), Seq[MethodDeclaration]]
-  type ErrorMap = mutable.Map[Location, String]
+  type ErrorMap = mutable.Map[Location, (IssueCategory, String)]
 
   def empty(): MethodMap = {
     new MethodMap(Map(), Map())
@@ -78,7 +85,7 @@ object MethodMap {
             superClassMap: MethodMap, localMethods: Seq[MethodDeclaration], interfaces: Seq[TypeDeclaration]): MethodMap = {
 
     val workingMap = collection.mutable.Map[(Name, Int), Seq[MethodDeclaration]]() ++= superClassMap.methodsByName
-    val errors = mutable.Map[Location, String]()
+    val errors = mutable.Map[Location, (IssueCategory, String)]()
 
     // Add instance methods first with validation checks
     localMethods.filterNot(_.isStatic).foreach(method => applyInstanceMethod(workingMap, method, errors))
@@ -160,7 +167,8 @@ object MethodMap {
 
       if (matched.isEmpty) {
         if (!isAbstract)
-          location.foreach(errors.put(_, s"Method '${method.signature}' from interface '${interface.typeName}' must be implemented"))
+          location.foreach(errors.put(_, (ERROR_CATEGORY,
+            s"Method '${method.signature}' from interface '${interface.typeName}' must be implemented")))
       } else {
         matched.get match {
           case am: ApexMethodDeclaration => am.shadows.add(method)
@@ -179,7 +187,9 @@ object MethodMap {
     val matched = methods.find(_.hasSameParameters(method))
 
     if (matched.nonEmpty && (matched.get.typeName != method.typeName)) {
-      setMethodError(method, s"Method '${method.name}' has wrong return type to override, should be '${matched.get.typeName}'", errors)
+      setMethodError(method,
+        s"Method '${method.name}' has wrong return type to override, should be '${matched.get.typeName}'",
+        errors, isWarning = true)
     } else if (matched.nonEmpty && matched.get.isInstanceOf[ApexMethodDeclaration]) {
       val am = matched.get.asInstanceOf[ApexMethodDeclaration]
       if (am.block.nonEmpty) {
@@ -198,9 +208,10 @@ object MethodMap {
     workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method)))
   }
 
-  private def setMethodError(method: MethodDeclaration, error: String, errors: ErrorMap): Unit = {
+  private def setMethodError(method: MethodDeclaration, error: String, errors: ErrorMap, isWarning: Boolean=false): Unit = {
     method match {
-      case am: ApexMethodDeclaration => errors.put(am.id.location, error)
+      case am: ApexMethodDeclaration if !isWarning => errors.put(am.id.location, (ERROR_CATEGORY, error))
+      case am: ApexMethodDeclaration => errors.put(am.id.location, (WARNING_CATEGORY, error))
       case _ => ()
     }
   }

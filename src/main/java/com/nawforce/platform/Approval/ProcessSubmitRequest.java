@@ -33,7 +33,7 @@ import com.nawforce.platform.System.List;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class ProcessSubmitRequest {
+public class ProcessSubmitRequest extends ProcessRequest {
 	public String ObjectId;
 	public String ProcessDefinitionNameOrId;
 	public Boolean SkipEntryCriteria;

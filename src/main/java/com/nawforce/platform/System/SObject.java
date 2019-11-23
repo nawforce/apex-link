@@ -41,6 +41,9 @@ public class SObject {
 	public UserGroup Owner;
 	public UserRecordAccess UserRecordAccess;
 	public List<Attachment> Attachments;
+	public List<ContentDocumentLink> ContentDocumentLinks;
+	public List<ProcessInstanceHistory> ProcessSteps;
+	public List<Task> Tasks;					// Future: Only if Allow Activities is selected
 	public RecordType RecordType;
 	public String CurrencyIsoCode;
 	public Boolean IsDeleted;
@@ -51,6 +54,10 @@ public class SObject {
 	public User LastModifiedBy;
 	public Datetime LastModifiedDate;
 	public Datetime SystemModstamp;
+	public Datetime LastReferencedDate;
+	public Datetime LastViewedDate;
+	public Datetime LastActivityDate;		// Future: Only if Allow Activities is selected
+
 
 	public void addError(Object msg) {throw new java.lang.UnsupportedOperationException();}
 	public void addError(Object msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}

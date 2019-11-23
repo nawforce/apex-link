@@ -212,7 +212,8 @@ final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeN
   override val writeAccess: Modifier = readAccess
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    variableDeclarator.verify(ExprContext(isStatic, context.thisType),
+    val staticContext = if (isStatic) Some(true) else None
+    variableDeclarator.verify(ExprContext(staticContext, context.thisType),
       new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER)))
     depends = Some(context.dependencies)
     propagateDependencies()

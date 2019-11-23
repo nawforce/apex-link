@@ -35,6 +35,7 @@ import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types._
+import com.nawforce.utils.ERROR_CATEGORY
 
 import scala.collection.JavaConverters._
 
@@ -83,10 +84,7 @@ final case class ClassDeclaration(_pkg: PackageDeclaration, _outerTypeName: Opti
         MethodMap(this, loc, MethodMap.empty(), allMethods, interfaceDeclarations)
     }
 
-    mmap.errors.foreach(err =>{
-      Org.logMessage(err._1, err._2)
-    })
-
+    mmap.errors.foreach(err => Org.log(err._1, err._2._2, err._2._1))
     mmap
   }
 
@@ -169,9 +167,7 @@ final case class InterfaceDeclaration(_pkg: PackageDeclaration, _outerTypeName: 
   override lazy val methodMap: MethodMap = {
     val allMethods = outerStaticMethods ++ localMethods
     val mmap = MethodMap(this, Some(id.location), MethodMap.empty(), allMethods, interfaceDeclarations)
-    mmap.errors.foreach(err =>{
-      Org.logMessage(err._1, err._2)
-    })
+    mmap.errors.foreach(err => Org.log(err._1, err._2._2, err._2._1))
     mmap
   }
 
@@ -212,9 +208,7 @@ final case class EnumDeclaration(_pkg: PackageDeclaration, _outerTypeName: Optio
 
   override lazy val methodMap: MethodMap = {
     val mmap = MethodMap(this, Some(id.location), MethodMap.empty(), localMethods, interfaceDeclarations)
-    mmap.errors.foreach(err =>{
-      Org.logMessage(err._1, err._2)
-    })
+    mmap.errors.foreach(error => Org.log(error._1, error._2._2, error._2._1))
     mmap
   }
 
@@ -258,7 +252,7 @@ object EnumDeclaration {
   private lazy val methodMap: Map[(Name, Int), MethodDeclaration] =
     Seq(
       CustomMethodDeclaration(Name("name"), TypeName.String, Seq()),
-      CustomMethodDeclaration(Name("original"), TypeName.Integer, Seq()),
+      CustomMethodDeclaration(Name("ordinal"), TypeName.Integer, Seq()),
       CustomMethodDeclaration(Name("values"), TypeName.listOf(TypeName.String), Seq(), asStatic = true),
       CustomMethodDeclaration(Name("equals"), TypeName.Boolean, Seq(
         CustomParameterDeclaration(Name("other"), TypeName.InternalObject))),

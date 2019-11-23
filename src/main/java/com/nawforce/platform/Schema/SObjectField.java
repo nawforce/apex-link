@@ -33,6 +33,7 @@ import com.nawforce.platform.System.String;
 public class SObjectField {
 	public String Name;
 	public SObjectType sObjectType;
+	public SObjectField Id;
 
 	public DescribeFieldResult getDescribe() {throw new java.lang.UnsupportedOperationException();}
 	public DescribeFieldResult getDescribe(Object options) {throw new java.lang.UnsupportedOperationException();}

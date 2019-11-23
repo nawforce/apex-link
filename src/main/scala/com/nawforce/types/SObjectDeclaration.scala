@@ -51,7 +51,7 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
     super.findFieldSObject(name, staticContext).orElse({
       val field = pkg.schema().relatedLists.findField(typeName, name)
       if (field.nonEmpty && staticContext.contains(true)) {
-        Some(CustomFieldDeclaration(field.get.name, TypeName.SObjectField, asStatic = true))
+        Some(CustomFieldDeclaration(field.get.name, TypeName.sObjectFields$(typeName), asStatic = true))
       } else {
         field
       }
@@ -107,6 +107,7 @@ final case class SObjectDeclaration(pkg: PackageDeclaration, _typeName: TypeName
   private lazy val listCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
     Seq(
       CustomMethodDeclaration(Name("getAll"), TypeName.mapOf(TypeName.String, typeName), Seq()),
+      CustomMethodDeclaration(Name("getInstance"), typeName, Seq()),
       CustomMethodDeclaration(Name("getInstance"), typeName, Seq(CustomParameterDeclaration(Name("Name"), TypeName.String))),
       CustomMethodDeclaration(Name("getValues"), typeName, Seq(CustomParameterDeclaration(Name("Name"), TypeName.String))),
     ).map(m => ((m.name, m.parameters.size),m)).toMap
@@ -238,8 +239,10 @@ object SObjectDeclaration {
 
     // TODO: Collect base fieldsets ?
 
-    new SObjectDeclaration(pkg, typeName, sobjectDetails.sobjectNature, sobjectDetails.fieldSets,
+    val td = new SObjectDeclaration(pkg, typeName, sobjectDetails.sobjectNature, sobjectDetails.fieldSets,
       fields.values.toSeq, isComplete)
+    pkg.schema().sobjectTypes.add(td)
+    td
   }
 
   private def collectBaseFields(sObject: DotName, pkg: PackageDeclaration): mutable.Map[Name, FieldDeclaration] = {

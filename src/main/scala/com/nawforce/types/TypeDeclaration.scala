@@ -132,13 +132,33 @@ trait MethodDeclaration extends DependencyHolder {
   def hasErasedParameters(pkg: Option[PackageDeclaration], params: Seq[TypeName]): Boolean = {
     if (parameters.size == params.size) {
       parameters.zip(params).forall(z =>
-        z._1.typeName == z._2 ||
+        (z._1.typeName == z._2) ||
+          (z._1.typeName.isStringOrId && z._2.isStringOrId) ||
           (z._2.isSObjectList && z._1.typeName.isList &&
             (TypeRequest(z._1.typeName.params.head, None, pkg, excludeSObjects = false) match {
               case Right(td) => td.isSObject
               case Left(_) => false
             }))
       )
+    } else {
+      false
+    }
+  }
+
+  def hasCallErasedParameters(pkg: PackageDeclaration, params: Seq[TypeName]): Boolean = {
+    if (parameters.size == params.size) {
+      parameters.zip(params).forall(z =>
+        z._1.typeName == z._2 ||
+          (z._1.typeName.equalsIgnoreParams(z._2) &&
+            (TypeRequest(z._1.typeName, None, Some(pkg), excludeSObjects = false) match {
+              case Right(x: PlatformTypeDeclaration) if x.nature == INTERFACE_NATURE =>
+                TypeRequest(z._2, None, Some(pkg), excludeSObjects = false) match {
+                  case Right(y: PlatformTypeDeclaration) if y.nature == INTERFACE_NATURE => true
+                  case _ => false
+                }
+              case _ => false
+            })
+            ))
     } else {
       false
     }

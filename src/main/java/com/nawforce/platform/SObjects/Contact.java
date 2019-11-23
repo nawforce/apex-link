@@ -39,7 +39,6 @@ public class Contact extends SObject {
 	public static SObjectType$<Contact> SObjectType;
 	public static SObjectFields$<Contact> Fields;
 
-
 	public Id RecordTypeId;
 	public Id AccountId;
 	public Account Account;

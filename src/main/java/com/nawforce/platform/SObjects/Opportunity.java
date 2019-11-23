@@ -46,6 +46,7 @@ public class Opportunity extends SObject {
 	public Id CampaignId;
 	public Campaign Campaign;
 	public Date CloseDate;
+	public Id ContractId;
 	public com.nawforce.platform.System.String CurrencyIsoCode;
 	public com.nawforce.platform.System.String Description;
 	public Decimal ExpectedRevenue;

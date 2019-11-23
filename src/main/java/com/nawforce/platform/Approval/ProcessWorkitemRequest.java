@@ -32,7 +32,7 @@ import com.nawforce.platform.System.List;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class ProcessWorkitemRequest {
+public class ProcessWorkitemRequest extends ProcessRequest {
 	public String Action;
 	public String WorkitemId;
 

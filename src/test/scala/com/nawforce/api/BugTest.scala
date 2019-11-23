@@ -239,8 +239,70 @@ class BugTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Contact AccountId describe") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),
+      s"""
+         | public class Dummy {
+         |  public void func(List<Account> a) {Object o = Contact.SObjectType.AccountId.getDescribe();}
+         |}
+         |""".stripMargin.getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Opportunity SObjectType with shadowing field") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),
+      s"""
+         | public class Dummy {
+         |  public static Schema.SObjectType OPP_SOBJECT_TYPE = Opportunity.SObjectType;
+         |  public Opportunity opportunity {get; set;}
+         |}
+         |""".stripMargin.getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Double SObjectType reference") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),
+      s"""
+         | public class Dummy {
+         |  public static Object a = Account.SObjectType.SObjectType.newSObject();
+         |}
+         |""".stripMargin.getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Ternary decimal type") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),
+      s"""
+         | public class Dummy {
+         |  public static Decimal a =  (true ? 0 : 0.1).setScale(2);
+         |}
+         |""".stripMargin.getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
     org.issues.dumpMessages(false)
     assert(!org.issues.hasMessages)
   }
+
 
 }
