@@ -69,9 +69,10 @@ class SampleTest extends FunSuite {
     sample("samples/SalesforceFoundation/CampaignTools/src")
   }
 
+  /* TODO: Re-enable after rollup fix
   test("Volunteers-for-Salesforce") {
     sample("samples/SalesforceFoundation/Volunteers-for-Salesforce/src")
-  }
+  }*/
 
   test("Relationships") {
     sample("samples/SalesforceFoundation/Relationships/src")
@@ -113,9 +114,10 @@ class SampleTest extends FunSuite {
     sample("samples/SalesforceFoundation/CampaignTools/src", "namespace")
   }
 
+  /* TODO: Re-enable after rollup fix
   test("Volunteers-for-Salesforce packaged") {
     sample("samples/SalesforceFoundation/Volunteers-for-Salesforce/src", "namespace")
-  }
+  } */
 
   test("Relationships packaged") {
     sample("samples/SalesforceFoundation/Relationships/src", "namespace")
