@@ -142,6 +142,7 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
       case TypeName.Any => "any"
       case TypeName.InternalObject => "Object"
       case TypeName.RecordSet => "[SOQL Results]"
+      case TypeName.SObjectFieldRowCause$ => "SObjectField"
       case TypeName(Name.DescribeSObjectResult$, Seq(TypeName(name, Nil, None)), Some(TypeName.Internal)) =>
         s"Schema.SObjectType.$name"
       case TypeName(Name.SObjectType$, Seq(TypeName(name, Nil, Some(TypeName.Schema))), Some(TypeName.Internal)) =>
@@ -214,6 +215,7 @@ object TypeName {
   lazy val SObjectTypeFields$ = TypeName(Name.SObjectTypeFields$, Nil, Some(TypeName.Internal))
   lazy val SObjectTypeFieldSets$ = TypeName(Name.SObjectTypeFieldSets$, Nil, Some(TypeName.Internal))
   lazy val SObjectFields$ = TypeName(Name.SObjectFields$, Nil, Some(TypeName.Internal))
+  lazy val SObjectFieldRowCause$ = TypeName(Name.SObjectFieldRowCause$, Nil, Some(TypeName.Internal))
 
   lazy val Database = TypeName(Name.Database)
   lazy val BatchableContext = TypeName(Name.BatchableContext, Nil, Some(TypeName.Database))
