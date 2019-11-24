@@ -40,7 +40,7 @@ final case class PageDeclaration(pkg: PackageDeclaration, pages: Seq[Page]) exte
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
   override val modifiers: Seq[Modifier] = Seq.empty
-  override val isComplete: Boolean = true
+  override def isComplete: Boolean = !pkg.hasGhosted
   override val isExternallyVisible: Boolean = true
 
   override val superClass: Option[TypeName] = None

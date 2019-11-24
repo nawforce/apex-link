@@ -195,7 +195,7 @@ trait TypeDeclaration extends DependencyHolder {
   val constructors: Seq[ConstructorDeclaration]
   val methods: Seq[MethodDeclaration]
 
-  val isComplete: Boolean
+  def isComplete: Boolean
   val isExternallyVisible: Boolean
   val isAny: Boolean = false
   lazy val isAbstract: Boolean = modifiers.contains(ABSTRACT_MODIFIER)

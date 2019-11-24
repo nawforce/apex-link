@@ -61,7 +61,7 @@ export default class Server {
       "..",
       "..",
       "jars",
-      "apexlink-0.4.1.jar"
+      "apexlink-0.5.jar"
     );
     if (!fs.existsSync(jarFile) || !fs.lstatSync(jarFile).isFile()) {
       throw new Error(`No jar found at '${jarFile}'.`);

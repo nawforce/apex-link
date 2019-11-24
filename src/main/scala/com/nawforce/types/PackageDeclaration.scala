@@ -45,6 +45,7 @@ abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Pa
   def documentsByExtension(ext: Name): Seq[Path] = documents.getByExtension(ext)
 
   def isGhosted: Boolean = paths.isEmpty
+  def hasGhosted: Boolean = isGhosted || basePackages.exists(_.hasGhosted)
   def any(): AnyDeclaration
   def schema(): SchemaManager
   def labels(): LabelDeclaration
@@ -61,7 +62,8 @@ abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Pa
       val encName = EncodedName(typeName.name)
       basePackages.filter(_.isGhosted).exists(_.namespace == encName.namespace)
     } else {
-      basePackages.filter(_.isGhosted).exists(_.namespace.contains(typeName.outerName))
+      basePackages.filter(_.isGhosted).exists(_.namespace.contains(typeName.outerName)) ||
+      typeName.params.exists(isGhostedType(_))
     }
   }
 
