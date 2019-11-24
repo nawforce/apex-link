@@ -157,7 +157,9 @@ object MethodMap {
     if (interface.isInstanceOf[InterfaceDeclaration])
       checkInterfaces(pkg, location, isAbstract, workingMap, interface.interfaceDeclarations, errors)
 
-    interface.methods.filterNot(_.isStatic).foreach(method => {
+    interface.methods
+      .filterNot(_.isStatic)
+      .foreach(method => {
       val key = (method.name, method.parameters.size)
       val methods = workingMap.getOrElse(key, Seq())
 
@@ -166,7 +168,11 @@ object MethodMap {
         matched = methods.find(m => m.hasSameErasedParameters(pkg, method))
 
       if (matched.isEmpty) {
-        if (!isAbstract)
+        lazy val hasGhostedMethods =
+          methods.exists(method => pkg.exists(_.isGhostedType(method.typeName)) ||
+          methods.exists(method => pkg.exists(p => method.parameters.map(_.typeName).exists(p.isGhostedType))))
+
+        if (!isAbstract && !hasGhostedMethods)
           location.foreach(errors.put(_, (ERROR_CATEGORY,
             s"Method '${method.signature}' from interface '${interface.typeName}' must be implemented")))
       } else {

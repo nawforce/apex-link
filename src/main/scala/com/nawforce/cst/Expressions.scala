@@ -109,12 +109,12 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
     assert(input.declaration.nonEmpty)
 
     input.declaration.get match {
-      case td: TypeDeclaration =>
+      case inputType: TypeDeclaration =>
         val name = target.left.get.name
-        val field: Option[FieldDeclaration] = findField(name, td, context.pkg, input.isStatic)
+        val field: Option[FieldDeclaration] = findField(name, inputType, context.pkg, input.isStatic)
         if (field.nonEmpty) {
           field.get.addDependencyHolder(context.holder)
-          val target = context.getTypeAndAddDependency(field.get.typeName, Some(td)).toOption
+          val target = context.getTypeAndAddDependency(field.get.typeName, Some(inputType)).toOption
           return ExprContext(isStatic = Some(false), target)
         }
 
@@ -126,8 +126,8 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
           }
         }
 
-        if (td.isComplete)
-          context.logMessage(location, s"Unknown field or type '${target.left.get.name}' on '${td.typeName}'")
+        if (inputType.isComplete)
+          context.logMessage(location, s"Unknown field or type '${target.left.get.name}' on '${inputType.typeName}'")
         ExprContext.empty
 
       case _ =>
@@ -158,7 +158,7 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
     val index = arrayExpression.verify(ExprContext(isStatic = Some(false), context.thisType), context)
     if (index.declaration.isEmpty)
       return ExprContext.empty
-    if (index.declaration.get ne PlatformTypes.integerType) {
+    if (index.declaration.get.typeName != TypeName.Integer) {
       context.logMessage(arrayExpression.location,
         s"Array indexes must be Integers, found '${index.typeName}'")
       return ExprContext.empty
@@ -202,12 +202,15 @@ final case class MethodCall(target: Either[Boolean, Id], arguments: List[Express
         val methods = callee.findMethod(id.name, argTypes, staticContext, context)
         methods.foreach(context.addDependency)
         if (methods.isEmpty) {
-          if (argTypes.isEmpty)
-            context.logMessage(location,
-              s"No matching method found for '${id.name}' on '${callee.typeName}' taking no arguments")
+          if (callee.isComplete && argTypes.forall(!context.pkg.isGhostedType(_))) {
+            val ok = argTypes.forall(!context.pkg.isGhostedType(_))
+            if (argTypes.isEmpty)
+              context.logMessage(location,
+                s"No matching method found for '${id.name}' on '${callee.typeName}' taking no arguments")
             else
               context.logMessage(location,
                 s"No matching method found for '${id.name}' on '${callee.typeName}' taking arguments '${argTypes.mkString(", ")}'")
+          }
           ExprContext.empty
         } else if (methods.head.typeName != TypeName.Void && !context.pkg.isGhostedType(methods.head.typeName)) {
           val td = context.getTypeAndAddDependency(methods.head.typeName, context.thisType)

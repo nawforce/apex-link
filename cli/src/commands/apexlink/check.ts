@@ -30,7 +30,7 @@ import { flags, SfdxCommand } from "@salesforce/command";
 import { Messages, SfdxError } from "@salesforce/core";
 import { AnyJson } from "@salesforce/ts-types";
 import * as fs from "fs";
-import { InfoMessages, MessageWriter } from "../../api/messages";
+import { InfoMessages, MessageWriter, CSVWriter } from "../../api/messages";
 import Org from "../../api/org";
 import Server from "../../api/server";
 
@@ -64,7 +64,10 @@ export default class Check extends SfdxCommand {
 
   protected static flagsConfig = {
     json: flags.boolean({
-      description: "show output in json format (disables --verbose)"
+      description: "show output in json format (disables --verbose && --csv)"
+    }),
+    csv: flags.boolean({
+      description: "show output in csv format (disables --verbose)"
     }),
     depends: flags.boolean({
       description: "show dependency information for Apex classes"
@@ -86,13 +89,14 @@ export default class Check extends SfdxCommand {
 
   public async run(): Promise<AnyJson> {
     const json = this.flags.json || false;
+    const csv = this.flags.csv || false;
     const depends = this.flags.depends || false;
     const zombies = this.flags.zombies || false;
     const warnings = this.flags.warnings || false;
     const verbose = this.flags.verbose || false;
 
     const server = await Server.getInstance();
-    server.setLoggingLevel(verbose && !json);
+    server.setLoggingLevel(verbose && !json && !csv);
 
     const org = this.createOrg(server, this.directoryArgs());
     const issues = JSON.parse(org.issues(warnings, zombies)) as InfoMessages;
@@ -104,9 +108,15 @@ export default class Check extends SfdxCommand {
       return results;
     } else {
       if (issues.files.length > 0) {
-        const writer = new MessageWriter();
-        writer.writeMessages(issues);
-        this.ux.log(writer.output());
+        if (csv) {
+          const writer = new CSVWriter();
+          writer.writeMessages(issues);
+          this.ux.log(writer.output());
+        } else {
+          const writer = new MessageWriter();
+          writer.writeMessages(issues);
+          this.ux.log(writer.output());
+        }
       }
 
       for (const depenencyDetail of dependResults) {
@@ -205,6 +215,7 @@ export default class Check extends SfdxCommand {
     flagTypes.set("--zombies", 0);
     flagTypes.set("--warnings", 0);
     flagTypes.set("--json", 0);
+    flagTypes.set("--csv", 0);
     flagTypes.set("--loglevel", 1);
     return flagTypes;
   }

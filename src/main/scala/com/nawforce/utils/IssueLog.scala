@@ -154,7 +154,7 @@ class IssueLog extends LazyLogging {
     val writer = new JSONMessageWriter()
     writer.startOutput()
     synchronized {
-      log.keys.foreach(path => {
+      log.keys.toSeq.sorted.foreach(path => {
         writeMessages(writer, path, warnings, maxErrors)
       })
     }

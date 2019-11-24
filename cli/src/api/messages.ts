@@ -91,3 +91,48 @@ export class MessageWriter {
     }
   }
 }
+
+export class CSVWriter {
+  private buffer: string = "";
+
+  public constructor() {}
+
+  public output(): string {
+    return this.buffer.slice(0, -1);
+  }
+
+  public writeMessages(messages: InfoMessages) {
+    for (const fileMessage of messages.files) {
+      this.writeFileMessage(fileMessage);
+    }
+  }
+
+  public writeFileMessage(fileMessage: FileMessage) {
+    for (const positionalMessage of fileMessage.messages) {
+      this.buffer += `"${fileMessage.path}", `
+      this.writePositionalMessage(positionalMessage);
+    }
+  }
+
+  public writePositionalMessage(positionalMessage: PositionalMessage) {
+    this.buffer += `${positionalMessage.category}, `;
+    this.writePosition(positionalMessage.start, positionalMessage.end);
+    this.buffer += `"${positionalMessage.message}"\n`;
+  }
+
+  public writePosition(start: Position, end: Position) {
+    if (
+      typeof start.offset !== "undefined" &&
+      typeof end !== "undefined" &&
+      typeof end.offset !== "undefined"
+    ) {
+      if (start.line === end.line) {
+        this.buffer += `${start.line}, ${start.offset}, ${start.line}, ${end.offset}, `;
+      } else {
+        this.buffer += `${start.line}, ,${end.line}, ,`;
+      }
+    } else {
+      this.buffer += `${start.line}, , , ,`;
+    }
+  }
+}

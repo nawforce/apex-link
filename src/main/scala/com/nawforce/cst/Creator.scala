@@ -201,7 +201,8 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends Creator
 
     val valueType = context.getTypeAndAddDependency(enclosedTypes.get._2, context.thisType)
     if (valueType.isLeft) {
-      Org.logMessage(location, valueType.left.get.toString)
+      if (!context.pkg.isGhostedType(enclosedTypes.get._2))
+        Org.logMessage(location, valueType.left.get.toString)
       return
     }
 
@@ -250,9 +251,10 @@ final case class SetCreatorRest(parts: List[Expression]) extends CreatorRest {
      }
 
      context.getTypeAndAddDependency(enclosedType.get, context.thisType) match {
-       case Left(error) => Org.logMessage(location, error.toString)
+       case Left(error) =>
+         if (!context.pkg.isGhostedType(enclosedType.get))
+           Org.logMessage(location, error.toString)
        case Right(_) =>
-
          // FUTURE: Validate the expressions are assignable to 'creating'
          parts.foreach(_.verify(input, context))
      }
