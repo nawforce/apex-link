@@ -218,15 +218,23 @@ trait TypeDeclaration extends DependencyHolder {
   protected def findFieldSObject(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     this.synchronized {
       val fieldOption = fieldsByName.get(name)
-      if (fieldOption.isEmpty)
-        return None
+      if (fieldOption.isEmpty) {
+        if (name == Name.SObjectField)
+          return Some(CustomFieldDeclaration(Name.SObjectField, TypeName.sObjectFields$(typeName)))
+        else
+          return None
+      }
 
       val field = fieldOption.get
       if (staticContext.contains(field.isStatic)) {
         fieldOption
       } else if (staticContext.contains(true)) {
         if (CustomFieldDeclaration.isSObjectPrimitive(field.typeName)) {
-          Some(CustomFieldDeclaration(field.name, TypeName.SObjectField, asStatic = true))
+          // TODO: Identify Share
+          if (name == Name.RowCause)
+            Some(CustomFieldDeclaration(field.name, TypeName.SObjectFieldRowCause$, asStatic = true))
+          else
+            Some(CustomFieldDeclaration(field.name, TypeName.SObjectField, asStatic = true))
         } else {
           // Make sure SObject is loaded so fields can be found
           PlatformTypes.get(field.typeName, None)

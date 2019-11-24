@@ -49,7 +49,8 @@ final case class ThisPrimary() extends Primary {
       context.logMessage(location, s"'this' can not be used in a static context")
       ExprContext.empty
     } else {
-      ExprContext(isStatic = Some(false), context.thisType)
+      // Allow this to reference statics platform bug
+      ExprContext(isStatic = None, context.thisType)
     }
   }
 }
