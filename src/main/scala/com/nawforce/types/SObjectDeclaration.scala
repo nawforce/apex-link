@@ -182,8 +182,17 @@ object SObjectDeclaration {
   }
 
   private lazy val standardCustomObjectFields: Seq[FieldDeclaration] = {
-    CustomFieldDeclaration(Name.NameName, TypeName.String) +:
+    CustomFieldDeclaration(Name.Id, TypeName.Id) +:
+      CustomFieldDeclaration(Name.NameName, TypeName.String) +:
       CustomFieldDeclaration(Name.RecordTypeId, TypeName.Id) +:
+      CustomFieldDeclaration(Name("CreatedBy"), TypeName.User) +:
+      CustomFieldDeclaration(Name("CreatedById"), TypeName.Id) +:
+      CustomFieldDeclaration(Name("CreatedDate"), TypeName.Datetime) +:
+      CustomFieldDeclaration(Name("LastModifiedBy"), TypeName.User) +:
+      CustomFieldDeclaration(Name("LastModifiedById"), TypeName.Id) +:
+      CustomFieldDeclaration(Name("LastModifiedDate"), TypeName.Datetime) +:
+      CustomFieldDeclaration(Name("IsDeleted"), TypeName.Boolean) +:
+      CustomFieldDeclaration(Name("SystemModstamp"), TypeName.Datetime) +:
       PlatformTypes.sObjectType.fields.filterNot(f => f.name == Name.SObjectType)
   }
 

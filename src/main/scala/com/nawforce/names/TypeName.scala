@@ -220,6 +220,7 @@ object TypeName {
   lazy val Database = TypeName(Name.Database)
   lazy val BatchableContext = TypeName(Name.BatchableContext, Nil, Some(TypeName.Database))
 
+  lazy val User = TypeName(Name.User)
   lazy val UserRecordAccess = TypeName(Name.UserRecordAccess)
 
   def describeSObjectResultOf(typeName: TypeName): TypeName = DescribeSObjectResult$.withParams(Seq(typeName))

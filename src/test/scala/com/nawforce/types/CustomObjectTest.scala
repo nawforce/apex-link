@@ -515,8 +515,33 @@ class CustomObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    org.issues.dumpMessages(false)
     assert(!org.issues.hasMessages)
   }
 
+  test("Standard fields") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
+    Files.write(fs.getPath("Dummy.cls"),
+      s"""public class Dummy {
+         |  public static Foo__c a;
+         |  {
+         |    Id id = a.Id;
+         |    String name = a.Name;
+         |    Id recordTypeId = a.RecordTypeId;
+         |    User createdBy = a.CreatedBy;
+         |    Id createdById = a.CreatedById;
+         |    Datetime createdDate = a.CreatedDate;
+         |    User lastModifiedBy = a.LastModifiedBy;
+         |    Id lastModifiedById = a.LastModifiedById;
+         |    Datetime lastModifiedDate = a.LastModifiedDate;
+         |    Boolean isDeleted = a.isDeleted;
+         |    Datetime systemModstamp = a.SystemModstamp;
+         |  }
+         |  }""".stripMargin.getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
+    assert(!org.issues.hasMessages)
+  }
 }

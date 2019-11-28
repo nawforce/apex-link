@@ -151,6 +151,7 @@ object Name {
   lazy val MasterLabel: Name = cache("MasterLabel")
   lazy val NamespacePrefix: Name = cache("NamespacePrefix")
   lazy val QualifiedAPIName: Name = cache("QualifiedAPIName")
+  lazy val User: Name = cache("User")
   lazy val UserRecordAccess: Name = cache("UserRecordAccess")
   lazy val ReplayId: Name = cache("ReplayId")
   lazy val Fields: Name = cache("Fields")
