@@ -47,6 +47,7 @@ public class Opportunity extends SObject {
 	public Id CampaignId;
 	public Campaign Campaign;
 	public Date CloseDate;
+	public Id ContractId;
 	public Id CreatedById;
 	public User CreatedBy;
 	public Datetime CreatedDate;
