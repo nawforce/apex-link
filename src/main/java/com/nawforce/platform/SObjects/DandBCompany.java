@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -39,11 +39,14 @@ public class DandBCompany extends SObject {
 	public static SObjectType$<DandBCompany> SObjectType;
 	public static SObjectFields$<DandBCompany> Fields;
 
-	public com.nawforce.platform.System.Address Address;
+	public Address Address;
 	public String City;
 	public String CompanyCurrencyIsoCode;
 	public String Country;
 	public String CountryAccessCode;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyCode;
 	public String CurrencyIsoCode;
 	public String Description;
@@ -55,7 +58,7 @@ public class DandBCompany extends SObject {
 	public String EmployeesHereReliability;
 	public Decimal EmployeesTotal;
 	public String EmployeesTotalReliability;
-	public com.nawforce.platform.System.Integer FamilyMembers;
+	public Integer FamilyMembers;
 	public String Fax;
 	public String FifthNaics;
 	public String FifthNaicsDesc;
@@ -65,7 +68,7 @@ public class DandBCompany extends SObject {
 	public String FifthSicDesc;
 	public String FipsMsaCode;
 	public String FipsMsaDesc;
-	public com.nawforce.platform.System.Integer FortuneRank;
+	public Integer FortuneRank;
 	public String FourthNaics;
 	public String FourthNaicsDesc;
 	public String FourthSic;
@@ -77,8 +80,13 @@ public class DandBCompany extends SObject {
 	public String GlobalUltimateBusinessName;
 	public String GlobalUltimateDunsNumber;
 	public Decimal GlobalUltimateTotalEmployees;
+	public Id Id;
 	public String ImportExportAgent;
 	public String IncludedInSnP500;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public String Latitude;
@@ -104,7 +112,7 @@ public class DandBCompany extends SObject {
 	public String ParentOrHqDunsNumber;
 	public String Phone;
 	public String PostalCode;
-	public com.nawforce.platform.System.Integer PremisesMeasure;
+	public Integer PremisesMeasure;
 	public String PremisesMeasureReliability;
 	public String PremisesMeasureUnit;
 	public String PrimaryNaics;
@@ -137,6 +145,7 @@ public class DandBCompany extends SObject {
 	public String StockSymbol;
 	public String Street;
 	public String Subsidiary;
+	public Datetime SystemModstamp;
 	public String ThirdNaics;
 	public String ThirdNaicsDesc;
 	public String ThirdSic;

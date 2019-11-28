@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -39,9 +39,13 @@ public class DocumentAttachmentMap extends SObject {
 	public static SObjectType$<DocumentAttachmentMap> SObjectType;
 	public static SObjectFields$<DocumentAttachmentMap> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Id DocumentId;
 	public Document Document;
 	public Integer DocumentSequence;
+	public Id Id;
 	public Id ParentId;
 	public EmailTemplate Parent;
 }

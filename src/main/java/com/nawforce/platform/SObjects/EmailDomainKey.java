@@ -27,23 +27,36 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class EmailDomainKey extends SObject {
 	public static SObjectType$<EmailDomainKey> SObjectType;
 	public static SObjectFields$<EmailDomainKey> Fields;
 
+	public String AlternatePublicKey;
+	public String AlternateSelector;
+	public String AlternateTxtRecordName;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Domain;
 	public String DomainMatch;
+	public Id Id;
 	public Boolean IsActive;
-	public String PrivateKey;
+	public Boolean IsDeleted;
+	public Integer KeySize;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String PublicKey;
 	public String Selector;
+	public Datetime SystemModstamp;
+	public String TxtRecordName;
 	public String TxtRecordsPublishState;
 }

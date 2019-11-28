@@ -27,13 +27,11 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class ApexTestQueueItem extends SObject {
@@ -42,11 +40,16 @@ public class ApexTestQueueItem extends SObject {
 
 	public Id ApexClassId;
 	public ApexClass ApexClass;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String ExtendedStatus;
+	public Id Id;
 	public Id ParentJobId;
 	public AsyncApexJob ParentJob;
 	public Boolean ShouldSkipCodeCoverage;
 	public String Status;
+	public Datetime SystemModstamp;
 	public Id TestRunResultId;
 	public ApexTestRunResult TestRunResult;
 }

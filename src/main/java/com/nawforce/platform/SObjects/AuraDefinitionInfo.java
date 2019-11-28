@@ -27,9 +27,10 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Datetime;
+import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
@@ -44,6 +45,8 @@ public class AuraDefinitionInfo extends SObject {
 	public String DeveloperName;
 	public String DurableId;
 	public String Format;
+	public Id Id;
+	public Datetime LastModifiedDate;
 	public String NamespacePrefix;
 	public String Source;
 }

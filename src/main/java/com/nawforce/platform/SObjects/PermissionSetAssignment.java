@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
@@ -40,6 +40,8 @@ public class PermissionSetAssignment extends SObject {
 
 	public Id AssigneeId;
 	public User Assignee;
+	public Id Id;
 	public Id PermissionSetId;
 	public PermissionSet PermissionSet;
+	public Datetime SystemModstamp;
 }

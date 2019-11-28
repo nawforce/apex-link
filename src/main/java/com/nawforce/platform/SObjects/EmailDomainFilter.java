@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -41,10 +40,19 @@ public class EmailDomainFilter extends SObject {
 	public static SObjectType$<EmailDomainFilter> SObjectType;
 	public static SObjectFields$<EmailDomainFilter> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Id EmailRelayId;
 	public EmailRelay EmailRelay;
 	public String FromDomain;
+	public Id Id;
 	public Boolean IsActive;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Integer PriorityNumber;
+	public Datetime SystemModstamp;
 	public String ToDomain;
 }

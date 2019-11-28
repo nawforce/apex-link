@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
@@ -38,6 +37,7 @@ public class ContentUserSubscription extends SObject {
 	public static SObjectType$<ContentUserSubscription> SObjectType;
 	public static SObjectFields$<ContentUserSubscription> Fields;
 
+	public Id Id;
 	public Id SubscribedToUserId;
 	public User SubscribedToUser;
 	public Id SubscriberUserId;

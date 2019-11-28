@@ -27,31 +27,41 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Datetime;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class Pricebook2 extends SObject {
 	public static SObjectType$<Pricebook2> SObjectType;
 	public static SObjectFields$<Pricebook2> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Description;
+	public Id Id;
 	public Boolean IsActive;
 	public Boolean IsArchived;
+	public Boolean IsDeleted;
 	public Boolean IsStandard;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public String Name;
+	public Datetime SystemModstamp;
 
 	public Contract[] Contracts;
 	public Pricebook2History[] Histories;
 	public Opportunity[] Opportunities;
 	public Order[] Orders;
 	public PricebookEntry[] PricebookEntries;
+	public Quote[] Quotes;
+	public RecordActionHistory[] RecordActionHistories;
+	public RecordAction[] RecordActions;
 }

@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -42,6 +41,8 @@ public class LoginIp extends SObject {
 
 	public String ChallengeMethod;
 	public Datetime ChallengeSentDate;
+	public Datetime CreatedDate;
+	public Id Id;
 	public Boolean IsAuthenticated;
 	public String SourceIp;
 	public Id UsersId;

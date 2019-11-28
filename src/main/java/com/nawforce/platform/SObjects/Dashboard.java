@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -44,6 +44,9 @@ public class Dashboard extends SObject {
 	public Integer BackgroundStart;
 	public String ChartTheme;
 	public String ColorPalette;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String DashboardResultRefreshedDate;
 	public String DashboardResultRunningUser;
 	public String Description;
@@ -51,6 +54,11 @@ public class Dashboard extends SObject {
 	public Id FolderId;
 	public Folder Folder;
 	public String FolderName;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public String LeftSize;
@@ -59,6 +67,7 @@ public class Dashboard extends SObject {
 	public String RightSize;
 	public Id RunningUserId;
 	public User RunningUser;
+	public Datetime SystemModstamp;
 	public Integer TextColor;
 	public String Title;
 	public Integer TitleColor;

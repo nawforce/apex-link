@@ -27,13 +27,12 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class EmbeddedServiceDetail extends SObject {
@@ -55,6 +54,7 @@ public class EmbeddedServiceDetail extends SObject {
 	public String FontSize;
 	public String HeaderBackgroundImg;
 	public Integer Height;
+	public Id Id;
 	public Boolean IsFieldServiceEnabled;
 	public Boolean IsLiveAgentEnabled;
 	public Boolean IsOfflineCaseEnabled;

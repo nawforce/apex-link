@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -44,18 +43,28 @@ public class EmailMessage extends SObject {
 	public Task Activity;
 	public String BccAddress;
 	public String CcAddress;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
+	public Id EmailTemplateId;
+	public EmailTemplate EmailTemplate;
 	public Datetime FirstOpenedDate;
 	public String FromAddress;
 	public String FromName;
-	public com.nawforce.platform.System.Boolean HasAttachment;
+	public Boolean HasAttachment;
 	public String Headers;
 	public String HtmlBody;
-	public com.nawforce.platform.System.Boolean Incoming;
-	public com.nawforce.platform.System.Boolean IsBounced;
-	public com.nawforce.platform.System.Boolean IsClientManaged;
-	public com.nawforce.platform.System.Boolean IsExternallyVisible;
-	public com.nawforce.platform.System.Boolean IsOpened;
+	public Id Id;
+	public Boolean Incoming;
+	public Boolean IsBounced;
+	public Boolean IsClientManaged;
+	public Boolean IsDeleted;
+	public Boolean IsExternallyVisible;
+	public Boolean IsOpened;
 	public Boolean IsTracked;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastOpenedDate;
 	public Datetime MessageDate;
 	public String MessageIdentifier;
@@ -67,6 +76,7 @@ public class EmailMessage extends SObject {
 	public EmailMessage ReplyToEmailMessage;
 	public String Status;
 	public String Subject;
+	public Datetime SystemModstamp;
 	public String TextBody;
 	public String ThreadIdentifier;
 	public String ToAddress;

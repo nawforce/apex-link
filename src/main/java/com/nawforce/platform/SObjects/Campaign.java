@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -47,21 +46,29 @@ public class Campaign extends SObject {
 	public Decimal BudgetedCost;
 	public Id CampaignMemberRecordTypeId;
 	public RecordType CampaignMemberRecordType;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Description;
 	public Date EndDate;
 	public Decimal ExpectedResponse;
 	public Decimal ExpectedRevenue;
+	public Id Id;
 	public Boolean IsActive;
+	public Boolean IsDeleted;
 	public Date LastActivityDate;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public String Name;
-	public com.nawforce.platform.System.Integer NumberOfContacts;
-	public com.nawforce.platform.System.Integer NumberOfConvertedLeads;
-	public com.nawforce.platform.System.Integer NumberOfLeads;
-	public com.nawforce.platform.System.Integer NumberOfOpportunities;
-	public com.nawforce.platform.System.Integer NumberOfResponses;
+	public Integer NumberOfContacts;
+	public Integer NumberOfConvertedLeads;
+	public Integer NumberOfLeads;
+	public Integer NumberOfOpportunities;
+	public Integer NumberOfResponses;
 	public Integer NumberOfWonOpportunities;
 	public Decimal NumberSent;
 	public Id OwnerId;
@@ -70,6 +77,7 @@ public class Campaign extends SObject {
 	public Campaign Parent;
 	public Date StartDate;
 	public String Status;
+	public Datetime SystemModstamp;
 	public String Type;
 
 	public ActivityHistory[] ActivityHistories;
@@ -91,6 +99,8 @@ public class Campaign extends SObject {
 	public Opportunity[] Opportunities;
 	public ProcessInstance[] ProcessInstances;
 	public ProcessInstanceHistory[] ProcessSteps;
+	public RecordActionHistory[] RecordActionHistories;
+	public RecordAction[] RecordActions;
 	public CollaborationGroupRecord[] RecordAssociatedGroups;
 	public CampaignShare[] Shares;
 	public Task[] Tasks;

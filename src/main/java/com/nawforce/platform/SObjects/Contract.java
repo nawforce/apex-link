@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -58,6 +58,9 @@ public class Contract extends SObject {
 	public User CompanySigned;
 	public String ContractNumber;
 	public Integer ContractTerm;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public Date CustomerSignedDate;
 	public Id CustomerSignedId;
@@ -65,8 +68,13 @@ public class Contract extends SObject {
 	public String CustomerSignedTitle;
 	public String Description;
 	public Date EndDate;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Date LastActivityDate;
 	public Datetime LastApprovedDate;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public String OwnerExpirationNotice;
@@ -78,6 +86,7 @@ public class Contract extends SObject {
 	public Date StartDate;
 	public String Status;
 	public String StatusCode;
+	public Datetime SystemModstamp;
 
 	public ActivityHistory[] ActivityHistories;
 	public Approval[] Approvals;
@@ -97,6 +106,7 @@ public class Contract extends SObject {
 	public Order[] Orders;
 	public ProcessInstance[] ProcessInstances;
 	public ProcessInstanceHistory[] ProcessSteps;
+	public Quote[] Quotes;
 	public RecordActionHistory[] RecordActionHistories;
 	public RecordAction[] RecordActions;
 	public CollaborationGroupRecord[] RecordAssociatedGroups;

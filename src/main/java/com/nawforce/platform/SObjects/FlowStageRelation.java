@@ -27,25 +27,33 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Id;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class FlowStageRelation extends SObject {
 	public static SObjectType$<FlowStageRelation> SObjectType;
 	public static SObjectFields$<FlowStageRelation> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String FlexIndex;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Name;
 	public Id ParentId;
 	public FlowInterview Parent;
 	public String StageLabel;
 	public Integer StageOrder;
 	public String StageType;
+	public Datetime SystemModstamp;
 }

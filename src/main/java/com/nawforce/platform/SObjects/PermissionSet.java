@@ -27,24 +27,29 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class PermissionSet extends SObject {
 	public static SObjectType$<PermissionSet> SObjectType;
 	public static SObjectFields$<PermissionSet> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Description;
 	public Boolean HasActivationRequired;
+	public Id Id;
 	public Boolean IsCustom;
 	public Boolean IsOwnedByProfile;
 	public String Label;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Id LicenseId;
 	public PermissionSetLicense License;
 	public String Name;
@@ -88,12 +93,15 @@ public class PermissionSet extends SObject {
 	public Boolean PermissionsConfigCustomRecs;
 	public Boolean PermissionsConnectOrgToEnvironmentHub;
 	public Boolean PermissionsContentAdministrator;
+	public Boolean PermissionsContentHubOnPremiseUser;
+	public Boolean PermissionsContentHubUser;
 	public Boolean PermissionsContentWorkspaces;
 	public Boolean PermissionsConvertLeads;
 	public Boolean PermissionsCreateCustomizeDashboards;
 	public Boolean PermissionsCreateCustomizeFilters;
 	public Boolean PermissionsCreateCustomizeReports;
 	public Boolean PermissionsCreateDashboardFolders;
+	public Boolean PermissionsCreateLtngTempFolder;
 	public Boolean PermissionsCreateLtngTempInPub;
 	public Boolean PermissionsCreatePackaging;
 	public Boolean PermissionsCreateReportFolders;
@@ -135,6 +143,7 @@ public class PermissionSet extends SObject {
 	public Boolean PermissionsForceTwoFactor;
 	public Boolean PermissionsGiveRecognitionBadge;
 	public Boolean PermissionsGovernNetworks;
+	public Boolean PermissionsHasUnlimitedNBAExecutions;
 	public Boolean PermissionsHideReadByList;
 	public Boolean PermissionsIdentityConnect;
 	public Boolean PermissionsIdentityEnabled;
@@ -151,6 +160,7 @@ public class PermissionSet extends SObject {
 	public Boolean PermissionsLeadScoreUser;
 	public Boolean PermissionsLightningConsoleAllowedForUser;
 	public Boolean PermissionsLightningExperienceUser;
+	public Boolean PermissionsLightningOnMobile;
 	public Boolean PermissionsListEmailSend;
 	public Boolean PermissionsLtngPromoReserved01UserPerm;
 	public Boolean PermissionsManageAnalyticSnapshots;
@@ -185,7 +195,9 @@ public class PermissionSet extends SObject {
 	public Boolean PermissionsManageNetworks;
 	public Boolean PermissionsManagePasswordPolicies;
 	public Boolean PermissionsManageProfilesPermissionsets;
+	public Boolean PermissionsManagePropositions;
 	public Boolean PermissionsManagePvtRptsAndDashbds;
+	public Boolean PermissionsManageRecommendationStrategies;
 	public Boolean PermissionsManageRemoteAccess;
 	public Boolean PermissionsManageReportsInPubFolders;
 	public Boolean PermissionsManageRoles;
@@ -196,6 +208,7 @@ public class PermissionSet extends SObject {
 	public Boolean PermissionsManageSurveys;
 	public Boolean PermissionsManageSynonyms;
 	public Boolean PermissionsManageTemplatedApp;
+	public Boolean PermissionsManageTerritories;
 	public Boolean PermissionsManageTranslation;
 	public Boolean PermissionsManageTwoFactor;
 	public Boolean PermissionsManageUnlistedGroups;
@@ -205,6 +218,7 @@ public class PermissionSet extends SObject {
 	public Boolean PermissionsModerateChatter;
 	public Boolean PermissionsModerateNetworkUsers;
 	public Boolean PermissionsModifyAllData;
+	public Boolean PermissionsModifyDataClassification;
 	public Boolean PermissionsModifyMetadata;
 	public Boolean PermissionsModifySecureAgents;
 	public Boolean PermissionsNewReportBuilder;
@@ -215,6 +229,7 @@ public class PermissionSet extends SObject {
 	public Boolean PermissionsPreventClassicExperience;
 	public Boolean PermissionsPrivacyDataAccess;
 	public Boolean PermissionsPublishPackaging;
+	public Boolean PermissionsQueryAllFiles;
 	public Boolean PermissionsRecordVisibilityAPI;
 	public Boolean PermissionsRemoveDirectMessageMembers;
 	public Boolean PermissionsResetPasswords;
@@ -232,11 +247,14 @@ public class PermissionSet extends SObject {
 	public Boolean PermissionsSolutionImport;
 	public Boolean PermissionsStdAutomaticActivityCapture;
 	public Boolean PermissionsSubmitMacrosAllowed;
+	public Boolean PermissionsSubscribeDashboardRolesGrps;
 	public Boolean PermissionsSubscribeDashboardToOtherUsers;
+	public Boolean PermissionsSubscribeReportRolesGrps;
 	public Boolean PermissionsSubscribeReportToOtherUsers;
 	public Boolean PermissionsSubscribeReportsRunAsUser;
 	public Boolean PermissionsSubscribeToLightningDashboards;
 	public Boolean PermissionsSubscribeToLightningReports;
+	public Boolean PermissionsTransactionalEmailSend;
 	public Boolean PermissionsTransferAnyCase;
 	public Boolean PermissionsTransferAnyEntity;
 	public Boolean PermissionsTransferAnyLead;
@@ -266,6 +284,7 @@ public class PermissionSet extends SObject {
 	public Boolean PermissionsWorkDotComUserPerm;
 	public Id ProfileId;
 	public Profile Profile;
+	public Datetime SystemModstamp;
 
 	public PermissionSetAssignment[] Assignments;
 	public FieldPermissions[] FieldPerms;

@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -39,7 +39,9 @@ public class KnowledgeableUser extends SObject {
 	public static SObjectType$<KnowledgeableUser> SObjectType;
 	public static SObjectFields$<KnowledgeableUser> Fields;
 
+	public Id Id;
 	public Integer RawRank;
+	public Datetime SystemModstamp;
 	public Id TopicId;
 	public Topic Topic;
 	public Id UserId;

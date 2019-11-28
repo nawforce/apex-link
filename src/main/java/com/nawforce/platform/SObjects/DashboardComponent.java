@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -43,6 +42,7 @@ public class DashboardComponent extends SObject {
 	public Report CustomReport;
 	public Id DashboardId;
 	public Dashboard Dashboard;
+	public Id Id;
 	public String Name;
 
 	public AttachedContentDocument[] AttachedContentDocuments;

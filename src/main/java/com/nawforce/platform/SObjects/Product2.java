@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -43,6 +42,9 @@ public class Product2 extends SObject {
 
 	public Boolean CanUseQuantitySchedule;
 	public Boolean CanUseRevenueSchedule;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Description;
 	public String DisplayUrl;
@@ -50,12 +52,17 @@ public class Product2 extends SObject {
 	public ExternalDataSource ExternalDataSource;
 	public String ExternalId;
 	public String Family;
+	public Id Id;
 	public Boolean IsActive;
 	public Boolean IsArchived;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public String Name;
-	public com.nawforce.platform.System.Integer NumberOfQuantityInstallments;
+	public Integer NumberOfQuantityInstallments;
 	public Integer NumberOfRevenueInstallments;
 	public String ProductCode;
 	public String QuantityInstallmentPeriod;
@@ -64,6 +71,7 @@ public class Product2 extends SObject {
 	public String RevenueInstallmentPeriod;
 	public String RevenueScheduleType;
 	public String StockKeepingUnit;
+	public Datetime SystemModstamp;
 
 	public ActivityHistory[] ActivityHistories;
 	public Asset[] Assets;
@@ -82,6 +90,7 @@ public class Product2 extends SObject {
 	public PricebookEntry[] PricebookEntries;
 	public ProcessInstance[] ProcessInstances;
 	public ProcessInstanceHistory[] ProcessSteps;
+	public ProductConsumptionSchedule[] ProductConsumptionSchedules;
 	public RecordActionHistory[] RecordActionHistories;
 	public RecordAction[] RecordActions;
 	public Task[] Tasks;

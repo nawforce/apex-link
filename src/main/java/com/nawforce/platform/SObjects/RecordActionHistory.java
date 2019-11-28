@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -43,13 +42,21 @@ public class RecordActionHistory extends SObject {
 	public String ActionDefinitionApiName;
 	public String ActionDefinitionLabel;
 	public String ActionType;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
+	public Id Id;
 	public Boolean IsMandatory;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LoggedTime;
 	public Id ParentRecordId;
 	public Account ParentRecord;
 	public String Pinned;
 	public String RecordActionId;
 	public String State;
+	public Datetime SystemModstamp;
 	public Id UserId;
 	public User User;
 }

@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -39,9 +39,11 @@ public class SetupEntityAccess extends SObject {
 	public static SObjectType$<SetupEntityAccess> SObjectType;
 	public static SObjectFields$<SetupEntityAccess> Fields;
 
+	public Id Id;
 	public Id ParentId;
 	public PermissionSet Parent;
 	public Id SetupEntityId;
 	public ApexClass SetupEntity;
 	public String SetupEntityType;
+	public Datetime SystemModstamp;
 }

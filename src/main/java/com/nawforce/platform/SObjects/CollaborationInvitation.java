@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -39,14 +39,22 @@ public class CollaborationInvitation extends SObject {
 	public static SObjectType$<CollaborationInvitation> SObjectType;
 	public static SObjectFields$<CollaborationInvitation> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
+	public Id Id;
 	public String InvitedUserEmail;
 	public String InvitedUserEmailNormalized;
 	public Id InviterId;
 	public User Inviter;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String OptionalMessage;
 	public Id ParentId;
 	public CollaborationInvitation Parent;
 	public Id SharedEntityId;
 	public CollaborationGroup SharedEntity;
 	public String Status;
+	public Datetime SystemModstamp;
 }

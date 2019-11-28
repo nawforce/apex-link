@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
@@ -40,6 +39,7 @@ public class ContentWorkspaceSubscription extends SObject {
 
 	public Id ContentWorkspaceId;
 	public ContentWorkspace ContentWorkspace;
+	public Id Id;
 	public Id UserId;
 	public User User;
 }

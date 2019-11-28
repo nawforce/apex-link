@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -42,10 +41,17 @@ public class Holiday extends SObject {
 	public static SObjectFields$<Holiday> Fields;
 
 	public Date ActivityDate;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Description;
 	public Integer EndTimeInMinutes;
-	public com.nawforce.platform.System.Boolean IsAllDay;
+	public Id Id;
+	public Boolean IsAllDay;
 	public Boolean IsRecurrence;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Name;
 	public Integer RecurrenceDayOfMonth;
 	public Integer RecurrenceDayOfWeekMask;
@@ -56,4 +62,5 @@ public class Holiday extends SObject {
 	public Date RecurrenceStartDate;
 	public String RecurrenceType;
 	public Integer StartTimeInMinutes;
+	public Datetime SystemModstamp;
 }

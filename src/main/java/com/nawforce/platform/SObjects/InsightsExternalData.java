@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -43,6 +42,9 @@ public class InsightsExternalData extends SObject {
 
 	public String Action;
 	public Integer CompressedMetadataLength;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Dataflow;
 	public String Description;
 	public String EdgemartAlias;
@@ -50,8 +52,13 @@ public class InsightsExternalData extends SObject {
 	public String EdgemartLabel;
 	public String FileName;
 	public String Format;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Boolean IsDependentOnLastUpload;
 	public Boolean IsIndependentParts;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Integer MetaDataLength;
 	public Blob MetadataJson;
 	public String NotificationEmail;
@@ -60,6 +67,7 @@ public class InsightsExternalData extends SObject {
 	public String Status;
 	public String StatusMessage;
 	public Datetime SubmittedDate;
+	public Datetime SystemModstamp;
 	public String Target;
 
 	public InsightsExternalDataPart[] ExternalDataIds;

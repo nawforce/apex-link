@@ -27,13 +27,11 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class AuthProvider extends SObject {
@@ -43,6 +41,7 @@ public class AuthProvider extends SObject {
 	public String AuthorizeUrl;
 	public String ConsumerKey;
 	public String ConsumerSecret;
+	public Datetime CreatedDate;
 	public String CustomMetadataTypeRecord;
 	public String DefaultScopes;
 	public String DeveloperName;
@@ -51,6 +50,7 @@ public class AuthProvider extends SObject {
 	public User ExecutionUser;
 	public String FriendlyName;
 	public String IconUrl;
+	public Id Id;
 	public String IdTokenIssuer;
 	public String LinkKickoffUrl;
 	public String LogoutUrl;

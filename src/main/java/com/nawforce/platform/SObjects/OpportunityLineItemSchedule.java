@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
@@ -39,12 +39,21 @@ public class OpportunityLineItemSchedule extends SObject {
 	public static SObjectType$<OpportunityLineItemSchedule> SObjectType;
 	public static SObjectFields$<OpportunityLineItemSchedule> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Description;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Id OpportunityLineItemId;
 	public OpportunityLineItem OpportunityLineItem;
 	public Decimal Quantity;
 	public Decimal Revenue;
 	public Date ScheduleDate;
+	public Datetime SystemModstamp;
 	public String Type;
 }

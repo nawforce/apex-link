@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -44,7 +43,9 @@ public class OauthToken extends SObject {
 	public Id AppMenuItemId;
 	public AppMenuItem AppMenuItem;
 	public String AppName;
+	public Datetime CreatedDate;
 	public String DeleteToken;
+	public Id Id;
 	public Datetime LastUsedDate;
 	public String RequestToken;
 	public Integer UseCount;

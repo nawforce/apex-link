@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -47,6 +46,9 @@ public class CampaignMember extends SObject {
 	public Id ContactId;
 	public Contact Contact;
 	public String Country;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Description;
 	public Boolean DoNotCall;
@@ -57,6 +59,11 @@ public class CampaignMember extends SObject {
 	public Boolean HasOptedOutOfEmail;
 	public Boolean HasOptedOutOfFax;
 	public Boolean HasResponded;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String LastName;
 	public Id LeadId;
 	public Lead Lead;

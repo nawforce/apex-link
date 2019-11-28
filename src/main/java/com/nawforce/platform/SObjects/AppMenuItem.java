@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -49,14 +48,22 @@ public class AppMenuItem extends SObject {
 	public String CanvasReferenceId;
 	public String CanvasSelectedLocations;
 	public String CanvasUrl;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Description;
 	public String IconUrl;
+	public Id Id;
 	public String InfoUrl;
 	public Boolean IsAccessible;
+	public Boolean IsDeleted;
 	public Boolean IsRegisteredDeviceOnly;
 	public Boolean IsUsingAdminAuthorization;
 	public Boolean IsVisible;
 	public String Label;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String LogoUrl;
 	public String MobileAppBinaryId;
 	public String MobileAppInstallUrl;
@@ -69,8 +76,9 @@ public class AppMenuItem extends SObject {
 	public String MobileStartUrl;
 	public String Name;
 	public String NamespacePrefix;
-	public com.nawforce.platform.System.Integer SortOrder;
+	public Integer SortOrder;
 	public String StartUrl;
+	public Datetime SystemModstamp;
 	public String Type;
 	public Integer UserSortOrder;
 }

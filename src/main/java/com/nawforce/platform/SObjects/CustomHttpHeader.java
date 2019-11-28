@@ -27,23 +27,29 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class CustomHttpHeader extends SObject {
 	public static SObjectType$<CustomHttpHeader> SObjectType;
 	public static SObjectFields$<CustomHttpHeader> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Description;
 	public String HeaderFieldName;
 	public String HeaderFieldValue;
+	public Id Id;
 	public Boolean IsActive;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Id ParentId;
 	public ExternalDataSource Parent;
+	public Datetime SystemModstamp;
 }

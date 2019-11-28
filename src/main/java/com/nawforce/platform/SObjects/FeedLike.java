@@ -27,9 +27,10 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
@@ -38,10 +39,15 @@ public class FeedLike extends SObject {
 	public static SObjectType$<FeedLike> SObjectType;
 	public static SObjectFields$<FeedLike> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Id FeedEntityId;
 	public AccountFeed FeedEntity;
 	public Id FeedItemId;
 	public AccountFeed FeedItem;
+	public Id Id;
 	public Id InsertedById;
 	public User InsertedBy;
+	public Boolean IsDeleted;
 }

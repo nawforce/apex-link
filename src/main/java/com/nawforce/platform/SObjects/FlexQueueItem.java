@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -43,6 +42,7 @@ public class FlexQueueItem extends SObject {
 	public Id AsyncApexJobId;
 	public AsyncApexJob AsyncApexJob;
 	public String FlexQueueItemId;
+	public Id Id;
 	public Integer JobPosition;
 	public String JobType;
 }

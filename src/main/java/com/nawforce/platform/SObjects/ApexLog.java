@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -42,6 +41,8 @@ public class ApexLog extends SObject {
 
 	public String Application;
 	public Integer DurationMilliseconds;
+	public Id Id;
+	public Datetime LastModifiedDate;
 	public String Location;
 	public Integer LogLength;
 	public Id LogUserId;
@@ -50,4 +51,5 @@ public class ApexLog extends SObject {
 	public String Request;
 	public Datetime StartTime;
 	public String Status;
+	public Datetime SystemModstamp;
 }

@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
@@ -46,6 +46,7 @@ public class DatacloudAddress extends SObject {
 	public String ExternalId;
 	public String GeoAccuracyCode;
 	public String GeoAccuracyNum;
+	public Id Id;
 	public String Latitude;
 	public String Longitude;
 	public String PostalCode;

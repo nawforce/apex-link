@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -41,8 +41,16 @@ public class CollaborationGroupMemberRequest extends SObject {
 
 	public Id CollaborationGroupId;
 	public CollaborationGroup CollaborationGroup;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
+	public Id Id;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Id RequesterId;
 	public User Requester;
 	public String ResponseMessage;
 	public String Status;
+	public Datetime SystemModstamp;
 }

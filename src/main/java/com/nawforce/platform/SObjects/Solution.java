@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -41,12 +40,19 @@ public class Solution extends SObject {
 	public static SObjectType$<Solution> SObjectType;
 	public static SObjectFields$<Solution> Fields;
 
-	public Id RecordTypeId;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Boolean IsHtml;
 	public Boolean IsPublished;
 	public Boolean IsPublishedInPublicKb;
 	public Boolean IsReviewed;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public Id OwnerId;
@@ -55,6 +61,7 @@ public class Solution extends SObject {
 	public String SolutionNote;
 	public String SolutionNumber;
 	public String Status;
+	public Datetime SystemModstamp;
 	public Integer TimesUsed;
 
 	public ActivityHistory[] ActivityHistories;

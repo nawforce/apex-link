@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -43,12 +42,21 @@ public class MailmergeTemplate extends SObject {
 
 	public Blob Body;
 	public Integer BodyLength;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Description;
 	public String Filename;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastUsedDate;
 	public String Name;
-	public com.nawforce.platform.System.Boolean SecurityOptionsAttachmentHasFlash;
-	public com.nawforce.platform.System.Boolean SecurityOptionsAttachmentHasXSSThreat;
-	public com.nawforce.platform.System.Boolean SecurityOptionsAttachmentScannedForXSS;
+	public Boolean SecurityOptionsAttachmentHasFlash;
+	public Boolean SecurityOptionsAttachmentHasXSSThreat;
+	public Boolean SecurityOptionsAttachmentScannedForXSS;
 	public Boolean SecurityOptionsAttachmentScannedforFlash;
+	public Datetime SystemModstamp;
 }

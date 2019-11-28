@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -51,6 +50,7 @@ public class FieldDefinition extends SObject {
 	public String DurableId;
 	public String EntityDefinitionId;
 	public String ExtraTypeInfo;
+	public Id Id;
 	public Boolean IsAiPredictionField;
 	public Boolean IsApiFilterable;
 	public Boolean IsApiGroupable;
@@ -71,10 +71,13 @@ public class FieldDefinition extends SObject {
 	public Boolean IsSearchPrefilterable;
 	public Boolean IsWorkflowFilterable;
 	public String Label;
-	public com.nawforce.platform.System.Integer Length;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
+	public Integer Length;
 	public String MasterLabel;
 	public String NamespacePrefix;
-	public com.nawforce.platform.System.Integer Precision;
+	public Integer Precision;
 	public String PublisherId;
 	public String QualifiedApiName;
 	public String ReferenceTargetField;

@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -45,6 +44,7 @@ public class UserRecordAccess extends SObject {
 	public Boolean HasEditAccess;
 	public Boolean HasReadAccess;
 	public Boolean HasTransferAccess;
+	public Id Id;
 	public String MaxAccessLevel;
 	public String RecordId;
 	public Id UserId;

@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -41,15 +40,24 @@ public class TenantUsageEntitlement extends SObject {
 	public static SObjectFields$<TenantUsageEntitlement> Fields;
 
 	public Decimal AmountUsed;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Decimal CurrentAmountAllowed;
 	public Date EndDate;
 	public String Frequency;
-	public com.nawforce.platform.System.Boolean HasRollover;
+	public Boolean HasRollover;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Boolean IsPersistentResource;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String MasterLabel;
 	public Decimal OverageGrace;
 	public String ResourceGroupKey;
 	public String Setting;
 	public Date StartDate;
+	public Datetime SystemModstamp;
 	public Datetime UsageDate;
 }

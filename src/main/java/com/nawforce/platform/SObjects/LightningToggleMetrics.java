@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -41,8 +40,10 @@ public class LightningToggleMetrics extends SObject {
 	public static SObjectFields$<LightningToggleMetrics> Fields;
 
 	public String Action;
+	public Id Id;
 	public Date MetricsDate;
 	public Integer RecordCount;
+	public Datetime SystemModstamp;
 	public Id UserId;
 	public User User;
 }

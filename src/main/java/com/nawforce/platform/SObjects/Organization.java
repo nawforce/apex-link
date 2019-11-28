@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -45,6 +44,9 @@ public class Organization extends SObject {
 	public String City;
 	public String ComplianceBccEmail;
 	public String Country;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String DefaultAccountAccess;
 	public String DefaultCalendarAccess;
 	public String DefaultCampaignAccess;
@@ -58,10 +60,14 @@ public class Organization extends SObject {
 	public String Fax;
 	public Integer FiscalYearStartMonth;
 	public String GeocodeAccuracy;
+	public Id Id;
 	public String InstanceName;
-	public com.nawforce.platform.System.Boolean IsReadOnly;
-	public com.nawforce.platform.System.Boolean IsSandbox;
+	public Boolean IsReadOnly;
+	public Boolean IsSandbox;
 	public String LanguageLocaleKey;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Decimal Latitude;
 	public Decimal Longitude;
 	public Integer MonthlyPageViewsEntitlement;
@@ -72,21 +78,21 @@ public class Organization extends SObject {
 	public String OrganizationType;
 	public String Phone;
 	public String PostalCode;
-	public com.nawforce.platform.System.Boolean PreferencesActivityAnalyticsEnabled;
-	public com.nawforce.platform.System.Boolean PreferencesAutoSelectIndividualOnMerge;
-	public com.nawforce.platform.System.Boolean PreferencesConsentManagementEnabled;
-	public com.nawforce.platform.System.Boolean PreferencesIndividualAutoCreateEnabled;
-	public com.nawforce.platform.System.Boolean PreferencesLightningLoginEnabled;
-	public com.nawforce.platform.System.Boolean PreferencesOnlyLLPermUserAllowed;
-	public com.nawforce.platform.System.Boolean PreferencesRequireOpportunityProducts;
-	public com.nawforce.platform.System.Boolean PreferencesTerminateOldestSession;
-	public com.nawforce.platform.System.Boolean PreferencesTransactionSecurityPolicy;
+	public Boolean PreferencesAutoSelectIndividualOnMerge;
+	public Boolean PreferencesConsentManagementEnabled;
+	public Boolean PreferencesIndividualAutoCreateEnabled;
+	public Boolean PreferencesLightningLoginEnabled;
+	public Boolean PreferencesOnlyLLPermUserAllowed;
+	public Boolean PreferencesRequireOpportunityProducts;
+	public Boolean PreferencesTerminateOldestSession;
+	public Boolean PreferencesTransactionSecurityPolicy;
 	public String PrimaryContact;
-	public com.nawforce.platform.System.Boolean ReceivesAdminInfoEmails;
-	public com.nawforce.platform.System.Boolean ReceivesInfoEmails;
+	public Boolean ReceivesAdminInfoEmails;
+	public Boolean ReceivesInfoEmails;
 	public String SignupCountryIsoCode;
 	public String State;
 	public String Street;
+	public Datetime SystemModstamp;
 	public String TimeZoneSidKey;
 	public Datetime TrialExpirationDate;
 	public String UiSkin;

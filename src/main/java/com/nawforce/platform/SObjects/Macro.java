@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -40,16 +39,25 @@ public class Macro extends SObject {
 	public static SObjectType$<Macro> SObjectType;
 	public static SObjectFields$<Macro> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Description;
+	public Id Id;
 	public Boolean IsAlohaSupported;
+	public Boolean IsDeleted;
 	public Boolean IsLightningSupported;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public String Name;
 	public Id OwnerId;
 	public Group Owner;
 	public String StartingContext;
+	public Datetime SystemModstamp;
 
-	public MacroHistory Histories;
+	public MacroHistory[] Histories;
 }

@@ -28,11 +28,9 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class EntityDefinition extends SObject {
@@ -42,6 +40,7 @@ public class EntityDefinition extends SObject {
 	public Id DataStewardId;
 	public Group DataSteward;
 	public String DefaultCompactLayoutId;
+	public String DeploymentStatus;
 	public String DetailUrl;
 	public String DeveloperName;
 	public String DurableId;
@@ -51,6 +50,7 @@ public class EntityDefinition extends SObject {
 	public Boolean HasSubtypes;
 	public String HelpSettingPageName;
 	public String HelpSettingPageUrl;
+	public Id Id;
 	public String InternalSharingModel;
 	public Boolean IsApexTriggerable;
 	public Boolean IsAutoActivityCaptureEnabled;
@@ -76,6 +76,9 @@ public class EntityDefinition extends SObject {
 	public Boolean IsWorkflowEnabled;
 	public String KeyPrefix;
 	public String Label;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String MasterLabel;
 	public String NamespacePrefix;
 	public String NewUrl;

@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
@@ -40,9 +40,17 @@ public class OrderItem extends SObject {
 	public static SObjectFields$<OrderItem> Fields;
 
 	public Decimal AvailableQuantity;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Description;
 	public Date EndDate;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Decimal ListPrice;
 	public Id OrderId;
 	public Order Order;
@@ -55,6 +63,7 @@ public class OrderItem extends SObject {
 	public Product2 Product2;
 	public Decimal Quantity;
 	public Date ServiceDate;
+	public Datetime SystemModstamp;
 	public Decimal TotalPrice;
 	public Decimal UnitPrice;
 

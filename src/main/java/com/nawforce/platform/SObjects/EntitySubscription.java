@@ -27,9 +27,10 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
@@ -38,6 +39,11 @@ public class EntitySubscription extends SObject {
 	public static SObjectType$<EntitySubscription> SObjectType;
 	public static SObjectFields$<EntitySubscription> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Id ParentId;
 	public Account Parent;
 	public Id SubscriberId;

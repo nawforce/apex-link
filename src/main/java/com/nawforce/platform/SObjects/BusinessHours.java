@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -40,18 +39,26 @@ public class BusinessHours extends SObject {
 	public static SObjectType$<BusinessHours> SObjectType;
 	public static SObjectFields$<BusinessHours> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Time FridayEndTime;
 	public Time FridayStartTime;
+	public Id Id;
 	public Boolean IsActive;
 	public Boolean IsDefault;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastViewedDate;
 	public Time MondayEndTime;
 	public Time MondayStartTime;
-	public com.nawforce.platform.System.String Name;
+	public String Name;
 	public Time SaturdayEndTime;
 	public Time SaturdayStartTime;
 	public Time SundayEndTime;
 	public Time SundayStartTime;
+	public Datetime SystemModstamp;
 	public Time ThursdayEndTime;
 	public Time ThursdayStartTime;
 	public String TimeZoneSidKey;

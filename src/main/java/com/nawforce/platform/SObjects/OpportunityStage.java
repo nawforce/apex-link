@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -42,13 +41,21 @@ public class OpportunityStage extends SObject {
 	public static SObjectFields$<OpportunityStage> Fields;
 
 	public String ApiName;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Decimal DefaultProbability;
 	public String Description;
 	public String ForecastCategory;
 	public String ForecastCategoryName;
+	public Id Id;
 	public Boolean IsActive;
 	public Boolean IsClosed;
 	public Boolean IsWon;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String MasterLabel;
 	public Integer SortOrder;
+	public Datetime SystemModstamp;
 }

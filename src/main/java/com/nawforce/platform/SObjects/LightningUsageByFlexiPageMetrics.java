@@ -27,13 +27,12 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Date;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
+
 
 @SuppressWarnings("unused")
 public class LightningUsageByFlexiPageMetrics extends SObject {
@@ -42,8 +41,10 @@ public class LightningUsageByFlexiPageMetrics extends SObject {
 
 	public String FlexiPageNameOrId;
 	public String FlexiPageType;
+	public Id Id;
 	public Date MetricsDate;
 	public Integer RecordCountEPT;
 	public Integer SumEPT;
+	public Datetime SystemModstamp;
 	public Integer TotalCount;
 }

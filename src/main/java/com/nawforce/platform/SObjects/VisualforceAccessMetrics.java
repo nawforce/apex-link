@@ -27,13 +27,10 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Date;
-import com.nawforce.platform.System.Id;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class VisualforceAccessMetrics extends SObject {
@@ -43,8 +40,10 @@ public class VisualforceAccessMetrics extends SObject {
 	public Id ApexPageId;
 	public ApexPage ApexPage;
 	public Integer DailyPageViewCount;
+	public Id Id;
 	public Date LogDate;
 	public Date MetricsDate;
 	public Id ProfileId;
 	public Profile Profile;
+	public Datetime SystemModstamp;
 }

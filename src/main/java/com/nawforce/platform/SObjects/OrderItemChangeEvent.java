@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
@@ -41,9 +40,16 @@ public class OrderItemChangeEvent extends SObject {
 
 	public Decimal AvailableQuantity;
 	public Object ChangeEventHeader;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Description;
 	public Date EndDate;
+	public Id Id;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Decimal ListPrice;
 	public Id OrderId;
 	public Order Order;

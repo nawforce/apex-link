@@ -27,23 +27,31 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class UserProvisioningLog extends SObject {
 	public static SObjectType$<UserProvisioningLog> SObjectType;
 	public static SObjectFields$<UserProvisioningLog> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Details;
 	public String ExternalUserId;
 	public String ExternalUsername;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Name;
 	public String Status;
+	public Datetime SystemModstamp;
 	public Id UserId;
 	public User User;
 	public Id UserProvisioningRequestId;

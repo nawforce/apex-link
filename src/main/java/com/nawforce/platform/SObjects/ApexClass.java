@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -44,11 +43,19 @@ public class ApexClass extends SObject {
 	public Decimal ApiVersion;
 	public String Body;
 	public Decimal BodyCrc;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
+	public Id Id;
 	public Boolean IsValid;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Integer LengthWithoutComments;
 	public String Name;
 	public String NamespacePrefix;
 	public String Status;
+	public Datetime SystemModstamp;
 
 	public SetupEntityAccess[] SetupEntityAccessItems;
 }

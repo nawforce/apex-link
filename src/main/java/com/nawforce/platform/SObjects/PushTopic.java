@@ -27,13 +27,11 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Decimal;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class PushTopic extends SObject {
@@ -41,8 +39,16 @@ public class PushTopic extends SObject {
 	public static SObjectFields$<PushTopic> Fields;
 
 	public Decimal ApiVersion;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Description;
+	public Id Id;
 	public Boolean IsActive;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Name;
 	public String NotifyForFields;
 	public Boolean NotifyForOperationCreate;
@@ -51,4 +57,5 @@ public class PushTopic extends SObject {
 	public Boolean NotifyForOperationUpdate;
 	public String NotifyForOperations;
 	public String Query;
+	public Datetime SystemModstamp;
 }

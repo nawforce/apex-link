@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -41,9 +41,11 @@ public class ChatterActivity extends SObject {
 
 	public Integer CommentCount;
 	public Integer CommentReceivedCount;
+	public Id Id;
 	public Integer InfluenceRawRank;
 	public Integer LikeReceivedCount;
 	public Id ParentId;
 	public User Parent;
 	public Integer PostCount;
+	public Datetime SystemModstamp;
 }

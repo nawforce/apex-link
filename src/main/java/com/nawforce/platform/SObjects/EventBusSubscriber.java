@@ -27,12 +27,13 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+
 
 @SuppressWarnings("unused")
 public class EventBusSubscriber extends SObject {
@@ -41,6 +42,7 @@ public class EventBusSubscriber extends SObject {
 
 	public String CurrencyIsoCode;
 	public String ExternalId;
+	public Id Id;
 	public String LastError;
 	public String Name;
 	public Integer Position;

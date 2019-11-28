@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -49,10 +48,17 @@ public class CaseChangeEvent extends SObject {
 	public Datetime ClosedDate;
 	public Id ContactId;
 	public Contact Contact;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Description;
-	public com.nawforce.platform.System.Boolean IsClosed;
+	public Id Id;
+	public Boolean IsClosed;
 	public Boolean IsEscalated;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Origin;
 	public Id OwnerId;
 	public User Owner;

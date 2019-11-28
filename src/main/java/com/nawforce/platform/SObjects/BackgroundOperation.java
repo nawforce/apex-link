@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -40,6 +40,9 @@ public class BackgroundOperation extends SObject {
 	public static SObjectType$<BackgroundOperation> SObjectType;
 	public static SObjectFields$<BackgroundOperation> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Error;
 	public String ExecutionGroup;
@@ -47,18 +50,24 @@ public class BackgroundOperation extends SObject {
 	public Datetime FinishedAt;
 	public Id GroupLeaderId;
 	public BackgroundOperation GroupLeader;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Name;
-	public com.nawforce.platform.System.Integer NumFollowers;
+	public Integer NumFollowers;
 	public String ParentKey;
 	public Datetime ProcessAfter;
-	public com.nawforce.platform.System.Integer RetryBackoff;
-	public com.nawforce.platform.System.Integer RetryCount;
-	public com.nawforce.platform.System.Integer RetryLimit;
+	public Integer RetryBackoff;
+	public Integer RetryCount;
+	public Integer RetryLimit;
 	public String SequenceGroup;
-	public com.nawforce.platform.System.Integer SequenceNumber;
+	public Integer SequenceNumber;
 	public Datetime StartedAt;
 	public String Status;
 	public Datetime SubmittedAt;
+	public Datetime SystemModstamp;
 	public Integer Timeout;
 	public String WorkerUri;
 

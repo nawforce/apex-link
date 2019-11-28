@@ -27,13 +27,11 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class SamlSsoConfig extends SObject {
@@ -43,14 +41,22 @@ public class SamlSsoConfig extends SObject {
 	public String AttributeFormat;
 	public String AttributeName;
 	public String Audience;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String DeveloperName;
 	public String ErrorUrl;
 	public Id ExecutionUserId;
 	public User ExecutionUser;
+	public Id Id;
 	public String IdentityLocation;
 	public String IdentityMapping;
+	public Boolean IsDeleted;
 	public String Issuer;
 	public String Language;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String LoginUrl;
 	public String LogoutUrl;
 	public String MasterLabel;
@@ -62,6 +68,7 @@ public class SamlSsoConfig extends SObject {
 	public ApexClass SamlJitHandler;
 	public String SingleLogoutBinding;
 	public String SingleLogoutUrl;
+	public Datetime SystemModstamp;
 	public String ValidationCert;
 	public String Version;
 }

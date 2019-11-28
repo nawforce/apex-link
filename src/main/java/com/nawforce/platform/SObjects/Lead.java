@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -55,6 +54,9 @@ public class Lead extends SObject {
 	public Id ConvertedOpportunityId;
 	public Opportunity ConvertedOpportunity;
 	public String Country;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public Id DandbCompanyId;
 	public DandBCompany DandbCompany;
@@ -66,12 +68,19 @@ public class Lead extends SObject {
 	public String Fax;
 	public String FirstName;
 	public String GeocodeAccuracy;
+	public Id Id;
+	public Id IndividualId;
+	public Individual Individual;
 	public String Industry;
-	public com.nawforce.platform.System.Boolean IsConverted;
+	public Boolean IsConverted;
+	public Boolean IsDeleted;
 	public Boolean IsUnreadByOwner;
 	public String Jigsaw;
 	public String JigsawContactId;
 	public Date LastActivityDate;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String LastName;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
@@ -93,6 +102,7 @@ public class Lead extends SObject {
 	public String State;
 	public String Status;
 	public String Street;
+	public Datetime SystemModstamp;
 	public String Title;
 	public String Website;
 
@@ -102,6 +112,7 @@ public class Lead extends SObject {
 	public Attachment[] Attachments;
 	public CampaignMember[] CampaignMembers;
 	public CombinedAttachment[] CombinedAttachments;
+	public ContactRequest[] ContactRequests;
 	public ContentDocumentLink[] ContentDocumentLinks;
 	public DeclinedEventRelation[] DeclinedEventRelations;
 	public DuplicateRecordItem[] DuplicateRecordItems;

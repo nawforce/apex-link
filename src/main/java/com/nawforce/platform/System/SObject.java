@@ -34,7 +34,7 @@ import com.nawforce.platform.Schema.SObjectType;
 
 @SuppressWarnings("unused")
 public class SObject {
-	// Future: This set is not consistent across SObjects, surprise, need to generate individually
+	// Future: Slim this set
 	public Id Id;
 	public Id OwnerId;
 	public String Name;
@@ -46,14 +46,6 @@ public class SObject {
 	public List<Task> Tasks;					// Future: Only if Allow Activities is selected
 	public RecordType RecordType;
 	public String CurrencyIsoCode;
-	public Boolean IsDeleted;
-	public Id CreatedById;
-	public User CreatedBy;
-	public Datetime CreatedDate;
-	public Id LastModifiedById;
-	public User LastModifiedBy;
-	public Datetime LastModifiedDate;
-	public Datetime SystemModstamp;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public Datetime LastActivityDate;		// Future: Only if Allow Activities is selected

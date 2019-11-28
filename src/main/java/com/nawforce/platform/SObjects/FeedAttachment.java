@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -41,6 +41,8 @@ public class FeedAttachment extends SObject {
 
 	public Id FeedEntityId;
 	public AccountFeed FeedEntity;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Id RecordId;
 	public ContentDocument Record;
 	public String Title;

@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -39,9 +39,11 @@ public class ContentNotification extends SObject {
 	public static SObjectType$<ContentNotification> SObjectType;
 	public static SObjectFields$<ContentNotification> Fields;
 
+	public Datetime CreatedDate;
 	public Id EntityIdentifierId;
 	public ContentDocument EntityIdentifier;
 	public String EntityType;
+	public Id Id;
 	public String Nature;
 	public String Subject;
 	public String Text;

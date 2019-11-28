@@ -27,20 +27,25 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class Topic extends SObject {
 	public static SObjectType$<Topic> SObjectType;
 	public static SObjectFields$<Topic> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Description;
+	public Id Id;
+	public String ManagedTopicType;
 	public String Name;
+	public Datetime SystemModstamp;
 	public Integer TalkingAbout;
 
 	public ContentDocumentLink[] ContentDocumentLinks;

@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -44,14 +43,23 @@ public class Scontrol extends SObject {
 	public Blob Binary;
 	public Integer BodyLength;
 	public String ContentSource;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Description;
 	public String DeveloperName;
 	public String EncodingKey;
 	public String Filename;
 	public String HtmlWrapper;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Name;
 	public String NamespacePrefix;
 	public Boolean SupportsCaching;
+	public Datetime SystemModstamp;
 
 	public ScontrolLocalization[] Localization;
 }

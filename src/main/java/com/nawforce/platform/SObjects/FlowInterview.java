@@ -27,25 +27,33 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class FlowInterview extends SObject {
 	public static SObjectType$<FlowInterview> SObjectType;
 	public static SObjectFields$<FlowInterview> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrentElement;
 	public String Guid;
+	public Id Id;
 	public String InterviewLabel;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Name;
 	public Id OwnerId;
 	public Group Owner;
 	public String PauseLabel;
+	public Datetime SystemModstamp;
 
 	public RecordAction[] RecordActions;
 	public FlowRecordRelation[] RecordRelations;

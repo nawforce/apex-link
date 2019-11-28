@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
@@ -45,6 +44,9 @@ public class ContactChangeEvent extends SObject {
 	public String AssistantPhone;
 	public Date Birthdate;
 	public Object ChangeEventHeader;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Department;
 	public String Description;
@@ -54,10 +56,16 @@ public class ContactChangeEvent extends SObject {
 	public String Fax;
 	public String FirstName;
 	public String HomePhone;
+	public Id Id;
+	public Id IndividualId;
+	public Individual Individual;
 	public String Jigsaw;
 	public String JigsawContactId;
 	public Datetime LastCURequestDate;
 	public Datetime LastCUUpdateDate;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String LastName;
 	public String LeadSource;
 	public Address MailingAddress;

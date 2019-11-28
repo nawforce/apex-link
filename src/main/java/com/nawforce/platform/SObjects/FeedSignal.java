@@ -27,25 +27,29 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Id;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class FeedSignal extends SObject {
 	public static SObjectType$<FeedSignal> SObjectType;
 	public static SObjectFields$<FeedSignal> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Id FeedEntityId;
 	public AccountFeed FeedEntity;
 	public Id FeedItemId;
 	public AccountFeed FeedItem;
+	public Id Id;
 	public Id InsertedById;
 	public User InsertedBy;
+	public Boolean IsDeleted;
 	public String SignalType;
 	public Integer SignalValue;
 }

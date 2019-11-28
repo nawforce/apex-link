@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -41,8 +41,16 @@ public class EventLogFile extends SObject {
 	public static SObjectFields$<EventLogFile> Fields;
 
 	public Decimal ApiVersion;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String EventType;
+	public Id Id;
 	public String Interval;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LogDate;
 	public Blob LogFile;
 	public String LogFileContentType;
@@ -50,4 +58,5 @@ public class EventLogFile extends SObject {
 	public String LogFileFieldTypes;
 	public Decimal LogFileLength;
 	public Integer Sequence;
+	public Datetime SystemModstamp;
 }

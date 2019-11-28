@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
 @SuppressWarnings("unused")
@@ -37,4 +37,5 @@ public class ContentBody extends SObject {
 	public static SObjectType$<ContentBody> SObjectType;
 	public static SObjectFields$<ContentBody> Fields;
 
+	public Id Id;
 }

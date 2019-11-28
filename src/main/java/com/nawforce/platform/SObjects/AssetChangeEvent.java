@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -49,11 +48,18 @@ public class AssetChangeEvent extends SObject {
 	public Object ChangeEventHeader;
 	public Id ContactId;
 	public Contact Contact;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Description;
+	public Id Id;
 	public Date InstallDate;
-	public com.nawforce.platform.System.Boolean IsCompetitorProduct;
+	public Boolean IsCompetitorProduct;
 	public Boolean IsInternal;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Name;
 	public Id ParentId;
 	public Asset Parent;

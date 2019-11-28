@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -43,8 +42,17 @@ public class CampaignMemberStatus extends SObject {
 
 	public Id CampaignId;
 	public Campaign Campaign;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Boolean HasResponded;
+	public Id Id;
 	public Boolean IsDefault;
+	public Boolean IsDeleted;
 	public String Label;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Integer SortOrder;
+	public Datetime SystemModstamp;
 }

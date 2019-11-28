@@ -27,25 +27,27 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Datetime;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class UserLicense extends SObject {
 	public static SObjectType$<UserLicense> SObjectType;
 	public static SObjectFields$<UserLicense> Fields;
 
+	public Datetime CreatedDate;
+	public Id Id;
+	public Datetime LastModifiedDate;
 	public String LicenseDefinitionKey;
 	public String MasterLabel;
 	public Integer MonthlyLoginsEntitlement;
 	public Integer MonthlyLoginsUsed;
 	public String Name;
 	public String Status;
+	public Datetime SystemModstamp;
 	public Integer TotalLicenses;
 	public Integer UsedLicenses;
 	public Datetime UsedLicensesLastUpdated;

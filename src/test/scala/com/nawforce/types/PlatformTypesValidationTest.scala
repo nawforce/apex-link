@@ -48,7 +48,7 @@ class PlatformTypesValidationTest extends FunSuite {
   )
 
   test("Right number of types (should exclude inners)") {
-    assert(PlatformTypeDeclaration.classNames.size == 1322)
+    assert(PlatformTypeDeclaration.classNames.size == 1379)
   }
 
   test("SObject type is visible") {
@@ -58,7 +58,7 @@ class PlatformTypesValidationTest extends FunSuite {
   }
 
   test("All outer types are valid") {
-    PlatformTypeDeclaration.classNames.foreach(className => {
+    PlatformTypeDeclaration.classNames.toSeq.sortBy(_.toString).foreach(className => {
       if (!generics.contains(className.toString)) {
         val typeDeclaration = PlatformTypeDeclaration.get(className.asTypeName(), None)
         assert(typeDeclaration.isRight)

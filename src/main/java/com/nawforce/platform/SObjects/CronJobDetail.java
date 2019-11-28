@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
@@ -38,6 +38,7 @@ public class CronJobDetail extends SObject {
 	public static SObjectType$<CronJobDetail> SObjectType;
 	public static SObjectFields$<CronJobDetail> Fields;
 
+	public Id Id;
 	public String JobType;
 	public String Name;
 }

@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -44,10 +44,12 @@ public class Period extends SObject {
 	public Id FiscalYearSettingsId;
 	public FiscalYearSettings FiscalYearSettings;
 	public String FullyQualifiedLabel;
-	public com.nawforce.platform.System.Boolean IsForecastPeriod;
+	public Id Id;
+	public Boolean IsForecastPeriod;
 	public Integer Number;
 	public String PeriodLabel;
 	public String QuarterLabel;
 	public Date StartDate;
+	public Datetime SystemModstamp;
 	public String Type;
 }

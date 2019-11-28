@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -43,10 +42,18 @@ public class UserProvisioningConfig extends SObject {
 	public String ApprovalRequired;
 	public Id ConnectedAppId;
 	public ConnectedApplication ConnectedApp;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String DeveloperName;
 	public Boolean Enabled;
 	public String EnabledOperations;
+	public Id Id;
+	public Boolean IsDeleted;
 	public String Language;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReconDateTime;
 	public String MasterLabel;
 	public Id NamedCredentialId;
@@ -55,5 +62,6 @@ public class UserProvisioningConfig extends SObject {
 	public String Notes;
 	public String OnUpdateAttributes;
 	public String ReconFilter;
+	public Datetime SystemModstamp;
 	public String UserAccountMapping;
 }

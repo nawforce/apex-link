@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -42,14 +41,25 @@ public class RecordAction extends SObject {
 	public static SObjectFields$<RecordAction> Fields;
 
 	public String ActionDefinition;
+	public String ActionType;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String FlowDefinition;
 	public Id FlowInterviewId;
 	public FlowInterview FlowInterview;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Boolean IsMandatory;
+	public Boolean IsUiRemoveHidden;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Integer Order;
 	public String Pinned;
 	public Id RecordId;
 	public Account Record;
 	public String Status;
+	public Datetime SystemModstamp;
 }

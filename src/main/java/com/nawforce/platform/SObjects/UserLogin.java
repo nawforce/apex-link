@@ -27,10 +27,10 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 
@@ -39,8 +39,12 @@ public class UserLogin extends SObject {
 	public static SObjectType$<UserLogin> SObjectType;
 	public static SObjectFields$<UserLogin> Fields;
 
+	public Id Id;
 	public Boolean IsFrozen;
 	public Boolean IsPasswordLocked;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Id UserId;
 	public User User;
 }

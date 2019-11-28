@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -48,6 +47,7 @@ public class ApexTestResult extends SObject {
 	public ApexTestRunResult ApexTestRunResult;
 	public Id AsyncApexJobId;
 	public AsyncApexJob AsyncApexJob;
+	public Id Id;
 	public String Message;
 	public String MethodName;
 	public String Outcome;
@@ -55,6 +55,7 @@ public class ApexTestResult extends SObject {
 	public ApexTestQueueItem QueueItem;
 	public Integer RunTime;
 	public String StackTrace;
+	public Datetime SystemModstamp;
 	public Datetime TestTimestamp;
 
 	public ApexTestResultLimits[] ApexTestResults;

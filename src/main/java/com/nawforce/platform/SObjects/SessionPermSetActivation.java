@@ -27,12 +27,11 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class SessionPermSetActivation extends SObject {
@@ -41,9 +40,18 @@ public class SessionPermSetActivation extends SObject {
 
 	public Id AuthSessionId;
 	public AuthSession AuthSession;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Description;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Id PermissionSetId;
 	public PermissionSet PermissionSet;
+	public Datetime SystemModstamp;
 	public Id UserId;
 	public User User;
 }

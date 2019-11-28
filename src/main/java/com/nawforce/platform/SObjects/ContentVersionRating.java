@@ -27,13 +27,11 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Id;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class ContentVersionRating extends SObject {
@@ -42,6 +40,8 @@ public class ContentVersionRating extends SObject {
 
 	public Id ContentVersionId;
 	public ContentVersion ContentVersion;
+	public Id Id;
+	public Datetime LastModifiedDate;
 	public Integer Rating;
 	public String UserComment;
 	public Id UserId;
