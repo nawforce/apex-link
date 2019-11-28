@@ -27,5 +27,6 @@
 */
 package com.nawforce.platform.Database;
 
+@SuppressWarnings("unused")
 public interface Stateful {
 }

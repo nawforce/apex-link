@@ -28,5 +28,5 @@
 package com.nawforce.platform.Database;
 
 @SuppressWarnings("unused")
-public interface AllowsCallouts {
+public interface RaisesPlatformEvents {
 }
