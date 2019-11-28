@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -40,9 +39,11 @@ public class LightningExitByPageMetrics extends SObject {
 	public static SObjectType$<LightningExitByPageMetrics> SObjectType;
 	public static SObjectFields$<LightningExitByPageMetrics> Fields;
 
+	public Id Id;
 	public Date MetricsDate;
 	public String PageName;
 	public Integer RecordCount;
+	public Datetime SystemModstamp;
 	public Id UserId;
 	public User User;
 }

@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -45,6 +44,9 @@ public class Contact extends SObject {
 	public String AssistantName;
 	public String AssistantPhone;
 	public Date Birthdate;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Department;
 	public String Description;
@@ -56,12 +58,19 @@ public class Contact extends SObject {
 	public String Fax;
 	public String FirstName;
 	public String HomePhone;
+	public Id Id;
+	public Id IndividualId;
+	public Individual Individual;
+	public Boolean IsDeleted;
 	public Boolean IsEmailBounced;
 	public String Jigsaw;
 	public String JigsawContactId;
 	public Date LastActivityDate;
 	public Datetime LastCURequestDate;
 	public Datetime LastCUUpdateDate;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String LastName;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
@@ -96,6 +105,7 @@ public class Contact extends SObject {
 	public Id ReportsToId;
 	public Contact ReportsTo;
 	public String Salutation;
+	public Datetime SystemModstamp;
 	public String Title;
 
 	public AcceptedEventRelation[] AcceptedEventRelations;
@@ -108,6 +118,7 @@ public class Contact extends SObject {
 	public CaseContactRole[] CaseContactRoles;
 	public Case[] Cases;
 	public CombinedAttachment[] CombinedAttachments;
+	public ContactRequest[] ContactRequests;
 	public ContentDocumentLink[] ContentDocumentLinks;
 	public ContractContactRole[] ContractContactRoles;
 	public Contract[] ContractsSigned;
@@ -129,6 +140,7 @@ public class Contact extends SObject {
 	public UserEmailPreferredPerson[] PersonRecord;
 	public ProcessInstance[] ProcessInstances;
 	public ProcessInstanceHistory[] ProcessSteps;
+	public Quote[] Quotes;
 	public RecordActionHistory[] RecordActionHistories;
 	public RecordAction[] RecordActions;
 	public CollaborationGroupRecord[] RecordAssociatedGroups;

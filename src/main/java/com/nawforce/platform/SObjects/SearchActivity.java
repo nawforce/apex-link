@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -45,11 +45,20 @@ public class SearchActivity extends SObject {
 	public String ClickedRecordName;
 	public Integer CountQueries;
 	public Integer CountUsers;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
+	public Id Id;
+	public Boolean IsDeleted;
 	public String KbChannel;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Name;
 	public String Period;
 	public Date QueryDate;
 	public String QueryLanguage;
 	public String SearchTerm;
+	public Datetime SystemModstamp;
 }

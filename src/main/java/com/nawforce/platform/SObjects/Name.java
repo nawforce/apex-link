@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -43,6 +42,7 @@ public class Name extends SObject {
 	public String Alias;
 	public String Email;
 	public String FirstName;
+	public Id Id;
 	public Boolean IsActive;
 	public String LastName;
 	public Datetime LastReferencedDate;
@@ -52,6 +52,8 @@ public class Name extends SObject {
 	public String Phone;
 	public Id ProfileId;
 	public Profile Profile;
+	public Id RecordTypeId;
+	public RecordType RecordType;
 	public String Title;
 	public String Type;
 	public Id UserRoleId;

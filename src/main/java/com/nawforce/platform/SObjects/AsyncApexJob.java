@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -43,13 +42,17 @@ public class AsyncApexJob extends SObject {
 	public Id ApexClassId;
 	public ApexClass ApexClass;
 	public Datetime CompletedDate;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String ExtendedStatus;
-	public com.nawforce.platform.System.Integer JobItemsProcessed;
+	public Id Id;
+	public Integer JobItemsProcessed;
 	public String JobType;
 	public String LastProcessed;
-	public com.nawforce.platform.System.Integer LastProcessedOffset;
+	public Integer LastProcessedOffset;
 	public String MethodName;
-	public com.nawforce.platform.System.Integer NumberOfErrors;
+	public Integer NumberOfErrors;
 	public Id ParentJobId;
 	public AsyncApexJob ParentJob;
 	public String Status;

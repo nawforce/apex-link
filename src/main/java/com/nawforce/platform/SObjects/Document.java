@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -44,19 +44,28 @@ public class Document extends SObject {
 	public User Author;
 	public Blob Body;
 	public Integer BodyLength;
-	public com.nawforce.platform.System.String ContentType;
-	public com.nawforce.platform.System.String Description;
-	public com.nawforce.platform.System.String DeveloperName;
+	public String ContentType;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
+	public String Description;
+	public String DeveloperName;
 	public Id FolderId;
 	public Folder Folder;
-	public com.nawforce.platform.System.Boolean IsBodySearchable;
-	public com.nawforce.platform.System.Boolean IsInternalUseOnly;
-	public com.nawforce.platform.System.Boolean IsPublic;
-	public com.nawforce.platform.System.String Keywords;
+	public Id Id;
+	public Boolean IsBodySearchable;
+	public Boolean IsDeleted;
+	public Boolean IsInternalUseOnly;
+	public Boolean IsPublic;
+	public String Keywords;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
-	public com.nawforce.platform.System.String Name;
-	public com.nawforce.platform.System.String NamespacePrefix;
-	public com.nawforce.platform.System.String Type;
+	public String Name;
+	public String NamespacePrefix;
+	public Datetime SystemModstamp;
+	public String Type;
 	public String Url;
 }

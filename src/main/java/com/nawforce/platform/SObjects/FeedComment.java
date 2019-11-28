@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -42,11 +41,16 @@ public class FeedComment extends SObject {
 
 	public String CommentBody;
 	public String CommentType;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Id FeedItemId;
 	public AccountFeed FeedItem;
 	public Boolean HasEntityLinks;
+	public Id Id;
 	public Id InsertedById;
 	public User InsertedBy;
+	public Boolean IsDeleted;
 	public Boolean IsRichText;
 	public Boolean IsVerified;
 	public Id LastEditById;
@@ -56,9 +60,10 @@ public class FeedComment extends SObject {
 	public Account Parent;
 	public Id RelatedRecordId;
 	public ContentVersion RelatedRecord;
-	public com.nawforce.platform.System.Integer Revision;
+	public Integer Revision;
 	public String Status;
-	public com.nawforce.platform.System.Integer ThreadChildrenCount;
+	public Datetime SystemModstamp;
+	public Integer ThreadChildrenCount;
 	public Datetime ThreadLastUpdatedDate;
 	public Integer ThreadLevel;
 	public Id ThreadParentId;

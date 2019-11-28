@@ -27,13 +27,11 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Datetime;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class AssetRelationship extends SObject {
@@ -43,13 +41,22 @@ public class AssetRelationship extends SObject {
 	public Id AssetId;
 	public Asset Asset;
 	public String AssetRelationshipNumber;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public Datetime FromDate;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public Id RelatedAssetId;
 	public Asset RelatedAsset;
 	public String RelationshipType;
+	public Datetime SystemModstamp;
 	public Datetime ToDate;
 
 	public ActivityHistory[] ActivityHistories;
@@ -58,11 +65,13 @@ public class AssetRelationship extends SObject {
 	public ContentDocumentLink[] ContentDocumentLinks;
 	public EmailMessage[] Emails;
 	public Event[] Events;
-	public EntitySubscription []FeedSubscriptionsForEntity;
+	public EntitySubscription[] FeedSubscriptionsForEntity;
 	public AssetRelationshipFeed[] Feeds;
 	public AssetRelationshipHistory[] Histories;
 	public OpenActivity[] OpenActivities;
 	public ProcessInstance[] ProcessInstances;
 	public ProcessInstanceHistory[] ProcessSteps;
+	public RecordActionHistory[] RecordActionHistories;
+	public RecordAction[] RecordActions;
 	public Task[] Tasks;
 }

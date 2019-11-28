@@ -27,12 +27,10 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Decimal;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class ProcessInstanceWorkitem extends SObject {
@@ -41,11 +39,17 @@ public class ProcessInstanceWorkitem extends SObject {
 
 	public Id ActorId;
 	public Group Actor;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Decimal ElapsedTimeInDays;
 	public Decimal ElapsedTimeInHours;
 	public Decimal ElapsedTimeInMinutes;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Id OriginalActorId;
 	public Group OriginalActor;
 	public Id ProcessInstanceId;
 	public ProcessInstance ProcessInstance;
+	public Datetime SystemModstamp;
 }

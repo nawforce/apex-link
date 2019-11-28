@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -43,6 +42,7 @@ public class FiscalYearSettings extends SObject {
 
 	public String Description;
 	public Date EndDate;
+	public Id Id;
 	public Boolean IsStandardYear;
 	public String Name;
 	public Id PeriodId;
@@ -52,6 +52,7 @@ public class FiscalYearSettings extends SObject {
 	public String QuarterLabelScheme;
 	public String QuarterPrefix;
 	public Date StartDate;
+	public Datetime SystemModstamp;
 	public String WeekLabelScheme;
 	public Integer WeekStartDay;
 	public String YearType;

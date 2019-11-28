@@ -27,13 +27,12 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Id;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class FeedPollChoice extends SObject {
@@ -41,8 +40,13 @@ public class FeedPollChoice extends SObject {
 	public static SObjectFields$<FeedPollChoice> Fields;
 
 	public String ChoiceBody;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Id FeedItemId;
 	public AccountFeed FeedItem;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Integer Position;
 
 	public FeedPollVote[] FeedPollVotes;

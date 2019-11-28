@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -46,15 +45,22 @@ public class CollaborationGroup extends SObject {
 	public String BannerPhotoUrl;
 	public Boolean CanHaveGuests;
 	public String CollaborationType;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Description;
 	public String FullPhotoUrl;
 	public Boolean HasPrivateFieldsAccess;
+	public Id Id;
 	public String InformationBody;
 	public String InformationTitle;
 	public Boolean IsArchived;
 	public Boolean IsAutoArchiveDisabled;
 	public Boolean IsBroadcast;
 	public Datetime LastFeedModifiedDate;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public String MediumPhotoUrl;
@@ -63,6 +69,7 @@ public class CollaborationGroup extends SObject {
 	public Id OwnerId;
 	public User Owner;
 	public String SmallPhotoUrl;
+	public Datetime SystemModstamp;
 
 	public AttachedContentDocument[] AttachedContentDocuments;
 	public CollaborationGroupRecord[] CollaborationGroupRecords;

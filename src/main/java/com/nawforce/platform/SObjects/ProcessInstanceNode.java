@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
@@ -40,15 +40,24 @@ public class ProcessInstanceNode extends SObject {
 	public static SObjectFields$<ProcessInstanceNode> Fields;
 
 	public Datetime CompletedDate;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Decimal ElapsedTimeInDays;
 	public Decimal ElapsedTimeInHours;
 	public Decimal ElapsedTimeInMinutes;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Id LastActorId;
 	public User LastActor;
-	public com.nawforce.platform.System.String NodeStatus;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
+	public String NodeStatus;
 	public Id ProcessInstanceId;
 	public ProcessInstance ProcessInstance;
 	public Id ProcessNodeId;
 	public ProcessNode ProcessNode;
 	public String ProcessNodeName;
+	public Datetime SystemModstamp;
 }

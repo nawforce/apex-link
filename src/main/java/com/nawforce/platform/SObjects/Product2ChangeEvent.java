@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -44,6 +43,9 @@ public class Product2ChangeEvent extends SObject {
 	public Boolean CanUseQuantitySchedule;
 	public Boolean CanUseRevenueSchedule;
 	public Object ChangeEventHeader;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Description;
 	public String DisplayUrl;
@@ -51,10 +53,14 @@ public class Product2ChangeEvent extends SObject {
 	public ExternalDataSource ExternalDataSource;
 	public String ExternalId;
 	public String Family;
+	public Id Id;
 	public Boolean IsActive;
 	public Boolean IsArchived;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Name;
-	public com.nawforce.platform.System.Integer NumberOfQuantityInstallments;
+	public Integer NumberOfQuantityInstallments;
 	public Integer NumberOfRevenueInstallments;
 	public String ProductCode;
 	public String QuantityInstallmentPeriod;

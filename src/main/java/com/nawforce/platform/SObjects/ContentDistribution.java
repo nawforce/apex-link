@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -45,25 +45,34 @@ public class ContentDistribution extends SObject {
 	public String ContentDownloadUrl;
 	public Id ContentVersionId;
 	public ContentVersion ContentVersion;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String DistributionPublicUrl;
 	public Datetime ExpiryDate;
 	public Datetime FirstViewDate;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastViewDate;
 	public String Name;
 	public Id OwnerId;
 	public User Owner;
 	public String Password;
 	public String PdfDownloadUrl;
-	public com.nawforce.platform.System.Boolean PreferencesAllowOriginalDownload;
-	public com.nawforce.platform.System.Boolean PreferencesAllowPDFDownload;
-	public com.nawforce.platform.System.Boolean PreferencesAllowViewInBrowser;
-	public com.nawforce.platform.System.Boolean PreferencesExpires;
-	public com.nawforce.platform.System.Boolean PreferencesLinkLatestVersion;
-	public com.nawforce.platform.System.Boolean PreferencesNotifyOnVisit;
-	public com.nawforce.platform.System.Boolean PreferencesNotifyRndtnComplete;
-	public com.nawforce.platform.System.Boolean PreferencesPasswordRequired;
+	public Boolean PreferencesAllowOriginalDownload;
+	public Boolean PreferencesAllowPDFDownload;
+	public Boolean PreferencesAllowViewInBrowser;
+	public Boolean PreferencesExpires;
+	public Boolean PreferencesLinkLatestVersion;
+	public Boolean PreferencesNotifyOnVisit;
+	public Boolean PreferencesNotifyRndtnComplete;
+	public Boolean PreferencesPasswordRequired;
 	public Id RelatedRecordId;
 	public Account RelatedRecord;
+	public Datetime SystemModstamp;
 	public Integer ViewCount;
 
 	public ContentDistributionView[] ContentDistributionViews;

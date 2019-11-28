@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
@@ -41,6 +40,7 @@ public class DataStatistics extends SObject {
 	public static SObjectFields$<DataStatistics> Fields;
 
 	public String ExternalId;
+	public Id Id;
 	public String StatType;
 	public Integer StatValue;
 	public String Type;

@@ -27,11 +27,11 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class MatchingRule extends SObject {
@@ -39,15 +39,24 @@ public class MatchingRule extends SObject {
 	public static SObjectFields$<MatchingRule> Fields;
 
 	public String BooleanFilter;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Description;
 	public String DeveloperName;
+	public Id Id;
+	public Boolean IsDeleted;
 	public String Language;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String MasterLabel;
 	public String MatchEngine;
 	public String NamespacePrefix;
 	public String RuleStatus;
 	public String SobjectSubtype;
 	public String SobjectType;
+	public Datetime SystemModstamp;
 
 	public MatchingRuleItem[] MatchingRuleItems;
 }

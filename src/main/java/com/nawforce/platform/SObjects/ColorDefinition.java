@@ -27,11 +27,12 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+
 
 @SuppressWarnings("unused")
 public class ColorDefinition extends SObject {
@@ -41,6 +42,7 @@ public class ColorDefinition extends SObject {
 	public String Color;
 	public String Context;
 	public String DurableId;
+	public Id Id;
 	public String TabDefinitionId;
 	public String Theme;
 }

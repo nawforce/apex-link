@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -44,15 +43,24 @@ public class ActionLinkTemplate extends SObject {
 	public Id ActionLinkGroupTemplateId;
 	public ActionLinkGroupTemplate ActionLinkGroupTemplate;
 	public String ActionUrl;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Headers;
+	public Id Id;
 	public Boolean IsConfirmationRequired;
+	public Boolean IsDeleted;
 	public Boolean IsGroupDefault;
 	public String Label;
 	public String LabelKey;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String LinkType;
 	public String Method;
 	public Integer Position;
 	public String RequestBody;
+	public Datetime SystemModstamp;
 	public String UserAlias;
 	public String UserVisibility;
 }

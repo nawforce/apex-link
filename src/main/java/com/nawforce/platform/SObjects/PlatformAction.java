@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -55,12 +54,14 @@ public class PlatformAction extends SObject {
 	public Integer IconHeight;
 	public String IconUrl;
 	public Integer IconWidth;
+	public Id Id;
 	public String InvocationStatus;
 	public Id InvokedByUserId;
 	public User InvokedByUser;
-	public com.nawforce.platform.System.Boolean IsGroupDefault;
+	public Boolean IsGroupDefault;
 	public Boolean IsMassAction;
 	public String Label;
+	public Datetime LastModifiedDate;
 	public String PrimaryColor;
 	public String RelatedListRecordId;
 	public String RelatedSourceEntity;

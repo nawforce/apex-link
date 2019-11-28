@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -41,7 +40,10 @@ public class AuthSession extends SObject {
 	public static SObjectType$<AuthSession> SObjectType;
 	public static SObjectFields$<AuthSession> Fields;
 
+	public Datetime CreatedDate;
+	public Id Id;
 	public Boolean IsCurrent;
+	public Datetime LastModifiedDate;
 	public Id LoginGeoId;
 	public LoginGeo LoginGeo;
 	public Id LoginHistoryId;

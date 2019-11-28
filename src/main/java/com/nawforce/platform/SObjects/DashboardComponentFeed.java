@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -44,15 +43,22 @@ public class DashboardComponentFeed extends SObject {
 	public FeedComment BestComment;
 	public String Body;
 	public Integer CommentCount;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
+	public Id Id;
 	public Id InsertedById;
 	public User InsertedBy;
+	public Boolean IsDeleted;
 	public Boolean IsRichText;
+	public Datetime LastModifiedDate;
 	public Integer LikeCount;
 	public String LinkUrl;
 	public Id ParentId;
 	public DashboardComponent Parent;
 	public Id RelatedRecordId;
 	public ContentVersion RelatedRecord;
+	public Datetime SystemModstamp;
 	public String Title;
 	public String Type;
 

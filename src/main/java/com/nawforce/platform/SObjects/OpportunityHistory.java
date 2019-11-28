@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
@@ -41,11 +41,17 @@ public class OpportunityHistory extends SObject {
 
 	public Decimal Amount;
 	public Date CloseDate;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public Decimal ExpectedRevenue;
 	public String ForecastCategory;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Id OpportunityId;
 	public Opportunity Opportunity;
 	public Decimal Probability;
 	public String StageName;
+	public Datetime SystemModstamp;
 }

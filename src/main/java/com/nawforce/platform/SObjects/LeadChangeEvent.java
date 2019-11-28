@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -56,6 +55,9 @@ public class LeadChangeEvent extends SObject {
 	public Id ConvertedOpportunityId;
 	public Opportunity ConvertedOpportunity;
 	public String Country;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public Id DandbCompanyId;
 	public DandBCompany DandbCompany;
@@ -66,11 +68,17 @@ public class LeadChangeEvent extends SObject {
 	public String Fax;
 	public String FirstName;
 	public String GeocodeAccuracy;
+	public Id Id;
+	public Id IndividualId;
+	public Individual Individual;
 	public String Industry;
 	public com.nawforce.platform.System.Boolean IsConverted;
 	public Boolean IsUnreadByOwner;
 	public String Jigsaw;
 	public String JigsawContactId;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String LastName;
 	public Decimal Latitude;
 	public String LeadSource;

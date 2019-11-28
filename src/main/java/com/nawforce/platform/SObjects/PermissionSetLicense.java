@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -41,9 +40,17 @@ public class PermissionSetLicense extends SObject {
 	public static SObjectType$<PermissionSetLicense> SObjectType;
 	public static SObjectFields$<PermissionSetLicense> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String DeveloperName;
 	public Date ExpirationDate;
+	public Id Id;
+	public Boolean IsDeleted;
 	public String Language;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String MasterLabel;
 	public Boolean MaximumPermissionsAccessCMC;
 	public Boolean MaximumPermissionsAccountIQUser;
@@ -84,12 +91,15 @@ public class PermissionSetLicense extends SObject {
 	public Boolean MaximumPermissionsConfigCustomRecs;
 	public Boolean MaximumPermissionsConnectOrgToEnvironmentHub;
 	public Boolean MaximumPermissionsContentAdministrator;
+	public Boolean MaximumPermissionsContentHubOnPremiseUser;
+	public Boolean MaximumPermissionsContentHubUser;
 	public Boolean MaximumPermissionsContentWorkspaces;
 	public Boolean MaximumPermissionsConvertLeads;
 	public Boolean MaximumPermissionsCreateCustomizeDashboards;
 	public Boolean MaximumPermissionsCreateCustomizeFilters;
 	public Boolean MaximumPermissionsCreateCustomizeReports;
 	public Boolean MaximumPermissionsCreateDashboardFolders;
+	public Boolean MaximumPermissionsCreateLtngTempFolder;
 	public Boolean MaximumPermissionsCreateLtngTempInPub;
 	public Boolean MaximumPermissionsCreatePackaging;
 	public Boolean MaximumPermissionsCreateReportFolders;
@@ -131,6 +141,7 @@ public class PermissionSetLicense extends SObject {
 	public Boolean MaximumPermissionsForceTwoFactor;
 	public Boolean MaximumPermissionsGiveRecognitionBadge;
 	public Boolean MaximumPermissionsGovernNetworks;
+	public Boolean MaximumPermissionsHasUnlimitedNBAExecutions;
 	public Boolean MaximumPermissionsHideReadByList;
 	public Boolean MaximumPermissionsIdentityConnect;
 	public Boolean MaximumPermissionsIdentityEnabled;
@@ -147,6 +158,7 @@ public class PermissionSetLicense extends SObject {
 	public Boolean MaximumPermissionsLeadScoreUser;
 	public Boolean MaximumPermissionsLightningConsoleAllowedForUser;
 	public Boolean MaximumPermissionsLightningExperienceUser;
+	public Boolean MaximumPermissionsLightningOnMobile;
 	public Boolean MaximumPermissionsListEmailSend;
 	public Boolean MaximumPermissionsLtngPromoReserved01UserPerm;
 	public Boolean MaximumPermissionsManageAnalyticSnapshots;
@@ -181,7 +193,9 @@ public class PermissionSetLicense extends SObject {
 	public Boolean MaximumPermissionsManageNetworks;
 	public Boolean MaximumPermissionsManagePasswordPolicies;
 	public Boolean MaximumPermissionsManageProfilesPermissionsets;
+	public Boolean MaximumPermissionsManagePropositions;
 	public Boolean MaximumPermissionsManagePvtRptsAndDashbds;
+	public Boolean MaximumPermissionsManageRecommendationStrategies;
 	public Boolean MaximumPermissionsManageRemoteAccess;
 	public Boolean MaximumPermissionsManageReportsInPubFolders;
 	public Boolean MaximumPermissionsManageRoles;
@@ -192,6 +206,7 @@ public class PermissionSetLicense extends SObject {
 	public Boolean MaximumPermissionsManageSurveys;
 	public Boolean MaximumPermissionsManageSynonyms;
 	public Boolean MaximumPermissionsManageTemplatedApp;
+	public Boolean MaximumPermissionsManageTerritories;
 	public Boolean MaximumPermissionsManageTranslation;
 	public Boolean MaximumPermissionsManageTwoFactor;
 	public Boolean MaximumPermissionsManageUnlistedGroups;
@@ -201,6 +216,7 @@ public class PermissionSetLicense extends SObject {
 	public Boolean MaximumPermissionsModerateChatter;
 	public Boolean MaximumPermissionsModerateNetworkUsers;
 	public Boolean MaximumPermissionsModifyAllData;
+	public Boolean MaximumPermissionsModifyDataClassification;
 	public Boolean MaximumPermissionsModifyMetadata;
 	public Boolean MaximumPermissionsModifySecureAgents;
 	public Boolean MaximumPermissionsNewReportBuilder;
@@ -211,6 +227,7 @@ public class PermissionSetLicense extends SObject {
 	public Boolean MaximumPermissionsPreventClassicExperience;
 	public Boolean MaximumPermissionsPrivacyDataAccess;
 	public Boolean MaximumPermissionsPublishPackaging;
+	public Boolean MaximumPermissionsQueryAllFiles;
 	public Boolean MaximumPermissionsRecordVisibilityAPI;
 	public Boolean MaximumPermissionsRemoveDirectMessageMembers;
 	public Boolean MaximumPermissionsResetPasswords;
@@ -228,11 +245,14 @@ public class PermissionSetLicense extends SObject {
 	public Boolean MaximumPermissionsSolutionImport;
 	public Boolean MaximumPermissionsStdAutomaticActivityCapture;
 	public Boolean MaximumPermissionsSubmitMacrosAllowed;
+	public Boolean MaximumPermissionsSubscribeDashboardRolesGrps;
 	public Boolean MaximumPermissionsSubscribeDashboardToOtherUsers;
+	public Boolean MaximumPermissionsSubscribeReportRolesGrps;
 	public Boolean MaximumPermissionsSubscribeReportToOtherUsers;
 	public Boolean MaximumPermissionsSubscribeReportsRunAsUser;
 	public Boolean MaximumPermissionsSubscribeToLightningDashboards;
 	public Boolean MaximumPermissionsSubscribeToLightningReports;
+	public Boolean MaximumPermissionsTransactionalEmailSend;
 	public Boolean MaximumPermissionsTransferAnyCase;
 	public Boolean MaximumPermissionsTransferAnyEntity;
 	public Boolean MaximumPermissionsTransferAnyLead;
@@ -262,7 +282,8 @@ public class PermissionSetLicense extends SObject {
 	public Boolean MaximumPermissionsWorkDotComUserPerm;
 	public String PermissionSetLicenseKey;
 	public String Status;
-	public com.nawforce.platform.System.Integer TotalLicenses;
+	public Datetime SystemModstamp;
+	public Integer TotalLicenses;
 	public Integer UsedLicenses;
 
 	public GrantedByLicense[] GrantedByLicenses;

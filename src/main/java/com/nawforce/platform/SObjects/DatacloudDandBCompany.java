@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -81,11 +80,12 @@ public class DatacloudDandBCompany extends SObject {
 	public String GlobalUltimateBusinessName;
 	public String GlobalUltimateDunsNumber;
 	public Decimal GlobalUltimateTotalEmployees;
+	public Id Id;
 	public String ImportExportAgent;
 	public String IncludedInSnP500;
 	public String Industry;
-	public com.nawforce.platform.System.Boolean IsInCrm;
-	public com.nawforce.platform.System.Boolean IsOwned;
+	public Boolean IsInCrm;
+	public Boolean IsOwned;
 	public Boolean IsParent;
 	public String Latitude;
 	public String LegalStatus;

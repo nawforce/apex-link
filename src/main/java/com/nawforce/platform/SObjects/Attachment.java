@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -44,11 +43,20 @@ public class Attachment extends SObject {
 	public Blob Body;
 	public Integer BodyLength;
 	public String ContentType;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Description;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Boolean IsPrivate;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Name;
 	public Id OwnerId;
 	public User Owner;
 	public Id ParentId;
 	public Account Parent;
+	public Datetime SystemModstamp;
 }

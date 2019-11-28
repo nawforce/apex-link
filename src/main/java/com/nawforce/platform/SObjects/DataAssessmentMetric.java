@@ -27,19 +27,27 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class DataAssessmentMetric extends SObject {
 	public static SObjectType$<DataAssessmentMetric> SObjectType;
 	public static SObjectFields$<DataAssessmentMetric> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Name;
 	public Integer NumDuplicates;
 	public Integer NumMatched;
@@ -47,6 +55,7 @@ public class DataAssessmentMetric extends SObject {
 	public Integer NumProcessed;
 	public Integer NumTotal;
 	public Integer NumUnmatched;
+	public Datetime SystemModstamp;
 
 	public DataAssessmentFieldMetric[] DataAssessmentMetrics;
 }

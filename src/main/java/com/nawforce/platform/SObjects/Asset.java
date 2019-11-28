@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -50,11 +49,19 @@ public class Asset extends SObject {
 	public Account AssetServicedBy;
 	public Id ContactId;
 	public Contact Contact;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Description;
+	public Id Id;
 	public Date InstallDate;
-	public com.nawforce.platform.System.Boolean IsCompetitorProduct;
+	public Boolean IsCompetitorProduct;
+	public Boolean IsDeleted;
 	public Boolean IsInternal;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public String Name;

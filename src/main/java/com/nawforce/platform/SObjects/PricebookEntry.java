@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -40,17 +39,30 @@ public class PricebookEntry extends SObject {
 	public static SObjectType$<PricebookEntry> SObjectType;
 	public static SObjectFields$<PricebookEntry> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
+	public Id Id;
 	public Boolean IsActive;
+	public Boolean IsArchived;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Name;
 	public Id Pricebook2Id;
 	public Pricebook2 Pricebook2;
 	public Id Product2Id;
 	public Product2 Product2;
 	public String ProductCode;
+	public Datetime SystemModstamp;
 	public Decimal UnitPrice;
 	public Boolean UseStandardPrice;
 
 	public OpportunityLineItem[] OpportunityLineItems;
 	public OrderItem[] OrderItems;
+	public QuoteLineItem[] QuoteLineItems;
+	public RecordActionHistory[] RecordActionHistories;
+	public RecordAction[] RecordActions;
 }

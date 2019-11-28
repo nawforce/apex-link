@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -39,7 +38,6 @@ import com.nawforce.platform.System.*;
 public class AccountChangeEvent extends SObject {
 	public static SObjectType$<AccountChangeEvent> SObjectType;
 	public static SObjectFields$<AccountChangeEvent> Fields;
-
 
 	public String AccountNumber;
 	public String AccountSource;
@@ -54,6 +52,9 @@ public class AccountChangeEvent extends SObject {
 	public String BillingState;
 	public String BillingStreet;
 	public Object ChangeEventHeader;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public Id DandbCompanyId;
 	public DandBCompany DandbCompany;
@@ -61,9 +62,13 @@ public class AccountChangeEvent extends SObject {
 	public String DunsNumber;
 	public String Fax;
 	public String FirstName;
+	public Id Id;
 	public String Industry;
 	public String Jigsaw;
 	public String JigsawCompanyId;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String LastName;
 	public String NaicsCode;
 	public String NaicsDesc;

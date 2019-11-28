@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -44,22 +44,30 @@ public class TaskChangeEvent extends SObject {
 	public Account Account;
 	public Date ActivityDate;
 	public String CallDisposition;
-	public com.nawforce.platform.System.Integer CallDurationInSeconds;
+	public Integer CallDurationInSeconds;
 	public String CallObject;
 	public String CallType;
 	public Object ChangeEventHeader;
+	public Datetime CompletedDateTime;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Description;
-	public com.nawforce.platform.System.Boolean IsClosed;
-	public com.nawforce.platform.System.Boolean IsRecurrence;
-	public com.nawforce.platform.System.Boolean IsReminderSet;
+	public Id Id;
+	public Boolean IsClosed;
+	public Boolean IsRecurrence;
+	public Boolean IsReminderSet;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Id OwnerId;
 	public User Owner;
 	public String Priority;
 	public Id RecurrenceActivityId;
 	public Task RecurrenceActivity;
-	public com.nawforce.platform.System.Integer RecurrenceDayOfMonth;
-	public com.nawforce.platform.System.Integer RecurrenceDayOfWeekMask;
+	public Integer RecurrenceDayOfMonth;
+	public Integer RecurrenceDayOfWeekMask;
 	public Date RecurrenceEndDateOnly;
 	public String RecurrenceInstance;
 	public Integer RecurrenceInterval;

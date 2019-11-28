@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -47,6 +46,9 @@ public class AssetTokenEvent extends SObject {
 	public String AssetSerialNumber;
 	public Id ConnectedAppId;
 	public ConnectedApplication ConnectedApp;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String DeviceId;
 	public String DeviceKey;
 	public Datetime Expiration;

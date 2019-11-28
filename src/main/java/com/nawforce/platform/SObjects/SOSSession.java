@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -45,23 +45,32 @@ public class SOSSession extends SObject {
 	public Case Case;
 	public Id ContactId;
 	public Contact Contact;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public Id DeploymentId;
 	public SOSDeployment Deployment;
 	public Datetime EndTime;
+	public Id Id;
 	public String IpAddress;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public String Name;
 	public Blob OpentokSession;
 	public Id OwnerId;
 	public Group Owner;
-	public com.nawforce.platform.System.Integer SessionDuration;
+	public Integer SessionDuration;
 	public String SessionRecordingUrl;
 	public String SessionToken;
 	public String SosVersion;
 	public Datetime StartTime;
 	public String SystemInfo;
+	public Datetime SystemModstamp;
 	public Integer WaitDuration;
 
 	public ActivityHistory[] ActivityHistories;

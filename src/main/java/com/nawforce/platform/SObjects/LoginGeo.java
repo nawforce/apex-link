@@ -27,13 +27,11 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Datetime;
-import com.nawforce.platform.System.Decimal;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class LoginGeo extends SObject {
@@ -43,9 +41,18 @@ public class LoginGeo extends SObject {
 	public String City;
 	public String Country;
 	public String CountryIso;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Decimal Latitude;
 	public Datetime LoginTime;
 	public Decimal Longitude;
 	public String PostalCode;
 	public String Subdivision;
+	public Datetime SystemModstamp;
 }

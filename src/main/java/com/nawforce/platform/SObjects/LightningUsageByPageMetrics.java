@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -45,10 +44,12 @@ public class LightningUsageByPageMetrics extends SObject {
 	public Integer EptBin8To10;
 	public Integer EptBinOver10;
 	public Integer EptBinUnder3;
+	public Id Id;
 	public Date MetricsDate;
 	public String PageName;
 	public Integer RecordCountEPT;
 	public Integer SumEPT;
+	public Datetime SystemModstamp;
 	public Integer TotalCount;
 	public Id UserId;
 	public User User;

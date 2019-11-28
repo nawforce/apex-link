@@ -27,13 +27,12 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class EntityParticle extends SObject {
@@ -49,6 +48,7 @@ public class EntityParticle extends SObject {
 	public String EntityDefinitionId;
 	public String ExtraTypeInfo;
 	public String FieldDefinitionId;
+	public Id Id;
 	public String InlineHelpText;
 	public Boolean IsApiFilterable;
 	public Boolean IsApiGroupable;

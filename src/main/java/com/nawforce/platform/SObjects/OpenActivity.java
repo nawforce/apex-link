@@ -27,10 +27,10 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
@@ -48,19 +48,27 @@ public class OpenActivity extends SObject {
 	public Id AlternateDetailId;
 	public EmailMessage AlternateDetail;
 	public String CallDisposition;
-	public com.nawforce.platform.System.Integer CallDurationInSeconds;
+	public Integer CallDurationInSeconds;
 	public String CallObject;
 	public String CallType;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Description;
-	public com.nawforce.platform.System.Integer DurationInMinutes;
+	public Integer DurationInMinutes;
 	public Datetime EndDateTime;
-	public com.nawforce.platform.System.Boolean IsAllDayEvent;
-	public com.nawforce.platform.System.Boolean IsClosed;
-	public com.nawforce.platform.System.Boolean IsHighPriority;
-	public com.nawforce.platform.System.Boolean IsReminderSet;
-	public com.nawforce.platform.System.Boolean IsTask;
+	public Id Id;
+	public Boolean IsAllDayEvent;
+	public Boolean IsClosed;
+	public Boolean IsDeleted;
+	public Boolean IsHighPriority;
+	public Boolean IsReminderSet;
+	public Boolean IsTask;
 	public Boolean IsVisibleInSelfService;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Location;
 	public Id OwnerId;
 	public User Owner;
@@ -69,6 +77,7 @@ public class OpenActivity extends SObject {
 	public Datetime StartDateTime;
 	public String Status;
 	public String Subject;
+	public Datetime SystemModstamp;
 	public Id WhatId;
 	public Account What;
 	public Id WhoId;

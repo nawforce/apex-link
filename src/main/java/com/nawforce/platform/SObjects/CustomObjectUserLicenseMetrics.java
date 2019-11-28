@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -43,8 +42,10 @@ public class CustomObjectUserLicenseMetrics extends SObject {
 	public String CustomObjectId;
 	public String CustomObjectName;
 	public String CustomObjectType;
+	public Id Id;
 	public Date MetricsDate;
 	public Integer ObjectCount;
+	public Datetime SystemModstamp;
 	public Id UserLicenseId;
 	public UserLicense UserLicense;
 }

@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -44,15 +44,24 @@ public class ApexTestRunResult extends SObject {
 	public AsyncApexJob AsyncApexJob;
 	public Integer ClassesCompleted;
 	public Integer ClassesEnqueued;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Datetime EndTime;
-	public com.nawforce.platform.System.Boolean IsAllTests;
-	public com.nawforce.platform.System.String JobName;
+	public Id Id;
+	public Boolean IsAllTests;
+	public Boolean IsDeleted;
+	public String JobName;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Integer MethodsCompleted;
 	public Integer MethodsEnqueued;
 	public Integer MethodsFailed;
-	public com.nawforce.platform.System.String Source;
+	public String Source;
 	public Datetime StartTime;
 	public String Status;
+	public Datetime SystemModstamp;
 	public Integer TestTime;
 	public Id UserId;
 	public User User;

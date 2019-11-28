@@ -27,21 +27,30 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class UserProvMockTarget extends SObject {
 	public static SObjectType$<UserProvMockTarget> SObjectType;
 	public static SObjectFields$<UserProvMockTarget> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String ExternalEmail;
 	public String ExternalFirstName;
 	public String ExternalLastName;
 	public String ExternalUserId;
 	public String ExternalUsername;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Name;
+	public Datetime SystemModstamp;
 }

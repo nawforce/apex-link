@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -44,13 +44,21 @@ public class EmailTemplate extends SObject {
 	public String Body;
 	public Id BrandTemplateId;
 	public BrandTemplate BrandTemplate;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Description;
 	public String DeveloperName;
 	public String Encoding;
 	public Id FolderId;
 	public Folder Folder;
+	public String FolderName;
 	public String HtmlValue;
-	public com.nawforce.platform.System.Boolean IsActive;
+	public Id Id;
+	public Boolean IsActive;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastUsedDate;
 	public String Markup;
 	public String Name;
@@ -59,6 +67,7 @@ public class EmailTemplate extends SObject {
 	public User Owner;
 	public String RelatedEntityType;
 	public String Subject;
+	public Datetime SystemModstamp;
 	public String TemplateStyle;
 	public String TemplateType;
 	public Integer TimesUsed;

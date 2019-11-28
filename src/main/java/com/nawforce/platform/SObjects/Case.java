@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -54,10 +53,18 @@ public class Case extends SObject {
 	public Contact Contact;
 	public String ContactMobile;
 	public String ContactPhone;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String Description;
-	public com.nawforce.platform.System.Boolean IsClosed;
+	public Id Id;
+	public Boolean IsClosed;
+	public Boolean IsDeleted;
 	public Boolean IsEscalated;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public String Origin;
@@ -73,6 +80,7 @@ public class Case extends SObject {
 	public String SuppliedEmail;
 	public String SuppliedName;
 	public String SuppliedPhone;
+	public Datetime SystemModstamp;
 	public String Type;
 
 	public ActivityHistory[] ActivityHistories;
@@ -83,6 +91,7 @@ public class Case extends SObject {
 	public CaseSolution[] CaseSolutions;
 	public Case[] Cases;
 	public CombinedAttachment[] CombinedAttachments;
+	public ContactRequest[] ContactRequests;
 	public ContentDocumentLink[] ContentDocumentLinks;
 	public EmailMessage[] EmailMessages;
 	public EmailMessage[] Emails;

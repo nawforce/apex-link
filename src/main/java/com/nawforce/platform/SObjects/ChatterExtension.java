@@ -27,13 +27,11 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class ChatterExtension extends SObject {
@@ -41,6 +39,9 @@ public class ChatterExtension extends SObject {
 	public static SObjectFields$<ChatterExtension> Fields;
 
 	public String CompositionComponentEnumOrId;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Description;
 	public String DeveloperName;
 	public String ExtensionName;
@@ -48,11 +49,17 @@ public class ChatterExtension extends SObject {
 	public String HoverText;
 	public Id IconId;
 	public ContentAsset Icon;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Boolean IsProtected;
 	public String Language;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String MasterLabel;
 	public String NamespacePrefix;
 	public String RenderComponentEnumOrId;
+	public Datetime SystemModstamp;
 	public String Type;
 
 	public ChatterExtensionLocalization[] Localization;

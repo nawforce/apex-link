@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -44,12 +43,18 @@ public class IdeaComment extends SObject {
 	public String CommentBody;
 	public Id CommunityId;
 	public Community Community;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CreatorFullPhotoUrl;
 	public String CreatorName;
 	public String CreatorSmallPhotoUrl;
+	public Id Id;
 	public Id IdeaId;
 	public Idea Idea;
+	public Boolean IsDeleted;
 	public Boolean IsHtml;
+	public Datetime SystemModstamp;
 	public Integer UpVotes;
 
 	public Vote[] Votes;

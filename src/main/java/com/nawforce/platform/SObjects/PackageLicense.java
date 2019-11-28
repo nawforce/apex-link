@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -42,9 +41,13 @@ public class PackageLicense extends SObject {
 	public static SObjectFields$<PackageLicense> Fields;
 
 	public Integer AllowedLicenses;
+	public Datetime CreatedDate;
 	public Datetime ExpirationDate;
+	public Id Id;
 	public Boolean IsProvisioned;
-	public com.nawforce.platform.System.String NamespacePrefix;
+	public Datetime LastModifiedDate;
+	public String NamespacePrefix;
 	public String Status;
+	public Datetime SystemModstamp;
 	public Integer UsedLicenses;
 }

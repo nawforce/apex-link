@@ -27,9 +27,10 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Datetime;
+import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
@@ -38,11 +39,19 @@ public class ProcessDefinition extends SObject {
 	public static SObjectType$<ProcessDefinition> SObjectType;
 	public static SObjectFields$<ProcessDefinition> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Description;
 	public String DeveloperName;
+	public Id Id;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String LockType;
 	public String Name;
 	public String State;
+	public Datetime SystemModstamp;
 	public String TableEnumOrId;
 	public String Type;
 }

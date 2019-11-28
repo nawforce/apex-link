@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
@@ -46,25 +46,37 @@ public class OpportunityChangeEvent extends SObject {
 	public Campaign Campaign;
 	public Object ChangeEventHeader;
 	public Date CloseDate;
-	public com.nawforce.platform.System.String CurrencyIsoCode;
-	public com.nawforce.platform.System.String Description;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
+	public String CurrencyIsoCode;
+	public String Description;
 	public Decimal ExpectedRevenue;
-	public com.nawforce.platform.System.String ForecastCategory;
-	public com.nawforce.platform.System.String ForecastCategoryName;
-	public com.nawforce.platform.System.Boolean HasOpportunityLineItem;
-	public com.nawforce.platform.System.Boolean IsClosed;
-	public com.nawforce.platform.System.Boolean IsPrivate;
-	public com.nawforce.platform.System.Boolean IsWon;
-	public com.nawforce.platform.System.String LeadSource;
-	public com.nawforce.platform.System.String Name;
-	public com.nawforce.platform.System.String NextStep;
+	public String ForecastCategory;
+	public String ForecastCategoryName;
+	public Boolean HasOpportunityLineItem;
+	public Id Id;
+	public Boolean IsClosed;
+	public Boolean IsExcludedFromTerritory2Filter;
+	public Boolean IsPrivate;
+	public Boolean IsWon;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
+	public String LeadSource;
+	public String Name;
+	public String NextStep;
 	public Id OwnerId;
 	public User Owner;
 	public Id Pricebook2Id;
 	public Pricebook2 Pricebook2;
 	public Decimal Probability;
-	public com.nawforce.platform.System.String ReplayId;
-	public com.nawforce.platform.System.String StageName;
+	public String ReplayId;
+	public String StageName;
+	public Id SyncedQuoteId;
+	public Quote SyncedQuote;
+	public Id Territory2Id;
+	public Territory2 Territory2;
 	public Decimal TotalOpportunityQuantity;
 	public String Type;
 }

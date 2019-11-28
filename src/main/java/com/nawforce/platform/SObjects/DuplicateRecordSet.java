@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -40,13 +40,22 @@ public class DuplicateRecordSet extends SObject {
 	public static SObjectType$<DuplicateRecordSet> SObjectType;
 	public static SObjectFields$<DuplicateRecordSet> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public Id DuplicateRuleId;
 	public DuplicateRule DuplicateRule;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public String Name;
 	public Integer RecordCount;
+	public Datetime SystemModstamp;
 
 	public DuplicateRecordItem[] DuplicateRecordItems;
 	public ProcessInstance[] ProcessInstances;

@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -42,16 +41,25 @@ public class UserProvAccount extends SObject {
 
 	public Id ConnectedAppId;
 	public ConnectedApplication ConnectedApp;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Datetime DeletedDate;
 	public String ExternalEmail;
 	public String ExternalFirstName;
 	public String ExternalLastName;
 	public String ExternalUserId;
 	public String ExternalUsername;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Boolean IsKnownLink;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String LinkState;
 	public String Name;
 	public Id SalesforceUserId;
 	public User SalesforceUser;
 	public String Status;
+	public Datetime SystemModstamp;
 }

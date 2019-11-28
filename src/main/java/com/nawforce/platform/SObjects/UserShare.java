@@ -27,20 +27,22 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class UserShare extends SObject {
 	public static SObjectType$<UserShare> SObjectType;
 	public static SObjectFields$<UserShare> Fields;
 
+	public Id Id;
 	public Boolean IsActive;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String RowCause;
 	public String UserAccessLevel;
 	public Id UserId;

@@ -27,13 +27,11 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class Folder extends SObject {
@@ -41,12 +39,20 @@ public class Folder extends SObject {
 	public static SObjectFields$<Folder> Fields;
 
 	public String AccessType;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String DeveloperName;
+	public Id Id;
 	public Boolean IsReadonly;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Name;
 	public String NamespacePrefix;
 	public Id ParentId;
 	public Folder Parent;
+	public Datetime SystemModstamp;
 	public String Type;
 
 	public Folder[] SubFolders;

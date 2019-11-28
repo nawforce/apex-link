@@ -27,10 +27,10 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
@@ -41,6 +41,7 @@ public class PicklistValueInfo extends SObject {
 
 	public String DurableId;
 	public String EntityParticleId;
+	public Id Id;
 	public Boolean IsActive;
 	public Boolean IsDefaultValue;
 	public String Label;

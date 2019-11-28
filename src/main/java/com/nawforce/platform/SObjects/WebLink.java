@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -41,6 +40,9 @@ public class WebLink extends SObject {
 	public static SObjectType$<WebLink> SObjectType;
 	public static SObjectFields$<WebLink> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String Description;
 	public String DisplayType;
 	public String EncodingKey;
@@ -48,8 +50,12 @@ public class WebLink extends SObject {
 	public Boolean HasScrollbars;
 	public Boolean HasToolbar;
 	public Integer Height;
+	public Id Id;
 	public Boolean IsProtected;
 	public Boolean IsResizable;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String LinkType;
 	public String MasterLabel;
 	public String Name;
@@ -62,6 +68,7 @@ public class WebLink extends SObject {
 	public ApexPage Scontrol;
 	public Boolean ShowsLocation;
 	public Boolean ShowsStatus;
+	public Datetime SystemModstamp;
 	public String Url;
 	public Integer Width;
 

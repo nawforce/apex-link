@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -43,10 +43,15 @@ public class ProcessInstanceHistory extends SObject {
 	public Id ActorId;
 	public Group Actor;
 	public String Comments;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Decimal ElapsedTimeInDays;
 	public Decimal ElapsedTimeInHours;
 	public Decimal ElapsedTimeInMinutes;
-	public com.nawforce.platform.System.Boolean IsPending;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Boolean IsPending;
 	public Id OriginalActorId;
 	public Group OriginalActor;
 	public Id ProcessInstanceId;
@@ -55,6 +60,7 @@ public class ProcessInstanceHistory extends SObject {
 	public ProcessNode ProcessNode;
 	public Integer RemindersSent;
 	public String StepStatus;
+	public Datetime SystemModstamp;
 	public Id TargetObjectId;
 	public Account TargetObject;
 }

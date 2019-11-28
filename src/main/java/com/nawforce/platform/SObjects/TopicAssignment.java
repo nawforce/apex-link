@@ -27,22 +27,27 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class TopicAssignment extends SObject {
 	public static SObjectType$<TopicAssignment> SObjectType;
 	public static SObjectFields$<TopicAssignment> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Id EntityId;
 	public Account Entity;
 	public String EntityKeyPrefix;
 	public String EntityType;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Datetime SystemModstamp;
 	public Id TopicId;
 	public Topic Topic;
 }

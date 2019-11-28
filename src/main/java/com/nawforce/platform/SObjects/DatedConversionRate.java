@@ -27,13 +27,10 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Date;
-import com.nawforce.platform.System.Decimal;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class DatedConversionRate extends SObject {
@@ -41,7 +38,15 @@ public class DatedConversionRate extends SObject {
 	public static SObjectFields$<DatedConversionRate> Fields;
 
 	public Decimal ConversionRate;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
+	public Id Id;
 	public String IsoCode;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Date NextStartDate;
 	public Date StartDate;
+	public Datetime SystemModstamp;
 }

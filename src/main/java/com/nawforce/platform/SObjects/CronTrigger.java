@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -40,10 +39,16 @@ public class CronTrigger extends SObject {
 	public static SObjectType$<CronTrigger> SObjectType;
 	public static SObjectFields$<CronTrigger> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CronExpression;
 	public Id CronJobDetailId;
 	public CronJobDetail CronJobDetail;
 	public Datetime EndTime;
+	public Id Id;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
 	public Datetime NextFireTime;
 	public Id OwnerId;
 	public User Owner;

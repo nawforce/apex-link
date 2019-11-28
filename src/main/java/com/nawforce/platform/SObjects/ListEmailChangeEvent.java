@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -44,12 +43,19 @@ public class ListEmailChangeEvent extends SObject {
 	public Id CampaignId;
 	public Campaign Campaign;
 	public Object ChangeEventHeader;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String FromAddress;
 	public String FromName;
 	public Boolean HasAttachment;
 	public String HtmlBody;
+	public Id Id;
 	public Boolean IsTracked;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String Name;
 	public Id OwnerId;
 	public User Owner;

@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -38,7 +37,11 @@ import com.nawforce.platform.System.String;
 public class QueueSobject extends SObject {
 	public static SObjectFields$<QueueSobject> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Id Id;
 	public Id QueueId;
 	public Group Queue;
 	public String SobjectType;
+	public Datetime SystemModstamp;
 }

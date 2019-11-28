@@ -27,9 +27,10 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Datetime;
+import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
 
@@ -39,8 +40,12 @@ public class SetupAuditTrail extends SObject {
 	public static SObjectFields$<SetupAuditTrail> Fields;
 
 	public String Action;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String DelegateUser;
 	public String Display;
+	public Id Id;
 	public String ResponsibleNamespacePrefix;
 	public String Section;
 }

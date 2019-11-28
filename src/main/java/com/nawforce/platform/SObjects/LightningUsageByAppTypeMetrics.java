@@ -27,13 +27,10 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Date;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class LightningUsageByAppTypeMetrics extends SObject {
@@ -41,7 +38,9 @@ public class LightningUsageByAppTypeMetrics extends SObject {
 	public static SObjectFields$<LightningUsageByAppTypeMetrics> Fields;
 
 	public String AppExperience;
+	public Id Id;
 	public Date MetricsDate;
+	public Datetime SystemModstamp;
 	public Id UserId;
 	public User User;
 }

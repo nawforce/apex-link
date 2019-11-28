@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -44,6 +43,9 @@ public class Site extends SObject {
 	public User Admin;
 	public String AnalyticsTrackingCode;
 	public String ClickjackProtectionLevel;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Integer DailyBandwidthLimit;
 	public Integer DailyBandwidthUsed;
 	public Integer DailyRequestTimeLimit;
@@ -51,25 +53,30 @@ public class Site extends SObject {
 	public String Description;
 	public Id GuestUserId;
 	public User GuestUser;
+	public Id Id;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String MasterLabel;
 	public Integer MonthlyPageViewsEntitlement;
 	public String Name;
-	public com.nawforce.platform.System.Boolean OptionsAllowGuestSupportApi;
-	public com.nawforce.platform.System.Boolean OptionsAllowHomePage;
-	public com.nawforce.platform.System.Boolean OptionsAllowStandardAnswersPages;
-	public com.nawforce.platform.System.Boolean OptionsAllowStandardIdeasPages;
-	public com.nawforce.platform.System.Boolean OptionsAllowStandardLookups;
-	public com.nawforce.platform.System.Boolean OptionsAllowStandardPortalPages;
-	public com.nawforce.platform.System.Boolean OptionsAllowStandardSearch;
-	public com.nawforce.platform.System.Boolean OptionsBrowserXssProtection;
-	public com.nawforce.platform.System.Boolean OptionsContentSniffingProtection;
-	public com.nawforce.platform.System.Boolean OptionsCspUpgradeInsecureRequests;
-	public com.nawforce.platform.System.Boolean OptionsEnableFeeds;
-	public com.nawforce.platform.System.Boolean OptionsReferrerPolicyOriginWhenCrossOrigin;
+	public Boolean OptionsAllowGuestSupportApi;
+	public Boolean OptionsAllowHomePage;
+	public Boolean OptionsAllowStandardAnswersPages;
+	public Boolean OptionsAllowStandardIdeasPages;
+	public Boolean OptionsAllowStandardLookups;
+	public Boolean OptionsAllowStandardPortalPages;
+	public Boolean OptionsAllowStandardSearch;
+	public Boolean OptionsBrowserXssProtection;
+	public Boolean OptionsContentSniffingProtection;
+	public Boolean OptionsCspUpgradeInsecureRequests;
+	public Boolean OptionsEnableFeeds;
+	public Boolean OptionsReferrerPolicyOriginWhenCrossOrigin;
 	public Boolean OptionsRequireHttps;
 	public String SiteType;
 	public String Status;
 	public String Subdomain;
+	public Datetime SystemModstamp;
 	public String UrlPathPrefix;
 
 	public AttachedContentDocument[] AttachedContentDocuments;

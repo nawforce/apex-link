@@ -27,13 +27,11 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class ExternalDataSource extends SObject {
@@ -42,13 +40,21 @@ public class ExternalDataSource extends SObject {
 
 	public Id AuthProviderId;
 	public AuthProvider AuthProvider;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CustomConfiguration;
 	public String DeveloperName;
 	public String Endpoint;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Boolean IsWritable;
 	public String Language;
 	public Id LargeIconId;
 	public StaticResource LargeIcon;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String MasterLabel;
 	public String NamespacePrefix;
 	public String PrincipalType;
@@ -56,6 +62,7 @@ public class ExternalDataSource extends SObject {
 	public String Repository;
 	public Id SmallIconId;
 	public StaticResource SmallIcon;
+	public Datetime SystemModstamp;
 	public String Type;
 
 	public CustomHttpHeader[] CustomHttpHeaders;

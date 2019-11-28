@@ -27,12 +27,11 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Integer;
-import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class WaveAssetEvent extends SObject {
@@ -40,6 +39,9 @@ public class WaveAssetEvent extends SObject {
 	public static SObjectFields$<WaveAssetEvent> Fields;
 
 	public String ContainerId;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String EventType;
 	public String FolderId;
 	public Integer Index;

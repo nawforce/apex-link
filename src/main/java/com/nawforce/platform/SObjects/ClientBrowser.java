@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -40,7 +39,9 @@ public class ClientBrowser extends SObject {
 	public static SObjectType$<ClientBrowser> SObjectType;
 	public static SObjectFields$<ClientBrowser> Fields;
 
+	public Datetime CreatedDate;
 	public String FullUserAgent;
+	public Id Id;
 	public Datetime LastUpdate;
 	public String ProxyInfo;
 	public Id UsersId;

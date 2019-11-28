@@ -27,12 +27,12 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
+
 
 @SuppressWarnings("unused")
 public class QuickTextShare extends SObject {
@@ -40,6 +40,11 @@ public class QuickTextShare extends SObject {
 	public static SObjectFields$<QuickTextShare> Fields;
 
 	public String AccessLevel;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Id ParentId;
 	public QuickText Parent;
 	public String RowCause;

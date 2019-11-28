@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -43,12 +42,20 @@ public class ListEmail extends SObject {
 
 	public Id CampaignId;
 	public Campaign Campaign;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public String FromAddress;
 	public String FromName;
 	public Boolean HasAttachment;
 	public String HtmlBody;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Boolean IsTracked;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public String Name;
@@ -57,6 +64,7 @@ public class ListEmail extends SObject {
 	public Datetime ScheduledDate;
 	public String Status;
 	public String Subject;
+	public Datetime SystemModstamp;
 	public String TextBody;
 	public Integer TotalSent;
 

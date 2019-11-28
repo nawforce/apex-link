@@ -27,9 +27,10 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
@@ -44,11 +45,19 @@ public class ContentDocument extends SObject {
 	public Id ContentAssetId;
 	public ContentAsset ContentAsset;
 	public Datetime ContentModifiedDate;
-	public com.nawforce.platform.System.Integer ContentSize;
-	public com.nawforce.platform.System.String Description;
-	public com.nawforce.platform.System.String FileExtension;
-	public com.nawforce.platform.System.String FileType;
-	public com.nawforce.platform.System.Boolean IsArchived;
+	public Integer ContentSize;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
+	public String Description;
+	public String FileExtension;
+	public String FileType;
+	public Id Id;
+	public Boolean IsArchived;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public Id LatestPublishedVersionId;
@@ -57,9 +66,10 @@ public class ContentDocument extends SObject {
 	public User Owner;
 	public Id ParentId;
 	public ContentWorkspace Parent;
-	public com.nawforce.platform.System.String PublishStatus;
-	public com.nawforce.platform.System.String SharingOption;
-	public com.nawforce.platform.System.String SharingPrivacy;
+	public String PublishStatus;
+	public String SharingOption;
+	public String SharingPrivacy;
+	public Datetime SystemModstamp;
 	public String Title;
 
 	public ContentDistribution[] ContentDistributions;

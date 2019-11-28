@@ -27,9 +27,10 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
@@ -46,33 +47,46 @@ public class Opportunity extends SObject {
 	public Id CampaignId;
 	public Campaign Campaign;
 	public Date CloseDate;
-	public Id ContractId;
-	public com.nawforce.platform.System.String CurrencyIsoCode;
-	public com.nawforce.platform.System.String Description;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
+	public String CurrencyIsoCode;
+	public String Description;
 	public Decimal ExpectedRevenue;
-	public com.nawforce.platform.System.String Fiscal;
-	public com.nawforce.platform.System.Integer FiscalQuarter;
-	public com.nawforce.platform.System.Integer FiscalYear;
-	public com.nawforce.platform.System.String ForecastCategory;
-	public com.nawforce.platform.System.String ForecastCategoryName;
-	public com.nawforce.platform.System.Boolean HasOpenActivity;
-	public com.nawforce.platform.System.Boolean HasOpportunityLineItem;
-	public com.nawforce.platform.System.Boolean HasOverdueTask;
-	public com.nawforce.platform.System.Boolean IsClosed;
-	public com.nawforce.platform.System.Boolean IsPrivate;
-	public com.nawforce.platform.System.Boolean IsWon;
+	public String Fiscal;
+	public Integer FiscalQuarter;
+	public Integer FiscalYear;
+	public String ForecastCategory;
+	public String ForecastCategoryName;
+	public Boolean HasOpenActivity;
+	public Boolean HasOpportunityLineItem;
+	public Boolean HasOverdueTask;
+	public Id Id;
+	public Boolean IsClosed;
+	public Boolean IsDeleted;
+	public Boolean IsExcludedFromTerritory2Filter;
+	public Boolean IsPrivate;
+	public Boolean IsWon;
 	public Date LastActivityDate;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
-	public com.nawforce.platform.System.String LeadSource;
-	public com.nawforce.platform.System.String Name;
-	public com.nawforce.platform.System.String NextStep;
+	public String LeadSource;
+	public String Name;
+	public String NextStep;
 	public Id OwnerId;
 	public User Owner;
 	public Id Pricebook2Id;
 	public Pricebook2 Pricebook2;
 	public Decimal Probability;
-	public com.nawforce.platform.System.String StageName;
+	public String StageName;
+	public Id SyncedQuoteId;
+	public Quote SyncedQuote;
+	public Datetime SystemModstamp;
+	public Id Territory2Id;
+	public Territory2 Territory2;
 	public Decimal TotalOpportunityQuantity;
 	public String Type;
 
@@ -81,6 +95,7 @@ public class Opportunity extends SObject {
 	public AttachedContentDocument[] AttachedContentDocuments;
 	public Attachment[] Attachments;
 	public CombinedAttachment[] CombinedAttachments;
+	public ContactRequest[] ContactRequests;
 	public ContentDocumentLink[] ContentDocumentLinks;
 	public EmailMessage[] Emails;
 	public Event[] Events;
@@ -98,6 +113,7 @@ public class Opportunity extends SObject {
 	public Partner[] Partners;
 	public ProcessInstance[] ProcessInstances;
 	public ProcessInstanceHistory[] ProcessSteps;
+	public Quote[] Quotes;
 	public RecordActionHistory[] RecordActionHistories;
 	public RecordAction[] RecordActions;
 	public CollaborationGroupRecord[] RecordAssociatedGroups;

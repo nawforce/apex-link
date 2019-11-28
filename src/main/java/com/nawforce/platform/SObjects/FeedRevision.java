@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -42,10 +41,16 @@ public class FeedRevision extends SObject {
 	public static SObjectFields$<FeedRevision> Fields;
 
 	public String Action;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String EditedAttribute;
 	public Id FeedEntityId;
 	public FeedComment FeedEntity;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Boolean IsValueRichText;
 	public Integer Revision;
+	public Datetime SystemModstamp;
 	public String Value;
 }

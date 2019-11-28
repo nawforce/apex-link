@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -42,10 +41,19 @@ public class ContentFolderItem extends SObject {
 	public static SObjectFields$<ContentFolderItem> Fields;
 
 	public Integer ContentSize;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String FileExtension;
 	public String FileType;
+	public Id Id;
+	public Boolean IsDeleted;
 	public Boolean IsFolder;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Id ParentContentFolderId;
 	public ContentFolder ParentContentFolder;
+	public Datetime SystemModstamp;
 	public String Title;
 }

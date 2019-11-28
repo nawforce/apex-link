@@ -27,20 +27,29 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class CorsWhitelistEntry extends SObject {
 	public static SObjectType$<CorsWhitelistEntry> SObjectType;
 	public static SObjectFields$<CorsWhitelistEntry> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String DeveloperName;
+	public Id Id;
+	public Boolean IsDeleted;
 	public String Language;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public String MasterLabel;
 	public String NamespacePrefix;
+	public Datetime SystemModstamp;
 	public String UrlPattern;
 }

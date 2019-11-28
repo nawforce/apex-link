@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -45,6 +44,7 @@ public class IdpEventLog extends SObject {
 	public Id AuthSessionId;
 	public AuthSession AuthSession;
 	public String ErrorCode;
+	public Id Id;
 	public String IdentityUsed;
 	public String InitiatedBy;
 	public Boolean OptionsHasLogoutUrl;

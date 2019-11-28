@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -52,16 +52,24 @@ public class Account extends SObject {
 	public String BillingPostalCode;
 	public String BillingState;
 	public String BillingStreet;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public String CurrencyIsoCode;
 	public Id DandbCompanyId;
 	public DandBCompany DandbCompany;
 	public String Description;
 	public String DunsNumber;
 	public String Fax;
+	public Id Id;
 	public String Industry;
+	public Boolean IsDeleted;
 	public String Jigsaw;
 	public String JigsawCompanyId;
 	public Date LastActivityDate;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public Id MasterRecordId;
@@ -90,6 +98,7 @@ public class Account extends SObject {
 	public String Sic;
 	public String SicDesc;
 	public String Site;
+	public Datetime SystemModstamp;
 	public String TickerSymbol;
 	public String Tradestyle;
 	public String Type;
@@ -99,6 +108,7 @@ public class Account extends SObject {
 	public AccountContactRole[] AccountContactRoles;
 	public AccountPartner[] AccountPartnersFrom;
 	public AccountPartner[] AccountPartnersTo;
+	public AccountUserTerritory2View[] AccountUserTerritory2Views;
 	public ActivityHistory[] ActivityHistories;
 	public Asset[] Assets;
 	public AttachedContentDocument[] AttachedContentDocuments;
@@ -106,6 +116,7 @@ public class Account extends SObject {
 	public Case[] Cases;
 	public Account[] ChildAccounts;
 	public CombinedAttachment[] CombinedAttachments;
+	public ContactRequest[] ContactRequests;
 	public Contact[] Contacts;
 	public ContentDocumentLink[] ContentDocumentLinks;
 	public Contract[] Contracts;
@@ -117,6 +128,7 @@ public class Account extends SObject {
 	public AccountHistory[] Histories;
 	public Note[] Notes;
 	public NoteAndAttachment[] NotesAndAttachments;
+	public ObjectTerritory2Association[] ObjectTerritory2Associations;
 	public OpenActivity[] OpenActivities;
 	public Opportunity[] Opportunities;
 	public OpportunityPartner[] OpportunityPartnersTo;

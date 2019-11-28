@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
@@ -46,6 +45,7 @@ public class UserAppMenuItem extends SObject {
 	public SObject Application;
 	public String Description;
 	public String IconUrl;
+	public Id Id;
 	public String InfoUrl;
 	public Boolean IsUsingAdminAuthorization;
 	public Boolean IsVisible;
@@ -53,7 +53,7 @@ public class UserAppMenuItem extends SObject {
 	public String LogoUrl;
 	public String MobileStartUrl;
 	public String Name;
-	public com.nawforce.platform.System.Integer SortOrder;
+	public Integer SortOrder;
 	public String StartUrl;
 	public String Type;
 	public Integer UserSortOrder;

@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -40,18 +39,26 @@ public class ContentWorkspace extends SObject {
 	public static SObjectType$<ContentWorkspace> SObjectType;
 	public static SObjectFields$<ContentWorkspace> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Id DefaultRecordTypeId;
 	public RecordType DefaultRecordType;
 	public String Description;
 	public String DeveloperName;
+	public Id Id;
 	public Boolean IsRestrictContentTypes;
 	public Boolean IsRestrictLinkedContentTypes;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Datetime LastWorkspaceActivityDate;
 	public String Name;
 	public String NamespacePrefix;
 	public Id RootContentFolderId;
 	public ContentFolder RootContentFolder;
 	public Boolean ShouldAddCreatorMembership;
+	public Datetime SystemModstamp;
 	public String TagModel;
 	public Id WorkspaceImageId;
 	public ContentAsset WorkspaceImage;

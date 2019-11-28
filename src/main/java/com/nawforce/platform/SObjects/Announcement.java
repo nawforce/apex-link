@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
@@ -40,11 +39,20 @@ public class Announcement extends SObject {
 	public static SObjectType$<Announcement> SObjectType;
 	public static SObjectFields$<Announcement> Fields;
 
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
 	public Datetime ExpirationDate;
 	public Id FeedItemId;
 	public FeedItem FeedItem;
+	public Id Id;
 	public Boolean IsArchived;
+	public Boolean IsDeleted;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
 	public Id ParentId;
 	public CollaborationGroup Parent;
 	public Boolean SendEmails;
+	public Datetime SystemModstamp;
 }

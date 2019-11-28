@@ -27,9 +27,8 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -43,6 +42,7 @@ public class UserFieldAccess extends SObject {
 	public String DurableId;
 	public String EntityDefinitionId;
 	public String FieldDefinitionId;
+	public Id Id;
 	public Boolean IsAccessible;
 	public Boolean IsCreatable;
 	public Boolean IsUpdatable;

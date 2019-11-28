@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.SObjects;
 
-import com.nawforce.platform.Internal.SObjectType$;
-
 import com.nawforce.platform.Internal.SObjectFields$;
+import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
@@ -41,6 +41,7 @@ public class AppTabMember extends SObject {
 
 	public String AppDefinitionId;
 	public String DurableId;
+	public Id Id;
 	public Integer SortOrder;
 	public String TabDefinitionId;
 	public String WorkspaceDriverField;
