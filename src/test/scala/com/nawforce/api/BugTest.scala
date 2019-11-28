@@ -342,7 +342,20 @@ class BugTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    org.issues.dumpMessages(false)
+    assert(!org.issues.hasMessages)
+  }
+
+  test("Database RaisesPlatformEvents") {
+    val fs = Jimfs.newFileSystem(Configuration.unix)
+    Files.write(fs.getPath("Dummy.cls"),
+      """
+        | public class Dummy implements Database.RaisesPlatformEvents {
+        |}
+        |""".stripMargin.getBytes())
+
+    val org = new Org()
+    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
 }
