@@ -50,7 +50,6 @@ public class SObject {
 	public Datetime LastViewedDate;
 	public Datetime LastActivityDate;		// Future: Only if Allow Activities is selected
 
-
 	public void addError(Object msg) {throw new java.lang.UnsupportedOperationException();}
 	public void addError(Object msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
 	public void addError(String msg) {throw new java.lang.UnsupportedOperationException();}
