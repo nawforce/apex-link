@@ -161,6 +161,7 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], relativeTypeNa
 
   lazy val isEntry: Boolean = {
     modifiers.contains(ISTEST_ANNOTATION) ||
+      modifiers.contains(TEST_SETUP_ANNOTATION) ||
       modifiers.contains(TEST_METHOD_MODIFIER) ||
       modifiers.contains(GLOBAL_MODIFIER)
   }
