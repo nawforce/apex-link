@@ -54,6 +54,7 @@ public class Lead extends SObject {
 	public Id ConvertedOpportunityId;
 	public Opportunity ConvertedOpportunity;
 	public String Country;
+	public String CountryCode;
 	public Id CreatedById;
 	public User CreatedBy;
 	public Datetime CreatedDate;
@@ -100,6 +101,7 @@ public class Lead extends SObject {
 	public String Rating;
 	public String Salutation;
 	public String State;
+	public String StateCode;
 	public String Status;
 	public String Street;
 	public Datetime SystemModstamp;

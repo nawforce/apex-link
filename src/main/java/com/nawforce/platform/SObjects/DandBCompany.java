@@ -44,6 +44,7 @@ public class DandBCompany extends SObject {
 	public String CompanyCurrencyIsoCode;
 	public String Country;
 	public String CountryAccessCode;
+	public String CountryCode;
 	public Id CreatedById;
 	public User CreatedBy;
 	public Datetime CreatedDate;
@@ -96,9 +97,11 @@ public class DandBCompany extends SObject {
 	public Address MailingAddress;
 	public String MailingCity;
 	public String MailingCountry;
+	public String MailingCountryCode;
 	public String MailingGeocodeAccuracy;
 	public String MailingPostalCode;
 	public String MailingState;
+	public String MailingStateCode;
 	public String MailingStreet;
 	public String MarketingPreScreen;
 	public String MarketingSegmentationCluster;
@@ -141,6 +144,7 @@ public class DandBCompany extends SObject {
 	public String SixthSicDesc;
 	public String SmallBusiness;
 	public String State;
+	public String StateCode;
 	public String StockExchange;
 	public String StockSymbol;
 	public String Street;
