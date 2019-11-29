@@ -50,11 +50,13 @@ public class Order extends SObject {
 	public Address BillingAddress;
 	public String BillingCity;
 	public String BillingCountry;
+	public String BillingCountryCode;
 	public String BillingGeocodeAccuracy;
 	public Decimal BillingLatitude;
 	public Decimal BillingLongitude;
 	public String BillingPostalCode;
 	public String BillingState;
+	public String BillingStateCode;
 	public String BillingStreet;
 	public Id CompanyAuthorizedById;
 	public User CompanyAuthorizedBy;
@@ -95,11 +97,13 @@ public class Order extends SObject {
 	public Address ShippingAddress;
 	public String ShippingCity;
 	public String ShippingCountry;
+	public String ShippingCountryCode;
 	public String ShippingGeocodeAccuracy;
 	public Decimal ShippingLatitude;
 	public Decimal ShippingLongitude;
 	public String ShippingPostalCode;
 	public String ShippingState;
+	public String ShippingStateCode;
 	public String ShippingStreet;
 	public String Status;
 	public String StatusCode;

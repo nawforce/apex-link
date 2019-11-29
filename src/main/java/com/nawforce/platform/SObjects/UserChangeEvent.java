@@ -54,6 +54,7 @@ public class UserChangeEvent extends SObject {
 	public Id ContactId;
 	public Contact Contact;
 	public String Country;
+	public String CountryCode;
 	public Id CreatedById;
 	public User CreatedBy;
 	public Datetime CreatedDate;
@@ -110,6 +111,7 @@ public class UserChangeEvent extends SObject {
 	public String SenderName;
 	public String Signature;
 	public String State;
+	public String StateCode;
 	public String StayInTouchNote;
 	public String StayInTouchSignature;
 	public String StayInTouchSubject;
