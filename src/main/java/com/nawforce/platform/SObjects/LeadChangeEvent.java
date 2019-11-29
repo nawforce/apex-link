@@ -55,6 +55,7 @@ public class LeadChangeEvent extends SObject {
 	public Id ConvertedOpportunityId;
 	public Opportunity ConvertedOpportunity;
 	public String Country;
+	public String CountryCode;
 	public Id CreatedById;
 	public User CreatedBy;
 	public Datetime CreatedDate;
@@ -72,7 +73,7 @@ public class LeadChangeEvent extends SObject {
 	public Id IndividualId;
 	public Individual Individual;
 	public String Industry;
-	public com.nawforce.platform.System.Boolean IsConverted;
+	public Boolean IsConverted;
 	public Boolean IsUnreadByOwner;
 	public String Jigsaw;
 	public String JigsawContactId;
@@ -94,6 +95,7 @@ public class LeadChangeEvent extends SObject {
 	public String ReplayId;
 	public String Salutation;
 	public String State;
+	public String StateCode;
 	public String Status;
 	public String Street;
 	public String Title;

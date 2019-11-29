@@ -44,6 +44,7 @@ public class Organization extends SObject {
 	public String City;
 	public String ComplianceBccEmail;
 	public String Country;
+	public String CountryCode;
 	public Id CreatedById;
 	public User CreatedBy;
 	public Datetime CreatedDate;
@@ -91,6 +92,7 @@ public class Organization extends SObject {
 	public Boolean ReceivesInfoEmails;
 	public String SignupCountryIsoCode;
 	public String State;
+	public String StateCode;
 	public String Street;
 	public Datetime SystemModstamp;
 	public String TimeZoneSidKey;

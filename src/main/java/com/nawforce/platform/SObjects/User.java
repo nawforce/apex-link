@@ -54,6 +54,7 @@ public class User extends SObject {
 	public Id ContactId;
 	public Contact Contact;
 	public String Country;
+	public String CountryCode;
 	public Id CreatedById;
 	public User CreatedBy;
 	public Datetime CreatedDate;
@@ -118,6 +119,7 @@ public class User extends SObject {
 	public String SmallBannerPhotoUrl;
 	public String SmallPhotoUrl;
 	public String State;
+	public String StateCode;
 	public String StayInTouchNote;
 	public String StayInTouchSignature;
 	public String StayInTouchSubject;
@@ -239,6 +241,8 @@ public class User extends SObject {
 	public CollaborationGroupMember[] GroupMemberships;
 	public InstalledMobileApp[] InstalledMobileApps;
 	public User[] ManagedUsers;
+	public OpportunitySplit[] OpportunitySplits;
+	public OpportunityTeamMember[] OpportunityTeams;
 	public OutgoingEmailRelation[] OutgoingEmailRelations;
 	public OwnedContentDocument[] OwnedContentDocuments;
 	public PermissionSetAssignment[] PermissionSetAssignments;
@@ -253,5 +257,6 @@ public class User extends SObject {
 	public UserFieldAccess[] UserFieldAccessRights;
 	public UserPreference[] UserPreferences;
 	public Site[] UserSites;
+	public UserTeamMember[] UserTeams;
 	public UserTerritory2Association[] UserTerritory2Associations;
 }

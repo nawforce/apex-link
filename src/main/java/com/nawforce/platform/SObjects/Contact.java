@@ -78,11 +78,13 @@ public class Contact extends SObject {
 	public Address MailingAddress;
 	public String MailingCity;
 	public String MailingCountry;
+	public String MailingCountryCode;
 	public String MailingGeocodeAccuracy;
 	public Decimal MailingLatitude;
 	public Decimal MailingLongitude;
 	public String MailingPostalCode;
 	public String MailingState;
+	public String MailingStateCode;
 	public String MailingStreet;
 	public Id MasterRecordId;
 	public Contact MasterRecord;
@@ -91,12 +93,14 @@ public class Contact extends SObject {
 	public Address OtherAddress;
 	public String OtherCity;
 	public String OtherCountry;
+	public String OtherCountryCode;
 	public String OtherGeocodeAccuracy;
 	public Decimal OtherLatitude;
 	public Decimal OtherLongitude;
 	public String OtherPhone;
 	public String OtherPostalCode;
 	public String OtherState;
+	public String OtherStateCode;
 	public String OtherStreet;
 	public Id OwnerId;
 	public User Owner;
