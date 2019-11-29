@@ -79,7 +79,7 @@ object SObjectDetails {
           case Some(_: SObjectDocument) => PlatformObjectNature
         }
 
-        val sfdxFields = parseSfdxFields(path, pkg, typeName)
+        val sfdxFields = parseSfdxFields(path, pkg, typeName, sobjectNature)
         val sfdxFieldSets = parseSfdxFieldSets(path, pkg)
         return Some(SObjectDetails(sobjectNature, typeName, sfdxFields, sfdxFieldSets.toSet))
       }
@@ -105,10 +105,10 @@ object SObjectDetails {
 
       val fields = root.child.flatMap {
         case elem: Elem if elem.namespace == XMLUtils.sfNamespace && elem.label == "fields" =>
-          parseField(elem, path, pkg, typeName)
+          parseField(elem, path, pkg, typeName, sobjectNature)
         case _ => None
       }
-      val sfdxFields = parseSfdxFields(path, pkg, typeName)
+      val sfdxFields = parseSfdxFields(path, pkg, typeName, sobjectNature)
 
       val fieldsSets = root.child.flatMap {
         case elem: Elem if elem.namespace == XMLUtils.sfNamespace && elem.label == "fieldSets" =>
@@ -134,7 +134,8 @@ object SObjectDetails {
       .defaultNamespace(pkg.namespace).fullName
   }
 
-  private def parseSfdxFields(path: Path, pkg: PackageDeclaration, sObjectType: TypeName): Seq[CustomFieldDeclaration] = {
+  private def parseSfdxFields(path: Path, pkg: PackageDeclaration, sObjectType: TypeName, sObjectNature: SObjectNature)
+  : Seq[CustomFieldDeclaration] = {
     val fieldsDir = path.getParent.resolve("fields")
     if (Files.isDirectory(fieldsDir)) {
       Files.newDirectoryStream(fieldsDir).asScala.flatMap(file => {
@@ -142,7 +143,7 @@ object SObjectDetails {
           try {
             val root = XMLLineLoader.load(StreamProxy.getInputStream(file))
             XMLUtils.assertIs(root, "CustomField")
-            parseField(root, path, pkg, sObjectType)
+            parseField(root, path, pkg, sObjectType, sObjectNature)
           } catch {
             case e: XMLException =>
               Org.logMessage(RangeLocation(file, e.where), e.msg)
