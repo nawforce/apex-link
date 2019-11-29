@@ -31,6 +31,7 @@ import java.nio.file.Path
 
 import com.nawforce.documents.{RangeLocation, TextRange}
 import com.nawforce.names.{EncodedName, Name, TypeName}
+import com.nawforce.xml.XMLUtils.getLine
 import com.nawforce.xml.{XMLException, XMLUtils}
 
 import scala.xml.Elem
@@ -48,11 +49,21 @@ final case class CustomFieldDeclaration(name: Name, typeName: TypeName, asStatic
 
 object CustomFieldDeclaration {
 
-  def parseField(elem: Elem, path: Path, pkg: PackageDeclaration, sObjectType: TypeName): Seq[CustomFieldDeclaration] = {
+  def parseField(elem: Elem, path: Path, pkg: PackageDeclaration, sObjectType: TypeName, sObjectNature: SObjectNature)
+  : Seq[CustomFieldDeclaration] = {
+
     val rawName: String = XMLUtils.getSingleChildAsString(elem, "fullName").trim
     val name = Name(pkg.namespace.map(ns => s"${ns.value}__$rawName").getOrElse(rawName))
-    val rawType: String = XMLUtils.getSingleChildAsString(elem, "type").trim
+    val rawTypeOption = XMLUtils.getOptionalSingleChildAsString(elem, "type").map(_.trim)
 
+    if (rawTypeOption.isEmpty && sObjectNature == PlatformObjectNature && EncodedName(name).ext.isEmpty) {
+      // Allow missing type on standard fields of standard objects
+      return Seq()
+    } else if (rawTypeOption.isEmpty) {
+      throw XMLException(TextRange(getLine(elem)), s"Expecting custom field '${name}' to have 'type' child element")
+    }
+
+    val rawType = rawTypeOption.get
     val dataType = rawType match {
       case "MasterDetail" => PlatformTypes.idType
       case "Lookup" => PlatformTypes.idType
