@@ -25,19 +25,46 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.api
+package com.nawforce.server
 
-import ch.qos.logback.classic.Level
-import com.typesafe.scalalogging.LazyLogging
-import org.slf4j.LoggerFactory
+import scala.scalajs.js
+import scala.scalajs.js.annotation.{JSExportAll, JSExportTopLevel}
 
-object LogUtils extends LazyLogging {
-  def setLoggingLevel(verbose: Boolean): Unit = {
-    LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME).asInstanceOf[ch.qos.logback.classic.Logger]
-      .setLevel(if (verbose) Level.ALL else Level.OFF)
-    if (verbose) {
-      println("Logger")
-      logger.info("ApexLink Logging started")
+@JSExportTopLevel("Server") @JSExportAll
+object Server {
+  def init(jarHome: String): Unit = {
+    if (!exists(jarHome)) {
+      println(s"No file at ${jarHome}")
+      return
     }
+
+    JavaImport.options.push("-XX:+UseG1GC")
+    JavaImport.classpath.push(jarHome)
+
+    val callback: String => Unit = (err: String) => {
+      if (!JavaImport.isJvmCreated()) {
+        println(s"JVM Startup failed: error ${err}")
+      } else {
+        setLoggingLevel(true)
+        println(s"JVM Startup completed")
+        println(newOrg())
+      }
+    }
+
+    JavaImport.ensureJvm(callback)
+  }
+
+  private def exists(jarFile: String): Boolean = {
+    FSImport.existsSync(jarFile)
+  }
+
+  def setLoggingLevel(verbose: Boolean): Unit = {
+    JavaImport.callStaticMethodSync("com.nawforce.api.LogUtils", "setLoggingLevel", verbose)
+  }
+
+  def newOrg(): js.Dynamic = {
+    JavaImport.newInstanceSync("com.nawforce.api.Org")
   }
 }
+
+
