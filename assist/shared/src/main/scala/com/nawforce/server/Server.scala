@@ -27,43 +27,75 @@
 */
 package com.nawforce.server
 
+import com.nawforce.imports.Java
+import io.scalajs.nodejs.fs.Fs
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Promise
+import scala.language.implicitConversions
 import scala.scalajs.js
+import scala.scalajs.js.JSConverters._
 import scala.scalajs.js.annotation.{JSExportAll, JSExportTopLevel}
+import scala.util.Try
+
+class MyObject extends js.Object {
+  def printThis(data:String): Unit = { println(s"Proxy: ${data}")}
+}
 
 @JSExportTopLevel("Server") @JSExportAll
-object Server {
-  def init(jarHome: String): Unit = {
-    if (!exists(jarHome)) {
-      println(s"No file at ${jarHome}")
-      return
-    }
+class Server {
 
-    JavaImport.options.push("-XX:+UseG1GC")
-    JavaImport.classpath.push(jarHome)
+  val org = newOrg()
+  val metadataProxy = new MyObject()
+  val proxy: js.Dynamic = Java.newProxy("com.nawforce.api.MetadataProxy", metadataProxy)
+  Java.callMethodSync(org, "setMetadataProxy", proxy)
 
-    val callback: String => Unit = (err: String) => {
-      if (!JavaImport.isJvmCreated()) {
-        println(s"JVM Startup failed: error ${err}")
-      } else {
-        setLoggingLevel(true)
-        println(s"JVM Startup completed")
-        println(newOrg())
-      }
-    }
-
-    JavaImport.ensureJvm(callback)
-  }
-
-  private def exists(jarFile: String): Boolean = {
-    FSImport.existsSync(jarFile)
-  }
 
   def setLoggingLevel(verbose: Boolean): Unit = {
-    JavaImport.callStaticMethodSync("com.nawforce.api.LogUtils", "setLoggingLevel", verbose)
+    Java.callStaticMethodSync("com.nawforce.api.LogUtils", "setLoggingLevel", verbose)
   }
 
   def newOrg(): js.Dynamic = {
-    JavaImport.newInstanceSync("com.nawforce.api.Org")
+    Java.newInstanceSync("com.nawforce.api.Org")
+  }
+}
+
+@JSExportTopLevel("ServerOps") @JSExportAll
+object ServerOps {
+  private var _jarFile: Option[String] = None
+  private var _server: Option[Server] = None
+
+  def setJarFile(jarFile: String): Boolean = {
+    if (!Fs.existsSync(jarFile))
+      return false
+    _jarFile = Some(jarFile)
+    true
+  }
+
+  def getServer(): js.Promise[Server] = {
+    if (_server.nonEmpty)
+      js.Promise.resolve[Server](_server.get)
+    else if (_jarFile.isEmpty)
+      js.Promise.reject(js.JavaScriptException("Location of ApexlLnk jar file must be set"))
+    else
+      launch().future.toJSPromise
+  }
+
+  private def launch(): Promise[Server] = {
+
+    Java.options.push("-XX:+UseG1GC")
+    Java.classpath.push(_jarFile.get)
+
+    val promise = Promise[Server]()
+    Java.ensureJvm(_ => {
+      if (!Java.isJvmCreated()) {
+        promise.failure(js.JavaScriptException(s"JVM Startup failed"))
+      } else {
+        _server = Some(new Server())
+        promise.complete(Try(_server.get))
+      }
+    })
+    promise
   }
 }
 
