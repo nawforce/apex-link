@@ -30,7 +30,7 @@ package com.nawforce.cst
 import java.io.ByteArrayInputStream
 import java.nio.file.{Path, Paths}
 
-import com.nawforce.api.{LogUtils, Org}
+import com.nawforce.api.{ServerOps, Org}
 import com.nawforce.documents.StreamProxy
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.types.TypeDeclaration
@@ -38,7 +38,7 @@ import org.scalatest.{BeforeAndAfter, FunSuite}
 
 class ImplementsTest extends FunSuite with BeforeAndAfter {
 
-  LogUtils.setLoggingLevel(false)
+  ServerOps.setLogging(Array("ALL"))
 
   private val defaultName: Name = Name("Dummy")
   private val defaultPath: Path = Paths.get(defaultName.toString + ".cls")

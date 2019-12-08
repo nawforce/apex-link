@@ -29,7 +29,7 @@ package com.nawforce
 
 import java.nio.file.Paths
 
-import com.nawforce.api.{LogUtils, Org}
+import com.nawforce.api.{ServerOps, Org}
 
 import scala.collection.mutable
 
@@ -67,7 +67,7 @@ object ApexLink {
     val json = validArgs.contains("-json")
     val verbose = !json && validArgs.contains("-verbose")
     val zombie = validArgs.contains("-zombie")
-    LogUtils.setLoggingLevel(verbose)
+    ServerOps.setLogging(Array("ALL"))
 
     val parseStart = System.currentTimeMillis()
     val org = new Org()

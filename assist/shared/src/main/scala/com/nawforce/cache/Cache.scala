@@ -25,19 +25,37 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.api
+package com.nawforce.cache
 
-import ch.qos.logback.classic.Level
-import com.typesafe.scalalogging.LazyLogging
-import org.slf4j.LoggerFactory
+import com.nawforce.imports.OSExtra
+import io.scalajs.nodejs.process
 
-object LogUtils extends LazyLogging {
-  def setLoggingLevel(verbose: Boolean): Unit = {
-    LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME).asInstanceOf[ch.qos.logback.classic.Logger]
-      .setLevel(if (verbose) Level.ALL else Level.OFF)
-    if (verbose) {
-      println("Logger")
-      logger.info("ApexLink Logging started")
+class Cache(path: Path) {
+
+}
+
+object Cache {
+  val CACHE_DIR: String = ".apexassist_cache"
+  val TEST_FILE: String = "test_file"
+
+  def apply(): Either[String, Cache] = {
+    val cacheDir =
+      process.env.get("APEXASSIST_CACHE_DIR").map(Path)
+        .getOrElse(Path(OSExtra.homedir()).join(CACHE_DIR))
+
+    if (cacheDir.exists) {
+      if (!cacheDir.isDirectory) {
+        return Left(s"Cache directory '$cacheDir' exists but is not a directory")
+      }
+
+      cacheDir.createFile(TEST_FILE, "") match {
+        case Left(err) => Left(s"Cache directory '$cacheDir' exists but is not writable, error '$err'")
+        case Right(created) =>
+          created.delete()
+          Right(new Cache(cacheDir))
+      }
+    } else {
+      Left("Create Dir")
     }
   }
 }
