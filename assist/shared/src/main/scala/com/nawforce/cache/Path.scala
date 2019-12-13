@@ -31,6 +31,15 @@ import io.scalajs.nodejs.fs.Fs
 
 import scala.scalajs.js
 
+sealed class PathNature(val value: String)
+
+case object DOES_NOT_EXIST extends PathNature("Does not exist")
+case object DIRECTORY extends PathNature("Directory")
+sealed class FILE(_value: String) extends PathNature(_value)
+case object EMPTY_FILE extends FILE ("Empty File")
+case object NONEMPTY_FILE extends FILE ("Non-Empty File")
+case object UNKNOWN extends PathNature("Unknown")
+
 case class Path(path: String) {
   assert(path.nonEmpty)
 
@@ -43,17 +52,24 @@ case class Path(path: String) {
   lazy val name: Option[String] = pathObject.name.toOption
 
   lazy val filename: String = base.get
-  lazy val parent: Path = Path(dir.get)
+  lazy val parent: Path = join("..")
 
   override def toString: String = {
     io.scalajs.nodejs.path.Path.format(pathObject)
   }
 
-  def exists: Boolean = Fs.existsSync(path)
-
-  def isDirectory: Boolean = exists && Fs.lstatSync(path).isDirectory()
-
-  def isEmpty: Boolean = exists && Fs.lstatSync(path).size == 0
+  lazy val nature: PathNature = {
+    try {
+      val stats = Fs.lstatSync(path)
+      if (stats.isDirectory()) DIRECTORY
+      else if (stats.isFile()) {
+        if (stats.size == 0) EMPTY_FILE else NONEMPTY_FILE
+      }
+      else UNKNOWN
+    } catch {
+      case _: js.JavaScriptException => DOES_NOT_EXIST
+    }
+  }
 
   def toAbsolute: Path = Path(io.scalajs.nodejs.path.Path.resolve(path))
 
@@ -93,10 +109,10 @@ case class Path(path: String) {
     }
   }
 
-  def directoryContents(): Either[String, Seq[Path]] = {
-    if (isDirectory) {
+  def directoryList(): Either[String, Seq[String]] = {
+    if (nature == DIRECTORY) {
       try {
-        Right(Fs.readdirSync(path).map(Path))
+        Right(Fs.readdirSync(path))
       } catch {
         case ex: js.JavaScriptException => Left(ex.getMessage())
       }

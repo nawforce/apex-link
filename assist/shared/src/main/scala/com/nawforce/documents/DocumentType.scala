@@ -27,7 +27,7 @@
 */
 package com.nawforce.documents
 
-import com.nawforce.cache.Path
+import com.nawforce.cache.{EMPTY_FILE, Path}
 import com.nawforce.names.Name
 
 trait DocumentType {
@@ -52,8 +52,9 @@ final case class ApexDocument(_path: Path, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("cls")
   override val ignorable: Boolean = {
-    path.isEmpty || path.read().toOption.contains("(hidden)")
+    path.nature == EMPTY_FILE || path.read().toOption.contains("(hidden)")
   }
+  override val indexByName: Boolean = true
 }
 
 final case class ComponentDocument(_path: Path, _name: Name)
@@ -66,7 +67,7 @@ abstract class SObjectLike(_path: Path, _name: Name) extends MetadataDocumentTyp
 final case class SObjectDocument(_path: Path, _name: Name)
   extends SObjectLike(_path, _name) {
   lazy val extension: Name = Name("object")
-  override val ignorable: Boolean = path.isEmpty
+  override val ignorable: Boolean = path.nature == EMPTY_FILE
 }
 
 final case class SObjectFieldDocument(_path: Path, _name: Name)
