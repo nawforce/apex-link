@@ -35,7 +35,6 @@ class SampleTest extends FunSuite {
 
   private def sample(path: String, namespace: String = "", externalNamespaces: Set[String] = Set(),
                      expectedCount: Int = 0): Unit = {
-    ServerOps.setLogging(Array("ALL"))
     val org = new Org()
     externalNamespaces.foreach(ens => org.addPackage(ens, Array(), Array()))
     val pkg = org.addPackage(namespace, Array[String](path), externalNamespaces.toArray)

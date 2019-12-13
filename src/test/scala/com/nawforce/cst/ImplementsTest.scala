@@ -38,8 +38,6 @@ import org.scalatest.{BeforeAndAfter, FunSuite}
 
 class ImplementsTest extends FunSuite with BeforeAndAfter {
 
-  ServerOps.setLogging(Array("ALL"))
-
   private val defaultName: Name = Name("Dummy")
   private val defaultPath: Path = Paths.get(defaultName.toString + ".cls")
   private var defaultOrg: Org = new Org
