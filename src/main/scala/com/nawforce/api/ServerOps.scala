@@ -28,11 +28,32 @@
 package com.nawforce.api
 
 import ch.qos.logback.classic.Level
+import com.typesafe.scalalogging.LazyLogging
 import org.slf4j.LoggerFactory
 
-object LogUtils {
-  def setLoggingLevel(verbose: Boolean): Unit = {
-    LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME).asInstanceOf[ch.qos.logback.classic.Logger]
+/* Dummy proxy object used to initialise */
+object DummmyMetadataProxy extends MetadataProxy {
+  override def printThis(data: String) {}
+}
+
+/* Collection of Ops functions for changing behaviour */
+object ServerOps extends LazyLogging {
+  private var metadataProxy: MetadataProxy = DummmyMetadataProxy
+
+  /* Set logging categories, only supported option is 'ALL' */
+  def setLogging(flags: Array[String]): Unit = {
+    val verbose = flags.contains("ALL")
+    LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME)
+      .asInstanceOf[ch.qos.logback.classic.Logger]
       .setLevel(if (verbose) Level.ALL else Level.OFF)
+    if (verbose) {
+      logger.info("ApexLink Logging started")
+    }
+  }
+
+  /* Set a proxy for resolving metadata, this must be provided */
+  def setMetadataProxy(proxy: MetadataProxy): Unit = {
+    metadataProxy = proxy
+    metadataProxy.printThis("Hello")
   }
 }

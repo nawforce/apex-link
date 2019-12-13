@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ScalaCompilerConfiguration">
+    <profile name="sbt 1" modules="shared_272" />
+    <profile name="sbt 2" modules="ApexAssist">
+      <parameters>
+        <parameter value="-P:scalajs:sjsDefinedByDefault" />
+      </parameters>
+      <plugins>
+        <plugin path="$USER_HOME$/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-js/scalajs-compiler_2.12.3/0.6.31/scalajs-compiler_2.12.3-0.6.31.jar" />
+      </plugins>
+    </profile>
+  </component>
+</project>
