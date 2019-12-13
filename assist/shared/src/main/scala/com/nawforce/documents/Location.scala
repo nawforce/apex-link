@@ -27,7 +27,7 @@
 */
 package com.nawforce.documents
 
-import java.nio.file.Path
+import com.nawforce.cache.Path
 
 abstract class Location(val path: Path, val line: Int) {
   def startPosition: (Int, Int) = (line, 0)

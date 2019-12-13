@@ -27,8 +27,7 @@
 */
 package com.nawforce.diagnostics
 
-import java.nio.file.Path
-
+import com.nawforce.cache.Path
 import com.nawforce.documents.Location
 
 import scala.collection.mutable
@@ -155,7 +154,7 @@ class IssueLog {
     val writer = new JSONMessageWriter()
     writer.startOutput()
     synchronized {
-      log.keys.toSeq.sorted.foreach(path => {
+      log.keys.toSeq.sortBy(_.toString).foreach(path => {
         writeMessages(writer, path, warnings, maxErrors)
       })
     }

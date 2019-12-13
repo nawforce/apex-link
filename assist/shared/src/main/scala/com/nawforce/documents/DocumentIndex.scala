@@ -27,22 +27,26 @@
 */
 package com.nawforce.documents
 
-import com.nawforce.cache.Path
+import com.nawforce.api.Org
+import com.nawforce.cache.{DIRECTORY, DOES_NOT_EXIST, FILE, Path}
 import com.nawforce.names.Name
-import io.scalajs.nodejs.fs.Fs
 
 import scala.collection.mutable
+import scala.scalajs.js
 
-class DocumentLoadingException(msg: String, ex: Exception=null) extends Exception(msg, ex)
+class DocumentIndexException(msg: String) extends js.JavaScriptException(msg)
 
-class DocumentLoader(paths: Seq[Path]) {
-  private val documentByName = new mutable.HashMap[Name, Path]()
-  private val documentsByExtension = new mutable.HashMap[Name, List[Path]]() withDefaultValue List()
+class DocumentIndex(paths: Seq[Path]) {
+  // Partitioned by normalised extension
+  private val documentNames = new mutable.HashMap[Name, mutable.Set[Name]]() withDefaultValue mutable.Set()
+  private val documents = new mutable.HashMap[Name, List[MetadataDocumentType]]() withDefaultValue List()
 
   index()
 
-  def getByExtension(name: Name): Seq[Path] = {
-    documentsByExtension(name)
+  val size: Int = documents.values.map(_.size).sum
+
+  def getByExtension(name: Name): Seq[MetadataDocumentType] = {
+    documents(name)
   }
 
   private def index(): Unit = {
@@ -56,15 +60,16 @@ class DocumentLoader(paths: Seq[Path]) {
   }
 
   private def indexPath(path: Path): Unit = {
+
     if (path.filename.toString.startsWith("."))
       return
 
-    if (path.isDirectory) {
-      path.directoryContents() match {
-        case Left(err) => () // TODO
-        case Right(parts) => parts.foreach(indexPath)
+    if (path.nature == DIRECTORY) {
+      path.directoryList() match {
+        case Left(err) => throw new DocumentIndexException(err)
+        case Right(parts) => parts.foreach(part => indexPath(path.join(part)))
       }
-    } else {
+    } else if (path.nature.isInstanceOf[FILE]) {
       insertDocument(DocumentType(path))
     }
   }
@@ -73,26 +78,28 @@ class DocumentLoader(paths: Seq[Path]) {
     documentType match {
       case Some(docType: MetadataDocumentType) if !docType.ignorable =>
         if (docType.indexByName) {
-          val duplicate = documentByName.get(docType.name)
-          if (duplicate.nonEmpty) {
-            val duplicate = documentByName.get(docType.name)
-            // TODO
-            // Org.logMessage(LineLocation(docType.path, 0), s"File has same name as ${duplicate.get}, ignoring")
+          if (documentNames(docType.extension).contains(docType.name)) {
+            val duplicate = documents(docType.extension).find(_.name == docType.name)
+            Org.logMessage(LineLocation(docType.path, 0), s"File has same name as ${duplicate.get}, ignoring")
           } else {
-            documentByName.put(docType.name, docType.path)
+            documentNames(docType.extension).add(docType.name)
+            documents.put(docType.extension, docType :: documents(docType.extension))
           }
+        } else {
+          documents.put(docType.extension, docType :: documents(docType.extension))
         }
-        documentsByExtension.put(docType.extension, docType.path :: documentsByExtension(docType.extension))
       case _ => ()
     }
   }
 
   private def createGhostSObjectFiles(name: Name): Unit = {
-    getByExtension(name).foreach(path => {
-      val metaFile = path.parent.join(path.filename + ".object-meta.xml")
-      if (!metaFile.exists) {
-        if (!documentsByExtension.getOrElse(Name("object"), Seq()).contains(metaFile)) {
-          documentsByExtension.put(Name("object"), metaFile :: documentsByExtension(Name("object")))
+    getByExtension(name).foreach(docType => {
+      val objectDir = docType.path.parent.parent
+      val metaFile = objectDir.join(objectDir.filename + ".object-meta.xml")
+      if (metaFile.nature == DOES_NOT_EXIST) {
+        if (!documents(Name("object")).map(_.path).contains(metaFile)) {
+          documents.put(Name("object"),
+            SObjectDocument(metaFile, Name(objectDir.filename)) :: documents(Name("object")))
         }
       }
     })

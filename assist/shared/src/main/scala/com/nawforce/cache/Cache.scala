@@ -43,8 +43,8 @@ object Cache {
       process.env.get("APEXASSIST_CACHE_DIR").map(Path)
         .getOrElse(Path(OSExtra.homedir()).join(CACHE_DIR))
 
-    if (cacheDir.exists) {
-      if (!cacheDir.isDirectory) {
+    if (cacheDir.nature != DOES_NOT_EXIST) {
+      if (cacheDir.nature != DIRECTORY) {
         return Left(s"Cache directory '$cacheDir' exists but is not a directory")
       }
 
@@ -55,6 +55,7 @@ object Cache {
           Right(new Cache(cacheDir))
       }
     } else {
+      // TODO
       Left("Create Dir")
     }
   }
