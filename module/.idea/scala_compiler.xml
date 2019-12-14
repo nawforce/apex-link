@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ScalaCompilerConfiguration">
     <profile name="sbt 1" modules="shared_272" />
-    <profile name="sbt 2" modules="ApexAssist">
+    <profile name="sbt 2" modules="ApexLink">
       <parameters>
         <parameter value="-P:scalajs:sjsDefinedByDefault" />
       </parameters>
