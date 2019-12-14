@@ -32,13 +32,13 @@ import com.typesafe.scalalogging.LazyLogging
 import org.slf4j.LoggerFactory
 
 /* Dummy proxy object used to initialise */
-object DummmyMetadataProxy extends MetadataProxy {
-  override def printThis(data: String) {}
+object StubMetadataProxy extends MetadataProxy {
+  override def activated() {}
 }
 
 /* Collection of Ops functions for changing behaviour */
 object ServerOps extends LazyLogging {
-  private var metadataProxy: MetadataProxy = DummmyMetadataProxy
+  private var metadataProxy: MetadataProxy = StubMetadataProxy
 
   /* Set logging categories, only supported option is 'ALL' */
   def setLogging(flags: Array[String]): Unit = {
@@ -54,6 +54,6 @@ object ServerOps extends LazyLogging {
   /* Set a proxy for resolving metadata, this must be provided */
   def setMetadataProxy(proxy: MetadataProxy): Unit = {
     metadataProxy = proxy
-    metadataProxy.printThis("Hello")
+    metadataProxy.activated()
   }
 }

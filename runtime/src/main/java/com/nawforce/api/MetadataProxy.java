@@ -28,5 +28,5 @@
 package com.nawforce.api;
 
 public interface MetadataProxy {
-    void printThis(String data);
+    void activated();
 }

@@ -38,21 +38,14 @@ import scala.scalajs.js.JSConverters._
 import scala.scalajs.js.annotation.{JSExportAll, JSExportTopLevel}
 import scala.util.Try
 
-class MyObject extends js.Object {
-  def printThis(data:String): Unit = { println(s"Proxy: ${data}")}
+trait MetadataProxy extends js.Object {
+  def activated(): Unit
 }
 
 @JSExportTopLevel("Server") @JSExportAll
 class Server {
-
-  val org = newOrg()
-  val metadataProxy = new MyObject()
-  val proxy: js.Dynamic = Java.newProxy("com.nawforce.api.MetadataProxy", metadataProxy)
-  Java.callMethodSync(org, "setMetadataProxy", proxy)
-
-
-  def setLoggingLevel(verbose: Boolean): Unit = {
-    Java.callStaticMethodSync("com.nawforce.api.LogUtils", "setLoggingLevel", verbose)
+  def setLogging(flags: js.Array[String]): Unit = {
+    Java.callStaticMethodSync("com.nawforce.api.ServerOps", "setLogging", flags)
   }
 
   def newOrg(): js.Dynamic = {
@@ -92,10 +85,16 @@ object ServerOps {
         promise.failure(js.JavaScriptException(s"JVM Startup failed"))
       } else {
         _server = Some(new Server())
+        setMetadataProxy(new CacheProxy)
         promise.complete(Try(_server.get))
       }
     })
     promise
+  }
+
+  private def setMetadataProxy(metadataProxy: MetadataProxy): Unit = {
+    val proxy: js.Dynamic = Java.newProxy("com.nawforce.api.MetadataProxy", metadataProxy)
+    Java.callStaticMethodSync("com.nawforce.api.ServerOps", "setMetadataProxy", proxy)
   }
 }
 
