@@ -35,12 +35,12 @@ class Cache(path: Path) {
 }
 
 object Cache {
-  val CACHE_DIR: String = ".apexassist_cache"
+  val CACHE_DIR: String = ".apexlink_cache"
   val TEST_FILE: String = "test_file"
 
   def apply(): Either[String, Cache] = {
     val cacheDir =
-      process.env.get("APEXASSIST_CACHE_DIR").map(Path)
+      process.env.get("APEXLINK_CACHE_DIR").map(Path)
         .getOrElse(Path(OSExtra.homedir()).join(CACHE_DIR))
 
     if (cacheDir.nature != DOES_NOT_EXIST) {

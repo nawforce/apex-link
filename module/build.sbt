@@ -1,5 +1,5 @@
 
-name := "ApexAssist"
+name := "ApexLink"
 
 version := "0.1"
 
