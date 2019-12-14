@@ -1,6 +1,6 @@
 lib = require('./target/scala-2.12/scalajs-bundler/main/apexassist-fastopt');
 console.log(lib.ServerOps);
-lib.ServerOps.setJarFile("/Users/kevin/Projects/ApexLink/assist/cli/jars/apexlink-0.5.jar");
+lib.ServerOps.setJarFile("jars/apexlink-0.5.jar");
 lib.ServerOps.getServer().then(impl => {
     org = impl.newOrg();
     console.log(org)
