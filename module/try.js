@@ -1,4 +1,4 @@
-lib = require('./target/scala-2.12/scalajs-bundler/main/apexlink-fastopt');
+lib = require('./target/scala-2.12/scalajs-bundler/main/apexlink-js-opt');
 lib.ServerOps.setJarFile("jars/apexlink-0.5.jar");
 lib.ServerOps.getServer().then(server => {
     org = server.getOrg();

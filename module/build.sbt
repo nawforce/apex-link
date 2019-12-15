@@ -1,18 +1,19 @@
 import java.nio.file.Path
 
 name := "apexlink-js"
-version := "0.5"
+version := "0.5.0"
 scalaVersion := "2.12.3"
 
 enablePlugins(ScalaJSBundlerPlugin)
 scalacOptions += "-P:scalajs:sjsDefinedByDefault"
-webpackBundlingMode := BundlingMode.LibraryOnly()
-npmDependencies in Compile += "java" -> "0.11.1"
+webpackBundlingMode := BundlingMode.Application
 
+npmDependencies in Compile += "java" -> "0.11.1"
 npmDependencies in Test += "fs-monkey" -> "0.3.3"
 npmDependencies in Test += "memfs" -> "3.0.1"
 
 webpackConfigFile in fastOptJS := Some(baseDirectory.value / "custom.webpack.config.js")
+webpackConfigFile in fullOptJS := Some(baseDirectory.value / "custom.webpack.config.js")
 
 resolvers += Resolver.sonatypeRepo("public")
 libraryDependencies += "io.scalajs" %%% "nodejs" % "0.4.2"
@@ -83,12 +84,14 @@ npmTask := {
   "name": "$libName",
   "version": "${version.value.toString}",
   "description": "${description.value.toString}",
-  "main": "$distDir",
+  "main": "$distDir/$libName-opt.js",
   "repository": "nawforce/apexlink",
   "author": "Kevin Jones <nawforce@gmail.com> (https://github.com/nawforce)",
   "license": "BSD-3-Clause",
   "bugs": "https://github.com/nawforce/apexlink/issues",
-  "dependencies": {}
+  "dependencies": {
+    "java": "0.11.1"
+  }
 }"""
 
   println(packageJson)

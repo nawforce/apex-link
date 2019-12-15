@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/apexlink.js.iml" filepath="$PROJECT_DIR$/.idea/modules/apexlink.js.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/apexlink.js-build.iml" filepath="$PROJECT_DIR$/.idea/modules/apexlink.js-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/apexlink-js.iml" filepath="$PROJECT_DIR$/.idea/modules/apexlink-js.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/apexlink-js-build.iml" filepath="$PROJECT_DIR$/.idea/modules/apexlink-js-build.iml" />
     </modules>
   </component>
 </project>
