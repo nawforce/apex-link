@@ -25,9 +25,11 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.server
+package com.nawforce.api
 
+import com.nawforce.cache.CacheProxy
 import com.nawforce.imports.Java
+import com.nawforce.server.OrgProxy
 import io.scalajs.nodejs.fs.Fs
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -44,13 +46,14 @@ trait MetadataProxy extends js.Object {
 
 @JSExportTopLevel("Server") @JSExportAll
 class Server {
+  // Currently only support single org model
+  private lazy val org = new Org(OrgProxy())
+
   def setLogging(flags: js.Array[String]): Unit = {
     Java.callStaticMethodSync("com.nawforce.api.ServerOps", "setLogging", flags)
   }
 
-  def newOrg(): js.Dynamic = {
-    Java.newInstanceSync("com.nawforce.api.Org")
-  }
+  def getOrg(properties: js.Dynamic): Org = org
 }
 
 @JSExportTopLevel("ServerOps") @JSExportAll

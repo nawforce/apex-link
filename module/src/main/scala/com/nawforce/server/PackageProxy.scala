@@ -25,38 +25,11 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.api
-
-import com.nawforce.diagnostics.IssueCategory
-import com.nawforce.documents.Location
-import com.nawforce.server.OrgProxy
+package com.nawforce.server
 
 import scala.scalajs.js
 
-import scala.scalajs.js.annotation.{JSExportAll, JSExportTopLevel}
+class PackageProxy(proxy: js.Dynamic) {
 
-@JSExportTopLevel("Org") @JSExportAll
-class Org(proxy: OrgProxy) {
-  private lazy val unmanaged = new Package(proxy.unmanagedPackage)
-
-  def unmanagedPackage(): Package = unmanaged
-
-  def addPackage(namespace: String, directories: js.Array[String], basePackages: js.Array[String]): Package = {
-    new Package(proxy.addPackage(namespace, directories, basePackages))
-  }
-
-  def issues(warnings: Boolean, zombies: Boolean): String = {
-    proxy.issues(warnings, zombies)
-  }
 }
 
-object Org {
-
-  def log(location: Location, msg: String, category: IssueCategory): Unit = {
-    //Org.current.value.issues.logMessage(location, msg, category)
-  }
-
-  def logMessage(location: Location, msg: String): Unit = {
-    //log(location, msg, ERROR_CATEGORY)
-  }
-}
