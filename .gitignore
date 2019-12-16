@@ -3,6 +3,9 @@
 *.tokens
 *.interp 
 
+# Linked common directory
+module/common
+
 # Created by https://www.gitignore.io/api/windows,intellij,maven
 
 

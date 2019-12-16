@@ -4,6 +4,8 @@ name := "apexlink-js"
 version := "0.5.0"
 scalaVersion := "2.12.3"
 
+unmanagedSourceDirectories in Compile += baseDirectory.value / "common"
+
 enablePlugins(ScalaJSBundlerPlugin)
 scalacOptions += "-P:scalajs:sjsDefinedByDefault"
 webpackBundlingMode := BundlingMode.Application
