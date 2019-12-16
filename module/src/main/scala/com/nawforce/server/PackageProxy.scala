@@ -27,9 +27,14 @@
 */
 package com.nawforce.server
 
+import com.nawforce.imports.Java
+
 import scala.scalajs.js
 
 class PackageProxy(proxy: js.Dynamic) {
 
+  def deployAll(): Unit = {
+    Java.callMethodSync(proxy, "deployAll")
+  }
 }
 

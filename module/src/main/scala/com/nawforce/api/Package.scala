@@ -33,5 +33,5 @@ import scala.scalajs.js.annotation.{JSExportAll, JSExportTopLevel}
 
 @JSExportTopLevel("Package") @JSExportAll
 class Package(proxy: PackageProxy) {
-
+  def deployAll(): Unit = proxy.deployAll()
 }
