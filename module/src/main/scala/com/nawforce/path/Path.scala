@@ -95,6 +95,22 @@ case class Path(path: String) extends PathLike {
     }
   }
 
+  override def createDirectory(name: String): Either[String, PathLike] = {
+    val dir = join(name)
+    if (dir.nature == DOES_NOT_EXIST) {
+      try {
+        Fs.mkdirSync(dir.toString)
+        Right(Path(dir.toString))
+      } catch {
+        case ex: js.JavaScriptException => Left(ex.getMessage())
+      }
+    } else if (dir.nature == DIRECTORY) {
+      Right(dir)
+    } else {
+      Left(s"Can not create directory '$dir', file already exists")
+    }
+  }
+
   override def directoryList(): Either[String, Seq[String]] = {
     if (nature == DIRECTORY) {
       try {

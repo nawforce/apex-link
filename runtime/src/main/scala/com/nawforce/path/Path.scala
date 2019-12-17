@@ -28,31 +28,27 @@
 package com.nawforce.path
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path => JPath, Paths => JPaths}
+import java.nio.file.Files
 
-case class Path(path: String) extends PathLike {
-  assert(path.nonEmpty)
+case class Path(nativePath: java.nio.file.Path) extends PathLike {
 
-  private lazy val jpath: JPath = JPaths.get(path)
-
-  override lazy val basename: String = Option(jpath.getFileName).getOrElse(jpath.getRoot).toString
+  override lazy val basename: String = Option(nativePath.getFileName).map(_.toString).getOrElse("")
   override lazy val parent: Path = join("..")
-  override lazy val absolute: Path = Path(jpath.toAbsolutePath.toString)
+  override lazy val absolute: Path = Path(nativePath.toAbsolutePath)
 
-  override def toString: String = jpath.toString
+  override def toString: String = nativePath.toString
 
   override lazy val nature: PathNature = {
-    val f = jpath.toFile
-    if (!f.exists()) DOES_NOT_EXIST
-    else if (f.isDirectory) DIRECTORY
-    else if (f.isFile) {
-      if (Files.size(jpath) == 0) EMPTY_FILE else NONEMPTY_FILE
+    if (!Files.exists(nativePath)) DOES_NOT_EXIST
+    else if (Files.isDirectory(nativePath)) DIRECTORY
+    else if (Files.isRegularFile(nativePath)) {
+      if (Files.size(nativePath) == 0) EMPTY_FILE else NONEMPTY_FILE
     }
     else UNKNOWN
   }
 
   override def join(arg: String): Path = {
-    Path(jpath.resolve(arg).toString)
+    Path(nativePath.resolve(arg).normalize())
   }
 
   override def createFile(name: String, data: String): Either[String, Path] = {
@@ -65,36 +61,56 @@ case class Path(path: String) extends PathLike {
 
   override def read(): Either[String, String] = {
     try {
-      Right(new String(Files.readAllBytes(jpath), StandardCharsets.UTF_8))
+      Right(new String(Files.readAllBytes(nativePath), StandardCharsets.UTF_8))
     } catch {
-      case ex: java.io.IOException => Left(ex.getMessage)
+      case ex: java.io.IOException => Left(ex.toString)
     }
   }
 
   override def write(data: String): Option[String] = {
     try {
-      Files.write(jpath, data.getBytes(StandardCharsets.UTF_8))
+      Files.write(nativePath, data.getBytes(StandardCharsets.UTF_8))
       None
     } catch {
-      case ex: java.io.IOException => Some(ex.getMessage)
+      case ex: java.io.IOException => Some(ex.toString)
     }
   }
 
   override def delete(): Option[String] = {
     try {
-      Files.delete(jpath)
+      Files.delete(nativePath)
       None
     } catch {
-      case ex: java.io.IOException => Some(ex.getMessage)
+      case ex: java.io.IOException => Some(ex.toString)
+    }
+  }
+
+  override def createDirectory(name: String): Either[String, PathLike] = {
+    val dir = join(name)
+    if (dir.nature == DOES_NOT_EXIST) {
+      try {
+        Files.createDirectory(dir.nativePath)
+        Right(Path(dir.nativePath))
+      } catch {
+        case ex: java.io.IOException => Left(ex.toString)
+      }
+    } else if (dir.nature == DIRECTORY) {
+      Right(dir)
+    } else {
+      Left(s"Can not create directory '$dir', file already exists")
     }
   }
 
   override def directoryList(): Either[String, Seq[String]] = {
     if (nature == DIRECTORY) {
-      val f = jpath.toFile
+      val f = nativePath.toFile
       Right(Option(f.listFiles()).getOrElse(Array()).map(_.getName))
     } else {
-      Left(s"Path '$jpath' is not a directory'")
+      Left(s"Path '$nativePath' is not a directory'")
     }
   }
+}
+
+object Path {
+  def apply(path: String): Path = Path(java.nio.file.Paths.get(path))
 }

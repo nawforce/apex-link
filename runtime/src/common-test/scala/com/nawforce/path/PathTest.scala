@@ -33,10 +33,146 @@ import org.scalatest.FunSuite
 class PathTest extends FunSuite {
 
   test("root node is a root node") {
-    FileSystemHelper.run(Map[PathLike, String] (
-      PathFactory("Dummy.cls") -> "public class Dummy {}"
+    FileSystemHelper.run(Map[String, String] (
     )) { root: PathLike =>
+      assert(root.basename == "")
+      assert(root.parent == root)
       assert(root.nature == DIRECTORY)
+      assert(root.toString == "/")
+    }
+  }
+
+  test("empty file") {
+    FileSystemHelper.run(Map[String, String] (
+      "Empty.txt" -> ""
+    )) { root: PathLike =>
+      val file = root.join("Empty.txt")
+      assert(file.basename == "Empty.txt")
+      assert(file.parent == root)
+      assert(file.nature == EMPTY_FILE)
+      assert(file.toString == "/Empty.txt")
+    }
+  }
+
+  test("non-empty file") {
+    FileSystemHelper.run(Map[String, String] (
+      "Something.txt" -> "Hello"
+    )) { root: PathLike =>
+      val file = root.join("Something.txt")
+      assert(file.basename == "Something.txt")
+      assert(file.parent == root)
+      assert(file.nature == NONEMPTY_FILE)
+      assert(file.toString == "/Something.txt")
+    }
+  }
+
+  test("directory with file") {
+    FileSystemHelper.run(Map[String, String] (
+      "Bar/Something.txt" -> "Hello"
+    )) { root: PathLike =>
+      val file = root.join("Bar/Something.txt")
+      val dir = file.parent
+      assert(dir.basename == "Bar")
+      assert(dir.parent == root)
+      assert(dir.nature == DIRECTORY)
+      assert(dir.toString == "/Bar")
+
+      assert(file.basename == "Something.txt")
+      assert(file.parent.parent == root)
+      assert(file.nature == NONEMPTY_FILE)
+      assert(file.toString == "/Bar/Something.txt")
+    }
+  }
+
+  test("delete file") {
+    FileSystemHelper.run(Map[String, String] (
+      "Something.txt" -> "Hello"
+    )) { root: PathLike =>
+      val file = root.join("Something.txt")
+      assert(file.delete().isEmpty)
+      assert(root.join("Something.txt").nature == DOES_NOT_EXIST)
+    }
+  }
+
+  test("delete directory fails if contains files") {
+    FileSystemHelper.run(Map[String, String] (
+      "Bar/Something.txt" -> "Hello"
+    )) { root: PathLike =>
+      val file = root.join("Bar")
+      assert(file.delete().nonEmpty)
+    }
+  }
+
+  test("create directory") {
+    FileSystemHelper.run(Map[String, String] (
+    )) { root: PathLike =>
+      val dir = root.createDirectory("Bar").right.get
+      assert(dir.nature == DIRECTORY)
+    }
+  }
+
+  test("create directory duplicate directory succeeds") {
+    FileSystemHelper.run(Map[String, String] (
+    )) { root: PathLike =>
+      val dir1 = root.createDirectory("Bar").right.get
+      val dir2 = root.createDirectory("Bar").right.get
+      assert(dir1.nature == DIRECTORY)
+      assert(dir1 == dir2)
+    }
+  }
+
+  test("create directory over file fails") {
+    FileSystemHelper.run(Map[String, String] (
+      "Bar" -> "Hello"
+    )) { root: PathLike =>
+      assert(root.createDirectory("Bar").left.get == "Can not create directory '/Bar', file already exists")
+    }
+  }
+
+  test("delete directory") {
+    FileSystemHelper.run(Map[String, String] (
+    )) { root: PathLike =>
+      val file = root.createDirectory("Bar").right.get
+      assert(file.delete().isEmpty)
+      assert(root.join("Bar").nature == DOES_NOT_EXIST)
+    }
+  }
+
+  test("create empty file") {
+    FileSystemHelper.run(Map[String, String] (
+    )) { root: PathLike =>
+      val file = root.createFile("Bar", "").right.get
+      assert(file.nature == EMPTY_FILE)
+      assert(root.join("Bar").nature == EMPTY_FILE)
+    }
+  }
+
+  test("create non-empty file") {
+    FileSystemHelper.run(Map[String, String] (
+    )) { root: PathLike =>
+      val file = root.createFile("Bar", "Hello").right.get
+      assert(file.nature == NONEMPTY_FILE)
+      assert(root.join("Bar").nature == NONEMPTY_FILE)
+    }
+  }
+
+  test("write/read new file") {
+    FileSystemHelper.run(Map[String, String] (
+    )) { root: PathLike =>
+      val file = root.join("Bar.txt")
+      assert(file.write("Hello").isEmpty)
+      assert(file.read().right.get == "Hello")
+    }
+  }
+
+  test("write/read existing file") {
+    FileSystemHelper.run(Map[String, String] (
+      "Bar.txt" -> "Something"
+    )) { root: PathLike =>
+      val file = root.join("Bar.txt")
+      assert(file.read().right.get == "Something")
+      assert(file.write("Hello").isEmpty)
+      assert(file.read().right.get == "Hello")
     }
   }
 }

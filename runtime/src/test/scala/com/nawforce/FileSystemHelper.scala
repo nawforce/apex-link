@@ -30,17 +30,22 @@ package com.nawforce
 import java.nio.file.Files
 
 import com.google.common.jimfs.{Configuration, Jimfs}
-import com.nawforce.path.PathLike
-import com.nawforce.path.PathFactory
+import com.nawforce.path.{Path, PathLike}
 
 object FileSystemHelper {
 
   // Abstract virtual filesystem for testing
-  def run(files: Map[PathLike, String])(verify: PathLike => Unit): Unit = {
-    val fs = Jimfs.newFileSystem(Configuration.unix)
+  def run(files: Map[String, String])(verify: PathLike => Unit): Unit = {
+    val config = Configuration.unix().toBuilder
+      .setWorkingDirectory("/")
+      .build()
+    val fs = Jimfs.newFileSystem(config)
+    val rootDir = fs.getRootDirectories.iterator().next()
     files.foreach(kv => {
-      Files.write(fs.getPath(kv._1.toString), kv._2.getBytes())
+      val path = rootDir.resolve(kv._1)
+      Files.createDirectories(path.getParent)
+      Files.write(path, kv._2.getBytes())
     })
-    verify(PathFactory(fs.getPath("/").toString))
+    verify(Path(rootDir))
   }
 }

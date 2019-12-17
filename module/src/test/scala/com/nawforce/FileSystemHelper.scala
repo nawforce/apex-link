@@ -37,10 +37,10 @@ import js.JSConverters._
 object FileSystemHelper {
 
   // Abstract virtual filesystem for testing
-  def run(files: Map[PathLike, String])(verify: PathLike => Unit): Unit = {
+  def run(files: Map[String, String])(verify: PathLike => Unit): Unit = {
     val unpatch = FSMonkey.patchFs(Memfs.vol)
     try {
-      Memfs.vol.fromJSON(files.map(kv => (kv._1.toString, kv._2)).toJSDictionary.asInstanceOf[js.Dynamic])
+      Memfs.vol.fromJSON(files.map(kv => ("/" + kv._1, kv._2)).toJSDictionary.asInstanceOf[js.Dynamic])
       verify(PathFactory("/"))
     } finally {
       unpatch()

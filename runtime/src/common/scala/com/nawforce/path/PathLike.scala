@@ -54,7 +54,7 @@ abstract class PathLike {
   // Join some new text to end of path & normalise
   def join(arg: String): PathLike
 
-  // Create a file in a directory (silently overwriting), returns new Path or error message
+  // Create a file if this is a directory (silently overwriting), returns new Path or error message
   def createFile(name: String, data: String): Either[String, PathLike]
 
   // Read the contents of a file or return an error message
@@ -63,9 +63,13 @@ abstract class PathLike {
   // Write a file or return an error message
   def write(data: String): Option[String]
 
-  // Delete a file or directory, returns an error message on failure
-  def delete(): Option[String]
+  // Create a directory if this is a directory (ignores if already exists), returns new Path or error message
+  def createDirectory(name: String): Either[String, PathLike]
 
   // List contents of directory or return error message
   def directoryList(): Either[String, Seq[String]]
+
+  // Delete a file or directory, returns an error message on failure
+  def delete(): Option[String]
+
 }
