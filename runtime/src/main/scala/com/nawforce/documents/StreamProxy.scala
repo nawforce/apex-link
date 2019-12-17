@@ -32,6 +32,8 @@ import java.io.InputStream
 import java.nio.file.{Files, Path}
 import java.util.concurrent.ConcurrentHashMap
 
+import com.nawforce.path.PathLike
+
 object StreamProxy {
   private val inputStreams = new ConcurrentHashMap[Path, InputStream]()
 
@@ -41,6 +43,10 @@ object StreamProxy {
 
   def setInputStream(path: Path, inputStream: InputStream): Unit = {
     inputStreams.put(path, inputStream)
+  }
+
+  def getInputStream(path: PathLike): InputStream = {
+    getInputStream(path.native.asInstanceOf[Path])
   }
 
   def getInputStream(path: Path): InputStream = {

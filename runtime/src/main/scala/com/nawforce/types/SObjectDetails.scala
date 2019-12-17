@@ -32,6 +32,8 @@ import java.nio.file.{Files, Path}
 import com.nawforce.api.Org
 import com.nawforce.documents._
 import com.nawforce.names.{EncodedName, Name, TypeName}
+import com.nawforce.runtime
+import com.nawforce.runtime.Path
 import com.nawforce.types.CustomFieldDeclaration.parseField
 import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
 
@@ -66,9 +68,9 @@ final case class SObjectDetails(sobjectNature: SObjectNature, typeName: TypeName
 }
 
 object SObjectDetails {
-  def parseSObject(path: Path, pkg: PackageDeclaration): Option[SObjectDetails] = {
+  def parseSObject(path: java.nio.file.Path, pkg: PackageDeclaration): Option[SObjectDetails] = {
     try {
-      val dt = DocumentType(path)
+      val dt = DocumentType(com.nawforce.runtime.Path(path))
       assert(dt.exists(_.isInstanceOf[SObjectLike]))
       val typeName = TypeName(EncodedName(dt.get.name).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeName.Schema))
 
@@ -95,7 +97,7 @@ object SObjectDetails {
             case Some("List") => ListCustomSettingNature
             case Some("Hierarchy") => HierarchyCustomSettingsNature
             case Some(x) =>
-              Org.logMessage(RangeLocation(path, TextRange(XMLUtils.getLine(root))),
+              Org.logMessage(RangeLocation(runtime.Path(path), TextRange(XMLUtils.getLine(root))),
                 s"Unexpected customSettingsType value '$x', should be 'List' or 'Hierarchy'")
               CustomObjectNature
             case _ => CustomObjectNature
@@ -121,20 +123,20 @@ object SObjectDetails {
 
     } catch {
       case e: XMLException =>
-        Org.logMessage(RangeLocation(path, e.where), e.msg)
+        Org.logMessage(RangeLocation(runtime.Path(path), e.where), e.msg)
         None
-      case e: SAXParseException => Org.logMessage(PointLocation(path,
+      case e: SAXParseException => Org.logMessage(PointLocation(runtime.Path(path),
         Position(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage)
         None
     }
   }
 
-  private def parseFieldSet(elem: Elem, path: Path, pkg: PackageDeclaration): Name = {
+  private def parseFieldSet(elem: Elem, path: java.nio.file.Path, pkg: PackageDeclaration): Name = {
     EncodedName(XMLUtils.getSingleChildAsString(elem, "fullName"))
       .defaultNamespace(pkg.namespace).fullName
   }
 
-  private def parseSfdxFields(path: Path, pkg: PackageDeclaration, sObjectType: TypeName, sObjectNature: SObjectNature)
+  private def parseSfdxFields(path: java.nio.file.Path, pkg: PackageDeclaration, sObjectType: TypeName, sObjectNature: SObjectNature)
   : Seq[CustomFieldDeclaration] = {
     val fieldsDir = path.getParent.resolve("fields")
     if (Files.isDirectory(fieldsDir)) {
@@ -146,9 +148,9 @@ object SObjectDetails {
             parseField(root, path, pkg, sObjectType, sObjectNature)
           } catch {
             case e: XMLException =>
-              Org.logMessage(RangeLocation(file, e.where), e.msg)
+              Org.logMessage(RangeLocation(runtime.Path(file), e.where), e.msg)
               None
-            case e: SAXParseException => Org.logMessage(PointLocation(file,
+            case e: SAXParseException => Org.logMessage(PointLocation(runtime.Path(file),
               Position(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage)
               None
           }
@@ -161,7 +163,7 @@ object SObjectDetails {
     }
   }
 
-  private def parseSfdxFieldSets(path: Path, pkg: PackageDeclaration): Seq[Name] = {
+  private def parseSfdxFieldSets(path: java.nio.file.Path, pkg: PackageDeclaration): Seq[Name] = {
     val fieldsDir = path.getParent.resolve("fieldSets")
     if (Files.isDirectory(fieldsDir)) {
       Files.newDirectoryStream(fieldsDir).asScala.flatMap(file => {
@@ -172,9 +174,9 @@ object SObjectDetails {
             Some(parseFieldSet(root, path, pkg))
           } catch {
             case e: XMLException =>
-              Org.logMessage(RangeLocation(file, e.where), e.msg)
+              Org.logMessage(RangeLocation(runtime.Path(file), e.where), e.msg)
               None
-            case e: SAXParseException => Org.logMessage(PointLocation(file,
+            case e: SAXParseException => Org.logMessage(PointLocation(runtime.Path(file),
               Position(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage)
               None
           }

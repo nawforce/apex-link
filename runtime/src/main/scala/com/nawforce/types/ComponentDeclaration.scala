@@ -75,7 +75,7 @@ final case class ComponentDeclaration(pkg: PackageDeclaration) extends TypeDecla
       getNamespaceContainer(namespace.get).foreach(_.upsertComponent(component))
 
     val typeName = TypeName(component.name, Nil, Some(TypeName(Name.Component)))
-    components.put(component.name, CustomComponent(pkg, component.name, typeName, component.path))
+    components.put(component.name, CustomComponent(pkg, component.name, typeName, component.path.native.asInstanceOf[Path]))
   }
 
   private def getNamespaceContainer(namespace: Name): Option[ComponentNamespace] = {
@@ -140,7 +140,7 @@ final case class ComponentNamespace(pkg: PackageDeclaration, name: Name) extends
 
   def upsertComponent(component: ComponentDocument): Unit = {
     val typeName = TypeName(component.name, Nil, Some(TypeName(name, Nil, Some(TypeName(Name.Component)))))
-    components.put(component.name, CustomComponent(pkg, component.name, typeName, component.path))
+    components.put(component.name, CustomComponent(pkg, component.name, typeName, component.path.native.asInstanceOf[Path]))
   }
 }
 

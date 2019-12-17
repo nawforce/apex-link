@@ -32,9 +32,10 @@ import java.nio.file.Files
 import com.google.common.jimfs.{Configuration, Jimfs}
 import com.nawforce.api.Org
 import com.nawforce.names.Name
-import org.scalatest.FunSuite
+import com.nawforce.runtime.Path
+import org.scalatest.funsuite.AnyFunSuite
 
-class CustomObjectTest extends FunSuite {
+class CustomObjectTest extends AnyFunSuite {
 
   def customObject(label: String, fields: Seq[(String, String, Option[String])], fieldSets: Set[String]=Set()): String = {
     val fieldMetadata = fields.map(field => {
@@ -92,7 +93,7 @@ class CustomObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Foo__c.object")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Foo__c.object"))) ==
       "Error: line 5 to 6: Unexpected type 'Silly' on custom field\n")
   }
 
@@ -104,7 +105,7 @@ class CustomObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 44-56: Expression pair list construction is only supported for Map types, not 'Schema.Foo__c'\n")
   }
 
@@ -116,7 +117,7 @@ class CustomObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 44-54: Expression list construction is only supported for Set or List types, not 'Schema.Foo__c'\n")
   }
 
@@ -150,7 +151,7 @@ class CustomObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 44-50: Unknown field 'Baz__c' on SObject type 'Schema.Foo__c'\n")
   }
 
@@ -173,7 +174,7 @@ class CustomObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 58-64: Duplicate assignment to field 'Bar__c' on SObject type 'Schema.Foo__c'\n")
   }
 
@@ -185,7 +186,7 @@ class CustomObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 44-51: SObject type 'Schema.Foo__c' construction needs '<field name> = <value>' arguments\n")
   }
 
@@ -300,7 +301,7 @@ class CustomObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__c'\n")
   }
 
@@ -370,7 +371,7 @@ class CustomObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 48-66: Unknown field or type 'Foo__c' on 'Schema.SObjectType'\n")
   }
 
@@ -411,7 +412,7 @@ class CustomObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 48-80: Unknown field or type 'Baz__c' on 'Schema.SObjectType.Foo__c.Fields'\n")
   }
 
@@ -432,7 +433,7 @@ class CustomObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 48-84: Unknown field or type 'OtherFS' on 'Schema.SObjectType.Foo__c.FieldSets'\n")
   }
 

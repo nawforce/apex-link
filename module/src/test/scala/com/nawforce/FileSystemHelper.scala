@@ -27,9 +27,8 @@
 */
 package com.nawforce
 
-import com.nawforce.path.PathLike
-import com.nawforce.path.PathFactory
 import com.nawforce.pkg.imports.{FSMonkey, Memfs}
+import com.nawforce.path.{PathFactory, PathLike}
 
 import scala.scalajs.js
 import js.JSConverters._

@@ -27,9 +27,9 @@
 */
 package com.nawforce.api
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class SampleTest extends FunSuite {
+class SampleTest extends AnyFunSuite {
 
   private val npExternalNamespaces = Set("npe01", "npo02", "npe03", "npe4", "npe5")
 

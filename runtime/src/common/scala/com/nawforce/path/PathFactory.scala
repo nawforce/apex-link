@@ -27,6 +27,8 @@
 */
 package com.nawforce.path
 
+import com.nawforce.runtime.Path
+
 object PathFactory {
   def apply(path: String): PathLike = Path(path)
   def unapply(path: Path): Option[String] = Some(path.toString)

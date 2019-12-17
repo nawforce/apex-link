@@ -51,6 +51,9 @@ abstract class PathLike {
   // As absolute path, relative paths are resolved against cwd
   val absolute: PathLike
 
+  // As native representation, platform specific escape
+  val native: Any
+
   // Join some new text to end of path & normalise
   def join(arg: String): PathLike
 

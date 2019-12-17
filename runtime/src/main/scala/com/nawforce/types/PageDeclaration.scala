@@ -60,7 +60,7 @@ final case class PageDeclaration(pkg: PackageDeclaration, pages: Seq[Page]) exte
 object PageDeclaration {
   def apply(pkg: PackageDeclaration): PageDeclaration = {
     val pages = collectBasePages(pkg).values.flatten ++
-      pkg.documentsByExtension(Name("page")).map(path => DocumentType(path)).flatMap {
+      pkg.documentsByExtension(Name("page")).map(page => DocumentType(page.path)).flatMap {
         case Some(page: PageDocument) => Some(Page(LineLocation(page.path, 0), page.name))
         case _ => None
       }

@@ -30,7 +30,8 @@ package com.nawforce
 import java.nio.file.Files
 
 import com.google.common.jimfs.{Configuration, Jimfs}
-import com.nawforce.path.{Path, PathLike}
+import com.nawforce.path.PathLike
+import com.nawforce.runtime.Path
 
 object FileSystemHelper {
 

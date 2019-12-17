@@ -29,9 +29,9 @@ package com.nawforce.diagnostics
 
 import com.nawforce.documents.Location
 import com.nawforce.path.PathLike
+import com.nawforce.runtime.JSON
 
 import scala.collection.mutable
-import scala.scalajs.js.JSON
 
 sealed class IssueCategory(val value: String)
 
@@ -119,7 +119,7 @@ class IssueLog {
     }
 
     private def encode(value: String): String = {
-      JSON.stringify(value)
+      JSON.encode(value)
     }
   }
 

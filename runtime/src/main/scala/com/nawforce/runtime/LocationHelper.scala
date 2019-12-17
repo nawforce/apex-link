@@ -25,40 +25,27 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.types
+package com.nawforce.runtime
 
-import com.nawforce.names.{Name, TypeName}
-import org.scalatest.funsuite.AnyFunSuite
+import com.nawforce.documents.{Position, RangeLocation, TextRange}
+import com.nawforce.parsers.CaseInsensitiveInputStream
+import org.antlr.v4.runtime.ParserRuleContext
 
-class TypeStoreTest extends AnyFunSuite {
-
-  test("Bad type not found") {
-    assert(PlatformTypes.get(TypeName(Name("Hello")), None).isLeft)
+object LocationHelper {
+  def asTextRange(context: ParserRuleContext): TextRange = {
+    TextRange(
+      Position(context.getStart.getLine, context.getStart.getCharPositionInLine),
+      Position(context.getStop.getLine, context.getStop.getCharPositionInLine + context.getStop.getText.length),
+    )
   }
 
-  test("Scoped system class found") {
-    assert(PlatformTypes.get(TypeName.String, None).right.get.typeName == TypeName.String)
-  }
-
-  test("Unscoped system class found") {
-    assert(PlatformTypes.get(TypeName(Name.String), None).right.get.typeName == TypeName.String)
-  }
-
-  test("Unscoped schema class found") {
-    assert(PlatformTypes.get(TypeName(Name.SObjectType), None).right.get.typeName == TypeName.SObjectType)
-  }
-
-  test("Unscoped database class not found") {
-    assert(PlatformTypes.get(TypeName(Name("QueryLocator")), None).isLeft)
-  }
-
-  test("Inner class found") {
-    val typeName = TypeName(Name("Header"), Nil, Some(TypeName(Name("InboundEmail"), Nil, Some(TypeName(Name("Messaging"))))))
-    assert(PlatformTypes.get(typeName, None).right.get.typeName == typeName)
-  }
-
-  test("Bad inner class not found") {
-    val typeName = TypeName(Name("BadHeader"), Nil, Some(TypeName(Name("InboundEmail"), Nil, Some(TypeName(Name("Messaging"))))))
-    assert(PlatformTypes.get(typeName, None).isLeft)
+  def asRangeLocation(context: ParserRuleContext, lineOffset: Int=0, positionOffset: Int=0): RangeLocation = {
+    RangeLocation(
+      Path(context.start.getInputStream.asInstanceOf[CaseInsensitiveInputStream].path),
+      Position(context.start.getLine, context.start.getCharPositionInLine)
+        .adjust(lineOffset, positionOffset),
+      Position(context.stop.getLine, context.stop.getCharPositionInLine + context.stop.getText.length)
+        .adjust(lineOffset, positionOffset)
+    )
   }
 }

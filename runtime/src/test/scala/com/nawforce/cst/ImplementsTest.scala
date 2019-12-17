@@ -28,18 +28,21 @@
 package com.nawforce.cst
 
 import java.io.ByteArrayInputStream
-import java.nio.file.{Path, Paths}
+import java.nio.file.Paths
 
-import com.nawforce.api.{ServerOps, Org}
-import com.nawforce.documents.StreamProxy
+import com.nawforce.api.Org
+import com.nawforce.documents.{DocumentType, MetadataDocumentType, StreamProxy}
 import com.nawforce.names.{Name, TypeName}
+import com.nawforce.runtime
+import com.nawforce.runtime.Path
 import com.nawforce.types.TypeDeclaration
-import org.scalatest.{BeforeAndAfter, FunSuite}
+import org.scalatest.BeforeAndAfter
+import org.scalatest.funsuite.AnyFunSuite
 
-class ImplementsTest extends FunSuite with BeforeAndAfter {
+class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
 
   private val defaultName: Name = Name("Dummy")
-  private val defaultPath: Path = Paths.get(defaultName.toString + ".cls")
+  private val defaultPath = Path(Paths.get(defaultName.toString+".cls"))
   private var defaultOrg: Org = new Org
 
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
@@ -50,7 +53,8 @@ class ImplementsTest extends FunSuite with BeforeAndAfter {
     }).toSeq
 
     Org.current.withValue(defaultOrg) {
-      defaultOrg.unmanaged.deployMetadata(paths)
+      defaultOrg.unmanaged.deployMetadata(
+        paths.map(p => DocumentType(runtime.Path(p)).get.asInstanceOf[MetadataDocumentType]))
       defaultOrg.unmanaged.getTypes(classes.keys.map(k => TypeName(Name(k))).toSeq)
     }
   }

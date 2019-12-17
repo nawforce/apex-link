@@ -28,22 +28,24 @@
 package com.nawforce.cst
 
 import java.io.ByteArrayInputStream
-import java.nio.file.{Path, Paths}
+import java.nio.file.Paths
 
 import com.nawforce.api.Org
 import com.nawforce.names.Name
+import com.nawforce.runtime.Path
 import com.nawforce.types._
-import org.scalatest.{BeforeAndAfter, FunSuite}
+import org.scalatest.BeforeAndAfter
+import org.scalatest.funsuite.AnyFunSuite
 
-class EnumModifierTest extends FunSuite with BeforeAndAfter {
+class EnumModifierTest extends AnyFunSuite with BeforeAndAfter {
 
   private val defaultName: Name = Name("Dummy")
-  private val defaultPath: Path = Paths.get(defaultName.toString)
+  private val defaultPath = Path(Paths.get(defaultName.toString))
   private var defaultOrg: Org = new Org
 
   def typeDeclaration(clsText: String): TypeDeclaration = {
     Org.current.withValue(defaultOrg) {
-      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
+      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath.native, new ByteArrayInputStream(clsText.getBytes()))
       if (td.isEmpty)
         defaultOrg.issues.dumpMessages(json = false)
       td.head.validate()

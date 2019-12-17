@@ -35,7 +35,6 @@ import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.types._
-import com.nawforce.utils.ERROR_CATEGORY
 
 import scala.collection.JavaConverters._
 

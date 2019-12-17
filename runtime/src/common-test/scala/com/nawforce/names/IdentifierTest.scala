@@ -27,9 +27,9 @@
 */
 package com.nawforce.names
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class IdentifierTest extends FunSuite {
+class IdentifierTest extends AnyFunSuite {
 
   test("Illegal identifiers") {
     assert(!Name("").isLegalIdentifier)

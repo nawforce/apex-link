@@ -32,9 +32,10 @@ import java.nio.file.Files
 import com.google.common.jimfs.{Configuration, Jimfs}
 import com.nawforce.api.Org
 import com.nawforce.names.Name
-import org.scalatest.FunSuite
+import com.nawforce.runtime.Path
+import org.scalatest.funsuite.AnyFunSuite
 
-class PageTest extends FunSuite {
+class PageTest extends AnyFunSuite {
 
   test("Valid page") {
     val fs = Jimfs.newFileSystem(Configuration.unix)
@@ -66,7 +67,7 @@ class PageTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n")
   }
 

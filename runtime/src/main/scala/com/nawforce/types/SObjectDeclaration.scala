@@ -34,6 +34,7 @@ import com.nawforce.cst.VerifyContext
 import com.nawforce.documents._
 import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{DotName, Name, TypeName}
+import com.nawforce.runtime.Path
 
 import scala.collection.mutable
 
@@ -117,7 +118,7 @@ object SObjectDeclaration {
   private lazy val sObjectMethodMap: Map[(Name, Int), MethodDeclaration] =
     PlatformTypes.sObjectType.methods.map(m => ((m.name, m.parameters.size),m)).toMap
 
-  def create(pkg: PackageDeclaration, path: Path): Seq[TypeDeclaration] = {
+  def create(pkg: PackageDeclaration, path: java.nio.file.Path): Seq[TypeDeclaration] = {
     val sobjectDetailsOpt = SObjectDetails.parseSObject(path, pkg)
     if (sobjectDetailsOpt.isEmpty)
       return Seq()
@@ -134,7 +135,7 @@ object SObjectDeclaration {
     }
   }
 
-  private def createExisting(sobjectDetails: SObjectDetails, path: Path, pkg: PackageDeclaration) : Seq[TypeDeclaration] = {
+  private def createExisting(sobjectDetails: SObjectDetails, path: java.nio.file.Path, pkg: PackageDeclaration) : Seq[TypeDeclaration] = {
     val typeName = sobjectDetails.typeName
 
     if (typeName.name == Name.Activity) {
@@ -144,7 +145,7 @@ object SObjectDeclaration {
     } else {
       val sobjectType = TypeRequest(typeName, pkg, excludeSObjects = false).toOption
       if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
-        Org.logMessage(LineLocation(path, 0), s"No SObject declaration found for '$typeName'")
+        Org.logMessage(LineLocation(com.nawforce.runtime.Path(path), 0), s"No SObject declaration found for '$typeName'")
         return Seq()
       }
       Seq(extendExisting(sobjectDetails, pkg, sobjectType))

@@ -34,9 +34,9 @@ import com.nawforce.cst._
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
 import org.antlr.v4.runtime.CommonTokenStream
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class LiteralTypeTest extends FunSuite
+class LiteralTypeTest extends AnyFunSuite
 {
   private val defaultPath = Paths.get("Dummy.cls")
 

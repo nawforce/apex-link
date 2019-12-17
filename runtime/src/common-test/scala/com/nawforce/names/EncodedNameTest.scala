@@ -27,9 +27,9 @@
 */
 package com.nawforce.names
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class EncodedNameTest extends FunSuite {
+class EncodedNameTest extends AnyFunSuite {
 
   test("Empty name") {
     val testName = EncodedName("")

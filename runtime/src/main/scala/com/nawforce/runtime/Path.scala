@@ -25,30 +25,33 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.path
+package com.nawforce.runtime
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import java.util.stream.Collectors
 
-case class Path(nativePath: java.nio.file.Path) extends PathLike {
+import com.nawforce.path.{DIRECTORY, DOES_NOT_EXIST, EMPTY_FILE, NONEMPTY_FILE, PathLike, PathNature, UNKNOWN}
 
-  override lazy val basename: String = Option(nativePath.getFileName).map(_.toString).getOrElse("")
+case class Path(native: java.nio.file.Path) extends PathLike {
+
+  override lazy val basename: String = Option(native.getFileName).map(_.toString).getOrElse("")
   override lazy val parent: Path = join("..")
-  override lazy val absolute: Path = Path(nativePath.toAbsolutePath)
+  override lazy val absolute: Path = Path(native.toAbsolutePath)
 
-  override def toString: String = nativePath.toString
+  override def toString: String = native.toString
 
   override lazy val nature: PathNature = {
-    if (!Files.exists(nativePath)) DOES_NOT_EXIST
-    else if (Files.isDirectory(nativePath)) DIRECTORY
-    else if (Files.isRegularFile(nativePath)) {
-      if (Files.size(nativePath) == 0) EMPTY_FILE else NONEMPTY_FILE
+    if (!Files.exists(native)) DOES_NOT_EXIST
+    else if (Files.isDirectory(native)) DIRECTORY
+    else if (Files.isRegularFile(native)) {
+      if (Files.size(native) == 0) EMPTY_FILE else NONEMPTY_FILE
     }
     else UNKNOWN
   }
 
   override def join(arg: String): Path = {
-    Path(nativePath.resolve(arg).normalize())
+    Path(native.resolve(arg).normalize())
   }
 
   override def createFile(name: String, data: String): Either[String, Path] = {
@@ -61,7 +64,7 @@ case class Path(nativePath: java.nio.file.Path) extends PathLike {
 
   override def read(): Either[String, String] = {
     try {
-      Right(new String(Files.readAllBytes(nativePath), StandardCharsets.UTF_8))
+      Right(new String(Files.readAllBytes(native), StandardCharsets.UTF_8))
     } catch {
       case ex: java.io.IOException => Left(ex.toString)
     }
@@ -69,7 +72,7 @@ case class Path(nativePath: java.nio.file.Path) extends PathLike {
 
   override def write(data: String): Option[String] = {
     try {
-      Files.write(nativePath, data.getBytes(StandardCharsets.UTF_8))
+      Files.write(native, data.getBytes(StandardCharsets.UTF_8))
       None
     } catch {
       case ex: java.io.IOException => Some(ex.toString)
@@ -78,7 +81,7 @@ case class Path(nativePath: java.nio.file.Path) extends PathLike {
 
   override def delete(): Option[String] = {
     try {
-      Files.delete(nativePath)
+      Files.delete(native)
       None
     } catch {
       case ex: java.io.IOException => Some(ex.toString)
@@ -89,8 +92,8 @@ case class Path(nativePath: java.nio.file.Path) extends PathLike {
     val dir = join(name)
     if (dir.nature == DOES_NOT_EXIST) {
       try {
-        Files.createDirectory(dir.nativePath)
-        Right(Path(dir.nativePath))
+        Files.createDirectory(dir.native)
+        Right(Path(dir.native))
       } catch {
         case ex: java.io.IOException => Left(ex.toString)
       }
@@ -103,10 +106,13 @@ case class Path(nativePath: java.nio.file.Path) extends PathLike {
 
   override def directoryList(): Either[String, Seq[String]] = {
     if (nature == DIRECTORY) {
-      val f = nativePath.toFile
-      Right(Option(f.listFiles()).getOrElse(Array()).map(_.getName))
+      var files: List[String] = Nil
+      Files.newDirectoryStream(native).forEach(file => {
+        files = file.getFileName.toString :: files
+      })
+      Right(files)
     } else {
-      Left(s"Path '$nativePath' is not a directory'")
+      Left(s"Path '$native' is not a directory'")
     }
   }
 }

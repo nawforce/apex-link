@@ -5,9 +5,9 @@ import java.nio.file.Files
 import com.google.common.jimfs.{Configuration, Jimfs}
 import com.nawforce.api.Org
 import com.nawforce.names.Name
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class SchemaManagerTest extends FunSuite {
+class SchemaManagerTest extends AnyFunSuite {
 
   def customObject(label: String, fields: Seq[(String, String, Option[String])]): String = {
     val fieldMetadata = fields.map(field => {

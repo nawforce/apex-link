@@ -34,12 +34,13 @@ import com.nawforce.documents._
 import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.types._
-import com.nawforce.utils.IssueLog
+import com.nawforce.diagnostics.IssueLog
+import com.nawforce.runtime.Path
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.JavaConverters._
 
-class Package(val org: Org, _namespace: Option[Name], _paths: Seq[Path], _basePackages: Seq[Package])
+class Package(val org: Org, _namespace: Option[Name], _paths: Seq[java.nio.file.Path], _basePackages: Seq[Package])
   extends PackageDeclaration(_namespace, _paths, _basePackages) with LazyLogging {
 
   private val schemaManager = new SchemaManager(this)
@@ -101,14 +102,14 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[Path], _basePa
   }
 
   /** Deploy some metadata to the org, if already present this will replace the existing metadata */
-  def deployMetadata(files: Seq[Path], parallel: Boolean = true): Unit = {
+  def deployMetadata(files: Seq[MetadataDocumentType], parallel: Boolean = true): Unit = {
     Org.current.withValue(org) {
-      loadFromFiles(files, parallel)
+      loadFromFiles(files.map(_.path.native.asInstanceOf[java.nio.file.Path]), parallel)
       validateMetadata()
     }
   }
 
-  private def loadFromFiles(files: Seq[Path], parallel: Boolean): Unit = {
+  private def loadFromFiles(files: Seq[java.nio.file.Path], parallel: Boolean): Unit = {
     if (parallel) {
       val newDeclarations = files.grouped(100).flatMap(group => {
         val parsed = group.par.flatMap(loadFromFile)
@@ -123,19 +124,19 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[Path], _basePa
     }
   }
 
-  private def loadFromFile(path: Path): Seq[TypeDeclaration] = {
+  private def loadFromFile(path: java.nio.file.Path): Seq[TypeDeclaration] = {
     Org.current.withValue(org) {
       val start = System.currentTimeMillis()
 
-      val tds = DocumentType(path) match {
+      val tds = DocumentType(com.nawforce.runtime.Path(path)) match {
         case Some(docType: ApexDocument) =>
-          ApexTypeDeclaration.create(this, docType.path, StreamProxy.getInputStream(docType.path))
+          ApexTypeDeclaration.create(this, docType.path.native.asInstanceOf[java.nio.file.Path], StreamProxy.getInputStream(docType.path))
         case Some(docType: SObjectDocument) =>
-          SObjectDeclaration.create(this, docType.path)
+          SObjectDeclaration.create(this, docType.path.native.asInstanceOf[java.nio.file.Path])
         case Some(docType: PlatformEventDocument) =>
-          SObjectDeclaration.create(this, docType.path)
+          SObjectDeclaration.create(this, docType.path.native.asInstanceOf[java.nio.file.Path])
         case Some(docType: CustomMetadataDocument) =>
-          SObjectDeclaration.create(this, docType.path)
+          SObjectDeclaration.create(this, docType.path.native.asInstanceOf[java.nio.file.Path])
         case Some(docType: ComponentDocument) =>
           upsertComponent(namespace, docType)
           Nil

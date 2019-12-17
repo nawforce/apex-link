@@ -28,9 +28,9 @@
 package com.nawforce.types
 
 import com.nawforce.names.{DotName, Name, TypeName}
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class PlatformTypesValidationTest extends FunSuite {
+class PlatformTypesValidationTest extends AnyFunSuite {
 
   private val generics = Map[String, String] (
     "System.List" -> "System.List<T>",

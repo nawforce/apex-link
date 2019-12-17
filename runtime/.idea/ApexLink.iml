@@ -21,11 +21,12 @@
     <orderEntry type="library" name="scala-sdk-2.12.6" level="application" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.12.6" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-xml_2.12:1.1.1" level="project" />
-    <orderEntry type="library" name="Maven: org.scalaz:scalaz-core_2.12:7.2.27" level="project" />
+    <orderEntry type="library" name="Maven: org.scalaz:scalaz-core_2.12:7.2.8" level="project" />
     <orderEntry type="library" name="Maven: org.antlr:antlr4-runtime:4.7.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.scalatest:scalatest_2.12:3.0.5" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.scalactic:scalactic_2.12:3.0.5" level="project" />
-    <orderEntry type="library" name="Maven: org.scala-lang:scala-reflect:2.12.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.scalatest:scalatest_2.12:3.1.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.scalatest:scalatest-compatible:3.1.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.scalactic:scalactic_2.12:3.1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang:scala-reflect:2.12.10" level="project" />
     <orderEntry type="library" name="Maven: org.scalamock:scalamock-core_2.12:3.6.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.scalamock:scalamock-scalatest-support_2.12:3.6.0" level="project" />
     <orderEntry type="library" name="Maven: com.typesafe.scala-logging:scala-logging_2.12:3.9.0" level="project" />

@@ -5,9 +5,10 @@ import java.nio.file.Files
 import com.google.common.jimfs.{Configuration, Jimfs}
 import com.nawforce.api.Org
 import com.nawforce.names.Name
-import org.scalatest.FunSuite
+import com.nawforce.runtime.Path
+import org.scalatest.funsuite.AnyFunSuite
 
-class StandardObjectTest extends FunSuite {
+class StandardObjectTest extends AnyFunSuite {
 
   def customObject(label: String, fields: Seq[(String, Option[String], Option[String])]): String = {
     val fieldMetadata = fields.map(field => {
@@ -55,7 +56,7 @@ class StandardObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Foo.object")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Foo.object"))) ==
       "Error: line 0: No SObject declaration found for 'Schema.Foo'\n")
   }
 
@@ -66,7 +67,7 @@ class StandardObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/String.object")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/String.object"))) ==
       "Error: line 0: No SObject declaration found for 'Schema.String'\n")
   }
 
@@ -99,7 +100,7 @@ class StandardObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 33-41: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
   }
 
@@ -132,7 +133,7 @@ class StandardObjectTest extends FunSuite {
     val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
     pkg1.deployAll()
     pkg2.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/pkg2/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/pkg2/Dummy.cls"))) ==
       "Error: line 1 at 33-41: Unknown field or type 'Bar__c' on 'Schema.Account'\n")
   }
 
@@ -219,7 +220,7 @@ class StandardObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 39-53: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
   }
 
@@ -264,7 +265,7 @@ class StandardObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 48-63: Unknown field or type 'Foo' on 'Schema.SObjectType'\n")
   }
 
@@ -292,7 +293,7 @@ class StandardObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 48-78: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.Fields'\n")
   }
 
@@ -302,7 +303,7 @@ class StandardObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 48-81: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.FieldSets'\n")
   }
 
@@ -372,7 +373,7 @@ class StandardObjectTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Account.object")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Account.object"))) ==
       "Error: line 5 to 6: Expecting custom field 'AccountNumber__c' to have 'type' child element\n")
   }
 }

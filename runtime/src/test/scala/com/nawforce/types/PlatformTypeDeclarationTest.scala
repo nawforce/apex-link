@@ -30,8 +30,9 @@ package com.nawforce.types
 import com.nawforce.finding.MissingType
 import com.nawforce.names.{Name, TypeName}
 import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class PlatformTypeDeclarationTest extends FunSuite  {
+class PlatformTypeDeclarationTest extends AnyFunSuite  {
 
   test("Bad class not found") {
     assert(PlatformTypeDeclaration.get(TypeName(Name("Hello")), None) == Left(MissingType(TypeName(Name("Hello")))))

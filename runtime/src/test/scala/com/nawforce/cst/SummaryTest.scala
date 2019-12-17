@@ -33,9 +33,10 @@ import java.nio.file.{Path, Paths}
 import com.nawforce.api._
 import com.nawforce.names.Name
 import com.nawforce.types._
-import org.scalatest.{BeforeAndAfter, FunSuite}
+import org.scalatest.BeforeAndAfter
+import org.scalatest.funsuite.AnyFunSuite
 
-class SummaryTest extends FunSuite with BeforeAndAfter {
+class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   private val defaultName: Name = Name("Dummy")
   private val defaultPath: Path = Paths.get(defaultName.toString)
   private var defaultOrg: Org = new Org

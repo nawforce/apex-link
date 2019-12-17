@@ -33,9 +33,10 @@ import java.nio.file.Files
 import com.google.common.jimfs.{Configuration, Jimfs}
 import com.nawforce.api.Org
 import com.nawforce.names.Name
-import org.scalatest.FunSuite
+import com.nawforce.runtime.Path
+import org.scalatest.funsuite.AnyFunSuite
 
-class LabelTest extends FunSuite {
+class LabelTest extends AnyFunSuite {
 
   test("Empty labels file") {
     val fs = Jimfs.newFileSystem(Configuration.unix)
@@ -44,7 +45,7 @@ class LabelTest extends FunSuite {
 
     val org = new Org()
     org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
-    assert(org.issues.getMessages(fs.getPath("/work/CustomLabels.labels")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/CustomLabels.labels"))) ==
       "Error: line 1 at 1: Premature end of file.\n")
   }
 
@@ -124,7 +125,7 @@ class LabelTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 33-49: Unknown field or type 'TestLabel2' on 'System.Label'\n")
   }
 
@@ -148,7 +149,7 @@ class LabelTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 33-49: Unknown field or type 'TestLaBel2' on 'System.Label'\n")
   }
 
@@ -201,7 +202,7 @@ class LabelTest extends FunSuite {
     val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(fs.getPath("/work/pkg1")), Seq())
     val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
     pkg2.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/pkg2/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/pkg2/Dummy.cls"))) ==
       "Error: line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label.pkg1'\n")
   }
 

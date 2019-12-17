@@ -27,8 +27,6 @@
 */
 package com.nawforce.types
 
-import java.nio.file.Path
-
 import com.nawforce.documents.{RangeLocation, TextRange}
 import com.nawforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.xml.XMLUtils.getLine
@@ -49,7 +47,7 @@ final case class CustomFieldDeclaration(name: Name, typeName: TypeName, asStatic
 
 object CustomFieldDeclaration {
 
-  def parseField(elem: Elem, path: Path, pkg: PackageDeclaration, sObjectType: TypeName, sObjectNature: SObjectNature)
+  def parseField(elem: Elem, path: java.nio.file.Path, pkg: PackageDeclaration, sObjectType: TypeName, sObjectNature: SObjectNature)
   : Seq[CustomFieldDeclaration] = {
 
     val rawName: String = XMLUtils.getSingleChildAsString(elem, "fullName").trim
@@ -99,7 +97,7 @@ object CustomFieldDeclaration {
         val refTypeName = TypeName(EncodedName(referenceTo).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeName.Schema))
 
         pkg.schema().relatedLists.add(refTypeName, relName, name, sObjectType,
-          RangeLocation(path, TextRange(XMLUtils.getLine(elem))))
+          RangeLocation(com.nawforce.runtime.Path(path), TextRange(XMLUtils.getLine(elem))))
 
         Seq(CustomFieldDeclaration(name.replaceAll("__c$", "__r"), refTypeName))
       } else if (rawType == "Location") {

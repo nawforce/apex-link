@@ -27,12 +27,12 @@
 */
 package com.nawforce.types
 
-import java.nio.file.{Files, Path, Paths}
-
 import com.nawforce.api.Org
+import com.nawforce.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.documents._
 import com.nawforce.names.{Name, TypeName}
-import com.nawforce.utils.{Issue, UNUSED_CATEGORY}
+import com.nawforce.path.{FILE, PathFactory, PathLike}
+import com.nawforce.runtime.Path
 import com.nawforce.xml.XMLUtils.getLine
 import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
 
@@ -96,7 +96,7 @@ final case class GhostedLabelDeclaration(pkg: PackageDeclaration, name: Name)
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     if (staticContext.contains(true)) {
-      Some(Label(LineLocation(Paths.get(s"$name.labels"), 0), name, isProtected = false))
+      Some(Label(LineLocation(PathFactory(s"$name.labels"), 0), name, isProtected = false))
     } else {
       None
     }
@@ -105,7 +105,8 @@ final case class GhostedLabelDeclaration(pkg: PackageDeclaration, name: Name)
 
 object LabelDeclaration {
   def apply(pkg: PackageDeclaration): LabelDeclaration = {
-    val labels = pkg.documentsByExtension(Name("labels")).flatMap(labelFile => parseLabels(labelFile))
+    val labels = pkg.documentsByExtension(Name("labels"))
+      .flatMap(labelFile => parseLabels(labelFile.path))
     val baseLabels = collectBaseLabels(pkg)
     LabelDeclaration(pkg, Name.Label, labels, baseLabels.values.toSeq)
   }
@@ -130,12 +131,9 @@ object LabelDeclaration {
     collected
   }
 
-  private def parseLabels(path: Path): Seq[Label] = {
-    if (!Files.isRegularFile(path)) {
+  private def parseLabels(path: PathLike): Seq[Label] = {
+    if (!path.nature.isInstanceOf[FILE]) {
       Org.logMessage(LineLocation(path, 0), s"Expecting labels to be in a normal file")
-      Seq()
-    } else if (!Files.isReadable(path)) {
-      Org.logMessage(LineLocation(path, 0), s"Labels file is not readable")
       Seq()
     } else {
       try {
@@ -145,7 +143,7 @@ object LabelDeclaration {
         root.child.flatMap {
           case elem: Elem =>
             XMLUtils.assertIs(elem, "labels")
-            Some(Label(path, elem))
+            Some(Label(path.native.asInstanceOf[java.nio.file.Path], elem))
           case _ => None
         }
 
@@ -167,7 +165,7 @@ case class Label(location: Location, name: Name, isProtected: Boolean) extends F
 }
 
 object Label {
-  def apply(path: Path, element: Elem): Label = {
+  def apply(path: java.nio.file.Path, element: Elem): Label = {
 
     val fullName: String = XMLUtils.getSingleChildAsString(element, "fullName")
     val protect: Boolean = XMLUtils.getSingleChildAsBoolean(element, "protected")
@@ -179,6 +177,6 @@ object Label {
     val categories: Option[String] = XMLUtils.getOptionalSingleChildAsString(element, "categories")
      */
 
-    Label(RangeLocation(path, TextRange(getLine(element))), Name(fullName), protect)
+    Label(RangeLocation(Path(path), TextRange(getLine(element))), Name(fullName), protect)
   }
 }

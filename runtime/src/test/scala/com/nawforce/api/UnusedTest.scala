@@ -29,9 +29,9 @@ package com.nawforce.api
 
 import java.nio.file.Files
 import com.google.common.jimfs.{Configuration, Jimfs}
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class UnusedTest extends FunSuite {
+class UnusedTest extends AnyFunSuite {
 
   test("@testSetup is entry") {
     val fs = Jimfs.newFileSystem(Configuration.unix)

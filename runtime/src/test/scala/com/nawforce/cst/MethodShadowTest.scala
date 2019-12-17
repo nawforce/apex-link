@@ -31,9 +31,11 @@ import java.nio.file.Files
 
 import com.google.common.jimfs.{Configuration, Jimfs}
 import com.nawforce.api.Org
-import org.scalatest.{BeforeAndAfter, FunSuite}
+import com.nawforce.runtime.Path
+import org.scalatest.BeforeAndAfter
+import org.scalatest.funsuite.AnyFunSuite
 
-class MethodShadowTest extends FunSuite with BeforeAndAfter {
+class MethodShadowTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Override of public non-virtual") {
     val fs = Jimfs.newFileSystem(Configuration.unix)
@@ -43,7 +45,7 @@ class MethodShadowTest extends FunSuite with BeforeAndAfter {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 52-56: Method 'func' can not override non-virtual method\n")
   }
 
@@ -55,7 +57,7 @@ class MethodShadowTest extends FunSuite with BeforeAndAfter {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 52-56: Method 'func' must use override or virtual keyword\n")
   }
 

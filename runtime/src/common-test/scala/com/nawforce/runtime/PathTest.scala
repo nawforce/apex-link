@@ -25,12 +25,13 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.path
+package com.nawforce.runtime
 
 import com.nawforce.FileSystemHelper
-import org.scalatest.FunSuite
+import com.nawforce.path._
+import org.scalatest.funsuite.AnyFunSuite
 
-class PathTest extends FunSuite {
+class PathTest extends AnyFunSuite {
 
   test("root node is a root node") {
     FileSystemHelper.run(Map[String, String] (

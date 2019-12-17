@@ -28,13 +28,12 @@
 package com.nawforce.documents
 
 import com.nawforce.api.Org
-import com.nawforce.path.{DIRECTORY, DOES_NOT_EXIST, FILE, PathLike}
 import com.nawforce.names.Name
+import com.nawforce.path.{DIRECTORY, FILE, DOES_NOT_EXIST, PathLike}
 
 import scala.collection.mutable
-import scala.scalajs.js
 
-class DocumentIndexException(msg: String) extends js.JavaScriptException(msg)
+class DocumentIndexException(msg: String) extends Throwable
 
 class DocumentIndex(paths: Seq[PathLike]) {
   // Partitioned by normalised extension
@@ -80,7 +79,8 @@ class DocumentIndex(paths: Seq[PathLike]) {
         if (docType.indexByName) {
           if (documentNames(docType.extension).contains(docType.name)) {
             val duplicate = documents(docType.extension).find(_.name == docType.name)
-            Org.logMessage(LineLocation(docType.path, 0), s"File has same name as ${duplicate.get}, ignoring")
+            // TODO: Re-install this
+            //Org.logMessage(LineLocation(docType.path, 0), s"File has same name as ${duplicate.get}, ignoring")
           } else {
             documentNames(docType.extension).add(docType.name)
             documents.put(docType.extension, docType :: documents(docType.extension))

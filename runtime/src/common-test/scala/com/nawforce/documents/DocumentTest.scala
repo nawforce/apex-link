@@ -28,7 +28,7 @@
 package com.nawforce.documents
 
 import com.nawforce.names.Name
-import com.nawforce.path.{Path, PathFactory}
+import com.nawforce.path.PathFactory
 import org.scalatest.funsuite.AnyFunSuite
 
 class DocumentTest extends AnyFunSuite {
@@ -41,99 +41,99 @@ class DocumentTest extends AnyFunSuite {
   }
 
   test("component file") {
-    DocumentType(Path("/pkg/Foo.component")) match {
-      case Some(ComponentDocument(Path("/pkg/Foo.component"), Name("Foo"))) => ()
+    DocumentType(PathFactory("/pkg/Foo.component")) match {
+      case Some(ComponentDocument(PathFactory("/pkg/Foo.component"), Name("Foo"))) => ()
       case x => assert(false, x)
     }
   }
 
   test("object file") {
-    DocumentType(Path("/pkg/Foo.object")) match {
-      case Some(SObjectDocument(Path("/pkg/Foo.object"), Name("Foo"))) => ()
+    DocumentType(PathFactory("/pkg/Foo.object")) match {
+      case Some(SObjectDocument(PathFactory("/pkg/Foo.object"), Name("Foo"))) => ()
       case x => assert(false, x)
     }
   }
 
   test("object file (sfdx)") {
-    DocumentType(Path("/pkg/Foo.object-meta.xml")) match {
-      case Some(SObjectDocument(Path("/pkg/Foo.object-meta.xml"), Name("Foo"))) => ()
+    DocumentType(PathFactory("/pkg/Foo.object-meta.xml")) match {
+      case Some(SObjectDocument(PathFactory("/pkg/Foo.object-meta.xml"), Name("Foo"))) => ()
       case x => assert(false, x)
     }
   }
 
   test("custom object file") {
-    DocumentType(Path("/pkg/Foo__c.object")) match {
-      case Some(SObjectDocument(Path("/pkg/Foo__c.object"), Name("Foo__c"))) => ()
+    DocumentType(PathFactory("/pkg/Foo__c.object")) match {
+      case Some(SObjectDocument(PathFactory("/pkg/Foo__c.object"), Name("Foo__c"))) => ()
       case x => assert(false, x)
     }
   }
 
   test("custom object file (sfdx)") {
-    DocumentType(Path("/pkg/Foo__c.object-meta.xml")) match {
-      case Some(SObjectDocument(Path("/pkg/Foo__c.object-meta.xml"), Name("Foo__c"))) => ()
+    DocumentType(PathFactory("/pkg/Foo__c.object-meta.xml")) match {
+      case Some(SObjectDocument(PathFactory("/pkg/Foo__c.object-meta.xml"), Name("Foo__c"))) => ()
       case x => assert(false, x)
     }
   }
 
   test("custom metadata file") {
-    DocumentType(Path("/pkg/Foo__mdt.object")) match {
-      case Some(CustomMetadataDocument(Path("/pkg/Foo__mdt.object"), Name("Foo__mdt"))) => ()
+    DocumentType(PathFactory("/pkg/Foo__mdt.object")) match {
+      case Some(CustomMetadataDocument(PathFactory("/pkg/Foo__mdt.object"), Name("Foo__mdt"))) => ()
       case x => assert(false, x)
     }
   }
 
   test("custom metadata file (sfdx)") {
-    DocumentType(Path("/pkg/Foo__mdt.object-meta.xml")) match {
-      case Some(CustomMetadataDocument(Path("/pkg/Foo__mdt.object-meta.xml"), Name("Foo__mdt"))) => ()
+    DocumentType(PathFactory("/pkg/Foo__mdt.object-meta.xml")) match {
+      case Some(CustomMetadataDocument(PathFactory("/pkg/Foo__mdt.object-meta.xml"), Name("Foo__mdt"))) => ()
       case x => assert(false, x)
     }
   }
 
   test("platform event file") {
-    DocumentType(Path("/pkg/Foo__e.object")) match {
-      case Some(PlatformEventDocument(Path("/pkg/Foo__e.object"), Name("Foo__e"))) => ()
+    DocumentType(PathFactory("/pkg/Foo__e.object")) match {
+      case Some(PlatformEventDocument(PathFactory("/pkg/Foo__e.object"), Name("Foo__e"))) => ()
       case x => assert(false, x)
     }
   }
 
   test("platform event file (sfdx)") {
-    DocumentType(Path("/pkg/Foo__e.object-meta.xml")) match {
-      case Some(PlatformEventDocument(Path("/pkg/Foo__e.object-meta.xml"), Name("Foo__e"))) => ()
+    DocumentType(PathFactory("/pkg/Foo__e.object-meta.xml")) match {
+      case Some(PlatformEventDocument(PathFactory("/pkg/Foo__e.object-meta.xml"), Name("Foo__e"))) => ()
       case x => assert(false, x)
     }
   }
 
   test("field file (sfdx)") {
-    DocumentType(Path("/pkg/Foo.field-meta.xml")) match {
-      case Some(SObjectFieldDocument(Path("/pkg/Foo.field-meta.xml"), Name("Foo"))) => ()
+    DocumentType(PathFactory("/pkg/Foo.field-meta.xml")) match {
+      case Some(SObjectFieldDocument(PathFactory("/pkg/Foo.field-meta.xml"), Name("Foo"))) => ()
       case x => assert(false, x)
     }
   }
 
   test("fieldset file (sfdx)") {
-    DocumentType(Path("/pkg/Foo.fieldset-meta.xml")) match {
-      case Some(SObjectFieldSetDocument(Path("/pkg/Foo.fieldset-meta.xml"), Name("Foo"))) => ()
+    DocumentType(PathFactory("/pkg/Foo.fieldset-meta.xml")) match {
+      case Some(SObjectFieldSetDocument(PathFactory("/pkg/Foo.fieldset-meta.xml"), Name("Foo"))) => ()
       case x => assert(false, x)
     }
   }
 
   test("labels file") {
-    DocumentType(Path("/pkg/Foo.labels")) match {
-      case Some(LabelsDocument(Path("/pkg/Foo.labels"), Name("Foo"))) => ()
+    DocumentType(PathFactory("/pkg/Foo.labels")) match {
+      case Some(LabelsDocument(PathFactory("/pkg/Foo.labels"), Name("Foo"))) => ()
       case x => assert(false, x)
     }
   }
 
   test("labels file (sfdx)") {
-    DocumentType(Path("/pkg/Foo.labels-meta.xml")) match {
-      case Some(LabelsDocument(Path("/pkg/Foo.labels-meta.xml"), Name("Foo"))) => ()
+    DocumentType(PathFactory("/pkg/Foo.labels-meta.xml")) match {
+      case Some(LabelsDocument(PathFactory("/pkg/Foo.labels-meta.xml"), Name("Foo"))) => ()
       case x => assert(false, x)
     }
   }
 
   test("page file") {
-    DocumentType(Path("/pkg/Foo.page")) match {
-      case Some(PageDocument(Path("/pkg/Foo.page"), Name("Foo"))) => ()
+    DocumentType(PathFactory("/pkg/Foo.page")) match {
+      case Some(PageDocument(PathFactory("/pkg/Foo.page"), Name("Foo"))) => ()
       case x => assert(false, x)
     }
   }

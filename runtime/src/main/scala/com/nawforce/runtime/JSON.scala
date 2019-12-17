@@ -25,40 +25,12 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.types
+package com.nawforce.runtime
 
-import com.nawforce.names.{Name, TypeName}
-import org.scalatest.funsuite.AnyFunSuite
+import net.liftweb.json._
 
-class TypeStoreTest extends AnyFunSuite {
-
-  test("Bad type not found") {
-    assert(PlatformTypes.get(TypeName(Name("Hello")), None).isLeft)
-  }
-
-  test("Scoped system class found") {
-    assert(PlatformTypes.get(TypeName.String, None).right.get.typeName == TypeName.String)
-  }
-
-  test("Unscoped system class found") {
-    assert(PlatformTypes.get(TypeName(Name.String), None).right.get.typeName == TypeName.String)
-  }
-
-  test("Unscoped schema class found") {
-    assert(PlatformTypes.get(TypeName(Name.SObjectType), None).right.get.typeName == TypeName.SObjectType)
-  }
-
-  test("Unscoped database class not found") {
-    assert(PlatformTypes.get(TypeName(Name("QueryLocator")), None).isLeft)
-  }
-
-  test("Inner class found") {
-    val typeName = TypeName(Name("Header"), Nil, Some(TypeName(Name("InboundEmail"), Nil, Some(TypeName(Name("Messaging"))))))
-    assert(PlatformTypes.get(typeName, None).right.get.typeName == typeName)
-  }
-
-  test("Bad inner class not found") {
-    val typeName = TypeName(Name("BadHeader"), Nil, Some(TypeName(Name("InboundEmail"), Nil, Some(TypeName(Name("Messaging"))))))
-    assert(PlatformTypes.get(typeName, None).isLeft)
+object JSON {
+  def encode(value: String): String = {
+    compactRender(JString(value))
   }
 }

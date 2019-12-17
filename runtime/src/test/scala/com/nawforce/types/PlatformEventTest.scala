@@ -31,10 +31,10 @@ import java.nio.file.Files
 
 import com.google.common.jimfs.{Configuration, Jimfs}
 import com.nawforce.api.Org
-import com.nawforce.names.Name
-import org.scalatest.FunSuite
+import com.nawforce.runtime.Path
+import org.scalatest.funsuite.AnyFunSuite
 
-class PlatformEventTest extends FunSuite {
+class PlatformEventTest extends AnyFunSuite {
 
   def platformEvent(label: String, fields: Seq[(String, String, Option[String])]): String = {
     val fieldMetadata = fields.map(field => {
@@ -86,7 +86,7 @@ class PlatformEventTest extends FunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(fs.getPath("/work/Dummy.cls")) ==
+    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
       "Error: line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__e'\n")
   }
 }

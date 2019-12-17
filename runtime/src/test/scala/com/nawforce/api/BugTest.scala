@@ -30,9 +30,9 @@ package com.nawforce.api
 import java.nio.file.Files
 
 import com.google.common.jimfs.{Configuration, Jimfs}
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class BugTest extends FunSuite {
+class BugTest extends AnyFunSuite {
 
   test("Enum scoping") {
     val fs = Jimfs.newFileSystem(Configuration.unix)

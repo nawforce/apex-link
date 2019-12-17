@@ -28,21 +28,21 @@
 
 package com.nawforce.types
 
-import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.api.Package
-import com.nawforce.documents.DocumentLoader
+import com.nawforce.documents.{DocumentIndex, MetadataDocumentType}
 import com.nawforce.finding.TypeFinder
 import com.nawforce.finding.TypeRequest.TypeRequest
 import com.nawforce.names.{EncodedName, Name, TypeName}
+import com.nawforce.runtime.Path
 
-abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Path], var basePackages: Seq[PackageDeclaration])
+abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[java.nio.file.Path], var basePackages: Seq[PackageDeclaration])
   extends TypeFinder {
-  protected val documents = new DocumentLoader(paths)
+  protected val documents = new DocumentIndex(paths.map(p => Path(p)))
   protected val types = new ConcurrentHashMap[TypeName, TypeDeclaration]()
 
-  def documentsByExtension(ext: Name): Seq[Path] = documents.getByExtension(ext)
+  def documentsByExtension(ext: Name): Seq[MetadataDocumentType] = documents.getByExtension(ext)
 
   def isGhosted: Boolean = paths.isEmpty
   def hasGhosted: Boolean = isGhosted || basePackages.exists(_.hasGhosted)
@@ -63,7 +63,7 @@ abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Pa
       basePackages.filter(_.isGhosted).exists(_.namespace == encName.namespace)
     } else {
       basePackages.filter(_.isGhosted).exists(_.namespace.contains(typeName.outerName)) ||
-      typeName.params.exists(isGhostedType(_))
+      typeName.params.exists(isGhostedType)
     }
   }
 

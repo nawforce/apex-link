@@ -32,9 +32,9 @@ import java.nio.file.{Path, Paths}
 
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.types.ApexTypeDeclaration
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class TypeFindingTest extends FunSuite {
+class TypeFindingTest extends AnyFunSuite {
 
   private val defaultOrg: Org = new Org
   private val defaultPath: Path = Paths.get("Dummy.cls")
