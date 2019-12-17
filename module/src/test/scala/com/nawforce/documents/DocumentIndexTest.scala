@@ -27,8 +27,8 @@
 */
 package com.nawforce.documents
 
-import com.nawforce.cache.Path
 import com.nawforce.names.Name
+import com.nawforce.path.Path
 import com.nawforce.pkg.imports.{FSMonkey, Memfs}
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -123,7 +123,6 @@ class DocumentIndexTest extends AnyFunSuite {
   }
 
   test("duplicate classes error") {
-    println("Start")
     index(
       """{
         | "/pkg/foo/Foo.cls": "public class Foo {}",

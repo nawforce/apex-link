@@ -27,28 +27,28 @@
 */
 package com.nawforce.documents
 
-import com.nawforce.cache.{EMPTY_FILE, Path}
 import com.nawforce.names.Name
+import com.nawforce.path.{EMPTY_FILE, PathLike}
 
 trait DocumentType {
   val name: Name
 }
 
-class PathDocument(val path: Path, val name: Name) extends DocumentType {
+class PathDocument(val path: PathLike, val name: Name) extends DocumentType {
 }
 
-abstract class MetadataDocumentType(_path: Path, _name: Name)
+abstract class MetadataDocumentType(_path: PathLike, _name: Name)
   extends PathDocument(_path, _name) {
   val extension: Name
   val indexByName: Boolean = false
   val ignorable: Boolean = false
 }
 
-final case class LabelsDocument(_path: Path, _name: Name) extends MetadataDocumentType(_path, _name) {
+final case class LabelsDocument(_path: PathLike, _name: Name) extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("labels")
 }
 
-final case class ApexDocument(_path: Path, _name: Name)
+final case class ApexDocument(_path: PathLike, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("cls")
   override val ignorable: Boolean = {
@@ -57,46 +57,46 @@ final case class ApexDocument(_path: Path, _name: Name)
   override val indexByName: Boolean = true
 }
 
-final case class ComponentDocument(_path: Path, _name: Name)
+final case class ComponentDocument(_path: PathLike, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("component")
 }
 
-abstract class SObjectLike(_path: Path, _name: Name) extends MetadataDocumentType(_path, _name)
+abstract class SObjectLike(_path: PathLike, _name: Name) extends MetadataDocumentType(_path, _name)
 
-final case class SObjectDocument(_path: Path, _name: Name)
+final case class SObjectDocument(_path: PathLike, _name: Name)
   extends SObjectLike(_path, _name) {
   lazy val extension: Name = Name("object")
   override val ignorable: Boolean = path.nature == EMPTY_FILE
 }
 
-final case class SObjectFieldDocument(_path: Path, _name: Name)
+final case class SObjectFieldDocument(_path: PathLike, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("field")
 }
 
-final case class SObjectFieldSetDocument(_path: Path, _name: Name)
+final case class SObjectFieldSetDocument(_path: PathLike, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("fieldSet")
 }
 
-final case class CustomMetadataDocument(_path: Path, _name: Name)
+final case class CustomMetadataDocument(_path: PathLike, _name: Name)
   extends SObjectLike(_path, _name) {
   lazy val extension: Name = Name("object")
 }
 
-final case class PlatformEventDocument(_path: Path, _name: Name)
+final case class PlatformEventDocument(_path: PathLike, _name: Name)
   extends SObjectLike(_path, _name) {
   lazy val extension: Name = Name("object")
 }
 
-final case class PageDocument(_path: Path, _name: Name)
+final case class PageDocument(_path: PathLike, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("page")
 }
 
 object DocumentType {
-  def apply(path: Path): Option[DocumentType] = {
+  def apply(path: PathLike): Option[DocumentType] = {
     splitFilename(path) match {
       case Seq(name, Name("cls")) =>
         Some(ApexDocument(path, name))
@@ -137,8 +137,8 @@ object DocumentType {
   }
 
 
-  private def splitFilename(path: Path): Seq[Name] = {
-    var parts = path.filename.toString.split('.')
+  private def splitFilename(path: PathLike): Seq[Name] = {
+    var parts = path.basename.toString.split('.')
     if (parts.length > 3) {
       parts = List(parts.slice(0, parts.length-2).mkString("."),
         parts(parts.length-2).toLowerCase(), parts(parts.length-1).toLowerCase).toArray

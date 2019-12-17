@@ -28,7 +28,7 @@
 package com.nawforce.documents
 
 import com.nawforce.api.Org
-import com.nawforce.cache.{DIRECTORY, DOES_NOT_EXIST, FILE, Path}
+import com.nawforce.path.{DIRECTORY, DOES_NOT_EXIST, FILE, PathLike}
 import com.nawforce.names.Name
 
 import scala.collection.mutable
@@ -36,7 +36,7 @@ import scala.scalajs.js
 
 class DocumentIndexException(msg: String) extends js.JavaScriptException(msg)
 
-class DocumentIndex(paths: Seq[Path]) {
+class DocumentIndex(paths: Seq[PathLike]) {
   // Partitioned by normalised extension
   private val documentNames = new mutable.HashMap[Name, mutable.Set[Name]]() withDefaultValue mutable.Set()
   private val documents = new mutable.HashMap[Name, List[MetadataDocumentType]]() withDefaultValue List()
@@ -55,13 +55,13 @@ class DocumentIndex(paths: Seq[Path]) {
     createGhostSObjectFiles(Name("fieldSet"))
   }
 
-  private def indexRoot(path: Path): Unit = {
-    indexPath(path.toAbsolute)
+  private def indexRoot(path: PathLike): Unit = {
+    indexPath(path.absolute)
   }
 
-  private def indexPath(path: Path): Unit = {
+  private def indexPath(path: PathLike): Unit = {
 
-    if (path.filename.toString.startsWith("."))
+    if (path.basename.toString.startsWith("."))
       return
 
     if (path.nature == DIRECTORY) {
@@ -95,11 +95,11 @@ class DocumentIndex(paths: Seq[Path]) {
   private def createGhostSObjectFiles(name: Name): Unit = {
     getByExtension(name).foreach(docType => {
       val objectDir = docType.path.parent.parent
-      val metaFile = objectDir.join(objectDir.filename + ".object-meta.xml")
+      val metaFile = objectDir.join(objectDir.basename + ".object-meta.xml")
       if (metaFile.nature == DOES_NOT_EXIST) {
         if (!documents(Name("object")).map(_.path).contains(metaFile)) {
           documents.put(Name("object"),
-            SObjectDocument(metaFile, Name(objectDir.filename)) :: documents(Name("object")))
+            SObjectDocument(metaFile, Name(objectDir.basename)) :: documents(Name("object")))
         }
       }
     })

@@ -27,20 +27,20 @@
 */
 package com.nawforce.documents
 
-import com.nawforce.cache.Path
+import com.nawforce.path.PathLike
 
-abstract class Location(val path: Path, val line: Int) {
+abstract class Location(val path: PathLike, val line: Int) {
   def startPosition: (Int, Int) = (line, 0)
   def displayPosition: String
   def asJSON: String
 }
 
-case class LineLocation(_path: Path, _line: Int) extends Location(_path, _line) {
+case class LineLocation(_path: PathLike, _line: Int) extends Location(_path, _line) {
   override def displayPosition: String = s"line $line"
   override def asJSON: String = s""""start": {"line": $line}"""
 }
 
-case class LineRangeLocation(_path: Path, start: Int, end: Int) extends Location(_path, start) {
+case class LineRangeLocation(_path: PathLike, start: Int, end: Int) extends Location(_path, start) {
   override def displayPosition: String = s"line $start to $end"
   override def asJSON: String = s""""start": {"line": $start}, "end": {"line": $end}"""
 }
@@ -86,13 +86,13 @@ case class TextRange(start: Position, end: Position) {
   }
 }
 
-case class PointLocation(_path: Path, start: Position) extends Location(_path, start.line) {
+case class PointLocation(_path: PathLike, start: Position) extends Location(_path, start.line) {
   override def startPosition: (Int, Int) = start.startPosition
   override def displayPosition: String = start.displayPosition
   override def asJSON: String = start.asJSON
 }
 
-case class RangeLocation(_path: Path, start: Position, end: Position) extends Location(_path, start.line) {
+case class RangeLocation(_path: PathLike, start: Position, end: Position) extends Location(_path, start.line) {
   override def startPosition: (Int, Int) = start.startPosition
   override def displayPosition: String = TextRange(start, end).displayPosition
   override def asJSON: String = TextRange(start, end).asJSON
@@ -110,7 +110,7 @@ object TextRange {
 }
 
 object RangeLocation {
-  def apply(path: Path, range: TextRange): RangeLocation = {
+  def apply(path: PathLike, range: TextRange): RangeLocation = {
     RangeLocation(path, range.start, range.end)
   }
 }

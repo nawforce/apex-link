@@ -27,8 +27,8 @@
 */
 package com.nawforce.diagnostics
 
-import com.nawforce.cache.Path
 import com.nawforce.documents.Location
+import com.nawforce.path.PathLike
 
 import scala.collection.mutable
 import scala.scalajs.js.JSON
@@ -43,7 +43,7 @@ case class Issue(category: IssueCategory, location: Location, msg: String)
 
 class IssueLog {
   var logCount: Int = 0
-  private val log = mutable.HashMap[Path, List[Issue]]() withDefaultValue List()
+  private val log = mutable.HashMap[PathLike, List[Issue]]() withDefaultValue List()
 
   def clear(): Unit = {
     synchronized {
@@ -70,7 +70,7 @@ class IssueLog {
 
   private trait MessageWriter {
     def startOutput()
-    def startDocument(path: Path)
+    def startDocument(path: PathLike)
     def writeMessage(category: IssueCategory, location: Location, message: String)
     def writeSummary(notShown: Int, total: Int)
     def endDocument()
@@ -81,7 +81,7 @@ class IssueLog {
     private val buffer = new StringBuilder()
 
     override def startOutput(): Unit = buffer.clear()
-    override def startDocument(path: Path): Unit = if (showPath) buffer ++= path.toString + '\n'
+    override def startDocument(path: PathLike): Unit = if (showPath) buffer ++= path.toString + '\n'
     override def writeMessage(category: IssueCategory, location: Location, message: String): Unit =
       buffer ++= s"${category.value}: ${location.displayPosition}: $message\n"
     override def writeSummary(notShown: Int, total: Int): Unit =
@@ -100,7 +100,7 @@ class IssueLog {
       buffer ++= s"""{ "files": [\n"""
       firstDocument = true
     }
-    override def startDocument(path: Path): Unit = {
+    override def startDocument(path: PathLike): Unit = {
       buffer ++= (if (firstDocument) "" else ",\n")
       buffer ++= s"""{ "path": ${encode(path.toString)}, "messages": [\n"""
       firstDocument = false
@@ -123,7 +123,7 @@ class IssueLog {
     }
   }
 
-  private def writeMessages(writer: MessageWriter, path: Path, warnings: Boolean, maxErrors: Int): Unit = {
+  private def writeMessages(writer: MessageWriter, path: PathLike, warnings: Boolean, maxErrors: Int): Unit = {
     val messages = log.getOrElse(path, List())
       .filterNot(!warnings && _.category == WARNING_CATEGORY)
     if (messages.nonEmpty) {
@@ -142,7 +142,7 @@ class IssueLog {
     }
   }
 
-  def getMessages(path: Path, showPath: Boolean = false, maxErrors: Int = 10): String = {
+  def getMessages(path: PathLike, showPath: Boolean = false, maxErrors: Int = 10): String = {
     synchronized {
       val writer: MessageWriter= new TextMessageWriter(showPath = showPath)
       writeMessages(writer, path, warnings = true, maxErrors)

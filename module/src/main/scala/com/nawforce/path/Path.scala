@@ -25,40 +25,26 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.cache
+package com.nawforce.path
 
 import io.scalajs.nodejs.fs.Fs
 
 import scala.scalajs.js
 
-sealed class PathNature(val value: String)
-
-case object DOES_NOT_EXIST extends PathNature("Does not exist")
-case object DIRECTORY extends PathNature("Directory")
-sealed class FILE(_value: String) extends PathNature(_value)
-case object EMPTY_FILE extends FILE ("Empty File")
-case object NONEMPTY_FILE extends FILE ("Non-Empty File")
-case object UNKNOWN extends PathNature("Unknown")
-
-case class Path(path: String) {
+case class Path(path: String) extends PathLike {
   assert(path.nonEmpty)
 
   private lazy val pathObject = io.scalajs.nodejs.path.Path.parse(path)
 
-  lazy val root: Option[String] = pathObject.root.toOption
-  lazy val dir: Option[String] = pathObject.dir.toOption
-  lazy val base: Option[String] = pathObject.base.toOption
-  lazy val ext: Option[String] = pathObject.ext.toOption
-  lazy val name: Option[String] = pathObject.name.toOption
-
-  lazy val filename: String = base.get
-  lazy val parent: Path = join("..")
+  override lazy val basename: String = pathObject.base.toOption.get
+  override lazy val parent: Path = join("..")
+  override lazy val absolute: Path = Path(io.scalajs.nodejs.path.Path.resolve(path))
 
   override def toString: String = {
     io.scalajs.nodejs.path.Path.format(pathObject)
   }
 
-  lazy val nature: PathNature = {
+  override lazy val nature: PathNature = {
     try {
       val stats = Fs.lstatSync(path)
       if (stats.isDirectory()) DIRECTORY
@@ -71,11 +57,11 @@ case class Path(path: String) {
     }
   }
 
-  def toAbsolute: Path = Path(io.scalajs.nodejs.path.Path.resolve(path))
+  override def join(arg: String): Path = {
+    Path(io.scalajs.nodejs.path.Path.join(path, arg))
+  }
 
-  def join(arg: String): Path = Path(io.scalajs.nodejs.path.Path.join(path, arg))
-
-  def createFile(name: String, data: String): Either[String, Path] = {
+  override def createFile(name: String, data: String): Either[String, Path] = {
     val created = join(name)
     created.write(data) match {
       case None => Right(created)
@@ -83,7 +69,7 @@ case class Path(path: String) {
     }
   }
 
-  def read(): Either[String, String] = {
+  override def read(): Either[String, String] = {
     try {
       Right(Fs.readFileSync(path, "utf-8"))
     } catch {
@@ -91,7 +77,7 @@ case class Path(path: String) {
     }
   }
 
-  def write(data: String): Option[String] = {
+  override def write(data: String): Option[String] = {
     try {
       Fs.writeFileSync(path, data)
       None
@@ -100,7 +86,7 @@ case class Path(path: String) {
     }
   }
 
-  def delete(): Option[String] = {
+  override def delete(): Option[String] = {
     try {
       Fs.unlinkSync(path)
       None
@@ -109,7 +95,7 @@ case class Path(path: String) {
     }
   }
 
-  def directoryList(): Either[String, Seq[String]] = {
+  override def directoryList(): Either[String, Seq[String]] = {
     if (nature == DIRECTORY) {
       try {
         Right(Fs.readdirSync(path))

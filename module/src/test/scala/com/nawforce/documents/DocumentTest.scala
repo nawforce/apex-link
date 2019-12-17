@@ -27,36 +27,15 @@
 */
 package com.nawforce.documents
 
-import com.nawforce.cache.Path
 import com.nawforce.names.Name
-import com.nawforce.pkg.imports.{FSMonkey, Memfs}
+import com.nawforce.path.{Path, PathFactory}
 import org.scalatest.funsuite.AnyFunSuite
-
-import scala.scalajs.js.JSON
 
 class DocumentTest extends AnyFunSuite {
 
-  /*
   test("cls file") {
-    Memfs.vol.fromJSON(JSON.parse(
-    """{
-      | "/pkg/Foo.cls": ""
-      |}""".stripMargin))
-
-    val unpatch = FSMonkey.patchFs(Memfs.vol)
-    try {
-      DocumentType(Path("/pkg/Foo.cls")) match {
-        case Some(ApexDocument(Path("/pkg/Foo.cls"), Name("Foo"))) => ()
-        case x => assert(false, x)
-      }
-    } finally {
-      unpatch()
-    }
-  }*/
-
-  test("cls file") {
-    DocumentType(Path("/pkg/Foo.cls")) match {
-      case Some(ApexDocument(Path("/pkg/Foo.cls"), Name("Foo"))) => ()
+    DocumentType(PathFactory("/pkg/Foo.cls")) match {
+      case Some(ApexDocument(PathFactory("/pkg/Foo.cls"), Name("Foo"))) => ()
       case x => assert(false, x)
     }
   }

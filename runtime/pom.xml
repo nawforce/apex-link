@@ -134,6 +134,7 @@
                 <version>3.0.0</version>
                 <executions>
                     <execution>
+                        <id>add-additional-source</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>add-source</goal>
@@ -142,6 +143,18 @@
                             <sources>
                                 <source>src/common/scala/</source>
                                 <source>src/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-additional-test-source</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/common-test/scala/</source>
                             </sources>
                         </configuration>
                     </execution>

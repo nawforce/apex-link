@@ -25,39 +25,9 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.cache
+package com.nawforce.path
 
-import com.nawforce.imports.OSExtra
-import com.nawforce.path.{DIRECTORY, DOES_NOT_EXIST, PathFactory, PathLike}
-import io.scalajs.nodejs.process
-
-class Cache(path: PathLike) {
-
-}
-
-object Cache {
-  val CACHE_DIR: String = ".apexlink_cache"
-  val TEST_FILE: String = "test_file"
-
-  def apply(): Either[String, Cache] = {
-    val cacheDir =
-      process.env.get("APEXLINK_CACHE_DIR").map(d =>PathFactory(d))
-        .getOrElse(PathFactory(OSExtra.homedir()).join(CACHE_DIR))
-
-    if (cacheDir.nature != DOES_NOT_EXIST) {
-      if (cacheDir.nature != DIRECTORY) {
-        return Left(s"Cache directory '$cacheDir' exists but is not a directory")
-      }
-
-      cacheDir.createFile(TEST_FILE, "") match {
-        case Left(err) => Left(s"Cache directory '$cacheDir' exists but is not writable, error '$err'")
-        case Right(created) =>
-          created.delete()
-          Right(new Cache(cacheDir))
-      }
-    } else {
-      // TODO
-      Left("Create Dir")
-    }
-  }
+object PathFactory {
+  def apply(path: String): PathLike = Path(path)
+  def unapply(path: Path): Option[String] = Some(path.toString)
 }

@@ -5,6 +5,7 @@ version := "0.5.0"
 scalaVersion := "2.12.3"
 
 unmanagedSourceDirectories in Compile += baseDirectory.value / "common"
+unmanagedSourceDirectories in Test += baseDirectory.value / "common-test"
 
 enablePlugins(ScalaJSBundlerPlugin)
 scalacOptions += "-P:scalajs:sjsDefinedByDefault"
