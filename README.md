@@ -9,6 +9,12 @@ To install the CLI plugin (from npm)
 
     sfdx plugins:install apexlink
 
+Once run check the install was successful with
+
+    sfdx plugins
+     
+This should show apexlink in the plugin list. On Windows this may silently fail if you don't have all the required pre-requisites for building native modules with node. To workaround this try installing [windows-build-tools](https://github.com/felixrieseberg/windows-build-tools).     
+
 To perform a simple validity check use:
 
     sfdx apexlink:check <directory>
@@ -47,9 +53,17 @@ There is a WIP command included for parallel test execution
 
 ### Building
 
+The master branch is under active development so it's best to build from the last released version.
+
 To create a jar use:
 
     mvn package
+    
+To create the SFDX CLI package use:
+    
+    cd cli
+    sh package.sh
+    yarn    
      
 ### Maven
 
@@ -63,5 +77,5 @@ To use the jar in a maven project add the following to your pom.xml
 
 ### Source & Licenses
 
-ApexLink is written in a combination of Java and Scala but should run on any fairly recent JVM. Please let me know if you have trouble building or running it. All the source code included uses a 3-clause BSD license. The only third-party component included is the Apex Antlr4 grammar originally from [Tooling-force.com](https://github.com/neowit/tooling-force.com), although the version used is now markedly different from the original.  
+The core of ApexLink is written in a combination of Java and Scala but should run on any fairly recent JVM. Please let me know if you have trouble building or running it. All the source code included uses a 3-clause BSD license. The only third-party component included is the Apex Antlr4 grammar originally from [Tooling-force.com](https://github.com/neowit/tooling-force.com), although the version used is now markedly different from the original.  
 
