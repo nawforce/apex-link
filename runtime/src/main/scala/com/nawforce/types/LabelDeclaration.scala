@@ -27,6 +27,8 @@
 */
 package com.nawforce.types
 
+import java.io.ByteArrayInputStream
+
 import com.nawforce.api.Org
 import com.nawforce.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.documents._
@@ -134,27 +136,32 @@ object LabelDeclaration {
   private def parseLabels(path: PathLike): Seq[Label] = {
     if (!path.nature.isInstanceOf[FILE]) {
       Org.logMessage(LineLocation(path, 0), s"Expecting labels to be in a normal file")
-      Seq()
-    } else {
-      try {
-        val root = XMLLineLoader.load(StreamProxy.getInputStream(path))
-        XMLUtils.assertIs(root, "CustomLabels")
+      return Seq()
+    }
 
-        root.child.flatMap {
-          case elem: Elem =>
-            XMLUtils.assertIs(elem, "labels")
-            Some(Label(path.native.asInstanceOf[java.nio.file.Path], elem))
-          case _ => None
-        }
+    val data = path.read()
+    if (data.isLeft) {
+      Org.logMessage(LineLocation(path, 0), s"Could not read file: ${data.right.get}")
+      return Seq()
+    }
 
-      } catch {
-        case e: XMLException => Org.logMessage(RangeLocation(path, e.where), e.msg); Seq()
-        case e: SAXParseException => Org.logMessage(PointLocation(path,
-          Position(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage); Seq()
+    try {
+      val root = XMLLineLoader.load(new ByteArrayInputStream(data.right.get.getBytes()))
+      XMLUtils.assertIs(root, "CustomLabels")
+
+      root.child.flatMap {
+        case elem: Elem =>
+          XMLUtils.assertIs(elem, "labels")
+          Some(Label(path.native.asInstanceOf[java.nio.file.Path], elem))
+        case _ => None
       }
+
+    } catch {
+      case e: XMLException => Org.logMessage(RangeLocation(path, e.where), e.msg); Seq()
+      case e: SAXParseException => Org.logMessage(PointLocation(path,
+        Position(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage); Seq()
     }
   }
-
 }
 
 case class Label(location: Location, name: Name, isProtected: Boolean) extends FieldDeclaration {

@@ -27,99 +27,92 @@
 */
 package com.nawforce.cst
 
-import java.io.ByteArrayInputStream
-import java.nio.file.Paths
-
+import com.nawforce.FileSystemHelper
 import com.nawforce.api.Org
-import com.nawforce.documents.{DocumentType, MetadataDocumentType, StreamProxy}
+import com.nawforce.documents.{DocumentType, MetadataDocumentType}
 import com.nawforce.names.{Name, TypeName}
-import com.nawforce.runtime
-import com.nawforce.runtime.Path
+import com.nawforce.path.PathLike
 import com.nawforce.types.TypeDeclaration
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class ExtendsTest extends AnyFunSuite with BeforeAndAfter {
 
-  private val defaultName: Name = Name("Dummy")
-  private val defaultPath = Path(Paths.get(defaultName.toString+".cls"))
   private var defaultOrg: Org = new Org
+  private var root: PathLike = _
 
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
-    val paths = classes.map(kv => {
-      val fakePath = Paths.get(kv._1 + ".cls")
-      StreamProxy.setInputStream(fakePath, new ByteArrayInputStream(kv._2.getBytes()))
-      fakePath
-    }).toSeq
-
-    Org.current.withValue(defaultOrg) {
-      defaultOrg.unmanaged.deployMetadata(
-        paths.map(p => DocumentType(runtime.Path(p)).get.asInstanceOf[MetadataDocumentType]))
-      defaultOrg.unmanaged.getTypes(classes.keys.map(k => TypeName(Name(k))).toSeq)
+    FileSystemHelper.run(classes) { root: PathLike =>
+      this.root = root
+      Org.current.withValue(defaultOrg) {
+        defaultOrg.unmanaged.deployMetadata(
+          classes.map(p => DocumentType(root.join(p._1)).get.asInstanceOf[MetadataDocumentType]).toSeq)
+        defaultOrg.unmanaged.getTypes(classes.keys.map(k => TypeName(Name(k.replaceAll("\\.cls$", "")))).toSeq)
+      }
     }
   }
 
   before {
-    StreamProxy.clear()
     defaultOrg = new Org
+    root = null
   }
 
   test("Duplicate inner type names") {
-    assert(typeDeclarations(Map("Dummy" -> "global class Dummy {class Inner {} interface Inner{}}")).nonEmpty)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
+    assert(typeDeclarations(Map("Dummy.cls" -> "global class Dummy {class Inner {} interface Inner{}}")).nonEmpty)
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
       "Error: line 1 at 45-50: Duplicate type name 'Inner'\n")
   }
 
   test("Duplicate outer & inner type names") {
-    assert(typeDeclarations(Map("Dummy" -> "global class Dummy {class Dummy{}}")).nonEmpty)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
+    assert(typeDeclarations(Map("Dummy.cls" -> "global class Dummy {class Dummy{}}")).nonEmpty)
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
       "Error: line 1 at 26-31: Duplicate type name 'Dummy'\n")
   }
 
   test("Missing superclass") {
-    assert(typeDeclarations(Map("Dummy" -> "global class Dummy extends Foo {}")).nonEmpty)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
+    assert(typeDeclarations(Map("Dummy.cls" -> "global class Dummy extends Foo {}")).nonEmpty)
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
       "Error: line 1 at 13-18: No type declaration found for 'Foo'\n")
   }
 
   test("Non-virtual superclass") {
     assert(typeDeclarations(Map(
-      "SuperClass" -> "global class SuperClass {}",
-      "Dummy" -> "global class Dummy extends SuperClass {}")).size == 2)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
+      "SuperClass.cls" -> "global class SuperClass {}",
+      "Dummy.cls" -> "global class Dummy extends SuperClass {}")).size == 2)
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
       "Error: line 1 at 13-18: Parent class 'SuperClass' must be declared virtual or abstract\n")
   }
 
   test("Interface superclass") {
     assert(typeDeclarations(Map(
-      "SuperInterface" -> "global interface SuperInterface {}",
-      "Dummy" -> "global class Dummy extends SuperInterface {}")).size == 2)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
+      "SuperInterface.cls" -> "global interface SuperInterface {}",
+      "Dummy.cls" -> "global class Dummy extends SuperInterface {}")).size == 2)
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
       "Error: line 1 at 13-18: Parent type 'SuperInterface' must be a class\n")
   }
 
   test("Enum superclass") {
     assert(typeDeclarations(Map(
-      "SuperEnum" -> "global enum SuperEnum {}",
-      "Dummy" -> "global class Dummy extends SuperEnum {}")).size == 2)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
+      "SuperEnum.cls" -> "global enum SuperEnum {}",
+      "Dummy.cls" -> "global class Dummy extends SuperEnum {}")).size == 2)
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
       "Error: line 1 at 13-18: Parent type 'SuperEnum' must be a class\n")
   }
 
   test("External superclass") {
     assert(typeDeclarations(Map(
-      "SuperClass" -> "global virtual class SuperClass {}",
-      "Dummy" -> "global class Dummy extends SuperClass {}")).size == 2)
+      "SuperClass.cls" -> "global virtual class SuperClass {}",
+      "Dummy.cls" -> "global class Dummy extends SuperClass {}")).size == 2)
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Inner superclass") {
-    assert(typeDeclarations(Map("Dummy" -> "global class Dummy extends Inner {virtual class Inner{}}")).nonEmpty)
+    assert(typeDeclarations(Map("Dummy.cls" -> "global class Dummy extends Inner {virtual class Inner{}}")).nonEmpty)
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Outer superclass") {
-    assert(typeDeclarations(Map("Dummy" -> "global virtual class Dummy {class Inner extends Dummy {}}")).nonEmpty)
+    assert(typeDeclarations(Map("Dummy.cls" -> "global virtual class Dummy {class Inner extends Dummy {}}")).nonEmpty)
     assert(!defaultOrg.issues.hasMessages)
   }
 }

@@ -36,7 +36,7 @@ import com.nawforce.runtime.Path
 object FileSystemHelper {
 
   // Abstract virtual filesystem for testing
-  def run(files: Map[String, String])(verify: PathLike => Unit): Unit = {
+  def run[T](files: Map[String, String])(verify: PathLike => T): T = {
     val config = Configuration.unix().toBuilder
       .setWorkingDirectory("/")
       .build()

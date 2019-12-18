@@ -27,6 +27,7 @@
 */
 package com.nawforce.api
 
+import java.io.ByteArrayInputStream
 import java.nio.file.Path
 
 import com.nawforce.cst.UnusedLog
@@ -130,7 +131,9 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[java.nio.file.
 
       val tds = DocumentType(com.nawforce.runtime.Path(path)) match {
         case Some(docType: ApexDocument) =>
-          ApexTypeDeclaration.create(this, docType.path.native.asInstanceOf[java.nio.file.Path], StreamProxy.getInputStream(docType.path))
+          val data = docType.path.read()
+          ApexTypeDeclaration.create(this, docType.path.native.asInstanceOf[java.nio.file.Path],
+            new ByteArrayInputStream(data.right.get.getBytes))
         case Some(docType: SObjectDocument) =>
           SObjectDeclaration.create(this, docType.path.native.asInstanceOf[java.nio.file.Path])
         case Some(docType: PlatformEventDocument) =>

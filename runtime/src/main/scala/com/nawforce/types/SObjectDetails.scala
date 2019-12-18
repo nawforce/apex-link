@@ -27,6 +27,7 @@
 */
 package com.nawforce.types
 
+import java.io.FileInputStream
 import java.nio.file.{Files, Path}
 
 import com.nawforce.api.Org
@@ -86,7 +87,7 @@ object SObjectDetails {
         return Some(SObjectDetails(sobjectNature, typeName, sfdxFields, sfdxFieldSets.toSet))
       }
 
-      val root = XMLLineLoader.load(StreamProxy.getInputStream(path))
+      val root = XMLLineLoader.load(Files.newInputStream(path))
       XMLUtils.assertIs(root, "CustomObject")
 
       val sobjectNature: SObjectNature = dt match {
@@ -143,7 +144,7 @@ object SObjectDetails {
       Files.newDirectoryStream(fieldsDir).asScala.flatMap(file => {
         if (Files.isRegularFile(file) && file.toString.endsWith(".field-meta.xml")) {
           try {
-            val root = XMLLineLoader.load(StreamProxy.getInputStream(file))
+            val root = XMLLineLoader.load(Files.newInputStream(file))
             XMLUtils.assertIs(root, "CustomField")
             parseField(root, path, pkg, sObjectType, sObjectNature)
           } catch {
@@ -169,7 +170,7 @@ object SObjectDetails {
       Files.newDirectoryStream(fieldsDir).asScala.flatMap(file => {
         if (Files.isRegularFile(file) && file.toString.endsWith(".fieldSet-meta.xml")) {
           try {
-            val root = XMLLineLoader.load(StreamProxy.getInputStream(file))
+            val root = XMLLineLoader.load(Files.newInputStream(file))
             XMLUtils.assertIs(root, "FieldSet")
             Some(parseFieldSet(root, path, pkg))
           } catch {

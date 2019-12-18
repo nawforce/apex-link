@@ -27,51 +27,44 @@
 */
 package com.nawforce.cst
 
-import java.io.ByteArrayInputStream
-import java.nio.file.Paths
-
+import com.nawforce.FileSystemHelper
 import com.nawforce.api.Org
-import com.nawforce.documents.{DocumentType, MetadataDocumentType, StreamProxy}
+import com.nawforce.documents.{DocumentType, MetadataDocumentType}
 import com.nawforce.names.{Name, TypeName}
-import com.nawforce.runtime
-import com.nawforce.runtime.Path
+import com.nawforce.path.PathLike
 import com.nawforce.types.TypeDeclaration
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class DependencyTest extends AnyFunSuite with BeforeAndAfter {
-  private val defaultName: Name = Name("Dummy.cls")
-  private val defaultPath = Path(Paths.get(defaultName.toString))
   private var defaultOrg: Org = new Org
+  private var root: PathLike = _
 
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
-    val paths = classes.map(kv => {
-      val fakePath = Paths.get(kv._1 + ".cls")
-      StreamProxy.setInputStream(fakePath, new ByteArrayInputStream(kv._2.getBytes()))
-      fakePath
-    }).toSeq
-
-    Org.current.withValue(defaultOrg) {
-      defaultOrg.unmanaged.deployMetadata(
-        paths.map(p => DocumentType(runtime.Path(p)).get.asInstanceOf[MetadataDocumentType]))
-      defaultOrg.unmanaged.getTypes(classes.keys.map(k => TypeName(Name(k))).toSeq)
+    FileSystemHelper.run(classes) { root: PathLike =>
+      this.root = root
+      Org.current.withValue(defaultOrg) {
+        defaultOrg.unmanaged.deployMetadata(
+          classes.map(p => DocumentType(root.join(p._1)).get.asInstanceOf[MetadataDocumentType]).toSeq)
+        defaultOrg.unmanaged.getTypes(classes.keys.map(k => TypeName(Name(k.replaceAll("\\.cls$", "")))).toSeq)
+      }
     }
   }
 
   before {
-    StreamProxy.clear()
     defaultOrg = new Org
+    root = null
   }
 
   test("Empty class has no imports") {
-    val tds = typeDeclarations(Map("Dummy" -> "public class Dummy {}"))
+    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy {}"))
     assert(tds.head.dependencies().isEmpty)
   }
 
   test("Class depends on superclass") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy extends A {}",
-      "A" -> "public virtual class A {}"
+      "Dummy.cls" -> "public class Dummy extends A {}",
+      "A.cls" -> "public virtual class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies() == tds.tail.toSet)
@@ -79,9 +72,9 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Class depends on interface") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy implements A, B {}",
-      "A" -> "public interface A {}",
-      "B" -> "public interface B {}"
+      "Dummy.cls" -> "public class Dummy implements A, B {}",
+      "A.cls" -> "public interface A {}",
+      "B.cls" -> "public interface B {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies() == tds.tail.toSet)
@@ -89,9 +82,9 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Interface depends on interface") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public interface Dummy extends A, B {}",
-      "A" -> "public interface A {}",
-      "B" -> "public interface B {}"
+      "Dummy.cls" -> "public interface Dummy extends A, B {}",
+      "A.cls" -> "public interface A {}",
+      "B.cls" -> "public interface B {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies() == tds.tail.toSet)
@@ -99,7 +92,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Empty inner class has no dependencies") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { class Inner {} }"
+      "Dummy.cls" -> "public class Dummy { class Inner {} }"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.nestedTypes.head.dependencies().isEmpty)
@@ -107,8 +100,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Inner class depends on superclass") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { class Inner extends A {} }",
-      "A" -> "public virtual class A {}"
+      "Dummy.cls" -> "public class Dummy { class Inner extends A {} }",
+      "A.cls" -> "public virtual class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.nestedTypes.head.dependencies() == tds.tail.toSet)
@@ -116,9 +109,9 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Inner class depends on interface") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { class Inner implements A,B {} }",
-      "A" -> "public interface A {}",
-      "B" -> "public interface B {}",
+      "Dummy.cls" -> "public class Dummy { class Inner implements A,B {} }",
+      "A.cls" -> "public interface A {}",
+      "B.cls" -> "public interface B {}",
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.nestedTypes.head.dependencies() == tds.tail.toSet)
@@ -126,9 +119,9 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Inner interface depends on interface") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { interface Inner extends A, B {} }",
-      "A" -> "public interface A {}",
-      "B" -> "public interface B {}"
+      "Dummy.cls" -> "public class Dummy { interface Inner extends A, B {} }",
+      "A.cls" -> "public interface A {}",
+      "B.cls" -> "public interface B {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.nestedTypes.head.dependencies() == tds.tail.toSet)
@@ -136,8 +129,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Class reference creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { {Type t = A.class;} }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy { {Type t = A.class;} }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.blocks.head.dependencies() == tds.tail.toSet)
@@ -145,7 +138,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Class self-reference creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { {Type t = Dummy.class;} }"
+      "Dummy.cls" -> "public class Dummy { {Type t = Dummy.class;} }"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.blocks.head.dependencies() == Set(tds.head))
@@ -153,16 +146,16 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Class reference via super types create dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy extends A { {Type t = A.C.class;} }",
-      "A" -> "public virtual class A extends B {}",
-      "B" -> "public virtual class B {public class C {} }"
+      "Dummy.cls" -> "public class Dummy extends A { {Type t = A.C.class;} }",
+      "A.cls" -> "public virtual class A extends B {}",
+      "B.cls" -> "public virtual class B {public class C {} }"
     ))
     assert(tds.head.blocks.head.dependencies() == Set(tds(2).nestedTypes.head))
   }
 
   test("Class reference with ambiguous name") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { class Database {Type t = Database.QueryLocator.class;} }",
+      "Dummy.cls" -> "public class Dummy { class Database {Type t = Database.QueryLocator.class;} }",
     ))
     assert(!defaultOrg.issues.hasMessages)
     Org.current.withValue(defaultOrg) {
@@ -172,15 +165,15 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Class reference for component") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { Type t = Component.Apex.OutputText.class; }",
+      "Dummy.cls" -> "public class Dummy { Type t = Component.Apex.OutputText.class; }",
     ))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Method return creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { A func() {return null;} }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy { A func() {return null;} }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
@@ -188,16 +181,16 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Unknown method return") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { A func() {return null;} }"
+      "Dummy.cls" -> "public class Dummy { A func() {return null;} }"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "Error: line 1 at 23-27: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 23-27: No type declaration found for 'A'\n")
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
 
   test("Method parameter creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { void func(A a) {} }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy { void func(A a) {} }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
@@ -205,16 +198,16 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Unknown method parameter") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { void func(A a) {} }"
+      "Dummy.cls" -> "public class Dummy { void func(A a) {} }"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "Error: line 1 at 31-34: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 31-34: No type declaration found for 'A'\n")
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
 
   test("Field type creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy {A a;}",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy {A a;}",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     Org.current.withValue(defaultOrg) {
@@ -224,9 +217,9 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Unknown Field type") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy {A a;}"
+      "Dummy.cls" -> "public class Dummy {A a;}"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "Error: line 1 at 22-23: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 22-23: No type declaration found for 'A'\n")
     Org.current.withValue(defaultOrg) {
       assert(tds.head.fields.head.dependencies().isEmpty)
     }
@@ -234,8 +227,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Property type creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy {A a {get;} }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy {A a {get;} }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     Org.current.withValue(defaultOrg) {
@@ -245,9 +238,9 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Unknown Property type") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy {A a {get;} }"
+      "Dummy.cls" -> "public class Dummy {A a {get;} }"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "Error: line 1 at 22-23: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 22-23: No type declaration found for 'A'\n")
     Org.current.withValue(defaultOrg) {
       assert(tds.head.fields.head.dependencies().isEmpty)
     }
@@ -255,8 +248,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Local var creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy {static {A a;} }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy {static {A a;} }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.blocks.head.dependencies() == tds.tail.toSet)
@@ -264,16 +257,16 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Unknown local var type") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy {static {A a;} }"
+      "Dummy.cls" -> "public class Dummy {static {A a;} }"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "Error: line 1 at 30-31: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 30-31: No type declaration found for 'A'\n")
     assert(tds.head.blocks.head.dependencies().isEmpty)
   }
 
   test("Cast creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy {static {Object a=(A)null;} }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy {static {Object a=(A)null;} }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.blocks.head.dependencies() == Set(tds.tail.head))
@@ -281,16 +274,16 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Unknown cast type") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy {static {Object a=(A)null;} }"
+      "Dummy.cls" -> "public class Dummy {static {Object a=(A)null;} }"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "Error: line 1 at 37-44: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 37-44: No type declaration found for 'A'\n")
     assert(tds.head.blocks.head.dependencies().isEmpty)
   }
 
   test("For control creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { void func() { for(A a;;) {}} }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy { void func() { for(A a;;) {}} }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
@@ -298,16 +291,16 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Unknown for control type") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { void func() { for(A a;;) {}} }"
+      "Dummy.cls" -> "public class Dummy { void func() { for(A a;;) {}} }"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "Error: line 1 at 41-42: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 41-42: No type declaration found for 'A'\n")
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
 
   test("Catch creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { void func() { try {} catch(A a){} } }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy { void func() { try {} catch(A a){} } }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
@@ -315,16 +308,16 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Unknown catch type") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { void func() { try {} catch(A a){} } }"
+      "Dummy.cls" -> "public class Dummy { void func() { try {} catch(A a){} } }"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "Error: line 1 at 48-49: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 48-49: No type declaration found for 'A'\n")
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
 
   test("New creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { void func() { Object a = new A(); } }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy { void func() { Object a = new A(); } }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
@@ -333,8 +326,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
   /* TODO Update
   test("Complex New creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { void func() { Object a = new List<A>(); } }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy { void func() { Object a = new List<A>(); } }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == Set(tds.tail.head, listClass, objectClass))
@@ -342,16 +335,16 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Unknown new type") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { void func() { Object a = new A(); } }"
+      "Dummy.cls" -> "public class Dummy { void func() { Object a = new A(); } }"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "Error: line 1 at 50-51: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 50-51: No type declaration found for 'A'\n")
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
 
   test("InstanceOf creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { { Boolean a = null instanceOf A; } }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy { { Boolean a = null instanceOf A; } }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.blocks.head.dependencies() == Set(tds.tail.head))
@@ -359,16 +352,16 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Unknown instanceOf type") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { { Boolean a = null instanceOf A; } }"
+      "Dummy.cls" -> "public class Dummy { { Boolean a = null instanceOf A; } }"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "Error: line 1 at 35-52: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 35-52: No type declaration found for 'A'\n")
     assert(tds.head.blocks.head.dependencies().isEmpty)
   }
 
   test("Class reference in Inner creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { class Inner { {Type t = A.class;} } }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy { class Inner { {Type t = A.class;} } }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
 
@@ -377,8 +370,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Method return in Inner creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { class Inner { A func() {return null;} } }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy { class Inner { A func() {return null;} } }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
@@ -386,8 +379,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Method parameter in Inner creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { class Inner { void func(A a) {} } }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy { class Inner { void func(A a) {} } }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
@@ -395,8 +388,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Inner Field type creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy {class Inner {A a;}}",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy {class Inner {A a;}}",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     Org.current.withValue(defaultOrg) {
@@ -406,8 +399,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Inner Property type creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy {class Inner {A a {get;}}}",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy {class Inner {A a {get;}}}",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     Org.current.withValue(defaultOrg) {
@@ -417,8 +410,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Inner Local var creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy {class Inner {static {A a;} } }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy {class Inner {static {A a;} } }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.nestedTypes.head.blocks.head.dependencies() == tds.tail.toSet)
@@ -426,8 +419,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Inner Cast creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy {class Inner {static {Object a=(A)null;} } }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy {class Inner {static {Object a=(A)null;} } }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.nestedTypes.head.blocks.head.dependencies() == Set(tds.tail.head))
@@ -435,8 +428,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Inner For control creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { class Inner {void func() { for(A a;;) {}} } }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy { class Inner {void func() { for(A a;;) {}} } }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
@@ -444,8 +437,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Inner Catch creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { class Inner {void func() { try {} catch(A a){} } } }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy { class Inner {void func() { try {} catch(A a){} } } }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
@@ -453,8 +446,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Inner New creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { class Inner {void func() { Object a = new A(); } } }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy { class Inner {void func() { Object a = new A(); } } }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == Set(tds.tail.head))
@@ -463,8 +456,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
   /* TODO Update
   test("Inner Complex New creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { class Inner {void func() { Object a = new List<A>(); } } }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy { class Inner {void func() { Object a = new List<A>(); } } }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == Set(tds.tail.head,listClass, objectClass))
@@ -473,8 +466,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Inner instanceOf creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "public class Dummy { class Inner {{ Boolean a = null instanceOf A;} } }",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "public class Dummy { class Inner {{ Boolean a = null instanceOf A;} } }",
+      "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.nestedTypes.head.blocks.head.dependencies() == Set(tds.tail.head))

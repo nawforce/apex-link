@@ -27,97 +27,90 @@
 */
 package com.nawforce.cst
 
-import java.io.ByteArrayInputStream
-import java.nio.file.Paths
-
+import com.nawforce.FileSystemHelper
 import com.nawforce.api.Org
-import com.nawforce.documents.{DocumentType, MetadataDocumentType, StreamProxy}
+import com.nawforce.documents.{DocumentType, MetadataDocumentType}
 import com.nawforce.names.{Name, TypeName}
-import com.nawforce.runtime
-import com.nawforce.runtime.Path
+import com.nawforce.path.PathLike
 import com.nawforce.types.TypeDeclaration
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
 
-  private val defaultName: Name = Name("Dummy")
-  private val defaultPath = Path(Paths.get(defaultName.toString+".cls"))
   private var defaultOrg: Org = new Org
+  private var root: PathLike = _
 
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
-    val paths = classes.map(kv => {
-      val fakePath = Paths.get(kv._1 + ".cls")
-      StreamProxy.setInputStream(fakePath, new ByteArrayInputStream(kv._2.getBytes()))
-      fakePath
-    }).toSeq
-
-    Org.current.withValue(defaultOrg) {
-      defaultOrg.unmanaged.deployMetadata(
-        paths.map(p => DocumentType(runtime.Path(p)).get.asInstanceOf[MetadataDocumentType]))
-      defaultOrg.unmanaged.getTypes(classes.keys.map(k => TypeName(Name(k))).toSeq)
+    FileSystemHelper.run(classes) { root: PathLike =>
+      this.root = root
+      Org.current.withValue(defaultOrg) {
+        defaultOrg.unmanaged.deployMetadata(
+          classes.map(p => DocumentType(root.join(p._1)).get.asInstanceOf[MetadataDocumentType]).toSeq)
+        defaultOrg.unmanaged.getTypes(classes.keys.map(k => TypeName(Name(k.replaceAll("\\.cls$", "")))).toSeq)
+      }
     }
   }
 
   before {
-    StreamProxy.clear()
     defaultOrg = new Org
+    root = null
   }
 
   test("Missing class interface") {
-    assert(typeDeclarations(Map("Dummy" -> "global class Dummy implements A {}")).nonEmpty)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
+    assert(typeDeclarations(Map("Dummy.cls" -> "global class Dummy implements A {}")).nonEmpty)
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
       "Error: line 1 at 13-18: No declaration found for interface 'A'\n")
   }
 
   test("Missing class second interface") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "global class Dummy implements A, B {}",
-      "A" -> "public interface A {}"
+      "Dummy.cls" -> "global class Dummy implements A, B {}",
+      "A.cls" -> "public interface A {}"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
       "Error: line 1 at 13-18: No declaration found for interface 'B'\n")
   }
 
   test("Class implements class") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "global class Dummy implements A {}",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "global class Dummy implements A {}",
+      "A.cls" -> "public class A {}"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
       "Error: line 1 at 13-18: Type 'A' must be an interface\n")
   }
 
   test("Class implements enum") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "global class Dummy implements A {}",
-      "A" -> "public enum A {}"
+      "Dummy.cls" -> "global class Dummy implements A {}",
+      "A.cls" -> "public enum A {}"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
       "Error: line 1 at 13-18: Type 'A' must be an interface\n")
   }
 
   test("Interface extends class") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "global interface Dummy extends A {}",
-      "A" -> "public class A {}"
+      "Dummy.cls" -> "global interface Dummy extends A {}",
+      "A.cls" -> "public class A {}"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
       "Error: line 1 at 17-22: Type 'A' must be an interface\n")
   }
 
   test("Interface extends enum") {
     val tds = typeDeclarations(Map(
-      "Dummy" -> "global interface Dummy extends A {}",
-      "A" -> "public enum A {}"
+      "Dummy.cls" -> "global interface Dummy extends A {}",
+      "A.cls" -> "public enum A {}"
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
       "Error: line 1 at 17-22: Type 'A' must be an interface\n")
   }
 
   test("Class implements Database.Batchable<sObject>") {
     val tds = typeDeclarations(Map(
-      "Dummy" ->
+      "Dummy.cls" ->
         """
           | global class Dummy implements Database.Batchable<sObject> {
           |   Iterable<sObject> start(Database.BatchableContext param1) {}
@@ -126,6 +119,6 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
           | }
           |""".stripMargin
     ))
-    assert(defaultOrg.issues.getMessages(defaultPath) == "")
+    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "")
   }
 }
