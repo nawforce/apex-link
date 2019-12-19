@@ -31,8 +31,6 @@ import com.nawforce.documents.TextRange
 
 import scala.xml.Elem
 
-final case class XMLException(where: TextRange, msg: String) extends Exception
-
 object XMLUtils {
   val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
 

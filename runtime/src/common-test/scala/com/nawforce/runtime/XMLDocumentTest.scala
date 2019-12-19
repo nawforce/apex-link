@@ -27,11 +27,11 @@
 */
 package com.nawforce.runtime
 
-import com.nawforce.path.PathLike
-import org.scalatest.funsuite.AnyFunSuite
 import com.nawforce.FileSystemHelper
 import com.nawforce.documents.{PointLocation, Position}
-import com.nawforce.xml.XMLFactory
+import com.nawforce.path.PathLike
+import com.nawforce.xml.{XMLException, XMLFactory, XMLName}
+import org.scalatest.funsuite.AnyFunSuite
 
 class XMLDocumentTest extends AnyFunSuite {
 
@@ -55,6 +55,172 @@ class XMLDocumentTest extends AnyFunSuite {
         case Left((PointLocation(f, Position(2,_)), _)) if f == file => ()
         case Left(err) => assert(false, err)
         case Right(_) => assert(false)
+      }
+    }
+  }
+
+  test("Empty doc has error") {
+    FileSystemHelper.run(Map[String, String] (
+      "test.xml" -> ""
+    )) { root: PathLike =>
+      val file = root.join("test.xml")
+      XMLFactory.parse(file) match {
+        case Left((PointLocation(f, Position(_,_)), _)) if f == file => ()
+        case Left(err) => assert(false, err)
+        case Right(_) => assert(false)
+      }
+    }
+  }
+
+  test("root node") {
+    FileSystemHelper.run(Map[String, String] (
+      "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Hello</test>"
+    )) { root: PathLike =>
+      val file = root.join("test.xml")
+      XMLFactory.parse(file) match {
+        case Left(err) => assert(false, err)
+        case Right(doc) =>
+          assert(doc.path == file)
+          val node = doc.rootElement
+          assert(node.line == 1)
+          assert(node.name == XMLName(XMLDocument.sfNamespace, "test"))
+          assert(node.text == "Hello")
+      }
+    }
+  }
+
+  test("single child node") {
+    FileSystemHelper.run(Map[String, String] (
+      "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar<a>Foo</a>Baz</test>"
+    )) { root: PathLike =>
+      val file = root.join("test.xml")
+      XMLFactory.parse(file) match {
+        case Left(err) => assert(false, err)
+        case Right(doc) =>
+          val node = doc.rootElement.getOptionalSingleChild("a")
+          assert(node.nonEmpty)
+          assert(node.get.line == 1)
+          assert(node.get.name == XMLName(XMLDocument.sfNamespace, "a"))
+          assert(node.get.text == "Foo")
+          node.get.assertIs("a")
+      }
+    }
+  }
+
+  test("dual child node not matched") {
+    FileSystemHelper.run(Map[String, String] (
+      "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar<a>Foo</a><a>Baz</a></test>"
+    )) { root: PathLike =>
+      val file = root.join("test.xml")
+      XMLFactory.parse(file) match {
+        case Left(err) => assert(false, err)
+        case Right(doc) =>
+          val node = doc.rootElement.getOptionalSingleChild("a")
+          assert(node.isEmpty)
+      }
+    }
+  }
+
+  test("no child node not matched") {
+    FileSystemHelper.run(Map[String, String] (
+      "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar</test>"
+    )) { root: PathLike =>
+      val file = root.join("test.xml")
+      XMLFactory.parse(file) match {
+        case Left(err) => assert(false, err)
+        case Right(doc) =>
+          val node = doc.rootElement.getOptionalSingleChild("a")
+          assert(node.isEmpty)
+      }
+    }
+  }
+
+  test("optional single child as string") {
+    FileSystemHelper.run(Map[String, String] (
+      "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar<a>Foo</a>Baz</test>"
+    )) { root: PathLike =>
+      val file = root.join("test.xml")
+      XMLFactory.parse(file) match {
+        case Left(err) => assert(false, err)
+        case Right(doc) =>
+          assert(doc.rootElement.getOptionalSingleChildAsString("a").contains("Foo"))
+      }
+    }
+  }
+
+  test("optional single child as boolean") {
+    FileSystemHelper.run(Map[String, String] (
+      "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar<a>true</a>Baz</test>"
+    )) { root: PathLike =>
+      val file = root.join("test.xml")
+      XMLFactory.parse(file) match {
+        case Left(err) => assert(false, err)
+        case Right(doc) =>
+          assert(doc.rootElement.getOptionalSingleChildAsBoolean("a").contains(true))
+      }
+    }
+  }
+
+  test("mandatory single child as string") {
+    FileSystemHelper.run(Map[String, String] (
+      "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar<a>Foo</a>Baz</test>"
+    )) { root: PathLike =>
+      val file = root.join("test.xml")
+      XMLFactory.parse(file) match {
+        case Left(err) => assert(false, err)
+        case Right(doc) =>
+          assert(doc.rootElement.getSingleChildAsString("a") == "Foo")
+      }
+    }
+  }
+
+  test("mandatory single child as boolean") {
+    FileSystemHelper.run(Map[String, String] (
+      "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar<a>false</a>Baz</test>"
+    )) { root: PathLike =>
+      val file = root.join("test.xml")
+      XMLFactory.parse(file) match {
+        case Left(err) => assert(false, err)
+        case Right(doc) =>
+          assert(!doc.rootElement.getSingleChildAsBoolean("a"))
+      }
+    }
+  }
+
+  test("mandatory single child as string throws") {
+    FileSystemHelper.run(Map[String, String] (
+      "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar</test>"
+    )) { root: PathLike =>
+      val file = root.join("test.xml")
+      XMLFactory.parse(file) match {
+        case Left(err) => assert(false, err)
+        case Right(doc) =>
+          try {
+            doc.rootElement.getSingleChildAsString("a")
+            assert(false)
+          } catch {
+            case ex: XMLException => assert(ex.msg == "Expecting element to have single 'a' child")
+            case _: Throwable => assert(false)
+          }
+      }
+    }
+  }
+
+  test("mandatory single child as boolean throws") {
+    FileSystemHelper.run(Map[String, String] (
+      "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar</test>"
+    )) { root: PathLike =>
+      val file = root.join("test.xml")
+      XMLFactory.parse(file) match {
+        case Left(err) => assert(false, err)
+        case Right(doc) =>
+          try {
+            doc.rootElement.getSingleChildAsBoolean("a")
+            assert(false)
+          } catch {
+            case ex: XMLException => assert(ex.msg == "Expecting element to have single 'a' child")
+            case _: Throwable => assert(false)
+          }
       }
     }
   }

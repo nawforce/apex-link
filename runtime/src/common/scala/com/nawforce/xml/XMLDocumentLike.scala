@@ -27,6 +27,81 @@
 */
 package com.nawforce.xml
 
-trait XMLDocumentLike {
+import com.nawforce.documents.TextRange
+import com.nawforce.path.PathLike
 
+final case class XMLException(where: TextRange, msg: String) extends Exception
+
+case class XMLName(namespace: String, label: String)
+
+trait XMLElementLike {
+  // Input line number for element
+  val line: Int
+
+  // Namespace & node label
+  val name: XMLName
+
+  // Text of node
+  val text: String
+
+  // Assert name of an element, throws XMLException on error
+  def assertIs(value: String): Unit = {
+    if (name.namespace != XMLDocumentLike.sfNamespace) {
+      throw XMLException(TextRange(line),
+        s"Expected element in Salesforce namespace, but has namespace '${name.namespace}' ")
+    }
+    if (name.label != value) {
+      throw XMLException(TextRange(line),
+        s"Expected element named '$name', but found '${name.label}'")
+    }
+  }
+
+  // Get child element of given name iff there is a single child
+  def getOptionalSingleChild(name: String): Option[XMLElementLike]
+
+  // Get text of an element, throws if a single child with text can not be found
+  def getSingleChildAsString(name: String): String = {
+    val text = getOptionalSingleChildAsString(name)
+    if (text.isEmpty)
+      throw XMLException(TextRange(line),
+        s"Expecting element to have single '$name' child")
+    text.get
+  }
+
+  // Get text of an element, returns None if a single child with text can not be found
+  def getOptionalSingleChildAsString(name: String): Option[String] = {
+    getOptionalSingleChild(name).map(e => e.text)
+  }
+
+  // Get boolean value of an element, throws if a single child with true/false can not be found
+  def getSingleChildAsBoolean(name: String): Boolean = {
+    val value = getOptionalSingleChildAsBoolean(name)
+    if (value.isEmpty)
+      throw XMLException(TextRange(line),
+        s"Expecting element to have single '$name' child")
+    value.get
+  }
+
+  // Get boolean value of an element, returns None if a single child with true/false can not be found
+  def getOptionalSingleChildAsBoolean(name: String): Option[Boolean] = {
+    val matched = getOptionalSingleChild(name)
+    if (matched.isDefined) {
+      val isBoolean = matched.get.text.matches("true|false")
+      if (!isBoolean)
+        throw XMLException(TextRange(line),
+          s"Expecting value to be either 'true' or 'false', found '${matched.get.text}'")
+      Some(matched.get.text == "true")
+    } else {
+      None
+    }
+  }
+}
+
+abstract class XMLDocumentLike(val path: PathLike) {
+  // Root element of document
+  val rootElement: XMLElementLike
+}
+
+object XMLDocumentLike {
+  val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
 }

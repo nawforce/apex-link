@@ -27,18 +27,36 @@
 */
 package com.nawforce.runtime
 
-import com.nawforce.documents.{PointLocation, Position}
+import com.nawforce.documents.{Location, PointLocation, Position}
 import com.nawforce.path.PathLike
-import com.nawforce.documents.Location
-import com.nawforce.xml.{XMLDocumentLike, XMLLineLoader}
+import com.nawforce.xml.{XMLDocumentLike, XMLElementLike, XMLLineLoader, XMLName}
 
 import scala.xml.{Elem, SAXParseException}
 
-class XMLDocument(path: PathLike, elem: Elem) extends XMLDocumentLike {
+class XMLElement(element: Elem) extends XMLElementLike {
+  override lazy val line: Int = element.attribute("line").get.toString().toInt
 
+  override lazy val name: XMLName = XMLName(element.namespace, element.label)
+
+  override lazy val text: String = element.text
+
+  override def getOptionalSingleChild(name: String): Option[XMLElementLike] = {
+    val matched = (element \ name).filter(x => x.namespace == XMLDocument.sfNamespace)
+    if (matched.length == 1)
+      Some(new XMLElement(matched.head.asInstanceOf[Elem]))
+    else {
+      None
+    }
+  }
+}
+
+class XMLDocument(path: PathLike, elem: Elem) extends XMLDocumentLike(path) {
+  override lazy val rootElement: XMLElementLike = new XMLElement(elem)
 }
 
 object XMLDocument {
+  val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
+
   def apply(path: PathLike, data: String): Either[(Location, String), XMLDocument] = {
     try {
       Right(new XMLDocument(path, XMLLineLoader.loadString(data)))

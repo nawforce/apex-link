@@ -31,14 +31,51 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation._
 
 @js.native
+trait NodeList extends js.Object {
+  val length: Int = js.native
+  def item(at: Int): Node = js.native
+}
+
+@js.native
 trait Node extends js.Object {
   val lineNumber: Int = js.native
   val columnNumber: Int = js.native
+
+  val nodeType: Int = js.native
+  val nodeName: String = js.native
+
+  val namespaceURI: String = js.native
+  val localName: String = js.native
+
+  val childNodes: NodeList = js.native
+}
+
+object Node {
+  var ELEMENT_NODE = 1
+  var ATTRIBUTE_NODE = 2
+  var TEXT_NODE = 3
+  var CDATA_SECTION_NODE = 4
+  var ENTITY_REFERENCE_NODE = 5
+  var ENTITY_NODE = 6
+  var PROCESSING_INSTRUCTION_NODE = 7
+  var COMMENT_NODE = 8
+  var DOCUMENT_NODE = 9
+  var DOCUMENT_TYPE_NODE = 10
+  var DOCUMENT_FRAGMENT_NODE = 11
+  var NOTATION_NODE = 12
 }
 
 @js.native
 trait Element extends Node {
+}
 
+@js.native
+trait CharacterData extends Node {
+  val data: String = js.native
+}
+
+@js.native
+trait Text extends CharacterData {
 }
 
 @js.native

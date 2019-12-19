@@ -28,27 +28,66 @@
 package com.nawforce.runtime
 
 import com.nawforce.documents.{Location, PointLocation, Position}
-import com.nawforce.imports.xml.{DOMParser, Document}
+import com.nawforce.imports.xml.{DOMParser, Document, Element, Node, Text}
 import com.nawforce.path.PathLike
-import com.nawforce.xml.XMLDocumentLike
+import com.nawforce.xml.{XMLDocumentLike, XMLElementLike, XMLName}
+import io.scalajs.nodejs.console
 
 import scala.scalajs.js
 import scala.scalajs.js.{Dynamic, Object}
 import scala.util.matching.Regex
 
-class XMLDocument(doc: Document) extends XMLDocumentLike {
+class XMLElement(element: Element) extends XMLElementLike {
+  override lazy val line: Int = element.lineNumber
+
+  override lazy val name: XMLName = XMLName(element.namespaceURI, element.localName)
+
+  override lazy val text: String = {
+    val nl = element.childNodes
+
+    val sb = StringBuilder.newBuilder
+    for (i <- 0 until nl.length) {
+      val n = nl.item(i)
+      if (n.nodeType == Node.TEXT_NODE) {
+        sb.append(n.asInstanceOf[Text].data)
+      }
+    }
+    sb.toString()
+  }
+
+  override def getOptionalSingleChild(name: String): Option[XMLElementLike] = {
+    var matched: List[Element] = Nil
+    val nl = element.childNodes
+    for (i <- 0 until nl.length) {
+      val n = nl.item(i)
+      if (n.nodeType == Node.ELEMENT_NODE && n.namespaceURI == XMLDocument.sfNamespace && n.localName == name) {
+        matched = n.asInstanceOf[Element] :: matched
+      }
+    }
+    if (matched.length == 1)
+      Some(new XMLElement(matched.head))
+    else {
+      None
+    }
+  }
+}
+
+class XMLDocument(path: PathLike, doc: Document) extends XMLDocumentLike(path) {
+  override lazy val rootElement: XMLElementLike = new XMLElement(doc.documentElement)
 }
 
 object XMLDocument {
+  val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
   var errors: List[(Location, String)] = Nil
 
   def apply(path: PathLike, data: String): Either[(Location, String), XMLDocument] = {
+    errors = Nil
     val parser = new DOMParser(getOptions(path))
     val doc = parser.parseFromString(data, "text/xml")
     if (errors.nonEmpty) {
       Left(errors.last)
     } else {
-      Right(new XMLDocument(doc))
+      Right(new XMLDocument(path, doc))
     }
   }
 
