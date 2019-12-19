@@ -31,9 +31,8 @@ import java.lang.reflect.{Modifier => JavaModifier}
 
 import com.nawforce.api.Org
 import com.nawforce.cst.ConstructContext
-import com.nawforce.documents.RangeLocation
-import com.nawforce.parsers.ApexParser.{AnnotationContext, IdContext, ModifierContext, PropertyBlockContext}
 import com.nawforce.diagnostics.WARNING_CATEGORY
+import com.nawforce.parsers.ApexParser.{AnnotationContext, IdContext, ModifierContext, PropertyBlockContext}
 import com.nawforce.runtime.LocationHelper
 import org.antlr.v4.runtime.ParserRuleContext
 

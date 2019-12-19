@@ -9,7 +9,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/project" />
-            <option value="$PROJECT_DIR$/../runtime/src/common" />
+            <option value="$PROJECT_DIR$/../runtime/src" />
           </set>
         </option>
         <option name="sbtVersion" value="1.3.4" />

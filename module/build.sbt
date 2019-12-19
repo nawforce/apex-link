@@ -12,6 +12,7 @@ scalacOptions += "-P:scalajs:sjsDefinedByDefault"
 webpackBundlingMode := BundlingMode.Application
 
 npmDependencies in Compile += "java" -> "0.11.1"
+npmDependencies in Compile += "xmldom" -> "0.1.27"
 npmDependencies in Test += "fs-monkey" -> "0.3.3"
 npmDependencies in Test += "memfs" -> "3.0.1"
 
@@ -93,7 +94,8 @@ npmTask := {
   "license": "BSD-3-Clause",
   "bugs": "https://github.com/nawforce/apexlink/issues",
   "dependencies": {
-    "java": "0.11.1"
+    "java": "0.11.1",
+    "xmldom": "0.1.27"
   }
 }"""
 
