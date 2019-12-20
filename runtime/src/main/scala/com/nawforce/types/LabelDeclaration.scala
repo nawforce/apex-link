@@ -27,19 +27,14 @@
 */
 package com.nawforce.types
 
-import java.io.ByteArrayInputStream
-
 import com.nawforce.api.Org
 import com.nawforce.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.documents._
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.path.{FILE, PathFactory, PathLike}
-import com.nawforce.runtime.Path
-import com.nawforce.xml.XMLUtils.getLine
-import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
+import com.nawforce.xml.{XMLElementLike, XMLException, XMLFactory}
 
 import scala.collection.mutable
-import scala.xml.{Elem, SAXParseException}
 
 final case class LabelDeclaration(pkg: PackageDeclaration, name: Name, labelFields: Seq[Label], labelNamespaces: Seq[TypeDeclaration])
   extends TypeDeclaration {
@@ -145,21 +140,19 @@ object LabelDeclaration {
       return Seq()
     }
 
+    val parseResult = XMLFactory.parse(path)
+    if (parseResult.isLeft) {
+      Org.logMessage(parseResult.left.get._1, parseResult.left.get._2)
+      return Seq()
+    }
+    val rootElement = parseResult.right.get.rootElement
+
     try {
-      val root = XMLLineLoader.load(new ByteArrayInputStream(data.right.get.getBytes()))
-      XMLUtils.assertIs(root, "CustomLabels")
-
-      root.child.flatMap {
-        case elem: Elem =>
-          XMLUtils.assertIs(elem, "labels")
-          Some(Label(path.native.asInstanceOf[java.nio.file.Path], elem))
-        case _ => None
-      }
-
+      rootElement.assertIs("CustomLabels")
+      rootElement.getChildren("labels")
+        .map(c => Label(path, c))
     } catch {
       case e: XMLException => Org.logMessage(RangeLocation(path, e.where), e.msg); Seq()
-      case e: SAXParseException => Org.logMessage(PointLocation(path,
-        Position(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage); Seq()
     }
   }
 }
@@ -172,18 +165,11 @@ case class Label(location: Location, name: Name, isProtected: Boolean) extends F
 }
 
 object Label {
-  def apply(path: java.nio.file.Path, element: Elem): Label = {
+  def apply(path: PathLike, element: XMLElementLike): Label = {
 
-    val fullName: String = XMLUtils.getSingleChildAsString(element, "fullName")
-    val protect: Boolean = XMLUtils.getSingleChildAsBoolean(element, "protected")
+    val fullName: String = element.getSingleChildAsString("fullName")
+    val protect: Boolean = element.getSingleChildAsBoolean( "protected")
 
-    /* Not needed so save some time parsing for now
-    val language: Option[String] = XMLUtils.getSingleChildAsString(element, "language")
-    val shortDescription: Option[String] = XMLUtils.getSingleChildAsString(element, "shortDescription")
-    val value: Option[String] = XMLUtils.getSingleChildAsString(element, "value")
-    val categories: Option[String] = XMLUtils.getOptionalSingleChildAsString(element, "categories")
-     */
-
-    Label(RangeLocation(Path(path), TextRange(getLine(element))), Name(fullName), protect)
+    Label(RangeLocation(path, TextRange(element.line)), Name(fullName), protect)
   }
 }

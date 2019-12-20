@@ -29,9 +29,12 @@ package com.nawforce.runtime
 
 import com.nawforce.documents.{Location, PointLocation, Position}
 import com.nawforce.path.PathLike
-import com.nawforce.xml.{XMLDocumentLike, XMLElementLike, XMLLineLoader, XMLName}
+import com.nawforce.xml.{XMLDocumentLike, XMLElementLike, XMLName}
+import org.xml.sax.Locator
 
-import scala.xml.{Elem, SAXParseException}
+import scala.collection.mutable
+import scala.xml.parsing.NoBindingFactoryAdapter
+import scala.xml.{Attribute, Elem, MetaData, NamespaceBinding, Node, Null, SAXParseException, Text, factory, parsing}
 
 class XMLElement(element: Elem) extends XMLElementLike {
   override lazy val line: Int = element.attribute("line").get.toString().toInt
@@ -40,13 +43,10 @@ class XMLElement(element: Elem) extends XMLElementLike {
 
   override lazy val text: String = element.text
 
-  override def getOptionalSingleChild(name: String): Option[XMLElementLike] = {
-    val matched = (element \ name).filter(x => x.namespace == XMLDocument.sfNamespace)
-    if (matched.length == 1)
-      Some(new XMLElement(matched.head.asInstanceOf[Elem]))
-    else {
-      None
-    }
+  override def getChildren(name: String): Seq[XMLElementLike] = {
+    (element \ name)
+      .filter(x => x.namespace == XMLDocument.sfNamespace)
+      .map(n => new XMLElement(n.asInstanceOf[Elem]))
   }
 }
 
@@ -66,3 +66,29 @@ object XMLDocument {
     }
   }
 }
+
+trait WithLocation extends NoBindingFactoryAdapter {
+  private var locator: org.xml.sax.Locator = _
+  private val startLines = mutable.Stack[Int]()
+
+  // Get location
+  abstract override def setDocumentLocator(locator: Locator) {
+    this.locator = locator
+    super.setDocumentLocator(locator)
+  }
+
+  abstract override def createNode(pre: String, label: String, attrs: MetaData, scope: NamespaceBinding, children: List[Node]): Elem = (
+    super.createNode(pre, label, attrs, scope, children)
+      % Attribute("line", Text(startLines.pop.toString), Null)
+    )
+
+  abstract override def startElement(uri: scala.Predef.String, _localName: scala.Predef.String, qname: scala.Predef.String, attributes: org.xml.sax.Attributes): scala.Unit = {
+    startLines.push(locator.getLineNumber)
+    super.startElement(uri, _localName, qname, attributes)
+  }
+}
+
+object XMLLineLoader extends factory.XMLLoader[Elem] {
+  override def adapter = new parsing.NoBindingFactoryAdapter with WithLocation
+}
+

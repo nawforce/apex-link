@@ -135,11 +135,11 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[java.nio.file.
           ApexTypeDeclaration.create(this, docType.path.native.asInstanceOf[java.nio.file.Path],
             new ByteArrayInputStream(data.right.get.getBytes))
         case Some(docType: SObjectDocument) =>
-          SObjectDeclaration.create(this, docType.path.native.asInstanceOf[java.nio.file.Path])
+          SObjectDeclaration.create(this, docType.path)
         case Some(docType: PlatformEventDocument) =>
-          SObjectDeclaration.create(this, docType.path.native.asInstanceOf[java.nio.file.Path])
+          SObjectDeclaration.create(this, docType.path)
         case Some(docType: CustomMetadataDocument) =>
-          SObjectDeclaration.create(this, docType.path.native.asInstanceOf[java.nio.file.Path])
+          SObjectDeclaration.create(this, docType.path)
         case Some(docType: ComponentDocument) =>
           upsertComponent(namespace, docType)
           Nil

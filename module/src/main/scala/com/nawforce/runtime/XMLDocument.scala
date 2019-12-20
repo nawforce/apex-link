@@ -33,7 +33,9 @@ import com.nawforce.path.PathLike
 import com.nawforce.xml.{XMLDocumentLike, XMLElementLike, XMLName}
 import io.scalajs.nodejs.console
 
+import scala.collection.mutable.ArrayBuffer
 import scala.scalajs.js
+import scala.scalajs.js.typedarray.ArrayBuffer
 import scala.scalajs.js.{Dynamic, Object}
 import scala.util.matching.Regex
 
@@ -55,20 +57,16 @@ class XMLElement(element: Element) extends XMLElementLike {
     sb.toString()
   }
 
-  override def getOptionalSingleChild(name: String): Option[XMLElementLike] = {
-    var matched: List[Element] = Nil
+  override def getChildren(name: String): Seq[XMLElementLike] = {
+    val matched = ArrayBuffer[XMLElementLike]()
     val nl = element.childNodes
     for (i <- 0 until nl.length) {
       val n = nl.item(i)
       if (n.nodeType == Node.ELEMENT_NODE && n.namespaceURI == XMLDocument.sfNamespace && n.localName == name) {
-        matched = n.asInstanceOf[Element] :: matched
+        matched.append(new XMLElement(n.asInstanceOf[Element]))
       }
     }
-    if (matched.length == 1)
-      Some(new XMLElement(matched.head))
-    else {
-      None
-    }
+    matched
   }
 }
 

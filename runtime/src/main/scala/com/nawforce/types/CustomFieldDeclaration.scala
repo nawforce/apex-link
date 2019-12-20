@@ -29,10 +29,8 @@ package com.nawforce.types
 
 import com.nawforce.documents.{RangeLocation, TextRange}
 import com.nawforce.names.{EncodedName, Name, TypeName}
-import com.nawforce.xml.XMLUtils.getLine
-import com.nawforce.xml.{XMLException, XMLUtils}
-
-import scala.xml.Elem
+import com.nawforce.path.PathLike
+import com.nawforce.xml.{XMLElementLike, XMLException}
 
 final case class CustomFieldDeclaration(name: Name, typeName: TypeName, asStatic: Boolean = false)
   extends FieldDeclaration {
@@ -47,18 +45,18 @@ final case class CustomFieldDeclaration(name: Name, typeName: TypeName, asStatic
 
 object CustomFieldDeclaration {
 
-  def parseField(elem: Elem, path: java.nio.file.Path, pkg: PackageDeclaration, sObjectType: TypeName, sObjectNature: SObjectNature)
-  : Seq[CustomFieldDeclaration] = {
+  def parseField(elem: XMLElementLike, path: PathLike, pkg: PackageDeclaration, sObjectType: TypeName,
+                 sObjectNature: SObjectNature): Seq[CustomFieldDeclaration] = {
 
-    val rawName: String = XMLUtils.getSingleChildAsString(elem, "fullName").trim
+    val rawName: String = elem.getSingleChildAsString("fullName").trim
     val name = Name(pkg.namespace.map(ns => s"${ns.value}__$rawName").getOrElse(rawName))
-    val rawTypeOption = XMLUtils.getOptionalSingleChildAsString(elem, "type").map(_.trim)
+    val rawTypeOption = elem.getOptionalSingleChildAsString("type").map(_.trim)
 
     if (rawTypeOption.isEmpty && sObjectNature == PlatformObjectNature && EncodedName(name).ext.isEmpty) {
       // Allow missing type on standard fields of standard objects
       return Seq()
     } else if (rawTypeOption.isEmpty) {
-      throw XMLException(TextRange(getLine(elem)), s"Expecting custom field '${name}' to have 'type' child element")
+      throw XMLException(TextRange(elem.line), s"Expecting custom field '$name' to have 'type' child element")
     }
 
     val rawType = rawTypeOption.get
@@ -87,17 +85,17 @@ object CustomFieldDeclaration {
       case "Location" => PlatformTypes.locationType
       case "Time" => PlatformTypes.timeType
       case "Html" => PlatformTypes.stringType
-      case _ => throw XMLException(TextRange(XMLUtils.getLine(elem)), s"Unexpected type '$rawType' on custom field")
+      case _ => throw XMLException(TextRange(elem.line), s"Unexpected type '$rawType' on custom field")
     }
 
     Seq(CustomFieldDeclaration(name, dataType.typeName)) ++
       (if (rawType == "Lookup" || rawType == "MasterDetail" || rawType == "MetadataRelationship") {
-        val referenceTo = Name(XMLUtils.getSingleChildAsString(elem, "referenceTo").trim)
-        val relName = Name(XMLUtils.getSingleChildAsString(elem, "relationshipName").trim+"__r")
+        val referenceTo = Name(elem.getSingleChildAsString("referenceTo").trim)
+        val relName = Name(elem.getSingleChildAsString("relationshipName").trim+"__r")
         val refTypeName = TypeName(EncodedName(referenceTo).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeName.Schema))
 
         pkg.schema().relatedLists.add(refTypeName, relName, name, sObjectType,
-          RangeLocation(com.nawforce.runtime.Path(path), TextRange(XMLUtils.getLine(elem))))
+          RangeLocation(path, TextRange(elem.line)))
 
         Seq(CustomFieldDeclaration(name.replaceAll("__c$", "__r"), refTypeName))
       } else if (rawType == "Location") {

@@ -27,19 +27,12 @@
 */
 package com.nawforce.types
 
-import java.io.FileInputStream
-import java.nio.file.{Files, Path}
-
 import com.nawforce.api.Org
 import com.nawforce.documents._
 import com.nawforce.names.{EncodedName, Name, TypeName}
-import com.nawforce.runtime
-import com.nawforce.runtime.Path
+import com.nawforce.path.{DIRECTORY, DOES_NOT_EXIST, NONEMPTY_FILE, PathLike}
 import com.nawforce.types.CustomFieldDeclaration.parseField
-import com.nawforce.xml.{XMLException, XMLLineLoader, XMLUtils}
-
-import scala.collection.JavaConverters._
-import scala.xml.{Elem, SAXParseException}
+import com.nawforce.xml.{XMLElementLike, XMLException, XMLFactory}
 
 sealed abstract class SObjectNature(val nature: String) {
   override def toString: String = nature
@@ -69,36 +62,42 @@ final case class SObjectDetails(sobjectNature: SObjectNature, typeName: TypeName
 }
 
 object SObjectDetails {
-  def parseSObject(path: java.nio.file.Path, pkg: PackageDeclaration): Option[SObjectDetails] = {
-    try {
-      val dt = DocumentType(com.nawforce.runtime.Path(path))
-      assert(dt.exists(_.isInstanceOf[SObjectLike]))
-      val typeName = TypeName(EncodedName(dt.get.name).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeName.Schema))
+  def parseSObject(path: PathLike, pkg: PackageDeclaration): Option[SObjectDetails] = {
+    val dt = DocumentType(path)
+    assert(dt.exists(_.isInstanceOf[SObjectLike]))
+    val typeName = TypeName(EncodedName(dt.get.name).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeName.Schema))
 
-      // TODO: Improve handling of ghosted SObject types
-      if (!Files.exists(path)) {
-        val sobjectNature: SObjectNature = dt match {
-          case Some(x: SObjectDocument) if x.name.value.endsWith("__c") => CustomObjectNature
-          case Some(_: SObjectDocument) => PlatformObjectNature
-        }
-
-        val sfdxFields = parseSfdxFields(path, pkg, typeName, sobjectNature)
-        val sfdxFieldSets = parseSfdxFieldSets(path, pkg)
-        return Some(SObjectDetails(sobjectNature, typeName, sfdxFields, sfdxFieldSets.toSet))
+    // TODO: Improve handling of ghosted SObject types
+    if (path.nature == DOES_NOT_EXIST) {
+      val sobjectNature: SObjectNature = dt match {
+        case Some(x: SObjectDocument) if x.name.value.endsWith("__c") => CustomObjectNature
+        case Some(_: SObjectDocument) => PlatformObjectNature
       }
 
-      val root = XMLLineLoader.load(Files.newInputStream(path))
-      XMLUtils.assertIs(root, "CustomObject")
+      val sfdxFields = parseSfdxFields(path, pkg, typeName, sobjectNature)
+      val sfdxFieldSets = parseSfdxFieldSets(path, pkg)
+      return Some(SObjectDetails(sobjectNature, typeName, sfdxFields, sfdxFieldSets.toSet))
+    }
+
+    val parseResult = XMLFactory.parse(path)
+    if (parseResult.isLeft) {
+      Org.logMessage(parseResult.left.get._1, parseResult.left.get._2)
+      return None
+    }
+    val rootElement = parseResult.right.get.rootElement
+
+    try {
+      rootElement.assertIs("CustomObject")
 
       val sobjectNature: SObjectNature = dt match {
         case Some(_: CustomMetadataDocument) => CustomMetadataNature
         case Some(_: PlatformEventDocument) => PlatformEventNature
         case Some(x: SObjectDocument) if x.name.value.endsWith("__c") =>
-          XMLUtils.getOptionalSingleChildAsString(root, "customSettingsType") match {
+          rootElement.getOptionalSingleChildAsString("customSettingsType") match {
             case Some("List") => ListCustomSettingNature
             case Some("Hierarchy") => HierarchyCustomSettingsNature
             case Some(x) =>
-              Org.logMessage(RangeLocation(runtime.Path(path), TextRange(XMLUtils.getLine(root))),
+              Org.logMessage(RangeLocation(path, TextRange(rootElement.line)),
                 s"Unexpected customSettingsType value '$x', should be 'List' or 'Hierarchy'")
               CustomObjectNature
             case _ => CustomObjectNature
@@ -106,87 +105,83 @@ object SObjectDetails {
         case Some(_: SObjectDocument) => PlatformObjectNature
       }
 
-      val fields = root.child.flatMap {
-        case elem: Elem if elem.namespace == XMLUtils.sfNamespace && elem.label == "fields" =>
-          parseField(elem, path, pkg, typeName, sobjectNature)
-        case _ => None
-      }
+      val fields = rootElement.getChildren("fields")
+        .flatMap(f => parseField(f, path, pkg, typeName, sobjectNature))
       val sfdxFields = parseSfdxFields(path, pkg, typeName, sobjectNature)
 
-      val fieldsSets = root.child.flatMap {
-        case elem: Elem if elem.namespace == XMLUtils.sfNamespace && elem.label == "fieldSets" =>
-          Some(parseFieldSet(elem, path, pkg))
-        case _ => None
-      }
+      val fieldSets = rootElement.getChildren("fieldSets")
+        .map(f => parseFieldSet(f, path, pkg))
       val sfdxFieldSets = parseSfdxFieldSets(path, pkg)
 
-      Some(SObjectDetails(sobjectNature, typeName, fields ++ sfdxFields, (fieldsSets ++ sfdxFieldSets).toSet))
+      Some(SObjectDetails(sobjectNature, typeName, fields ++ sfdxFields, (fieldSets ++ sfdxFieldSets).toSet))
 
     } catch {
       case e: XMLException =>
-        Org.logMessage(RangeLocation(runtime.Path(path), e.where), e.msg)
-        None
-      case e: SAXParseException => Org.logMessage(PointLocation(runtime.Path(path),
-        Position(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage)
+        Org.logMessage(RangeLocation(path, e.where), e.msg)
         None
     }
   }
 
-  private def parseFieldSet(elem: Elem, path: java.nio.file.Path, pkg: PackageDeclaration): Name = {
-    EncodedName(XMLUtils.getSingleChildAsString(elem, "fullName"))
+  private def parseFieldSet(elem: XMLElementLike, path: PathLike, pkg: PackageDeclaration): Name = {
+    EncodedName(elem.getSingleChildAsString("fullName"))
       .defaultNamespace(pkg.namespace).fullName
   }
 
-  private def parseSfdxFields(path: java.nio.file.Path, pkg: PackageDeclaration, sObjectType: TypeName, sObjectNature: SObjectNature)
-  : Seq[CustomFieldDeclaration] = {
-    val fieldsDir = path.getParent.resolve("fields")
-    if (Files.isDirectory(fieldsDir)) {
-      Files.newDirectoryStream(fieldsDir).asScala.flatMap(file => {
-        if (Files.isRegularFile(file) && file.toString.endsWith(".field-meta.xml")) {
-          try {
-            val root = XMLLineLoader.load(Files.newInputStream(file))
-            XMLUtils.assertIs(root, "CustomField")
-            parseField(root, path, pkg, sObjectType, sObjectNature)
-          } catch {
-            case e: XMLException =>
-              Org.logMessage(RangeLocation(runtime.Path(file), e.where), e.msg)
+  private def parseSfdxFields(path: PathLike, pkg: PackageDeclaration, sObjectType: TypeName,
+                              sObjectNature: SObjectNature): Seq[CustomFieldDeclaration] = {
+
+    val fieldsDir = path.parent.join("fields")
+    if (fieldsDir.nature != DIRECTORY)
+      return Seq()
+
+    fieldsDir.directoryList() match {
+      case Left(_) => Seq()
+      case Right(entries) =>
+        entries.filter(_.endsWith(".field-meta.xml"))
+          .flatMap(entry => {
+            val fieldPath = fieldsDir.join(entry)
+            if (fieldPath.nature == NONEMPTY_FILE) {
+              val parseResult = XMLFactory.parse(fieldPath)
+              if (parseResult.isLeft) {
+                Org.logMessage(parseResult.left.get._1, parseResult.left.get._2)
+                None
+              } else {
+                val rootElement = parseResult.right.get.rootElement
+                rootElement.assertIs("CustomField")
+                parseField(rootElement, fieldPath, pkg, sObjectType, sObjectNature)
+              }
+            } else {
               None
-            case e: SAXParseException => Org.logMessage(PointLocation(runtime.Path(file),
-              Position(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage)
-              None
-          }
-        } else {
-          None
-        }
-      }).toSeq
-    } else {
-      Seq()
+            }
+          })
     }
   }
 
-  private def parseSfdxFieldSets(path: java.nio.file.Path, pkg: PackageDeclaration): Seq[Name] = {
-    val fieldsDir = path.getParent.resolve("fieldSets")
-    if (Files.isDirectory(fieldsDir)) {
-      Files.newDirectoryStream(fieldsDir).asScala.flatMap(file => {
-        if (Files.isRegularFile(file) && file.toString.endsWith(".fieldSet-meta.xml")) {
-          try {
-            val root = XMLLineLoader.load(Files.newInputStream(file))
-            XMLUtils.assertIs(root, "FieldSet")
-            Some(parseFieldSet(root, path, pkg))
-          } catch {
-            case e: XMLException =>
-              Org.logMessage(RangeLocation(runtime.Path(file), e.where), e.msg)
+  private def parseSfdxFieldSets(path: PathLike, pkg: PackageDeclaration): Seq[Name] = {
+    val fieldsDir = path.parent.join("fieldSets")
+    if (fieldsDir.nature != DIRECTORY)
+      return Seq()
+
+    fieldsDir.directoryList() match {
+      case Left(_) => Seq()
+      case Right(entries) =>
+        entries.filter(_.endsWith(".fieldSet-meta.xml"))
+          .flatMap(entry => {
+            val fieldPath = fieldsDir.join(entry)
+            if (fieldPath.nature == NONEMPTY_FILE) {
+              val parseResult = XMLFactory.parse(fieldPath)
+              if (parseResult.isLeft) {
+                Org.logMessage(parseResult.left.get._1, parseResult.left.get._2)
+                None
+              } else {
+                val rootElement = parseResult.right.get.rootElement
+                rootElement.assertIs("FieldSet")
+                Some(parseFieldSet(rootElement, fieldPath, pkg))
+              }
+            } else {
               None
-            case e: SAXParseException => Org.logMessage(PointLocation(runtime.Path(file),
-              Position(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage)
-              None
-          }
-        } else {
-          None
-        }
-      }).toSeq
-    } else {
-      Seq()
+            }
+          })
     }
   }
 }

@@ -29,6 +29,7 @@ package com.nawforce.xml
 
 import com.nawforce.documents.TextRange
 import com.nawforce.path.PathLike
+import com.nawforce.runtime.{XMLDocument, XMLElement}
 
 final case class XMLException(where: TextRange, msg: String) extends Exception
 
@@ -56,8 +57,18 @@ trait XMLElementLike {
     }
   }
 
+  // Child elements with specific name
+  def getChildren(name: String): Seq[XMLElementLike]
+
   // Get child element of given name iff there is a single child
-  def getOptionalSingleChild(name: String): Option[XMLElementLike]
+  def getOptionalSingleChild(name: String): Option[XMLElementLike] = {
+    val matched = getChildren(name)
+    if (matched.length == 1)
+      Some(matched.head)
+    else {
+      None
+    }
+  }
 
   // Get text of an element, throws if a single child with text can not be found
   def getSingleChildAsString(name: String): String = {
