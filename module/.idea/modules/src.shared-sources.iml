@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module external.linked.project.id="shared-sources" external.linked.project.path="$MODULE_DIR$/../../../runtime/src" external.root.project.path="$MODULE_DIR$/../.." external.system.id="SBT" type="SHARED_SOURCES_MODULE" version="4">
-  <component name="NewModuleRootManager" inherit-compiler-output="true">
+  <component name="NewModuleRootManager">
+    <output url="file://$MODULE_DIR$/../../../runtime/src/target/classes" />
+    <output-test url="file://$MODULE_DIR$/../../../runtime/src/target/test-classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../runtime/src">
       <sourceFolder url="file://$MODULE_DIR$/../../../runtime/src/common" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../../runtime/src/common-test" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../runtime/src/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
