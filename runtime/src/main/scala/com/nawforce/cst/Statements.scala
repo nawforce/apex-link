@@ -27,13 +27,14 @@
 */
 package com.nawforce.cst
 
-import java.io.ByteArrayInputStream
-import java.nio.file.Path
-
+import com.nawforce.api.Org
+import com.nawforce.documents.LineLocation
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.parsers.CaseInsensitiveInputStream
-import com.nawforce.types.{ApexModifiers, ApexTypeDeclaration, Modifier}
+import com.nawforce.path.{PathFactory, PathLike}
+import com.nawforce.runtime.{CodeParser, Path}
+import com.nawforce.types.{ApexModifiers, Modifier}
 import org.antlr.v4.runtime.misc.Interval
 
 import scala.collection.JavaConverters._
@@ -44,7 +45,7 @@ trait Statement extends CST {
 }
 
 // Treat Block as Statement for blocks in blocks
-final case class LazyBlock(path: Path, bytes: Array[Byte], lineAdjust: Int, positionAdjust: Int,
+final case class LazyBlock(path: PathLike, bytes: Array[Byte], lineAdjust: Int, positionAdjust: Int,
                        var blockContextRef: WeakReference[BlockContext], isStatic: Boolean)
   extends CST with Statement {
   private var statementsRef: WeakReference[List[Statement]] = WeakReference(null)
@@ -60,9 +61,16 @@ final case class LazyBlock(path: Path, bytes: Array[Byte], lineAdjust: Int, posi
     if (statements.isEmpty) {
       var statementContext = blockContextRef.get
       if (statementContext.isEmpty) {
-        statementContext = ApexTypeDeclaration.parseBlock(path, new ByteArrayInputStream(bytes))
-        blockContextRef = WeakReference(statementContext.get)
-        reParsed = true
+        CodeParser.parseBlock(path, bytes) match {
+          case Left(err) =>
+            Org.logMessage(LineLocation(path, err.line), err.msg)
+            return Nil
+          case Right(c) =>
+            statementContext = Some(c)
+            blockContextRef = WeakReference(statementContext.get)
+            reParsed = true
+
+        }
       }
 
       var rangeAdjust = CST.rangeAdjust.value
@@ -92,7 +100,7 @@ object Block {
     val is = blockContext.start.getInputStream
     val text = is.getText(new Interval(blockContext.start.getStartIndex, blockContext.stop.getStopIndex))
     val path = blockContext.start.getInputStream.asInstanceOf[CaseInsensitiveInputStream].path
-    LazyBlock(path, text.getBytes(), blockContext.start.getLine-1, blockContext.start.getCharPositionInLine,
+    LazyBlock(PathFactory(path), text.getBytes(), blockContext.start.getLine-1, blockContext.start.getCharPositionInLine,
       WeakReference(blockContext), isStatic)
   }
 

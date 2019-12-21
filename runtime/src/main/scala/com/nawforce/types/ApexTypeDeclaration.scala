@@ -27,17 +27,14 @@
 */
 package com.nawforce.types
 
-import java.io.InputStream
-
 import com.nawforce.api.Org
 import com.nawforce.cst._
 import com.nawforce.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.documents.LineLocation
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
-import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
-import com.nawforce.runtime.Path
-import org.antlr.v4.runtime.CommonTokenStream
+import com.nawforce.path.PathLike
+import com.nawforce.runtime.CodeParser
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -205,16 +202,13 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
 }
 
 object ApexTypeDeclaration {
-  def create(pkg: PackageDeclaration, path: java.nio.file.Path, data: InputStream): Seq[ApexTypeDeclaration] = {
-    try {
-      val parser = createParser(path, data)
-      Seq(CompilationUnit.construct(pkg, path, parser.compilationUnit(), new ConstructContext()).typeDeclaration())
-    }
-    catch
-    {
-      case se: SyntaxException =>
-        Org.logMessage(LineLocation(Path(path), se.line), se.msg)
+  def create(pkg: PackageDeclaration, path: PathLike, data: String): Seq[ApexTypeDeclaration] = {
+    CodeParser.parseCompilationUnit(path, data) match {
+      case Left(err) =>
+        Org.logMessage(LineLocation(path, err.line), err.msg)
         Nil
+      case Right(cu) =>
+        Seq(CompilationUnit.construct(pkg, path, cu, new ConstructContext()).typeDeclaration())
     }
   }
 
@@ -242,32 +236,5 @@ object ApexTypeDeclaration {
           typeDecl.enumDeclaration(), context)
       }
     cst.withContext(typeDecl, context)
-  }
-
-  def parseBlock(path: java.nio.file.Path, data: InputStream): Option[ApexParser.BlockContext] = {
-    try {
-      Some(createParser(path, data).block())
-    } catch {
-      case se: SyntaxException =>
-        Org.logMessage(LineLocation(Path(path), se.line), se.msg)
-        None
-    }
-  }
-
-  private def createParser(path: java.nio.file.Path, data: InputStream): ApexParser = {
-    val listener = new ThrowingErrorListener
-    val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(path, data)
-    val lexer: ApexLexer = new ApexLexer(cis)
-    lexer.removeErrorListeners()
-    lexer.addErrorListener(listener)
-
-    val tokens: CommonTokenStream = new CommonTokenStream(lexer)
-    tokens.fill()
-
-    val parser: ApexParser = new ApexParser(tokens)
-    parser.removeErrorListeners()
-    parser.setTrace(false)
-    parser.addErrorListener(listener)
-    parser
   }
 }

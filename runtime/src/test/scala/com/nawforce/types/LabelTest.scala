@@ -33,6 +33,7 @@ import java.nio.file.Files
 import com.google.common.jimfs.{Configuration, Jimfs}
 import com.nawforce.api.Org
 import com.nawforce.names.Name
+import com.nawforce.path.PathFactory
 import com.nawforce.runtime.Path
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -125,7 +126,7 @@ class LabelTest extends AnyFunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
+    assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 33-49: Unknown field or type 'TestLabel2' on 'System.Label'\n")
   }
 
@@ -149,7 +150,7 @@ class LabelTest extends AnyFunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
+    assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 33-49: Unknown field or type 'TestLaBel2' on 'System.Label'\n")
   }
 
@@ -202,7 +203,7 @@ class LabelTest extends AnyFunSuite {
     val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(fs.getPath("/work/pkg1")), Seq())
     val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
     pkg2.deployAll()
-    assert(org.issues.getMessages(Path(fs.getPath("/work/pkg2/Dummy.cls"))) ==
+    assert(org.issues.getMessages(PathFactory("/work/pkg2/Dummy.cls")) ==
       "Error: line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label.pkg1'\n")
   }
 

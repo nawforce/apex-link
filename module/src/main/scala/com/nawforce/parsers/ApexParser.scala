@@ -37,5 +37,5 @@ class ApexParser(tokens: CommonTokenStream) extends js.Object {
   def removeErrorListeners(): Unit = js.native
   def addErrorListener(listener: ThrowingErrorListener): Unit = js.native
 
-  def compilationUnit(): CompilationUnit = js.native
+  def compilationUnit(): CompilationUnitContext = js.native
 }

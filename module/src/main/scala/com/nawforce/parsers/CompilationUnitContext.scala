@@ -31,7 +31,7 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
 @js.native
-@JSImport("apex-parser", "CompilationUnit")
-class CompilationUnit extends js.Object {
+@JSImport("apex-parser", "CompilationUnitContext")
+class CompilationUnitContext extends js.Object {
 
 }

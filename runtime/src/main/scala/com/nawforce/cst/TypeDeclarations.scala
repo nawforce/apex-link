@@ -34,11 +34,12 @@ import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser
 import com.nawforce.parsers.ApexParser._
+import com.nawforce.path.PathLike
 import com.nawforce.types._
 
 import scala.collection.JavaConverters._
 
-final case class CompilationUnit(path: Path, private val _typeDeclaration: ApexTypeDeclaration) extends CST {
+final case class CompilationUnit(path: PathLike, private val _typeDeclaration: ApexTypeDeclaration) extends CST {
   def children(): List[CST] = List(_typeDeclaration)
 
   def typeDeclaration(): ApexTypeDeclaration = {
@@ -47,7 +48,7 @@ final case class CompilationUnit(path: Path, private val _typeDeclaration: ApexT
 }
 
 object CompilationUnit {
-  def construct(pkg: PackageDeclaration, path: Path, compilationUnit: CompilationUnitContext,
+  def construct(pkg: PackageDeclaration, path: PathLike, compilationUnit: CompilationUnitContext,
                 context: ConstructContext): CompilationUnit = {
     CompilationUnit(path,
       ApexTypeDeclaration.construct(pkg, None, compilationUnit.typeDeclaration(), context))

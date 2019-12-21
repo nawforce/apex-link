@@ -28,23 +28,22 @@
 package com.nawforce.parser
 
 import java.io.ByteArrayInputStream
-import java.nio.file.{Path, Paths}
 
 import com.nawforce.parsers.ApexParser.LiteralContext
 import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
+import com.nawforce.path.PathFactory
 import com.nawforce.types.ThrowingErrorListener
 import org.antlr.v4.runtime.CommonTokenStream
 import org.scalatest.funsuite.AnyFunSuite
 
 class LiteralTokenTest extends AnyFunSuite {
 
-  private final val defaultPath: Path = Paths.get("Dummy.cls")
+  private final val defaultPath = PathFactory("Dummy.cls")
 
   def literal(literal: String): LiteralContext = {
     val listener = new ThrowingErrorListener
-    val cis: CaseInsensitiveInputStream =
-      new CaseInsensitiveInputStream(defaultPath, new ByteArrayInputStream(literal.getBytes()))
-    val lexer: ApexLexer = new ApexLexer(cis)
+    val cis = new CaseInsensitiveInputStream(defaultPath.toString, new ByteArrayInputStream(literal.getBytes()))
+    val lexer = new ApexLexer(cis)
     lexer.removeErrorListeners()
     lexer.addErrorListener(listener)
 

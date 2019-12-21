@@ -27,16 +27,12 @@
 */
 package com.nawforce.api
 
-import java.io.ByteArrayInputStream
-import java.nio.file.Path
-
 import com.nawforce.cst.UnusedLog
+import com.nawforce.diagnostics.IssueLog
 import com.nawforce.documents._
 import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.types._
-import com.nawforce.diagnostics.IssueLog
-import com.nawforce.runtime.Path
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.JavaConverters._
@@ -132,8 +128,7 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[java.nio.file.
       val tds = DocumentType(com.nawforce.runtime.Path(path)) match {
         case Some(docType: ApexDocument) =>
           val data = docType.path.read()
-          ApexTypeDeclaration.create(this, docType.path.native.asInstanceOf[java.nio.file.Path],
-            new ByteArrayInputStream(data.right.get.getBytes))
+          ApexTypeDeclaration.create(this, docType.path, data.right.get)
         case Some(docType: SObjectDocument) =>
           SObjectDeclaration.create(this, docType.path)
         case Some(docType: PlatformEventDocument) =>

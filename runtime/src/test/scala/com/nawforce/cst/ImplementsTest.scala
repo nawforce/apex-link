@@ -31,7 +31,7 @@ import com.nawforce.FileSystemHelper
 import com.nawforce.api.Org
 import com.nawforce.documents.{DocumentType, MetadataDocumentType}
 import com.nawforce.names.{Name, TypeName}
-import com.nawforce.path.PathLike
+import com.nawforce.path.{PathFactory, PathLike}
 import com.nawforce.types.TypeDeclaration
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
@@ -59,7 +59,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Missing class interface") {
     assert(typeDeclarations(Map("Dummy.cls" -> "global class Dummy implements A {}")).nonEmpty)
-    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
+    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) ==
       "Error: line 1 at 13-18: No declaration found for interface 'A'\n")
   }
 
@@ -68,7 +68,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "global class Dummy implements A, B {}",
       "A.cls" -> "public interface A {}"
     ))
-    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
+    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) ==
       "Error: line 1 at 13-18: No declaration found for interface 'B'\n")
   }
 
@@ -77,7 +77,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "global class Dummy implements A {}",
       "A.cls" -> "public class A {}"
     ))
-    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
+    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) ==
       "Error: line 1 at 13-18: Type 'A' must be an interface\n")
   }
 
@@ -86,7 +86,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "global class Dummy implements A {}",
       "A.cls" -> "public enum A {}"
     ))
-    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
+    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) ==
       "Error: line 1 at 13-18: Type 'A' must be an interface\n")
   }
 
@@ -95,7 +95,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "global interface Dummy extends A {}",
       "A.cls" -> "public class A {}"
     ))
-    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
+    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) ==
       "Error: line 1 at 17-22: Type 'A' must be an interface\n")
   }
 
@@ -104,7 +104,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "global interface Dummy extends A {}",
       "A.cls" -> "public enum A {}"
     ))
-    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) ==
+    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) ==
       "Error: line 1 at 17-22: Type 'A' must be an interface\n")
   }
 

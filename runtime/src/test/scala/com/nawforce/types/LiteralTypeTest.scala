@@ -28,21 +28,21 @@
 package com.nawforce.types
 
 import java.io.StringReader
-import java.nio.file.{Path, Paths}
 
 import com.nawforce.cst._
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
+import com.nawforce.path.{PathFactory, PathLike}
 import org.antlr.v4.runtime.CommonTokenStream
 import org.scalatest.funsuite.AnyFunSuite
 
 class LiteralTypeTest extends AnyFunSuite
 {
-  private val defaultPath = Paths.get("Dummy.cls")
+  private val defaultPath = PathFactory("Dummy.cls")
 
-  private def parse(path: Path, data: String) = {
+  private def parse(path: PathLike, data: String) = {
     val listener = new ThrowingErrorListener
-    val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(path, new StringReader(data))
+    val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(path.toString, new StringReader(data))
 
     val lexer: ApexLexer = new ApexLexer(cis)
     lexer.removeErrorListeners()

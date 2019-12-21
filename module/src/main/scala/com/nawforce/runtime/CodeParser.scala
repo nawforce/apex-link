@@ -6,7 +6,7 @@ import com.nawforce.path.PathLike
 import scala.scalajs.js.JavaScriptException
 
 object CodeParser {
-  def parseCompilationUnit(path: PathLike, data: String): Either[SyntaxException, CompilationUnit] = {
+  def parseCompilationUnit(path: PathLike, data: String): Either[SyntaxException, CompilationUnitContext] = {
     val listener = new ThrowingErrorListener()
     val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(path.absolute.toString, data)
     val lexer: ApexLexer = new ApexLexer(cis)

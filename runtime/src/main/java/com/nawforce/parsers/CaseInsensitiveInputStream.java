@@ -40,19 +40,19 @@ import java.nio.file.Path;
  */
 @SuppressWarnings({"unused", "deprecation"})
 public class CaseInsensitiveInputStream extends org.antlr.v4.runtime.ANTLRInputStream {
-    public final Path path;
+    public final String path;
 
-    public CaseInsensitiveInputStream(Path path, InputStream is) throws IOException {
+    public CaseInsensitiveInputStream(String path, InputStream is) throws IOException {
         super(is);
         this.path = path;
     }
 
-    public CaseInsensitiveInputStream(Path path, Reader r) throws IOException {
+    public CaseInsensitiveInputStream(String path, Reader r) throws IOException {
         super(r, 1024, 1024);
         this.path = path;
     }
 
-    public CaseInsensitiveInputStream(Path path, Reader r, Integer initialSize, Integer readChunkSize) throws IOException {
+    public CaseInsensitiveInputStream(String path, Reader r, Integer initialSize, Integer readChunkSize) throws IOException {
         super(r, initialSize, readChunkSize);
         this.path = path;
     }

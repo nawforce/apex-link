@@ -27,13 +27,8 @@
 */
 package com.nawforce.runtime
 
-import com.nawforce.FileSystemHelper
-import com.nawforce.parsers.SyntaxException
 import com.nawforce.path._
 import org.scalatest.funsuite.AnyFunSuite
-import io.scalajs.nodejs.console
-
-import scala.scalajs.js.JavaScriptException
 
 class CodeParserTest extends AnyFunSuite {
 

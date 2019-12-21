@@ -27,24 +27,19 @@
 */
 package com.nawforce.cst
 
-import java.io.ByteArrayInputStream
-import java.nio.file.{Path, Paths}
-
 import com.nawforce.api.Org
-import com.nawforce.names.Name
+import com.nawforce.path.PathFactory
 import com.nawforce.types._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class IfTest extends AnyFunSuite with BeforeAndAfter {
-
-  private val defaultName: Name = Name("Dummy")
-  private val defaultPath: Path = Paths.get(defaultName.toString)
+  private val defaultPath = PathFactory("Dummy.cls")
   private var defaultOrg: Org = new Org
 
   def typeDeclaration(clsText: String): Option[TypeDeclaration] = {
     Org.current.withValue(defaultOrg) {
-      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
+      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
       td.headOption.foreach(_.validate())
       td.headOption
     }

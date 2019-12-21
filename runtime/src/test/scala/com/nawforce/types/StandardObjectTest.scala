@@ -5,6 +5,7 @@ import java.nio.file.Files
 import com.google.common.jimfs.{Configuration, Jimfs}
 import com.nawforce.api.Org
 import com.nawforce.names.Name
+import com.nawforce.path.PathFactory
 import com.nawforce.runtime.Path
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -100,7 +101,7 @@ class StandardObjectTest extends AnyFunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
+    assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 33-41: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
   }
 
@@ -133,7 +134,7 @@ class StandardObjectTest extends AnyFunSuite {
     val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
     pkg1.deployAll()
     pkg2.deployAll()
-    assert(org.issues.getMessages(Path(fs.getPath("/work/pkg2/Dummy.cls"))) ==
+    assert(org.issues.getMessages(PathFactory("/work/pkg2/Dummy.cls")) ==
       "Error: line 1 at 33-41: Unknown field or type 'Bar__c' on 'Schema.Account'\n")
   }
 
@@ -220,7 +221,7 @@ class StandardObjectTest extends AnyFunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
+    assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 39-53: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
   }
 
@@ -265,7 +266,7 @@ class StandardObjectTest extends AnyFunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
+    assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 48-63: Unknown field or type 'Foo' on 'Schema.SObjectType'\n")
   }
 
@@ -293,7 +294,7 @@ class StandardObjectTest extends AnyFunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
+    assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 48-78: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.Fields'\n")
   }
 
@@ -303,7 +304,7 @@ class StandardObjectTest extends AnyFunSuite {
     val org = new Org()
     val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
     pkg.deployAll()
-    assert(org.issues.getMessages(Path(fs.getPath("/work/Dummy.cls"))) ==
+    assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 48-81: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.FieldSets'\n")
   }
 

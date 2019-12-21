@@ -27,17 +27,15 @@
 */
 package com.nawforce.api
 
-import java.io.ByteArrayInputStream
-import java.nio.file.{Path, Paths}
-
 import com.nawforce.names.{Name, TypeName}
+import com.nawforce.path.{PathFactory, PathLike}
 import com.nawforce.types.ApexTypeDeclaration
 import org.scalatest.funsuite.AnyFunSuite
 
 class TypeFindingTest extends AnyFunSuite {
 
   private val defaultOrg: Org = new Org
-  private val defaultPath: Path = Paths.get("Dummy.cls")
+  private val defaultPath: PathLike = PathFactory("Dummy.cls")
   private val unmanaged: Package = defaultOrg.unmanaged
 
   test("Bad type not") {
@@ -58,7 +56,7 @@ class TypeFindingTest extends AnyFunSuite {
     val org = new Org()
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(org.unmanaged, defaultPath,
-        new ByteArrayInputStream("public class Dummy {}".getBytes())).head
+        "public class Dummy {}").head
       org.unmanaged.upsertType(td)
       assert(org.unmanaged.getTypeOption(TypeName(Name("Dummy"))).get.typeName == td.typeName)
     }
@@ -68,7 +66,7 @@ class TypeFindingTest extends AnyFunSuite {
     val org = new Org()
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath,
-        new ByteArrayInputStream("public class Dummy {}".getBytes())).head
+        "public class Dummy {}").head
       org.unmanaged.upsertType(td)
       assert(org.unmanaged.getTypeOption(TypeName(Name("dummy"))).get.typeName == td.typeName)
     }
@@ -78,7 +76,7 @@ class TypeFindingTest extends AnyFunSuite {
     val org = new Org()
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath,
-        new ByteArrayInputStream("public class Dummy {class Inner {}}".getBytes())).head
+        "public class Dummy {class Inner {}}").head
       org.unmanaged.upsertType(td)
       val innerTypeName = TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"))))
       assert(org.unmanaged.getTypeOption(innerTypeName).get.typeName == innerTypeName)
@@ -89,7 +87,7 @@ class TypeFindingTest extends AnyFunSuite {
     val org = new Org()
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath,
-        new ByteArrayInputStream("public class Dummy {class Inner {}}".getBytes())).head
+        "public class Dummy {class Inner {}}").head
       org.unmanaged.upsertType(td)
       val innerTypeName = TypeName(Name("iNner"), Nil, Some(TypeName(Name("Dummy"))))
       assert(org.unmanaged.getTypeOption(innerTypeName).get.typeName == innerTypeName)
@@ -101,7 +99,7 @@ class TypeFindingTest extends AnyFunSuite {
     val pkg = org.addPackage("NS", Array(), Array())
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(pkg, defaultPath,
-        new ByteArrayInputStream("global class Dummy {}".getBytes())).head
+        "global class Dummy {}").head
       pkg.upsertType(td)
       assert(org.unmanaged.getTypeOption(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("NS"))))).get.typeName == td.typeName)
       assert(org.unmanaged.getTypeOption(TypeName(Name("Dummy"))).isEmpty)
@@ -113,7 +111,7 @@ class TypeFindingTest extends AnyFunSuite {
     val pkg = org.addPackage("NS", Array(), Array())
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(pkg, defaultPath,
-        new ByteArrayInputStream("public class Dummy {}".getBytes())).head
+        "public class Dummy {}").head
       pkg.upsertType(td)
       assert(org.getType("", "NS.Dummy") == null)
       assert(org.getType("", "Dummy") == null)
@@ -127,7 +125,7 @@ class TypeFindingTest extends AnyFunSuite {
     val pkg = org.addPackage("NS", Array(), Array())
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(pkg, defaultPath,
-        new ByteArrayInputStream("global class Dummy {class Inner {}}".getBytes())).head
+        "global class Dummy {class Inner {}}").head
       pkg.upsertType(td)
       val innerTypeName = TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("NS"))))))
       assert(org.unmanaged.getTypeOption(innerTypeName).get.typeName == innerTypeName)
@@ -140,7 +138,7 @@ class TypeFindingTest extends AnyFunSuite {
     val pkg = org.addPackage("NS", Array(), Array())
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(pkg, defaultPath,
-        new ByteArrayInputStream("public class Dummy {class Inner {}}".getBytes())).head
+        "public class Dummy {class Inner {}}").head
       pkg.upsertType(td)
 
       assert(org.getType("", "NS.Dummy.Inner") == null)

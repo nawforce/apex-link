@@ -31,7 +31,7 @@ import com.nawforce.FileSystemHelper
 import com.nawforce.api.Org
 import com.nawforce.documents.{DocumentType, MetadataDocumentType}
 import com.nawforce.names.{Name, TypeName}
-import com.nawforce.path.PathLike
+import com.nawforce.path.{PathFactory, PathLike}
 import com.nawforce.types.TypeDeclaration
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
@@ -183,7 +183,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     val tds = typeDeclarations(Map(
       "Dummy.cls" -> "public class Dummy { A func() {return null;} }"
     ))
-    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 23-27: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) == "Error: line 1 at 23-27: No type declaration found for 'A'\n")
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
 
@@ -200,7 +200,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     val tds = typeDeclarations(Map(
       "Dummy.cls" -> "public class Dummy { void func(A a) {} }"
     ))
-    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 31-34: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) == "Error: line 1 at 31-34: No type declaration found for 'A'\n")
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
 
@@ -219,7 +219,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     val tds = typeDeclarations(Map(
       "Dummy.cls" -> "public class Dummy {A a;}"
     ))
-    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 22-23: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) == "Error: line 1 at 22-23: No type declaration found for 'A'\n")
     Org.current.withValue(defaultOrg) {
       assert(tds.head.fields.head.dependencies().isEmpty)
     }
@@ -240,7 +240,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     val tds = typeDeclarations(Map(
       "Dummy.cls" -> "public class Dummy {A a {get;} }"
     ))
-    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 22-23: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) == "Error: line 1 at 22-23: No type declaration found for 'A'\n")
     Org.current.withValue(defaultOrg) {
       assert(tds.head.fields.head.dependencies().isEmpty)
     }
@@ -259,7 +259,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     val tds = typeDeclarations(Map(
       "Dummy.cls" -> "public class Dummy {static {A a;} }"
     ))
-    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 30-31: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) == "Error: line 1 at 30-31: No type declaration found for 'A'\n")
     assert(tds.head.blocks.head.dependencies().isEmpty)
   }
 
@@ -276,7 +276,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     val tds = typeDeclarations(Map(
       "Dummy.cls" -> "public class Dummy {static {Object a=(A)null;} }"
     ))
-    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 37-44: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) == "Error: line 1 at 37-44: No type declaration found for 'A'\n")
     assert(tds.head.blocks.head.dependencies().isEmpty)
   }
 
@@ -293,7 +293,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     val tds = typeDeclarations(Map(
       "Dummy.cls" -> "public class Dummy { void func() { for(A a;;) {}} }"
     ))
-    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 41-42: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) == "Error: line 1 at 41-42: No type declaration found for 'A'\n")
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
 
@@ -310,7 +310,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     val tds = typeDeclarations(Map(
       "Dummy.cls" -> "public class Dummy { void func() { try {} catch(A a){} } }"
     ))
-    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 48-49: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) == "Error: line 1 at 48-49: No type declaration found for 'A'\n")
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
 
@@ -337,7 +337,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     val tds = typeDeclarations(Map(
       "Dummy.cls" -> "public class Dummy { void func() { Object a = new A(); } }"
     ))
-    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 50-51: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) == "Error: line 1 at 50-51: No type declaration found for 'A'\n")
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
 
@@ -354,7 +354,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     val tds = typeDeclarations(Map(
       "Dummy.cls" -> "public class Dummy { { Boolean a = null instanceOf A; } }"
     ))
-    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls")) == "Error: line 1 at 35-52: No type declaration found for 'A'\n")
+    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) == "Error: line 1 at 35-52: No type declaration found for 'A'\n")
     assert(tds.head.blocks.head.dependencies().isEmpty)
   }
 

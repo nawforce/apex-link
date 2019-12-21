@@ -27,14 +27,12 @@
 */
 package com.nawforce.cst
 
-import java.nio.file.Path
-
 import com.nawforce.api.Org
 import com.nawforce.documents.{Location, Position, RangeLocation}
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.parsers.CaseInsensitiveInputStream
-import com.nawforce.runtime.Path
+import com.nawforce.path.{PathFactory, PathLike}
 import org.antlr.v4.runtime.ParserRuleContext
 
 import scala.collection.JavaConverters._
@@ -43,7 +41,7 @@ import scala.util.DynamicVariable
 class CSTException extends Exception
 
 abstract class CST {
-  private var path: java.nio.file.Path = _
+  private var path: String = _
   private var startLine: Int = _
   private var startPosition: Int = _
   private var stopLine: Int = _
@@ -60,7 +58,7 @@ abstract class CST {
     )
   }
 
-  def getPath: java.nio.file.Path = path
+  def getPath: PathLike = PathFactory(path)
 
   def withContext(context: ParserRuleContext, constructContext: ConstructContext): this.type = {
     startLine = context.getStart.getLine

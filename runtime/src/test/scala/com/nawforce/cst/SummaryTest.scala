@@ -27,23 +27,19 @@
 */
 package com.nawforce.cst
 
-import java.io.ByteArrayInputStream
-import java.nio.file.{Path, Paths}
-
 import com.nawforce.api._
-import com.nawforce.names.Name
+import com.nawforce.path.PathFactory
 import com.nawforce.types._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class SummaryTest extends AnyFunSuite with BeforeAndAfter {
-  private val defaultName: Name = Name("Dummy")
-  private val defaultPath: Path = Paths.get(defaultName.toString)
+  private val defaultPath = PathFactory("Dummy.cls")
   private var defaultOrg: Org = new Org
 
   def typeDeclarationSummary(clsText: String, hasMessages: Boolean = false): TypeSummary = {
     Org.current.withValue(defaultOrg) {
-      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, new ByteArrayInputStream(clsText.getBytes()))
+      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
       td.headOption.foreach(defaultOrg.getUnmanagedPackage.upsertType)
       if (td.isEmpty || defaultOrg.issues.hasMessages != hasMessages)
         defaultOrg.issues.dumpMessages(json = false)
