@@ -33,6 +33,7 @@ import com.nawforce.cst._
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
 import com.nawforce.path.{PathFactory, PathLike}
+import com.nawforce.runtime.ThrowingErrorListener
 import org.antlr.v4.runtime.CommonTokenStream
 import org.scalatest.funsuite.AnyFunSuite
 

@@ -28,6 +28,7 @@
 package com.nawforce.cst
 
 import com.nawforce.parsers.ApexParser.LiteralContext
+import com.nawforce.runtime.CodeParser
 import com.nawforce.types.{PlatformTypes, TypeDeclaration}
 
 sealed abstract class Literal() extends CST {
@@ -64,17 +65,12 @@ final case class NullLiteral() extends Literal {
 
 object Literal {
   def construct(from: LiteralContext, context: ConstructContext): Literal = {
-    val cst =
-      if (from.IntegerLiteral() != null)
-        IntegerLiteral(from.IntegerLiteral().getText)
-      else if (from.NumberLiteral() != null)
-        NumberLiteral(from.NumberLiteral().getText)
-      else if (from.StringLiteral() != null)
-        StringLiteral(from.StringLiteral().getText)
-      else if (from.BooleanLiteral() != null)
-        BooleanLiteral(from.BooleanLiteral().getText)
-      else
-        NullLiteral()
-    cst.withContext(from, context)
+    val cst: Option[Literal] =
+      CodeParser.toScala(from.IntegerLiteral()).map(x => IntegerLiteral(CodeParser.getText(x)))
+        .orElse(CodeParser.toScala(from.NumberLiteral()).map(x => NumberLiteral(CodeParser.getText(x))))
+        .orElse(CodeParser.toScala(from.StringLiteral()).map(x => StringLiteral(CodeParser.getText(x))))
+        .orElse(CodeParser.toScala(from.BooleanLiteral()).map(x => BooleanLiteral(CodeParser.getText(x))))
+        .orElse(Some(NullLiteral()))
+    cst.get.withContext(from, context)
   }
 }

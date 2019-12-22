@@ -31,8 +31,8 @@ import java.io.ByteArrayInputStream
 
 import com.nawforce.parsers._
 import com.nawforce.path.PathLike
-import com.nawforce.types.{SyntaxException, ThrowingErrorListener}
 import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.tree.TerminalNode
 
 import scala.collection.JavaConverters._
 
@@ -41,7 +41,7 @@ object CodeParser {
 
   def parseCompilationUnit(path: PathLike, data: String): Either[SyntaxException, ApexParser.CompilationUnitContext] = {
     try {
-      Right(createParser(path, data.getBytes()).compilationUnit())
+      Right(createParser(path, data).compilationUnit())
     } catch {
       case ex: SyntaxException => Left(ex)
     }
@@ -49,7 +49,7 @@ object CodeParser {
 
   def parseBlock(path: PathLike, data: Array[Byte]): Either[SyntaxException, ApexParser.BlockContext] = {
     try {
-      Right(createParser(path, data).block())
+      Right(createParser(path, new String(data)).block())
     } catch {
       case ex: SyntaxException => Left(ex)
     }
@@ -68,6 +68,10 @@ object CodeParser {
     context.getText
   }
 
+  def getText(context: TerminalNode): String = {
+    context.getText
+  }
+
   def toScala[T](collection: java.util.List[T]): Seq[T] = {
     collection.asScala
   }
@@ -76,16 +80,15 @@ object CodeParser {
     Option(value)
   }
 
-  private def createParser(path: PathLike, data: Array[Byte]): ApexParser = {
+  def createParser(path: PathLike, data: String): ApexParser = {
     val listener = new ThrowingErrorListener()
-    val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(path.toString,
-      new ByteArrayInputStream(data))
-    val lexer: ApexLexer = new ApexLexer(cis)
+    val cis = new CaseInsensitiveInputStream(path.toString, new ByteArrayInputStream(data.getBytes))
+    val lexer = new ApexLexer(cis)
 
-    val tokens: CommonTokenStream = new CommonTokenStream(lexer)
+    val tokens = new CommonTokenStream(lexer)
     tokens.fill()
 
-    val parser: ApexParser = new ApexParser(tokens)
+    val parser = new ApexParser(tokens)
     parser.removeErrorListeners()
     parser.addErrorListener(listener)
     parser

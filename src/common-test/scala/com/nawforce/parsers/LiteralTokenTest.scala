@@ -25,124 +25,98 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.parser
+package com.nawforce.parsers
 
-import java.io.ByteArrayInputStream
-
-import com.nawforce.parsers.ApexParser.LiteralContext
-import com.nawforce.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
-import com.nawforce.path.PathFactory
-import com.nawforce.types.ThrowingErrorListener
-import org.antlr.v4.runtime.CommonTokenStream
+import com.nawforce.ParserHelper
 import org.scalatest.funsuite.AnyFunSuite
 
 class LiteralTokenTest extends AnyFunSuite {
 
-  private final val defaultPath = PathFactory("Dummy.cls")
-
-  def literal(literal: String): LiteralContext = {
-    val listener = new ThrowingErrorListener
-    val cis = new CaseInsensitiveInputStream(defaultPath.toString, new ByteArrayInputStream(literal.getBytes()))
-    val lexer = new ApexLexer(cis)
-    lexer.removeErrorListeners()
-    lexer.addErrorListener(listener)
-
-    val tokens: CommonTokenStream = new CommonTokenStream(lexer)
-    tokens.fill()
-
-    val parser: ApexParser = new ApexParser(tokens)
-    parser.removeErrorListeners()
-    parser.setTrace(false)
-    parser.addErrorListener(listener)
-
-    parser.literal()
-  }
-
   test("empty string literal") {
-    assert(literal("''").StringLiteral() != null)
+    assert(ParserHelper.literal("''").StringLiteral() != null)
   }
 
   test("non-empty string literal") {
-    assert(literal("'abc'").StringLiteral() != null)
+    assert(ParserHelper.literal("'abc'").StringLiteral() != null)
   }
 
   test("string literal with tab") {
-    assert(literal("'a\tbc'").StringLiteral() != null)
+    assert(ParserHelper.literal("'a\tbc'").StringLiteral() != null)
   }
 
   test("string literal with quote") {
-    assert(literal("'a\\'bc'").StringLiteral() != null)
+    assert(ParserHelper.literal("'a\\'bc'").StringLiteral() != null)
   }
 
   test("string literal with unicode") {
-    assert(literal("'a\\u12f3xx'").StringLiteral() != null)
+    assert(ParserHelper.literal("'a\\u12f3xx'").StringLiteral() != null)
   }
 
   test("boolean literal true") {
-    assert(literal("true").BooleanLiteral() != null)
+    assert(ParserHelper.literal("true").BooleanLiteral() != null)
   }
 
   test("boolean literal false") {
-    assert(literal("false").BooleanLiteral() != null)
+    assert(ParserHelper.literal("false").BooleanLiteral() != null)
   }
 
   test("boolean literal true (mixed case)") {
-    assert(literal("trUe").BooleanLiteral() != null)
+    assert(ParserHelper.literal("trUe").BooleanLiteral() != null)
   }
 
   test("null literal") {
-    assert(literal("null").NULL() != null)
+    assert(ParserHelper.literal("null").NULL() != null)
   }
 
   test("null literal (mixed case)") {
-    assert(literal("nuLl").NULL() != null)
+    assert(ParserHelper.literal("nuLl").NULL() != null)
   }
 
   test("integer literal zero") {
-    assert(literal("0").IntegerLiteral() != null)
+    assert(ParserHelper.literal("0").IntegerLiteral() != null)
   }
 
   test("integer literal zero long") {
-    assert(literal("0l").IntegerLiteral() != null)
+    assert(ParserHelper.literal("0l").IntegerLiteral() != null)
   }
 
   test("integer literal one") {
-    assert(literal("1").IntegerLiteral() != null)
+    assert(ParserHelper.literal("1").IntegerLiteral() != null)
   }
 
   test("integer literal one long") {
-    assert(literal("1l").IntegerLiteral() != null)
+    assert(ParserHelper.literal("1l").IntegerLiteral() != null)
   }
 
   test("integer literal ten") {
-    assert(literal("10").IntegerLiteral() != null)
+    assert(ParserHelper.literal("10").IntegerLiteral() != null)
   }
 
   test("integer literal ten long") {
-    assert(literal("10l").IntegerLiteral() != null)
+    assert(ParserHelper.literal("10l").IntegerLiteral() != null)
   }
 
   test("number literal zero") {
-    assert(literal("0.0").NumberLiteral() != null)
+    assert(ParserHelper.literal("0.0").NumberLiteral() != null)
   }
 
   test("number literal zero double") {
-    assert(literal("0.0d").NumberLiteral() != null)
+    assert(ParserHelper.literal("0.0d").NumberLiteral() != null)
   }
 
   test("number literal one") {
-    assert(literal("1.0").NumberLiteral() != null)
+    assert(ParserHelper.literal("1.0").NumberLiteral() != null)
   }
 
   test("number literal one double") {
-    assert(literal("1.0d").NumberLiteral() != null)
+    assert(ParserHelper.literal("1.0d").NumberLiteral() != null)
   }
 
   test("number literal ten") {
-    assert(literal("10.0").NumberLiteral() != null)
+    assert(ParserHelper.literal("10.0").NumberLiteral() != null)
   }
 
   test("number literal ten double") {
-    assert(literal("10.0d").NumberLiteral() != null)
+    assert(ParserHelper.literal("10.0d").NumberLiteral() != null)
   }
 }
