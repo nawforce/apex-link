@@ -71,15 +71,15 @@ trait FieldDeclaration extends DependencyHolder {
 
   lazy val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
 
-  lazy val summary: FieldSummary = FieldSummary(name.toString, modifiers.map(_.toString).sorted.toList,
-    typeName.toString, readAccess.toString, writeAccess.toString)
+  lazy val summary: FieldSummary = FieldSummary(FieldSummary.defaultVersion, name.toString,
+    modifiers.map(_.toString).sorted.toList, typeName.toString, readAccess.toString, writeAccess.toString)
 }
 
 trait ParameterDeclaration {
   val name: Name
   val typeName: TypeName
 
-  lazy val summary: ParameterSummary = ParameterSummary(name.toString, typeName.toString)
+  lazy val summary: ParameterSummary = ParameterSummary(ParameterSummary.defaultVersion, name.toString, typeName.toString)
 }
 
 trait ConstructorDeclaration extends DependencyHolder {
@@ -87,6 +87,7 @@ trait ConstructorDeclaration extends DependencyHolder {
   val parameters: Seq[ParameterDeclaration]
 
   lazy val summary: ConstructorSummary = ConstructorSummary(
+    ConstructorSummary.defaultVersion,
     modifiers.map(_.toString).sorted.toList,
     parameters.map(_.summary).sortBy(_.name).toList
   )
@@ -165,6 +166,7 @@ trait MethodDeclaration extends DependencyHolder {
   }
 
   lazy val summary: MethodSummary = MethodSummary(
+    MethodSummary.defaultVersion,
     name.toString, modifiers.map(_.toString).sorted.toList, typeName.toString,
     parameters.map(_.summary).sortBy(_.name).toList
   )
@@ -333,7 +335,8 @@ trait TypeDeclaration extends DependencyHolder {
       interfaceDeclarations.flatMap(_.superTypes())
   }
 
-  lazy val summary: TypeSummary = TypeSummary(
+  lazy val summary: TypeSummary = TypeSummary (
+    TypeSummary.defaultVersion,
     name.toString, typeName.toString, nature.value, modifiers.map(_.toString).sorted.toList,
     superClass.map(_.toString).getOrElse(""), interfaces.map(_.toString).sorted.toList,
     fields.map(_.summary).sortBy(_.name).toList,

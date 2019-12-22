@@ -37,6 +37,13 @@
     <orderEntry type="library" name="Maven: org.scala-lang:scalap:2.12.6" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-compiler:2.12.6" level="project" />
     <orderEntry type="library" name="Maven: com.thoughtworks.paranamer:paranamer:2.8" level="project" />
+    <orderEntry type="library" name="Maven: com.lihaoyi:upickle_2.12:0.9.0" level="project" />
+    <orderEntry type="library" name="Maven: com.lihaoyi:ujson_2.12:0.9.0" level="project" />
+    <orderEntry type="library" name="Maven: com.lihaoyi:upickle-core_2.12:0.9.0" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-collection-compat_2.12:2.0.0" level="project" />
+    <orderEntry type="library" name="Maven: com.lihaoyi:geny_2.12:0.2.0" level="project" />
+    <orderEntry type="library" name="Maven: com.lihaoyi:upack_2.12:0.9.0" level="project" />
+    <orderEntry type="library" name="Maven: com.lihaoyi:upickle-implicits_2.12:0.9.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.google.jimfs:jimfs:1.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.google.guava:guava:18.0" level="project" />
   </component>

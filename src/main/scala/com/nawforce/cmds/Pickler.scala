@@ -25,40 +25,43 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.api
+package com.nawforce.cmds
 
-import upickle.default.{ReadWriter => RW, macroRW}
+import java.nio.file.{Files, Path, Paths}
 
-case class TypeSummary(version: Int, name: String, typeName: String, nature: String, modifiers: List[String],
-                       superClass: String, interfaces: List[String],
-                       fields: List[FieldSummary], constructors: List[ConstructorSummary], methods: List[MethodSummary],
-                       nestedTypes: List[TypeSummary])
-case class FieldSummary(version: Int, name: String, modifiers: List[String], typeName: String, readAccess: String, writeAccess: String)
-case class ConstructorSummary(version: Int, modifiers: List[String], parameters: List[ParameterSummary])
-case class MethodSummary(version: Int, name: String, modifiers: List[String], typeName: String, parameters: List[ParameterSummary])
-case class ParameterSummary(version: Int, name: String, typeName: String)
+import com.nawforce.types.PlatformTypeDeclaration
+import upickle.default._
 
-object TypeSummary {
-  val defaultVersion = 1
-  implicit val rw: RW[TypeSummary] = macroRW
+object Pickler {
+  def main(args: Array[String]): Unit = {
+
+    if (args.length != 1) {
+      println("Use: <directory>")
+      return
+    }
+    val dir = Paths.get(args(0))
+    if (!Files.isDirectory(dir)) {
+      println(s"'$dir' is not a directory")
+      return
+    }
+
+    PlatformTypeDeclaration.classNames.toSeq.foreach(className => {
+      PlatformTypeDeclaration.getDeclaration(className) match {
+        case Some(td: PlatformTypeDeclaration) => writeDeclaration(dir, td)
+        case None => assert(false)
+      }
+    })
+  }
+
+  def writeDeclaration(dir: Path, td: PlatformTypeDeclaration): Unit = {
+    val ns = td.typeName.outerName.value
+    val nsDir = dir.resolve(ns)
+    if (!Files.isDirectory(nsDir))
+      Files.createDirectory(nsDir)
+
+    val file = nsDir.resolve(td.typeName.name.value+".json")
+    Files.write(file, write(td.summary).getBytes)
+  }
 }
 
-object FieldSummary {
-  val defaultVersion = 1
-  implicit val rw: RW[FieldSummary] = macroRW
-}
 
-object ConstructorSummary {
-  val defaultVersion = 1
-  implicit val rw: RW[ConstructorSummary] = macroRW
-}
-
-object MethodSummary {
-  val defaultVersion = 1
-  implicit val rw: RW[MethodSummary] = macroRW
-}
-
-object ParameterSummary {
-  val defaultVersion = 1
-  implicit val rw: RW[ParameterSummary] = macroRW
-}
