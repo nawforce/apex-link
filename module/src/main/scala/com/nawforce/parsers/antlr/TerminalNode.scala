@@ -25,13 +25,13 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.parsers
+package com.nawforce.parsers.antlr
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
 @js.native
-@JSImport("antlr4ts", "CommonTokenStream")
-class CommonTokenStream(lexer: ApexLexer) extends js.Object {
-  def fill(): Unit = js.native
+@JSImport("antlr4ts", "TerminalNode")
+class TerminalNode(options: js.Dynamic) extends js.Object {
+
 }

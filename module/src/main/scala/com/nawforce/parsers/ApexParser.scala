@@ -27,6 +27,9 @@
 */
 package com.nawforce.parsers
 
+import com.nawforce.parsers.ApexParser.BlockContext
+import com.nawforce.parsers.antlr.{CommonTokenStream, ParserRuleContext}
+
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
@@ -38,4 +41,62 @@ class ApexParser(tokens: CommonTokenStream) extends js.Object {
   def addErrorListener(listener: ThrowingErrorListener): Unit = js.native
 
   def compilationUnit(): CompilationUnitContext = js.native
+  def block(): BlockContext = js.native
+}
+
+object ApexParser {
+
+  @js.native
+  @JSImport("apex-parser", "IdContext")
+  class IdContext extends ParserRuleContext
+
+  @js.native
+  @JSImport("apex-parser", "BlockContext")
+  class BlockContext extends ParserRuleContext
+
+  @js.native
+  @JSImport("apex-parser", "QualifiedNameContext")
+  class QualifiedNameContext extends ParserRuleContext {
+    def id(): js.Array[IdContext] = js.native
+  }
+
+  @js.native
+  @JSImport("apex-parser", "AnnotationContext")
+  class AnnotationContext extends ParserRuleContext {
+    def elementValue(): js.UndefOr[ElementValueContext] = js.native
+    def elementValuePairs(): js.UndefOr[ElementValuePairsContext] = js.native
+    def qualifiedName(): QualifiedNameContext = js.native
+  }
+
+  @js.native
+  @JSImport("apex-parser", "ElementValueContext")
+  class ElementValueContext extends ParserRuleContext {
+    def expression(): js.UndefOr[ExpressionContext] = js.native
+    def annotation(): js.UndefOr[AnnotationContext] = js.native
+    def elementValueArrayInitializer(): js.UndefOr[ElementValueArrayInitializerContext] = js.native
+  }
+
+  @js.native
+  @JSImport("apex-parser", "ElementValuePairsContext")
+  class ElementValuePairsContext extends ParserRuleContext {
+    def elementValuePair(): js.Array[ElementValuePairContext] = js.native
+  }
+
+  @js.native
+  @JSImport("apex-parser", "ExpressionContext")
+  class ExpressionContext extends ParserRuleContext {
+  }
+
+  @js.native
+  @JSImport("apex-parser", "ElementValueArrayInitializerContext")
+  class ElementValueArrayInitializerContext extends ParserRuleContext {
+    def elementValue(): js.Array[ElementValueContext] = js.native
+  }
+
+  @js.native
+  @JSImport("apex-parser", "ElementValuePairContext")
+  class ElementValuePairContext extends ParserRuleContext {
+    def id(): IdContext = js.native
+    def elementValue(): ElementValueContext = js.native
+  }
 }

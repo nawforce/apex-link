@@ -25,13 +25,18 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.parsers
+package com.nawforce.parsers.antlr
+
+import com.nawforce.parsers.CaseInsensitiveInputStream
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
 @js.native
-@JSImport("apex-parser", "CaseInsensitiveInputStream")
-class CaseInsensitiveInputStream(inputPath: String, data: String) extends js.Object {
-  val path: String = js.native
+@JSImport("antlr4ts", "Token")
+class Token extends js.Object {
+  val text: String = js.native
+  val line: Int = js.native
+  val charPositionInLine: Int = js.native
+  val inputStream: CaseInsensitiveInputStream = js.native
 }

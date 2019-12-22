@@ -27,11 +27,10 @@
 */
 package com.nawforce.parsers
 
-import scala.scalajs.js
-import scala.scalajs.js.annotation.JSImport
-
-@js.native
-@JSImport("antlr4ts", "Terminal")
-class TerminalNode(options: js.Dynamic) extends js.Object {
-
-}
+case class CSTRange(
+                   path: String,
+                   startLine: Int,
+                   startPosition: Int,
+                   stopLine: Int,
+                   stopPosition: Int,
+                   )

@@ -25,8 +25,15 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.parsers
+package com.nawforce.parsers.antlr
 
-class ErrorListener {
+import com.nawforce.parsers.ApexLexer
 
+import scala.scalajs.js
+import scala.scalajs.js.annotation.JSImport
+
+@js.native
+@JSImport("antlr4ts", "CommonTokenStream")
+class CommonTokenStream(lexer: ApexLexer) extends js.Object {
+  def fill(): Unit = js.native
 }

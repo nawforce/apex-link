@@ -31,41 +31,32 @@ import com.nawforce.api.Org
 import com.nawforce.documents.{Location, Position, RangeLocation}
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser._
-import com.nawforce.parsers.CaseInsensitiveInputStream
+import com.nawforce.parsers.CSTRange
 import com.nawforce.path.{PathFactory, PathLike}
-import org.antlr.v4.runtime.ParserRuleContext
+import com.nawforce.runtime.CodeParser
 
-import scala.collection.JavaConverters._
 import scala.util.DynamicVariable
 
 class CSTException extends Exception
 
 abstract class CST {
-  private var path: String = _
-  private var startLine: Int = _
-  private var startPosition: Int = _
-  private var stopLine: Int = _
-  private var stopPosition: Int = _
+  private var range: CSTRange = _
   private var positionAdjust: (Int, Int) = _
 
   lazy val location: Location = {
     RangeLocation(
-      com.nawforce.runtime.Path(path),
-      Position(startLine, startPosition)
+      PathFactory(range.path),
+      Position(range.startLine, range.startPosition)
         .adjust(positionAdjust._1, positionAdjust._2),
-      Position(stopLine, stopPosition)
+      Position(range.stopLine, range.stopPosition)
         .adjust(positionAdjust._1, positionAdjust._2)
     )
   }
 
-  def getPath: PathLike = PathFactory(path)
+  def getPath: PathLike = PathFactory(range.path)
 
-  def withContext(context: ParserRuleContext, constructContext: ConstructContext): this.type = {
-    startLine = context.getStart.getLine
-    startPosition = context.getStart.getCharPositionInLine
-    stopLine = context.getStop.getLine
-    stopPosition = context.getStop.getCharPositionInLine + context.getStop.getText.length
-    path = context.getStart.getInputStream.asInstanceOf[CaseInsensitiveInputStream].path
+  def withContext(context: CodeParser.ParserRuleContext, constructContext: ConstructContext): this.type = {
+    range = CodeParser.getRange(context)
     positionAdjust = CST.rangeAdjust.value
     this
   }
@@ -86,7 +77,7 @@ final case class Id(name: Name) extends CST {
 
 object Id {
   def construct(idContext: IdContext, context: ConstructContext): Id = {
-    Id(Name(idContext.getText)).withContext(idContext, context)
+    Id(Name(CodeParser.getText(idContext))).withContext(idContext, context)
   }
 }
 
@@ -100,8 +91,8 @@ object QualifiedName {
   }
 
   def construct(qualifiedName: QualifiedNameContext, context: ConstructContext): QualifiedName = {
-    val ids: Seq[IdContext] = qualifiedName.id().asScala
-    QualifiedName(ids.toList.map(id => Name(id.getText))).withContext(qualifiedName, context)
+    val ids: Seq[IdContext] = CodeParser.toScala(qualifiedName.id())
+    QualifiedName(ids.toList.map(id => Name(CodeParser.getText(id)))).withContext(qualifiedName, context)
   }
 }
 
@@ -110,20 +101,20 @@ final case class Annotation(name: QualifiedName, elementValuePairs: List[Element
 object Annotation {
   def construct(annotation: AnnotationContext, context: ConstructContext): Annotation = {
     val elementValue =
-      if (annotation.elementValue() != null) {
-        Some(ElementValue.construct(annotation.elementValue(), context))
-      } else {
-        None
-      }
+      CodeParser.toScala(annotation.elementValue())
+        .map(ElementValue.construct(_, context))
+    val elementValuePairs =
+      CodeParser.toScala(annotation.elementValuePairs())
+        .map(ElementValuePairs.construct(_, context)).getOrElse(Nil)
+
     Annotation(QualifiedName.construct(annotation.qualifiedName(), context),
-      ElementValuePairs.construct(annotation.elementValuePairs(), context),
-      elementValue).withContext(annotation, context)
+      elementValuePairs, elementValue).withContext(annotation, context)
   }
 }
 
 sealed abstract class ElementValue() extends CST
 
-final case class ExpressionElementValue(expression: Expression) extends ElementValue
+//final case class ExpressionElementValue(expression: Expression) extends ElementValue
 
 final case class AnnotationElementValue(annotation: Annotation) extends ElementValue
 
@@ -135,13 +126,19 @@ object ElementValue {
   }
 
   def construct(elementValue: ElementValueContext, context: ConstructContext): ElementValue = {
-    if (elementValue.expression() != null) {
+
+    // TODO: Fix up when we have expression support
+    //val expresison = CodeParser.toScala(elementValue.expression())
+    val annotation = CodeParser.toScala(elementValue.annotation())
+    val arrayInitializer = CodeParser.toScala(elementValue.elementValueArrayInitializer())
+
+    /*if (expression.nonEmpty) {
       ExpressionElementValue(Expression.construct(elementValue.expression(), context)).withContext(elementValue, context)
-    } else if (elementValue.annotation() != null) {
-      AnnotationElementValue(Annotation.construct(elementValue.annotation(), context)).withContext(elementValue, context)
-    } else if (elementValue.elementValueArrayInitializer() != null) {
+    } else*/ if (annotation.nonEmpty) {
+      AnnotationElementValue(Annotation.construct(annotation.get, context)).withContext(elementValue, context)
+    } else if (arrayInitializer.nonEmpty) {
       ArrayInitializerElementValue(ElementValueArrayInitializer.construct(
-        elementValue.elementValueArrayInitializer(), context)).withContext(elementValue, context)
+        arrayInitializer.get, context)).withContext(elementValue, context)
     } else {
       throw new CSTException()
     }
@@ -152,7 +149,7 @@ final case class ElementValueArrayInitializer(elementValues: List[ElementValue])
 
 object ElementValueArrayInitializer {
   def construct(from: ElementValueArrayInitializerContext, context: ConstructContext): ElementValueArrayInitializer = {
-    val elements: Seq[ElementValueContext] = from.elementValue().asScala
+    val elements: Seq[ElementValueContext] = CodeParser.toScala(from.elementValue())
     ElementValueArrayInitializer(elements.toList.map(x => ElementValue.construct(x, context))).withContext(from, context)
   }
 }
@@ -160,19 +157,20 @@ object ElementValueArrayInitializer {
 final case class ElementValuePair(id: String, elementValue: ElementValue) extends CST
 
 object ElementValuePair {
-  def construct(aList: List[ElementValuePairContext], context: ConstructContext): List[ElementValuePair] = {
+  def construct(aList: Seq[ElementValuePairContext], context: ConstructContext): Seq[ElementValuePair] = {
     aList.map(x => ElementValuePair.construct(x, context))
   }
 
   def construct(from: ElementValuePairContext, context: ConstructContext): ElementValuePair = {
-    ElementValuePair(from.id().getText, ElementValue.construct(from.elementValue(), context)).withContext(from, context)
+    ElementValuePair(CodeParser.getText(from.id()),
+      ElementValue.construct(from.elementValue(), context)).withContext(from, context)
   }
 }
 
 object ElementValuePairs {
   def construct(from: ElementValuePairsContext, context: ConstructContext): List[ElementValuePair] = {
     if (from != null) {
-      val pairs: Seq[ElementValuePairContext] = from.elementValuePair().asScala
+      val pairs: Seq[ElementValuePairContext] = CodeParser.toScala(from.elementValuePair())
       pairs.toList.map(x => ElementValuePair.construct(x, context))
     } else {
       List()

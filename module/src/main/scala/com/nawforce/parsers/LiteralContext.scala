@@ -27,6 +27,8 @@
 */
 package com.nawforce.parsers
 
+import com.nawforce.parsers.antlr.TerminalNode
+
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 import scala.scalajs.js.|
