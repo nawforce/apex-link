@@ -27,10 +27,10 @@
 */
 package com.nawforce.cst
 
+import com.nawforce.diagnostics.{ERROR_CATEGORY, IssueCategory, WARNING_CATEGORY}
 import com.nawforce.documents.Location
 import com.nawforce.names.{Name, TypeName}
 import com.nawforce.types._
-import com.nawforce.diagnostics.{ERROR_CATEGORY, IssueCategory, WARNING_CATEGORY}
 
 import scala.collection.mutable
 

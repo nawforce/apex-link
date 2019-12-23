@@ -28,6 +28,7 @@
 package com.nawforce.types
 
 import com.nawforce.names.{DotName, Name, TypeName}
+import com.nawforce.runtime.PlatformTypeDeclaration
 import org.scalatest.funsuite.AnyFunSuite
 
 class PlatformTypesValidationTest extends AnyFunSuite {

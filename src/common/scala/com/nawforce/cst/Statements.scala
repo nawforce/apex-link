@@ -33,7 +33,7 @@ import com.nawforce.names.{Name, TypeName}
 import com.nawforce.parsers.ApexParser._
 import com.nawforce.parsers.CaseInsensitiveInputStream
 import com.nawforce.path.{PathFactory, PathLike}
-import com.nawforce.runtime.{CodeParser, Path}
+import com.nawforce.runtime.CodeParser
 import com.nawforce.types.{ApexModifiers, Modifier}
 import org.antlr.v4.runtime.misc.Interval
 

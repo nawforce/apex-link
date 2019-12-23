@@ -32,6 +32,7 @@ import com.nawforce.cst.VerifyContext
 import com.nawforce.documents.Location
 import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{EncodedName, Name, TypeName}
+import com.nawforce.runtime.PlatformTypeDeclaration
 
 import scala.collection.mutable
 

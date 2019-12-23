@@ -27,8 +27,6 @@
 */
 package com.nawforce.cst
 
-import java.nio.file.Path
-
 import com.nawforce.api.Org
 import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{Name, TypeName}

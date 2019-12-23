@@ -28,9 +28,10 @@
 package com.nawforce.types
 
 import com.nawforce.api._
-import com.nawforce.cst.{BinaryExpression, ExprContext, Expression, ExpressionVerifyContext, IdPrimary, MethodMap, PrimaryExpression, VerifyContext}
+import com.nawforce.cst._
 import com.nawforce.finding.TypeRequest
 import com.nawforce.names.{Name, TypeName}
+import com.nawforce.runtime.PlatformTypeDeclaration
 
 import scala.collection.mutable
 

@@ -28,8 +28,8 @@
 
 package com.nawforce.cst
 
-import com.nawforce.types.{ApexTypeDeclaration, TypeDeclaration}
 import com.nawforce.diagnostics.IssueLog
+import com.nawforce.types.{ApexTypeDeclaration, TypeDeclaration}
 
 class UnusedLog(types: Iterable[TypeDeclaration]) extends IssueLog {
 

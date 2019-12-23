@@ -29,7 +29,7 @@ package com.nawforce.cmds
 
 import java.nio.file.{Files, Path, Paths}
 
-import com.nawforce.types.PlatformTypeDeclaration
+import com.nawforce.runtime.PlatformTypeDeclaration
 import upickle.default._
 
 object Pickler {

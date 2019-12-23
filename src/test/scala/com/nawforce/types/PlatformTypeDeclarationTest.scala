@@ -29,6 +29,7 @@ package com.nawforce.types
 
 import com.nawforce.finding.MissingType
 import com.nawforce.names.{Name, TypeName}
+import com.nawforce.runtime.PlatformTypeDeclaration
 import org.scalatest.FunSuite
 import org.scalatest.funsuite.AnyFunSuite
 

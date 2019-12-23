@@ -35,7 +35,7 @@ import com.nawforce.documents.{DocumentIndex, MetadataDocumentType}
 import com.nawforce.finding.TypeFinder
 import com.nawforce.finding.TypeRequest.TypeRequest
 import com.nawforce.names.{EncodedName, Name, TypeName}
-import com.nawforce.runtime.Path
+import com.nawforce.runtime.{Path, PlatformTypeDeclaration}
 
 abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[java.nio.file.Path], var basePackages: Seq[PackageDeclaration])
   extends TypeFinder {

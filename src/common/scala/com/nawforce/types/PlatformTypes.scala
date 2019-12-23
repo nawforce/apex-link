@@ -30,6 +30,7 @@ package com.nawforce.types
 import com.nawforce.finding.MissingType
 import com.nawforce.finding.TypeRequest.TypeRequest
 import com.nawforce.names.TypeName
+import com.nawforce.runtime.PlatformTypeDeclaration
 
 import scala.ref.WeakReference
 

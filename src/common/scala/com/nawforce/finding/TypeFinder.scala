@@ -27,7 +27,7 @@
 */
 package com.nawforce.finding
 
-import com.nawforce.names.{DotName, Name, TypeName}
+import com.nawforce.names.{DotName, TypeName}
 import com.nawforce.types.{PackageDeclaration, TypeDeclaration}
 import scalaz.Memo
 

@@ -3,6 +3,7 @@ package com.nawforce.types
 import com.nawforce.finding.TypeRequest.TypeRequest
 import com.nawforce.finding.{MissingType, TypeError, TypeRequest}
 import com.nawforce.names.{Name, TypeName}
+import com.nawforce.runtime.{PlatformField, PlatformMethod, PlatformParameter, PlatformTypeDeclaration}
 import scalaz._
 
 /* Wrapper for the few generic types we support, this specialises the methods of the type so that

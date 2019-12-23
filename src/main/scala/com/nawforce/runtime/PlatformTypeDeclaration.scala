@@ -25,14 +25,15 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.types
+package com.nawforce.runtime
 
-import java.nio.file.{FileSystems, Files, Path, Paths}
+import java.nio.file.{FileSystems, Files, Paths}
 import java.util
 
 import com.nawforce.finding.TypeRequest.TypeRequest
 import com.nawforce.finding.{MissingType, WrongTypeArguments}
 import com.nawforce.names.{DotName, Name, TypeName}
+import com.nawforce.types._
 import scalaz._
 
 import scala.collection.JavaConverters._
@@ -211,7 +212,7 @@ object PlatformTypeDeclaration {
   val platformPackage = "com.nawforce.platform"
 
   /* Get a Path that leads to platform classes */
-  lazy val platformPackagePath: Path = {
+  lazy val platformPackagePath: java.nio.file.Path = {
     val path = "/" + platformPackage.replaceAll("\\.", "/")
     val uri = classOf[PlatformTypeDeclaration].getResource(path).toURI
     if (uri.getScheme.equalsIgnoreCase("file")) {
@@ -276,7 +277,7 @@ object PlatformTypeDeclaration {
   /* Index .class files, we have to index to make sure we get natural case sensitive names, but also used
    * to re-map SObject so they appear in Schema namespace.
    */
-  private def indexDir(path: Path, prefix: DotName, accum: mutable.HashMap[DotName, DotName]): Unit = {
+  private def indexDir(path: java.nio.file.Path, prefix: DotName, accum: mutable.HashMap[DotName, DotName]): Unit = {
     Files.list(path).iterator.asScala.foreach(entry => {
       val filename = entry.getFileName.toString
       if (Files.isRegularFile(entry) && filename.endsWith(".class") &&

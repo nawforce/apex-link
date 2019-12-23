@@ -31,6 +31,7 @@ import com.nawforce.api.Org
 import com.nawforce.documents.Location
 import com.nawforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.parsers.ApexParser._
+import com.nawforce.runtime.PlatformTypeDeclaration
 import com.nawforce.types._
 import org.antlr.v4.runtime.tree.TerminalNode
 
