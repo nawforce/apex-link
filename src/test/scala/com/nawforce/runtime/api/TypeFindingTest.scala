@@ -27,6 +27,7 @@
 */
 package com.nawforce.runtime.api
 
+import com.nawforce.common.api.Package
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.ApexTypeDeclaration

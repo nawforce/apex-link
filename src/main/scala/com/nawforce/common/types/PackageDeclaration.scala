@@ -30,17 +30,17 @@ package com.nawforce.common.types
 
 import java.util.concurrent.ConcurrentHashMap
 
+import com.nawforce.common.api.Package
 import com.nawforce.common.documents.{DocumentIndex, MetadataDocumentType}
 import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
-import com.nawforce.runtime.api.Package
-import com.nawforce.runtime.path.Path
+import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.types.PlatformTypeDeclaration
 
-abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[java.nio.file.Path], var basePackages: Seq[PackageDeclaration])
+abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[PathLike], var basePackages: Seq[PackageDeclaration])
   extends TypeFinder {
-  protected val documents = new DocumentIndex(paths.map(p => Path(p)))
+  protected val documents = new DocumentIndex(paths)
   protected val types = new ConcurrentHashMap[TypeName, TypeDeclaration]()
 
   def documentsByExtension(ext: Name): Seq[MetadataDocumentType] = documents.getByExtension(ext)

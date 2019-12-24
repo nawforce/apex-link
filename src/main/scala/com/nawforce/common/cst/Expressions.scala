@@ -29,13 +29,11 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.documents.Location
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
-import com.nawforce.common.parsers.ApexParser._
 import com.nawforce.common.types.{FieldDeclaration, PackageDeclaration, PlatformTypes, TypeDeclaration}
 import com.nawforce.runtime.api.Org
+import com.nawforce.runtime.parsers.ApexParser._
+import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.types.PlatformTypeDeclaration
-import org.antlr.v4.runtime.tree.TerminalNode
-
-import scala.collection.JavaConverters._
 
 case class ExprContext(isStatic: Option[Boolean], declaration: Option[TypeDeclaration]) {
   def isDefined: Boolean = declaration.nonEmpty && !declaration.exists(_.isAny)
@@ -45,7 +43,7 @@ case class ExprContext(isStatic: Option[Boolean], declaration: Option[TypeDeclar
 }
 
 object ExprContext {
-  val empty = ExprContext(None, None)
+  val empty: ExprContext = ExprContext(None, None)
 }
 
 sealed abstract class Expression extends CST {
@@ -185,7 +183,7 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
   }
 }
 
-final case class MethodCall(target: Either[Boolean, Id], arguments: List[Expression]) extends Expression {
+final case class MethodCall(target: Either[Boolean, Id], arguments: Seq[Expression]) extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     verify(location, input.typeDeclaration, None, input, context)
   }
@@ -235,17 +233,14 @@ final case class MethodCall(target: Either[Boolean, Id], arguments: List[Express
 
 object MethodCall {
   def construct(from: MethodCallContext, context: ConstructContext): MethodCall = {
-    val caller = Option(from.id()).map(id => Right(Id.construct(id, context))).getOrElse(
-      Left(Option(from.THIS()).nonEmpty)
+    val caller = CodeParser.toScala(from.id()).map(id => Right(Id.construct(id, context))).getOrElse(
+      Left(CodeParser.toScala(from.THIS()).nonEmpty)
     )
 
     MethodCall(caller,
-      if (from.expressionList() != null) {
-        val expression: Seq[ExpressionContext] = from.expressionList().expression().asScala
-        Expression.construct(expression.toList, context)
-      } else {
-        List()
-      }
+      CodeParser.toScala(from.expressionList())
+        .map(el => CodeParser.toScala(el.expression()).map(e => Expression.construct(e, context)))
+        .getOrElse(Seq())
     )
   }
 }
@@ -485,7 +480,7 @@ object Expression {
   private def getTerminals(from: ExpressionContext, index: Integer): String = {
     if (index < from.children.size()) {
       from.children.get(index) match {
-        case tn: TerminalNode => tn.getText + getTerminals(from, index + 1)
+        case tn: CodeParser.TerminalNode => tn.getText + getTerminals(from, index + 1)
         case _ => ""
       }
     } else {
@@ -493,7 +488,7 @@ object Expression {
     }
   }
 
-  def construct(expression: List[ExpressionContext], context: ConstructContext): List[Expression] = {
+  def construct(expression: Seq[ExpressionContext], context: ConstructContext): Seq[Expression] = {
     expression.map(x => Expression.construct(x, context))
   }
 }
@@ -502,18 +497,18 @@ final case class TypeArguments(typeList: List[TypeName]) extends CST
 
 object TypeArguments {
   def construct(from: TypeArgumentsContext, context: ConstructContext): TypeArguments = {
-    val types: Seq[TypeRefContext] = from.typeList().typeRef().asScala
+    val types: Seq[TypeRefContext] = CodeParser.toScala(from.typeList().typeRef())
     TypeArguments(TypeRef.construct(types.toList)).withContext(from, context)
   }
 }
 
 object Arguments {
-  def construct(from: ArgumentsContext, context: ConstructContext): List[Expression] = {
+  def construct(from: ArgumentsContext, context: ConstructContext): Seq[Expression] = {
     if (from.expressionList() != null) {
-      val expressions: Seq[ExpressionContext] = from.expressionList().expression().asScala
+      val expressions: Seq[ExpressionContext] = CodeParser.toScala(from.expressionList().expression())
       Expression.construct(expressions.toList, context)
     } else {
-      List()
+      Seq()
     }
   }
 }

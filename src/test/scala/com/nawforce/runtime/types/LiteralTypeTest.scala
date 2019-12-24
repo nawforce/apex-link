@@ -31,10 +31,9 @@ import java.io.StringReader
 
 import com.nawforce.common.cst.{ConstructContext, Literal}
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.{DependencyHolder, TypeDeclaration}
-import com.nawforce.runtime.parsers.ThrowingErrorListener
+import com.nawforce.runtime.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream, ThrowingErrorListener}
 import org.antlr.v4.runtime.CommonTokenStream
 import org.scalatest.funsuite.AnyFunSuite
 

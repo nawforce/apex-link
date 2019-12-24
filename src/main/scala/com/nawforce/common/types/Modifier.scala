@@ -27,14 +27,13 @@
 */
 package com.nawforce.common.types
 
-import java.lang.reflect.{Modifier => JavaModifier}
-
 import com.nawforce.common.cst.ConstructContext
 import com.nawforce.common.diagnostics.WARNING_CATEGORY
-import com.nawforce.common.parsers.ApexParser.{AnnotationContext, IdContext, ModifierContext, PropertyBlockContext}
 import com.nawforce.runtime.api.Org
-import com.nawforce.runtime.path.LocationHelper
-import org.antlr.v4.runtime.ParserRuleContext
+import com.nawforce.runtime.diagnostics.LocationHelper
+import com.nawforce.runtime.parsers.ApexParser.{AnnotationContext, IdContext, ModifierContext, PropertyBlockContext}
+import com.nawforce.runtime.parsers.CodeParser
+import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 
 sealed abstract class Modifier(val name: String, val order: Integer=0) {
   override def toString: String = name
@@ -91,11 +90,12 @@ object ApexModifiers {
                      outer: Boolean, idContext: IdContext)
     : Seq[Modifier] = {
 
-    val mods = modifierContexts.flatMap(modifierContext =>
-      if (modifierContext.annotation() != null) {
-        classAnnotation(modifierContext.annotation())
-      } else {
-        modifierContext.getText.toLowerCase match {
+    val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
+      val annotation = CodeParser.toScala(modifierContext.annotation())
+      if (annotation.nonEmpty)
+        annotation.flatMap(a => classAnnotation(a))
+      else {
+        CodeParser.getText(modifierContext).toLowerCase match {
           case "global" => Some(GLOBAL_MODIFIER)
           case "public" => Some(PUBLIC_MODIFIER)
           case "private" => Some(PRIVATE_MODIFIER)
@@ -106,11 +106,11 @@ object ApexModifiers {
           case "virtual" => Some(VIRTUAL_MODIFIER)
           case _ =>
             Org.logMessage(LocationHelper.asRangeLocation(modifierContext),
-                s"Modifier '${modifierContext.getText}' is not supported on classes")
+              s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on classes")
             None
         }
       }
-    )
+    })
 
     if (mods.size == modifierContexts.size) {
       val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
@@ -144,22 +144,23 @@ object ApexModifiers {
                      outer: Boolean, idContext: IdContext)
   : Seq[Modifier] = {
 
-    val mods = modifierContexts.flatMap(modifierContext =>
-      if (modifierContext.annotation() != null) {
-        typeAnnotation(modifierContext.annotation())
-      } else {
-        modifierContext.getText.toLowerCase match {
-          case "global" => Some(GLOBAL_MODIFIER)
-          case "public" => Some(PUBLIC_MODIFIER)
-          case "private" => Some(PRIVATE_MODIFIER)
-          case "virtual" => Some(VIRTUAL_MODIFIER)
-          case _ =>
-            Org.logMessage(LocationHelper.asRangeLocation(modifierContext),
-              s"Modifier '${modifierContext.getText}' is not supported on interfaces")
-            None
+    val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
+      val annotation = CodeParser.toScala(modifierContext.annotation())
+      if (annotation.nonEmpty)
+        annotation.flatMap(a => typeAnnotation(a))
+      else {
+          CodeParser.getText(modifierContext).toLowerCase match {
+            case "global" => Some(GLOBAL_MODIFIER)
+            case "public" => Some(PUBLIC_MODIFIER)
+            case "private" => Some(PRIVATE_MODIFIER)
+            case "virtual" => Some(VIRTUAL_MODIFIER)
+            case _ =>
+              Org.logMessage(LocationHelper.asRangeLocation(modifierContext),
+                s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on interfaces")
+              None
+          }
         }
-      }
-    )
+    })
 
     if (mods.size == modifierContexts.size) {
       val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
@@ -189,21 +190,22 @@ object ApexModifiers {
                          outer: Boolean, idContext: IdContext)
   : Seq[Modifier] = {
 
-    val mods = modifierContexts.flatMap(modifierContext =>
-      if (modifierContext.annotation() != null) {
-        typeAnnotation(modifierContext.annotation())
-      } else {
-        modifierContext.getText.toLowerCase match {
+    val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
+      val annotation = CodeParser.toScala(modifierContext.annotation())
+      if (annotation.nonEmpty)
+        annotation.flatMap(a => typeAnnotation(a))
+      else {
+        CodeParser.getText(modifierContext).toLowerCase match {
           case "global" => Some(GLOBAL_MODIFIER)
           case "public" => Some(PUBLIC_MODIFIER)
           case "private" => Some(PRIVATE_MODIFIER)
           case _ =>
             Org.logMessage(LocationHelper.asRangeLocation(modifierContext),
-              s"Modifier '${modifierContext.getText}' is not supported on enums")
+              s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on enums")
             None
         }
       }
-    )
+    })
 
     if (mods.size == modifierContexts.size) {
       val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
@@ -232,11 +234,12 @@ object ApexModifiers {
   def fieldModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext, idContext: IdContext)
     : Seq[Modifier] = {
 
-    val mods = modifierContexts.flatMap(modifierContext =>
-      if (modifierContext.annotation() != null) {
-        fieldAnnotation(modifierContext.annotation())
-      } else {
-        modifierContext.getText.toLowerCase match {
+    val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
+      val annotation = CodeParser.toScala(modifierContext.annotation())
+      if (annotation.nonEmpty)
+        annotation.flatMap(a => fieldAnnotation(a))
+      else {
+        CodeParser.getText(modifierContext).toLowerCase match {
           case "global" => Some(GLOBAL_MODIFIER)
           case "public" => Some(PUBLIC_MODIFIER)
           case "protected" => Some(PROTECTED_MODIFIER)
@@ -247,11 +250,11 @@ object ApexModifiers {
           case "webservice" => Some(WEBSERVICE_MODIFIER)
           case _ =>
             Org.logMessage(LocationHelper.asRangeLocation(modifierContext),
-              s"Modifier '${modifierContext.getText}' is not supported on fields")
+              s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on fields")
             None
         }
       }
-    )
+    })
 
     val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
     if (duplicates.nonEmpty) {
@@ -278,16 +281,16 @@ object ApexModifiers {
   def propertyBlockModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext, idContext: PropertyBlockContext)
   : Seq[Modifier] = {
 
-    val mods = modifierContexts.flatMap(modifierContext =>
-        modifierContext.getText.toLowerCase match {
-          case "global" => Some(GLOBAL_MODIFIER)
-          case "public" => Some(PUBLIC_MODIFIER)
-          case "protected" => Some(PROTECTED_MODIFIER)
-          case "private" => Some(PRIVATE_MODIFIER)
-          case _ =>
-            Org.logMessage(LocationHelper.asRangeLocation(modifierContext),
-              s"Modifier '${modifierContext.getText}' is not supported on property set/get")
-            None
+    val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext =>
+      CodeParser.getText(modifierContext).toLowerCase match {
+        case "global" => Some(GLOBAL_MODIFIER)
+        case "public" => Some(PUBLIC_MODIFIER)
+        case "protected" => Some(PROTECTED_MODIFIER)
+        case "private" => Some(PRIVATE_MODIFIER)
+        case _ =>
+          Org.logMessage(LocationHelper.asRangeLocation(modifierContext),
+            s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on property set/get")
+          None
       }
     )
 
@@ -308,22 +311,23 @@ object ApexModifiers {
   def constructorModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext, parserContext: ParserRuleContext)
   : Seq[Modifier] = {
 
-    val mods = modifierContexts.flatMap(modifierContext =>
-      if (modifierContext.annotation() != null) {
-        constructorAnnotation(modifierContext.annotation())
-      } else {
-        modifierContext.getText.toLowerCase match {
+    val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
+      val annotation = CodeParser.toScala(modifierContext.annotation())
+      if (annotation.nonEmpty)
+        annotation.flatMap(a => constructorAnnotation(a))
+      else {
+        CodeParser.getText(modifierContext).toLowerCase match {
           case "global" => Some(GLOBAL_MODIFIER)
           case "public" => Some(PUBLIC_MODIFIER)
           case "protected" => Some(PROTECTED_MODIFIER)
           case "private" => Some(PRIVATE_MODIFIER)
           case _ =>
             Org.logMessage(LocationHelper.asRangeLocation(modifierContext),
-              s"Modifier '${modifierContext.getText}' is not supported on constructors")
+              s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on constructors")
             None
         }
       }
-    )
+    })
 
     val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
     if (duplicates.nonEmpty) {
@@ -344,11 +348,12 @@ object ApexModifiers {
   def methodModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext, idContext: IdContext)
   : Seq[Modifier] = {
 
-    var mods = modifierContexts.flatMap(modifierContext =>
-      if (modifierContext.annotation() != null) {
-        methodAnnotation(modifierContext.annotation())
-      } else {
-        modifierContext.getText.toLowerCase match {
+    val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
+      val annotation = CodeParser.toScala(modifierContext.annotation())
+      if (annotation.nonEmpty)
+        annotation.flatMap(a => methodAnnotation(a))
+      else {
+        CodeParser.getText(modifierContext).toLowerCase match {
           case "abstract" => Some(ABSTRACT_MODIFIER)
           case "global" => Some(GLOBAL_MODIFIER)
           case "override" => Some(OVERRIDE_MODIFIER)
@@ -361,11 +366,11 @@ object ApexModifiers {
           case "virtual" => Some(VIRTUAL_MODIFIER)
           case _ =>
             Org.logMessage(LocationHelper.asRangeLocation(modifierContext),
-              s"Modifier '${modifierContext.getText}' is not supported on methods")
+              s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on methods")
             None
         }
       }
-    )
+    })
 
     // TODO: webservice must be on outer static method
 
@@ -390,7 +395,7 @@ object ApexModifiers {
   }
 
   private def classAnnotation(context: AnnotationContext): Option[Modifier] = {
-    context.qualifiedName().getText.toLowerCase match {
+    CodeParser.getText(context.qualifiedName()).toLowerCase match {
       case "deprecated" => Some(DEPRECATED_ANNOTATION)
       case "istest" => Some(ISTEST_ANNOTATION)
       case "testvisible" => Some(TEST_VISIBLE_ANNOTATION)
@@ -399,27 +404,27 @@ object ApexModifiers {
       case "namespaceaccessible" => Some(NAMESPACE_ACCESSIBLE_ANNOTATION)
       case _ =>
         Org.logMessage(LocationHelper.asRangeLocation(context),
-          s"Unexpected annotation '${context.qualifiedName().getText}' on class declaration")
+          s"Unexpected annotation '${CodeParser.getText(context.qualifiedName())}' on class declaration")
         None
     }
   }
 
   private def typeAnnotation(context: AnnotationContext): Option[Modifier] = {
-    context.qualifiedName().getText.toLowerCase match {
+    CodeParser.getText(context.qualifiedName()).toLowerCase match {
       case "deprecated" => Some(DEPRECATED_ANNOTATION)
       case "testvisible" => Some(TEST_VISIBLE_ANNOTATION)
       case "suppresswarnings" => Some(SUPPRESS_WARNINGS_ANNOTATION)
       case "namespaceaccessible" => Some(NAMESPACE_ACCESSIBLE_ANNOTATION)
       case _ =>
         Org.logMessage(LocationHelper.asRangeLocation(context),
-          s"Unexpected annotation '${context.qualifiedName().getText}' on interface declaration")
+          s"Unexpected annotation '${CodeParser.getText(context.qualifiedName())}' on interface declaration")
         None
     }
   }
 
   private def fieldAnnotation(context: AnnotationContext): Option[Modifier] = {
     // TODO: Validate arguments of the annotations
-    context.qualifiedName().getText.toLowerCase match {
+    CodeParser.getText(context.qualifiedName()).toLowerCase match {
       case "auraenabled" => Some(AURA_ENABLED_ANNOTATION)
       case "deprecated" => Some(DEPRECATED_ANNOTATION)
       case "invocablevariable" => Some(INVOCABLE_VARIABLE_ANNOTATION)
@@ -427,28 +432,28 @@ object ApexModifiers {
       case "suppresswarnings" => Some(SUPPRESS_WARNINGS_ANNOTATION)
       case _ =>
         Org.logMessage(LocationHelper.asRangeLocation(context),
-          s"Unexpected annotation '${context.qualifiedName().getText}' on field/property declaration")
+          s"Unexpected annotation '${CodeParser.getText(context.qualifiedName())}' on field/property declaration")
         None
     }
   }
 
   private def constructorAnnotation(context: AnnotationContext): Option[Modifier] = {
     // TODO: Validate arguments of the annotations
-    context.qualifiedName().getText.toLowerCase match {
+    CodeParser.getText(context.qualifiedName()).toLowerCase match {
       case "deprecated" => Some(DEPRECATED_ANNOTATION)
       case "testvisible" => Some(TEST_VISIBLE_ANNOTATION)
       case "namespaceaccessible" => Some(NAMESPACE_ACCESSIBLE_ANNOTATION)
       case "suppresswarnings" => Some(SUPPRESS_WARNINGS_ANNOTATION)
       case _ =>
         Org.logMessage(LocationHelper.asRangeLocation(context),
-          s"Unexpected annotation '${context.qualifiedName().getText}' on method declaration")
+          s"Unexpected annotation '${CodeParser.getText(context.qualifiedName())}' on method declaration")
         None
     }
   }
 
   private def methodAnnotation(context: AnnotationContext): Option[Modifier] = {
     // TODO: Validate arguments of the annotations
-    context.qualifiedName().getText.toLowerCase match {
+    CodeParser.getText(context.qualifiedName()).toLowerCase match {
       case "auraenabled" => Some(AURA_ENABLED_ANNOTATION)
       case "deprecated" => Some(DEPRECATED_ANNOTATION)
       case "future" => Some(FUTURE_ANNOTATION)
@@ -467,66 +472,17 @@ object ApexModifiers {
       case "remoteaction" => Some(REMOTE_ACTION_ANNOTATION)
       case _ =>
         Org.logMessage(LocationHelper.asRangeLocation(context),
-          s"Unexpected annotation '${context.qualifiedName().getText}' on method declaration")
+          s"Unexpected annotation '${CodeParser.getText(context.qualifiedName())}' on method declaration")
         None
     }
   }
 
   // TODO: Remove general use of this
   def construct(modifiers: Seq[ModifierContext], context: ConstructContext): Seq[Modifier] = {
-    modifiers.map(_.getText.toLowerCase).flatMap {
+    modifiers.map(CodeParser.getText(_).toLowerCase).flatMap {
       case "public" => Some(PUBLIC_MODIFIER)
       case _ => None
     }
   }
 }
 
-object PlatformModifiers {
-  def typeModifiers(javaBits: Int, nature: Nature): Seq[Modifier] = {
-    assert(JavaModifier.isPublic(javaBits))
-    if (nature == CLASS_NATURE) assert(!JavaModifier.isAbstract(javaBits))
-    if (nature != ENUM_NATURE) assert(!JavaModifier.isFinal(javaBits))
-    assert(!JavaModifier.isTransient(javaBits))
-    assert(!JavaModifier.isVolatile(javaBits))
-    assert(!JavaModifier.isSynchronized(javaBits))
-    assert(!JavaModifier.isNative(javaBits))
-    assert(!JavaModifier.isStrict(javaBits))
-
-    Seq(PUBLIC_MODIFIER) ++
-      (if (nature == CLASS_NATURE) Seq(VIRTUAL_MODIFIER) else Seq()) ++
-      (if (JavaModifier.isStatic(javaBits)) Seq(STATIC_MODIFIER) else Seq())
-  }
-
-  def fieldOrMethodModifiers(javaBits: Int): Seq[Modifier] = {
-    assert(JavaModifier.isPublic(javaBits))
-    assert(!JavaModifier.isAbstract(javaBits))
-    assert(!JavaModifier.isTransient(javaBits))
-    assert(!JavaModifier.isVolatile(javaBits))
-    assert(!JavaModifier.isSynchronized(javaBits))
-    assert(!JavaModifier.isNative(javaBits))
-    assert(!JavaModifier.isStrict(javaBits))
-
-    Seq(PUBLIC_MODIFIER) ++
-      (if (JavaModifier.isStatic(javaBits)) Seq(STATIC_MODIFIER) else Seq()) ++
-      (if (JavaModifier.isFinal(javaBits)) Seq(FINAL_MODIFIER) else Seq())
-  }
-
-  def methodModifiers(javaBits: Int, nature: Nature): Seq[Modifier] = {
-    assert(JavaModifier.isPublic(javaBits))
-    if (nature == INTERFACE_NATURE)
-      assert(JavaModifier.isAbstract(javaBits))
-    else
-      assert(!JavaModifier.isAbstract(javaBits))
-    assert(!JavaModifier.isFinal(javaBits))
-    assert(!JavaModifier.isTransient(javaBits))
-    assert(!JavaModifier.isVolatile(javaBits))
-    assert(!JavaModifier.isSynchronized(javaBits))
-    assert(!JavaModifier.isNative(javaBits))
-    assert(!JavaModifier.isStrict(javaBits))
-
-    Seq(PUBLIC_MODIFIER) ++
-      (if (JavaModifier.isStatic(javaBits)) Seq(STATIC_MODIFIER) else Seq())
-
-  }
-
-}

@@ -29,12 +29,11 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.documents.LineLocation
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.parsers.ApexParser._
-import com.nawforce.common.parsers.CaseInsensitiveInputStream
+import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.{ApexModifiers, Modifier}
 import com.nawforce.runtime.api.Org
-import com.nawforce.runtime.parsers.CodeParser
+import com.nawforce.runtime.parsers.{CaseInsensitiveInputStream, CodeParser}
 import org.antlr.v4.runtime.misc.Interval
 
 import scala.collection.JavaConverters._
@@ -108,11 +107,8 @@ object Block {
     Block(Statement.construct(blockContext.statement().asScala.toList, context)).withContext(blockContext, context)
   }
 
-  def constructOption(blockContext: BlockContext, context: ConstructContext): Option[Block] = {
-    if (blockContext != null)
-      Some(construct(blockContext, context))
-    else
-      None
+  def constructOption(blockContext: Option[BlockContext], context: ConstructContext): Option[Block] = {
+    blockContext.map(bc => construct(bc, context))
   }
 }
 
@@ -301,7 +297,7 @@ final case class LocalVariableForInit(variable: LocalVariableDeclaration) extend
   }
 }
 
-final case class ExpressionListForInit(expressions: List[Expression]) extends ForInit {
+final case class ExpressionListForInit(expressions: Seq[Expression]) extends ForInit {
   override def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
   }
@@ -325,7 +321,7 @@ object ForInit {
   }
 }
 
-final case class ForUpdate(expressions: List[Expression]) extends CST {
+final case class ForUpdate(expressions: Seq[Expression]) extends CST {
   def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
   }
@@ -550,7 +546,7 @@ object MergeStatement {
   }
 }
 
-final case class RunAsStatement(expressions: List[Expression], block: Option[Block]) extends Statement {
+final case class RunAsStatement(expressions: Seq[Expression], block: Option[Block]) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
     block.foreach(_.verify(context))

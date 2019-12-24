@@ -31,7 +31,7 @@ import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents.LineLocation
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
+import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.api.Org
 import com.nawforce.runtime.parsers.CodeParser

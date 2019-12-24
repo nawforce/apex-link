@@ -29,11 +29,10 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.parsers.ApexParser
-import com.nawforce.common.parsers.ApexParser._
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
 import com.nawforce.runtime.api.Org
+import com.nawforce.runtime.parsers.ApexParser._
 
 import scala.collection.JavaConverters._
 
@@ -176,7 +175,7 @@ final case class InterfaceDeclaration(_pkg: PackageDeclaration, _outerTypeName: 
 
 object InterfaceDeclaration {
   def construct(pkg: PackageDeclaration, outerTypeName: Option[TypeName], modifiers: Seq[Modifier],
-                interfaceDeclaration: ApexParser.InterfaceDeclarationContext, context: ConstructContext)
+                interfaceDeclaration: InterfaceDeclarationContext, context: ConstructContext)
   : InterfaceDeclaration = {
     val thisType = TypeName(Name(interfaceDeclaration.id().getText), Nil,
       outerTypeName.orElse(pkg.namespace.map(TypeName(_))))
@@ -225,7 +224,7 @@ final case class EnumDeclaration(_pkg: PackageDeclaration, _outerTypeName: Optio
 
 object EnumDeclaration {
   def construct(pkg: PackageDeclaration, outerTypeName: Option[TypeName], typeModifiers: Seq[Modifier],
-                enumDeclaration: ApexParser.EnumDeclarationContext, context: ConstructContext): EnumDeclaration = {
+                enumDeclaration: EnumDeclarationContext, context: ConstructContext): EnumDeclaration = {
 
     // FUTURE: Add standard enum methods
 

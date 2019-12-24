@@ -29,11 +29,13 @@ package com.nawforce.runtime.api
 
 import java.nio.file.{Path, Paths}
 
+import com.nawforce.common.api
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, IssueCategory, IssueLog}
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{DotName, Name}
 import com.nawforce.common.types.TypeDeclaration
+import com.nawforce.runtime.path.Path
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.DynamicVariable
@@ -43,8 +45,8 @@ import scala.util.DynamicVariable
   * multiple. Problems with the metadata are recorded in the the associated issue log.
   */
 class Org extends LazyLogging {
-  var unmanaged = new Package(this, None, Seq(), Seq())
-  var packages: Map[Option[Name], Package] = Map(None -> unmanaged)
+  var unmanaged = new api.Package(this, None, Seq(), Seq())
+  var packages: Map[Option[Name], api.Package] = Map(None -> unmanaged)
 
   val issues = new IssueLog
   def issuesAsJSON(warnings: Boolean, zombie: Boolean): String = {
@@ -57,11 +59,11 @@ class Org extends LazyLogging {
   }
   def typeCount: Int= packages.values.map(_.typeCount).sum
 
-  def getUnmanagedPackage: Package = unmanaged
+  def getUnmanagedPackage: api.Package = unmanaged
 
   /** Create a new package in the org, directories should be priority ordered for duplicate detection. Use
     * namespaces to indicate dependant packages which must already have been created as packages. */
-  def addPackage(namespace: String, directories: Array[String], baseNamespaces: Array[String]): Package = {
+  def addPackage(namespace: String, directories: Array[String], baseNamespaces: Array[String]): api.Package = {
     val namespaceName: Option[Name] = Name.safeApply(namespace)
 
     if (namespaceName.nonEmpty) {
@@ -85,9 +87,9 @@ class Org extends LazyLogging {
     addPackageInternal(namespaceName, paths, basePackages)
   }
 
-  def addPackageInternal(namespace: Option[Name], paths: Seq[Path], basePackages: Seq[Package]): Package = {
+  def addPackageInternal(namespace: Option[Name], paths: Seq[java.nio.file.Path], basePackages: Seq[api.Package]): api.Package = {
     Org.current.withValue(this) {
-      val pkg = new Package(this, namespace, paths, basePackages)
+      val pkg = new api.Package(this, namespace, paths.map(p => com.nawforce.runtime.path.Path(p)), basePackages)
       if (pkg.namespace.isEmpty) {
         unmanaged = pkg
       } else {

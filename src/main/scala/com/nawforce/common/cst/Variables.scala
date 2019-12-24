@@ -28,10 +28,9 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.names.TypeName
-import com.nawforce.common.parsers.ApexParser._
 import com.nawforce.common.types.{ApexModifiers, Modifier}
-
-import scala.collection.JavaConverters._
+import com.nawforce.runtime.parsers.ApexParser._
+import com.nawforce.runtime.parsers.CodeParser
 
 final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Expression]) extends CST {
   def verify(input: ExprContext, context: BlockVerifyContext): Unit = {
@@ -52,7 +51,7 @@ final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Exp
 
 object VariableDeclarator {
   def construct(typeName: TypeName, variableDeclarator: VariableDeclaratorContext, context: ConstructContext): VariableDeclarator = {
-    val init = Option(variableDeclarator.expression()).map(Expression.construct(_, context))
+    val init = CodeParser.toScala(variableDeclarator.expression()).map(Expression.construct(_, context))
     VariableDeclarator(typeName, Id.construct(variableDeclarator.id(), context), init)
       .withContext(variableDeclarator, context)
   }
@@ -70,7 +69,8 @@ final case class VariableDeclarators(declarators: List[VariableDeclarator]) exte
 
 object VariableDeclarators {
   def construct(typeName: TypeName, variableDeclaratorsContext: VariableDeclaratorsContext, context: ConstructContext): VariableDeclarators = {
-    val variableDeclarators: Seq[VariableDeclaratorContext] = variableDeclaratorsContext.variableDeclarator().asScala
+    val variableDeclarators: Seq[VariableDeclaratorContext] =
+      CodeParser.toScala(variableDeclaratorsContext.variableDeclarator())
     VariableDeclarators(variableDeclarators.toList
       .map(x => VariableDeclarator.construct(typeName, x, context))).withContext(variableDeclaratorsContext, context)
   }
@@ -92,7 +92,7 @@ object LocalVariableDeclaration {
   def construct(localVariableDeclaration: LocalVariableDeclarationContext, context: ConstructContext): LocalVariableDeclaration = {
     val typeName = TypeRef.construct(localVariableDeclaration.typeRef())
     LocalVariableDeclaration(
-      ApexModifiers.construct(localVariableDeclaration.modifier().asScala, context),
+      ApexModifiers.construct(CodeParser.toScala(localVariableDeclaration.modifier()), context),
       typeName,
       VariableDeclarators.construct(typeName, localVariableDeclaration.variableDeclarators(),
         context)).withContext(localVariableDeclaration, context)

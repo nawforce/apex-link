@@ -27,7 +27,7 @@
 */
 package com.nawforce.common
 
-import com.nawforce.common.parsers.ApexParser.LiteralContext
+import com.nawforce.runtime.parsers.ApexParser.LiteralContext
 import com.nawforce.common.path.PathFactory
 import com.nawforce.runtime.parsers.CodeParser
 

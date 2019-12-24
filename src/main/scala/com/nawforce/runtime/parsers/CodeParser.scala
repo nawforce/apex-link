@@ -32,12 +32,12 @@ import java.io.ByteArrayInputStream
 import com.nawforce.common.parsers._
 import com.nawforce.common.path.PathLike
 import org.antlr.v4.runtime.CommonTokenStream
-import org.antlr.v4.runtime.tree.TerminalNode
 
 import scala.collection.JavaConverters._
 
 object CodeParser {
   type ParserRuleContext = org.antlr.v4.runtime.ParserRuleContext
+  type TerminalNode = org.antlr.v4.runtime.tree.TerminalNode
 
   def parseCompilationUnit(path: PathLike, data: String): Either[SyntaxException, ApexParser.CompilationUnitContext] = {
     try {

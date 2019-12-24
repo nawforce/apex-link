@@ -28,10 +28,9 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.parsers.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
 import com.nawforce.common.types.{ApexModifiers, FieldDeclaration, Modifier, PRIVATE_MODIFIER}
-
-import scala.collection.JavaConverters._
+import com.nawforce.runtime.parsers.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
+import com.nawforce.runtime.parsers.CodeParser
 
 final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: TypeName, id: Id,
                                          propertyBlocks: Seq[PropertyBlock])
@@ -88,8 +87,9 @@ object ApexPropertyDeclaration {
 
     val typeName = TypeRef.construct(propertyDeclaration.typeRef())
     ApexPropertyDeclaration(modifiers, typeName,
-      Id.construct(propertyDeclaration.id, context),
-      propertyDeclaration.propertyBlock().asScala.map(pb => PropertyBlock.construct(pb, typeName, context)),
+      Id.construct(propertyDeclaration.id(), context),
+      CodeParser.toScala(propertyDeclaration.propertyBlock())
+        .map(pb => PropertyBlock.construct(pb, typeName, context)),
     ).withContext(propertyDeclaration, context)
   }
 }
@@ -115,17 +115,21 @@ final case class SetterPropertyBlock(modifiers: Seq[Modifier], typeName: TypeNam
 object PropertyBlock {
   def construct(propertyBlockContext: PropertyBlockContext, typeName: TypeName, context: ConstructContext): PropertyBlock = {
     val modifiers: Seq[Modifier] = ApexModifiers.propertyBlockModifiers(
-      propertyBlockContext.modifier().asScala, context, propertyBlockContext)
-    val cst =
-      if (propertyBlockContext.getter() != null) {
+      CodeParser.toScala(propertyBlockContext.modifier()), context, propertyBlockContext)
+    val cst = {
+      val getter = CodeParser.toScala(propertyBlockContext.getter())
+      val setter = CodeParser.toScala(propertyBlockContext.setter())
+
+      if (getter.nonEmpty) {
         GetterPropertyBlock(modifiers,
-          Block.constructOption(propertyBlockContext.getter().block(), context))
-      } else if (propertyBlockContext.setter() != null) {
+          Block.constructOption(CodeParser.toScala(getter.get.block()), context))
+      } else if (setter.nonEmpty) {
         SetterPropertyBlock(modifiers, typeName,
-          Block.constructOption(propertyBlockContext.setter().block(), context))
+          Block.constructOption(CodeParser.toScala(setter.get.block()), context))
       } else {
         throw new CSTException()
       }
+    }
     cst.withContext(propertyBlockContext, context)
   }
 }

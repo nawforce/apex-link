@@ -25,20 +25,22 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.api
+package com.nawforce.common.api
 
 import com.nawforce.common.cst.UnusedLog
 import com.nawforce.common.diagnostics.IssueLog
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
+import com.nawforce.runtime.api.Org
 import com.nawforce.runtime.path.Path
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.JavaConverters._
 
-class Package(val org: Org, _namespace: Option[Name], _paths: Seq[java.nio.file.Path], _basePackages: Seq[Package])
+class Package(val org: Org, _namespace: Option[Name], _paths: Seq[PathLike], _basePackages: Seq[Package])
   extends PackageDeclaration(_namespace, _paths, _basePackages) with LazyLogging {
 
   private val schemaManager = new SchemaManager(this)

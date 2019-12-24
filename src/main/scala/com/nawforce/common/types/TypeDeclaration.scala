@@ -27,6 +27,8 @@
 */
 package com.nawforce.common.types
 
+import com.nawforce.common.api
+import com.nawforce.common.api.{ConstructorSummary, FieldSummary, MethodSummary, ParameterSummary, TypeSummary}
 import com.nawforce.common.cst._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
@@ -87,7 +89,7 @@ trait ConstructorDeclaration extends DependencyHolder {
   val modifiers: Seq[Modifier]
   val parameters: Seq[ParameterDeclaration]
 
-  lazy val summary: ConstructorSummary = ConstructorSummary(
+  lazy val summary: ConstructorSummary = api.ConstructorSummary(
     ConstructorSummary.defaultVersion,
     modifiers.map(_.toString).sorted.toList,
     parameters.map(_.summary).sortBy(_.name).toList
@@ -166,7 +168,7 @@ trait MethodDeclaration extends DependencyHolder {
     }
   }
 
-  lazy val summary: MethodSummary = MethodSummary(
+  lazy val summary: MethodSummary = api.MethodSummary(
     MethodSummary.defaultVersion,
     name.toString, modifiers.map(_.toString).sorted.toList, typeName.toString,
     parameters.map(_.summary).sortBy(_.name).toList
@@ -336,7 +338,7 @@ trait TypeDeclaration extends DependencyHolder {
       interfaceDeclarations.flatMap(_.superTypes())
   }
 
-  lazy val summary: TypeSummary = TypeSummary (
+  lazy val summary: TypeSummary = api.TypeSummary (
     TypeSummary.defaultVersion,
     name.toString, typeName.toString, nature.value, modifiers.map(_.toString).sorted.toList,
     superClass.map(_.toString).getOrElse(""), interfaces.map(_.toString).sorted.toList,

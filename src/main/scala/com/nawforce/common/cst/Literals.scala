@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.parsers.ApexParser.LiteralContext
+import com.nawforce.runtime.parsers.ApexParser.LiteralContext
 import com.nawforce.common.types.{PlatformTypes, TypeDeclaration}
 import com.nawforce.runtime.parsers.CodeParser
 

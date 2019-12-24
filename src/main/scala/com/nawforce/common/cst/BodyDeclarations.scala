@@ -29,7 +29,7 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.finding.RelativeTypeName
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.parsers.ApexParser._
+import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.common.types._
 
 import scala.collection.JavaConverters._

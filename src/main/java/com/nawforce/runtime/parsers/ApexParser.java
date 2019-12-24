@@ -1,5 +1,5 @@
 // Generated from /Users/kevin/Projects/ApexLink/src/main/antlr4/com/nawforce/parsers/ApexParser.g4 by ANTLR 4.7.2
-package com.nawforce.common.parsers;
+package com.nawforce.runtime.parsers;
 
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;

@@ -29,8 +29,9 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
-import com.nawforce.common.parsers.ApexParser._
+import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.common.types.{FieldDeclaration, PlatformTypes, TypeDeclaration}
+import com.nawforce.runtime.parsers.CodeParser
 
 sealed abstract class Primary extends CST {
   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext
@@ -159,7 +160,7 @@ object Primary {
         case id: IdPrimaryContext =>
           IdPrimary(Id.construct(id.id(), context))
         case ctx: SoqlPrimaryContext =>
-          SOQL(ctx.soqlLiteral().getText)
+          SOQL(CodeParser.getText(ctx))
       }
     cst.withContext(from, context)
   }

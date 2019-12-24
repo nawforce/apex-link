@@ -25,27 +25,40 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.path
+package com.nawforce.common.api
 
-import com.nawforce.common.documents.{Position, RangeLocation, TextRange}
-import com.nawforce.common.parsers.CaseInsensitiveInputStream
-import org.antlr.v4.runtime.ParserRuleContext
+import upickle.default.{macroRW, ReadWriter => RW}
 
-object LocationHelper {
-  def asTextRange(context: ParserRuleContext): TextRange = {
-    TextRange(
-      Position(context.getStart.getLine, context.getStart.getCharPositionInLine),
-      Position(context.getStop.getLine, context.getStop.getCharPositionInLine + context.getStop.getText.length),
-    )
-  }
+case class TypeSummary(version: Int, name: String, typeName: String, nature: String, modifiers: List[String],
+                       superClass: String, interfaces: List[String],
+                       fields: List[FieldSummary], constructors: List[ConstructorSummary], methods: List[MethodSummary],
+                       nestedTypes: List[TypeSummary])
+case class FieldSummary(version: Int, name: String, modifiers: List[String], typeName: String, readAccess: String, writeAccess: String)
+case class ConstructorSummary(version: Int, modifiers: List[String], parameters: List[ParameterSummary])
+case class MethodSummary(version: Int, name: String, modifiers: List[String], typeName: String, parameters: List[ParameterSummary])
+case class ParameterSummary(version: Int, name: String, typeName: String)
 
-  def asRangeLocation(context: ParserRuleContext, lineOffset: Int=0, positionOffset: Int=0): RangeLocation = {
-    RangeLocation(
-      Path(context.start.getInputStream.asInstanceOf[CaseInsensitiveInputStream].path),
-      Position(context.start.getLine, context.start.getCharPositionInLine)
-        .adjust(lineOffset, positionOffset),
-      Position(context.stop.getLine, context.stop.getCharPositionInLine + context.stop.getText.length)
-        .adjust(lineOffset, positionOffset)
-    )
-  }
+object TypeSummary {
+  val defaultVersion = 1
+  implicit val rw: RW[TypeSummary] = macroRW
+}
+
+object FieldSummary {
+  val defaultVersion = 1
+  implicit val rw: RW[FieldSummary] = macroRW
+}
+
+object ConstructorSummary {
+  val defaultVersion = 1
+  implicit val rw: RW[ConstructorSummary] = macroRW
+}
+
+object MethodSummary {
+  val defaultVersion = 1
+  implicit val rw: RW[MethodSummary] = macroRW
+}
+
+object ParameterSummary {
+  val defaultVersion = 1
+  implicit val rw: RW[ParameterSummary] = macroRW
 }

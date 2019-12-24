@@ -28,9 +28,8 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
-import com.nawforce.common.parsers.ApexParser.{TypeArgumentsContext, TypeListContext, TypeNameContext, TypeRefContext}
-
-import scala.collection.JavaConverters._
+import com.nawforce.runtime.parsers.ApexParser.{TypeArgumentsContext, TypeListContext, TypeNameContext, TypeRefContext}
+import com.nawforce.runtime.parsers.CodeParser
 
 object TypeRef {
   def construct(aList: List[TypeRefContext]): List[TypeName] = {
@@ -38,8 +37,8 @@ object TypeRef {
   }
 
   def construct(typeRef: TypeRefContext): TypeName = {
-    val arraySubs = typeRef.arraySubscripts().getText.count(_ == '[')
-    val names = typeRef.typeName().asScala
+    val arraySubs = CodeParser.getText(typeRef.arraySubscripts()).count(_ == '[')
+    val names = CodeParser.toScala(typeRef.typeName())
 
     // Only decode head as rest can't legally be in EncodedName format
     createTypeName(
@@ -47,12 +46,13 @@ object TypeRef {
   }
 
   private def decodeName(name: TypeNameContext): TypeName = {
-    val params = createTypeParams(name.typeArguments())
-    val encType = EncodedName(Name(name.id().getText))
+    val params = createTypeParams(CodeParser.toScala(name.typeArguments()))
+    val typeName = Name(CodeParser.getText(name.id()))
+    val encType = EncodedName(typeName)
     if (encType.ext.nonEmpty)
       TypeName(encType.fullName, params, Some(TypeName.Schema))
     else
-      TypeName(Name(name.id().getText), params, None)
+      TypeName(typeName, params, None)
   }
 
   @scala.annotation.tailrec
@@ -62,15 +62,16 @@ object TypeRef {
       case Nil => outer
       case hd +: tl =>
         createTypeName(
-          TypeName(Name(hd.id().getText), createTypeParams(hd.typeArguments()), Some(outer)),
+          TypeName(Name(CodeParser.getText(hd.id())),
+            createTypeParams(CodeParser.toScala(hd.typeArguments())), Some(outer)),
           tl
         )
     }
   }
 
-  private def createTypeParams(typeArguments: TypeArgumentsContext): Seq[TypeName] = {
-    Option(typeArguments)
-      .map(_.typeList().typeRef().asScala.toSeq)
+  private def createTypeParams(typeArguments: Option[TypeArgumentsContext]): Seq[TypeName] = {
+    typeArguments
+      .map(a => CodeParser.toScala(a.typeList().typeRef()))
       .getOrElse(Seq())
       .map(param => TypeRef.construct(param))
   }
@@ -78,7 +79,7 @@ object TypeRef {
 
 object TypeList {
   def construct(typeList: TypeListContext): Seq[TypeName] = {
-    val types: Seq[TypeRefContext] = typeList.typeRef().asScala
+    val types: Seq[TypeRefContext] = CodeParser.toScala(typeList.typeRef())
     types.toList.map(t => TypeRef.construct(t))
   }
 }
