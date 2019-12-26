@@ -27,6 +27,7 @@
 */
 package com.nawforce.runtime.api
 
+import com.nawforce.common.api.Org
 import com.nawforce.common.documents.{DocumentType, MetadataDocumentType}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.{PathFactory, PathLike}

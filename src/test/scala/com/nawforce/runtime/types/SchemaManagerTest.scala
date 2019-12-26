@@ -3,8 +3,8 @@ package com.nawforce.runtime.types
 import java.nio.file.Files
 
 import com.google.common.jimfs.{Configuration, Jimfs}
+import com.nawforce.common.api.Org
 import com.nawforce.common.names.Name
-import com.nawforce.runtime.api.Org
 import org.scalatest.funsuite.AnyFunSuite
 
 class SchemaManagerTest extends AnyFunSuite {
@@ -33,7 +33,7 @@ class SchemaManagerTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult r = SObjectType.Account;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -44,7 +44,7 @@ class SchemaManagerTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult r = SObjectType.Foo__c;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -55,7 +55,7 @@ class SchemaManagerTest extends AnyFunSuite {
 
     val org = new Org()
     val ghosted = org.addPackageInternal(Some(Name("ghosted")), Seq(), Seq())
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq(ghosted))
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq(ghosted))
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }

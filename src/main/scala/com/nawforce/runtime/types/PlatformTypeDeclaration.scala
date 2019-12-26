@@ -41,9 +41,10 @@ import scala.collection.immutable.HashMap
 import scala.collection.mutable
 
 /* Platform type declaration, a wrapper around a com.nawforce.platform Java classes */
-case class PlatformTypeDeclaration(cls: java.lang.Class[_], outer: Option[PlatformTypeDeclaration])
+case class PlatformTypeDeclaration(native: Any, outer: Option[PlatformTypeDeclaration])
   extends TypeDeclaration {
 
+  val cls: java.lang.Class[_] = native.asInstanceOf[java.lang.Class[_]]
   override lazy val packageDeclaration: Option[PackageDeclaration] = None
   override lazy val name: Name = typeName.name
   override lazy val typeName: TypeName = PlatformTypeDeclaration.typeNameFromClass(cls, cls)
@@ -161,6 +162,9 @@ class PlatformField(val field: java.lang.reflect.Field) extends FieldDeclaration
   lazy val readAccess: Modifier = PUBLIC_MODIFIER
   lazy val writeAccess: Modifier = PUBLIC_MODIFIER
 
+  def getGenericTypeNative: Any = field.getGenericType
+  def getDeclaringClassNative: Any = field.getDeclaringClass
+
   private def decodeName(name: String): String = {
     if (name.endsWith("$"))
       name.substring(0, name.length-1)
@@ -172,6 +176,9 @@ class PlatformField(val field: java.lang.reflect.Field) extends FieldDeclaration
 class PlatformParameter(val parameter: java.lang.reflect.Parameter, val declaringClass: Class[_]) extends ParameterDeclaration {
   override lazy val name: Name = Name(parameter.getName)
   override lazy val typeName: TypeName = PlatformTypeDeclaration.typeNameFromType(parameter.getParameterizedType, declaringClass)
+
+  def getParameterizedTypeNative: Any = parameter.getParameterizedType
+  def declaringClassNative: Any = declaringClass
 
   override def toString: String = typeName.toString + " " + name.toString
 }
@@ -195,6 +202,9 @@ class PlatformMethod(val method: java.lang.reflect.Method, val typeDeclaration: 
   lazy val parameters: Seq[ParameterDeclaration] = getParameters
 
   def getParameters: Seq[PlatformParameter] = method.getParameters.map(p => new PlatformParameter(p, method.getDeclaringClass))
+
+  def getGenericReturnTypeNative: Any = method.getGenericReturnType
+  def getDeclaringClassNative: Any = method.getDeclaringClass
 
   override def toString: String =
     modifiers.map(_.toString).mkString(" ") + " " + typeName.toString + " " + name.toString + "(" +
@@ -305,7 +315,10 @@ object PlatformTypeDeclaration {
   }
 
   /* Create a TypeName from a Java Type, handles type variables as well as classes */
-  def typeNameFromType(paramType: java.lang.reflect.Type, contextCls: java.lang.Class[_]): TypeName = {
+  def typeNameFromType(paramTypeNative: Any, contextClsNative: Any): TypeName = {
+    val paramType = paramTypeNative.asInstanceOf[java.lang.reflect.Type]
+    val contextCls = contextClsNative.asInstanceOf[java.lang.Class[_]]
+
     paramType match {
       case cls: Class[_] => PlatformTypeDeclaration.typeNameFromClass(cls, contextCls)
       case tv: java.lang.reflect.TypeVariable[_] => TypeName(Name(tv.getName))

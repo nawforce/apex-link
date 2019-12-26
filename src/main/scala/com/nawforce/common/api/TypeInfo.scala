@@ -26,7 +26,7 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package com.nawforce.runtime.api
+package com.nawforce.common.api
 
 import com.nawforce.common.types.{ApexTypeDeclaration, Dependant, TypeDeclaration}
 

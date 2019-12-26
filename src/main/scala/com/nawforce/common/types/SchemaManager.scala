@@ -27,11 +27,11 @@
 */
 package com.nawforce.common.types
 
+import com.nawforce.common.api.Org
 import com.nawforce.common.cst.VerifyContext
 import com.nawforce.common.documents.Location
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
-import com.nawforce.runtime.api.Org
 import com.nawforce.runtime.types._
 
 import scala.collection.mutable

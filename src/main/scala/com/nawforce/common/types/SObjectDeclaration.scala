@@ -27,12 +27,12 @@
 */
 package com.nawforce.common.types
 
+import com.nawforce.common.api.Org
 import com.nawforce.common.cst.VerifyContext
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{DotName, Name, TypeName}
 import com.nawforce.common.path.PathLike
-import com.nawforce.runtime.api.Org
 
 import scala.collection.mutable
 

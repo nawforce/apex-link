@@ -30,8 +30,8 @@ package com.nawforce.runtime.types
 import java.nio.file.Files
 
 import com.google.common.jimfs.{Configuration, Jimfs}
+import com.nawforce.common.api.Org
 import com.nawforce.common.path.PathFactory
-import com.nawforce.runtime.api.Org
 import org.scalatest.funsuite.AnyFunSuite
 
 class PlatformEventTest extends AnyFunSuite {
@@ -62,7 +62,7 @@ class PlatformEventTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Foo__e.ReplayId;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -73,7 +73,7 @@ class PlatformEventTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Foo__e.Bar__c;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -84,7 +84,7 @@ class PlatformEventTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Foo__e.Baz__c;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__e'\n")

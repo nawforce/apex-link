@@ -27,12 +27,12 @@
 */
 package com.nawforce.common.types
 
+import com.nawforce.common.api.Org
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.{FILE, PathFactory, PathLike}
 import com.nawforce.common.xml.{XMLElementLike, XMLException, XMLFactory}
-import com.nawforce.runtime.api.Org
 
 import scala.collection.mutable
 

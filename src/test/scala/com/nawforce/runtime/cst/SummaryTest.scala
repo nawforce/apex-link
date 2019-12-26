@@ -27,7 +27,7 @@
 */
 package com.nawforce.runtime.cst
 
-import com.nawforce.common.api.{ConstructorSummary, FieldSummary, MethodSummary, ParameterSummary, TypeSummary}
+import com.nawforce.common.api.{ConstructorSummary, FieldSummary, MethodSummary, Org, ParameterSummary, TypeSummary}
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types._
 import com.nawforce.runtime.api._

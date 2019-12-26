@@ -30,10 +30,14 @@ package com.nawforce.runtime.parsers
 import java.io.ByteArrayInputStream
 
 import com.nawforce.common.parsers._
-import com.nawforce.common.path.PathLike
+import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.runtime.parsers.ApexParser.ExpressionContext
 import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.misc.Interval
 
 import scala.collection.JavaConverters._
+
+case class ClippedText(path: PathLike, text: String, line: Int, column: Int)
 
 object CodeParser {
   type ParserRuleContext = org.antlr.v4.runtime.ParserRuleContext
@@ -47,9 +51,9 @@ object CodeParser {
     }
   }
 
-  def parseBlock(path: PathLike, data: Array[Byte]): Either[SyntaxException, ApexParser.BlockContext] = {
+  def parseBlock(path: PathLike, data: String): Either[SyntaxException, ApexParser.BlockContext] = {
     try {
-      Right(createParser(path, new String(data)).block())
+      Right(createParser(path, data).block())
     } catch {
       case ex: SyntaxException => Left(ex)
     }
@@ -64,12 +68,32 @@ object CodeParser {
       context.getStop.getCharPositionInLine + context.getStop.getText.length)
   }
 
+  def getTerminals(from: ExpressionContext, index: Integer): String = {
+    if (index < from.children.size()) {
+      from.children.get(index) match {
+        case tn: CodeParser.TerminalNode => tn.getText + getTerminals(from, index + 1)
+        case _ => ""
+      }
+    } else {
+      ""
+    }
+  }
+
   def getText(context: ParserRuleContext): String = {
     context.getText
   }
 
   def getText(context: TerminalNode): String = {
     context.getText
+  }
+
+
+  def clipText(context: ParserRuleContext): ClippedText = {
+    val is = context.start.getInputStream
+    val text = is.getText(new Interval(context.start.getStartIndex, context.stop.getStopIndex))
+    val path = context.start.getInputStream.asInstanceOf[CaseInsensitiveInputStream].path
+
+    ClippedText(PathFactory(path), text, context.start.getLine-1, context.start.getCharPositionInLine)
   }
 
   def toScala[T](collection: java.util.List[T]): Seq[T] = {

@@ -29,10 +29,10 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.finding.RelativeTypeName
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.common.types._
+import com.nawforce.runtime.parsers.ApexParser._
+import com.nawforce.runtime.parsers.CodeParser
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST with DependencyHolder {
@@ -56,44 +56,45 @@ abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST wi
 }
 
 object ClassBodyDeclaration {
-  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, modifiers: List[ModifierContext],
+  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, modifiers: Seq[ModifierContext],
                 memberDeclarationContext: MemberDeclarationContext, context: ConstructContext)
   : Seq[ClassBodyDeclaration] = {
-    val declarations =
-      if (memberDeclarationContext.methodDeclaration() != null) {
-        val id = memberDeclarationContext.methodDeclaration().id()
-        Seq(ApexMethodDeclaration.construct(pkg, outerTypeName,
-          ApexModifiers.methodModifiers(modifiers, context, id),
-          memberDeclarationContext.methodDeclaration(), context))
-      } else if (memberDeclarationContext.fieldDeclaration() != null) {
-        val id = memberDeclarationContext.fieldDeclaration().variableDeclarators().variableDeclarator().get(0).id()
-        ApexFieldDeclaration.construct(
-          ApexModifiers.fieldModifiers(modifiers, context, id),
-          memberDeclarationContext.fieldDeclaration(), context)
-      } else if (memberDeclarationContext.constructorDeclaration() != null) {
-        Seq(ApexConstructorDeclaration.construct(pkg, outerTypeName,
-          ApexModifiers.constructorModifiers(modifiers, context, memberDeclarationContext.constructorDeclaration),
-          memberDeclarationContext.constructorDeclaration(), context))
-      } else if (memberDeclarationContext.interfaceDeclaration() != null) {
-        Seq(InterfaceDeclaration.construct(pkg, Some(outerTypeName),
-          ApexModifiers.interfaceModifiers(modifiers, context, outer = false, memberDeclarationContext.interfaceDeclaration().id()),
-          memberDeclarationContext.interfaceDeclaration(), context))
-      } else if (memberDeclarationContext.enumDeclaration() != null) {
-        Seq(EnumDeclaration.construct(pkg, Some(outerTypeName),
-          ApexModifiers.enumModifiers(modifiers, context, outer = false, memberDeclarationContext.enumDeclaration().id()),
-          memberDeclarationContext.enumDeclaration(), context))
-      } else if (memberDeclarationContext.propertyDeclaration() != null) {
-        Seq(ApexPropertyDeclaration.construct(
-            ApexModifiers.fieldModifiers(modifiers, context, memberDeclarationContext.propertyDeclaration().id()),
-            memberDeclarationContext.propertyDeclaration(), context))
-      } else if (memberDeclarationContext.classDeclaration() != null) {
-        Seq(ClassDeclaration.construct(pkg, Some(outerTypeName),
-          ApexModifiers.classModifiers(modifiers, context, outer = false, memberDeclarationContext.classDeclaration().id()),
-          memberDeclarationContext.classDeclaration(), context))
-      } else {
-        throw new CSTException()
-      }
-    declarations.map(_.withContext(memberDeclarationContext, context))
+
+    val declarations: Option[Seq[ClassBodyDeclaration]] =
+      CodeParser.toScala(memberDeclarationContext.methodDeclaration())
+        .map(x => Seq(ApexMethodDeclaration.construct(pkg, outerTypeName,
+          ApexModifiers.methodModifiers(modifiers, context, x.id()),
+          x, context)))
+      .orElse(CodeParser.toScala(memberDeclarationContext.fieldDeclaration())
+        .map(x => ApexFieldDeclaration.construct(
+          ApexModifiers.fieldModifiers(modifiers, context,
+            CodeParser.toScala(x.variableDeclarators().variableDeclarator()).head.id()),
+          x, context)))
+      .orElse(CodeParser.toScala(memberDeclarationContext.constructorDeclaration())
+        .map(x => Seq(ApexConstructorDeclaration.construct(pkg, outerTypeName,
+          ApexModifiers.constructorModifiers(modifiers, context, x),
+          x, context))))
+      .orElse(CodeParser.toScala(memberDeclarationContext.interfaceDeclaration())
+        .map(x => Seq(InterfaceDeclaration.construct(pkg, Some(outerTypeName),
+          ApexModifiers.interfaceModifiers(modifiers, context, outer = false, x.id()),
+          x, context))))
+      .orElse(CodeParser.toScala(memberDeclarationContext.enumDeclaration())
+        .map(x => Seq(EnumDeclaration.construct(pkg, Some(outerTypeName),
+          ApexModifiers.enumModifiers(modifiers, context, outer = false, x.id()),
+          x, context))))
+      .orElse(CodeParser.toScala(memberDeclarationContext.propertyDeclaration())
+        .map(x => Seq(ApexPropertyDeclaration.construct(
+          ApexModifiers.fieldModifiers(modifiers, context, x.id()),
+          x, context))))
+      .orElse(CodeParser.toScala(memberDeclarationContext.classDeclaration())
+        .map(x => Seq(ClassDeclaration.construct(pkg, Some(outerTypeName),
+          ApexModifiers.classModifiers(modifiers, context, outer = false, x.id()),
+          x, context))))
+
+    if (declarations.isEmpty)
+      throw new CSTException()
+    else
+      declarations.get.map(_.withContext(memberDeclarationContext, context))
   }
 }
 
@@ -117,7 +118,7 @@ object InitialiserBlock {
 }
 
 final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], relativeTypeName: RelativeTypeName, id: Id,
-                                       parameters: List[FormalParameter], block: Option[LazyBlock])
+                                       parameters: Seq[FormalParameter], block: Option[LazyBlock])
   extends ClassBodyDeclaration(_modifiers) with MethodDeclaration {
 
   override val name: Name = id.name
@@ -179,8 +180,9 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], relativeTypeNa
 object ApexMethodDeclaration {
   def construct(pkg: PackageDeclaration, outerTypeName: TypeName, modifiers: Seq[Modifier],
                 from: MethodDeclarationContext, context: ConstructContext): ApexMethodDeclaration = {
-    val typeName = Option(from.typeRef()).map(tr => TypeRef.construct(tr)).getOrElse(TypeName.Void)
-    val block = Option(from.block).map(blk => Block.constructLazy(blk, context, modifiers.contains(STATIC_MODIFIER)))
+    val typeName = CodeParser.toScala(from.typeRef()).map(tr => TypeRef.construct(tr)).getOrElse(TypeName.Void)
+    val block = CodeParser.toScala(from.block())
+      .map(b => Block.constructLazy(b, context, modifiers.contains(STATIC_MODIFIER)))
 
     ApexMethodDeclaration(
       modifiers, RelativeTypeName(pkg, outerTypeName, typeName),
@@ -192,8 +194,7 @@ object ApexMethodDeclaration {
 
   def construct(pkg: PackageDeclaration, outerTypeName: TypeName, modifiers: Seq[Modifier],
                 from: InterfaceMethodDeclarationContext, context: ConstructContext): ApexMethodDeclaration = {
-    val typeName = if (from.typeRef() != null) TypeRef.construct(from.typeRef()) else TypeName.Void
-
+    val typeName = CodeParser.toScala(from.typeRef()).map(tr => TypeRef.construct(tr)).getOrElse(TypeName.Void)
     ApexMethodDeclaration(
       modifiers, RelativeTypeName(pkg, outerTypeName, typeName),
       Id.construct(from.id(), context),
@@ -233,7 +234,7 @@ object ApexFieldDeclaration {
 }
 
 final case class ApexConstructorDeclaration(_modifiers: Seq[Modifier], qualifiedName: QualifiedName,
-                                            parameters: List[FormalParameter],
+                                            parameters: Seq[FormalParameter],
                                             block: Block)
   extends ClassBodyDeclaration(_modifiers) with ConstructorDeclaration {
 
@@ -277,39 +278,37 @@ final case class FormalParameter(pkg: PackageDeclaration, outerTypeName: TypeNam
 }
 
 object FormalParameter {
-  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, aList: List[FormalParameterContext],
-                context: ConstructContext): List[FormalParameter] = {
+  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, aList: Seq[FormalParameterContext],
+                context: ConstructContext): Seq[FormalParameter] = {
     aList.map(x => FormalParameter.construct(pkg, outerTypeName, x, context))
   }
 
   def construct(pkg: PackageDeclaration, outerTypeName: TypeName, from: FormalParameterContext,
                 context: ConstructContext): FormalParameter = {
     FormalParameter(pkg, outerTypeName,
-      ApexModifiers.construct(from.modifier().asScala, context),
+      ApexModifiers.construct(CodeParser.toScala(from.modifier()), context),
       RelativeTypeName(pkg, outerTypeName, TypeRef.construct(from.typeRef())),
-      Id.construct(from.id, context)).withContext(from, context)
+      Id.construct(from.id(), context)).withContext(from, context)
   }
 }
 
 object FormalParameterList {
   def construct(pkg: PackageDeclaration, outerTypeName: TypeName, from: FormalParameterListContext,
-                context: ConstructContext): List[FormalParameter] = {
+                context: ConstructContext): Seq[FormalParameter] = {
     if (from.formalParameter() != null) {
-      val m: Seq[FormalParameterContext] = from.formalParameter().asScala
+      val m: Seq[FormalParameterContext] = CodeParser.toScala(from.formalParameter())
       FormalParameter.construct(pkg, outerTypeName, m.toList, context)
     } else {
-      List()
+      Seq()
     }
   }
 }
 
 object FormalParameters {
   def construct(pkg: PackageDeclaration, outerTypeName: TypeName, from: FormalParametersContext,
-                context: ConstructContext): List[FormalParameter] = {
-    if (from.formalParameterList() != null) {
-      FormalParameterList.construct(pkg, outerTypeName, from.formalParameterList(), context)
-    } else {
-      List()
-    }
+                context: ConstructContext): Seq[FormalParameter] = {
+    CodeParser.toScala(from.formalParameterList())
+      .map(x => FormalParameterList.construct(pkg, outerTypeName, x, context))
+      .getOrElse(Seq())
   }
 }

@@ -30,8 +30,8 @@ package com.nawforce.runtime.cst
 import java.nio.file.Files
 
 import com.google.common.jimfs.{Configuration, Jimfs}
+import com.nawforce.common.api.Org
 import com.nawforce.common.path.PathFactory
-import com.nawforce.runtime.api.Org
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -43,7 +43,7 @@ class MethodShadowTest extends AnyFunSuite with BeforeAndAfter {
     Files.write(fs.getPath("SuperClass.cls"),"public virtual class SuperClass { public void func() {}}".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 52-56: Method 'func' can not override non-virtual method\n")
@@ -55,7 +55,7 @@ class MethodShadowTest extends AnyFunSuite with BeforeAndAfter {
     Files.write(fs.getPath("SuperClass.cls"),"public virtual class SuperClass { public virtual void func() {}}".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 52-56: Method 'func' must use override or virtual keyword\n")

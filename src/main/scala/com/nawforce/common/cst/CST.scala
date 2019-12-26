@@ -27,12 +27,12 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.api.Org
 import com.nawforce.common.documents.{Location, Position, RangeLocation}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.common.parsers.CSTRange
 import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.runtime.api.Org
 import com.nawforce.runtime.parsers.CodeParser
 
 import scala.util.DynamicVariable

@@ -29,7 +29,8 @@ package com.nawforce.runtime
 
 import java.nio.file.Paths
 
-import com.nawforce.runtime.api.{Org, ServerOps}
+import com.nawforce.common.api.Org
+import com.nawforce.runtime.api.ServerOps
 
 import scala.collection.mutable
 

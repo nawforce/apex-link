@@ -27,16 +27,15 @@
 */
 package com.nawforce.common.types
 
+import com.nawforce.common.api.Org
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents.LineLocation
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.common.path.PathLike
-import com.nawforce.runtime.api.Org
 import com.nawforce.runtime.parsers.CodeParser
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 /* Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
@@ -166,7 +165,7 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
       }
     }
 
-    val duplicateNestedType = (this +: nestedTypes).groupBy(_.name).collect { case (_, List(_, y, _*)) => y }
+    val duplicateNestedType = (this +: nestedTypes).groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
     duplicateNestedType.foreach(td =>
       Org.logMessage(td.id.location, s"Duplicate type name '${td.name.toString}'"))
 
@@ -205,7 +204,7 @@ object ApexTypeDeclaration {
   def create(pkg: PackageDeclaration, path: PathLike, data: String): Seq[ApexTypeDeclaration] = {
     CodeParser.parseCompilationUnit(path, data) match {
       case Left(err) =>
-        Org.logMessage(LineLocation(path, err.line), err.msg)
+        Org.logMessage(LineLocation(path, err.line), err.message)
         Nil
       case Right(cu) =>
         Seq(CompilationUnit.construct(pkg, path, cu, new ConstructContext()).typeDeclaration())
@@ -215,26 +214,28 @@ object ApexTypeDeclaration {
   def construct(pkg: PackageDeclaration, outerTypeName: Option[TypeName], typeDecl: TypeDeclarationContext, context: ConstructContext)
   : ApexTypeDeclaration = {
 
-    val modifiers: Seq[ModifierContext] = typeDecl.modifier().asScala
+    val modifiers: Seq[ModifierContext] = CodeParser.toScala(typeDecl.modifier())
     val isOuter = outerTypeName.isEmpty
-    val cst =
-      if (typeDecl.classDeclaration() != null) {
-        ClassDeclaration.construct(
-          pkg, outerTypeName,
-          ApexModifiers.classModifiers(modifiers, context, outer = isOuter, typeDecl.classDeclaration().id()),
-          typeDecl.classDeclaration(), context)
-      } else if (typeDecl.interfaceDeclaration() != null) {
-        InterfaceDeclaration.construct(
-          pkg, outerTypeName,
-          ApexModifiers.interfaceModifiers(modifiers, context, outer = isOuter, typeDecl.interfaceDeclaration().id()),
-          typeDecl.interfaceDeclaration(), context)
-      } else {
-        assert(typeDecl.enumDeclaration() != null)
-        EnumDeclaration.construct(
-          pkg, outerTypeName,
-          ApexModifiers.enumModifiers(modifiers, context, outer = isOuter, typeDecl.enumDeclaration().id()),
-          typeDecl.enumDeclaration(), context)
-      }
-    cst.withContext(typeDecl, context)
+
+    val cst = CodeParser.toScala(typeDecl.classDeclaration())
+      .map(cd => ClassDeclaration.construct(pkg, outerTypeName,
+        ApexModifiers.classModifiers(modifiers, context, outer = isOuter, cd.id()),
+        cd, context)
+      )
+    .orElse(CodeParser.toScala(typeDecl.interfaceDeclaration())
+      .map(id => InterfaceDeclaration.construct(pkg, outerTypeName,
+        ApexModifiers.interfaceModifiers(modifiers, context, outer = isOuter, id.id()),
+        id, context)
+      ))
+    .orElse(CodeParser.toScala(typeDecl.enumDeclaration())
+      .map(ed => EnumDeclaration.construct(pkg, outerTypeName,
+        ApexModifiers.enumModifiers(modifiers, context, outer = isOuter, ed.id()),
+        ed, context)
+      ))
+
+    if (cst.isEmpty)
+      throw new CSTException()
+    else
+       cst.get.withContext(typeDecl, context)
   }
 }

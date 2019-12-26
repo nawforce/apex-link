@@ -10,7 +10,7 @@ import scalaz._
  * List<T> presents as say a List<Foo>.
  */
 class GenericPlatformTypeDeclaration(_typeName: TypeName, genericDecl: PlatformTypeDeclaration)
-  extends PlatformTypeDeclaration(genericDecl.cls, genericDecl.outer) {
+  extends PlatformTypeDeclaration(genericDecl.native, genericDecl.outer) {
 
   private val paramsMap: Map[Name, TypeName] = {
     genericDecl.typeName.params.zip(typeName.params)
@@ -39,7 +39,7 @@ class GenericPlatformTypeDeclaration(_typeName: TypeName, genericDecl: PlatformT
   }
 
   def replaceParams(typeName: TypeName): TypeName = {
-    typeName.withParams(typeName.params.map(p => paramsMap.get(p.name).getOrElse(p)))
+    typeName.withParams(typeName.params.map(p => paramsMap.getOrElse(p.name, p)))
   }
 
   def getTypeVariable(typeName: TypeName): Option[TypeName] = {
@@ -61,7 +61,7 @@ class GenericPlatformField(platformField: PlatformField, _typeDeclaration: Gener
 
   override lazy val typeName: TypeName = {
     val fieldType = _typeDeclaration.replaceParams(
-      PlatformTypeDeclaration.typeNameFromType(platformField.field.getGenericType, platformField.field.getDeclaringClass)
+      PlatformTypeDeclaration.typeNameFromType(platformField.getGenericTypeNative, platformField.getDeclaringClassNative)
     )
     _typeDeclaration.getTypeVariable(fieldType).getOrElse(fieldType)
   }
@@ -75,8 +75,8 @@ class GenericPlatformMethod(platformMethod: PlatformMethod, _typeDeclaration: Ge
 
   override lazy val typeName: TypeName = {
     val paramType = _typeDeclaration.replaceParams(
-      PlatformTypeDeclaration.typeNameFromType(platformMethod.method.getGenericReturnType,
-        platformMethod.method.getDeclaringClass)
+      PlatformTypeDeclaration.typeNameFromType(platformMethod.getGenericReturnTypeNative,
+        platformMethod.getDeclaringClassNative)
     )
     _typeDeclaration.getTypeVariable(paramType).getOrElse(paramType)
   }
@@ -95,8 +95,8 @@ class GenericPlatformParameter(platformParameter: PlatformParameter, _typeDeclar
   override lazy val name: Name = platformParameter.name
   override lazy val typeName: TypeName = {
     val paramType = _typeDeclaration.replaceParams(
-      PlatformTypeDeclaration.typeNameFromType(platformParameter.parameter.getParameterizedType,
-        platformParameter.declaringClass)
+      PlatformTypeDeclaration.typeNameFromType(platformParameter.getParameterizedTypeNative,
+        platformParameter.declaringClassNative)
     )
     _typeDeclaration.getTypeVariable(paramType).getOrElse(paramType)
   }

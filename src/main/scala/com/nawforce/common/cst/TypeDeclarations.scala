@@ -27,14 +27,13 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.api.Org
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
-import com.nawforce.runtime.api.Org
 import com.nawforce.runtime.parsers.ApexParser._
-
-import scala.collection.JavaConverters._
+import com.nawforce.runtime.parsers.CodeParser
 
 final case class CompilationUnit(path: PathLike, private val _typeDeclaration: ApexTypeDeclaration) extends CST {
   def children(): List[CST] = List(_typeDeclaration)
@@ -110,39 +109,32 @@ object ClassDeclaration {
   def construct(pkg: PackageDeclaration, outerTypeName: Option[TypeName], modifiers: Seq[Modifier],
                 classDeclaration: ClassDeclarationContext, context: ConstructContext): ClassDeclaration = {
 
-    val thisType = TypeName(Name(classDeclaration.id().getText), Nil,
+    val thisType = TypeName(Name(CodeParser.getText(classDeclaration.id())), Nil,
       outerTypeName.orElse(pkg.namespace.map(TypeName(_))))
     val extendType =
-      if (classDeclaration.typeRef() != null)
-        Some(TypeRef.construct(classDeclaration.typeRef()))
-      else
-        Some(TypeName.InternalObject)
+      CodeParser.toScala(classDeclaration.typeRef())
+        .map(tr => TypeRef.construct(tr))
+        .getOrElse(TypeName.InternalObject)
     val implementsType =
-      if (classDeclaration.typeList() != null)
-        TypeList.construct(classDeclaration.typeList())
-      else
-        Seq()
+      CodeParser.toScala(classDeclaration.typeList())
+        .map(tl => TypeList.construct(tl))
+        .getOrElse(Seq())
 
     val classBody = classDeclaration.classBody()
-    val classBodyDeclarations: Seq[ClassBodyDeclarationContext] = classBody.classBodyDeclaration().asScala
-    val bodyDeclarations: List[ClassBodyDeclaration] =
-      if (classBodyDeclarations != null) {
-        classBodyDeclarations.toList.flatMap(cbd =>
+    val classBodyDeclarations: Seq[ClassBodyDeclarationContext] = CodeParser.toScala(classBody.classBodyDeclaration())
+    val bodyDeclarations: Seq[ClassBodyDeclaration] =
+        classBodyDeclarations.flatMap(cbd =>
+          CodeParser.toScala(cbd.block())
+            .map(x => Seq(InitialiserBlock.construct(
+                CodeParser.toScala(cbd.STATIC()).map(_ => Seq(STATIC_MODIFIER)).getOrElse(Seq()),
+              x, context)))
+          .orElse(CodeParser.toScala(cbd.memberDeclaration())
+            .map(x => ClassBodyDeclaration.construct(pkg, thisType, CodeParser.toScala(cbd.modifier()), x, context))
+          )
+          .orElse(throw new CSTException())
+        ).flatten
 
-          if (cbd.block() != null) {
-            Seq(InitialiserBlock.construct(if (cbd.STATIC()==null) Seq() else Seq(STATIC_MODIFIER), cbd.block(), context))
-          } else if (cbd.memberDeclaration() != null) {
-            val modifiers: Seq[ModifierContext] = cbd.modifier().asScala
-            ClassBodyDeclaration.construct(pkg, thisType, modifiers.toList, cbd.memberDeclaration(), context)
-          } else {
-            throw new CSTException()
-          }
-        )
-      } else {
-        List()
-      }
-
-    ClassDeclaration(pkg, outerTypeName, Id.construct(classDeclaration.id(), context), modifiers, extendType,
+    ClassDeclaration(pkg, outerTypeName, Id.construct(classDeclaration.id(), context), modifiers, Some(extendType),
       implementsType, bodyDeclarations).withContext(classDeclaration, context)
   }
 }
@@ -177,19 +169,18 @@ object InterfaceDeclaration {
   def construct(pkg: PackageDeclaration, outerTypeName: Option[TypeName], modifiers: Seq[Modifier],
                 interfaceDeclaration: InterfaceDeclarationContext, context: ConstructContext)
   : InterfaceDeclaration = {
-    val thisType = TypeName(Name(interfaceDeclaration.id().getText), Nil,
+    val thisType = TypeName(Name(CodeParser.getText(interfaceDeclaration.id())), Nil,
       outerTypeName.orElse(pkg.namespace.map(TypeName(_))))
 
     val implementsType =
-      if (interfaceDeclaration.typeList() != null)
-        TypeList.construct(interfaceDeclaration.typeList())
-      else
-        Seq()
+      CodeParser.toScala(interfaceDeclaration.typeList())
+        .map(x => TypeList.construct(x))
+        .getOrElse(Seq())
 
     val methods: Seq[ApexMethodDeclaration]
-        = interfaceDeclaration.interfaceBody().interfaceMethodDeclaration().asScala.map(m =>
+        = CodeParser.toScala(interfaceDeclaration.interfaceBody().interfaceMethodDeclaration()).map(m =>
             ApexMethodDeclaration.construct(pkg, thisType,
-              ApexModifiers.methodModifiers(m.modifier().asScala, context, m.id()), m, context)
+              ApexModifiers.methodModifiers(CodeParser.toScala(m.modifier()), context, m.id()), m, context)
     )
 
     InterfaceDeclaration(pkg, outerTypeName, Id.construct(interfaceDeclaration.id(), context), modifiers,
@@ -232,7 +223,8 @@ object EnumDeclaration {
     val thisType = TypeName(id.name, Nil,
       outerTypeName.orElse(pkg.namespace.map(TypeName(_)))
     )
-    val constants = Option(enumDeclaration.enumConstants()).map(_.id().asScala).getOrElse(Seq())
+    val constants = CodeParser.toScala(enumDeclaration.enumConstants())
+      .map(ec => CodeParser.toScala(ec.id())).getOrElse(Seq())
     val fields = constants.map(constant => {
       ApexFieldDeclaration(Seq(PUBLIC_MODIFIER, STATIC_MODIFIER), thisType,
         VariableDeclarator(

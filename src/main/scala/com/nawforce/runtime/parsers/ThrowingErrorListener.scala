@@ -29,7 +29,7 @@ package com.nawforce.runtime.parsers
 
 import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer}
 
-class SyntaxException(val line: Int, val position: Int, val msg: String) extends Exception {
+class SyntaxException(val line: Int, val column: Int, val message: String) extends Exception {
 }
 
 class ThrowingErrorListener extends BaseErrorListener {

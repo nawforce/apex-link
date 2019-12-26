@@ -27,9 +27,9 @@
 */
 package com.nawforce.common.types
 
+import com.nawforce.common.api.Org
 import com.nawforce.common.cst.ConstructContext
 import com.nawforce.common.diagnostics.WARNING_CATEGORY
-import com.nawforce.runtime.api.Org
 import com.nawforce.runtime.diagnostics.LocationHelper
 import com.nawforce.runtime.parsers.ApexParser.{AnnotationContext, IdContext, ModifierContext, PropertyBlockContext}
 import com.nawforce.runtime.parsers.CodeParser
@@ -113,7 +113,7 @@ object ApexModifiers {
     })
 
     if (mods.size == modifierContexts.size) {
-      val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
+      val duplicates = mods.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
       if (duplicates.nonEmpty) {
         Org.logMessage(LocationHelper.asRangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
         mods.toSet.toSeq
@@ -163,7 +163,7 @@ object ApexModifiers {
     })
 
     if (mods.size == modifierContexts.size) {
-      val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
+      val duplicates = mods.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
       if (duplicates.nonEmpty) {
         Org.logMessage(LocationHelper.asRangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
         mods.toSet.toSeq
@@ -208,7 +208,7 @@ object ApexModifiers {
     })
 
     if (mods.size == modifierContexts.size) {
-      val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
+      val duplicates = mods.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
       if (duplicates.nonEmpty) {
         Org.logMessage(LocationHelper.asRangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
         mods.toSet.toSeq
@@ -256,7 +256,7 @@ object ApexModifiers {
       }
     })
 
-    val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
+    val duplicates = mods.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
     if (duplicates.nonEmpty) {
       Org.logMessage(LocationHelper.asRangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
       mods.toSet.toSeq
@@ -294,7 +294,7 @@ object ApexModifiers {
       }
     )
 
-    val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
+    val duplicates = mods.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
     if (duplicates.nonEmpty) {
       Org.logMessage(LocationHelper.asRangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
       mods.toSet.toSeq
@@ -329,7 +329,7 @@ object ApexModifiers {
       }
     })
 
-    val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
+    val duplicates = mods.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
     if (duplicates.nonEmpty) {
       Org.logMessage(LocationHelper.asRangeLocation(parserContext), s"Modifier '${duplicates.head.toString}' is used more than once")
       mods.toSet.toSeq
@@ -374,7 +374,7 @@ object ApexModifiers {
 
     // TODO: webservice must be on outer static method
 
-    val duplicates = mods.groupBy(identity).collect { case (_, List(_, y, _*)) => y }
+    val duplicates = mods.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
     if (duplicates.nonEmpty) {
       Org.logMessage(LocationHelper.asRangeLocation(idContext), s"Modifier '${duplicates.head.toString}' is used more than once")
       mods.toSet.toSeq

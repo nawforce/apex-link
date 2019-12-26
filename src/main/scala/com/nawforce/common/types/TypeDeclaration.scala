@@ -28,11 +28,10 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.api
-import com.nawforce.common.api.{ConstructorSummary, FieldSummary, MethodSummary, ParameterSummary, TypeSummary}
+import com.nawforce.common.api.{ConstructorSummary, FieldSummary, MethodSummary, Org, ParameterSummary, TypeSummary}
 import com.nawforce.common.cst._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.runtime.api._
 import com.nawforce.runtime.types._
 
 import scala.collection.mutable
@@ -316,7 +315,7 @@ trait TypeDeclaration extends DependencyHolder {
     })
 
     if (validArgs.size == arguments.size) {
-      val duplicates = validArgs.groupBy(_.name).collect { case (_, List(_, y, _*)) => y }
+      val duplicates = validArgs.groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
       if (duplicates.nonEmpty) {
         Org.logMessage(duplicates.head.location,
           s"Duplicate assignment to field '${duplicates.head.name}' on SObject type '$typeName'")

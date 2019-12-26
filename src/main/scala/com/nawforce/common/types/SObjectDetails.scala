@@ -27,11 +27,11 @@
 */
 package com.nawforce.common.types
 
+import com.nawforce.common.api.Org
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.path.{DIRECTORY, DOES_NOT_EXIST, NONEMPTY_FILE, PathLike}
 import com.nawforce.common.xml.{XMLElementLike, XMLException, XMLFactory}
-import com.nawforce.runtime.api.Org
 
 sealed abstract class SObjectNature(val nature: String) {
   override def toString: String = nature

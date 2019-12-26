@@ -27,10 +27,10 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.api.Org
 import com.nawforce.common.documents.Location
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.types.{FieldDeclaration, PackageDeclaration, PlatformTypes, TypeDeclaration}
-import com.nawforce.runtime.api.Org
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.types.PlatformTypeDeclaration
@@ -411,14 +411,15 @@ object Expression {
         case expr: DotExpressionContext =>
           DotExpression(
             Expression.construct(expr.expression(), context),
-            Option(expr.id).map(id => Left(Id.construct(id, context))).getOrElse(
-              Right(MethodCall.construct(expr.methodCall(), context))
+            CodeParser.toScala(expr.id()).map(id => Left(Id.construct(id, context))).getOrElse(
+              Right(MethodCall.construct(CodeParser.toScala(expr.methodCall()).get, context))
             )
           )
         case expr: ArrayExpressionContext =>
+          val expressions = CodeParser.toScala(expr.expression())
           ArrayExpression(
-            Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context)
+            Expression.construct(expressions(0), context),
+            Expression.construct(expressions(1), context)
           )
         case expr: MethodCallExpressionContext =>
           MethodCall.construct(expr.methodCall(), context)
@@ -427,65 +428,66 @@ object Expression {
         case expr: CastExpressionContext =>
           CastExpression(TypeRef.construct(expr.typeRef()), Expression.construct(expr.expression(), context))
         case expr: PostOpExpressionContext =>
-          PostfixExpression(Expression.construct(expr.expression(), context), getTerminals(expr, 1))
+          PostfixExpression(Expression.construct(expr.expression(), context), CodeParser.getTerminals(expr, 1))
         case expr: PreOpExpressionContext =>
-          PrefixExpression(Expression.construct(expr.expression(), context), getTerminals(expr, 0))
+          PrefixExpression(Expression.construct(expr.expression(), context), CodeParser.getTerminals(expr, 0))
         case expr: NegExpressionContext =>
-          NegationExpression(Expression.construct(expr.expression(), context), getTerminals(expr, 0) == "~")
+          NegationExpression(Expression.construct(expr.expression(), context), CodeParser.getTerminals(expr, 0) == "~")
         case expr: Arth1ExpressionContext =>
-          BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
+          val expressions = CodeParser.toScala(expr.expression())
+          BinaryExpression(Expression.construct(expressions(0), context),
+            Expression.construct(expressions(1), context), CodeParser.getTerminals(expr, 1))
         case expr: Arth2ExpressionContext =>
-          BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
+          val expressions = CodeParser.toScala(expr.expression())
+          BinaryExpression(Expression.construct(expressions(0), context),
+            Expression.construct(expressions(1), context), CodeParser.getTerminals(expr, 1))
         case expr: Cmp1ExpressionContext =>
-          BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
+          val expressions = CodeParser.toScala(expr.expression())
+          BinaryExpression(Expression.construct(expressions(0), context),
+            Expression.construct(expressions(1), context), CodeParser.getTerminals(expr, 1))
         case expr: Cmp2ExpressionContext =>
-          BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
+          val expressions = CodeParser.toScala(expr.expression())
+          BinaryExpression(Expression.construct(expressions(0), context),
+            Expression.construct(expressions(1), context), CodeParser.getTerminals(expr, 1))
         case expr: InstanceOfExpressionContext =>
           InstanceOfExpression(Expression.construct(expr.expression(), context),
             TypeRef.construct(expr.typeRef()))
         case expr: EqualityExpressionContext =>
-          BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
+          val expressions = CodeParser.toScala(expr.expression())
+          BinaryExpression(Expression.construct(expressions(0), context),
+            Expression.construct(expressions(1), context), CodeParser.getTerminals(expr, 1))
         case expr: BitAndExpressionContext =>
-          BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
+          val expressions = CodeParser.toScala(expr.expression())
+          BinaryExpression(Expression.construct(expressions(0), context),
+            Expression.construct(expressions(1), context), CodeParser.getTerminals(expr, 1))
         case expr: BitNotExpressionContext =>
-          BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
+          val expressions = CodeParser.toScala(expr.expression())
+          BinaryExpression(Expression.construct(expressions(0), context),
+            Expression.construct(expressions(1), context), CodeParser.getTerminals(expr, 1))
         case expr: BitOrExpressionContext =>
-          BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
+          val expressions = CodeParser.toScala(expr.expression())
+          BinaryExpression(Expression.construct(expressions(0), context),
+            Expression.construct(expressions(1), context), CodeParser.getTerminals(expr, 1))
         case expr: LogAndExpressionContext =>
-          BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
+          val expressions = CodeParser.toScala(expr.expression())
+          BinaryExpression(Expression.construct(expressions(0), context),
+            Expression.construct(expressions(1), context), CodeParser.getTerminals(expr, 1))
         case expr: LogOrExpressionContext =>
-          BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
+          val expressions = CodeParser.toScala(expr.expression())
+          BinaryExpression(Expression.construct(expressions(0), context),
+            Expression.construct(expressions(1), context), CodeParser.getTerminals(expr, 1))
         case expr: CondExpressionContext =>
-          QueryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), Expression.construct(expr.expression(2), context))
+          val expressions = CodeParser.toScala(expr.expression())
+          QueryExpression(Expression.construct(expressions(0), context),
+            Expression.construct(expressions(1), context), Expression.construct(expressions(2), context))
         case expr: AssignExpressionContext =>
-          BinaryExpression(Expression.construct(expr.expression(0), context),
-            Expression.construct(expr.expression(1), context), getTerminals(expr, 1))
+          val expressions = CodeParser.toScala(expr.expression())
+          BinaryExpression(Expression.construct(expressions(0), context),
+            Expression.construct(expressions(1), context), CodeParser.getTerminals(expr, 1))
         case expr: PrimaryExpressionContext =>
           PrimaryExpression(Primary.construct(expr.primary(), context))
       }
     cst.withContext(from, context)
-  }
-
-  private def getTerminals(from: ExpressionContext, index: Integer): String = {
-    if (index < from.children.size()) {
-      from.children.get(index) match {
-        case tn: CodeParser.TerminalNode => tn.getText + getTerminals(from, index + 1)
-        case _ => ""
-      }
-    } else {
-      ""
-    }
   }
 
   def construct(expression: Seq[ExpressionContext], context: ConstructContext): Seq[Expression] = {
@@ -504,8 +506,9 @@ object TypeArguments {
 
 object Arguments {
   def construct(from: ArgumentsContext, context: ConstructContext): Seq[Expression] = {
-    if (from.expressionList() != null) {
-      val expressions: Seq[ExpressionContext] = CodeParser.toScala(from.expressionList().expression())
+    val el = CodeParser.toScala(from.expressionList())
+    if (el.nonEmpty) {
+      val expressions: Seq[ExpressionContext] = CodeParser.toScala(el.get.expression())
       Expression.construct(expressions.toList, context)
     } else {
       Seq()

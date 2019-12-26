@@ -27,11 +27,11 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.api.Org
 import com.nawforce.common.documents.Location
 import com.nawforce.common.finding.{TypeError, TypeRequest}
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.types._
-import com.nawforce.runtime.api.Org
 
 import scala.collection.mutable
 

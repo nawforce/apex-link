@@ -27,9 +27,9 @@
 */
 package com.nawforce.runtime.cst
 
+import com.nawforce.common.api.Org
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types.{ApexTypeDeclaration, TypeDeclaration}
-import com.nawforce.runtime.api.Org
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 

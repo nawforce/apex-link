@@ -30,6 +30,7 @@ package com.nawforce.runtime.api
 import java.nio.file.Files
 
 import com.google.common.jimfs.{Configuration, Jimfs}
+import com.nawforce.common.api.Org
 import org.scalatest.funsuite.AnyFunSuite
 
 class UnusedTest extends AnyFunSuite {
@@ -48,7 +49,7 @@ class UnusedTest extends AnyFunSuite {
          |""".stripMargin.getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
 
     assert(!org.issues.hasMessages)

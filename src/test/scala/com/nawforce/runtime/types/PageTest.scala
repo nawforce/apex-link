@@ -30,9 +30,9 @@ package com.nawforce.runtime.types
 import java.nio.file.Files
 
 import com.google.common.jimfs.{Configuration, Jimfs}
+import com.nawforce.common.api.Org
 import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathFactory
-import com.nawforce.runtime.api.Org
 import org.scalatest.funsuite.AnyFunSuite
 
 class PageTest extends AnyFunSuite {
@@ -43,7 +43,7 @@ class PageTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {PageReference a = Page.TestPage;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -54,7 +54,7 @@ class PageTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {PageReference a = Page.tesTPage;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -65,7 +65,7 @@ class PageTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {PageReference a = Page.AnotherPage;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n")
@@ -79,8 +79,8 @@ class PageTest extends AnyFunSuite {
     Files.write(fs.getPath("pkg2/Dummy.cls"),"public class Dummy { {PageReference a = Page.pkg1__TestPage;} }".getBytes())
 
     val org = new Org()
-    val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(fs.getPath("/work/pkg1")), Seq())
-    val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
+    val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(com.nawforce.runtime.path.Path(fs.getPath("/work/pkg1"))), Seq())
+    val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(com.nawforce.runtime.path.Path(fs.getPath("/work/pkg2"))), Seq(pkg1))
     pkg2.deployAll()
     assert(!org.issues.hasMessages)
   }

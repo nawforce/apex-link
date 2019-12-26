@@ -27,10 +27,10 @@
 */
 package com.nawforce.runtime.cst
 
+import com.nawforce.common.api.Org
 import com.nawforce.common.cst.ClassDeclaration
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types.{DEPRECATED_ANNOTATION, GLOBAL_MODIFIER, PRIVATE_MODIFIER, PUBLIC_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION, TEST_VISIBLE_ANNOTATION, TypeDeclaration, _}
-import com.nawforce.runtime.api.Org
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 

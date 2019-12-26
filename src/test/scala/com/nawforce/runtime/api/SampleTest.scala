@@ -27,6 +27,7 @@
 */
 package com.nawforce.runtime.api
 
+import com.nawforce.common.api.Org
 import org.scalatest.funsuite.AnyFunSuite
 
 class SampleTest extends AnyFunSuite {

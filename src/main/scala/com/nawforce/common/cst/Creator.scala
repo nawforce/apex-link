@@ -27,9 +27,9 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.api.Org
 import com.nawforce.common.names.{EncodedName, TypeName}
 import com.nawforce.runtime.parsers.ApexParser._
-import com.nawforce.runtime.api.Org
 import com.nawforce.runtime.parsers.CodeParser
 
 final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {

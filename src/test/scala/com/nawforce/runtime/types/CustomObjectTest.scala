@@ -30,9 +30,9 @@ package com.nawforce.runtime.types
 import java.nio.file.Files
 
 import com.google.common.jimfs.{Configuration, Jimfs}
+import com.nawforce.common.api.Org
 import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathFactory
-import com.nawforce.runtime.api.Org
 import com.nawforce.runtime.path.Path
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -92,7 +92,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Silly", None))).getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(Path(fs.getPath("/work/Foo__c.object"))) ==
       "Error: line 5 to 6: Unexpected type 'Silly' on custom field\n")
@@ -104,7 +104,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObject a = new Foo__c{'a' => 'b'};} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 44-56: Expression pair list construction is only supported for Map types, not 'Schema.Foo__c'\n")
@@ -116,7 +116,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObject a = new Foo__c{'a', 'b'};} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 44-54: Expression list construction is only supported for Set or List types, not 'Schema.Foo__c'\n")
@@ -128,7 +128,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObject a = new Foo__c();} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -139,7 +139,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__c = 'A');} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -150,7 +150,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Baz__c = 'A');} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 44-50: Unknown field 'Baz__c' on SObject type 'Schema.Foo__c'\n")
@@ -162,7 +162,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Baz__c = 'A', Bar__c = 'B');} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -173,7 +173,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__c = 'A', Bar__c = 'A');} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 58-64: Duplicate assignment to field 'Bar__c' on SObject type 'Schema.Foo__c'\n")
@@ -185,7 +185,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c('Silly');} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 44-51: SObject type 'Schema.Foo__c' construction needs '<field name> = <value>' arguments\n")
@@ -197,7 +197,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Id='', Name='');} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -208,7 +208,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__c = '');} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -219,7 +219,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__r = null);} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -230,7 +230,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__c = '');} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -241,7 +241,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Object a = new Foo__c(Bar__r = null);} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -254,8 +254,8 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("pkg2/Dummy.cls"),"public class Dummy { {Object a = new pkg1__Foo__c();} }".getBytes())
 
     val org = new Org()
-    val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(fs.getPath("/work/pkg1")), Seq())
-    val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
+    val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(com.nawforce.runtime.path.Path(fs.getPath("/work/pkg1"))), Seq())
+    val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(com.nawforce.runtime.path.Path(fs.getPath("/work/pkg2"))), Seq(pkg1))
     pkg1.deployAll()
     pkg2.deployAll()
     assert(!org.issues.hasMessages)
@@ -267,7 +267,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Foo__c a; a.RecordTypeId = '';} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -278,7 +278,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Foo__c.Name;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -289,7 +289,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Foo__c.Bar__c;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -300,7 +300,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Foo__c.Baz__c;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__c'\n")
@@ -314,8 +314,8 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("pkg2/Dummy.cls"),"public class Dummy { {pkg1__Foo__c a = null;} }".getBytes())
 
     val org = new Org()
-    val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(fs.getPath("/work/pkg1")), Seq())
-    val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(fs.getPath("/work/pkg2")), Seq(pkg1))
+    val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(com.nawforce.runtime.path.Path(fs.getPath("/work/pkg1"))), Seq())
+    val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(com.nawforce.runtime.path.Path(fs.getPath("/work/pkg2"))), Seq(pkg1))
     pkg1.deployAll()
     pkg2.deployAll()
     assert(!org.issues.hasMessages)
@@ -327,7 +327,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {Foo__c a; Boolean x = a.UserRecordAccess.HasDeleteAccess;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -339,7 +339,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Bar__c.Lookup__r;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -351,7 +351,7 @@ class CustomObjectTest extends AnyFunSuite {
 
     val org = new Org()
     val pkg1 = org.addPackageInternal(Some(Name("ghosted")), Seq(), Seq())
-    val pkg2 = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq(pkg1))
+    val pkg2 = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq(pkg1))
     pkg2.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -361,7 +361,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c;} }".getBytes())
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -370,7 +370,7 @@ class CustomObjectTest extends AnyFunSuite {
     val fs = Jimfs.newFileSystem(Configuration.unix)
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c;} }".getBytes())
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 48-66: Unknown field or type 'Foo__c' on 'Schema.SObjectType'\n")
@@ -381,7 +381,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.Fields.Bar__c;} }".getBytes())
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -391,7 +391,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeFieldResult a = Foo__c.SObjectType.Fields.Bar__c;} }".getBytes())
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -401,7 +401,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeFieldResult a = Foo__c.SObjectType.Bar__c;} }".getBytes())
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -411,7 +411,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.Fields.Baz__c;} }".getBytes())
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 48-80: Unknown field or type 'Baz__c' on 'Schema.SObjectType.Foo__c.Fields'\n")
@@ -422,7 +422,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(), Set("TestFS")).getBytes())
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.FieldSets.TestFS;} }".getBytes())
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -432,7 +432,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(), Set("TestFS")).getBytes())
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.FieldSets.OtherFS;} }".getBytes())
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
       "Error: line 1 at 48-84: Unknown field or type 'OtherFS' on 'Schema.SObjectType.Foo__c.FieldSets'\n")
@@ -447,7 +447,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Foo__c.Bar__c;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -460,7 +460,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Foo__c/fieldSets/TestFS.fieldSet-meta.xml"), customFieldSet("TestFS").getBytes())
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.FieldSets.TestFS;} }".getBytes())
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -470,7 +470,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Foo__c.object"), customObject("Foo", Seq(("Bar__c", "Text", None))).getBytes())
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectType a = Schema.Foo__c.SObjectType;} }".getBytes())
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -481,7 +481,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectType a = Foo__Share.SObjectType;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -492,7 +492,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectType a = Foo__History.SObjectType;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -503,7 +503,7 @@ class CustomObjectTest extends AnyFunSuite {
     Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectType a = Foo__Feed.SObjectType;} }".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -515,7 +515,7 @@ class CustomObjectTest extends AnyFunSuite {
       "public class Dummy {public static SObjectField a = Foo__c.SObjectField.Bar__c;}".getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }
@@ -542,7 +542,7 @@ class CustomObjectTest extends AnyFunSuite {
          |  }""".stripMargin.getBytes())
 
     val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(fs.getPath("/")), Seq())
+    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
     pkg.deployAll()
     assert(!org.issues.hasMessages)
   }

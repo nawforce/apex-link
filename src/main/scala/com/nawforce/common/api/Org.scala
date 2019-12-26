@@ -25,18 +25,15 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.api
-
-import java.nio.file.{Path, Paths}
+package com.nawforce.common.api
 
 import com.nawforce.common.api
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, IssueCategory, IssueLog}
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{DotName, Name}
+import com.nawforce.common.path.{DIRECTORY, PathFactory, PathLike}
 import com.nawforce.common.types.TypeDeclaration
-import com.nawforce.runtime.path.Path
-import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.DynamicVariable
 
@@ -44,7 +41,7 @@ import scala.util.DynamicVariable
   * the org being currently worked on. Typically only one org will be being used but some use cases might require
   * multiple. Problems with the metadata are recorded in the the associated issue log.
   */
-class Org extends LazyLogging {
+class Org {
   var unmanaged = new api.Package(this, None, Seq(), Seq())
   var packages: Map[Option[Name], api.Package] = Map(None -> unmanaged)
 
@@ -78,18 +75,18 @@ class Org extends LazyLogging {
       pkg
     })
 
-    val paths = directories.filterNot(_.isEmpty).map(directory => Paths.get(directory))
+    val paths = directories.filterNot(_.isEmpty).map(directory => PathFactory(directory))
     paths.foreach(path => {
-      if (!path.toFile.isDirectory)
+      if (path.nature != DIRECTORY)
         throw new IllegalArgumentException(s"Package root '${path.toString}' must be a directory")
     })
 
     addPackageInternal(namespaceName, paths, basePackages)
   }
 
-  def addPackageInternal(namespace: Option[Name], paths: Seq[java.nio.file.Path], basePackages: Seq[api.Package]): api.Package = {
+  def addPackageInternal(namespace: Option[Name], paths: Seq[PathLike], basePackages: Seq[api.Package]): api.Package = {
     Org.current.withValue(this) {
-      val pkg = new api.Package(this, namespace, paths.map(p => com.nawforce.runtime.path.Path(p)), basePackages)
+      val pkg = new api.Package(this, namespace, paths, basePackages)
       if (pkg.namespace.isEmpty) {
         unmanaged = pkg
       } else {
@@ -123,6 +120,10 @@ class Org extends LazyLogging {
 
 object Org {
   val current: DynamicVariable[Org] = new DynamicVariable[Org](null)
+
+  def debug(message: String): Unit = {
+    //println(message)
+  }
 
   def log(location: Location, msg: String, category: IssueCategory): Unit = {
     Org.current.value.issues.logMessage(location, msg, category)

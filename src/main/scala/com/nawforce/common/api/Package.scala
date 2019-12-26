@@ -34,14 +34,11 @@ import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
-import com.nawforce.runtime.api.Org
-import com.nawforce.runtime.path.Path
-import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.JavaConverters._
 
 class Package(val org: Org, _namespace: Option[Name], _paths: Seq[PathLike], _basePackages: Seq[Package])
-  extends PackageDeclaration(_namespace, _paths, _basePackages) with LazyLogging {
+  extends PackageDeclaration(_namespace, _paths, _basePackages) {
 
   private val schemaManager = new SchemaManager(this)
   private val anyDeclaration = AnyDeclaration(this)
@@ -82,18 +79,18 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[PathLike], _ba
   def deployAll(): Unit = {
     // Future: Make fully parallel
     val objects = documentsByExtension(Name("object"))
-    logger.debug(s"Found ${objects.size} custom objects to parse")
+    Org.debug(s"Found ${objects.size} custom objects to parse")
     deployMetadata(objects, parallel = false)
     Org.current.withValue(org) {
       schemaManager.relatedLists.validate()
     }
 
     val components = documentsByExtension(Name("component"))
-    logger.debug(s"Found ${components.size} components to parse")
+    Org.debug(s"Found ${components.size} components to parse")
     deployMetadata(components, parallel = false)
 
     val classes = documentsByExtension(Name("cls"))
-    logger.debug(s"Found ${classes.size} classes to parse")
+    Org.debug(s"Found ${classes.size} classes to parse")
     deployMetadata(classes)
   }
 
@@ -104,12 +101,12 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[PathLike], _ba
   /** Deploy some metadata to the org, if already present this will replace the existing metadata */
   def deployMetadata(files: Seq[MetadataDocumentType], parallel: Boolean = true): Unit = {
     Org.current.withValue(org) {
-      loadFromFiles(files.map(_.path.native.asInstanceOf[java.nio.file.Path]), parallel)
+      loadFromFiles(files.map(_.path), parallel)
       validateMetadata()
     }
   }
 
-  private def loadFromFiles(files: Seq[java.nio.file.Path], parallel: Boolean): Unit = {
+  private def loadFromFiles(files: Seq[PathLike], parallel: Boolean): Unit = {
     if (parallel) {
       val newDeclarations = files.grouped(100).flatMap(group => {
         val parsed = group.par.flatMap(loadFromFile)
@@ -124,11 +121,11 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[PathLike], _ba
     }
   }
 
-  private def loadFromFile(path: java.nio.file.Path): Seq[TypeDeclaration] = {
+  private def loadFromFile(path: PathLike): Seq[TypeDeclaration] = {
     Org.current.withValue(org) {
       val start = System.currentTimeMillis()
 
-      val tds = DocumentType(Path(path)) match {
+      val tds = DocumentType(path) match {
         case Some(docType: ApexDocument) =>
           val data = docType.path.read()
           ApexTypeDeclaration.create(this, docType.path, data.right.get)
@@ -145,7 +142,7 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[PathLike], _ba
       }
 
       val end = System.currentTimeMillis()
-      logger.debug(s"Parsed $path in ${end - start}ms")
+      Org.debug(s"Parsed $path in ${end - start}ms")
       tds
     }
   }
