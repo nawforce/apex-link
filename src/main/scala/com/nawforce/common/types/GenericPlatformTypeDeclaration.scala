@@ -10,7 +10,7 @@ import scalaz._
  * List<T> presents as say a List<Foo>.
  */
 class GenericPlatformTypeDeclaration(_typeName: TypeName, genericDecl: PlatformTypeDeclaration)
-  extends PlatformTypeDeclaration(genericDecl.native, genericDecl.outer) {
+  extends PlatformTypeDeclaration(_typeName, genericDecl.native, genericDecl.outer) {
 
   private val paramsMap: Map[Name, TypeName] = {
     genericDecl.typeName.params.zip(typeName.params)

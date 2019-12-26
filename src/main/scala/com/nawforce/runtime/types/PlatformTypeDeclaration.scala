@@ -25,6 +25,198 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
+package com.nawforce.runtime.types
+
+import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
+import com.nawforce.common.finding.TypeRequest.TypeRequest
+import com.nawforce.common.names.{DotName, Name, TypeName}
+import com.nawforce.common.path.{DIRECTORY, FILE, PathFactory, PathLike}
+import com.nawforce.common.types.{BlockDeclaration, CLASS_NATURE, ConstructorDeclaration, CustomMethodDeclaration, CustomParameterDeclaration, Dependant, FieldDeclaration, GenericPlatformTypeDeclaration, MethodDeclaration, Modifier, Nature, PackageDeclaration, ParameterDeclaration, TypeDeclaration}
+import scalaz.Memo
+
+import scala.collection.immutable.HashMap
+import scala.collection.mutable
+
+class PlatformTypeException(msg: String) extends Exception
+
+case class PlatformTypeDeclaration(_typeName: TypeName, native: Any, outer: Option[PlatformTypeDeclaration]) extends TypeDeclaration {
+  override lazy val packageDeclaration: Option[PackageDeclaration] = None
+  override lazy val typeName: TypeName = _typeName
+  override lazy val name: Name = typeName.name
+  override lazy val outerTypeName: Option[TypeName] = outer.map(_.typeName)
+  override lazy val nature: Nature = CLASS_NATURE
+
+  override val isComplete: Boolean = true
+  override val isExternallyVisible: Boolean = true
+
+  override lazy val superClass: Option[TypeName] = None
+  override lazy val interfaces: Seq[TypeName] = Seq()
+
+  override lazy val modifiers: Seq[Modifier] = Seq()
+  override lazy val nestedTypes: Seq[PlatformTypeDeclaration] = Seq()
+  override lazy val blocks: Seq[BlockDeclaration] = Seq()
+  override lazy val constructors: Seq[PlatformConstructor] = Seq()
+  override lazy val fields: Seq[FieldDeclaration] = Seq()
+  override lazy val methods: Seq[MethodDeclaration] = Seq()
+
+  protected def getSuperClass: Option[TypeName] = None
+  protected def getInterfaces: Seq[TypeName] = Seq()
+  protected def getFields: Seq[PlatformField] = Seq()
+  protected def getMethods: Seq[PlatformMethod] = Seq()
+
+  override def validate(): Unit = {}
+  override def dependencies(): Set[Dependant] = Set.empty
+  override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
+}
+
+/*
+object PlatformTypeDeclaration {
+  lazy val namespaces: Set[Name] = Set()
+
+  def get(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {
+    Left(MissingType(typeName))
+  }
+
+  def getDeclaration(name: DotName): Option[PlatformTypeDeclaration] = {
+    None
+  }
+
+  def typeNameFromType(paramTypeNative: Any, contextClsNative: Any): TypeName = TypeName.Void
+}*/
+
+
+abstract class PlatformField extends FieldDeclaration {
+  def getGenericTypeNative: Any = None
+  def getDeclaringClassNative: Any = None
+}
+
+abstract class PlatformParameter extends ParameterDeclaration {
+  def getParameterizedTypeNative: Any = None
+  def declaringClassNative: Any = None
+}
+
+abstract class PlatformMethod extends MethodDeclaration {
+  def getParameters: Seq[PlatformParameter] = Seq()
+  def getGenericReturnTypeNative: Any = None
+  def getDeclaringClassNative: Any = None
+}
+
+abstract class PlatformConstructor extends ConstructorDeclaration
+
+object PlatformTypeDeclaration {
+
+  /* Get a Path that leads to platform classes */
+  lazy val platformPackagePath: PathLike = PathFactory("/Users/kevin/Projects/apexlink-js/platform")
+
+  /* Get a type, in general don't call this direct, use TypeRequest which will delegate here if
+   * needed. If needed this will construct a GenericPlatformTypeDeclaration to specialise a
+   * PlatformTypeDeclaration but it does not handle nested classes, see PlatformTypes for that.
+   */
+  def get(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {
+    val tdOption = declarationCache(typeName.asDotName)
+    if (tdOption.isEmpty)
+      return Left(MissingType(typeName))
+
+    // Quick fail on wrong number of type variables
+    val td = tdOption.get
+    if (td.typeName.params.size != typeName.params.size)
+      return Left(WrongTypeArguments(typeName, td.typeName.params.size))
+
+    if (td.typeName.params.nonEmpty)
+      GenericPlatformTypeDeclaration.get(typeName, from)
+    else
+      Right(td)
+  }
+
+  /* Get a declaration for a class from a DotName, in general don't call this direct, use TypeRequest which will
+   * delegate here if needed. This does not handle generics or inner classes
+   */
+  def getDeclaration(name: DotName): Option[PlatformTypeDeclaration] = {
+    declarationCache(name)
+  }
+
+  private val declarationCache: DotName => Option[PlatformTypeDeclaration] =
+    Memo.immutableHashMapMemo { name: DotName => find(name) }
+
+  private def find(name: DotName): Option[PlatformTypeDeclaration] = {
+    val matched = classNameMap.get(name)
+    assert(matched.size < 2, s"Found multiple platform type matches for $name")
+    matched.map(name => PlatformTypeDeclaration(name.asTypeName(), pathFor(platformPackagePath, name.names), None))
+  }
+
+  @scala.annotation.tailrec
+  private def pathFor(path: PathLike, names: Seq[Name]): PathLike = {
+    if (names.isEmpty)
+      path
+    else
+      pathFor(path.join(names.head.value), names.tail)
+  }
+
+  /* Valid platform class names */
+  lazy val classNames: Iterable[DotName] = classNameMap.keys
+
+  /* All the namespaces - excluding our special ones! */
+  lazy val namespaces: Set[Name] = classNameMap.keys.filter(_.isCompound).map(_.firstName)
+    .filterNot(name => name == Name.SObjects || name == Name.Internal).toSet
+
+  /* Map of class names, it's a map just to allow easy recovery of the original case by looking at value */
+  private lazy val classNameMap: HashMap[DotName, DotName] = {
+    val names = mutable.HashMap[DotName, DotName]()
+    indexDir(platformPackagePath, DotName(Seq()), names)
+    HashMap[DotName, DotName]() ++ names
+  }
+
+  /* Index .json files, we have to index to make sure we get natural case sensitive names, but also used
+   * to re-map SObject so they appear in Schema namespace.
+   */
+  private def indexDir(path: PathLike, prefix: DotName, accum: mutable.HashMap[DotName, DotName]): Unit = {
+    path.directoryList() match {
+      case Left(err) => throw new PlatformTypeException(err)
+      case Right(contents) =>
+        contents.foreach(name => {
+          val entry = path.join(name)
+          if (entry.nature.isInstanceOf[FILE] && entry.basename.endsWith(".json")) {
+            val dotName = prefix.append(Name(name.dropRight(".json".length)))
+            if (dotName.names.head == Name.SObjects) {
+              accum.put(DotName(Name.Schema +: dotName.names.tail), dotName)
+            } else {
+              accum.put(dotName, dotName)
+            }
+          } else if (entry.nature == DIRECTORY) {
+            indexDir(entry, prefix.append(Name(name)), accum)
+          }
+        })
+    }
+  }
+
+  /* Create a TypeName from a Java class with null checking */
+  /*
+  private def typeNameOptional(cls: java.lang.Class[_], contextCls: java.lang.Class[_]): Option[TypeName] = {
+    cls match {
+      case null => None
+      case _ => Some(typeNameFromClass(cls, contextCls))
+    }
+  }*/
+
+  /* Create a TypeName from a Java Type, handles type variables as well as classes */
+  def typeNameFromType(paramTypeNative: Any, contextClsNative: Any): TypeName = TypeName.Void
+
+  /* Standard methods to be exposed on enums */
+  private lazy val enumMethods: Seq[MethodDeclaration] =
+    Seq(
+      CustomMethodDeclaration(Name("name"), TypeName.String, Seq()),
+      CustomMethodDeclaration(Name("original"), TypeName.Integer, Seq()),
+      CustomMethodDeclaration(Name("values"), TypeName.listOf(TypeName.String), Seq(), asStatic = true),
+      CustomMethodDeclaration(Name("equals"), TypeName.Boolean,
+        Seq(CustomParameterDeclaration(Name("other"), TypeName.InternalObject))),
+      CustomMethodDeclaration(Name("hashCode"), TypeName.Integer, Seq())
+    )
+}
+
+
+
+/*
 package com.nawforce.runtime.types
 
 import java.nio.file.{FileSystems, Files, Paths}
@@ -366,6 +558,6 @@ object PlatformTypeDeclaration {
       CustomMethodDeclaration(Name("hashCode"), TypeName.Integer, Seq())
     )
 }
-
+*/
 
 
