@@ -31,7 +31,6 @@ import java.io.ByteArrayInputStream
 
 import com.nawforce.common.parsers._
 import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.runtime.parsers.ApexParser.ExpressionContext
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.misc.Interval
 
@@ -59,6 +58,15 @@ object CodeParser {
     }
   }
 
+  def parseTypeRef(path: PathLike, data: String): Either[SyntaxException, ApexParser.TypeRefContext] = {
+    try {
+      Right(createParser(path, data).typeRef())
+    } catch {
+      case ex: SyntaxException => Left(ex)
+    }
+  }
+
+
   def getRange(context: ParserRuleContext): CSTRange = {
     CSTRange(
       context.getStart.getInputStream.asInstanceOf[CaseInsensitiveInputStream].path,
@@ -66,17 +74,6 @@ object CodeParser {
       context.getStart.getCharPositionInLine,
       context.getStop.getLine,
       context.getStop.getCharPositionInLine + context.getStop.getText.length)
-  }
-
-  def getTerminals(from: ExpressionContext, index: Integer): String = {
-    if (index < from.children.size()) {
-      from.children.get(index) match {
-        case tn: CodeParser.TerminalNode => tn.getText + getTerminals(from, index + 1)
-        case _ => ""
-      }
-    } else {
-      ""
-    }
   }
 
   def getText(context: ParserRuleContext): String = {

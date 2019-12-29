@@ -56,11 +56,11 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   test("Public outer class") {
     assert(typeDeclarationSummary("public class Dummy {}") ==
       TypeSummary(1, "Dummy", "Dummy", "class", List("public"),
-        "Object", Nil,
+        "Internal.Object$", Nil,
         Nil, Nil,
         List(
           MethodSummary(1, "clone",List("public"),"Dummy",List()),
-          MethodSummary(1, "equals",List("public"),"System.Boolean",List(ParameterSummary(1, "other","Object"))),
+          MethodSummary(1, "equals",List("public"),"System.Boolean",List(ParameterSummary(1, "other","Internal.Object$"))),
           MethodSummary(1, "hashCode",List("public"),"System.Integer",List()),
           MethodSummary(1, "toString",List("public"),"System.String",List())
         ),
@@ -72,11 +72,11 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   test("Global outer class") {
     assert(typeDeclarationSummary("global class Dummy {}") ==
       TypeSummary(1, "Dummy", "Dummy", "class", List("global"),
-        "Object", Nil,
+        "Internal.Object$", Nil,
         Nil, Nil,
         List(
           MethodSummary(1, "clone",List("public"),"Dummy",List()),
-          MethodSummary(1, "equals",List("public"),"System.Boolean",List(ParameterSummary(1, "other","Object"))),
+          MethodSummary(1, "equals",List("public"),"System.Boolean",List(ParameterSummary(1, "other","Internal.Object$"))),
           MethodSummary(1, "hashCode",List("public"),"System.Integer",List()),
           MethodSummary(1, "toString",List("public"),"System.String",List())
         ),
@@ -88,11 +88,11 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   test("Global outer class with isTest") {
     assert(typeDeclarationSummary("@isTest global class Dummy {}") ==
       TypeSummary(1, "Dummy", "Dummy", "class", List("@IsTest", "global"),
-        "Object", Nil,
+        "Internal.Object$", Nil,
         Nil, Nil,
         List(
           MethodSummary(1, "clone",List("public"),"Dummy",List()),
-          MethodSummary(1, "equals",List("public"),"System.Boolean",List(ParameterSummary(1, "other","Object"))),
+          MethodSummary(1, "equals",List("public"),"System.Boolean",List(ParameterSummary(1, "other","Internal.Object$"))),
           MethodSummary(1, "hashCode",List("public"),"System.Integer",List()),
           MethodSummary(1, "toString",List("public"),"System.String",List())
         ),
@@ -135,11 +135,11 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   test("Class with interfaces") {
     assert(typeDeclarationSummary("public class Dummy implements A, B {}") ==
       TypeSummary(1, "Dummy", "Dummy", "class", List("public"),
-        "Object", List("A", "B"),
+        "Internal.Object$", List("A", "B"),
         Nil, Nil,
         List(
           MethodSummary(1, "clone",List("public"),"Dummy",List()),
-          MethodSummary(1, "equals",List("public"),"System.Boolean",List(ParameterSummary(1, "other","Object"))),
+          MethodSummary(1, "equals",List("public"),"System.Boolean",List(ParameterSummary(1, "other","Internal.Object$"))),
           MethodSummary(1, "hashCode",List("public"),"System.Integer",List()),
           MethodSummary(1, "toString",List("public"),"System.String",List())
         ),
@@ -160,7 +160,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   test("Class with fields") {
     assert(typeDeclarationSummary("public class Dummy {private String B; public Integer A;}") ==
       TypeSummary(1, "Dummy", "Dummy", "class", List("public"),
-        "Object", Nil,
+        "Internal.Object$", Nil,
         List(
           FieldSummary(1, "A", List("public"), "Integer", "public", "public"),
           FieldSummary(1, "B", List("private"), "String", "private", "private"),
@@ -168,7 +168,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
         Nil,
         List(
           MethodSummary(1, "clone",List("public"),"Dummy",List()),
-          MethodSummary(1, "equals",List("public"),"System.Boolean",List(ParameterSummary(1, "other","Object"))),
+          MethodSummary(1, "equals",List("public"),"System.Boolean",List(ParameterSummary(1, "other","Internal.Object$"))),
           MethodSummary(1, "hashCode",List("public"),"System.Integer",List()),
           MethodSummary(1, "toString",List("public"),"System.String",List())
         ),
@@ -181,7 +181,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
     assert(typeDeclarationSummary("public class Dummy {" +
       "private String B {get; set;} public Integer A {private set; get;} }") ==
       TypeSummary(1, "Dummy", "Dummy", "class", List("public"),
-        "Object", Nil,
+        "Internal.Object$", Nil,
         List(
           FieldSummary(1, "A", List("public"), "Integer", "public", "private"),
           FieldSummary(1, "B", List("private"), "String", "private", "private"),
@@ -189,7 +189,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
         Nil,
         List(
           MethodSummary(1, "clone",List("public"),"Dummy",List()),
-          MethodSummary(1, "equals",List("public"),"System.Boolean",List(ParameterSummary(1, "other","Object"))),
+          MethodSummary(1, "equals",List("public"),"System.Boolean",List(ParameterSummary(1, "other","Internal.Object$"))),
           MethodSummary(1, "hashCode",List("public"),"System.Integer",List()),
           MethodSummary(1, "toString",List("public"),"System.String",List())
         ),
@@ -201,7 +201,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   test("Class with constructors") {
     assert(typeDeclarationSummary("public class Dummy {public Dummy(String a) {} Dummy() {} }") ==
       TypeSummary(1, "Dummy", "Dummy", "class", List("public"),
-        "Object", Nil,
+        "Internal.Object$", Nil,
         Nil,
         List(
           ConstructorSummary(1, List("private"), Nil),
@@ -209,7 +209,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
         ),
         List(
           MethodSummary(1, "clone",List("public"),"Dummy",List()),
-          MethodSummary(1, "equals",List("public"),"System.Boolean",List(ParameterSummary(1, "other","Object"))),
+          MethodSummary(1, "equals",List("public"),"System.Boolean",List(ParameterSummary(1, "other","Internal.Object$"))),
           MethodSummary(1, "hashCode",List("public"),"System.Integer",List()),
           MethodSummary(1, "toString",List("public"),"System.String",List())
         ),
@@ -221,13 +221,13 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   test("Class with methods") {
     assert(typeDeclarationSummary("public class Dummy {public String foo(String a) {} void bar() {} }") ==
       TypeSummary(1, "Dummy", "Dummy", "class", List("public"),
-        "Object", Nil,
+        "Internal.Object$", Nil,
         Nil,
         Nil,
         List(
           MethodSummary(1, "bar", List(), "void", Nil),
           MethodSummary(1, "clone",List("public"),"Dummy",List()),
-          MethodSummary(1, "equals",List("public"),"System.Boolean",List(ParameterSummary(1, "other","Object"))),
+          MethodSummary(1, "equals",List("public"),"System.Boolean",List(ParameterSummary(1, "other","Internal.Object$"))),
           MethodSummary(1, "foo", List("public"), "System.String", List(ParameterSummary(1, "a", "System.String"))),
           MethodSummary(1, "hashCode",List("public"),"System.Integer",List()),
           MethodSummary(1, "toString",List("public"),"System.String",List())

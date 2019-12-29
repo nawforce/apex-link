@@ -27,6 +27,11 @@
 */
 package com.nawforce.common.names
 
+import com.nawforce.common.cst.TypeRef
+import com.nawforce.common.path.PathFactory
+import com.nawforce.runtime.parsers.CodeParser
+import com.nawforce.runtime.types.PlatformTypeException
+
 case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeName]=None) {
 
   lazy val outerName: Name = outer.map(_.outerName).getOrElse(name)
@@ -153,12 +158,14 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
         s"Schema.SObjectType.$name.FieldSets"
       case TypeName(Name.SObjectFields$, Seq(TypeName(name, Nil, Some(TypeName.Schema))), Some(TypeName.Internal)) =>
         s"Schema.$name.Fields"
-
-      case _ =>
-        (if (outer.isEmpty) "" else outer.get.toString + ".") +
-          name.toString +
-          (if (params.isEmpty) "" else s"<${params.map(_.toString).mkString(", ")}>")
+      case _ => asString
     }
+  }
+
+  def asString: String = {
+    (if (outer.isEmpty) "" else outer.get.asString + ".") +
+      name.toString +
+      (if (params.isEmpty) "" else s"<${params.map(_.asString).mkString(", ")}>")
   }
 
   def equalsIgnoreParams(other: TypeName): Boolean = {
@@ -238,5 +245,23 @@ object TypeName {
       case hd +: Nil => new TypeName(hd)
       case hd +: tl => new TypeName(hd, Nil, Some(TypeName(tl)))
     }
+  }
+
+  def fromString(value: String): Option[TypeName] = {
+    if (value.isEmpty)
+      return None
+
+    Some(value match {
+      case "null" => TypeName.Null
+      case "any" => TypeName.Any
+      case "Object" => TypeName.InternalObject
+      case "[SOQL Results]" => TypeName.RecordSet
+      case _ =>
+        CodeParser.parseTypeRef(PathFactory("Internal.cls"), value) match {
+          case Left(err) =>
+            throw new PlatformTypeException(s"TypeRef '$value' could not be parsed: $err")
+          case Right(context) => TypeRef.construct(context)
+        }
+    })
   }
 }

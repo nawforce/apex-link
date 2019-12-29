@@ -36,10 +36,20 @@ import com.nawforce.runtime.types._
 
 import scala.collection.mutable
 
-sealed trait Nature {def value: String}
-case object CLASS_NATURE extends Nature {override def value: String = "class"}
-case object INTERFACE_NATURE extends Nature {override def value: String = "interface"}
-case object ENUM_NATURE extends Nature {override def value: String = "enum"}
+sealed abstract class Nature(val value: String)
+case object CLASS_NATURE extends Nature("class")
+case object INTERFACE_NATURE extends Nature("interface")
+case object ENUM_NATURE extends Nature("enum")
+
+object Nature {
+  def apply(value: String): Nature = {
+    value match {
+      case CLASS_NATURE.value => CLASS_NATURE
+      case INTERFACE_NATURE.value => INTERFACE_NATURE
+      case ENUM_NATURE.value => ENUM_NATURE
+    }
+  }
+}
 
 trait Dependant {
   private val dependencyHolders = mutable.Set[DependencyHolder]()
@@ -74,14 +84,14 @@ trait FieldDeclaration extends DependencyHolder {
   lazy val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
 
   lazy val summary: FieldSummary = FieldSummary(FieldSummary.defaultVersion, name.toString,
-    modifiers.map(_.toString).sorted.toList, typeName.toString, readAccess.toString, writeAccess.toString)
+    modifiers.map(_.toString).sorted.toList, typeName.asString, readAccess.toString, writeAccess.toString)
 }
 
 trait ParameterDeclaration {
   val name: Name
   val typeName: TypeName
 
-  lazy val summary: ParameterSummary = ParameterSummary(ParameterSummary.defaultVersion, name.toString, typeName.toString)
+  lazy val summary: ParameterSummary = ParameterSummary(ParameterSummary.defaultVersion, name.toString, typeName.asString)
 }
 
 trait ConstructorDeclaration extends DependencyHolder {
@@ -169,8 +179,8 @@ trait MethodDeclaration extends DependencyHolder {
 
   lazy val summary: MethodSummary = api.MethodSummary(
     MethodSummary.defaultVersion,
-    name.toString, modifiers.map(_.toString).sorted.toList, typeName.toString,
-    parameters.map(_.summary).sortBy(_.name).toList
+    name.toString, modifiers.map(_.toString).sorted.toList, typeName.asString,
+    parameters.map(_.summary).toList
   )
 }
 
@@ -339,8 +349,11 @@ trait TypeDeclaration extends DependencyHolder {
 
   lazy val summary: TypeSummary = api.TypeSummary (
     TypeSummary.defaultVersion,
-    name.toString, typeName.toString, nature.value, modifiers.map(_.toString).sorted.toList,
-    superClass.map(_.toString).getOrElse(""), interfaces.map(_.toString).sorted.toList,
+    name.toString,
+    typeName.asString,
+    nature.value, modifiers.map(_.toString).sorted.toList,
+    superClass.map(_.asString).getOrElse(""),
+    interfaces.map(_.asString).sorted.toList,
     fields.map(_.summary).sortBy(_.name).toList,
     constructors.map(_.summary).sortBy(_.parameters.size).toList,
     methods.map(_.summary).sortBy(_.name).toList,

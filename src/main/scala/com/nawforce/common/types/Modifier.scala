@@ -35,7 +35,9 @@ import com.nawforce.runtime.parsers.ApexParser.{AnnotationContext, IdContext, Mo
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 
-sealed abstract class Modifier(val name: String, val order: Integer=0) {
+import scala.annotation.switch
+
+sealed abstract class Modifier(final val name: String, val order: Integer=0) {
   override def toString: String = name
 }
 
@@ -77,6 +79,53 @@ case object HTTP_GET_ANNOTATION extends Modifier("@HttpGet")
 case object HTTP_PATCH_ANNOTATION extends Modifier("@HttpPatch")
 case object HTTP_POST_ANNOTATION extends Modifier("@HttpPost")
 case object HTTP_PUT_ANNOTATION extends Modifier("@HttpPut")
+
+object Modifier {
+  def apply(value: String): Modifier = {
+    // TODO: Why can't this be @switch
+    value match {
+      case WEBSERVICE_MODIFIER.name => WEBSERVICE_MODIFIER
+      case GLOBAL_MODIFIER.name => GLOBAL_MODIFIER
+      case PUBLIC_MODIFIER.name => PUBLIC_MODIFIER
+      case PROTECTED_MODIFIER.name => PROTECTED_MODIFIER
+      case PRIVATE_MODIFIER.name => PRIVATE_MODIFIER
+      case TEST_CLASS_MODIFIER.name => TEST_CLASS_MODIFIER
+      case TEST_METHOD_MODIFIER.name => TEST_METHOD_MODIFIER
+
+      case STATIC_MODIFIER.name => STATIC_MODIFIER
+      case ABSTRACT_MODIFIER.name => ABSTRACT_MODIFIER
+      case FINAL_MODIFIER.name => FINAL_MODIFIER
+      case OVERRIDE_MODIFIER.name => OVERRIDE_MODIFIER
+      case VIRTUAL_MODIFIER.name => VIRTUAL_MODIFIER
+      case TRANSIENT_MODIFIER.name => TRANSIENT_MODIFIER
+
+      case WITH_SHARING_MODIFIER.name => WITH_SHARING_MODIFIER
+      case WITHOUT_SHARING_MODIFIER.name => WITHOUT_SHARING_MODIFIER
+      case INHERITED_SHARING_MODIFIER.name => INHERITED_SHARING_MODIFIER
+
+      case AURA_ENABLED_ANNOTATION.name => AURA_ENABLED_ANNOTATION
+      case DEPRECATED_ANNOTATION.name => DEPRECATED_ANNOTATION
+      case FUTURE_ANNOTATION.name => FUTURE_ANNOTATION
+      case INVOCABLE_METHOD_ANNOTATION.name => INVOCABLE_METHOD_ANNOTATION
+      case INVOCABLE_VARIABLE_ANNOTATION.name => INVOCABLE_VARIABLE_ANNOTATION
+      case ISTEST_ANNOTATION.name => ISTEST_ANNOTATION
+      case READ_ONLY_ANNOTATION.name => READ_ONLY_ANNOTATION
+      case REMOTE_ACTION_ANNOTATION.name => REMOTE_ACTION_ANNOTATION
+      case SUPPRESS_WARNINGS_ANNOTATION.name => SUPPRESS_WARNINGS_ANNOTATION
+      case TEST_SETUP_ANNOTATION.name => TEST_SETUP_ANNOTATION
+      case TEST_VISIBLE_ANNOTATION.name => TEST_VISIBLE_ANNOTATION
+      case NAMESPACE_ACCESSIBLE_ANNOTATION.name => NAMESPACE_ACCESSIBLE_ANNOTATION
+
+      case REST_RESOURCE_ANNOTATION.name => REST_RESOURCE_ANNOTATION
+      case HTTP_DELETE_ANNOTATION.name => HTTP_DELETE_ANNOTATION
+      case HTTP_GET_ANNOTATION.name => HTTP_GET_ANNOTATION
+      case HTTP_PATCH_ANNOTATION.name => HTTP_PATCH_ANNOTATION
+      case HTTP_POST_ANNOTATION.name => HTTP_POST_ANNOTATION
+      case HTTP_PUT_ANNOTATION.name => HTTP_PUT_ANNOTATION
+    }
+  }
+}
+
 
 // TODO: Validate arguments of the annotations
 // TODO: Cross modifier/annotation checking

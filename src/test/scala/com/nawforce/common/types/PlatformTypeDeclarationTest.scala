@@ -120,7 +120,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     val nested = td.get.nestedTypes.sortBy(_.name.toString)
     assert(nested.size == 3)
     assert(nested.map(_.name.toString) == Seq("BinaryAttachment", "Header", "TextAttachment"))
-    assert(nested.filter(_.modifiers == Seq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER, STATIC_MODIFIER)) == nested)
+    assert(nested.filter(_.modifiers.toSet == Set(PUBLIC_MODIFIER, VIRTUAL_MODIFIER, STATIC_MODIFIER)) == nested)
     assert(nested.filter(_.outerTypeName.get == td.get.typeName) == nested)
   }
 
