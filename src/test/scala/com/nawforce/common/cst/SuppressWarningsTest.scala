@@ -25,23 +25,24 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.cst
+package com.nawforce.common.cst
 
 import com.nawforce.common.api.Org
 import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.{TypeDeclaration, _}
+import com.nawforce.common.types.{ApexTypeDeclaration, TypeDeclaration}
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class SwitchTest extends AnyFunSuite with BeforeAndAfter {
+class SuppressWarningsTest extends AnyFunSuite with BeforeAndAfter{
   private val defaultPath = PathFactory("Dummy.cls")
   private var defaultOrg: Org = new Org
 
-  def typeDeclaration(clsText: String): Option[TypeDeclaration] = {
+  def typeDeclaration(clsText: String): TypeDeclaration = {
     Org.current.withValue(defaultOrg) {
-      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
-      td.headOption.foreach(_.validate())
-      td.headOption
+      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText).head
+      defaultOrg.unmanaged.upsertType(td)
+      td.validate()
+      td
     }
   }
 
@@ -49,31 +50,26 @@ class SwitchTest extends AnyFunSuite with BeforeAndAfter {
     defaultOrg = new Org
   }
 
-  test("Single control switch") {
-    typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} }}}")
+  test("Suppress disabled") {
+    typeDeclaration("public class Dummy {class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
+    assert(defaultOrg.issues.getMessages(defaultPath) == "Error: line 1 at 74-78: Array indexes must be Integers, found 'null'\n")
+  }
+
+  test("Outer Suppress") {
+    typeDeclaration("@SuppressWarnings public class Dummy {class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 
-  test("Multi control switch") {
-    typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} when 'B' {}}}}")
+  test("Inner Suppress") {
+    typeDeclaration("public class Dummy {@SuppressWarnings class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 
-  test("Else switch") {
-    typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} when else {}}}}")
+  // TODO: This should work
+  /*
+  test("Method Suppress") {
+    typeDeclaration("public class Dummy {class Inner {Integer b; List<Inner> a; @SuppressWarnings void foo(){ Integer b = a[null].b;}}}")
+    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
-  }
-
-  test("Empty switch") {
-    typeDeclaration("public class Dummy {{switch on 'A' {}}}")
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1: mismatched input '}' expecting 'when'\n")
-  }
-
-  test("Enum switch") {
-    typeDeclaration("public class Dummy {{switch on 'A' {when EnumValue {} when else {}}}}")
-    assert(!defaultOrg.issues.hasMessages)
-  }
-
-  // TODO: Examine error handling of switch
+  }*/
 }

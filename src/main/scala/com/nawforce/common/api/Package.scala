@@ -67,7 +67,7 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[PathLike], _ba
   def typeCount: Int = types.size
 
   def getApexTypeNames: Seq[String] = {
-    types.elements().asScala
+    types.values
       .filter(_.isInstanceOf[ApexTypeDeclaration])
       .map(_.typeName.toString).toSeq
   }
@@ -80,14 +80,14 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[PathLike], _ba
     // Future: Make fully parallel
     val objects = documentsByExtension(Name("object"))
     Org.debug(s"Found ${objects.size} custom objects to parse")
-    deployMetadata(objects, parallel = false)
+    deployMetadata(objects)
     Org.current.withValue(org) {
       schemaManager.relatedLists.validate()
     }
 
     val components = documentsByExtension(Name("component"))
     Org.debug(s"Found ${components.size} components to parse")
-    deployMetadata(components, parallel = false)
+    deployMetadata(components)
 
     val classes = documentsByExtension(Name("cls"))
     Org.debug(s"Found ${classes.size} classes to parse")
@@ -95,30 +95,20 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[PathLike], _ba
   }
 
   def reportUnused(): IssueLog = {
-    new UnusedLog(types.values().asScala)
+    new UnusedLog(types.values)
   }
 
   /** Deploy some metadata to the org, if already present this will replace the existing metadata */
-  def deployMetadata(files: Seq[MetadataDocumentType], parallel: Boolean = true): Unit = {
+  def deployMetadata(files: Seq[MetadataDocumentType]): Unit = {
     Org.current.withValue(org) {
-      loadFromFiles(files.map(_.path), parallel)
+      loadFromFiles(files.map(_.path))
       validateMetadata()
     }
   }
 
-  private def loadFromFiles(files: Seq[PathLike], parallel: Boolean): Unit = {
-    if (parallel) {
-      val newDeclarations = files.grouped(100).flatMap(group => {
-        val parsed = group.par.flatMap(loadFromFile)
-        System.gc()
-        parsed
-      })
-      newDeclarations.foreach(td => upsertType(td))
-    } else {
-      val newDeclarations = files.flatMap(loadFromFile)
-      newDeclarations.foreach(td => upsertType(td))
-      System.gc()
-    }
+  private def loadFromFiles(files: Seq[PathLike]): Unit = {
+    val newDeclarations = files.flatMap(loadFromFile)
+    newDeclarations.foreach(td => upsertType(td))
   }
 
   private def loadFromFile(path: PathLike): Seq[TypeDeclaration] = {
@@ -152,8 +142,7 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[PathLike], _ba
   }
 
   private def validateMetadata(): Unit = {
-    val org = Org.current.value
-    types.values.parallelStream().filter(_.isInstanceOf[ApexTypeDeclaration]).forEach(td => {
+    types.values.filter(_.isInstanceOf[ApexTypeDeclaration]).foreach(td => {
       Org.current.withValue(org) {
         td.validate()
       }

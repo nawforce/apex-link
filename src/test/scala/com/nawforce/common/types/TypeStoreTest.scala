@@ -25,10 +25,9 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.types
+package com.nawforce.common.types
 
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.types.PlatformTypes
 import org.scalatest.funsuite.AnyFunSuite
 
 class TypeStoreTest extends AnyFunSuite {

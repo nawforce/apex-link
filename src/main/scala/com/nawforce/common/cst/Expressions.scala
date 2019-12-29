@@ -456,7 +456,7 @@ object Expression {
             Expression.construct(expressions(1), context), CodeParser.getText(op.get))
         case expr: BitExpressionContext =>
           val gt = ">" * CodeParser.toScala(expr.GT()).size
-          val lt = "<" *CodeParser.toScala(expr.LT()).size
+          val lt = "<" * CodeParser.toScala(expr.LT()).size
           assert(gt.nonEmpty != lt.nonEmpty)
           val expressions = CodeParser.toScala(expr.expression())
           BinaryExpression(Expression.construct(expressions(0), context),

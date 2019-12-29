@@ -25,40 +25,21 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.types
-
-import java.io.StringReader
+package com.nawforce.common.types
 
 import com.nawforce.common.cst.{ConstructContext, Literal}
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.types.{DependencyHolder, TypeDeclaration}
-import com.nawforce.runtime.parsers.{ApexLexer, ApexParser, CaseInsensitiveInputStream, ThrowingErrorListener}
-import org.antlr.v4.runtime.CommonTokenStream
+import com.nawforce.common.path.PathFactory
+import com.nawforce.runtime.parsers.CodeParser
 import org.scalatest.funsuite.AnyFunSuite
 
 class LiteralTypeTest extends AnyFunSuite
 {
   private val defaultPath = PathFactory("Dummy.cls")
 
-  private def parse(path: PathLike, data: String) = {
-    val listener = new ThrowingErrorListener
-    val cis: CaseInsensitiveInputStream = new CaseInsensitiveInputStream(path.toString, new StringReader(data))
-
-    val lexer: ApexLexer = new ApexLexer(cis)
-    lexer.removeErrorListeners()
-    lexer.addErrorListener(listener)
-
-    val tokens: CommonTokenStream = new CommonTokenStream(lexer)
-    val parser: ApexParser = new ApexParser(tokens)
-    parser.removeErrorListeners()
-    parser.addErrorListener(listener)
-    parser
-  }
-
   def typeLiteral(data: String): DependencyHolder = {
     val context = new ConstructContext()
-    Literal.construct(parse(defaultPath, data).literal(), context).getType
+    Literal.construct(CodeParser.createParser(defaultPath, data).literal(), context).getType
   }
 
   def compareLiteral(p: String, r: TypeName): Unit = {

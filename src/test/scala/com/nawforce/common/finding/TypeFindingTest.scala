@@ -25,7 +25,7 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.api
+package com.nawforce.common.finding
 
 import com.nawforce.common.api.{Org, Package}
 import com.nawforce.common.names.{Name, TypeName}

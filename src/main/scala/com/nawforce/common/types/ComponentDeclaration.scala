@@ -27,19 +27,19 @@
 */
 package com.nawforce.common.types
 
-import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.common.documents.ComponentDocument
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.path.PathLike
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 final case class ComponentDeclaration(pkg: PackageDeclaration) extends TypeDeclaration {
 
-  private val components = new ConcurrentHashMap[Name, TypeDeclaration]()
+  private val components = mutable.Map[Name, TypeDeclaration]()
   components.put(Name("Apex"),
     TypeRequest(TypeName(Name("Apex"), Nil, Some(TypeName(Name("Component")))), excludeSObjects = false).toOption.get)
   components.put(Name("Chatter"),
@@ -57,7 +57,7 @@ final case class ComponentDeclaration(pkg: PackageDeclaration) extends TypeDecla
   override val superClass: Option[TypeName] = None
   override val interfaces: Seq[TypeName] = Nil
   override def nestedTypes: Seq[TypeDeclaration] = {
-    components.values().asScala.toSeq
+    components.values.toSeq
   }
 
   override val blocks: Seq[BlockDeclaration] =  Nil
@@ -75,19 +75,18 @@ final case class ComponentDeclaration(pkg: PackageDeclaration) extends TypeDecla
       getNamespaceContainer(namespace.get).foreach(_.upsertComponent(component))
 
     val typeName = TypeName(component.name, Nil, Some(TypeName(Name.Component)))
-    components.put(component.name, CustomComponent(pkg, component.name, typeName, component.path.native.asInstanceOf[Path]))
+    components.put(component.name, CustomComponent(pkg, component.name, typeName, component.path))
   }
 
   private def getNamespaceContainer(namespace: Name): Option[ComponentNamespace] = {
-    components.putIfAbsent(namespace, ComponentNamespace(pkg, namespace))
-    components.get(namespace) match {
-      case componentNamespace: ComponentNamespace => Some(componentNamespace)
-      case _ => None
+    if (components.get(namespace).isEmpty) {
+      components.put(namespace, ComponentNamespace(pkg, namespace))
     }
+    components.get(namespace).asInstanceOf[Option[ComponentNamespace]]
   }
 }
 
-final case class CustomComponent(pkg: PackageDeclaration, name: Name, typeName: TypeName, path: Path) extends TypeDeclaration {
+final case class CustomComponent(pkg: PackageDeclaration, name: Name, typeName: TypeName, path: PathLike) extends TypeDeclaration {
 
   override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
   override lazy val namespace: Option[Name] = None
@@ -140,7 +139,7 @@ final case class ComponentNamespace(pkg: PackageDeclaration, name: Name) extends
 
   def upsertComponent(component: ComponentDocument): Unit = {
     val typeName = TypeName(component.name, Nil, Some(TypeName(name, Nil, Some(TypeName(Name.Component)))))
-    components.put(component.name, CustomComponent(pkg, component.name, typeName, component.path.native.asInstanceOf[Path]))
+    components.put(component.name, CustomComponent(pkg, component.name, typeName, component.path))
   }
 }
 

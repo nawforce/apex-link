@@ -25,12 +25,11 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.cst
+package com.nawforce.common.cst
 
-import com.nawforce.common.api.{ConstructorSummary, FieldSummary, MethodSummary, Org, ParameterSummary, TypeSummary}
+import com.nawforce.common.api._
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types._
-import com.nawforce.runtime.api._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
