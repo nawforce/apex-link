@@ -25,9 +25,8 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.api
+package com.nawforce.common.api
 
-import com.nawforce.common.api.Org
 import org.scalatest.funsuite.AnyFunSuite
 
 class SampleTest extends AnyFunSuite {
@@ -45,8 +44,6 @@ class SampleTest extends AnyFunSuite {
       org.issues.dumpMessages(false)
       assert(false)
     }
-    //val log = pkg.reportUnused()
-    //log.dumpMessages(false)
   }
 
   test("forcedotcom-enterprise-architecture") {

@@ -25,13 +25,11 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.types
+package com.nawforce.common.types
 
-import java.nio.file.Files
-
-import com.google.common.jimfs.{Configuration, Jimfs}
 import com.nawforce.common.api.Org
-import com.nawforce.common.path.PathFactory
+import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.funsuite.AnyFunSuite
 
 class PlatformEventTest extends AnyFunSuite {
@@ -57,36 +55,40 @@ class PlatformEventTest extends AnyFunSuite {
   }
 
   test("Standard field reference") {
-    val fs = Jimfs.newFileSystem(Configuration.unix)
-    Files.write(fs.getPath("Foo__e.object"), platformEvent("Foo__e", Seq(("Bar__c", "Text", None))).getBytes())
-    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Foo__e.ReplayId;} }".getBytes())
-
-    val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
-    pkg.deployAll()
-    assert(!org.issues.hasMessages)
+    FileSystemHelper.run(Map(
+      "Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
+      "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.ReplayId;} }"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      pkg.deployAll()
+      assert(!org.issues.hasMessages)
+    }
   }
 
   test("Custom field reference") {
-    val fs = Jimfs.newFileSystem(Configuration.unix)
-    Files.write(fs.getPath("Foo__e.object"), platformEvent("Foo__e", Seq(("Bar__c", "Text", None))).getBytes())
-    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Foo__e.Bar__c;} }".getBytes())
-
-    val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
-    pkg.deployAll()
-    assert(!org.issues.hasMessages)
+    FileSystemHelper.run(Map(
+      "Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
+      "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.Bar__c;} }"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      pkg.deployAll()
+      assert(!org.issues.hasMessages)
+    }
   }
 
   test("Invalid field reference") {
-    val fs = Jimfs.newFileSystem(Configuration.unix)
-    Files.write(fs.getPath("Foo__e.object"), platformEvent("Foo__e", Seq(("Bar__c", "Text", None))).getBytes())
-    Files.write(fs.getPath("Dummy.cls"),"public class Dummy { {SObjectField a = Foo__e.Baz__c;} }".getBytes())
+    FileSystemHelper.run(Map(
+      "Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
+      "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.Baz__c;} }"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      pkg.deployAll()
+      assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
+        "Error: line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__e'\n")
 
-    val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
-    pkg.deployAll()
-    assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
-      "Error: line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__e'\n")
+    }
   }
 }

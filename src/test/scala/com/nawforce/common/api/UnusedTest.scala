@@ -25,35 +25,34 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.api
+package com.nawforce.common.api
 
-import java.nio.file.Files
-
-import com.google.common.jimfs.{Configuration, Jimfs}
-import com.nawforce.common.api.Org
+import com.nawforce.common.path.PathLike
+import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.funsuite.AnyFunSuite
 
 class UnusedTest extends AnyFunSuite {
 
   test("@testSetup is entry") {
-    val fs = Jimfs.newFileSystem(Configuration.unix)
-    Files.write(fs.getPath("Dummy.cls"),
-      s"""
-         |public class Dummy {
-         |@testSetup
-         |static void setup() {
-         |  Account a = new Account(Name='foo');
-         |  insert a;
-         |}
-         |}
-         |""".stripMargin.getBytes())
+    FileSystemHelper.run(Map(
+      "Dummy.cls" ->
+        s"""
+           |public class Dummy {
+           |@testSetup
+           |static void setup() {
+           |  Account a = new Account(Name='foo');
+           |  insert a;
+           |}
+           |}
+           |""".stripMargin
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      pkg.deployAll()
 
-    val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
-    pkg.deployAll()
-
-    assert(!org.issues.hasMessages)
-    assert(!pkg.reportUnused().hasMessages)
+      assert(!org.issues.hasMessages)
+      assert(!pkg.reportUnused().hasMessages)
+    }
   }
 
 }

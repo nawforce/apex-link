@@ -25,40 +25,39 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.cst
+package com.nawforce.common.cst
 
-import java.nio.file.Files
-
-import com.google.common.jimfs.{Configuration, Jimfs}
 import com.nawforce.common.api.Org
-import com.nawforce.common.path.PathFactory
+import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class MethodShadowTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Override of public non-virtual") {
-    val fs = Jimfs.newFileSystem(Configuration.unix)
-    Files.write(fs.getPath("Dummy.cls"),"public class Dummy extends SuperClass { public void func() {} }".getBytes())
-    Files.write(fs.getPath("SuperClass.cls"),"public virtual class SuperClass { public void func() {}}".getBytes())
-
-    val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
-    pkg.deployAll()
-    assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
-      "Error: line 1 at 52-56: Method 'func' can not override non-virtual method\n")
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy extends SuperClass { public void func() {} }",
+      "SuperClass.cls" -> "public virtual class SuperClass { public void func() {}}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      pkg.deployAll()
+      assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
+        "Error: line 1 at 52-56: Method 'func' can not override non-virtual method\n")
+    }
   }
 
   test("Override of public virtual without override") {
-    val fs = Jimfs.newFileSystem(Configuration.unix)
-    Files.write(fs.getPath("Dummy.cls"),"public class Dummy extends SuperClass { public void func() {} }".getBytes())
-    Files.write(fs.getPath("SuperClass.cls"),"public virtual class SuperClass { public virtual void func() {}}".getBytes())
-
-    val org = new Org()
-    val pkg = org.addPackageInternal(None, Seq(com.nawforce.runtime.path.Path(fs.getPath("/"))), Seq())
-    pkg.deployAll()
-    assert(org.issues.getMessages(PathFactory("/work/Dummy.cls")) ==
-      "Error: line 1 at 52-56: Method 'func' must use override or virtual keyword\n")
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy extends SuperClass { public void func() {} }",
+      "SuperClass.cls" -> "public virtual class SuperClass { public virtual void func() {}}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      pkg.deployAll()
+      assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
+        "Error: line 1 at 52-56: Method 'func' must use override or virtual keyword\n")
+    }
   }
-
 }

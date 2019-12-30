@@ -36,7 +36,7 @@ class UnusedLog(types: Iterable[TypeDeclaration]) extends IssueLog {
   collectUnused()
 
   private def collectUnused(): Unit = {
-    types.par.foreach {
+    types.foreach {
       //case labels: LabelDeclaration => labels.unused().foreach(add)
       case apexType: ApexTypeDeclaration => apexType.unused().foreach(add)
       case _ => ()

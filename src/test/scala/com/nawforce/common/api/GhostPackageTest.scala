@@ -25,9 +25,8 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.api
+package com.nawforce.common.api
 
-import com.nawforce.common.api.Org
 import com.nawforce.common.documents.{DocumentType, MetadataDocumentType}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.{PathFactory, PathLike}
