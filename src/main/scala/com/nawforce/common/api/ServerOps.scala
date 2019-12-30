@@ -25,8 +25,24 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.api;
+package com.nawforce.common.api
 
-public interface MetadataProxy {
-    void activated();
+import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
+
+/* Collection of Ops functions for changing behaviour */
+@JSExportTopLevel("ServerOps")
+object ServerOps  {
+  private var logging: Boolean = false
+
+  /* Set logging categories, only supported option is 'ALL' */
+  @JSExport
+  def setLogging(flags: Array[String]): Unit = {
+    logging = flags.contains("ALL")
+  }
+
+  @JSExport
+  def debug(message: String): Unit = {
+    if (logging)
+      println(message)
+  }
 }

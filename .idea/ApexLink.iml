@@ -29,10 +29,6 @@
     <orderEntry type="library" name="Maven: org.scala-lang:scala-reflect:2.12.10" level="project" />
     <orderEntry type="library" name="Maven: org.scalamock:scalamock-core_2.12:3.6.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.scalamock:scalamock-scalatest-support_2.12:3.6.0" level="project" />
-    <orderEntry type="library" name="Maven: com.typesafe.scala-logging:scala-logging_2.12:3.9.0" level="project" />
-    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
-    <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.2.3" level="project" />
-    <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.2.3" level="project" />
     <orderEntry type="library" name="Maven: net.liftweb:lift-json_2.12:3.3.0" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang:scalap:2.12.6" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-compiler:2.12.6" level="project" />
@@ -44,6 +40,7 @@
     <orderEntry type="library" name="Maven: com.lihaoyi:geny_2.12:0.2.0" level="project" />
     <orderEntry type="library" name="Maven: com.lihaoyi:upack_2.12:0.9.0" level="project" />
     <orderEntry type="library" name="Maven: com.lihaoyi:upickle-implicits_2.12:0.9.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.scala-js:scalajs-stubs_2.12:1.0.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.google.jimfs:jimfs:1.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.google.guava:guava:18.0" level="project" />
   </component>

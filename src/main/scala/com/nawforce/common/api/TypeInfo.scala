@@ -30,13 +30,17 @@ package com.nawforce.common.api
 
 import com.nawforce.common.types.{ApexTypeDeclaration, Dependant, TypeDeclaration}
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
+@JSExportTopLevel("TypeInfo")
 case class TypeInfo(typeDeclaration: TypeDeclaration) {
 
+  @JSExport
   def name: String = typeDeclaration.name.toString
-  def dependsOn: java.util.List[String] = {
+
+  @JSExport
+  def dependsOn: Seq[String] = {
     val dependencies = mutable.Set[Dependant]()
     typeDeclaration.collectDependencies(dependencies)
     dependencies.flatMap {
@@ -44,6 +48,6 @@ case class TypeInfo(typeDeclaration: TypeDeclaration) {
       case _ => None
     }
       .filter(td => td.typeName.name != typeDeclaration.name)
-      .map(_.typeName.toString).toList.asJava
+      .map(_.typeName.toString).toSeq
   }
 }

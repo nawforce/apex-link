@@ -35,8 +35,9 @@ import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
 
-import scala.collection.JavaConverters._
+import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
+@JSExportTopLevel("Package")
 class Package(val org: Org, _namespace: Option[Name], _paths: Seq[PathLike], _basePackages: Seq[Package])
   extends PackageDeclaration(_namespace, _paths, _basePackages) {
 
@@ -76,21 +77,22 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[PathLike], _ba
     typeNames.flatMap(typeName => TypeRequest(typeName, this, excludeSObjects = false).toOption)
   }
 
+  @JSExport
   def deployAll(): Unit = {
     // Future: Make fully parallel
     val objects = documentsByExtension(Name("object"))
-    Org.debug(s"Found ${objects.size} custom objects to parse")
+    ServerOps.debug(s"Found ${objects.size} custom objects to parse")
     deployMetadata(objects)
     Org.current.withValue(org) {
       schemaManager.relatedLists.validate()
     }
 
     val components = documentsByExtension(Name("component"))
-    Org.debug(s"Found ${components.size} components to parse")
+    ServerOps.debug(s"Found ${components.size} components to parse")
     deployMetadata(components)
 
     val classes = documentsByExtension(Name("cls"))
-    Org.debug(s"Found ${classes.size} classes to parse")
+    ServerOps.debug(s"Found ${classes.size} classes to parse")
     deployMetadata(classes)
   }
 
@@ -132,7 +134,7 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[PathLike], _ba
       }
 
       val end = System.currentTimeMillis()
-      Org.debug(s"Parsed $path in ${end - start}ms")
+      ServerOps.debug(s"Parsed $path in ${end - start}ms")
       tds
     }
   }

@@ -35,17 +35,20 @@ import com.nawforce.common.names.{DotName, Name}
 import com.nawforce.common.path.{DIRECTORY, PathFactory, PathLike}
 import com.nawforce.common.types.TypeDeclaration
 
+import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 import scala.util.DynamicVariable
 
 /** Org abstraction, a simulation of the metadata installed on an org. Use the 'current' dynamic variable to access
   * the org being currently worked on. Typically only one org will be being used but some use cases might require
   * multiple. Problems with the metadata are recorded in the the associated issue log.
   */
+@JSExportTopLevel("Org")
 class Org {
   var unmanaged = new api.Package(this, None, Seq(), Seq())
   var packages: Map[Option[Name], api.Package] = Map(None -> unmanaged)
-
   val issues = new IssueLog
+
+  @JSExport
   def issuesAsJSON(warnings: Boolean, zombie: Boolean): String = {
     if (zombie) {
       packages.values.foreach(pkg => {
@@ -54,13 +57,17 @@ class Org {
     }
     issues.asJSON(warnings, maxErrors = 100)
   }
+
+  @JSExport
   def typeCount: Int= packages.values.map(_.typeCount).sum
 
-  def getUnmanagedPackage: api.Package = unmanaged
+  @JSExport
+  def getUnmanagedPackage: Package = unmanaged
 
   /** Create a new package in the org, directories should be priority ordered for duplicate detection. Use
     * namespaces to indicate dependant packages which must already have been created as packages. */
-  def addPackage(namespace: String, directories: Array[String], baseNamespaces: Array[String]): api.Package = {
+  @JSExport
+  def addPackage(namespace: String, directories: Array[String], baseNamespaces: Array[String]): Package = {
     val namespaceName: Option[Name] = Name.safeApply(namespace)
 
     if (namespaceName.nonEmpty) {
@@ -84,9 +91,9 @@ class Org {
     addPackageInternal(namespaceName, paths, basePackages)
   }
 
-  def addPackageInternal(namespace: Option[Name], paths: Seq[PathLike], basePackages: Seq[api.Package]): api.Package = {
+  def addPackageInternal(namespace: Option[Name], paths: Seq[PathLike], basePackages: Seq[Package]): Package = {
     Org.current.withValue(this) {
-      val pkg = new api.Package(this, namespace, paths, basePackages)
+      val pkg = new Package(this, namespace, paths, basePackages)
       if (pkg.namespace.isEmpty) {
         unmanaged = pkg
       } else {
@@ -97,6 +104,7 @@ class Org {
     }
   }
 
+  @JSExport
   def getType(namespace: String, dotName: String): TypeDeclaration = {
     getType(Name.safeApply(namespace), DotName(dotName)).orNull
   }
@@ -107,12 +115,14 @@ class Org {
   }
 
   /** Get a list of Apex types in the org*/
-  def getApexTypeNames: java.util.List[String] = {
-    scala.collection.JavaConverters.seqAsJavaList(packages.values.flatMap(_.getApexTypeNames).toSeq)
+  @JSExport
+  def getApexTypeNames: Seq[String] = {
+    packages.values.flatMap(_.getApexTypeNames).toSeq
   }
 
   /** Retrieve type information for declaration. Separate compound names with a '.', e.g. 'System.String'. Returns
     * null if the type if not found */
+  @JSExport
   def getTypeInfo(name: String): TypeInfo = {
     TypeRequest(DotName(name).asTypeName(), unmanaged, excludeSObjects = false).toOption.map(td => TypeInfo(td)).orNull
   }
@@ -120,10 +130,6 @@ class Org {
 
 object Org {
   val current: DynamicVariable[Org] = new DynamicVariable[Org](null)
-
-  def debug(message: String): Unit = {
-    //println(message)
-  }
 
   def log(location: Location, msg: String, category: IssueCategory): Unit = {
     Org.current.value.issues.logMessage(location, msg, category)
