@@ -33,13 +33,10 @@ import com.nawforce.common.types.{ApexTypeDeclaration, Dependant, TypeDeclaratio
 import scala.collection.mutable
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
-@JSExportTopLevel("TypeInfo")
 case class TypeInfo(typeDeclaration: TypeDeclaration) {
 
-  @JSExport
   def name: String = typeDeclaration.name.toString
 
-  @JSExport
   def dependsOn: Seq[String] = {
     val dependencies = mutable.Set[Dependant]()
     typeDeclaration.collectDependencies(dependencies)

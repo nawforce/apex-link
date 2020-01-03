@@ -208,7 +208,8 @@ final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeN
                                       variableDeclarator: VariableDeclarator)
   extends ClassBodyDeclaration(_modifiers) with FieldDeclaration {
 
-  override val name: Name = variableDeclarator.id.name
+  val id: Id = variableDeclarator.id
+  override val name: Name = id.name
   private val visibility: Option[Modifier] = _modifiers.find(m => ApexModifiers.visibilityModifiers.contains(m))
   override val readAccess: Modifier = visibility.getOrElse(PRIVATE_MODIFIER)
   override val writeAccess: Modifier = readAccess

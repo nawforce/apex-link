@@ -191,12 +191,12 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
     localFields.filterNot(_.hasHolders)
       .map({
         case field: ApexFieldDeclaration =>
-          Issue(UNUSED_CATEGORY, field.location, s"Field '${field.name}'")
+          Issue(UNUSED_CATEGORY, field.id.location, s"Field '${field.name}'")
         case property: ApexPropertyDeclaration =>
-          Issue(UNUSED_CATEGORY, property.location, s"Property '${property.name}'")
+          Issue(UNUSED_CATEGORY, property.id.location, s"Property '${property.name}'")
       }) ++
     localMethods.filterNot(_.isUsed)
-      .map(method => Issue(UNUSED_CATEGORY, method.location, s"Method '${method.signature}'"))
+      .map(method => Issue(UNUSED_CATEGORY, method.id.location, s"Method '${method.signature}'"))
   }
 }
 

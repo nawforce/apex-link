@@ -25,44 +25,55 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.api
+package com.nawforce.common.sfdx
 
-trait Logger {
-  def error(message: String): Unit
-  def info(message: String): Unit
-  def debug(message: String): Unit
-}
+import com.nawforce.common.names.Name
+import com.nawforce.common.path.{FILE, PathLike}
+import ujson.{Arr, Value}
 
-class DefaultLogger extends Logger {
-  def error(message: String): Unit = {println("[error] " + message)}
-  def info(message: String): Unit = {println(message)}
-  def debug(message: String): Unit = {println("[debug] " + message)}
-}
+class Project(config: Value.Value) {
+  lazy val packageDirectories: Seq[Value.Value] =
+    try {
+      config("packageDirectories").asInstanceOf[Arr].value
+    } catch {
+      case _: Throwable => Arr().value
+    }
 
-/* Collection of Ops functions for changing behaviour */
-object ServerOps  {
-  private var logging: Boolean = false
-  private var logger: Logger = new DefaultLogger
-
-  val Trace: String = "TRACE"
-
-  /* Set debug logging categories, only supported option is 'ALL' */
-  def setDebugLogging(flags: Array[String]): Unit = {
-    logging = flags.contains("ALL")
+  lazy val paths: Seq[Either[String, String]] = {
+    packageDirectories.map(dir => {
+      try {
+        Right(dir("path").str)
+      } catch {
+        case err: Throwable =>
+          Left(s"Expecting all 'path' properties to be strings in packageDirectories, error: $err")
+      }
+    })
   }
 
-  def setLogger(newLogger: Logger): Logger = {
-    val old = logger
-    logger = newLogger
-    old
-  }
+  lazy val namespace: Option[Name] =
+    try {
+      Some(Name(config("namespace").str))
+    } catch {
+      case _: Throwable => None
+    }
+}
 
-  def error(message: String): Unit = logger.error(message)
+object Project {
+  def apply(path: PathLike): Either[String, Option[Project]] = {
+    val projectFile = path.join("sfdx-project.json").absolute
+    if (!projectFile.nature.isInstanceOf[FILE]) {
+      return Right(None)
+    }
 
-  def info(message: String): Unit = logger.info(message)
-
-  def debug(category: String, message: String): Unit = {
-    if (logging)
-      logger.debug(message)
+    projectFile.read() match {
+      case Left(err) => Left(err)
+      case Right(data) =>
+        try {
+          Right(Some(new Project(ujson.read(data))))
+        } catch {
+          case ex: Throwable =>
+            Left(s"Failed to parse '$projectFile', error: ${ex.toString}")
+        }
+    }
   }
 }

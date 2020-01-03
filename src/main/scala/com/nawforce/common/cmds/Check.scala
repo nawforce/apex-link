@@ -25,44 +25,32 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.api
+package com.nawforce.common.cmds
 
-trait Logger {
-  def error(message: String): Unit
-  def info(message: String): Unit
-  def debug(message: String): Unit
-}
+import com.nawforce.common.api.{Org, ServerOps}
+import com.nawforce.common.diagnostics.IssueLog
+import com.nawforce.common.sfdx.Workspace
 
-class DefaultLogger extends Logger {
-  def error(message: String): Unit = {println("[error] " + message)}
-  def info(message: String): Unit = {println(message)}
-  def debug(message: String): Unit = {println("[debug] " + message)}
-}
+object Check {
+  def run(workspace: Workspace, zombies: Boolean): IssueLog = {
 
-/* Collection of Ops functions for changing behaviour */
-object ServerOps  {
-  private var logging: Boolean = false
-  private var logger: Logger = new DefaultLogger
+    val parseStart = System.currentTimeMillis()
+    val org = new Org()
+    val pkg = org.addPackageInternal(workspace, Seq())
+    pkg.deployAll()
+    val parseEnd = System.currentTimeMillis()
 
-  val Trace: String = "TRACE"
+    ServerOps.debug(ServerOps.Trace,
+      s"Loaded & checked ${org.typeCount} types, with average time/type of ${(parseEnd - parseStart) / org.typeCount}ms")
 
-  /* Set debug logging categories, only supported option is 'ALL' */
-  def setDebugLogging(flags: Array[String]): Unit = {
-    logging = flags.contains("ALL")
-  }
+    if (zombies) {
+      org.packages.values.foreach(pkg => {
+        if (!pkg.isGhosted) {
+          org.issues.merge(pkg.reportUnused())
+        }
+      })
+    }
 
-  def setLogger(newLogger: Logger): Logger = {
-    val old = logger
-    logger = newLogger
-    old
-  }
-
-  def error(message: String): Unit = logger.error(message)
-
-  def info(message: String): Unit = logger.info(message)
-
-  def debug(category: String, message: String): Unit = {
-    if (logging)
-      logger.debug(message)
+    org.issues
   }
 }

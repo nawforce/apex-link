@@ -27,6 +27,7 @@
 */
 package com.nawforce.common.documents
 
+import com.nawforce.common.api.Org
 import com.nawforce.common.names.Name
 import com.nawforce.common.path.{DIRECTORY, DOES_NOT_EXIST, FILE, PathLike}
 
@@ -54,21 +55,34 @@ class DocumentIndex(paths: Seq[PathLike]) {
   }
 
   private def indexRoot(path: PathLike): Unit = {
-    indexPath(path.absolute)
+    val forceIgnore = path.join(".forceignore")
+    if (forceIgnore.nature.isInstanceOf[FILE]) {
+      ForceIgnore(path, forceIgnore) match {
+        case Left(err) =>
+          Org.logMessage(LineLocation(forceIgnore, 0), s"Could not read .forceignore, error: $err")
+          indexPath(path.absolute, None)
+        case Right(forceIgnore) =>
+          indexPath(path.absolute, Some(forceIgnore))
+      }
+    }
+    indexPath(path.absolute, None)
   }
 
-  private def indexPath(path: PathLike): Unit = {
-
+  private def indexPath(path: PathLike, forceIgnore: Option[ForceIgnore]): Unit = {
     if (path.basename.toString.startsWith("."))
       return
 
     if (path.nature == DIRECTORY) {
-      path.directoryList() match {
-        case Left(err) => throw new DocumentIndexException(err)
-        case Right(parts) => parts.foreach(part => indexPath(path.join(part)))
+      if (forceIgnore.forall(_.includeDirectory(path))) {
+        path.directoryList() match {
+          case Left(err) => throw new DocumentIndexException(err)
+          case Right(parts) => parts.foreach(part => indexPath(path.join(part), forceIgnore))
+        }
       }
     } else if (path.nature.isInstanceOf[FILE]) {
-      insertDocument(DocumentType(path))
+      if (forceIgnore.forall(_.includeFile(path))) {
+        insertDocument(DocumentType(path))
+      }
     }
   }
 

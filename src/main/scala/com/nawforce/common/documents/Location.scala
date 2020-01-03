@@ -31,6 +31,7 @@ import com.nawforce.common.path.PathLike
 
 abstract class Location(val path: PathLike, val line: Int) {
   def startPosition: (Int, Int) = (line, 0)
+  def endPosition: (Int, Int) = (line+1, 0)
   def displayPosition: String
   def asJSON: String
 }
@@ -41,12 +42,13 @@ case class LineLocation(_path: PathLike, _line: Int) extends Location(_path, _li
 }
 
 case class LineRangeLocation(_path: PathLike, start: Int, end: Int) extends Location(_path, start) {
+  override def endPosition: (Int, Int) = (end+1, 0)
   override def displayPosition: String = s"line $start to $end"
   override def asJSON: String = s""""start": {"line": $start}, "end": {"line": $end}"""
 }
 
 case class Position(line: Int, offset: Int) {
-  def startPosition: (Int, Int) = (line, offset)
+  def getPosition: (Int, Int) = (line, offset)
   def displayPosition: String = s"line $line at $offset"
   def asJSON: String = s"""{"line": $line, "offset": $offset}"""
 
@@ -63,7 +65,7 @@ case class Position(line: Int, offset: Int) {
 }
 
 case class TextRange(start: Position, end: Position) {
-  def startPosition: (Int, Int) = start.startPosition
+  def startPosition: (Int, Int) = start.getPosition
   def displayPosition: String = {
     if (start.line == end.line)
       s"line ${start.line} at ${start.offset}-${end.offset}"
@@ -87,13 +89,15 @@ case class TextRange(start: Position, end: Position) {
 }
 
 case class PointLocation(_path: PathLike, start: Position) extends Location(_path, start.line) {
-  override def startPosition: (Int, Int) = start.startPosition
+  override def startPosition: (Int, Int) = start.getPosition
+  override def endPosition: (Int, Int) = (startPosition._1+1, 0)
   override def displayPosition: String = start.displayPosition
   override def asJSON: String = start.asJSON
 }
 
 case class RangeLocation(_path: PathLike, start: Position, end: Position) extends Location(_path, start.line) {
-  override def startPosition: (Int, Int) = start.startPosition
+  override def startPosition: (Int, Int) = start.getPosition
+  override def endPosition: (Int, Int) = end.getPosition
   override def displayPosition: String = TextRange(start, end).displayPosition
   override def asJSON: String = TextRange(start, end).asJSON
 }

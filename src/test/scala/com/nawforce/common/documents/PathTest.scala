@@ -33,6 +33,15 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class PathTest extends AnyFunSuite {
 
+  test("join absolute path") {
+    FileSystemHelper.run(Map[String, String](
+      "foo" -> ""
+    )) { root: PathLike =>
+      val abs = root.join("foo")
+      assert(root.join("bar").join(abs.toString).toString == abs.toString)
+    }
+  }
+
   test("root node is a root node") {
     FileSystemHelper.run(Map[String, String] (
     )) { root: PathLike =>

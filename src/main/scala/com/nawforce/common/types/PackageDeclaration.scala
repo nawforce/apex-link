@@ -33,19 +33,20 @@ import com.nawforce.common.documents.{DocumentIndex, MetadataDocumentType}
 import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
-import com.nawforce.common.path.PathLike
+import com.nawforce.common.sfdx.Workspace
 import com.nawforce.runtime.types.PlatformTypeDeclaration
 
 import scala.collection.mutable
 
-abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[PathLike], var basePackages: Seq[PackageDeclaration])
+abstract class PackageDeclaration(val workspace: Workspace, var basePackages: Seq[PackageDeclaration])
   extends TypeFinder {
-  protected val documents = new DocumentIndex(paths)
+  val namespace: Option[Name] = workspace.namespace
+  protected val documents = new DocumentIndex(workspace.paths)
   protected val types: mutable.Map[TypeName, TypeDeclaration] = mutable.Map[TypeName, TypeDeclaration]()
 
   def documentsByExtension(ext: Name): Seq[MetadataDocumentType] = documents.getByExtension(ext)
 
-  def isGhosted: Boolean = paths.isEmpty
+  def isGhosted: Boolean = workspace.paths.isEmpty
   def hasGhosted: Boolean = isGhosted || basePackages.exists(_.hasGhosted)
   def any(): AnyDeclaration
   def schema(): SchemaManager
@@ -54,7 +55,7 @@ abstract class PackageDeclaration(val namespace: Option[Name], val paths: Seq[Pa
 
   /* Set of namespaces used by this package and its base packages */
   lazy val namespaces: Set[Name] = {
-    namespace.toSet ++ basePackages.flatMap(_.namespaces) ++ PlatformTypeDeclaration.namespaces
+    workspace.namespace.toSet ++ basePackages.flatMap(_.namespaces) ++ PlatformTypeDeclaration.namespaces
   }
 
   /* Check if a type is ghost in this package */

@@ -33,13 +33,13 @@ import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types._
 
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
-@JSExportTopLevel("Package")
-class Package(val org: Org, _namespace: Option[Name], _paths: Seq[PathLike], _basePackages: Seq[Package])
-  extends PackageDeclaration(_namespace, _paths, _basePackages) {
+class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
+  extends PackageDeclaration(workspace, _basePackages) {
 
   private val schemaManager = new SchemaManager(this)
   private val anyDeclaration = AnyDeclaration(this)
@@ -77,22 +77,21 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[PathLike], _ba
     typeNames.flatMap(typeName => TypeRequest(typeName, this, excludeSObjects = false).toOption)
   }
 
-  @JSExport
   def deployAll(): Unit = {
     // Future: Make fully parallel
     val objects = documentsByExtension(Name("object"))
-    ServerOps.debug(s"Found ${objects.size} custom objects to parse")
+    ServerOps.debug(ServerOps.Trace, s"Found ${objects.size} custom objects to parse")
     deployMetadata(objects)
     Org.current.withValue(org) {
       schemaManager.relatedLists.validate()
     }
 
     val components = documentsByExtension(Name("component"))
-    ServerOps.debug(s"Found ${components.size} components to parse")
+    ServerOps.debug(ServerOps.Trace, s"Found ${components.size} components to parse")
     deployMetadata(components)
 
     val classes = documentsByExtension(Name("cls"))
-    ServerOps.debug(s"Found ${classes.size} classes to parse")
+    ServerOps.debug(ServerOps.Trace, s"Found ${classes.size} classes to parse")
     deployMetadata(classes)
   }
 
@@ -134,7 +133,7 @@ class Package(val org: Org, _namespace: Option[Name], _paths: Seq[PathLike], _ba
       }
 
       val end = System.currentTimeMillis()
-      ServerOps.debug(s"Parsed $path in ${end - start}ms")
+      ServerOps.debug(ServerOps.Trace, s"Parsed $path in ${end - start}ms")
       tds
     }
   }

@@ -67,7 +67,7 @@ object ApexLink {
     val json = validArgs.contains("-json")
     val verbose = !json && validArgs.contains("-verbose")
     val zombie = validArgs.contains("-zombie")
-    ServerOps.setLogging(Array("ALL"))
+    ServerOps.setDebugLogging(Array("ALL"))
 
     val parseStart = System.currentTimeMillis()
     val org = new Org()
@@ -86,7 +86,7 @@ object ApexLink {
     if (!json)
       org.issues.dumpMessages(json = false)
     else
-      println(org.issues.asJSON(true, 100))
+      println(org.issues.asJSON(warnings = true, 100))
 
     if (verbose && org.typeCount>0)
       println(s"Loaded & checked ${org.typeCount} types, with average time/type of ${(parseEnd - parseStart) / org.typeCount}ms")

@@ -45,6 +45,8 @@ class IssueLog {
   var logCount: Int = 0
   private val log = mutable.HashMap[PathLike, List[Issue]]() withDefaultValue List()
 
+  def getIssues: Map[PathLike, List[Issue]] = log.toMap
+
   def clear(): Unit = {
     synchronized {
       log.clear()
