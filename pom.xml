@@ -4,11 +4,11 @@
 
     <groupId>com.github.nawforce</groupId>
     <artifactId>apexlink</artifactId>
-    <version>0.5</version>
+    <version>0.6</version>
     <packaging>jar</packaging>
 
     <name>apexlink</name>
-    <description>Offline validation and transformation toolkit for Salesforce packages</description>
+    <description>Salesforce Apex static analysis toolkit</description>
     <url>https://github.com/nawforce/ApexLink</url>
     <licenses>
         <license>

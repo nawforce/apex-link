@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.types
 
-import com.nawforce.common.api.Org
+import com.nawforce.common.api.{Org, ServerOps}
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents.LineLocation
@@ -143,11 +143,14 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
   }
 
   override def validate(): Unit = {
+    val start = System.currentTimeMillis()
     val context = new TypeVerifyContext(None, this)
     if (depends.isEmpty) {
       verify(context)
       depends = Some(context.dependencies)
     }
+    val end = System.currentTimeMillis()
+    ServerOps.debug(ServerOps.Trace, s"Validated $getPath in ${end - start}ms")
   }
 
   protected def verify(context: TypeVerifyContext): Unit = {

@@ -77,14 +77,18 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
     typeNames.flatMap(typeName => TypeRequest(typeName, this, excludeSObjects = false).toOption)
   }
 
+  def getDocuments: List[Seq[MetadataDocumentType]] = {
+    documentsByExtension(Name("object")) :: (
+      documentsByExtension(Name("component")).grouped(10) ++
+      documentsByExtension(Name("cls")).grouped(10)).toList
+  }
+
   def deployAll(): Unit = {
     // Future: Make fully parallel
     val objects = documentsByExtension(Name("object"))
     ServerOps.debug(ServerOps.Trace, s"Found ${objects.size} custom objects to parse")
     deployMetadata(objects)
-    Org.current.withValue(org) {
-      schemaManager.relatedLists.validate()
-    }
+    schemaValidate()
 
     val components = documentsByExtension(Name("component"))
     ServerOps.debug(ServerOps.Trace, s"Found ${components.size} components to parse")
@@ -95,45 +99,47 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
     deployMetadata(classes)
   }
 
+  def schemaValidate(): Unit = {
+    Org.current.withValue(org) {
+      schemaManager.relatedLists.validate()
+    }
+  }
+
   def reportUnused(): IssueLog = {
     new UnusedLog(types.values)
   }
 
   /** Deploy some metadata to the org, if already present this will replace the existing metadata */
-  def deployMetadata(files: Seq[MetadataDocumentType]): Unit = {
+  def deployMetadata(documents: Seq[MetadataDocumentType]): Unit = {
     Org.current.withValue(org) {
-      loadFromFiles(files.map(_.path))
+      documents.foreach(d => loadFromDocument(d))
       validateMetadata()
     }
   }
 
-  private def loadFromFiles(files: Seq[PathLike]): Unit = {
-    val newDeclarations = files.flatMap(loadFromFile)
-    newDeclarations.foreach(td => upsertType(td))
-  }
-
-  private def loadFromFile(path: PathLike): Seq[TypeDeclaration] = {
+  def loadFromDocument(doc: MetadataDocumentType): Seq[TypeDeclaration] = {
     Org.current.withValue(org) {
       val start = System.currentTimeMillis()
 
-      val tds = DocumentType(path) match {
-        case Some(docType: ApexDocument) =>
+      val tds = doc match {
+        case docType: ApexDocument =>
           val data = docType.path.read()
           ApexTypeDeclaration.create(this, docType.path, data.right.get)
-        case Some(docType: SObjectDocument) =>
+        case docType: SObjectDocument =>
           SObjectDeclaration.create(this, docType.path)
-        case Some(docType: PlatformEventDocument) =>
+        case docType: PlatformEventDocument =>
           SObjectDeclaration.create(this, docType.path)
-        case Some(docType: CustomMetadataDocument) =>
+        case docType: CustomMetadataDocument =>
           SObjectDeclaration.create(this, docType.path)
-        case Some(docType: ComponentDocument) =>
+        case docType: ComponentDocument =>
           upsertComponent(namespace, docType)
           Nil
         case _ => Nil
       }
 
       val end = System.currentTimeMillis()
-      ServerOps.debug(ServerOps.Trace, s"Parsed $path in ${end - start}ms")
+      ServerOps.debug(ServerOps.Trace, s"Parsed ${doc.path} in ${end - start}ms")
+      tds.foreach(upsertType)
       tds
     }
   }

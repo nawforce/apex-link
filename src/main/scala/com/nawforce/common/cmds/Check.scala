@@ -29,28 +29,48 @@ package com.nawforce.common.cmds
 
 import com.nawforce.common.api.{Org, ServerOps}
 import com.nawforce.common.diagnostics.IssueLog
+import com.nawforce.common.documents.MetadataDocumentType
 import com.nawforce.common.sfdx.Workspace
+import com.nawforce.common.types.{ApexTypeDeclaration, TypeDeclaration}
 
-object Check {
-  def run(workspace: Workspace, zombies: Boolean): IssueLog = {
+class Check(workspace: Workspace, zombies: Boolean) {
+  private val org = new Org()
+  private val pkg = org.addPackageInternal(workspace, Seq())
+  private var schemaValidated = false
+  private var queued: List[Seq[MetadataDocumentType]] = pkg.getDocuments
+  private var tds: List[TypeDeclaration] = Nil
 
-    val parseStart = System.currentTimeMillis()
-    val org = new Org()
-    val pkg = org.addPackageInternal(workspace, Seq())
-    pkg.deployAll()
-    val parseEnd = System.currentTimeMillis()
-
-    ServerOps.debug(ServerOps.Trace,
-      s"Loaded & checked ${org.typeCount} types, with average time/type of ${(parseEnd - parseStart) / org.typeCount}ms")
-
-    if (zombies) {
-      org.packages.values.foreach(pkg => {
-        if (!pkg.isGhosted) {
-          org.issues.merge(pkg.reportUnused())
+  def run(): Option[IssueLog] = {
+    if (queued.nonEmpty) {
+      val types = queued.head.flatMap(d => pkg.loadFromDocument(d))
+      tds = tds ++ types
+      queued = queued.tail
+      if (!schemaValidated) {
+        schemaValidated = true
+        pkg.schemaValidate()
+      }
+      None
+    } else if (tds.nonEmpty) {
+      Org.current.withValue(org) {
+        var i = 0
+        while(i < 10 && tds.nonEmpty) {
+          if (tds.head.isInstanceOf[ApexTypeDeclaration])
+            tds.head.validate()
+          i = i + 1
+          tds = tds.tail
         }
-      })
+      }
+      None
+    } else {
+      if (zombies) {
+        org.packages.values.foreach(pkg => {
+          if (!pkg.isGhosted) {
+            org.issues.merge(pkg.reportUnused())
+          }
+        })
+      }
+      ServerOps.debug(ServerOps.Trace,s"Returned Issues")
+      Some(org.issues)
     }
-
-    org.issues
   }
 }
