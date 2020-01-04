@@ -35,6 +35,7 @@ import com.nawforce.common.path.{DIRECTORY, PathLike}
 trait Workspace {
   val namespace: Option[Name]
   val paths: Seq[PathLike]
+  val ignorePath: Option[PathLike] = None
 }
 
 class MDAPIWorkspace(val namespace: Option[Name], val paths: Seq[PathLike]) extends Workspace {
@@ -52,6 +53,8 @@ class SFDXWorkspace(_namespace: Option[Name], rootPath: PathLike, project: Proje
       Org.logMessage(LineLocation(rootPath.join("sfdx-project.json"),0), errors.head.left.get)
     project.paths.filter(_.isRight).map(_.right.get).map(p => rootPath.join(p))
   }
+
+  override val ignorePath: Option[PathLike] = Some(rootPath.join(".forceignore"))
 
   override def toString: String = {
     s"SFDXWorkspace(namespace=${namespace.getOrElse("")}, paths=${paths.map(_.toString).mkString(", ")})"

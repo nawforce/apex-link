@@ -5,9 +5,9 @@ Class-Path:
   geny_2.12-0.2.0.jar
   scala-collection-compat_2.12-2.0.0.jar
   scala-library-2.12.6.jar
-  scala-reflect-2.12.4.jar
+  scala-reflect-2.12.10.jar
   scala-xml_2.12-1.1.1.jar
-  scalaz-core_2.12-7.2.27.jar
+  scalaz-core_2.12-7.2.8.jar
   lift-json_2.12-3.3.0.jar
   ujson_2.12-0.9.0.jar
   upack_2.12-0.9.0.jar

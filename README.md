@@ -2,6 +2,10 @@
 ## ApexLink
 
 ApexLink is a SFDX CLI plugin & Java library for static analysis of Salesforce Apex code aimed at improving developer productivity. The core library is useful for any number of analysis problems while the CLI plugin acts as a demo of capability while the features of the library are built out.
+
+### SFDX CLI in v0.6
+In the 0.6 version I have removed the sfdx cli code while I work on support for cross building to Javascript via scala.js. 
+You can still build for use with Java, see com.nawforce.runtime.ApexLink for how to call from command line or install the 0.5 version of the sdfx cli plugin as below. I will restore the cli option in the next version.
  
 ### SFDX CLI
 

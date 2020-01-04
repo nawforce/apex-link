@@ -66,8 +66,9 @@ object ApexLink {
     })
     val json = validArgs.contains("-json")
     val verbose = !json && validArgs.contains("-verbose")
+    if (verbose)
+      ServerOps.setDebugLogging(Array("ALL"))
     val zombie = validArgs.contains("-zombie")
-    ServerOps.setDebugLogging(Array("ALL"))
 
     val parseStart = System.currentTimeMillis()
     val org = new Org()

@@ -66,11 +66,6 @@ class Org {
   def addPackage(namespace: String, directories: Array[String], baseNamespaces: Array[String]): Package = {
     val namespaceName: Option[Name] = Name.safeApply(namespace)
 
-    if (namespaceName.nonEmpty) {
-      if (packages.contains(namespaceName))
-        throw new IllegalArgumentException(s"A package using namespace '$namespaceName' already exists")
-    }
-
     val basePackages = baseNamespaces.flatMap(ns => {
       val pkg = packages.get(Some(Name(ns))).filterNot(_.namespace.isEmpty)
       if (pkg.isEmpty)
@@ -79,10 +74,6 @@ class Org {
     })
 
     val paths = directories.filterNot(_.isEmpty).map(directory => PathFactory(directory))
-    paths.foreach(path => {
-      if (path.nature != DIRECTORY)
-        throw new IllegalArgumentException(s"Package root '${path.toString}' must be a directory")
-    })
 
     addPackageInternal(namespaceName, paths, basePackages)
   }
@@ -97,6 +88,16 @@ class Org {
   }
 
   def addPackageInternal(workspace: Workspace, basePackages: Seq[Package]): Package = {
+    if (workspace.namespace.nonEmpty) {
+      if (packages.contains(workspace.namespace))
+        throw new IllegalArgumentException(s"A package using namespace '${workspace.namespace}' already exists")
+    }
+
+    workspace.paths.foreach(path => {
+      if (path.nature != DIRECTORY)
+        throw new IllegalArgumentException(s"Package root '${path.toString}' must be a directory")
+    })
+
     Org.current.withValue(this) {
       val pkg = new Package(this, workspace, basePackages)
       if (pkg.namespace.isEmpty) {
@@ -108,7 +109,6 @@ class Org {
       pkg
     }
   }
-
 
   def getType(namespace: String, dotName: String): TypeDeclaration = {
     getType(Name.safeApply(namespace), DotName(dotName)).orNull

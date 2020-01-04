@@ -41,7 +41,7 @@ import scala.collection.mutable
 abstract class PackageDeclaration(val workspace: Workspace, var basePackages: Seq[PackageDeclaration])
   extends TypeFinder {
   val namespace: Option[Name] = workspace.namespace
-  protected val documents = new DocumentIndex(workspace.paths)
+  protected val documents = new DocumentIndex(workspace.paths, workspace.ignorePath)
   protected val types: mutable.Map[TypeName, TypeDeclaration] = mutable.Map[TypeName, TypeDeclaration]()
 
   def documentsByExtension(ext: Name): Seq[MetadataDocumentType] = documents.getByExtension(ext)

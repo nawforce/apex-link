@@ -32,7 +32,11 @@ import com.nawforce.runtime.path.Path
 
 class ForceIgnore(rootPath: PathLike, ignoreRules: Seq[IgnoreRule]) {
   private val absRootPath = rootPath.absolute.toString
-  private val absRootPathLength = absRootPath.length
+  private val removeLength =
+    if (rootPath.absolute.basename.isEmpty)
+      absRootPath.toString.length
+    else
+      absRootPath.toString.length + 1   // To allow for trailing '/'
 
   def includeDirectory(path: PathLike): Boolean = {
     include(path, directory = true)
@@ -47,7 +51,7 @@ class ForceIgnore(rootPath: PathLike, ignoreRules: Seq[IgnoreRule]) {
     if (!absPath.startsWith(absRootPath))
       return false
 
-    val relativePath = absPath.toString.substring(absRootPathLength)
+    val relativePath = absPath.toString.substring(removeLength)
     var include = true
     ignoreRules.foreach(rule => {
       if (directory || !rule.dirOnly) {
@@ -63,11 +67,11 @@ class ForceIgnore(rootPath: PathLike, ignoreRules: Seq[IgnoreRule]) {
 }
 
 object ForceIgnore {
-  def apply(rootPath: PathLike, path: PathLike): Either[String, ForceIgnore] = {
+  def apply(path: PathLike): Either[String, ForceIgnore] = {
     path.read() match {
       case Left(err) => Left(err)
       case Right(data) =>
-        Right(new ForceIgnore(rootPath.absolute, IgnoreRule.read(data)))
+        Right(new ForceIgnore(path.parent.absolute, IgnoreRule.read(data)))
     }
   }
 }
