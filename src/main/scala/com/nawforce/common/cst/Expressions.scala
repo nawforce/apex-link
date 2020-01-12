@@ -462,13 +462,17 @@ object Expression {
           BinaryExpression(Expression.construct(expressions(0), context),
             Expression.construct(expressions(1), context), gt + lt)
         case expr: CmpExpressionContext =>
-          val op = CodeParser.toScala(expr.GE())
-            .orElse(CodeParser.toScala(expr.GT()))
-            .orElse(CodeParser.toScala(expr.LE()))
-            .orElse(CodeParser.toScala(expr.LT()))
+          val assign = CodeParser.toScala(expr.ASSIGN()).nonEmpty
+          val op = CodeParser.getText(CodeParser.toScala(expr.GT()).orElse(CodeParser.toScala(expr.LT())).get)
+          val opText = (assign, op) match {
+            case (true, ">") => ">="
+            case (true, "<") => "<="
+            case (false, op) => op
+            case _ => assert(false); ""
+          }
           val expressions = CodeParser.toScala(expr.expression())
           BinaryExpression(Expression.construct(expressions(0), context),
-            Expression.construct(expressions(1), context), CodeParser.getText(op.get))
+            Expression.construct(expressions(1), context), opText)
         case expr: InstanceOfExpressionContext =>
           InstanceOfExpression(Expression.construct(expr.expression(), context),
             TypeRef.construct(expr.typeRef()))

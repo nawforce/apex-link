@@ -187,8 +187,6 @@ DOT             : '.';
 // §3.12 Operators
 
 ASSIGN          : '=';
-LE              : '<=';
-GE              : '>=';
 GT              : '>';
 LT              : '<';
 BANG            : '!';

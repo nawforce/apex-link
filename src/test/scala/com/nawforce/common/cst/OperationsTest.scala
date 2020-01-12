@@ -100,6 +100,11 @@ class OperationsTest extends AnyFunSuite with BeforeAndAfter {
     assert(!defaultOrg.issues.hasMessages)
   }
 
+  test("Split comparator") {
+    typeDeclaration("public class Dummy {{Boolean a; a = 1 < = 2; }}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
   test("Bitwise Integer to Integer") {
     typeDeclaration("public class Dummy {{Integer a; a = a & 2; }}")
     assert(!defaultOrg.issues.hasMessages)
@@ -162,6 +167,4 @@ class OperationsTest extends AnyFunSuite with BeforeAndAfter {
     defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
   }
-
-
 }
