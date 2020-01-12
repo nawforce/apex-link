@@ -32,11 +32,8 @@ import com.nawforce.common.diagnostics.IssueLog
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.path.PathLike
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types._
-
-import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
 class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
   extends PackageDeclaration(workspace, _basePackages) {
@@ -125,6 +122,10 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
         case docType: ApexDocument =>
           val data = docType.path.read()
           ApexTypeDeclaration.create(this, docType.path, data.right.get)
+        case docType: ApexTriggerDocument =>
+          val data = docType.path.read()
+          ApexTriggerDeclaration.create(this, docType.path, data.right.get)
+          Nil
         case docType: SObjectDocument =>
           SObjectDeclaration.create(this, docType.path)
         case docType: PlatformEventDocument =>

@@ -41,18 +41,16 @@
 parser grammar ApexParser;
 options {tokenVocab=ApexLexer;}
 
-@header {
-import java.util.*; 
-}
+// entry point for Apex trigger files
+triggerUnit
+    : TRIGGER id ON id LPAREN triggerCase (COMMA triggerCase) RPAREN block EOF
+    ;
 
-@oarser::members {
-    public void clearCache() {
-        _interp.clearDFA();
-    }
-}
+triggerCase
+    : (BEFORE|AFTER) (INSERT|UPDATE|DELETE|UNDELETE)
+    ;
 
-
-// starting point for parsing a apexcode file
+// entry point for Apex class files
 compilationUnit
     : typeDeclaration EOF
     ;
@@ -505,6 +503,8 @@ soqlLiteral
 id
     : Identifier
     | ABSTRACT
+    | AFTER
+    | BEFORE
     | BREAK
     | BYTE
     | CATCH
@@ -547,6 +547,7 @@ id
     | TESTMETHOD
     | THROW
     | TRANSIENT
+    | TRIGGER
     | TRY
     | UNDELETE
     | UPDATE

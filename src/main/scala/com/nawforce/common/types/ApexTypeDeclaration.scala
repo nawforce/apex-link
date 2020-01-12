@@ -205,7 +205,7 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
 
 object ApexTypeDeclaration {
   def create(pkg: PackageDeclaration, path: PathLike, data: String): Seq[ApexTypeDeclaration] = {
-    CodeParser.parseCompilationUnit(path, data) match {
+    CodeParser.parseClass(path, data) match {
       case Left(err) =>
         Org.logMessage(LineLocation(path, err.line), err.message)
         Nil

@@ -83,8 +83,6 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
         ServerOps.debug(ServerOps.Trace, s"Ignoring directory $path")
       }
     } else if (path.nature.isInstanceOf[FILE]) {
-      if (path.toString == "/Users/kjones/ff/erp/erp/force-app/main/common_objects/objects/BillingDocument__c_template/BillingDocument__c_template.object-meta.xml")
-        println()
       if (forceIgnore.forall(_.includeFile(path))) {
         insertDocument(DocumentType(path))
       } else {

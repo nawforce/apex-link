@@ -40,16 +40,6 @@
  */
 lexer grammar ApexLexer;
 
-@header {
-import java.util.*; 
-}
-
-@lexer::members {
-    public void clearCache() {
-        _interp.clearDFA();
-    }
-}
-
 channels {
     WHITESPACE_CHANNEL,
     COMMENT_CHANNEL
@@ -57,6 +47,8 @@ channels {
 
 // Keywords
 ABSTRACT      : 'abstract';
+AFTER         : 'after';
+BEFORE        : 'before';
 BREAK         : 'break';
 BYTE          : 'byte';
 CATCH         : 'catch';
@@ -101,6 +93,7 @@ TESTMETHOD    : 'testmethod';
 THIS          : 'this';
 THROW         : 'throw';
 TRANSIENT     : 'transient';
+TRIGGER       : 'trigger';
 TRY           : 'try';
 UNDELETE      : 'undelete';
 UPDATE        : 'update';

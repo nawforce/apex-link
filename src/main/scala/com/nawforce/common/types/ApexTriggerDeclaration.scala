@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2017 Kevin Jones
+ Copyright (c) 2019 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -25,25 +25,33 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.parsers
+package com.nawforce.common.types
 
-import com.nawforce.common.path.PathFactory
+import com.nawforce.common.api.Org
+import com.nawforce.common.cst.ConstructContext
+import com.nawforce.common.documents.LineLocation
+import com.nawforce.common.path.PathLike
+import com.nawforce.runtime.parsers.ApexParser.TriggerUnitContext
 import com.nawforce.runtime.parsers.CodeParser
-import org.scalatest.funsuite.AnyFunSuite
 
-class CodeParserTest extends AnyFunSuite {
+class ApexTriggerDeclaration {
 
-  test("Good class") {
-    CodeParser.parseClass(PathFactory("Hello.cls"), "public class Hello {}") match {
-      case Left(_) => assert(false)
-      case Right(cu) => assert(cu != null)
+}
+
+object ApexTriggerDeclaration {
+  def create(pkg: PackageDeclaration, path: PathLike, data: String): Seq[ApexTriggerDeclaration] = {
+    CodeParser.parseTrigger(path, data) match {
+      case Left(err) =>
+        Org.logMessage(LineLocation(path, err.line), err.message)
+        Nil
+      case Right(cu) =>
+        Seq(ApexTriggerDeclaration.construct(pkg, path, cu, new ConstructContext()))
     }
   }
 
-  test("Broken class") {
-    CodeParser.parseClass(PathFactory("Hello.cls"), "public class Hello {") match {
-      case Left(ex) => ()
-      case Right(_) => assert(false)
-    }
+  def construct(declaration: PackageDeclaration, path: PathLike, trigger: TriggerUnitContext, context: ConstructContext)
+    : ApexTriggerDeclaration = {
+    new ApexTriggerDeclaration()
   }
 }
+

@@ -57,6 +57,15 @@ final case class ApexDocument(_path: PathLike, _name: Name)
   override val indexByName: Boolean = true
 }
 
+final case class ApexTriggerDocument(_path: PathLike, _name: Name)
+  extends MetadataDocumentType(_path, _name) {
+  lazy val extension: Name = Name("trigger")
+  override val ignorable: Boolean = {
+    path.nature == EMPTY_FILE || path.read().toOption.contains("(hidden)")
+  }
+  override val indexByName: Boolean = false
+}
+
 final case class ComponentDocument(_path: PathLike, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("component")
@@ -100,6 +109,9 @@ object DocumentType {
     splitFilename(path) match {
       case Seq(name, Name("cls")) =>
         Some(ApexDocument(path, name))
+
+      case Seq(name, Name("trigger")) =>
+        Some(ApexTriggerDocument(path, name))
 
       case Seq(name, Name("component")) =>
         Some(ComponentDocument(path, name))

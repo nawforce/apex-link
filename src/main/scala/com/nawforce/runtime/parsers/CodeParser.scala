@@ -42,9 +42,17 @@ object CodeParser {
   type ParserRuleContext = org.antlr.v4.runtime.ParserRuleContext
   type TerminalNode = org.antlr.v4.runtime.tree.TerminalNode
 
-  def parseCompilationUnit(path: PathLike, data: String): Either[SyntaxException, ApexParser.CompilationUnitContext] = {
+  def parseClass(path: PathLike, data: String): Either[SyntaxException, ApexParser.CompilationUnitContext] = {
     try {
       Right(createParser(path, data).compilationUnit())
+    } catch {
+      case ex: SyntaxException => Left(ex)
+    }
+  }
+
+  def parseTrigger(path: PathLike, data: String): Either[SyntaxException, ApexParser.TriggerUnitContext] = {
+    try {
+      Right(createParser(path, data).triggerUnit())
     } catch {
       case ex: SyntaxException => Left(ex)
     }
