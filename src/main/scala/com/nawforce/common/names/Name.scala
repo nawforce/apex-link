@@ -35,8 +35,21 @@ import scalaz.Memo
 case class Name(value: String) {
   private val normalised = value.toLowerCase
 
-  lazy val isLegalIdentifier: Boolean = {
-    value.nonEmpty && value(0) != '_' && !value(0).isDigit && !value.contains("__") && !value.contains('$')
+  // Check or return error message
+  lazy val isLegalIdentifier: Option[String] = {
+    assert(value.nonEmpty)
+
+    if (!value.matches("^[0-9a-zA-Z_]*$")) {
+      Some("can only use characters A-Z, a-z, 0-9 or _")
+    } else if (value(0) >= '0' && value(0) <= '9') {
+      Some("can not start with a digit")
+    } else if (value.head == '_' || value.last == '_') {
+      Some("can not start or end with '_'")
+    } else if (value.contains("__")) {
+      Some("can not use '__'")
+    } else {
+      None
+    }
   }
 
   lazy val isReservedIdentifier: Boolean = {

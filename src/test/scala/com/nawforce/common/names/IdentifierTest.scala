@@ -30,21 +30,23 @@ package com.nawforce.common.names
 import org.scalatest.funsuite.AnyFunSuite
 
 class IdentifierTest extends AnyFunSuite {
+  private val illegalUnderscore = "can not start or end with '_'"
+  private val illegalDigit="can not start with a digit"
+  private val illegalChar = "can only use characters A-Z, a-z, 0-9 or _"
+  private val illegalDoubleUnderscore="can not use '__'"
 
   test("Illegal identifiers") {
-    assert(!Name("").isLegalIdentifier)
-    assert(!Name("_").isLegalIdentifier)
-    assert(!Name("_a").isLegalIdentifier)
-    assert(!Name("0").isLegalIdentifier)
-    assert(!Name("0a").isLegalIdentifier)
-    assert(Name("a").isLegalIdentifier)
-    assert(Name("ab").isLegalIdentifier)
-    assert(!Name("__ab").isLegalIdentifier)
-    assert(!Name("a__b").isLegalIdentifier)
-    assert(!Name("ab__").isLegalIdentifier)
-    assert(!Name("$ab").isLegalIdentifier)
-    assert(!Name("a$b").isLegalIdentifier)
-    assert(!Name("ab$").isLegalIdentifier)
+    assert(Name("a").isLegalIdentifier.isEmpty)
+    assert(Name("ab").isLegalIdentifier.isEmpty)
+    assert(Name("_").isLegalIdentifier.contains(illegalUnderscore))
+    assert(Name("_a").isLegalIdentifier.contains(illegalUnderscore))
+    assert(Name("a_").isLegalIdentifier.contains(illegalUnderscore))
+    assert(Name("0").isLegalIdentifier.contains(illegalDigit))
+    assert(Name("0a").isLegalIdentifier.contains(illegalDigit))
+    assert(Name("a__b").isLegalIdentifier.contains(illegalDoubleUnderscore))
+    assert(Name("$ab").isLegalIdentifier.contains(illegalChar))
+    assert(Name("a$b").isLegalIdentifier.contains(illegalChar))
+    assert(Name("ab$").isLegalIdentifier.contains(illegalChar))
   }
 
   test("Reserved identifiers") {
