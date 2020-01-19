@@ -25,56 +25,26 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.api
+package com.nawforce.platform.Internal;
 
-import com.nawforce.common.path.PathLike
+import com.nawforce.platform.System.*;
+import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Integer;
 
-trait Logger {
-  def error(message: String): Unit
-  def info(message: String): Unit
-  def debug(message: String): Unit
-}
+@SuppressWarnings("unused")
+public class Trigger$<T> {
+    public Boolean isAfter;
+    public Boolean isBefore;
+    public Boolean isDelete;
+    public Boolean isExecuting;
+    public Boolean isInsert;
+    public Boolean isUndelete;
+    public Boolean isUpdate;
 
-class DefaultLogger extends Logger {
-  def error(message: String): Unit = {println("[error] " + message)}
-  def info(message: String): Unit = {println(message)}
-  def debug(message: String): Unit = {println("[debug] " + message)}
-}
-
-/* Collection of Ops functions for changing behaviour */
-object ServerOps  {
-  private var logging: Boolean = false
-  private var logger: Logger = new DefaultLogger
-
-  val Trace: String = "TRACE"
-
-  /* Set debug logging categories, only supported option is 'ALL' */
-  def setDebugLogging(flags: Array[String]): Unit = {
-    logging = flags.contains("ALL")
-  }
-
-  def setLogger(newLogger: Logger): Logger = {
-    val old = logger
-    logger = newLogger
-    old
-  }
-
-  def error(message: String): Unit = logger.error(message)
-
-  def info(message: String): Unit = logger.info(message)
-
-  def debug(category: String, message: String): Unit = {
-    if (logging)
-      logger.debug(message)
-  }
-
-  def debugTime(msg: String)(op: => Unit): Unit = {
-    val start = System.currentTimeMillis()
-    try {
-      op
-    } finally {
-      val end = System.currentTimeMillis()
-      ServerOps.debug(ServerOps.Trace, s"$msg in ${end - start}ms")
-    }
-  }
+    public List<T> New;
+    public Map<Id, T> newMap;
+    public List<T> old;
+    public Map<Id, T> oldMap;
+    public TriggerOperation operationType;
+    public Integer size;
 }

@@ -31,6 +31,7 @@ import com.nawforce.common.cst.UnusedLog
 import com.nawforce.common.diagnostics.IssueLog
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
+import com.nawforce.common.metadata.MetadataDeclaration
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types._
@@ -94,6 +95,10 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
     val classes = documentsByExtension(Name("cls"))
     ServerOps.debug(ServerOps.Trace, s"Found ${classes.size} classes to parse")
     deployMetadata(classes)
+
+    val triggers = documentsByExtension(Name("trigger"))
+    ServerOps.debug(ServerOps.Trace, s"Found ${triggers.size} triggers to parse")
+    deployMetadata(triggers)
   }
 
   def schemaValidate(): Unit = {
@@ -114,7 +119,7 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
     }
   }
 
-  def loadFromDocument(doc: MetadataDocumentType): Seq[TypeDeclaration] = {
+  def loadFromDocument(doc: MetadataDocumentType): Seq[MetadataDeclaration] = {
     Org.current.withValue(org) {
       val start = System.currentTimeMillis()
 
@@ -125,7 +130,6 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
         case docType: ApexTriggerDocument =>
           val data = docType.path.read()
           ApexTriggerDeclaration.create(this, docType.path, data.right.get)
-          Nil
         case docType: SObjectDocument =>
           SObjectDeclaration.create(this, docType.path)
         case docType: PlatformEventDocument =>
@@ -140,7 +144,7 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
 
       val end = System.currentTimeMillis()
       ServerOps.debug(ServerOps.Trace, s"Parsed ${doc.path} in ${end - start}ms")
-      tds.foreach(upsertType)
+      tds.foreach(upsertMetadata)
       tds
     }
   }
@@ -150,10 +154,13 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
   }
 
   private def validateMetadata(): Unit = {
-    types.values.filter(_.isInstanceOf[ApexTypeDeclaration]).foreach(td => {
-      Org.current.withValue(org) {
+    Org.current.withValue(org) {
+      types.values.filter(_.isInstanceOf[ApexTypeDeclaration]).foreach(td => {
         td.validate()
-      }
-    })
+      })
+      other.values.foreach(md => {
+        md.validate()
+      })
+    }
   }
 }

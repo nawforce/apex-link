@@ -32,6 +32,7 @@ import com.nawforce.common.api.Package
 import com.nawforce.common.documents.{DocumentIndex, MetadataDocumentType}
 import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
+import com.nawforce.common.metadata.MetadataDeclaration
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.runtime.types.PlatformTypeDeclaration
@@ -43,6 +44,7 @@ abstract class PackageDeclaration(val workspace: Workspace, var basePackages: Se
   val namespace: Option[Name] = workspace.namespace
   protected val documents = new DocumentIndex(workspace.paths, workspace.ignorePath)
   protected val types: mutable.Map[TypeName, TypeDeclaration] = mutable.Map[TypeName, TypeDeclaration]()
+  protected val other: mutable.Map[Name, MetadataDeclaration] = mutable.Map[Name, MetadataDeclaration]()
 
   def documentsByExtension(ext: Name): Seq[MetadataDocumentType] = documents.getByExtension(ext)
 
@@ -151,8 +153,11 @@ abstract class PackageDeclaration(val workspace: Workspace, var basePackages: Se
     basePackages.view.flatMap(pkg => pkg.getPackageType(typeName, inPackage = false)).headOption
   }
 
-  def upsertType(declaration: TypeDeclaration): Unit = {
-    upsertType(declaration.typeName, declaration)
+  def upsertMetadata(md: MetadataDeclaration): Unit = {
+    md match {
+      case td: TypeDeclaration if td.isSearchable => upsertType(td.typeName, td)
+      case _ => other.put(md.internalName, md)
+    }
   }
 
   protected def upsertType(typeName: TypeName, declaration: TypeDeclaration): Unit = {

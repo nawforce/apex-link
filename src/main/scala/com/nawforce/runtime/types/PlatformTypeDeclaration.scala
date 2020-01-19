@@ -33,6 +33,7 @@ import java.util
 
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
+import com.nawforce.common.metadata.Dependant
 import com.nawforce.common.names.{DotName, Name, TypeName}
 import com.nawforce.common.types._
 import scalaz._

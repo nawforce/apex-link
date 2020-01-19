@@ -80,7 +80,7 @@ final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeName: Ty
   extends CST {
   def verify(context: BlockVerifyContext): Unit = {
     val staticContext = if (context.isStatic) Some(true) else None
-    variableDeclarators.verify(ExprContext(isStatic = staticContext, context.thisType), context)
+    variableDeclarators.verify(ExprContext(isStatic = staticContext, context.pkg, context.thisType), context)
   }
 
   def addVars(context: BlockVerifyContext): Unit = {

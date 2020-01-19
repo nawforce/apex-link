@@ -27,15 +27,56 @@
 */
 package com.nawforce.common.types
 
-import com.nawforce.common.api.Org
-import com.nawforce.common.cst.ConstructContext
+import com.nawforce.common.api.{Org, ServerOps}
+import com.nawforce.common.cst._
 import com.nawforce.common.documents.LineLocation
+import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
-import com.nawforce.runtime.parsers.ApexParser.TriggerUnitContext
+import com.nawforce.runtime.parsers.ApexParser.{TriggerCaseContext, TriggerUnitContext}
 import com.nawforce.runtime.parsers.CodeParser
 
-class ApexTriggerDeclaration {
+sealed abstract class TriggerCase(val name: String)
+case object BEFORE_INSERT extends TriggerCase("before insert")
+case object BEFORE_UPDATE extends TriggerCase("before update")
+case object BEFORE_DELETE extends TriggerCase("before delete")
+case object BEFORE_UNDELETE extends TriggerCase(name = "before undelete")
+case object AFTER_INSERT extends TriggerCase(name = "after insert")
+case object AFTER_UPDATE extends TriggerCase(name = "after update")
+case object AFTER_DELETE extends TriggerCase(name= "after delete")
+case object AFTER_UNDELETE extends TriggerCase(name = "after undelete")
 
+class ApexTriggerDeclaration(path: PathLike, val pkg: PackageDeclaration, name: Id, objectName: Id,
+                             cases: Seq[TriggerCase], block: Block)
+  extends NamedTypeDeclaration(pkg, TypeName(Name(s"__sfdc_trigger/${objectName.name}"))) {
+
+  override val isSearchable: Boolean = false
+
+  private val objectTypeName = TypeName(objectName.name)
+
+  override def validate(): Unit = {
+    ServerOps.debugTime(s"Validated $path") {
+      name.validate()
+
+      val duplicateCases = cases.groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
+      duplicateCases.foreach(triggerCase =>
+        Org.logMessage(objectName.location, s"Duplicate trigger case for '${triggerCase.name}'"))
+
+      val context = new TriggerVerifyContext(pkg, this)
+      val tdOpt = context.getTypeAndAddDependency(objectTypeName, Some(this))
+      tdOpt match {
+        case Left(error) =>
+          Org.logMessage(objectName.location, error.toString)
+        case Right(_) =>
+          val triggerContext = context.getTypeFor(TypeName.trigger(objectTypeName), Some(this)).right.get
+          val tc = TriggerContext(pkg, triggerContext)
+          pkg.upsertMetadata(tc)
+
+          val blockContext = new OuterBlockVerifyContext(context, isStaticContext = false)
+          blockContext.addVar(Name.Trigger, tc)
+          block.verify(blockContext)
+      }
+    }
+  }
 }
 
 object ApexTriggerDeclaration {
@@ -49,9 +90,48 @@ object ApexTriggerDeclaration {
     }
   }
 
-  def construct(declaration: PackageDeclaration, path: PathLike, trigger: TriggerUnitContext, context: ConstructContext)
+  def construct(pkg: PackageDeclaration, path: PathLike, trigger: TriggerUnitContext, context: ConstructContext)
     : ApexTriggerDeclaration = {
-    new ApexTriggerDeclaration()
+    val ids = CodeParser.toScala(trigger.id())
+    val cases = CodeParser.toScala(trigger.triggerCase()).map(constructCase)
+    new ApexTriggerDeclaration(path, pkg,
+      Id.construct(ids.head, context), Id.construct(ids(1), context), cases, Block.construct(trigger.block(), context))
+  }
+
+  def constructCase(triggerCase: TriggerCaseContext): TriggerCase = {
+    if (CodeParser.toScala(triggerCase.BEFORE()).nonEmpty) {
+      if (CodeParser.toScala(triggerCase.INSERT()).nonEmpty)
+        BEFORE_INSERT
+      else if (CodeParser.toScala(triggerCase.UPDATE()).nonEmpty)
+        BEFORE_UPDATE
+      else if (CodeParser.toScala(triggerCase.DELETE()).nonEmpty)
+        BEFORE_DELETE
+      else
+        BEFORE_UNDELETE
+    } else {
+      if (CodeParser.toScala(triggerCase.INSERT()).nonEmpty)
+        AFTER_INSERT
+      else if (CodeParser.toScala(triggerCase.UPDATE()).nonEmpty)
+        AFTER_UPDATE
+      else if (CodeParser.toScala(triggerCase.DELETE()).nonEmpty)
+        AFTER_DELETE
+      else
+        AFTER_UNDELETE
+    }
   }
 }
+
+final case class TriggerContext(pkg: PackageDeclaration, baseType: TypeDeclaration)
+  extends NamedTypeDeclaration(pkg, TypeName(Name.Trigger)) {
+
+  override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
+    baseType.findField(name, staticContext)
+  }
+
+  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
+                          verifyContext: VerifyContext): Seq[MethodDeclaration] = {
+    baseType.findMethod(name, params, staticContext, verifyContext)
+  }
+}
+
 

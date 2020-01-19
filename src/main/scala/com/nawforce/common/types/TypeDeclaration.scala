@@ -33,6 +33,7 @@ import com.nawforce.common.cst._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.runtime.types._
+import com.nawforce.common.metadata.{Dependant, DependencyHolder, MetadataDeclaration}
 
 import scala.collection.mutable
 
@@ -48,25 +49,6 @@ object Nature {
       case INTERFACE_NATURE.value => INTERFACE_NATURE
       case ENUM_NATURE.value => ENUM_NATURE
     }
-  }
-}
-
-trait Dependant {
-  private val dependencyHolders = mutable.Set[DependencyHolder]()
-
-  def addDependencyHolder(dependencyHolder: DependencyHolder): Unit = {
-    dependencyHolders.add(dependencyHolder)
-  }
-
-  def hasHolders: Boolean = dependencyHolders.nonEmpty
-
-  def getDependencyHolders: Set[DependencyHolder] = dependencyHolders.toSet
-}
-
-trait DependencyHolder extends Dependant {
-  def dependencies(): Set[Dependant] = Set.empty
-  def propagateDependencies(): Unit = {
-    dependencies().foreach(_.addDependencyHolder(this))
   }
 }
 
@@ -184,7 +166,8 @@ trait MethodDeclaration extends DependencyHolder {
   )
 }
 
-trait TypeDeclaration extends DependencyHolder {
+trait TypeDeclaration extends MetadataDeclaration {
+  override lazy val internalName: Name = Name(typeName.toString)
   val packageDeclaration: Option[PackageDeclaration]
   val name: Name
   val typeName: TypeName

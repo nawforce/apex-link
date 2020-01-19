@@ -28,10 +28,10 @@
 
 package com.nawforce.common.api
 
-import com.nawforce.common.types.{ApexTypeDeclaration, Dependant, TypeDeclaration}
+import com.nawforce.common.metadata.Dependant
+import com.nawforce.common.types.{ApexTypeDeclaration, TypeDeclaration}
 
 import scala.collection.mutable
-import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
 case class TypeInfo(typeDeclaration: TypeDeclaration) {
 

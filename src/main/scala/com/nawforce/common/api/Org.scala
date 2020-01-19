@@ -36,7 +36,6 @@ import com.nawforce.common.path.{DIRECTORY, PathFactory, PathLike}
 import com.nawforce.common.sfdx.{MDAPIWorkspace, Workspace}
 import com.nawforce.common.types.TypeDeclaration
 
-import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 import scala.util.DynamicVariable
 
 /** Org abstraction, a simulation of the metadata installed on an org. Use the 'current' dynamic variable to access
@@ -133,6 +132,10 @@ class Org {
 
 object Org {
   val current: DynamicVariable[Org] = new DynamicVariable[Org](null)
+
+  def unmanaged(): Package = {
+    Org.current.value.unmanaged
+  }
 
   def log(location: Location, msg: String, category: IssueCategory): Unit = {
     Org.current.value.issues.logMessage(location, msg, category)

@@ -70,7 +70,7 @@ final case class Id(name: Name) extends CST {
   def validate(): Unit = {
     val illegalError = name.isLegalIdentifier
     if (illegalError.nonEmpty)
-      Org.logMessage(location, s"$name' is not legal identifier in Apex, identifiers $illegalError")
+      Org.logMessage(location, s"$name' is not legal identifier in Apex, identifiers ${illegalError.get}")
 
     else if (name.isReservedIdentifier)
       Org.logMessage(location, s"'$name' is a reserved identifier in Apex")

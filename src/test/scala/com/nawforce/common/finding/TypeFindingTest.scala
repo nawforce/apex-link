@@ -58,7 +58,7 @@ class TypeFindingTest extends AnyFunSuite {
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(org.unmanaged, defaultPath,
         "public class Dummy {}").head
-      org.unmanaged.upsertType(td)
+      org.unmanaged.upsertMetadata(td)
       assert(org.unmanaged.getTypeOption(TypeName(Name("Dummy"))).get.typeName == td.typeName)
     }
   }
@@ -68,7 +68,7 @@ class TypeFindingTest extends AnyFunSuite {
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath,
         "public class Dummy {}").head
-      org.unmanaged.upsertType(td)
+      org.unmanaged.upsertMetadata(td)
       assert(org.unmanaged.getTypeOption(TypeName(Name("dummy"))).get.typeName == td.typeName)
     }
   }
@@ -78,7 +78,7 @@ class TypeFindingTest extends AnyFunSuite {
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath,
         "public class Dummy {class Inner {}}").head
-      org.unmanaged.upsertType(td)
+      org.unmanaged.upsertMetadata(td)
       val innerTypeName = TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"))))
       assert(org.unmanaged.getTypeOption(innerTypeName).get.typeName == innerTypeName)
     }
@@ -89,7 +89,7 @@ class TypeFindingTest extends AnyFunSuite {
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath,
         "public class Dummy {class Inner {}}").head
-      org.unmanaged.upsertType(td)
+      org.unmanaged.upsertMetadata(td)
       val innerTypeName = TypeName(Name("iNner"), Nil, Some(TypeName(Name("Dummy"))))
       assert(org.unmanaged.getTypeOption(innerTypeName).get.typeName == innerTypeName)
     }
@@ -101,7 +101,7 @@ class TypeFindingTest extends AnyFunSuite {
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(pkg, defaultPath,
         "global class Dummy {}").head
-      pkg.upsertType(td)
+      pkg.upsertMetadata(td)
       assert(org.unmanaged.getTypeOption(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("NS"))))).get.typeName == td.typeName)
       assert(org.unmanaged.getTypeOption(TypeName(Name("Dummy"))).isEmpty)
     }
@@ -113,7 +113,7 @@ class TypeFindingTest extends AnyFunSuite {
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(pkg, defaultPath,
         "public class Dummy {}").head
-      pkg.upsertType(td)
+      pkg.upsertMetadata(td)
       assert(org.getType("", "NS.Dummy") == null)
       assert(org.getType("", "Dummy") == null)
       assert(org.getType("NS", "NS.Dummy") != null)
@@ -127,7 +127,7 @@ class TypeFindingTest extends AnyFunSuite {
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(pkg, defaultPath,
         "global class Dummy {class Inner {}}").head
-      pkg.upsertType(td)
+      pkg.upsertMetadata(td)
       val innerTypeName = TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("NS"))))))
       assert(org.unmanaged.getTypeOption(innerTypeName).get.typeName == innerTypeName)
       assert(org.unmanaged.getTypeOption(TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"))))).isEmpty)
@@ -140,7 +140,7 @@ class TypeFindingTest extends AnyFunSuite {
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(pkg, defaultPath,
         "public class Dummy {class Inner {}}").head
-      pkg.upsertType(td)
+      pkg.upsertMetadata(td)
 
       assert(org.getType("", "NS.Dummy.Inner") == null)
       assert(org.getType("", "Dummy.Inner") == null)

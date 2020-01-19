@@ -155,6 +155,7 @@ object Name {
   lazy val SObjectTypeFieldSets$: Name = cache("SObjectTypeFieldSets$")
   lazy val SObjectFields$: Name = cache("SObjectFields$")
   lazy val SObjectFieldRowCause$: Name = cache("SObjectFieldRowCause$")
+  lazy val Trigger$: Name = cache("Trigger$")
   lazy val Activity: Name = cache("Activity")
   lazy val Task: Name = cache("Task")
   lazy val Event: Name = cache("Event")
@@ -173,6 +174,7 @@ object Name {
   lazy val Clone: Name = cache("clone")
   lazy val Execute: Name = cache("execute")
   lazy val BatchableContext: Name = cache("BatchableContext")
+  lazy val Trigger: Name = cache("Trigger")
 
   private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
 

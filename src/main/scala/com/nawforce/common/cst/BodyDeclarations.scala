@@ -28,6 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.finding.RelativeTypeName
+import com.nawforce.common.metadata._
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.types._
 import com.nawforce.runtime.parsers.ApexParser._
@@ -216,7 +217,7 @@ final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeN
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     val staticContext = if (isStatic) Some(true) else None
-    variableDeclarator.verify(ExprContext(staticContext, context.thisType),
+    variableDeclarator.verify(ExprContext(staticContext, context.pkg, context.thisType),
       new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER)))
     depends = Some(context.dependencies)
     propagateDependencies()

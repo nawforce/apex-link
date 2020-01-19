@@ -30,6 +30,7 @@ package com.nawforce.common.cmds
 import com.nawforce.common.api.{Org, ServerOps}
 import com.nawforce.common.diagnostics.IssueLog
 import com.nawforce.common.documents.MetadataDocumentType
+import com.nawforce.common.metadata.MetadataDeclaration
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types.{ApexTypeDeclaration, TypeDeclaration}
 
@@ -38,7 +39,7 @@ class Check(workspace: Workspace, zombies: Boolean) {
   private val pkg = org.addPackageInternal(workspace, Seq())
   private var schemaValidated = false
   private var queued: List[Seq[MetadataDocumentType]] = pkg.getDocuments
-  private var tds: List[TypeDeclaration] = Nil
+  private var tds: List[MetadataDeclaration] = Nil
 
   def run(): Option[IssueLog] = {
     if (queued.nonEmpty) {

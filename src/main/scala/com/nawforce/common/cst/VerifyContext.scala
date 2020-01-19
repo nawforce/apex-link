@@ -30,6 +30,7 @@ package com.nawforce.common.cst
 import com.nawforce.common.api.Org
 import com.nawforce.common.documents.Location
 import com.nawforce.common.finding.{TypeError, TypeRequest}
+import com.nawforce.common.metadata.{Dependant, DependencyHolder}
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.types._
 
@@ -105,6 +106,29 @@ trait HolderVerifyContext {
     result
   }
 }
+
+class TriggerVerifyContext(packageDeclaration: PackageDeclaration, typeDeclaration: ApexTriggerDeclaration)
+  extends HolderVerifyContext with VerifyContext {
+
+  override def parent(): Option[VerifyContext] = None
+
+  override def pkg: PackageDeclaration = packageDeclaration
+
+  override def thisType: Option[TypeDeclaration] = Some(typeDeclaration)
+
+  override def superType: Option[TypeDeclaration] = typeDeclaration.superClassDeclaration
+
+  override def holder: DependencyHolder = typeDeclaration
+
+  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
+                          excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {
+    TypeRequest(typeName, from, thisType.flatMap(_.packageDeclaration), excludeSObjects)
+  }
+
+  override def suppressWarnings: Boolean =
+    typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressWarnings)
+}
+
 
 class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: ApexTypeDeclaration)
     extends HolderVerifyContext with VerifyContext {

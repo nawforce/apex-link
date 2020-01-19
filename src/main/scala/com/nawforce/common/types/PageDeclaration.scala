@@ -29,6 +29,7 @@ package com.nawforce.common.types
 
 import com.nawforce.common.documents.{DocumentType, LineLocation, Location, PageDocument}
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.metadata.Dependant
 
 import scala.collection.mutable
 

@@ -87,7 +87,7 @@ class RelatedLists(pkg: PackageDeclaration) {
 
     // Wrap any objects with lookups relationships so they are visible
     changedObjects.foreach(td => {
-      pkg.upsertType(SObjectDeclaration(pkg, td.typeName, CustomObjectNature, Set(), td.fields, isComplete = true))
+      pkg.upsertMetadata(SObjectDeclaration(pkg, td.typeName, CustomObjectNature, Set(), td.fields, isComplete = true))
     })
   }
 
@@ -156,10 +156,10 @@ final case class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDec
       sobjectTypeDeclarationsCreated.add(sobjectName)
       val fields = SObjectFields(sobjectName, pkg)
       val typeFields = SObjectTypeFields(sobjectName, pkg)
-      pkg.upsertType(typeFields)
-      pkg.upsertType(fields)
-      pkg.upsertType(SObjectTypeImpl(sobjectName, fields, pkg))
-      pkg.upsertType(SObjectTypeFieldSets(sobjectName, pkg))
+      pkg.upsertMetadata(typeFields)
+      pkg.upsertMetadata(fields)
+      pkg.upsertMetadata(SObjectTypeImpl(sobjectName, fields, pkg))
+      pkg.upsertMetadata(SObjectTypeFieldSets(sobjectName, pkg))
     }
   }
 }

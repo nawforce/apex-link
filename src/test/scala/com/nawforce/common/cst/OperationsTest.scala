@@ -40,7 +40,7 @@ class OperationsTest extends AnyFunSuite with BeforeAndAfter {
   def typeDeclaration(clsText: String): TypeDeclaration = {
     Org.current.withValue(defaultOrg) {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText).head
-      defaultOrg.unmanaged.upsertType(td)
+      defaultOrg.unmanaged.upsertMetadata(td)
       td.validate()
       td
     }

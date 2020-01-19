@@ -45,55 +45,61 @@ final case class ExpressionPrimary(expression: Expression) extends Primary {
 
 final case class ThisPrimary() extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    assert(input.declaration.nonEmpty)
+
+    if (input.typeDeclarationOpt.isEmpty) {
+      context.logMessage(location, "")
+    }
+
+
+    assert(input.typeDeclarationOpt.nonEmpty)
     if (input.isStatic.contains(true)) {
       context.logMessage(location, s"'this' can not be used in a static context")
       ExprContext.empty
     } else {
       // Allow this to reference statics platform bug
-      ExprContext(isStatic = None, context.thisType)
+      ExprContext(isStatic = None, context.pkg, context.thisType)
     }
   }
 }
 
 final case class SuperPrimary() extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    assert(input.declaration.nonEmpty)
+    assert(input.typeDeclarationOpt.nonEmpty)
     if (input.isStatic.contains(true)) {
       context.logMessage(location, s"'super' can not be used in a static context")
       ExprContext.empty
     } else {
-      ExprContext(isStatic = Some(false), context.superType)
+      ExprContext(isStatic = Some(false), context.pkg, context.superType)
     }
   }
 }
 
 final case class LiteralPrimary(literal: Literal) extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    assert(input.declaration.nonEmpty)
-    ExprContext(isStatic = Some(false), Some(literal.getType))
+    assert(input.typeDeclarationOpt.nonEmpty)
+    ExprContext(isStatic = Some(false), context.pkg, Some(literal.getType))
   }
 }
 
 final case class TypeRefPrimary(typeName: TypeName) extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    assert(input.declaration.nonEmpty)
+    assert(input.typeDeclarationOpt.nonEmpty)
     val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
     if (td.isEmpty)
       context.missingType(location, typeName)
-    ExprContext(isStatic = Some(false), Some(PlatformTypes.typeType))
+    ExprContext(isStatic = Some(false), context.pkg, Some(PlatformTypes.typeType))
   }
 }
 
 final case class IdPrimary(id: Id) extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    assert(input.declaration.nonEmpty)
+    assert(input.typeDeclarationOpt.nonEmpty)
 
     val td = context.isVar(id.name)
     if (td.nonEmpty)
-      return ExprContext(isStatic = Some(false), td)
+      return ExprContext(isStatic = Some(false), td.get)
 
-    input.declaration.get match {
+    input.typeDeclarationOpt.get match {
       case td: TypeDeclaration =>
         val name = id.name
         val staticContext = Some(true).filter(input.isStatic.contains)
@@ -101,12 +107,16 @@ final case class IdPrimary(id: Id) extends Primary {
         if (field.nonEmpty) {
           field.get.addDependencyHolder(context.holder)
           val target = context.getTypeAndAddDependency(field.get.typeName, Some(td)).toOption
-          return ExprContext(isStatic = Some(false), target)
+          if (target.isEmpty) {
+            context.missingType(location, field.get.typeName)
+            return ExprContext.empty
+          }
+          return ExprContext(isStatic = Some(false), target.get)
         }
 
         val typeRef = td.findLocalType(TypeName(id.name))
         if (typeRef.nonEmpty) {
-          return ExprContext(isStatic = Some(true), typeRef)
+          return ExprContext(isStatic = Some(true), typeRef.get)
         }
 
         if (!td.isComplete)
@@ -118,10 +128,10 @@ final case class IdPrimary(id: Id) extends Primary {
     val absTd = TypeRequest(TypeName(id.name), context.pkg, excludeSObjects = false)
     if (absTd.isRight) {
       context.addDependency(absTd.right.get)
-      return ExprContext(isStatic =  Some(true), absTd.toOption)
+      return ExprContext(isStatic =  Some(true), absTd.right.get)
     }
 
-    context.missingIdentifier(location, input.declaration.get.typeName, id.name)
+    context.missingIdentifier(location, input.typeName, id.name)
     ExprContext.empty
   }
 
@@ -137,9 +147,9 @@ final case class IdPrimary(id: Id) extends Primary {
 
 final case class SOQL(soql: String) extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    assert(input.declaration.nonEmpty)
+    assert(input.typeDeclarationOpt.nonEmpty)
 
-    ExprContext(isStatic = Some(false), Some(context.pkg.any()))
+    ExprContext(isStatic = Some(false), context.pkg.any())
   }
 }
 

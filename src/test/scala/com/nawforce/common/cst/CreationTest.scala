@@ -44,7 +44,7 @@ class CreationTest extends AnyFunSuite with BeforeAndAfter {
       if (td.isEmpty)
         defaultOrg.issues.dumpMessages(false)
       td.foreach(t => {
-        defaultOrg.unmanaged.upsertType(t)
+        defaultOrg.unmanaged.upsertMetadata(t)
         t.validate()
       })
       td.head

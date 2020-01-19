@@ -66,10 +66,12 @@ object TypeRequest {
             excludeSObjects: Boolean): TypeRequest = {
     if (from.nonEmpty) {
       // Allow override of platform types in packages to support Schema.SObjectType handling
-      if (from.get.packageDeclaration.isEmpty && pkg.nonEmpty)
-        apply(typeName, pkg.get, excludeSObjects)
-      else
-        apply(typeName, from.get, excludeSObjects)
+      if (from.get.packageDeclaration.isEmpty && pkg.nonEmpty) {
+        val tr = apply(typeName, pkg.get, excludeSObjects)
+        if (tr.isRight)
+          return tr
+      }
+      apply(typeName, from.get, excludeSObjects)
     } else if (pkg.nonEmpty)
       apply(typeName, pkg.get, excludeSObjects)
     else

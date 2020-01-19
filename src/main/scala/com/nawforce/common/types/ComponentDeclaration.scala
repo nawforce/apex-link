@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.common.documents.ComponentDocument
 import com.nawforce.common.finding.TypeRequest
+import com.nawforce.common.metadata.Dependant
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
 

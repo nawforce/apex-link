@@ -40,7 +40,7 @@ final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
 
     val newType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
     if (newType.nonEmpty) {
-      ExprContext(isStatic = Some(false), Some(newType.get))
+      ExprContext(isStatic = Some(false), newType.get)
     } else {
       context.missingType(location, typeName)
       ExprContext.empty
@@ -80,10 +80,10 @@ object IdCreatedNamePair {
 
 final case class Creator(createdName: CreatedName, creatorRest: CreatorRest) extends CST {
   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    assert(input.declaration.nonEmpty)
+    assert(input.typeDeclarationOpt.nonEmpty)
 
     val inter = createdName.verify(context)
-    if (inter.declaration.isEmpty) {
+    if (inter.typeDeclarationOpt.isEmpty) {
       return inter
     }
 
@@ -91,7 +91,7 @@ final case class Creator(createdName: CreatedName, creatorRest: CreatorRest) ext
     if (creatorRest.isInstanceOf[ArrayCreatorRest]) {
       val listType = inter.typeName.asListOf
       val listDeclaration = context.getTypeAndAddDependency(listType, context.thisType)
-      ExprContext(isStatic = Some(false), listDeclaration.toOption)
+      ExprContext(isStatic = Some(false), listDeclaration.toOption.get)
     } else {
       inter
     }
@@ -126,8 +126,8 @@ object NoRest {
 
 final case class ClassCreatorRest(arguments: Seq[Expression]) extends CreatorRest {
   override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {
-    assert(creating.declaration.nonEmpty)
-    val td = creating.declaration.get
+    assert(creating.typeDeclarationOpt.nonEmpty)
+    val td = creating.typeDeclarationOpt.get
 
     if (td.isFieldConstructed)
       td.validateFieldConstructorArguments(input, arguments, context)
@@ -146,7 +146,7 @@ object ClassCreatorRest {
 final case class ArrayCreatorRest(expressions: Option[Expression], arrayInitializer: Option[ArrayInitializer])
   extends CreatorRest {
   override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {
-    assert(creating.declaration.nonEmpty)
+    assert(creating.typeDeclarationOpt.nonEmpty)
 
     // FUTURE: Expression type should be number
     expressions.foreach(_.verify(input, context))
@@ -180,8 +180,8 @@ object ArrayInitializer {
 
 final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends CreatorRest {
   override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {
-    assert(creating.declaration.nonEmpty)
-    val td = creating.declaration.get
+    assert(creating.typeDeclarationOpt.nonEmpty)
+    val td = creating.typeDeclarationOpt.get
     val enclosedTypes = td.typeName.getMapType
 
     if (enclosedTypes.isEmpty) {
@@ -238,8 +238,8 @@ object MapCreatorRestPair {
 /* This is really Set & List creator, where TYPE{expr, expr, ...} form is allowed, it's different from array */
 final case class SetCreatorRest(parts: Seq[Expression]) extends CreatorRest {
   override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {
-     assert(creating.declaration.nonEmpty)
-     val td = creating.declaration.get
+     assert(creating.typeDeclarationOpt.nonEmpty)
+     val td = creating.typeDeclarationOpt.get
      val enclosedType = td.typeName.getSetOrListType
 
      if (enclosedType.isEmpty) {

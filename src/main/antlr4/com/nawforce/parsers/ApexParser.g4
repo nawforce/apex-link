@@ -43,7 +43,7 @@ options {tokenVocab=ApexLexer;}
 
 // entry point for Apex trigger files
 triggerUnit
-    : TRIGGER id ON id LPAREN triggerCase (COMMA triggerCase) RPAREN block EOF
+    : TRIGGER id ON id LPAREN triggerCase (COMMA triggerCase)* RPAREN block EOF
     ;
 
 triggerCase
