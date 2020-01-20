@@ -62,10 +62,12 @@ public class Lead extends SObject {
 	public Id DandbCompanyId;
 	public DandBCompany DandbCompany;
 	public String Description;
+	public Boolean DoNotCall;
 	public String Email;
 	public Datetime EmailBouncedDate;
 	public String EmailBouncedReason;
 	public Boolean HasOptedOutOfEmail;
+	public Boolean HasOptedOutOfFax;
 	public String Fax;
 	public String FirstName;
 	public String GeocodeAccuracy;
