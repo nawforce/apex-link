@@ -28,8 +28,8 @@
 
 package com.nawforce.common.types
 
-import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.metadata.Dependant
+import com.nawforce.common.names.{Name, TypeName}
 
 import scala.collection.mutable
 

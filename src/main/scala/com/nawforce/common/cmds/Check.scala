@@ -32,7 +32,7 @@ import com.nawforce.common.diagnostics.IssueLog
 import com.nawforce.common.documents.MetadataDocumentType
 import com.nawforce.common.metadata.MetadataDeclaration
 import com.nawforce.common.sfdx.Workspace
-import com.nawforce.common.types.{ApexTypeDeclaration, TypeDeclaration}
+import com.nawforce.common.types.ApexTypeDeclaration
 
 class Check(workspace: Workspace, zombies: Boolean) {
   private val org = new Org()

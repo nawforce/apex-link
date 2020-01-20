@@ -27,8 +27,6 @@
 */
 package com.nawforce.common.api
 
-import com.nawforce.common.path.PathLike
-
 trait Logger {
   def error(message: String): Unit
   def info(message: String): Unit

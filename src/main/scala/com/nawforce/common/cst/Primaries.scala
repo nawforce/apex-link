@@ -29,8 +29,8 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
-import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.common.types.{FieldDeclaration, PlatformTypes, TypeDeclaration}
+import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
 sealed abstract class Primary extends CST {
@@ -57,7 +57,7 @@ final case class ThisPrimary() extends Primary {
       ExprContext.empty
     } else {
       // Allow this to reference statics platform bug
-      ExprContext(isStatic = None, context.pkg, context.thisType)
+      ExprContext(isStatic = None, context.thisType)
     }
   }
 }
@@ -69,7 +69,7 @@ final case class SuperPrimary() extends Primary {
       context.logMessage(location, s"'super' can not be used in a static context")
       ExprContext.empty
     } else {
-      ExprContext(isStatic = Some(false), context.pkg, context.superType)
+      ExprContext(isStatic = Some(false), context.superType)
     }
   }
 }
@@ -77,7 +77,7 @@ final case class SuperPrimary() extends Primary {
 final case class LiteralPrimary(literal: Literal) extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.typeDeclarationOpt.nonEmpty)
-    ExprContext(isStatic = Some(false), context.pkg, Some(literal.getType))
+    ExprContext(isStatic = Some(false), Some(literal.getType))
   }
 }
 
@@ -87,7 +87,7 @@ final case class TypeRefPrimary(typeName: TypeName) extends Primary {
     val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
     if (td.isEmpty)
       context.missingType(location, typeName)
-    ExprContext(isStatic = Some(false), context.pkg, Some(PlatformTypes.typeType))
+    ExprContext(isStatic = Some(false), Some(PlatformTypes.typeType))
   }
 }
 

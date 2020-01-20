@@ -35,8 +35,6 @@ import com.nawforce.runtime.parsers.ApexParser.{AnnotationContext, IdContext, Mo
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 
-import scala.annotation.switch
-
 sealed abstract class Modifier(final val name: String, val order: Integer=0) {
   override def toString: String = name
 }

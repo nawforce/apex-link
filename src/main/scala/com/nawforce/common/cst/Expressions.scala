@@ -54,31 +54,15 @@ case class TypeExprContext(isStatic: Option[Boolean], declaration: Option[TypeDe
   override def packageDeclarationOpt: Option[PackageDeclaration] = typeDeclarationOpt.flatMap(_.packageDeclaration)
 }
 
-case class PackageExprContext(declaration: Option[PackageDeclaration]) extends ExprContext {
-  override def isStatic: Option[Boolean] = Some(true)
-  override def isDefined: Boolean = declaration.nonEmpty
-
-  override def typeDeclarationOpt: Option[TypeDeclaration] = None
-  override def packageDeclarationOpt: Option[PackageDeclaration] = declaration
-}
-
-
 object ExprContext {
-  def empty: ExprContext = PackageExprContext(None)
+  lazy val empty: ExprContext = TypeExprContext(None, None)
 
   def apply(isStatic: Option[Boolean], typeDeclaration: TypeDeclaration): ExprContext = {
     TypeExprContext(isStatic, Some(typeDeclaration))
   }
 
-  def apply(isStatic: Option[Boolean], pkg: PackageDeclaration): ExprContext = {
-    PackageExprContext(Some(pkg))
-  }
-
-  def apply(isStatic: Option[Boolean], pkg: PackageDeclaration, typeDeclaration: Option[TypeDeclaration]): ExprContext = {
-    if (typeDeclaration.isEmpty)
-      PackageExprContext(Some(pkg))
-    else
-      TypeExprContext(isStatic, typeDeclaration)
+  def apply(isStatic: Option[Boolean], typeDeclaration: Option[TypeDeclaration]): ExprContext = {
+     TypeExprContext(isStatic, typeDeclaration)
   }
 }
 
@@ -86,7 +70,7 @@ sealed abstract class Expression extends CST {
   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext
   def verify(context: BlockVerifyContext): Unit = {
     val staticContext = if (context.isStatic) Some(true) else None
-    verify(ExprContext(staticContext, context.pkg, context.thisType), new ExpressionVerifyContext(context))
+    verify(ExprContext(staticContext, context.thisType), new ExpressionVerifyContext(context))
   }
 }
 
@@ -195,7 +179,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
 final case class ArrayExpression(expression: Expression, arrayExpression: Expression) extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
 
-    val index = arrayExpression.verify(ExprContext(isStatic = Some(false), context.pkg, context.thisType), context)
+    val index = arrayExpression.verify(ExprContext(isStatic = Some(false), context.thisType), context)
     if (index.typeDeclarationOpt.isEmpty)
       return ExprContext.empty
     if (index.typeName != TypeName.Integer) {
@@ -444,7 +428,7 @@ final case class QueryExpression(query: Expression, lhs: Expression, rhs: Expres
 
 final case class PrimaryExpression(var primary: Primary) extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    primary.verify(ExprContext(isStatic = input.isStatic, context.pkg, context.thisType), context)
+    primary.verify(ExprContext(isStatic = input.isStatic, context.thisType), context)
   }
 }
 

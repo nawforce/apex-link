@@ -27,8 +27,8 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.runtime.parsers.ApexParser.LiteralContext
 import com.nawforce.common.types.{PlatformTypes, TypeDeclaration}
+import com.nawforce.runtime.parsers.ApexParser.LiteralContext
 import com.nawforce.runtime.parsers.CodeParser
 
 sealed abstract class Literal() extends CST {

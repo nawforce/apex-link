@@ -28,12 +28,12 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.api
-import com.nawforce.common.api.{ConstructorSummary, FieldSummary, MethodSummary, Org, ParameterSummary, TypeSummary}
+import com.nawforce.common.api._
 import com.nawforce.common.cst._
 import com.nawforce.common.finding.TypeRequest
+import com.nawforce.common.metadata.{Dependant, DependencyHolder, MetadataDeclaration}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.runtime.types._
-import com.nawforce.common.metadata.{Dependant, DependencyHolder, MetadataDeclaration}
 
 import scala.collection.mutable
 
