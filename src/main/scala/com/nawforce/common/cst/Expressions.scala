@@ -68,7 +68,7 @@ object ExprContext {
 
 sealed abstract class Expression extends CST {
   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext
-  def verify(context: BlockVerifyContext): Unit = {
+  def verify(context: BlockVerifyContext): ExprContext = {
     val staticContext = if (context.isStatic) Some(true) else None
     verify(ExprContext(staticContext, context.thisType), new ExpressionVerifyContext(context))
   }

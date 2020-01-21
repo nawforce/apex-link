@@ -49,31 +49,48 @@ class SwitchTest extends AnyFunSuite with BeforeAndAfter {
     defaultOrg = new Org
   }
 
-  test("Single control switch") {
-    typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} }}}")
-    assert(!defaultOrg.issues.hasMessages)
-  }
-
-  test("Multi control switch") {
-    typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} when 'B' {}}}}")
-    assert(!defaultOrg.issues.hasMessages)
-  }
-
-  test("Else switch") {
-    typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} when else {}}}}")
-    assert(!defaultOrg.issues.hasMessages)
-  }
-
   test("Empty switch") {
     typeDeclaration("public class Dummy {{switch on 'A' {}}}")
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "Error: line 1: mismatched input '}' expecting 'when'\n")
   }
 
-  test("Enum switch") {
+  test("Bad switch type") {
+    typeDeclaration("public class Dummy {{Object a; switch on a {when 'A' {} }}}")
+    assert(defaultOrg.issues.getMessages(defaultPath) ==
+      "Error: line 1 at 31-57: Switch expression must be a Integer, Long, String, SObject record or enum value, not 'Object'\n")
+  }
+
+  test("String Single control") {
+    typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} }}}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
+  test("String Multi control") {
+    typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} when 'B' {}}}}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
+  test("String Multi-part control") {
+    typeDeclaration("public class Dummy {{switch on 'A' {when 'A', 'B' {} }}}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
+  test("String switch with Else") {
+    typeDeclaration("public class Dummy {{switch on 'A' {when 'A' {} when else {}}}}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
+  test("String switch with Null") {
+    typeDeclaration("public class Dummy {{switch on 'A' {when null {} when else {}}}}")
+    assert(!defaultOrg.issues.hasMessages)
+  }
+
+  test("Id switch") {
     typeDeclaration("public class Dummy {{switch on 'A' {when EnumValue {} when else {}}}}")
     assert(!defaultOrg.issues.hasMessages)
   }
+
 
   // TODO: Examine error handling of switch
 }

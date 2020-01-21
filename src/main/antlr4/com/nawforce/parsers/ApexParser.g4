@@ -282,7 +282,20 @@ switchStatement
     ;
 
 whenControl
-    : WHEN (ELSE | expressionList) block
+    : WHEN whenValue block
+    ;
+
+whenValue
+    : ELSE
+    | whenLiteral (COMMA whenLiteral)*
+    | id id?
+    ;
+
+whenLiteral
+    : (SUB)? IntegerLiteral
+    | StringLiteral
+    | NULL
+    | id
     ;
 
 forStatement
