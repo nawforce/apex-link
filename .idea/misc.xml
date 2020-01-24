@@ -1,7 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="EntryPointsManager">
-    <entry_points version="2.0" />
+  <component name="ANTLRGenerationPreferences">
+    <option name="perGrammarGenerationSettings">
+      <list>
+        <PerGrammarGenerationSettings>
+          <option name="fileName" value="$PROJECT_DIR$/src/main/antlr4/com/nawforce/parsers/ApexParser.g4" />
+          <option name="autoGen" value="true" />
+          <option name="outputDir" value="$PROJECT_DIR$/../typex/parser/src/main/java" />
+          <option name="libDir" value="" />
+          <option name="encoding" value="" />
+          <option name="pkg" value="com.nawforce.runtime.parsers" />
+          <option name="language" value="" />
+          <option name="generateListener" value="false" />
+        </PerGrammarGenerationSettings>
+      </list>
+    </option>
   </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">

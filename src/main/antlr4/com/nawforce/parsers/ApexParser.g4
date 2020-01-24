@@ -288,7 +288,7 @@ whenControl
 whenValue
     : ELSE
     | whenLiteral (COMMA whenLiteral)*
-    | id id?
+    | id id
     ;
 
 whenLiteral

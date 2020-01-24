@@ -28,6 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.Org
+import com.nawforce.common.cst.stmts.SwitchStatement
 import com.nawforce.common.documents.LineLocation
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.types.{ApexModifiers, ENUM_NATURE, Modifier}
@@ -142,92 +143,6 @@ object IfStatement {
   }
 }
 
-sealed abstract class WhenLiteral extends CST
-
-final class WhenNullLiteral extends WhenLiteral
-final case class WhenIdLiteral(id: Id) extends WhenLiteral
-final case class WhenStringLiteral(value: String) extends WhenLiteral
-final case class WhenIntegerLiteral(negate: Boolean, value: String) extends WhenLiteral
-
-object WhenLiteral {
-  def construct(literal: WhenLiteralContext, context: ConstructContext): WhenLiteral = {
-    val whenLiteral = CodeParser.toScala(literal.NULL())
-      .map(_ => new WhenNullLiteral())
-    .orElse(CodeParser.toScala(literal.IntegerLiteral())
-      .map(l => new WhenIntegerLiteral(CodeParser.toScala(literal.SUB()).nonEmpty, CodeParser.getText(l))))
-    .orElse(CodeParser.toScala(literal.StringLiteral())
-      .map(l => new WhenStringLiteral(CodeParser.getText(l))))
-    .orElse(CodeParser.toScala(literal.id())
-      .map(l => new WhenIdLiteral(Id.construct(l, context))))
-
-    if (whenLiteral.isEmpty)
-      throw new CSTException()
-    else
-      whenLiteral.get.withContext(literal, context)
-  }
-}
-
-sealed abstract class WhenValue extends CST
-
-final class WhenElseValue extends WhenValue
-final case class WhenLiteralsValue(literals: Seq[WhenLiteral]) extends WhenValue
-final case class WhenIdsValue(ids: Seq[Id]) extends WhenValue
-
-object WhenValue {
-  def construct(value: WhenValueContext, context: ConstructContext): WhenValue = {
-    if (CodeParser.toScala(value.ELSE()).nonEmpty)
-      new WhenElseValue()
-    else {
-      val literals = CodeParser.toScala(value.whenLiteral()).map(l => WhenLiteral.construct(l, context))
-      if (literals.nonEmpty)
-        WhenLiteralsValue(literals)
-      else
-        WhenIdsValue(CodeParser.toScala(value.id()).map(id => Id.construct(id, context)))
-    }
-  }
-}
-
-final case class WhenControl(whenValues: WhenValue, block: Block) extends CST {
-  def verify(context: BlockVerifyContext): Unit = {
-    // TODO: whenValue handling
-    block.verify(new InnerBlockVerifyContext(context))
-  }
-}
-
-object WhenControl {
-  def construct(whenControl: WhenControlContext, context: ConstructContext): WhenControl = {
-    WhenControl(
-      CodeParser.toScala(whenControl.whenValue()).map(v => WhenValue.construct(v, context)).get,
-      Block.construct(whenControl.block(), context))
-  }
-}
-
-final case class SwitchStatement(expression: Expression, whenControls: List[WhenControl]) extends Statement {
-  override def verify(context: BlockVerifyContext): Unit = {
-    val result = expression.verify(context)
-    if (result.isDefined) {
-      result.typeName match {
-        case TypeName.Integer | TypeName.Long | TypeName.String => ()
-        case _ if result.typeDeclaration.nature == ENUM_NATURE => ()
-        case _ if result.typeDeclaration.isSObject => ()
-        case _ =>
-          Org.logMessage(location,
-            s"Switch expression must be a Integer, Long, String, SObject record or enum value, not '${result.typeName}'")
-          return;
-      }
-      whenControls.foreach(_.verify(context))
-    }
-  }
-}
-
-object SwitchStatement {
-  def construct(switchStatement: SwitchStatementContext, context: ConstructContext): SwitchStatement = {
-    SwitchStatement(
-      Expression.construct(switchStatement.expression(), context),
-      CodeParser.toScala(switchStatement.whenControl()).map(WhenControl.construct(_, context)).toList,
-    )
-  }
-}
 
 final case class ForStatement(control: ForControl, statement: Statement) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
@@ -611,7 +526,7 @@ object Statement {
     .orElse(CodeParser.toScala(statement.ifStatement())
       .map(x => IfStatement.construct(x, context)))
     .orElse(CodeParser.toScala(statement.switchStatement())
-        .map(x => SwitchStatement.construct(x, context)))
+      .map(x => SwitchStatement.construct(x, context)))
     .orElse(CodeParser.toScala(statement.forStatement())
       .map(x => ForStatement.construct(x, context)))
     .orElse(CodeParser.toScala(statement.whileStatement())
