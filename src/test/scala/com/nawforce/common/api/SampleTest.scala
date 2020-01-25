@@ -36,8 +36,8 @@ class SampleTest extends AnyFunSuite {
   private def sample(path: String, namespace: String = "", externalNamespaces: Set[String] = Set(),
                      expectedCount: Int = 0): Unit = {
     val org = new Org()
-    externalNamespaces.foreach(ens => org.addPackage(ens, Array(), Array()))
-    val pkg = org.addPackage(namespace, Array[String](path), externalNamespaces.toArray)
+    externalNamespaces.foreach(ens => org.newPackage(ens, Array(), Array()))
+    val pkg = org.newPackage(namespace, Array[String](path), externalNamespaces.toArray)
 
     pkg.deployAll()
     if (org.issues.logCount != expectedCount) {

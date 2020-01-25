@@ -28,9 +28,9 @@
 package com.nawforce.common.finding
 
 import com.nawforce.common.api.{Org, Package}
-import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.names.{DotName, Name, TypeName}
 import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.types.ApexTypeDeclaration
+import com.nawforce.common.types.{ApexTypeDeclaration, TypeDeclaration}
 import org.scalatest.funsuite.AnyFunSuite
 
 class TypeFindingTest extends AnyFunSuite {
@@ -39,18 +39,31 @@ class TypeFindingTest extends AnyFunSuite {
   private val defaultPath: PathLike = PathFactory("Dummy.cls")
   private val unmanaged: Package = defaultOrg.unmanaged
 
+  private def getType(namespace: String, dotName: String, org: Org = defaultOrg): TypeDeclaration = {
+    val ns = Name.safeApply(namespace)
+    val dn = DotName(dotName)
+    val pkgOpt = org.allPackages.find(_.namespace == ns)
+    pkgOpt.flatMap(pkg => TypeRequest(dn.asTypeName(), pkg, excludeSObjects = false).toOption).orNull
+  }
+
   test("Bad type not") {
-    assert(unmanaged.getType(TypeName(Name("Hello")), None).toOption.isEmpty)
+    Org.current.withValue(defaultOrg) {
+      assert(unmanaged.getType(TypeName(Name("Hello")), None).toOption.isEmpty)
+    }
   }
 
   test("Platform type") {
-    val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Name.System)))
-    assert(unmanaged.getType(TypeName(Name("String")), None).toOption.get.typeName == typeName)
+    Org.current.withValue(defaultOrg) {
+      val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Name.System)))
+      assert(unmanaged.getType(TypeName(Name("String")), None).toOption.get.typeName == typeName)
+    }
   }
 
   test("Platform type (wrong case)") {
-    val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Name.System)))
-    assert(unmanaged.getType(TypeName(Name("STRING")), None).toOption.get.typeName == typeName)
+    Org.current.withValue(defaultOrg) {
+      val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Name.System)))
+      assert(unmanaged.getType(TypeName(Name("STRING")), None).toOption.get.typeName == typeName)
+    }
   }
 
   test("Custom Outer type") {
@@ -97,7 +110,7 @@ class TypeFindingTest extends AnyFunSuite {
 
   test("Custom Outer type with namespace") {
     val org = new Org()
-    val pkg = org.addPackage("NS", Array(), Array())
+    val pkg = org.newPackage("NS", Array(), Array())
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(pkg, defaultPath,
         "global class Dummy {}").head
@@ -110,21 +123,21 @@ class TypeFindingTest extends AnyFunSuite {
 
   test("Custom Outer type with namespace not visible") {
     val org = new Org()
-    val pkg = org.addPackage("NS", Array(), Array())
+    val pkg = org.newPackage("NS", Array(), Array())
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(pkg, defaultPath,
         "public class Dummy {}").head
       pkg.upsertMetadata(td)
-      assert(org.getType("", "NS.Dummy") == null)
-      assert(org.getType("", "Dummy") == null)
-      assert(org.getType("NS", "NS.Dummy") != null)
-      assert(org.getType("NS", "Dummy") != null)
+      assert(getType("", "NS.Dummy", org) == null)
+      assert(getType("", "Dummy", org) == null)
+      assert(getType("NS", "NS.Dummy", org) != null)
+      assert(getType("NS", "Dummy", org) != null)
     }
   }
 
   test("Custom Inner type with namespace") {
     val org = new Org()
-    val pkg = org.addPackage("NS", Array(), Array())
+    val pkg = org.newPackage("NS", Array(), Array())
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(pkg, defaultPath,
         "global class Dummy {class Inner {}}").head
@@ -137,16 +150,16 @@ class TypeFindingTest extends AnyFunSuite {
 
   test("Custom Inner type with namespace not visible") {
     val org = new Org()
-    val pkg = org.addPackage("NS", Array(), Array())
+    val pkg = org.newPackage("NS", Array(), Array())
     Org.current.withValue(org) {
       val td = ApexTypeDeclaration.create(pkg, defaultPath,
         "public class Dummy {class Inner {}}").head
       pkg.upsertMetadata(td)
 
-      assert(org.getType("", "NS.Dummy.Inner") == null)
-      assert(org.getType("", "Dummy.Inner") == null)
-      assert(org.getType("NS", "NS.Dummy.Inner") != null)
-      assert(org.getType("NS", "Dummy.Inner") != null)
+      assert(getType("", "NS.Dummy.Inner", org) == null)
+      assert(getType("", "Dummy.Inner", org) == null)
+      assert(getType("NS", "NS.Dummy.Inner", org) != null)
+      assert(getType("NS", "Dummy.Inner", org) != null)
     }
   }
 }

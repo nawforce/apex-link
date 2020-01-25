@@ -28,7 +28,7 @@
 
 package com.nawforce.common.types
 
-import com.nawforce.common.api.Package
+import com.nawforce.common.api.Org
 import com.nawforce.common.documents.{DocumentIndex, MetadataDocumentType}
 import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
@@ -39,7 +39,7 @@ import com.nawforce.runtime.types.PlatformTypeDeclaration
 
 import scala.collection.mutable
 
-abstract class PackageDeclaration(val workspace: Workspace, var basePackages: Seq[PackageDeclaration])
+abstract class PackageDeclaration(val workspace: Workspace, bases: Seq[PackageDeclaration])
   extends TypeFinder {
   val namespace: Option[Name] = workspace.namespace
   protected val documents = new DocumentIndex(workspace.paths, workspace.ignorePath)
@@ -55,6 +55,14 @@ abstract class PackageDeclaration(val workspace: Workspace, var basePackages: Se
   def labels(): LabelDeclaration
   def pages(): PageDeclaration
 
+  def basePackages: Seq[PackageDeclaration] = {
+    // Override for unmanaged package to allow to be immutable
+    if (namespace.isEmpty)
+      Org.allPackages().filter(_.namespace.nonEmpty)
+    else
+      bases
+  }
+
   /* Set of namespaces used by this package and its base packages */
   lazy val namespaces: Set[Name] = {
     workspace.namespace.toSet ++ basePackages.flatMap(_.namespaces) ++ PlatformTypeDeclaration.namespaces
@@ -69,11 +77,6 @@ abstract class PackageDeclaration(val workspace: Workspace, var basePackages: Se
       basePackages.filter(_.isGhosted).exists(_.namespace.contains(typeName.outerName)) ||
       typeName.params.exists(isGhostedType)
     }
-  }
-
-  def addDependency(pkg: Package): Unit = {
-    // TODO: Make immutable
-    basePackages = basePackages :+ pkg
   }
 
   /* Find a package/platform type. For general needs don't call this direct, use TypeRequest which will delegate here

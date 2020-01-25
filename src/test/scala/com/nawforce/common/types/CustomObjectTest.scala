@@ -89,7 +89,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Foo__c.object" -> customObject("Foo", Seq(("Bar__c", "Silly", None))))
     ) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(org.issues.getMessages(root.join("Foo__c.object")) ==
         "Error: line 5 to 6: Unexpected type 'Silly' on custom field\n")
@@ -102,7 +102,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObject a = new Foo__c{'a' => 'b'};} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 44-56: Expression pair list construction is only supported for Map types, not 'Schema.Foo__c'\n")
@@ -115,7 +115,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObject a = new Foo__c{'a', 'b'};} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 44-54: Expression list construction is only supported for Set or List types, not 'Schema.Foo__c'\n")
@@ -128,7 +128,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObject a = new Foo__c();} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -140,7 +140,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {Object a = new Foo__c(Bar__c = 'A');} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -152,7 +152,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {Object a = new Foo__c(Baz__c = 'A');} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 44-50: Unknown field 'Baz__c' on SObject type 'Schema.Foo__c'\n")
@@ -165,7 +165,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {Object a = new Foo__c(Baz__c = 'A', Bar__c = 'B');} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -177,7 +177,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {Object a = new Foo__c(Bar__c = 'A', Bar__c = 'A');} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 58-64: Duplicate assignment to field 'Bar__c' on SObject type 'Schema.Foo__c'\n")
@@ -190,7 +190,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {Object a = new Foo__c('Silly');} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 44-51: SObject type 'Schema.Foo__c' construction needs '<field name> = <value>' arguments\n")
@@ -203,7 +203,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {Object a = new Foo__c(Id='', Name='');} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -215,7 +215,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {Object a = new Foo__c(Id='', Name='');} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -227,7 +227,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {Object a = new Foo__c(Bar__r = null);} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -239,7 +239,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {Object a = new Foo__c(Bar__c = '');} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -251,7 +251,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {Object a = new Foo__c(Bar__r = null);} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -263,8 +263,8 @@ class CustomObjectTest extends AnyFunSuite {
       "pkg2/Dummy.cls" -> "public class Dummy { {Object a = new pkg1__Foo__c();} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-      val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+      val pkg2 = org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       pkg1.deployAll()
       pkg2.deployAll()
       assert(!org.issues.hasMessages)
@@ -277,7 +277,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {Foo__c a; a.RecordTypeId = '';} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -289,7 +289,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__c.Name;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -301,7 +301,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__c.Bar__c;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -313,7 +313,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__c.Baz__c;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__c'\n")
@@ -326,8 +326,8 @@ class CustomObjectTest extends AnyFunSuite {
       "pkg2/Dummy.cls" -> "public class Dummy { {pkg1__Foo__c a = null;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg1 = org.addPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-      val pkg2 = org.addPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+      val pkg2 = org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       pkg1.deployAll()
       pkg2.deployAll()
       assert(!org.issues.hasMessages)
@@ -340,7 +340,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {Foo__c a; Boolean x = a.UserRecordAccess.HasDeleteAccess;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -353,7 +353,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObjectField a = Bar__c.Lookup__r;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -365,8 +365,8 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObjectField a = ghosted__Bar__c.Lookup__r;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg1 = org.addPackageInternal(Some(Name("ghosted")), Seq(), Seq())
-      val pkg2 = org.addPackageInternal(None, Seq(root), Seq(pkg1))
+      val pkg1 = org.addPackage(Some(Name("ghosted")), Seq(), Seq())
+      val pkg2 = org.addPackage(None, Seq(root), Seq(pkg1))
       pkg2.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -378,7 +378,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -389,7 +389,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 48-66: Unknown field or type 'Foo__c' on 'Schema.SObjectType'\n")
@@ -402,7 +402,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.Fields.Bar__c;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -414,7 +414,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Foo__c.SObjectType.Fields.Bar__c;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -426,7 +426,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Foo__c.SObjectType.Bar__c;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -438,7 +438,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.Fields.Baz__c;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 48-80: Unknown field or type 'Baz__c' on 'Schema.SObjectType.Foo__c.Fields'\n")
@@ -451,7 +451,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.FieldSets.TestFS;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -463,7 +463,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.FieldSets.OtherFS;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 48-84: Unknown field or type 'OtherFS' on 'Schema.SObjectType.Foo__c.FieldSets'\n")
@@ -477,7 +477,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__c.Bar__c;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -490,7 +490,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.FieldSets.TestFS;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -502,7 +502,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObjectType a = Schema.Foo__c.SObjectType;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -514,7 +514,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObjectType a = Foo__Share.SObjectType;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -526,7 +526,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObjectType a = Foo__History.SObjectType;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -538,7 +538,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObjectType a = Foo__Feed.SObjectType;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -550,7 +550,7 @@ class CustomObjectTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy {public static SObjectField a = Foo__c.SObjectField.Bar__c;}"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -580,7 +580,7 @@ class CustomObjectTest extends AnyFunSuite {
     ))
     { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }

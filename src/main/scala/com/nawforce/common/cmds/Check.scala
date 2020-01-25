@@ -36,7 +36,7 @@ import com.nawforce.common.types.ApexTypeDeclaration
 
 class Check(workspace: Workspace, zombies: Boolean) {
   private val org = new Org()
-  private val pkg = org.addPackageInternal(workspace, Seq())
+  private val pkg = org.addPackage(workspace, Seq())
   private var schemaValidated = false
   private var queued: List[Seq[MetadataDocumentType]] = pkg.getDocuments
   private var tds: List[MetadataDeclaration] = Nil

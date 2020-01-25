@@ -57,7 +57,7 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter{
   }
 
   test("Ghost package suppresses declared type error") {
-    defaultOrg.addPackage("package", Array(), Array())
+    defaultOrg.newPackage("package", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy extends package.SuperClass {}"))
     assert(!defaultOrg.issues.hasMessages)
@@ -65,7 +65,7 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter{
   }
 
   test("Ghost package with wrong namespace has declared type error") {
-    defaultOrg.addPackage("silly", Array(), Array())
+    defaultOrg.newPackage("silly", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy extends package.SuperClass {}"))
     assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls"))
@@ -74,7 +74,7 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter{
   }
 
   test("Ghost package suppresses declared interface type error") {
-    defaultOrg.addPackage("package", Array(), Array())
+    defaultOrg.newPackage("package", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy implements package.Interface {}"))
     assert(!defaultOrg.issues.hasMessages)
@@ -82,7 +82,7 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter{
   }
 
   test("Ghost package with wrong namespace has declared interface type error") {
-    defaultOrg.addPackage("silly", Array(), Array())
+    defaultOrg.newPackage("silly", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy implements package.Interface {}"))
     assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls"))
@@ -91,7 +91,7 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter{
   }
 
   test("Ghost package suppresses implicit type error") {
-    defaultOrg.addPackage("package", Array(), Array())
+    defaultOrg.newPackage("package", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = package.A.class;} }"))
     assert(!defaultOrg.issues.hasMessages)
@@ -99,7 +99,7 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter{
   }
 
   test("Ghost package with wrong namespace has implicit type error") {
-    defaultOrg.addPackage("silly", Array(), Array())
+    defaultOrg.newPackage("silly", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = package.A.class;} }"))
     assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls"))
@@ -108,7 +108,7 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter{
   }
 
   test("Ghost package suppresses custom object error") {
-    defaultOrg.addPackage("package", Array(), Array())
+    defaultOrg.newPackage("package", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__c();} }"))
     assert(!defaultOrg.issues.hasMessages)
@@ -116,7 +116,7 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter{
   }
 
   test("Ghost package with wrong namespace has custom object error") {
-    defaultOrg.addPackage("silly", Array(), Array())
+    defaultOrg.newPackage("silly", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__c();} }"))
     assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls"))
@@ -125,7 +125,7 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter{
   }
 
   test("Ghost package suppresses custom metadata error") {
-    defaultOrg.addPackage("package", Array(), Array())
+    defaultOrg.newPackage("package", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__mdt();} }"))
     assert(!defaultOrg.issues.hasMessages)
@@ -133,7 +133,7 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter{
   }
 
   test("Ghost package with wrong namespace has custom metadata error") {
-    defaultOrg.addPackage("silly", Array(), Array())
+    defaultOrg.newPackage("silly", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__mdt();} }"))
     assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) ==
@@ -142,7 +142,7 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter{
   }
 
   test("Ghost package suppresses platform event error") {
-    defaultOrg.addPackage("package", Array(), Array())
+    defaultOrg.newPackage("package", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__e();} }"))
     assert(!defaultOrg.issues.hasMessages)
@@ -150,7 +150,7 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter{
   }
 
   test("Ghost package with wrong namespace has platform event error") {
-    defaultOrg.addPackage("silly", Array(), Array())
+    defaultOrg.newPackage("silly", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__e();} }"))
     assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) ==
@@ -159,7 +159,7 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter{
   }
 
   test("Ghost package suppresses possible field reference error") {
-    defaultOrg.addPackage("package", Array(), Array())
+    defaultOrg.newPackage("package", Array(), Array())
 
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy extends package.SuperClass { {Object a = b.foo();} }"))
     assert(!defaultOrg.issues.hasMessages)

@@ -40,7 +40,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   def typeDeclarationSummary(clsText: String, hasMessages: Boolean = false): TypeSummary = {
     Org.current.withValue(defaultOrg) {
       val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
-      td.headOption.foreach(defaultOrg.getUnmanagedPackage.upsertMetadata(_))
+      td.headOption.foreach(defaultOrg.unmanaged.upsertMetadata(_))
       if (td.isEmpty || defaultOrg.issues.hasMessages != hasMessages)
         defaultOrg.issues.dumpMessages(json = false)
       assert(defaultOrg.issues.hasMessages == hasMessages)

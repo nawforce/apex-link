@@ -32,7 +32,7 @@ class SchemaManagerTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Account;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -44,7 +44,7 @@ class SchemaManagerTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Foo__c;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackageInternal(None, Seq(root), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq())
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }
@@ -55,8 +55,8 @@ class SchemaManagerTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.ghosted__Foo__c;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val ghosted = org.addPackageInternal(Some(Name("ghosted")), Seq(), Seq())
-      val pkg = org.addPackageInternal(None, Seq(root), Seq(ghosted))
+      val ghosted = org.addPackage(Some(Name("ghosted")), Seq(), Seq())
+      val pkg = org.addPackage(None, Seq(root), Seq(ghosted))
       pkg.deployAll()
       assert(!org.issues.hasMessages)
     }

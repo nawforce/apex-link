@@ -43,10 +43,33 @@ import scala.util.DynamicVariable
   * multiple. Problems with the metadata are recorded in the the associated issue log.
   */
 class Org {
-  var unmanaged = new api.Package(this, new MDAPIWorkspace(None, Seq()), Seq())
-  var packages: Map[Option[Name], api.Package] = Map(None -> unmanaged)
+  /**
+    * Map of Package namespace to Package. This contains all known Packages, each Package maintains it's own
+    * list of dependent Package so that we can enforce boundaries between unrelated Packages.
+    * TODO: This only support 1GP model, work needed for 2GP handling
+    */
+  var packages: Map[Option[Name], Package] = Map()
+
+  /**
+    * The default unmanaged package for the Org. This is created empty but can be added to or replaced with
+    * another package. The unmanaged package is unique in not having any namespace and it automatically depends
+    * on every other package installed in the Org.
+    */
+  var unmanaged: Package = {
+    Org.current.withValue(this) {
+      val pkg = new Package(this, new MDAPIWorkspace(None, Seq()), Seq())
+      packages = Map(None -> pkg)
+      pkg
+    }
+  }
+
+  // TODO: Split issue log so can be persisted with source code
   val issues = new IssueLog
 
+  /** All Packages in Org */
+  def allPackages: Seq[Package] = packages.values.toSeq
+
+  /** Collect all issues into a JSON log */
   def issuesAsJSON(warnings: Boolean, zombie: Boolean): String = {
     if (zombie) {
       packages.values.foreach(pkg => {
@@ -58,11 +81,9 @@ class Org {
 
   def typeCount: Int= packages.values.map(_.typeCount).sum
 
-  def getUnmanagedPackage: Package = unmanaged
-
   /** Create a new package in the org, directories should be priority ordered for duplicate detection. Use
     * namespaces to indicate dependant packages which must already have been created as packages. */
-  def addPackage(namespace: String, directories: Array[String], baseNamespaces: Array[String]): Package = {
+  def newPackage(namespace: String, directories: Array[String], baseNamespaces: Array[String]): Package = {
     val namespaceName: Option[Name] = Name.safeApply(namespace)
 
     val basePackages = baseNamespaces.flatMap(ns => {
@@ -74,19 +95,21 @@ class Org {
 
     val paths = directories.filterNot(_.isEmpty).map(directory => PathFactory(directory))
 
-    addPackageInternal(namespaceName, paths, basePackages)
+    addPackage(namespaceName, paths, basePackages)
   }
 
-  def addPackageInternal(namespace: Option[Name], paths: Seq[PathLike], basePackages: Seq[Package]): Package = {
+  /** Create a Package over a set of paths */
+  private[nawforce] def addPackage(namespace: Option[Name], paths: Seq[PathLike], basePackages: Seq[Package]): Package = {
     val workspace =
       Workspace(namespace, paths) match {
         case Left(err) => throw new IllegalArgumentException(err)
         case Right(workspace) => workspace
       }
-    addPackageInternal(workspace, basePackages)
+    addPackage(workspace, basePackages)
   }
 
-  def addPackageInternal(workspace: Workspace, basePackages: Seq[Package]): Package = {
+  /** Create a Package over a Workspace */
+  private[nawforce] def addPackage(workspace: Workspace, basePackages: Seq[Package]): Package = {
     if (workspace.namespace.nonEmpty) {
       if (packages.contains(workspace.namespace))
         throw new IllegalArgumentException(s"A package using namespace '${workspace.namespace}' already exists")
@@ -101,46 +124,33 @@ class Org {
       val pkg = new Package(this, workspace, basePackages)
       if (pkg.namespace.isEmpty) {
         unmanaged = pkg
-      } else {
-        unmanaged.addDependency(pkg)
       }
       packages = packages + (pkg.namespace -> pkg)
       pkg
     }
   }
-
-  def getType(namespace: String, dotName: String): TypeDeclaration = {
-    getType(Name.safeApply(namespace), DotName(dotName)).orNull
-  }
-
-  def getType(namespace: Option[Name], dotName: DotName): Option[TypeDeclaration] = {
-    val pkgOpt = packages.get(namespace)
-    pkgOpt.flatMap(pkg => TypeRequest(dotName.asTypeName(), pkg, excludeSObjects = false).toOption)
-  }
-
-  /** Get a list of Apex types in the org*/
-  def getApexTypeNames: Seq[String] = {
-    packages.values.flatMap(_.getApexTypeNames).toSeq
-  }
-
-  /** Retrieve type information for declaration. Separate compound names with a '.', e.g. 'System.String'. Returns
-    * null if the type if not found */
-  def getTypeInfo(name: String): TypeInfo = {
-    TypeRequest(DotName(name).asTypeName(), unmanaged, excludeSObjects = false).toOption.map(td => TypeInfo(td)).orNull
-  }
 }
 
 object Org {
+  /** Access the in-scope Org */
   val current: DynamicVariable[Org] = new DynamicVariable[Org](null)
 
+  /** Unmanaged package of in-scope org */
   def unmanaged(): Package = {
     Org.current.value.unmanaged
   }
 
+  /** All packages of in-scope org */
+  def allPackages(): Seq[Package] = {
+    Org.current.value.allPackages
+  }
+
+  /** Log an issue against the in-scope org */
   def log(location: Location, msg: String, category: IssueCategory): Unit = {
     Org.current.value.issues.logMessage(location, msg, category)
   }
 
+  /** Log an error issue against the in-scope org */
   def logMessage(location: Location, msg: String): Unit = {
     log(location, msg, ERROR_CATEGORY)
   }
