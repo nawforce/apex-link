@@ -60,7 +60,7 @@ abstract class PackageDeclaration(val workspace: Workspace, var basePackages: Se
     workspace.namespace.toSet ++ basePackages.flatMap(_.namespaces) ++ PlatformTypeDeclaration.namespaces
   }
 
-  /* Check if a type is ghost in this package */
+  /* Check if a type is ghosted in this package */
   def isGhostedType(typeName: TypeName): Boolean = {
     if (typeName.outer.contains(TypeName.Schema)) {
       val encName = EncodedName(typeName.name)
@@ -96,16 +96,6 @@ abstract class PackageDeclaration(val workspace: Workspace, var basePackages: Se
 
     // From may be used to locate type variable types so must be accurate even for a platform type request
     PlatformTypes.get(typeName, from, excludeSObjects)
-  }
-
-  // TODO: Remove this
-  def getTypeOption(typeName: TypeName, from: Option[TypeDeclaration]): Option[TypeDeclaration] = {
-    getType(typeName, from).toOption
-  }
-
-  // TODO: Remove this
-  def getTypeOption(typeName: TypeName): Option[TypeDeclaration] = {
-    getType(typeName, None).toOption
   }
 
   private def getPackageType(typeName: TypeName, inPackage: Boolean=true): Option[TypeDeclaration] = {
@@ -153,14 +143,12 @@ abstract class PackageDeclaration(val workspace: Workspace, var basePackages: Se
     basePackages.view.flatMap(pkg => pkg.getPackageType(typeName, inPackage = false)).headOption
   }
 
-  def upsertMetadata(md: MetadataDeclaration): Unit = {
+  def upsertMetadata(md: MetadataDeclaration, altTypeName: Option[TypeName]=None): Unit = {
     md match {
-      case td: TypeDeclaration if td.isSearchable => upsertType(td.typeName, td)
-      case _ => other.put(md.internalName, md)
+      case td: TypeDeclaration if td.isSearchable =>
+        types.put(altTypeName.getOrElse(td.typeName), td)
+      case _ =>
+        other.put(md.internalName, md)
     }
-  }
-
-  protected def upsertType(typeName: TypeName, declaration: TypeDeclaration): Unit = {
-    types.put(typeName, declaration)
   }
 }

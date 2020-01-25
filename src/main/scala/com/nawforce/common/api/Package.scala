@@ -48,14 +48,14 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
   initTypes()
 
   private def initTypes(): Unit = {
-    upsertType(anyDeclaration.typeName, anyDeclaration)
-    upsertType(schemaManager.sobjectTypes.typeName, schemaManager.sobjectTypes)
-    upsertType(TypeName(schemaManager.sobjectTypes.name), schemaManager.sobjectTypes)
-    upsertType(labelDeclaration.typeName, labelDeclaration)
-    upsertType(TypeName(labelDeclaration.name), labelDeclaration)
-    upsertType(pageDeclaration.typeName, pageDeclaration)
-    upsertType(flowDeclaration.typeName, flowDeclaration)
-    upsertType(componentDeclaration.typeName, componentDeclaration)
+    upsertMetadata(anyDeclaration)
+    upsertMetadata(schemaManager.sobjectTypes)
+    upsertMetadata(schemaManager.sobjectTypes, Some(TypeName(schemaManager.sobjectTypes.name)))
+    upsertMetadata(labelDeclaration)
+    upsertMetadata(labelDeclaration, Some(TypeName(labelDeclaration.name)))
+    upsertMetadata(pageDeclaration)
+    upsertMetadata(flowDeclaration)
+    upsertMetadata(componentDeclaration)
   }
 
   override def any(): AnyDeclaration = anyDeclaration
@@ -144,7 +144,7 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
 
       val end = System.currentTimeMillis()
       ServerOps.debug(ServerOps.Trace, s"Parsed ${doc.path} in ${end - start}ms")
-      tds.foreach(upsertMetadata)
+      tds.foreach(upsertMetadata(_))
       tds
     }
   }

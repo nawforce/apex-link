@@ -53,7 +53,7 @@ trait TypeFinder {
   }
 
   private def findTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {
-    getLocalTypeFor(typeName, from).orElse(this.getTypeOption(typeName, Some(from)))
+    getLocalTypeFor(typeName, from).orElse(this.getType(typeName, Some(from)).toOption)
   }
 
   private def findLocalTypeFor(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
