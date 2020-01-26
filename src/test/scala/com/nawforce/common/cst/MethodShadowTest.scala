@@ -41,8 +41,7 @@ class MethodShadowTest extends AnyFunSuite with BeforeAndAfter {
       "SuperClass.cls" -> "public virtual class SuperClass { public void func() {}}"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 52-56: Method 'func' can not override non-virtual method\n")
     }
@@ -54,8 +53,7 @@ class MethodShadowTest extends AnyFunSuite with BeforeAndAfter {
       "SuperClass.cls" -> "public virtual class SuperClass { public virtual void func() {}}"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 52-56: Method 'func' must use override or virtual keyword\n")
     }

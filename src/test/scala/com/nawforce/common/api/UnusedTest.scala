@@ -48,11 +48,9 @@ class UnusedTest extends AnyFunSuite {
     )) { root: PathLike =>
       val org = new Org()
       val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
 
       assert(!org.issues.hasMessages)
       assert(!pkg.reportUnused().hasMessages)
     }
   }
-
 }

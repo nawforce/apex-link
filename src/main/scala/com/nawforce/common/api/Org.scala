@@ -27,14 +27,11 @@
 */
 package com.nawforce.common.api
 
-import com.nawforce.common.api
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, IssueCategory, IssueLog}
 import com.nawforce.common.documents._
-import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.names.{DotName, Name}
+import com.nawforce.common.names.Name
 import com.nawforce.common.path.{DIRECTORY, PathFactory, PathLike}
 import com.nawforce.common.sfdx.{MDAPIWorkspace, Workspace}
-import com.nawforce.common.types.TypeDeclaration
 
 import scala.util.DynamicVariable
 

@@ -41,8 +41,7 @@ class PageTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
   }
@@ -53,8 +52,7 @@ class PageTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {PageReference a = Page.tesTPage;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
   }
@@ -65,8 +63,7 @@ class PageTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {PageReference a = Page.AnotherPage;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n")
     }
@@ -79,8 +76,7 @@ class PageTest extends AnyFunSuite {
     )) { root: PathLike =>
       val org = new Org()
       val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-      val pkg2 = org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
-      pkg2.deployAll()
+      org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
     }
   }

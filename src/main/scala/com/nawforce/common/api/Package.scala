@@ -27,91 +27,31 @@
 */
 package com.nawforce.common.api
 
-import com.nawforce.common.cst.UnusedLog
-import com.nawforce.common.diagnostics.IssueLog
 import com.nawforce.common.documents._
-import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.metadata.MetadataDeclaration
-import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.names.Name
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types._
 
 class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
   extends PackageDeclaration(workspace, _basePackages) {
 
-  private val schemaManager = new SchemaManager(this)
-  private val anyDeclaration = AnyDeclaration(this)
-  private val labelDeclaration = LabelDeclaration(this)
-  private val pageDeclaration = PageDeclaration(this)
-  private val flowDeclaration = FlowDeclaration(this)
-  private val componentDeclaration = ComponentDeclaration(this)
-  initTypes()
+  // Automatic deploy of workspace contents
+  deployWorspace()
 
-  private def initTypes(): Unit = {
-    upsertMetadata(anyDeclaration)
-    upsertMetadata(schemaManager.sobjectTypes)
-    upsertMetadata(schemaManager.sobjectTypes, Some(TypeName(schemaManager.sobjectTypes.name)))
-    upsertMetadata(labelDeclaration)
-    upsertMetadata(labelDeclaration, Some(TypeName(labelDeclaration.name)))
-    upsertMetadata(pageDeclaration)
-    upsertMetadata(flowDeclaration)
-    upsertMetadata(componentDeclaration)
+  def deployWorspace(): Unit = {
+    Package.metadataTypes.foreach(kv => {
+      documentsByExtension(kv._1).foreach(loadFromDocument)
+    })
+
+    // TODO: This needs removing for invalidation handling
+    schema().relatedLists.validate()
+    validateMetadata()
   }
 
-  override def any(): AnyDeclaration = anyDeclaration
-  override def schema(): SchemaManager = schemaManager
-  override def labels(): LabelDeclaration = labelDeclaration
-  override def pages(): PageDeclaration = pageDeclaration
-
-  def typeCount: Int = types.size
-
-  def getApexTypeNames: Seq[String] = {
-    types.values
-      .filter(_.isInstanceOf[ApexTypeDeclaration])
-      .map(_.typeName.toString).toSeq
-  }
-
-  def getTypes(typeNames: Seq[TypeName]): Seq[TypeDeclaration] = {
-    typeNames.flatMap(typeName => TypeRequest(typeName, this, excludeSObjects = false).toOption)
-  }
-
-  def getDocuments: List[Seq[MetadataDocumentType]] = {
-    documentsByExtension(Name("object")) :: (
-      documentsByExtension(Name("component")).grouped(10) ++
-      documentsByExtension(Name("cls")).grouped(10)).toList
-  }
-
-  def deployAll(): Unit = {
-    // Future: Make fully parallel
-    val objects = documentsByExtension(Name("object"))
-    ServerOps.debug(ServerOps.Trace, s"Found ${objects.size} custom objects to parse")
-    deployMetadata(objects)
-    schemaValidate()
-
-    val components = documentsByExtension(Name("component"))
-    ServerOps.debug(ServerOps.Trace, s"Found ${components.size} components to parse")
-    deployMetadata(components)
-
-    val classes = documentsByExtension(Name("cls"))
-    ServerOps.debug(ServerOps.Trace, s"Found ${classes.size} classes to parse")
-    deployMetadata(classes)
-
-    val triggers = documentsByExtension(Name("trigger"))
-    ServerOps.debug(ServerOps.Trace, s"Found ${triggers.size} triggers to parse")
-    deployMetadata(triggers)
-  }
-
-  def schemaValidate(): Unit = {
-    Org.current.withValue(org) {
-      schemaManager.relatedLists.validate()
-    }
-  }
-
-  def reportUnused(): IssueLog = {
-    new UnusedLog(types.values)
-  }
-
-  /** Deploy some metadata to the org, if already present this will replace the existing metadata */
+  /** Deploy some metadata to the org, if already present this will replace the existing metadata
+    * TODO: This is really only safe for test use currently
+    */
   def deployMetadata(documents: Seq[MetadataDocumentType]): Unit = {
     Org.current.withValue(org) {
       documents.foreach(d => loadFromDocument(d))
@@ -119,7 +59,7 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
     }
   }
 
-  def loadFromDocument(doc: MetadataDocumentType): Seq[MetadataDeclaration] = {
+  private def loadFromDocument(doc: MetadataDocumentType): Seq[MetadataDeclaration] = {
     Org.current.withValue(org) {
       val start = System.currentTimeMillis()
 
@@ -149,10 +89,6 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
     }
   }
 
-  private def upsertComponent(namespace: Option[Name], component: ComponentDocument): Unit = {
-    componentDeclaration.upsertComponent(namespace, component)
-  }
-
   private def validateMetadata(): Unit = {
     Org.current.withValue(org) {
       types.values.filter(_.isInstanceOf[ApexTypeDeclaration]).foreach(td => {
@@ -163,4 +99,14 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
       })
     }
   }
+}
+
+object Package {
+  /** File type to plural name mapping */
+  val metadataTypes: Map[Name, String] = Map(
+    Name("object") -> "custom objects",
+    Name("component") -> "components",
+    Name("cls") -> "classes",
+    Name("trigger") -> "triggers"
+  )
 }

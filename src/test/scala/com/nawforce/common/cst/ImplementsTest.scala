@@ -47,7 +47,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
       Org.current.withValue(defaultOrg) {
         defaultOrg.unmanaged.deployMetadata(
           classes.map(p => DocumentType(root.join(p._1)).get.asInstanceOf[MetadataDocumentType]).toSeq)
-        defaultOrg.unmanaged.getTypes(classes.keys.map(k => TypeName(Name(k.replaceAll("\\.cls$", "")))).toSeq)
+        defaultOrg.unmanaged.findTypes(classes.keys.map(k => TypeName(Name(k.replaceAll("\\.cls$", "")))).toSeq)
       }
     }
   }

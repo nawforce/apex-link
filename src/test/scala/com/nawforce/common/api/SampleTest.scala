@@ -39,7 +39,6 @@ class SampleTest extends AnyFunSuite {
     externalNamespaces.foreach(ens => org.newPackage(ens, Array(), Array()))
     val pkg = org.newPackage(namespace, Array[String](path), externalNamespaces.toArray)
 
-    pkg.deployAll()
     if (org.issues.logCount != expectedCount) {
       org.issues.dumpMessages(false)
       assert(false)

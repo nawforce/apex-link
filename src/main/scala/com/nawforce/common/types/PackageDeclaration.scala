@@ -29,8 +29,10 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.api.Org
-import com.nawforce.common.documents.{DocumentIndex, MetadataDocumentType}
-import com.nawforce.common.finding.TypeFinder
+import com.nawforce.common.cst.UnusedLog
+import com.nawforce.common.diagnostics.IssueLog
+import com.nawforce.common.documents.{ComponentDocument, DocumentIndex, MetadataDocumentType}
+import com.nawforce.common.finding.{TypeFinder, TypeRequest}
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.metadata.MetadataDeclaration
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
@@ -46,14 +48,33 @@ abstract class PackageDeclaration(val workspace: Workspace, bases: Seq[PackageDe
   protected val types: mutable.Map[TypeName, TypeDeclaration] = mutable.Map[TypeName, TypeDeclaration]()
   protected val other: mutable.Map[Name, MetadataDeclaration] = mutable.Map[Name, MetadataDeclaration]()
 
+  private val schemaManager = new SchemaManager(this)
+  private val anyDeclaration = AnyDeclaration(this)
+  private val labelDeclaration = LabelDeclaration(this)
+  private val pageDeclaration = PageDeclaration(this)
+  private val flowDeclaration = FlowDeclaration(this)
+  private val componentDeclaration = ComponentDeclaration(this)
+  initTypes()
+
+  private def initTypes(): Unit = {
+    upsertMetadata(anyDeclaration)
+    upsertMetadata(schemaManager.sobjectTypes)
+    upsertMetadata(schemaManager.sobjectTypes, Some(TypeName(schemaManager.sobjectTypes.name)))
+    upsertMetadata(labelDeclaration)
+    upsertMetadata(labelDeclaration, Some(TypeName(labelDeclaration.name)))
+    upsertMetadata(pageDeclaration)
+    upsertMetadata(flowDeclaration)
+    upsertMetadata(componentDeclaration)
+  }
+
   def documentsByExtension(ext: Name): Seq[MetadataDocumentType] = documents.getByExtension(ext)
 
   def isGhosted: Boolean = workspace.paths.isEmpty
   def hasGhosted: Boolean = isGhosted || basePackages.exists(_.hasGhosted)
-  def any(): AnyDeclaration
-  def schema(): SchemaManager
-  def labels(): LabelDeclaration
-  def pages(): PageDeclaration
+  def any(): AnyDeclaration = anyDeclaration
+  def schema(): SchemaManager = schemaManager
+  def labels(): LabelDeclaration = labelDeclaration
+  def pages(): PageDeclaration = pageDeclaration
 
   def basePackages: Seq[PackageDeclaration] = {
     // Override for unmanaged package to allow to be immutable
@@ -77,6 +98,36 @@ abstract class PackageDeclaration(val workspace: Workspace, bases: Seq[PackageDe
       basePackages.filter(_.isGhosted).exists(_.namespace.contains(typeName.outerName)) ||
       typeName.params.exists(isGhostedType)
     }
+  }
+
+  // TODO: Would be nice to standardise this special case
+  def upsertComponent(namespace: Option[Name], component: ComponentDocument): Unit = {
+    componentDeclaration.upsertComponent(namespace, component)
+  }
+
+  /* Upsert some metadata
+   * TODO: How are we going to handle invalidation
+   */
+  def upsertMetadata(md: MetadataDeclaration, altTypeName: Option[TypeName]=None): Unit = {
+    md match {
+      case td: TypeDeclaration if td.isSearchable =>
+        types.put(altTypeName.getOrElse(td.typeName), td)
+      case _ =>
+        other.put(md.internalName, md)
+    }
+  }
+
+  /** Obtain log with unused metadata warnings */
+  def reportUnused(): IssueLog = {
+    new UnusedLog(types.values)
+  }
+
+  /* Current count of known types */
+  def typeCount: Int = types.size
+
+  /* Find package accessible type(s) */
+  def findTypes(typeNames: Seq[TypeName]): Seq[TypeDeclaration] = {
+    typeNames.flatMap(typeName => TypeRequest(typeName, this, excludeSObjects = false).toOption)
   }
 
   /* Find a package/platform type. For general needs don't call this direct, use TypeRequest which will delegate here
@@ -144,14 +195,5 @@ abstract class PackageDeclaration(val workspace: Workspace, bases: Seq[PackageDe
 
   private def getDependentPackageType(typeName: TypeName): Option[TypeDeclaration] = {
     basePackages.view.flatMap(pkg => pkg.getPackageType(typeName, inPackage = false)).headOption
-  }
-
-  def upsertMetadata(md: MetadataDeclaration, altTypeName: Option[TypeName]=None): Unit = {
-    md match {
-      case td: TypeDeclaration if td.isSearchable =>
-        types.put(altTypeName.getOrElse(td.typeName), td)
-      case _ =>
-        other.put(md.internalName, md)
-    }
   }
 }

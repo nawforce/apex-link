@@ -32,8 +32,7 @@ class SchemaManagerTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Account;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
   }
@@ -44,8 +43,7 @@ class SchemaManagerTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Foo__c;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
   }
@@ -56,8 +54,7 @@ class SchemaManagerTest extends AnyFunSuite {
     )) { root: PathLike =>
       val org = new Org()
       val ghosted = org.addPackage(Some(Name("ghosted")), Seq(), Seq())
-      val pkg = org.addPackage(None, Seq(root), Seq(ghosted))
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq(ghosted))
       assert(!org.issues.hasMessages)
     }
   }

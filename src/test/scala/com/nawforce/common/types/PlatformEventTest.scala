@@ -60,8 +60,7 @@ class PlatformEventTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.ReplayId;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
   }
@@ -72,8 +71,7 @@ class PlatformEventTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.Bar__c;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
   }
@@ -85,7 +83,6 @@ class PlatformEventTest extends AnyFunSuite {
     )) { root: PathLike =>
       val org = new Org()
       val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__e'\n")
     }

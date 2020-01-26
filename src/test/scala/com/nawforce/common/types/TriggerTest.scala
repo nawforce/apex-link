@@ -39,8 +39,7 @@ class TriggerTest extends AnyFunSuite {
       "Dummy.trigger" -> "trigger Dummy on Account (before insert) { }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
   }
@@ -50,8 +49,7 @@ class TriggerTest extends AnyFunSuite {
       "Dummy.trigger" -> "trigger Dummy on Stupid (before insert) { }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.trigger")) ==
         "Error: line 1 at 17-23: No type declaration found for 'Stupid'\n")
     }
@@ -63,8 +61,7 @@ class TriggerTest extends AnyFunSuite {
       "Dummy.trigger" -> "trigger Dummy on Stupid__c (before insert) { }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
   }
@@ -74,8 +71,7 @@ class TriggerTest extends AnyFunSuite {
       "Dummy.trigger" -> "trigger Dummy on Account (before insert, before insert) { }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.trigger")) ==
         "Error: line 1 at 17-24: Duplicate trigger case for 'before insert'\n")
     }
@@ -86,8 +82,7 @@ class TriggerTest extends AnyFunSuite {
       "Dummy.trigger" -> "trigger Dummy on Account (before insert) {Object a = this;}"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
   }
@@ -101,11 +96,9 @@ class TriggerTest extends AnyFunSuite {
           |}""".stripMargin
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       org.issues.dumpMessages(false)
       assert(!org.issues.hasMessages)
     }
   }
-
 }

@@ -73,8 +73,7 @@ class LabelTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {String a = label.TestLabel;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
   }
@@ -96,8 +95,7 @@ class LabelTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {String a = laBel.TeStLaBel;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
   }
@@ -119,8 +117,7 @@ class LabelTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {String a = Label.TestLabel2;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 33-49: Unknown field or type 'TestLabel2' on 'System.Label'\n")
     }
@@ -143,8 +140,7 @@ class LabelTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {String a = laBel.TestLaBel2;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 33-49: Unknown field or type 'TestLaBel2' on 'System.Label'\n")
     }
@@ -168,8 +164,7 @@ class LabelTest extends AnyFunSuite {
     )) { root: PathLike =>
       val org = new Org()
       val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-      val pkg2 = org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
-      pkg2.deployAll()
+      org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
     }
   }
@@ -193,8 +188,7 @@ class LabelTest extends AnyFunSuite {
     )) { root: PathLike =>
       val org = new Org()
       val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-      val pkg2 = org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
-      pkg2.deployAll()
+      org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(org.issues.getMessages(PathFactory("/pkg2/Dummy.cls")) ==
         "Error: line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label.pkg1'\n")
     }
@@ -217,8 +211,7 @@ class LabelTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {String a = System.Label.TestLabel;} }"
     )) { root: PathLike =>
       val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      pkg.deployAll()
+      org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
   }
@@ -241,8 +234,7 @@ class LabelTest extends AnyFunSuite {
     )) { root: PathLike =>
       val org = new Org()
       val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-      val pkg2 = org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
-      pkg2.deployAll()
+      org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
     }
   }
