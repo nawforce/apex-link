@@ -4,7 +4,7 @@ import java.nio.file.Files
 
 import com.google.common.jimfs.{Configuration, Jimfs}
 import com.nawforce.common.path.PathLike
-import com.nawforce.runtime.path.Path
+import com.nawforce.runtime.os.Path
 
 object FileSystemHelper {
 

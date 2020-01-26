@@ -25,11 +25,28 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.path
 
-import com.nawforce.runtime.os.Path
+package com.nawforce.runtime.os
 
-object PathFactory {
-  def apply(path: String): PathLike = Path(path)
-  def unapply(path: Path): Option[String] = Some(path.toString)
+object Environment {
+  def homedir: Option[Path] = {
+    variable("user.home").map(Path(_))
+  }
+
+  def variable(name: String): Option[String] = {
+    try {
+      Option(System.getProperty(name))
+    } catch {
+      case _: SecurityException => None
+    }
+  }
+
+  def setVariable(name: String, value: String): Boolean = {
+    try {
+      System.setProperty(name, value)
+      true
+    } catch {
+      case _: SecurityException => false
+    }
+  }
 }

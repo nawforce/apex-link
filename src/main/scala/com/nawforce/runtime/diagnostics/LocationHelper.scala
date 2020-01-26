@@ -30,7 +30,7 @@ package com.nawforce.runtime.diagnostics
 import com.nawforce.common.documents.{Position, RangeLocation, TextRange}
 import com.nawforce.runtime.parsers.CaseInsensitiveInputStream
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
-import com.nawforce.runtime.path.Path
+import com.nawforce.runtime.os.Path
 
 object LocationHelper {
   def asTextRange(context: ParserRuleContext): TextRange = {

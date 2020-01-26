@@ -45,13 +45,12 @@ object Pickler {
       return
     }
 
-    /*
     PlatformTypeDeclaration.classNames.toSeq.foreach(className => {
       PlatformTypeDeclaration.getDeclaration(className) match {
         case Some(td: PlatformTypeDeclaration) => writeDeclaration(dir, td)
         case None => assert(false)
       }
-    })*/
+    })
   }
 
   def writeDeclaration(dir: Path, td: PlatformTypeDeclaration): Unit = {

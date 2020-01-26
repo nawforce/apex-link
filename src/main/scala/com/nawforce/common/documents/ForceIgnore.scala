@@ -28,7 +28,7 @@
 package com.nawforce.common.documents
 
 import com.nawforce.common.path.PathLike
-import com.nawforce.runtime.path.Path
+import com.nawforce.runtime.os.Path
 
 class ForceIgnore(rootPath: PathLike, ignoreRules: Seq[IgnoreRule]) {
   private val absRootPath = rootPath.absolute.toString

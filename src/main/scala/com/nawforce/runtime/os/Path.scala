@@ -25,7 +25,7 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.path
+package com.nawforce.runtime.os
 
 import java.io.File
 import java.nio.charset.StandardCharsets
@@ -63,16 +63,25 @@ case class Path(native: java.nio.file.Path) extends PathLike {
   }
 
   override def read(): Either[String, String] = {
+    readBytes().map(new String(_, StandardCharsets.UTF_8))
+  }
+
+  override def readBytes(): Either[String, Array[Byte]] = {
     try {
-      Right(new String(Files.readAllBytes(native), StandardCharsets.UTF_8))
+      Right(Files.readAllBytes(native))
     } catch {
       case ex: java.io.IOException => Left(ex.toString)
     }
   }
 
+
   override def write(data: String): Option[String] = {
+    write(data.getBytes(StandardCharsets.UTF_8))
+  }
+
+  override def write(data: Array[Byte]): Option[String] = {
     try {
-      Files.write(native, data.getBytes(StandardCharsets.UTF_8))
+      Files.write(native, data)
       None
     } catch {
       case ex: java.io.IOException => Some(ex.toString)
@@ -113,6 +122,15 @@ case class Path(native: java.nio.file.Path) extends PathLike {
       Right(files)
     } else {
       Left(s"Path '$native' is not a directory'")
+    }
+  }
+
+  override def lastModified(): Option[Long] = {
+    try {
+      Some(native.toFile.lastModified())
+    } catch {
+      case _:SecurityException => None
+      case _:UnsupportedOperationException => None
     }
   }
 }

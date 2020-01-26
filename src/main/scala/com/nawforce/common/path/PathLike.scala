@@ -63,8 +63,14 @@ abstract class PathLike {
   // Read the contents of a file or return an error message
   def read(): Either[String, String]
 
+  // Read the contents of a file or return an error message
+  def readBytes(): Either[String, Array[Byte]]
+
   // Write a file or return an error message
   def write(data: String): Option[String]
+
+  // Write a file or return an error message
+  def write(data: Array[Byte]): Option[String]
 
   // Create a directory if this is a directory (ignores if already exists), returns new Path or error message
   def createDirectory(name: String): Either[String, PathLike]
@@ -75,4 +81,6 @@ abstract class PathLike {
   // Delete a file or directory, returns an error message on failure
   def delete(): Option[String]
 
+  // Last modified timestamp
+  def lastModified(): Option[Long]
 }
