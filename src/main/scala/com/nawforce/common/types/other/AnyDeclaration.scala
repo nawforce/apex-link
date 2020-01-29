@@ -25,9 +25,10 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.types
+package com.nawforce.common.types.other
 
 import com.nawforce.common.names.TypeName
+import com.nawforce.common.types.{NamedTypeDeclaration, PackageDeclaration}
 
 final case class AnyDeclaration(pkg: PackageDeclaration) extends NamedTypeDeclaration(pkg, TypeName.Any) {
   override val isAny: Boolean = true

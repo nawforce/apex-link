@@ -27,6 +27,7 @@
 */
 package com.nawforce.common.types
 
+import com.nawforce.common.cst.{Modifier, PUBLIC_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.names.{Name, TypeName}
 
 final case class CustomParameterDeclaration(name: Name, typeName: TypeName) extends ParameterDeclaration

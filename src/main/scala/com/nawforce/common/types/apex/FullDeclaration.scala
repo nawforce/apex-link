@@ -25,28 +25,30 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.types
+package com.nawforce.common.types.apex
 
-import com.nawforce.common.api.{Org, ServerOps}
+import com.nawforce.common.api.{Org, ServerOps, TypeSummary}
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
-import com.nawforce.common.documents.LineLocation
+import com.nawforce.common.documents.{LineLocation, Location, TextRange}
 import com.nawforce.common.metadata.Dependant
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.types._
 import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.mutable
 
 /* Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
-abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeName: Option[TypeName],
-                                   val id: Id, _modifiers: Seq[Modifier],
-                                   val superClass: Option[TypeName], val interfaces: Seq[TypeName],
-                                   val bodyDeclarations: Seq[ClassBodyDeclaration])
-  extends ClassBodyDeclaration(_modifiers) with TypeDeclaration {
+abstract class FullDeclaration(val pkg: PackageDeclaration, val outerTypeName: Option[TypeName],
+                               val id: Id, _modifiers: Seq[Modifier],
+                               val superClass: Option[TypeName], val interfaces: Seq[TypeName],
+                               val bodyDeclarations: Seq[ClassBodyDeclaration])
+  extends ClassBodyDeclaration(_modifiers) with ApexDeclaration {
 
   override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
+  override val idLocation: Location = id.location
   override val name: Name = id.name
   override val typeName: TypeName = {
     outerTypeName.map(outer => TypeName(name).withOuter(Some(outer)))
@@ -55,25 +57,9 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
 
   override val nature: Nature
 
-  override lazy val superClassDeclaration: Option[TypeDeclaration] = {
-    superClass.flatMap(sc => pkg.getTypeFor(sc, this))
-  }
-
-  override lazy val interfaceDeclarations: Seq[TypeDeclaration] = {
-    interfaces.flatMap(i => pkg.getTypeFor(i, this))
-  }
-
-  override lazy val isComplete: Boolean = {
-    (superClassDeclaration.nonEmpty && superClassDeclaration.get.isComplete) || superClass.isEmpty
-  }
-
-  override lazy val isExternallyVisible: Boolean = {
-    modifiers.contains(GLOBAL_MODIFIER)
-  }
-
-  override val nestedTypes: Seq[ApexTypeDeclaration] = {
+  override val nestedTypes: Seq[FullDeclaration] = {
     bodyDeclarations.flatMap {
-      case x: ApexTypeDeclaration => Some(x)
+      case x: FullDeclaration => Some(x)
       case _ => None
     }
   }
@@ -85,24 +71,7 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
     }
   }
 
-  override lazy val fields: Seq[FieldDeclaration] = {
-    val fields = bodyDeclarations.flatMap {
-      case x: FieldDeclaration => Some(x)
-      case _ => None
-    }
-    val allFields = superClassDeclaration.map(_.fields).getOrElse(Seq()) ++ fields.groupBy(f => f.name).collect {
-      case (_, y :: Nil) => y
-      case (_, duplicates) =>
-        duplicates.tail.foreach(d => {
-          Org.logMessage(d.location, s"Duplicate field/property: '${d.name}'")
-        })
-        duplicates.head
-    }.toSeq
-
-    allFields.map(f => (f.name, f)).toMap.values.toSeq
-  }
-
-  lazy val localFields: Seq[FieldDeclaration] = {
+  lazy val localFields: Seq[ApexFieldLike] = {
     bodyDeclarations.flatMap {
       case x: ApexFieldDeclaration => Some(x)
       case x: ApexPropertyDeclaration => Some(x)
@@ -117,30 +86,11 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
     }
   }
 
-  def localMethods: Seq[ApexMethodDeclaration] = {
+  override lazy val localMethods: Seq[ApexMethodDeclaration] = {
     bodyDeclarations.flatMap({
       case m: ApexMethodDeclaration => Some(m)
       case _ => None
     })
-  }
-
-  def staticMethods: Seq[MethodDeclaration] = {
-    localMethods.filter(_.isStatic) ++
-      (superClassDeclaration match {
-        case Some(td: ApexTypeDeclaration) =>
-          td.localMethods.filter(_.isStatic) ++ td.staticMethods
-        case _ =>
-          Seq()
-      })
-  }
-
-  val methodMap: MethodMap
-
-  override lazy val methods: Seq[MethodDeclaration] = methodMap.allMethods.toSeq
-
-  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Seq[MethodDeclaration] = {
-    methodMap.findMethod(name, params, staticContext, verifyContext)
   }
 
   override def validate(): Unit = {
@@ -202,21 +152,36 @@ abstract class ApexTypeDeclaration(val pkg: PackageDeclaration, val outerTypeNam
     localMethods.filterNot(_.isUsed)
       .map(method => Issue(UNUSED_CATEGORY, method.id.location, s"Method '${method.signature}'"))
   }
+
+  // Override to avoid super class access & provide location information
+  override lazy val summary: TypeSummary = TypeSummary (
+    TypeSummary.defaultVersion,
+    Some(new TextRange(id.location.start, id.location.end)),
+    name.toString,
+    typeName.asString,
+    nature.value, modifiers.map(_.toString).sorted.toList,
+    superClass.map(_.asString).getOrElse(""),
+    interfaces.map(_.asString).sorted.toList,
+    localFields.map(_.summary).sortBy(_.name).toList,
+    constructors.map(_.summary).sortBy(_.parameters.size).toList,
+    localMethods.map(_.summary).sortBy(_.name).toList,
+    nestedTypes.map(_.summary).sortBy(_.name).toList
+  )
 }
 
-object ApexTypeDeclaration {
-  def create(pkg: PackageDeclaration, path: PathLike, data: String): Seq[ApexTypeDeclaration] = {
+object FullDeclaration {
+  def create(pkg: PackageDeclaration, path: PathLike, data: String): Option[FullDeclaration] = {
     CodeParser.parseClass(path, data) match {
       case Left(err) =>
         Org.logMessage(LineLocation(path, err.line), err.message)
-        Nil
+        None
       case Right(cu) =>
-        Seq(CompilationUnit.construct(pkg, path, cu, new ConstructContext()).typeDeclaration())
+        Some(CompilationUnit.construct(pkg, path, cu, new ConstructContext()).typeDeclaration())
     }
   }
 
-  def construct(pkg: PackageDeclaration, outerTypeName: Option[TypeName], typeDecl: TypeDeclarationContext, context: ConstructContext)
-  : ApexTypeDeclaration = {
+  def construct(pkg: PackageDeclaration, outerTypeName: Option[TypeName], typeDecl: TypeDeclarationContext,
+                context: ConstructContext): FullDeclaration = {
 
     val modifiers: Seq[ModifierContext] = CodeParser.toScala(typeDecl.modifier())
     val isOuter = outerTypeName.isEmpty

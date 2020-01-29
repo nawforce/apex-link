@@ -27,21 +27,29 @@
 */
 package com.nawforce.common.api
 
+import java.nio.charset.StandardCharsets
+
 import com.nawforce.common.documents._
 import com.nawforce.common.metadata.MetadataDeclaration
 import com.nawforce.common.names.Name
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types._
+import com.nawforce.common.types.apex.{ApexDeclaration, FullDeclaration, SummaryDeclaration, TriggerDeclaration}
+import com.nawforce.common.types.schema.SObjectDeclaration
+import upickle.default._
 
 class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
   extends PackageDeclaration(workspace, _basePackages) {
 
   // Automatic deploy of workspace contents
-  deployWorspace()
+  deployWorkspace()
 
-  def deployWorspace(): Unit = {
+  def deployWorkspace(): Unit = {
     Package.metadataTypes.foreach(kv => {
-      documentsByExtension(kv._1).foreach(loadFromDocument)
+      documentsByExtension(kv._1).foreach {
+        case d: ApexDocument => loadFromApexDocument(d)
+        case d => loadFromDocument(d)
+      }
     })
 
     // TODO: This needs removing for invalidation handling
@@ -49,14 +57,27 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
     validateMetadata()
   }
 
-  /** Deploy some metadata to the org, if already present this will replace the existing metadata
-    * TODO: This is really only safe for test use currently
-    */
-  def deployMetadata(documents: Seq[MetadataDocumentType]): Unit = {
-    Org.current.withValue(org) {
-      documents.foreach(d => loadFromDocument(d))
-      validateMetadata()
-    }
+  private def loadFromApexDocument(doc: ApexDocument): Seq[ApexDeclaration] = {
+    val pc = Package.parsedCache
+    val data = doc.path.read()
+    val value = pc.flatMap(_.get(data.right.get.getBytes()))
+
+    val tds : Seq[ApexDeclaration] =
+      if (value.nonEmpty) {
+        Seq(new SummaryDeclaration(doc.path, this, None, value.get))
+      } else {
+        val d = ServerOps.debugTime(s"Parsed ${doc.path}") {
+          FullDeclaration.create(this, doc.path, data.right.get).toSeq
+        }
+
+        if (pc.nonEmpty && d.nonEmpty) {
+          pc.get.upsert(data.right.get.getBytes(StandardCharsets.UTF_8), writeBinary(d.head.summary))
+        }
+        d
+      }
+
+    tds.foreach(upsertMetadata(_))
+    tds
   }
 
   private def loadFromDocument(doc: MetadataDocumentType): Seq[MetadataDeclaration] = {
@@ -66,10 +87,10 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
       val tds = doc match {
         case docType: ApexDocument =>
           val data = docType.path.read()
-          ApexTypeDeclaration.create(this, docType.path, data.right.get)
+          FullDeclaration.create(this, docType.path, data.right.get).toSeq
         case docType: ApexTriggerDocument =>
           val data = docType.path.read()
-          ApexTriggerDeclaration.create(this, docType.path, data.right.get)
+          TriggerDeclaration.create(this, docType.path, data.right.get)
         case docType: SObjectDocument =>
           SObjectDeclaration.create(this, docType.path)
         case docType: PlatformEventDocument =>
@@ -91,7 +112,7 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
 
   private def validateMetadata(): Unit = {
     Org.current.withValue(org) {
-      types.values.filter(_.isInstanceOf[ApexTypeDeclaration]).foreach(td => {
+      types.values.filter(_.isInstanceOf[ApexDeclaration]).foreach(td => {
         td.validate()
       })
       other.values.foreach(md => {
@@ -99,6 +120,20 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
       })
     }
   }
+
+  /** Deploy some metadata to the org, if already present this will replace the existing metadata
+    * TODO: This is really only safe for direct use from tests currently
+    */
+  private[nawforce] def deployMetadata(documents: Seq[MetadataDocumentType]): Unit = {
+    Org.current.withValue(org) {
+      documents.foreach {
+        case d: ApexDocument => loadFromApexDocument(d)
+        case d => loadFromDocument(d)
+      }
+      validateMetadata()
+    }
+  }
+
 }
 
 object Package {
@@ -109,4 +144,11 @@ object Package {
     Name("cls") -> "classes",
     Name("trigger") -> "triggers"
   )
+
+  lazy val parsedCache: Option[ParsedCache] = {
+    ParsedCache.create() match {
+      case Left(err) => ServerOps.error(err); None
+      case Right(cache) => Some(cache)
+    }
+  }
 }

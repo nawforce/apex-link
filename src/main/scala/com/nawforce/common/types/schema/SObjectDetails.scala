@@ -25,12 +25,13 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.types
+package com.nawforce.common.types.schema
 
 import com.nawforce.common.api.Org
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.path.{DIRECTORY, DOES_NOT_EXIST, NONEMPTY_FILE, PathLike}
+import com.nawforce.common.types.{CustomFieldDeclaration, PackageDeclaration}
 import com.nawforce.common.xml.{XMLElementLike, XMLException, XMLFactory}
 
 sealed abstract class SObjectNature(val nature: String) {

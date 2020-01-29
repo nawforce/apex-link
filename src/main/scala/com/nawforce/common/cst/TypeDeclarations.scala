@@ -32,13 +32,14 @@ import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
+import com.nawforce.common.types.apex.FullDeclaration
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
-final case class CompilationUnit(path: PathLike, private val _typeDeclaration: ApexTypeDeclaration) extends CST {
+final case class CompilationUnit(path: PathLike, private val _typeDeclaration: FullDeclaration) extends CST {
   def children(): List[CST] = List(_typeDeclaration)
 
-  def typeDeclaration(): ApexTypeDeclaration = {
+  def typeDeclaration(): FullDeclaration = {
     _typeDeclaration
   }
 }
@@ -47,7 +48,7 @@ object CompilationUnit {
   def construct(pkg: PackageDeclaration, path: PathLike, compilationUnit: CompilationUnitContext,
                 context: ConstructContext): CompilationUnit = {
     CompilationUnit(path,
-      ApexTypeDeclaration.construct(pkg, None, compilationUnit.typeDeclaration(), context))
+      FullDeclaration.construct(pkg, None, compilationUnit.typeDeclaration(), context))
       .withContext(compilationUnit, context)
   }
 }
@@ -55,34 +56,9 @@ object CompilationUnit {
 final case class ClassDeclaration(_pkg: PackageDeclaration, _outerTypeName: Option[TypeName], _id: Id,
                                   _modifiers: Seq[Modifier], _extendsType: Option[TypeName], _implementsTypes: Seq[TypeName],
                                   _bodyDeclarations: Seq[ClassBodyDeclaration]) extends
-  ApexTypeDeclaration(_pkg, _outerTypeName, _id, _modifiers, _extendsType, _implementsTypes, _bodyDeclarations) {
+  FullDeclaration(_pkg, _outerTypeName, _id, _modifiers, _extendsType, _implementsTypes, _bodyDeclarations) {
 
   override val nature: Nature = CLASS_NATURE
-
-  private def outerStaticMethods: Seq[MethodDeclaration] = {
-    outerTypeName.flatMap(ot => TypeRequest(ot, this, excludeSObjects = false).toOption) match {
-      case Some(td: ApexTypeDeclaration) => td.staticMethods
-      case _ => Seq()
-    }
-  }
-
-  override lazy val methodMap: MethodMap = {
-    val allMethods = outerStaticMethods ++ localMethods
-    val loc = Some(id.location)
-    val mmap = superClassDeclaration match {
-      case Some(at: ApexTypeDeclaration) =>
-        MethodMap(this, loc, at.methodMap, allMethods, interfaceDeclarations)
-      case Some(td: TypeDeclaration) =>
-        MethodMap(this, loc,
-          MethodMap(td, None, MethodMap.empty(), td.methods, Seq()),
-          allMethods, interfaceDeclarations)
-      case _ =>
-        MethodMap(this, loc, MethodMap.empty(), allMethods, interfaceDeclarations)
-    }
-
-    mmap.errors.foreach(err => Org.log(err._1, err._2._2, err._2._1))
-    mmap
-  }
 
   override def verify(context: TypeVerifyContext): Unit = {
     verifyCommon(context)
@@ -142,23 +118,9 @@ object ClassDeclaration {
 final case class InterfaceDeclaration(_pkg: PackageDeclaration, _outerTypeName: Option[TypeName], _id: Id,
                                       _modifiers: Seq[Modifier], _implementsTypes: Seq[TypeName],
                                       _bodyDeclarations: Seq[ClassBodyDeclaration])
-  extends ApexTypeDeclaration(_pkg, _outerTypeName, _id, _modifiers, None, _implementsTypes, _bodyDeclarations) {
+  extends FullDeclaration(_pkg, _outerTypeName, _id, _modifiers, None, _implementsTypes, _bodyDeclarations) {
 
   override val nature: Nature = INTERFACE_NATURE
-
-  private def outerStaticMethods: Seq[MethodDeclaration] = {
-    outerTypeName.flatMap(ot => TypeRequest(ot, this, excludeSObjects = false).toOption) match {
-      case Some(td: ApexTypeDeclaration) => td.staticMethods
-      case _ => Seq()
-    }
-  }
-
-  override lazy val methodMap: MethodMap = {
-    val allMethods = outerStaticMethods ++ localMethods
-    val mmap = MethodMap(this, Some(id.location), MethodMap.empty(), allMethods, interfaceDeclarations)
-    mmap.errors.foreach(err => Org.log(err._1, err._2._2, err._2._1))
-    mmap
-  }
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     super.verify(new TypeVerifyContext(Some(context), this))
@@ -190,7 +152,7 @@ object InterfaceDeclaration {
 
 final case class EnumDeclaration(_pkg: PackageDeclaration, _outerTypeName: Option[TypeName],_id: Id,
                                  _modifiers: Seq[Modifier], _bodyDeclarations: Seq[ClassBodyDeclaration])
-  extends ApexTypeDeclaration(_pkg, _outerTypeName, _id, _modifiers, None, Seq(), _bodyDeclarations) {
+  extends FullDeclaration(_pkg, _outerTypeName, _id, _modifiers, None, Seq(), _bodyDeclarations) {
 
   override val nature: Nature = ENUM_NATURE
 
@@ -232,7 +194,7 @@ object EnumDeclaration {
           Id.construct(constant, context),
           None
         ).withContext(constant, context)
-      )
+      ).withContext(constant, context)
     })
 
     EnumDeclaration(pkg, outerTypeName,id, typeModifiers, fields).withContext(enumDeclaration, context)

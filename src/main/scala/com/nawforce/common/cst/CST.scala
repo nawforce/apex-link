@@ -43,7 +43,7 @@ abstract class CST {
   private var range: CSTRange = _
   private var positionAdjust: (Int, Int) = _
 
-  lazy val location: Location = {
+  lazy val location: RangeLocation = {
     RangeLocation(
       PathFactory(range.path),
       Position(range.startLine, range.startPosition)

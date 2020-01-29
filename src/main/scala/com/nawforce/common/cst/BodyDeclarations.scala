@@ -27,10 +27,13 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.api
+import com.nawforce.common.api.{MethodSummary, ParameterSummary}
 import com.nawforce.common.finding.RelativeTypeName
 import com.nawforce.common.metadata._
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.types._
+import com.nawforce.common.types.apex.ApexFieldLike
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -176,6 +179,14 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], relativeTypeNa
         case _ => false
       })
   }
+
+  // Override to attempt to resolve relative type name
+  override lazy val summary: MethodSummary = api.MethodSummary(
+    MethodSummary.defaultVersion,
+    name.toString, modifiers.map(_.toString).sorted.toList, relativeTypeName.relativeTypeName.asString,
+    parameters.map(_.summary).toList
+  )
+
 }
 
 object ApexMethodDeclaration {
@@ -207,7 +218,7 @@ object ApexMethodDeclaration {
 
 final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeName,
                                       variableDeclarator: VariableDeclarator)
-  extends ClassBodyDeclaration(_modifiers) with FieldDeclaration {
+  extends ClassBodyDeclaration(_modifiers) with ApexFieldLike {
 
   val id: Id = variableDeclarator.id
   override val name: Name = id.name
@@ -276,6 +287,11 @@ final case class FormalParameter(pkg: PackageDeclaration, outerTypeName: TypeNam
 
   def verify(context: BodyDeclarationVerifyContext): Unit = {
     // This is validated when made available to a Block
+  }
+
+  // Override to avoid attempts to resolve relative type name
+  override lazy val summary: ParameterSummary = {
+    ParameterSummary(ParameterSummary.defaultVersion, name.toString, relativeTypeName.relativeTypeName.asString)
   }
 }
 

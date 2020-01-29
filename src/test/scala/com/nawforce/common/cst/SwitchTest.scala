@@ -29,6 +29,7 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.api.Org
 import com.nawforce.common.path.PathFactory
+import com.nawforce.common.types.apex.FullDeclaration
 import com.nawforce.common.types.{TypeDeclaration, _}
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
@@ -39,7 +40,7 @@ class SwitchTest extends AnyFunSuite with BeforeAndAfter {
 
   def typeDeclaration(clsText: String): Option[TypeDeclaration] = {
     Org.current.withValue(defaultOrg) {
-      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
+      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
       td.headOption.foreach(_.validate())
       td.headOption
     }

@@ -33,6 +33,8 @@ import com.nawforce.common.cst._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.metadata.{Dependant, DependencyHolder, MetadataDeclaration}
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.types.other.CustomComponent
+import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.runtime.types._
 
 import scala.collection.mutable
@@ -65,7 +67,7 @@ trait FieldDeclaration extends DependencyHolder {
 
   lazy val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
 
-  lazy val summary: FieldSummary = FieldSummary(FieldSummary.defaultVersion, name.toString,
+  lazy val summary: FieldSummary = FieldSummary(FieldSummary.defaultVersion, None, name.toString,
     modifiers.map(_.toString).sorted.toList, typeName.asString, readAccess.toString, writeAccess.toString)
 }
 
@@ -332,6 +334,7 @@ trait TypeDeclaration extends MetadataDeclaration {
 
   lazy val summary: TypeSummary = api.TypeSummary (
     TypeSummary.defaultVersion,
+    None,
     name.toString,
     typeName.asString,
     nature.value, modifiers.map(_.toString).sorted.toList,

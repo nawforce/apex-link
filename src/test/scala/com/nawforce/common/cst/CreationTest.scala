@@ -29,7 +29,8 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.api.Org
 import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.{ApexTypeDeclaration, TypeDeclaration}
+import com.nawforce.common.types.TypeDeclaration
+import com.nawforce.common.types.apex.FullDeclaration
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -40,7 +41,7 @@ class CreationTest extends AnyFunSuite with BeforeAndAfter {
 
   def typeDeclaration(clsText: String): TypeDeclaration = {
     Org.current.withValue(defaultOrg) {
-      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
+      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
       if (td.isEmpty)
         defaultOrg.issues.dumpMessages(false)
       td.foreach(t => {

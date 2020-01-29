@@ -27,9 +27,12 @@
 */
 package com.nawforce.common.types
 
+import com.nawforce.common.cst.{Modifier, PUBLIC_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.documents.{RangeLocation, TextRange}
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.types.platform.PlatformTypes
+import com.nawforce.common.types.schema.{PlatformObjectNature, SObjectNature}
 import com.nawforce.common.xml.{XMLElementLike, XMLException}
 
 final case class CustomFieldDeclaration(name: Name, typeName: TypeName, asStatic: Boolean = false)

@@ -27,6 +27,7 @@
 */
 package com.nawforce.common.types
 
+import com.nawforce.common.cst.{PUBLIC_MODIFIER, STATIC_MODIFIER, VIRTUAL_MODIFIER}
 import com.nawforce.common.finding.MissingType
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.runtime.types.PlatformTypeDeclaration

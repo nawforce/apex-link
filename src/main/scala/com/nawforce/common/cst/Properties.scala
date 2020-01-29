@@ -28,13 +28,13 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.types.{ApexModifiers, FieldDeclaration, Modifier, PRIVATE_MODIFIER}
+import com.nawforce.common.types.apex.ApexFieldLike
 import com.nawforce.runtime.parsers.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
 import com.nawforce.runtime.parsers.CodeParser
 
 final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: TypeName, id: Id,
                                          propertyBlocks: Seq[PropertyBlock])
-  extends ClassBodyDeclaration(_modifiers) with FieldDeclaration {
+  extends ClassBodyDeclaration(_modifiers) with ApexFieldLike {
 
   override val name: Name = id.name
   val setter: Option[SetterPropertyBlock] =

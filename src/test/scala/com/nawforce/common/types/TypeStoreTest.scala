@@ -28,6 +28,7 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.types.platform.PlatformTypes
 import org.scalatest.funsuite.AnyFunSuite
 
 class TypeStoreTest extends AnyFunSuite {

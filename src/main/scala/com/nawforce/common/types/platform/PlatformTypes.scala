@@ -25,11 +25,12 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.types
+package com.nawforce.common.types.platform
 
 import com.nawforce.common.finding.MissingType
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.names.TypeName
+import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.runtime.types.PlatformTypeDeclaration
 
 import scala.ref.WeakReference

@@ -29,7 +29,8 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.api.Org
 import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.{DEPRECATED_ANNOTATION, GLOBAL_MODIFIER, PRIVATE_MODIFIER, PUBLIC_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION, TEST_VISIBLE_ANNOTATION, TypeDeclaration, _}
+import com.nawforce.common.types.TypeDeclaration
+import com.nawforce.common.types.apex.FullDeclaration
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -40,7 +41,7 @@ class EnumModifierTest extends AnyFunSuite with BeforeAndAfter {
 
   def typeDeclaration(clsText: String): TypeDeclaration = {
     Org.current.withValue(defaultOrg) {
-      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
+      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
       if (td.isEmpty)
         defaultOrg.issues.dumpMessages(json = false)
       td.head.validate()

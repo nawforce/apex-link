@@ -27,13 +27,14 @@
 */
 package com.nawforce.common.api
 
+import com.nawforce.common.documents.TextRange
 import upickle.default.{macroRW, ReadWriter => RW}
 
-case class TypeSummary(version: Int, name: String, typeName: String, nature: String, modifiers: List[String],
+case class TypeSummary(version: Int, idRange: Option[TextRange], name: String, typeName: String, nature: String, modifiers: List[String],
                        superClass: String, interfaces: List[String],
                        fields: List[FieldSummary], constructors: List[ConstructorSummary], methods: List[MethodSummary],
                        nestedTypes: List[TypeSummary])
-case class FieldSummary(version: Int, name: String, modifiers: List[String], typeName: String, readAccess: String, writeAccess: String)
+case class FieldSummary(version: Int, range: Option[TextRange], name: String, modifiers: List[String], typeName: String, readAccess: String, writeAccess: String)
 case class ConstructorSummary(version: Int, modifiers: List[String], parameters: List[ParameterSummary])
 case class MethodSummary(version: Int, name: String, modifiers: List[String], typeName: String, parameters: List[ParameterSummary])
 case class ParameterSummary(version: Int, name: String, typeName: String)

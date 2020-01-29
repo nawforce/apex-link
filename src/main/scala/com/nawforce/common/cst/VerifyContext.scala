@@ -33,6 +33,7 @@ import com.nawforce.common.finding.{TypeError, TypeRequest}
 import com.nawforce.common.metadata.{Dependant, DependencyHolder}
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.types._
+import com.nawforce.common.types.apex.{ApexDeclaration, TriggerDeclaration}
 
 import scala.collection.mutable
 
@@ -91,7 +92,7 @@ trait HolderVerifyContext {
 
   def addDependency(dependant: Dependant): Unit = {
     dependant match {
-      case _: ApexTypeDeclaration => _dependencies += dependant
+      case _: ApexDeclaration => _dependencies += dependant
       case _: ApexFieldDeclaration => _dependencies += dependant
       case _: ApexPropertyDeclaration => _dependencies += dependant
       case _: ApexMethodDeclaration => _dependencies += dependant
@@ -107,7 +108,7 @@ trait HolderVerifyContext {
   }
 }
 
-class TriggerVerifyContext(packageDeclaration: PackageDeclaration, typeDeclaration: ApexTriggerDeclaration)
+class TriggerVerifyContext(packageDeclaration: PackageDeclaration, typeDeclaration: TriggerDeclaration)
   extends HolderVerifyContext with VerifyContext {
 
   override def parent(): Option[VerifyContext] = None
@@ -130,7 +131,7 @@ class TriggerVerifyContext(packageDeclaration: PackageDeclaration, typeDeclarati
 }
 
 
-class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: ApexTypeDeclaration)
+class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: ApexDeclaration)
     extends HolderVerifyContext with VerifyContext {
 
   override def parent(): Option[VerifyContext] = parentContext

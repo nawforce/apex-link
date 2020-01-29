@@ -28,6 +28,7 @@
 
 package com.nawforce.common.types
 
+import com.nawforce.common.cst.Modifier
 import com.nawforce.common.metadata.Dependant
 import com.nawforce.common.names.{Name, TypeName}
 

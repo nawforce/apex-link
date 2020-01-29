@@ -29,6 +29,7 @@ package com.nawforce.runtime.types
 
 import java.lang.reflect.{Modifier => JavaModifier}
 
+import com.nawforce.common.cst.{FINAL_MODIFIER, Modifier, PUBLIC_MODIFIER, STATIC_MODIFIER, VIRTUAL_MODIFIER}
 import com.nawforce.common.types._
 
 object PlatformModifiers {

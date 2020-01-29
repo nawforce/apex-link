@@ -29,7 +29,8 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.diagnostics.IssueLog
-import com.nawforce.common.types.{ApexTypeDeclaration, TypeDeclaration}
+import com.nawforce.common.types.TypeDeclaration
+import com.nawforce.common.types.apex.FullDeclaration
 
 class UnusedLog(types: Iterable[TypeDeclaration]) extends IssueLog {
 
@@ -38,7 +39,7 @@ class UnusedLog(types: Iterable[TypeDeclaration]) extends IssueLog {
   private def collectUnused(): Unit = {
     types.foreach {
       //case labels: LabelDeclaration => labels.unused().foreach(add)
-      case apexType: ApexTypeDeclaration => apexType.unused().foreach(add)
+      case apexType: FullDeclaration => apexType.unused().foreach(add)
       case _ => ()
     }
   }

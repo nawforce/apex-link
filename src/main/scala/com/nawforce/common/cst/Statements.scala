@@ -31,7 +31,7 @@ import com.nawforce.common.api.Org
 import com.nawforce.common.cst.stmts.SwitchStatement
 import com.nawforce.common.documents.LineLocation
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.types.{ApexModifiers, ENUM_NATURE, Modifier}
+import com.nawforce.common.types.ENUM_NATURE
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.{ClippedText, CodeParser}
 

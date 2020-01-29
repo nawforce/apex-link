@@ -30,7 +30,8 @@ package com.nawforce.common.cst
 import com.nawforce.common.api.Org
 import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.{AURA_ENABLED_ANNOTATION, DEPRECATED_ANNOTATION, FINAL_MODIFIER, GLOBAL_MODIFIER, INVOCABLE_VARIABLE_ANNOTATION, PRIVATE_MODIFIER, PROTECTED_MODIFIER, PUBLIC_MODIFIER, STATIC_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION, TEST_VISIBLE_ANNOTATION, TRANSIENT_MODIFIER, TypeDeclaration, WEBSERVICE_MODIFIER, _}
+import com.nawforce.common.types.TypeDeclaration
+import com.nawforce.common.types.apex.FullDeclaration
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -40,7 +41,7 @@ class FieldTest extends AnyFunSuite with BeforeAndAfter {
 
   def typeDeclaration(clsText: String, hasMessages: Boolean = false): TypeDeclaration = {
     Org.current.withValue(defaultOrg) {
-      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
+      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
       if (td.isEmpty) {
         defaultOrg.issues.dumpMessages(json = false)
       } else {

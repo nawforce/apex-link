@@ -29,7 +29,8 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.api.Org
 import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.{ApexTypeDeclaration, TypeDeclaration}
+import com.nawforce.common.types.TypeDeclaration
+import com.nawforce.common.types.apex.FullDeclaration
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -39,7 +40,7 @@ class SuppressWarningsTest extends AnyFunSuite with BeforeAndAfter{
 
   def typeDeclaration(clsText: String): TypeDeclaration = {
     Org.current.withValue(defaultOrg) {
-      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText).head
+      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText).head
       defaultOrg.unmanaged.upsertMetadata(td)
       td.validate()
       td

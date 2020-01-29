@@ -37,7 +37,7 @@ class SampleTest extends AnyFunSuite {
                      expectedCount: Int = 0): Unit = {
     val org = new Org()
     externalNamespaces.foreach(ens => org.newPackage(ens, Array(), Array()))
-    val pkg = org.newPackage(namespace, Array[String](path), externalNamespaces.toArray)
+    org.newPackage(namespace, Array[String](path), externalNamespaces.toArray)
 
     if (org.issues.logCount != expectedCount) {
       org.issues.dumpMessages(false)

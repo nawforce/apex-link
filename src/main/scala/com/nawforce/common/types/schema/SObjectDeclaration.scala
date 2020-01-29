@@ -25,7 +25,7 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.types
+package com.nawforce.common.types.schema
 
 import com.nawforce.common.api.Org
 import com.nawforce.common.cst.VerifyContext
@@ -33,6 +33,8 @@ import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{DotName, Name, TypeName}
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.types._
+import com.nawforce.common.types.platform.PlatformTypes
 
 import scala.collection.mutable
 

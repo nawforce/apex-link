@@ -28,7 +28,8 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.names.TypeName
-import com.nawforce.common.types.{PlatformTypes, TypeDeclaration}
+import com.nawforce.common.types.TypeDeclaration
+import com.nawforce.common.types.platform.PlatformTypes
 
 trait AssignableSupport {
   def isAssignable(toType: TypeName, fromType: TypeDeclaration, context: VerifyContext): Boolean = {

@@ -66,7 +66,7 @@ object ServerOps  {
       logger.debug(message)
   }
 
-  def debugTime(msg: String)(op: => Unit): Unit = {
+  def debugTime[T](msg: String)(op: => T): T = {
     val start = System.currentTimeMillis()
     try {
       op

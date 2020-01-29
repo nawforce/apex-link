@@ -30,7 +30,8 @@ package com.nawforce.common.finding
 import com.nawforce.common.api.{Org, Package}
 import com.nawforce.common.names.{DotName, Name, TypeName}
 import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.types.{ApexTypeDeclaration, TypeDeclaration}
+import com.nawforce.common.types.TypeDeclaration
+import com.nawforce.common.types.apex.FullDeclaration
 import org.scalatest.funsuite.AnyFunSuite
 
 class TypeFindingTest extends AnyFunSuite {
@@ -69,7 +70,7 @@ class TypeFindingTest extends AnyFunSuite {
   test("Custom Outer type") {
     val org = new Org()
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(org.unmanaged, defaultPath,
+      val td = FullDeclaration.create(org.unmanaged, defaultPath,
         "public class Dummy {}").head
       org.unmanaged.upsertMetadata(td)
       assert(org.unmanaged.getType(TypeName(Name("Dummy")), None).toOption.get.typeName == td.typeName)
@@ -79,7 +80,7 @@ class TypeFindingTest extends AnyFunSuite {
   test("Custom Outer type (Wrong Case)") {
     val org = new Org()
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath,
+      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath,
         "public class Dummy {}").head
       org.unmanaged.upsertMetadata(td)
       assert(org.unmanaged.getType(TypeName(Name("dummy")), None).toOption.get.typeName == td.typeName)
@@ -89,7 +90,7 @@ class TypeFindingTest extends AnyFunSuite {
   test("Custom Inner type") {
     val org = new Org()
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath,
+      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath,
         "public class Dummy {class Inner {}}").head
       org.unmanaged.upsertMetadata(td)
       val innerTypeName = TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"))))
@@ -100,7 +101,7 @@ class TypeFindingTest extends AnyFunSuite {
   test("Custom Inner type (Wrong case)") {
     val org = new Org()
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(defaultOrg.unmanaged, defaultPath,
+      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath,
         "public class Dummy {class Inner {}}").head
       org.unmanaged.upsertMetadata(td)
       val innerTypeName = TypeName(Name("iNner"), Nil, Some(TypeName(Name("Dummy"))))
@@ -112,7 +113,7 @@ class TypeFindingTest extends AnyFunSuite {
     val org = new Org()
     val pkg = org.newPackage("NS", Array(), Array())
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(pkg, defaultPath,
+      val td = FullDeclaration.create(pkg, defaultPath,
         "global class Dummy {}").head
       pkg.upsertMetadata(td)
       assert(org.unmanaged.getType(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("NS")))), None)
@@ -125,7 +126,7 @@ class TypeFindingTest extends AnyFunSuite {
     val org = new Org()
     val pkg = org.newPackage("NS", Array(), Array())
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(pkg, defaultPath,
+      val td = FullDeclaration.create(pkg, defaultPath,
         "public class Dummy {}").head
       pkg.upsertMetadata(td)
       assert(getType("", "NS.Dummy", org) == null)
@@ -139,7 +140,7 @@ class TypeFindingTest extends AnyFunSuite {
     val org = new Org()
     val pkg = org.newPackage("NS", Array(), Array())
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(pkg, defaultPath,
+      val td = FullDeclaration.create(pkg, defaultPath,
         "global class Dummy {class Inner {}}").head
       pkg.upsertMetadata(td)
       val innerTypeName = TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("NS"))))))
@@ -152,7 +153,7 @@ class TypeFindingTest extends AnyFunSuite {
     val org = new Org()
     val pkg = org.newPackage("NS", Array(), Array())
     Org.current.withValue(org) {
-      val td = ApexTypeDeclaration.create(pkg, defaultPath,
+      val td = FullDeclaration.create(pkg, defaultPath,
         "public class Dummy {class Inner {}}").head
       pkg.upsertMetadata(td)
 

@@ -28,6 +28,7 @@
 package com.nawforce.common.documents
 
 import com.nawforce.common.path.PathLike
+import upickle.default.{macroRW, ReadWriter => RW}
 
 abstract class Location(val path: PathLike, val line: Int) {
   def startPosition: (Int, Int) = (line, 0)
@@ -62,6 +63,10 @@ case class Position(line: Int, offset: Int) {
     else
       Position(line + lineOffset, offset)
   }
+}
+
+object Position {
+  implicit val rw: RW[Position] = macroRW
 }
 
 case class TextRange(start: Position, end: Position) {
@@ -103,6 +108,8 @@ case class RangeLocation(_path: PathLike, start: Position, end: Position) extend
 }
 
 object TextRange {
+  implicit val rw: RW[TextRange] = macroRW
+
   val empty: TextRange = TextRange(Position(0, 0), Position(0, 0))
 
   def apply(line: Int): TextRange = {

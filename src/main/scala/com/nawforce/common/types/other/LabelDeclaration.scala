@@ -25,14 +25,16 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.types
+package com.nawforce.common.types.other
 
 import com.nawforce.common.api.Org
+import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents._
 import com.nawforce.common.metadata.Dependant
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.{FILE, PathFactory, PathLike}
+import com.nawforce.common.types._
 import com.nawforce.common.xml.{XMLElementLike, XMLException, XMLFactory}
 
 import scala.collection.mutable

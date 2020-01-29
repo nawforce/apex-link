@@ -25,13 +25,14 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.types
+package com.nawforce.common.types.apex
 
 import com.nawforce.common.api.{Org, ServerOps}
 import com.nawforce.common.cst._
 import com.nawforce.common.documents.LineLocation
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.types._
 import com.nawforce.runtime.parsers.ApexParser.{TriggerCaseContext, TriggerUnitContext}
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -45,8 +46,8 @@ case object AFTER_UPDATE extends TriggerCase(name = "after update")
 case object AFTER_DELETE extends TriggerCase(name= "after delete")
 case object AFTER_UNDELETE extends TriggerCase(name = "after undelete")
 
-class ApexTriggerDeclaration(path: PathLike, val pkg: PackageDeclaration, name: Id, objectName: Id,
-                             cases: Seq[TriggerCase], block: Block)
+class TriggerDeclaration(path: PathLike, val pkg: PackageDeclaration, name: Id, objectName: Id,
+                         cases: Seq[TriggerCase], block: Block)
   extends NamedTypeDeclaration(pkg, TypeName(Name(s"__sfdc_trigger/${objectName.name}"))) {
 
   override val isSearchable: Boolean = false
@@ -79,22 +80,22 @@ class ApexTriggerDeclaration(path: PathLike, val pkg: PackageDeclaration, name: 
   }
 }
 
-object ApexTriggerDeclaration {
-  def create(pkg: PackageDeclaration, path: PathLike, data: String): Seq[ApexTriggerDeclaration] = {
+object TriggerDeclaration {
+  def create(pkg: PackageDeclaration, path: PathLike, data: String): Seq[TriggerDeclaration] = {
     CodeParser.parseTrigger(path, data) match {
       case Left(err) =>
         Org.logMessage(LineLocation(path, err.line), err.message)
         Nil
       case Right(cu) =>
-        Seq(ApexTriggerDeclaration.construct(pkg, path, cu, new ConstructContext()))
+        Seq(TriggerDeclaration.construct(pkg, path, cu, new ConstructContext()))
     }
   }
 
   def construct(pkg: PackageDeclaration, path: PathLike, trigger: TriggerUnitContext, context: ConstructContext)
-    : ApexTriggerDeclaration = {
+    : TriggerDeclaration = {
     val ids = CodeParser.toScala(trigger.id())
     val cases = CodeParser.toScala(trigger.triggerCase()).map(constructCase)
-    new ApexTriggerDeclaration(path, pkg,
+    new TriggerDeclaration(path, pkg,
       Id.construct(ids.head, context), Id.construct(ids(1), context), cases, Block.construct(trigger.block(), context))
   }
 

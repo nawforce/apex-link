@@ -32,11 +32,14 @@ import com.nawforce.common.api.Org
 import com.nawforce.common.cst.UnusedLog
 import com.nawforce.common.diagnostics.IssueLog
 import com.nawforce.common.documents.{ComponentDocument, DocumentIndex, MetadataDocumentType}
-import com.nawforce.common.finding.{TypeFinder, TypeRequest}
 import com.nawforce.common.finding.TypeRequest.TypeRequest
+import com.nawforce.common.finding.{TypeFinder, TypeRequest}
 import com.nawforce.common.metadata.MetadataDeclaration
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.sfdx.Workspace
+import com.nawforce.common.types.other._
+import com.nawforce.common.types.platform.PlatformTypes
+import com.nawforce.common.types.schema.SchemaManager
 import com.nawforce.runtime.types.PlatformTypeDeclaration
 
 import scala.collection.mutable
