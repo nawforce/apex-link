@@ -27,13 +27,18 @@
 */
 package com.nawforce.common.types
 
-import com.nawforce.common.api.Org
+import com.nawforce.common.api.{Org, ServerOps}
 import com.nawforce.common.names.Name
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.runtime.FileSystemHelper
+import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class PageTest extends AnyFunSuite {
+class PageTest extends AnyFunSuite with BeforeAndAfter {
+
+  before {
+    ServerOps.setParsedDataCaching(false)
+  }
 
   test("Valid page") {
     FileSystemHelper.run(Map(

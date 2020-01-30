@@ -43,6 +43,7 @@ class DefaultLogger extends Logger {
 object ServerOps  {
   private var logging: Boolean = false
   private var logger: Logger = new DefaultLogger
+  private var parsedCaching: Boolean = true
 
   val Trace: String = "TRACE"
 
@@ -74,5 +75,15 @@ object ServerOps  {
       val end = System.currentTimeMillis()
       ServerOps.debug(ServerOps.Trace, s"$msg in ${end - start}ms")
     }
+  }
+
+  /** Are we caching parsed data */
+  def isParsedDataCaching: Boolean = {
+    parsedCaching
+  }
+
+  /** Enable parsed data caching */
+  def setParsedDataCaching(enable: Boolean): Unit = {
+    parsedCaching = enable
   }
 }

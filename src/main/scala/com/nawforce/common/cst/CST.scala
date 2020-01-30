@@ -28,7 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.Org
-import com.nawforce.common.documents.{Location, Position, RangeLocation}
+import com.nawforce.common.documents.{Position, RangeLocation}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.parsers.CSTRange
 import com.nawforce.common.path.{PathFactory, PathLike}

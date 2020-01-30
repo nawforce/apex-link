@@ -116,9 +116,14 @@ case class Path(native: java.nio.file.Path) extends PathLike {
   override def directoryList(): Either[String, Seq[String]] = {
     if (nature == DIRECTORY) {
       var files: List[String] = Nil
-      Files.newDirectoryStream(native).forEach(file => {
-        files = file.getFileName.toString :: files
-      })
+      val paths = Files.newDirectoryStream(native)
+      try {
+        paths.forEach(file => {
+          files = file.getFileName.toString :: files
+        })
+      } finally {
+        paths.close()
+      }
       Right(files)
     } else {
       Left(s"Path '$native' is not a directory'")

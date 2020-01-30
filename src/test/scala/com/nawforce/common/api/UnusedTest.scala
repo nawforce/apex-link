@@ -29,9 +29,14 @@ package com.nawforce.common.api
 
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
+import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class UnusedTest extends AnyFunSuite {
+class UnusedTest extends AnyFunSuite with BeforeAndAfter {
+
+  before {
+    ServerOps.setParsedDataCaching(false)
+  }
 
   test("@testSetup is entry") {
     FileSystemHelper.run(Map(

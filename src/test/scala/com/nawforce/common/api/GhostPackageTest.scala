@@ -35,7 +35,7 @@ import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class GhostPackageTest extends AnyFunSuite with BeforeAndAfter{
+class GhostPackageTest extends AnyFunSuite with BeforeAndAfter {
 
   private var defaultOrg: Org = new Org
   private var root: PathLike = _
@@ -52,6 +52,7 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter{
   }
 
   before {
+    ServerOps.setParsedDataCaching(false)
     defaultOrg = new Org
     root = null
   }

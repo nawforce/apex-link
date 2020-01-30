@@ -27,13 +27,18 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.Org
+import com.nawforce.common.api.{Org, ServerOps}
+import com.nawforce.common.documents.ParsedCache
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class MethodShadowTest extends AnyFunSuite with BeforeAndAfter {
+
+  before {
+    ServerOps.setParsedDataCaching(false)
+  }
 
   test("Override of public non-virtual") {
     FileSystemHelper.run(Map(

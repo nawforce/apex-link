@@ -28,13 +28,19 @@
 
 package com.nawforce.common.types
 
-import com.nawforce.common.api.Org
+import com.nawforce.common.api.{Org, ServerOps}
+import com.nawforce.common.documents.ParsedCache
 import com.nawforce.common.names.Name
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.runtime.FileSystemHelper
+import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class LabelTest extends AnyFunSuite {
+class LabelTest extends AnyFunSuite with BeforeAndAfter {
+
+  before {
+    ServerOps.setParsedDataCaching(false)
+  }
 
   test("Empty labels file") {
     FileSystemHelper.run(Map(
@@ -168,7 +174,6 @@ class LabelTest extends AnyFunSuite {
       assert(!org.issues.hasMessages)
     }
   }
-
 
   test("Base package label protected") {
     FileSystemHelper.run(Map(

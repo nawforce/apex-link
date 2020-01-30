@@ -28,10 +28,20 @@
 
 package com.nawforce.common.documents
 
+import com.nawforce.common.api.ServerOps
 import com.nawforce.runtime.os.Environment
+import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class ParsedCacheTest extends AnyFunSuite {
+class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
+
+  before {
+    ServerOps.setParsedDataCaching(true)
+  }
+
+  after {
+    ServerOps.setParsedDataCaching(false)
+  }
 
   test("homedir is available") {
     assert(Environment.homedir.nonEmpty)

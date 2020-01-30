@@ -27,8 +27,8 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.Org
-import com.nawforce.common.documents.{DocumentType, MetadataDocumentType}
+import com.nawforce.common.api.{Org, ServerOps}
+import com.nawforce.common.documents.{DocumentType, MetadataDocumentType, ParsedCache}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.TypeDeclaration
@@ -55,6 +55,7 @@ class ExtendsTest extends AnyFunSuite with BeforeAndAfter {
   before {
     defaultOrg = new Org
     root = null
+    ServerOps.setParsedDataCaching(false)
   }
 
   test("Duplicate inner type names") {

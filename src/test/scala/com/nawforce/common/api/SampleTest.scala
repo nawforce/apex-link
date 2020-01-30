@@ -27,9 +27,10 @@
 */
 package com.nawforce.common.api
 
+import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class SampleTest extends AnyFunSuite {
+class SampleTest extends AnyFunSuite with BeforeAndAfter {
 
   private val npExternalNamespaces = Set("npe01", "npo02", "npe03", "npe4", "npe5")
 
@@ -43,6 +44,10 @@ class SampleTest extends AnyFunSuite {
       org.issues.dumpMessages(false)
       assert(false)
     }
+  }
+
+  before {
+    ServerOps.setParsedDataCaching(false)
   }
 
   test("forcedotcom-enterprise-architecture") {

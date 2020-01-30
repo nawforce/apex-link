@@ -60,7 +60,11 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
   private def loadFromApexDocument(doc: ApexDocument): Seq[ApexDeclaration] = {
     val pc = Package.parsedCache
     val data = doc.path.read()
-    val value = pc.flatMap(_.get(data.right.get.getBytes()))
+    val value =
+      if (ServerOps.isParsedDataCaching)
+        pc.flatMap(_.get(data.right.get.getBytes()))
+      else
+        None
 
     val tds : Seq[ApexDeclaration] =
       if (value.nonEmpty) {
@@ -70,7 +74,7 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
           FullDeclaration.create(this, doc.path, data.right.get).toSeq
         }
 
-        if (pc.nonEmpty && d.nonEmpty) {
+        if (pc.nonEmpty && ServerOps.isParsedDataCaching && d.nonEmpty) {
           pc.get.upsert(data.right.get.getBytes(StandardCharsets.UTF_8), writeBinary(d.head.summary))
         }
         d
