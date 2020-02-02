@@ -27,11 +27,10 @@
 */
 package com.nawforce.common.types
 
-import com.nawforce.common.api
 import com.nawforce.common.api._
 import com.nawforce.common.cst._
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.metadata.{Dependant, DependencyHolder, MetadataDeclaration}
+import com.nawforce.common.metadata.{DependencyHolder, Dependent, MetadataDeclaration}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.types.other.CustomComponent
 import com.nawforce.common.types.platform.PlatformTypes
@@ -68,7 +67,9 @@ trait FieldDeclaration extends DependencyHolder {
   lazy val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
 
   lazy val summary: FieldSummary = FieldSummary(FieldSummary.defaultVersion, None, name.toString,
-    modifiers.map(_.toString).sorted.toList, typeName.asString, readAccess.toString, writeAccess.toString)
+    modifiers.map(_.toString).sorted.toList, typeName.asString, readAccess.toString, writeAccess.toString,
+    dependencySummary
+  )
 }
 
 trait ParameterDeclaration {
@@ -82,10 +83,11 @@ trait ConstructorDeclaration extends DependencyHolder {
   val modifiers: Seq[Modifier]
   val parameters: Seq[ParameterDeclaration]
 
-  lazy val summary: ConstructorSummary = api.ConstructorSummary(
+  lazy val summary: ConstructorSummary = ConstructorSummary(
     ConstructorSummary.defaultVersion,
     modifiers.map(_.toString).sorted.toList,
-    parameters.map(_.summary).sortBy(_.name).toList
+    parameters.map(_.summary).sortBy(_.name).toList,
+    dependencySummary
   )
 }
 
@@ -161,10 +163,10 @@ trait MethodDeclaration extends DependencyHolder {
     }
   }
 
-  lazy val summary: MethodSummary = api.MethodSummary(
+  lazy val summary: MethodSummary = MethodSummary(
     MethodSummary.defaultVersion,
     name.toString, modifiers.map(_.toString).sorted.toList, typeName.asString,
-    parameters.map(_.summary).toList
+    parameters.map(_.summary).toList, dependencySummary
   )
 }
 
@@ -204,7 +206,7 @@ trait TypeDeclaration extends MetadataDeclaration {
 
   /* Validate must be called before examining dependencies */
   def validate(): Unit
-  def collectDependencies(dependencies: mutable.Set[Dependant]): Unit
+  def collectDependencies(dependencies: mutable.Set[Dependent]): Unit
 
   def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     val matches = fieldsByName.get(name)
@@ -332,8 +334,9 @@ trait TypeDeclaration extends MetadataDeclaration {
       interfaceDeclarations.flatMap(_.superTypes())
   }
 
-  lazy val summary: TypeSummary = api.TypeSummary (
+  lazy val summary: TypeSummary = TypeSummary (
     TypeSummary.defaultVersion,
+    0,
     None,
     name.toString,
     typeName.asString,
@@ -343,6 +346,7 @@ trait TypeDeclaration extends MetadataDeclaration {
     fields.map(_.summary).sortBy(_.name).toList,
     constructors.map(_.summary).sortBy(_.parameters.size).toList,
     methods.map(_.summary).sortBy(_.name).toList,
-    nestedTypes.map(_.summary).sortBy(_.name).toList
+    nestedTypes.map(_.summary).sortBy(_.name).toList,
+    dependencySummary
   )
 }

@@ -42,13 +42,13 @@ import scala.collection.mutable
 abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST with DependencyHolder {
   lazy val isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER) || modifiers.contains(WEBSERVICE_MODIFIER)
 
-  protected var depends: Option[Set[Dependant]] = None
+  protected var depends: Option[Set[Dependent]] = None
 
-  override def dependencies(): Set[Dependant] = {
+  override def dependencies(): Set[Dependent] = {
     depends.get
   }
 
-  def collectDependencies(dependsOn: mutable.Set[Dependant]): Unit = {
+  def collectDependencies(dependsOn: mutable.Set[Dependent]): Unit = {
     dependencies().foreach(dependsOn.add)
   }
 
@@ -79,11 +79,11 @@ object ClassBodyDeclaration {
           ApexModifiers.constructorModifiers(modifiers, context, x),
           x, context))))
       .orElse(CodeParser.toScala(memberDeclarationContext.interfaceDeclaration())
-        .map(x => Seq(InterfaceDeclaration.construct(pkg, Some(outerTypeName),
+        .map(x => Seq(InterfaceDeclaration.construct(0, pkg, Some(outerTypeName),
           ApexModifiers.interfaceModifiers(modifiers, context, outer = false, x.id()),
           x, context))))
       .orElse(CodeParser.toScala(memberDeclarationContext.enumDeclaration())
-        .map(x => Seq(EnumDeclaration.construct(pkg, Some(outerTypeName),
+        .map(x => Seq(EnumDeclaration.construct(0, pkg, Some(outerTypeName),
           ApexModifiers.enumModifiers(modifiers, context, outer = false, x.id()),
           x, context))))
       .orElse(CodeParser.toScala(memberDeclarationContext.propertyDeclaration())
@@ -91,7 +91,7 @@ object ClassBodyDeclaration {
           ApexModifiers.fieldModifiers(modifiers, context, x.id()),
           x, context))))
       .orElse(CodeParser.toScala(memberDeclarationContext.classDeclaration())
-        .map(x => Seq(ClassDeclaration.construct(pkg, Some(outerTypeName),
+        .map(x => Seq(ClassDeclaration.construct(0, pkg, Some(outerTypeName),
           ApexModifiers.classModifiers(modifiers, context, outer = false, x.id()),
           x, context))))
 
@@ -184,8 +184,7 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], relativeTypeNa
   override lazy val summary: MethodSummary = api.MethodSummary(
     MethodSummary.defaultVersion,
     name.toString, modifiers.map(_.toString).sorted.toList, relativeTypeName.relativeTypeName.asString,
-    parameters.map(_.summary).toList
-  )
+    parameters.map(_.summary).toList, dependencySummary)
 
 }
 

@@ -30,14 +30,18 @@ package com.nawforce.common.api
 import com.nawforce.common.documents.TextRange
 import upickle.default.{macroRW, ReadWriter => RW}
 
-case class TypeSummary(version: Int, idRange: Option[TextRange], name: String, typeName: String, nature: String, modifiers: List[String],
-                       superClass: String, interfaces: List[String],
+case class TypeSummary(version: Int, sourceHash: Int, idRange: Option[TextRange], name: String, typeName: String,
+                       nature: String, modifiers: List[String], superClass: String, interfaces: List[String],
                        fields: List[FieldSummary], constructors: List[ConstructorSummary], methods: List[MethodSummary],
-                       nestedTypes: List[TypeSummary])
-case class FieldSummary(version: Int, range: Option[TextRange], name: String, modifiers: List[String], typeName: String, readAccess: String, writeAccess: String)
-case class ConstructorSummary(version: Int, modifiers: List[String], parameters: List[ParameterSummary])
-case class MethodSummary(version: Int, name: String, modifiers: List[String], typeName: String, parameters: List[ParameterSummary])
+                       nestedTypes: List[TypeSummary], dependents: Set[DependentSummary])
+case class FieldSummary(version: Int, range: Option[TextRange], name: String, modifiers: List[String],
+                        typeName: String, readAccess: String, writeAccess: String, dependents: Set[DependentSummary])
+case class ConstructorSummary(version: Int, modifiers: List[String], parameters: List[ParameterSummary],
+                              dependents: Set[DependentSummary])
+case class MethodSummary(version: Int, name: String, modifiers: List[String], typeName: String,
+                         parameters: List[ParameterSummary], dependents: Set[DependentSummary])
 case class ParameterSummary(version: Int, name: String, typeName: String)
+case class DependentSummary(name: String, sourceHash: Int)
 
 object TypeSummary {
   val defaultVersion = 1
@@ -62,4 +66,9 @@ object MethodSummary {
 object ParameterSummary {
   val defaultVersion = 1
   implicit val rw: RW[ParameterSummary] = macroRW
+}
+
+object DependentSummary {
+  val defaultVersion = 1
+  implicit val rw: RW[DependentSummary] = macroRW
 }

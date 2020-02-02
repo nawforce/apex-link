@@ -27,9 +27,12 @@
 */
 package com.nawforce.common.metadata
 
+import com.nawforce.common.api.DependentSummary
+import com.nawforce.common.types.apex.ApexDeclaration
+
 import scala.collection.mutable
 
-trait Dependant {
+trait Dependent {
   private val dependencyHolders = mutable.Set[DependencyHolder]()
 
   def addDependencyHolder(dependencyHolder: DependencyHolder): Unit = {
@@ -41,9 +44,18 @@ trait Dependant {
   def getDependencyHolders: Set[DependencyHolder] = dependencyHolders.toSet
 }
 
-trait DependencyHolder extends Dependant {
-  def dependencies(): Set[Dependant] = Set.empty
+trait DependencyHolder extends Dependent {
+  def dependencies(): Set[Dependent] = Set.empty
   def propagateDependencies(): Unit = {
     dependencies().foreach(_.addDependencyHolder(this))
+  }
+
+  def dependencySummary: Set[DependentSummary] = {
+    dependencies().flatMap {
+      case td: ApexDeclaration =>
+        Some(DependentSummary(td.name.value, td.sourceHash))
+      case _ =>
+        None
+    }
   }
 }

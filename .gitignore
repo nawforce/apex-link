@@ -6,6 +6,9 @@
 # Linked common directory
 module/common
 
+# scratch bin directory
+bin/
+
 # Created by https://www.gitignore.io/api/windows,intellij,maven
 
 ### Windows ###

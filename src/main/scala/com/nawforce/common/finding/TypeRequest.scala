@@ -33,8 +33,8 @@ import com.nawforce.common.types.{PackageDeclaration, TypeDeclaration}
 
 /** Helper for abstracting various ways of finding types based on context info, these are:
   *   None - Can only be used for a platform type search
-  *   PackageDeclaration - Package, dependant package & platform type search
-  *   TypeDeclaration (where code is located) - Local, (package, dependant package if packaged) & platform type search
+  *   PackageDeclaration - Package, dependent package & platform type search
+  *   TypeDeclaration (where code is located) - Local, (package, dependent package if packaged) & platform type search
   *
   *   Note: Platform TypeDeclarations are not packaged & not all code (triggers, anon) comes from TypeDeclarations,
   *   unmanaged code is part of a special package declaration with no namespace.

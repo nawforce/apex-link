@@ -29,7 +29,7 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.cst.Modifier
-import com.nawforce.common.metadata.Dependant
+import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
 
 import scala.collection.mutable
@@ -55,6 +55,6 @@ class NamedTypeDeclaration(pkg: PackageDeclaration, val typeName: TypeName)
   override val methods: Seq[MethodDeclaration]= Seq.empty
 
   override def validate(): Unit = {}
-  override def dependencies(): Set[Dependant] = Set.empty
-  override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
+  override def dependencies(): Set[Dependent] = Set.empty
+  override def collectDependencies(dependencies: mutable.Set[Dependent]): Unit = {}
 }

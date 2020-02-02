@@ -79,7 +79,7 @@ class Org {
   def typeCount: Int= packages.values.map(_.typeCount).sum
 
   /** Create a new package in the org, directories should be priority ordered for duplicate detection. Use
-    * namespaces to indicate dependant packages which must already have been created as packages. */
+    * namespaces to indicate dependent packages which must already have been created as packages. */
   def newPackage(namespace: String, directories: Array[String], baseNamespaces: Array[String]): Package = {
     val namespaceName: Option[Name] = Name.safeApply(namespace)
 

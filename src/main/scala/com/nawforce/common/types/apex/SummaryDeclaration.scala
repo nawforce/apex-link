@@ -31,7 +31,7 @@ import com.nawforce.common.api._
 import com.nawforce.common.cst.Modifier
 import com.nawforce.common.documents.{Location, RangeLocation}
 import com.nawforce.common.finding.RelativeTypeName
-import com.nawforce.common.metadata.Dependant
+import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
@@ -80,6 +80,7 @@ class SummaryDeclaration(path: PathLike, val pkg: PackageDeclaration, val outerT
 
   override lazy val summary: TypeSummary = typeSummary.getOrElse(readBinary[TypeSummary](data))
 
+  override lazy val sourceHash: Int = summary.sourceHash
   override val idLocation: Location = RangeLocation(path, summary.idRange.get)
   override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
 
@@ -103,5 +104,9 @@ class SummaryDeclaration(path: PathLike, val pkg: PackageDeclaration, val outerT
     summary.methods.map(new SummaryMethod(pkg, typeName, _))
 
   def validate(): Unit = {}
-  def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
+  def collectDependencies(dependencies: mutable.Set[Dependent]): Unit = {}
+
+  def areDependentsValid(others: Map[Name, SummaryDeclaration]): Boolean = {
+    true
+  }
 }

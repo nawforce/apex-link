@@ -31,7 +31,7 @@ import com.nawforce.common.api.{Org, ServerOps, TypeSummary}
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents.{LineLocation, Location, TextRange}
-import com.nawforce.common.metadata.Dependant
+import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
@@ -39,9 +39,10 @@ import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclaration
 import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.mutable
+import scala.util.hashing.MurmurHash3
 
 /* Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
-abstract class FullDeclaration(val pkg: PackageDeclaration, val outerTypeName: Option[TypeName],
+abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageDeclaration, val outerTypeName: Option[TypeName],
                                val id: Id, _modifiers: Seq[Modifier],
                                val superClass: Option[TypeName], val interfaces: Seq[TypeName],
                                val bodyDeclarations: Seq[ClassBodyDeclaration])
@@ -136,7 +137,7 @@ abstract class FullDeclaration(val pkg: PackageDeclaration, val outerTypeName: O
     depends = Some(context.dependencies)
   }
 
-  override def collectDependencies(dependsOn: mutable.Set[Dependant]): Unit = {
+  override def collectDependencies(dependsOn: mutable.Set[Dependent]): Unit = {
     super.collectDependencies(dependsOn)
     bodyDeclarations.foreach(_.collectDependencies(dependsOn))
   }
@@ -156,6 +157,7 @@ abstract class FullDeclaration(val pkg: PackageDeclaration, val outerTypeName: O
   // Override to avoid super class access & provide location information
   override lazy val summary: TypeSummary = TypeSummary (
     TypeSummary.defaultVersion,
+    sourceHash,
     Some(new TextRange(id.location.start, id.location.end)),
     name.toString,
     typeName.asString,
@@ -165,7 +167,8 @@ abstract class FullDeclaration(val pkg: PackageDeclaration, val outerTypeName: O
     localFields.map(_.summary).sortBy(_.name).toList,
     constructors.map(_.summary).sortBy(_.parameters.size).toList,
     localMethods.map(_.summary).sortBy(_.name).toList,
-    nestedTypes.map(_.summary).sortBy(_.name).toList
+    nestedTypes.map(_.summary).sortBy(_.name).toList,
+    dependencySummary
   )
 }
 
@@ -176,28 +179,29 @@ object FullDeclaration {
         Org.logMessage(LineLocation(path, err.line), err.message)
         None
       case Right(cu) =>
-        Some(CompilationUnit.construct(pkg, path, cu, new ConstructContext()).typeDeclaration())
+        val sourceHash = MurmurHash3.stringHash(data)
+        Some(CompilationUnit.construct(sourceHash, pkg, path, cu, new ConstructContext()).typeDeclaration())
     }
   }
 
-  def construct(pkg: PackageDeclaration, outerTypeName: Option[TypeName], typeDecl: TypeDeclarationContext,
+  def construct(sourceHash: Int, pkg: PackageDeclaration, outerTypeName: Option[TypeName], typeDecl: TypeDeclarationContext,
                 context: ConstructContext): FullDeclaration = {
 
     val modifiers: Seq[ModifierContext] = CodeParser.toScala(typeDecl.modifier())
     val isOuter = outerTypeName.isEmpty
 
     val cst = CodeParser.toScala(typeDecl.classDeclaration())
-      .map(cd => ClassDeclaration.construct(pkg, outerTypeName,
+      .map(cd => ClassDeclaration.construct(sourceHash, pkg, outerTypeName,
         ApexModifiers.classModifiers(modifiers, context, outer = isOuter, cd.id()),
         cd, context)
       )
     .orElse(CodeParser.toScala(typeDecl.interfaceDeclaration())
-      .map(id => InterfaceDeclaration.construct(pkg, outerTypeName,
+      .map(id => InterfaceDeclaration.construct(sourceHash, pkg, outerTypeName,
         ApexModifiers.interfaceModifiers(modifiers, context, outer = isOuter, id.id()),
         id, context)
       ))
     .orElse(CodeParser.toScala(typeDecl.enumDeclaration())
-      .map(ed => EnumDeclaration.construct(pkg, outerTypeName,
+      .map(ed => EnumDeclaration.construct(sourceHash, pkg, outerTypeName,
         ApexModifiers.enumModifiers(modifiers, context, outer = isOuter, ed.id()),
         ed, context)
       ))

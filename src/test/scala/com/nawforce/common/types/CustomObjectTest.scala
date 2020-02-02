@@ -28,7 +28,6 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.api.{Org, ServerOps}
-import com.nawforce.common.documents.ParsedCache
 import com.nawforce.common.names.Name
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.runtime.FileSystemHelper

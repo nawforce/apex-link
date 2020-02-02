@@ -30,7 +30,7 @@ package com.nawforce.common.cst
 import com.nawforce.common.api.Org
 import com.nawforce.common.documents.Location
 import com.nawforce.common.finding.{TypeError, TypeRequest}
-import com.nawforce.common.metadata.{Dependant, DependencyHolder}
+import com.nawforce.common.metadata.{Dependent, DependencyHolder}
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.types._
 import com.nawforce.common.types.apex.{ApexDeclaration, TriggerDeclaration}
@@ -52,8 +52,8 @@ trait VerifyContext {
   /* Get closest dependency holder */
   def holder: DependencyHolder
 
-  /* Declare a dependency on dependant */
-  def addDependency(dependant: Dependant): Unit
+  /* Declare a dependency on dependent */
+  def addDependency(dependent: Dependent): Unit
 
   /* Locate a type, typeName may be relative so searching must be performed wrt a typeDeclaration */
   def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
@@ -82,20 +82,20 @@ trait VerifyContext {
 }
 
 trait HolderVerifyContext {
-  private val _dependencies = mutable.Set[Dependant]()
+  private val _dependencies = mutable.Set[Dependent]()
 
-  def dependencies: Set[Dependant] = _dependencies.toSet
+  def dependencies: Set[Dependent] = _dependencies.toSet
 
   /* Locate a type, typeName may be relative so searching must be performed wrt a typeDeclaration */
   def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
                  excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration]
 
-  def addDependency(dependant: Dependant): Unit = {
-    dependant match {
-      case _: ApexDeclaration => _dependencies += dependant
-      case _: ApexFieldDeclaration => _dependencies += dependant
-      case _: ApexPropertyDeclaration => _dependencies += dependant
-      case _: ApexMethodDeclaration => _dependencies += dependant
+  def addDependency(dependent: Dependent): Unit = {
+    dependent match {
+      case _: ApexDeclaration => _dependencies += dependent
+      case _: ApexFieldDeclaration => _dependencies += dependent
+      case _: ApexPropertyDeclaration => _dependencies += dependent
+      case _: ApexMethodDeclaration => _dependencies += dependent
       case _ => ()
     }
   }
@@ -190,7 +190,7 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
 
   override def holder: DependencyHolder = parentContext.holder
 
-  override def addDependency(dependant: Dependant): Unit = parentContext.addDependency(dependant)
+  override def addDependency(dependent: Dependent): Unit = parentContext.addDependency(dependent)
 
   override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
                           excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {
@@ -252,7 +252,7 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext)
 
   override def holder: DependencyHolder = parentContext.holder
 
-  override def addDependency(dependant: Dependant): Unit = parentContext.addDependency(dependant)
+  override def addDependency(dependent: Dependent): Unit = parentContext.addDependency(dependent)
 
   override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
                           excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {

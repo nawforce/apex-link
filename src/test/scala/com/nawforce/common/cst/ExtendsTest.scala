@@ -28,7 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Org, ServerOps}
-import com.nawforce.common.documents.{DocumentType, MetadataDocumentType, ParsedCache}
+import com.nawforce.common.documents.{ApexDocument, DocumentType}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.TypeDeclaration
@@ -45,8 +45,8 @@ class ExtendsTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(classes) { root: PathLike =>
       this.root = root
       Org.current.withValue(defaultOrg) {
-        defaultOrg.unmanaged.deployMetadata(
-          classes.map(p => DocumentType(root.join(p._1)).get.asInstanceOf[MetadataDocumentType]).toSeq)
+        defaultOrg.unmanaged.deployClasses(
+          classes.map(p => DocumentType(root.join(p._1)).get.asInstanceOf[ApexDocument]).toSeq)
         defaultOrg.unmanaged.findTypes(classes.keys.map(k => TypeName(Name(k.replaceAll("\\.cls$", "")))).toSeq)
       }
     }

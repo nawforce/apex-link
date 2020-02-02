@@ -28,7 +28,7 @@
 package com.nawforce.common.types.other
 
 import com.nawforce.common.cst.Modifier
-import com.nawforce.common.metadata.Dependant
+import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.types._
 
@@ -55,6 +55,6 @@ final case class FlowDeclaration(pkg: PackageDeclaration) extends TypeDeclaratio
   override val methods: Seq[MethodDeclaration]= Seq.empty
 
   override def validate(): Unit = {}
-  override def dependencies(): Set[Dependant] = Set.empty
-  override def collectDependencies(dependencies: mutable.Set[Dependant]): Unit = {}
+  override def dependencies(): Set[Dependent] = Set.empty
+  override def collectDependencies(dependencies: mutable.Set[Dependent]): Unit = {}
 }

@@ -30,8 +30,7 @@ package com.nawforce.common.api
 import java.nio.charset.StandardCharsets
 
 import com.nawforce.common.documents._
-import com.nawforce.common.metadata.MetadataDeclaration
-import com.nawforce.common.names.Name
+import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types._
 import com.nawforce.common.types.apex.{ApexDeclaration, FullDeclaration, SummaryDeclaration, TriggerDeclaration}
@@ -45,110 +44,110 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
   deployWorkspace()
 
   def deployWorkspace(): Unit = {
-    Package.metadataTypes.foreach(kv => {
-      documentsByExtension(kv._1).foreach {
-        case d: ApexDocument => loadFromApexDocument(d)
-        case d => loadFromDocument(d)
-      }
-    })
-
-    // TODO: This needs removing for invalidation handling
-    schema().relatedLists.validate()
-    validateMetadata()
+    loadCustomObjects()
+    loadComponents()
+    loadClasses()
+    loadTriggers()
   }
 
-  private def loadFromApexDocument(doc: ApexDocument): Seq[ApexDeclaration] = {
-    val pc = Package.parsedCache
-    val data = doc.path.read()
-    val value =
-      if (ServerOps.isParsedDataCaching)
-        pc.flatMap(_.get(data.right.get.getBytes()))
-      else
-        None
-
-    val tds : Seq[ApexDeclaration] =
-      if (value.nonEmpty) {
-        Seq(new SummaryDeclaration(doc.path, this, None, value.get))
-      } else {
-        val d = ServerOps.debugTime(s"Parsed ${doc.path}") {
-          FullDeclaration.create(this, doc.path, data.right.get).toSeq
-        }
-
-        if (pc.nonEmpty && ServerOps.isParsedDataCaching && d.nonEmpty) {
-          pc.get.upsert(data.right.get.getBytes(StandardCharsets.UTF_8), writeBinary(d.head.summary))
-        }
-        d
-      }
-
-    tds.foreach(upsertMetadata(_))
-    tds
-  }
-
-  private def loadFromDocument(doc: MetadataDocumentType): Seq[MetadataDeclaration] = {
-    Org.current.withValue(org) {
-      val start = System.currentTimeMillis()
-
-      val tds = doc match {
-        case docType: ApexDocument =>
-          val data = docType.path.read()
-          FullDeclaration.create(this, docType.path, data.right.get).toSeq
-        case docType: ApexTriggerDocument =>
-          val data = docType.path.read()
-          TriggerDeclaration.create(this, docType.path, data.right.get)
+  private def loadCustomObjects(): Unit = {
+    val docs = documentsByExtension(Name("object"))
+    ServerOps.debugTime(s"Parsed ${docs.size} objects") {
+      val tds = docs.flatMap {
         case docType: SObjectDocument =>
           SObjectDeclaration.create(this, docType.path)
         case docType: PlatformEventDocument =>
           SObjectDeclaration.create(this, docType.path)
         case docType: CustomMetadataDocument =>
           SObjectDeclaration.create(this, docType.path)
-        case docType: ComponentDocument =>
-          upsertComponent(namespace, docType)
-          Nil
-        case _ => Nil
+        case _ => assert(false); Seq()
       }
-
-      val end = System.currentTimeMillis()
-      ServerOps.debug(ServerOps.Trace, s"Parsed ${doc.path} in ${end - start}ms")
       tds.foreach(upsertMetadata(_))
-      tds
+      tds.foreach(_.validate())
+      schema().relatedLists.validate()
     }
   }
 
-  private def validateMetadata(): Unit = {
-    Org.current.withValue(org) {
-      types.values.filter(_.isInstanceOf[ApexDeclaration]).foreach(td => {
-        td.validate()
-      })
-      other.values.foreach(md => {
-        md.validate()
-      })
-    }
-  }
-
-  /** Deploy some metadata to the org, if already present this will replace the existing metadata
-    * TODO: This is really only safe for direct use from tests currently
-    */
-  private[nawforce] def deployMetadata(documents: Seq[MetadataDocumentType]): Unit = {
-    Org.current.withValue(org) {
-      documents.foreach {
-        case d: ApexDocument => loadFromApexDocument(d)
-        case d => loadFromDocument(d)
+  private def loadComponents(): Unit = {
+    val docs = documentsByExtension(Name("component"))
+    ServerOps.debugTime(s"Parsed ${docs.size} components") {
+      docs.foreach {
+        case docType: ComponentDocument => upsertComponent(namespace, docType)
+        case _ => assert(false); Seq()
       }
-      validateMetadata()
     }
   }
 
+  private def loadClasses(): Unit = {
+    val pc = Package.parsedCache
+    val docs = documentsByExtension(Name("cls"))
+
+    ServerOps.debugTime(s"Parsed ${docs.size} classes") {
+
+      // Load summary docs that have valid dependents
+      if (ServerOps.isParsedDataCaching) {
+        val summaryDocs = docs.flatMap(doc => {
+          val data = doc.path.read()
+          val value = pc.flatMap(_.get(data.right.get.getBytes()))
+          value.map(v => new SummaryDeclaration(doc.path, this, None, v))
+        }).map(sd => (sd.name, sd)).toMap
+
+        val valid = summaryDocs.filter(kv => kv._2.areDependentsValid(summaryDocs))
+        valid.foreach(vd => upsertMetadata(vd._2))
+      }
+
+      // Load full docs for rest of set
+      val fullTypes = docs.filterNot(doc => types.contains(TypeName(doc.name))).map(doc => {
+        val data = doc.path.read()
+        val td = ServerOps.debugTime(s"Parsed ${doc.path}") {
+          FullDeclaration.create(this, doc.path, data.right.get)
+        }
+        td.foreach(upsertMetadata(_))
+        (data.right.get, td)
+      })
+
+      // Validate the full types & write back to cache
+      fullTypes.filter(_._2.nonEmpty).foreach(ld => {
+        ld._2.get.validate()
+        if (ServerOps.isParsedDataCaching) {
+          pc.get.upsert(ld._1.getBytes(StandardCharsets.UTF_8), writeBinary(ld._2.get.summary))
+        }
+      })
+    }
+  }
+
+  private def loadTriggers(): Unit = {
+    val docs = documentsByExtension(Name("trigger"))
+    ServerOps.debugTime(s"Parsed ${docs.size} triggers") {
+      val tds = docs.flatMap {
+        case docType: ApexTriggerDocument =>
+          val data = docType.path.read()
+          TriggerDeclaration.create(this, docType.path, data.right.get)
+        case _ => assert(false); Seq()
+      }
+      tds.foreach(upsertMetadata(_))
+      tds.foreach(_.validate())
+    }
+  }
+
+  /** Deploy some classes to the org, if already present this will replace the existing classes */
+  def deployClasses(documents: Seq[ApexDocument]): Unit = {
+    Org.current.withValue(org) {
+      val updated = documents.flatMap(doc => {
+        val data = doc.path.read()
+        val d = ServerOps.debugTime(s"Parsed ${doc.path}") {
+          FullDeclaration.create(this, doc.path, data.right.get).toSeq
+        }
+        d.foreach(upsertMetadata(_))
+        d
+      })
+
+      updated.foreach(td => td.validate())
+    }
+  }
 }
 
 object Package {
-  /** File type to plural name mapping */
-  val metadataTypes: Map[Name, String] = Map(
-    Name("object") -> "custom objects",
-    Name("component") -> "components",
-    Name("cls") -> "classes",
-    Name("trigger") -> "triggers"
-  )
-
   lazy val parsedCache: Option[ParsedCache] = {
     ParsedCache.create() match {
       case Left(err) => ServerOps.error(err); None
