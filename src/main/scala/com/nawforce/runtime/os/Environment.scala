@@ -43,7 +43,10 @@ object Environment {
 
   def setVariable(name: String, value: String): Boolean = {
     try {
-      System.setProperty(name, value)
+      if (value == null)
+        System.clearProperty(name)
+      else
+        System.setProperty(name, value)
       true
     } catch {
       case _: SecurityException => false

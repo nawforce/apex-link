@@ -128,11 +128,6 @@ abstract class PackageDeclaration(val workspace: Workspace, bases: Seq[PackageDe
   /* Current count of known types */
   def typeCount: Int = types.size
 
-  /* Find package accessible type(s) */
-  def findTypes(typeNames: Seq[TypeName]): Seq[TypeDeclaration] = {
-    typeNames.flatMap(typeName => TypeRequest(typeName, this, excludeSObjects = false).toOption)
-  }
-
   /* Find a package/platform type. For general needs don't call this direct, use TypeRequest which will delegate here
    * if needed. This is the fallback handling for the TypeFinder which performs local searching for types, so this is
    * only useful if *you* know local searching is not required.

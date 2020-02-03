@@ -152,4 +152,8 @@ object ParsedCache {
       }
     }
   }
+
+  def clear(): Unit = {
+    create().map(_.clear())
+  }
 }

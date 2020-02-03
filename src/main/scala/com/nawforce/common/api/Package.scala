@@ -30,10 +30,11 @@ package com.nawforce.common.api
 import java.nio.charset.StandardCharsets
 
 import com.nawforce.common.documents._
+import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types._
-import com.nawforce.common.types.apex.{ApexDeclaration, FullDeclaration, SummaryDeclaration, TriggerDeclaration}
+import com.nawforce.common.types.apex.{FullDeclaration, SummaryDeclaration, TriggerDeclaration}
 import com.nawforce.common.types.schema.SObjectDeclaration
 import upickle.default._
 
@@ -143,6 +144,13 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
       })
 
       updated.foreach(td => td.validate())
+    }
+  }
+
+  /* Find package accessible type(s) */
+  private[nawforce] def findTypes(typeNames: Seq[TypeName]): Seq[TypeDeclaration] = {
+    Org.current.withValue(org) {
+      typeNames.flatMap(typeName => TypeRequest(typeName, this, excludeSObjects = false).toOption)
     }
   }
 }

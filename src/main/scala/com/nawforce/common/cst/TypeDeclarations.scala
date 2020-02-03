@@ -104,7 +104,7 @@ object ClassDeclaration {
                 CodeParser.toScala(cbd.STATIC()).map(_ => Seq(STATIC_MODIFIER)).getOrElse(Seq()),
               x, context)))
           .orElse(CodeParser.toScala(cbd.memberDeclaration())
-            .map(x => ClassBodyDeclaration.construct(pkg, thisType, CodeParser.toScala(cbd.modifier()), x, context))
+            .map(x => ClassBodyDeclaration.construct(pkg, thisType, sourceHash, CodeParser.toScala(cbd.modifier()), x, context))
           )
           .orElse(throw new CSTException())
         ).flatten

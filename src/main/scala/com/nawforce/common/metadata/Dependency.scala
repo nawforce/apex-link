@@ -53,7 +53,7 @@ trait DependencyHolder extends Dependent {
   def dependencySummary: Set[DependentSummary] = {
     dependencies().flatMap {
       case td: ApexDeclaration =>
-        Some(DependentSummary(td.name.value, td.sourceHash))
+        Some(DependentSummary(td.typeName.toString, td.sourceHash))
       case _ =>
         None
     }

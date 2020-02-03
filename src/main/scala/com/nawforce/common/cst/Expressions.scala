@@ -92,7 +92,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
       }
     }
 
-    // Intercept static call to System Type that may clash with SObject, there currently only three of these
+    // Intercept static call to System Type that may clash with SObject, there are currently only three of these
     // Approval, BusinessHours & Site so we could handle non-generically if needed to bypass
     if (target.isRight) {
       expression match {

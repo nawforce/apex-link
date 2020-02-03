@@ -74,7 +74,6 @@ case class Path(native: java.nio.file.Path) extends PathLike {
     }
   }
 
-
   override def write(data: String): Option[String] = {
     write(data.getBytes(StandardCharsets.UTF_8))
   }

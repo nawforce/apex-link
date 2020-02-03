@@ -60,7 +60,7 @@ abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST wi
 }
 
 object ClassBodyDeclaration {
-  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, modifiers: Seq[ModifierContext],
+  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, sourceHash: Int, modifiers: Seq[ModifierContext],
                 memberDeclarationContext: MemberDeclarationContext, context: ConstructContext)
   : Seq[ClassBodyDeclaration] = {
 
@@ -79,11 +79,11 @@ object ClassBodyDeclaration {
           ApexModifiers.constructorModifiers(modifiers, context, x),
           x, context))))
       .orElse(CodeParser.toScala(memberDeclarationContext.interfaceDeclaration())
-        .map(x => Seq(InterfaceDeclaration.construct(0, pkg, Some(outerTypeName),
+        .map(x => Seq(InterfaceDeclaration.construct(sourceHash, pkg, Some(outerTypeName),
           ApexModifiers.interfaceModifiers(modifiers, context, outer = false, x.id()),
           x, context))))
       .orElse(CodeParser.toScala(memberDeclarationContext.enumDeclaration())
-        .map(x => Seq(EnumDeclaration.construct(0, pkg, Some(outerTypeName),
+        .map(x => Seq(EnumDeclaration.construct(sourceHash, pkg, Some(outerTypeName),
           ApexModifiers.enumModifiers(modifiers, context, outer = false, x.id()),
           x, context))))
       .orElse(CodeParser.toScala(memberDeclarationContext.propertyDeclaration())
@@ -91,7 +91,7 @@ object ClassBodyDeclaration {
           ApexModifiers.fieldModifiers(modifiers, context, x.id()),
           x, context))))
       .orElse(CodeParser.toScala(memberDeclarationContext.classDeclaration())
-        .map(x => Seq(ClassDeclaration.construct(0, pkg, Some(outerTypeName),
+        .map(x => Seq(ClassDeclaration.construct(sourceHash, pkg, Some(outerTypeName),
           ApexModifiers.classModifiers(modifiers, context, outer = false, x.id()),
           x, context))))
 
@@ -179,13 +179,6 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], relativeTypeNa
         case _ => false
       })
   }
-
-  // Override to attempt to resolve relative type name
-  override lazy val summary: MethodSummary = api.MethodSummary(
-    MethodSummary.defaultVersion,
-    name.toString, modifiers.map(_.toString).sorted.toList, relativeTypeName.relativeTypeName.asString,
-    parameters.map(_.summary).toList, dependencySummary)
-
 }
 
 object ApexMethodDeclaration {
@@ -286,11 +279,6 @@ final case class FormalParameter(pkg: PackageDeclaration, outerTypeName: TypeNam
 
   def verify(context: BodyDeclarationVerifyContext): Unit = {
     // This is validated when made available to a Block
-  }
-
-  // Override to avoid attempts to resolve relative type name
-  override lazy val summary: ParameterSummary = {
-    ParameterSummary(ParameterSummary.defaultVersion, name.toString, relativeTypeName.relativeTypeName.asString)
   }
 }
 

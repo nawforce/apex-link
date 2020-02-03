@@ -199,7 +199,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
         Nil,
         List(
           ConstructorSummary(1, List("private"), Nil, Set()),
-          ConstructorSummary(1, List("public"), List(ParameterSummary(1, "a", "String")), Set())
+          ConstructorSummary(1, List("public"), List(ParameterSummary(1, "a", "System.String")), Set())
         ),
         Nil,
         Nil,
@@ -217,7 +217,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
         Nil,
         List(
           MethodSummary(1, "bar", List(), "void", Nil, Set()),
-          MethodSummary(1, "foo", List("public"), "String", List(ParameterSummary(1, "a", "String")), Set()),
+          MethodSummary(1, "foo", List("public"), "System.String", List(ParameterSummary(1, "a", "System.String")), Set()),
         ),
         Nil,
         Set())
@@ -233,7 +233,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
         Nil,
         List(
           MethodSummary(1, "bar", List(), "void", Nil, Set()),
-          MethodSummary(1, "foo", List("public"), "String", List(ParameterSummary(1, "a", "String")), Set())
+          MethodSummary(1, "foo", List("public"), "System.String", List(ParameterSummary(1, "a", "System.String")), Set())
         ),
         Nil,
         Set())
