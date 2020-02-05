@@ -122,20 +122,39 @@ class SummaryDeclaration(path: PathLike, val pkg: PackageDeclaration, val outerT
   def collectDependencies(dependencies: mutable.Set[Dependent]): Unit = {}
 
   def areDependentsValid(others: Map[Name, SummaryDeclaration]): Boolean = {
-    if (summary.dependents.exists(dep => {
+    summary.dependents.foreach(dep => {
       val other = others.get(Name(dep.name.split('.').head))
-      other.isEmpty || dep.sourceHash != other.get.sourceHash
-    }))
-      return false
+      if (other.isEmpty) {
+        ServerOps.debug(ServerOps.Trace, s"Missing dependent ${dep.name} for $typeName")
+        return false
+      }
 
-    if (localFields.exists(f => !f.areDependentsValid(others)))
-      return false
+      if (dep.sourceHash != other.get.sourceHash) {
+        ServerOps.debug(ServerOps.Trace, s"Wrong checksum on dependent ${dep.name} for $typeName")
+        return false
+      }
+    })
 
-    if (constructors.exists(m => !m.areDependentsValid(others)))
-      return false
+    localFields.foreach(f => {
+      if (!f.areDependentsValid(others)) {
+        ServerOps.debug(ServerOps.Trace, s"Field dependency invalid ${f.name} for $typeName")
+        return false
+      }
+    })
 
-    if (localMethods.exists(m => !m.areDependentsValid(others)))
-      return false
+    constructors.foreach(m => {
+      if (!m.areDependentsValid(others)) {
+        ServerOps.debug(ServerOps.Trace, s"Constructor dependency invalid ${m.toString} for $typeName")
+        return false
+      }
+    })
+
+    localMethods.foreach(m => {
+      if (!m.areDependentsValid(others)) {
+        ServerOps.debug(ServerOps.Trace, s"Method dependency invalid ${m.toString} for $typeName")
+        return false
+      }
+    })
 
     if (nestedTypes.exists(nt => !nt.areDependentsValid(others)))
       return false
