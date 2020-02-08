@@ -38,10 +38,9 @@ import com.nawforce.common.types.{FieldDeclaration, MethodDeclaration, PackageDe
 trait ApexFieldLike extends FieldDeclaration {
   val location: RangeLocation
 
-  // Override to provide location
-  override lazy val summary: FieldSummary = FieldSummary(FieldSummary.defaultVersion,
-    Some(new TextRange(location.start, location.end)), name.toString,  modifiers.map(_.toString).sorted.toList,
-    typeName.asString, readAccess.toString, writeAccess.toString, dependencySummary)
+  override def summary(excludeNamespace: Option[Name]): FieldSummary = {
+    super.summary(excludeNamespace, Some(new TextRange(location.start, location.end)))
+  }
 }
 
 /** Core features for Apex defined types be they full or summary style */

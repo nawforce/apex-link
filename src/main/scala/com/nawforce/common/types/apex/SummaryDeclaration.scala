@@ -38,6 +38,24 @@ import upickle.default._
 
 import scala.collection.mutable
 
+trait DependentValidation {
+  def isValid(dependent: DependentSummary, summaries: Map[Name, SummaryDeclaration]): Boolean = {
+    val other = summaries.get(Name(dependent.name.split('.').head))
+
+    if (other.isEmpty) {
+      ServerOps.debug(ServerOps.Trace, s"Missing dependent ${dependent.name}")
+      return false
+    }
+
+    if (dependent.sourceHash != other.get.sourceHash) {
+      ServerOps.debug(ServerOps.Trace, s"Wrong checksum on dependent ${dependent.name}")
+      return false
+    }
+
+    true
+  }
+}
+
 class SummaryParameter(pkg: PackageDeclaration, outerTypeName: TypeName, parameterSummary: ParameterSummary)
   extends ParameterDeclaration {
   override lazy val name: Name = Name(parameterSummary.name)
@@ -45,22 +63,19 @@ class SummaryParameter(pkg: PackageDeclaration, outerTypeName: TypeName, paramet
 }
 
 class SummaryMethod(pkg: PackageDeclaration, outerTypeName: TypeName, methodSummary: MethodSummary)
-  extends MethodDeclaration {
+  extends MethodDeclaration with DependentValidation {
   override lazy val name: Name = Name(methodSummary.name)
   override lazy val modifiers: Seq[Modifier] = methodSummary.modifiers.map(Modifier(_))
   override lazy val typeName: TypeName = TypeName.fromString(methodSummary.typeName).get
   override lazy val parameters: Seq[ParameterDeclaration] =
     methodSummary.parameters.map(new SummaryParameter(pkg, outerTypeName, _))
 
-  def areDependentsValid(others: Map[Name, SummaryDeclaration]): Boolean = {
-    !methodSummary.dependents.exists(dep => {
-      val other = others.get(Name(dep.name))
-      other.isEmpty || dep.sourceHash != other.get.sourceHash
-    })
+  def areDependentsValid(summaries: Map[Name, SummaryDeclaration]): Boolean = {
+    methodSummary.dependents.forall(d => isValid(d, summaries))
   }
 }
 
-class SummaryField(path: PathLike, fieldSummary: FieldSummary) extends ApexFieldLike {
+class SummaryField(path: PathLike, fieldSummary: FieldSummary) extends ApexFieldLike  with DependentValidation {
   override lazy val location: RangeLocation = RangeLocation(path, fieldSummary.range.get)
   override lazy val name: Name = Name(fieldSummary.name)
   override lazy val modifiers: Seq[Modifier] = fieldSummary.modifiers.map(Modifier(_))
@@ -68,30 +83,25 @@ class SummaryField(path: PathLike, fieldSummary: FieldSummary) extends ApexField
   override lazy val readAccess: Modifier = Modifier(fieldSummary.readAccess)
   override lazy val writeAccess: Modifier = Modifier(fieldSummary.writeAccess)
 
-  def areDependentsValid(others: Map[Name, SummaryDeclaration]): Boolean = {
-    !fieldSummary.dependents.exists(dep => {
-      val other = others.get(Name(dep.name))
-      other.isEmpty || dep.sourceHash != other.get.sourceHash
-    })
+  def areDependentsValid(summaries: Map[Name, SummaryDeclaration]): Boolean = {
+    fieldSummary.dependents.forall(d => isValid(d, summaries))
   }
 }
 
 class SummaryConstructor(pkg: PackageDeclaration, outerTypeName: TypeName, constructorSummary: ConstructorSummary)
-  extends ConstructorDeclaration {
+  extends ConstructorDeclaration with DependentValidation {
   override lazy val modifiers: Seq[Modifier] = constructorSummary.modifiers.map(Modifier(_))
   override lazy val parameters: Seq[ParameterDeclaration] =
     constructorSummary.parameters.map(new SummaryParameter(pkg, outerTypeName, _))
 
-  def areDependentsValid(others: Map[Name, SummaryDeclaration]): Boolean = {
-    !constructorSummary.dependents.exists(dep => {
-      val other = others.get(Name(dep.name))
-      other.isEmpty || dep.sourceHash != other.get.sourceHash
-    })
+  def areDependentsValid(summaries: Map[Name, SummaryDeclaration]): Boolean = {
+    constructorSummary.dependents.forall(d => isValid(d, summaries))
   }
 }
 
 class SummaryDeclaration(path: PathLike, val pkg: PackageDeclaration, val outerTypeName: Option[TypeName],
-                         data: Array[Byte], typeSummary: Option[TypeSummary]=None) extends ApexDeclaration {
+                         data: Array[Byte], typeSummary: Option[TypeSummary]=None)
+  extends ApexDeclaration with DependentValidation {
 
   override lazy val summary: TypeSummary = typeSummary.getOrElse(readBinary[TypeSummary](data))
 
@@ -121,44 +131,11 @@ class SummaryDeclaration(path: PathLike, val pkg: PackageDeclaration, val outerT
   def validate(): Unit = {}
   def collectDependencies(dependencies: mutable.Set[Dependent]): Unit = {}
 
-  def areDependentsValid(others: Map[Name, SummaryDeclaration]): Boolean = {
-    summary.dependents.foreach(dep => {
-      val other = others.get(Name(dep.name.split('.').head))
-      if (other.isEmpty) {
-        ServerOps.debug(ServerOps.Trace, s"Missing dependent ${dep.name} for $typeName")
-        return false
-      }
-
-      if (dep.sourceHash != other.get.sourceHash) {
-        ServerOps.debug(ServerOps.Trace, s"Wrong checksum on dependent ${dep.name} for $typeName")
-        return false
-      }
-    })
-
-    localFields.foreach(f => {
-      if (!f.areDependentsValid(others)) {
-        ServerOps.debug(ServerOps.Trace, s"Field dependency invalid ${f.name} for $typeName")
-        return false
-      }
-    })
-
-    constructors.foreach(m => {
-      if (!m.areDependentsValid(others)) {
-        ServerOps.debug(ServerOps.Trace, s"Constructor dependency invalid ${m.toString} for $typeName")
-        return false
-      }
-    })
-
-    localMethods.foreach(m => {
-      if (!m.areDependentsValid(others)) {
-        ServerOps.debug(ServerOps.Trace, s"Method dependency invalid ${m.toString} for $typeName")
-        return false
-      }
-    })
-
-    if (nestedTypes.exists(nt => !nt.areDependentsValid(others)))
-      return false
-
-    true
+  def areDependentsValid(summaries: Map[Name, SummaryDeclaration]): Boolean = {
+    summary.dependents.forall(d => isValid(d, summaries)) &&
+      localFields.forall(f => f.areDependentsValid(summaries)) &&
+      constructors.forall(c => c.areDependentsValid(summaries)) &&
+      localMethods.forall(m => m.areDependentsValid(summaries)) &&
+      nestedTypes.forall(t => t.areDependentsValid(summaries))
   }
 }

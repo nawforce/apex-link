@@ -154,22 +154,25 @@ abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageDeclaration,
       .map(method => Issue(UNUSED_CATEGORY, method.id.location, s"Method '${method.signature}'"))
   }
 
-  // Override to avoid super class access & provide location information
-  override lazy val summary: TypeSummary = TypeSummary (
-    TypeSummary.defaultVersion,
-    sourceHash,
-    Some(new TextRange(id.location.start, id.location.end)),
-    name.toString,
-    typeName.asString,
-    nature.value, modifiers.map(_.toString).sorted.toList,
-    superClass.map(_.asString).getOrElse(""),
-    interfaces.map(_.asString).sorted.toList,
-    localFields.map(_.summary).sortBy(_.name).toList,
-    constructors.map(_.summary).sortBy(_.parameters.size).toList,
-    localMethods.map(_.summary).sortBy(_.name).toList,
-    nestedTypes.map(_.summary).sortBy(_.name).toList,
-    dependencySummary
-  )
+  // Override to avoid super class access (use local fields & methods) & provide location information
+  override lazy val summary: TypeSummary = {
+    val ns = packageDeclaration.flatMap(_.namespace)
+    TypeSummary (
+      TypeSummary.defaultVersion,
+      sourceHash,
+      Some(new TextRange(id.location.start, id.location.end)),
+      name.toString,
+      typeName.withoutNamespace(ns).asString,
+      nature.value, modifiers.map(_.toString).sorted.toList,
+      superClass.map(_.withoutNamespace(ns).asString).getOrElse(""),
+      interfaces.map(_.withoutNamespace(ns).asString).sorted.toList,
+      localFields.map(_.summary(ns)).sortBy(_.name).toList,
+      constructors.map(_.summary(ns)).sortBy(_.parameters.size).toList,
+      localMethods.map(_.summary(ns)).sortBy(_.name).toList,
+      nestedTypes.map(_.summary).sortBy(_.name).toList,
+      dependencySummary(ns)
+    )
+  }
 }
 
 object FullDeclaration {

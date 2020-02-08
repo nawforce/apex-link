@@ -28,6 +28,7 @@
 package com.nawforce.common.metadata
 
 import com.nawforce.common.api.DependentSummary
+import com.nawforce.common.names.Name
 import com.nawforce.common.types.apex.ApexDeclaration
 
 import scala.collection.mutable
@@ -50,10 +51,10 @@ trait DependencyHolder extends Dependent {
     dependencies().foreach(_.addDependencyHolder(this))
   }
 
-  def dependencySummary: Set[DependentSummary] = {
+  def dependencySummary(excludeNamespace: Option[Name]): Set[DependentSummary] = {
     dependencies().flatMap {
       case td: ApexDeclaration =>
-        Some(DependentSummary(td.typeName.toString, td.sourceHash))
+        Some(DependentSummary(td.typeName.withoutNamespace(excludeNamespace).toString, td.sourceHash))
       case _ =>
         None
     }

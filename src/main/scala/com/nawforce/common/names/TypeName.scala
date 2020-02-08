@@ -36,16 +36,6 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
 
   lazy val outerName: Name = outer.map(_.outerName).getOrElse(name)
 
-  def outerNth(index: Int): Option[Name] = {
-    if (index > 0 && outer.nonEmpty) {
-      outer.get.outerNth(index-1)
-    } else if (index == 0) {
-      Some(name)
-    } else {
-      None
-    }
-  }
-
   def inner() : TypeName = {
     TypeName(name, params, None)
   }
@@ -90,6 +80,13 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
     TypeName(Name(name.value.replaceAll(regex, replacement)), params, outer)
   }
 
+  def withoutNamespace(namespace: Option[Name]) : TypeName = {
+    if (outer.nonEmpty && namespace.contains(outerName))
+      unwrap.get
+    else
+      this
+  }
+
   def asDotName: DotName = {
     outer match {
       case None => DotName(Seq(name))
@@ -103,6 +100,14 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
       case Some(o) => TypeName(name, params, Some(o.wrap(typeName)))
     }
   }
+
+  def unwrap: Option[TypeName] = {
+    outer match {
+      case None => None
+      case Some(o) => Some(TypeName(name, params, o.unwrap))
+    }
+  }
+
 
   def getArrayType: Option[TypeName] = {
     if (name == Name.List$ && outer.contains(TypeName.System) && params.size == 1) {
