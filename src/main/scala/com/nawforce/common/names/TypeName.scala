@@ -90,13 +90,6 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
     namespace.map(ns => withTail(TypeName(ns))).getOrElse(this)
   }
 
-  def withoutNamespace(namespace: Option[Name]) : TypeName = {
-    if (outer.nonEmpty && namespace.contains(outerName))
-      unwrap.get
-    else
-      this
-  }
-
   def asDotName: DotName = {
     outer match {
       case None => DotName(Seq(name))
@@ -117,7 +110,6 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
       case Some(o) => Some(TypeName(name, params, o.unwrap))
     }
   }
-
 
   def getArrayType: Option[TypeName] = {
     if (name == Name.List$ && outer.contains(TypeName.System) && params.size == 1) {
@@ -181,6 +173,13 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
     (if (outer.isEmpty) "" else outer.get.asString + ".") +
       name.toString +
       (if (params.isEmpty) "" else s"<${params.map(_.asString).mkString(", ")}>")
+  }
+
+  def asSummaryString(namespace: Option[Name]): String = {
+    if (namespace.nonEmpty)
+      asString.replaceAll(s"(^|<|, )${namespace.get}\\.", "$1pkg\\$.")
+    else
+      asString
   }
 
   def equalsIgnoreParams(other: TypeName): Boolean = {
@@ -264,12 +263,21 @@ object TypeName {
     }
   }
 
+  def fromString(value: String, namespace: Option[Name]): TypeName = {
+    if (namespace.nonEmpty)
+      fromString(value.replaceAll("pkg\\$\\.", namespace.get+"."))
+    else
+      fromString(value.replaceAll("pkg\\$\\.", ""))
+  }
+
   def fromString(value: String): TypeName = {
     value match {
       case "null" => TypeName.Null
       case "any" => TypeName.Any
       case "Object" => TypeName.InternalObject
       case "[SOQL Results]" => TypeName.RecordSet
+      case _ if !value.contains('<') =>
+        TypeName(value.split('.').map(Name(_)).reverse)
       case _ =>
         CodeParser.parseTypeRef(value) match {
           case Left(err) =>

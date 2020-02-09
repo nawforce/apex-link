@@ -41,28 +41,30 @@ import scala.collection.mutable
 
 trait DependentValidation {
   def isValid(pkg: PackageDeclaration, dependent: DependentSummary, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
-    TypeName.fromString(dependent.name) match {
-      // Package namespace
-      case typeName if typeName.maybeNamespace.exists(ns => pkg.namespace.contains(ns)) =>
-        isSummaryValid(typeName, dependent.sourceHash, summaries)
+    val typeName = TypeName.fromString(dependent.name, pkg.namespace)
 
-      // Dependent package namespace
-      case typeName if typeName.maybeNamespace.exists(ns => pkg.namespaces.contains(ns)) =>
-        TypeRequest(typeName, pkg, excludeSObjects = false) match {
-          case Left(_) => false
-          case Right(ad: ApexDeclaration) => ad.sourceHash == dependent.sourceHash
-          case Right(_) => true
-        }
-
-      // Unmanaged
-      case typeName =>
-        isSummaryValid(typeName.withNamespace(pkg.namespace), dependent.sourceHash, summaries)
-    }
+    isSummaryValid(typeName, dependent.sourceHash, summaries)
+      .orElse(isSummaryValid(typeName.withNamespace(pkg.namespace), dependent.sourceHash, summaries))
+      .orElse({
+        Some(
+          if (typeName.maybeNamespace.exists(ns => pkg.namespaces.contains(ns))) {
+            TypeRequest(typeName, pkg, excludeSObjects = false) match {
+              case Left(_) => false
+              case Right(ad: ApexDeclaration) => ad.sourceHash == dependent.sourceHash
+              case Right(_) => true
+            }
+          } else {
+            false
+          })
+      })
+      .orElse(Some(false)).get
   }
 
-  private def isSummaryValid(typeName: TypeName, sourceHash: Int, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
-    summaries.get(typeName).exists(_.sourceHash == sourceHash) ||
-      (typeName.outer.nonEmpty && summaries.get(typeName.outer.get).exists(_.sourceHash == sourceHash))
+  private def isSummaryValid(typeName: TypeName, sourceHash: Int,
+                             summaries: Map[TypeName, SummaryDeclaration]): Option[Boolean] = {
+    // Handle a outer or inner type
+    summaries.get(typeName).map(_.sourceHash == sourceHash)
+      .orElse(typeName.outer.flatMap(summaries.get).map(_.sourceHash == sourceHash))
   }
 }
 
@@ -150,12 +152,7 @@ class SummaryDeclaration(path: PathLike, val pkg: PackageDeclaration, val outerT
   }
 
   private def fromTypeName(value: String): TypeName = {
-    val typeName = TypeName.fromString(value)
-    if (typeName.maybeNamespace.exists(ns => pkg.namespaces.contains(ns))) {
-      typeName
-    } else {
-      pkg.namespaceAsTypeName.map(typeName.withTail).getOrElse(typeName)
-    }
+    TypeName.fromString(value, pkg.namespace)
   }
 
   def areDependentsValid(summaries: Map[TypeName, SummaryDeclaration]): Boolean = {

@@ -74,7 +74,7 @@ trait FieldDeclaration extends DependencyHolder {
   protected def summary(excludeNamespace: Option[Name], range: Option[TextRange]): FieldSummary = {
     FieldSummary(FieldSummary.defaultVersion, range, name.toString,
       modifiers.map(_.toString).sorted.toList,
-      typeName.withoutNamespace(excludeNamespace).asString,
+      typeName.asSummaryString(excludeNamespace),
       readAccess.toString, writeAccess.toString,
       dependencySummary(excludeNamespace)
     )
@@ -86,7 +86,7 @@ trait ParameterDeclaration {
   val typeName: TypeName
 
   def summary(excludeNamespace: Option[Name]): ParameterSummary = {
-    ParameterSummary(ParameterSummary.defaultVersion, name.toString, typeName.withoutNamespace(excludeNamespace).toString)
+    ParameterSummary(ParameterSummary.defaultVersion, name.toString, typeName.asSummaryString(excludeNamespace))
   }
 }
 
@@ -177,7 +177,7 @@ trait MethodDeclaration extends DependencyHolder {
   def summary(excludeNamespace: Option[Name]): MethodSummary = MethodSummary(
     MethodSummary.defaultVersion,
     name.toString, modifiers.map(_.toString).sorted.toList,
-    typeName.withoutNamespace(excludeNamespace).asString,
+    typeName.asSummaryString(excludeNamespace),
     parameters.map(_.summary(excludeNamespace)).toList, dependencySummary(excludeNamespace)
   )
 }
@@ -353,10 +353,10 @@ trait TypeDeclaration extends MetadataDeclaration {
       0,
       None,
       name.toString,
-      typeName.withoutNamespace(ns).asString,
+      typeName.asSummaryString(ns),
       nature.value, modifiers.map(_.toString).sorted.toList,
-      superClass.map(_.withoutNamespace(ns).asString).getOrElse(""),
-      interfaces.map(_.withoutNamespace(ns).asString).sorted.toList,
+      superClass.map(_.asSummaryString(ns)).getOrElse(""),
+      interfaces.map(_.asSummaryString(ns)).sorted.toList,
       fields.map(_.summary(ns)).sortBy(_.name).toList,
       constructors.map(_.summary(ns)).sortBy(_.parameters.size).toList,
       methods.map(_.summary(ns)).sortBy(_.name).toList,

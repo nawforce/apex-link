@@ -27,6 +27,7 @@
 */
 package com.nawforce.common.api
 
+import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 
 import com.nawforce.common.documents._
@@ -89,7 +90,7 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
       if (ServerOps.isParsedDataCaching) {
         val summaryDocs = docs.flatMap(doc => {
           val data = doc.path.read()
-          val value = pc.flatMap(_.get(data.right.get.getBytes()))
+          val value = pc.flatMap(_.get(data.right.get.getBytes(), namespace))
           value.map(v => new SummaryDeclaration(doc.path, this, None, v))
         }).map(sd => (sd.typeName, sd)).toMap
 
@@ -113,7 +114,7 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
       fullTypes.filter(_._2.nonEmpty).foreach(ld => {
         ld._2.get.validate()
         if (ServerOps.isParsedDataCaching) {
-          pc.get.upsert(ld._1.getBytes(StandardCharsets.UTF_8), writeBinary(ld._2.get.summary))
+          pc.get.upsert(ld._1.getBytes(StandardCharsets.UTF_8), writeBinary(ld._2.get.summary), namespace)
         }
       })
     }

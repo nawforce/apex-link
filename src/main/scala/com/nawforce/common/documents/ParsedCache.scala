@@ -27,13 +27,16 @@
 */
 package com.nawforce.common.documents
 
+import java.nio.charset.StandardCharsets
+
+import com.nawforce.common.names.Name
 import com.nawforce.common.path._
 import com.nawforce.runtime.os.Environment
 import upickle.default.{macroRW, ReadWriter => RW, _}
 
 import scala.util.hashing.MurmurHash3
 
-case class CacheEntry(version: Int, key: Array[Byte], value: Array[Byte])
+case class CacheEntry(version: Int, namespace: Array[Byte], key: Array[Byte], value: Array[Byte])
 
 object CacheEntry {
   val currentVersion = 1
@@ -46,19 +49,21 @@ class ParsedCache(val path: PathLike) {
   expire()
 
   /** Upsert a key -> value pair, ignores errors */
-  def upsert(key: Array[Byte], value: Array[Byte]): Unit = {
-    val hashParts = hashToParts(MurmurHash3.bytesHash(key))
+  def upsert(key: Array[Byte], value: Array[Byte], namespace: Option[Name]=None): Unit = {
+    val nsBytes = namespace.map(_.value).getOrElse("").getBytes(StandardCharsets.UTF_8)
+    val hashParts = hashToParts(MurmurHash3.bytesHash(key, MurmurHash3.bytesHash(nsBytes)))
     path.createDirectory(hashParts.head) match {
       case Left(_) => ()
       case Right(outer) =>
         val inner = outer.join(hashParts(1))
-        inner.write(writeBinary(CacheEntry(CacheEntry.currentVersion, key, value)))
+        inner.write(writeBinary(CacheEntry(CacheEntry.currentVersion, nsBytes, key, value)))
     }
   }
 
   /** Recover a value from a key */
-  def get(key: Array[Byte]): Option[Array[Byte]] = {
-    val hashParts = hashToParts(MurmurHash3.bytesHash(key))
+  def get(key: Array[Byte], namespace: Option[Name]=None): Option[Array[Byte]] = {
+    val nsBytes = namespace.map(_.value).getOrElse("").getBytes(StandardCharsets.UTF_8)
+    val hashParts = hashToParts(MurmurHash3.bytesHash(key, MurmurHash3.bytesHash(nsBytes)))
     val outer = path.join(hashParts.head)
     if (outer.nature == DIRECTORY) {
       val inner = outer.join(hashParts(1))
@@ -67,7 +72,7 @@ class ParsedCache(val path: PathLike) {
           case Left(_) => ()
           case Right(data) =>
             val ce = readBinary[CacheEntry](data)
-            if (ce.version == CacheEntry.currentVersion && ce.key.sameElements(key))
+            if (ce.version == CacheEntry.currentVersion && ce.namespace.sameElements(nsBytes) && ce.key.sameElements(key))
               return Some(ce.value)
         }
       }
