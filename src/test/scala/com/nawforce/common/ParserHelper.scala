@@ -27,15 +27,11 @@
 */
 package com.nawforce.common
 
-import com.nawforce.common.path.PathFactory
 import com.nawforce.runtime.parsers.ApexParser.LiteralContext
 import com.nawforce.runtime.parsers.CodeParser
 
 object ParserHelper {
-
-  private final val defaultPath = PathFactory("Dummy.cls")
-
   def literal(literal: String): LiteralContext = {
-    CodeParser.createParser(defaultPath, literal).literal()
+    CodeParser.createParser(None, literal).literal()
   }
 }

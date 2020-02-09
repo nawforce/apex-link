@@ -91,21 +91,23 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
           val data = doc.path.read()
           val value = pc.flatMap(_.get(data.right.get.getBytes()))
           value.map(v => new SummaryDeclaration(doc.path, this, None, v))
-        }).map(sd => (sd.name, sd)).toMap
+        }).map(sd => (sd.typeName, sd)).toMap
 
         val valid = summaryDocs.filter(kv => kv._2.areDependentsValid(summaryDocs))
         valid.foreach(vd => upsertMetadata(vd._2))
       }
 
       // Load full docs for rest of set
-      val fullTypes = docs.filterNot(doc => types.contains(TypeName(doc.name))).map(doc => {
-        val data = doc.path.read()
-        val td = ServerOps.debugTime(s"Parsed ${doc.path}") {
-          FullDeclaration.create(this, doc.path, data.right.get)
-        }
-        td.foreach(upsertMetadata(_))
-        (data.right.get, td)
-      })
+      val fullTypes = docs
+        .filterNot(doc => types.contains(TypeName(doc.name).withNamespace(namespace)))
+        .map(doc => {
+          val data = doc.path.read()
+          val td = ServerOps.debugTime(s"Parsed ${doc.path}") {
+            FullDeclaration.create(this, doc.path, data.right.get)
+          }
+          td.foreach(upsertMetadata(_))
+          (data.right.get, td)
+        })
 
       // Validate the full types & write back to cache
       fullTypes.filter(_._2.nonEmpty).foreach(ld => {

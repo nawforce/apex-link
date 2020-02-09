@@ -47,6 +47,7 @@ import scala.collection.mutable
 abstract class PackageDeclaration(val workspace: Workspace, bases: Seq[PackageDeclaration])
   extends TypeFinder {
   val namespace: Option[Name] = workspace.namespace
+  lazy val namespaceAsTypeName: Option[TypeName] = namespace.map(TypeName(_))
   protected val documents = new DocumentIndex(workspace.paths, workspace.ignorePath)
   protected val types: mutable.Map[TypeName, TypeDeclaration] = mutable.Map[TypeName, TypeDeclaration]()
   protected val other: mutable.Map[Name, MetadataDeclaration] = mutable.Map[Name, MetadataDeclaration]()

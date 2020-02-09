@@ -51,11 +51,6 @@ abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageDeclaration,
   override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
   override val idLocation: Location = id.location
   override val name: Name = id.name
-  override val typeName: TypeName = {
-    outerTypeName.map(outer => TypeName(name).withOuter(Some(outer)))
-      .getOrElse(TypeName(name, Nil, pkg.namespace.map(TypeName(_))))
-  }
-
   override val nature: Nature
 
   override val nestedTypes: Seq[FullDeclaration] = {

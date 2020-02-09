@@ -44,7 +44,7 @@ object CodeParser {
 
   def parseClass(path: PathLike, data: String): Either[SyntaxException, ApexParser.CompilationUnitContext] = {
     try {
-      Right(createParser(path, data).compilationUnit())
+      Right(createParser(Some(path), data).compilationUnit())
     } catch {
       case ex: SyntaxException => Left(ex)
     }
@@ -52,7 +52,7 @@ object CodeParser {
 
   def parseTrigger(path: PathLike, data: String): Either[SyntaxException, ApexParser.TriggerUnitContext] = {
     try {
-      Right(createParser(path, data).triggerUnit())
+      Right(createParser(Some(path), data).triggerUnit())
     } catch {
       case ex: SyntaxException => Left(ex)
     }
@@ -60,20 +60,19 @@ object CodeParser {
 
   def parseBlock(path: PathLike, data: String): Either[SyntaxException, ApexParser.BlockContext] = {
     try {
-      Right(createParser(path, data).block())
+      Right(createParser(Some(path), data).block())
     } catch {
       case ex: SyntaxException => Left(ex)
     }
   }
 
-  def parseTypeRef(path: PathLike, data: String): Either[SyntaxException, ApexParser.TypeRefContext] = {
+  def parseTypeRef(data: String): Either[SyntaxException, ApexParser.TypeRefContext] = {
     try {
-      Right(createParser(path, data).typeRef())
+      Right(createParser(None, data).typeRef())
     } catch {
       case ex: SyntaxException => Left(ex)
     }
   }
-
 
   def getRange(context: ParserRuleContext): CSTRange = {
     CSTRange(
@@ -92,7 +91,6 @@ object CodeParser {
     context.getText
   }
 
-
   def clipText(context: ParserRuleContext): ClippedText = {
     val is = context.start.getInputStream
     val text = is.getText(new Interval(context.start.getStartIndex, context.stop.getStopIndex))
@@ -109,9 +107,9 @@ object CodeParser {
     Option(value)
   }
 
-  def createParser(path: PathLike, data: String): ApexParser = {
+  def createParser(path: Option[PathLike], data: String): ApexParser = {
     val listener = new ThrowingErrorListener()
-    val cis = new CaseInsensitiveInputStream(path.toString, new ByteArrayInputStream(data.getBytes))
+    val cis = new CaseInsensitiveInputStream(path.map(_.toString).getOrElse("<Unknown>"), new ByteArrayInputStream(data.getBytes))
     val lexer = new ApexLexer(cis)
 
     val tokens = new CommonTokenStream(lexer)

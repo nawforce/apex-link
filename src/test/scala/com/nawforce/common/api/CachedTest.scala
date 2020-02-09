@@ -47,16 +47,16 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
     ServerOps.setParsedDataCaching(false)
   }
 
-  def assertIsNotDeclaration(pkg: Package, name: String): Unit = {
-    assert(pkg.findTypes(Seq(TypeName(Name(name)))).isEmpty)
+  def assertIsNotDeclaration(pkg: Package, name: String, namespace: Option[Name]=None): Unit = {
+    assert(pkg.findTypes(Seq(TypeName(Name(name)).withNamespace(namespace))).isEmpty)
   }
 
-  def assertIsFullDeclaration(pkg: Package, name: String): Unit = {
-    assert(pkg.findTypes(Seq(TypeName(Name(name)))).head.isInstanceOf[FullDeclaration])
+  def assertIsFullDeclaration(pkg: Package, name: String, namespace: Option[Name]=None): Unit = {
+    assert(pkg.findTypes(Seq(TypeName(Name(name)).withNamespace(namespace))).head.isInstanceOf[FullDeclaration])
   }
 
-  def assertIsSummaryDeclaration(pkg: Package, name: String): Unit = {
-    assert(pkg.findTypes(Seq(TypeName(Name(name)))).head.isInstanceOf[SummaryDeclaration])
+  def assertIsSummaryDeclaration(pkg: Package, name: String, namespace: Option[Name]=None): Unit = {
+    assert(pkg.findTypes(Seq(TypeName(Name(name)).withNamespace(namespace))).head.isInstanceOf[SummaryDeclaration])
   }
 
   def cacheTest(bar: String, foo:String, newBar: String): Unit = {
@@ -184,5 +184,102 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
     )
   }
 
+  test("Unmanaged to Packaged is cached") {
+    FileSystemHelper.run(Map(
+      "Bar.cls" -> "public virtual class Bar {}",
+      "Foo.cls" -> "public class Foo extends Bar {}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+      assertIsFullDeclaration(pkg, "Bar")
+      assertIsFullDeclaration(pkg, "Foo")
 
+      val org2 = new Org()
+      val pkg2 = org2.addPackage(None, Seq(root), Seq())
+      assert(!org2.issues.hasMessages)
+      assertIsSummaryDeclaration(pkg2, "Bar")
+      assertIsSummaryDeclaration(pkg2, "Foo")
+
+      val ns = Name("test")
+      val org3 = new Org()
+      val pkg3 = org3.addPackage(Some(ns), Seq(root), Seq())
+      assert(!org3.issues.hasMessages)
+      assertIsSummaryDeclaration(pkg3, "Bar", Some(ns))
+      assertIsSummaryDeclaration(pkg3, "Foo", Some(ns))
+    }
+  }
+
+  test("Packaged to Unmanaged is cached") {
+    FileSystemHelper.run(Map(
+      "Bar.cls" -> "public virtual class Bar {}",
+      "Foo.cls" -> "public class Foo extends Bar {}"
+    )) { root: PathLike =>
+      val ns = Name("test")
+      val org = new Org()
+      val pkg = org.addPackage(Some(ns), Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+      assertIsFullDeclaration(pkg, "Bar", Some(ns))
+      assertIsFullDeclaration(pkg, "Foo", Some(ns))
+
+      val org2 = new Org()
+      val pkg2 = org2.addPackage(Some(ns), Seq(root), Seq())
+      assert(!org2.issues.hasMessages)
+      assertIsSummaryDeclaration(pkg2, "Bar", Some(ns))
+      assertIsSummaryDeclaration(pkg2, "Foo", Some(ns))
+
+      val org3 = new Org()
+      val pkg3 = org3.addPackage(None, Seq(root), Seq())
+      assert(!org3.issues.hasMessages)
+      assertIsSummaryDeclaration(pkg3, "Bar")
+      assertIsSummaryDeclaration(pkg3, "Foo")
+    }
+  }
+
+  test("Unmanaged to Package reference is cached") {
+    FileSystemHelper.run(Map(
+      "pkg1/Bar.cls" -> "global virtual class Bar {}",
+      "pkg2/Foo.cls" -> "public class Foo extends ns.Bar {}"
+    )) { root: PathLike =>
+      val ns = Name("ns")
+
+      val org = new Org()
+      val pkg1 = org.addPackage(Some(ns), Seq(root.join("pkg1")), Seq())
+      val pkg2 = org.addPackage(None, Seq(root.join("pkg2")), Seq(pkg1))
+      assert(!org.issues.hasMessages)
+      assertIsFullDeclaration(pkg1, "Bar", Some(ns))
+      assertIsFullDeclaration(pkg2, "Foo", None)
+
+      val org2 = new Org()
+      val pkg3 = org2.addPackage(Some(ns), Seq(root.join("pkg1")), Seq())
+      val pkg4 = org2.addPackage(None, Seq(root.join("pkg2")), Seq(pkg3))
+      assert(!org2.issues.hasMessages)
+      assertIsSummaryDeclaration(pkg3, "Bar", Some(ns))
+      assertIsSummaryDeclaration(pkg4, "Foo", None)
+    }
+  }
+
+  test("Package to Package reference is cached") {
+    FileSystemHelper.run(Map(
+      "pkg1/Bar.cls" -> "global virtual class Bar {}",
+      "pkg2/Foo.cls" -> "public class Foo extends ns1.Bar {}"
+    )) { root: PathLike =>
+      val ns1 = Name("ns1")
+      val ns2 = Name("ns2")
+
+      val org = new Org()
+      val pkg1 = org.addPackage(Some(ns1), Seq(root.join("pkg1")), Seq())
+      val pkg2 = org.addPackage(Some(ns2), Seq(root.join("pkg2")), Seq(pkg1))
+      assert(!org.issues.hasMessages)
+      assertIsFullDeclaration(pkg1, "Bar", Some(ns1))
+      assertIsFullDeclaration(pkg2, "Foo", Some(ns2))
+
+      val org2 = new Org()
+      val pkg3 = org2.addPackage(Some(ns1), Seq(root.join("pkg1")), Seq())
+      val pkg4 = org2.addPackage(Some(ns2), Seq(root.join("pkg2")), Seq(pkg3))
+      assert(!org2.issues.hasMessages)
+      assertIsSummaryDeclaration(pkg3, "Bar", Some(ns1))
+      assertIsSummaryDeclaration(pkg4, "Foo", Some(ns2))
+    }
+  }
 }

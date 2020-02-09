@@ -52,6 +52,11 @@ trait ApexDeclaration extends TypeDeclaration {
   val localFields: Seq[ApexFieldLike]
   val localMethods: Seq[MethodDeclaration]
 
+  override lazy val typeName: TypeName = {
+    outerTypeName.map(outer => TypeName(name).withOuter(Some(outer)))
+      .getOrElse(TypeName(name, Nil, pkg.namespace.map(TypeName(_))))
+  }
+
   override lazy val superClassDeclaration: Option[TypeDeclaration] = {
     superClass.flatMap(sc => pkg.getTypeFor(sc, this))
   }

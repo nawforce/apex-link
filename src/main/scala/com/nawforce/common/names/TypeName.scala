@@ -28,7 +28,6 @@
 package com.nawforce.common.names
 
 import com.nawforce.common.cst.TypeRef
-import com.nawforce.common.path.PathFactory
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.types.PlatformTypeException
 
@@ -78,6 +77,17 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
 
   def withNameReplace(regex: String, replacement: String) : TypeName = {
     TypeName(Name(name.value.replaceAll(regex, replacement)), params, outer)
+  }
+
+  def maybeNamespace: Option[Name] = {
+    if (outer.nonEmpty)
+      Some(outerName)
+    else
+      None
+  }
+
+  def withNamespace(namespace: Option[Name]): TypeName = {
+    namespace.map(ns => withTail(TypeName(ns))).getOrElse(this)
   }
 
   def withoutNamespace(namespace: Option[Name]) : TypeName = {
@@ -254,21 +264,18 @@ object TypeName {
     }
   }
 
-  def fromString(value: String): Option[TypeName] = {
-    if (value.isEmpty)
-      return None
-
-    Some(value match {
+  def fromString(value: String): TypeName = {
+    value match {
       case "null" => TypeName.Null
       case "any" => TypeName.Any
       case "Object" => TypeName.InternalObject
       case "[SOQL Results]" => TypeName.RecordSet
       case _ =>
-        CodeParser.parseTypeRef(PathFactory("Internal.cls"), value) match {
+        CodeParser.parseTypeRef(value) match {
           case Left(err) =>
             throw new PlatformTypeException(s"TypeRef '$value' could not be parsed: $err")
           case Right(context) => TypeRef.construct(context)
         }
-    })
+    }
   }
 }

@@ -30,6 +30,7 @@ package com.nawforce.common.types.apex
 import com.nawforce.common.api._
 import com.nawforce.common.cst.Modifier
 import com.nawforce.common.documents.{Location, RangeLocation}
+import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
@@ -39,63 +40,77 @@ import upickle.default._
 import scala.collection.mutable
 
 trait DependentValidation {
-  def isValid(dependent: DependentSummary, summaries: Map[Name, SummaryDeclaration]): Boolean = {
-    val other = summaries.get(Name(dependent.name.split('.').head))
+  def isValid(pkg: PackageDeclaration, dependent: DependentSummary, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
+    TypeName.fromString(dependent.name) match {
+      // Package namespace
+      case typeName if typeName.maybeNamespace.exists(ns => pkg.namespace.contains(ns)) =>
+        isSummaryValid(typeName, dependent.sourceHash, summaries)
 
-    if (other.isEmpty) {
-      ServerOps.debug(ServerOps.Trace, s"Missing dependent ${dependent.name}")
-      return false
+      // Dependent package namespace
+      case typeName if typeName.maybeNamespace.exists(ns => pkg.namespaces.contains(ns)) =>
+        TypeRequest(typeName, pkg, excludeSObjects = false) match {
+          case Left(_) => false
+          case Right(ad: ApexDeclaration) => ad.sourceHash == dependent.sourceHash
+          case Right(_) => true
+        }
+
+      // Unmanaged
+      case typeName =>
+        isSummaryValid(typeName.withNamespace(pkg.namespace), dependent.sourceHash, summaries)
     }
+  }
 
-    if (dependent.sourceHash != other.get.sourceHash) {
-      ServerOps.debug(ServerOps.Trace, s"Wrong checksum on dependent ${dependent.name}")
-      return false
-    }
-
-    true
+  private def isSummaryValid(typeName: TypeName, sourceHash: Int, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
+    summaries.get(typeName).exists(_.sourceHash == sourceHash) ||
+      (typeName.outer.nonEmpty && summaries.get(typeName.outer.get).exists(_.sourceHash == sourceHash))
   }
 }
 
-class SummaryParameter(pkg: PackageDeclaration, outerTypeName: TypeName, parameterSummary: ParameterSummary)
+class SummaryParameter(parameterSummary: ParameterSummary, fromTypeName: String => TypeName)
   extends ParameterDeclaration {
-  override lazy val name: Name = Name(parameterSummary.name)
-  override lazy val typeName: TypeName = TypeName.fromString(parameterSummary.typeName).get
+
+  override val name: Name = Name(parameterSummary.name)
+  override val typeName: TypeName = fromTypeName(parameterSummary.typeName)
 }
 
-class SummaryMethod(pkg: PackageDeclaration, outerTypeName: TypeName, methodSummary: MethodSummary)
+class SummaryMethod(methodSummary: MethodSummary, fromTypeName: String => TypeName)
   extends MethodDeclaration with DependentValidation {
-  override lazy val name: Name = Name(methodSummary.name)
-  override lazy val modifiers: Seq[Modifier] = methodSummary.modifiers.map(Modifier(_))
-  override lazy val typeName: TypeName = TypeName.fromString(methodSummary.typeName).get
-  override lazy val parameters: Seq[ParameterDeclaration] =
-    methodSummary.parameters.map(new SummaryParameter(pkg, outerTypeName, _))
 
-  def areDependentsValid(summaries: Map[Name, SummaryDeclaration]): Boolean = {
-    methodSummary.dependents.forall(d => isValid(d, summaries))
+  override val name: Name = Name(methodSummary.name)
+  override val modifiers: Seq[Modifier] = methodSummary.modifiers.map(Modifier(_))
+  override val typeName: TypeName = fromTypeName(methodSummary.typeName)
+  override val parameters: Seq[ParameterDeclaration] =
+    methodSummary.parameters.map(new SummaryParameter(_, fromTypeName))
+
+  def areDependentsValid(pkg: PackageDeclaration, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
+    methodSummary.dependents.forall(d => isValid(pkg, d, summaries))
   }
 }
 
-class SummaryField(path: PathLike, fieldSummary: FieldSummary) extends ApexFieldLike  with DependentValidation {
-  override lazy val location: RangeLocation = RangeLocation(path, fieldSummary.range.get)
-  override lazy val name: Name = Name(fieldSummary.name)
-  override lazy val modifiers: Seq[Modifier] = fieldSummary.modifiers.map(Modifier(_))
-  override lazy val typeName: TypeName = TypeName.fromString(fieldSummary.typeName).get
-  override lazy val readAccess: Modifier = Modifier(fieldSummary.readAccess)
-  override lazy val writeAccess: Modifier = Modifier(fieldSummary.writeAccess)
+class SummaryField(path: PathLike, fieldSummary: FieldSummary, fromTypeName: String => TypeName)
+  extends ApexFieldLike  with DependentValidation {
 
-  def areDependentsValid(summaries: Map[Name, SummaryDeclaration]): Boolean = {
-    fieldSummary.dependents.forall(d => isValid(d, summaries))
+  override val location: RangeLocation = RangeLocation(path, fieldSummary.range.get)
+  override val name: Name = Name(fieldSummary.name)
+  override val modifiers: Seq[Modifier] = fieldSummary.modifiers.map(Modifier(_))
+  override val typeName: TypeName = fromTypeName(fieldSummary.typeName)
+  override val readAccess: Modifier = Modifier(fieldSummary.readAccess)
+  override val writeAccess: Modifier = Modifier(fieldSummary.writeAccess)
+
+  def areDependentsValid(pkg: PackageDeclaration, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
+    fieldSummary.dependents.forall(d => isValid(pkg, d, summaries))
   }
 }
 
-class SummaryConstructor(pkg: PackageDeclaration, outerTypeName: TypeName, constructorSummary: ConstructorSummary)
+class SummaryConstructor(constructorSummary: ConstructorSummary, fromTypeName: String => TypeName)
   extends ConstructorDeclaration with DependentValidation {
-  override lazy val modifiers: Seq[Modifier] = constructorSummary.modifiers.map(Modifier(_))
-  override lazy val parameters: Seq[ParameterDeclaration] =
-    constructorSummary.parameters.map(new SummaryParameter(pkg, outerTypeName, _))
 
-  def areDependentsValid(summaries: Map[Name, SummaryDeclaration]): Boolean = {
-    constructorSummary.dependents.forall(d => isValid(d, summaries))
+  override val modifiers: Seq[Modifier] = constructorSummary.modifiers.map(Modifier(_))
+  override val parameters: Seq[ParameterDeclaration] =
+    constructorSummary.parameters.map(new SummaryParameter(_, fromTypeName))
+
+  def areDependentsValid(pkg: PackageDeclaration, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
+    constructorSummary.dependents.forall(d => isValid(pkg, d, summaries))
   }
 }
 
@@ -110,32 +125,44 @@ class SummaryDeclaration(path: PathLike, val pkg: PackageDeclaration, val outerT
   override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
 
   override lazy val name: Name = Name(summary.name)
-  override lazy val typeName: TypeName = TypeName.fromString(summary.typeName).get
   override lazy val nature: Nature = Nature(summary.nature)
   override lazy val modifiers: Seq[Modifier] = summary.modifiers.map(Modifier(_))
 
-  override lazy val superClass: Option[TypeName] = TypeName.fromString(summary.superClass)
-  override lazy val interfaces: Seq[TypeName] = summary.interfaces.map(TypeName.fromString(_).get)
-  override def nestedTypes: Seq[SummaryDeclaration] = {
+  override lazy val superClass: Option[TypeName] = fromOptTypeName(summary.superClass)
+  override lazy val interfaces: Seq[TypeName] = summary.interfaces.map(fromTypeName)
+  override lazy val nestedTypes: Seq[SummaryDeclaration] = {
     summary.nestedTypes.map(nt => new SummaryDeclaration(path, pkg, Some(typeName), Array(), Some(nt)))
   }
 
   override lazy val blocks: Seq[BlockDeclaration] = Seq()
   override lazy val localFields: Seq[SummaryField] =
-    summary.fields.map(new SummaryField(path, _))
+    summary.fields.map(new SummaryField(path, _, fromTypeName))
   override lazy val constructors: Seq[SummaryConstructor] =
-    summary.constructors.map(new SummaryConstructor(pkg, typeName, _))
+    summary.constructors.map(new SummaryConstructor(_, fromTypeName))
   override lazy val localMethods: Seq[SummaryMethod] =
-    summary.methods.map(new SummaryMethod(pkg, typeName, _))
+    summary.methods.map(new SummaryMethod(_, fromTypeName))
 
   def validate(): Unit = {}
   def collectDependencies(dependencies: mutable.Set[Dependent]): Unit = {}
 
-  def areDependentsValid(summaries: Map[Name, SummaryDeclaration]): Boolean = {
-    summary.dependents.forall(d => isValid(d, summaries)) &&
-      localFields.forall(f => f.areDependentsValid(summaries)) &&
-      constructors.forall(c => c.areDependentsValid(summaries)) &&
-      localMethods.forall(m => m.areDependentsValid(summaries)) &&
+  private def fromOptTypeName(value: String): Option[TypeName] = {
+    if (value.isEmpty) None else Some(fromTypeName(value))
+  }
+
+  private def fromTypeName(value: String): TypeName = {
+    val typeName = TypeName.fromString(value)
+    if (typeName.maybeNamespace.exists(ns => pkg.namespaces.contains(ns))) {
+      typeName
+    } else {
+      pkg.namespaceAsTypeName.map(typeName.withTail).getOrElse(typeName)
+    }
+  }
+
+  def areDependentsValid(summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
+    summary.dependents.forall(d => isValid(pkg, d, summaries)) &&
+      localFields.forall(f => f.areDependentsValid(pkg, summaries)) &&
+      constructors.forall(c => c.areDependentsValid(pkg, summaries)) &&
+      localMethods.forall(m => m.areDependentsValid(pkg, summaries)) &&
       nestedTypes.forall(t => t.areDependentsValid(summaries))
   }
 }
