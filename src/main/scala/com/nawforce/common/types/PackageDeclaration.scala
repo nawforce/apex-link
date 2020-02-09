@@ -71,7 +71,13 @@ abstract class PackageDeclaration(val workspace: Workspace, bases: Seq[PackageDe
     upsertMetadata(componentDeclaration)
   }
 
-  def documentsByExtension(ext: Name): Seq[MetadataDocumentType] = documents.getByExtension(ext)
+  def documentsByExtension(ext: Name): Seq[MetadataDocumentType] = {
+    documents.getByExtension(ext)
+  }
+
+  def isNamedDocument(ext: Name, name: Name): Boolean = {
+    documents.isNamedDocument(ext, name)
+  }
 
   def isGhosted: Boolean = workspace.paths.isEmpty
   def hasGhosted: Boolean = isGhosted || basePackages.exists(_.hasGhosted)

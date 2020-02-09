@@ -27,16 +27,17 @@
 */
 package com.nawforce.common.api
 
-import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.path.PathFactory
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types._
-import com.nawforce.common.types.apex.{FullDeclaration, SummaryDeclaration, TriggerDeclaration}
+import com.nawforce.common.types.apex.{ApexDeclaration, FullDeclaration, SummaryDeclaration, TriggerDeclaration}
 import com.nawforce.common.types.schema.SObjectDeclaration
+import com.nawforce.runtime.types.PlatformTypeException
 import upickle.default._
 
 class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
@@ -147,6 +148,31 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
       })
 
       updated.foreach(td => td.validate())
+    }
+  }
+
+  /* TypeName as String from a path, takes into account file type & .forceIgnore, may return en empty string */
+  def getTypeOfPath(path: String): String = {
+    DocumentType(PathFactory(path)) match {
+      case Some(ad: ApexDocument) if isNamedDocument(ad.extension, ad.name) =>
+        TypeName(ad.name).withNamespace(namespace).toString
+      case _ => ""
+    }
+  }
+
+  /* Returns set of types that depend on the passed type */
+  def getDependencyHolders(typeName: String): Array[String] = {
+    try {
+      types.get(TypeName.fromString(typeName))
+        .map(_.getDependencyHolders
+          .flatMap {
+            // TODO: Handle other types of holder
+            case ad: ApexDeclaration => Some(ad.typeName.toString)
+            case _ => None
+          }.toArray)
+        .getOrElse(Array[String]())
+    } catch {
+      case ex: PlatformTypeException => ServerOps.error(ex.getMessage); Array[String]()
     }
   }
 

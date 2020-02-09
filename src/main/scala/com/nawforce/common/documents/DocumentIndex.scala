@@ -48,6 +48,10 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
     documents(name)
   }
 
+  def isNamedDocument(ext: Name, name: Name): Boolean = {
+    documentNames(name).contains(name)
+  }
+
   private def index(): Unit = {
     val forceIgnore = createForceIgnore()
     paths.reverse.foreach(p => indexPath(p, forceIgnore))
