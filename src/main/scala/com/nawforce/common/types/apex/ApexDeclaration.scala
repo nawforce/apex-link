@@ -31,8 +31,12 @@ import com.nawforce.common.api.{FieldSummary, Org}
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, MethodMap, VerifyContext}
 import com.nawforce.common.documents.{Location, RangeLocation, TextRange}
 import com.nawforce.common.finding.TypeRequest
+import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.types.{FieldDeclaration, MethodDeclaration, PackageDeclaration, TypeDeclaration}
+import com.nawforce.common.types.pkg.PackageDeclaration
+import com.nawforce.common.types.{FieldDeclaration, MethodDeclaration, TypeDeclaration}
+
+import scala.collection.mutable
 
 /** Field or Property with location information for error reporting */
 trait ApexFieldLike extends FieldDeclaration {
@@ -51,6 +55,8 @@ trait ApexDeclaration extends TypeDeclaration {
   val idLocation: Location
   val localFields: Seq[ApexFieldLike]
   val localMethods: Seq[MethodDeclaration]
+
+  private val typeDependencyHolders = mutable.Set[TypeName]()
 
   override lazy val typeName: TypeName = {
     outerTypeName.map(outer => TypeName(name).withOuter(Some(outer)))
@@ -124,5 +130,22 @@ trait ApexDeclaration extends TypeDeclaration {
   override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Seq[MethodDeclaration] = {
     methodMap.findMethod(name, params, staticContext, verifyContext)
+  }
+
+  def collectDependenciesByTypeName(dependents: mutable.Set[TypeName])
+
+  override def validate(): Unit = {
+    // Propagate type level dependencies
+    val dependsOn = mutable.Set[TypeName]()
+    collectDependenciesByTypeName(dependsOn)
+    dependsOn.foreach(addTypeDependencyHolder)
+  }
+
+  def addTypeDependencyHolder(typeName: TypeName): Unit = {
+    typeDependencyHolders.add(typeName)
+  }
+
+  def getTypeDependencyHolders: Array[String] = {
+    typeDependencyHolders.map(_.toString).toArray
   }
 }

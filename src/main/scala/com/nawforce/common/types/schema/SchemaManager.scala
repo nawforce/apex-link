@@ -32,6 +32,7 @@ import com.nawforce.common.cst.VerifyContext
 import com.nawforce.common.documents.Location
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
+import com.nawforce.common.types.pkg.PackageDeclaration
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.{schema, _}
 import com.nawforce.runtime.types._

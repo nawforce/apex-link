@@ -31,9 +31,10 @@ import com.nawforce.common.api._
 import com.nawforce.common.cst._
 import com.nawforce.common.documents.TextRange
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.metadata.{DependencyHolder, Dependent, MetadataDeclaration}
+import com.nawforce.common.metadata.{DependencyHolder, MetadataDeclaration}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.types.other.CustomComponent
+import com.nawforce.common.types.pkg.PackageDeclaration
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.runtime.types._
 
@@ -216,9 +217,7 @@ trait TypeDeclaration extends MetadataDeclaration {
   lazy val isSObject: Boolean = superClass.contains(TypeName.SObject)
   lazy val isApexPagesComponent: Boolean = superClass.contains(TypeName.ApexPagesComponent)
 
-  /* Validate must be called before examining dependencies */
   def validate(): Unit
-  def collectDependencies(dependencies: mutable.Set[Dependent]): Unit
 
   def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     val matches = fieldsByName.get(name)

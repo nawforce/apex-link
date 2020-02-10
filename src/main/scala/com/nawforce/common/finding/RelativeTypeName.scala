@@ -31,7 +31,8 @@ import com.nawforce.common.cst.BlockVerifyContext
 import com.nawforce.common.documents.Location
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.types.{Nature, PackageDeclaration, TypeDeclaration}
+import com.nawforce.common.types.pkg.PackageDeclaration
+import com.nawforce.common.types.{Nature, TypeDeclaration}
 
 /* Lazy TypeName resolver for relative types. The package & enclosing (outer) typename are used to allow
  * the relative TypeName to be converted to an absolute form. Assumes outerTypeName can always be resolved

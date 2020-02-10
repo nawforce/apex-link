@@ -32,10 +32,10 @@ import java.util.concurrent.ConcurrentHashMap
 import com.nawforce.common.cst.Modifier
 import com.nawforce.common.documents.ComponentDocument
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
+import com.nawforce.common.types.pkg.PackageDeclaration
 import com.nawforce.common.types.platform.PlatformTypes
 
 import scala.collection.JavaConverters._
@@ -70,8 +70,6 @@ final case class ComponentDeclaration(pkg: PackageDeclaration) extends TypeDecla
   override val methods: Seq[MethodDeclaration] = Nil
 
   override def validate(): Unit = {}
-  override def dependencies(): Set[Dependent] = Set.empty
-  override def collectDependencies(dependencies: mutable.Set[Dependent]): Unit = {}
 
   def upsertComponent(namespace: Option[Name], component: ComponentDocument): Unit = {
     getNamespaceContainer(Name.c).foreach(_.upsertComponent(component))
@@ -111,10 +109,6 @@ final case class CustomComponent(pkg: PackageDeclaration, name: Name, typeName: 
   override val methods: Seq[MethodDeclaration] = Nil
 
   override def validate(): Unit = {}
-
-  override def dependencies(): Set[Dependent] = Set.empty
-
-  override def collectDependencies(dependencies: mutable.Set[Dependent]): Unit = {}
 }
 
 final case class ComponentNamespace(pkg: PackageDeclaration, name: Name) extends TypeDeclaration {
@@ -138,8 +132,6 @@ final case class ComponentNamespace(pkg: PackageDeclaration, name: Name) extends
   override val methods: Seq[MethodDeclaration]= Nil
 
   override def validate(): Unit = {}
-  override def dependencies(): Set[Dependent] = Set.empty
-  override def collectDependencies(dependencies: mutable.Set[Dependent]): Unit = {}
 
   def upsertComponent(component: ComponentDocument): Unit = {
     val typeName = TypeName(component.name, Nil, Some(TypeName(name, Nil, Some(TypeName(Name.Component)))))

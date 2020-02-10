@@ -28,7 +28,8 @@
 package com.nawforce.common.finding
 
 import com.nawforce.common.names.{DotName, TypeName}
-import com.nawforce.common.types.{PackageDeclaration, TypeDeclaration}
+import com.nawforce.common.types.TypeDeclaration
+import com.nawforce.common.types.pkg.PackageDeclaration
 import scalaz.Memo
 
 /** Helper that implements local type searching, extracted out as logic is a bit involved */

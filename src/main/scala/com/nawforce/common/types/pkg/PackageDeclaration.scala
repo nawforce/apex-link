@@ -26,17 +26,18 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package com.nawforce.common.types
+package com.nawforce.common.types.pkg
 
 import com.nawforce.common.api.Org
 import com.nawforce.common.cst.UnusedLog
 import com.nawforce.common.diagnostics.IssueLog
 import com.nawforce.common.documents.{ComponentDocument, DocumentIndex, MetadataDocumentType}
+import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
-import com.nawforce.common.finding.{TypeFinder, TypeRequest}
 import com.nawforce.common.metadata.MetadataDeclaration
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.sfdx.Workspace
+import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.common.types.other._
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.schema.SchemaManager
@@ -45,7 +46,8 @@ import com.nawforce.runtime.types.PlatformTypeDeclaration
 import scala.collection.mutable
 
 abstract class PackageDeclaration(val workspace: Workspace, bases: Seq[PackageDeclaration])
-  extends TypeFinder {
+  extends PackageDeploy with TypeFinder {
+
   val namespace: Option[Name] = workspace.namespace
   lazy val namespaceAsTypeName: Option[TypeName] = namespace.map(TypeName(_))
   protected val documents = new DocumentIndex(workspace.paths, workspace.ignorePath)
@@ -58,7 +60,9 @@ abstract class PackageDeclaration(val workspace: Workspace, bases: Seq[PackageDe
   private val pageDeclaration = PageDeclaration(this)
   private val flowDeclaration = FlowDeclaration(this)
   private val componentDeclaration = ComponentDeclaration(this)
+
   initTypes()
+  deployWorkspace()
 
   private def initTypes(): Unit = {
     upsertMetadata(anyDeclaration)

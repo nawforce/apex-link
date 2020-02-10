@@ -35,6 +35,7 @@ import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
+import com.nawforce.common.types.pkg.PackageDeclaration
 import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -94,7 +95,7 @@ abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageDeclaration,
     val context = new TypeVerifyContext(None, this)
     if (depends.isEmpty) {
       verify(context)
-      depends = Some(context.dependencies)
+      super.validate()
     }
     val end = System.currentTimeMillis()
     ServerOps.debug(ServerOps.Trace, s"Validated $getPath in ${end - start}ms")
@@ -132,9 +133,14 @@ abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageDeclaration,
     depends = Some(context.dependencies)
   }
 
-  override def collectDependencies(dependsOn: mutable.Set[Dependent]): Unit = {
-    super.collectDependencies(dependsOn)
-    bodyDeclarations.foreach(_.collectDependencies(dependsOn))
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeName]): Unit = {
+    val dependents = mutable.Set[Dependent]()
+    super.collectDependencies(dependents)
+    bodyDeclarations.foreach(_.collectDependencies(dependents))
+    dependents.foreach {
+      case ad: ApexDeclaration => dependsOn.add(ad.outerTypeName.getOrElse(ad.typeName))
+      case _ => ()
+    }
   }
 
   def unused(): Seq[Issue] = {

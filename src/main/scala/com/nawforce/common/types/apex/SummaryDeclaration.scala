@@ -31,10 +31,10 @@ import com.nawforce.common.api._
 import com.nawforce.common.cst.Modifier
 import com.nawforce.common.documents.{Location, RangeLocation}
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
+import com.nawforce.common.types.pkg.PackageDeclaration
 import upickle.default._
 
 import scala.collection.mutable
@@ -87,6 +87,10 @@ class SummaryMethod(methodSummary: MethodSummary, fromTypeName: String => TypeNa
   def areDependentsValid(pkg: PackageDeclaration, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
     methodSummary.dependents.forall(d => isValid(pkg, d, summaries))
   }
+
+  def collectDependencies(dependsOn: mutable.Set[TypeName]): Unit = {
+    methodSummary.dependents.foreach(d => dependsOn.add(TypeName.fromString(d.name)))
+  }
 }
 
 class SummaryField(path: PathLike, fieldSummary: FieldSummary, fromTypeName: String => TypeName)
@@ -102,6 +106,10 @@ class SummaryField(path: PathLike, fieldSummary: FieldSummary, fromTypeName: Str
   def areDependentsValid(pkg: PackageDeclaration, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
     fieldSummary.dependents.forall(d => isValid(pkg, d, summaries))
   }
+
+  def collectDependencies(dependsOn: mutable.Set[TypeName]): Unit = {
+    fieldSummary.dependents.foreach(d => dependsOn.add(TypeName.fromString(d.name)))
+  }
 }
 
 class SummaryConstructor(constructorSummary: ConstructorSummary, fromTypeName: String => TypeName)
@@ -113,6 +121,9 @@ class SummaryConstructor(constructorSummary: ConstructorSummary, fromTypeName: S
 
   def areDependentsValid(pkg: PackageDeclaration, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
     constructorSummary.dependents.forall(d => isValid(pkg, d, summaries))
+  }
+  def collectDependencies(dependsOn: mutable.Set[TypeName]): Unit = {
+    constructorSummary.dependents.foreach(d => dependsOn.add(TypeName.fromString(d.name)))
   }
 }
 
@@ -144,8 +155,13 @@ class SummaryDeclaration(path: PathLike, val pkg: PackageDeclaration, val outerT
   override lazy val localMethods: Seq[SummaryMethod] =
     summary.methods.map(new SummaryMethod(_, fromTypeName))
 
-  def validate(): Unit = {}
-  def collectDependencies(dependencies: mutable.Set[Dependent]): Unit = {}
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeName]): Unit = {
+    summary.dependents.foreach(d => dependsOn.add(TypeName.fromString(d.name)))
+    localFields.foreach(_.collectDependencies(dependsOn))
+    constructors.foreach(_.collectDependencies(dependsOn))
+    localMethods.foreach(_.collectDependencies(dependsOn))
+    nestedTypes.foreach(_.collectDependenciesByTypeName(dependsOn))
+  }
 
   private def fromOptTypeName(value: String): Option[TypeName] = {
     if (value.isEmpty) None else Some(fromTypeName(value))

@@ -30,8 +30,9 @@ package com.nawforce.common.cst
 import com.nawforce.common.api.Org
 import com.nawforce.common.documents.Location
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
+import com.nawforce.common.types.pkg.PackageDeclaration
 import com.nawforce.common.types.platform.PlatformTypes
-import com.nawforce.common.types.{FieldDeclaration, PackageDeclaration, TypeDeclaration}
+import com.nawforce.common.types.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.types.PlatformTypeDeclaration

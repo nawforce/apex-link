@@ -32,6 +32,7 @@ import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
 import com.nawforce.common.types.apex.FullDeclaration
+import com.nawforce.common.types.pkg.PackageDeclaration
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -100,7 +101,7 @@ object ClassDeclaration {
     val bodyDeclarations: Seq[ClassBodyDeclaration] =
         classBodyDeclarations.flatMap(cbd =>
           CodeParser.toScala(cbd.block())
-            .map(x => Seq(InitialiserBlock.construct(
+            .map(x => Seq(ApexInitialiserBlock.construct(
                 CodeParser.toScala(cbd.STATIC()).map(_ => Seq(STATIC_MODIFIER)).getOrElse(Seq()),
               x, context)))
           .orElse(CodeParser.toScala(cbd.memberDeclaration())

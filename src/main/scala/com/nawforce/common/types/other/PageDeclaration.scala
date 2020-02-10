@@ -29,9 +29,9 @@ package com.nawforce.common.types.other
 
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.documents.{DocumentType, LineLocation, Location, PageDocument}
-import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.types._
+import com.nawforce.common.types.pkg.PackageDeclaration
 
 import scala.collection.mutable
 
@@ -56,8 +56,6 @@ final case class PageDeclaration(pkg: PackageDeclaration, pages: Seq[Page]) exte
   override val methods: Seq[MethodDeclaration]= Seq.empty
 
   override def validate(): Unit = {}
-  override def dependencies(): Set[Dependent] = Set.empty
-  override def collectDependencies(dependencies: mutable.Set[Dependent]): Unit = {}
 }
 
 object PageDeclaration {

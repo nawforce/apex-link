@@ -31,10 +31,10 @@ import com.nawforce.common.api.Org
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents._
-import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.{FILE, PathFactory, PathLike}
 import com.nawforce.common.types._
+import com.nawforce.common.types.pkg.PackageDeclaration
 import com.nawforce.common.xml.{XMLElementLike, XMLException, XMLFactory}
 
 import scala.collection.mutable
@@ -62,7 +62,6 @@ final case class LabelDeclaration(pkg: PackageDeclaration, name: Name, labelFiel
   override val methods: Seq[MethodDeclaration]= Seq.empty
 
   override def validate(): Unit = {}
-  override def collectDependencies(dependencies: mutable.Set[Dependent]): Unit = {}
 
   def unused(): Seq[Issue] = {
     labelFields.filterNot(_.hasHolders)
@@ -92,7 +91,6 @@ final case class GhostedLabelDeclaration(pkg: PackageDeclaration, name: Name)
   override val methods: Seq[MethodDeclaration]= Seq.empty
 
   override def validate(): Unit = {}
-  override def collectDependencies(dependencies: mutable.Set[Dependent]): Unit = {}
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     if (staticContext.contains(true)) {

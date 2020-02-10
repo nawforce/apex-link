@@ -27,116 +27,45 @@
 */
 package com.nawforce.common.api
 
-import java.nio.charset.StandardCharsets
-
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.names.TypeName
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types._
-import com.nawforce.common.types.apex.{ApexDeclaration, FullDeclaration, SummaryDeclaration, TriggerDeclaration}
-import com.nawforce.common.types.schema.SObjectDeclaration
+import com.nawforce.common.types.apex.{ApexDeclaration, FullDeclaration}
+import com.nawforce.common.types.pkg.PackageDeclaration
 import com.nawforce.runtime.types.PlatformTypeException
-import upickle.default._
 
 class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
   extends PackageDeclaration(workspace, _basePackages) {
 
-  // Automatic deploy of workspace contents
-  deployWorkspace()
-
-  def deployWorkspace(): Unit = {
-    loadCustomObjects()
-    loadComponents()
-    loadClasses()
-    loadTriggers()
-  }
-
-  private def loadCustomObjects(): Unit = {
-    val docs = documentsByExtension(Name("object"))
-    ServerOps.debugTime(s"Parsed ${docs.size} objects") {
-      val tds = docs.flatMap {
-        case docType: SObjectDocument =>
-          SObjectDeclaration.create(this, docType.path)
-        case docType: PlatformEventDocument =>
-          SObjectDeclaration.create(this, docType.path)
-        case docType: CustomMetadataDocument =>
-          SObjectDeclaration.create(this, docType.path)
-        case _ => assert(false); Seq()
-      }
-      tds.foreach(upsertMetadata(_))
-      tds.foreach(_.validate())
-      schema().relatedLists.validate()
+  /** Get an Apex typename (as a String) from a path, returns an empty string if does not identify a class file */
+  def getTypeOfClassPath(path: String): String = {
+    DocumentType(PathFactory(path)) match {
+      case Some(ad: ApexDocument) if isNamedDocument(ad.extension, ad.name) =>
+        TypeName(ad.name).withNamespace(namespace).toString
+      case _ => ""
     }
   }
 
-  private def loadComponents(): Unit = {
-    val docs = documentsByExtension(Name("component"))
-    ServerOps.debugTime(s"Parsed ${docs.size} components") {
-      docs.foreach {
-        case docType: ComponentDocument => upsertComponent(namespace, docType)
-        case _ => assert(false); Seq()
-      }
-    }
-  }
-
-  private def loadClasses(): Unit = {
-    val pc = Package.parsedCache
-    val docs = documentsByExtension(Name("cls"))
-
-    ServerOps.debugTime(s"Parsed ${docs.size} classes") {
-
-      // Load summary docs that have valid dependents
-      if (ServerOps.isParsedDataCaching) {
-        val summaryDocs = docs.flatMap(doc => {
-          val data = doc.path.read()
-          val value = pc.flatMap(_.get(data.right.get.getBytes(), namespace))
-          value.map(v => new SummaryDeclaration(doc.path, this, None, v))
-        }).map(sd => (sd.typeName, sd)).toMap
-
-        val valid = summaryDocs.filter(kv => kv._2.areDependentsValid(summaryDocs))
-        valid.foreach(vd => upsertMetadata(vd._2))
-      }
-
-      // Load full docs for rest of set
-      val fullTypes = docs
-        .filterNot(doc => types.contains(TypeName(doc.name).withNamespace(namespace)))
-        .map(doc => {
-          val data = doc.path.read()
-          val td = ServerOps.debugTime(s"Parsed ${doc.path}") {
-            FullDeclaration.create(this, doc.path, data.right.get)
-          }
-          td.foreach(upsertMetadata(_))
-          (data.right.get, td)
-        })
-
-      // Validate the full types & write back to cache
-      fullTypes.filter(_._2.nonEmpty).foreach(ld => {
-        ld._2.get.validate()
-        if (ServerOps.isParsedDataCaching) {
-          pc.get.upsert(ld._1.getBytes(StandardCharsets.UTF_8), writeBinary(ld._2.get.summary), namespace)
+  /** Returns set of names of Apex defined types that depend on the passed Apex type name, if the passed type is
+    * invalid or does not identify an Apex type returns an empty array. */
+  def getDependencyHolders(typeName: String): Array[String] = {
+    try {
+      types.get(TypeName.fromString(typeName))
+        .map {
+          case ad: ApexDeclaration => ad.getTypeDependencyHolders
+          case _ => Array[String]()
         }
-      })
+        .getOrElse(Array[String]())
+    } catch {
+      case ex: PlatformTypeException => ServerOps.error(ex.getMessage); Array[String]()
     }
   }
 
-  private def loadTriggers(): Unit = {
-    val docs = documentsByExtension(Name("trigger"))
-    ServerOps.debugTime(s"Parsed ${docs.size} triggers") {
-      val tds = docs.flatMap {
-        case docType: ApexTriggerDocument =>
-          val data = docType.path.read()
-          TriggerDeclaration.create(this, docType.path, data.right.get)
-        case _ => assert(false); Seq()
-      }
-      tds.foreach(upsertMetadata(_))
-      tds.foreach(_.validate())
-    }
-  }
-
-  /** Deploy some classes to the org, if already present this will replace the existing classes */
-  def deployClasses(documents: Seq[ApexDocument]): Unit = {
+  /* Deploy some classes to the org, if already present this will replace the existing classes */
+  private[nawforce] def deployClasses(documents: Seq[ApexDocument]): Unit = {
     Org.current.withValue(org) {
       val updated = documents.flatMap(doc => {
         val data = doc.path.read()
@@ -151,44 +80,10 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
     }
   }
 
-  /* TypeName as String from a path, takes into account file type & .forceIgnore, may return en empty string */
-  def getTypeOfPath(path: String): String = {
-    DocumentType(PathFactory(path)) match {
-      case Some(ad: ApexDocument) if isNamedDocument(ad.extension, ad.name) =>
-        TypeName(ad.name).withNamespace(namespace).toString
-      case _ => ""
-    }
-  }
-
-  /* Returns set of types that depend on the passed type */
-  def getDependencyHolders(typeName: String): Array[String] = {
-    try {
-      types.get(TypeName.fromString(typeName))
-        .map(_.getDependencyHolders
-          .flatMap {
-            // TODO: Handle other types of holder
-            case ad: ApexDeclaration => Some(ad.typeName.toString)
-            case _ => None
-          }.toArray)
-        .getOrElse(Array[String]())
-    } catch {
-      case ex: PlatformTypeException => ServerOps.error(ex.getMessage); Array[String]()
-    }
-  }
-
   /* Find package accessible type(s) */
   private[nawforce] def findTypes(typeNames: Seq[TypeName]): Seq[TypeDeclaration] = {
     Org.current.withValue(org) {
       typeNames.flatMap(typeName => TypeRequest(typeName, this, excludeSObjects = false).toOption)
-    }
-  }
-}
-
-object Package {
-  lazy val parsedCache: Option[ParsedCache] = {
-    ParsedCache.create() match {
-      case Left(err) => ServerOps.error(err); None
-      case Right(cache) => Some(cache)
     }
   }
 }

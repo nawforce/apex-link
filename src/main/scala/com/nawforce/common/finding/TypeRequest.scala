@@ -29,7 +29,8 @@ package com.nawforce.common.finding
 
 import com.nawforce.common.names.TypeName
 import com.nawforce.common.types.platform.PlatformTypes
-import com.nawforce.common.types.{PackageDeclaration, TypeDeclaration}
+import com.nawforce.common.types.TypeDeclaration
+import com.nawforce.common.types.pkg.PackageDeclaration
 
 /** Helper for abstracting various ways of finding types based on context info, these are:
   *   None - Can only be used for a platform type search

@@ -30,10 +30,11 @@ package com.nawforce.common.cst
 import com.nawforce.common.api.Org
 import com.nawforce.common.documents.Location
 import com.nawforce.common.finding.{TypeError, TypeRequest}
-import com.nawforce.common.metadata.{Dependent, DependencyHolder}
+import com.nawforce.common.metadata.{DependencyHolder, Dependent}
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.types._
 import com.nawforce.common.types.apex.{ApexDeclaration, TriggerDeclaration}
+import com.nawforce.common.types.pkg.PackageDeclaration
 
 import scala.collection.mutable
 
@@ -93,8 +94,10 @@ trait HolderVerifyContext {
   def addDependency(dependent: Dependent): Unit = {
     dependent match {
       case _: ApexDeclaration => _dependencies += dependent
+      case _: ApexInitialiserBlock => _dependencies += dependent
       case _: ApexFieldDeclaration => _dependencies += dependent
       case _: ApexPropertyDeclaration => _dependencies += dependent
+      case _: ApexConstructorDeclaration => _dependencies += dependent
       case _: ApexMethodDeclaration => _dependencies += dependent
       case _ => ()
     }

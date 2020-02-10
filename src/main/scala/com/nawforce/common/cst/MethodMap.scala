@@ -31,6 +31,7 @@ import com.nawforce.common.diagnostics.{ERROR_CATEGORY, IssueCategory, WARNING_C
 import com.nawforce.common.documents.Location
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.types._
+import com.nawforce.common.types.pkg.PackageDeclaration
 
 import scala.collection.mutable
 

@@ -34,9 +34,9 @@ import java.util
 import com.nawforce.common.cst.{Modifier, PUBLIC_MODIFIER}
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
-import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{DotName, Name, TypeName}
 import com.nawforce.common.types._
+import com.nawforce.common.types.pkg.PackageDeclaration
 import com.nawforce.common.types.platform.{GenericPlatformTypeDeclaration, PlatformTypes}
 import scalaz._
 
@@ -151,13 +151,6 @@ case class PlatformTypeDeclaration(native: Any, outer: Option[PlatformTypeDeclar
   override def validate(): Unit = {
     // Always valid because javac said so
   }
-
-  override def dependencies(): Set[Dependent] = {
-    // Not important what these are currently
-    Set.empty
-  }
-
-  override def collectDependencies(dependencies: mutable.Set[Dependent]): Unit = {}
 }
 
 class PlatformField(val field: java.lang.reflect.Field) extends FieldDeclaration {
