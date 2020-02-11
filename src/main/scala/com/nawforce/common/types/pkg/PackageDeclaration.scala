@@ -79,8 +79,8 @@ abstract class PackageDeclaration(val workspace: Workspace, bases: Seq[PackageDe
     documents.getByExtension(ext)
   }
 
-  def isNamedDocument(ext: Name, name: Name): Boolean = {
-    documents.isNamedDocument(ext, name)
+  protected def isMetadata(dt: MetadataDocumentType): Boolean = {
+    documents.isIndexed(dt)
   }
 
   def isGhosted: Boolean = workspace.paths.isEmpty

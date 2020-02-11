@@ -48,13 +48,15 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
     documents(name)
   }
 
-  def isNamedDocument(ext: Name, name: Name): Boolean = {
-    documentNames(name).contains(name)
+  // TODO: Improve performance of this
+  def isIndexed(dt: MetadataDocumentType): Boolean = {
+    val abs = dt.path.absolute
+    documents(dt.extension).exists(_.path.toString == abs.toString)
   }
 
   private def index(): Unit = {
     val forceIgnore = createForceIgnore()
-    paths.reverse.foreach(p => indexPath(p, forceIgnore))
+    paths.reverse.foreach(p => indexPath(p.absolute, forceIgnore))
     createGhostSObjectFiles(Name("field"), forceIgnore)
     createGhostSObjectFiles(Name("fieldSet"), forceIgnore)
   }

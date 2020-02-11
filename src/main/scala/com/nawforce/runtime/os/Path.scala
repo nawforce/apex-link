@@ -142,5 +142,5 @@ case class Path(native: java.nio.file.Path) extends PathLike {
 object Path {
   val separator: String = File.separator
 
-  def apply(path: String): Path = Path(java.nio.file.Paths.get(path))
+  def apply(path: String): Path = Path(java.nio.file.Paths.get(Option(path).getOrElse("")))
 }

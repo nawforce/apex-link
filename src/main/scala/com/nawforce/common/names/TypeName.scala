@@ -272,6 +272,8 @@ object TypeName {
 
   def fromString(value: String): TypeName = {
     value match {
+      case null => throw new PlatformTypeException(s"null value passed to TypeRef.fromString(...)")
+      case "" => throw new PlatformTypeException(s"empty value passed to TypeRef.fromString(...)")
       case "null" => TypeName.Null
       case "any" => TypeName.Any
       case "Object" => TypeName.InternalObject

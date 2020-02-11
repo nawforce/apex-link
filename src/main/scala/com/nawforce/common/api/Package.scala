@@ -40,12 +40,30 @@ import com.nawforce.runtime.types.PlatformTypeException
 class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
   extends PackageDeclaration(workspace, _basePackages) {
 
-  /** Get an Apex typename (as a String) from a path, returns an empty string if does not identify a class file */
-  def getTypeOfClassPath(path: String): String = {
+  /** Get a typename (as a String) from the path of a metadata file, returns an empty string if the path does not
+    * identify metadata that creates a type within the current package. Currently restricted to only supporting
+    * Apex class files. */
+  def getTypeOfPath(path: String): String = {
     DocumentType(PathFactory(path)) match {
-      case Some(ad: ApexDocument) if isNamedDocument(ad.extension, ad.name) =>
+      case Some(ad: ApexDocument) if isMetadata(ad) =>
         TypeName(ad.name).withNamespace(namespace).toString
       case _ => ""
+    }
+  }
+
+  /** Get the path (as a String) of the metadata file that defined a type, returns an empty string if the type
+    * is not defined within the current package. Currently restricted to only supporting Apex class files. */
+  def getPathOfType(typeName: String): String = {
+    try {
+      types.get(TypeName.fromString(typeName))
+        .map {
+          case ad: ApexDeclaration => ad.idLocation.path.toString
+          case _ => ""
+        }
+        .getOrElse("")
+    } catch {
+      case ex: PlatformTypeException =>
+        ServerOps.debug(ServerOps.Trace, ex.getMessage); ""
     }
   }
 
@@ -60,7 +78,8 @@ class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
         }
         .getOrElse(Array[String]())
     } catch {
-      case ex: PlatformTypeException => ServerOps.error(ex.getMessage); Array[String]()
+      case ex: PlatformTypeException =>
+        ServerOps.debug(ServerOps.Trace, ex.getMessage); Array[String]()
     }
   }
 

@@ -44,7 +44,7 @@ import scala.collection.JavaConverters._
 import scala.collection.immutable.HashMap
 import scala.collection.mutable
 
-class PlatformTypeException(msg: String) extends Exception
+class PlatformTypeException(msg: String) extends Exception(msg)
 
 /* Platform type declaration, a wrapper around a com.nawforce.platform Java classes */
 case class PlatformTypeDeclaration(native: Any, outer: Option[PlatformTypeDeclaration])
