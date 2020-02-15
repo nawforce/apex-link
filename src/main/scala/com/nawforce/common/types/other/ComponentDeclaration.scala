@@ -34,14 +34,14 @@ import com.nawforce.common.documents.ComponentDocument
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
-import com.nawforce.common.types.pkg.PackageDeclaration
 import com.nawforce.common.types.platform.PlatformTypes
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-final case class ComponentDeclaration(pkg: PackageDeclaration) extends TypeDeclaration {
+final case class ComponentDeclaration(pkg: PackageImpl) extends TypeDeclaration {
 
   private val components = mutable.Map[Name, TypeDeclaration]()
   components.put(Name("Apex"),
@@ -49,7 +49,7 @@ final case class ComponentDeclaration(pkg: PackageDeclaration) extends TypeDecla
   components.put(Name("Chatter"),
     TypeRequest(TypeName(Name("Chatter"), Nil, Some(TypeName(Name("Component")))), excludeSObjects = false).toOption.get)
 
-  override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
+  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override val name: Name = Name.Component
   override val typeName: TypeName = TypeName(name)
   override val outerTypeName: Option[TypeName] = None
@@ -88,9 +88,9 @@ final case class ComponentDeclaration(pkg: PackageDeclaration) extends TypeDecla
   }
 }
 
-final case class CustomComponent(pkg: PackageDeclaration, name: Name, typeName: TypeName, path: PathLike) extends TypeDeclaration {
+final case class CustomComponent(pkg: PackageImpl, name: Name, typeName: TypeName, path: PathLike) extends TypeDeclaration {
 
-  override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
+  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override lazy val namespace: Option[Name] = None
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
@@ -111,10 +111,10 @@ final case class CustomComponent(pkg: PackageDeclaration, name: Name, typeName: 
   override def validate(): Unit = {}
 }
 
-final case class ComponentNamespace(pkg: PackageDeclaration, name: Name) extends TypeDeclaration {
+final case class ComponentNamespace(pkg: PackageImpl, name: Name) extends TypeDeclaration {
   private val components = new ConcurrentHashMap[Name, TypeDeclaration]()
 
-  override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
+  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override val typeName: TypeName = TypeName(name)
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE

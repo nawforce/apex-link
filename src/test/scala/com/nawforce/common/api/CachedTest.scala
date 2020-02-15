@@ -30,7 +30,9 @@ package com.nawforce.common.api
 
 import com.nawforce.common.documents.ParsedCache
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types.apex.{FullDeclaration, SummaryDeclaration}
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
@@ -47,15 +49,15 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
     ServerOps.setParsedDataCaching(false)
   }
 
-  def assertIsNotDeclaration(pkg: Package, name: String, namespace: Option[Name]=None): Unit = {
+  def assertIsNotDeclaration(pkg: PackageImpl, name: String, namespace: Option[Name]=None): Unit = {
     assert(pkg.findTypes(Seq(TypeName(Name(name)).withNamespace(namespace))).isEmpty)
   }
 
-  def assertIsFullDeclaration(pkg: Package, name: String, namespace: Option[Name]=None): Unit = {
+  def assertIsFullDeclaration(pkg: PackageImpl, name: String, namespace: Option[Name]=None): Unit = {
     assert(pkg.findTypes(Seq(TypeName(Name(name)).withNamespace(namespace))).head.isInstanceOf[FullDeclaration])
   }
 
-  def assertIsSummaryDeclaration(pkg: Package, name: String, namespace: Option[Name]=None): Unit = {
+  def assertIsSummaryDeclaration(pkg: PackageImpl, name: String, namespace: Option[Name]=None): Unit = {
     assert(pkg.findTypes(Seq(TypeName(Name(name)).withNamespace(namespace))).head.isInstanceOf[SummaryDeclaration])
   }
 
@@ -65,14 +67,14 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       "Foo.cls" -> foo
     )) { root: PathLike =>
       // Setup as cached
-      val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
       assert(!org.issues.hasMessages)
       assertIsFullDeclaration(pkg, "Bar")
       assertIsFullDeclaration(pkg, "Foo")
 
-      val org2 = new Org()
-      val pkg2 = org2.addPackage(None, Seq(root), Seq())
+      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg2 = org2.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
       assert(!org2.issues.hasMessages)
       assertIsSummaryDeclaration(pkg2, "Bar")
       assertIsSummaryDeclaration(pkg2, "Foo")
@@ -80,16 +82,16 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       // Change super class
       root.createFile("Bar.cls", newBar)
       root.join("Foo.cls").delete()
-      val org3 = new Org()
-      val pkg3 = org3.addPackage(None, Seq(root), Seq())
+      val org3 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg3 = org3.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
       assert(!org3.issues.hasMessages)
       assertIsFullDeclaration(pkg3, "Bar")
       assertIsNotDeclaration(pkg3, "Foo")
 
       // Test if we notice change, i.e. Foo should not be cached
       root.createFile("Foo.cls", foo)
-      val org4 = new Org()
-      val pkg4 = org4.addPackage(None, Seq(root), Seq())
+      val org4 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg4 = org4.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
       assert(!org4.issues.hasMessages)
       assertIsSummaryDeclaration(pkg4, "Bar")
       assertIsFullDeclaration(pkg4, "Foo")

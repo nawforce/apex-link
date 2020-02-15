@@ -29,7 +29,9 @@ package com.nawforce.common.types
 
 import com.nawforce.common.api.{Org, ServerOps}
 import com.nawforce.common.names.Name
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
@@ -45,7 +47,7 @@ class PageTest extends AnyFunSuite with BeforeAndAfter {
       "TestPage.page" -> "",
       "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -56,7 +58,7 @@ class PageTest extends AnyFunSuite with BeforeAndAfter {
       "TestPage.page" -> "",
       "Dummy.cls" -> "public class Dummy { {PageReference a = Page.tesTPage;} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -67,7 +69,7 @@ class PageTest extends AnyFunSuite with BeforeAndAfter {
       "TestPage.page" -> "",
       "Dummy.cls" -> "public class Dummy { {PageReference a = Page.AnotherPage;} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n")
@@ -79,8 +81,8 @@ class PageTest extends AnyFunSuite with BeforeAndAfter {
       "pkg1/TestPage.page" -> "",
       "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }"
     )) { root: PathLike =>
-      val org = new Org()
-      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
       org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
     }

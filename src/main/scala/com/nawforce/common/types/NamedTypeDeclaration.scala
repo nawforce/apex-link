@@ -30,12 +30,12 @@ package com.nawforce.common.types
 
 import com.nawforce.common.cst.Modifier
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.types.pkg.PackageDeclaration
+import com.nawforce.common.pkg.PackageImpl
 
-class NamedTypeDeclaration(pkg: PackageDeclaration, val typeName: TypeName)
+class NamedTypeDeclaration(pkg: PackageImpl, val typeName: TypeName)
   extends TypeDeclaration {
 
-  override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
+  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override val name: Name = typeName.name
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE

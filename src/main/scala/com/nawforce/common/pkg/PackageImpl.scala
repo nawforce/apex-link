@@ -26,9 +26,8 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package com.nawforce.common.types.pkg
+package com.nawforce.common.pkg
 
-import com.nawforce.common.api.Org
 import com.nawforce.common.cst.UnusedLog
 import com.nawforce.common.diagnostics.IssueLog
 import com.nawforce.common.documents.{ComponentDocument, DocumentIndex, MetadataDocumentType}
@@ -36,6 +35,7 @@ import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.metadata.MetadataDeclaration
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.common.types.other._
@@ -45,8 +45,8 @@ import com.nawforce.runtime.types.PlatformTypeDeclaration
 
 import scala.collection.mutable
 
-abstract class PackageDeclaration(val workspace: Workspace, bases: Seq[PackageDeclaration])
-  extends PackageDeploy with TypeFinder {
+class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[PackageImpl])
+  extends PackageDeploy with PackageAPI with TypeFinder {
 
   val namespace: Option[Name] = workspace.namespace
   lazy val namespaceAsTypeName: Option[TypeName] = namespace.map(TypeName(_))
@@ -90,10 +90,10 @@ abstract class PackageDeclaration(val workspace: Workspace, bases: Seq[PackageDe
   def labels(): LabelDeclaration = labelDeclaration
   def pages(): PageDeclaration = pageDeclaration
 
-  def basePackages: Seq[PackageDeclaration] = {
+  def basePackages: Seq[PackageImpl] = {
     // Override for unmanaged package to allow to be immutable
     if (namespace.isEmpty)
-      Org.allPackages().filter(_.namespace.nonEmpty)
+      OrgImpl.current.value.packagesByNamespace.values.filter(_.namespace.nonEmpty).toSeq
     else
       bases
   }
@@ -135,9 +135,6 @@ abstract class PackageDeclaration(val workspace: Workspace, bases: Seq[PackageDe
   def reportUnused(): IssueLog = {
     new UnusedLog(types.values)
   }
-
-  /* Current count of known types */
-  def typeCount: Int = types.size
 
   /* Find a package/platform type. For general needs don't call this direct, use TypeRequest which will delegate here
    * if needed. This is the fallback handling for the TypeFinder which performs local searching for types, so this is

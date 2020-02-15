@@ -27,22 +27,22 @@
 */
 package com.nawforce.common.types.other
 
-import com.nawforce.common.api.Org
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.{FILE, PathFactory, PathLike}
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
-import com.nawforce.common.types.pkg.PackageDeclaration
 import com.nawforce.common.xml.{XMLElementLike, XMLException, XMLFactory}
 
 import scala.collection.mutable
 
-final case class LabelDeclaration(pkg: PackageDeclaration, name: Name, labelFields: Seq[Label], labelNamespaces: Seq[TypeDeclaration])
+final case class LabelDeclaration(pkg: PackageImpl, name: Name, labelFields: Seq[Label], labelNamespaces: Seq[TypeDeclaration])
   extends TypeDeclaration {
 
-  override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
+  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override val typeName: TypeName =
     if (name == Name.Label) TypeName.Label else TypeName(name, Nil, Some(TypeName.Label))
   override val outerTypeName: Option[TypeName] = typeName.outer
@@ -69,10 +69,10 @@ final case class LabelDeclaration(pkg: PackageDeclaration, name: Name, labelFiel
   }
 }
 
-final case class GhostedLabelDeclaration(pkg: PackageDeclaration, name: Name)
+final case class GhostedLabelDeclaration(pkg: PackageImpl, name: Name)
   extends TypeDeclaration {
 
-  override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
+  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override val typeName: TypeName = TypeName(name, Nil, Some(TypeName.Label))
   override val outerTypeName: Option[TypeName] = typeName.outer
 
@@ -102,14 +102,14 @@ final case class GhostedLabelDeclaration(pkg: PackageDeclaration, name: Name)
 }
 
 object LabelDeclaration {
-  def apply(pkg: PackageDeclaration): LabelDeclaration = {
+  def apply(pkg: PackageImpl): LabelDeclaration = {
     val labels = pkg.documentsByExtension(Name("labels"))
       .flatMap(labelFile => parseLabels(labelFile.path))
     val baseLabels = collectBaseLabels(pkg)
     LabelDeclaration(pkg, Name.Label, labels, baseLabels.values.toSeq)
   }
 
-  private def collectBaseLabels(pkg: PackageDeclaration, collected: mutable.Map[Name, TypeDeclaration]=mutable.Map())
+  private def collectBaseLabels(pkg: PackageImpl, collected: mutable.Map[Name, TypeDeclaration]=mutable.Map())
     : mutable.Map[Name, TypeDeclaration] = {
     pkg.basePackages.foreach(basePkg => {
       val ns = basePkg.namespace.get
@@ -131,19 +131,19 @@ object LabelDeclaration {
 
   private def parseLabels(path: PathLike): Seq[Label] = {
     if (!path.nature.isInstanceOf[FILE]) {
-      Org.logMessage(LineLocation(path, 0), s"Expecting labels to be in a normal file")
+      OrgImpl.logMessage(LineLocation(path, 0), s"Expecting labels to be in a normal file")
       return Seq()
     }
 
     val data = path.read()
     if (data.isLeft) {
-      Org.logMessage(LineLocation(path, 0), s"Could not read file: ${data.right.get}")
+      OrgImpl.logMessage(LineLocation(path, 0), s"Could not read file: ${data.right.get}")
       return Seq()
     }
 
     val parseResult = XMLFactory.parse(path)
     if (parseResult.isLeft) {
-      Org.logMessage(parseResult.left.get._1, parseResult.left.get._2)
+      OrgImpl.logMessage(parseResult.left.get._1, parseResult.left.get._2)
       return Seq()
     }
     val rootElement = parseResult.right.get.rootElement
@@ -153,7 +153,7 @@ object LabelDeclaration {
       rootElement.getChildren("labels")
         .map(c => Label(path, c))
     } catch {
-      case e: XMLException => Org.logMessage(RangeLocation(path, e.where), e.msg); Seq()
+      case e: XMLException => OrgImpl.logMessage(RangeLocation(path, e.where), e.msg); Seq()
     }
   }
 }

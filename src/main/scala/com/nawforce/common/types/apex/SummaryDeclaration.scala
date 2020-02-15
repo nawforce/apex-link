@@ -33,14 +33,14 @@ import com.nawforce.common.documents.{Location, RangeLocation}
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
-import com.nawforce.common.types.pkg.PackageDeclaration
 import upickle.default._
 
 import scala.collection.mutable
 
 trait DependentValidation {
-  def isValid(pkg: PackageDeclaration, dependent: DependentSummary, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
+  def isValid(pkg: PackageImpl, dependent: DependentSummary, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
     val typeName = TypeName.fromString(dependent.name, pkg.namespace)
 
     isSummaryValid(typeName, dependent.sourceHash, summaries)
@@ -84,7 +84,7 @@ class SummaryMethod(methodSummary: MethodSummary, fromTypeName: String => TypeNa
   override val parameters: Seq[ParameterDeclaration] =
     methodSummary.parameters.map(new SummaryParameter(_, fromTypeName))
 
-  def areDependentsValid(pkg: PackageDeclaration, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
+  def areDependentsValid(pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
     methodSummary.dependents.forall(d => isValid(pkg, d, summaries))
   }
 
@@ -103,7 +103,7 @@ class SummaryField(path: PathLike, fieldSummary: FieldSummary, fromTypeName: Str
   override val readAccess: Modifier = Modifier(fieldSummary.readAccess)
   override val writeAccess: Modifier = Modifier(fieldSummary.writeAccess)
 
-  def areDependentsValid(pkg: PackageDeclaration, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
+  def areDependentsValid(pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
     fieldSummary.dependents.forall(d => isValid(pkg, d, summaries))
   }
 
@@ -119,7 +119,7 @@ class SummaryConstructor(constructorSummary: ConstructorSummary, fromTypeName: S
   override val parameters: Seq[ParameterDeclaration] =
     constructorSummary.parameters.map(new SummaryParameter(_, fromTypeName))
 
-  def areDependentsValid(pkg: PackageDeclaration, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
+  def areDependentsValid(pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
     constructorSummary.dependents.forall(d => isValid(pkg, d, summaries))
   }
   def collectDependencies(dependsOn: mutable.Set[TypeName]): Unit = {
@@ -127,7 +127,7 @@ class SummaryConstructor(constructorSummary: ConstructorSummary, fromTypeName: S
   }
 }
 
-class SummaryDeclaration(path: PathLike, val pkg: PackageDeclaration, val outerTypeName: Option[TypeName],
+class SummaryDeclaration(path: PathLike, val pkg: PackageImpl, val outerTypeName: Option[TypeName],
                          data: Array[Byte], typeSummary: Option[TypeSummary]=None)
   extends ApexDeclaration with DependentValidation {
 
@@ -135,7 +135,7 @@ class SummaryDeclaration(path: PathLike, val pkg: PackageDeclaration, val outerT
 
   override lazy val sourceHash: Int = summary.sourceHash
   override val idLocation: Location = RangeLocation(path, summary.idRange.get)
-  override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
+  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
 
   override lazy val name: Name = Name(summary.name)
   override lazy val nature: Nature = Nature(summary.nature)

@@ -26,11 +26,11 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package com.nawforce.common.types.pkg
+package com.nawforce.common.pkg
 
 import java.nio.charset.StandardCharsets
 
-import com.nawforce.common.api.{Package, ServerOps}
+import com.nawforce.common.api.ServerOps
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.types.apex.{FullDeclaration, SummaryDeclaration, TriggerDeclaration}
@@ -38,18 +38,29 @@ import com.nawforce.common.types.schema.SObjectDeclaration
 import upickle.default.writeBinary
 
 trait PackageDeploy {
-  this: PackageDeclaration =>
+  this: PackageImpl =>
+
+  private val epoch = System.currentTimeMillis()
 
   def deployWorkspace(): Unit = {
+    val startingTypes = types.size
+
     loadCustomObjects()
     loadComponents()
     loadClasses()
     loadTriggers()
+
+    if (types.size > startingTypes) {
+      val total = System.currentTimeMillis() - epoch
+      val avg = total / types.size
+      ServerOps.debug(ServerOps.Trace, s"Package(${namespace.map(_.value).getOrElse("")}) loaded ${types.size}" +
+        s" types in ${total / 1000} seconds, average $avg ms/type")
+    }
   }
 
   private def loadCustomObjects(): Unit = {
     val docs = documentsByExtension(Name("object"))
-    ServerOps.debugTime(s"Parsed ${docs.size} objects") {
+    ServerOps.debugTime(s"Parsed ${docs.size} objects", docs.nonEmpty) {
       val tds = docs.flatMap {
         case docType: SObjectDocument =>
           SObjectDeclaration.create(this, docType.path)
@@ -67,7 +78,7 @@ trait PackageDeploy {
 
   private def loadComponents(): Unit = {
     val docs = documentsByExtension(Name("component"))
-    ServerOps.debugTime(s"Parsed ${docs.size} components") {
+    ServerOps.debugTime(s"Parsed ${docs.size} components", docs.nonEmpty) {
       docs.foreach {
         case docType: ComponentDocument => upsertComponent(namespace, docType)
         case _ => assert(false); Seq()
@@ -78,8 +89,7 @@ trait PackageDeploy {
   private def loadClasses(): Unit = {
     val pc = PackageDeploy.parsedCache
     val docs = documentsByExtension(Name("cls"))
-
-    ServerOps.debugTime(s"Parsed ${docs.size} classes") {
+    ServerOps.debugTime(s"Parsed ${docs.size} classes", docs.nonEmpty) {
 
       // Load summary docs that have valid dependents
       if (ServerOps.isParsedDataCaching) {
@@ -121,7 +131,7 @@ trait PackageDeploy {
 
   private def loadTriggers(): Unit = {
     val docs = documentsByExtension(Name("trigger"))
-    ServerOps.debugTime(s"Parsed ${docs.size} triggers") {
+    ServerOps.debugTime(s"Parsed ${docs.size} triggers", docs.nonEmpty) {
       val tds = docs.flatMap {
         case docType: ApexTriggerDocument =>
           val data = docType.path.read()

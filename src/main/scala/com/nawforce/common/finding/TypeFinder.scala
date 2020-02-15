@@ -28,13 +28,13 @@
 package com.nawforce.common.finding
 
 import com.nawforce.common.names.{DotName, TypeName}
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types.TypeDeclaration
-import com.nawforce.common.types.pkg.PackageDeclaration
 import scalaz.Memo
 
 /** Helper that implements local type searching, extracted out as logic is a bit involved */
 trait TypeFinder {
-  this: PackageDeclaration =>
+  this: PackageImpl =>
 
   /** Find a type relative to a starting type with a local or global name*/
   def getTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {

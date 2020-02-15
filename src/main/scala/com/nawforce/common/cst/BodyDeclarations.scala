@@ -27,14 +27,12 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api
-import com.nawforce.common.api.{MethodSummary, ParameterSummary}
 import com.nawforce.common.finding.RelativeTypeName
 import com.nawforce.common.metadata._
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
 import com.nawforce.common.types.apex.ApexFieldLike
-import com.nawforce.common.types.pkg.PackageDeclaration
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -61,7 +59,7 @@ abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST wi
 }
 
 object ClassBodyDeclaration {
-  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, sourceHash: Int, modifiers: Seq[ModifierContext],
+  def construct(pkg: PackageImpl, outerTypeName: TypeName, sourceHash: Int, modifiers: Seq[ModifierContext],
                 memberDeclarationContext: MemberDeclarationContext, context: ConstructContext)
   : Seq[ClassBodyDeclaration] = {
 
@@ -183,7 +181,7 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], relativeTypeNa
 }
 
 object ApexMethodDeclaration {
-  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, modifiers: Seq[Modifier],
+  def construct(pkg: PackageImpl, outerTypeName: TypeName, modifiers: Seq[Modifier],
                 from: MethodDeclarationContext, context: ConstructContext): ApexMethodDeclaration = {
     val typeName = CodeParser.toScala(from.typeRef()).map(tr => TypeRef.construct(tr)).getOrElse(TypeName.Void)
     val block = CodeParser.toScala(from.block())
@@ -197,7 +195,7 @@ object ApexMethodDeclaration {
     ).withContext(from, context)
   }
 
-  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, modifiers: Seq[Modifier],
+  def construct(pkg: PackageImpl, outerTypeName: TypeName, modifiers: Seq[Modifier],
                 from: InterfaceMethodDeclarationContext, context: ConstructContext): ApexMethodDeclaration = {
     val typeName = CodeParser.toScala(from.typeRef()).map(tr => TypeRef.construct(tr)).getOrElse(TypeName.Void)
     ApexMethodDeclaration(
@@ -256,7 +254,7 @@ final case class ApexConstructorDeclaration(_modifiers: Seq[Modifier], qualified
 }
 
 object ApexConstructorDeclaration {
-  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, modifiers: Seq[Modifier],
+  def construct(pkg: PackageImpl, outerTypeName: TypeName, modifiers: Seq[Modifier],
                 from: ConstructorDeclarationContext, context: ConstructContext): ApexConstructorDeclaration = {
     ApexConstructorDeclaration(modifiers,
       QualifiedName.construct(from.qualifiedName(), context),
@@ -266,7 +264,7 @@ object ApexConstructorDeclaration {
   }
 }
 
-final case class FormalParameter(pkg: PackageDeclaration, outerTypeName: TypeName, modifiers: Seq[Modifier],
+final case class FormalParameter(pkg: PackageImpl, outerTypeName: TypeName, modifiers: Seq[Modifier],
                                  relativeTypeName: RelativeTypeName, id: Id)
   extends CST with ParameterDeclaration {
 
@@ -284,12 +282,12 @@ final case class FormalParameter(pkg: PackageDeclaration, outerTypeName: TypeNam
 }
 
 object FormalParameter {
-  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, aList: Seq[FormalParameterContext],
+  def construct(pkg: PackageImpl, outerTypeName: TypeName, aList: Seq[FormalParameterContext],
                 context: ConstructContext): Seq[FormalParameter] = {
     aList.map(x => FormalParameter.construct(pkg, outerTypeName, x, context))
   }
 
-  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, from: FormalParameterContext,
+  def construct(pkg: PackageImpl, outerTypeName: TypeName, from: FormalParameterContext,
                 context: ConstructContext): FormalParameter = {
     FormalParameter(pkg, outerTypeName,
       ApexModifiers.construct(CodeParser.toScala(from.modifier()), context),
@@ -299,7 +297,7 @@ object FormalParameter {
 }
 
 object FormalParameterList {
-  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, from: FormalParameterListContext,
+  def construct(pkg: PackageImpl, outerTypeName: TypeName, from: FormalParameterListContext,
                 context: ConstructContext): Seq[FormalParameter] = {
     if (from.formalParameter() != null) {
       val m: Seq[FormalParameterContext] = CodeParser.toScala(from.formalParameter())
@@ -311,7 +309,7 @@ object FormalParameterList {
 }
 
 object FormalParameters {
-  def construct(pkg: PackageDeclaration, outerTypeName: TypeName, from: FormalParametersContext,
+  def construct(pkg: PackageImpl, outerTypeName: TypeName, from: FormalParametersContext,
                 context: ConstructContext): Seq[FormalParameter] = {
     CodeParser.toScala(from.formalParameterList())
       .map(x => FormalParameterList.construct(pkg, outerTypeName, x, context))

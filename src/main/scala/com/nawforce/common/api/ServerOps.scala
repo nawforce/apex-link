@@ -67,13 +67,14 @@ object ServerOps  {
       logger.debug(message)
   }
 
-  def debugTime[T](msg: String)(op: => T): T = {
+  def debugTime[T](msg: String, show: Boolean=true)(op: => T): T = {
     val start = System.currentTimeMillis()
     try {
       op
     } finally {
       val end = System.currentTimeMillis()
-      ServerOps.debug(ServerOps.Trace, s"$msg in ${end - start}ms")
+      if (show)
+        ServerOps.debug(ServerOps.Trace, s"$msg in ${end - start}ms")
     }
   }
 

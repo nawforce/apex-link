@@ -27,8 +27,8 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.Org
 import com.nawforce.common.names.{EncodedName, TypeName}
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -185,20 +185,20 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends Creator
     val enclosedTypes = td.typeName.getMapType
 
     if (enclosedTypes.isEmpty) {
-      Org.logMessage(location, s"Expression pair list construction is only supported for Map types, not '${td.typeName}'")
+      OrgImpl.logMessage(location, s"Expression pair list construction is only supported for Map types, not '${td.typeName}'")
       return
     }
 
     val keyType = context.getTypeAndAddDependency(enclosedTypes.get._1, context.thisType)
     if (keyType.isLeft) {
-      Org.logMessage(location, keyType.left.get.toString)
+      OrgImpl.logMessage(location, keyType.left.get.toString)
       return
     }
 
     val valueType = context.getTypeAndAddDependency(enclosedTypes.get._2, context.thisType)
     if (valueType.isLeft) {
       if (!context.pkg.isGhostedType(enclosedTypes.get._2))
-        Org.logMessage(location, valueType.left.get.toString)
+        OrgImpl.logMessage(location, valueType.left.get.toString)
       return
     }
 
@@ -243,14 +243,14 @@ final case class SetCreatorRest(parts: Seq[Expression]) extends CreatorRest {
      val enclosedType = td.typeName.getSetOrListType
 
      if (enclosedType.isEmpty) {
-       Org.logMessage(location, s"Expression list construction is only supported for Set or List types, not '${td.typeName}'")
+       OrgImpl.logMessage(location, s"Expression list construction is only supported for Set or List types, not '${td.typeName}'")
        return
      }
 
      context.getTypeAndAddDependency(enclosedType.get, context.thisType) match {
        case Left(error) =>
          if (!context.pkg.isGhostedType(enclosedType.get))
-           Org.logMessage(location, error.toString)
+           OrgImpl.logMessage(location, error.toString)
        case Right(_) =>
          // FUTURE: Validate the expressions are assignable to 'creating'
          parts.foreach(_.verify(input, context))

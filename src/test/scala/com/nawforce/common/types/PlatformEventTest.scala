@@ -28,6 +28,7 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.api.Org
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.funsuite.AnyFunSuite
@@ -59,7 +60,7 @@ class PlatformEventTest extends AnyFunSuite {
       "Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
       "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.ReplayId;} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -70,7 +71,7 @@ class PlatformEventTest extends AnyFunSuite {
       "Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
       "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.Bar__c;} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -81,7 +82,7 @@ class PlatformEventTest extends AnyFunSuite {
       "Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
       "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.Baz__c;} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__e'\n")

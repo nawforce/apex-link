@@ -30,8 +30,8 @@ package com.nawforce.common.cst
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, IssueCategory, WARNING_CATEGORY}
 import com.nawforce.common.documents.Location
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
-import com.nawforce.common.types.pkg.PackageDeclaration
 
 import scala.collection.mutable
 
@@ -144,7 +144,7 @@ object MethodMap {
     })
   }
 
-  private def checkInterfaces(pkg: Option[PackageDeclaration], location: Option[Location], isAbstract: Boolean,
+  private def checkInterfaces(pkg: Option[PackageImpl], location: Option[Location], isAbstract: Boolean,
                               workingMap: WorkingMap, interfaces: Seq[TypeDeclaration], errors: ErrorMap): Unit = {
     interfaces.foreach({
       case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
@@ -153,7 +153,7 @@ object MethodMap {
     })
   }
 
-  private def checkInterface(pkg: Option[PackageDeclaration], location: Option[Location], isAbstract: Boolean,
+  private def checkInterface(pkg: Option[PackageImpl], location: Option[Location], isAbstract: Boolean,
                              workingMap: WorkingMap, interface: TypeDeclaration, errors: ErrorMap): Unit = {
     if (interface.isInstanceOf[InterfaceDeclaration])
       checkInterfaces(pkg, location, isAbstract, workingMap, interface.interfaceDeclarations, errors)

@@ -29,7 +29,7 @@ package com.nawforce.runtime
 
 import java.nio.file.Paths
 
-import com.nawforce.common.api.{Org, ServerOps}
+import com.nawforce.common.api.{IssueOptions, Org, ServerOps}
 
 import scala.collection.mutable
 
@@ -70,9 +70,7 @@ object ApexLink {
       ServerOps.setDebugLogging(Array("ALL"))
     val zombie = validArgs.contains("-zombie")
 
-    val parseStart = System.currentTimeMillis()
-    val org = new Org()
-
+    val org = Org.newOrg()
     val nsLoaded = mutable.Set[String]()
     nsSplit.foreach(nsDirPair => {
       if (!nsLoaded.contains(nsDirPair._1)) {
@@ -81,23 +79,11 @@ object ApexLink {
         nsLoaded.add(nsDirPair._1)
       }
     })
-    val parseEnd = System.currentTimeMillis()
 
-    if (!json)
-      org.issues.dumpMessages(json = false)
-    else
-      println(org.issues.asJSON(warnings = true, 100))
-
-    if (verbose && org.typeCount>0)
-      println(s"Loaded & checked ${org.typeCount} types, with average time/type of ${(parseEnd - parseStart) / org.typeCount}ms")
-
-    if (zombie) {
-      org.packages.values.foreach(pkg => {
-        if (!pkg.isGhosted) {
-          println(s"Package: ${pkg.namespace}")
-          pkg.reportUnused().dumpMessages(json = false)
-        }
-      })
-    }
+    val issueOptions = new IssueOptions()
+    issueOptions.formatJSON = json
+    issueOptions.includeWarnings = verbose
+    issueOptions.includeZombies = zombie
+    println(org.getIssues(issueOptions))
   }
 }

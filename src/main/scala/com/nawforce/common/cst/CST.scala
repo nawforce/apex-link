@@ -27,9 +27,9 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.Org
 import com.nawforce.common.documents.{Position, RangeLocation}
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.parsers.CSTRange
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.runtime.parsers.ApexParser._
@@ -70,10 +70,10 @@ final case class Id(name: Name) extends CST {
   def validate(): Unit = {
     val illegalError = name.isLegalIdentifier
     if (illegalError.nonEmpty)
-      Org.logMessage(location, s"$name' is not legal identifier in Apex, identifiers ${illegalError.get}")
+      OrgImpl.logMessage(location, s"$name' is not legal identifier in Apex, identifiers ${illegalError.get}")
 
     else if (name.isReservedIdentifier)
-      Org.logMessage(location, s"'$name' is a reserved identifier in Apex")
+      OrgImpl.logMessage(location, s"'$name' is a reserved identifier in Apex")
   }
 }
 

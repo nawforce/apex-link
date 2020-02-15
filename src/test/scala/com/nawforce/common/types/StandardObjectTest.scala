@@ -2,7 +2,9 @@ package com.nawforce.common.types
 
 import com.nawforce.common.api.{Org, ServerOps}
 import com.nawforce.common.names.Name
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
@@ -56,7 +58,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Foo.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(root.join("Foo.object")) ==
         "Error: line 0: No SObject declaration found for 'Schema.Foo'\n")
@@ -67,7 +69,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "String.object" -> customObject("String", Seq(("Bar__c", Some("Text"), None))),
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(root.join("String.object")) ==
         "Error: line 0: No SObject declaration found for 'Schema.String'\n")
@@ -78,7 +80,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {Account a; Boolean x = a.UserRecordAccess.HasDeleteAccess;} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -89,7 +91,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       "Account.object" -> customObject("Account", Seq(("Bar__c", Some("Text"), None))),
       "Dummy.cls" -> "public class Dummy { {Account a; a.Bar__c = '';} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -100,7 +102,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       "Account.object" -> customObject("Account", Seq(("Bar__c", Some("Text"), None))),
       "Dummy.cls" -> "public class Dummy { {Account a; a.Baz__c = '';} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 33-41: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
@@ -112,8 +114,8 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       "pkg1/Account.object" -> customObject("Account", Seq(("Bar__c", Some("Text"), None))),
       "pkg2/Dummy.cls" -> "public class Dummy { {Account a; a.pkg1__Bar__c = '';} }",
     )) { root: PathLike =>
-      val org = new Org()
-      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
       org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
     }
@@ -124,8 +126,8 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       "pkg1/Account.object" -> customObject("Account", Seq(("Bar__c", Some("Text"), None))),
       "pkg2/Dummy.cls" -> "public class Dummy { {Account a; a.Bar__c = '';} }",
     )) { root: PathLike =>
-      val org = new Org()
-      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
       org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(org.issues.getMessages(PathFactory("/pkg2/Dummy.cls")) ==
         "Error: line 1 at 33-41: Unknown field or type 'Bar__c' on 'Schema.Account'\n")
@@ -136,7 +138,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {Account a; a.RecordTypeId = '';} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -146,7 +148,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Contract.Name.getDescribe();} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -156,7 +158,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Contract.fields.Name.getDescribe();} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -167,7 +169,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" ->
         "public class Dummy { {DescribeFieldResult a = SObjectType.Contract.fields.BillingCity.getDefaultValue();} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -178,7 +180,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" ->
         "public class Dummy { {Object a = Contract.SObjectType.fields.BillingCity.getDescribe();} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -189,7 +191,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" ->
         "public class Dummy { {SObjectField a = BusinessHours.FridayEndTime;} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -200,7 +202,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       "Account.object" -> customObject("Account", Seq(("Bar__c", Some("Text"), None))),
       "Dummy.cls" -> "public class Dummy { {SObjectField a = Account.Bar__c;} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -211,7 +213,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       "Account.object" -> customObject("Account", Seq(("Bar__c", Some("Text"), None))),
       "Dummy.cls" -> "public class Dummy { {SObjectField a = Account.Baz__c;} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 39-53: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
@@ -223,7 +225,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       "Foo__c.object" -> customObject("Foo", Seq(("Lookup__c", Some("Lookup"), Some("Account")))),
       "Dummy.cls" -> "public class Dummy { {SObjectField a = Account.Lookup__r;} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -234,8 +236,8 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       "pkg1/Foo__c.object" -> customObject("Foo", Seq(("Lookup__c", Some("Lookup"), Some("Account")))),
       "pkg2/Dummy.cls" -> "public class Dummy { {SObjectField a = Account.pkg1__Lookup__r;} }",
     )) { root: PathLike =>
-      val org = new Org()
-      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
       org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
     }
@@ -245,7 +247,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Account;} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -255,7 +257,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo;} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 48-63: Unknown field or type 'Foo' on 'Schema.SObjectType'\n")
@@ -266,7 +268,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Account.Fields.Fax;} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -276,7 +278,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Contact.SObjectType.Fields.Fax;} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -286,7 +288,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Account.Fields.Foo;} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 48-78: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.Fields'\n")
@@ -297,7 +299,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Account.FieldSets.Foo;} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 48-81: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.FieldSets'\n")
@@ -310,7 +312,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       "Account/fields/Bar__c.field-meta.xml" -> customField("Bar__c", "Text", None),
       "Dummy.cls" -> "public class Dummy { {SObjectField a = Account.Bar__c;} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -322,7 +324,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       "Account/fieldSets/TestFS.fieldSet-meta.xml" -> customFieldSet("TestFS"),
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Account.FieldSets.TestFS;} }",
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -332,7 +334,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {SObjectType a = Schema.Account.SObjectType;} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -342,7 +344,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy {public static SObjectField a = Account.SObjectField.Fax;}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -352,7 +354,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Account.object" -> customObject("Account", Seq(("AccountNumber", None, None)))
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -362,7 +364,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Account.object" -> customObject("Account", Seq(("AccountNumber__c", None, None)))
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(root.join("Account.object")) ==
         "Error: line 5 to 6: Expecting custom field 'AccountNumber__c' to have 'type' child element\n")

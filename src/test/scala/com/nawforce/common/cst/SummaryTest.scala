@@ -29,6 +29,7 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.api._
 import com.nawforce.common.documents.{Position, TextRange}
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types.apex.FullDeclaration
 import org.scalatest.BeforeAndAfter
@@ -36,10 +37,10 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   private val defaultPath = PathFactory("Dummy.cls")
-  private var defaultOrg: Org = new Org
+  private var defaultOrg: OrgImpl = new OrgImpl
 
   def typeDeclarationSummary(clsText: String, hasMessages: Boolean = false): TypeSummary = {
-    Org.current.withValue(defaultOrg) {
+    OrgImpl.current.withValue(defaultOrg) {
       val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
       td.foreach(defaultOrg.unmanaged.upsertMetadata(_))
       td.foreach(_.validate())
@@ -51,7 +52,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   before {
-    defaultOrg = new Org
+    defaultOrg = new OrgImpl
   }
 
   test("Public outer class") {

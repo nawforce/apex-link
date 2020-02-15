@@ -30,14 +30,14 @@ package com.nawforce.common.types.other
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.documents.{DocumentType, LineLocation, Location, PageDocument}
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
-import com.nawforce.common.types.pkg.PackageDeclaration
 
 import scala.collection.mutable
 
-final case class PageDeclaration(pkg: PackageDeclaration, pages: Seq[Page]) extends TypeDeclaration {
+final case class PageDeclaration(pkg: PackageImpl, pages: Seq[Page]) extends TypeDeclaration {
 
-  override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
+  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override val name: Name = Name.Page
   override val typeName: TypeName = TypeName(name)
   override val outerTypeName: Option[TypeName] = None
@@ -59,7 +59,7 @@ final case class PageDeclaration(pkg: PackageDeclaration, pages: Seq[Page]) exte
 }
 
 object PageDeclaration {
-  def apply(pkg: PackageDeclaration): PageDeclaration = {
+  def apply(pkg: PackageImpl): PageDeclaration = {
     val pages = collectBasePages(pkg).values.flatten ++
       pkg.documentsByExtension(Name("page")).map(page => DocumentType(page.path)).flatMap {
         case Some(page: PageDocument) => Some(Page(LineLocation(page.path, 0), page.name))
@@ -68,7 +68,7 @@ object PageDeclaration {
     new PageDeclaration(pkg, pages.toSeq)
   }
 
-  private def collectBasePages(pkg: PackageDeclaration, collected: mutable.Map[Name, Seq[Page]]=mutable.Map())
+  private def collectBasePages(pkg: PackageImpl, collected: mutable.Map[Name, Seq[Page]]=mutable.Map())
   : mutable.Map[Name, Seq[Page]] = {
     pkg.basePackages.foreach(basePkg => {
       val ns = basePkg.namespace.get

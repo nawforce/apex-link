@@ -27,15 +27,16 @@
 */
 package com.nawforce.common.types.apex
 
-import com.nawforce.common.api.{Org, ServerOps, TypeSummary}
+import com.nawforce.common.api.{ServerOps, TypeSummary}
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents.{LineLocation, Location, TextRange}
 import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
-import com.nawforce.common.types.pkg.PackageDeclaration
 import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -43,13 +44,13 @@ import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
 /* Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
-abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageDeclaration, val outerTypeName: Option[TypeName],
+abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageImpl, val outerTypeName: Option[TypeName],
                                val id: Id, _modifiers: Seq[Modifier],
                                val superClass: Option[TypeName], val interfaces: Seq[TypeName],
                                val bodyDeclarations: Seq[ClassBodyDeclaration])
   extends ClassBodyDeclaration(_modifiers) with ApexDeclaration {
 
-  override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
+  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override val idLocation: Location = id.location
   override val name: Name = id.name
   override val nature: Nature
@@ -110,23 +111,23 @@ abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageDeclaration,
       if (superClassDeclaration.isEmpty) {
         context.missingType(id.location, superClass.get)
       } else if (superClassDeclaration.get.nature != CLASS_NATURE) {
-        Org.logMessage(id.location, s"Parent type '${superClass.get.asDotName}' must be a class")
+        OrgImpl.logMessage(id.location, s"Parent type '${superClass.get.asDotName}' must be a class")
       } else if (superClassDeclaration.get.modifiers.intersect(Seq(VIRTUAL_MODIFIER, ABSTRACT_MODIFIER)).isEmpty) {
-        Org.logMessage(id.location, s"Parent class '${superClass.get.asDotName}' must be declared virtual or abstract")
+        OrgImpl.logMessage(id.location, s"Parent class '${superClass.get.asDotName}' must be declared virtual or abstract")
       }
     }
 
     val duplicateNestedType = (this +: nestedTypes).groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
     duplicateNestedType.foreach(td =>
-      Org.logMessage(td.id.location, s"Duplicate type name '${td.name.toString}'"))
+      OrgImpl.logMessage(td.id.location, s"Duplicate type name '${td.name.toString}'"))
 
     interfaces.foreach(interface => {
       val td = context.getTypeAndAddDependency(interface, context.thisType).toOption
       if (td.isEmpty) {
         if (!context.pkg.isGhostedType(interface))
-          Org.logMessage(id.location, s"No declaration found for interface '${interface.toString}'")
+          OrgImpl.logMessage(id.location, s"No declaration found for interface '${interface.toString}'")
       } else if (td.get.nature != INTERFACE_NATURE)
-        Org.logMessage(id.location, s"Type '${interface.toString}' must be an interface")
+        OrgImpl.logMessage(id.location, s"Type '${interface.toString}' must be an interface")
     })
     bodyDeclarations.foreach(bd => bd.validate(new BodyDeclarationVerifyContext(context, bd)))
 
@@ -181,10 +182,10 @@ abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageDeclaration,
 }
 
 object FullDeclaration {
-  def create(pkg: PackageDeclaration, path: PathLike, data: String): Option[FullDeclaration] = {
+  def create(pkg: PackageImpl, path: PathLike, data: String): Option[FullDeclaration] = {
     CodeParser.parseClass(path, data) match {
       case Left(err) =>
-        Org.logMessage(LineLocation(path, err.line), err.message)
+        OrgImpl.logMessage(LineLocation(path, err.line), err.message)
         None
       case Right(cu) =>
         val sourceHash = MurmurHash3.stringHash(data)
@@ -192,7 +193,7 @@ object FullDeclaration {
     }
   }
 
-  def construct(sourceHash: Int, pkg: PackageDeclaration, outerTypeName: Option[TypeName], typeDecl: TypeDeclarationContext,
+  def construct(sourceHash: Int, pkg: PackageImpl, outerTypeName: Option[TypeName], typeDecl: TypeDeclarationContext,
                 context: ConstructContext): FullDeclaration = {
 
     val modifiers: Seq[ModifierContext] = CodeParser.toScala(typeDecl.modifier())

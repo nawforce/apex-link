@@ -27,8 +27,8 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.Org
 import com.nawforce.common.names.Name
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.common.types.apex.FullDeclaration
@@ -37,10 +37,10 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class PropertyTest extends AnyFunSuite with BeforeAndAfter {
   private val defaultPath = PathFactory("Dummy.cls")
-  private var defaultOrg: Org = new Org
+  private var defaultOrg: OrgImpl = new OrgImpl
 
   def typeDeclaration(clsText: String, hasMessages: Boolean = false): TypeDeclaration = {
-    Org.current.withValue(defaultOrg) {
+    OrgImpl.current.withValue(defaultOrg) {
       val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
       if (td.isEmpty) {
         defaultOrg.issues.dumpMessages(json = false)
@@ -54,7 +54,7 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   before {
-    defaultOrg = new Org
+    defaultOrg = new OrgImpl
   }
 
   test("Empty class has no properties") {

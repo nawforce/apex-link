@@ -29,6 +29,7 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.api.Org
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.funsuite.AnyFunSuite
@@ -38,7 +39,7 @@ class TriggerTest extends AnyFunSuite {
     FileSystemHelper.run(Map(
       "Dummy.trigger" -> "trigger Dummy on Account (before insert) { }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -48,7 +49,7 @@ class TriggerTest extends AnyFunSuite {
     FileSystemHelper.run(Map(
       "Dummy.trigger" -> "trigger Dummy on Stupid (before insert) { }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.trigger")) ==
         "Error: line 1 at 17-23: No type declaration found for 'Stupid'\n")
@@ -60,7 +61,7 @@ class TriggerTest extends AnyFunSuite {
       "Stupid__c.object" -> "<CustomObject xmlns=\"http://soap.sforce.com/2006/04/metadata\"><fullName>Stupid</fullName></CustomObject>",
       "Dummy.trigger" -> "trigger Dummy on Stupid__c (before insert) { }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -70,7 +71,7 @@ class TriggerTest extends AnyFunSuite {
     FileSystemHelper.run(Map(
       "Dummy.trigger" -> "trigger Dummy on Account (before insert, before insert) { }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.trigger")) ==
         "Error: line 1 at 17-24: Duplicate trigger case for 'before insert'\n")
@@ -81,7 +82,7 @@ class TriggerTest extends AnyFunSuite {
     FileSystemHelper.run(Map(
       "Dummy.trigger" -> "trigger Dummy on Account (before insert) {Object a = this;}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -95,7 +96,7 @@ class TriggerTest extends AnyFunSuite {
           |     System.debug(a.Id);
           |}""".stripMargin
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       org.issues.dumpMessages(false)
       assert(!org.issues.hasMessages)

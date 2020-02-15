@@ -27,49 +27,51 @@
 */
 package com.nawforce.common.finding
 
-import com.nawforce.common.api.{Org, Package}
+import com.nawforce.common.api.Org
 import com.nawforce.common.names.{DotName, Name, TypeName}
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.common.types.apex.FullDeclaration
 import org.scalatest.funsuite.AnyFunSuite
 
 class TypeFindingTest extends AnyFunSuite {
 
-  private val defaultOrg: Org = new Org
+  private val defaultOrg: OrgImpl = new OrgImpl
   private val defaultPath: PathLike = PathFactory("Dummy.cls")
-  private val unmanaged: Package = defaultOrg.unmanaged
+  private val unmanaged: PackageImpl = defaultOrg.unmanaged
 
-  private def getType(namespace: String, dotName: String, org: Org = defaultOrg): TypeDeclaration = {
+  private def getType(namespace: String, dotName: String, org: OrgImpl = defaultOrg): TypeDeclaration = {
     val ns = Name.safeApply(namespace)
     val dn = DotName(dotName)
-    val pkgOpt = org.allPackages.find(_.namespace == ns)
+    val pkgOpt = org.packagesByNamespace.get(ns)
     pkgOpt.flatMap(pkg => TypeRequest(dn.asTypeName(), pkg, excludeSObjects = false).toOption).orNull
   }
 
   test("Bad type not") {
-    Org.current.withValue(defaultOrg) {
+    OrgImpl.current.withValue(defaultOrg) {
       assert(unmanaged.getType(TypeName(Name("Hello")), None).toOption.isEmpty)
     }
   }
 
   test("Platform type") {
-    Org.current.withValue(defaultOrg) {
+    OrgImpl.current.withValue(defaultOrg) {
       val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Name.System)))
       assert(unmanaged.getType(TypeName(Name("String")), None).toOption.get.typeName == typeName)
     }
   }
 
   test("Platform type (wrong case)") {
-    Org.current.withValue(defaultOrg) {
+    OrgImpl.current.withValue(defaultOrg) {
       val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Name.System)))
       assert(unmanaged.getType(TypeName(Name("STRING")), None).toOption.get.typeName == typeName)
     }
   }
 
   test("Custom Outer type") {
-    val org = new Org()
-    Org.current.withValue(org) {
+    val org = Org.newOrg().asInstanceOf[OrgImpl]
+    OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(org.unmanaged, defaultPath,
         "public class Dummy {}").head
       org.unmanaged.upsertMetadata(td)
@@ -78,8 +80,8 @@ class TypeFindingTest extends AnyFunSuite {
   }
 
   test("Custom Outer type (Wrong Case)") {
-    val org = new Org()
-    Org.current.withValue(org) {
+    val org = Org.newOrg().asInstanceOf[OrgImpl]
+    OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath,
         "public class Dummy {}").head
       org.unmanaged.upsertMetadata(td)
@@ -88,8 +90,8 @@ class TypeFindingTest extends AnyFunSuite {
   }
 
   test("Custom Inner type") {
-    val org = new Org()
-    Org.current.withValue(org) {
+    val org = Org.newOrg().asInstanceOf[OrgImpl]
+    OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath,
         "public class Dummy {class Inner {}}").head
       org.unmanaged.upsertMetadata(td)
@@ -99,8 +101,8 @@ class TypeFindingTest extends AnyFunSuite {
   }
 
   test("Custom Inner type (Wrong case)") {
-    val org = new Org()
-    Org.current.withValue(org) {
+    val org = Org.newOrg().asInstanceOf[OrgImpl]
+    OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath,
         "public class Dummy {class Inner {}}").head
       org.unmanaged.upsertMetadata(td)
@@ -110,9 +112,9 @@ class TypeFindingTest extends AnyFunSuite {
   }
 
   test("Custom Outer type with namespace") {
-    val org = new Org()
-    val pkg = org.newPackage("NS", Array(), Array())
-    Org.current.withValue(org) {
+    val org = Org.newOrg().asInstanceOf[OrgImpl]
+    val pkg = org.newPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
+    OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(pkg, defaultPath,
         "global class Dummy {}").head
       pkg.upsertMetadata(td)
@@ -123,9 +125,9 @@ class TypeFindingTest extends AnyFunSuite {
   }
 
   test("Custom Outer type with namespace not visible") {
-    val org = new Org()
-    val pkg = org.newPackage("NS", Array(), Array())
-    Org.current.withValue(org) {
+    val org = Org.newOrg().asInstanceOf[OrgImpl]
+    val pkg = org.newPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
+    OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(pkg, defaultPath,
         "public class Dummy {}").head
       pkg.upsertMetadata(td)
@@ -137,9 +139,9 @@ class TypeFindingTest extends AnyFunSuite {
   }
 
   test("Custom Inner type with namespace") {
-    val org = new Org()
-    val pkg = org.newPackage("NS", Array(), Array())
-    Org.current.withValue(org) {
+    val org = Org.newOrg().asInstanceOf[OrgImpl]
+    val pkg = org.newPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
+    OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(pkg, defaultPath,
         "global class Dummy {class Inner {}}").head
       pkg.upsertMetadata(td)
@@ -150,9 +152,9 @@ class TypeFindingTest extends AnyFunSuite {
   }
 
   test("Custom Inner type with namespace not visible") {
-    val org = new Org()
-    val pkg = org.newPackage("NS", Array(), Array())
-    Org.current.withValue(org) {
+    val org = Org.newOrg().asInstanceOf[OrgImpl]
+    val pkg = org.newPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
+    OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(pkg, defaultPath,
         "public class Dummy {class Inner {}}").head
       pkg.upsertMetadata(td)

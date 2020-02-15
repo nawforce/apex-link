@@ -27,7 +27,9 @@
 */
 package com.nawforce.common.api
 
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
@@ -51,8 +53,8 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
            |}
            |""".stripMargin
     )) { root: PathLike =>
-      val org = new Org()
-      val pkg = org.addPackage(None, Seq(root), Seq())
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
 
       assert(!org.issues.hasMessages)
       assert(!pkg.reportUnused().hasMessages)

@@ -27,82 +27,20 @@
 */
 package com.nawforce.common.api
 
-import com.nawforce.common.documents._
-import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.names.TypeName
-import com.nawforce.common.path.PathFactory
-import com.nawforce.common.sfdx.Workspace
-import com.nawforce.common.types._
-import com.nawforce.common.types.apex.{ApexDeclaration, FullDeclaration}
-import com.nawforce.common.types.pkg.PackageDeclaration
-import com.nawforce.runtime.types.PlatformTypeException
-
-class Package(val org: Org, workspace: Workspace, _basePackages: Seq[Package])
-  extends PackageDeclaration(workspace, _basePackages) {
+trait Package {
+  /** The namespace of the package, maybe empty for the unmanaged package, otherwise is unique is Org */
+  def getNamespace: String
 
   /** Get a typename (as a String) from the path of a metadata file, returns an empty string if the path does not
     * identify metadata that creates a type within the current package. Currently restricted to only supporting
     * Apex class files. */
-  def getTypeOfPath(path: String): String = {
-    DocumentType(PathFactory(path)) match {
-      case Some(ad: ApexDocument) if isMetadata(ad) =>
-        TypeName(ad.name).withNamespace(namespace).toString
-      case _ => ""
-    }
-  }
+  def getTypeOfPath(path: String): String
 
   /** Get the path (as a String) of the metadata file that defined a type, returns an empty string if the type
     * is not defined within the current package. Currently restricted to only supporting Apex class files. */
-  def getPathOfType(typeName: String): String = {
-    try {
-      types.get(TypeName.fromString(typeName))
-        .map {
-          case ad: ApexDeclaration => ad.idLocation.path.toString
-          case _ => ""
-        }
-        .getOrElse("")
-    } catch {
-      case ex: PlatformTypeException =>
-        ServerOps.debug(ServerOps.Trace, ex.getMessage); ""
-    }
-  }
+  def getPathOfType(typeName: String): String
 
   /** Returns set of names of Apex defined types that depend on the passed Apex type name, if the passed type is
     * invalid or does not identify an Apex type returns an empty array. */
-  def getDependencyHolders(typeName: String): Array[String] = {
-    try {
-      types.get(TypeName.fromString(typeName))
-        .map {
-          case ad: ApexDeclaration => ad.getTypeDependencyHolders
-          case _ => Array[String]()
-        }
-        .getOrElse(Array[String]())
-    } catch {
-      case ex: PlatformTypeException =>
-        ServerOps.debug(ServerOps.Trace, ex.getMessage); Array[String]()
-    }
-  }
-
-  /* Deploy some classes to the org, if already present this will replace the existing classes */
-  private[nawforce] def deployClasses(documents: Seq[ApexDocument]): Unit = {
-    Org.current.withValue(org) {
-      val updated = documents.flatMap(doc => {
-        val data = doc.path.read()
-        val d = ServerOps.debugTime(s"Parsed ${doc.path}") {
-          FullDeclaration.create(this, doc.path, data.right.get).toSeq
-        }
-        d.foreach(upsertMetadata(_))
-        d
-      })
-
-      updated.foreach(td => td.validate())
-    }
-  }
-
-  /* Find package accessible type(s) */
-  private[nawforce] def findTypes(typeNames: Seq[TypeName]): Seq[TypeDeclaration] = {
-    Org.current.withValue(org) {
-      typeNames.flatMap(typeName => TypeRequest(typeName, this, excludeSObjects = false).toOption)
-    }
-  }
+  def getDependencyHolders(typeName: String): Array[String]
 }

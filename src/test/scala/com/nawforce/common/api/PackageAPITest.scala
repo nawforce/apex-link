@@ -28,7 +28,9 @@
 package com.nawforce.common.api
 
 import com.nawforce.common.names.Name
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
@@ -43,7 +45,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "classes/Dummy.cls" -> "public class Dummy {}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -60,7 +62,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "classes/Dummy.cls" -> "public class Dummy {}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -77,7 +79,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "classes/Dummy.cls" -> "public class Dummy {}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -93,7 +95,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "classes/Dummy.cls" -> "public class Dummy {}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -109,7 +111,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "classes/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -122,7 +124,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public virtual class Foo {}",
       "classes/Bar.cls" -> "public class Bar extends Foo {}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -136,7 +138,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public interface Foo {}",
       "classes/Bar.cls" -> "public class Bar implements Foo {}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -150,7 +152,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {}",
       "classes/Bar.cls" -> "public class Bar {{Object a = new Foo();}}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -165,7 +167,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {}",
       "classes/Bar.cls" -> "public class Bar {Foo a;}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -179,7 +181,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {}",
       "classes/Bar.cls" -> "public class Bar {Object a = new Foo();}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -193,7 +195,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {}",
       "classes/Bar.cls" -> "public class Bar {Foo func(){return null;} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -207,7 +209,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {}",
       "classes/Bar.cls" -> "public class Bar {Object func(Foo a){return null;} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -221,7 +223,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {}",
       "classes/Bar.cls" -> "public class Bar {Object func(){return new Foo();} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -235,7 +237,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {}",
       "classes/Bar.cls" -> "public class Bar { Bar(Foo a){} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -249,7 +251,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {}",
       "classes/Bar.cls" -> "public class Bar { Bar(){Object a = new Foo();} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -263,7 +265,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {public virtual class Baz {}}",
       "classes/Bar.cls" -> "public class Bar extends Foo.Baz {}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -277,7 +279,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {public interface Baz {}}",
       "classes/Bar.cls" -> "public class Bar implements Foo.Baz {}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -291,7 +293,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {public class Baz {}}",
       "classes/Bar.cls" -> "public class Bar {{Object a = new Foo.Baz();}}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -306,7 +308,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {public class Baz {}}",
       "classes/Bar.cls" -> "public class Bar {Foo.Baz a;}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -320,7 +322,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {public class Baz {}}",
       "classes/Bar.cls" -> "public class Bar {Object a = new Foo.Baz();}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -334,7 +336,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {public class Baz {}}",
       "classes/Bar.cls" -> "public class Bar {Foo.Baz func(){return null;} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -348,7 +350,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {public class Baz {}}",
       "classes/Bar.cls" -> "public class Bar {Object func(Foo.Baz a){return null;} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -362,7 +364,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {public class Baz {}}",
       "classes/Bar.cls" -> "public class Bar {Object func(){return new Foo.Baz();} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -376,7 +378,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {public class Baz {}}",
       "classes/Bar.cls" -> "public class Bar { Bar(Foo.Baz a){} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -390,7 +392,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {public class Baz {}}",
       "classes/Bar.cls" -> "public class Bar { Bar(){Object a = new Foo.Baz();} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -404,7 +406,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public virtual class Foo {}",
       "classes/Bar.cls" -> "public class Bar {public class Baz extends Foo {}}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -418,7 +420,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public interface Foo {}",
       "classes/Bar.cls" -> "public class Bar {public class Baz implements Foo {}}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -432,7 +434,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {}",
       "classes/Bar.cls" -> "public class Bar {public class Baz { {Object a = new Foo();} }}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -446,7 +448,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {}",
       "classes/Bar.cls" -> "public class Bar {public class Baz {Foo a;} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -460,7 +462,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {}",
       "classes/Bar.cls" -> "public class Bar {public class Baz {Object a = new Foo();} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -474,7 +476,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {}",
       "classes/Bar.cls" -> "public class Bar {public class Baz {Foo func(){return null;}} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -488,7 +490,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {}",
       "classes/Bar.cls" -> "public class Bar {public class Baz {Object func(Foo a){return null;} }}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -502,7 +504,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {}",
       "classes/Bar.cls" -> "public class Bar {public class Baz {Object func(){return new Foo();} }}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -516,7 +518,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {}",
       "classes/Bar.cls" -> "public class Bar {public class Baz { Bar(Foo a){} }}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -530,7 +532,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {}",
       "classes/Bar.cls" -> "public class Bar {public class Baz { Bar(){Object a = new Foo();} }}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
@@ -544,8 +546,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "pkg1/Foo.cls" -> "global virtual class Foo {}",
       "pkg2/Bar.cls" -> "public class Bar extends test.Foo {}"
     )) { root: PathLike =>
-      val org = new Org()
-      val pkg1 = org.addPackage(Some(Name("test")), Seq(root.join("pkg1")), Seq())
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg1 = org.addPackage(Some(Name("test")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
       val pkg2 = org.addPackage(None, Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
@@ -559,8 +561,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "pkg1/Foo.cls" -> "global virtual class Foo {}",
       "pkg2/Bar.cls" -> "public class Bar extends test1.Foo {}"
     )) { root: PathLike =>
-      val org = new Org()
-      val pkg1 = org.addPackage(Some(Name("test1")), Seq(root.join("pkg1")), Seq())
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg1 = org.addPackage(Some(Name("test1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
       val pkg2 = org.addPackage(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 

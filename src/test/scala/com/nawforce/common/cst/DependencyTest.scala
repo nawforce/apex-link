@@ -27,9 +27,10 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{Org, ServerOps}
+import com.nawforce.common.api.ServerOps
 import com.nawforce.common.documents.{ApexDocument, DocumentType}
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.runtime.FileSystemHelper
@@ -37,13 +38,13 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class DependencyTest extends AnyFunSuite with BeforeAndAfter {
-  private var defaultOrg: Org = new Org
+  private var defaultOrg: OrgImpl = new OrgImpl
   private var root: PathLike = _
 
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
     FileSystemHelper.run(classes) { root: PathLike =>
       this.root = root
-      Org.current.withValue(defaultOrg) {
+      OrgImpl.current.withValue(defaultOrg) {
         defaultOrg.unmanaged.deployClasses(
           classes.map(p => DocumentType(root.join(p._1)).get.asInstanceOf[ApexDocument]).toSeq)
         defaultOrg.unmanaged.findTypes(classes.keys.map(k => TypeName(Name(k.replaceAll("\\.cls$", "")))).toSeq)
@@ -52,7 +53,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   before {
-    defaultOrg = new Org
+    defaultOrg = new OrgImpl
     root = null
     ServerOps.setParsedDataCaching(false)
   }
@@ -159,7 +160,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { class Database {Type t = Database.QueryLocator.class;} }",
     ))
     assert(!defaultOrg.issues.hasMessages)
-    Org.current.withValue(defaultOrg) {
+    OrgImpl.current.withValue(defaultOrg) {
       assert(tds.head.nestedTypes.head.fields.head.dependencies().isEmpty)
     }
   }
@@ -211,7 +212,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    Org.current.withValue(defaultOrg) {
+    OrgImpl.current.withValue(defaultOrg) {
       assert(tds.head.fields.head.dependencies() == tds.tail.toSet)
     }
   }
@@ -221,7 +222,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy {A a;}"
     ))
     assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) == "Error: line 1 at 22-23: No type declaration found for 'A'\n")
-    Org.current.withValue(defaultOrg) {
+    OrgImpl.current.withValue(defaultOrg) {
       assert(tds.head.fields.head.dependencies().isEmpty)
     }
   }
@@ -232,7 +233,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    Org.current.withValue(defaultOrg) {
+    OrgImpl.current.withValue(defaultOrg) {
       assert(tds.head.fields.head.dependencies() == tds.tail.toSet)
     }
   }
@@ -242,7 +243,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy {A a {get;} }"
     ))
     assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) == "Error: line 1 at 22-23: No type declaration found for 'A'\n")
-    Org.current.withValue(defaultOrg) {
+    OrgImpl.current.withValue(defaultOrg) {
       assert(tds.head.fields.head.dependencies().isEmpty)
     }
   }
@@ -393,7 +394,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    Org.current.withValue(defaultOrg) {
+    OrgImpl.current.withValue(defaultOrg) {
       assert(tds.head.nestedTypes.head.fields.head.dependencies() == tds.tail.toSet)
     }
   }
@@ -404,7 +405,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    Org.current.withValue(defaultOrg) {
+    OrgImpl.current.withValue(defaultOrg) {
       assert(tds.head.nestedTypes.head.fields.head.dependencies() == tds.tail.toSet)
     }
   }

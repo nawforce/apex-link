@@ -33,8 +33,9 @@ import com.nawforce.common.documents.TextRange
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.metadata.{DependencyHolder, MetadataDeclaration}
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types.other.CustomComponent
-import com.nawforce.common.types.pkg.PackageDeclaration
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.runtime.types._
 
@@ -136,11 +137,11 @@ trait MethodDeclaration extends DependencyHolder {
     }
   }
 
-  def hasSameErasedParameters(pkg: Option[PackageDeclaration], other: MethodDeclaration): Boolean = {
+  def hasSameErasedParameters(pkg: Option[PackageImpl], other: MethodDeclaration): Boolean = {
     hasErasedParameters(pkg, other.parameters.map(_.typeName))
   }
 
-  def hasErasedParameters(pkg: Option[PackageDeclaration], params: Seq[TypeName]): Boolean = {
+  def hasErasedParameters(pkg: Option[PackageImpl], params: Seq[TypeName]): Boolean = {
     if (parameters.size == params.size) {
       parameters.zip(params).forall(z =>
         (z._1.typeName == z._2) ||
@@ -156,7 +157,7 @@ trait MethodDeclaration extends DependencyHolder {
     }
   }
 
-  def hasCallErasedParameters(pkg: PackageDeclaration, params: Seq[TypeName]): Boolean = {
+  def hasCallErasedParameters(pkg: PackageImpl, params: Seq[TypeName]): Boolean = {
     if (parameters.size == params.size) {
       parameters.zip(params).forall(z =>
         z._1.typeName == z._2 ||
@@ -185,7 +186,7 @@ trait MethodDeclaration extends DependencyHolder {
 
 trait TypeDeclaration extends MetadataDeclaration {
   override lazy val internalName: Name = Name(typeName.toString)
-  val packageDeclaration: Option[PackageDeclaration]
+  val packageDeclaration: Option[PackageImpl]
   val name: Name
   val typeName: TypeName
   val outerTypeName: Option[TypeName]
@@ -310,14 +311,14 @@ trait TypeDeclaration extends MetadataDeclaration {
 
           if (field.isEmpty) {
             if (isComplete)
-              Org.logMessage(id.location, s"Unknown field '${id.name}' on SObject type '$typeName'")
+              OrgImpl.logMessage(id.location, s"Unknown field '${id.name}' on SObject type '$typeName'")
             None
           } else {
             field.get.addDependencyHolder(context.holder)
             Some(id)
           }
         case _ =>
-          Org.logMessage(argument.location, s"SObject type '$typeName' construction needs '<field name> = <value>' arguments")
+          OrgImpl.logMessage(argument.location, s"SObject type '$typeName' construction needs '<field name> = <value>' arguments")
           None
       }
     })
@@ -325,7 +326,7 @@ trait TypeDeclaration extends MetadataDeclaration {
     if (validArgs.size == arguments.size) {
       val duplicates = validArgs.groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
       if (duplicates.nonEmpty) {
-        Org.logMessage(duplicates.head.location,
+        OrgImpl.logMessage(duplicates.head.location,
           s"Duplicate assignment to field '${duplicates.head.name}' on SObject type '$typeName'")
       }
     }

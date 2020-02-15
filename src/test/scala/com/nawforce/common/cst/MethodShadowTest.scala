@@ -28,6 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Org, ServerOps}
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
@@ -44,7 +45,7 @@ class MethodShadowTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy extends SuperClass { public void func() {} }",
       "SuperClass.cls" -> "public virtual class SuperClass { public void func() {}}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 52-56: Method 'func' can not override non-virtual method\n")
@@ -56,7 +57,7 @@ class MethodShadowTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy extends SuperClass { public void func() {} }",
       "SuperClass.cls" -> "public virtual class SuperClass { public virtual void func() {}}"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 52-56: Method 'func' must use override or virtual keyword\n")

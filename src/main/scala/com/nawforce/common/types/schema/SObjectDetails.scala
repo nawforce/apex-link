@@ -27,12 +27,12 @@
 */
 package com.nawforce.common.types.schema
 
-import com.nawforce.common.api.Org
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.{DIRECTORY, DOES_NOT_EXIST, NONEMPTY_FILE, PathLike}
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types.CustomFieldDeclaration
-import com.nawforce.common.types.pkg.PackageDeclaration
 import com.nawforce.common.xml.{XMLElementLike, XMLException, XMLFactory}
 
 sealed abstract class SObjectNature(val nature: String) {
@@ -49,7 +49,7 @@ case object PlatformEventNature extends SObjectNature("PlatformEvent")
 final case class SObjectDetails(sobjectNature: SObjectNature, typeName: TypeName,
                                 fields: Seq[CustomFieldDeclaration], fieldSets: Set[Name]) {
 
-  def isIntroducing(pkg: PackageDeclaration): Boolean = {
+  def isIntroducing(pkg: PackageImpl): Boolean = {
     if (sobjectNature.isInstanceOf[IntroducingNature]) {
       EncodedName(typeName.name).namespace == pkg.namespace
     } else{
@@ -63,7 +63,7 @@ final case class SObjectDetails(sobjectNature: SObjectNature, typeName: TypeName
 }
 
 object SObjectDetails {
-  def parseSObject(path: PathLike, pkg: PackageDeclaration): Option[SObjectDetails] = {
+  def parseSObject(path: PathLike, pkg: PackageImpl): Option[SObjectDetails] = {
     val dt = DocumentType(path)
     assert(dt.exists(_.isInstanceOf[SObjectLike]))
     val typeName = TypeName(EncodedName(dt.get.name).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeName.Schema))
@@ -82,7 +82,7 @@ object SObjectDetails {
 
     val parseResult = XMLFactory.parse(path)
     if (parseResult.isLeft) {
-      Org.logMessage(parseResult.left.get._1, parseResult.left.get._2)
+      OrgImpl.logMessage(parseResult.left.get._1, parseResult.left.get._2)
       return None
     }
     val rootElement = parseResult.right.get.rootElement
@@ -98,7 +98,7 @@ object SObjectDetails {
             case Some("List") => ListCustomSettingNature
             case Some("Hierarchy") => HierarchyCustomSettingsNature
             case Some(x) =>
-              Org.logMessage(RangeLocation(path, TextRange(rootElement.line)),
+              OrgImpl.logMessage(RangeLocation(path, TextRange(rootElement.line)),
                 s"Unexpected customSettingsType value '$x', should be 'List' or 'Hierarchy'")
               CustomObjectNature
             case _ => CustomObjectNature
@@ -118,17 +118,17 @@ object SObjectDetails {
 
     } catch {
       case e: XMLException =>
-        Org.logMessage(RangeLocation(path, e.where), e.msg)
+        OrgImpl.logMessage(RangeLocation(path, e.where), e.msg)
         None
     }
   }
 
-  private def parseFieldSet(elem: XMLElementLike, path: PathLike, pkg: PackageDeclaration): Name = {
+  private def parseFieldSet(elem: XMLElementLike, path: PathLike, pkg: PackageImpl): Name = {
     EncodedName(elem.getSingleChildAsString("fullName"))
       .defaultNamespace(pkg.namespace).fullName
   }
 
-  private def parseSfdxFields(path: PathLike, pkg: PackageDeclaration, sObjectType: TypeName,
+  private def parseSfdxFields(path: PathLike, pkg: PackageImpl, sObjectType: TypeName,
                               sObjectNature: SObjectNature): Seq[CustomFieldDeclaration] = {
 
     val fieldsDir = path.parent.join("fields")
@@ -144,7 +144,7 @@ object SObjectDetails {
             if (fieldPath.nature == NONEMPTY_FILE) {
               val parseResult = XMLFactory.parse(fieldPath)
               if (parseResult.isLeft) {
-                Org.logMessage(parseResult.left.get._1, parseResult.left.get._2)
+                OrgImpl.logMessage(parseResult.left.get._1, parseResult.left.get._2)
                 None
               } else {
                 val rootElement = parseResult.right.get.rootElement
@@ -158,7 +158,7 @@ object SObjectDetails {
     }
   }
 
-  private def parseSfdxFieldSets(path: PathLike, pkg: PackageDeclaration): Seq[Name] = {
+  private def parseSfdxFieldSets(path: PathLike, pkg: PackageImpl): Seq[Name] = {
     val fieldsDir = path.parent.join("fieldSets")
     if (fieldsDir.nature != DIRECTORY)
       return Seq()
@@ -172,7 +172,7 @@ object SObjectDetails {
             if (fieldPath.nature == NONEMPTY_FILE) {
               val parseResult = XMLFactory.parse(fieldPath)
               if (parseResult.isLeft) {
-                Org.logMessage(parseResult.left.get._1, parseResult.left.get._2)
+                OrgImpl.logMessage(parseResult.left.get._1, parseResult.left.get._2)
                 None
               } else {
                 val rootElement = parseResult.right.get.rootElement

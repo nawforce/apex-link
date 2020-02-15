@@ -27,12 +27,12 @@
 */
 package com.nawforce.common.types.schema
 
-import com.nawforce.common.api.Org
 import com.nawforce.common.cst.VerifyContext
 import com.nawforce.common.documents.Location
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
-import com.nawforce.common.types.pkg.PackageDeclaration
+import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.{schema, _}
 import com.nawforce.runtime.types._
@@ -40,7 +40,7 @@ import com.nawforce.runtime.types._
 import scala.collection.mutable
 
 /* Support for Schema.* handling in Apex */
-class SchemaManager(pkg: PackageDeclaration) extends PlatformTypes.PlatformTypeObserver {
+class SchemaManager(pkg: PackageImpl) extends PlatformTypes.PlatformTypeObserver {
   val sobjectTypes: SchemaSObjectType = SchemaSObjectType(pkg)
   val relatedLists: RelatedLists = new RelatedLists(pkg)
 
@@ -54,7 +54,7 @@ class SchemaManager(pkg: PackageDeclaration) extends PlatformTypes.PlatformTypeO
 }
 
 /* Relationship field tracker, handles finding related lists */
-class RelatedLists(pkg: PackageDeclaration) {
+class RelatedLists(pkg: PackageImpl) {
   private val relationshipFields = mutable.Map[TypeName, Seq[(CustomFieldDeclaration, Name, Location)]]() withDefaultValue Seq()
 
   /* Declare a new relationship field */
@@ -76,7 +76,7 @@ class RelatedLists(pkg: PackageDeclaration) {
       val td = TypeRequest(sobject, pkg, excludeSObjects = false).toOption
       if ((td.isEmpty || !td.exists(_.isSObject)) && !pkg.isGhostedType(sobject)) {
         relationshipFields(sobject).foreach(field => {
-          Org.logMessage(field._3,
+          OrgImpl.logMessage(field._3,
             s"Lookup object $sobject does not exist for field '${field._2}'")
         })
       } else if (td.exists(sobject => sobject.isInstanceOf[PlatformTypeDeclaration] && sobject.isSObject)) {
@@ -106,7 +106,7 @@ class RelatedLists(pkg: PackageDeclaration) {
 }
 
 /* Schema.SObjectType implementation */
-final case class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDeclaration(pkg, TypeName.SObjectType) {
+final case class SchemaSObjectType(pkg: PackageImpl) extends NamedTypeDeclaration(pkg, TypeName.SObjectType) {
   private val sobjectFields: mutable.Map[Name, FieldDeclaration] = mutable.Map()
   private val sobjectTypeDeclarationsCreated = mutable.Set[Name]()
 
@@ -167,7 +167,7 @@ final case class SchemaSObjectType(pkg: PackageDeclaration) extends NamedTypeDec
   }
 }
 
-final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields, pkg: PackageDeclaration)
+final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields, pkg: PackageImpl)
   extends NamedTypeDeclaration(pkg, TypeName.sObjectType$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
   private lazy val fieldField = CustomFieldDeclaration(Name.Fields,
@@ -194,7 +194,7 @@ final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields
   }
 }
 
-final case class SObjectTypeFields(sobjectName: Name, pkg: PackageDeclaration)
+final case class SObjectTypeFields(sobjectName: Name, pkg: PackageImpl)
   extends NamedTypeDeclaration(pkg, TypeName.sObjectTypeFields$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
@@ -237,7 +237,7 @@ final case class SObjectTypeFields(sobjectName: Name, pkg: PackageDeclaration)
     ).map(m => ((m.name, m.parameters.size),m)).toMap
 }
 
-final case class SObjectFields(sobjectName: Name, pkg: PackageDeclaration)
+final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
   extends NamedTypeDeclaration(pkg, TypeName.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
@@ -269,7 +269,7 @@ final case class SObjectFields(sobjectName: Name, pkg: PackageDeclaration)
   }
 }
 
-final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageDeclaration)
+final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageImpl)
   extends NamedTypeDeclaration(pkg, TypeName.sObjectTypeFieldSets$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
   private lazy val sobjectFieldSets: Map[Name, FieldDeclaration] = {

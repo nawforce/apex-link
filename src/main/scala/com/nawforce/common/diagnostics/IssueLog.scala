@@ -178,3 +178,11 @@ class IssueLog {
     print(writer.output)
   }
 }
+
+object IssueLog {
+  def apply(issueLog: IssueLog): IssueLog = {
+    val newLog = new IssueLog
+    newLog.merge(issueLog)
+    issueLog
+  }
+}

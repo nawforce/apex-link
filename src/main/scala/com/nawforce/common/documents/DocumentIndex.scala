@@ -27,8 +27,9 @@
 */
 package com.nawforce.common.documents
 
-import com.nawforce.common.api.{Org, ServerOps}
+import com.nawforce.common.api.ServerOps
 import com.nawforce.common.names.Name
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.{DIRECTORY, DOES_NOT_EXIST, FILE, PathLike}
 
 import scala.collection.mutable
@@ -65,7 +66,7 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
     if (ignorePath.nonEmpty && ignorePath.get.nature.isInstanceOf[FILE]) {
       ForceIgnore(ignorePath.get) match {
         case Left(err) =>
-          Org.logMessage(LineLocation(ignorePath.get, 0), s"Could not read .forceignore, error: $err")
+          OrgImpl.logMessage(LineLocation(ignorePath.get, 0), s"Could not read .forceignore, error: $err")
           None
         case Right(forceIgnore) =>
           Some(forceIgnore)

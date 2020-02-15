@@ -27,6 +27,7 @@
 */
 package com.nawforce.common.api
 
+import com.nawforce.common.org.OrgImpl
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -36,7 +37,7 @@ class SampleTest extends AnyFunSuite with BeforeAndAfter {
 
   private def sample(path: String, namespace: String = "", externalNamespaces: Set[String] = Set(),
                      expectedCount: Int = 0): Unit = {
-    val org = new Org()
+    val org = Org.newOrg().asInstanceOf[OrgImpl]
     externalNamespaces.foreach(ens => org.newPackage(ens, Array(), Array()))
     org.newPackage(namespace, Array[String](path), externalNamespaces.toArray)
 

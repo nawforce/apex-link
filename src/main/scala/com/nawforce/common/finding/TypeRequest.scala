@@ -28,9 +28,9 @@
 package com.nawforce.common.finding
 
 import com.nawforce.common.names.TypeName
-import com.nawforce.common.types.platform.PlatformTypes
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types.TypeDeclaration
-import com.nawforce.common.types.pkg.PackageDeclaration
+import com.nawforce.common.types.platform.PlatformTypes
 
 /** Helper for abstracting various ways of finding types based on context info, these are:
   *   None - Can only be used for a platform type search
@@ -48,7 +48,7 @@ object TypeRequest {
     PlatformTypes.get(typeName, None, excludeSObjects)
   }
 
-  def apply(typeName: TypeName, pkg: PackageDeclaration, excludeSObjects: Boolean): TypeRequest = {
+  def apply(typeName: TypeName, pkg: PackageImpl, excludeSObjects: Boolean): TypeRequest = {
     pkg.getType(typeName, None, excludeSObjects)
   }
 
@@ -64,7 +64,7 @@ object TypeRequest {
     }
   }
 
-  def apply(typeName: TypeName, from: Option[TypeDeclaration], pkg: Option[PackageDeclaration],
+  def apply(typeName: TypeName, from: Option[TypeDeclaration], pkg: Option[PackageImpl],
             excludeSObjects: Boolean): TypeRequest = {
     if (from.nonEmpty) {
       // Allow override of platform types in packages to support Schema.SObjectType handling

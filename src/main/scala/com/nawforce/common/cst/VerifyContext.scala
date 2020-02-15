@@ -27,14 +27,14 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.Org
 import com.nawforce.common.documents.Location
 import com.nawforce.common.finding.{TypeError, TypeRequest}
 import com.nawforce.common.metadata.{DependencyHolder, Dependent}
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
+import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
 import com.nawforce.common.types.apex.{ApexDeclaration, TriggerDeclaration}
-import com.nawforce.common.types.pkg.PackageDeclaration
 
 import scala.collection.mutable
 
@@ -42,7 +42,7 @@ trait VerifyContext {
   def parent(): Option[VerifyContext]
 
   /* Package for current outer type */
-  def pkg: PackageDeclaration
+  def pkg: PackageImpl
 
   /* Get type declaration of 'this', option as not set in trigger */
   def thisType: Option[TypeDeclaration]
@@ -78,7 +78,7 @@ trait VerifyContext {
 
   def logMessage(location: Location, msg: String): Unit = {
     if (!suppressWarnings)
-      Org.logMessage(location, msg)
+      OrgImpl.logMessage(location, msg)
   }
 }
 
@@ -111,12 +111,12 @@ trait HolderVerifyContext {
   }
 }
 
-class TriggerVerifyContext(packageDeclaration: PackageDeclaration, typeDeclaration: TriggerDeclaration)
+class TriggerVerifyContext(packageDeclaration: PackageImpl, typeDeclaration: TriggerDeclaration)
   extends HolderVerifyContext with VerifyContext {
 
   override def parent(): Option[VerifyContext] = None
 
-  override def pkg: PackageDeclaration = packageDeclaration
+  override def pkg: PackageImpl = packageDeclaration
 
   override def thisType: Option[TypeDeclaration] = Some(typeDeclaration)
 
@@ -139,7 +139,7 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: A
 
   override def parent(): Option[VerifyContext] = parentContext
 
-  override def pkg: PackageDeclaration = typeDeclaration.pkg
+  override def pkg: PackageImpl = typeDeclaration.pkg
 
   override def thisType: Option[TypeDeclaration] = Some(typeDeclaration)
 
@@ -161,7 +161,7 @@ class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDe
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
 
-  override def pkg: PackageDeclaration = parentContext.pkg
+  override def pkg: PackageImpl = parentContext.pkg
 
   override def thisType: Option[TypeDeclaration] = parentContext.thisType
 
@@ -185,7 +185,7 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
 
-  override def pkg: PackageDeclaration = parentContext.pkg
+  override def pkg: PackageImpl = parentContext.pkg
 
   override def thisType: Option[TypeDeclaration] = parentContext.thisType
 
@@ -247,7 +247,7 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext)
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
 
-  override def pkg: PackageDeclaration = parentContext.pkg
+  override def pkg: PackageImpl = parentContext.pkg
 
   override def thisType: Option[TypeDeclaration] = parentContext.thisType
 

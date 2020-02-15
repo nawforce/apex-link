@@ -27,9 +27,10 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{Org, ServerOps}
+import com.nawforce.common.api.ServerOps
 import com.nawforce.common.documents.{ApexDocument, DocumentType}
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.runtime.FileSystemHelper
@@ -38,13 +39,13 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class ExtendsTest extends AnyFunSuite with BeforeAndAfter {
 
-  private var defaultOrg: Org = new Org
+  private var defaultOrg: OrgImpl = new OrgImpl
   private var root: PathLike = _
 
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
     FileSystemHelper.run(classes) { root: PathLike =>
       this.root = root
-      Org.current.withValue(defaultOrg) {
+      OrgImpl.current.withValue(defaultOrg) {
         defaultOrg.unmanaged.deployClasses(
           classes.map(p => DocumentType(root.join(p._1)).get.asInstanceOf[ApexDocument]).toSeq)
         defaultOrg.unmanaged.findTypes(classes.keys.map(k => TypeName(Name(k.replaceAll("\\.cls$", "")))).toSeq)
@@ -53,7 +54,7 @@ class ExtendsTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   before {
-    defaultOrg = new Org
+    defaultOrg = new OrgImpl
     root = null
     ServerOps.setParsedDataCaching(false)
   }

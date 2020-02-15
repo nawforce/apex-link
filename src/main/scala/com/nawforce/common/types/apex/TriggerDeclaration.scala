@@ -27,13 +27,14 @@
 */
 package com.nawforce.common.types.apex
 
-import com.nawforce.common.api.{Org, ServerOps}
+import com.nawforce.common.api.ServerOps
 import com.nawforce.common.cst._
 import com.nawforce.common.documents.LineLocation
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
-import com.nawforce.common.types.pkg.PackageDeclaration
 import com.nawforce.runtime.parsers.ApexParser.{TriggerCaseContext, TriggerUnitContext}
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -47,7 +48,7 @@ case object AFTER_UPDATE extends TriggerCase(name = "after update")
 case object AFTER_DELETE extends TriggerCase(name= "after delete")
 case object AFTER_UNDELETE extends TriggerCase(name = "after undelete")
 
-class TriggerDeclaration(path: PathLike, val pkg: PackageDeclaration, name: Id, objectName: Id,
+class TriggerDeclaration(path: PathLike, val pkg: PackageImpl, name: Id, objectName: Id,
                          cases: Seq[TriggerCase], block: Block)
   extends NamedTypeDeclaration(pkg, TypeName(Name(s"__sfdc_trigger/${objectName.name}"))) {
 
@@ -61,13 +62,13 @@ class TriggerDeclaration(path: PathLike, val pkg: PackageDeclaration, name: Id, 
 
       val duplicateCases = cases.groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
       duplicateCases.foreach(triggerCase =>
-        Org.logMessage(objectName.location, s"Duplicate trigger case for '${triggerCase.name}'"))
+        OrgImpl.logMessage(objectName.location, s"Duplicate trigger case for '${triggerCase.name}'"))
 
       val context = new TriggerVerifyContext(pkg, this)
       val tdOpt = context.getTypeAndAddDependency(objectTypeName, Some(this))
       tdOpt match {
         case Left(error) =>
-          Org.logMessage(objectName.location, error.toString)
+          OrgImpl.logMessage(objectName.location, error.toString)
         case Right(_) =>
           val triggerContext = context.getTypeFor(TypeName.trigger(objectTypeName), Some(this)).right.get
           val tc = TriggerContext(pkg, triggerContext)
@@ -82,17 +83,17 @@ class TriggerDeclaration(path: PathLike, val pkg: PackageDeclaration, name: Id, 
 }
 
 object TriggerDeclaration {
-  def create(pkg: PackageDeclaration, path: PathLike, data: String): Seq[TriggerDeclaration] = {
+  def create(pkg: PackageImpl, path: PathLike, data: String): Seq[TriggerDeclaration] = {
     CodeParser.parseTrigger(path, data) match {
       case Left(err) =>
-        Org.logMessage(LineLocation(path, err.line), err.message)
+        OrgImpl.logMessage(LineLocation(path, err.line), err.message)
         Nil
       case Right(cu) =>
         Seq(TriggerDeclaration.construct(pkg, path, cu, new ConstructContext()))
     }
   }
 
-  def construct(pkg: PackageDeclaration, path: PathLike, trigger: TriggerUnitContext, context: ConstructContext)
+  def construct(pkg: PackageImpl, path: PathLike, trigger: TriggerUnitContext, context: ConstructContext)
     : TriggerDeclaration = {
     val ids = CodeParser.toScala(trigger.id())
     val cases = CodeParser.toScala(trigger.triggerCase()).map(constructCase)
@@ -123,7 +124,7 @@ object TriggerDeclaration {
   }
 }
 
-final case class TriggerContext(pkg: PackageDeclaration, baseType: TypeDeclaration)
+final case class TriggerContext(pkg: PackageImpl, baseType: TypeDeclaration)
   extends NamedTypeDeclaration(pkg, TypeName(Name.Trigger)) {
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {

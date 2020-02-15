@@ -29,12 +29,12 @@ package com.nawforce.common.types.other
 
 import com.nawforce.common.cst.Modifier
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
-import com.nawforce.common.types.pkg.PackageDeclaration
 
-final case class FlowDeclaration(pkg: PackageDeclaration) extends TypeDeclaration {
+final case class FlowDeclaration(pkg: PackageImpl) extends TypeDeclaration {
 
-  override val packageDeclaration: Option[PackageDeclaration] = Some(pkg)
+  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override val name: Name = Name.Flow
   override val typeName: TypeName = TypeName(name)
   override val outerTypeName: Option[TypeName] = None

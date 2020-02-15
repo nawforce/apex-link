@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.Org
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.common.types.apex.FullDeclaration
@@ -36,10 +36,10 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class SwitchTest extends AnyFunSuite with BeforeAndAfter {
   private val defaultPath = PathFactory("Dummy.cls")
-  private var defaultOrg: Org = new Org
+  private var defaultOrg: OrgImpl = new OrgImpl
 
   def typeDeclaration(clsText: String): Option[TypeDeclaration] = {
-    Org.current.withValue(defaultOrg) {
+    OrgImpl.current.withValue(defaultOrg) {
       val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
       td.headOption.foreach(_.validate())
       td.headOption
@@ -47,7 +47,7 @@ class SwitchTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   before {
-    defaultOrg = new Org
+    defaultOrg = new OrgImpl
   }
 
   test("Empty switch") {

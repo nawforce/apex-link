@@ -27,13 +27,13 @@
 */
 package com.nawforce.common.types.apex
 
-import com.nawforce.common.api.{FieldSummary, Org}
+import com.nawforce.common.api.FieldSummary
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, MethodMap, VerifyContext}
 import com.nawforce.common.documents.{Location, RangeLocation, TextRange}
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.types.pkg.PackageDeclaration
+import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types.{FieldDeclaration, MethodDeclaration, TypeDeclaration}
 
 import scala.collection.mutable
@@ -51,7 +51,7 @@ trait ApexFieldLike extends FieldDeclaration {
 trait ApexDeclaration extends TypeDeclaration {
 
   val sourceHash: Int
-  val pkg: PackageDeclaration
+  val pkg: PackageImpl
   val idLocation: Location
   val localFields: Seq[ApexFieldLike]
   val localMethods: Seq[MethodDeclaration]
@@ -84,7 +84,7 @@ trait ApexDeclaration extends TypeDeclaration {
       case (_, y :: Nil) => y
       case (_, duplicates) =>
         duplicates.tail.foreach(d => {
-          Org.logMessage(d.location, s"Duplicate field/property: '${d.name}'")
+          OrgImpl.logMessage(d.location, s"Duplicate field/property: '${d.name}'")
         })
         duplicates.head
     }.toSeq
@@ -121,7 +121,7 @@ trait ApexDeclaration extends TypeDeclaration {
         MethodMap(this, Some(idLocation), MethodMap.empty(), allMethods, interfaceDeclarations)
     }
 
-    mmap.errors.foreach(err => Org.log(err._1, err._2._2, err._2._1))
+    mmap.errors.foreach(err => OrgImpl.log(err._1, err._2._2, err._2._1))
     mmap
   }
 

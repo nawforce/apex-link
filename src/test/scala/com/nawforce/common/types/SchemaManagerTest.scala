@@ -2,7 +2,9 @@ package com.nawforce.common.types
 
 import com.nawforce.common.api.Org
 import com.nawforce.common.names.Name
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -31,7 +33,7 @@ class SchemaManagerTest extends AnyFunSuite {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Account;} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -42,7 +44,7 @@ class SchemaManagerTest extends AnyFunSuite {
       "Foo__c.object" -> customObject("Foo", Seq(("Bar__c", "Text", None))),
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Foo__c;} }"
     )) { root: PathLike =>
-      val org = new Org()
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
@@ -52,8 +54,8 @@ class SchemaManagerTest extends AnyFunSuite {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.ghosted__Foo__c;} }"
     )) { root: PathLike =>
-      val org = new Org()
-      val ghosted = org.addPackage(Some(Name("ghosted")), Seq(), Seq())
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val ghosted = org.addPackage(Some(Name("ghosted")), Seq(), Seq()).asInstanceOf[PackageImpl]
       org.addPackage(None, Seq(root), Seq(ghosted))
       assert(!org.issues.hasMessages)
     }

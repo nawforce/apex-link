@@ -27,10 +27,10 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.Org
 import com.nawforce.common.documents.Location
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
-import com.nawforce.common.types.pkg.PackageDeclaration
+import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.runtime.parsers.ApexParser._
@@ -42,10 +42,10 @@ trait ExprContext {
   def isDefined: Boolean
 
   def typeDeclarationOpt: Option[TypeDeclaration]
-  def packageDeclarationOpt: Option[PackageDeclaration]
+  def packageDeclarationOpt: Option[PackageImpl]
 
   def typeDeclaration: TypeDeclaration = typeDeclarationOpt.get
-  def packageDeclaration: PackageDeclaration = packageDeclarationOpt.get
+  def packageDeclaration: PackageImpl = packageDeclarationOpt.get
   def typeName: TypeName = typeDeclarationOpt.get.typeName
 }
 
@@ -53,7 +53,7 @@ case class TypeExprContext(isStatic: Option[Boolean], declaration: Option[TypeDe
   override def isDefined: Boolean = declaration.nonEmpty && !declaration.exists(_.isAny)
 
   override def typeDeclarationOpt: Option[TypeDeclaration] = declaration
-  override def packageDeclarationOpt: Option[PackageDeclaration] = typeDeclarationOpt.flatMap(_.packageDeclaration)
+  override def packageDeclarationOpt: Option[PackageImpl] = typeDeclarationOpt.flatMap(_.packageDeclaration)
 }
 
 object ExprContext {
@@ -169,7 +169,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
     method.verify(location, callee.typeDeclaration, callee.isStatic, input, context)
   }
 
-  private def findField(name: Name, td: TypeDeclaration, pkg: PackageDeclaration, staticContext: Option[Boolean]) : Option[FieldDeclaration] = {
+  private def findField(name: Name, td: TypeDeclaration, pkg: PackageImpl, staticContext: Option[Boolean]) : Option[FieldDeclaration] = {
     val encodedName = EncodedName(name)
     val namespaceName = encodedName.defaultNamespace(pkg.namespace)
     td.findField(namespaceName.fullName, staticContext).orElse({
@@ -301,7 +301,7 @@ final case class PostfixExpression(expression: Expression, op: String) extends E
     td.typeName match {
       case TypeName.Integer | TypeName.Long | TypeName.Decimal | TypeName.Double if inter.isStatic.contains(false) => inter
       case _ =>
-        Org.logMessage(location, s"Postfix increment/decrement is not supported on type '${td.typeName}'")
+        OrgImpl.logMessage(location, s"Postfix increment/decrement is not supported on type '${td.typeName}'")
         ExprContext.empty
     }
   }
@@ -318,7 +318,7 @@ final case class PrefixExpression(expression: Expression, op: String) extends Ex
       case TypeName.Integer | TypeName.Long | TypeName.Decimal | TypeName.Double if inter.isStatic.contains(false) => inter
       case _ if inter.isStatic.contains(false) && op == "+" => ExprContext(isStatic = Some(false), PlatformTypes.stringType)
       case _ =>
-        Org.logMessage(location, s"Prefix operations are not supported on type '${td.typeName}'")
+        OrgImpl.logMessage(location, s"Prefix operations are not supported on type '${td.typeName}'")
         ExprContext.empty
     }
   }
@@ -336,7 +336,7 @@ final case class NegationExpression(expression: Expression, isBitwise: Boolean) 
       case TypeName.Integer if isBitwise && inter.isStatic.contains(false) => inter
       case TypeName.Long if isBitwise && inter.isStatic.contains(false) => inter
       case _ =>
-        Org.logMessage(location, s"Negation operations is not supported on type '${td.typeName}'")
+        OrgImpl.logMessage(location, s"Negation operations is not supported on type '${td.typeName}'")
         ExprContext.empty
     }
   }
@@ -386,14 +386,14 @@ final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) 
       return ExprContext.empty
 
     if (leftInter.isStatic.contains(true))
-      Org.logMessage(location, s"Expecting instance for operation, not type '${leftInter.typeName}'")
+      OrgImpl.logMessage(location, s"Expecting instance for operation, not type '${leftInter.typeName}'")
 
     if (rightInter.isStatic.contains(true))
-      Org.logMessage(location, s"Expecting instance for operation, not type '${rightInter.typeName}'")
+      OrgImpl.logMessage(location, s"Expecting instance for operation, not type '${rightInter.typeName}'")
 
     operation.verify(leftInter, rightInter, op, context) match {
       case Left(error) =>
-        Org.logMessage(location, error)
+        OrgImpl.logMessage(location, error)
         ExprContext.empty
       case Right(context) => context
     }
@@ -421,7 +421,7 @@ final case class QueryExpression(query: Expression, lhs: Expression, rhs: Expres
 
     ConditionalOperation.verify(leftInter, rightInter, "?", context) match {
       case Left(error) =>
-        Org.logMessage(location, error)
+        OrgImpl.logMessage(location, error)
         ExprContext.empty
       case Right(context) => context
     }

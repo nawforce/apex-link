@@ -27,9 +27,9 @@
 */
 package com.nawforce.common.sfdx
 
-import com.nawforce.common.api.Org
 import com.nawforce.common.documents.LineLocation
 import com.nawforce.common.names.Name
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.{DIRECTORY, PathLike}
 
 trait Workspace {
@@ -50,7 +50,7 @@ class SFDXWorkspace(_namespace: Option[Name], rootPath: PathLike, project: Proje
   override lazy val paths: Seq[PathLike] = {
     val errors = project.paths.filter(_.isLeft)
     if (errors.nonEmpty)
-      Org.logMessage(LineLocation(rootPath.join("sfdx-project.json"),0), errors.head.left.get)
+      OrgImpl.logMessage(LineLocation(rootPath.join("sfdx-project.json"),0), errors.head.left.get)
     project.paths.filter(_.isRight).map(_.right.get).map(p => rootPath.join(p))
   }
 
