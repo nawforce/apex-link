@@ -135,12 +135,16 @@ abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageDeclaration,
 
   override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeName]): Unit = {
     val dependents = mutable.Set[Dependent]()
-    super.collectDependencies(dependents)
-    bodyDeclarations.foreach(_.collectDependencies(dependents))
+    collectDependencies(dependents)
     dependents.foreach {
       case ad: ApexDeclaration => dependsOn.add(ad.outerTypeName.getOrElse(ad.typeName))
       case _ => ()
     }
+  }
+
+  override def collectDependencies(dependsOn: mutable.Set[Dependent]): Unit = {
+    super.collectDependencies(dependsOn)
+    bodyDeclarations.foreach(_.collectDependencies(dependsOn))
   }
 
   def unused(): Seq[Issue] = {

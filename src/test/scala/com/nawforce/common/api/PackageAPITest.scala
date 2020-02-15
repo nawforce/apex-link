@@ -45,6 +45,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val org = new Org()
       val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
 
       assert(pkg.getTypeOfPath(root.join("classes").join("Dummy.cls").toString) == "Dummy")
       assert(pkg.getTypeOfPath(root.join("classes").join("Dummy2.cls").toString).isEmpty)
@@ -61,6 +62,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val org = new Org()
       val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      assert(!org.issues.hasMessages)
 
       assert(pkg.getTypeOfPath(root.join("classes").join("Dummy.cls").toString) == "test.Dummy")
       assert(pkg.getTypeOfPath(root.join("classes").join("Dummy2.cls").toString).isEmpty)
@@ -77,6 +79,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val org = new Org()
       val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
 
       assert(pkg.getPathOfType("Dummy") == "/classes/Dummy.cls")
       assert(pkg.getPathOfType("Dummy2").isEmpty)
@@ -92,6 +95,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val org = new Org()
       val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      assert(!org.issues.hasMessages)
 
       assert(pkg.getPathOfType("test.Dummy") == "/classes/Dummy.cls")
       assert(pkg.getPathOfType("test.Dummy2").isEmpty)
@@ -100,4 +104,469 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(pkg.getPathOfType(null).isEmpty)
     }
   }
+
+  test("No dependencies") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Superclass dependency") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public virtual class Foo {}",
+      "classes/Bar.cls" -> "public class Bar extends Foo {}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Interface dependency") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public interface Foo {}",
+      "classes/Bar.cls" -> "public class Bar implements Foo {}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Block dependency") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {}",
+      "classes/Bar.cls" -> "public class Bar {{Object a = new Foo();}}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+
+  test("Field type dependency") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {}",
+      "classes/Bar.cls" -> "public class Bar {Foo a;}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Field expression dependency") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {}",
+      "classes/Bar.cls" -> "public class Bar {Object a = new Foo();}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Method type dependency") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {}",
+      "classes/Bar.cls" -> "public class Bar {Foo func(){return null;} }"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Method argument dependency") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {}",
+      "classes/Bar.cls" -> "public class Bar {Object func(Foo a){return null;} }"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Method body dependency") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {}",
+      "classes/Bar.cls" -> "public class Bar {Object func(){return new Foo();} }"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Constructor argument dependency") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {}",
+      "classes/Bar.cls" -> "public class Bar { Bar(Foo a){} }"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Constructor body dependency") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {}",
+      "classes/Bar.cls" -> "public class Bar { Bar(){Object a = new Foo();} }"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Superclass dependency (nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {public virtual class Baz {}}",
+      "classes/Bar.cls" -> "public class Bar extends Foo.Baz {}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Interface dependency (nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {public interface Baz {}}",
+      "classes/Bar.cls" -> "public class Bar implements Foo.Baz {}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Block dependency (nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {public class Baz {}}",
+      "classes/Bar.cls" -> "public class Bar {{Object a = new Foo.Baz();}}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+
+  test("Field type dependency (nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {public class Baz {}}",
+      "classes/Bar.cls" -> "public class Bar {Foo.Baz a;}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Field expression dependency (nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {public class Baz {}}",
+      "classes/Bar.cls" -> "public class Bar {Object a = new Foo.Baz();}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Method type dependency (nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {public class Baz {}}",
+      "classes/Bar.cls" -> "public class Bar {Foo.Baz func(){return null;} }"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Method argument dependency (nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {public class Baz {}}",
+      "classes/Bar.cls" -> "public class Bar {Object func(Foo.Baz a){return null;} }"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Method body dependency (nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {public class Baz {}}",
+      "classes/Bar.cls" -> "public class Bar {Object func(){return new Foo.Baz();} }"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Constructor argument dependency (nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {public class Baz {}}",
+      "classes/Bar.cls" -> "public class Bar { Bar(Foo.Baz a){} }"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Constructor body dependency (nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {public class Baz {}}",
+      "classes/Bar.cls" -> "public class Bar { Bar(){Object a = new Foo.Baz();} }"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Superclass dependency (from nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public virtual class Foo {}",
+      "classes/Bar.cls" -> "public class Bar {public class Baz extends Foo {}}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Interface dependency (from nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public interface Foo {}",
+      "classes/Bar.cls" -> "public class Bar {public class Baz implements Foo {}}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Block dependency (from nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {}",
+      "classes/Bar.cls" -> "public class Bar {public class Baz { {Object a = new Foo();} }}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Field type dependency (from nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {}",
+      "classes/Bar.cls" -> "public class Bar {public class Baz {Foo a;} }"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Field expression dependency (from nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {}",
+      "classes/Bar.cls" -> "public class Bar {public class Baz {Object a = new Foo();} }"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Method type dependency (from nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {}",
+      "classes/Bar.cls" -> "public class Bar {public class Baz {Foo func(){return null;}} }"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Method argument dependency (from nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {}",
+      "classes/Bar.cls" -> "public class Bar {public class Baz {Object func(Foo a){return null;} }}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Method body dependency (from nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {}",
+      "classes/Bar.cls" -> "public class Bar {public class Baz {Object func(){return new Foo();} }}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Constructor argument dependency (from nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {}",
+      "classes/Bar.cls" -> "public class Bar {public class Baz { Bar(Foo a){} }}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Constructor body dependency (from nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Foo.cls" -> "public class Foo {}",
+      "classes/Bar.cls" -> "public class Bar {public class Baz { Bar(){Object a = new Foo();} }}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.getDependencyHolders("Bar").sameElements(Array("Foo")))
+      assert(pkg.getDependencyHolders("Foo").isEmpty)
+    }
+  }
+
+  test("Unmanaged to Managed Dependency") {
+    FileSystemHelper.run(Map(
+      "pkg1/Foo.cls" -> "global virtual class Foo {}",
+      "pkg2/Bar.cls" -> "public class Bar extends test.Foo {}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg1 = org.addPackage(Some(Name("test")), Seq(root.join("pkg1")), Seq())
+      val pkg2 = org.addPackage(None, Seq(root.join("pkg2")), Seq(pkg1))
+      assert(!org.issues.hasMessages)
+
+      assert(pkg2.getDependencyHolders("Bar").sameElements(Array("test.Foo")))
+      assert(pkg1.getDependencyHolders("test.Foo").isEmpty)
+    }
+  }
+
+  test("Managed to Managed Dependency") {
+    FileSystemHelper.run(Map(
+      "pkg1/Foo.cls" -> "global virtual class Foo {}",
+      "pkg2/Bar.cls" -> "public class Bar extends test1.Foo {}"
+    )) { root: PathLike =>
+      val org = new Org()
+      val pkg1 = org.addPackage(Some(Name("test1")), Seq(root.join("pkg1")), Seq())
+      val pkg2 = org.addPackage(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg1))
+      assert(!org.issues.hasMessages)
+
+      assert(pkg2.getDependencyHolders("test2.Bar").sameElements(Array("test1.Foo")))
+      assert(pkg1.getDependencyHolders("test1.Foo").isEmpty)
+    }
+  }
+
 }
