@@ -3,13 +3,14 @@ package com.nawforce.runtime
 import java.nio.file.Files
 
 import com.google.common.jimfs.{Configuration, Jimfs}
+import com.nawforce.common.documents.ParsedCache
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.os.Path
 
 object FileSystemHelper {
 
   // Abstract virtual filesystem for testing
-  def run[T](files: Map[String, String])(verify: PathLike => T): T = {
+  def run[T](files: Map[String, String], setupCache: Boolean = false)(verify: PathLike => T): T = {
     val config = Configuration.unix().toBuilder
       .setWorkingDirectory("/")
       .build()
@@ -20,6 +21,11 @@ object FileSystemHelper {
       Files.createDirectories(path.getParent)
       Files.write(path, kv._2.getBytes())
     })
+
+    // Make sure cache is empty if we are going to use it
+    if (setupCache)
+      ParsedCache.clear()
+
     verify(Path(rootDir))
   }
 }

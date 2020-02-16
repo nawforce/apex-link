@@ -102,19 +102,22 @@ class ParsedCache(val path: PathLike) {
   }
 
   /** Clear the cache, useful for testing */
-  def clear(): Unit = clear(path)
+  def clear(): Unit = {
+    clearContents(path)
+  }
 
-  private def clear(path: PathLike): Unit = {
+  private def clearContents(path: PathLike): Unit = {
     path.directoryList() match {
       case Left(_) => ()
       case Right(names) => names.foreach(name => {
         val pathEntry = path.join(name)
         if (pathEntry.nature == DIRECTORY) {
-          clear(pathEntry)
+          clearContents(pathEntry)
         }
         pathEntry.delete()
       })
     }
+    path.delete()
   }
 
   private def hashToParts(hash: Int): Array[String] = {

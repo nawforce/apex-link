@@ -54,7 +54,11 @@ object Pickler {
   }
 
   def writeDeclaration(dir: Path, td: PlatformTypeDeclaration): Unit = {
-    val ns = td.typeName.outerName.value
+    val ns =
+      if (td.isSObject)
+        "SObjects"
+      else
+        td.typeName.outerName.value
     val nsDir = dir.resolve(ns)
     if (!Files.isDirectory(nsDir))
       Files.createDirectory(nsDir)

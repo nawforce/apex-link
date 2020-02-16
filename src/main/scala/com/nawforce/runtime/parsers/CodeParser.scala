@@ -109,7 +109,8 @@ object CodeParser {
 
   def createParser(path: Option[PathLike], data: String): ApexParser = {
     val listener = new ThrowingErrorListener()
-    val cis = new CaseInsensitiveInputStream(path.map(_.toString).getOrElse("<Unknown>"), new ByteArrayInputStream(data.getBytes))
+    val cis = new CaseInsensitiveInputStream(path.map(_.toString).getOrElse("<Unknown>"),
+      new ByteArrayInputStream(data.getBytes))
     val lexer = new ApexLexer(cis)
 
     val tokens = new CommonTokenStream(lexer)

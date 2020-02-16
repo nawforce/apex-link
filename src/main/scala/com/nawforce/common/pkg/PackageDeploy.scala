@@ -87,12 +87,12 @@ trait PackageDeploy {
   }
 
   private def loadClasses(): Unit = {
-    val pc = PackageDeploy.parsedCache
+    val pc = getParsedCache
     val docs = documentsByExtension(Name("cls"))
     ServerOps.debugTime(s"Parsed ${docs.size} classes", docs.nonEmpty) {
 
       // Load summary docs that have valid dependents
-      if (ServerOps.isParsedDataCaching) {
+      if (pc.nonEmpty) {
         val summaryDocs = docs.flatMap(doc => {
           val data = doc.path.read()
           val value = pc.flatMap(_.get(data.right.get.getBytes(), namespace))
@@ -122,11 +122,21 @@ trait PackageDeploy {
       // Validate the full types & write back to cache
       fullTypes.filter(_._2.nonEmpty).foreach(ld => {
         ld._2.get.validate()
-        if (ServerOps.isParsedDataCaching) {
-          pc.get.upsert(ld._1.getBytes(StandardCharsets.UTF_8), writeBinary(ld._2.get.summary), namespace)
+        if (pc.nonEmpty) {
+          pc.map(_.upsert(ld._1.getBytes(StandardCharsets.UTF_8), writeBinary(ld._2.get.summary), namespace))
         }
       })
     }
+  }
+
+  private def getParsedCache: Option[ParsedCache] = {
+    if (ServerOps.isParsedDataCaching)
+      ParsedCache.create() match {
+        case Left(err) => ServerOps.error(err); None
+        case Right(cache) => Some(cache)
+      }
+    else
+      None
   }
 
   private def loadTriggers(): Unit = {
@@ -140,15 +150,6 @@ trait PackageDeploy {
       }
       tds.foreach(upsertMetadata(_))
       tds.foreach(_.validate())
-    }
-  }
-}
-
-object PackageDeploy {
-  lazy val parsedCache: Option[ParsedCache] = {
-    ParsedCache.create() match {
-      case Left(err) => ServerOps.error(err); None
-      case Right(cache) => Some(cache)
     }
   }
 }

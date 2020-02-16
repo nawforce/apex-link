@@ -28,7 +28,6 @@
 
 package com.nawforce.common.api
 
-import com.nawforce.common.documents.ParsedCache
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
@@ -41,7 +40,6 @@ import org.scalatest.funsuite.AnyFunSuite
 class CachedTest extends AnyFunSuite with BeforeAndAfter {
 
   before {
-    ParsedCache.clear()
     ServerOps.setParsedDataCaching(true)
   }
 
@@ -65,7 +63,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Bar.cls" -> bar,
       "Foo.cls" -> foo
-    )) { root: PathLike =>
+    ), setupCache = true) { root: PathLike =>
       // Setup as cached
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]

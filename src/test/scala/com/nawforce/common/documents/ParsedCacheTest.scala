@@ -62,6 +62,8 @@ class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
     try {
       val testPath = Environment.homedir.get.join(".apexlink_cache_test")
       assert(Environment.setVariable("APEXLINK_CACHE_DIR", testPath.toString))
+      ParsedCache.clear()
+
       val cache = ParsedCache.create()
       assert(cache.isRight)
       assert(cache.right.get.path == testPath)
