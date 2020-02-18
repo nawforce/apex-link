@@ -91,6 +91,10 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
     namespace.map(ns => withTail(TypeName(ns))).getOrElse(this)
   }
 
+  def asOuterType: TypeName = {
+    outer.map(_.asOuterType).getOrElse(this)
+  }
+
   def asDotName: DotName = {
     outer match {
       case None => DotName(Seq(name))

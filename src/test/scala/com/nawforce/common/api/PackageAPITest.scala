@@ -121,7 +121,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
-  def fooHoldsBar(files: Map[String, String]): Unit = {
+  def fooHoldsBar(files: Map[String, String], inheritanceOnly: Boolean = false): Unit = {
     FileSystemHelper.run(files) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
@@ -132,6 +132,14 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
       assert(pkg.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
       assert(pkg.getDependencyHolders(barTypeLike).isEmpty)
+
+      if (inheritanceOnly) {
+        assert(pkg.getDependencies(barTypeLike, inheritanceOnly=true).sameElements(Array(fooTypeLike)))
+      } else {
+        assert(pkg.getDependencies(barTypeLike, inheritanceOnly=true).isEmpty)
+      }
+      assert(pkg.getDependencies(barTypeLike, inheritanceOnly=false).sameElements(Array(fooTypeLike)))
+      assert(pkg.getDependencies(fooTypeLike, inheritanceOnly=false).isEmpty)
     }
   }
 
@@ -139,14 +147,14 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     fooHoldsBar(Map(
       "classes/Foo.cls" -> "public virtual class Foo {}",
       "classes/Bar.cls" -> "public class Bar extends Foo {}"
-    ))
+    ), inheritanceOnly = true)
   }
 
   test("Interface dependency") {
     fooHoldsBar(Map(
       "classes/Foo.cls" -> "public interface Foo {}",
       "classes/Bar.cls" -> "public class Bar implements Foo {}"
-    ))
+    ), inheritanceOnly = true)
   }
 
   test("Block dependency") {
@@ -209,14 +217,14 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     fooHoldsBar(Map(
       "classes/Foo.cls" -> "public class Foo {public virtual class Baz {}}",
       "classes/Bar.cls" -> "public class Bar extends Foo.Baz {}"
-    ))
+    ), inheritanceOnly = true)
   }
 
   test("Interface dependency (nested)") {
     fooHoldsBar(Map(
       "classes/Foo.cls" -> "public class Foo {public interface Baz {}}",
       "classes/Bar.cls" -> "public class Bar implements Foo.Baz {}"
-    ))
+    ), inheritanceOnly = true)
   }
 
   test("Block dependency (nested)") {
@@ -279,14 +287,14 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     fooHoldsBar(Map(
       "classes/Foo.cls" -> "public virtual class Foo {}",
       "classes/Bar.cls" -> "public class Bar {public class Baz extends Foo {}}"
-    ))
+    ), inheritanceOnly = true)
   }
 
   test("Interface dependency (from nested)") {
     fooHoldsBar(Map(
       "classes/Foo.cls" -> "public interface Foo {}",
       "classes/Bar.cls" -> "public class Bar {public class Baz implements Foo {}}"
-    ))
+    ), inheritanceOnly = true)
   }
 
   test("Block dependency (from nested)") {

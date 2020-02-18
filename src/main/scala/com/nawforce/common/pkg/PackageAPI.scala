@@ -74,9 +74,11 @@ trait PackageAPI extends Package {
         .map {
           case ad: ApexDeclaration =>
             if (inheritanceOnly) {
-              ad.dependencies().flatMap({
-                case dt: ApexDeclaration => Some(dt.typeName.asInstanceOf[TypeLike])
-                case _ => None
+              (ad +: ad.nestedTypes).flatMap(td => {
+                td.dependencies().flatMap({
+                  case dt: ApexDeclaration => Some(dt.typeName.asOuterType.asInstanceOf[TypeLike])
+                  case _ => None
+                })
               }).toArray
             } else {
               val dependencies = mutable.Set[TypeName]()
