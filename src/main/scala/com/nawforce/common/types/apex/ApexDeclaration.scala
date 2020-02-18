@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.types.apex
 
-import com.nawforce.common.api.FieldSummary
+import com.nawforce.common.api.{FieldSummary, TypeLike}
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, MethodMap, VerifyContext}
 import com.nawforce.common.documents.{Location, RangeLocation, TextRange}
 import com.nawforce.common.finding.TypeRequest
@@ -138,14 +138,20 @@ trait ApexDeclaration extends TypeDeclaration {
     // Propagate type level dependencies
     val dependsOn = mutable.Set[TypeName]()
     collectDependenciesByTypeName(dependsOn)
-    dependsOn.foreach(addTypeDependencyHolder)
+    dependsOn.foreach(d => {
+      TypeRequest(d, pkg, excludeSObjects = false) match {
+        case Left(_) => ()
+        case Right(td: ApexDeclaration) => td.addTypeDependencyHolder(typeName)
+        case Right(_) => ()
+      }
+    })
   }
 
   def addTypeDependencyHolder(typeName: TypeName): Unit = {
     typeDependencyHolders.add(typeName)
   }
 
-  def getTypeDependencyHolders: Array[String] = {
-    typeDependencyHolders.map(_.toString).toArray
+  def getTypeDependencyHolders: Array[TypeLike] = {
+    typeDependencyHolders.toArray
   }
 }

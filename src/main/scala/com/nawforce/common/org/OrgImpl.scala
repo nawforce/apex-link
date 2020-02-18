@@ -85,19 +85,18 @@ class OrgImpl extends Org {
 
   /** Create a new package in the org, directories should be priority ordered for duplicate detection. Use
     * namespaces to indicate dependent packages which must already have been created as packages. */
-  def newPackage(namespace: String, directories: Array[String], baseNamespaces: Array[String]): Package = {
+  def newPackage(namespace: String, directories: Array[String], basePackages: Array[Package]): Package = {
     val namespaceName: Option[Name] = Name.safeApply(namespace)
 
-    val basePackages = baseNamespaces.flatMap(ns => {
-      val pkg = packagesByNamespace.get(Some(Name(ns))).filterNot(_.namespace.isEmpty)
-      if (pkg.isEmpty)
-        throw new IllegalArgumentException(s"No package found using namespace '$ns'")
-      pkg
-    })
+     val packages = basePackages.map(pkg => {
+       val pkgImpl = pkg.asInstanceOf[PackageImpl]
+       if (pkgImpl.org != this)
+         throw new IllegalArgumentException(s"Base package '${pkgImpl.namespace.getOrElse("")}' was created for use in a different org")
+       pkgImpl
+     })
 
     val paths = directories.filterNot(_.isEmpty).map(directory => PathFactory(directory))
-
-    addPackage(namespaceName, paths, basePackages)
+    addPackage(namespaceName, paths, packages)
   }
 
   /** Create a Package over a set of paths */

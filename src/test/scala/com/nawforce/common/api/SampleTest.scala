@@ -38,8 +38,8 @@ class SampleTest extends AnyFunSuite with BeforeAndAfter {
   private def sample(path: String, namespace: String = "", externalNamespaces: Set[String] = Set(),
                      expectedCount: Int = 0): Unit = {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
-    externalNamespaces.foreach(ens => org.newPackage(ens, Array(), Array()))
-    org.newPackage(namespace, Array[String](path), externalNamespaces.toArray)
+    val externalPackages = externalNamespaces.map(ens => org.newPackage(ens, Array(), Array())).toArray
+    org.newPackage(namespace, Array[String](path), externalPackages)
 
     if (org.issues.logCount != expectedCount) {
       org.issues.dumpMessages(false)

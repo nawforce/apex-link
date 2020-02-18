@@ -5,7 +5,7 @@ import com.nawforce.common.org.OrgImpl
 trait Org {
   /** Create a new package in the org, directories should be priority ordered for duplicate detection. Use
     * namespaces to indicate dependent packages which must already have been created as packages. */
-  def newPackage(namespace: String, directories: Array[String], baseNamespaces: Array[String]): Package
+  def newPackage(namespace: String, directories: Array[String], basePackages: Array[Package]): Package
 
   /** Get current issue log. See IssueOptions for control over what is returned. */
   def getIssues(options: IssueOptions): String

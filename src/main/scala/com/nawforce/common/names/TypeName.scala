@@ -27,11 +27,12 @@
 */
 package com.nawforce.common.names
 
+import com.nawforce.common.api.TypeLike
 import com.nawforce.common.cst.TypeRef
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.types.PlatformTypeException
 
-case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeName]=None) {
+case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeName]=None) extends TypeLike {
 
   lazy val outerName: Name = outer.map(_.outerName).getOrElse(name)
 
@@ -261,6 +262,10 @@ object TypeName {
       case hd +: Nil => new TypeName(hd)
       case hd +: tl => new TypeName(hd, Nil, Some(TypeName(tl)))
     }
+  }
+
+  def apply(typeLike: TypeLike): TypeName = {
+    typeLike.asInstanceOf[TypeName]
   }
 
   def fromString(value: String, namespace: Option[Name]): TypeName = {

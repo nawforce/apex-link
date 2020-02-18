@@ -31,16 +31,22 @@ trait Package {
   /** The namespace of the package, maybe empty for the unmanaged package, otherwise is unique is Org */
   def getNamespace: String
 
-  /** Get a typename (as a String) from the path of a metadata file, returns an empty string if the path does not
+  /** Get a typename (as a String) from the path of a metadata file, returns a null if the path does not
     * identify metadata that creates a type within the current package. Currently restricted to only supporting
     * Apex class files. */
-  def getTypeOfPath(path: String): String
+  def getTypeOfPath(path: String): TypeLike
 
-  /** Get the path (as a String) of the metadata file that defined a type, returns an empty string if the type
+  /** Get the path (as a String) of the metadata file that defined a type, returns a null if the type
     * is not defined within the current package. Currently restricted to only supporting Apex class files. */
-  def getPathOfType(typeName: String): String
+  def getPathOfType(typeLike: TypeLike): String
 
-  /** Returns set of names of Apex defined types that depend on the passed Apex type name, if the passed type is
-    * invalid or does not identify an Apex type returns an empty array. */
-  def getDependencyHolders(typeName: String): Array[String]
+  /** Returns set of Apex defined types that are depended on by the passed Apex type, if the passed type is
+    * invalid or does not identify an Apex type returns a null. If inheritanceOnly is true only
+    * superClass & inheritance dependencies are reported, otherwise all dependencies are included. */
+  def getDependencies(typeLike: TypeLike, inheritanceOnly: Boolean): Array[TypeLike]
+
+  /** Returns set of Apex defined types that depend on the passed Apex type, if the passed type is invalid or does
+    * not identify an Apex type returns a null. The returned array may be stale in that it can contain
+    * types which used to hold a dependency but not longer do.*/
+  def getDependencyHolders(typeLike: TypeLike): Array[TypeLike]
 }

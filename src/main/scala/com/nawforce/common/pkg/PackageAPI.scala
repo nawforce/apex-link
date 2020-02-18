@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.pkg
 
-import com.nawforce.common.api.{Package, ServerOps}
+import com.nawforce.common.api.{Package, ServerOps, TypeLike}
 import com.nawforce.common.documents.{ApexDocument, DocumentType}
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.TypeName
@@ -37,6 +37,8 @@ import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.common.types.apex.{ApexDeclaration, FullDeclaration}
 import com.nawforce.runtime.types.PlatformTypeException
 
+import scala.collection.mutable
+
 trait PackageAPI extends Package {
   this: PackageImpl =>
 
@@ -44,39 +46,63 @@ trait PackageAPI extends Package {
     namespace.map(_.value).getOrElse("")
   }
 
-  override def getTypeOfPath(path: String): String = {
+  override def getTypeOfPath(path: String): TypeLike = {
     DocumentType(PathFactory(path)) match {
       case Some(ad: ApexDocument) if isMetadata(ad) =>
-        TypeName(ad.name).withNamespace(namespace).toString
-      case _ => ""
+        TypeName(ad.name).withNamespace(namespace)
+      case _ => null
     }
   }
 
-  override def getPathOfType(typeName: String): String = {
+  override def getPathOfType(typeLike: TypeLike): String = {
     try {
-      types.get(TypeName.fromString(typeName))
+      types.get(TypeName(typeLike))
         .map {
           case ad: ApexDeclaration => ad.idLocation.path.toString
-          case _ => ""
+          case _ => null
         }
-        .getOrElse("")
+        .orNull
     } catch {
       case ex: PlatformTypeException =>
-        ServerOps.debug(ServerOps.Trace, ex.getMessage); ""
+        ServerOps.debug(ServerOps.Trace, ex.getMessage); null
     }
   }
 
-  override def getDependencyHolders(typeName: String): Array[String] = {
+  override def getDependencies(typeLike: TypeLike, inheritanceOnly: Boolean): Array[TypeLike] = {
     try {
-      types.get(TypeName.fromString(typeName))
+      types.get(TypeName(typeLike))
         .map {
-          case ad: ApexDeclaration => ad.getTypeDependencyHolders
-          case _ => Array[String]()
+          case ad: ApexDeclaration =>
+            if (inheritanceOnly) {
+              ad.dependencies().flatMap({
+                case dt: ApexDeclaration => Some(dt.typeName.asInstanceOf[TypeLike])
+                case _ => None
+              }).toArray
+            } else {
+              val dependencies = mutable.Set[TypeName]()
+              ad.collectDependenciesByTypeName(dependencies)
+              dependencies.toArray[TypeLike]
+            }
+          case _ => null
         }
-        .getOrElse(Array[String]())
+        .orNull
     } catch {
       case ex: PlatformTypeException =>
-        ServerOps.debug(ServerOps.Trace, ex.getMessage); Array[String]()
+        ServerOps.debug(ServerOps.Trace, ex.getMessage); null
+    }
+  }
+
+  override def getDependencyHolders(typeLike: TypeLike): Array[TypeLike] = {
+    try {
+      types.get(TypeName(typeLike))
+        .map {
+          case ad: ApexDeclaration => ad.getTypeDependencyHolders
+          case _ => null
+        }
+        .orNull
+    } catch {
+      case ex: PlatformTypeException =>
+        ServerOps.debug(ServerOps.Trace, ex.getMessage); null
     }
   }
 

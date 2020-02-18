@@ -29,7 +29,7 @@ package com.nawforce.runtime
 
 import java.nio.file.Paths
 
-import com.nawforce.common.api.{IssueOptions, Org, ServerOps}
+import com.nawforce.common.api.{IssueOptions, Org, ServerOps, Package}
 
 import scala.collection.mutable
 
@@ -71,12 +71,12 @@ object ApexLink {
     val zombie = validArgs.contains("-zombie")
 
     val org = Org.newOrg()
-    val nsLoaded = mutable.Set[String]()
+    val nsLoaded = mutable.Map[String, Package]()
     nsSplit.foreach(nsDirPair => {
       if (!nsLoaded.contains(nsDirPair._1)) {
         val paths = nsSplit.filter(_._1 == nsDirPair._1).map(_._2).filterNot(_.isEmpty)
-        org.newPackage(nsDirPair._1, paths.toArray, nsLoaded.toArray)
-        nsLoaded.add(nsDirPair._1)
+        val pkg = org.newPackage(nsDirPair._1, paths.toArray, nsLoaded.values.toArray)
+        nsLoaded.put(nsDirPair._1, pkg)
       }
     })
 
