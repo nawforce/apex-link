@@ -67,8 +67,7 @@ class OrgImpl extends Org {
     }
   }
 
-  /** All current Packages in the Org */
-  def getPackages: Array[Package] = packagesByNamespace.values.toArray
+  override def getPackages(): Array[Package] = packagesByNamespace.values.toArray
 
   /** Collect all issues into a JSON log */
   def getIssues(options: IssueOptions): String = {
