@@ -54,7 +54,7 @@ class ArrayTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Non-Integer index") {
     typeDeclaration("public class Dummy {Integer b; {List<Dummy> a;  Integer b = a[null].b;}}")
-    assert(defaultOrg.issues.getMessages(defaultPath) == "Error: line 1 at 62-66: Array indexes must be Integers, found 'null'\n")
+    assert(defaultOrg.issues.getMessages(defaultPath.toString) == "Error: line 1 at 62-66: Array indexes must be Integers, found 'null'\n")
   }
 
   test("Integer index") {
@@ -69,7 +69,6 @@ class ArrayTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Assignment (not matching)") {
     typeDeclaration("public class Dummy {{List<Object> a; a=new String[]{'a'}; }}")
-    defaultOrg.issues.dumpMessages(false)
   }
 
   // TODO: Complete testing

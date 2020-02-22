@@ -47,7 +47,7 @@ class MethodShadowTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
-      assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
+      assert(org.issues.getMessages("/Dummy.cls") ==
         "Error: line 1 at 52-56: Method 'func' can not override non-virtual method\n")
     }
   }
@@ -59,7 +59,7 @@ class MethodShadowTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
-      assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
+      assert(org.issues.getMessages("/Dummy.cls") ==
         "Error: line 1 at 52-56: Method 'func' must use override or virtual keyword\n")
     }
   }

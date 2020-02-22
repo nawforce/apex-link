@@ -28,7 +28,7 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.cst.{Modifier, PUBLIC_MODIFIER, STATIC_MODIFIER}
-import com.nawforce.common.documents.{RangeLocation, TextRange}
+import com.nawforce.common.documents.{RangeLocationImpl, TextRange}
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.pkg.PackageImpl
@@ -99,7 +99,7 @@ object CustomFieldDeclaration {
         val refTypeName = TypeName(EncodedName(referenceTo).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeName.Schema))
 
         pkg.schema().relatedLists.add(refTypeName, relName, name, sObjectType,
-          RangeLocation(path, TextRange(elem.line)))
+          RangeLocationImpl(path, TextRange(elem.line)))
 
         Seq(CustomFieldDeclaration(name.replaceAll("__c$", "__r"), refTypeName))
       } else if (rawType == "Location") {

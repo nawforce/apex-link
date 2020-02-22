@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.documents.{Position, RangeLocation}
+import com.nawforce.common.documents.{PositionImpl, RangeLocationImpl}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.parsers.CSTRange
@@ -43,12 +43,12 @@ abstract class CST {
   private var range: CSTRange = _
   private var positionAdjust: (Int, Int) = _
 
-  lazy val location: RangeLocation = {
-    RangeLocation(
-      PathFactory(range.path),
-      Position(range.startLine, range.startPosition)
+  lazy val location: RangeLocationImpl = {
+    RangeLocationImpl(
+      range.path,
+      PositionImpl(range.startLine, range.startPosition)
         .adjust(positionAdjust._1, positionAdjust._2),
-      Position(range.stopLine, range.stopPosition)
+      PositionImpl(range.stopLine, range.stopPosition)
         .adjust(positionAdjust._1, positionAdjust._2)
     )
   }

@@ -28,7 +28,7 @@
 package com.nawforce.common.types.schema
 
 import com.nawforce.common.cst.VerifyContext
-import com.nawforce.common.documents.Location
+import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.org.OrgImpl
@@ -55,10 +55,10 @@ class SchemaManager(pkg: PackageImpl) extends PlatformTypes.PlatformTypeObserver
 
 /* Relationship field tracker, handles finding related lists */
 class RelatedLists(pkg: PackageImpl) {
-  private val relationshipFields = mutable.Map[TypeName, Seq[(CustomFieldDeclaration, Name, Location)]]() withDefaultValue Seq()
+  private val relationshipFields = mutable.Map[TypeName, Seq[(CustomFieldDeclaration, Name, LocationImpl)]]() withDefaultValue Seq()
 
   /* Declare a new relationship field */
-  def add(sObject: TypeName, relationshipName: Name, holdingFieldName: Name, holdingSObject: TypeName, location: Location): Unit = {
+  def add(sObject: TypeName, relationshipName: Name, holdingFieldName: Name, holdingSObject: TypeName, location: LocationImpl): Unit = {
     val encodedName = EncodedName(relationshipName).defaultNamespace(pkg.namespace).fullName
     val field = CustomFieldDeclaration(encodedName, TypeName.recordSetOf(holdingSObject))
     synchronized {

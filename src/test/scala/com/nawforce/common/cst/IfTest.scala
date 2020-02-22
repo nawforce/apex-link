@@ -52,7 +52,6 @@ class IfTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Block bug") {
     typeDeclaration("public class Dummy {{ if (false) String a = ''; else a =''; }}")
-    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
   }
 

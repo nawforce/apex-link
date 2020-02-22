@@ -98,7 +98,7 @@ object SObjectDetails {
             case Some("List") => ListCustomSettingNature
             case Some("Hierarchy") => HierarchyCustomSettingsNature
             case Some(x) =>
-              OrgImpl.logMessage(RangeLocation(path, TextRange(rootElement.line)),
+              OrgImpl.logMessage(RangeLocationImpl(path, TextRange(rootElement.line)),
                 s"Unexpected customSettingsType value '$x', should be 'List' or 'Hierarchy'")
               CustomObjectNature
             case _ => CustomObjectNature
@@ -118,7 +118,7 @@ object SObjectDetails {
 
     } catch {
       case e: XMLException =>
-        OrgImpl.logMessage(RangeLocation(path, e.where), e.msg)
+        OrgImpl.logMessage(RangeLocationImpl(path, e.where), e.msg)
         None
     }
   }

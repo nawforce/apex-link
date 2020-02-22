@@ -67,24 +67,27 @@ class OrgImpl extends Org {
     }
   }
 
+  /** Current package list for Org */
   override def getPackages(): Array[Package] = packagesByNamespace.values.toArray
 
   /** Collect all issues into a JSON log */
-  def getIssues(options: IssueOptions): String = {
-    if (options.includeZombies) {
-      val allIssues = IssueLog(issues)
-      packagesByNamespace.values.foreach(pkg => {
-        allIssues.merge(pkg.reportUnused())
-      })
-      allIssues.asJSON(options.includeWarnings, options.maxErrorsPerFile)
-    } else {
-      issues.asJSON(options.includeWarnings, options.maxErrorsPerFile)
-    }
+  override def getIssues(options: IssueOptions): String = {
+    val reportableIssues =
+      if (options.includeZombies) {
+        val allIssues = IssueLog(issues)
+        packagesByNamespace.values.foreach(pkg => {
+          allIssues.merge(pkg.reportUnused())
+        })
+        allIssues
+      } else {
+        issues
+      }
+    reportableIssues.asString(options.includeWarnings, options.maxErrorsPerFile, options.formatJSON)
   }
 
   /** Create a new package in the org, directories should be priority ordered for duplicate detection. Use
     * namespaces to indicate dependent packages which must already have been created as packages. */
-  def newPackage(namespace: String, directories: Array[String], basePackages: Array[Package]): Package = {
+  override def newPackage(namespace: String, directories: Array[String], basePackages: Array[Package]): Package = {
     val namespaceName: Option[Name] = Name.safeApply(namespace)
 
      val packages = basePackages.map(pkg => {
@@ -129,6 +132,9 @@ class OrgImpl extends Org {
       pkg
     }
   }
+
+  /** Dump current issues to standard out */
+  private[nawforce] def dumpIssues(): Unit = issues.dump()
 }
 
 object OrgImpl {
@@ -141,12 +147,12 @@ object OrgImpl {
   }
 
   /** Log an issue against the in-scope org */
-  private[nawforce] def log(location: Location, msg: String, category: IssueCategory): Unit = {
+  private[nawforce] def log(location: LocationImpl, msg: String, category: IssueCategory): Unit = {
     OrgImpl.current.value.issues.logMessage(location, msg, category)
   }
 
   /** Log an error issue against the in-scope org */
-  private[nawforce] def logMessage(location: Location, msg: String): Unit = {
+  private[nawforce] def logMessage(location: LocationImpl, msg: String): Unit = {
     log(location, msg, ERROR_CATEGORY)
   }
 }

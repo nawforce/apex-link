@@ -36,14 +36,14 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class FieldTest extends AnyFunSuite with BeforeAndAfter {
-  private val defaultPath = PathFactory("Dummy.cls")
+  private val defaultPath = PathFactory("Dummy.cls").toString
   private var defaultOrg: OrgImpl = new OrgImpl
 
   def typeDeclaration(clsText: String, hasMessages: Boolean = false): TypeDeclaration = {
     OrgImpl.current.withValue(defaultOrg) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
+      val td = FullDeclaration.create(defaultOrg.unmanaged, PathFactory("Dummy.cls"), clsText)
       if (td.isEmpty) {
-        defaultOrg.issues.dumpMessages(json = false)
+        defaultOrg.dumpIssues()
       } else {
         td.head.validate()
         td.head.fields

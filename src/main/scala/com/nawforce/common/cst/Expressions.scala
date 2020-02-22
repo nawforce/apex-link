@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.documents.Location
+import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.pkg.PackageImpl
@@ -215,7 +215,7 @@ final case class MethodCall(target: Either[Boolean, Id], arguments: Seq[Expressi
     verify(location, input.typeDeclaration, None, input, context)
   }
 
-  def verify(location: Location, callee: TypeDeclaration, staticContext: Option[Boolean], input: ExprContext,
+  def verify(location: LocationImpl, callee: TypeDeclaration, staticContext: Option[Boolean], input: ExprContext,
              context: ExpressionVerifyContext): ExprContext = {
 
     val args = arguments.map(_.verify(input, context))

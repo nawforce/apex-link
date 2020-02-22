@@ -29,8 +29,9 @@ package com.nawforce.common.types.apex
 
 import com.nawforce.common.api._
 import com.nawforce.common.cst.Modifier
-import com.nawforce.common.documents.{Location, RangeLocation}
+import com.nawforce.common.documents.{LocationImpl, RangeLocationImpl}
 import com.nawforce.common.finding.TypeRequest
+import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.pkg.PackageImpl
@@ -93,10 +94,24 @@ class SummaryMethod(methodSummary: MethodSummary, fromTypeName: String => TypeNa
   }
 }
 
+class SummaryBlock(blockSummary: BlockSummary)
+  extends BlockDeclaration with DependentValidation {
+
+  override val isStatic: Boolean = blockSummary.isStatic
+
+  def areDependentsValid(pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
+    blockSummary.dependents.forall(d => isValid(pkg, d, summaries))
+  }
+
+  def collectDependencies(dependsOn: mutable.Set[TypeName]): Unit = {
+    blockSummary.dependents.foreach(d => dependsOn.add(TypeName.fromString(d.name)))
+  }
+}
+
 class SummaryField(path: PathLike, fieldSummary: FieldSummary, fromTypeName: String => TypeName)
   extends ApexFieldLike  with DependentValidation {
 
-  override val location: RangeLocation = RangeLocation(path, fieldSummary.range.get)
+  override val location: RangeLocationImpl = RangeLocationImpl(path, fieldSummary.range.get)
   override val name: Name = Name(fieldSummary.name)
   override val modifiers: Seq[Modifier] = fieldSummary.modifiers.map(Modifier(_))
   override val typeName: TypeName = fromTypeName(fieldSummary.typeName)
@@ -127,14 +142,12 @@ class SummaryConstructor(constructorSummary: ConstructorSummary, fromTypeName: S
   }
 }
 
-class SummaryDeclaration(path: PathLike, val pkg: PackageImpl, val outerTypeName: Option[TypeName],
-                         data: Array[Byte], typeSummary: Option[TypeSummary]=None)
+class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerTypeName: Option[TypeName],
+                         summary: TypeSummary)
   extends ApexDeclaration with DependentValidation {
 
-  override lazy val summary: TypeSummary = typeSummary.getOrElse(readBinary[TypeSummary](data))
-
   override lazy val sourceHash: Int = summary.sourceHash
-  override val idLocation: Location = RangeLocation(path, summary.idRange.get)
+  override val idLocation: LocationImpl = RangeLocationImpl(path, summary.idRange.get)
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
 
   override lazy val name: Name = Name(summary.name)
@@ -144,10 +157,11 @@ class SummaryDeclaration(path: PathLike, val pkg: PackageImpl, val outerTypeName
   override lazy val superClass: Option[TypeName] = fromOptTypeName(summary.superClass)
   override lazy val interfaces: Seq[TypeName] = summary.interfaces.map(fromTypeName)
   override lazy val nestedTypes: Seq[SummaryDeclaration] = {
-    summary.nestedTypes.map(nt => new SummaryDeclaration(path, pkg, Some(typeName), Array(), Some(nt)))
+    summary.nestedTypes.map(nt => new SummaryDeclaration(path, pkg, Some(typeName), nt))
   }
 
-  override lazy val blocks: Seq[BlockDeclaration] = Seq()
+  override lazy val blocks: Seq[SummaryBlock] =
+    summary.blocks.map(new SummaryBlock(_))
   override lazy val localFields: Seq[SummaryField] =
     summary.fields.map(new SummaryField(path, _, fromTypeName))
   override lazy val constructors: Seq[SummaryConstructor] =
@@ -156,11 +170,26 @@ class SummaryDeclaration(path: PathLike, val pkg: PackageImpl, val outerTypeName
     summary.methods.map(new SummaryMethod(_, fromTypeName))
 
   override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeName]): Unit = {
-    summary.dependents.foreach(d => dependsOn.add(TypeName.fromString(d.name)))
-    localFields.foreach(_.collectDependencies(dependsOn))
-    constructors.foreach(_.collectDependencies(dependsOn))
-    localMethods.foreach(_.collectDependencies(dependsOn))
-    nestedTypes.foreach(_.collectDependenciesByTypeName(dependsOn))
+    val localDependenies = mutable.Set[TypeName]()
+    summary.dependents.foreach(d => localDependenies.add(TypeName.fromString(d.name)))
+    blocks.foreach(_.collectDependencies(localDependenies))
+    localFields.foreach(_.collectDependencies(localDependenies))
+    constructors.foreach(_.collectDependencies(localDependenies))
+    localMethods.foreach(_.collectDependencies(localDependenies))
+    nestedTypes.foreach(_.collectDependenciesByTypeName(localDependenies))
+
+    localDependenies.foreach(dependentTypeName => {
+      getOutermostDeclaration(dependentTypeName).foreach(td => dependsOn.add(td.typeName))
+    })
+  }
+
+  private def getOutermostDeclaration(typeName: TypeName): Option[ApexDeclaration] = {
+    TypeRequest(typeName, pkg, excludeSObjects = false) match {
+      case Right(td: ApexDeclaration) =>
+        td.outerTypeName.map(getOutermostDeclaration).getOrElse(Some(td))
+      case Right(_) => None
+      case Left(_) => None
+    }
   }
 
   private def fromOptTypeName(value: String): Option[TypeName] = {
@@ -173,9 +202,25 @@ class SummaryDeclaration(path: PathLike, val pkg: PackageImpl, val outerTypeName
 
   def areDependentsValid(summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
     summary.dependents.forall(d => isValid(pkg, d, summaries)) &&
+      blocks.forall(b => b.areDependentsValid(pkg, summaries)) &&
       localFields.forall(f => f.areDependentsValid(pkg, summaries)) &&
       constructors.forall(c => c.areDependentsValid(pkg, summaries)) &&
       localMethods.forall(m => m.areDependentsValid(pkg, summaries)) &&
       nestedTypes.forall(t => t.areDependentsValid(summaries))
   }
+
+  override def dependencies(): Set[Dependent] = {
+    summary.dependents.flatMap(dependent => {
+      val typeName = TypeName.fromString(dependent.name)
+      pkg.getType(typeName, None).toOption
+    }).toSet
+  }
+}
+
+class SummaryApex(path: PathLike, pkg: PackageImpl, data: Array[Byte]) {
+
+  lazy val summary: ApexSummary = readBinary[ApexSummary](data)
+
+  lazy val declaration: SummaryDeclaration = new SummaryDeclaration(path, pkg, None, summary.typeSummary)
+  lazy val diagnostics: List[Diagnostic] = summary.diagnostics
 }

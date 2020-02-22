@@ -28,7 +28,7 @@
 package com.nawforce.common.types.other
 
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
-import com.nawforce.common.documents.{DocumentType, LineLocation, Location, PageDocument}
+import com.nawforce.common.documents.{DocumentType, LineLocationImpl, LocationImpl, PageDocument}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
@@ -62,7 +62,7 @@ object PageDeclaration {
   def apply(pkg: PackageImpl): PageDeclaration = {
     val pages = collectBasePages(pkg).values.flatten ++
       pkg.documentsByExtension(Name("page")).map(page => DocumentType(page.path)).flatMap {
-        case Some(page: PageDocument) => Some(Page(LineLocation(page.path, 0), page.name))
+        case Some(page: PageDocument) => Some(Page(LineLocationImpl(page.path.toString, 0), page.name))
         case _ => None
       }
     new PageDeclaration(pkg, pages.toSeq)
@@ -82,7 +82,7 @@ object PageDeclaration {
   }
 }
 
-case class Page(location: Location, name: Name) extends FieldDeclaration {
+case class Page(location: LocationImpl, name: Name) extends FieldDeclaration {
   override lazy val modifiers: Seq[Modifier] = Seq(STATIC_MODIFIER, GLOBAL_MODIFIER)
   override lazy val typeName: TypeName = TypeName.PageReference
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER

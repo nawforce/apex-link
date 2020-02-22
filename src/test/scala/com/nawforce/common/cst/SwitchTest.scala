@@ -35,12 +35,12 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class SwitchTest extends AnyFunSuite with BeforeAndAfter {
-  private val defaultPath = PathFactory("Dummy.cls")
+  private val defaultPath = PathFactory("Dummy.cls").toString
   private var defaultOrg: OrgImpl = new OrgImpl
 
   def typeDeclaration(clsText: String): Option[TypeDeclaration] = {
     OrgImpl.current.withValue(defaultOrg) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
+      val td = FullDeclaration.create(defaultOrg.unmanaged, PathFactory("Dummy.cls"), clsText)
       td.headOption.foreach(_.validate())
       td.headOption
     }
@@ -274,7 +274,6 @@ class SwitchTest extends AnyFunSuite with BeforeAndAfter {
 
   test("SObject control introduces var") {
     typeDeclaration("public class Dummy {{SObject a; switch on a {when Account r {Account s = r;} }}}")
-    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
   }
 }

@@ -146,7 +146,7 @@ object SObjectDeclaration {
     } else {
       val sobjectType = TypeRequest(typeName, pkg, excludeSObjects = false).toOption
       if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
-        OrgImpl.logMessage(LineLocation(path, 0), s"No SObject declaration found for '$typeName'")
+        OrgImpl.logMessage(LineLocationImpl(path.toString, 0), s"No SObject declaration found for '$typeName'")
         return Seq()
       }
       Seq(extendExisting(sobjectDetails, pkg, sobjectType))

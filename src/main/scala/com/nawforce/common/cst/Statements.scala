@@ -28,7 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.cst.stmts.SwitchStatement
-import com.nawforce.common.documents.LineLocation
+import com.nawforce.common.documents.LineLocationImpl
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.runtime.parsers.ApexParser._
@@ -58,7 +58,7 @@ final case class LazyBlock(clippedText: ClippedText, var blockContextRef: WeakRe
       if (statementContext.isEmpty) {
         CodeParser.parseBlock(clippedText.path, clippedText.text) match {
           case Left(err) =>
-            OrgImpl.logMessage(LineLocation(clippedText.path, err.line), err.message)
+            OrgImpl.logMessage(LineLocationImpl(clippedText.path.toString, err.line), err.message)
             return Nil
           case Right(c) =>
             statementContext = Some(c)

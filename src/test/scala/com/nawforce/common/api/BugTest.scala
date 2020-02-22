@@ -134,7 +134,6 @@ class BugTest extends AnyFunSuite {
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
-      org.issues.dumpMessages(false)
       assert(!org.issues.hasMessages)
     }
   }

@@ -27,7 +27,7 @@
 */
 package com.nawforce.runtime.diagnostics
 
-import com.nawforce.common.documents.{Position, RangeLocation, TextRange}
+import com.nawforce.common.documents.{PositionImpl, RangeLocationImpl, TextRange}
 import com.nawforce.runtime.os.Path
 import com.nawforce.runtime.parsers.CaseInsensitiveInputStream
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
@@ -35,17 +35,17 @@ import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 object LocationHelper {
   def asTextRange(context: ParserRuleContext): TextRange = {
     TextRange(
-      Position(context.getStart.getLine, context.getStart.getCharPositionInLine),
-      Position(context.getStop.getLine, context.getStop.getCharPositionInLine + context.getStop.getText.length),
+      PositionImpl(context.getStart.getLine, context.getStart.getCharPositionInLine),
+      PositionImpl(context.getStop.getLine, context.getStop.getCharPositionInLine + context.getStop.getText.length),
     )
   }
 
-  def asRangeLocation(context: ParserRuleContext, lineOffset: Int=0, positionOffset: Int=0): RangeLocation = {
-    RangeLocation(
-      Path(context.start.getInputStream.asInstanceOf[CaseInsensitiveInputStream].path),
-      Position(context.start.getLine, context.start.getCharPositionInLine)
+  def asRangeLocation(context: ParserRuleContext, lineOffset: Int=0, positionOffset: Int=0): RangeLocationImpl = {
+    RangeLocationImpl(
+      Path(context.start.getInputStream.asInstanceOf[CaseInsensitiveInputStream].path).toString,
+      PositionImpl(context.start.getLine, context.start.getCharPositionInLine)
         .adjust(lineOffset, positionOffset),
-      Position(context.stop.getLine, context.stop.getCharPositionInLine + context.stop.getText.length)
+      PositionImpl(context.stop.getLine, context.stop.getCharPositionInLine + context.stop.getText.length)
         .adjust(lineOffset, positionOffset)
     )
   }

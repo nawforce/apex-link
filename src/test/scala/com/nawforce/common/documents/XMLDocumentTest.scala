@@ -52,7 +52,7 @@ class XMLDocumentTest extends AnyFunSuite {
     )) { root: PathLike =>
       val file = root.join("test.xml")
       XMLFactory.parse(file) match {
-        case Left((PointLocation(f, Position(2,_)), _)) if f == file => ()
+        case Left((PointLocationImpl(f, PositionImpl(2,_)), _)) if f == file.toString => ()
         case Left(err) => assert(false, err)
         case Right(_) => assert(false)
       }
@@ -65,7 +65,7 @@ class XMLDocumentTest extends AnyFunSuite {
     )) { root: PathLike =>
       val file = root.join("test.xml")
       XMLFactory.parse(file) match {
-        case Left((PointLocation(f, Position(_,_)), _)) if f == file => ()
+        case Left((PointLocationImpl(f, PositionImpl(_,_)), _)) if f == file.toString => ()
         case Left(err) => assert(false, err)
         case Right(_) => assert(false)
       }

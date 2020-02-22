@@ -27,14 +27,14 @@
 */
 package com.nawforce.common.xml
 
-import com.nawforce.common.documents.{LineLocation, Location}
+import com.nawforce.common.documents.{LineLocationImpl, LocationImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.xml.XMLDocument
 
 object XMLFactory {
-  def parse(path: PathLike): Either[(Location, String), XMLDocumentLike] = {
+  def parse(path: PathLike): Either[(LocationImpl, String), XMLDocumentLike] = {
     path.read() match {
-      case Left(err) => Left((LineLocation(path,0), err))
+      case Left(err) => Left((LineLocationImpl(path.toString,0), err))
       case Right(data) => XMLDocument(path, data)
     }
   }

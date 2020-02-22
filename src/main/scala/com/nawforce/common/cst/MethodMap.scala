@@ -28,7 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, IssueCategory, WARNING_CATEGORY}
-import com.nawforce.common.documents.Location
+import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
@@ -36,7 +36,7 @@ import com.nawforce.common.types._
 import scala.collection.mutable
 
 final case class MethodMap(methodsByName: Map[(Name, Int), Seq[MethodDeclaration]],
-                           errors: Map[Location, (IssueCategory, String)])
+                           errors: Map[LocationImpl, (IssueCategory, String)])
   extends AssignableSupport {
 
   lazy val externalMethods: Iterable[MethodDeclaration] = methodsByName.values.flatMap(_.filter(_.isGlobalOrPublic))
@@ -76,17 +76,17 @@ final case class MethodMap(methodsByName: Map[(Name, Int), Seq[MethodDeclaration
 
 object MethodMap {
   type WorkingMap = mutable.Map[(Name, Int), Seq[MethodDeclaration]]
-  type ErrorMap = mutable.Map[Location, (IssueCategory, String)]
+  type ErrorMap = mutable.Map[LocationImpl, (IssueCategory, String)]
 
   def empty(): MethodMap = {
     new MethodMap(Map(), Map())
   }
 
-  def apply(td: TypeDeclaration, location: Option[Location],
+  def apply(td: TypeDeclaration, location: Option[LocationImpl],
             superClassMap: MethodMap, localMethods: Seq[MethodDeclaration], interfaces: Seq[TypeDeclaration]): MethodMap = {
 
     val workingMap = collection.mutable.Map[(Name, Int), Seq[MethodDeclaration]]() ++= superClassMap.methodsByName
-    val errors = mutable.Map[Location, (IssueCategory, String)]()
+    val errors = mutable.Map[LocationImpl, (IssueCategory, String)]()
 
     // Add instance methods first with validation checks
     localMethods.filterNot(_.isStatic).foreach(method => applyInstanceMethod(workingMap, method, errors))
@@ -144,7 +144,7 @@ object MethodMap {
     })
   }
 
-  private def checkInterfaces(pkg: Option[PackageImpl], location: Option[Location], isAbstract: Boolean,
+  private def checkInterfaces(pkg: Option[PackageImpl], location: Option[LocationImpl], isAbstract: Boolean,
                               workingMap: WorkingMap, interfaces: Seq[TypeDeclaration], errors: ErrorMap): Unit = {
     interfaces.foreach({
       case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
@@ -153,7 +153,7 @@ object MethodMap {
     })
   }
 
-  private def checkInterface(pkg: Option[PackageImpl], location: Option[Location], isAbstract: Boolean,
+  private def checkInterface(pkg: Option[PackageImpl], location: Option[LocationImpl], isAbstract: Boolean,
                              workingMap: WorkingMap, interface: TypeDeclaration, errors: ErrorMap): Unit = {
     if (interface.isInstanceOf[InterfaceDeclaration])
       checkInterfaces(pkg, location, isAbstract, workingMap, interface.interfaceDeclarations, errors)

@@ -36,12 +36,12 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
 
-  private val defaultPath = PathFactory("Dummy.cls")
+  private val defaultPath = PathFactory("Dummy.cls").toString
   private var defaultOrg: OrgImpl = new OrgImpl
 
   def typeDeclaration(clsText: String): TypeDeclaration = {
     OrgImpl.current.withValue(defaultOrg) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText).head
+      val td = FullDeclaration.create(defaultOrg.unmanaged, PathFactory("Dummy.cls"), clsText).head
       defaultOrg.unmanaged.upsertMetadata(td)
       td.validate()
       td

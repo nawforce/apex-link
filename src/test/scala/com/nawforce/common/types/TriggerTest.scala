@@ -30,7 +30,7 @@ package com.nawforce.common.types
 
 import com.nawforce.common.api.Org
 import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -51,7 +51,7 @@ class TriggerTest extends AnyFunSuite {
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
-      assert(org.issues.getMessages(PathFactory("/Dummy.trigger")) ==
+      assert(org.issues.getMessages("/Dummy.trigger") ==
         "Error: line 1 at 17-23: No type declaration found for 'Stupid'\n")
     }
   }
@@ -73,7 +73,7 @@ class TriggerTest extends AnyFunSuite {
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
-      assert(org.issues.getMessages(PathFactory("/Dummy.trigger")) ==
+      assert(org.issues.getMessages("/Dummy.trigger") ==
         "Error: line 1 at 17-24: Duplicate trigger case for 'before insert'\n")
     }
   }
@@ -98,7 +98,6 @@ class TriggerTest extends AnyFunSuite {
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
-      org.issues.dumpMessages(false)
       assert(!org.issues.hasMessages)
     }
   }

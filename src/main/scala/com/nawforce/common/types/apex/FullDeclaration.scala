@@ -30,7 +30,7 @@ package com.nawforce.common.types.apex
 import com.nawforce.common.api.{ServerOps, TypeSummary}
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
-import com.nawforce.common.documents.{LineLocation, Location, TextRange}
+import com.nawforce.common.documents.{LineLocationImpl, LocationImpl, TextRange}
 import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
@@ -51,7 +51,7 @@ abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageImpl, val ou
   extends ClassBodyDeclaration(_modifiers) with ApexDeclaration {
 
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
-  override val idLocation: Location = id.location
+  override val idLocation: LocationImpl = id.location
   override val name: Name = id.name
   override val nature: Nature
 
@@ -172,6 +172,7 @@ abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageImpl, val ou
       nature.value, modifiers.map(_.toString).sorted.toList,
       superClass.map(_.asSummaryString(ns)).getOrElse(""),
       interfaces.map(_.asSummaryString(ns)).sorted.toList,
+      blocks.map(_.summary(ns)).toList,
       localFields.map(_.summary(ns)).sortBy(_.name).toList,
       constructors.map(_.summary(ns)).sortBy(_.parameters.size).toList,
       localMethods.map(_.summary(ns)).sortBy(_.name).toList,
@@ -185,7 +186,7 @@ object FullDeclaration {
   def create(pkg: PackageImpl, path: PathLike, data: String): Option[FullDeclaration] = {
     CodeParser.parseClass(path, data) match {
       case Left(err) =>
-        OrgImpl.logMessage(LineLocation(path, err.line), err.message)
+        OrgImpl.logMessage(LineLocationImpl(path.toString, err.line), err.message)
         None
       case Right(cu) =>
         val sourceHash = MurmurHash3.stringHash(data)

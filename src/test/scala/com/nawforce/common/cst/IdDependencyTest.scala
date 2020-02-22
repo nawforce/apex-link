@@ -31,7 +31,7 @@ import com.nawforce.common.api.ServerOps
 import com.nawforce.common.documents.{ApexDocument, DocumentType}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
@@ -67,7 +67,7 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Missing Static func creates error") {
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy {void func() {A.func();} }"))
-    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) ==
+    assert(defaultOrg.issues.getMessages("/Dummy.cls") ==
       "Error: line 1 at 33-34: No variable or type found for 'A' on 'Dummy'\n")
     assert(tds.head.dependencies().isEmpty)
   }
@@ -77,7 +77,6 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy {static void func() {A.func();} }",
       "A.cls" -> "public class A {public static void func() {}}"
     ))
-    defaultOrg.issues.dumpMessages(false)
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies()
@@ -116,7 +115,7 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
     val tds = typeDeclarations(Map(
       "Dummy.cls" -> "public class Dummy {Object a; class B {void func() {a = null;} } }",
     ))
-    assert(defaultOrg.issues.getMessages(PathFactory("/Dummy.cls")) ==
+    assert(defaultOrg.issues.getMessages("/Dummy.cls") ==
       "Error: line 1 at 52-53: No variable or type found for 'a' on 'Dummy.B'\n")
     assert(tds.head.dependencies().isEmpty)
     assert(tds.head.nestedTypes.head.dependencies().isEmpty)

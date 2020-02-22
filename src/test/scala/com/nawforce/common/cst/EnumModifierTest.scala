@@ -36,14 +36,14 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class EnumModifierTest extends AnyFunSuite with BeforeAndAfter {
 
-  private val defaultPath = PathFactory("Dummy.cls")
+  private val defaultPath = PathFactory("Dummy.cls").toString
   private var defaultOrg: OrgImpl = new OrgImpl
 
   def typeDeclaration(clsText: String): TypeDeclaration = {
     OrgImpl.current.withValue(defaultOrg) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
+      val td = FullDeclaration.create(defaultOrg.unmanaged, PathFactory("Dummy.cls"), clsText)
       if (td.isEmpty)
-        defaultOrg.issues.dumpMessages(json = false)
+        defaultOrg.dumpIssues()
       td.head.validate()
       td.head
     }

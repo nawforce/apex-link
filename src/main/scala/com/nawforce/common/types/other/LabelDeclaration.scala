@@ -94,7 +94,7 @@ final case class GhostedLabelDeclaration(pkg: PackageImpl, name: Name)
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     if (staticContext.contains(true)) {
-      Some(Label(LineLocation(PathFactory(s"$name.labels"), 0), name, isProtected = false))
+      Some(Label(LineLocationImpl(PathFactory(s"$name.labels").toString, 0), name, isProtected = false))
     } else {
       None
     }
@@ -131,13 +131,13 @@ object LabelDeclaration {
 
   private def parseLabels(path: PathLike): Seq[Label] = {
     if (!path.nature.isInstanceOf[FILE]) {
-      OrgImpl.logMessage(LineLocation(path, 0), s"Expecting labels to be in a normal file")
+      OrgImpl.logMessage(LineLocationImpl(path.toString, 0), s"Expecting labels to be in a normal file")
       return Seq()
     }
 
     val data = path.read()
     if (data.isLeft) {
-      OrgImpl.logMessage(LineLocation(path, 0), s"Could not read file: ${data.right.get}")
+      OrgImpl.logMessage(LineLocationImpl(path.toString, 0), s"Could not read file: ${data.right.get}")
       return Seq()
     }
 
@@ -153,12 +153,12 @@ object LabelDeclaration {
       rootElement.getChildren("labels")
         .map(c => Label(path, c))
     } catch {
-      case e: XMLException => OrgImpl.logMessage(RangeLocation(path, e.where), e.msg); Seq()
+      case e: XMLException => OrgImpl.logMessage(RangeLocationImpl(path, e.where), e.msg); Seq()
     }
   }
 }
 
-case class Label(location: Location, name: Name, isProtected: Boolean) extends FieldDeclaration {
+case class Label(location: LocationImpl, name: Name, isProtected: Boolean) extends FieldDeclaration {
   override lazy val modifiers: Seq[Modifier] = Seq(STATIC_MODIFIER, GLOBAL_MODIFIER)
   override lazy val typeName: TypeName = TypeName.String
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER
@@ -171,6 +171,6 @@ object Label {
     val fullName: String = element.getSingleChildAsString("fullName")
     val protect: Boolean = element.getSingleChildAsBoolean( "protected")
 
-    Label(RangeLocation(path, TextRange(element.line)), Name(fullName), protect)
+    Label(RangeLocationImpl(path, TextRange(element.line)), Name(fullName), protect)
   }
 }

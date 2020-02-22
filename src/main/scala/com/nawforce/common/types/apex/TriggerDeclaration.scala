@@ -29,7 +29,7 @@ package com.nawforce.common.types.apex
 
 import com.nawforce.common.api.ServerOps
 import com.nawforce.common.cst._
-import com.nawforce.common.documents.LineLocation
+import com.nawforce.common.documents.LineLocationImpl
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
@@ -86,7 +86,7 @@ object TriggerDeclaration {
   def create(pkg: PackageImpl, path: PathLike, data: String): Seq[TriggerDeclaration] = {
     CodeParser.parseTrigger(path, data) match {
       case Left(err) =>
-        OrgImpl.logMessage(LineLocation(path, err.line), err.message)
+        OrgImpl.logMessage(LineLocationImpl(path.toString, err.line), err.message)
         Nil
       case Right(cu) =>
         Seq(TriggerDeclaration.construct(pkg, path, cu, new ConstructContext()))

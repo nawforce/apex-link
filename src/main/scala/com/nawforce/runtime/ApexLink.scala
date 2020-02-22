@@ -29,7 +29,7 @@ package com.nawforce.runtime
 
 import java.nio.file.Paths
 
-import com.nawforce.common.api.{IssueOptions, Org, ServerOps, Package}
+import com.nawforce.common.api.{IssueOptions, Org, Package, ServerOps}
 
 import scala.collection.mutable
 

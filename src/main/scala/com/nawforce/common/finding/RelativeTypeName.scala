@@ -28,7 +28,7 @@
 package com.nawforce.common.finding
 
 import com.nawforce.common.cst.BlockVerifyContext
-import com.nawforce.common.documents.Location
+import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.pkg.PackageImpl
@@ -40,7 +40,7 @@ import com.nawforce.common.types.{Nature, TypeDeclaration}
  */
 final case class RelativeTypeName(pkg: PackageImpl, outerTypeName: TypeName, relativeTypeName: TypeName) {
 
-  def addVar(location: Location, name: Name, context: BlockVerifyContext): Unit = {
+  def addVar(location: LocationImpl, name: Name, context: BlockVerifyContext): Unit = {
     typeRequest match {
       case Some(Right(td)) =>
         context.addVar(name, td)

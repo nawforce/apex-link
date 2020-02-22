@@ -29,7 +29,7 @@ package com.nawforce.common.types.apex
 
 import com.nawforce.common.api.{FieldSummary, TypeLike}
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, MethodMap, VerifyContext}
-import com.nawforce.common.documents.{Location, RangeLocation, TextRange}
+import com.nawforce.common.documents.{LocationImpl, RangeLocationImpl, TextRange}
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
@@ -40,7 +40,7 @@ import scala.collection.mutable
 
 /** Field or Property with location information for error reporting */
 trait ApexFieldLike extends FieldDeclaration {
-  val location: RangeLocation
+  val location: RangeLocationImpl
 
   override def summary(excludeNamespace: Option[Name]): FieldSummary = {
     super.summary(excludeNamespace, Some(new TextRange(location.start, location.end)))
@@ -52,7 +52,7 @@ trait ApexDeclaration extends TypeDeclaration {
 
   val sourceHash: Int
   val pkg: PackageImpl
-  val idLocation: Location
+  val idLocation: LocationImpl
   val localFields: Seq[ApexFieldLike]
   val localMethods: Seq[MethodDeclaration]
 
@@ -135,16 +135,20 @@ trait ApexDeclaration extends TypeDeclaration {
   def collectDependenciesByTypeName(dependents: mutable.Set[TypeName])
 
   override def validate(): Unit = {
-    // Propagate type level dependencies
+    // Propagate dependency holding to outer type declarations
     val dependsOn = mutable.Set[TypeName]()
     collectDependenciesByTypeName(dependsOn)
-    dependsOn.foreach(d => {
-      TypeRequest(d, pkg, excludeSObjects = false) match {
-        case Left(_) => ()
-        case Right(td: ApexDeclaration) => td.addTypeDependencyHolder(typeName)
-        case Right(_) => ()
-      }
-    })
+    dependsOn.foreach(dependentTypeName =>
+      getOutermostDeclaration(dependentTypeName).map(_.addTypeDependencyHolder(typeName)))
+  }
+
+  private def getOutermostDeclaration(typeName: TypeName): Option[ApexDeclaration] = {
+    TypeRequest(typeName, pkg, excludeSObjects = false) match {
+      case Right(td: ApexDeclaration) =>
+        td.outerTypeName.map(getOutermostDeclaration).getOrElse(Some(td))
+      case Right(_) => None
+      case Left(_) => None
+    }
   }
 
   def addTypeDependencyHolder(typeName: TypeName): Unit = {

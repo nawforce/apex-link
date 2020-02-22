@@ -30,10 +30,11 @@ package com.nawforce.common.pkg
 
 import java.nio.charset.StandardCharsets
 
-import com.nawforce.common.api.ServerOps
+import com.nawforce.common.api.{ApexSummary, ServerOps}
+import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.types.apex.{FullDeclaration, SummaryDeclaration, TriggerDeclaration}
+import com.nawforce.common.types.apex.{FullDeclaration, SummaryApex, TriggerDeclaration}
 import com.nawforce.common.types.schema.SObjectDeclaration
 import upickle.default.writeBinary
 
@@ -87,44 +88,54 @@ trait PackageDeploy {
   }
 
   private def loadClasses(): Unit = {
-    val pc = getParsedCache
+    val pcOpt = getParsedCache
     val docs = documentsByExtension(Name("cls"))
     ServerOps.debugTime(s"Parsed ${docs.size} classes", docs.nonEmpty) {
 
       // Load summary docs that have valid dependents
-      if (pc.nonEmpty) {
+      if (pcOpt.nonEmpty) {
         val summaryDocs = docs.flatMap(doc => {
           val data = doc.path.read()
-          val value = pc.flatMap(_.get(data.right.get.getBytes(), namespace))
-          value.map(v => new SummaryDeclaration(doc.path, this, None, v))
+          val value = pcOpt.flatMap(_.get(data.right.get.getBytes(), namespace))
+          value.map(v => new SummaryApex(doc.path, this, v))
         })
-        val summaryDocsMap = summaryDocs.map(d => (d.typeName, d)).toMap
+        val summaryDocsByType = summaryDocs.map(d => (d.declaration.typeName, d.declaration)).toMap
 
-        val validDecls = summaryDocs.filter(_.areDependentsValid(summaryDocsMap))
-        validDecls.foreach(decl => {
-          decl.validate()
-          upsertMetadata(decl)
+        // Upsert any summary docs that are valid and report known issues
+        val validSummaryDocs = summaryDocs.filter(_.declaration.areDependentsValid(summaryDocsByType))
+        validSummaryDocs.foreach(doc => {
+          upsertMetadata(doc.declaration)
+          val path = doc.declaration.path.toString
+          doc.diagnostics.map(diagnostic => Issue(path, diagnostic))
         })
+
+        // Validate these (must be after all have been inserted to allow for dependency propagation)
+        validSummaryDocs.foreach(_.declaration.validate())
       }
 
       // Load full docs for rest of set
       val fullTypes = docs
         .filterNot(doc => types.contains(TypeName(doc.name).withNamespace(namespace)))
-        .map(doc => {
+        .flatMap(doc => {
           val data = doc.path.read()
-          val td = ServerOps.debugTime(s"Parsed ${doc.path}") {
+          val tdOpt = ServerOps.debugTime(s"Parsed ${doc.path}") {
             FullDeclaration.create(this, doc.path, data.right.get)
           }
-          td.foreach(upsertMetadata(_))
-          (data.right.get, td)
+          tdOpt.map(td => {
+            upsertMetadata(td)
+            (td, data.right.get)
+          })
         })
 
       // Validate the full types & write back to cache
-      fullTypes.filter(_._2.nonEmpty).foreach(ld => {
-        ld._2.get.validate()
-        if (pc.nonEmpty) {
-          pc.map(_.upsert(ld._1.getBytes(StandardCharsets.UTF_8), writeBinary(ld._2.get.summary), namespace))
-        }
+      fullTypes.foreach(loadedWithSource => {
+        val td = loadedWithSource._1
+        td.validate()
+        pcOpt.map(pc => {
+          val diagnostics = org.issues.getDiagnostics(td.getPath.toString)
+          val summary = ApexSummary(1, td.summary, diagnostics)
+          pc.upsert(loadedWithSource._2.getBytes(StandardCharsets.UTF_8), writeBinary(summary), namespace)
+        })
       })
     }
   }

@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.documents.Location
+import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.finding.{TypeError, TypeRequest}
 import com.nawforce.common.metadata.{DependencyHolder, Dependent}
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
@@ -66,17 +66,17 @@ trait VerifyContext {
 
   def suppressWarnings: Boolean = parent().exists(_.suppressWarnings)
 
-  def missingType(location: Location, typeName: TypeName): Unit = {
+  def missingType(location: LocationImpl, typeName: TypeName): Unit = {
     if (!pkg.isGhostedType(typeName))
       logMessage(location, s"No type declaration found for '$typeName'")
   }
 
-  def missingIdentifier(location: Location, typeName: TypeName, name: Name): Unit = {
+  def missingIdentifier(location: LocationImpl, typeName: TypeName, name: Name): Unit = {
     if (!pkg.isGhostedType(EncodedName(name).asTypeName))
       logMessage(location, s"No variable or type found for '$name' on '$typeName'")
   }
 
-  def logMessage(location: Location, msg: String): Unit = {
+  def logMessage(location: LocationImpl, msg: String): Unit = {
     if (!suppressWarnings)
       OrgImpl.logMessage(location, msg)
   }
@@ -213,7 +213,7 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
     vars.put(name, typeDeclaration)
   }
 
-  def addVar(name: Name, location: Location, typeName: TypeName): Unit = {
+  def addVar(name: Name, location: LocationImpl, typeName: TypeName): Unit = {
     val td = getTypeAndAddDependency(typeName, thisType).toOption
     if (td.isEmpty)
       missingType(location, typeName)

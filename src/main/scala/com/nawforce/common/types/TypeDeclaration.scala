@@ -58,6 +58,10 @@ object Nature {
 
 trait BlockDeclaration extends DependencyHolder {
   val isStatic: Boolean
+
+  def summary(excludeNamespace: Option[Name]): BlockSummary = {
+    BlockSummary(BlockSummary.defaultVersion, isStatic, dependencySummary(excludeNamespace))
+  }
 }
 
 trait FieldDeclaration extends DependencyHolder {
@@ -357,6 +361,7 @@ trait TypeDeclaration extends MetadataDeclaration {
       nature.value, modifiers.map(_.toString).sorted.toList,
       superClass.map(_.asSummaryString(ns)).getOrElse(""),
       interfaces.map(_.asSummaryString(ns)).sorted.toList,
+      blocks.map(_.summary(ns)).toList,
       fields.map(_.summary(ns)).sortBy(_.name).toList,
       constructors.map(_.summary(ns)).sortBy(_.parameters.size).toList,
       methods.map(_.summary(ns)).sortBy(_.name).toList,

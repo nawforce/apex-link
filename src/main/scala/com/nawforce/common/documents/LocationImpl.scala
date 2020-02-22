@@ -27,49 +27,70 @@
 */
 package com.nawforce.common.documents
 
+import com.nawforce.common.api._
 import com.nawforce.common.path.PathLike
 import upickle.default.{macroRW, ReadWriter => RW}
 
-abstract class Location(val path: PathLike, val line: Int) {
+abstract class LocationImpl(val path: String, val line: Int) {
   def startPosition: (Int, Int) = (line, 0)
   def endPosition: (Int, Int) = (line+1, 0)
   def displayPosition: String
   def asJSON: String
+  def toLocation: Location
 }
 
-case class LineLocation(_path: PathLike, _line: Int) extends Location(_path, _line) {
+object LocationImpl {
+  def apply(path: String, location: Location): LocationImpl = {
+    location match {
+      case l: LineLocation => LineLocationImpl(path, l.line)
+      case l: LineRangeLocation => LineRangeLocationImpl(path, l.start, l.end)
+      case l: PointLocation => PointLocationImpl(path, PositionImpl(l.position))
+      case l: RangeLocation => RangeLocationImpl(path, PositionImpl(l.start), PositionImpl(l.end))
+    }
+  }
+}
+
+case class LineLocationImpl(_path: String, _line: Int) extends LocationImpl(_path, _line) {
   override def displayPosition: String = s"line $line"
   override def asJSON: String = s""""start": {"line": $line}"""
+  override def toLocation: LineLocation = LineLocation(line)
 }
 
-case class LineRangeLocation(_path: PathLike, start: Int, end: Int) extends Location(_path, start) {
+case class LineRangeLocationImpl(_path: String, start: Int, end: Int) extends LocationImpl(_path, start) {
   override def endPosition: (Int, Int) = (end+1, 0)
   override def displayPosition: String = s"line $start to $end"
   override def asJSON: String = s""""start": {"line": $start}, "end": {"line": $end}"""
+  override def toLocation: LineRangeLocation = LineRangeLocation(start, end)
 }
 
-case class Position(line: Int, offset: Int) {
+case class PositionImpl(line: Int, offset: Int) {
   def getPosition: (Int, Int) = (line, offset)
   def displayPosition: String = s"line $line at $offset"
   def asJSON: String = s"""{"line": $line, "offset": $offset}"""
 
-  def adjust(lineOffset: Int, positionOffset: Int): Position = {
+  def adjust(lineOffset: Int, positionOffset: Int): PositionImpl = {
     if (lineOffset == 0 && positionOffset == 0) {
       return this
     }
 
     if (line == 1)
-      Position(line + lineOffset, offset + positionOffset)
+      PositionImpl(line + lineOffset, offset + positionOffset)
     else
-      Position(line + lineOffset, offset)
+      PositionImpl(line + lineOffset, offset)
+  }
+
+  def toPosition: Position = Position(line, offset)
+}
+
+object PositionImpl {
+  implicit val rw: RW[PositionImpl] = macroRW
+
+  def apply(position: Position): PositionImpl = {
+    PositionImpl(position.line, position.offset)
   }
 }
 
-object Position {
-  implicit val rw: RW[Position] = macroRW
-}
-
-case class TextRange(start: Position, end: Position) {
+case class TextRange(start: PositionImpl, end: PositionImpl) {
   def startPosition: (Int, Int) = start.getPosition
   def displayPosition: String = {
     if (start.line == end.line)
@@ -93,35 +114,37 @@ case class TextRange(start: Position, end: Position) {
   }
 }
 
-case class PointLocation(_path: PathLike, start: Position) extends Location(_path, start.line) {
+case class PointLocationImpl(_path: String, start: PositionImpl) extends LocationImpl(_path, start.line) {
   override def startPosition: (Int, Int) = start.getPosition
   override def endPosition: (Int, Int) = (startPosition._1+1, 0)
   override def displayPosition: String = start.displayPosition
   override def asJSON: String = start.asJSON
+  override def toLocation: PointLocation = PointLocation(start.toPosition)
 }
 
-case class RangeLocation(_path: PathLike, start: Position, end: Position) extends Location(_path, start.line) {
+case class RangeLocationImpl(_path: String, start: PositionImpl, end: PositionImpl) extends LocationImpl(_path, start.line) {
   override def startPosition: (Int, Int) = start.getPosition
   override def endPosition: (Int, Int) = end.getPosition
   override def displayPosition: String = TextRange(start, end).displayPosition
   override def asJSON: String = TextRange(start, end).asJSON
+  override def toLocation: RangeLocation = RangeLocation(start.toPosition, end.toPosition)
 }
 
 object TextRange {
   implicit val rw: RW[TextRange] = macroRW
 
-  val empty: TextRange = TextRange(Position(0, 0), Position(0, 0))
+  val empty: TextRange = TextRange(PositionImpl(0, 0), PositionImpl(0, 0))
 
   def apply(line: Int): TextRange = {
     TextRange(
-      Position(line, 0),
-      Position(line+1, 0)
+      PositionImpl(line, 0),
+      PositionImpl(line+1, 0)
     )
   }
 }
 
-object RangeLocation {
-  def apply(path: PathLike, range: TextRange): RangeLocation = {
-    RangeLocation(path, range.start, range.end)
+object RangeLocationImpl {
+  def apply(path: PathLike, range: TextRange): RangeLocationImpl = {
+    RangeLocationImpl(path.toString, range.start, range.end)
   }
 }
