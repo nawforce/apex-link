@@ -123,53 +123,54 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
-  def fooHoldsBar(files: Map[String, String], inheritanceOnly: Boolean = false): Unit = {
-    FileSystemHelper.run(files) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-
-      val fooTypeLike = pkg.getTypeOfPath(root.join("classes").join("Foo.cls").toString)
-      val barTypeLike = pkg.getTypeOfPath(root.join("classes").join("Bar.cls").toString)
-
-      assert(pkg.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
-      assert(pkg.getDependencyHolders(barTypeLike).isEmpty)
-
-      if (inheritanceOnly) {
-        assert(pkg.getDependencies(barTypeLike, inheritanceOnly=true).sameElements(Array(fooTypeLike)))
-      } else {
-        assert(pkg.getDependencies(barTypeLike, inheritanceOnly=true).isEmpty)
-      }
-      assert(pkg.getDependencies(barTypeLike, inheritanceOnly=false).sameElements(Array(fooTypeLike)))
-      assert(pkg.getDependencies(fooTypeLike, inheritanceOnly=false).isEmpty)
-    }
-  }
-
   def fooHoldsBarCached(files: Map[String, String], inheritanceOnly: Boolean = false): Unit = {
     ParsedCache.clear()
     ServerOps.setParsedDataCaching(true)
-    fooHoldsBar(files, inheritanceOnly)
-    FileSystemHelper.run(files) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(files, setupCache = true) { root: PathLike =>
+      // Basic non-cached test
+      {
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg = org.addPackage(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
 
-      val fooTypeLike = pkg.getTypeOfPath(root.join("classes").join("Foo.cls").toString).asInstanceOf[TypeName]
-      val barTypeLike = pkg.getTypeOfPath(root.join("classes").join("Bar.cls").toString).asInstanceOf[TypeName]
+        val fooTypeLike = pkg.getTypeOfPath(root.join("classes").join("Foo.cls").toString)
+        val barTypeLike = pkg.getTypeOfPath(root.join("classes").join("Bar.cls").toString)
 
-      assert(pkg.getType(fooTypeLike, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
-      assert(pkg.getType(barTypeLike, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+        assert(pkg.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
+        assert(pkg.getDependencyHolders(barTypeLike).isEmpty)
 
-      assert(pkg.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
-      assert(pkg.getDependencyHolders(barTypeLike).isEmpty)
-
-      if (inheritanceOnly) {
-        assert(pkg.getDependencies(barTypeLike, inheritanceOnly=true).sameElements(Array(fooTypeLike)))
-      } else {
-        assert(pkg.getDependencies(barTypeLike, inheritanceOnly=true).isEmpty)
+        if (inheritanceOnly) {
+          assert(pkg.getDependencies(barTypeLike, inheritanceOnly=true).sameElements(Array(fooTypeLike)))
+        } else {
+          assert(pkg.getDependencies(barTypeLike, inheritanceOnly=true).isEmpty)
+        }
+        assert(pkg.getDependencies(barTypeLike, inheritanceOnly=false).sameElements(Array(fooTypeLike)))
+        assert(pkg.getDependencies(fooTypeLike, inheritanceOnly=false).isEmpty)
       }
-      assert(pkg.getDependencies(barTypeLike, inheritanceOnly=false).sameElements(Array(fooTypeLike)))
-      assert(pkg.getDependencies(fooTypeLike, inheritanceOnly=false).isEmpty)
+
+      // Extended cache test
+      {
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+        assert(!org.issues.hasMessages)
+
+        val fooTypeLike = pkg.getTypeOfPath(root.join("classes").join("Foo.cls").toString).asInstanceOf[TypeName]
+        val barTypeLike = pkg.getTypeOfPath(root.join("classes").join("Bar.cls").toString).asInstanceOf[TypeName]
+
+        assert(pkg.getType(fooTypeLike, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+        assert(pkg.getType(barTypeLike, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+
+        assert(pkg.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
+        assert(pkg.getDependencyHolders(barTypeLike).isEmpty)
+
+        if (inheritanceOnly) {
+          assert(pkg.getDependencies(barTypeLike, inheritanceOnly = true).sameElements(Array(fooTypeLike)))
+        } else {
+          assert(pkg.getDependencies(barTypeLike, inheritanceOnly = true).isEmpty)
+        }
+        assert(pkg.getDependencies(barTypeLike, inheritanceOnly = false).sameElements(Array(fooTypeLike)))
+        assert(pkg.getDependencies(fooTypeLike, inheritanceOnly = false).isEmpty)
+      }
     }
     ServerOps.setParsedDataCaching(false)
   }
@@ -210,7 +211,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Method type dependency") {
-    fooHoldsBar(Map(
+    fooHoldsBarCached(Map(
       "classes/Foo.cls" -> "public class Foo {}",
       "classes/Bar.cls" -> "public class Bar {Foo func(){return null;} }"
     ))
@@ -409,7 +410,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "pkg1/Foo.cls" -> "global virtual class Foo {}",
       "pkg2/Bar.cls" -> "public class Bar extends test.Foo {}"
-    )) { root: PathLike =>
+    ), setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg1 = org.addPackage(Some(Name("test")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
       val pkg2 = org.addPackage(None, Seq(root.join("pkg2")), Seq(pkg1))
@@ -458,7 +459,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "pkg1/Foo.cls" -> "global virtual class Foo {}",
       "pkg2/Bar.cls" -> "public class Bar extends test1.Foo {}"
-    )) { root: PathLike =>
+    ), setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg1 = org.addPackage(Some(Name("test1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
       val pkg2 = org.addPackage(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg1))

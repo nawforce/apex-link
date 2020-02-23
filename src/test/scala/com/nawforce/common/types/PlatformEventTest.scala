@@ -29,7 +29,7 @@ package com.nawforce.common.types
 
 import com.nawforce.common.api.Org
 import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.funsuite.AnyFunSuite
 

@@ -30,7 +30,7 @@ package com.nawforce.common.api
 import com.nawforce.common.documents.{ApexDocument, DocumentType}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
