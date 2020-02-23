@@ -402,6 +402,37 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+  test("Unmanaged to Managed Dependency (cached)") {
+    ParsedCache.clear()
+    ServerOps.setParsedDataCaching(true)
+
+    FileSystemHelper.run(Map(
+      "pkg1/Foo.cls" -> "global virtual class Foo {}",
+      "pkg2/Bar.cls" -> "public class Bar extends test.Foo {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg1 = org.addPackage(Some(Name("test")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      val pkg2 = org.addPackage(None, Seq(root.join("pkg2")), Seq(pkg1))
+      assert(!org.issues.hasMessages)
+
+      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg21 = org2.addPackage(Some(Name("test")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      val pkg22 = org2.addPackage(None, Seq(root.join("pkg2")), Seq(pkg21)).asInstanceOf[PackageImpl]
+      assert(!org2.issues.hasMessages)
+
+      val fooTypeLike = pkg21.getTypeOfPath(root.join("pkg1").join("Foo.cls").toString).asInstanceOf[TypeName]
+      val barTypeLike = pkg22.getTypeOfPath(root.join("pkg2").join("Bar.cls").toString).asInstanceOf[TypeName]
+
+      assert(pkg21.getType(fooTypeLike, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+      assert(pkg22.getType(barTypeLike, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+
+      assert(pkg21.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
+      assert(pkg22.getDependencyHolders(barTypeLike).isEmpty)
+    }
+
+    ServerOps.setParsedDataCaching(false)
+  }
+
   test("Managed to Managed Dependency") {
     FileSystemHelper.run(Map(
       "pkg1/Foo.cls" -> "global virtual class Foo {}",
@@ -418,5 +449,36 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(pkg1.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
       assert(pkg2.getDependencyHolders(barTypeLike).isEmpty)
     }
+  }
+
+  test("Managed to Managed Dependency (cached)") {
+    ParsedCache.clear()
+    ServerOps.setParsedDataCaching(true)
+
+    FileSystemHelper.run(Map(
+      "pkg1/Foo.cls" -> "global virtual class Foo {}",
+      "pkg2/Bar.cls" -> "public class Bar extends test1.Foo {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg1 = org.addPackage(Some(Name("test1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      val pkg2 = org.addPackage(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg1))
+      assert(!org.issues.hasMessages)
+
+      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg21 = org2.addPackage(Some(Name("test1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      val pkg22 = org2.addPackage(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg21)).asInstanceOf[PackageImpl]
+      assert(!org2.issues.hasMessages)
+
+      val fooTypeLike = pkg21.getTypeOfPath(root.join("pkg1").join("Foo.cls").toString).asInstanceOf[TypeName]
+      val barTypeLike = pkg22.getTypeOfPath(root.join("pkg2").join("Bar.cls").toString).asInstanceOf[TypeName]
+
+      assert(pkg21.getType(fooTypeLike, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+      assert(pkg22.getType(barTypeLike, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+
+      assert(pkg21.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
+      assert(pkg22.getDependencyHolders(barTypeLike).isEmpty)
+    }
+
+    ServerOps.setParsedDataCaching(false)
   }
 }

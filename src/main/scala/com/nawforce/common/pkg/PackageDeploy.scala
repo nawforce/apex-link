@@ -106,7 +106,7 @@ trait PackageDeploy {
         validSummaryDocs.foreach(doc => {
           upsertMetadata(doc.declaration)
           val path = doc.declaration.path.toString
-          doc.diagnostics.map(diagnostic => Issue(path, diagnostic))
+          doc.diagnostics.map(diagnostic => org.issues.add(Issue(path, diagnostic)))
         })
 
         // Validate these (must be after all have been inserted to allow for dependency propagation)

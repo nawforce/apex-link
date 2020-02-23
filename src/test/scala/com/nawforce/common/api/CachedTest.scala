@@ -184,6 +184,25 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
     )
   }
 
+  test("Error is persistent") {
+    FileSystemHelper.run(Map(
+      "pkg1/Foo.cls" -> "public class Foo extends Bar {}",
+      "pkg2/Foo.cls" -> "public class Foo extends Bar {}"
+    ), setupCache = true) { root: PathLike =>
+      // Setup as cached
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      assertIsFullDeclaration(pkg, "Foo")
+      assert(org.getIssues(new IssueOptions()) == "/pkg1/Foo.cls\nError: line 1 at 13-16: No type declaration found for 'Bar'\n")
+
+      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg2 = org2.addPackage(None, Seq(root.join("pkg2")), Seq()).asInstanceOf[PackageImpl]
+      assertIsSummaryDeclaration(pkg2, "Foo")
+      assert(org2.getIssues(new IssueOptions()) == "/pkg2/Foo.cls\nError: line 1 at 13-16: No type declaration found for 'Bar'\n")
+    }
+  }
+
+
   // TODO: Re-enable these when we have worked out how to handle schema rename
   /*
   test("Unmanaged to Packaged is cached") {
