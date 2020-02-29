@@ -30,6 +30,7 @@ package com.nawforce.common.diagnostics
 import com.nawforce.common.api.Diagnostic
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.runtime.json.JSON
+import upickle.default.{macroRW, ReadWriter => RW}
 
 import scala.collection.mutable
 
@@ -49,6 +50,8 @@ object IssueCategory {
       case _ => UNKNOWN_CATEGORY(value)
     }
   }
+
+  implicit val rw: RW[IssueCategory] = macroRW
 }
 
 case class Issue(category: IssueCategory, location: LocationImpl, message: String) {
@@ -59,6 +62,8 @@ object Issue {
   def apply(path: String, diagnostic: Diagnostic): Issue = {
     Issue(IssueCategory(diagnostic.category), LocationImpl(path, diagnostic.location), diagnostic.message)
   }
+
+  implicit val rw: RW[Issue] = macroRW
 }
 
 class IssueLog {
