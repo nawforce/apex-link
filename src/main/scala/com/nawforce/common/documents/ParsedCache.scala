@@ -29,18 +29,23 @@ package com.nawforce.common.documents
 
 import java.nio.charset.StandardCharsets
 
-import com.nawforce.common.names.Name
 import com.nawforce.common.path._
 import com.nawforce.runtime.os.Environment
 import upickle.default.{macroRW, ReadWriter => RW, _}
 
 import scala.util.hashing.MurmurHash3
 
-case class CacheEntry(version: Int, namespace: Array[Byte], key: Array[Byte], value: Array[Byte])
+case class CacheEntry(version: Int, packageKey: Array[Byte], key: Array[Byte], value: Array[Byte])
 
 object CacheEntry {
-  val currentVersion = 1
+  val currentVersion = 2
   implicit val rw: RW[CacheEntry] = macroRW
+}
+
+case class PackageContext(namespace: Option[String], ghostedPackages: Array[String], analysedPackages: Array[String])
+
+object PackageContext {
+  implicit val rw: RW[PackageContext] = macroRW
 }
 
 class ParsedCache(val path: PathLike) {
@@ -49,21 +54,21 @@ class ParsedCache(val path: PathLike) {
   expire()
 
   /** Upsert a key -> value pair, ignores errors */
-  def upsert(key: Array[Byte], value: Array[Byte], namespace: Option[Name]=None): Unit = {
-    val nsBytes = namespace.map(_.value).getOrElse("").getBytes(StandardCharsets.UTF_8)
-    val hashParts = hashToParts(MurmurHash3.bytesHash(key, MurmurHash3.bytesHash(nsBytes)))
+  def upsert(key: Array[Byte], value: Array[Byte], packageContext: PackageContext): Unit = {
+    val packageKey = write(packageContext).getBytes(StandardCharsets.UTF_8)
+    val hashParts = hashToParts(MurmurHash3.bytesHash(key, MurmurHash3.bytesHash(packageKey)))
     path.createDirectory(hashParts.head) match {
       case Left(_) => ()
       case Right(outer) =>
         val inner = outer.join(hashParts(1))
-        inner.write(writeBinary(CacheEntry(CacheEntry.currentVersion, nsBytes, key, value)))
+        inner.write(writeBinary(CacheEntry(CacheEntry.currentVersion, packageKey, key, value)))
     }
   }
 
   /** Recover a value from a key */
-  def get(key: Array[Byte], namespace: Option[Name]=None): Option[Array[Byte]] = {
-    val nsBytes = namespace.map(_.value).getOrElse("").getBytes(StandardCharsets.UTF_8)
-    val hashParts = hashToParts(MurmurHash3.bytesHash(key, MurmurHash3.bytesHash(nsBytes)))
+  def get(key: Array[Byte], packageContext: PackageContext): Option[Array[Byte]] = {
+    val packageKey = write(packageContext).getBytes(StandardCharsets.UTF_8)
+    val hashParts = hashToParts(MurmurHash3.bytesHash(key, MurmurHash3.bytesHash(packageKey)))
     val outer = path.join(hashParts.head)
     if (outer.nature == DIRECTORY) {
       val inner = outer.join(hashParts(1))
@@ -72,7 +77,7 @@ class ParsedCache(val path: PathLike) {
           case Left(_) => ()
           case Right(data) =>
             val ce = readBinary[CacheEntry](data)
-            if (ce.version == CacheEntry.currentVersion && ce.namespace.sameElements(nsBytes) && ce.key.sameElements(key))
+            if (ce.version == CacheEntry.currentVersion && ce.packageKey.sameElements(packageKey) && ce.key.sameElements(key))
               return Some(ce.value)
         }
       }

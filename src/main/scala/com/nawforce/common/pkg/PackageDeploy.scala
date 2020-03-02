@@ -96,7 +96,7 @@ trait PackageDeploy {
       if (pcOpt.nonEmpty) {
         val summaryDocs = docs.flatMap(doc => {
           val data = doc.path.read()
-          val value = pcOpt.flatMap(_.get(data.right.get.getBytes(), namespace))
+          val value = pcOpt.flatMap(_.get(data.right.get.getBytes(), packageContext))
           value.map(v => new SummaryApex(doc.path, this, v))
         })
         val summaryDocsByType = summaryDocs.map(d => (d.declaration.typeName, d.declaration)).toMap
@@ -134,7 +134,8 @@ trait PackageDeploy {
         pcOpt.map(pc => {
           val diagnostics = org.issues.getDiagnostics(td.getPath.toString)
           val summary = ApexSummary(1, td.summary, diagnostics)
-          pc.upsert(loadedWithSource._2.getBytes(StandardCharsets.UTF_8), writeBinary(summary), namespace)
+          pc.upsert(loadedWithSource._2.getBytes(StandardCharsets.UTF_8),
+            writeBinary(summary), packageContext)
         })
       })
     }

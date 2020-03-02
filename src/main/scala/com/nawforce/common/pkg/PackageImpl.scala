@@ -30,7 +30,7 @@ package com.nawforce.common.pkg
 
 import com.nawforce.common.cst.UnusedLog
 import com.nawforce.common.diagnostics.IssueLog
-import com.nawforce.common.documents.{ComponentDocument, DocumentIndex, MetadataDocumentType}
+import com.nawforce.common.documents.{ComponentDocument, DocumentIndex, MetadataDocumentType, PackageContext}
 import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.metadata.MetadataDeclaration
@@ -90,12 +90,28 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   def labels(): LabelDeclaration = labelDeclaration
   def pages(): PageDeclaration = pageDeclaration
 
+  /* Base (dependent packages for this package), unmanaged is treated as dependent on everything */
   def basePackages: Seq[PackageImpl] = {
     // Override for unmanaged package to allow to be immutable
     if (namespace.isEmpty)
       OrgImpl.current.value.packagesByNamespace.values.filter(_.namespace.nonEmpty).toSeq
     else
       bases
+  }
+
+  /* Transitive Bases (dependent packages for this package) */
+  def transitiveBasePackages: Set[PackageImpl] = {
+    namespace.map(_ => bases.toSet ++ bases.flatMap(_.transitiveBasePackages)).getOrElse(basePackages.toSet)
+  }
+
+  /* Summary of package context containing namespace & base package namespace information */
+  def packageContext: PackageContext = {
+    val basePackages = transitiveBasePackages
+    PackageContext(
+      namespace.map(_.value),
+      basePackages.filter(_.isGhosted).map(_.namespace.map(_.value).getOrElse("")).toArray.sorted,
+      basePackages.filterNot(_.isGhosted).map(_.namespace.map(_.value).getOrElse("")).toArray.sorted,
+    )
   }
 
   /* Set of namespaces used by this package and its base packages */
