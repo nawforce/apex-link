@@ -48,12 +48,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.scalaz</groupId>
-            <artifactId>scalaz-core_2.12</artifactId>
-            <version>7.2.8</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
             <version>4.7.1</version>

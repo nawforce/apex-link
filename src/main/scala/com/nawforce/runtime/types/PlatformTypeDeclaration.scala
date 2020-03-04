@@ -38,7 +38,6 @@ import com.nawforce.common.names.{DotName, Name, TypeName}
 import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
 import com.nawforce.common.types.platform.{GenericPlatformTypeDeclaration, PlatformTypes}
-import scalaz._
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.HashMap
@@ -218,7 +217,11 @@ class PlatformMethod(val method: java.lang.reflect.Method, val typeDeclaration: 
 }
 
 object PlatformTypeDeclaration {
-  val platformPackage = "com.nawforce.platform"
+  /* Java package prefix for platform types */
+  private val platformPackage = "com.nawforce.platform"
+
+  /* Cache of loaded platform declarations */
+  private val declarationCache = mutable.Map[DotName, Option[PlatformTypeDeclaration]]()
 
   /* Get a Path that leads to platform classes */
   lazy val platformPackagePath: java.nio.file.Path = {
@@ -236,7 +239,7 @@ object PlatformTypeDeclaration {
    * PlatformTypeDeclaration but it does not handle nested classes, see PlatformTypes for that.
    */
   def get(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {
-    val tdOption = declarationCache(typeName.asDotName)
+    val tdOption = getDeclaration(typeName.asDotName)
     if (tdOption.isEmpty)
       return Left(MissingType(typeName))
 
@@ -251,22 +254,18 @@ object PlatformTypeDeclaration {
       Right(td)
   }
 
+
   /* Get a declaration for a class from a DotName, in general don't call this direct, use TypeRequest which will
    * delegate here if needed. This does not handle generics or inner classes
    */
   def getDeclaration(name: DotName): Option[PlatformTypeDeclaration] = {
-    declarationCache(name)
-  }
-
-  private val declarationCache: DotName => Option[PlatformTypeDeclaration] =
-    Memo.immutableHashMapMemo { name: DotName => find(name) }
-
-  private def find(name: DotName): Option[PlatformTypeDeclaration] = {
-    val matched = classNameMap.get(name)
-    assert(matched.size < 2, s"Found multiple platform type matches for $name")
-    matched.map(name => PlatformTypeDeclaration(
-      classOf[PlatformTypeDeclaration].getClassLoader.loadClass(platformPackage + "." + name),
-      None))
+    declarationCache.getOrElseUpdate(name, {
+      val matched = classNameMap.get(name)
+      assert(matched.size < 2, s"Found multiple platform type matches for $name")
+      matched.map(name => PlatformTypeDeclaration(
+        classOf[PlatformTypeDeclaration].getClassLoader.loadClass(platformPackage + "." + name),
+        None))
+    })
   }
 
   /* Valid platform class names */

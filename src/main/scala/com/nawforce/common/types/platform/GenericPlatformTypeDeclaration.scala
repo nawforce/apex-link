@@ -1,3 +1,31 @@
+/*
+ [The "BSD licence"]
+ Copyright (c) 2019 Kevin Jones
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+ 3. The name of the author may not be used to endorse or promote products
+    derived from this software without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
 package com.nawforce.common.types.platform
 
 import com.nawforce.common.cst.Modifier
@@ -6,7 +34,8 @@ import com.nawforce.common.finding.{MissingType, TypeError, TypeRequest}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.types.{FieldDeclaration, MethodDeclaration, ParameterDeclaration, TypeDeclaration}
 import com.nawforce.runtime.types.{PlatformField, PlatformMethod, PlatformParameter, PlatformTypeDeclaration}
-import scalaz._
+
+import scala.collection.mutable
 
 /* Wrapper for the few generic types we support, this specialises the methods of the type so that
  * List<T> presents as say a List<Foo>.
@@ -103,17 +132,17 @@ class GenericPlatformParameter(platformParameter: PlatformParameter, _typeDeclar
 
 object GenericPlatformTypeDeclaration {
 
+  // Cache of generic type requests
+  private val declarationCache = mutable.Map[(TypeName, Option[TypeDeclaration.TID]), TypeRequest]()
+
   /* Get a generic type, in general don't call this direct, use TypeRequest which will delegate here if
    * needed. Implicit in this model is that all generics are currently platform types, hopefully that
    * won't be true forever.
    */
   def get(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {
-    declarationCache((typeName, from))
-  }
-
-  private val declarationCache = Memo.immutableHashMapMemo
-    [(TypeName, Option[TypeDeclaration]), TypeRequest] {
-    case (typeName: TypeName, from: Option[TypeDeclaration]) => create(typeName, from)
+    declarationCache.getOrElseUpdate((typeName, from.map(_.tid)), {
+      create(typeName, from)
+    })
   }
 
   private def create(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {

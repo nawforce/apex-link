@@ -188,7 +188,18 @@ trait MethodDeclaration extends DependencyHolder {
   )
 }
 
+object TypeDeclaration {
+  type TID = Int
+  private var tidCounter: TID = 0
+
+  def getAndIncrementTID(): TID = {
+    tidCounter += 1
+    tidCounter
+  }
+}
+
 trait TypeDeclaration extends MetadataDeclaration {
+  val tid: TypeDeclaration.TID = TypeDeclaration.getAndIncrementTID()
   override lazy val internalName: Name = Name(typeName.toString)
   val packageDeclaration: Option[PackageImpl]
   val name: Name

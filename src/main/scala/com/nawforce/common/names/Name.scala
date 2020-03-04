@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.names
 
-import scalaz.Memo
+import scala.collection.mutable
 
 /**
   * A case insensitive string typically used for holding symbol names
@@ -79,6 +79,8 @@ case class Name(value: String) {
 }
 
 object Name {
+
+  private val nameCache = mutable.Map[String, Name]()
 
   def apply(name: String): Name = cache(name)
   def safeApply(name: String): Option[Name] = Option(name).filterNot(_.isEmpty).map(n => Name(n))
@@ -176,7 +178,9 @@ object Name {
   lazy val BatchableContext: Name = cache("BatchableContext")
   lazy val Trigger: Name = cache("Trigger")
 
-  private val cache: String => Name = Memo.immutableHashMapMemo { name: String => new Name(name) }
+  private def cache(value: String): Name = {
+    nameCache.getOrElseUpdate(value, {new Name(value)})
+  }
 
   // This is the official reserved keyword list, not all are actually reserved, some are for "future" use, I have
   // removed those known not to be enforced
