@@ -27,6 +27,7 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.types.apex.ApexFieldLike
 import com.nawforce.runtime.parsers.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
@@ -37,6 +38,8 @@ final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: Ty
   extends ClassBodyDeclaration(_modifiers) with ApexFieldLike {
 
   override val name: Name = id.name
+  override val nameRange: RangeLocationImpl = id.location
+
   val setter: Option[SetterPropertyBlock] =
     propertyBlocks.flatMap {
       case x: SetterPropertyBlock => Some(x)

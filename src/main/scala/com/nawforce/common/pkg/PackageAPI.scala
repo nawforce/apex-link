@@ -58,7 +58,7 @@ trait PackageAPI extends Package {
     try {
       types.get(TypeName(typeLike))
         .map {
-          case ad: ApexDeclaration => ad.idLocation.path.toString
+          case ad: ApexDeclaration => ad.nameLocation.path.toString
           case _ => null
         }
         .orNull

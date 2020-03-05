@@ -27,34 +27,71 @@
 */
 package com.nawforce.common.types.apex
 
-import com.nawforce.common.api.{FieldSummary, TypeLike}
-import com.nawforce.common.cst.{GLOBAL_MODIFIER, MethodMap, VerifyContext}
+import com.nawforce.common.api.{ConstructorSummary, FieldSummary, MethodSummary, TypeLike}
+import com.nawforce.common.cst._
+import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents.{LocationImpl, RangeLocationImpl, TextRange}
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.pkg.PackageImpl
-import com.nawforce.common.types.{FieldDeclaration, MethodDeclaration, TypeDeclaration}
+import com.nawforce.common.types.{ConstructorDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
 
 import scala.collection.mutable
 
-/** Field or Property with location information for error reporting */
-trait ApexFieldLike extends FieldDeclaration {
-  val location: RangeLocationImpl
+/** Apex defined constructor core features, be they full or summary style */
+trait ApexConstructorLike extends ConstructorDeclaration {
+  val nameRange: RangeLocationImpl
 
-  override def summary(excludeNamespace: Option[Name]): FieldSummary = {
-    super.summary(excludeNamespace, Some(new TextRange(location.start, location.end)))
+  override def summary(excludeNamespace: Option[Name]): ConstructorSummary = {
+    super.summary(excludeNamespace, Some(new TextRange(nameRange.start, nameRange.end)))
   }
 }
 
-/** Core features for Apex defined types be they full or summary style */
-trait ApexDeclaration extends TypeDeclaration {
+/** Apex defined method core features, be they full or summary style */
+trait ApexMethodLike extends MethodDeclaration {
+  val nameRange: RangeLocationImpl
 
+  // Populated by type MethodMap construction
+  lazy val shadows: mutable.Set[MethodDeclaration] = mutable.Set()
+
+  lazy val isEntry: Boolean = {
+    modifiers.contains(ISTEST_ANNOTATION) ||
+      modifiers.contains(TEST_SETUP_ANNOTATION) ||
+      modifiers.contains(TEST_METHOD_MODIFIER) ||
+      modifiers.contains(GLOBAL_MODIFIER)
+  }
+
+  def isUsed: Boolean = {
+    isEntry || hasHolders ||
+      shadows.exists({
+        case am: ApexMethodLike => am.isUsed
+        case _: MethodDeclaration => true
+        case _ => false
+      })
+  }
+
+  override def summary(excludeNamespace: Option[Name]): MethodSummary = {
+    super.summary(excludeNamespace, Some(new TextRange(nameRange.start, nameRange.end)))
+  }
+}
+
+/** Apex defined fields core features, be they full or summary style */
+trait ApexFieldLike extends FieldDeclaration {
+  val nameRange: RangeLocationImpl
+
+  override def summary(excludeNamespace: Option[Name]): FieldSummary = {
+    super.summary(excludeNamespace, Some(new TextRange(nameRange.start, nameRange.end)))
+  }
+}
+
+/** Apex defined types core features, be they full or summary style */
+trait ApexDeclaration extends TypeDeclaration {
   val sourceHash: Int
   val pkg: PackageImpl
-  val idLocation: LocationImpl
+  val nameLocation: LocationImpl
   val localFields: Seq[ApexFieldLike]
-  val localMethods: Seq[MethodDeclaration]
+  val localMethods: Seq[ApexMethodLike]
 
   private val typeDependencyHolders = mutable.Set[TypeName]()
 
@@ -84,7 +121,7 @@ trait ApexDeclaration extends TypeDeclaration {
       case (_, y :: Nil) => y
       case (_, duplicates) =>
         duplicates.tail.foreach(d => {
-          OrgImpl.logMessage(d.location, s"Duplicate field/property: '${d.name}'")
+          OrgImpl.logMessage(d.nameRange, s"Duplicate field/property: '${d.name}'")
         })
         duplicates.head
     }.toSeq
@@ -112,13 +149,13 @@ trait ApexDeclaration extends TypeDeclaration {
     val allMethods = outerStaticMethods ++ localMethods
     val mmap = superClassDeclaration match {
       case Some(at: ApexDeclaration) =>
-        MethodMap(this, Some(idLocation), at.methodMap, allMethods, interfaceDeclarations)
+        MethodMap(this, Some(nameLocation), at.methodMap, allMethods, interfaceDeclarations)
       case Some(td: TypeDeclaration) =>
-        MethodMap(this, Some(idLocation),
+        MethodMap(this, Some(nameLocation),
           MethodMap(td, None, MethodMap.empty(), td.methods, Seq()),
           allMethods, interfaceDeclarations)
       case _ =>
-        MethodMap(this, Some(idLocation), MethodMap.empty(), allMethods, interfaceDeclarations)
+        MethodMap(this, Some(nameLocation), MethodMap.empty(), allMethods, interfaceDeclarations)
     }
 
     mmap.errors.foreach(err => OrgImpl.log(err._1, err._2._2, err._2._1))
@@ -157,5 +194,17 @@ trait ApexDeclaration extends TypeDeclaration {
 
   def getTypeDependencyHolders: Array[TypeLike] = {
     typeDependencyHolders.toArray
+  }
+
+  def unused(): Seq[Issue] = {
+    localFields.filterNot(_.hasHolders)
+      .map({
+        case field: ApexFieldDeclaration =>
+          Issue(UNUSED_CATEGORY, field.id.location, s"Field '${field.name}'")
+        case property: ApexPropertyDeclaration =>
+          Issue(UNUSED_CATEGORY, property.id.location, s"Property '${property.name}'")
+      }) ++
+      localMethods.filterNot(_.isUsed)
+        .map(method => Issue(UNUSED_CATEGORY, method.nameRange, s"Method '${method.signature}'"))
   }
 }

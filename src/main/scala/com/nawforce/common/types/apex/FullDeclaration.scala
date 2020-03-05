@@ -29,7 +29,6 @@ package com.nawforce.common.types.apex
 
 import com.nawforce.common.api.{ServerOps, TypeSummary}
 import com.nawforce.common.cst._
-import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents.{LineLocationImpl, LocationImpl, TextRange}
 import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
@@ -51,7 +50,7 @@ abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageImpl, val ou
   extends ClassBodyDeclaration(_modifiers) with ApexDeclaration {
 
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
-  override val idLocation: LocationImpl = id.location
+  override val nameLocation: LocationImpl = id.location
   override val name: Name = id.name
   override val nature: Nature
 
@@ -146,18 +145,6 @@ abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageImpl, val ou
   override def collectDependencies(dependsOn: mutable.Set[Dependent]): Unit = {
     super.collectDependencies(dependsOn)
     bodyDeclarations.foreach(_.collectDependencies(dependsOn))
-  }
-
-  def unused(): Seq[Issue] = {
-    localFields.filterNot(_.hasHolders)
-      .map({
-        case field: ApexFieldDeclaration =>
-          Issue(UNUSED_CATEGORY, field.id.location, s"Field '${field.name}'")
-        case property: ApexPropertyDeclaration =>
-          Issue(UNUSED_CATEGORY, property.id.location, s"Property '${property.name}'")
-      }) ++
-    localMethods.filterNot(_.isUsed)
-      .map(method => Issue(UNUSED_CATEGORY, method.id.location, s"Method '${method.signature}'"))
   }
 
   // Override to avoid super class access (use local fields & methods) & provide location information

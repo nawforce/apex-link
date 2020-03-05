@@ -27,9 +27,11 @@
 */
 package com.nawforce.common.api
 
+import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.pkg.PackageImpl
+import com.nawforce.common.types.apex.{FullDeclaration, SummaryDeclaration}
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
@@ -37,27 +39,106 @@ import org.scalatest.funsuite.AnyFunSuite
 class UnusedTest extends AnyFunSuite with BeforeAndAfter {
 
   before {
+    ServerOps.setParsedDataCaching(true)
+  }
+
+  after {
     ServerOps.setParsedDataCaching(false)
   }
 
-  test("@testSetup is entry") {
+  test("Unused method") {
     FileSystemHelper.run(Map(
-      "Dummy.cls" ->
-        s"""
-           |public class Dummy {
-           |@testSetup
-           |static void setup() {
-           |  Account a = new Account(Name='foo');
-           |  insert a;
-           |}
-           |}
-           |""".stripMargin
-    )) { root: PathLike =>
+      "Dummy.cls" -> "public class Dummy {public void foo() {}}"
+    ), setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
-
       assert(!org.issues.hasMessages)
-      assert(!pkg.reportUnused().hasMessages)
+      assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
+        "Unused: line 1 at 32-35: Method 'void foo()'\n")
+    }
+  }
+
+  test("Method used from method") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy {public void foo() {foo();}}"
+    ), setupCache = true) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+      assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString).isEmpty)
+    }
+  }
+
+  test("Method used from block") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy {{foo();} public void foo() {}}"
+    ), setupCache = true) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+      assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString).isEmpty)
+    }
+  }
+
+  test("Unused field") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy {Object a;}"
+    ), setupCache = true) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+      assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
+        "Unused: line 1 at 27-28: Field 'a'\n")
+    }
+  }
+
+  test("Field used from method") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy {Object a; void foo(){foo(); a = null;}}"
+    ), setupCache = true) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+      assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString).isEmpty)
+    }
+  }
+
+  test("Field used from block") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy {{a = null;} Object a;}"
+    ), setupCache = true) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+      assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString).isEmpty)
+    }
+  }
+
+  def assertIsFullDeclaration(pkg: PackageImpl, name: String, namespace: Option[Name]=None): Unit = {
+    assert(pkg.findTypes(Seq(TypeName(Name(name)).withNamespace(namespace))).head.isInstanceOf[FullDeclaration])
+  }
+
+  def assertIsSummaryDeclaration(pkg: PackageImpl, name: String, namespace: Option[Name]=None): Unit = {
+    assert(pkg.findTypes(Seq(TypeName(Name(name)).withNamespace(namespace))).head.isInstanceOf[SummaryDeclaration])
+  }
+
+  test("Unused method on summary type") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy {public void foo() {}}",
+    ), setupCache = true) { root: PathLike =>
+      // Setup as cached
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assertIsFullDeclaration(pkg, "Dummy")
+      assert(!org.issues.hasMessages)
+      assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
+        "Unused: line 1 at 32-35: Method 'void foo()'\n")
+
+      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg2 = org2.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assertIsSummaryDeclaration(pkg2, "Dummy")
+      assert(pkg2.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
+        "Unused: line 1 at 32-35: Method 'void foo()'\n")
     }
   }
 }

@@ -27,12 +27,13 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.finding.RelativeTypeName
 import com.nawforce.common.metadata._
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
-import com.nawforce.common.types.apex.ApexFieldLike
+import com.nawforce.common.types.apex.{ApexConstructorLike, ApexFieldLike, ApexMethodLike}
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -122,8 +123,9 @@ object ApexInitialiserBlock {
 
 final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], relativeTypeName: RelativeTypeName, id: Id,
                                        parameters: Seq[FormalParameter], block: Option[LazyBlock])
-  extends ClassBodyDeclaration(_modifiers) with MethodDeclaration {
+  extends ClassBodyDeclaration(_modifiers) with ApexMethodLike {
 
+  override val nameRange: RangeLocationImpl = id.location
   override val name: Name = id.name
 
   override lazy val typeName: TypeName = relativeTypeName.typeName
@@ -159,25 +161,6 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], relativeTypeNa
     depends = Some(context.dependencies)
     propagateDependencies()
   }
-
-  // Populated by type MethodMap construction
-  lazy val shadows: mutable.Set[MethodDeclaration] = mutable.Set()
-
-  lazy val isEntry: Boolean = {
-    modifiers.contains(ISTEST_ANNOTATION) ||
-      modifiers.contains(TEST_SETUP_ANNOTATION) ||
-      modifiers.contains(TEST_METHOD_MODIFIER) ||
-      modifiers.contains(GLOBAL_MODIFIER)
-  }
-
-  def isUsed: Boolean = {
-    isEntry || hasHolders ||
-      shadows.exists({
-        case am: ApexMethodDeclaration => am.isUsed
-        case _: MethodDeclaration => true
-        case _ => false
-      })
-  }
 }
 
 object ApexMethodDeclaration {
@@ -212,6 +195,7 @@ final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeN
   extends ClassBodyDeclaration(_modifiers) with ApexFieldLike {
 
   val id: Id = variableDeclarator.id
+  override val nameRange: RangeLocationImpl = id.location
   override val name: Name = id.name
   private val visibility: Option[Modifier] = _modifiers.find(m => ApexModifiers.visibilityModifiers.contains(m))
   override val readAccess: Modifier = visibility.getOrElse(PRIVATE_MODIFIER)
@@ -240,7 +224,9 @@ object ApexFieldDeclaration {
 final case class ApexConstructorDeclaration(_modifiers: Seq[Modifier], qualifiedName: QualifiedName,
                                             parameters: Seq[FormalParameter],
                                             block: Block)
-  extends ClassBodyDeclaration(_modifiers) with ConstructorDeclaration {
+  extends ClassBodyDeclaration(_modifiers) with ApexConstructorLike {
+
+  override val nameRange: RangeLocationImpl = qualifiedName.location
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     parameters.foreach(_.verify(context))

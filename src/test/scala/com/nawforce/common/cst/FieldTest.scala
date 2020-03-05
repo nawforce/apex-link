@@ -78,7 +78,7 @@ class FieldTest extends AnyFunSuite with BeforeAndAfter {
     assert(fields.size == 1)
     assert(fields.head.name == Name("foo"))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 32-43: Duplicate field/property: 'foo'\n")
+      "Error: line 1 at 39-42: Duplicate field/property: 'foo'\n")
   }
 
   test("More than one duplicate field reports error on duplicates") {
@@ -87,7 +87,7 @@ class FieldTest extends AnyFunSuite with BeforeAndAfter {
     assert(fields.size == 1)
     assert(fields.head.name == Name("foo"))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 32-44: Duplicate field/property: 'foo'\nError: line 1 at 45-56: Duplicate field/property: 'foo'\n")
+      "Error: line 1 at 40-43: Duplicate field/property: 'foo'\nError: line 1 at 52-55: Duplicate field/property: 'foo'\n")
   }
 
   test("Default field access private" ) {

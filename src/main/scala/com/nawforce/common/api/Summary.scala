@@ -36,11 +36,11 @@ case class TypeSummary(version: Int, sourceHash: Int, idRange: Option[TextRange]
                        blocks: List[BlockSummary], fields: List[FieldSummary], constructors: List[ConstructorSummary],
                        methods: List[MethodSummary], nestedTypes: List[TypeSummary], dependents: Set[DependentSummary])
 case class BlockSummary(version: Int, isStatic: Boolean, dependents: Set[DependentSummary])
-case class FieldSummary(version: Int, range: Option[TextRange], name: String, modifiers: List[String],
+case class FieldSummary(version: Int, idRange: Option[TextRange], name: String, modifiers: List[String],
                         typeName: String, readAccess: String, writeAccess: String, dependents: Set[DependentSummary])
-case class ConstructorSummary(version: Int, modifiers: List[String], parameters: List[ParameterSummary],
+case class ConstructorSummary(version: Int, idRange: Option[TextRange], modifiers: List[String], parameters: List[ParameterSummary],
                               dependents: Set[DependentSummary])
-case class MethodSummary(version: Int, name: String, modifiers: List[String], typeName: String,
+case class MethodSummary(version: Int, idRange: Option[TextRange], name: String, modifiers: List[String], typeName: String,
                          parameters: List[ParameterSummary], dependents: Set[DependentSummary])
 case class ParameterSummary(version: Int, name: String, typeName: String)
 case class DependentSummary(name: String, sourceHash: Int)

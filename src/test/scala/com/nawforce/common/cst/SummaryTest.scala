@@ -119,9 +119,9 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
       TypeSummary(1, 574678240, Some(new TextRange(new PositionImpl(1,13), new PositionImpl(1,18))),
         "Dummy", "Dummy", "class", List("public"), "Internal.Object$", Nil, Nil,
         List(
-          FieldSummary(1, Some(new TextRange(new PositionImpl(1,45), new PositionImpl(1,55))),
+          FieldSummary(1, Some(new TextRange(new PositionImpl(1,53), new PositionImpl(1,54))),
             "A", List("public"), "Integer", "public", "public", Set()),
-          FieldSummary(1, Some(new TextRange(new PositionImpl(1,28), new PositionImpl(1, 37))),
+          FieldSummary(1, Some(new TextRange(new PositionImpl(1,35), new PositionImpl(1, 36))),
             "B", List("private"), "String", "private", "private", Set()),
         ),
         Nil, Nil, Nil, Set())
@@ -135,9 +135,9 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
         "Dummy", "Dummy", "class", List("public"),
         "Internal.Object$", Nil, Nil,
         List(
-          FieldSummary(1, Some(new TextRange(new PositionImpl(1,56), new PositionImpl(1,85))),
+          FieldSummary(1, Some(new TextRange(new PositionImpl(1,64), new PositionImpl(1,65))),
             "A", List("public"), "Integer", "public", "private", Set()),
-          FieldSummary(1, Some(new TextRange(new PositionImpl(1,28), new PositionImpl(1,48))),
+          FieldSummary(1, Some(new TextRange(new PositionImpl(1,35), new PositionImpl(1,36))),
             "B", List("private"), "String", "private", "private", Set()),
         ),
         Nil, Nil, Nil, Set())
@@ -149,32 +149,40 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
       TypeSummary(1, 1268538768, Some(new TextRange(new PositionImpl(1,13), new PositionImpl(1,18))),
         "Dummy", "Dummy", "class", List("public"), "Internal.Object$", Nil, Nil, Nil,
         List(
-          ConstructorSummary(1, List("private"), Nil, Set()),
-          ConstructorSummary(1, List("public"), List(ParameterSummary(1, "a", "System.String")), Set())
+          ConstructorSummary(1, Some(new TextRange(new PositionImpl(1,46), new PositionImpl(1,51))),
+            List("private"), Nil, Set()),
+          ConstructorSummary(1, Some(new TextRange(new PositionImpl(1,27), new PositionImpl(1,32))),
+            List("public"), List(ParameterSummary(1, "a", "System.String")), Set())
         ),
         Nil, Nil, Set())
     )
   }
+
 
   test("Class with methods") {
     assert(typeDeclarationSummary("public class Dummy {public String foo(String a) {} void bar() {} }") ==
       TypeSummary(1, -162282491, Some(new TextRange(new PositionImpl(1,13), new PositionImpl(1,18))),
         "Dummy", "Dummy", "class", List("public"), "Internal.Object$", Nil, Nil, Nil, Nil,
         List(
-          MethodSummary(1, "bar", List(), "void", Nil, Set()),
-          MethodSummary(1, "foo", List("public"), "System.String", List(ParameterSummary(1, "a", "System.String")), Set()),
+          MethodSummary(1, Some(new TextRange(new PositionImpl(1,56), new PositionImpl(1,59))),
+            "bar", List(), "void", Nil, Set()),
+          MethodSummary(1, Some(new TextRange(new PositionImpl(1,34), new PositionImpl(1,37))),
+            "foo", List("public"), "System.String", List(ParameterSummary(1, "a", "System.String")), Set()),
         ),
         Nil, Set())
     )
   }
+
 
   test("Interfaces with methods") {
     assert(typeDeclarationSummary("public interface Dummy {public String foo(String a); void bar(); }", hasMessages = true) ==
       TypeSummary(1, -688836916, Some(new TextRange(new PositionImpl(1,17), new PositionImpl(1,22))),
         "Dummy", "Dummy", "interface", List("public"),"", Nil, Nil, Nil, Nil,
         List(
-          MethodSummary(1, "bar", List(), "void", Nil, Set()),
-          MethodSummary(1, "foo", List("public"), "System.String", List(ParameterSummary(1, "a", "System.String")), Set())
+          MethodSummary(1, Some(new TextRange(new PositionImpl(1,58), new PositionImpl(1,61))),
+            "bar", List(), "void", Nil, Set()),
+          MethodSummary(1, Some(new TextRange(new PositionImpl(1,38), new PositionImpl(1,41))),
+            "foo", List("public"), "System.String", List(ParameterSummary(1, "a", "System.String")), Set())
         ),
         Nil, Set())
     )

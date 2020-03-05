@@ -100,12 +100,17 @@ trait ConstructorDeclaration extends DependencyHolder {
   val modifiers: Seq[Modifier]
   val parameters: Seq[ParameterDeclaration]
 
-  def summary(excludeNamespace: Option[Name]): ConstructorSummary = ConstructorSummary(
-    ConstructorSummary.defaultVersion,
-    modifiers.map(_.toString).sorted.toList,
-    parameters.map(_.summary(excludeNamespace)).sortBy(_.name).toList,
-    dependencySummary(excludeNamespace)
-  )
+  def summary(excludeNamespace: Option[Name]): ConstructorSummary = {
+    summary(excludeNamespace, None)
+  }
+
+  protected def summary(excludeNamespace: Option[Name], range: Option[TextRange]): ConstructorSummary = {
+    ConstructorSummary(ConstructorSummary.defaultVersion, range,
+      modifiers.map(_.toString).sorted.toList,
+      parameters.map(_.summary(excludeNamespace)).sortBy(_.name).toList,
+      dependencySummary(excludeNamespace)
+    )
+  }
 }
 
 trait MethodDeclaration extends DependencyHolder {
@@ -180,12 +185,17 @@ trait MethodDeclaration extends DependencyHolder {
     }
   }
 
-  def summary(excludeNamespace: Option[Name]): MethodSummary = MethodSummary(
-    MethodSummary.defaultVersion,
-    name.toString, modifiers.map(_.toString).sorted.toList,
-    typeName.asSummaryString(excludeNamespace),
-    parameters.map(_.summary(excludeNamespace)).toList, dependencySummary(excludeNamespace)
-  )
+  def summary(excludeNamespace: Option[Name]): MethodSummary = {
+    summary(excludeNamespace, None)
+  }
+
+  protected def summary(excludeNamespace: Option[Name], range: Option[TextRange]): MethodSummary = {
+    MethodSummary(MethodSummary.defaultVersion, range,
+      name.toString, modifiers.map(_.toString).sorted.toList,
+      typeName.asSummaryString(excludeNamespace),
+      parameters.map(_.summary(excludeNamespace)).toList, dependencySummary(excludeNamespace)
+    )
+  }
 }
 
 object TypeDeclaration {

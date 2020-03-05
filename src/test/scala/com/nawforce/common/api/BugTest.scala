@@ -29,6 +29,7 @@ package com.nawforce.common.api
 
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -346,6 +347,27 @@ class BugTest extends AnyFunSuite {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
+    }
+  }
+
+  test("@testSetup is entry") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" ->
+        s"""
+           |public class Dummy {
+           |@testSetup
+           |static void setup() {
+           |  Account a = new Account(Name='foo');
+           |  insert a;
+           |}
+           |}
+           |""".stripMargin
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+
+      assert(!org.issues.hasMessages)
+      assert(!pkg.reportUnused().hasMessages)
     }
   }
 }

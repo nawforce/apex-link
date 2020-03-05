@@ -76,9 +76,10 @@ class SummaryParameter(parameterSummary: ParameterSummary, fromTypeName: String 
   override val typeName: TypeName = fromTypeName(parameterSummary.typeName)
 }
 
-class SummaryMethod(methodSummary: MethodSummary, fromTypeName: String => TypeName)
-  extends MethodDeclaration with DependentValidation {
+class SummaryMethod(path: PathLike, methodSummary: MethodSummary, fromTypeName: String => TypeName)
+  extends ApexMethodLike with DependentValidation {
 
+  override val nameRange: RangeLocationImpl = RangeLocationImpl(path, methodSummary.idRange.get)
   override val name: Name = Name(methodSummary.name)
   override val modifiers: Seq[Modifier] = methodSummary.modifiers.map(Modifier(_))
   override val typeName: TypeName = fromTypeName(methodSummary.typeName)
@@ -111,7 +112,7 @@ class SummaryBlock(blockSummary: BlockSummary)
 class SummaryField(path: PathLike, fieldSummary: FieldSummary, fromTypeName: String => TypeName)
   extends ApexFieldLike  with DependentValidation {
 
-  override val location: RangeLocationImpl = RangeLocationImpl(path, fieldSummary.range.get)
+  override val nameRange: RangeLocationImpl = RangeLocationImpl(path, fieldSummary.idRange.get)
   override val name: Name = Name(fieldSummary.name)
   override val modifiers: Seq[Modifier] = fieldSummary.modifiers.map(Modifier(_))
   override val typeName: TypeName = fromTypeName(fieldSummary.typeName)
@@ -127,9 +128,10 @@ class SummaryField(path: PathLike, fieldSummary: FieldSummary, fromTypeName: Str
   }
 }
 
-class SummaryConstructor(constructorSummary: ConstructorSummary, fromTypeName: String => TypeName)
-  extends ConstructorDeclaration with DependentValidation {
+class SummaryConstructor(path: PathLike, constructorSummary: ConstructorSummary, fromTypeName: String => TypeName)
+  extends ApexConstructorLike with DependentValidation {
 
+  override val nameRange: RangeLocationImpl = RangeLocationImpl(path, constructorSummary.idRange.get)
   override val modifiers: Seq[Modifier] = constructorSummary.modifiers.map(Modifier(_))
   override val parameters: Seq[ParameterDeclaration] =
     constructorSummary.parameters.map(new SummaryParameter(_, fromTypeName))
@@ -147,7 +149,7 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
   extends ApexDeclaration with DependentValidation {
 
   override lazy val sourceHash: Int = summary.sourceHash
-  override val idLocation: LocationImpl = RangeLocationImpl(path, summary.idRange.get)
+  override val nameLocation: LocationImpl = RangeLocationImpl(path, summary.idRange.get)
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
 
   override lazy val name: Name = Name(summary.name)
@@ -165,9 +167,9 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
   override lazy val localFields: Seq[SummaryField] =
     summary.fields.map(new SummaryField(path, _, fromTypeName))
   override lazy val constructors: Seq[SummaryConstructor] =
-    summary.constructors.map(new SummaryConstructor(_, fromTypeName))
+    summary.constructors.map(new SummaryConstructor(path, _, fromTypeName))
   override lazy val localMethods: Seq[SummaryMethod] =
-    summary.methods.map(new SummaryMethod(_, fromTypeName))
+    summary.methods.map(new SummaryMethod(path, _, fromTypeName))
 
   override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeName]): Unit = {
     val localDependenies = mutable.Set[TypeName]()
