@@ -88,7 +88,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
       assert(!org.issues.hasMessages)
       assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
-        "Unused: line 1 at 27-28: Field 'a'\n")
+        "Unused: line 1 at 27-28: Unused Field or Property 'a'\n")
     }
   }
 

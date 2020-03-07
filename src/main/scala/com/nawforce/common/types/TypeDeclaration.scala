@@ -339,7 +339,7 @@ trait TypeDeclaration extends MetadataDeclaration {
               OrgImpl.logError(id.location, s"Unknown field '${id.name}' on SObject type '$typeName'")
             None
           } else {
-            field.get.addDependencyHolder(context.holder)
+            context.addDependency(field.get)
             Some(id)
           }
         case _ =>

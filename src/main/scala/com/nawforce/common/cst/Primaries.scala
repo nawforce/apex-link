@@ -106,7 +106,7 @@ final case class IdPrimary(id: Id) extends Primary {
         val staticContext = Some(true).filter(input.isStatic.contains)
         val field = findField(name, td, staticContext)
         if (field.nonEmpty) {
-          field.get.addDependencyHolder(context.holder)
+          context.addDependency(field.get)
           val target = context.getTypeAndAddDependency(field.get.typeName, Some(td)).toOption
           if (target.isEmpty) {
             context.missingType(location, field.get.typeName)

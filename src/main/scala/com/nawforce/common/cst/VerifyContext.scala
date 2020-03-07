@@ -51,9 +51,6 @@ trait VerifyContext {
   /* Get type declaration of 'super' */
   def superType: Option[TypeDeclaration]
 
-  /* Get closest dependency holder */
-  def holder: DependencyHolder
-
   /* Declare a dependency on dependent */
   def addDependency(dependent: Dependent): Unit
 
@@ -123,8 +120,6 @@ class TriggerVerifyContext(packageDeclaration: PackageImpl, typeDeclaration: Tri
 
   override def superType: Option[TypeDeclaration] = typeDeclaration.superClassDeclaration
 
-  override def holder: DependencyHolder = typeDeclaration
-
   override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
                           excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {
     TypeRequest(typeName, from, thisType.flatMap(_.packageDeclaration), excludeSObjects)
@@ -146,8 +141,6 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: A
 
   override def superType: Option[TypeDeclaration] = typeDeclaration.superClassDeclaration
 
-  override def holder: DependencyHolder = typeDeclaration
-
   override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
                           excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {
     TypeRequest(typeName, from, thisType.flatMap(_.packageDeclaration), excludeSObjects)
@@ -167,8 +160,6 @@ class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDe
   override def thisType: Option[TypeDeclaration] = parentContext.thisType
 
   override def superType: Option[TypeDeclaration] = parentContext.superType
-
-  override def holder: DependencyHolder = classBodyDeclaration
 
   override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
                           excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {
@@ -191,8 +182,6 @@ abstract class BlockVerifyContext(parentContext: VerifyContext)
   override def thisType: Option[TypeDeclaration] = parentContext.thisType
 
   override def superType: Option[TypeDeclaration] = parentContext.superType
-
-  override def holder: DependencyHolder = parentContext.holder
 
   override def addDependency(dependent: Dependent): Unit = parentContext.addDependency(dependent)
 
@@ -253,8 +242,6 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext)
   override def thisType: Option[TypeDeclaration] = parentContext.thisType
 
   override def superType: Option[TypeDeclaration] = parentContext.superType
-
-  override def holder: DependencyHolder = parentContext.holder
 
   override def addDependency(dependent: Dependent): Unit = parentContext.addDependency(dependent)
 

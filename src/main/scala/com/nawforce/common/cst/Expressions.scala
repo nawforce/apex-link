@@ -134,8 +134,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
         val name = target.left.get.name
         val field: Option[FieldDeclaration] = findField(name, inputType, context.pkg, input.isStatic)
         if (field.nonEmpty) {
-
-          field.get.addDependencyHolder(context.holder)
+          context.addDependency(field.get)
           val target = context.getTypeAndAddDependency(field.get.typeName, Some(inputType)).toOption
           if (target.isEmpty) {
             context.missingType(location, field.get.typeName)

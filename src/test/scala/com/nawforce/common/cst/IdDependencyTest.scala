@@ -98,7 +98,10 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
-    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
+
+    val func = tds.head.methods.find(_.name == Name("func")).get
+    val field = tds.head.fields.find(_.name == Name("a")).get
+    assert(func.dependencies().contains(field))
   }
 
   test("Superclass field reference creates method dependent") {
@@ -108,7 +111,10 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies() == tds.tail.toSet)
-    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
+
+    val func = tds.head.methods.find(_.name == Name("func")).get
+    val field = tds(1).fields.find(_.name == Name("a")).get
+    assert(func.dependencies().contains(field))
   }
 
   test("Hidden outer class field reference creates error") {
@@ -129,16 +135,22 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
     assert(tds.head.nestedTypes.head.dependencies().isEmpty)
-    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
+
+    val func = tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get
+    val field = tds.head.fields.find(_.name == Name("a")).get
+    assert(func.dependencies().contains(field))
   }
 
-  test("Property creates dependency") {
+  test("Property reference creates dependency") {
     val tds = typeDeclarations(Map(
       "Dummy.cls" -> "public class Dummy {Object a {get;} void func() {a = null;} }"
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
-    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
+
+    val func = tds.head.methods.find(_.name == Name("func")).get
+    val field = tds.head.fields.find(_.name == Name("a")).get
+    assert(func.dependencies().contains(field))
   }
 
   test("Superclass property creates dependency") {
@@ -148,7 +160,10 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies() == tds.tail.toSet)
-    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
+
+    val func = tds.head.methods.find(_.name == Name("func")).get
+    val field = tds(1).fields.find(_.name == Name("a")).get
+    assert(func.dependencies().contains(field))
   }
 
   test("Local var not dependent") {

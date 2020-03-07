@@ -47,6 +47,7 @@ trait Dependent {
 
 trait DependencyHolder extends Dependent {
   def dependencies(): Set[Dependent] = Set.empty
+
   def propagateDependencies(): Unit = {
     dependencies().foreach(_.addDependencyHolder(this))
   }
