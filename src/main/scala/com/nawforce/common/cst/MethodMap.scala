@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.diagnostics.{ERROR_CATEGORY, IssueCategory, WARNING_CATEGORY}
+import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue}
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.pkg.PackageImpl
@@ -35,8 +35,7 @@ import com.nawforce.common.types._
 
 import scala.collection.mutable
 
-final case class MethodMap(methodsByName: Map[(Name, Int), Seq[MethodDeclaration]],
-                           errors: Map[LocationImpl, (IssueCategory, String)])
+final case class MethodMap(methodsByName: Map[(Name, Int), Seq[MethodDeclaration]], errors: List[Issue])
   extends AssignableSupport {
 
   lazy val externalMethods: Iterable[MethodDeclaration] = methodsByName.values.flatMap(_.filter(_.isGlobalOrPublic))
@@ -76,17 +75,16 @@ final case class MethodMap(methodsByName: Map[(Name, Int), Seq[MethodDeclaration
 
 object MethodMap {
   type WorkingMap = mutable.Map[(Name, Int), Seq[MethodDeclaration]]
-  type ErrorMap = mutable.Map[LocationImpl, (IssueCategory, String)]
 
   def empty(): MethodMap = {
-    new MethodMap(Map(), Map())
+    new MethodMap(Map(), Nil)
   }
 
   def apply(td: TypeDeclaration, location: Option[LocationImpl],
             superClassMap: MethodMap, localMethods: Seq[MethodDeclaration], interfaces: Seq[TypeDeclaration]): MethodMap = {
 
     val workingMap = collection.mutable.Map[(Name, Int), Seq[MethodDeclaration]]() ++= superClassMap.methodsByName
-    val errors = mutable.Map[LocationImpl, (IssueCategory, String)]()
+    val errors = mutable.Buffer[Issue]()
 
     // Add instance methods first with validation checks
     localMethods.filterNot(_.isStatic).foreach(method => applyInstanceMethod(workingMap, method, errors))
@@ -113,7 +111,7 @@ object MethodMap {
       checkInterfaces(td.packageDeclaration, location, td.isAbstract, workingMap, interfaces, errors)
     }
 
-    new MethodMap(workingMap.toMap, errors.toMap)
+    new MethodMap(workingMap.toMap, errors.toList)
   }
 
   private def mergeInterfaces(workingMap: WorkingMap, interfaces: Seq[TypeDeclaration]): Unit = {
@@ -145,7 +143,7 @@ object MethodMap {
   }
 
   private def checkInterfaces(pkg: Option[PackageImpl], location: Option[LocationImpl], isAbstract: Boolean,
-                              workingMap: WorkingMap, interfaces: Seq[TypeDeclaration], errors: ErrorMap): Unit = {
+                              workingMap: WorkingMap, interfaces: Seq[TypeDeclaration], errors: mutable.Buffer[Issue]): Unit = {
     interfaces.foreach({
       case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
         checkInterface(pkg, location, isAbstract, workingMap, i, errors)
@@ -154,7 +152,7 @@ object MethodMap {
   }
 
   private def checkInterface(pkg: Option[PackageImpl], location: Option[LocationImpl], isAbstract: Boolean,
-                             workingMap: WorkingMap, interface: TypeDeclaration, errors: ErrorMap): Unit = {
+                             workingMap: WorkingMap, interface: TypeDeclaration, errors: mutable.Buffer[Issue]): Unit = {
     if (interface.isInstanceOf[InterfaceDeclaration])
       checkInterfaces(pkg, location, isAbstract, workingMap, interface.interfaceDeclarations, errors)
 
@@ -174,7 +172,7 @@ object MethodMap {
           methods.exists(method => pkg.exists(p => method.parameters.map(_.typeName).exists(p.isGhostedType))))
 
         if (!isAbstract && !hasGhostedMethods)
-          location.foreach(errors.put(_, (ERROR_CATEGORY,
+          location.foreach(l => errors.append(new Issue(ERROR_CATEGORY, l,
             s"Method '${method.signature}' from interface '${interface.typeName}' must be implemented")))
       } else {
         matched.get match {
@@ -185,7 +183,7 @@ object MethodMap {
     })
   }
 
-  private def applyInstanceMethod(workingMap: WorkingMap, method: MethodDeclaration, errors: ErrorMap): Unit = {
+  private def applyInstanceMethod(workingMap: WorkingMap, method: MethodDeclaration, errors: mutable.Buffer[Issue]): Unit = {
     assert(!method.isStatic)
 
     val key = (method.name, method.parameters.size)
@@ -215,10 +213,10 @@ object MethodMap {
     workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method)))
   }
 
-  private def setMethodError(method: MethodDeclaration, error: String, errors: ErrorMap, isWarning: Boolean=false): Unit = {
+  private def setMethodError(method: MethodDeclaration, error: String, errors: mutable.Buffer[Issue], isWarning: Boolean=false): Unit = {
     method match {
-      case am: ApexMethodDeclaration if !isWarning => errors.put(am.id.location, (ERROR_CATEGORY, error))
-      case am: ApexMethodDeclaration => errors.put(am.id.location, (WARNING_CATEGORY, error))
+      case am: ApexMethodDeclaration if !isWarning => errors.append(new Issue(ERROR_CATEGORY, am.id.location, error))
+      case am: ApexMethodDeclaration => errors.append(new Issue(ERROR_CATEGORY, am.id.location, error))
       case _ => ()
     }
   }

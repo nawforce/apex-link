@@ -62,7 +62,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
   test("Missing class interface") {
     assert(typeDeclarations(Map("Dummy.cls" -> "global class Dummy implements A {}")).nonEmpty)
     assert(defaultOrg.issues.getMessages("/Dummy.cls") ==
-      "Error: line 1 at 13-18: No declaration found for interface 'A'\n")
+      "Missing: line 1 at 13-18: No type declaration found for 'A'\n")
   }
 
   test("Missing class second interface") {
@@ -71,7 +71,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public interface A {}"
     ))
     assert(defaultOrg.issues.getMessages("/Dummy.cls") ==
-      "Error: line 1 at 13-18: No declaration found for interface 'B'\n")
+      "Missing: line 1 at 13-18: No type declaration found for 'B'\n")
   }
 
   test("Class implements class") {

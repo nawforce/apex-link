@@ -30,41 +30,8 @@ package com.nawforce.common.diagnostics
 import com.nawforce.common.api.Diagnostic
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.runtime.json.JSON
-import upickle.default.{macroRW, ReadWriter => RW}
 
 import scala.collection.mutable
-
-sealed class IssueCategory(val value: String)
-
-case object ERROR_CATEGORY extends IssueCategory("Error")
-case object WARNING_CATEGORY extends IssueCategory("Warning")
-case object UNUSED_CATEGORY extends IssueCategory("Unused")
-case class UNKNOWN_CATEGORY(_value: String) extends IssueCategory(_value)
-
-object IssueCategory {
-  def apply(value: String): IssueCategory = {
-    value match {
-      case ERROR_CATEGORY.value => ERROR_CATEGORY
-      case WARNING_CATEGORY.value => WARNING_CATEGORY
-      case UNUSED_CATEGORY.value => UNUSED_CATEGORY
-      case _ => UNKNOWN_CATEGORY(value)
-    }
-  }
-
-  implicit val rw: RW[IssueCategory] = macroRW
-}
-
-case class Issue(category: IssueCategory, location: LocationImpl, message: String) {
-  def toDiagnostic: Diagnostic = Diagnostic(category.value, location.toLocation, message)
-}
-
-object Issue {
-  def apply(path: String, diagnostic: Diagnostic): Issue = {
-    Issue(IssueCategory(diagnostic.category), LocationImpl(path, diagnostic.location), diagnostic.message)
-  }
-
-  implicit val rw: RW[Issue] = macroRW
-}
 
 class IssueLog {
   var logCount: Int = 0
@@ -79,10 +46,6 @@ class IssueLog {
   def add(issue: Issue): Unit = {
     log.put(issue.location.path, issue :: log(issue.location.path))
     logCount += 1
-  }
-
-  def logMessage(location: LocationImpl, msg: String, category: IssueCategory=ERROR_CATEGORY): Unit = {
-    add(Issue(category, location, msg))
   }
 
   def hasMessages: Boolean = log.nonEmpty

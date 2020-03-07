@@ -74,7 +74,7 @@ class ExtendsTest extends AnyFunSuite with BeforeAndAfter {
   test("Missing superclass") {
     assert(typeDeclarations(Map("Dummy.cls" -> "global class Dummy extends Foo {}")).nonEmpty)
     assert(defaultOrg.issues.getMessages("/Dummy.cls") ==
-      "Error: line 1 at 13-18: No type declaration found for 'Foo'\n")
+      "Missing: line 1 at 13-18: No type declaration found for 'Foo'\n")
   }
 
   test("Non-virtual superclass") {

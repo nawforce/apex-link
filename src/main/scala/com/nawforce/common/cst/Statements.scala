@@ -58,7 +58,7 @@ final case class LazyBlock(clippedText: ClippedText, var blockContextRef: WeakRe
       if (statementContext.isEmpty) {
         CodeParser.parseBlock(clippedText.path, clippedText.text) match {
           case Left(err) =>
-            OrgImpl.logMessage(LineLocationImpl(clippedText.path.toString, err.line), err.message)
+            OrgImpl.logError(LineLocationImpl(clippedText.path.toString, err.line), err.message)
             return Nil
           case Right(c) =>
             statementContext = Some(c)

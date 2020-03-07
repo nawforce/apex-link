@@ -153,7 +153,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
         }
 
         if (inputType.isComplete)
-          context.logMessage(location, s"Unknown field or type '${target.left.get.name}' on '${inputType.typeName}'")
+          context.logError(location, s"Unknown field or type '${target.left.get.name}' on '${inputType.typeName}'")
         ExprContext.empty
 
       case _ =>
@@ -185,7 +185,7 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
     if (index.typeDeclarationOpt.isEmpty)
       return ExprContext.empty
     if (index.typeName != TypeName.Integer) {
-      context.logMessage(arrayExpression.location,
+      context.logError(arrayExpression.location,
         s"Array indexes must be Integers, found '${index.typeName}'")
       return ExprContext.empty
     }
@@ -196,7 +196,7 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
 
     val listType = inter.typeName.getArrayType
     if (inter.isStatic.contains(true) || listType.isEmpty) {
-      context.logMessage(location, s"Only Lists can be de-referenced as an array, found '${inter.typeName}'")
+      context.logError(location, s"Only Lists can be de-referenced as an array, found '${inter.typeName}'")
       return ExprContext.empty
     }
 
@@ -230,10 +230,10 @@ final case class MethodCall(target: Either[Boolean, Id], arguments: Seq[Expressi
         if (methods.isEmpty) {
           if (callee.isComplete && argTypes.forall(!context.pkg.isGhostedType(_))) {
             if (argTypes.isEmpty)
-              context.logMessage(location,
+              context.logError(location,
                 s"No matching method found for '${id.name}' on '${callee.typeName}' taking no arguments")
             else
-              context.logMessage(location,
+              context.logError(location,
                 s"No matching method found for '${id.name}' on '${callee.typeName}' taking arguments '${argTypes.mkString(", ")}'")
           }
           ExprContext.empty
@@ -241,7 +241,7 @@ final case class MethodCall(target: Either[Boolean, Id], arguments: Seq[Expressi
           val td = context.getTypeAndAddDependency(methods.head.typeName, context.thisType)
           td match {
             case Left(error) =>
-              context.logMessage(location, error.toString)
+              context.logError(location, error.toString)
               ExprContext.empty
             case Right(td) =>
               ExprContext(isStatic = Some(false), td)
@@ -301,7 +301,7 @@ final case class PostfixExpression(expression: Expression, op: String) extends E
     td.typeName match {
       case TypeName.Integer | TypeName.Long | TypeName.Decimal | TypeName.Double if inter.isStatic.contains(false) => inter
       case _ =>
-        OrgImpl.logMessage(location, s"Postfix increment/decrement is not supported on type '${td.typeName}'")
+        OrgImpl.logError(location, s"Postfix increment/decrement is not supported on type '${td.typeName}'")
         ExprContext.empty
     }
   }
@@ -318,7 +318,7 @@ final case class PrefixExpression(expression: Expression, op: String) extends Ex
       case TypeName.Integer | TypeName.Long | TypeName.Decimal | TypeName.Double if inter.isStatic.contains(false) => inter
       case _ if inter.isStatic.contains(false) && op == "+" => ExprContext(isStatic = Some(false), PlatformTypes.stringType)
       case _ =>
-        OrgImpl.logMessage(location, s"Prefix operations are not supported on type '${td.typeName}'")
+        OrgImpl.logError(location, s"Prefix operations are not supported on type '${td.typeName}'")
         ExprContext.empty
     }
   }
@@ -336,7 +336,7 @@ final case class NegationExpression(expression: Expression, isBitwise: Boolean) 
       case TypeName.Integer if isBitwise && inter.isStatic.contains(false) => inter
       case TypeName.Long if isBitwise && inter.isStatic.contains(false) => inter
       case _ =>
-        OrgImpl.logMessage(location, s"Negation operations is not supported on type '${td.typeName}'")
+        OrgImpl.logError(location, s"Negation operations is not supported on type '${td.typeName}'")
         ExprContext.empty
     }
   }
@@ -386,14 +386,14 @@ final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) 
       return ExprContext.empty
 
     if (leftInter.isStatic.contains(true))
-      OrgImpl.logMessage(location, s"Expecting instance for operation, not type '${leftInter.typeName}'")
+      OrgImpl.logError(location, s"Expecting instance for operation, not type '${leftInter.typeName}'")
 
     if (rightInter.isStatic.contains(true))
-      OrgImpl.logMessage(location, s"Expecting instance for operation, not type '${rightInter.typeName}'")
+      OrgImpl.logError(location, s"Expecting instance for operation, not type '${rightInter.typeName}'")
 
     operation.verify(leftInter, rightInter, op, context) match {
       case Left(error) =>
-        OrgImpl.logMessage(location, error)
+        OrgImpl.logError(location, error)
         ExprContext.empty
       case Right(context) => context
     }
@@ -421,7 +421,7 @@ final case class QueryExpression(query: Expression, lhs: Expression, rhs: Expres
 
     ConditionalOperation.verify(leftInter, rightInter, "?", context) match {
       case Left(error) =>
-        OrgImpl.logMessage(location, error)
+        OrgImpl.logError(location, error)
         ExprContext.empty
       case Right(context) => context
     }

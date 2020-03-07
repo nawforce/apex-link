@@ -72,11 +72,11 @@ final case class ClassDeclaration(_sourceHash: Int, _pkg: PackageImpl, _outerTyp
 
   private def verifyCommon(context: VerifyContext): Unit = {
     if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL_MODIFIER)) {
-      context.logMessage(id.location, "Classes enclosing globals or webservices must also be declared global")
+      context.logError(id.location, "Classes enclosing globals or webservices must also be declared global")
     } else if (!modifiers.contains(ABSTRACT_MODIFIER) && methods.exists(_.isAbstract)) {
-      context.logMessage(id.location, "Classes with abstract methods must be abstract")
+      context.logError(id.location, "Classes with abstract methods must be abstract")
     } else if(modifiers.contains(ABSTRACT_MODIFIER) && modifiers.contains(VIRTUAL_MODIFIER)) {
-      context.logMessage(id.location, "Abstract classes do not need virtual keyword")
+      context.logError(id.location, "Abstract classes do not need virtual keyword")
     }
   }
 }
@@ -158,7 +158,7 @@ final case class EnumDeclaration(_sourceHash: Int, _pkg: PackageImpl, _outerType
 
   override lazy val methodMap: MethodMap = {
     val mmap = MethodMap(this, Some(id.location), MethodMap.empty(), localMethods, interfaceDeclarations)
-    mmap.errors.foreach(error => OrgImpl.log(error._1, error._2._2, error._2._1))
+    mmap.errors.foreach(OrgImpl.log)
     mmap
   }
 

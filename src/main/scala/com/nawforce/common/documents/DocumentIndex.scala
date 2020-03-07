@@ -66,7 +66,7 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
     if (ignorePath.nonEmpty && ignorePath.get.nature.isInstanceOf[FILE]) {
       ForceIgnore(ignorePath.get) match {
         case Left(err) =>
-          OrgImpl.logMessage(LineLocationImpl(ignorePath.get.toString, 0), s"Could not read .forceignore, error: $err")
+          OrgImpl.logError(LineLocationImpl(ignorePath.get.toString, 0), s"Could not read .forceignore, error: $err")
           None
         case Right(forceIgnore) =>
           Some(forceIgnore)

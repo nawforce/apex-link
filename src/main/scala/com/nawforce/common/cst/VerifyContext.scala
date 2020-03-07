@@ -27,6 +27,7 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.finding.{TypeError, TypeRequest}
 import com.nawforce.common.metadata.{DependencyHolder, Dependent}
@@ -67,18 +68,18 @@ trait VerifyContext {
   def suppressWarnings: Boolean = parent().exists(_.suppressWarnings)
 
   def missingType(location: LocationImpl, typeName: TypeName): Unit = {
-    if (!pkg.isGhostedType(typeName))
-      logMessage(location, s"No type declaration found for '$typeName'")
+    if (!pkg.isGhostedType(typeName) && !suppressWarnings)
+      OrgImpl.log(Issue.noTypeDeclaration(location, typeName))
   }
 
   def missingIdentifier(location: LocationImpl, typeName: TypeName, name: Name): Unit = {
-    if (!pkg.isGhostedType(EncodedName(name).asTypeName))
-      logMessage(location, s"No variable or type found for '$name' on '$typeName'")
+    if (!pkg.isGhostedType(EncodedName(name).asTypeName) && !suppressWarnings)
+      OrgImpl.log(Issue.noVariableOrType(location, name, typeName))
   }
 
-  def logMessage(location: LocationImpl, msg: String): Unit = {
+  def logError(location: LocationImpl, msg: String): Unit = {
     if (!suppressWarnings)
-      OrgImpl.logMessage(location, msg)
+      OrgImpl.logError(location, msg)
   }
 }
 

@@ -82,7 +82,7 @@ object SObjectDetails {
 
     val parseResult = XMLFactory.parse(path)
     if (parseResult.isLeft) {
-      OrgImpl.logMessage(parseResult.left.get._1, parseResult.left.get._2)
+      OrgImpl.logError(parseResult.left.get._1, parseResult.left.get._2)
       return None
     }
     val rootElement = parseResult.right.get.rootElement
@@ -98,7 +98,7 @@ object SObjectDetails {
             case Some("List") => ListCustomSettingNature
             case Some("Hierarchy") => HierarchyCustomSettingsNature
             case Some(x) =>
-              OrgImpl.logMessage(RangeLocationImpl(path, TextRange(rootElement.line)),
+              OrgImpl.logError(RangeLocationImpl(path, TextRange(rootElement.line)),
                 s"Unexpected customSettingsType value '$x', should be 'List' or 'Hierarchy'")
               CustomObjectNature
             case _ => CustomObjectNature
@@ -118,7 +118,7 @@ object SObjectDetails {
 
     } catch {
       case e: XMLException =>
-        OrgImpl.logMessage(RangeLocationImpl(path, e.where), e.msg)
+        OrgImpl.logError(RangeLocationImpl(path, e.where), e.msg)
         None
     }
   }
@@ -144,7 +144,7 @@ object SObjectDetails {
             if (fieldPath.nature == NONEMPTY_FILE) {
               val parseResult = XMLFactory.parse(fieldPath)
               if (parseResult.isLeft) {
-                OrgImpl.logMessage(parseResult.left.get._1, parseResult.left.get._2)
+                OrgImpl.logError(parseResult.left.get._1, parseResult.left.get._2)
                 None
               } else {
                 val rootElement = parseResult.right.get.rootElement
@@ -172,7 +172,7 @@ object SObjectDetails {
             if (fieldPath.nature == NONEMPTY_FILE) {
               val parseResult = XMLFactory.parse(fieldPath)
               if (parseResult.isLeft) {
-                OrgImpl.logMessage(parseResult.left.get._1, parseResult.left.get._2)
+                OrgImpl.logError(parseResult.left.get._1, parseResult.left.get._2)
                 None
               } else {
                 val rootElement = parseResult.right.get.rootElement

@@ -121,7 +121,7 @@ trait ApexDeclaration extends TypeDeclaration {
       case (_, y :: Nil) => y
       case (_, duplicates) =>
         duplicates.tail.foreach(d => {
-          OrgImpl.logMessage(d.nameRange, s"Duplicate field/property: '${d.name}'")
+          OrgImpl.logError(d.nameRange, s"Duplicate field/property: '${d.name}'")
         })
         duplicates.head
     }.toSeq
@@ -158,7 +158,7 @@ trait ApexDeclaration extends TypeDeclaration {
         MethodMap(this, Some(nameLocation), MethodMap.empty(), allMethods, interfaceDeclarations)
     }
 
-    mmap.errors.foreach(err => OrgImpl.log(err._1, err._2._2, err._2._1))
+    mmap.errors.foreach(OrgImpl.log)
     mmap
   }
 
@@ -198,13 +198,8 @@ trait ApexDeclaration extends TypeDeclaration {
 
   def unused(): Seq[Issue] = {
     localFields.filterNot(_.hasHolders)
-      .map({
-        case field: ApexFieldDeclaration =>
-          Issue(UNUSED_CATEGORY, field.id.location, s"Field '${field.name}'")
-        case property: ApexPropertyDeclaration =>
-          Issue(UNUSED_CATEGORY, property.id.location, s"Property '${property.name}'")
-      }) ++
+      .map(field => new Issue(UNUSED_CATEGORY, field.nameRange, s"Unused Field or Property '${field.name}'")) ++
       localMethods.filterNot(_.isUsed)
-        .map(method => Issue(UNUSED_CATEGORY, method.nameRange, s"Method '${method.signature}'"))
+        .map(method => new Issue(UNUSED_CATEGORY, method.nameRange, s"Method '${method.signature}'"))
   }
 }

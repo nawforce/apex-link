@@ -28,7 +28,7 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.cst.{PUBLIC_MODIFIER, STATIC_MODIFIER, VIRTUAL_MODIFIER}
-import com.nawforce.common.finding.MissingType
+import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.runtime.types.PlatformTypeDeclaration
 import org.scalatest.funsuite.AnyFunSuite
@@ -267,28 +267,28 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Non-generic type") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("String"), Seq(TypeName.Integer), Some(TypeName.System)), None)
+    val typeName = TypeName(Name("String"), Seq(TypeName.Integer), Some(TypeName.System))
+    val td = PlatformTypeDeclaration.get(typeName, None)
     td match {
-      case Left(e) => assert(e.toString ==
-        "Wrong number of type arguments for 'System.String<System.Integer>', expected 0")
+      case Left(e: WrongTypeArguments) => assert(e.typeName == typeName)
       case _ => assert(true)
     }
   }
 
   test("Too many type params") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("List"), Seq(TypeName(Name.String), TypeName(Name.String)), Some(TypeName.System)), None)
+    val typeName = TypeName(Name("List"), Seq(TypeName(Name.String), TypeName(Name.String)), Some(TypeName.System))
+    val td = PlatformTypeDeclaration.get(typeName, None)
     td match {
-      case Left(e) => assert(e.toString ==
-        "Wrong number of type arguments for 'System.List<String, String>', expected 1")
+      case Left(e: WrongTypeArguments) => assert(e.typeName == typeName)
       case _ => assert(false)
     }
   }
 
   test("Too few type params") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("List"), Seq(), Some(TypeName.System)), None)
+    val typeName = TypeName(Name("List"), Seq(), Some(TypeName.System))
+    val td = PlatformTypeDeclaration.get(typeName, None)
     td match {
-      case Left(e) => assert(e.toString ==
-        "Wrong number of type arguments for 'System.List', expected 1")
+      case Left(e: WrongTypeArguments) => assert(e.typeName == typeName)
       case _ => assert(false)
     }
   }

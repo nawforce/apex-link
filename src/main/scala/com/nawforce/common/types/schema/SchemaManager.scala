@@ -76,7 +76,7 @@ class RelatedLists(pkg: PackageImpl) {
       val td = TypeRequest(sobject, pkg, excludeSObjects = false).toOption
       if ((td.isEmpty || !td.exists(_.isSObject)) && !pkg.isGhostedType(sobject)) {
         relationshipFields(sobject).foreach(field => {
-          OrgImpl.logMessage(field._3,
+          OrgImpl.logError(field._3,
             s"Lookup object $sobject does not exist for field '${field._2}'")
         })
       } else if (td.exists(sobject => sobject.isInstanceOf[PlatformTypeDeclaration] && sobject.isSObject)) {

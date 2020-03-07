@@ -110,23 +110,23 @@ abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageImpl, val ou
       if (superClassDeclaration.isEmpty) {
         context.missingType(id.location, superClass.get)
       } else if (superClassDeclaration.get.nature != CLASS_NATURE) {
-        OrgImpl.logMessage(id.location, s"Parent type '${superClass.get.asDotName}' must be a class")
+        OrgImpl.logError(id.location, s"Parent type '${superClass.get.asDotName}' must be a class")
       } else if (superClassDeclaration.get.modifiers.intersect(Seq(VIRTUAL_MODIFIER, ABSTRACT_MODIFIER)).isEmpty) {
-        OrgImpl.logMessage(id.location, s"Parent class '${superClass.get.asDotName}' must be declared virtual or abstract")
+        OrgImpl.logError(id.location, s"Parent class '${superClass.get.asDotName}' must be declared virtual or abstract")
       }
     }
 
     val duplicateNestedType = (this +: nestedTypes).groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
     duplicateNestedType.foreach(td =>
-      OrgImpl.logMessage(td.id.location, s"Duplicate type name '${td.name.toString}'"))
+      OrgImpl.logError(td.id.location, s"Duplicate type name '${td.name.toString}'"))
 
     interfaces.foreach(interface => {
       val td = context.getTypeAndAddDependency(interface, context.thisType).toOption
       if (td.isEmpty) {
         if (!context.pkg.isGhostedType(interface))
-          OrgImpl.logMessage(id.location, s"No declaration found for interface '${interface.toString}'")
+          context.missingType(id.location, interface)
       } else if (td.get.nature != INTERFACE_NATURE)
-        OrgImpl.logMessage(id.location, s"Type '${interface.toString}' must be an interface")
+        OrgImpl.logError(id.location, s"Type '${interface.toString}' must be an interface")
     })
     bodyDeclarations.foreach(bd => bd.validate(new BodyDeclarationVerifyContext(context, bd)))
 
@@ -173,7 +173,7 @@ object FullDeclaration {
   def create(pkg: PackageImpl, path: PathLike, data: String): Option[FullDeclaration] = {
     CodeParser.parseClass(path, data) match {
       case Left(err) =>
-        OrgImpl.logMessage(LineLocationImpl(path.toString, err.line), err.message)
+        OrgImpl.logError(LineLocationImpl(path.toString, err.line), err.message)
         None
       case Right(cu) =>
         val sourceHash = MurmurHash3.stringHash(data)

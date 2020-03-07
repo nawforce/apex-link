@@ -48,13 +48,13 @@ final case class ThisPrimary() extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
 
     if (input.typeDeclarationOpt.isEmpty) {
-      context.logMessage(location, "")
+      context.logError(location, "")
     }
 
 
     assert(input.typeDeclarationOpt.nonEmpty)
     if (input.isStatic.contains(true)) {
-      context.logMessage(location, s"'this' can not be used in a static context")
+      context.logError(location, s"'this' can not be used in a static context")
       ExprContext.empty
     } else {
       // Allow this to reference statics platform bug
@@ -67,7 +67,7 @@ final case class SuperPrimary() extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.typeDeclarationOpt.nonEmpty)
     if (input.isStatic.contains(true)) {
-      context.logMessage(location, s"'super' can not be used in a static context")
+      context.logError(location, s"'super' can not be used in a static context")
       ExprContext.empty
     } else {
       ExprContext(isStatic = Some(false), context.superType)

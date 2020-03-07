@@ -31,7 +31,7 @@ package com.nawforce.common.pkg
 import java.nio.charset.StandardCharsets
 
 import com.nawforce.common.api.{ApexSummary, ServerOps}
-import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.diagnostics.{Issue, MISSING_CATEGORY}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.types.apex.{FullDeclaration, SummaryApex, TriggerDeclaration}
@@ -102,11 +102,13 @@ trait PackageDeploy {
         val summaryDocsByType = summaryDocs.map(d => (d.declaration.typeName, d.declaration)).toMap
 
         // Upsert any summary docs that are valid and report known issues
-        val validSummaryDocs = summaryDocs.filter(_.declaration.areDependentsValid(summaryDocsByType))
+        val validSummaryDocs = summaryDocs
+            .filterNot(_.diagnostics.exists(_.category == MISSING_CATEGORY.value))
+            .filter(_.declaration.areDependentsValid(summaryDocsByType))
         validSummaryDocs.foreach(doc => {
           upsertMetadata(doc.declaration)
           val path = doc.declaration.path.toString
-          doc.diagnostics.map(diagnostic => org.issues.add(Issue(path, diagnostic)))
+          doc.diagnostics.map(diagnostic => org.issues.add(Issue.fromDiagnostic(path, diagnostic)))
         })
 
         // Validate these (must be after all have been inserted to allow for dependency propagation)

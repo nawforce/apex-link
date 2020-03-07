@@ -65,7 +65,7 @@ final case class LabelDeclaration(pkg: PackageImpl, name: Name, labelFields: Seq
 
   def unused(): Seq[Issue] = {
     labelFields.filterNot(_.hasHolders)
-      .map(label => Issue(UNUSED_CATEGORY, label.location, s"Label '$typeName.${label.name}'"))
+      .map(label => new Issue(UNUSED_CATEGORY, label.location, s"Label '$typeName.${label.name}'"))
   }
 }
 
@@ -131,19 +131,19 @@ object LabelDeclaration {
 
   private def parseLabels(path: PathLike): Seq[Label] = {
     if (!path.nature.isInstanceOf[FILE]) {
-      OrgImpl.logMessage(LineLocationImpl(path.toString, 0), s"Expecting labels to be in a normal file")
+      OrgImpl.logError(LineLocationImpl(path.toString, 0), s"Expecting labels to be in a normal file")
       return Seq()
     }
 
     val data = path.read()
     if (data.isLeft) {
-      OrgImpl.logMessage(LineLocationImpl(path.toString, 0), s"Could not read file: ${data.right.get}")
+      OrgImpl.logError(LineLocationImpl(path.toString, 0), s"Could not read file: ${data.right.get}")
       return Seq()
     }
 
     val parseResult = XMLFactory.parse(path)
     if (parseResult.isLeft) {
-      OrgImpl.logMessage(parseResult.left.get._1, parseResult.left.get._2)
+      OrgImpl.logError(parseResult.left.get._1, parseResult.left.get._2)
       return Seq()
     }
     val rootElement = parseResult.right.get.rootElement
@@ -153,7 +153,7 @@ object LabelDeclaration {
       rootElement.getChildren("labels")
         .map(c => Label(path, c))
     } catch {
-      case e: XMLException => OrgImpl.logMessage(RangeLocationImpl(path, e.where), e.msg); Seq()
+      case e: XMLException => OrgImpl.logError(RangeLocationImpl(path, e.where), e.msg); Seq()
     }
   }
 }

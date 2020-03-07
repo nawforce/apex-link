@@ -68,15 +68,15 @@ final case class ApexPropertyDeclaration(_modifiers: Seq[Modifier], typeName: Ty
     getters.foreach(_.verify(context, isStatic))
 
     if (setters.size > 1 || getters.size > 1 || propertyBlocks.isEmpty) {
-      context.logMessage(location, "Properties must have either a single 'get' and/or a single 'set' block")
+      context.logError(location, "Properties must have either a single 'get' and/or a single 'set' block")
     }
 
     if (visibility.nonEmpty && writeAccess.order > visibility.get.order) {
-      context.logMessage(location, "Setter visibility must be same or less than property")
+      context.logError(location, "Setter visibility must be same or less than property")
     }
 
     if (visibility.nonEmpty && readAccess.order > visibility.get.order) {
-      context.logMessage(location, "Getter visibility must be same or less than property")
+      context.logError(location, "Getter visibility must be same or less than property")
     }
 
     depends = Some(context.dependencies)

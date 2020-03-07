@@ -62,13 +62,13 @@ class TriggerDeclaration(path: PathLike, val pkg: PackageImpl, name: Id, objectN
 
       val duplicateCases = cases.groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
       duplicateCases.foreach(triggerCase =>
-        OrgImpl.logMessage(objectName.location, s"Duplicate trigger case for '${triggerCase.name}'"))
+        OrgImpl.logError(objectName.location, s"Duplicate trigger case for '${triggerCase.name}'"))
 
       val context = new TriggerVerifyContext(pkg, this)
       val tdOpt = context.getTypeAndAddDependency(objectTypeName, Some(this))
       tdOpt match {
         case Left(error) =>
-          OrgImpl.logMessage(objectName.location, error.toString)
+          OrgImpl.log(error.asIssue(objectName.location))
         case Right(_) =>
           val triggerContext = context.getTypeFor(TypeName.trigger(objectTypeName), Some(this)).right.get
           val tc = TriggerContext(pkg, triggerContext)
@@ -86,7 +86,7 @@ object TriggerDeclaration {
   def create(pkg: PackageImpl, path: PathLike, data: String): Seq[TriggerDeclaration] = {
     CodeParser.parseTrigger(path, data) match {
       case Left(err) =>
-        OrgImpl.logMessage(LineLocationImpl(path.toString, err.line), err.message)
+        OrgImpl.logError(LineLocationImpl(path.toString, err.line), err.message)
         Nil
       case Right(cu) =>
         Seq(TriggerDeclaration.construct(pkg, path, cu, new ConstructContext()))

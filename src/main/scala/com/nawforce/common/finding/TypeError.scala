@@ -27,19 +27,32 @@
 */
 package com.nawforce.common.finding
 
+import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, MISSING_CATEGORY}
+import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.names.TypeName
 
 /** Collection of error types returned from type requests */
-sealed abstract class TypeError(val typeName: TypeName)
+sealed abstract class TypeError(val typeName: TypeName) {
+  def asIssue(location: LocationImpl) : Issue
+
+  // Protect against old way of using this
+  override def toString: String = throw new IllegalArgumentException
+}
 
 final case class MissingType(_typeName: TypeName) extends TypeError(_typeName) {
-  override def toString: String = s"No type declaration found for '$typeName'"
+  def asIssue(location: LocationImpl) : Issue = {
+    new Issue(MISSING_CATEGORY, location, s"No type declaration found for '$typeName'")
+  }
+
+  // Protect against old way of using this
+  override def toString: String = throw new IllegalArgumentException
 }
 
 final case class WrongTypeArguments(_typeName: TypeName, expected: Integer) extends TypeError(_typeName) {
-  override def toString: String = s"Wrong number of type arguments for '$typeName', expected $expected"
-}
+  def asIssue(location: LocationImpl) : Issue = {
+    new Issue(ERROR_CATEGORY, location, s"Wrong number of type arguments for '$typeName', expected $expected")
+  }
 
-final case class PackageGetError(_typeName: TypeName, error: String) extends TypeError(_typeName) {
-  override def toString: String = error
+  // Protect against old way of using this
+  override def toString: String = throw new IllegalArgumentException
 }

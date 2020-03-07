@@ -28,7 +28,7 @@
 package com.nawforce.common.org
 
 import com.nawforce.common.api.{IssueOptions, Org, Package}
-import com.nawforce.common.diagnostics.{ERROR_CATEGORY, IssueCategory, IssueLog}
+import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, IssueLog, WARNING_CATEGORY}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.Name
 import com.nawforce.common.path.{DIRECTORY, PathFactory, PathLike}
@@ -147,12 +147,20 @@ object OrgImpl {
   }
 
   /** Log an issue against the in-scope org */
-  private[nawforce] def log(location: LocationImpl, msg: String, category: IssueCategory): Unit = {
-    OrgImpl.current.value.issues.logMessage(location, msg, category)
+  private[nawforce] def log(issue: Issue): Unit = {
+    OrgImpl.current.value.issues.add(issue)
   }
 
-  /** Log an error issue against the in-scope org */
-  private[nawforce] def logMessage(location: LocationImpl, msg: String): Unit = {
-    log(location, msg, ERROR_CATEGORY)
+  /** Log a general error against the in-scope org */
+  // TODO: Remove this in favour of passing issues around
+  private[nawforce] def logError(location: LocationImpl, message: String): Unit = {
+    OrgImpl.current.value.issues.add(new Issue(ERROR_CATEGORY, location, message))
   }
+
+  /** Log a warning error against the in-scope org */
+  // TODO: Remove this in favour of passing issues around
+  private[nawforce] def logWarning(location: LocationImpl, message: String): Unit = {
+    OrgImpl.current.value.issues.add(new Issue(WARNING_CATEGORY, location, message))
+  }
+
 }

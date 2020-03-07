@@ -50,7 +50,7 @@ class SFDXWorkspace(_namespace: Option[Name], rootPath: PathLike, project: Proje
   override lazy val paths: Seq[PathLike] = {
     val errors = project.paths.filter(_.isLeft)
     if (errors.nonEmpty)
-      OrgImpl.logMessage(LineLocationImpl(rootPath.join("sfdx-project.json").toString,0), errors.head.left.get)
+      OrgImpl.logError(LineLocationImpl(rootPath.join("sfdx-project.json").toString,0), errors.head.left.get)
     project.paths.filter(_.isRight).map(_.right.get).map(p => rootPath.join(p))
   }
 

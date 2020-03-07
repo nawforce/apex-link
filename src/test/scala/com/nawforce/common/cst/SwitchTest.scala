@@ -258,7 +258,7 @@ class SwitchTest extends AnyFunSuite with BeforeAndAfter {
   test("SObject bad name") {
     typeDeclaration("public class Dummy {{SObject a; switch on a {when Foo r {} }}}")
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 50-53: No type declaration found for 'Foo'\n")
+      "Missing: line 1 at 50-53: No type declaration found for 'Foo'\n")
   }
 
   test("SObject switch with Null") {

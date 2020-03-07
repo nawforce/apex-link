@@ -31,6 +31,7 @@ import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.finding.RelativeTypeName
 import com.nawforce.common.metadata._
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
 import com.nawforce.common.types.apex.{ApexConstructorLike, ApexFieldLike, ApexMethodLike}
@@ -134,18 +135,18 @@ final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], relativeTypeNa
 
     if (relativeTypeName.outerNature == CLASS_NATURE) {
       if (isAbstract && block.nonEmpty)
-        context.logMessage(id.location, "Abstract methods can not have an implementation")
+        context.logError(id.location, "Abstract methods can not have an implementation")
       else if (!isAbstract && block.isEmpty)
-        context.logMessage(id.location, "Method must have an implementations or be marked abstract")
+        context.logError(id.location, "Method must have an implementations or be marked abstract")
       else if (isAbstract && isVirtual)
-        context.logMessage(id.location, "Abstract methods do not need virtual keyword")
+        context.logError(id.location, "Abstract methods do not need virtual keyword")
     } else if (relativeTypeName.outerNature == INTERFACE_NATURE) {
       if (modifiers.nonEmpty)
-        context.logMessage(id.location, s"Modifier '${modifiers.head.name}' is not supported on interface methods")
+        context.logError(id.location, s"Modifier '${modifiers.head.name}' is not supported on interface methods")
     }
 
     relativeTypeName.typeRequest match {
-      case Some(Left(error)) => context.logMessage(id.location, error.toString)
+      case Some(Left(error)) => OrgImpl.log(error.asIssue(id.location))
       case Some(Right(td)) => context.addDependency(td)
       case _ => ()
     }

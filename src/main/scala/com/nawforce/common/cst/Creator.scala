@@ -185,20 +185,20 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends Creator
     val enclosedTypes = td.typeName.getMapType
 
     if (enclosedTypes.isEmpty) {
-      OrgImpl.logMessage(location, s"Expression pair list construction is only supported for Map types, not '${td.typeName}'")
+      OrgImpl.logError(location, s"Expression pair list construction is only supported for Map types, not '${td.typeName}'")
       return
     }
 
     val keyType = context.getTypeAndAddDependency(enclosedTypes.get._1, context.thisType)
     if (keyType.isLeft) {
-      OrgImpl.logMessage(location, keyType.left.get.toString)
+      OrgImpl.log(keyType.left.get.asIssue(location))
       return
     }
 
     val valueType = context.getTypeAndAddDependency(enclosedTypes.get._2, context.thisType)
     if (valueType.isLeft) {
       if (!context.pkg.isGhostedType(enclosedTypes.get._2))
-        OrgImpl.logMessage(location, valueType.left.get.toString)
+        OrgImpl.log(valueType.left.get.asIssue(location))
       return
     }
 
@@ -243,14 +243,14 @@ final case class SetCreatorRest(parts: Seq[Expression]) extends CreatorRest {
      val enclosedType = td.typeName.getSetOrListType
 
      if (enclosedType.isEmpty) {
-       OrgImpl.logMessage(location, s"Expression list construction is only supported for Set or List types, not '${td.typeName}'")
+       OrgImpl.logError(location, s"Expression list construction is only supported for Set or List types, not '${td.typeName}'")
        return
      }
 
      context.getTypeAndAddDependency(enclosedType.get, context.thisType) match {
        case Left(error) =>
          if (!context.pkg.isGhostedType(enclosedType.get))
-           OrgImpl.logMessage(location, error.toString)
+           OrgImpl.log(error.asIssue(location))
        case Right(_) =>
          // FUTURE: Validate the expressions are assignable to 'creating'
          parts.foreach(_.verify(input, context))

@@ -336,14 +336,14 @@ trait TypeDeclaration extends MetadataDeclaration {
 
           if (field.isEmpty) {
             if (isComplete)
-              OrgImpl.logMessage(id.location, s"Unknown field '${id.name}' on SObject type '$typeName'")
+              OrgImpl.logError(id.location, s"Unknown field '${id.name}' on SObject type '$typeName'")
             None
           } else {
             field.get.addDependencyHolder(context.holder)
             Some(id)
           }
         case _ =>
-          OrgImpl.logMessage(argument.location, s"SObject type '$typeName' construction needs '<field name> = <value>' arguments")
+          OrgImpl.logError(argument.location, s"SObject type '$typeName' construction needs '<field name> = <value>' arguments")
           None
       }
     })
@@ -351,7 +351,7 @@ trait TypeDeclaration extends MetadataDeclaration {
     if (validArgs.size == arguments.size) {
       val duplicates = validArgs.groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
       if (duplicates.nonEmpty) {
-        OrgImpl.logMessage(duplicates.head.location,
+        OrgImpl.logError(duplicates.head.location,
           s"Duplicate assignment to field '${duplicates.head.name}' on SObject type '$typeName'")
       }
     }
