@@ -27,48 +27,83 @@
 */
 package com.nawforce.common.documents
 
-import java.nio.charset.StandardCharsets
-
 import com.nawforce.common.path._
 import com.nawforce.runtime.os.Environment
 import upickle.default.{macroRW, ReadWriter => RW, _}
 
 import scala.util.hashing.MurmurHash3
 
-case class CacheEntry(version: Int, packageKey: Array[Byte], key: Array[Byte], value: Array[Byte])
+// Key of cache entries, update version if the format changes
+case class CacheKey(version: Int, packageContext: PackageContext, sourceKey: Array[Byte]) {
+  lazy val hashParts: Array[String] = {
+    val hash = MurmurHash3.bytesHash(writeBinary(this))
+    val asHex = hash.toHexString
+    val keyString = "0" * (8-asHex.length) + asHex
+    Array(keyString.substring(0, 4), keyString.substring(4, 8))
+  }
 
-object CacheEntry {
-  val currentVersion = 2
-  implicit val rw: RW[CacheEntry] = macroRW
+  override def equals(that: Any): Boolean = {
+    that match {
+      case other: CacheKey =>
+        other.version == version &&
+          other.packageContext == packageContext &&
+          other.sourceKey.sameElements(sourceKey)
+      case _ => false
+    }
+  }
 }
 
-case class PackageContext(namespace: Option[String], ghostedPackages: Array[String], analysedPackages: Array[String])
+object CacheKey {
+  val currentVersion = 1
+  implicit val rw: RW[CacheKey] = macroRW
+}
+
+// Package details used in key to ensure error messages will be accurate
+case class PackageContext(namespace: Option[String], ghostedPackages: Array[String], analysedPackages: Array[String]) {
+  override def equals(that: Any): Boolean = {
+    that match {
+      case other: PackageContext =>
+        other.namespace == namespace &&
+        other.ghostedPackages.sameElements(ghostedPackages) &&
+        other.analysedPackages.sameElements(analysedPackages)
+      case _ => false
+    }
+  }
+}
 
 object PackageContext {
   implicit val rw: RW[PackageContext] = macroRW
 }
 
+// Cache entry, a simple key/value pairing
+case class CacheEntry(key: CacheKey, value: Array[Byte])
+
+object CacheEntry {
+  implicit val rw: RW[CacheEntry] = macroRW
+}
+
+/* Parsed class cache */
 class ParsedCache(val path: PathLike) {
 
   /** Auto expire before use */
   expire()
 
-  /** Upsert a key -> value pair, ignores errors */
+  /** Upsert a key -> value pair, ignores storage errors */
   def upsert(key: Array[Byte], value: Array[Byte], packageContext: PackageContext): Unit = {
-    val packageKey = write(packageContext).getBytes(StandardCharsets.UTF_8)
-    val hashParts = hashToParts(MurmurHash3.bytesHash(key, MurmurHash3.bytesHash(packageKey)))
+    val cacheKey = CacheKey(CacheKey.currentVersion, packageContext, key)
+    val hashParts = cacheKey.hashParts
     path.createDirectory(hashParts.head) match {
       case Left(_) => ()
       case Right(outer) =>
         val inner = outer.join(hashParts(1))
-        inner.write(writeBinary(CacheEntry(CacheEntry.currentVersion, packageKey, key, value)))
+        inner.write(writeBinary(CacheEntry(cacheKey, value)))
     }
   }
 
   /** Recover a value from a key */
   def get(key: Array[Byte], packageContext: PackageContext): Option[Array[Byte]] = {
-    val packageKey = write(packageContext).getBytes(StandardCharsets.UTF_8)
-    val hashParts = hashToParts(MurmurHash3.bytesHash(key, MurmurHash3.bytesHash(packageKey)))
+    val cacheKey = CacheKey(CacheKey.currentVersion, packageContext, key)
+    val hashParts = cacheKey.hashParts
     val outer = path.join(hashParts.head)
     if (outer.nature == DIRECTORY) {
       val inner = outer.join(hashParts(1))
@@ -77,7 +112,7 @@ class ParsedCache(val path: PathLike) {
           case Left(_) => ()
           case Right(data) =>
             val ce = readBinary[CacheEntry](data)
-            if (ce.version == CacheEntry.currentVersion && ce.packageKey.sameElements(packageKey) && ce.key.sameElements(key))
+            if (ce.key == cacheKey)
               return Some(ce.value)
         }
       }
@@ -124,12 +159,6 @@ class ParsedCache(val path: PathLike) {
     }
     path.delete()
   }
-
-  private def hashToParts(hash: Int): Array[String] = {
-    val asHex = hash.toHexString
-    val keyString = "0" * (8-asHex.length) + asHex
-    Array(keyString.substring(0, 4), keyString.substring(4, 8))
-  }
 }
 
 object ParsedCache {
@@ -139,7 +168,7 @@ object ParsedCache {
 
   def create(): Either[String, ParsedCache] = {
     val cacheDirOpt =
-      Environment.variable("APEXLINK_CACHE_DIR").map(d =>PathFactory(d))
+      Environment.variable("APEXLINK_CACHE_DIR").map(d => PathFactory(d))
         .orElse(Environment.homedir.map(_.join(CACHE_DIR)))
 
     if (cacheDirOpt.isEmpty) {
