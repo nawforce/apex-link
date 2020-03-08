@@ -40,32 +40,88 @@ import upickle.default._
 
 import scala.collection.mutable
 
-trait DependentValidation {
-  def isValid(pkg: PackageImpl, dependent: DependentSummary, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
-    val typeName = TypeName.fromString(dependent.name, pkg.namespace)
+/* Helper for bulk handling of DependentSummary, normally this logic would be encapsulated by DependentSummary but
+ * that is exposed as part of the API so we are using this helper instead to hide logic.
+ */
+object DependentValidation {
 
-    isSummaryValid(typeName, dependent.sourceHash, summaries)
-      .orElse(isSummaryValid(typeName.withNamespace(pkg.namespace), dependent.sourceHash, summaries))
-      .orElse({
-        Some(
-          if (typeName.maybeNamespace.exists(ns => pkg.namespaces.contains(ns))) {
-            TypeRequest(typeName, pkg, excludeSObjects = false) match {
-              case Left(_) => false
-              case Right(ad: ApexDeclaration) => ad.sourceHash == dependent.sourceHash
-              case Right(_) => true
-            }
-          } else {
-            false
-          })
-      })
-      .orElse(Some(false)).get
+  /* Collect actual dependents from DependentSummary entries from a set of summaries. If a dependent can not be found
+   * then collection will be aborted and None returned to indicate failure.
+   */
+  def collectDependencies(dependents: Set[DependentSummary], pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration])
+    : Option[Set[Dependent]] = {
+    // Horrible iteration, could this be @tailrec
+    val accum = mutable.Buffer[Dependent]()
+    for (dependent <- dependents) {
+      val dep = findDependent(dependent, pkg, summaries)
+      if (dep.isEmpty) {
+        ServerOps.debug(ServerOps.Trace, s"Rejected dependency $dependent")
+        return None
+      }
+      accum.append(dep.get)
+    }
+    Some(accum.toSet)
   }
 
-  private def isSummaryValid(typeName: TypeName, sourceHash: Int,
-                             summaries: Map[TypeName, SummaryDeclaration]): Option[Boolean] = {
-    // Handle a outer or inner type
-    summaries.get(typeName).map(_.sourceHash == sourceHash)
-      .orElse(typeName.outer.flatMap(summaries.get).map(_.sourceHash == sourceHash))
+  def findDependent(dependent: DependentSummary, pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration])
+    : Option[Dependent] = {
+    dependent match {
+      case d: TypeDependentSummary => findDependent(d, pkg, summaries)
+      case d: FieldDependentSummary => findDependent(d, pkg, summaries)
+      case _ => None
+    }
+  }
+
+  /* Find a valid type dependency */
+  def findDependent(dependent: TypeDependentSummary, pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration])
+    : Option[TypeDeclaration] = {
+
+    val typeName = TypeName.fromString(dependent.typeName, pkg.namespace)
+    findType(typeName, pkg, summaries)
+      .filter({
+        case ad: ApexDeclaration => ad.sourceHash == dependent.sourceHash
+        case _ => true
+      })
+  }
+
+  /* Find a field dependency */
+  def findDependent(dependent: FieldDependentSummary, pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration])
+    : Option[FieldDeclaration] = {
+    val typeName = TypeName.fromString(dependent.typeName, pkg.namespace)
+    findType(typeName, pkg, summaries).flatMap(td => {
+      // Did we find outer?
+      val correctedTd =
+        if (td.typeName != typeName) {
+          td.nestedTypes.find(_.typeName == typeName)
+        } else {
+          Some(td)
+        }
+
+      correctedTd.flatMap(_.findField(Name(dependent.name), None))
+    })
+  }
+
+  /* Find a type declaration either from the summaries or via namespace mapping to a package */
+  private def findType(typeName: TypeName, pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration])
+    : Option[TypeDeclaration] = {
+
+    def findSummaryType(localType: TypeName): Option[TypeDeclaration] = {
+      summaries.get(localType).orElse(localType.outer.flatMap(summaries.get))
+    }
+
+    findSummaryType(typeName)
+      .orElse(findSummaryType(typeName.withNamespace(pkg.namespace)))
+      .orElse({
+        if (typeName.maybeNamespace.exists(ns => pkg.namespaces.contains(ns))) {
+          TypeRequest(typeName, pkg, excludeSObjects = false) match {
+            case Left(_) => None
+            case Right(ad: ApexDeclaration) => Some(ad)
+            case Right(_) => None
+          }
+        } else {
+          None
+        }
+      })
   }
 }
 
@@ -77,7 +133,7 @@ class SummaryParameter(parameterSummary: ParameterSummary, fromTypeName: String 
 }
 
 class SummaryMethod(path: PathLike, methodSummary: MethodSummary, fromTypeName: String => TypeName)
-  extends ApexMethodLike with DependentValidation {
+  extends ApexMethodLike {
 
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, methodSummary.idRange.get)
   override val name: Name = Name(methodSummary.name)
@@ -86,31 +142,35 @@ class SummaryMethod(path: PathLike, methodSummary: MethodSummary, fromTypeName: 
   override val parameters: Seq[ParameterDeclaration] =
     methodSummary.parameters.map(new SummaryParameter(_, fromTypeName))
 
-  def areDependentsValid(pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
-    methodSummary.dependents.forall(d => isValid(pkg, d, summaries))
-  }
+  // Cache of dependents, populated during dependency checking,
+  var dependents: Option[Set[Dependent]] = None
 
-  def collectDependencies(dependsOn: mutable.Set[TypeName]): Unit = {
-    methodSummary.dependents.foreach(d => dependsOn.add(TypeName.fromString(d.name)))
+  override def dependencies(): Set[Dependent] = dependents.get
+
+  def areDependentsValid(pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
+    dependents = DependentValidation.collectDependencies(methodSummary.dependents, pkg, summaries)
+    dependents.nonEmpty
   }
 }
 
 class SummaryBlock(blockSummary: BlockSummary)
-  extends BlockDeclaration with DependentValidation {
+  extends BlockDeclaration {
 
   override val isStatic: Boolean = blockSummary.isStatic
 
-  def areDependentsValid(pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
-    blockSummary.dependents.forall(d => isValid(pkg, d, summaries))
-  }
+  // Cache of dependents, populated during dependency checking,
+  var dependents: Option[Set[Dependent]] = None
 
-  def collectDependencies(dependsOn: mutable.Set[TypeName]): Unit = {
-    blockSummary.dependents.foreach(d => dependsOn.add(TypeName.fromString(d.name)))
+  override def dependencies(): Set[Dependent] = dependents.get
+
+  def areDependentsValid(pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
+    dependents = DependentValidation.collectDependencies(blockSummary.dependents, pkg, summaries)
+    dependents.nonEmpty
   }
 }
 
-class SummaryField(path: PathLike, fieldSummary: FieldSummary, fromTypeName: String => TypeName)
-  extends ApexFieldLike  with DependentValidation {
+class SummaryField(path: PathLike, val outerTypeName: TypeName, fieldSummary: FieldSummary, fromTypeName: String => TypeName)
+  extends ApexFieldLike {
 
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, fieldSummary.idRange.get)
   override val name: Name = Name(fieldSummary.name)
@@ -119,34 +179,39 @@ class SummaryField(path: PathLike, fieldSummary: FieldSummary, fromTypeName: Str
   override val readAccess: Modifier = Modifier(fieldSummary.readAccess)
   override val writeAccess: Modifier = Modifier(fieldSummary.writeAccess)
 
-  def areDependentsValid(pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
-    fieldSummary.dependents.forall(d => isValid(pkg, d, summaries))
-  }
+  // Cache of dependents, populated during dependency checking,
+  var dependents: Option[Set[Dependent]] = None
 
-  def collectDependencies(dependsOn: mutable.Set[TypeName]): Unit = {
-    fieldSummary.dependents.foreach(d => dependsOn.add(TypeName.fromString(d.name)))
+  override def dependencies(): Set[Dependent] = dependents.get
+
+  def areDependentsValid(pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
+    dependents = DependentValidation.collectDependencies(fieldSummary.dependents, pkg, summaries)
+    dependents.nonEmpty
   }
 }
 
 class SummaryConstructor(path: PathLike, constructorSummary: ConstructorSummary, fromTypeName: String => TypeName)
-  extends ApexConstructorLike with DependentValidation {
+  extends ApexConstructorLike {
 
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, constructorSummary.idRange.get)
   override val modifiers: Seq[Modifier] = constructorSummary.modifiers.map(Modifier(_))
   override val parameters: Seq[ParameterDeclaration] =
     constructorSummary.parameters.map(new SummaryParameter(_, fromTypeName))
 
+  // Cache of dependents, populated during dependency checking,
+  var dependents: Option[Set[Dependent]] = None
+
+  override def dependencies(): Set[Dependent] = dependents.get
+
   def areDependentsValid(pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
-    constructorSummary.dependents.forall(d => isValid(pkg, d, summaries))
-  }
-  def collectDependencies(dependsOn: mutable.Set[TypeName]): Unit = {
-    constructorSummary.dependents.foreach(d => dependsOn.add(TypeName.fromString(d.name)))
+    dependents = DependentValidation.collectDependencies(constructorSummary.dependents, pkg, summaries)
+    dependents.nonEmpty
   }
 }
 
 class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerTypeName: Option[TypeName],
                          summary: TypeSummary)
-  extends ApexDeclaration with DependentValidation {
+  extends ApexDeclaration {
 
   override lazy val sourceHash: Int = summary.sourceHash
   override val nameLocation: LocationImpl = RangeLocationImpl(path, summary.idRange.get)
@@ -165,22 +230,58 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
   override lazy val blocks: Seq[SummaryBlock] =
     summary.blocks.map(new SummaryBlock(_))
   override lazy val localFields: Seq[SummaryField] =
-    summary.fields.map(new SummaryField(path, _, fromTypeName))
+    summary.fields.map(new SummaryField(path, typeName, _, fromTypeName))
   override lazy val constructors: Seq[SummaryConstructor] =
     summary.constructors.map(new SummaryConstructor(path, _, fromTypeName))
   override lazy val localMethods: Seq[SummaryMethod] =
     summary.methods.map(new SummaryMethod(path, _, fromTypeName))
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeName]): Unit = {
-    val localDependenies = mutable.Set[TypeName]()
-    summary.dependents.foreach(d => localDependenies.add(TypeName.fromString(d.name)))
-    blocks.foreach(_.collectDependencies(localDependenies))
-    localFields.foreach(_.collectDependencies(localDependenies))
-    constructors.foreach(_.collectDependencies(localDependenies))
-    localMethods.foreach(_.collectDependencies(localDependenies))
-    nestedTypes.foreach(_.collectDependenciesByTypeName(localDependenies))
+  private def fromOptTypeName(value: String): Option[TypeName] = {
+    if (value.isEmpty) None else Some(fromTypeName(value))
+  }
 
-    localDependenies.foreach(dependentTypeName => {
+  private def fromTypeName(value: String): TypeName = {
+    TypeName.fromString(value, pkg.namespace)
+  }
+
+  // Cache of dependents, populated by updateDependencies during dependency checking,
+  private var dependents: Option[Set[Dependent]] = None
+
+  override def dependencies(): Set[Dependent] = dependents.get
+
+  def areDependentsValid(summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
+    // Self check first
+    dependents = DependentValidation.collectDependencies(summary.dependents, pkg, summaries)
+    if (dependents.isEmpty)
+      return false
+
+    // Check constituents
+    blocks.forall(b => b.areDependentsValid(pkg, summaries)) &&
+    localFields.forall(f => f.areDependentsValid(pkg, summaries)) &&
+    constructors.forall(c => c.areDependentsValid(pkg, summaries)) &&
+    localMethods.forall(m => m.areDependentsValid(pkg, summaries)) &&
+    nestedTypes.forall(t => t.areDependentsValid(summaries))
+  }
+
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeName]): Unit = {
+    val localDependencies = mutable.Set[TypeName]()
+    def collect(dependents: Option[Set[Dependent]]): Unit = {
+      dependents.get.foreach({
+        case ad: ApexDeclaration => localDependencies.add(ad.typeName)
+        case _: ApexFieldLike => ()
+      })
+    }
+
+    // Collect them all
+    collect(dependents)
+    blocks.foreach(x => collect(x.dependents))
+    localFields.foreach(x => collect(x.dependents))
+    constructors.foreach(x => collect(x.dependents))
+    localMethods.foreach(x => collect(x.dependents))
+    nestedTypes.foreach(_.collectDependenciesByTypeName(dependsOn))
+
+    // Use outermost of each to get top-level dependencies
+    localDependencies.foreach(dependentTypeName => {
       getOutermostDeclaration(dependentTypeName).foreach(td => dependsOn.add(td.typeName))
     })
   }
@@ -194,28 +295,14 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
     }
   }
 
-  private def fromOptTypeName(value: String): Option[TypeName] = {
-    if (value.isEmpty) None else Some(fromTypeName(value))
-  }
-
-  private def fromTypeName(value: String): TypeName = {
-    TypeName.fromString(value, pkg.namespace)
-  }
-
-  def areDependentsValid(summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
-    summary.dependents.forall(d => isValid(pkg, d, summaries)) &&
-      blocks.forall(b => b.areDependentsValid(pkg, summaries)) &&
-      localFields.forall(f => f.areDependentsValid(pkg, summaries)) &&
-      constructors.forall(c => c.areDependentsValid(pkg, summaries)) &&
-      localMethods.forall(m => m.areDependentsValid(pkg, summaries)) &&
-      nestedTypes.forall(t => t.areDependentsValid(summaries))
-  }
-
-  override def dependencies(): Set[Dependent] = {
-    summary.dependents.flatMap(dependent => {
-      val typeName = TypeName.fromString(dependent.name)
-      pkg.getType(typeName, None).toOption
-    }).toSet
+  override def validate(): Unit = {
+    super.validate()
+    propagateDependencies()
+    blocks.foreach(_.propagateDependencies())
+    localFields.foreach(_.propagateDependencies())
+    constructors.foreach(_.propagateDependencies())
+    localMethods.foreach(_.propagateDependencies())
+    nestedTypes.foreach(_.validate())
   }
 }
 

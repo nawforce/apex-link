@@ -135,7 +135,7 @@ trait PackageDeploy {
         td.validate()
         pcOpt.map(pc => {
           val diagnostics = org.issues.getDiagnostics(td.getPath.toString)
-          val summary = ApexSummary(1, td.summary, diagnostics)
+          val summary = ApexSummary(td.summary, diagnostics)
           pc.upsert(loadedWithSource._2.getBytes(StandardCharsets.UTF_8),
             writeBinary(summary), packageContext)
         })

@@ -30,12 +30,12 @@ package com.nawforce.common.cst
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.finding.{TypeError, TypeRequest}
-import com.nawforce.common.metadata.{DependencyHolder, Dependent}
+import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
-import com.nawforce.common.types.apex.{ApexDeclaration, TriggerDeclaration}
+import com.nawforce.common.types.apex._
 
 import scala.collection.mutable
 
@@ -80,6 +80,7 @@ trait VerifyContext {
   }
 }
 
+/* Dependency holding support, used by other types of context */
 trait HolderVerifyContext {
   private val _dependencies = mutable.Set[Dependent]()
 
@@ -89,18 +90,20 @@ trait HolderVerifyContext {
   def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
                  excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration]
 
+  /* Record a dependency, we only store between Apex code elements currently */
   def addDependency(dependent: Dependent): Unit = {
     dependent match {
       case _: ApexDeclaration => _dependencies += dependent
-      case _: ApexInitialiserBlock => _dependencies += dependent
-      case _: ApexFieldDeclaration => _dependencies += dependent
-      case _: ApexPropertyDeclaration => _dependencies += dependent
-      case _: ApexConstructorDeclaration => _dependencies += dependent
-      case _: ApexMethodDeclaration => _dependencies += dependent
+      case _: ApexFieldLike => _dependencies += dependent
+      case _: ApexMethodLike => _dependencies += dependent
+      case _: ApexConstructorLike => _dependencies += dependent
+      // Block is an odd man out here as there can't be platform blocks
+      case _: BlockDeclaration => _dependencies += dependent
       case _ => ()
     }
   }
 
+  /* Find a type and if found log that as a dependency */
   def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration],
                               excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {
     val result = getTypeFor(typeName, from, excludeSObjects)

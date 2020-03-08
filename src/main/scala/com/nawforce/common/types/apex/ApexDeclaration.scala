@@ -35,7 +35,7 @@ import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.pkg.PackageImpl
-import com.nawforce.common.types.{ConstructorDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
+import com.nawforce.common.types.{BlockDeclaration, ConstructorDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
 
 import scala.collection.mutable
 
@@ -79,6 +79,7 @@ trait ApexMethodLike extends MethodDeclaration {
 /** Apex defined fields core features, be they full or summary style */
 trait ApexFieldLike extends FieldDeclaration {
   val nameRange: RangeLocationImpl
+  val outerTypeName: TypeName
 
   override def summary(excludeNamespace: Option[Name]): FieldSummary = {
     super.summary(excludeNamespace, Some(new TextRange(nameRange.start, nameRange.end)))
@@ -200,6 +201,6 @@ trait ApexDeclaration extends TypeDeclaration {
     localFields.filterNot(_.hasHolders)
       .map(field => new Issue(UNUSED_CATEGORY, field.nameRange, s"Unused Field or Property '${field.name}'")) ++
       localMethods.filterNot(_.isUsed)
-        .map(method => new Issue(UNUSED_CATEGORY, method.nameRange, s"Method '${method.signature}'"))
+        .map(method => new Issue(UNUSED_CATEGORY, method.nameRange, s"Unused Method '${method.signature}'"))
   }
 }

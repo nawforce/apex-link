@@ -188,7 +188,7 @@ object EnumDeclaration {
     val constants = CodeParser.toScala(enumDeclaration.enumConstants())
       .map(ec => CodeParser.toScala(ec.id())).getOrElse(Seq())
     val fields = constants.map(constant => {
-      ApexFieldDeclaration(Seq(PUBLIC_MODIFIER, STATIC_MODIFIER), thisType,
+      ApexFieldDeclaration(thisType, Seq(PUBLIC_MODIFIER, STATIC_MODIFIER), thisType,
         VariableDeclarator(
           thisType,
           Id.construct(constant, context),

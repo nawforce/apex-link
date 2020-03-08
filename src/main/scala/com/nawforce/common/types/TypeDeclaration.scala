@@ -60,7 +60,7 @@ trait BlockDeclaration extends DependencyHolder {
   val isStatic: Boolean
 
   def summary(excludeNamespace: Option[Name]): BlockSummary = {
-    BlockSummary(BlockSummary.defaultVersion, isStatic, dependencySummary(excludeNamespace))
+    BlockSummary(isStatic, dependencySummary(excludeNamespace))
   }
 }
 
@@ -78,7 +78,7 @@ trait FieldDeclaration extends DependencyHolder {
   }
 
   protected def summary(excludeNamespace: Option[Name], range: Option[TextRange]): FieldSummary = {
-    FieldSummary(FieldSummary.defaultVersion, range, name.toString,
+    FieldSummary(range, name.toString,
       modifiers.map(_.toString).sorted.toList,
       typeName.asSummaryString(excludeNamespace),
       readAccess.toString, writeAccess.toString,
@@ -92,7 +92,7 @@ trait ParameterDeclaration {
   val typeName: TypeName
 
   def summary(excludeNamespace: Option[Name]): ParameterSummary = {
-    ParameterSummary(ParameterSummary.defaultVersion, name.toString, typeName.asSummaryString(excludeNamespace))
+    ParameterSummary(name.toString, typeName.asSummaryString(excludeNamespace))
   }
 }
 
@@ -105,7 +105,7 @@ trait ConstructorDeclaration extends DependencyHolder {
   }
 
   protected def summary(excludeNamespace: Option[Name], range: Option[TextRange]): ConstructorSummary = {
-    ConstructorSummary(ConstructorSummary.defaultVersion, range,
+    ConstructorSummary(range,
       modifiers.map(_.toString).sorted.toList,
       parameters.map(_.summary(excludeNamespace)).sortBy(_.name).toList,
       dependencySummary(excludeNamespace)
@@ -190,7 +190,7 @@ trait MethodDeclaration extends DependencyHolder {
   }
 
   protected def summary(excludeNamespace: Option[Name], range: Option[TextRange]): MethodSummary = {
-    MethodSummary(MethodSummary.defaultVersion, range,
+    MethodSummary(range,
       name.toString, modifiers.map(_.toString).sorted.toList,
       typeName.asSummaryString(excludeNamespace),
       parameters.map(_.summary(excludeNamespace)).toList, dependencySummary(excludeNamespace)
@@ -374,7 +374,6 @@ trait TypeDeclaration extends MetadataDeclaration {
   def summary: TypeSummary = {
     val ns = packageDeclaration.flatMap(_.namespace)
     TypeSummary (
-      TypeSummary.defaultVersion,
       0,
       None,
       name.toString,

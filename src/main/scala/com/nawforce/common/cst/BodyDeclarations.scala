@@ -71,7 +71,7 @@ object ClassBodyDeclaration {
           ApexModifiers.methodModifiers(modifiers, context, x.id()),
           x, context)))
       .orElse(CodeParser.toScala(memberDeclarationContext.fieldDeclaration())
-        .map(x => ApexFieldDeclaration.construct(
+        .map(x => ApexFieldDeclaration.construct(outerTypeName,
           ApexModifiers.fieldModifiers(modifiers, context,
             CodeParser.toScala(x.variableDeclarators().variableDeclarator()).head.id()),
           x, context)))
@@ -88,7 +88,7 @@ object ClassBodyDeclaration {
           ApexModifiers.enumModifiers(modifiers, context, outer = false, x.id()),
           x, context))))
       .orElse(CodeParser.toScala(memberDeclarationContext.propertyDeclaration())
-        .map(x => Seq(ApexPropertyDeclaration.construct(
+        .map(x => Seq(ApexPropertyDeclaration.construct(outerTypeName,
           ApexModifiers.fieldModifiers(modifiers, context, x.id()),
           x, context))))
       .orElse(CodeParser.toScala(memberDeclarationContext.classDeclaration())
@@ -191,7 +191,7 @@ object ApexMethodDeclaration {
   }
 }
 
-final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeName,
+final case class ApexFieldDeclaration(outerTypeName: TypeName, _modifiers: Seq[Modifier], typeName: TypeName,
                                       variableDeclarator: VariableDeclarator)
   extends ClassBodyDeclaration(_modifiers) with ApexFieldLike {
 
@@ -212,12 +212,11 @@ final case class ApexFieldDeclaration(_modifiers: Seq[Modifier], typeName: TypeN
 }
 
 object ApexFieldDeclaration {
-  def construct(modifiers: Seq[Modifier], fieldDeclaration: FieldDeclarationContext, context: ConstructContext):
-        Seq[ApexFieldDeclaration] = {
-
+  def construct(outerTypeName: TypeName, modifiers: Seq[Modifier], fieldDeclaration: FieldDeclarationContext,
+                context: ConstructContext):  Seq[ApexFieldDeclaration] = {
     val typeName = TypeRef.construct(fieldDeclaration.typeRef())
     VariableDeclarators.construct(typeName, fieldDeclaration.variableDeclarators(), context).declarators.map(vd => {
-      ApexFieldDeclaration(modifiers, typeName, vd).withContext(fieldDeclaration, context)
+      ApexFieldDeclaration(outerTypeName, modifiers, typeName, vd).withContext(fieldDeclaration, context)
     })
   }
 }

@@ -30,26 +30,29 @@ package com.nawforce.common.api
 import com.nawforce.common.documents.TextRange
 import upickle.default.{macroRW, ReadWriter => RW}
 
-case class ApexSummary(version: Int, typeSummary: TypeSummary, diagnostics: List[Diagnostic])
-case class TypeSummary(version: Int, sourceHash: Int, idRange: Option[TextRange], name: String, typeName: String,
+case class ApexSummary(typeSummary: TypeSummary, diagnostics: List[Diagnostic])
+case class TypeSummary(sourceHash: Int, idRange: Option[TextRange], name: String, typeName: String,
                        nature: String, modifiers: List[String], superClass: String, interfaces: List[String],
                        blocks: List[BlockSummary], fields: List[FieldSummary], constructors: List[ConstructorSummary],
                        methods: List[MethodSummary], nestedTypes: List[TypeSummary], dependents: Set[DependentSummary])
-case class BlockSummary(version: Int, isStatic: Boolean, dependents: Set[DependentSummary])
-case class FieldSummary(version: Int, idRange: Option[TextRange], name: String, modifiers: List[String],
+case class BlockSummary(isStatic: Boolean, dependents: Set[DependentSummary])
+case class FieldSummary(idRange: Option[TextRange], name: String, modifiers: List[String],
                         typeName: String, readAccess: String, writeAccess: String, dependents: Set[DependentSummary])
-case class ConstructorSummary(version: Int, idRange: Option[TextRange], modifiers: List[String], parameters: List[ParameterSummary],
+case class ConstructorSummary(idRange: Option[TextRange], modifiers: List[String], parameters: List[ParameterSummary],
                               dependents: Set[DependentSummary])
-case class MethodSummary(version: Int, idRange: Option[TextRange], name: String, modifiers: List[String], typeName: String,
+case class MethodSummary(idRange: Option[TextRange], name: String, modifiers: List[String], typeName: String,
                          parameters: List[ParameterSummary], dependents: Set[DependentSummary])
-case class ParameterSummary(version: Int, name: String, typeName: String)
-case class DependentSummary(name: String, sourceHash: Int)
+case class ParameterSummary(name: String, typeName: String)
+
+sealed trait DependentSummary
+@upickle.implicits.key("Type")
+case class TypeDependentSummary(typeName: String, sourceHash: Int) extends DependentSummary
+@upickle.implicits.key("Field")
+case class FieldDependentSummary(typeName: String, name: String) extends DependentSummary
 
 case class Diagnostic(category: String, location: Location, message: String)
 
-sealed trait Location {
-}
-
+sealed trait Location
 case class LineLocation(line: Int) extends Location
 case class LineRangeLocation(start: Int, end: Int) extends Location
 case class Position(line: Int, offset: Int)
@@ -57,76 +60,69 @@ case class PointLocation(position: Position) extends Location
 case class RangeLocation(start: Position, end: Position) extends Location
 
 object ApexSummary {
-  val defaultVersion = 1
   implicit val rw: RW[ApexSummary] = macroRW
 }
 
 object TypeSummary {
-  val defaultVersion = 1
   implicit val rw: RW[TypeSummary] = macroRW
 }
 
 object BlockSummary {
-  val defaultVersion = 1
   implicit val rw: RW[BlockSummary] = macroRW
 }
 
 object FieldSummary {
-  val defaultVersion = 1
   implicit val rw: RW[FieldSummary] = macroRW
 }
 
 object ConstructorSummary {
-  val defaultVersion = 1
   implicit val rw: RW[ConstructorSummary] = macroRW
 }
 
 object MethodSummary {
-  val defaultVersion = 1
   implicit val rw: RW[MethodSummary] = macroRW
 }
 
 object ParameterSummary {
-  val defaultVersion = 1
   implicit val rw: RW[ParameterSummary] = macroRW
 }
 
 object DependentSummary {
-  val defaultVersion = 1
   implicit val rw: RW[DependentSummary] = macroRW
 }
 
+object TypeDependentSummary {
+  implicit val rw: RW[TypeDependentSummary] = macroRW
+}
+
+object FieldDependentSummary {
+  implicit val rw: RW[FieldDependentSummary] = macroRW
+}
+
 object Diagnostic {
-  val defaultVersion = 1
   implicit val rw: RW[Diagnostic] = macroRW
 }
 
 object Location {
-  val defaultVersion = 1
   implicit val rw: RW[Location] = RW.merge(LineLocation.rw, LineRangeLocation.rw, PointLocation.rw, RangeLocation.rw)
 }
 
 object LineLocation {
-  val defaultVersion = 1
   implicit val rw: RW[LineLocation] = macroRW
 }
 
 object LineRangeLocation {
-  val defaultVersion = 1
   implicit val rw: RW[LineRangeLocation] = macroRW
 }
 
 object PointLocation {
-  val defaultVersion = 1
   implicit val rw: RW[PointLocation] = macroRW
 }
 
 object RangeLocation {
-  val defaultVersion = 1
   implicit val rw: RW[RangeLocation] = macroRW
 }
 
 object Position {
-  val defaultVersion = 1
   implicit val rw: RW[Position] = macroRW
 }

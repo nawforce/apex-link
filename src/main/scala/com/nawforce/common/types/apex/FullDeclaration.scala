@@ -151,7 +151,6 @@ abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageImpl, val ou
   override lazy val summary: TypeSummary = {
     val ns = packageDeclaration.flatMap(_.namespace)
     TypeSummary (
-      TypeSummary.defaultVersion,
       sourceHash,
       Some(new TextRange(id.location.start, id.location.end)),
       name.toString,
