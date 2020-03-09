@@ -68,6 +68,7 @@ object DependentValidation {
     dependent match {
       case d: TypeDependentSummary => findDependent(d, pkg, summaries)
       case d: FieldDependentSummary => findDependent(d, pkg, summaries)
+      case d: MethodDependentSummary => findDependent(d, pkg, summaries)
       case _ => None
     }
   }
@@ -87,17 +88,29 @@ object DependentValidation {
   /* Find a field dependency */
   def findDependent(dependent: FieldDependentSummary, pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration])
     : Option[FieldDeclaration] = {
-    val typeName = TypeName.fromString(dependent.typeName, pkg.namespace)
-    findType(typeName, pkg, summaries).flatMap(td => {
-      // Did we find outer?
-      val correctedTd =
-        if (td.typeName != typeName) {
-          td.nestedTypes.find(_.typeName == typeName)
-        } else {
-          Some(td)
-        }
+    val name = Name(dependent.name)
+    findExactType(dependent.typeName, pkg, summaries)
+      .flatMap(_.fields.find(_.name == name))
+  }
 
-      correctedTd.flatMap(_.findField(Name(dependent.name), None))
+  /* Find a field dependency */
+  def findDependent(dependent: MethodDependentSummary, pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration])
+  : Option[MethodDeclaration] = {
+    val name = Name(dependent.name)
+    val params = dependent.parameters.map(param => TypeName.fromString(param.typeName, pkg.namespace))
+    findExactType(dependent.typeName, pkg, summaries)
+      .flatMap(_.methods.find(m => m.name == name && m.parameters.map(_.typeName) == params))
+  }
+
+  private def findExactType(name: String, pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration])
+    : Option[TypeDeclaration] = {
+    val typeName = TypeName.fromString(name, pkg.namespace)
+    findType(typeName, pkg, summaries).flatMap(td => {
+      if (td.typeName != typeName) {
+        td.nestedTypes.find(_.typeName == typeName)
+      } else {
+        Some(td)
+      }
     })
   }
 
@@ -132,7 +145,7 @@ class SummaryParameter(parameterSummary: ParameterSummary, fromTypeName: String 
   override val typeName: TypeName = fromTypeName(parameterSummary.typeName)
 }
 
-class SummaryMethod(path: PathLike, methodSummary: MethodSummary, fromTypeName: String => TypeName)
+class SummaryMethod(path: PathLike, val outerTypeName: TypeName, methodSummary: MethodSummary, fromTypeName: String => TypeName)
   extends ApexMethodLike {
 
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, methodSummary.idRange.get)
@@ -234,7 +247,7 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
   override lazy val constructors: Seq[SummaryConstructor] =
     summary.constructors.map(new SummaryConstructor(path, _, fromTypeName))
   override lazy val localMethods: Seq[SummaryMethod] =
-    summary.methods.map(new SummaryMethod(path, _, fromTypeName))
+    summary.methods.map(new SummaryMethod(path, typeName, _, fromTypeName))
 
   private def fromOptTypeName(value: String): Option[TypeName] = {
     if (value.isEmpty) None else Some(fromTypeName(value))
@@ -269,6 +282,7 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
       dependents.get.foreach({
         case ad: ApexDeclaration => localDependencies.add(ad.typeName)
         case _: ApexFieldLike => ()
+        case _: ApexMethodLike => ()
       })
     }
 
@@ -296,7 +310,9 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
   }
 
   override def validate(): Unit = {
-    super.validate()
+    // Hack, we only want to propagate outer type dependencies on outer types
+    if (outerTypeName.isEmpty)
+      super.validate()
     propagateDependencies()
     blocks.foreach(_.propagateDependencies())
     localFields.foreach(_.propagateDependencies())

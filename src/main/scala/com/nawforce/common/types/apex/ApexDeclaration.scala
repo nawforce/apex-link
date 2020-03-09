@@ -51,6 +51,7 @@ trait ApexConstructorLike extends ConstructorDeclaration {
 /** Apex defined method core features, be they full or summary style */
 trait ApexMethodLike extends MethodDeclaration {
   val nameRange: RangeLocationImpl
+  val outerTypeName: TypeName
 
   // Populated by type MethodMap construction
   lazy val shadows: mutable.Set[MethodDeclaration] = mutable.Set()

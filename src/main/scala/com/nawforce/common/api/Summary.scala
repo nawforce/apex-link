@@ -49,6 +49,8 @@ sealed trait DependentSummary
 case class TypeDependentSummary(typeName: String, sourceHash: Int) extends DependentSummary
 @upickle.implicits.key("Field")
 case class FieldDependentSummary(typeName: String, name: String) extends DependentSummary
+@upickle.implicits.key("Method")
+case class MethodDependentSummary(typeName: String, name: String, parameters: List[ParameterSummary]) extends DependentSummary
 
 case class Diagnostic(category: String, location: Location, message: String)
 
@@ -97,6 +99,10 @@ object TypeDependentSummary {
 
 object FieldDependentSummary {
   implicit val rw: RW[FieldDependentSummary] = macroRW
+}
+
+object MethodDependentSummary {
+  implicit val rw: RW[MethodDependentSummary] = macroRW
 }
 
 object Diagnostic {

@@ -122,8 +122,9 @@ object ApexInitialiserBlock {
   }
 }
 
-final case class ApexMethodDeclaration(_modifiers: Seq[Modifier], relativeTypeName: RelativeTypeName, id: Id,
-                                       parameters: Seq[FormalParameter], block: Option[LazyBlock])
+final case class ApexMethodDeclaration(outerTypeName: TypeName, _modifiers: Seq[Modifier],
+                                       relativeTypeName: RelativeTypeName, id: Id, parameters: Seq[FormalParameter],
+                                       block: Option[LazyBlock])
   extends ClassBodyDeclaration(_modifiers) with ApexMethodLike {
 
   override val nameRange: RangeLocationImpl = id.location
@@ -171,7 +172,7 @@ object ApexMethodDeclaration {
     val block = CodeParser.toScala(from.block())
       .map(b => Block.constructLazy(b, context, modifiers.contains(STATIC_MODIFIER)))
 
-    ApexMethodDeclaration(
+    ApexMethodDeclaration(outerTypeName,
       modifiers, RelativeTypeName(pkg, outerTypeName, typeName),
       Id.construct(from.id(), context),
       FormalParameters.construct(pkg, outerTypeName, from.formalParameters(), context),
@@ -182,7 +183,7 @@ object ApexMethodDeclaration {
   def construct(pkg: PackageImpl, outerTypeName: TypeName, modifiers: Seq[Modifier],
                 from: InterfaceMethodDeclarationContext, context: ConstructContext): ApexMethodDeclaration = {
     val typeName = CodeParser.toScala(from.typeRef()).map(tr => TypeRef.construct(tr)).getOrElse(TypeName.Void)
-    ApexMethodDeclaration(
+    ApexMethodDeclaration(outerTypeName,
       modifiers, RelativeTypeName(pkg, outerTypeName, typeName),
       Id.construct(from.id(), context),
       FormalParameters.construct(pkg, outerTypeName, from.formalParameters(), context),
