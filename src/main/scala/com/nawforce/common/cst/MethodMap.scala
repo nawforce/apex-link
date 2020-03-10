@@ -32,6 +32,7 @@ import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
+import com.nawforce.common.types.apex.{ApexDeclaration, ApexMethodLike}
 
 import scala.collection.mutable
 
@@ -123,7 +124,7 @@ object MethodMap {
   }
 
   private def mergeInterface(workingMap: WorkingMap, interface: TypeDeclaration): Unit = {
-    if (interface.isInstanceOf[InterfaceDeclaration])
+    if (interface.isInstanceOf[ApexDeclaration] && interface.nature == INTERFACE_NATURE)
       mergeInterfaces(workingMap, interface.interfaceDeclarations)
 
     interface.methods.filterNot(_.isStatic).foreach(method => {
@@ -135,7 +136,7 @@ object MethodMap {
         workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method)))
       } else {
         matched.get match {
-          case am: ApexMethodDeclaration => am.shadows(method)
+          case am: ApexMethodLike => am.shadows(method)
           case _ => ()
         }
       }
@@ -153,7 +154,7 @@ object MethodMap {
 
   private def checkInterface(pkg: Option[PackageImpl], location: Option[LocationImpl], isAbstract: Boolean,
                              workingMap: WorkingMap, interface: TypeDeclaration, errors: mutable.Buffer[Issue]): Unit = {
-    if (interface.isInstanceOf[InterfaceDeclaration])
+    if (interface.isInstanceOf[ApexDeclaration] && interface.nature == INTERFACE_NATURE)
       checkInterfaces(pkg, location, isAbstract, workingMap, interface.interfaceDeclarations, errors)
 
     interface.methods
@@ -176,7 +177,7 @@ object MethodMap {
             s"Method '${method.signature}' from interface '${interface.typeName}' must be implemented")))
       } else {
         matched.get match {
-          case am: ApexMethodDeclaration => am.shadows.add(method)
+          case am: ApexMethodLike => am.shadows.add(method)
           case _ => ()
         }
       }
@@ -206,7 +207,7 @@ object MethodMap {
       }
     }
     method match {
-      case am: ApexMethodDeclaration => matched.foreach(am.shadows.add)
+      case am: ApexMethodLike => matched.foreach(am.shadows.add)
       case _ => ()
     }
 
@@ -215,8 +216,8 @@ object MethodMap {
 
   private def setMethodError(method: MethodDeclaration, error: String, errors: mutable.Buffer[Issue], isWarning: Boolean=false): Unit = {
     method match {
-      case am: ApexMethodDeclaration if !isWarning => errors.append(new Issue(ERROR_CATEGORY, am.id.location, error))
-      case am: ApexMethodDeclaration => errors.append(new Issue(ERROR_CATEGORY, am.id.location, error))
+      case am: ApexMethodLike if !isWarning => errors.append(new Issue(ERROR_CATEGORY, am.nameRange, error))
+      case am: ApexMethodLike => errors.append(new Issue(ERROR_CATEGORY, am.nameRange, error))
       case _ => ()
     }
   }

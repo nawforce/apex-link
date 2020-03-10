@@ -72,17 +72,19 @@ class OrgImpl extends Org {
 
   /** Collect all issues into a JSON log */
   override def getIssues(options: IssueOptions): String = {
-    val reportableIssues =
-      if (options.includeZombies) {
-        val allIssues = IssueLog(issues)
-        packagesByNamespace.values.foreach(pkg => {
-          allIssues.merge(pkg.reportUnused())
-        })
-        allIssues
-      } else {
-        issues
-      }
-    reportableIssues.asString(options.includeWarnings, options.maxErrorsPerFile, options.formatJSON)
+    OrgImpl.current.withValue(this) {
+      val reportableIssues =
+        if (options.includeZombies) {
+          val allIssues = IssueLog(issues)
+          packagesByNamespace.values.foreach(pkg => {
+            allIssues.merge(pkg.reportUnused())
+          })
+          allIssues
+        } else {
+          issues
+        }
+      reportableIssues.asString(options.includeWarnings, options.maxErrorsPerFile, options.formatJSON)
+    }
   }
 
   /** Create a new package in the org, directories should be priority ordered for duplicate detection. Use

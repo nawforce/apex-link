@@ -104,7 +104,7 @@ trait PackageDeploy {
         // Upsert any summary docs that are valid and report known issues
         val validSummaryDocs = summaryDocs
             .filterNot(_.diagnostics.exists(_.category == MISSING_CATEGORY.value))
-            .filter(_.declaration.areDependentsValid(summaryDocsByType))
+            .filter(_.declaration.areTypeDependenciesValid(summaryDocsByType))
         validSummaryDocs.foreach(doc => {
           upsertMetadata(doc.declaration)
           val path = doc.declaration.path.toString

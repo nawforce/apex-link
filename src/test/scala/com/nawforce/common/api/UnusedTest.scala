@@ -137,8 +137,10 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg2 = org2.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
       assertIsSummaryDeclaration(pkg2, "Dummy")
-      assert(pkg2.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
-        "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
+      OrgImpl.current.withValue(org2) {
+        assert(pkg2.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
+          "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
+      }
     }
   }
 }

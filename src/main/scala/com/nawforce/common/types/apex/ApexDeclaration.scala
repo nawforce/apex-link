@@ -63,6 +63,7 @@ trait ApexMethodLike extends MethodDeclaration {
       modifiers.contains(GLOBAL_MODIFIER)
   }
 
+  /* Is the method in use, NOTE: requires a MethodMap is constructed for shadow support first! */
   def isUsed: Boolean = {
     isEntry || hasHolders ||
       shadows.exists({
@@ -199,6 +200,8 @@ trait ApexDeclaration extends TypeDeclaration {
   }
 
   def unused(): Seq[Issue] = {
+    // Hack: Unused calculation requires a methodMap for shadow support
+    methodMap
     localFields.filterNot(_.hasHolders)
       .map(field => new Issue(UNUSED_CATEGORY, field.nameRange, s"Unused Field or Property '${field.name}'")) ++
       localMethods.filterNot(_.isUsed)
