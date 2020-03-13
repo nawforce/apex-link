@@ -29,6 +29,7 @@ package com.nawforce.common.names
 
 import com.nawforce.common.api.TypeLike
 import com.nawforce.common.cst.TypeRef
+import com.nawforce.common.path.PathFactory
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.types.PlatformTypeException
 
@@ -290,7 +291,8 @@ object TypeName {
       case _ if !value.contains('<') =>
         TypeName(value.split('.').map(Name(_)).reverse)
       case _ =>
-        CodeParser.parseTypeRef(value) match {
+        val parser = new CodeParser(PathFactory(""), value)
+        parser.parseTypeRef() match {
           case Left(err) =>
             throw new PlatformTypeException(s"TypeRef '$value' could not be parsed: $err")
           case Right(context) => TypeRef.construct(context)

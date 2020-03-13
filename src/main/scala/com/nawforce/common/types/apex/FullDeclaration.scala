@@ -170,7 +170,8 @@ abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageImpl, val ou
 
 object FullDeclaration {
   def create(pkg: PackageImpl, path: PathLike, data: String): Option[FullDeclaration] = {
-    CodeParser.parseClass(path, data) match {
+    val parser = new CodeParser(path, data)
+    parser.parseClass() match {
       case Left(err) =>
         OrgImpl.logError(LineLocationImpl(path.toString, err.line), err.message)
         None

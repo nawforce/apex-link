@@ -39,21 +39,16 @@ import java.io.Reader;
  */
 @SuppressWarnings({"unused", "deprecation"})
 public class CaseInsensitiveInputStream extends org.antlr.v4.runtime.ANTLRInputStream {
-    public final String path;
-
-    public CaseInsensitiveInputStream(String path, InputStream is) throws IOException {
+    public CaseInsensitiveInputStream(InputStream is) throws IOException {
         super(is);
-        this.path = path;
     }
 
-    public CaseInsensitiveInputStream(String path, Reader r) throws IOException {
+    public CaseInsensitiveInputStream(Reader r) throws IOException {
         super(r, 1024, 1024);
-        this.path = path;
     }
 
-    public CaseInsensitiveInputStream(String path, Reader r, Integer initialSize, Integer readChunkSize) throws IOException {
+    public CaseInsensitiveInputStream(Reader r, Integer initialSize, Integer readChunkSize) throws IOException {
         super(r, initialSize, readChunkSize);
-        this.path = path;
     }
 
     @Override

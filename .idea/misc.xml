@@ -5,8 +5,7 @@
       <list>
         <PerGrammarGenerationSettings>
           <option name="fileName" value="$PROJECT_DIR$/src/main/antlr4/com/nawforce/parsers/ApexParser.g4" />
-          <option name="autoGen" value="true" />
-          <option name="outputDir" value="$PROJECT_DIR$/../typex/parser/src/main/java" />
+          <option name="outputDir" value="$PROJECT_DIR$/src/main/java" />
           <option name="libDir" value="" />
           <option name="encoding" value="" />
           <option name="pkg" value="com.nawforce.runtime.parsers" />

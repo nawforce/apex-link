@@ -32,7 +32,7 @@ import com.nawforce.common.documents.LineLocationImpl
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.runtime.parsers.ApexParser._
-import com.nawforce.runtime.parsers.{ClippedText, CodeParser}
+import com.nawforce.runtime.parsers.{ClippedStream, CodeParser}
 
 import scala.ref.WeakReference
 
@@ -41,7 +41,7 @@ trait Statement extends CST {
 }
 
 // Treat Block as Statement for blocks in blocks
-final case class LazyBlock(clippedText: ClippedText, var blockContextRef: WeakReference[BlockContext], isStatic: Boolean)
+final case class LazyBlock(clippedStream: ClippedStream, var blockContextRef: WeakReference[BlockContext], isStatic: Boolean)
   extends CST with Statement {
   private var statementsRef: WeakReference[Seq[Statement]] = WeakReference(null)
   private var reParsed = false
@@ -56,9 +56,9 @@ final case class LazyBlock(clippedText: ClippedText, var blockContextRef: WeakRe
     if (statements.isEmpty) {
       var statementContext = blockContextRef.get
       if (statementContext.isEmpty) {
-        CodeParser.parseBlock(clippedText.path, clippedText.text) match {
+        clippedStream.parse() match {
           case Left(err) =>
-            OrgImpl.logError(LineLocationImpl(clippedText.path.toString, err.line), err.message)
+            OrgImpl.logError(LineLocationImpl(clippedStream.path.toString, err.line), err.message)
             return Nil
           case Right(c) =>
             statementContext = Some(c)
@@ -71,8 +71,8 @@ final case class LazyBlock(clippedText: ClippedText, var blockContextRef: WeakRe
       var rangeAdjust = CST.rangeAdjust.value
       assert(rangeAdjust._1 == 0 && rangeAdjust._2 == 0)
       if (reParsed)
-        rangeAdjust = (clippedText.line, clippedText.column)
-      CST.rangeAdjust.withValue(rangeAdjust) {
+        rangeAdjust = (clippedStream.line, clippedStream.column)
+        CST.rangeAdjust.withValue(rangeAdjust) {
         val statementContexts: Seq[StatementContext] = CodeParser.toScala(statementContext.get.statement())
         statements = Some(Statement.construct(statementContexts, new ConstructContext))
         statementsRef = WeakReference(statements.get)
@@ -92,7 +92,7 @@ final case class Block(statements: Seq[Statement])
 
 object Block {
   def constructLazy(blockContext: BlockContext, context: ConstructContext, isStatic: Boolean): LazyBlock = {
-    LazyBlock(CodeParser.clipText(blockContext), WeakReference(blockContext), isStatic)
+    LazyBlock(CodeParser.clipStream(blockContext), WeakReference(blockContext), isStatic)
   }
 
   def construct(blockContext: BlockContext, context: ConstructContext): Block = {

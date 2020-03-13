@@ -240,7 +240,7 @@ final case class MethodCall(target: Either[Boolean, Id], arguments: Seq[Expressi
           val td = context.getTypeAndAddDependency(methods.head.typeName, context.thisType)
           td match {
             case Left(error) =>
-              context.logError(location, error.toString)
+              context.log(error.asIssue(location))
               ExprContext.empty
             case Right(td) =>
               ExprContext(isStatic = Some(false), td)

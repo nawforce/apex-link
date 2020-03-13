@@ -84,7 +84,8 @@ class TriggerDeclaration(path: PathLike, val pkg: PackageImpl, name: Id, objectN
 
 object TriggerDeclaration {
   def create(pkg: PackageImpl, path: PathLike, data: String): Seq[TriggerDeclaration] = {
-    CodeParser.parseTrigger(path, data) match {
+    val parser = new CodeParser(path, data)
+    parser.parseTrigger() match {
       case Left(err) =>
         OrgImpl.logError(LineLocationImpl(path.toString, err.line), err.message)
         Nil

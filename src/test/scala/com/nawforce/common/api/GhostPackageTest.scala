@@ -78,7 +78,7 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter {
   test("Ghost package suppresses declared interface type error") {
     defaultOrg.newPackage("package", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy implements package.Interface {}"))
+    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy implements package.MyThing {}"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
   }
@@ -86,9 +86,9 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter {
   test("Ghost package with wrong namespace has declared interface type error") {
     defaultOrg.newPackage("silly", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy implements package.Interface {}"))
+    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy implements package.MyThing {}"))
     assert(defaultOrg.issues.getMessages("/Dummy.cls")
-      == "Missing: line 1 at 13-18: No type declaration found for 'package.Interface'\n")
+      == "Missing: line 1 at 13-18: No type declaration found for 'package.MyThing'\n")
     assert(tds.head.dependencies().isEmpty)
   }
 

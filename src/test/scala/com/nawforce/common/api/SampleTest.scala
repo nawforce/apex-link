@@ -42,6 +42,7 @@ class SampleTest extends AnyFunSuite with BeforeAndAfter {
     org.newPackage(namespace, Array[String](path), externalPackages)
 
     if (org.issues.logCount != expectedCount) {
+      org.issues.dump()
       assert(false)
     }
   }

@@ -34,14 +34,16 @@ import org.scalatest.funsuite.AnyFunSuite
 class CodeParserTest extends AnyFunSuite {
 
   test("Good class") {
-    CodeParser.parseClass(PathFactory("Hello.cls"), "public class Hello {}") match {
+    val parser = new CodeParser(PathFactory("Hello.cls"), "public class Hello {}")
+    parser.parseClass() match {
       case Left(_) => assert(false)
       case Right(cu) => assert(cu != null)
     }
   }
 
   test("Broken class") {
-    CodeParser.parseClass(PathFactory("Hello.cls"), "public class Hello {") match {
+    val parser = new CodeParser(PathFactory("Hello.cls"), "public class Hello {")
+    parser.parseClass() match {
       case Left(ex) => ()
       case Right(_) => assert(false)
     }

@@ -78,6 +78,11 @@ trait VerifyContext {
     if (!suppressWarnings)
       OrgImpl.logError(location, msg)
   }
+
+  def log(issue: Issue): Unit = {
+    if (!suppressWarnings)
+      OrgImpl.log(issue)
+  }
 }
 
 /* Dependency holding support, used by other types of context */
