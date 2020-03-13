@@ -30,7 +30,7 @@ package com.nawforce.common.documents
 import com.nawforce.common.api.ServerOps
 import com.nawforce.common.names.Name
 import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.{DIRECTORY, DOES_NOT_EXIST, FILE, PathLike}
+import com.nawforce.common.path.PathLike
 
 import scala.collection.mutable
 
@@ -63,7 +63,7 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
   }
 
   private def createForceIgnore(): Option[ForceIgnore] = {
-    if (ignorePath.nonEmpty && ignorePath.get.nature.isInstanceOf[FILE]) {
+    if (ignorePath.nonEmpty && ignorePath.get.isFile) {
       ForceIgnore(ignorePath.get) match {
         case Left(err) =>
           OrgImpl.logError(LineLocationImpl(ignorePath.get.toString, 0), s"Could not read .forceignore, error: $err")
@@ -80,7 +80,7 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
     if (path.basename.toString.startsWith("."))
       return
 
-    if (path.nature == DIRECTORY) {
+    if (path.isDirectory) {
       if (forceIgnore.forall(_.includeDirectory(path))) {
         path.directoryList() match {
           case Left(err) => throw new DocumentIndexException(err)
@@ -89,7 +89,8 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
       } else {
         ServerOps.debug(ServerOps.Trace, s"Ignoring directory $path")
       }
-    } else if (path.nature.isInstanceOf[FILE]) {
+    } else {
+      // Not testing if this is a regular file to improve scan performance
       if (forceIgnore.forall(_.includeFile(path))) {
         insertDocument(DocumentType(path))
       } else {
@@ -121,7 +122,7 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
     getByExtension(name).foreach(docType => {
       val objectDir = docType.path.parent.parent
       val metaFile = objectDir.join(objectDir.basename + ".object-meta.xml")
-      if (metaFile.nature == DOES_NOT_EXIST) {
+      if (!metaFile.isFile) {
         if (forceIgnore.forall(_.includeDirectory(metaFile.parent))) {
           if (!documents(Name("object")).map(_.path).contains(metaFile)) {
             documents.put(Name("object"),

@@ -105,16 +105,14 @@ class ParsedCache(val path: PathLike) {
     val cacheKey = CacheKey(CacheKey.currentVersion, packageContext, key)
     val hashParts = cacheKey.hashParts
     val outer = path.join(hashParts.head)
-    if (outer.nature == DIRECTORY) {
+    if (outer.isDirectory) {
       val inner = outer.join(hashParts(1))
-      if (inner.nature == NONEMPTY_FILE) {
-        inner.readBytes() match {
-          case Left(_) => ()
-          case Right(data) =>
-            val ce = readBinary[CacheEntry](data)
-            if (ce.key == cacheKey)
-              return Some(ce.value)
-        }
+      inner.readBytes() match {
+        case Left(_) => ()
+        case Right(data) =>
+          val ce = readBinary[CacheEntry](data)
+          if (ce.key == cacheKey)
+            return Some(ce.value)
       }
     }
     None
@@ -128,9 +126,9 @@ class ParsedCache(val path: PathLike) {
       case Left(_) => ()
       case Right(names) => names.foreach(name => {
         val pathEntry = path.join(name)
-        if (pathEntry.nature == DIRECTORY) {
+        if (pathEntry.isDirectory) {
           expire(pathEntry, minTimeStamp)
-        } else if (pathEntry.nature == NONEMPTY_FILE) {
+        } else {
           pathEntry.lastModified() match {
             case Some(ts) if ts < minTimeStamp =>
               pathEntry.delete()
@@ -151,7 +149,7 @@ class ParsedCache(val path: PathLike) {
       case Left(_) => ()
       case Right(names) => names.foreach(name => {
         val pathEntry = path.join(name)
-        if (pathEntry.nature == DIRECTORY) {
+        if (pathEntry.isDirectory) {
           clearContents(pathEntry)
         }
         pathEntry.delete()
@@ -176,8 +174,8 @@ object ParsedCache {
     }
 
     val cacheDir = cacheDirOpt.get
-    if (cacheDir.nature != DOES_NOT_EXIST) {
-      if (cacheDir.nature != DIRECTORY) {
+    if (cacheDir.exists) {
+      if (!cacheDir.isDirectory) {
         return Left(s"Cache directory '$cacheDir' exists but is not a directory")
       }
 

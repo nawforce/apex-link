@@ -127,7 +127,6 @@ class CodeParser(val path: PathLike, data: String) extends
   }
 }
 
-
 object CodeParser {
   type ParserRuleContext = org.antlr.v4.runtime.ParserRuleContext
   type TerminalNode = org.antlr.v4.runtime.tree.TerminalNode

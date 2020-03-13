@@ -38,17 +38,12 @@ case class Path(native: java.nio.file.Path) extends PathLike {
   override lazy val basename: String = Option(native.getFileName).map(_.toString).getOrElse("")
   override lazy val parent: Path = join("..")
   override lazy val absolute: Path = Path(native.toAbsolutePath)
+  override lazy val exists: Boolean = Files.exists(native)
+  override lazy val isDirectory: Boolean = Files.isDirectory(native)
+  override lazy val isFile: Boolean = Files.isRegularFile(native)
+  override lazy val size: Long = if (isFile) Files.size(native) else 0
 
   override def toString: String = native.toString
-
-  override lazy val nature: PathNature = {
-    if (!Files.exists(native)) DOES_NOT_EXIST
-    else if (Files.isDirectory(native)) DIRECTORY
-    else if (Files.isRegularFile(native)) {
-      if (Files.size(native) == 0) EMPTY_FILE else NONEMPTY_FILE
-    }
-    else UNKNOWN
-  }
 
   override def join(arg: String): Path = {
     Path(native.resolve(arg).normalize())
@@ -98,14 +93,14 @@ case class Path(native: java.nio.file.Path) extends PathLike {
 
   override def createDirectory(name: String): Either[String, PathLike] = {
     val dir = join(name)
-    if (dir.nature == DOES_NOT_EXIST) {
+    if (!Files.exists(dir.native)) {
       try {
         Files.createDirectory(dir.native)
         Right(Path(dir.native))
       } catch {
         case ex: java.io.IOException => Left(ex.toString)
       }
-    } else if (dir.nature == DIRECTORY) {
+    } else if (dir.isDirectory) {
       Right(dir)
     } else {
       Left(s"Can not create directory '$dir', file already exists")
@@ -113,7 +108,7 @@ case class Path(native: java.nio.file.Path) extends PathLike {
   }
 
   override def directoryList(): Either[String, Seq[String]] = {
-    if (nature == DIRECTORY) {
+    if (isDirectory) {
       var files: List[String] = Nil
       val paths = Files.newDirectoryStream(native)
       try {

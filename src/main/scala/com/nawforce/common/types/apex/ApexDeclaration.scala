@@ -35,7 +35,7 @@ import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.pkg.PackageImpl
-import com.nawforce.common.types.{BlockDeclaration, ConstructorDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
+import com.nawforce.common.types.{ConstructorDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
 
 import scala.collection.mutable
 

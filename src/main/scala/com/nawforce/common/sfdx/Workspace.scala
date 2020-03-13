@@ -30,7 +30,7 @@ package com.nawforce.common.sfdx
 import com.nawforce.common.documents.LineLocationImpl
 import com.nawforce.common.names.Name
 import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.{DIRECTORY, PathLike}
+import com.nawforce.common.path.PathLike
 
 trait Workspace {
   val namespace: Option[Name]
@@ -63,7 +63,7 @@ class SFDXWorkspace(_namespace: Option[Name], rootPath: PathLike, project: Proje
 
 object Workspace {
   def apply(namespace: Option[Name], paths: Seq[PathLike]): Either[String, Workspace] = {
-    val missing = paths.filter(_.nature != DIRECTORY)
+    val missing = paths.filterNot(_.isDirectory)
     if (missing.nonEmpty)
       return Left(s"Workspace '${missing.head.absolute}' is not a directory")
 

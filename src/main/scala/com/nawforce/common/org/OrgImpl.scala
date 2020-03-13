@@ -31,7 +31,7 @@ import com.nawforce.common.api.{IssueOptions, Org, Package}
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, IssueLog, WARNING_CATEGORY}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.Name
-import com.nawforce.common.path.{DIRECTORY, PathFactory, PathLike}
+import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.sfdx.{MDAPIWorkspace, Workspace}
 
@@ -121,7 +121,7 @@ class OrgImpl extends Org {
     }
 
     workspace.paths.foreach(path => {
-      if (path.nature != DIRECTORY)
+      if (!path.isDirectory)
         throw new IllegalArgumentException(s"Package root '${path.toString}' must be a directory")
     })
 

@@ -27,15 +27,6 @@
 */
 package com.nawforce.common.path
 
-sealed class PathNature(val value: String)
-
-case object DOES_NOT_EXIST extends PathNature("Does not exist")
-case object DIRECTORY extends PathNature("Directory")
-sealed class FILE(_value: String) extends PathNature(_value)
-case object EMPTY_FILE extends FILE ("Empty File")
-case object NONEMPTY_FILE extends FILE ("Non-Empty File")
-case object UNKNOWN extends PathNature("Unknown")
-
 /* File system path abstraction */
 abstract class PathLike {
 
@@ -45,8 +36,17 @@ abstract class PathLike {
   // All paths have a parent, it may be the same path for root paths
   val parent: PathLike
 
-  // File system entity for the path
-  val nature: PathNature
+  // Is anything present at path
+  val exists: Boolean
+
+  // Is this a directory
+  val isDirectory: Boolean
+
+  // Is this a regular file
+  val isFile: Boolean
+
+  // Size of regular file, returns 0 otherwise
+  val size: Long
 
   // As absolute path, relative paths are resolved against cwd
   val absolute: PathLike

@@ -72,24 +72,6 @@ class DocumentIndexTest extends AnyFunSuite {
     }
   }
 
-  test("empty class ignored") {
-    FileSystemHelper.run(Map[String, String](
-      "pkg/foo/Foo.cls" -> ""
-    )) { root: PathLike =>
-      val index = new DocumentIndex(Seq(root.join("pkg")))
-      assert(index.size == 0)
-    }
-  }
-
-  test("hidden class ignored") {
-    FileSystemHelper.run(Map[String, String](
-      "pkg/foo/Foo.cls" -> "(hidden)"
-    )) { root: PathLike =>
-      val index = new DocumentIndex(Seq(root.join("pkg")))
-      assert(index.size == 0)
-    }
-  }
-
   test("multiple classes found") {
     FileSystemHelper.run(Map[String, String](
       "pkg/Foo.cls" -> "public class Foo {}",

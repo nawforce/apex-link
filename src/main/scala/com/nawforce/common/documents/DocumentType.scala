@@ -28,7 +28,7 @@
 package com.nawforce.common.documents
 
 import com.nawforce.common.names.Name
-import com.nawforce.common.path.{EMPTY_FILE, PathLike}
+import com.nawforce.common.path.PathLike
 
 trait DocumentType {
   val name: Name
@@ -51,18 +51,12 @@ final case class LabelsDocument(_path: PathLike, _name: Name) extends MetadataDo
 final case class ApexDocument(_path: PathLike, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("cls")
-  override val ignorable: Boolean = {
-    path.nature == EMPTY_FILE || path.read().toOption.contains("(hidden)")
-  }
   override val indexByName: Boolean = true
 }
 
 final case class ApexTriggerDocument(_path: PathLike, _name: Name)
   extends MetadataDocumentType(_path, _name) {
   lazy val extension: Name = Name("trigger")
-  override val ignorable: Boolean = {
-    path.nature == EMPTY_FILE || path.read().toOption.contains("(hidden)")
-  }
   override val indexByName: Boolean = false
 }
 
@@ -76,7 +70,7 @@ abstract class SObjectLike(_path: PathLike, _name: Name) extends MetadataDocumen
 final case class SObjectDocument(_path: PathLike, _name: Name)
   extends SObjectLike(_path, _name) {
   lazy val extension: Name = Name("object")
-  override val ignorable: Boolean = path.nature == EMPTY_FILE
+  override val ignorable: Boolean = path.size == 0
 }
 
 final case class SObjectFieldDocument(_path: PathLike, _name: Name)

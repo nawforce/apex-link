@@ -30,7 +30,7 @@ package com.nawforce.common.types.schema
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.{DIRECTORY, DOES_NOT_EXIST, NONEMPTY_FILE, PathLike}
+import com.nawforce.common.path.PathLike
 import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types.CustomFieldDeclaration
 import com.nawforce.common.xml.{XMLElementLike, XMLException, XMLFactory}
@@ -69,7 +69,7 @@ object SObjectDetails {
     val typeName = TypeName(EncodedName(dt.get.name).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeName.Schema))
 
     // TODO: Improve handling of ghosted SObject types
-    if (path.nature == DOES_NOT_EXIST) {
+    if (!path.exists) {
       val sobjectNature: SObjectNature = dt match {
         case Some(x: SObjectDocument) if x.name.value.endsWith("__c") => CustomObjectNature
         case Some(_: SObjectDocument) => PlatformObjectNature
@@ -132,7 +132,7 @@ object SObjectDetails {
                               sObjectNature: SObjectNature): Seq[CustomFieldDeclaration] = {
 
     val fieldsDir = path.parent.join("fields")
-    if (fieldsDir.nature != DIRECTORY)
+    if (!fieldsDir.isDirectory)
       return Seq()
 
     fieldsDir.directoryList() match {
@@ -141,7 +141,7 @@ object SObjectDetails {
         entries.filter(_.endsWith(".field-meta.xml"))
           .flatMap(entry => {
             val fieldPath = fieldsDir.join(entry)
-            if (fieldPath.nature == NONEMPTY_FILE) {
+            if (fieldPath.size > 0) {
               val parseResult = XMLFactory.parse(fieldPath)
               if (parseResult.isLeft) {
                 OrgImpl.logError(parseResult.left.get._1, parseResult.left.get._2)
@@ -160,7 +160,7 @@ object SObjectDetails {
 
   private def parseSfdxFieldSets(path: PathLike, pkg: PackageImpl): Seq[Name] = {
     val fieldsDir = path.parent.join("fieldSets")
-    if (fieldsDir.nature != DIRECTORY)
+    if (!fieldsDir.isDirectory)
       return Seq()
 
     fieldsDir.directoryList() match {
@@ -169,7 +169,7 @@ object SObjectDetails {
         entries.filter(_.endsWith(".fieldSet-meta.xml"))
           .flatMap(entry => {
             val fieldPath = fieldsDir.join(entry)
-            if (fieldPath.nature == NONEMPTY_FILE) {
+            if (fieldPath.size > 0) {
               val parseResult = XMLFactory.parse(fieldPath)
               if (parseResult.isLeft) {
                 OrgImpl.logError(parseResult.left.get._1, parseResult.left.get._2)

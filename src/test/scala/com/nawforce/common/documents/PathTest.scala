@@ -47,7 +47,10 @@ class PathTest extends AnyFunSuite {
     )) { root: PathLike =>
       assert(root.basename == "")
       assert(root.parent == root)
-      assert(root.nature == DIRECTORY)
+      assert(root.exists)
+      assert(root.isDirectory)
+      assert(!root.isFile)
+      assert(root.size == 0)
       assert(root.toString == "/")
     }
   }
@@ -59,7 +62,10 @@ class PathTest extends AnyFunSuite {
       val file = root.join("Empty.txt")
       assert(file.basename == "Empty.txt")
       assert(file.parent == root)
-      assert(file.nature == EMPTY_FILE)
+      assert(file.exists)
+      assert(!file.isDirectory)
+      assert(file.isFile)
+      assert(file.size == 0)
       assert(file.toString == "/Empty.txt")
     }
   }
@@ -71,7 +77,10 @@ class PathTest extends AnyFunSuite {
       val file = root.join("Something.txt")
       assert(file.basename == "Something.txt")
       assert(file.parent == root)
-      assert(file.nature == NONEMPTY_FILE)
+      assert(file.exists)
+      assert(!file.isDirectory)
+      assert(file.isFile)
+      assert(file.size == 5)
       assert(file.toString == "/Something.txt")
     }
   }
@@ -84,12 +93,18 @@ class PathTest extends AnyFunSuite {
       val dir = file.parent
       assert(dir.basename == "Bar")
       assert(dir.parent == root)
-      assert(dir.nature == DIRECTORY)
+      assert(dir.exists)
+      assert(dir.isDirectory)
+      assert(!dir.isFile)
+      assert(dir.size == 0)
       assert(dir.toString == "/Bar")
 
       assert(file.basename == "Something.txt")
       assert(file.parent.parent == root)
-      assert(file.nature == NONEMPTY_FILE)
+      assert(file.exists)
+      assert(!file.isDirectory)
+      assert(file.isFile)
+      assert(file.size == 5)
       assert(file.toString == "/Bar/Something.txt")
     }
   }
@@ -100,7 +115,7 @@ class PathTest extends AnyFunSuite {
     )) { root: PathLike =>
       val file = root.join("Something.txt")
       assert(file.delete().isEmpty)
-      assert(root.join("Something.txt").nature == DOES_NOT_EXIST)
+      assert(!root.join("Something.txt").exists)
     }
   }
 
@@ -117,7 +132,7 @@ class PathTest extends AnyFunSuite {
     FileSystemHelper.run(Map[String, String] (
     )) { root: PathLike =>
       val dir = root.createDirectory("Bar").right.get
-      assert(dir.nature == DIRECTORY)
+      assert(dir.isDirectory)
     }
   }
 
@@ -126,7 +141,7 @@ class PathTest extends AnyFunSuite {
     )) { root: PathLike =>
       val dir1 = root.createDirectory("Bar").right.get
       val dir2 = root.createDirectory("Bar").right.get
-      assert(dir1.nature == DIRECTORY)
+      assert(dir1.isDirectory)
       assert(dir1 == dir2)
     }
   }
@@ -144,7 +159,7 @@ class PathTest extends AnyFunSuite {
     )) { root: PathLike =>
       val file = root.createDirectory("Bar").right.get
       assert(file.delete().isEmpty)
-      assert(root.join("Bar").nature == DOES_NOT_EXIST)
+      assert(!root.join("Bar").exists)
     }
   }
 
@@ -152,8 +167,8 @@ class PathTest extends AnyFunSuite {
     FileSystemHelper.run(Map[String, String] (
     )) { root: PathLike =>
       val file = root.createFile("Bar", "").right.get
-      assert(file.nature == EMPTY_FILE)
-      assert(root.join("Bar").nature == EMPTY_FILE)
+      assert(file.size == 0)
+      assert(root.join("Bar").size == 0)
     }
   }
 
@@ -161,8 +176,8 @@ class PathTest extends AnyFunSuite {
     FileSystemHelper.run(Map[String, String] (
     )) { root: PathLike =>
       val file = root.createFile("Bar", "Hello").right.get
-      assert(file.nature == NONEMPTY_FILE)
-      assert(root.join("Bar").nature == NONEMPTY_FILE)
+      assert(file.size == 5)
+      assert(root.join("Bar").size == 5)
     }
   }
 

@@ -28,7 +28,7 @@
 package com.nawforce.common.sfdx
 
 import com.nawforce.common.names.Name
-import com.nawforce.common.path.{FILE, PathLike}
+import com.nawforce.common.path.PathLike
 import ujson.{Arr, Value}
 
 class Project(config: Value.Value) {
@@ -61,7 +61,7 @@ class Project(config: Value.Value) {
 object Project {
   def apply(path: PathLike): Either[String, Option[Project]] = {
     val projectFile = path.join("sfdx-project.json").absolute
-    if (!projectFile.nature.isInstanceOf[FILE]) {
+    if (!projectFile.isFile) {
       return Right(None)
     }
 

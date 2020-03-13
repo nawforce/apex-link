@@ -32,7 +32,7 @@ import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.{FILE, PathFactory, PathLike}
+import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
 import com.nawforce.common.xml.{XMLElementLike, XMLException, XMLFactory}
@@ -130,7 +130,7 @@ object LabelDeclaration {
   }
 
   private def parseLabels(path: PathLike): Seq[Label] = {
-    if (!path.nature.isInstanceOf[FILE]) {
+    if (!path.isFile) {
       OrgImpl.logError(LineLocationImpl(path.toString, 0), s"Expecting labels to be in a normal file")
       return Seq()
     }
