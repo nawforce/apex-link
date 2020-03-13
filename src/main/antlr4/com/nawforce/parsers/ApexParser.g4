@@ -137,7 +137,7 @@ memberDeclaration
 
 
 methodDeclaration
-    : modifier* (typeRef|VOID) id formalParameters
+    : (typeRef|VOID) id formalParameters
       (   block
       |   SEMI
       )
@@ -535,8 +535,6 @@ id
     | FINALLY
     | FOR
     | GET
-    | GLOBAL
-    | IF
     | IMPLEMENTS
     | INHERITED
     | INSERT
@@ -544,12 +542,8 @@ id
     | INTERFACE
     | MERGE
     | NEW
-    | NULL
     | ON
     | OVERRIDE
-    | PRIVATE
-    | PROTECTED
-    | PUBLIC
     | RETURN
     | RUNAS
     | SET
