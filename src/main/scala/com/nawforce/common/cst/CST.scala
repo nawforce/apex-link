@@ -81,6 +81,14 @@ object Id {
   def construct(idContext: IdContext, context: ConstructContext): Id = {
     Id(Name(CodeParser.getText(idContext))).withContext(idContext, context)
   }
+
+  def construct(idContext: MethodCallIdContext, context: ConstructContext): Id = {
+    Id(Name(CodeParser.getText(idContext))).withContext(idContext, context)
+  }
+
+  def construct(idContext: DotMethodCallIdContext, context: ConstructContext): Id = {
+    Id(Name(CodeParser.getText(idContext))).withContext(idContext, context)
+  }
 }
 
 final case class QualifiedName(names: List[Name]) extends CST {

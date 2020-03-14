@@ -258,10 +258,19 @@ final case class MethodCall(target: Either[Boolean, Id], arguments: Seq[Expressi
 
 object MethodCall {
   def construct(from: MethodCallContext, context: ConstructContext): MethodCall = {
-    val caller = CodeParser.toScala(from.id()).map(id => Right(Id.construct(id, context))).getOrElse(
+    val caller = CodeParser.toScala(from.methodCallId()).map(id => Right(Id.construct(id, context))).getOrElse(
       Left(CodeParser.toScala(from.THIS()).nonEmpty)
     )
 
+    MethodCall(caller,
+      CodeParser.toScala(from.expressionList())
+        .map(el => CodeParser.toScala(el.expression()).map(e => Expression.construct(e, context)))
+        .getOrElse(Seq())
+    )
+  }
+
+  def construct(from: DotMethodCallContext, context: ConstructContext): MethodCall = {
+    val caller = Right(Id.construct(from.dotMethodCallId(), context))
     MethodCall(caller,
       CodeParser.toScala(from.expressionList())
         .map(el => CodeParser.toScala(el.expression()).map(e => Expression.construct(e, context)))
@@ -441,7 +450,7 @@ object Expression {
           DotExpression(
             Expression.construct(expr.expression(), context),
             CodeParser.toScala(expr.id()).map(id => Left(Id.construct(id, context))).getOrElse(
-              Right(MethodCall.construct(CodeParser.toScala(expr.methodCall()).get, context))
+              Right(MethodCall.construct(CodeParser.toScala(expr.dotMethodCall()).get, context))
             )
           )
         case expr: ArrayExpressionContext =>

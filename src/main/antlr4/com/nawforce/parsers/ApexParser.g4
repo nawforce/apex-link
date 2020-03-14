@@ -414,7 +414,7 @@ expression
     : primary                                                                                         # primaryExpression
     | expression DOT
         ( id
-        | methodCall
+        | dotMethodCall
         )                                                                                             # dotExpression
     | expression LBRACK expression RBRACK                                                             # arrayExpression
     | methodCall                                                                                      # methodCallExpression
@@ -463,9 +463,13 @@ primary
     ;
 
 methodCall
-    : id LPAREN expressionList? RPAREN
+    : methodCallId LPAREN expressionList? RPAREN
     | THIS LPAREN expressionList? RPAREN
     | SUPER LPAREN expressionList? RPAREN
+    ;
+
+dotMethodCall
+    : dotMethodCallId LPAREN expressionList? RPAREN
     ;
 
 creator
@@ -560,6 +564,70 @@ id
     | UPDATE
     | UPSERT
     | VIRTUAL
+    | WEBSERVICE
+    | WHEN
+    | WHILE
+    | WITH
+    | WITHOUT
+    ;
+
+// Supported Ids for dotted method calls, this allows all keywords, likely many are not needed here but some are.
+// They are seperated out to reduce ambiguity in parser
+dotMethodCallId
+    : Identifier
+    | ABSTRACT
+    | AFTER
+    | BEFORE
+    | BREAK
+    | BYTE
+    | CATCH
+    | CHAR
+    | CLASS
+    | CONST
+    | CONTINUE
+    | DEFAULT
+    | DELETE
+    | DO
+    | ELSE
+    | ENUM
+    | EXTENDS
+    | FINAL
+    | FINALLY
+    | FOR
+    | GET
+    | GLOBAL
+    | IF
+    | IMPLEMENTS
+    | INHERITED
+    | INSERT
+    | INSTANCEOF
+    | INTERFACE
+    | MERGE
+    | NEW
+    | NULL
+    | ON
+    | OVERRIDE
+    | PRIVATE
+    | PROTECTED
+    | PUBLIC
+    | RETURN
+    | RUNAS
+    | SET
+    | SHARING
+    | SHORT
+    | STATIC
+    | SUPER
+    | SWITCH
+    | TESTMETHOD
+    | THIS
+    | THROW
+    | TRANSIENT
+    | TRIGGER
+    | TRY
+    | UNDELETE
+    | UPDATE
+    | UPSERT
+    | VIRTUAL
     | VOID
     | WEBSERVICE
     | WHEN
@@ -568,3 +636,27 @@ id
     | WITHOUT
     ;
 
+// Supported Ids for non-dotted method calls, can't see much reason for why this set, possibly historic
+// They are seperated out to reduce ambiguity in parser
+methodCallId
+    : Identifier
+    | AFTER
+    | BEFORE
+    | BYTE
+    | CHAR
+    | CONST
+    | CONTINUE
+    | DEFAULT
+    | GET
+    | INHERITED
+    | INSTANCEOF
+    | RUNAS
+    | SET
+    | SHARING
+    | SHORT
+    | SWITCH
+    | TRANSIENT
+    | WHEN
+    | WITH
+    | WITHOUT
+    ;

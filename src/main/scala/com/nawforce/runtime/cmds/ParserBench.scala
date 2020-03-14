@@ -79,7 +79,7 @@ object ParserBench {
         } finally {
           if (size > 1024) {
             val end = System.currentTimeMillis()
-            parseTimes.append(((end - start) / (size / 1024), doc.path))
+            parseTimes.append(((end - start) / (size.toDouble / 1024), doc.path))
           }
         }
       })
