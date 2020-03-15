@@ -45,9 +45,16 @@ object TypeRef {
       decodeName(names.head), names.tail).withArraySubscripts(arraySubs)
   }
 
+  private def getName(name: TypeNameContext): Name = {
+    if (CodeParser.toScala(name.LIST()).nonEmpty) Name.ListName
+    else if (CodeParser.toScala(name.SET()).nonEmpty) Name.SetName
+    else if (CodeParser.toScala(name.MAP()).nonEmpty) Name.MapName
+    else Name(CodeParser.getText(name.id))
+  }
+
   private def decodeName(name: TypeNameContext): TypeName = {
     val params = createTypeParams(CodeParser.toScala(name.typeArguments()))
-    val typeName = Name(CodeParser.getText(name.id()))
+    val typeName = getName(name)
     val encType = EncodedName(typeName)
     if (encType.ext.nonEmpty)
       TypeName(encType.fullName, params, Some(TypeName.Schema))
@@ -62,7 +69,7 @@ object TypeRef {
       case Nil => outer
       case hd +: tl =>
         createTypeName(
-          TypeName(Name(CodeParser.getText(hd.id())),
+          TypeName(getName(hd),
             createTypeParams(CodeParser.toScala(hd.typeArguments())), Some(outer)),
           tl
         )

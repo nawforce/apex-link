@@ -180,7 +180,10 @@ arraySubscripts
     ;
 
 typeName
-    : id typeArguments?
+    : LIST typeArguments?
+    | SET typeArguments?
+    | MAP typeArguments?
+    | id typeArguments?
     ;
 
 typeArguments
@@ -413,8 +416,8 @@ expressionList
 expression
     : primary                                                                                         # primaryExpression
     | expression DOT
-        ( anyId
-        | dotMethodCall
+        ( dotMethodCall
+        | anyId
         )                                                                                             # dotExpression
     | expression LBRACK expression RBRACK                                                             # arrayExpression
     | methodCall                                                                                      # methodCallExpression
@@ -481,7 +484,7 @@ createdName
     ;
 
 idCreatedNamePair
-    : id (LT typeList GT)?
+    : anyId (LT typeList GT)?
     ;
 
 noRest
@@ -502,7 +505,7 @@ mapCreatorRest
     ;
 
 mapCreatorRestPair
-    : expression MAP expression
+    : expression MAPTO expression
     ;
 
 setCreatorRest
@@ -532,13 +535,13 @@ id
     | SWITCH
     | TRANSIENT
     | TRIGGER
-    | VOID
     | WHEN
     | WITH
     | WITHOUT
     ;
 
-// In dot expressions we, can use a wider set of of identifiers, apparently any of them
+// In dot expressions we, can use a wider set of of identifiers, apparently any of them althogh I have excluding VOID
+// in the interests of reducing ambiguity
 anyId
     : Identifier
     | ABSTRACT
@@ -564,6 +567,8 @@ anyId
     | INSERT
     | INSTANCEOF
     | INTERFACE
+    | LIST
+    | MAP
     | MERGE
     | NEW
     | NULL
@@ -588,7 +593,6 @@ anyId
     | UPDATE
     | UPSERT
     | VIRTUAL
-    | VOID
     | WEBSERVICE
     | WHEN
     | WHILE

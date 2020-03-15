@@ -177,6 +177,9 @@ object Name {
   lazy val Execute: Name = cache("execute")
   lazy val BatchableContext: Name = cache("BatchableContext")
   lazy val Trigger: Name = cache("Trigger")
+  lazy val ListName: Name = cache("List")
+  lazy val SetName: Name = cache("Set")
+  lazy val MapName: Name = cache("Map")
 
   private def cache(value: String): Name = {
     nameCache.getOrElseUpdate(value, {new Name(value)})

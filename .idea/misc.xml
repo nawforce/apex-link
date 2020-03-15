@@ -11,6 +11,7 @@
           <option name="pkg" value="com.nawforce.runtime.parsers" />
           <option name="language" value="" />
           <option name="generateListener" value="false" />
+          <option name="caseChangingStrategy" value="FORCE_LOWERCASE" />
         </PerGrammarGenerationSettings>
       </list>
     </option>

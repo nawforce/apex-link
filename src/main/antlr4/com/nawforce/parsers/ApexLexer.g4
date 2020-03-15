@@ -101,6 +101,10 @@ WHILE         : 'while';
 WITH          : 'with';
 WITHOUT       : 'without';
 
+// Apex generic types, Set is defined above for properties
+LIST          : 'list';
+MAP           : 'map';
+
 // §3.10.1 Integer Literals
 
 IntegerLiteral
@@ -198,7 +202,7 @@ BITAND          : '&';
 BITOR           : '|';
 CARET           : '^';
 MOD             : '%';
-MAP             : '=>';
+MAPTO           : '=>';
 
 ADD_ASSIGN      : '+=';
 SUB_ASSIGN      : '-=';
