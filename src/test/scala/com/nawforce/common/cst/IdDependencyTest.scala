@@ -79,7 +79,7 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
-    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies()
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().toSet
       .contains(tds.tail.head.methods.find(_.name == Name("func")).get))
   }
 
@@ -101,7 +101,7 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
 
     val func = tds.head.methods.find(_.name == Name("func")).get
     val field = tds.head.fields.find(_.name == Name("a")).get
-    assert(func.dependencies().contains(field))
+    assert(func.dependencies().toSet.contains(field))
   }
 
   test("Superclass field reference creates method dependent") {
@@ -114,7 +114,7 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
 
     val func = tds.head.methods.find(_.name == Name("func")).get
     val field = tds(1).fields.find(_.name == Name("a")).get
-    assert(func.dependencies().contains(field))
+    assert(func.dependencies().toSet.contains(field))
   }
 
   test("Hidden outer class field reference creates error") {
@@ -138,7 +138,7 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
 
     val func = tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get
     val field = tds.head.fields.find(_.name == Name("a")).get
-    assert(func.dependencies().contains(field))
+    assert(func.dependencies().toSet.contains(field))
   }
 
   test("Property reference creates dependency") {
@@ -150,7 +150,7 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
 
     val func = tds.head.methods.find(_.name == Name("func")).get
     val field = tds.head.fields.find(_.name == Name("a")).get
-    assert(func.dependencies().contains(field))
+    assert(func.dependencies().toSet.contains(field))
   }
 
   test("Superclass property creates dependency") {
@@ -163,7 +163,7 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
 
     val func = tds.head.methods.find(_.name == Name("func")).get
     val field = tds(1).fields.find(_.name == Name("a")).get
-    assert(func.dependencies().contains(field))
+    assert(func.dependencies().toSet.contains(field))
   }
 
   test("Local var not dependent") {

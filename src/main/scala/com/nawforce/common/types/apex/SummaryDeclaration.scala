@@ -182,7 +182,7 @@ class SummaryMethod(path: PathLike, val outerTypeName: TypeName, methodSummary: 
 
   // Cache of dependents, populated during validation
   var dependents: Set[Dependent] = Set.empty
-  override def dependencies(): Set[Dependent] = dependents
+  override def dependencies(): Iterable[Dependent] = dependents
 
   def updateDependencies(pkg: PackageImpl): Unit = {
     dependents = DependentValidation.getDependents(methodSummary.dependents, pkg)

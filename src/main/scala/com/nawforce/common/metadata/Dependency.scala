@@ -70,7 +70,7 @@ trait Dependent {
 trait DependencyHolder extends Dependent {
   // Get Dependents being held, default to empty for holders who do not use this, override as needed
   // TODO: Narrow where we introduce this so default not needed
-  def dependencies(): Set[Dependent] = Set.empty
+  def dependencies(): Iterable[Dependent] = Iterable.empty
 
   // Inform each dependent this is holding a dependency to them
   def propagateDependencies(): Unit = {
@@ -89,6 +89,6 @@ trait DependencyHolder extends Dependent {
           md.parameters.map(_.summary(excludeNamespace)).toList))
       case _: ApexConstructorLike => None
       case _: BlockDeclaration => None
-    }
+    }.toSet
   }
 }

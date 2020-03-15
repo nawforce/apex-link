@@ -35,6 +35,8 @@ import com.nawforce.runtime.types.PlatformTypeException
 
 case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeName]=None) extends TypeLike {
 
+  override val hashCode: Int = scala.util.hashing.MurmurHash3.productHash(this)
+
   lazy val outerName: Name = outer.map(_.outerName).getOrElse(name)
 
   def inner() : TypeName = {

@@ -385,7 +385,7 @@ object ApexModifiers {
     }
   }
 
-  def methodModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext, idContext: IdContext)
+  def methodModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext, idContext: ParserRuleContext)
   : Seq[Modifier] = {
 
     val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {

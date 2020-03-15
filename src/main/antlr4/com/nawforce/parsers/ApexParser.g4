@@ -355,7 +355,7 @@ mergeStatement
     ;
 
 runAsStatement
-    : RUNAS LPAREN expressionList? RPAREN block?
+    : SYSTEMRUNAS LPAREN expressionList? RPAREN block
     ;
 
 expressionStatement
@@ -413,7 +413,7 @@ expressionList
 expression
     : primary                                                                                         # primaryExpression
     | expression DOT
-        ( id
+        ( anyId
         | dotMethodCall
         )                                                                                             # dotExpression
     | expression LBRACK expression RBRACK                                                             # arrayExpression
@@ -463,13 +463,13 @@ primary
     ;
 
 methodCall
-    : methodCallId LPAREN expressionList? RPAREN
+    : id LPAREN expressionList? RPAREN
     | THIS LPAREN expressionList? RPAREN
     | SUPER LPAREN expressionList? RPAREN
     ;
 
 dotMethodCall
-    : dotMethodCallId LPAREN expressionList? RPAREN
+    : anyId LPAREN expressionList? RPAREN
     ;
 
 creator
@@ -517,75 +517,37 @@ soqlLiteral
     : LBRACK (soqlLiteral|~RBRACK)*? RBRACK
     ;
 
+// Some keywords can be used as general identifiers, this is likley an over simplification of the actual
+// rules but devining them from playing with Apex is very difficult. We could let any be used but that
+// can significantly impact the parser performance by creating ambiguities.
 id
     : Identifier
-    | ABSTRACT
     | AFTER
     | BEFORE
-    | BREAK
-    | BYTE
-    | CATCH
-    | CHAR
-    | CLASS
-    | CONST
-    | CONTINUE
-    | DEFAULT
-    | DELETE
-    | DO
-    | ELSE
-    | ENUM
-    | EXTENDS
-    | FINAL
-    | FINALLY
-    | FOR
     | GET
-    | IMPLEMENTS
     | INHERITED
-    | INSERT
     | INSTANCEOF
-    | INTERFACE
-    | MERGE
-    | NEW
-    | ON
-    | OVERRIDE
-    | RETURN
-    | RUNAS
     | SET
     | SHARING
-    | SHORT
-    | STATIC
     | SWITCH
-    | TESTMETHOD
-    | THROW
     | TRANSIENT
     | TRIGGER
-    | TRY
-    | UNDELETE
-    | UPDATE
-    | UPSERT
-    | VIRTUAL
-    | WEBSERVICE
+    | VOID
     | WHEN
-    | WHILE
     | WITH
     | WITHOUT
     ;
 
-// Supported Ids for dotted method calls, this allows all keywords, likely many are not needed here but some are.
-// They are seperated out to reduce ambiguity in parser
-dotMethodCallId
+// In dot expressions we, can use a wider set of of identifiers, apparently any of them
+anyId
     : Identifier
     | ABSTRACT
     | AFTER
     | BEFORE
     | BREAK
-    | BYTE
     | CATCH
-    | CHAR
     | CLASS
-    | CONST
     | CONTINUE
-    | DEFAULT
     | DELETE
     | DO
     | ELSE
@@ -611,10 +573,8 @@ dotMethodCallId
     | PROTECTED
     | PUBLIC
     | RETURN
-    | RUNAS
     | SET
     | SHARING
-    | SHORT
     | STATIC
     | SUPER
     | SWITCH
@@ -632,31 +592,6 @@ dotMethodCallId
     | WEBSERVICE
     | WHEN
     | WHILE
-    | WITH
-    | WITHOUT
-    ;
-
-// Supported Ids for non-dotted method calls, can't see much reason for why this set, possibly historic
-// They are seperated out to reduce ambiguity in parser
-methodCallId
-    : Identifier
-    | AFTER
-    | BEFORE
-    | BYTE
-    | CHAR
-    | CONST
-    | CONTINUE
-    | DEFAULT
-    | GET
-    | INHERITED
-    | INSTANCEOF
-    | RUNAS
-    | SET
-    | SHARING
-    | SHORT
-    | SWITCH
-    | TRANSIENT
-    | WHEN
     | WITH
     | WITHOUT
     ;

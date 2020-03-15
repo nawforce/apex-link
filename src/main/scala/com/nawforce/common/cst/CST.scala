@@ -82,11 +82,7 @@ object Id {
     Id(Name(CodeParser.getText(idContext))).withContext(idContext, context)
   }
 
-  def construct(idContext: MethodCallIdContext, context: ConstructContext): Id = {
-    Id(Name(CodeParser.getText(idContext))).withContext(idContext, context)
-  }
-
-  def construct(idContext: DotMethodCallIdContext, context: ConstructContext): Id = {
+  def construct(idContext: AnyIdContext, context: ConstructContext): Id = {
     Id(Name(CodeParser.getText(idContext))).withContext(idContext, context)
   }
 }

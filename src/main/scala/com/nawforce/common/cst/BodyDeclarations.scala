@@ -43,9 +43,9 @@ import scala.collection.mutable
 abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST with DependencyHolder {
   lazy val isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER) || modifiers.contains(WEBSERVICE_MODIFIER)
 
-  protected var depends: Option[Set[Dependent]] = None
+  protected var depends: Option[mutable.Set[Dependent]] = None
 
-  override def dependencies(): Set[Dependent] = {
+  override def dependencies(): mutable.Set[Dependent] = {
     depends.get
   }
 

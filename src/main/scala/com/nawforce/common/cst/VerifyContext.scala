@@ -89,7 +89,7 @@ trait VerifyContext {
 trait HolderVerifyContext {
   private val _dependencies = mutable.Set[Dependent]()
 
-  def dependencies: Set[Dependent] = _dependencies.toSet
+  def dependencies: mutable.Set[Dependent] = _dependencies
 
   /* Locate a type, typeName may be relative so searching must be performed wrt a typeDeclaration */
   def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
