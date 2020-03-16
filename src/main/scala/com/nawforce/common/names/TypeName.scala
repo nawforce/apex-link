@@ -28,15 +28,18 @@
 package com.nawforce.common.names
 
 import com.nawforce.common.api.TypeLike
-import com.nawforce.common.cst.TypeRef
-import com.nawforce.common.path.PathFactory
-import com.nawforce.runtime.parsers.CodeParser
-import com.nawforce.runtime.types.PlatformTypeException
+import upickle.default.{macroRW, ReadWriter => RW}
 
+/**
+  * Representation of a type name with optional type arguments. These are stored in inner to outer order to allow
+  * sharing of namespaces & outer classes.
+  */
 case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeName]=None) extends TypeLike {
 
+  // Cache hash code as immutable and heavily used in collections
   override val hashCode: Int = scala.util.hashing.MurmurHash3.productHash(this)
 
+  // The outermost name value
   lazy val outerName: Name = outer.map(_.outerName).getOrElse(name)
 
   def inner() : TypeName = {
@@ -183,13 +186,6 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
       (if (params.isEmpty) "" else s"<${params.map(_.asString).mkString(", ")}>")
   }
 
-  def asSummaryString(namespace: Option[Name]): String = {
-    if (namespace.nonEmpty)
-      asString.replaceAll(s"(^|<|, )${namespace.get}\\.", "$1pkg\\$.")
-    else
-      asString
-  }
-
   def equalsIgnoreParams(other: TypeName): Boolean = {
     this.name == other.name &&
     this.params.size == other.params.size &&
@@ -199,6 +195,8 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
 }
 
 object TypeName {
+  implicit val rw: RW[TypeName] = macroRW
+
   lazy val Void: TypeName = TypeName(Name("void"))
   lazy val Object: TypeName = TypeName(Name("Object"))
 
@@ -273,32 +271,5 @@ object TypeName {
 
   def apply(typeLike: TypeLike): TypeName = {
     typeLike.asInstanceOf[TypeName]
-  }
-
-  def fromString(value: String, namespace: Option[Name]): TypeName = {
-    if (namespace.nonEmpty)
-      fromString(value.replaceAll("pkg\\$\\.", namespace.get+"."))
-    else
-      fromString(value.replaceAll("pkg\\$\\.", ""))
-  }
-
-  def fromString(value: String): TypeName = {
-    value match {
-      case null => throw new PlatformTypeException(s"null value passed to TypeRef.fromString(...)")
-      case "" => throw new PlatformTypeException(s"empty value passed to TypeRef.fromString(...)")
-      case "null" => TypeName.Null
-      case "any" => TypeName.Any
-      case "Object" => TypeName.InternalObject
-      case "[SOQL Results]" => TypeName.RecordSet
-      case _ if !value.contains('<') =>
-        TypeName(value.split('.').map(Name(_)).reverse)
-      case _ =>
-        val parser = new CodeParser(PathFactory(""), value)
-        parser.parseTypeRef() match {
-          case Left(err) =>
-            throw new PlatformTypeException(s"TypeRef '$value' could not be parsed: $err")
-          case Right(context) => TypeRef.construct(context)
-        }
-    }
   }
 }

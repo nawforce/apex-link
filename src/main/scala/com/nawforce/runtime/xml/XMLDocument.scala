@@ -30,6 +30,7 @@ package com.nawforce.runtime.xml
 import com.nawforce.common.documents.{LocationImpl, PointLocationImpl, PositionImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.xml.{XMLDocumentLike, XMLElementLike, XMLName}
+import javax.xml.parsers.SAXParserFactory
 import org.xml.sax.Locator
 
 import scala.collection.mutable
@@ -90,5 +91,16 @@ trait WithLocation extends NoBindingFactoryAdapter {
 
 object XMLLineLoader extends factory.XMLLoader[Elem] {
   override def adapter = new parsing.NoBindingFactoryAdapter with WithLocation
+
+  private lazy val cachedParser = {
+    val f = SAXParserFactory.newInstance()
+    f.setNamespaceAware(false)
+    f.newSAXParser()
+  }
+
+  override def parser: SAXParser = {
+    cachedParser.reset()
+    cachedParser
+  }
 }
 

@@ -80,7 +80,7 @@ trait FieldDeclaration extends DependencyHolder {
   protected def summary(excludeNamespace: Option[Name], range: Option[TextRange]): FieldSummary = {
     FieldSummary(range, name.toString,
       modifiers.map(_.toString).sorted.toList,
-      typeName.asSummaryString(excludeNamespace),
+      typeName,
       readAccess.toString, writeAccess.toString,
       dependencySummary(excludeNamespace)
     )
@@ -92,7 +92,7 @@ trait ParameterDeclaration {
   val typeName: TypeName
 
   def summary(excludeNamespace: Option[Name]): ParameterSummary = {
-    ParameterSummary(name.toString, typeName.asSummaryString(excludeNamespace))
+    ParameterSummary(name.toString, typeName)
   }
 }
 
@@ -192,7 +192,7 @@ trait MethodDeclaration extends DependencyHolder {
   protected def summary(excludeNamespace: Option[Name], range: Option[TextRange]): MethodSummary = {
     MethodSummary(range,
       name.toString, modifiers.map(_.toString).sorted.toList,
-      typeName.asSummaryString(excludeNamespace),
+      typeName,
       parameters.map(_.summary(excludeNamespace)).toList, dependencySummary(excludeNamespace)
     )
   }
@@ -377,10 +377,10 @@ trait TypeDeclaration extends MetadataDeclaration {
       0,
       None,
       name.toString,
-      typeName.asSummaryString(ns),
+      typeName,
       nature.value, modifiers.map(_.toString).sorted.toList,
-      superClass.map(_.asSummaryString(ns)).getOrElse(""),
-      interfaces.map(_.asSummaryString(ns)).sorted.toList,
+      superClass,
+      interfaces.toList,
       blocks.map(_.summary(ns)).toList,
       fields.map(_.summary(ns)).sortBy(_.name).toList,
       constructors.map(_.summary(ns)).sortBy(_.parameters.size).toList,

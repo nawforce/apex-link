@@ -75,14 +75,6 @@ class CodeParser(val path: PathLike, data: String) extends
     }
   }
 
-  def parseTypeRef(): Either[SyntaxException, ApexParser.TypeRefContext] = {
-    try {
-      Right(getParser.typeRef())
-    } catch {
-      case ex: SyntaxException => Left(ex)
-    }
-  }
-
   // Test use only
   def parseLiteral(): ApexParser.LiteralContext = {
       getParser.literal()

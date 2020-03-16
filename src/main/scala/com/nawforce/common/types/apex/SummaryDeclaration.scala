@@ -67,8 +67,7 @@ object DependentValidation {
   def findDependent(dependent: TypeDependentSummary, pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration])
   : Option[TypeDeclaration] = {
 
-    val typeName = TypeName.fromString(dependent.typeName, pkg.namespace)
-    findTypeFromSummaries(typeName, pkg, summaries)
+    findTypeFromSummaries(dependent.typeName, pkg, summaries)
       .filter({
         case ad: ApexDeclaration => ad.sourceHash == dependent.sourceHash
         case _ => true
@@ -114,7 +113,7 @@ object DependentValidation {
   /* Find a type dependency, no need to check this as should have been done via areTypeDependenciesValid */
   def findDependent(dependent: TypeDependentSummary, pkg: PackageImpl)
     : Option[TypeDeclaration] = {
-    findType(TypeName.fromString(dependent.typeName, pkg.namespace), pkg)
+    findType(dependent.typeName, pkg)
   }
 
   /* Find a field dependency */
@@ -129,15 +128,14 @@ object DependentValidation {
   def findDependent(dependent: MethodDependentSummary, pkg: PackageImpl)
   : Option[MethodDeclaration] = {
     val name = Name(dependent.name)
-    val params = dependent.parameters.map(param => TypeName.fromString(param.typeName, pkg.namespace))
     findExactType(dependent.typeName, pkg)
-      .flatMap(_.methods.find(m => m.name == name && m.parameters.map(_.typeName) == params))
+      .flatMap(_.methods.find(m => m.name == name &&
+        m.parameters.map(_.typeName) == dependent.parameters.map(_.typeName)))
   }
 
   /* Find an outer or inner type from namespace mapping to a package */
-  private def findExactType(name: String, pkg: PackageImpl)
+  private def findExactType(typeName: TypeName, pkg: PackageImpl)
     : Option[TypeDeclaration] = {
-    val typeName = TypeName.fromString(name, pkg.namespace)
     findType(typeName, pkg).flatMap(td => {
       if (td.typeName != typeName) {
         td.nestedTypes.find(_.typeName == typeName)
@@ -159,22 +157,21 @@ object DependentValidation {
   }
 }
 
-class SummaryParameter(parameterSummary: ParameterSummary, fromTypeName: String => TypeName)
+class SummaryParameter(parameterSummary: ParameterSummary)
   extends ParameterDeclaration {
 
   override val name: Name = Name(parameterSummary.name)
-  override val typeName: TypeName = fromTypeName(parameterSummary.typeName)
+  override val typeName: TypeName = parameterSummary.typeName
 }
 
-class SummaryMethod(path: PathLike, val outerTypeName: TypeName, methodSummary: MethodSummary, fromTypeName: String => TypeName)
+class SummaryMethod(path: PathLike, val outerTypeName: TypeName, methodSummary: MethodSummary)
   extends ApexMethodLike {
 
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, methodSummary.idRange.get)
   override val name: Name = Name(methodSummary.name)
   override val modifiers: Seq[Modifier] = methodSummary.modifiers.map(Modifier(_))
-  override val typeName: TypeName = fromTypeName(methodSummary.typeName)
-  override val parameters: Seq[ParameterDeclaration] =
-    methodSummary.parameters.map(new SummaryParameter(_, fromTypeName))
+  override val typeName: TypeName = methodSummary.typeName
+  override val parameters: Seq[ParameterDeclaration] = methodSummary.parameters.map(new SummaryParameter(_))
 
   def areTypeDependenciesValid(pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
     DependentValidation.areTypeDependenciesValid(methodSummary.dependents, pkg, summaries)
@@ -209,13 +206,13 @@ class SummaryBlock(blockSummary: BlockSummary)
   }
 }
 
-class SummaryField(path: PathLike, val outerTypeName: TypeName, fieldSummary: FieldSummary, fromTypeName: String => TypeName)
+class SummaryField(path: PathLike, val outerTypeName: TypeName, fieldSummary: FieldSummary)
   extends ApexFieldLike {
 
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, fieldSummary.idRange.get)
   override val name: Name = Name(fieldSummary.name)
   override val modifiers: Seq[Modifier] = fieldSummary.modifiers.map(Modifier(_))
-  override val typeName: TypeName = fromTypeName(fieldSummary.typeName)
+  override val typeName: TypeName = fieldSummary.typeName
   override val readAccess: Modifier = Modifier(fieldSummary.readAccess)
   override val writeAccess: Modifier = Modifier(fieldSummary.writeAccess)
 
@@ -233,13 +230,12 @@ class SummaryField(path: PathLike, val outerTypeName: TypeName, fieldSummary: Fi
   }
 }
 
-class SummaryConstructor(path: PathLike, constructorSummary: ConstructorSummary, fromTypeName: String => TypeName)
+class SummaryConstructor(path: PathLike, constructorSummary: ConstructorSummary)
   extends ApexConstructorLike {
 
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, constructorSummary.idRange.get)
   override val modifiers: Seq[Modifier] = constructorSummary.modifiers.map(Modifier(_))
-  override val parameters: Seq[ParameterDeclaration] =
-    constructorSummary.parameters.map(new SummaryParameter(_, fromTypeName))
+  override val parameters: Seq[ParameterDeclaration] = constructorSummary.parameters.map(new SummaryParameter(_))
 
   def areTypeDependenciesValid(pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
     DependentValidation.areTypeDependenciesValid(constructorSummary.dependents, pkg, summaries)
@@ -267,28 +263,16 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
   override lazy val nature: Nature = Nature(summary.nature)
   override lazy val modifiers: Seq[Modifier] = summary.modifiers.map(Modifier(_))
 
-  override lazy val superClass: Option[TypeName] = fromOptTypeName(summary.superClass)
-  override lazy val interfaces: Seq[TypeName] = summary.interfaces.map(fromTypeName)
+  override lazy val superClass: Option[TypeName] = summary.superClass
+  override lazy val interfaces: Seq[TypeName] = summary.interfaces
   override lazy val nestedTypes: Seq[SummaryDeclaration] = {
     summary.nestedTypes.map(nt => new SummaryDeclaration(path, pkg, Some(typeName), nt))
   }
 
-  override lazy val blocks: Seq[SummaryBlock] =
-    summary.blocks.map(new SummaryBlock(_))
-  override lazy val localFields: Seq[SummaryField] =
-    summary.fields.map(new SummaryField(path, typeName, _, fromTypeName))
-  override lazy val constructors: Seq[SummaryConstructor] =
-    summary.constructors.map(new SummaryConstructor(path, _, fromTypeName))
-  override lazy val localMethods: Seq[SummaryMethod] =
-    summary.methods.map(new SummaryMethod(path, typeName, _, fromTypeName))
-
-  private def fromOptTypeName(value: String): Option[TypeName] = {
-    if (value.isEmpty) None else Some(fromTypeName(value))
-  }
-
-  private def fromTypeName(value: String): TypeName = {
-    TypeName.fromString(value, pkg.namespace)
-  }
+  override lazy val blocks: Seq[SummaryBlock] = summary.blocks.map(new SummaryBlock(_))
+  override lazy val localFields: Seq[SummaryField] = summary.fields.map(new SummaryField(path, typeName, _))
+  override lazy val constructors: Seq[SummaryConstructor] = summary.constructors.map(new SummaryConstructor(path, _))
+  override lazy val localMethods: Seq[SummaryMethod] = summary.methods.map(new SummaryMethod(path, typeName, _))
 
   def areTypeDependenciesValid(summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
     DependentValidation.areTypeDependenciesValid(summary.dependents, pkg, summaries) &&

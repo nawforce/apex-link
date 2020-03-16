@@ -27,6 +27,8 @@
 */
 package com.nawforce.common.names
 
+import upickle.default.{macroRW, ReadWriter => RW}
+
 import scala.collection.mutable
 
 /**
@@ -79,6 +81,8 @@ case class Name(value: String) {
 }
 
 object Name {
+
+  implicit val rw: RW[Name] = macroRW
 
   private val nameCache = mutable.Map[String, Name]()
 
