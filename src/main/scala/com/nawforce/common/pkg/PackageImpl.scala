@@ -135,15 +135,23 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     componentDeclaration.upsertComponent(namespace, component)
   }
 
-  /* Upsert some metadata
-   * TODO: How are we going to handle invalidation
-   */
+  // Upsert some metadata to the package
   def upsertMetadata(md: MetadataDeclaration, altTypeName: Option[TypeName]=None): Unit = {
     md match {
       case td: TypeDeclaration if td.isSearchable =>
         types.put(altTypeName.getOrElse(td.typeName), td)
       case _ =>
         other.put(md.internalName, md)
+    }
+  }
+
+  // Remove some metadata from the package
+  def removeMetadata(md: MetadataDeclaration): Unit = {
+    md match {
+      case td: TypeDeclaration if td.isSearchable =>
+        types.remove(td.typeName)
+      case _ =>
+        other.remove(md.internalName)
     }
   }
 

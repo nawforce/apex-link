@@ -46,15 +46,15 @@ import scala.collection.mutable
 object DependentValidation {
 
   /* Test if all Type dependencies are valid. Ignore other types of dependency since these can't be checked */
-  def areTypeDependenciesValid(dependents: Set[DependentSummary], pkg: PackageImpl,
-                            summaries: Map[TypeName, SummaryDeclaration]) : Boolean = {
+  def areTypeDependenciesValid(dependents: Set[DependentSummary], pkg: PackageImpl) : Boolean = {
     // Horrible iteration, could this be @tailrec
     for (dependent <- dependents) {
       dependent match {
         case d: TypeDependentSummary =>
-          val td = findDependent(d, pkg, summaries)
+          val td = findValidTypeDependent(d, pkg)
           if (td.isEmpty) {
-            ServerOps.debug(ServerOps.Trace, s"Rejected dependency $dependent")
+            findValidTypeDependent(d, pkg)
+            ServerOps.debug(ServerOps.Trace, s"Rejected type dependency $dependent")
             return false
           }
         case _ => ()
@@ -63,28 +63,19 @@ object DependentValidation {
     true
   }
 
-  /* Find a valid type dependency in a summary set*/
-  def findDependent(dependent: TypeDependentSummary, pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration])
-  : Option[TypeDeclaration] = {
+  /* Find a valid type dependency, to be valid it must carry correct hash and have valid dependencies itself */
+  def findValidTypeDependent(dependent: TypeDependentSummary, pkg: PackageImpl): Option[TypeDeclaration] = {
 
-    findTypeFromSummaries(dependent.typeName, pkg, summaries)
-      .filter({
-        case ad: ApexDeclaration => ad.sourceHash == dependent.sourceHash
-        case _ => true
-      })
-  }
-
-  /* Find a type declaration either from the summaries or via namespace mapping to a package */
-  private def findTypeFromSummaries(typeName: TypeName, pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration])
-  : Option[TypeDeclaration] = {
-
+    // Fallback to outer type if we are given an inner to find
     def findSummaryType(localType: TypeName): Option[TypeDeclaration] = {
-      summaries.get(localType).orElse(localType.outer.flatMap(summaries.get))
+      findType(localType, pkg).orElse(localType.outer.flatMap(findType(_, pkg)))
     }
 
-    findSummaryType(typeName)
-      .orElse(findSummaryType(typeName.withNamespace(pkg.namespace)))
-      .orElse(findType(typeName, pkg))
+    findSummaryType(dependent.typeName)
+      .filter({
+        case sd: SummaryDeclaration => sd.sourceHash == dependent.sourceHash
+        case _ => true
+      })
   }
 
   /* Collect actual dependents from DependentSummary entries. This must run against full package metadata since the
@@ -94,7 +85,7 @@ object DependentValidation {
     dependents.flatMap(dependent => {
       val dep = findDependent(dependent, pkg)
       if (dep.isEmpty) {
-        ServerOps.debug(ServerOps.Trace, s"Rejected dependency $dependent")
+        ServerOps.debug(ServerOps.Trace, s"Rejected other dependency $dependent")
       }
       dep
     })
@@ -173,8 +164,8 @@ class SummaryMethod(path: PathLike, val outerTypeName: TypeName, methodSummary: 
   override val typeName: TypeName = methodSummary.typeName
   override val parameters: Seq[ParameterDeclaration] = methodSummary.parameters.map(new SummaryParameter(_))
 
-  def areTypeDependenciesValid(pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
-    DependentValidation.areTypeDependenciesValid(methodSummary.dependents, pkg, summaries)
+  def areTypeDependenciesValid(pkg: PackageImpl): Boolean = {
+    DependentValidation.areTypeDependenciesValid(methodSummary.dependents, pkg)
   }
 
   // Cache of dependents, populated during validation
@@ -192,8 +183,8 @@ class SummaryBlock(blockSummary: BlockSummary)
 
   override val isStatic: Boolean = blockSummary.isStatic
 
-  def areTypeDependenciesValid(pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
-    DependentValidation.areTypeDependenciesValid(blockSummary.dependents, pkg, summaries)
+  def areTypeDependenciesValid(pkg: PackageImpl): Boolean = {
+    DependentValidation.areTypeDependenciesValid(blockSummary.dependents, pkg)
   }
 
   // Cache of dependents, populated during validation
@@ -216,8 +207,8 @@ class SummaryField(path: PathLike, val outerTypeName: TypeName, fieldSummary: Fi
   override val readAccess: Modifier = Modifier(fieldSummary.readAccess)
   override val writeAccess: Modifier = Modifier(fieldSummary.writeAccess)
 
-  def areTypeDependenciesValid(pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
-    DependentValidation.areTypeDependenciesValid(fieldSummary.dependents, pkg, summaries)
+  def areTypeDependenciesValid(pkg: PackageImpl): Boolean = {
+    DependentValidation.areTypeDependenciesValid(fieldSummary.dependents, pkg)
   }
 
   // Cache of dependents, populated during validation
@@ -237,8 +228,8 @@ class SummaryConstructor(path: PathLike, constructorSummary: ConstructorSummary)
   override val modifiers: Seq[Modifier] = constructorSummary.modifiers.map(Modifier(_))
   override val parameters: Seq[ParameterDeclaration] = constructorSummary.parameters.map(new SummaryParameter(_))
 
-  def areTypeDependenciesValid(pkg: PackageImpl, summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
-    DependentValidation.areTypeDependenciesValid(constructorSummary.dependents, pkg, summaries)
+  def areTypeDependenciesValid(pkg: PackageImpl): Boolean = {
+    DependentValidation.areTypeDependenciesValid(constructorSummary.dependents, pkg)
   }
 
   // Cache of dependents, populated during validation
@@ -274,14 +265,13 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
   override lazy val constructors: Seq[SummaryConstructor] = summary.constructors.map(new SummaryConstructor(path, _))
   override lazy val localMethods: Seq[SummaryMethod] = summary.methods.map(new SummaryMethod(path, typeName, _))
 
-  def areTypeDependenciesValid(summaries: Map[TypeName, SummaryDeclaration]): Boolean = {
-    DependentValidation.areTypeDependenciesValid(summary.dependents, pkg, summaries) &&
-      blocks.forall(b => b.areTypeDependenciesValid(pkg, summaries)) &&
-      localFields.forall(f => f.areTypeDependenciesValid(pkg, summaries)) &&
-      constructors.forall(c => c.areTypeDependenciesValid(pkg, summaries)) &&
-      localMethods.forall(m => m.areTypeDependenciesValid(pkg, summaries)) &&
-      nestedTypes.forall(t => t.areTypeDependenciesValid(summaries))
-  }
+  def hasValidDependencies: Boolean =
+    DependentValidation.areTypeDependenciesValid(summary.dependents, pkg) &&
+      blocks.forall(b => b.areTypeDependenciesValid(pkg)) &&
+      localFields.forall(f => f.areTypeDependenciesValid(pkg)) &&
+      constructors.forall(c => c.areTypeDependenciesValid(pkg)) &&
+      localMethods.forall(m => m.areTypeDependenciesValid(pkg)) &&
+      nestedTypes.forall(_.hasValidDependencies)
 
   // Cache of dependents, populated by updateDependencies during dependency checking,
   private var dependents: Set[Dependent] = Set.empty

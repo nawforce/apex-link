@@ -38,6 +38,8 @@ import com.nawforce.common.types.apex.{FullDeclaration, SummaryApex, TriggerDecl
 import com.nawforce.common.types.schema.SObjectDeclaration
 import upickle.default.writeBinary
 
+import scala.collection.mutable
+
 trait PackageDeploy {
   this: PackageImpl =>
 
@@ -90,7 +92,7 @@ trait PackageDeploy {
   private def loadClasses(): Unit = {
     val pcOpt = getParsedCache
     val docs = documentsByExtension(Name("cls"))
-    ServerOps.debugTime(s"Parsed ${docs.size} classes", docs.nonEmpty) {
+    ServerOps.debugTime(s"Loaded summary classes", docs.nonEmpty) {
 
       // Load summary docs that have valid dependents
       if (pcOpt.nonEmpty) {
@@ -99,25 +101,38 @@ trait PackageDeploy {
           val value = pcOpt.flatMap(_.get(data.right.get.getBytes(), packageContext))
           value.map(v => new SummaryApex(doc.path, this, v))
         })
-        val summaryDocsByType = summaryDocs.map(d => (d.declaration.typeName, d.declaration)).toMap
 
-        // Upsert any summary docs that are valid and report known issues
-        val validSummaryDocs = summaryDocs
-            .filterNot(_.diagnostics.exists(_.category == MISSING_CATEGORY.value))
-            .filter(_.declaration.areTypeDependenciesValid(summaryDocsByType))
-        validSummaryDocs.foreach(doc => {
-          upsertMetadata(doc.declaration)
-          val path = doc.declaration.path.toString
-          doc.diagnostics.map(diagnostic => org.issues.add(Issue.fromDiagnostic(path, diagnostic)))
+        // Upsert any summary docs that don't have missing diagnostics that might be resolvable
+        val validSummaryDocs: mutable.Map[TypeName, SummaryApex] = mutable.Map(summaryDocs
+          .filterNot(_.diagnostics.exists(_.category == MISSING_CATEGORY.value))
+          .map(doc => (doc.declaration.typeName, doc)): _*)
+        validSummaryDocs.foreach(pair => upsertMetadata(pair._2.declaration))
+
+        // Multi-pass removal of those with invalid dependencies to counter resolving cyclic links
+        var invalidDocs = validSummaryDocs.filterNot(_._2.declaration.hasValidDependencies)
+        while (invalidDocs.nonEmpty) {
+          invalidDocs.foreach(pair => {
+            validSummaryDocs.remove(pair._1)
+            removeMetadata(pair._2.declaration)
+          })
+          invalidDocs = validSummaryDocs.filterNot(_._2.declaration.hasValidDependencies)
+        }
+
+        // Report diagnostics & validate those that get this far
+        validSummaryDocs.foreach(pair => {
+          val summary: SummaryApex = pair._2
+          val path = summary.declaration.path.toString
+          summary.diagnostics.foreach(diagnostic => org.issues.add(Issue.fromDiagnostic(path, diagnostic)))
+          summary.declaration.validate()
         })
-
-        // Validate these (must be after all have been inserted to allow for dependency propagation)
-        validSummaryDocs.foreach(_.declaration.validate())
       }
+    }
+
+    val missingTypes = docs.filterNot(doc => types.contains(TypeName(doc.name).withNamespace(namespace)))
+    ServerOps.debugTime(s"Parsed ${missingTypes.size} classes", docs.nonEmpty) {
 
       // Load full docs for rest of set
-      val fullTypes = docs
-        .filterNot(doc => types.contains(TypeName(doc.name).withNamespace(namespace)))
+      val fullTypes = missingTypes
         .flatMap(doc => {
           val data = doc.path.read()
           val tdOpt = ServerOps.debugTime(s"Parsed ${doc.path}") {
