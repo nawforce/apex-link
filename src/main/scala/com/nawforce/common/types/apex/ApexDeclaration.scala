@@ -30,7 +30,7 @@ package com.nawforce.common.types.apex
 import com.nawforce.common.api.{ConstructorSummary, FieldSummary, MethodSummary}
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
-import com.nawforce.common.documents.{LocationImpl, PackageContext, ParsedCache, RangeLocationImpl, TextRange}
+import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
