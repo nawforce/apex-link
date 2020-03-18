@@ -29,9 +29,8 @@ package com.nawforce.common.api
 
 import com.nawforce.common.documents.ParsedCache
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types.apex.SummaryDeclaration
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
@@ -146,6 +145,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
         }
         assert(pkg.getDependencies(barTypeLike, inheritanceOnly=false).sameElements(Array(fooTypeLike)))
         assert(pkg.getDependencies(fooTypeLike, inheritanceOnly=false).isEmpty)
+        org.flush()
       }
 
       // Extended cache test
@@ -415,6 +415,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg1 = org.addPackage(Some(Name("test")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
       val pkg2 = org.addPackage(None, Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
+      org.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg21 = org2.addPackage(Some(Name("test")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
@@ -464,6 +465,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg1 = org.addPackage(Some(Name("test1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
       val pkg2 = org.addPackage(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
+      org.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg21 = org2.addPackage(Some(Name("test1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]

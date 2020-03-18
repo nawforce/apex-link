@@ -28,9 +28,8 @@
 package com.nawforce.common.api
 
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types.apex.{FullDeclaration, SummaryDeclaration}
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
@@ -122,6 +121,29 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
     assert(pkg.findTypes(Seq(TypeName(Name(name)).withNamespace(namespace))).head.isInstanceOf[SummaryDeclaration])
   }
 
+  test("Used method on summary type") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy {public static void foo() {}}",
+      "Caller.cls" -> "public class Caller {{Dummy.Foo();}}",
+    ), setupCache = true) { root: PathLike =>
+      // Setup as cached
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assertIsFullDeclaration(pkg, "Dummy")
+      assert(!org.issues.hasMessages)
+      assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString).isEmpty)
+      org.flush()
+
+      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg2 = org2.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assertIsSummaryDeclaration(pkg2, "Dummy")
+      OrgImpl.current.withValue(org2) {
+        pkg2.propagateAllDependencies()
+        assert(pkg2.reportUnused().getMessages(root.join("Dummy.cls").toString).isEmpty)
+      }
+    }
+  }
+
   test("Unused method on summary type") {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy {public void foo() {}}",
@@ -133,6 +155,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
       assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
         "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
+      org.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg2 = org2.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]

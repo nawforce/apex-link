@@ -31,7 +31,7 @@ import com.nawforce.common.cst.BlockVerifyContext
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.pkg.PackageImpl
+import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types.{Nature, TypeDeclaration}
 
 /* Lazy TypeName resolver for relative types. The package & enclosing (outer) typename are used to allow

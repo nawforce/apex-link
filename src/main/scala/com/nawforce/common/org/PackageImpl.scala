@@ -26,7 +26,7 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package com.nawforce.common.pkg
+package com.nawforce.common.org
 
 import com.nawforce.common.cst.UnusedLog
 import com.nawforce.common.diagnostics.IssueLog
@@ -35,7 +35,6 @@ import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.metadata.MetadataDeclaration
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
-import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.common.types.other._

@@ -27,9 +27,8 @@
 */
 package com.nawforce.common.api
 
-import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.funsuite.AnyFunSuite
 

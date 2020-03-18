@@ -29,12 +29,12 @@ package com.nawforce.common.types.apex
 
 import com.nawforce.common.api._
 import com.nawforce.common.cst.Modifier
-import com.nawforce.common.documents.{LocationImpl, RangeLocationImpl}
+import com.nawforce.common.documents.{LocationImpl, PackageContext, ParsedCache, RangeLocationImpl}
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
 import upickle.default._
 
@@ -155,7 +155,7 @@ class SummaryParameter(parameterSummary: ParameterSummary)
   override val typeName: TypeName = parameterSummary.typeName
 }
 
-class SummaryMethod(path: PathLike, val outerTypeName: TypeName, methodSummary: MethodSummary)
+class SummaryMethod(pkg: PackageImpl, path: PathLike, val outerTypeName: TypeName, methodSummary: MethodSummary)
   extends ApexMethodLike {
 
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, methodSummary.idRange.get)
@@ -164,40 +164,28 @@ class SummaryMethod(path: PathLike, val outerTypeName: TypeName, methodSummary: 
   override val typeName: TypeName = methodSummary.typeName
   override val parameters: Seq[ParameterDeclaration] = methodSummary.parameters.map(new SummaryParameter(_))
 
-  def areTypeDependenciesValid(pkg: PackageImpl): Boolean = {
-    DependentValidation.areTypeDependenciesValid(methodSummary.dependents, pkg)
-  }
+  def areTypeDependenciesValid: Boolean = DependentValidation.areTypeDependenciesValid(methodSummary.dependents, pkg)
 
-  // Cache of dependents, populated during validation
-  var dependents: Set[Dependent] = Set.empty
-  override def dependencies(): Iterable[Dependent] = dependents
+  override lazy val dependencies: Set[Dependent] = DependentValidation.getDependents(methodSummary.dependents, pkg)
 
-  def updateDependencies(pkg: PackageImpl): Unit = {
-    dependents = DependentValidation.getDependents(methodSummary.dependents, pkg)
-    propagateDependencies()
-  }
+  override def propagateDependencies(): Unit = propagated
+  private lazy val propagated: Boolean = {super.propagateDependencies(); true}
 }
 
-class SummaryBlock(blockSummary: BlockSummary)
+class SummaryBlock(pkg :PackageImpl, blockSummary: BlockSummary)
   extends BlockDeclaration {
 
   override val isStatic: Boolean = blockSummary.isStatic
 
-  def areTypeDependenciesValid(pkg: PackageImpl): Boolean = {
-    DependentValidation.areTypeDependenciesValid(blockSummary.dependents, pkg)
-  }
+  def areTypeDependenciesValid: Boolean = DependentValidation.areTypeDependenciesValid(blockSummary.dependents, pkg)
 
-  // Cache of dependents, populated during validation
-  var dependents: Set[Dependent] = Set.empty
-  override def dependencies(): Set[Dependent] = dependents
+  override lazy val dependencies: Set[Dependent] = DependentValidation.getDependents(blockSummary.dependents, pkg)
 
-  def updateDependencies(pkg: PackageImpl): Unit = {
-    dependents = DependentValidation.getDependents(blockSummary.dependents, pkg)
-    propagateDependencies()
-  }
+  override def propagateDependencies(): Unit = propagated
+  private lazy val propagated: Boolean = {super.propagateDependencies(); true}
 }
 
-class SummaryField(path: PathLike, val outerTypeName: TypeName, fieldSummary: FieldSummary)
+class SummaryField(pkg: PackageImpl, path: PathLike, val outerTypeName: TypeName, fieldSummary: FieldSummary)
   extends ApexFieldLike {
 
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, fieldSummary.idRange.get)
@@ -207,44 +195,36 @@ class SummaryField(path: PathLike, val outerTypeName: TypeName, fieldSummary: Fi
   override val readAccess: Modifier = Modifier(fieldSummary.readAccess)
   override val writeAccess: Modifier = Modifier(fieldSummary.writeAccess)
 
-  def areTypeDependenciesValid(pkg: PackageImpl): Boolean = {
-    DependentValidation.areTypeDependenciesValid(fieldSummary.dependents, pkg)
-  }
+  def areTypeDependenciesValid: Boolean = DependentValidation.areTypeDependenciesValid(fieldSummary.dependents, pkg)
 
-  // Cache of dependents, populated during validation
-  var dependents: Set[Dependent] = Set.empty
-  override def dependencies(): Set[Dependent] = dependents
+  override lazy val dependencies: Set[Dependent] = DependentValidation.getDependents(fieldSummary.dependents, pkg)
 
-  def updateDependencies(pkg: PackageImpl): Unit = {
-    dependents = DependentValidation.getDependents(fieldSummary.dependents, pkg)
-    propagateDependencies()
-  }
+  override def propagateDependencies(): Unit = propagated
+  private lazy val propagated: Boolean = {super.propagateDependencies(); true}
 }
 
-class SummaryConstructor(path: PathLike, constructorSummary: ConstructorSummary)
+class SummaryConstructor(pkg: PackageImpl, path: PathLike, constructorSummary: ConstructorSummary)
   extends ApexConstructorLike {
 
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, constructorSummary.idRange.get)
   override val modifiers: Seq[Modifier] = constructorSummary.modifiers.map(Modifier(_))
   override val parameters: Seq[ParameterDeclaration] = constructorSummary.parameters.map(new SummaryParameter(_))
 
-  def areTypeDependenciesValid(pkg: PackageImpl): Boolean = {
-    DependentValidation.areTypeDependenciesValid(constructorSummary.dependents, pkg)
-  }
+  def areTypeDependenciesValid: Boolean = DependentValidation.areTypeDependenciesValid(constructorSummary.dependents, pkg)
 
-  // Cache of dependents, populated during validation
-  var dependents: Set[Dependent] = Set.empty
-  override def dependencies(): Set[Dependent] = dependents
+  override lazy val dependencies: Set[Dependent] = DependentValidation.getDependents(constructorSummary.dependents, pkg)
 
-  def updateDependencies(pkg: PackageImpl): Unit = {
-    dependents = DependentValidation.getDependents(constructorSummary.dependents, pkg)
-    propagateDependencies()
-  }
+  override def propagateDependencies(): Unit = propagated
+  private lazy val propagated: Boolean = {super.propagateDependencies(); true}
 }
 
 class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerTypeName: Option[TypeName],
                          summary: TypeSummary)
   extends ApexDeclaration {
+
+  // For outer types update the dependency holders so we can defer dependency propagation
+  if (outerTypeName.isEmpty)
+    summary.holders.foreach(addTypeDependencyHolder)
 
   override lazy val sourceHash: Int = summary.sourceHash
   override val nameLocation: LocationImpl = RangeLocationImpl(path, summary.idRange.get)
@@ -260,34 +240,36 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
     summary.nestedTypes.map(nt => new SummaryDeclaration(path, pkg, Some(typeName), nt))
   }
 
-  override lazy val blocks: Seq[SummaryBlock] = summary.blocks.map(new SummaryBlock(_))
-  override lazy val localFields: Seq[SummaryField] = summary.fields.map(new SummaryField(path, typeName, _))
-  override lazy val constructors: Seq[SummaryConstructor] = summary.constructors.map(new SummaryConstructor(path, _))
-  override lazy val localMethods: Seq[SummaryMethod] = summary.methods.map(new SummaryMethod(path, typeName, _))
+  override lazy val blocks: Seq[SummaryBlock] = summary.blocks.map(new SummaryBlock(pkg, _))
+  override lazy val localFields: Seq[SummaryField] = summary.fields.map(new SummaryField(pkg, path, typeName, _))
+  override lazy val constructors: Seq[SummaryConstructor] = summary.constructors.map(new SummaryConstructor(pkg, path, _))
+  override lazy val localMethods: Seq[SummaryMethod] = summary.methods.map(new SummaryMethod(pkg, path, typeName, _))
+
+  override def flush(pc: ParsedCache, context: PackageContext): Unit = {
+    // TODO: Nothing to do here yet, update when upsert metadata supported
+  }
+
+  override def propagateAllDependencies(): Unit = {
+    propagateDependencies()
+    blocks.foreach(_.propagateDependencies())
+    localFields.foreach(_.propagateDependencies())
+    constructors.foreach(_.propagateDependencies())
+    localMethods.foreach(_.propagateDependencies())
+    nestedTypes.foreach(_.propagateDependencies())
+  }
 
   def hasValidDependencies: Boolean =
     DependentValidation.areTypeDependenciesValid(summary.dependents, pkg) &&
-      blocks.forall(b => b.areTypeDependenciesValid(pkg)) &&
-      localFields.forall(f => f.areTypeDependenciesValid(pkg)) &&
-      constructors.forall(c => c.areTypeDependenciesValid(pkg)) &&
-      localMethods.forall(m => m.areTypeDependenciesValid(pkg)) &&
+      blocks.forall(b => b.areTypeDependenciesValid) &&
+      localFields.forall(f => f.areTypeDependenciesValid) &&
+      constructors.forall(c => c.areTypeDependenciesValid) &&
+      localMethods.forall(m => m.areTypeDependenciesValid) &&
       nestedTypes.forall(_.hasValidDependencies)
 
-  // Cache of dependents, populated by updateDependencies during dependency checking,
-  private var dependents: Set[Dependent] = Set.empty
+  override lazy val dependencies: Set[Dependent] = DependentValidation.getDependents(summary.dependents, pkg)
 
-  override def dependencies(): Set[Dependent] = dependents
-
-  private def updateDependencies(): Unit = {
-    dependents = DependentValidation.getDependents(summary.dependents, pkg)
-    propagateDependencies()
-
-    blocks.foreach(b => b.updateDependencies(pkg))
-    localFields.foreach(f => f.updateDependencies(pkg))
-    constructors.foreach(c => c.updateDependencies(pkg))
-    localMethods.foreach(m => m.updateDependencies(pkg))
-    nestedTypes.foreach(t => t.updateDependencies())
-  }
+  override def propagateDependencies(): Unit = propagated
+  private lazy val propagated: Boolean = {super.propagateDependencies(); true}
 
   override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeName]): Unit = {
     val localDependencies = mutable.Set[TypeName]()
@@ -300,11 +282,11 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
     }
 
     // Collect them all
-    collect(dependents)
-    blocks.foreach(x => collect(x.dependents))
-    localFields.foreach(x => collect(x.dependents))
-    constructors.foreach(x => collect(x.dependents))
-    localMethods.foreach(x => collect(x.dependents))
+    collect(dependencies)
+    blocks.foreach(x => collect(x.dependencies))
+    localFields.foreach(x => collect(x.dependencies))
+    constructors.foreach(x => collect(x.dependencies))
+    localMethods.foreach(x => collect(x.dependencies))
     nestedTypes.foreach(_.collectDependenciesByTypeName(dependsOn))
 
     // Use outermost of each to get top-level dependencies
@@ -320,14 +302,6 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
       case Right(_) => None
       case Left(_) => None
     }
-  }
-
-  override def validate(): Unit = {
-    updateDependencies()
-
-    // Hack, we only want to propagate outer type dependencies on outer types
-    if (outerTypeName.isEmpty)
-      super.validate()
   }
 }
 

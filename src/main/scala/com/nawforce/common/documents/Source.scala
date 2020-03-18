@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
+ Copyright (c) 2020 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -25,32 +25,11 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+package com.nawforce.common.documents
 
-package com.nawforce.common.types
+import scala.util.hashing.MurmurHash3
 
-import com.nawforce.common.cst.Modifier
-import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.org.PackageImpl
-
-class NamedTypeDeclaration(pkg: PackageImpl, val typeName: TypeName)
-  extends TypeDeclaration {
-
-  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
-  override val name: Name = typeName.name
-  override val outerTypeName: Option[TypeName] = None
-  override val nature: Nature = CLASS_NATURE
-  override val modifiers: Seq[Modifier] = Seq.empty
-  override val isComplete: Boolean = true
-  override val isExternallyVisible: Boolean = true
-
-  override val superClass: Option[TypeName] = None
-  override val interfaces: Seq[TypeName] = Seq.empty
-  override val nestedTypes: Seq[TypeDeclaration] = Seq.empty
-
-  override val blocks: Seq[BlockDeclaration] = Seq.empty
-  override val fields: Seq[FieldDeclaration]= Seq.empty
-  override val constructors: Seq[ConstructorDeclaration] = Seq.empty
-  override val methods: Seq[MethodDeclaration]= Seq.empty
-
-  override def validate(): Unit = {}
+// Apex source code
+case class Source(code: String) {
+  lazy val hash: Int = MurmurHash3.stringHash(code)
 }

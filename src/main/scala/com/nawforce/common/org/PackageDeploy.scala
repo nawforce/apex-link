@@ -1,42 +1,11 @@
-/*
- [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
- All rights reserved.
+package com.nawforce.common.org
 
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions
- are met:
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
- 3. The name of the author may not be used to endorse or promote products
-    derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-
-package com.nawforce.common.pkg
-
-import java.nio.charset.StandardCharsets
-
-import com.nawforce.common.api.{ApexSummary, ServerOps}
+import com.nawforce.common.api.ServerOps
 import com.nawforce.common.diagnostics.{Issue, MISSING_CATEGORY}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.types.apex.{FullDeclaration, SummaryApex, TriggerDeclaration}
+import com.nawforce.common.types.apex.{ApexDeclaration, FullDeclaration, SummaryApex, SummaryDeclaration, TriggerDeclaration}
 import com.nawforce.common.types.schema.SObjectDeclaration
-import upickle.default.writeBinary
 
 import scala.collection.mutable
 
@@ -118,12 +87,11 @@ trait PackageDeploy {
           invalidDocs = validSummaryDocs.filterNot(_._2.declaration.hasValidDependencies)
         }
 
-        // Report diagnostics & validate those that get this far
+        // Report diagnostics for those that get this far
         validSummaryDocs.foreach(pair => {
           val summary: SummaryApex = pair._2
           val path = summary.declaration.path.toString
           summary.diagnostics.foreach(diagnostic => org.issues.add(Issue.fromDiagnostic(path, diagnostic)))
-          summary.declaration.validate()
         })
       }
     }
@@ -144,17 +112,8 @@ trait PackageDeploy {
           })
         })
 
-      // Validate the full types & write back to cache
-      fullTypes.foreach(loadedWithSource => {
-        val td = loadedWithSource._1
-        td.validate()
-        pcOpt.map(pc => {
-          val diagnostics = org.issues.getDiagnostics(td.getPath.toString)
-          val summary = ApexSummary(td.summary, diagnostics)
-          pc.upsert(loadedWithSource._2.getBytes(StandardCharsets.UTF_8),
-            writeBinary(summary), packageContext)
-        })
-      })
+      // Validate the full types
+      fullTypes.foreach(_._1.validate())
     }
   }
 
@@ -180,5 +139,22 @@ trait PackageDeploy {
       tds.foreach(upsertMetadata(_))
       tds.foreach(_.validate())
     }
+  }
+
+  /** Flush all types to the passed cache */
+  def flush(pc: ParsedCache): Unit = {
+    val context = packageContext
+    types.values.foreach({
+      case ad: ApexDeclaration => ad.flush(pc, context)
+      case _ => ()
+    })
+  }
+
+  /** Check all summary types have propagated their dependencies */
+  def propagateAllDependencies(): Unit = {
+    types.values.foreach({
+      case ad: ApexDeclaration => ad.propagateAllDependencies()
+      case _ => ()
+    })
   }
 }

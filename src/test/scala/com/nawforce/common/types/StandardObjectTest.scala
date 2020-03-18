@@ -2,9 +2,8 @@ package com.nawforce.common.types
 
 import com.nawforce.common.api.{Org, ServerOps}
 import com.nawforce.common.names.Name
-import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite

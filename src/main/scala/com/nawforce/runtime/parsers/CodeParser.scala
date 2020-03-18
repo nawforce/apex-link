@@ -34,12 +34,12 @@ import com.nawforce.common.parsers._
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import org.antlr.v4.runtime.CommonTokenStream
-import org.antlr.v4.runtime.misc.Interval
 
 import scala.collection.JavaConverters._
 
-class ClippedStream(val path: PathLike, clipped: String, val line: Int, val column: Int) {
+class ClippedStream(val path: PathLike, data: String, start: Int, stop: Int, val line: Int, val column: Int) {
   def parse(): Either[SyntaxException, ApexParser.BlockContext] = {
+    val clipped = data.substring(start, stop+1)
     new CodeParser(path, clipped).parseBlock()
   }
 }
@@ -107,8 +107,9 @@ class CodeParser(val path: PathLike, data: String) extends
   }
 
   def clipStream(context: ParserRuleContext): ClippedStream = {
-    val text = getText(new Interval(context.start.getStartIndex, context.stop.getStopIndex))
-    new ClippedStream(PathFactory(path.toString), text, context.start.getLine-1, context.start.getCharPositionInLine)
+    new ClippedStream(PathFactory(path.toString), data,
+      context.start.getStartIndex, context.stop.getStopIndex,
+      context.start.getLine-1, context.start.getCharPositionInLine)
   }
 
   private def getParser: ApexParser = {

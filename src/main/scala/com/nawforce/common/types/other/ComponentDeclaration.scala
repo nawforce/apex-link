@@ -33,8 +33,8 @@ import com.nawforce.common.cst.Modifier
 import com.nawforce.common.documents.ComponentDocument
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
 import com.nawforce.common.types.platform.PlatformTypes
 

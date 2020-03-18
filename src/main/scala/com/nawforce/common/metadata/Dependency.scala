@@ -28,7 +28,6 @@
 package com.nawforce.common.metadata
 
 import com.nawforce.common.api.{DependentSummary, FieldDependentSummary, MethodDependentSummary, TypeDependentSummary}
-import com.nawforce.common.names.Name
 import com.nawforce.common.types.BlockDeclaration
 import com.nawforce.common.types.apex.{ApexConstructorLike, ApexDeclaration, ApexFieldLike, ApexMethodLike}
 
@@ -78,14 +77,14 @@ trait DependencyHolder extends Dependent {
   }
 
   // Convert dependencies into a summary format
-  def dependencySummary(excludeNamespace: Option[Name]): Set[DependentSummary] = {
+  def dependencySummary(): Set[DependentSummary] = {
     dependencies().flatMap {
       case td: ApexDeclaration =>
         Some(TypeDependentSummary(td.typeName, td.sourceHash))
       case fd: ApexFieldLike =>
         Some(FieldDependentSummary(fd.outerTypeName, fd.name.value))
       case md: ApexMethodLike =>
-        Some(MethodDependentSummary(md.outerTypeName, md.name.value, md.parameters.map(_.summary(excludeNamespace)).toList))
+        Some(MethodDependentSummary(md.outerTypeName, md.name.value, md.parameters.map(_.summary).toList))
       case _: ApexConstructorLike => None
       case _: BlockDeclaration => None
     }.toSet

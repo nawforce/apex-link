@@ -79,6 +79,7 @@ object ApexLink {
         nsLoaded.put(nsDirPair._1, pkg)
       }
     })
+    org.flush()
 
     val issueOptions = new IssueOptions()
     issueOptions.formatJSON = json

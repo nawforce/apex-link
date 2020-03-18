@@ -27,14 +27,13 @@
 */
 package com.nawforce.common.types.apex
 
-import com.nawforce.common.api.{ConstructorSummary, FieldSummary, MethodSummary, TypeLike}
+import com.nawforce.common.api.{ConstructorSummary, FieldSummary, MethodSummary}
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
-import com.nawforce.common.documents.{LocationImpl, RangeLocationImpl, TextRange}
+import com.nawforce.common.documents.{LocationImpl, PackageContext, ParsedCache, RangeLocationImpl, TextRange}
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.pkg.PackageImpl
+import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.{ConstructorDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
 
 import scala.collection.mutable
@@ -43,8 +42,8 @@ import scala.collection.mutable
 trait ApexConstructorLike extends ConstructorDeclaration {
   val nameRange: RangeLocationImpl
 
-  override def summary(excludeNamespace: Option[Name]): ConstructorSummary = {
-    super.summary(excludeNamespace, Some(new TextRange(nameRange.start, nameRange.end)))
+  override def summary(): ConstructorSummary = {
+    super.summary(Some(new TextRange(nameRange.start, nameRange.end)))
   }
 }
 
@@ -73,8 +72,8 @@ trait ApexMethodLike extends MethodDeclaration {
       })
   }
 
-  override def summary(excludeNamespace: Option[Name]): MethodSummary = {
-    super.summary(excludeNamespace, Some(new TextRange(nameRange.start, nameRange.end)))
+  override def summary(): MethodSummary = {
+    super.summary(Some(new TextRange(nameRange.start, nameRange.end)))
   }
 }
 
@@ -83,8 +82,8 @@ trait ApexFieldLike extends FieldDeclaration {
   val nameRange: RangeLocationImpl
   val outerTypeName: TypeName
 
-  override def summary(excludeNamespace: Option[Name]): FieldSummary = {
-    super.summary(excludeNamespace, Some(new TextRange(nameRange.start, nameRange.end)))
+  override def summary(): FieldSummary = {
+    super.summary(Some(new TextRange(nameRange.start, nameRange.end)))
   }
 }
 
@@ -95,6 +94,12 @@ trait ApexDeclaration extends TypeDeclaration {
   val nameLocation: LocationImpl
   val localFields: Seq[ApexFieldLike]
   val localMethods: Seq[ApexMethodLike]
+
+  /** Override to handle request to flush the type to passed cache if dirty */
+  def flush(pc: ParsedCache, context: PackageContext): Unit
+
+  /** Override to handle request to propagate all dependencies in type */
+  def propagateAllDependencies(): Unit
 
   private val typeDependencyHolders = mutable.Set[TypeName]()
 
@@ -192,11 +197,12 @@ trait ApexDeclaration extends TypeDeclaration {
   }
 
   def addTypeDependencyHolder(typeName: TypeName): Unit = {
-    typeDependencyHolders.add(typeName)
+    if (typeName != this.typeName)
+      typeDependencyHolders.add(typeName)
   }
 
-  def getTypeDependencyHolders: Array[TypeLike] = {
-    typeDependencyHolders.toArray
+  def getTypeDependencyHolders: mutable.Set[TypeName] = {
+    typeDependencyHolders
   }
 
   def unused(): Seq[Issue] = {

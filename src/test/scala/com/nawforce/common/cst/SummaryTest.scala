@@ -64,7 +64,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
     assert(typeDeclarationSummary("public class Dummy {}") ==
       TypeSummary(727760095, Some(new TextRange(new PositionImpl(1,13), new PositionImpl(1,18))),
         "Dummy", dummyTypeName, "class", List("public"), Some(objectTypeName),
-        Nil, Nil, Nil, Nil, Nil, Nil, Set()
+        Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set()
       )
     )
   }
@@ -73,7 +73,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
     assert(typeDeclarationSummary("global class Dummy {}") ==
       TypeSummary(-2072849596, Some(new TextRange(new PositionImpl(1,13), new PositionImpl(1,18))),
         "Dummy", dummyTypeName, "class", List("global"), Some(objectTypeName),
-        Nil, Nil, Nil, Nil, Nil, Nil, Set()
+        Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set()
       )
     )
   }
@@ -82,7 +82,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
     assert(typeDeclarationSummary("@isTest global class Dummy {}") ==
       TypeSummary(-8400113, Some(new TextRange(new PositionImpl(1,21), new PositionImpl(1,26))),
         "Dummy", dummyTypeName, "class", List("@IsTest", "global"), Some(objectTypeName),
-        Nil, Nil, Nil, Nil, Nil, Nil, Set()
+        Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set()
       )
     )
   }
@@ -90,14 +90,16 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   test("Interface") {
     assert(typeDeclarationSummary("public interface Dummy {}") ==
       TypeSummary(-1556463390, Some(new TextRange(new PositionImpl(1,17), new PositionImpl(1,22))),
-        "Dummy", dummyTypeName, "interface", List("public"), None, Nil, Nil, Nil, Nil, Nil, Nil, Set())
+        "Dummy", dummyTypeName, "interface", List("public"),
+        None, Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set())
     )
   }
 
   test("Enum") {
     assert(typeDeclarationSummary("public enum Dummy {}") ==
       TypeSummary(-1129410070, Some(new TextRange(new PositionImpl(1,12), new PositionImpl(1,17))),
-        "Dummy", dummyTypeName, "enum", List("public"), None, Nil, Nil, Nil, Nil, Nil, Nil, Set())
+        "Dummy", dummyTypeName, "enum", List("public"),
+        None, Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set())
     )
   }
 
@@ -105,7 +107,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
     assert(typeDeclarationSummary("public class Dummy extends Bar {}", hasMessages = true) ==
       TypeSummary(-264364603, Some(new TextRange(new PositionImpl(1,13), new PositionImpl(1,18))),
         "Dummy", dummyTypeName, "class", List("public"), Some(TypeName(Name("Bar"))),
-          Nil, Nil, Nil, Nil, Nil, Nil, Set())
+          Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set())
     )
   }
 
@@ -113,7 +115,8 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
     assert(typeDeclarationSummary("public class Dummy implements A, B {}", hasMessages = true) ==
       TypeSummary(-1699589909, Some(new TextRange(new PositionImpl(1,13), new PositionImpl(1,18))),
         "Dummy", dummyTypeName, "class", List("public"), Some(objectTypeName),
-        List(TypeName(Name("A")), TypeName(Name("B"))), Nil, Nil, Nil, Nil, Nil, Set())
+        List(TypeName(Name("A")), TypeName(Name("B"))),
+        Nil, Nil, Nil, Nil, Nil, Set(), Set())
     )
   }
 
@@ -121,7 +124,8 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
     assert(typeDeclarationSummary("public interface Dummy extends A, B {}", hasMessages = true) ==
       TypeSummary(-1967820565, Some(new TextRange(new PositionImpl(1,17), new PositionImpl(1,22))),
         "Dummy", dummyTypeName, "interface", List("public"), None,
-        List(TypeName(Name("A")), TypeName(Name("B"))), Nil, Nil, Nil, Nil, Nil, Set())
+        List(TypeName(Name("A")), TypeName(Name("B"))),
+        Nil, Nil, Nil, Nil, Nil, Set(), Set())
     )
   }
 
@@ -135,7 +139,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
           FieldSummary(Some(new TextRange(new PositionImpl(1,35), new PositionImpl(1, 36))),
             "B", List("private"), rawStringTypeName, "private", "private", Set()),
         ),
-        Nil, Nil, Nil, Set())
+        Nil, Nil, Nil, Set(), Set())
     )
   }
 
@@ -151,7 +155,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
           FieldSummary(Some(new TextRange(new PositionImpl(1,35), new PositionImpl(1,36))),
             "B", List("private"), rawStringTypeName, "private", "private", Set()),
         ),
-        Nil, Nil, Nil, Set())
+        Nil, Nil, Nil, Set(), Set())
     )
   }
 
@@ -165,10 +169,9 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
           ConstructorSummary(Some(new TextRange(new PositionImpl(1,27), new PositionImpl(1,32))),
             List("public"), List(ParameterSummary("a", TypeName.String)), Set())
         ),
-        Nil, Nil, Set())
+        Nil, Nil, Set(), Set())
     )
   }
-
 
   test("Class with methods") {
     assert(typeDeclarationSummary("public class Dummy {public String foo(String a) {} void bar() {} }") ==
@@ -180,10 +183,9 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
           MethodSummary(Some(new TextRange(new PositionImpl(1,34), new PositionImpl(1,37))),
             "foo", List("public"), TypeName.String, List(ParameterSummary("a", TypeName.String)), Set()),
         ),
-        Nil, Set())
+        Nil, Set(), Set())
     )
   }
-
 
   test("Interfaces with methods") {
     assert(typeDeclarationSummary("public interface Dummy {public String foo(String a); void bar(); }", hasMessages = true) ==
@@ -195,7 +197,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
           MethodSummary(Some(new TextRange(new PositionImpl(1,38), new PositionImpl(1,41))),
             "foo", List("public"), TypeName.String, List(ParameterSummary("a", TypeName.String)), Set())
         ),
-        Nil, Set())
+        Nil, Set(), Set())
     )
   }
 
@@ -211,7 +213,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
           FieldSummary(Some(new TextRange(new PositionImpl(1,25), new PositionImpl(1,26))),
             "C", List("public", "static"), dummyTypeName, "public", "public", Set(TypeDependentSummary(dummyTypeName,1277314056))),
         ),
-        Nil, Nil, Nil, Set())
+        Nil, Nil, Nil, Set(), Set())
     )
   }
 }

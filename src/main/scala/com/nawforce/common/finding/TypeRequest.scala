@@ -28,7 +28,7 @@
 package com.nawforce.common.finding
 
 import com.nawforce.common.names.TypeName
-import com.nawforce.common.pkg.PackageImpl
+import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.common.types.platform.PlatformTypes
 

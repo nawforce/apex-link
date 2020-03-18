@@ -27,10 +27,10 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.documents.Source
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
 import com.nawforce.common.types.apex.FullDeclaration
 import com.nawforce.runtime.parsers.ApexParser._
@@ -45,18 +45,18 @@ final case class CompilationUnit(path: PathLike, private val _typeDeclaration: F
 }
 
 object CompilationUnit {
-  def construct(sourceHash: Int, pkg: PackageImpl, path: PathLike, compilationUnit: CompilationUnitContext,
+  def construct(source: Source, pkg: PackageImpl, path: PathLike, compilationUnit: CompilationUnitContext,
                 context: ConstructContext): CompilationUnit = {
     CompilationUnit(path,
-      FullDeclaration.construct(sourceHash, pkg, None, compilationUnit.typeDeclaration(), context))
+      FullDeclaration.construct(source, pkg, None, compilationUnit.typeDeclaration(), context))
       .withContext(compilationUnit, context)
   }
 }
 
-final case class ClassDeclaration(_sourceHash: Int, _pkg: PackageImpl, _outerTypeName: Option[TypeName], _id: Id,
+final case class ClassDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeName: Option[TypeName], _id: Id,
                                   _modifiers: Seq[Modifier], _extendsType: Option[TypeName], _implementsTypes: Seq[TypeName],
                                   _bodyDeclarations: Seq[ClassBodyDeclaration]) extends
-  FullDeclaration(_sourceHash, _pkg, _outerTypeName, _id, _modifiers, _extendsType, _implementsTypes, _bodyDeclarations) {
+  FullDeclaration(_source, _pkg, _outerTypeName, _id, _modifiers, _extendsType, _implementsTypes, _bodyDeclarations) {
 
   override val nature: Nature = CLASS_NATURE
 
@@ -82,7 +82,7 @@ final case class ClassDeclaration(_sourceHash: Int, _pkg: PackageImpl, _outerTyp
 }
 
 object ClassDeclaration {
-  def construct(sourceHash: Int, pkg: PackageImpl, outerTypeName: Option[TypeName], modifiers: Seq[Modifier],
+  def construct(source: Source, pkg: PackageImpl, outerTypeName: Option[TypeName], modifiers: Seq[Modifier],
                 classDeclaration: ClassDeclarationContext, context: ConstructContext): ClassDeclaration = {
 
     val thisType = TypeName(Name(CodeParser.getText(classDeclaration.id())), Nil,
@@ -105,20 +105,20 @@ object ClassDeclaration {
                 CodeParser.toScala(cbd.STATIC()).map(_ => Seq(STATIC_MODIFIER)).getOrElse(Seq()),
               x, context)))
           .orElse(CodeParser.toScala(cbd.memberDeclaration())
-            .map(x => ClassBodyDeclaration.construct(pkg, thisType, sourceHash, CodeParser.toScala(cbd.modifier()), x, context))
+            .map(x => ClassBodyDeclaration.construct(pkg, thisType, source, CodeParser.toScala(cbd.modifier()), x, context))
           )
           .orElse(throw new CSTException())
         ).flatten
 
-    ClassDeclaration(sourceHash, pkg, outerTypeName, Id.construct(classDeclaration.id(), context), modifiers,
+    ClassDeclaration(source, pkg, outerTypeName, Id.construct(classDeclaration.id(), context), modifiers,
       Some(extendType),implementsType, bodyDeclarations).withContext(classDeclaration, context)
   }
 }
 
-final case class InterfaceDeclaration(_sourceHash: Int, _pkg: PackageImpl, _outerTypeName: Option[TypeName],
+final case class InterfaceDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeName: Option[TypeName],
                                       _id: Id, _modifiers: Seq[Modifier], _implementsTypes: Seq[TypeName],
                                       _bodyDeclarations: Seq[ClassBodyDeclaration])
-  extends FullDeclaration(_sourceHash, _pkg, _outerTypeName, _id, _modifiers, None, _implementsTypes, _bodyDeclarations) {
+  extends FullDeclaration(_source, _pkg, _outerTypeName, _id, _modifiers, None, _implementsTypes, _bodyDeclarations) {
 
   override val nature: Nature = INTERFACE_NATURE
 
@@ -128,7 +128,7 @@ final case class InterfaceDeclaration(_sourceHash: Int, _pkg: PackageImpl, _oute
 }
 
 object InterfaceDeclaration {
-  def construct(sourceHash: Int, pkg: PackageImpl, outerTypeName: Option[TypeName], modifiers: Seq[Modifier],
+  def construct(source: Source, pkg: PackageImpl, outerTypeName: Option[TypeName], modifiers: Seq[Modifier],
                 interfaceDeclaration: InterfaceDeclarationContext, context: ConstructContext)
   : InterfaceDeclaration = {
     val thisType = TypeName(Name(CodeParser.getText(interfaceDeclaration.id())), Nil,
@@ -145,14 +145,14 @@ object InterfaceDeclaration {
               ApexModifiers.methodModifiers(CodeParser.toScala(m.modifier()), context, m.id()), m, context)
     )
 
-    InterfaceDeclaration(sourceHash, pkg, outerTypeName, Id.construct(interfaceDeclaration.id(), context), modifiers,
+    InterfaceDeclaration(source, pkg, outerTypeName, Id.construct(interfaceDeclaration.id(), context), modifiers,
       implementsType, methods).withContext(interfaceDeclaration, context)
   }
 }
 
-final case class EnumDeclaration(_sourceHash: Int, _pkg: PackageImpl, _outerTypeName: Option[TypeName], _id: Id,
+final case class EnumDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeName: Option[TypeName], _id: Id,
                                  _modifiers: Seq[Modifier], _bodyDeclarations: Seq[ClassBodyDeclaration])
-  extends FullDeclaration(_sourceHash, _pkg, _outerTypeName, _id, _modifiers, None, Seq(), _bodyDeclarations) {
+  extends FullDeclaration(_source, _pkg, _outerTypeName, _id, _modifiers, None, Seq(), _bodyDeclarations) {
 
   override val nature: Nature = ENUM_NATURE
 
@@ -176,7 +176,7 @@ final case class EnumDeclaration(_sourceHash: Int, _pkg: PackageImpl, _outerType
 }
 
 object EnumDeclaration {
-  def construct(sourceHash: Int, pkg: PackageImpl, outerTypeName: Option[TypeName], typeModifiers: Seq[Modifier],
+  def construct(source: Source, pkg: PackageImpl, outerTypeName: Option[TypeName], typeModifiers: Seq[Modifier],
                 enumDeclaration: EnumDeclarationContext, context: ConstructContext): EnumDeclaration = {
 
     // FUTURE: Add standard enum methods
@@ -197,7 +197,7 @@ object EnumDeclaration {
       ).withContext(constant, context)
     })
 
-    EnumDeclaration(sourceHash, pkg, outerTypeName,id, typeModifiers, fields).withContext(enumDeclaration, context)
+    EnumDeclaration(source, pkg, outerTypeName,id, typeModifiers, fields).withContext(enumDeclaration, context)
   }
 
   private lazy val methodMap: Map[(Name, Int), MethodDeclaration] =

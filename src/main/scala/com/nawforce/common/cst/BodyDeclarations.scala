@@ -27,12 +27,11 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.documents.RangeLocationImpl
+import com.nawforce.common.documents.{RangeLocationImpl, Source}
 import com.nawforce.common.finding.RelativeTypeName
 import com.nawforce.common.metadata._
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.pkg.PackageImpl
+import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types._
 import com.nawforce.common.types.apex.{ApexConstructorLike, ApexFieldLike, ApexMethodLike}
 import com.nawforce.runtime.parsers.ApexParser._
@@ -61,7 +60,7 @@ abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST wi
 }
 
 object ClassBodyDeclaration {
-  def construct(pkg: PackageImpl, outerTypeName: TypeName, sourceHash: Int, modifiers: Seq[ModifierContext],
+  def construct(pkg: PackageImpl, outerTypeName: TypeName, source: Source, modifiers: Seq[ModifierContext],
                 memberDeclarationContext: MemberDeclarationContext, context: ConstructContext)
   : Seq[ClassBodyDeclaration] = {
 
@@ -80,11 +79,11 @@ object ClassBodyDeclaration {
           ApexModifiers.constructorModifiers(modifiers, context, x),
           x, context))))
       .orElse(CodeParser.toScala(memberDeclarationContext.interfaceDeclaration())
-        .map(x => Seq(InterfaceDeclaration.construct(sourceHash, pkg, Some(outerTypeName),
+        .map(x => Seq(InterfaceDeclaration.construct(source, pkg, Some(outerTypeName),
           ApexModifiers.interfaceModifiers(modifiers, context, outer = false, x.id()),
           x, context))))
       .orElse(CodeParser.toScala(memberDeclarationContext.enumDeclaration())
-        .map(x => Seq(EnumDeclaration.construct(sourceHash, pkg, Some(outerTypeName),
+        .map(x => Seq(EnumDeclaration.construct(source, pkg, Some(outerTypeName),
           ApexModifiers.enumModifiers(modifiers, context, outer = false, x.id()),
           x, context))))
       .orElse(CodeParser.toScala(memberDeclarationContext.propertyDeclaration())
@@ -92,7 +91,7 @@ object ClassBodyDeclaration {
           ApexModifiers.fieldModifiers(modifiers, context, x.id()),
           x, context))))
       .orElse(CodeParser.toScala(memberDeclarationContext.classDeclaration())
-        .map(x => Seq(ClassDeclaration.construct(sourceHash, pkg, Some(outerTypeName),
+        .map(x => Seq(ClassDeclaration.construct(source, pkg, Some(outerTypeName),
           ApexModifiers.classModifiers(modifiers, context, outer = false, x.id()),
           x, context))))
 

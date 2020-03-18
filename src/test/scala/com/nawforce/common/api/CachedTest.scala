@@ -29,9 +29,8 @@
 package com.nawforce.common.api
 
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types.apex.{FullDeclaration, SummaryDeclaration}
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
@@ -64,18 +63,21 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       "Bar.cls" -> bar,
       "Foo.cls" -> foo
     ), setupCache = true) { root: PathLike =>
-      // Setup as cached
+      // Cache classes
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
       assert(!org.issues.hasMessages)
       assertIsFullDeclaration(pkg, "Bar")
       assertIsFullDeclaration(pkg, "Foo")
+      org.flush()
 
+      // Reload from cache
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg2 = org2.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
       assert(!org2.issues.hasMessages)
       assertIsSummaryDeclaration(pkg2, "Bar")
       assertIsSummaryDeclaration(pkg2, "Foo")
+      org2.flush()
 
       // Change super class
       root.createFile("Bar.cls", newBar)
@@ -85,6 +87,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org3.issues.hasMessages)
       assertIsFullDeclaration(pkg3, "Bar")
       assertIsNotDeclaration(pkg3, "Foo")
+      org3.flush()
 
       // Test if we notice change, i.e. Foo should not be cached
       root.createFile("Foo.cls", foo)
@@ -93,6 +96,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org4.issues.hasMessages)
       assertIsSummaryDeclaration(pkg4, "Bar")
       assertIsFullDeclaration(pkg4, "Foo")
+      org4.flush()
     }
   }
 
@@ -213,6 +217,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       assertIsFullDeclaration(pkg, "Foo")
       assert(org.getIssues(new IssueOptions()) ==
         "/pkg1/Foo.cls\nError: line 1 at 19-24: No matching method found for 'bar' on 'Foo' taking no arguments\n")
+      org.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg2 = org2.addPackage(None, Seq(root.join("pkg2")), Seq()).asInstanceOf[PackageImpl]

@@ -33,8 +33,7 @@ import com.nawforce.common.documents.TextRange
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.metadata.{DependencyHolder, MetadataDeclaration}
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.pkg.PackageImpl
+import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.other.CustomComponent
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.runtime.types._
@@ -59,8 +58,8 @@ object Nature {
 trait BlockDeclaration extends DependencyHolder {
   val isStatic: Boolean
 
-  def summary(excludeNamespace: Option[Name]): BlockSummary = {
-    BlockSummary(isStatic, dependencySummary(excludeNamespace))
+  def summary(): BlockSummary = {
+    BlockSummary(isStatic, dependencySummary())
   }
 }
 
@@ -73,16 +72,16 @@ trait FieldDeclaration extends DependencyHolder {
 
   lazy val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
 
-  def summary(excludeNamespace: Option[Name]): FieldSummary = {
-    summary(excludeNamespace, None)
+  def summary(): FieldSummary = {
+    summary(None)
   }
 
-  protected def summary(excludeNamespace: Option[Name], range: Option[TextRange]): FieldSummary = {
+  protected def summary(range: Option[TextRange]): FieldSummary = {
     FieldSummary(range, name.toString,
       modifiers.map(_.toString).sorted.toList,
       typeName,
       readAccess.toString, writeAccess.toString,
-      dependencySummary(excludeNamespace)
+      dependencySummary()
     )
   }
 }
@@ -91,7 +90,7 @@ trait ParameterDeclaration {
   val name: Name
   val typeName: TypeName
 
-  def summary(excludeNamespace: Option[Name]): ParameterSummary = {
+  def summary(): ParameterSummary = {
     ParameterSummary(name.toString, typeName)
   }
 }
@@ -100,15 +99,15 @@ trait ConstructorDeclaration extends DependencyHolder {
   val modifiers: Seq[Modifier]
   val parameters: Seq[ParameterDeclaration]
 
-  def summary(excludeNamespace: Option[Name]): ConstructorSummary = {
-    summary(excludeNamespace, None)
+  def summary(): ConstructorSummary = {
+    summary(None)
   }
 
-  protected def summary(excludeNamespace: Option[Name], range: Option[TextRange]): ConstructorSummary = {
+  protected def summary(range: Option[TextRange]): ConstructorSummary = {
     ConstructorSummary(range,
       modifiers.map(_.toString).sorted.toList,
-      parameters.map(_.summary(excludeNamespace)).sortBy(_.name).toList,
-      dependencySummary(excludeNamespace)
+      parameters.map(_.summary()).sortBy(_.name).toList,
+      dependencySummary()
     )
   }
 }
@@ -185,15 +184,15 @@ trait MethodDeclaration extends DependencyHolder {
     }
   }
 
-  def summary(excludeNamespace: Option[Name]): MethodSummary = {
-    summary(excludeNamespace, None)
+  def summary(): MethodSummary = {
+    summary(None)
   }
 
-  protected def summary(excludeNamespace: Option[Name], range: Option[TextRange]): MethodSummary = {
+  protected def summary(range: Option[TextRange]): MethodSummary = {
     MethodSummary(range,
       name.toString, modifiers.map(_.toString).sorted.toList,
       typeName,
-      parameters.map(_.summary(excludeNamespace)).toList, dependencySummary(excludeNamespace)
+      parameters.map(_.summary()).toList, dependencySummary()
     )
   }
 }
@@ -371,6 +370,7 @@ trait TypeDeclaration extends MetadataDeclaration {
       interfaceDeclarations.flatMap(_.superTypes())
   }
 
+  // Obtain a summary representation of the type declaration for caching
   def summary: TypeSummary = {
     val ns = packageDeclaration.flatMap(_.namespace)
     TypeSummary (
@@ -381,12 +381,13 @@ trait TypeDeclaration extends MetadataDeclaration {
       nature.value, modifiers.map(_.toString).sorted.toList,
       superClass,
       interfaces.toList,
-      blocks.map(_.summary(ns)).toList,
-      fields.map(_.summary(ns)).sortBy(_.name).toList,
-      constructors.map(_.summary(ns)).sortBy(_.parameters.size).toList,
-      methods.map(_.summary(ns)).sortBy(_.name).toList,
+      blocks.map(_.summary()).toList,
+      fields.map(_.summary()).sortBy(_.name).toList,
+      constructors.map(_.summary()).sortBy(_.parameters.size).toList,
+      methods.map(_.summary()).sortBy(_.name).toList,
       nestedTypes.map(_.summary).sortBy(_.name).toList,
-      dependencySummary(ns)
+      dependencySummary(),
+      Set.empty
     )
   }
 }

@@ -39,6 +39,10 @@ trait Org {
   /** Create a new package in the org, directories should be priority ordered for duplicate detection. Use
     * namespaces to indicate dependent packages which must already have been created as packages. */
   def newPackage(namespace: String, directories: Array[String], basePackages: Array[Package]): Package
+
+  /** Force syncing of org metadata with cache. THis should be called periodically to ensure the cache
+    * is kept upto date after metadata changes. */
+  def flush(): Unit
 }
 
 class IssueOptions {

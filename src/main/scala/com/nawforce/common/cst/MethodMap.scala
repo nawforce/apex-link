@@ -30,7 +30,7 @@ package com.nawforce.common.cst
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue}
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.pkg.PackageImpl
+import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types._
 import com.nawforce.common.types.apex.{ApexDeclaration, ApexMethodLike}
 

@@ -29,9 +29,8 @@ package com.nawforce.common.finding
 
 import com.nawforce.common.api.Org
 import com.nawforce.common.names.{DotName, Name, TypeName}
-import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.common.types.apex.FullDeclaration
 import org.scalatest.funsuite.AnyFunSuite

@@ -35,7 +35,8 @@ case class ApexSummary(typeSummary: TypeSummary, diagnostics: List[Diagnostic])
 case class TypeSummary(sourceHash: Int, idRange: Option[TextRange], name: String, typeName: TypeName,
                        nature: String, modifiers: List[String], superClass: Option[TypeName], interfaces: List[TypeName],
                        blocks: List[BlockSummary], fields: List[FieldSummary], constructors: List[ConstructorSummary],
-                       methods: List[MethodSummary], nestedTypes: List[TypeSummary], dependents: Set[DependentSummary])
+                       methods: List[MethodSummary], nestedTypes: List[TypeSummary], dependents: Set[DependentSummary],
+                       holders: Set[TypeName])
 case class BlockSummary(isStatic: Boolean, dependents: Set[DependentSummary])
 case class FieldSummary(idRange: Option[TextRange], name: String, modifiers: List[String],
                         typeName: TypeName, readAccess: String, writeAccess: String, dependents: Set[DependentSummary])

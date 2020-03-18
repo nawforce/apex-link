@@ -30,7 +30,7 @@ package com.nawforce.common.types.other
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.documents.{DocumentType, LineLocationImpl, LocationImpl, PageDocument}
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.pkg.PackageImpl
+import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types._
 
 import scala.collection.mutable

@@ -27,12 +27,11 @@
 */
 package com.nawforce.common.org
 
-import com.nawforce.common.api.{IssueOptions, Org, Package}
+import com.nawforce.common.api.{IssueOptions, Org, Package, ServerOps}
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, IssueLog, WARNING_CATEGORY}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.Name
 import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.sfdx.{MDAPIWorkspace, Workspace}
 
 import scala.util.DynamicVariable
@@ -77,6 +76,7 @@ class OrgImpl extends Org {
         if (options.includeZombies) {
           val allIssues = IssueLog(issues)
           packagesByNamespace.values.foreach(pkg => {
+            pkg.propagateAllDependencies()
             allIssues.merge(pkg.reportUnused())
           })
           allIssues
@@ -132,6 +132,18 @@ class OrgImpl extends Org {
       }
       packagesByNamespace = packagesByNamespace + (pkg.namespace -> pkg)
       pkg
+    }
+  }
+
+  /** Write dirty metadata to the cache */
+  def flush(): Unit = {
+    ServerOps.debugTime("Org flushed") {
+      OrgImpl.current.withValue(this) {
+        ParsedCache.create match {
+          case Left(err) => ServerOps.error(err)
+          case Right(pc) => packagesByNamespace.values.foreach(_.flush(pc))
+        }
+      }
     }
   }
 

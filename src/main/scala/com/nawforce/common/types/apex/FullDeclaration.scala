@@ -27,28 +27,30 @@
 */
 package com.nawforce.common.types.apex
 
-import com.nawforce.common.api.{ServerOps, TypeSummary}
+import java.nio.charset.StandardCharsets
+
+import com.nawforce.common.api.{ApexSummary, ServerOps, TypeSummary}
 import com.nawforce.common.cst._
-import com.nawforce.common.documents.{LineLocationImpl, LocationImpl, TextRange}
+import com.nawforce.common.documents._
 import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.pkg.PackageImpl
 import com.nawforce.common.types._
 import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.runtime.parsers.CodeParser
+import upickle.default.writeBinary
 
 import scala.collection.mutable
-import scala.util.hashing.MurmurHash3
 
 /* Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
-abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageImpl, val outerTypeName: Option[TypeName],
+abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val outerTypeName: Option[TypeName],
                                val id: Id, _modifiers: Seq[Modifier],
                                val superClass: Option[TypeName], val interfaces: Seq[TypeName],
                                val bodyDeclarations: Seq[ClassBodyDeclaration])
   extends ClassBodyDeclaration(_modifiers) with ApexDeclaration {
 
+  lazy val sourceHash: Int = source.hash
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override val nameLocation: LocationImpl = id.location
   override val name: Name = id.name
@@ -88,6 +90,15 @@ abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageImpl, val ou
       case m: ApexMethodDeclaration => Some(m)
       case _ => None
     })
+  }
+
+  override def flush(pc: ParsedCache, context: PackageContext): Unit = {
+    val diagnostics = pkg.org.issues.getDiagnostics(getPath.toString)
+    pc.upsert(source.code.getBytes(StandardCharsets.UTF_8), writeBinary(ApexSummary(summary, diagnostics)), context)
+  }
+
+  override def propagateAllDependencies(): Unit = {
+    // Not needed, dependencies are propagtes by default during validation
   }
 
   override def validate(): Unit = {
@@ -158,12 +169,13 @@ abstract class FullDeclaration(val sourceHash: Int, val pkg: PackageImpl, val ou
       nature.value, modifiers.map(_.toString).sorted.toList,
       superClass,
       interfaces.toList,
-      blocks.map(_.summary(ns)).toList,
-      localFields.map(_.summary(ns)).sortBy(_.name).toList,
-      constructors.map(_.summary(ns)).sortBy(_.parameters.size).toList,
-      localMethods.map(_.summary(ns)).sortBy(_.name).toList,
+      blocks.map(_.summary()).toList,
+      localFields.map(_.summary()).sortBy(_.name).toList,
+      constructors.map(_.summary()).sortBy(_.parameters.size).toList,
+      localMethods.map(_.summary()).sortBy(_.name).toList,
       nestedTypes.map(_.summary).sortBy(_.name).toList,
-      dependencySummary(ns)
+      dependencySummary(),
+      getTypeDependencyHolders.toSet
     )
   }
 }
@@ -176,29 +188,28 @@ object FullDeclaration {
         OrgImpl.logError(LineLocationImpl(path.toString, err.line), err.message)
         None
       case Right(cu) =>
-        val sourceHash = MurmurHash3.stringHash(data)
-        Some(CompilationUnit.construct(sourceHash, pkg, path, cu, new ConstructContext()).typeDeclaration())
+        Some(CompilationUnit.construct(Source(data), pkg, path, cu, new ConstructContext()).typeDeclaration())
     }
   }
 
-  def construct(sourceHash: Int, pkg: PackageImpl, outerTypeName: Option[TypeName], typeDecl: TypeDeclarationContext,
+  def construct(source: Source, pkg: PackageImpl, outerTypeName: Option[TypeName], typeDecl: TypeDeclarationContext,
                 context: ConstructContext): FullDeclaration = {
 
     val modifiers: Seq[ModifierContext] = CodeParser.toScala(typeDecl.modifier())
     val isOuter = outerTypeName.isEmpty
 
     val cst = CodeParser.toScala(typeDecl.classDeclaration())
-      .map(cd => ClassDeclaration.construct(sourceHash, pkg, outerTypeName,
+      .map(cd => ClassDeclaration.construct(source, pkg, outerTypeName,
         ApexModifiers.classModifiers(modifiers, context, outer = isOuter, cd.id()),
         cd, context)
       )
     .orElse(CodeParser.toScala(typeDecl.interfaceDeclaration())
-      .map(id => InterfaceDeclaration.construct(sourceHash, pkg, outerTypeName,
+      .map(id => InterfaceDeclaration.construct(source, pkg, outerTypeName,
         ApexModifiers.interfaceModifiers(modifiers, context, outer = isOuter, id.id()),
         id, context)
       ))
     .orElse(CodeParser.toScala(typeDecl.enumDeclaration())
-      .map(ed => EnumDeclaration.construct(sourceHash, pkg, outerTypeName,
+      .map(ed => EnumDeclaration.construct(source, pkg, outerTypeName,
         ApexModifiers.enumModifiers(modifiers, context, outer = isOuter, ed.id()),
         ed, context)
       ))
