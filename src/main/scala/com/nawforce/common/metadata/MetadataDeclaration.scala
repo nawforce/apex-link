@@ -32,7 +32,6 @@ import com.nawforce.common.names.Name
 
 trait MetadataDeclaration extends DependencyHolder {
   val internalName: Name
-  val isSearchable: Boolean = true
 
   def validate(): Unit
 }

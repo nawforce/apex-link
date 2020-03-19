@@ -45,7 +45,7 @@ class NamedTypeDeclaration(pkg: PackageImpl, val typeName: TypeName)
 
   override val superClass: Option[TypeName] = None
   override val interfaces: Seq[TypeName] = Seq.empty
-  override val nestedTypes: Seq[TypeDeclaration] = Seq.empty
+  override def nestedTypes: Seq[TypeDeclaration] = Seq.empty
 
   override val blocks: Seq[BlockDeclaration] = Seq.empty
   override val fields: Seq[FieldDeclaration]= Seq.empty
@@ -53,4 +53,9 @@ class NamedTypeDeclaration(pkg: PackageImpl, val typeName: TypeName)
   override val methods: Seq[MethodDeclaration]= Seq.empty
 
   override def validate(): Unit = {}
+}
+
+class InnerNamedTypeDeclaration(_pkg: PackageImpl, _typeName: TypeName)
+  extends NamedTypeDeclaration(_pkg, _typeName) {
+  override val outerTypeName: Option[TypeName] = typeName.outer
 }

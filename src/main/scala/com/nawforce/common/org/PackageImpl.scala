@@ -30,7 +30,7 @@ package com.nawforce.common.org
 
 import com.nawforce.common.cst.UnusedLog
 import com.nawforce.common.diagnostics.IssueLog
-import com.nawforce.common.documents.{ComponentDocument, DocumentIndex, MetadataDocumentType, PackageContext}
+import com.nawforce.common.documents.{ComponentDocument, DocumentIndex, FlowDocument, MetadataDocumentType, PackageContext}
 import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.metadata.MetadataDeclaration
@@ -57,7 +57,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   private val anyDeclaration = AnyDeclaration(this)
   private val labelDeclaration = LabelDeclaration(this)
   private val pageDeclaration = PageDeclaration(this)
-  private val flowDeclaration = FlowDeclaration(this)
+  private val interviewDeclaration = new InterviewDeclaration(this)
   private val componentDeclaration = ComponentDeclaration(this)
 
   initTypes()
@@ -70,7 +70,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     upsertMetadata(labelDeclaration)
     upsertMetadata(labelDeclaration, Some(TypeName(labelDeclaration.name)))
     upsertMetadata(pageDeclaration)
-    upsertMetadata(flowDeclaration)
+    upsertMetadata(interviewDeclaration)
     upsertMetadata(componentDeclaration)
   }
 
@@ -129,22 +129,22 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     }
   }
 
-  // TODO: Would be nice to standardise this special case
-  def upsertComponent(namespace: Option[Name], component: ComponentDocument): Unit = {
-    componentDeclaration.upsertComponent(namespace, component)
-  }
-
   // Upsert some metadata to the package
   def upsertMetadata(md: MetadataDeclaration, altTypeName: Option[TypeName]=None): Unit = {
     md match {
       case td: TypeDeclaration if td.isSearchable =>
         types.put(altTypeName.getOrElse(td.typeName), td)
+      case cd: ComponentDocument =>
+        componentDeclaration.upsert(namespace, cd)
+      case fd: FlowDocument =>
+        interviewDeclaration.upsert(namespace, fd)
       case _ =>
         other.put(md.internalName, md)
     }
   }
 
   // Remove some metadata from the package
+  // Future: Support component & flow removal
   def removeMetadata(md: MetadataDeclaration): Unit = {
     md match {
       case td: TypeDeclaration if td.isSearchable =>

@@ -27,8 +27,6 @@
 */
 package com.nawforce.common.types.other
 
-import java.util.concurrent.ConcurrentHashMap
-
 import com.nawforce.common.cst.Modifier
 import com.nawforce.common.documents.ComponentDocument
 import com.nawforce.common.finding.TypeRequest
@@ -38,7 +36,6 @@ import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
 import com.nawforce.common.types.platform.PlatformTypes
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 final case class ComponentDeclaration(pkg: PackageImpl) extends TypeDeclaration {
@@ -71,7 +68,7 @@ final case class ComponentDeclaration(pkg: PackageImpl) extends TypeDeclaration 
 
   override def validate(): Unit = {}
 
-  def upsertComponent(namespace: Option[Name], component: ComponentDocument): Unit = {
+  def upsert(namespace: Option[Name], component: ComponentDocument): Unit = {
     getNamespaceContainer(Name.c).foreach(_.upsertComponent(component))
     if (namespace.nonEmpty)
       getNamespaceContainer(namespace.get).foreach(_.upsertComponent(component))
@@ -112,7 +109,7 @@ final case class CustomComponent(pkg: PackageImpl, name: Name, typeName: TypeNam
 }
 
 final case class ComponentNamespace(pkg: PackageImpl, name: Name) extends TypeDeclaration {
-  private val components = new ConcurrentHashMap[Name, TypeDeclaration]()
+  private val components = mutable.HashMap[Name, TypeDeclaration]()
 
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override val typeName: TypeName = TypeName(name)
@@ -124,7 +121,7 @@ final case class ComponentNamespace(pkg: PackageImpl, name: Name) extends TypeDe
 
   override val superClass: Option[TypeName] = None
   override val interfaces: Seq[TypeName] = Nil
-  override def nestedTypes: Seq[TypeDeclaration] = components.values.asScala.toSeq
+  override def nestedTypes: Seq[TypeDeclaration] = components.values.toSeq
 
   override val blocks: Seq[BlockDeclaration] = Nil
   override val fields: Seq[FieldDeclaration]= Nil

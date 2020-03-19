@@ -57,6 +57,7 @@ object PlatformTypes {
   lazy val blobType: TypeDeclaration = loadType(TypeName.Blob)
   lazy val locationType: TypeDeclaration = loadType(TypeName.Location)
   lazy val componentType: TypeDeclaration = loadType(TypeName.ApexPagesComponent)
+  lazy val interviewType: TypeDeclaration = loadType(TypeName.Interview)
 
   private def loadType(typeName: TypeName): TypeDeclaration = {
     PlatformTypeDeclaration.get(typeName, None).right.get
@@ -120,11 +121,9 @@ object PlatformTypes {
   }
 
   private def fireLoadingEvents(td: TypeDeclaration): Unit= {
-    synchronized {
-      loadingObservers = loadingObservers.filter(_.get.nonEmpty)
-      val ptd = td.asInstanceOf[PlatformTypeDeclaration]
-      loadingObservers.foreach(_.get.map(_.loaded(ptd)))
-    }
+    loadingObservers = loadingObservers.filter(_.get.nonEmpty)
+    val ptd = td.asInstanceOf[PlatformTypeDeclaration]
+    loadingObservers.foreach(_.get.map(_.loaded(ptd)))
   }
 
   private val typeAliasMap: Map[TypeName, TypeName] = Map(

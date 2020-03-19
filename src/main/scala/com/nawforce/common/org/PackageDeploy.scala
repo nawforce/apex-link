@@ -19,6 +19,7 @@ trait PackageDeploy {
 
     loadCustomObjects()
     loadComponents()
+    loadFlows()
     loadClasses()
     loadTriggers()
 
@@ -48,11 +49,21 @@ trait PackageDeploy {
     }
   }
 
+  private def loadFlows(): Unit = {
+    val docs = documentsByExtension(Name("flow"))
+    ServerOps.debugTime(s"Parsed ${docs.size} flows", docs.nonEmpty) {
+      docs.foreach {
+        case docType: FlowDocument => upsertMetadata(docType)
+        case _ => assert(false); Seq()
+      }
+    }
+  }
+
   private def loadComponents(): Unit = {
     val docs = documentsByExtension(Name("component"))
     ServerOps.debugTime(s"Parsed ${docs.size} components", docs.nonEmpty) {
       docs.foreach {
-        case docType: ComponentDocument => upsertComponent(namespace, docType)
+        case docType: ComponentDocument => upsertMetadata(docType)
         case _ => assert(false); Seq()
       }
     }

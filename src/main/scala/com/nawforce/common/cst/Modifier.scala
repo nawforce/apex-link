@@ -169,7 +169,7 @@ object ApexModifiers {
         PUBLIC_MODIFIER +: mods
       } else if (mods.intersect(visibilityModifiers).size > 1) {
         OrgImpl.logWarning(CodeParser.getRangeLocation(idContext),
-          s"Only one visibility modifier from 'global', 'public' & 'private' may be used on classes")
+          s"Only one visibility modifier from 'global', 'public' & 'private' should be used on classes")
         PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
       } else if (mods.intersect(sharingModifiers).size > 1) {
         OrgImpl.logError(CodeParser.getRangeLocation(idContext),
@@ -219,7 +219,7 @@ object ApexModifiers {
         PUBLIC_MODIFIER +: mods
       } else if (mods.intersect(visibilityModifiers).size > 1) {
         OrgImpl.logWarning(CodeParser.getRangeLocation(idContext),
-          s"Only one visibility modifier from 'global', 'public' & 'private' may be used on interfaces")
+          s"Only one visibility modifier from 'global', 'public' & 'private' should be used on interfaces")
         PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
       } else {
         mods
@@ -264,7 +264,7 @@ object ApexModifiers {
         PUBLIC_MODIFIER +: mods
       } else if (mods.intersect(visibilityModifiers).size > 1) {
         OrgImpl.logWarning(CodeParser.getRangeLocation(idContext),
-          s"Only one visibility modifier from 'global', 'public' & 'private' may be used on enums")
+          s"Only one visibility modifier from 'global', 'public' & 'private' should be used on enums")
         PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
       } else {
         mods
@@ -305,7 +305,7 @@ object ApexModifiers {
       mods.toSet.toSeq
     } else if (mods.intersect(visibilityModifiers).size > 1) {
       OrgImpl.logWarning(CodeParser.getRangeLocation(idContext),
-        s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' may be used on fields")
+        s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' should be used on fields")
       PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
     } else if (mods.intersect(visibilityModifiers).isEmpty && mods.contains(WEBSERVICE_MODIFIER)) {
       GLOBAL_MODIFIER +: mods
@@ -342,7 +342,7 @@ object ApexModifiers {
       mods.toSet.toSeq
     } else if (mods.intersect(visibilityModifiers).size > 1) {
       OrgImpl.logWarning(CodeParser.getRangeLocation(idContext),
-        s"Only one visibility modifier from 'global, 'public', 'protected' & 'private' may be used on property set/get")
+        s"Only one visibility modifier from 'global, 'public', 'protected' & 'private' should be used on property set/get")
       mods.diff(visibilityModifiers)
     } else {
       mods
@@ -376,7 +376,7 @@ object ApexModifiers {
       mods.toSet.toSeq
     } else if (mods.intersect(visibilityModifiers).size > 1) {
       OrgImpl.logWarning(CodeParser.getRangeLocation(parserContext),
-        s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' may be used on methods")
+        s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' should be used on methods")
       PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
     } else if (mods.intersect(visibilityModifiers).isEmpty) {
       PRIVATE_MODIFIER +: mods
@@ -420,7 +420,7 @@ object ApexModifiers {
       mods.toSet.toSeq
     } else if (mods.intersect(visibilityModifiers).size > 1) {
       OrgImpl.logWarning(CodeParser.getRangeLocation(idContext),
-        s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' may be used on methods")
+        s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' should be used on methods")
       mods.diff(visibilityModifiers)
     } else if (mods.intersect(visibilityModifiers).isEmpty && mods.contains(WEBSERVICE_MODIFIER)) {
       GLOBAL_MODIFIER +: mods

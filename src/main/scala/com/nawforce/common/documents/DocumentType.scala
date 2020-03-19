@@ -27,6 +27,7 @@
 */
 package com.nawforce.common.documents
 
+import com.nawforce.common.metadata.MetadataDeclaration
 import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathLike
 
@@ -61,8 +62,10 @@ final case class ApexTriggerDocument(_path: PathLike, _name: Name)
 }
 
 final case class ComponentDocument(_path: PathLike, _name: Name)
-  extends MetadataDocumentType(_path, _name) {
-  lazy val extension: Name = Name("component")
+  extends MetadataDocumentType(_path, _name) with MetadataDeclaration {
+  override lazy val extension: Name = Name("component")
+  override lazy val internalName: Name = Name(s"Component$$.$name")
+  override def validate(): Unit = {}
 }
 
 abstract class SObjectLike(_path: PathLike, _name: Name) extends MetadataDocumentType(_path, _name)
@@ -98,6 +101,13 @@ final case class PageDocument(_path: PathLike, _name: Name)
   lazy val extension: Name = Name("page")
 }
 
+final case class FlowDocument(_path: PathLike, _name: Name)
+  extends MetadataDocumentType(_path, _name) with MetadataDeclaration {
+  override lazy val extension: Name = Name("flow")
+  override lazy val internalName: Name = Name(s"Flow$$.$name")
+  override def validate(): Unit = {}
+}
+
 object DocumentType {
   def apply(path: PathLike): Option[DocumentType] = {
     splitFilename(path) match {
@@ -130,6 +140,11 @@ object DocumentType {
 
       case Seq(name, Name("fieldset-meta"), Name("xml")) =>
         Some(SObjectFieldSetDocument(path, name))
+
+      case Seq(name, Name("flow")) =>
+        Some(FlowDocument(path, name))
+      case Seq(name, Name("flow-meta"), Name("xml")) =>
+        Some(FlowDocument(path, name))
 
       case Seq(name, Name("labels")) =>
         Some(LabelsDocument(path, name))

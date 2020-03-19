@@ -60,9 +60,7 @@ class RelatedLists(pkg: PackageImpl) {
   def add(sObject: TypeName, relationshipName: Name, holdingFieldName: Name, holdingSObject: TypeName, location: LocationImpl): Unit = {
     val encodedName = EncodedName(relationshipName).defaultNamespace(pkg.namespace).fullName
     val field = CustomFieldDeclaration(encodedName, TypeName.recordSetOf(holdingSObject))
-    synchronized {
-      relationshipFields.put(sObject, (field, holdingFieldName, location) +: relationshipFields(sObject))
-    }
+    relationshipFields.put(sObject, (field, holdingFieldName, location) +: relationshipFields(sObject))
   }
 
   /* Post object loading validation to make sure relationships exist */
@@ -211,7 +209,7 @@ final case class SObjectTypeFields(sobjectName: Name, pkg: PackageImpl)
 
     sobjectFields.get(name)
       .orElse(ghostedSobjectFields.get(name))
-      .orElse(synchronized {
+      .orElse({
         val typeName = EncodedName(name).asTypeName
         if (pkg.isGhostedType(typeName)) {
           ghostedSobjectFields.put(name, CustomFieldDeclaration(name, TypeName.DescribeFieldResult))
@@ -253,7 +251,7 @@ final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
     // TODO: check staticContext
     sobjectFields.get(name)
       .orElse(ghostedSobjectFields.get(name))
-      .orElse(synchronized {
+      .orElse({
         val typeName = EncodedName(name).asTypeName
         if (pkg.isGhostedType(typeName)) {
           ghostedSobjectFields.put(name, CustomFieldDeclaration(name, TypeName.SObjectField))

@@ -115,6 +115,7 @@ object Name {
   lazy val Page: Name = cache("Page")
   lazy val Component: Name = cache("Component")
   lazy val Flow: Name = cache("Flow")
+  lazy val Interview: Name = cache("Interview")
   lazy val c: Name = cache("c")
   lazy val String: Name = cache("String")
   lazy val Id: Name = cache("Id")

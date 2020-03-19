@@ -210,6 +210,8 @@ object TypeDeclaration {
 trait TypeDeclaration extends MetadataDeclaration {
   val tid: TypeDeclaration.TID = TypeDeclaration.getAndIncrementTID()
   override lazy val internalName: Name = Name(typeName.toString)
+  val isSearchable: Boolean = true
+
   val packageDeclaration: Option[PackageImpl]
   val name: Name
   val typeName: TypeName
@@ -253,33 +255,31 @@ trait TypeDeclaration extends MetadataDeclaration {
   }
 
   protected def findFieldSObject(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
-    this.synchronized {
-      val fieldOption = fieldsByName.get(name)
-      if (fieldOption.isEmpty) {
-        if (name == Name.SObjectField)
-          return Some(CustomFieldDeclaration(Name.SObjectField, TypeName.sObjectFields$(typeName)))
-        else
-          return None
-      }
+    val fieldOption = fieldsByName.get(name)
+    if (fieldOption.isEmpty) {
+      if (name == Name.SObjectField)
+        return Some(CustomFieldDeclaration(Name.SObjectField, TypeName.sObjectFields$(typeName)))
+      else
+        return None
+    }
 
-      val field = fieldOption.get
-      if (staticContext.contains(field.isStatic)) {
-        fieldOption
-      } else if (staticContext.contains(true)) {
-        if (CustomFieldDeclaration.isSObjectPrimitive(field.typeName)) {
-          // TODO: Identify Share
-          if (name == Name.RowCause)
-            Some(CustomFieldDeclaration(field.name, TypeName.SObjectFieldRowCause$, asStatic = true))
-          else
-            Some(CustomFieldDeclaration(field.name, TypeName.SObjectField, asStatic = true))
-        } else {
-          // Make sure SObject is loaded so fields can be found
-          PlatformTypes.get(field.typeName, None)
-          Some(CustomFieldDeclaration(field.name, TypeName.sObjectFields$(field.typeName), asStatic = true))
-        }
+    val field = fieldOption.get
+    if (staticContext.contains(field.isStatic)) {
+      fieldOption
+    } else if (staticContext.contains(true)) {
+      if (CustomFieldDeclaration.isSObjectPrimitive(field.typeName)) {
+        // TODO: Identify Share
+        if (name == Name.RowCause)
+          Some(CustomFieldDeclaration(field.name, TypeName.SObjectFieldRowCause$, asStatic = true))
+        else
+          Some(CustomFieldDeclaration(field.name, TypeName.SObjectField, asStatic = true))
       } else {
-        None
+        // Make sure SObject is loaded so fields can be found
+        PlatformTypes.get(field.typeName, None)
+        Some(CustomFieldDeclaration(field.name, TypeName.sObjectFields$(field.typeName), asStatic = true))
       }
+    } else {
+      None
     }
   }
 
