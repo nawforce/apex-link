@@ -140,7 +140,7 @@ object SObjectDetails {
         entries.filter(_.endsWith(".field-meta.xml"))
           .flatMap(entry => {
             val fieldPath = fieldsDir.join(entry)
-            if (fieldPath.size > 0) {
+            try {
               val parseResult = XMLFactory.parse(fieldPath)
               if (parseResult.isLeft) {
                 OrgImpl.logError(parseResult.left.get._1, parseResult.left.get._2)
@@ -150,36 +150,40 @@ object SObjectDetails {
                 rootElement.assertIs("CustomField")
                 CustomFieldDeclaration.parseField(rootElement, fieldPath, pkg, sObjectType, sObjectNature)
               }
-            } else {
-              None
+            } catch {
+              case e: XMLException =>
+                OrgImpl.logError(RangeLocationImpl(fieldPath, e.where), e.msg)
+                None
             }
           })
     }
   }
 
   private def parseSfdxFieldSets(path: PathLike, pkg: PackageImpl): Seq[Name] = {
-    val fieldsDir = path.parent.join("fieldSets")
-    if (!fieldsDir.isDirectory)
+    val fieldSetDir = path.parent.join("fieldSets")
+    if (!fieldSetDir.isDirectory)
       return Seq()
 
-    fieldsDir.directoryList() match {
+    fieldSetDir.directoryList() match {
       case Left(_) => Seq()
       case Right(entries) =>
         entries.filter(_.endsWith(".fieldSet-meta.xml"))
           .flatMap(entry => {
-            val fieldPath = fieldsDir.join(entry)
-            if (fieldPath.size > 0) {
-              val parseResult = XMLFactory.parse(fieldPath)
+            val fieldSetsPaths = fieldSetDir.join(entry)
+            try {
+              val parseResult = XMLFactory.parse(fieldSetsPaths)
               if (parseResult.isLeft) {
                 OrgImpl.logError(parseResult.left.get._1, parseResult.left.get._2)
                 None
               } else {
                 val rootElement = parseResult.right.get.rootElement
                 rootElement.assertIs("FieldSet")
-                Some(parseFieldSet(rootElement, fieldPath, pkg))
+                Some(parseFieldSet(rootElement, fieldSetsPaths, pkg))
               }
-            } else {
-              None
+            } catch {
+              case e: XMLException =>
+                OrgImpl.logError(RangeLocationImpl(fieldSetsPaths, e.where), e.msg)
+                None
             }
           })
     }
