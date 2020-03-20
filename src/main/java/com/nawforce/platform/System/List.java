@@ -31,6 +31,7 @@ public class List<T> implements Iterable<T> {
     public void set(Integer index, T listElement) {throw new java.lang.UnsupportedOperationException();}
     public Integer size() {throw new java.lang.UnsupportedOperationException();}
     public void sort() {throw new java.lang.UnsupportedOperationException();}
+    public String toString$() {throw new java.lang.UnsupportedOperationException();}
 
     public List<T> clone$() {throw new java.lang.UnsupportedOperationException();}
     public Integer hashCode$() {throw new java.lang.UnsupportedOperationException();}

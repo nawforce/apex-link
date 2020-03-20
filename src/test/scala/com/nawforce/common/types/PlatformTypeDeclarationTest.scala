@@ -243,6 +243,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
       "public void set(System.Integer index, System.String listElement)",
       "public System.Integer size()",
       "public void sort()",
+      "public System.String toString()",
       "public System.Boolean equals(System.List<System.String> other)",
       "public System.Integer hashCode()"
     ).sorted.mkString("\n"))

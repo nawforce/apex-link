@@ -24,6 +24,8 @@ public class Set<T> {
     public Boolean retainAll(List<T> listOfElementsToRetain) {throw new java.lang.UnsupportedOperationException();}
     public Boolean retainAll(Set<T> setOfElementsToRetain) {throw new java.lang.UnsupportedOperationException();}
     public Integer size() {throw new java.lang.UnsupportedOperationException();}
+    public String toString$() {throw new java.lang.UnsupportedOperationException();}
+
     public Iterator<T> iterator() {throw new java.lang.UnsupportedOperationException();}
 
     public Set<T> clone$() {throw new java.lang.UnsupportedOperationException();}

@@ -24,6 +24,7 @@ public class Map<K, V> {
     public void putAll(List<SObject> sobjectArray) {throw new java.lang.UnsupportedOperationException();}
     public V remove(K key) {throw new java.lang.UnsupportedOperationException();}
     public Integer size() {throw new java.lang.UnsupportedOperationException();}
+    public String toString$() {throw new java.lang.UnsupportedOperationException();}
     public List<V> values() {throw new java.lang.UnsupportedOperationException();}
 
     public Map<K, V> clone$() {throw new java.lang.UnsupportedOperationException();}

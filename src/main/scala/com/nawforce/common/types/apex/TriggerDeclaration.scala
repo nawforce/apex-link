@@ -30,7 +30,7 @@ package com.nawforce.common.types.apex
 import com.nawforce.common.api.ServerOps
 import com.nawforce.common.cst._
 import com.nawforce.common.documents.LineLocationImpl
-import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
@@ -53,7 +53,7 @@ class TriggerDeclaration(path: PathLike, val pkg: PackageImpl, name: Id, objectN
 
   override val isSearchable: Boolean = false
 
-  private val objectTypeName = TypeName(objectName.name)
+  private val objectTypeName = EncodedName(objectName.name).asTypeName
 
   override def validate(): Unit = {
     ServerOps.debugTime(s"Validated $path") {
@@ -65,9 +65,11 @@ class TriggerDeclaration(path: PathLike, val pkg: PackageImpl, name: Id, objectN
 
       val context = new TriggerVerifyContext(pkg, this)
       val tdOpt = context.getTypeAndAddDependency(objectTypeName, Some(this))
+
       tdOpt match {
         case Left(error) =>
-          OrgImpl.log(error.asIssue(objectName.location))
+          if (!pkg.isGhostedType(objectTypeName))
+            OrgImpl.log(error.asIssue(objectName.location))
         case Right(_) =>
           val triggerContext = context.getTypeFor(TypeName.trigger(objectTypeName), Some(this)).right.get
           val tc = TriggerContext(pkg, triggerContext)
