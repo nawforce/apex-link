@@ -51,4 +51,10 @@ public class BusinessProcess extends SObject {
 	public String NamespacePrefix;
 	public Datetime SystemModstamp;
 	public String TableEnumOrId;
+
+	public BusinessProcess clone$() {throw new java.lang.UnsupportedOperationException();}
+	public BusinessProcess clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public BusinessProcess clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public BusinessProcess clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public BusinessProcess clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

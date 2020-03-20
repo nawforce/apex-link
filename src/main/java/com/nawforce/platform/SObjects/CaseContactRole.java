@@ -52,4 +52,10 @@ public class CaseContactRole extends SObject {
 	public Datetime LastModifiedDate;
 	public String Role;
 	public Datetime SystemModstamp;
+
+	public CaseContactRole clone$() {throw new java.lang.UnsupportedOperationException();}
+	public CaseContactRole clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public CaseContactRole clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public CaseContactRole clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public CaseContactRole clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -56,4 +56,10 @@ public class DatasetExportPart extends SObject {
 	public String Owner;
 	public Integer PartNumber;
 	public Datetime SystemModstamp;
+
+	public DatasetExportPart clone$() {throw new java.lang.UnsupportedOperationException();}
+	public DatasetExportPart clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public DatasetExportPart clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public DatasetExportPart clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public DatasetExportPart clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -29,10 +29,9 @@ package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.System.Decimal;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class AuraDefinitionBundleInfo extends SObject {
@@ -47,4 +46,10 @@ public class AuraDefinitionBundleInfo extends SObject {
 	public String NamespacePrefix;
 
 	public AuraDefinitionInfo[] Bundle;
+
+	public AuraDefinitionBundleInfo clone$() {throw new java.lang.UnsupportedOperationException();}
+	public AuraDefinitionBundleInfo clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public AuraDefinitionBundleInfo clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public AuraDefinitionBundleInfo clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public AuraDefinitionBundleInfo clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

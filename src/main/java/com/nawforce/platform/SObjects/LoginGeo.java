@@ -55,4 +55,10 @@ public class LoginGeo extends SObject {
 	public String PostalCode;
 	public String Subdivision;
 	public Datetime SystemModstamp;
+
+	public LoginGeo clone$() {throw new java.lang.UnsupportedOperationException();}
+	public LoginGeo clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public LoginGeo clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public LoginGeo clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public LoginGeo clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

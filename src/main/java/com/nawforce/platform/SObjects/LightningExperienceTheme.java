@@ -55,4 +55,10 @@ public class LightningExperienceTheme extends SObject {
 	public String NamespacePrefix;
 	public Boolean ShouldOverrideLoadingImage;
 	public Datetime SystemModstamp;
+
+	public LightningExperienceTheme clone$() {throw new java.lang.UnsupportedOperationException();}
+	public LightningExperienceTheme clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public LightningExperienceTheme clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public LightningExperienceTheme clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public LightningExperienceTheme clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

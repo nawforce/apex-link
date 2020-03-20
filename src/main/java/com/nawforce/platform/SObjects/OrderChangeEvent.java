@@ -107,4 +107,10 @@ public class OrderChangeEvent extends SObject {
 	public String StatusCode;
 	public Decimal TotalAmount;
 	public String Type;
+
+	public OrderChangeEvent clone$() {throw new java.lang.UnsupportedOperationException();}
+	public OrderChangeEvent clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public OrderChangeEvent clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public OrderChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public OrderChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

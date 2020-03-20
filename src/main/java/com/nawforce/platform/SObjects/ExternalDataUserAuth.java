@@ -56,4 +56,10 @@ public class ExternalDataUserAuth extends SObject {
 	public Id UserId;
 	public User User;
 	public String Username;
+
+	public ExternalDataUserAuth clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ExternalDataUserAuth clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ExternalDataUserAuth clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ExternalDataUserAuth clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ExternalDataUserAuth clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

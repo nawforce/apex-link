@@ -52,4 +52,10 @@ public class AuthConfigProviders extends SObject {
 	public User LastModifiedBy;
 	public Datetime LastModifiedDate;
 	public Datetime SystemModstamp;
+
+	public AuthConfigProviders clone$() {throw new java.lang.UnsupportedOperationException();}
+	public AuthConfigProviders clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public AuthConfigProviders clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public AuthConfigProviders clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public AuthConfigProviders clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

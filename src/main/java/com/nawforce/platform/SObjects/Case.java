@@ -111,4 +111,10 @@ public class Case extends SObject {
 	public CaseTeamMember[] TeamMembers;
 	public CaseTeamTemplateRecord[] TeamTemplateRecords;
 	public TopicAssignment[] TopicAssignments;
+
+	public Case clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Case clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Case clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Case clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Case clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

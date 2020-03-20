@@ -28,7 +28,6 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -58,4 +57,10 @@ public class MatchingRule extends SObject {
 	public Datetime SystemModstamp;
 
 	public MatchingRuleItem[] MatchingRuleItems;
+
+	public MatchingRule clone$() {throw new java.lang.UnsupportedOperationException();}
+	public MatchingRule clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public MatchingRule clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public MatchingRule clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public MatchingRule clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -66,4 +66,10 @@ public class Territory2Model extends SObject {
 	public Territory2ModelHistory[] Histories;
 	public ObjectTerritory2AssignmentRule[] ObjectTerritory2AssignmentRules;
 	public Territory2[] Territory2s;
+
+	public Territory2Model clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Territory2Model clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Territory2Model clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Territory2Model clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Territory2Model clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

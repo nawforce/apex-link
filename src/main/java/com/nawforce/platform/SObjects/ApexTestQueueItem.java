@@ -52,4 +52,10 @@ public class ApexTestQueueItem extends SObject {
 	public Datetime SystemModstamp;
 	public Id TestRunResultId;
 	public ApexTestRunResult TestRunResult;
+
+	public ApexTestQueueItem clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ApexTestQueueItem clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ApexTestQueueItem clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ApexTestQueueItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ApexTestQueueItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

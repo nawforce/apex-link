@@ -94,4 +94,10 @@ public class Product2 extends SObject {
 	public RecordActionHistory[] RecordActionHistories;
 	public RecordAction[] RecordActions;
 	public Task[] Tasks;
+
+	public Product2 clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Product2 clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Product2 clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Product2 clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Product2 clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

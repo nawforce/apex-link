@@ -48,4 +48,10 @@ public class SOSSessionHistory extends SObject {
 	public Object OldValue;
 	public Id SOSSessionId;
 	public SOSSession SOSSession;
+
+	public SOSSessionHistory clone$() {throw new java.lang.UnsupportedOperationException();}
+	public SOSSessionHistory clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public SOSSessionHistory clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public SOSSessionHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public SOSSessionHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

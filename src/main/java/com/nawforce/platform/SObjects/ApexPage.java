@@ -58,4 +58,10 @@ public class ApexPage extends SObject {
 	public Datetime SystemModstamp;
 
 	public SetupEntityAccess[] SetupEntityAccessItems;
+
+	public ApexPage clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ApexPage clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ApexPage clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ApexPage clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ApexPage clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

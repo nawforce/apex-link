@@ -52,4 +52,10 @@ public class StampAssignment extends SObject {
 	public Id SubjectId;
 	public User Subject;
 	public Datetime SystemModstamp;
+
+	public StampAssignment clone$() {throw new java.lang.UnsupportedOperationException();}
+	public StampAssignment clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public StampAssignment clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public StampAssignment clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public StampAssignment clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

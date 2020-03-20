@@ -57,4 +57,10 @@ public class DatasetExport extends SObject {
 	public Datetime SystemModstamp;
 
 	public DatasetExportPart[] DatasetExportParts;
+
+	public DatasetExport clone$() {throw new java.lang.UnsupportedOperationException();}
+	public DatasetExport clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public DatasetExport clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public DatasetExport clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public DatasetExport clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

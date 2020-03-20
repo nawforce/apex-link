@@ -52,4 +52,10 @@ public class Period extends SObject {
 	public Date StartDate;
 	public Datetime SystemModstamp;
 	public String Type;
+
+	public Period clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Period clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Period clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Period clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Period clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

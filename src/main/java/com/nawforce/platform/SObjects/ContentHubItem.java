@@ -59,4 +59,10 @@ public class ContentHubItem extends SObject {
 	public String ParentId;
 	public String Title;
 	public String UpdatedBy;
+
+	public ContentHubItem clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ContentHubItem clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ContentHubItem clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ContentHubItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ContentHubItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

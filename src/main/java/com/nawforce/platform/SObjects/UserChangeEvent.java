@@ -212,4 +212,10 @@ public class UserChangeEvent extends SObject {
 	public UserRole UserRole;
 	public String UserType;
 	public String Username;
+
+	public UserChangeEvent clone$() {throw new java.lang.UnsupportedOperationException();}
+	public UserChangeEvent clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public UserChangeEvent clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public UserChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public UserChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

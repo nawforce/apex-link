@@ -82,4 +82,10 @@ public class OpenActivity extends SObject {
 	public Account What;
 	public Id WhoId;
 	public Contact Who;
+
+	public OpenActivity clone$() {throw new java.lang.UnsupportedOperationException();}
+	public OpenActivity clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public OpenActivity clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public OpenActivity clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public OpenActivity clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

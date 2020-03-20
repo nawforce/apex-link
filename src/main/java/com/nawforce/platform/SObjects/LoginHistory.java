@@ -61,4 +61,10 @@ public class LoginHistory extends SObject {
 	public String TlsProtocol;
 	public Id UserId;
 	public User User;
+
+	public LoginHistory clone$() {throw new java.lang.UnsupportedOperationException();}
+	public LoginHistory clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public LoginHistory clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public LoginHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public LoginHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

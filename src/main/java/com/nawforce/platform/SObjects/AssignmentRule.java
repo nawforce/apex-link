@@ -28,7 +28,6 @@
 package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectFields$;
-import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -48,4 +47,10 @@ public class AssignmentRule extends SObject {
 	public String Name;
 	public String SobjectType;
 	public Datetime SystemModstamp;
+
+	public AssignmentRule clone$() {throw new java.lang.UnsupportedOperationException();}
+	public AssignmentRule clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public AssignmentRule clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public AssignmentRule clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public AssignmentRule clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

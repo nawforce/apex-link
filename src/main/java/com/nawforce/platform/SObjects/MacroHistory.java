@@ -48,4 +48,10 @@ public class MacroHistory extends SObject {
 	public Macro Macro;
 	public Object NewValue;
 	public Object OldValue;
+
+	public MacroHistory clone$() {throw new java.lang.UnsupportedOperationException();}
+	public MacroHistory clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public MacroHistory clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public MacroHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public MacroHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

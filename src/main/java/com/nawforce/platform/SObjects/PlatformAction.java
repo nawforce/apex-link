@@ -71,4 +71,10 @@ public class PlatformAction extends SObject {
 	public String TargetObject;
 	public String TargetUrl;
 	public String Type;
+
+	public PlatformAction clone$() {throw new java.lang.UnsupportedOperationException();}
+	public PlatformAction clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public PlatformAction clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public PlatformAction clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public PlatformAction clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

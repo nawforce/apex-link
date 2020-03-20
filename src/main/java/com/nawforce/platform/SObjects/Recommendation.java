@@ -58,4 +58,10 @@ public class Recommendation extends SObject {
 	public String Name;
 	public String RejectionLabel;
 	public Datetime SystemModstamp;
+
+	public Recommendation clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Recommendation clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Recommendation clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Recommendation clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Recommendation clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

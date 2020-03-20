@@ -48,4 +48,10 @@ public class ConsumptionRateHistory extends SObject {
 	public Boolean IsDeleted;
 	public Object NewValue;
 	public Object OldValue;
+
+	public ConsumptionRateHistory clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ConsumptionRateHistory clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ConsumptionRateHistory clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ConsumptionRateHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ConsumptionRateHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

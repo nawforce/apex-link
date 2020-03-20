@@ -29,6 +29,7 @@ package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Datetime;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
@@ -50,4 +51,10 @@ public class UserPackageLicense extends SObject {
 	public Datetime SystemModstamp;
 	public Id UserId;
 	public User User;
+
+	public UserPackageLicense clone$() {throw new java.lang.UnsupportedOperationException();}
+	public UserPackageLicense clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public UserPackageLicense clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public UserPackageLicense clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public UserPackageLicense clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

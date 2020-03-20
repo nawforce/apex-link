@@ -53,4 +53,10 @@ public class RuleTerritory2Association extends SObject {
 	public Datetime SystemModstamp;
 	public Id Territory2Id;
 	public Territory2 Territory2;
+
+	public RuleTerritory2Association clone$() {throw new java.lang.UnsupportedOperationException();}
+	public RuleTerritory2Association clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public RuleTerritory2Association clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public RuleTerritory2Association clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public RuleTerritory2Association clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

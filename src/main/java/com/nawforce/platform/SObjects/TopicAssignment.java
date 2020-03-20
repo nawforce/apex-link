@@ -50,4 +50,10 @@ public class TopicAssignment extends SObject {
 	public Datetime SystemModstamp;
 	public Id TopicId;
 	public Topic Topic;
+
+	public TopicAssignment clone$() {throw new java.lang.UnsupportedOperationException();}
+	public TopicAssignment clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public TopicAssignment clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public TopicAssignment clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public TopicAssignment clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

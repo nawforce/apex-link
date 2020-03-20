@@ -55,4 +55,10 @@ public class Territory2Type extends SObject {
 	public Datetime SystemModstamp;
 
 	public Territory2[] Territory2s;
+
+	public Territory2Type clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Territory2Type clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Territory2Type clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Territory2Type clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Territory2Type clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

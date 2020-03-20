@@ -59,4 +59,10 @@ public class StreamingChannel extends SObject {
 
 	public ProcessInstance[] ProcessInstances;
 	public ProcessInstanceHistory[] ProcessSteps;
+
+	public StreamingChannel clone$() {throw new java.lang.UnsupportedOperationException();}
+	public StreamingChannel clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public StreamingChannel clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public StreamingChannel clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public StreamingChannel clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

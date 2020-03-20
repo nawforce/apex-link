@@ -105,4 +105,10 @@ public class Organization extends SObject {
 	public CombinedAttachment[] CombinedAttachments;
 	public ContentDocumentLink[] ContentDocumentLinks;
 	public CustomBrand[] CustomBrands;
+
+	public Organization clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Organization clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Organization clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Organization clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Organization clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

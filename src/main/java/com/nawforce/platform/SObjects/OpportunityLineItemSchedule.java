@@ -56,4 +56,10 @@ public class OpportunityLineItemSchedule extends SObject {
 	public Date ScheduleDate;
 	public Datetime SystemModstamp;
 	public String Type;
+
+	public OpportunityLineItemSchedule clone$() {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityLineItemSchedule clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityLineItemSchedule clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityLineItemSchedule clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityLineItemSchedule clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

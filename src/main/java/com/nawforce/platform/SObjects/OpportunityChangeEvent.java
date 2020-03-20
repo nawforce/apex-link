@@ -59,6 +59,7 @@ public class OpportunityChangeEvent extends SObject {
 	public Boolean IsClosed;
 	public Boolean IsExcludedFromTerritory2Filter;
 	public Boolean IsPrivate;
+	public Boolean IsSplit;
 	public Boolean IsWon;
 	public Id LastModifiedById;
 	public User LastModifiedBy;
@@ -79,4 +80,10 @@ public class OpportunityChangeEvent extends SObject {
 	public Territory2 Territory2;
 	public Decimal TotalOpportunityQuantity;
 	public String Type;
+
+	public OpportunityChangeEvent clone$() {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityChangeEvent clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityChangeEvent clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

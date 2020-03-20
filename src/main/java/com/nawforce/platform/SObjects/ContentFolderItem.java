@@ -56,4 +56,10 @@ public class ContentFolderItem extends SObject {
 	public ContentFolder ParentContentFolder;
 	public Datetime SystemModstamp;
 	public String Title;
+
+	public ContentFolderItem clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ContentFolderItem clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ContentFolderItem clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ContentFolderItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ContentFolderItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

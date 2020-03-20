@@ -29,10 +29,10 @@ package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
-
 
 @SuppressWarnings("unused")
 public class LightningUsageByPageMetrics extends SObject {
@@ -53,4 +53,10 @@ public class LightningUsageByPageMetrics extends SObject {
 	public Integer TotalCount;
 	public Id UserId;
 	public User User;
+
+	public LightningUsageByPageMetrics clone$() {throw new java.lang.UnsupportedOperationException();}
+	public LightningUsageByPageMetrics clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public LightningUsageByPageMetrics clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public LightningUsageByPageMetrics clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public LightningUsageByPageMetrics clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

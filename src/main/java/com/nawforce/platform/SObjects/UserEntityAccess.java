@@ -53,4 +53,10 @@ public class UserEntityAccess extends SObject {
 	public Boolean IsUpdatable;
 	public Id UserId;
 	public User User;
+
+	public UserEntityAccess clone$() {throw new java.lang.UnsupportedOperationException();}
+	public UserEntityAccess clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public UserEntityAccess clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public UserEntityAccess clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public UserEntityAccess clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -59,4 +59,10 @@ public class AttachedContentDocument extends SObject {
 	public Account LinkedEntity;
 	public String SharingOption;
 	public String Title;
+
+	public AttachedContentDocument clone$() {throw new java.lang.UnsupportedOperationException();}
+	public AttachedContentDocument clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public AttachedContentDocument clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public AttachedContentDocument clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public AttachedContentDocument clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

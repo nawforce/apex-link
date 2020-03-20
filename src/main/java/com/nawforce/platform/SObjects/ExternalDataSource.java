@@ -68,4 +68,10 @@ public class ExternalDataSource extends SObject {
 	public CustomHttpHeader[] CustomHttpHeaders;
 	public SetupEntityAccess[] SetupEntityAccessItems;
 	public ExternalDataUserAuth[] UserAuths;
+
+	public ExternalDataSource clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ExternalDataSource clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ExternalDataSource clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ExternalDataSource clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ExternalDataSource clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

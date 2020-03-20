@@ -74,4 +74,10 @@ public class OrderItem extends SObject {
 	public EntitySubscription[] FeedSubscriptionsForEntity;
 	public OrderItemFeed[] Feeds;
 	public OrderItemHistory[] Histories;
+
+	public OrderItem clone$() {throw new java.lang.UnsupportedOperationException();}
+	public OrderItem clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public OrderItem clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public OrderItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public OrderItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

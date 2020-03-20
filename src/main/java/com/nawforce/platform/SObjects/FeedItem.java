@@ -80,4 +80,10 @@ public class FeedItem extends SObject {
 	public FeedSignal[] FeedSignals;
 	public FeedTrackedChange[] FeedTrackedChanges;
 	public TopicAssignment[] TopicAssignments;
+
+	public FeedItem clone$() {throw new java.lang.UnsupportedOperationException();}
+	public FeedItem clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public FeedItem clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public FeedItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public FeedItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

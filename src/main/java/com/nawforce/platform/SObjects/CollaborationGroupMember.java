@@ -29,10 +29,9 @@ package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.System.Datetime;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class CollaborationGroupMember extends SObject {
@@ -46,6 +45,7 @@ public class CollaborationGroupMember extends SObject {
 	public User CreatedBy;
 	public Datetime CreatedDate;
 	public Id Id;
+	public Boolean IsActivityShared;
 	public Datetime LastFeedAccessDate;
 	public Id LastModifiedById;
 	public User LastModifiedBy;
@@ -54,4 +54,10 @@ public class CollaborationGroupMember extends SObject {
 	public User Member;
 	public String NotificationFrequency;
 	public Datetime SystemModstamp;
+
+	public CollaborationGroupMember clone$() {throw new java.lang.UnsupportedOperationException();}
+	public CollaborationGroupMember clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public CollaborationGroupMember clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public CollaborationGroupMember clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public CollaborationGroupMember clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

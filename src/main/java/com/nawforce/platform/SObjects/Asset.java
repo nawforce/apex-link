@@ -102,4 +102,10 @@ public class Asset extends SObject {
 	public AssetRelationship[] RelatedAssets;
 	public Task[] Tasks;
 	public TopicAssignment[] TopicAssignments;
+
+	public Asset clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Asset clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Asset clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Asset clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Asset clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

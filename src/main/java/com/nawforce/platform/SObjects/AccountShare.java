@@ -52,4 +52,10 @@ public class AccountShare extends SObject {
 	public String RowCause;
 	public Id UserOrGroupId;
 	public Group UserOrGroup;
+
+	public AccountShare clone$() {throw new java.lang.UnsupportedOperationException();}
+	public AccountShare clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public AccountShare clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public AccountShare clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public AccountShare clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

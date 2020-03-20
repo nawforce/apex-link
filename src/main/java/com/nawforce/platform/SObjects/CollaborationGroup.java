@@ -54,6 +54,7 @@ public class CollaborationGroup extends SObject {
 	public Id Id;
 	public String InformationBody;
 	public String InformationTitle;
+	public Boolean IsActivityGroup;
 	public Boolean IsArchived;
 	public Boolean IsAutoArchiveDisabled;
 	public Boolean IsBroadcast;
@@ -79,4 +80,12 @@ public class CollaborationGroup extends SObject {
 	public CollaborationGroupFeed[] Feeds;
 	public CollaborationGroupMemberRequest[] GroupMemberRequests;
 	public CollaborationGroupMember[] GroupMembers;
+	public RecordActionHistory[] RecordActionHistories;
+	public RecordAction[] RecordActions;
+
+	public CollaborationGroup clone$() {throw new java.lang.UnsupportedOperationException();}
+	public CollaborationGroup clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public CollaborationGroup clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public CollaborationGroup clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public CollaborationGroup clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

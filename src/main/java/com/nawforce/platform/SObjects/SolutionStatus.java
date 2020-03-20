@@ -53,4 +53,10 @@ public class SolutionStatus extends SObject {
 	public String MasterLabel;
 	public Integer SortOrder;
 	public Datetime SystemModstamp;
+
+	public SolutionStatus clone$() {throw new java.lang.UnsupportedOperationException();}
+	public SolutionStatus clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public SolutionStatus clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public SolutionStatus clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public SolutionStatus clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

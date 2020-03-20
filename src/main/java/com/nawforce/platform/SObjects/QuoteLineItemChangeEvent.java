@@ -66,4 +66,10 @@ public class QuoteLineItemChangeEvent extends SObject {
 	public Date ServiceDate;
 	public Integer SortOrder;
 	public Decimal UnitPrice;
+
+	public QuoteLineItemChangeEvent clone$() {throw new java.lang.UnsupportedOperationException();}
+	public QuoteLineItemChangeEvent clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public QuoteLineItemChangeEvent clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public QuoteLineItemChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public QuoteLineItemChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

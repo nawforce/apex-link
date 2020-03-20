@@ -59,4 +59,10 @@ public class EventLogFile extends SObject {
 	public Decimal LogFileLength;
 	public Integer Sequence;
 	public Datetime SystemModstamp;
+
+	public EventLogFile clone$() {throw new java.lang.UnsupportedOperationException();}
+	public EventLogFile clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public EventLogFile clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public EventLogFile clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public EventLogFile clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -52,4 +52,10 @@ public class AdditionalNumber extends SObject {
 	public String Name;
 	public String Phone;
 	public Datetime SystemModstamp;
+
+	public AdditionalNumber clone$() {throw new java.lang.UnsupportedOperationException();}
+	public AdditionalNumber clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public AdditionalNumber clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public AdditionalNumber clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public AdditionalNumber clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

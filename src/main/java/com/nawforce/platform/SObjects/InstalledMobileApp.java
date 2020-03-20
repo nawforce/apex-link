@@ -55,4 +55,10 @@ public class InstalledMobileApp extends SObject {
 	public Id UserId;
 	public User User;
 	public String Version;
+
+	public InstalledMobileApp clone$() {throw new java.lang.UnsupportedOperationException();}
+	public InstalledMobileApp clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public InstalledMobileApp clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public InstalledMobileApp clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public InstalledMobileApp clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

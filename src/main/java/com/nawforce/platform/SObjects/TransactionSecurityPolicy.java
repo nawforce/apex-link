@@ -61,4 +61,10 @@ public class TransactionSecurityPolicy extends SObject {
 	public String State;
 	public Datetime SystemModstamp;
 	public String Type;
+
+	public TransactionSecurityPolicy clone$() {throw new java.lang.UnsupportedOperationException();}
+	public TransactionSecurityPolicy clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public TransactionSecurityPolicy clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public TransactionSecurityPolicy clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public TransactionSecurityPolicy clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

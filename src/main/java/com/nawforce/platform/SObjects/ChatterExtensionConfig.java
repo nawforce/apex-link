@@ -52,4 +52,10 @@ public class ChatterExtensionConfig extends SObject {
 	public Datetime LastModifiedDate;
 	public Integer Position;
 	public Datetime SystemModstamp;
+
+	public ChatterExtensionConfig clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ChatterExtensionConfig clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ChatterExtensionConfig clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ChatterExtensionConfig clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ChatterExtensionConfig clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

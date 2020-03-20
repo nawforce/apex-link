@@ -55,4 +55,10 @@ public class EmailDomainFilter extends SObject {
 	public Integer PriorityNumber;
 	public Datetime SystemModstamp;
 	public String ToDomain;
+
+	public EmailDomainFilter clone$() {throw new java.lang.UnsupportedOperationException();}
+	public EmailDomainFilter clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public EmailDomainFilter clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public EmailDomainFilter clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public EmailDomainFilter clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

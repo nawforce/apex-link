@@ -67,4 +67,10 @@ public class Territory2ModelFeed extends SObject {
 	public FeedLike[] FeedLikes;
 	public FeedSignal[] FeedSignals;
 	public FeedTrackedChange[] FeedTrackedChanges;
+
+	public Territory2ModelFeed clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Territory2ModelFeed clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Territory2ModelFeed clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Territory2ModelFeed clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Territory2ModelFeed clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

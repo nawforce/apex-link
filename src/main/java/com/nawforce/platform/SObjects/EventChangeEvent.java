@@ -87,4 +87,10 @@ public class EventChangeEvent extends SObject {
 	public Account What;
 	public Id WhoId;
 	public Contact Who;
+
+	public EventChangeEvent clone$() {throw new java.lang.UnsupportedOperationException();}
+	public EventChangeEvent clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public EventChangeEvent clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public EventChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public EventChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

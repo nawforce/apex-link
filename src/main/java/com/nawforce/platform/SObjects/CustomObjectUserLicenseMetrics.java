@@ -29,10 +29,10 @@ package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
-
 
 @SuppressWarnings("unused")
 public class CustomObjectUserLicenseMetrics extends SObject {
@@ -48,4 +48,10 @@ public class CustomObjectUserLicenseMetrics extends SObject {
 	public Datetime SystemModstamp;
 	public Id UserLicenseId;
 	public UserLicense UserLicense;
+
+	public CustomObjectUserLicenseMetrics clone$() {throw new java.lang.UnsupportedOperationException();}
+	public CustomObjectUserLicenseMetrics clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public CustomObjectUserLicenseMetrics clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public CustomObjectUserLicenseMetrics clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public CustomObjectUserLicenseMetrics clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

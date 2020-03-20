@@ -57,4 +57,10 @@ public class WaveCompatibilityCheckItem extends SObject {
 	public String TemplateVersion;
 	public Id WaveAutoInstallRequestId;
 	public WaveAutoInstallRequest WaveAutoInstallRequest;
+
+	public WaveCompatibilityCheckItem clone$() {throw new java.lang.UnsupportedOperationException();}
+	public WaveCompatibilityCheckItem clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public WaveCompatibilityCheckItem clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public WaveCompatibilityCheckItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public WaveCompatibilityCheckItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

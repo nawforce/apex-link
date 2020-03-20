@@ -73,4 +73,10 @@ public class OpportunityLineItem extends SObject {
 	public Decimal UnitPrice;
 
 	public OpportunityLineItemSchedule[] OpportunityLineItemSchedules;
+
+	public OpportunityLineItem clone$() {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityLineItem clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityLineItem clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityLineItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityLineItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

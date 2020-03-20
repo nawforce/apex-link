@@ -54,4 +54,10 @@ public class TodayGoal extends SObject {
 	public Id UserId;
 	public User User;
 	public Decimal Value;
+
+	public TodayGoal clone$() {throw new java.lang.UnsupportedOperationException();}
+	public TodayGoal clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public TodayGoal clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public TodayGoal clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public TodayGoal clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

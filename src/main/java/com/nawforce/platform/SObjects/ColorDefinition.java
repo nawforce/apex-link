@@ -29,10 +29,10 @@ package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.SObject;
 import com.nawforce.platform.System.String;
-
 
 @SuppressWarnings("unused")
 public class ColorDefinition extends SObject {
@@ -45,4 +45,10 @@ public class ColorDefinition extends SObject {
 	public Id Id;
 	public String TabDefinitionId;
 	public String Theme;
+
+	public ColorDefinition clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ColorDefinition clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ColorDefinition clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ColorDefinition clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ColorDefinition clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

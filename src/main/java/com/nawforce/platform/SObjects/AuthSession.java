@@ -61,4 +61,10 @@ public class AuthSession extends SObject {
 	public User Users;
 
 	public SessionPermSetActivation[] SessionPermSetActivations;
+
+	public AuthSession clone$() {throw new java.lang.UnsupportedOperationException();}
+	public AuthSession clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public AuthSession clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public AuthSession clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public AuthSession clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -53,4 +53,10 @@ public class FeedRevision extends SObject {
 	public Integer Revision;
 	public Datetime SystemModstamp;
 	public String Value;
+
+	public FeedRevision clone$() {throw new java.lang.UnsupportedOperationException();}
+	public FeedRevision clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public FeedRevision clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public FeedRevision clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public FeedRevision clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

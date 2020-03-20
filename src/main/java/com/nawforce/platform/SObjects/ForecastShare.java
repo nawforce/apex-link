@@ -49,4 +49,10 @@ public class ForecastShare extends SObject {
 	public Group UserOrGroup;
 	public Id UserRoleId;
 	public UserRole UserRole;
+
+	public ForecastShare clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ForecastShare clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ForecastShare clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ForecastShare clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ForecastShare clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

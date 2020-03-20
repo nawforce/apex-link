@@ -108,4 +108,10 @@ public class Event extends SObject {
 	public Event[] RecurringEvents;
 	public TopicAssignment[] TopicAssignments;
 	public UndecidedEventRelation[] UndecidedEventRelations;
+
+	public Event clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Event clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Event clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Event clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Event clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

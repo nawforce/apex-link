@@ -49,4 +49,10 @@ public class IndividualShare extends SObject {
 	public String RowCause;
 	public Id UserOrGroupId;
 	public Group UserOrGroup;
+
+	public IndividualShare clone$() {throw new java.lang.UnsupportedOperationException();}
+	public IndividualShare clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public IndividualShare clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public IndividualShare clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public IndividualShare clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

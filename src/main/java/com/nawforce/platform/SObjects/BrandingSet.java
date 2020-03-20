@@ -52,4 +52,10 @@ public class BrandingSet extends SObject {
 	public String MasterLabel;
 	public String NamespacePrefix;
 	public Datetime SystemModstamp;
+
+	public BrandingSet clone$() {throw new java.lang.UnsupportedOperationException();}
+	public BrandingSet clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public BrandingSet clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public BrandingSet clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public BrandingSet clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

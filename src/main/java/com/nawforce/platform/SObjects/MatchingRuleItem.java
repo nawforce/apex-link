@@ -54,4 +54,10 @@ public class MatchingRuleItem extends SObject {
 	public MatchingRule MatchingRule;
 	public Integer SortOrder;
 	public Datetime SystemModstamp;
+
+	public MatchingRuleItem clone$() {throw new java.lang.UnsupportedOperationException();}
+	public MatchingRuleItem clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public MatchingRuleItem clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public MatchingRuleItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public MatchingRuleItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

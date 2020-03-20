@@ -57,4 +57,10 @@ public class MacroInstruction extends SObject {
 	public String Target;
 	public String Value;
 	public String ValueRecord;
+
+	public MacroInstruction clone$() {throw new java.lang.UnsupportedOperationException();}
+	public MacroInstruction clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public MacroInstruction clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public MacroInstruction clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public MacroInstruction clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

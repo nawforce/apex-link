@@ -60,4 +60,10 @@ public class TenantUsageEntitlement extends SObject {
 	public Date StartDate;
 	public Datetime SystemModstamp;
 	public Datetime UsageDate;
+
+	public TenantUsageEntitlement clone$() {throw new java.lang.UnsupportedOperationException();}
+	public TenantUsageEntitlement clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public TenantUsageEntitlement clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public TenantUsageEntitlement clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public TenantUsageEntitlement clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

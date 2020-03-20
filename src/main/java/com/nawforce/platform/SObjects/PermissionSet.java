@@ -291,4 +291,10 @@ public class PermissionSet extends SObject {
 	public ObjectPermissions[] ObjectPerms;
 	public SessionPermSetActivation[] SessionActivations;
 	public SetupEntityAccess[] SetupEntityAccessItems;
+
+	public PermissionSet clone$() {throw new java.lang.UnsupportedOperationException();}
+	public PermissionSet clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public PermissionSet clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public PermissionSet clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public PermissionSet clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

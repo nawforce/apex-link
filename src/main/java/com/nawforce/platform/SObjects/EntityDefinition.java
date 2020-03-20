@@ -94,4 +94,10 @@ public class EntityDefinition extends SObject {
 	public EntityParticle[] Particles;
 	public RelationshipDomain[] RelationshipDomains;
 	public SearchLayout[] SearchLayouts;
+
+	public EntityDefinition clone$() {throw new java.lang.UnsupportedOperationException();}
+	public EntityDefinition clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public EntityDefinition clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public EntityDefinition clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public EntityDefinition clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

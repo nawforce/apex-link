@@ -58,4 +58,10 @@ public class FiscalYearSettings extends SObject {
 	public String YearType;
 
 	public Period[] Periods;
+
+	public FiscalYearSettings clone$() {throw new java.lang.UnsupportedOperationException();}
+	public FiscalYearSettings clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public FiscalYearSettings clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public FiscalYearSettings clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public FiscalYearSettings clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

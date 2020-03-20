@@ -48,4 +48,10 @@ public class Product2History extends SObject {
 	public Object OldValue;
 	public Id Product2Id;
 	public Product2 Product2;
+
+	public Product2History clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Product2History clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Product2History clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Product2History clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Product2History clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

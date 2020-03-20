@@ -72,4 +72,10 @@ public class BackgroundOperation extends SObject {
 	public String WorkerUri;
 
 	public BackgroundOperation[] MergedOperations;
+
+	public BackgroundOperation clone$() {throw new java.lang.UnsupportedOperationException();}
+	public BackgroundOperation clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public BackgroundOperation clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public BackgroundOperation clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public BackgroundOperation clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

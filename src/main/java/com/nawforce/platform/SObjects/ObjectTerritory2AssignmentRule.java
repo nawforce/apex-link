@@ -58,4 +58,10 @@ public class ObjectTerritory2AssignmentRule extends SObject {
 
 	public ObjectTerritory2AssignmentRuleItem[] ObjectTerritory2AssignmentRuleItems;
 	public RuleTerritory2Association[] RuleTerritory2Associations;
+
+	public ObjectTerritory2AssignmentRule clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ObjectTerritory2AssignmentRule clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ObjectTerritory2AssignmentRule clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ObjectTerritory2AssignmentRule clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ObjectTerritory2AssignmentRule clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

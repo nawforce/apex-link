@@ -80,4 +80,10 @@ public class Dashboard extends SObject {
 	public DashboardComponent[] DashboardComponents;
 	public EntitySubscription[] FeedSubscriptionsForEntity;
 	public DashboardFeed[] Feeds;
+
+	public Dashboard clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Dashboard clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Dashboard clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Dashboard clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Dashboard clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

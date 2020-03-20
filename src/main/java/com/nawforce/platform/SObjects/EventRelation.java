@@ -54,4 +54,10 @@ public class EventRelation extends SObject {
 	public String Response;
 	public String Status;
 	public Datetime SystemModstamp;
+
+	public EventRelation clone$() {throw new java.lang.UnsupportedOperationException();}
+	public EventRelation clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public EventRelation clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public EventRelation clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public EventRelation clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

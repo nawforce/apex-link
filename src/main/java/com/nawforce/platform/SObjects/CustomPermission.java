@@ -58,4 +58,10 @@ public class CustomPermission extends SObject {
 	public CustomPermissionDependency[] CustomPermissionItem;
 	public GrantedByLicense[] GrantedByLicenses;
 	public SetupEntityAccess[] SetupEntityAccessItems;
+
+	public CustomPermission clone$() {throw new java.lang.UnsupportedOperationException();}
+	public CustomPermission clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public CustomPermission clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public CustomPermission clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public CustomPermission clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

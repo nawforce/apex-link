@@ -55,4 +55,10 @@ public class CampaignMemberStatus extends SObject {
 	public Datetime LastModifiedDate;
 	public Integer SortOrder;
 	public Datetime SystemModstamp;
+
+	public CampaignMemberStatus clone$() {throw new java.lang.UnsupportedOperationException();}
+	public CampaignMemberStatus clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public CampaignMemberStatus clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public CampaignMemberStatus clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public CampaignMemberStatus clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

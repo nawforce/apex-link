@@ -54,4 +54,10 @@ public class PlatformCachePartitionType extends SObject {
 	public Id PlatformCachePartitionId;
 	public PlatformCachePartition PlatformCachePartition;
 	public Datetime SystemModstamp;
+
+	public PlatformCachePartitionType clone$() {throw new java.lang.UnsupportedOperationException();}
+	public PlatformCachePartitionType clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public PlatformCachePartitionType clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public PlatformCachePartitionType clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public PlatformCachePartitionType clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

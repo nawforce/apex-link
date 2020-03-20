@@ -65,4 +65,10 @@ public class ListEmailChangeEvent extends SObject {
 	public String Subject;
 	public String TextBody;
 	public Integer TotalSent;
+
+	public ListEmailChangeEvent clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ListEmailChangeEvent clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ListEmailChangeEvent clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ListEmailChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ListEmailChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -59,4 +59,10 @@ public class DataAssessmentFieldMetric extends SObject {
 	public Datetime SystemModstamp;
 
 	public DataAssessmentValueMetric[] DataAssessmentValueMetrics;
+
+	public DataAssessmentFieldMetric clone$() {throw new java.lang.UnsupportedOperationException();}
+	public DataAssessmentFieldMetric clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public DataAssessmentFieldMetric clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public DataAssessmentFieldMetric clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public DataAssessmentFieldMetric clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

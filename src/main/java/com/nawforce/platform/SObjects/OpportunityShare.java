@@ -49,4 +49,10 @@ public class OpportunityShare extends SObject {
 	public String RowCause;
 	public Id UserOrGroupId;
 	public Group UserOrGroup;
+
+	public OpportunityShare clone$() {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityShare clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityShare clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityShare clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityShare clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

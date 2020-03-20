@@ -56,4 +56,10 @@ public class Calendar extends SObject {
 	public DeclinedEventRelation[] DeclinedEventRelations;
 	public EventRelation[] EventRelations;
 	public UndecidedEventRelation[] UndecidedEventRelations;
+
+	public Calendar clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Calendar clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Calendar clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Calendar clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Calendar clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

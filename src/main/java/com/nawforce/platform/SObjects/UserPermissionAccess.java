@@ -269,4 +269,10 @@ public class UserPermissionAccess extends SObject {
 	public Boolean PermissionsWaveTabularDownload;
 	public Boolean PermissionsWorkCalibrationUser;
 	public Boolean PermissionsWorkDotComUserPerm;
+
+	public UserPermissionAccess clone$() {throw new java.lang.UnsupportedOperationException();}
+	public UserPermissionAccess clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public UserPermissionAccess clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public UserPermissionAccess clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public UserPermissionAccess clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

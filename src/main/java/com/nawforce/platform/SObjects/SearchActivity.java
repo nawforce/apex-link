@@ -34,7 +34,6 @@ import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
-
 @SuppressWarnings("unused")
 public class SearchActivity extends SObject {
 	public static SObjectType$<SearchActivity> SObjectType;
@@ -61,4 +60,10 @@ public class SearchActivity extends SObject {
 	public String QueryLanguage;
 	public String SearchTerm;
 	public Datetime SystemModstamp;
+
+	public SearchActivity clone$() {throw new java.lang.UnsupportedOperationException();}
+	public SearchActivity clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public SearchActivity clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public SearchActivity clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public SearchActivity clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

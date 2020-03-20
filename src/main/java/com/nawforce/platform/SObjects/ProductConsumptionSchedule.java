@@ -52,4 +52,10 @@ public class ProductConsumptionSchedule extends SObject {
 	public Id ProductId;
 	public Product2 Product;
 	public Datetime SystemModstamp;
+
+	public ProductConsumptionSchedule clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ProductConsumptionSchedule clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ProductConsumptionSchedule clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ProductConsumptionSchedule clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ProductConsumptionSchedule clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

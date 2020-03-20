@@ -70,4 +70,10 @@ public class Product2ChangeEvent extends SObject {
 	public String RevenueInstallmentPeriod;
 	public String RevenueScheduleType;
 	public String StockKeepingUnit;
+
+	public Product2ChangeEvent clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Product2ChangeEvent clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Product2ChangeEvent clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Product2ChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Product2ChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

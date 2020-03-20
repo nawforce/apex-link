@@ -87,4 +87,10 @@ public class Site extends SObject {
 	public SiteHistory[] Histories;
 	public DomainSite[] SiteDomainPaths;
 	public SiteIframeWhiteListUrl[] SiteIframeWhiteListUrls;
+
+	public Site clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Site clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Site clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Site clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Site clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

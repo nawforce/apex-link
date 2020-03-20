@@ -52,4 +52,10 @@ public class CustomPermissionDependency extends SObject {
 	public Id RequiredCustomPermissionId;
 	public CustomPermission RequiredCustomPermission;
 	public Datetime SystemModstamp;
+
+	public CustomPermissionDependency clone$() {throw new java.lang.UnsupportedOperationException();}
+	public CustomPermissionDependency clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public CustomPermissionDependency clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public CustomPermissionDependency clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public CustomPermissionDependency clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

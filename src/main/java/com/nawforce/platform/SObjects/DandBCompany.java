@@ -168,4 +168,10 @@ public class DandBCompany extends SObject {
 
 	public Account[] Accounts;
 	public Lead[] Leads;
+
+	public DandBCompany clone$() {throw new java.lang.UnsupportedOperationException();}
+	public DandBCompany clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public DandBCompany clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public DandBCompany clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public DandBCompany clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

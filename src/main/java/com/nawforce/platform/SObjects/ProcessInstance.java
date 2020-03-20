@@ -66,4 +66,10 @@ public class ProcessInstance extends SObject {
 	public ProcessInstanceStep[] Steps;
 	public ProcessInstanceHistory[] StepsAndWorkitems;
 	public ProcessInstanceWorkitem[] Workitems;
+
+	public ProcessInstance clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ProcessInstance clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ProcessInstance clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ProcessInstance clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ProcessInstance clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

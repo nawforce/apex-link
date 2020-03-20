@@ -60,4 +60,10 @@ public class ProcessInstanceNode extends SObject {
 	public ProcessNode ProcessNode;
 	public String ProcessNodeName;
 	public Datetime SystemModstamp;
+
+	public ProcessInstanceNode clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ProcessInstanceNode clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ProcessInstanceNode clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ProcessInstanceNode clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ProcessInstanceNode clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

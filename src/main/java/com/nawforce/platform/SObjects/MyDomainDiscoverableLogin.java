@@ -55,4 +55,10 @@ public class MyDomainDiscoverableLogin extends SObject {
 	public String MasterLabel;
 	public Datetime SystemModstamp;
 	public String UsernameLabel;
+
+	public MyDomainDiscoverableLogin clone$() {throw new java.lang.UnsupportedOperationException();}
+	public MyDomainDiscoverableLogin clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public MyDomainDiscoverableLogin clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public MyDomainDiscoverableLogin clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public MyDomainDiscoverableLogin clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

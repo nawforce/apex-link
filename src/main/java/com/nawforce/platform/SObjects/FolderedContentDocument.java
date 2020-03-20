@@ -58,4 +58,10 @@ public class FolderedContentDocument extends SObject {
 	public ContentFolder ParentContentFolder;
 	public Datetime SystemModstamp;
 	public String Title;
+
+	public FolderedContentDocument clone$() {throw new java.lang.UnsupportedOperationException();}
+	public FolderedContentDocument clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public FolderedContentDocument clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public FolderedContentDocument clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public FolderedContentDocument clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

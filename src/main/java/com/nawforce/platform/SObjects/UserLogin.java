@@ -47,4 +47,10 @@ public class UserLogin extends SObject {
 	public Datetime LastModifiedDate;
 	public Id UserId;
 	public User User;
+
+	public UserLogin clone$() {throw new java.lang.UnsupportedOperationException();}
+	public UserLogin clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public UserLogin clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public UserLogin clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public UserLogin clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

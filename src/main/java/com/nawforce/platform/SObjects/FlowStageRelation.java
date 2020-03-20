@@ -56,4 +56,10 @@ public class FlowStageRelation extends SObject {
 	public Integer StageOrder;
 	public String StageType;
 	public Datetime SystemModstamp;
+
+	public FlowStageRelation clone$() {throw new java.lang.UnsupportedOperationException();}
+	public FlowStageRelation clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public FlowStageRelation clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public FlowStageRelation clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public FlowStageRelation clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

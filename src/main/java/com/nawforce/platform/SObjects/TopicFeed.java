@@ -68,4 +68,10 @@ public class TopicFeed extends SObject {
 	public FeedLike[] FeedLikes;
 	public FeedSignal[] FeedSignals;
 	public FeedTrackedChange[] FeedTrackedChanges;
+
+	public TopicFeed clone$() {throw new java.lang.UnsupportedOperationException();}
+	public TopicFeed clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public TopicFeed clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public TopicFeed clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public TopicFeed clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

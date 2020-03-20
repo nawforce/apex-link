@@ -121,4 +121,10 @@ public class QuoteChangeEvent extends SObject {
 	public Decimal Subtotal;
 	public Decimal Tax;
 	public Decimal TotalPrice;
+
+	public QuoteChangeEvent clone$() {throw new java.lang.UnsupportedOperationException();}
+	public QuoteChangeEvent clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public QuoteChangeEvent clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public QuoteChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public QuoteChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

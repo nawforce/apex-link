@@ -51,4 +51,10 @@ public class RecordType extends SObject {
 	public Datetime SystemModstamp;
 
 	public RecordTypeLocalization[] Localization;
+
+	public RecordType clone$() {throw new java.lang.UnsupportedOperationException();}
+	public RecordType clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public RecordType clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public RecordType clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public RecordType clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

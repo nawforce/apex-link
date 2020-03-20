@@ -73,4 +73,10 @@ public class WebLink extends SObject {
 	public Integer Width;
 
 	public WebLinkLocalization[] Localization;
+
+	public WebLink clone$() {throw new java.lang.UnsupportedOperationException();}
+	public WebLink clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public WebLink clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public WebLink clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public WebLink clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -52,4 +52,10 @@ public class CorsWhitelistEntry extends SObject {
 	public String NamespacePrefix;
 	public Datetime SystemModstamp;
 	public String UrlPattern;
+
+	public CorsWhitelistEntry clone$() {throw new java.lang.UnsupportedOperationException();}
+	public CorsWhitelistEntry clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public CorsWhitelistEntry clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public CorsWhitelistEntry clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public CorsWhitelistEntry clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

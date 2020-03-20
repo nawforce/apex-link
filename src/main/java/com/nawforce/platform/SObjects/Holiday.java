@@ -63,4 +63,10 @@ public class Holiday extends SObject {
 	public String RecurrenceType;
 	public Integer StartTimeInMinutes;
 	public Datetime SystemModstamp;
+
+	public Holiday clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Holiday clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Holiday clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Holiday clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Holiday clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

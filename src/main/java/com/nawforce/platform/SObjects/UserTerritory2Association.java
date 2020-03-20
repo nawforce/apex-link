@@ -49,4 +49,10 @@ public class UserTerritory2Association extends SObject {
 	public Territory2 Territory2;
 	public Id UserId;
 	public User User;
+
+	public UserTerritory2Association clone$() {throw new java.lang.UnsupportedOperationException();}
+	public UserTerritory2Association clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public UserTerritory2Association clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public UserTerritory2Association clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public UserTerritory2Association clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

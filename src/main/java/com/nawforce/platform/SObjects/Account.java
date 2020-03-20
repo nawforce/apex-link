@@ -120,6 +120,8 @@ public class Account extends SObject {
 	public Case[] Cases;
 	public Account[] ChildAccounts;
 	public CombinedAttachment[] CombinedAttachments;
+	public ContactPointEmail[] ContactPointEmails;
+	public ContactPointPhone[] ContactPointPhones;
 	public ContactRequest[] ContactRequests;
 	public Contact[] Contacts;
 	public ContentDocumentLink[] ContentDocumentLinks;
@@ -150,4 +152,10 @@ public class Account extends SObject {
 	public Task[] Tasks;
 	public TopicAssignment[] TopicAssignments;
 	public User[] Users;
+
+	public Account clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Account clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Account clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Account clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Account clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

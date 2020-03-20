@@ -58,4 +58,10 @@ public class FlowInterview extends SObject {
 	public RecordAction[] RecordActions;
 	public FlowRecordRelation[] RecordRelations;
 	public FlowStageRelation[] StageRelations;
+
+	public FlowInterview clone$() {throw new java.lang.UnsupportedOperationException();}
+	public FlowInterview clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public FlowInterview clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public FlowInterview clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public FlowInterview clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

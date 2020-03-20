@@ -133,4 +133,10 @@ public class Order extends SObject {
 	public OrderShare[] Shares;
 	public Task[] Tasks;
 	public TopicAssignment[] TopicAssignments;
+
+	public Order clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Order clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Order clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Order clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Order clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

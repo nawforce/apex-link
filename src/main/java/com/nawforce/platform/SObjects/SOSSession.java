@@ -85,4 +85,10 @@ public class SOSSession extends SObject {
 	public OpenActivity[] OpenActivities;
 	public SOSSessionActivity[] SOSSessionActivities;
 	public Task[] Tasks;
+
+	public SOSSession clone$() {throw new java.lang.UnsupportedOperationException();}
+	public SOSSession clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public SOSSession clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public SOSSession clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public SOSSession clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

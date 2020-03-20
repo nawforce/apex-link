@@ -81,4 +81,10 @@ public class ActivityHistory extends SObject {
 	public Account What;
 	public Id WhoId;
 	public Contact Who;
+
+	public ActivityHistory clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ActivityHistory clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ActivityHistory clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ActivityHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ActivityHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

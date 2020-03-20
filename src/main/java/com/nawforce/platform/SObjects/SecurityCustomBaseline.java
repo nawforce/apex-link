@@ -53,4 +53,10 @@ public class SecurityCustomBaseline extends SObject {
 	public String MasterLabel;
 	public String NamespacePrefix;
 	public Datetime SystemModstamp;
+
+	public SecurityCustomBaseline clone$() {throw new java.lang.UnsupportedOperationException();}
+	public SecurityCustomBaseline clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public SecurityCustomBaseline clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public SecurityCustomBaseline clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public SecurityCustomBaseline clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

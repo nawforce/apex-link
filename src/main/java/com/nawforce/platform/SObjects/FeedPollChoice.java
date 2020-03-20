@@ -50,4 +50,10 @@ public class FeedPollChoice extends SObject {
 	public Integer Position;
 
 	public FeedPollVote[] FeedPollVotes;
+
+	public FeedPollChoice clone$() {throw new java.lang.UnsupportedOperationException();}
+	public FeedPollChoice clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public FeedPollChoice clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public FeedPollChoice clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public FeedPollChoice clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -49,4 +49,10 @@ public class FeedPollVote extends SObject {
 	public Id Id;
 	public Boolean IsDeleted;
 	public Datetime LastModifiedDate;
+
+	public FeedPollVote clone$() {throw new java.lang.UnsupportedOperationException();}
+	public FeedPollVote clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public FeedPollVote clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public FeedPollVote clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public FeedPollVote clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

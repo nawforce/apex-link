@@ -59,4 +59,10 @@ public class ActionLinkGroupTemplate extends SObject {
 	public Datetime SystemModstamp;
 
 	public ActionLinkTemplate[] ActionLinkTemplates;
+
+	public ActionLinkGroupTemplate clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ActionLinkGroupTemplate clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ActionLinkGroupTemplate clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ActionLinkGroupTemplate clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ActionLinkGroupTemplate clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

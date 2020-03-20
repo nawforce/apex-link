@@ -142,4 +142,10 @@ public class Lead extends SObject {
 	public Task[] Tasks;
 	public TopicAssignment[] TopicAssignments;
 	public UndecidedEventRelation[] UndecidedEventRelations;
+
+	public Lead clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Lead clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Lead clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Lead clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Lead clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

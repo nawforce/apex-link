@@ -149,4 +149,10 @@ public class Quote extends SObject {
 	public RecordActionHistory[] RecordActionHistories;
 	public RecordAction[] RecordActions;
 	public Task[] Tasks;
+
+	public Quote clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Quote clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Quote clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Quote clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Quote clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

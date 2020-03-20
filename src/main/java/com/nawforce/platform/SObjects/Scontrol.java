@@ -62,4 +62,10 @@ public class Scontrol extends SObject {
 	public Datetime SystemModstamp;
 
 	public ScontrolLocalization[] Localization;
+
+	public Scontrol clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Scontrol clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Scontrol clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Scontrol clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Scontrol clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -52,4 +52,10 @@ public class TaskStatus extends SObject {
 	public String MasterLabel;
 	public Integer SortOrder;
 	public Datetime SystemModstamp;
+
+	public TaskStatus clone$() {throw new java.lang.UnsupportedOperationException();}
+	public TaskStatus clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public TaskStatus clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public TaskStatus clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public TaskStatus clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

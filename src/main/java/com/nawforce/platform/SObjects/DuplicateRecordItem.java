@@ -56,4 +56,10 @@ public class DuplicateRecordItem extends SObject {
 
 	public ProcessInstance[] ProcessInstances;
 	public ProcessInstanceHistory[] ProcessSteps;
+
+	public DuplicateRecordItem clone$() {throw new java.lang.UnsupportedOperationException();}
+	public DuplicateRecordItem clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public DuplicateRecordItem clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public DuplicateRecordItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public DuplicateRecordItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

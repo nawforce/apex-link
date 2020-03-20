@@ -66,4 +66,10 @@ public class AuthProvider extends SObject {
 	public String SsoKickoffUrl;
 	public String TokenUrl;
 	public String UserInfoUrl;
+
+	public AuthProvider clone$() {throw new java.lang.UnsupportedOperationException();}
+	public AuthProvider clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public AuthProvider clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public AuthProvider clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public AuthProvider clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

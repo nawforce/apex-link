@@ -54,4 +54,10 @@ public class Note extends SObject {
 	public Account Parent;
 	public Datetime SystemModstamp;
 	public String Title;
+
+	public Note clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Note clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Note clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Note clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Note clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

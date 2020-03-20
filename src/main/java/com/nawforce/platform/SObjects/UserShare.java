@@ -49,4 +49,10 @@ public class UserShare extends SObject {
 	public User User;
 	public Id UserOrGroupId;
 	public Group UserOrGroup;
+
+	public UserShare clone$() {throw new java.lang.UnsupportedOperationException();}
+	public UserShare clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public UserShare clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public UserShare clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public UserShare clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -56,4 +56,10 @@ public class Folder extends SObject {
 	public String Type;
 
 	public Folder[] SubFolders;
+
+	public Folder clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Folder clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Folder clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Folder clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Folder clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

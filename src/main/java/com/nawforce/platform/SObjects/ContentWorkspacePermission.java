@@ -62,4 +62,10 @@ public class ContentWorkspacePermission extends SObject {
 	public Boolean PermissionsViewComments;
 	public Datetime SystemModstamp;
 	public String Type;
+
+	public ContentWorkspacePermission clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ContentWorkspacePermission clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ContentWorkspacePermission clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ContentWorkspacePermission clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ContentWorkspacePermission clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

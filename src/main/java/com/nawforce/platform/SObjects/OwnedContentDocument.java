@@ -58,4 +58,10 @@ public class OwnedContentDocument extends SObject {
 	public Id OwnerId;
 	public User Owner;
 	public String Title;
+
+	public OwnedContentDocument clone$() {throw new java.lang.UnsupportedOperationException();}
+	public OwnedContentDocument clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public OwnedContentDocument clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public OwnedContentDocument clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public OwnedContentDocument clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

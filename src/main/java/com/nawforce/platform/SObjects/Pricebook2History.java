@@ -48,4 +48,10 @@ public class Pricebook2History extends SObject {
 	public Object OldValue;
 	public Id Pricebook2Id;
 	public Pricebook2 Pricebook2;
+
+	public Pricebook2History clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Pricebook2History clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Pricebook2History clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Pricebook2History clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Pricebook2History clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

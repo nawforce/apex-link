@@ -54,4 +54,10 @@ public class OpportunityHistory extends SObject {
 	public Decimal Probability;
 	public String StageName;
 	public Datetime SystemModstamp;
+
+	public OpportunityHistory clone$() {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityHistory clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityHistory clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

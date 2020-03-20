@@ -56,4 +56,10 @@ public class QuoteDocument extends SObject {
 	public Id QuoteId;
 	public Quote Quote;
 	public Datetime SystemModstamp;
+
+	public QuoteDocument clone$() {throw new java.lang.UnsupportedOperationException();}
+	public QuoteDocument clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public QuoteDocument clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public QuoteDocument clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public QuoteDocument clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

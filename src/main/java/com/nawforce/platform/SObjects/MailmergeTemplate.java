@@ -59,4 +59,10 @@ public class MailmergeTemplate extends SObject {
 	public Boolean SecurityOptionsAttachmentScannedForXSS;
 	public Boolean SecurityOptionsAttachmentScannedforFlash;
 	public Datetime SystemModstamp;
+
+	public MailmergeTemplate clone$() {throw new java.lang.UnsupportedOperationException();}
+	public MailmergeTemplate clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public MailmergeTemplate clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public MailmergeTemplate clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public MailmergeTemplate clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

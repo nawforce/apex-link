@@ -29,10 +29,9 @@ package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.System.Datetime;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 
 @SuppressWarnings("unused")
@@ -51,4 +50,10 @@ public class DatasetExportEvent extends SObject {
 	public String PublisherType;
 	public String ReplayId;
 	public String Status;
+
+	public DatasetExportEvent clone$() {throw new java.lang.UnsupportedOperationException();}
+	public DatasetExportEvent clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public DatasetExportEvent clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public DatasetExportEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public DatasetExportEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

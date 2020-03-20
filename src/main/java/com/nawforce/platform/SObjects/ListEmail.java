@@ -76,4 +76,10 @@ public class ListEmail extends SObject {
 	public Event[] Events;
 	public OpenActivity[] OpenActivities;
 	public Task[] Tasks;
+
+	public ListEmail clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ListEmail clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ListEmail clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ListEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ListEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

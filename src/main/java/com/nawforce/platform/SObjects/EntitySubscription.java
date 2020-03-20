@@ -48,4 +48,10 @@ public class EntitySubscription extends SObject {
 	public Account Parent;
 	public Id SubscriberId;
 	public User Subscriber;
+
+	public EntitySubscription clone$() {throw new java.lang.UnsupportedOperationException();}
+	public EntitySubscription clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public EntitySubscription clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public EntitySubscription clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public EntitySubscription clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -49,4 +49,10 @@ public class OrgWideEmailAddress extends SObject {
 	public User LastModifiedBy;
 	public Datetime LastModifiedDate;
 	public Datetime SystemModstamp;
+
+	public OrgWideEmailAddress clone$() {throw new java.lang.UnsupportedOperationException();}
+	public OrgWideEmailAddress clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public OrgWideEmailAddress clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public OrgWideEmailAddress clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public OrgWideEmailAddress clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -54,4 +54,10 @@ public class UserEmailPreferredPerson extends SObject {
 	public Id PersonRecordId;
 	public Contact PersonRecord;
 	public Datetime SystemModstamp;
+
+	public UserEmailPreferredPerson clone$() {throw new java.lang.UnsupportedOperationException();}
+	public UserEmailPreferredPerson clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public UserEmailPreferredPerson clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public UserEmailPreferredPerson clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public UserEmailPreferredPerson clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

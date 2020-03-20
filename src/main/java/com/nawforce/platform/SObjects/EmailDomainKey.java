@@ -59,4 +59,10 @@ public class EmailDomainKey extends SObject {
 	public Datetime SystemModstamp;
 	public String TxtRecordName;
 	public String TxtRecordsPublishState;
+
+	public EmailDomainKey clone$() {throw new java.lang.UnsupportedOperationException();}
+	public EmailDomainKey clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public EmailDomainKey clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public EmailDomainKey clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public EmailDomainKey clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

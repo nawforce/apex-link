@@ -70,7 +70,6 @@ object PlatformModifiers {
       assert(!JavaModifier.isAbstract(javaBits))
     assert(!JavaModifier.isFinal(javaBits))
     assert(!JavaModifier.isTransient(javaBits))
-    assert(!JavaModifier.isVolatile(javaBits))
     assert(!JavaModifier.isSynchronized(javaBits))
     assert(!JavaModifier.isNative(javaBits))
     assert(!JavaModifier.isStrict(javaBits))

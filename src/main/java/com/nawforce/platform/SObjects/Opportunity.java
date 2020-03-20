@@ -67,6 +67,7 @@ public class Opportunity extends SObject {
 	public Boolean IsDeleted;
 	public Boolean IsExcludedFromTerritory2Filter;
 	public Boolean IsPrivate;
+	public Boolean IsSplit;
 	public Boolean IsWon;
 	public Date LastActivityDate;
 	public Id LastModifiedById;
@@ -111,6 +112,8 @@ public class Opportunity extends SObject {
 	public OpportunityHistory[] OpportunityHistories;
 	public OpportunityLineItem[] OpportunityLineItems;
 	public OpportunityPartner[] OpportunityPartnersFrom;
+	public OpportunitySplit[] OpportunitySplits;
+	public OpportunityTeamMember[] OpportunityTeamMembers;
 	public Partner[] Partners;
 	public ProcessInstance[] ProcessInstances;
 	public ProcessInstanceHistory[] ProcessSteps;
@@ -121,4 +124,10 @@ public class Opportunity extends SObject {
 	public OpportunityShare[] Shares;
 	public Task[] Tasks;
 	public TopicAssignment[] TopicAssignments;
+
+	public Opportunity clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Opportunity clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Opportunity clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Opportunity clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Opportunity clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

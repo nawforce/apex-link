@@ -54,4 +54,10 @@ public class Stamp extends SObject {
 
 	public CustomBrand[] CustomBrands;
 	public StampLocalization[] Localization;
+
+	public Stamp clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Stamp clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Stamp clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Stamp clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Stamp clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

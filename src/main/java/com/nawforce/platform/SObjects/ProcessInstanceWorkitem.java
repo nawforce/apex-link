@@ -52,4 +52,10 @@ public class ProcessInstanceWorkitem extends SObject {
 	public Id ProcessInstanceId;
 	public ProcessInstance ProcessInstance;
 	public Datetime SystemModstamp;
+
+	public ProcessInstanceWorkitem clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ProcessInstanceWorkitem clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ProcessInstanceWorkitem clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ProcessInstanceWorkitem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ProcessInstanceWorkitem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

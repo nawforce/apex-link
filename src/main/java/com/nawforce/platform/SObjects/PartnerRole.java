@@ -29,6 +29,7 @@ package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.Internal.SObjectType$;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
@@ -50,4 +51,10 @@ public class PartnerRole extends SObject {
 	public String ReverseRole;
 	public Integer SortOrder;
 	public Datetime SystemModstamp;
+
+	public PartnerRole clone$() {throw new java.lang.UnsupportedOperationException();}
+	public PartnerRole clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public PartnerRole clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public PartnerRole clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public PartnerRole clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

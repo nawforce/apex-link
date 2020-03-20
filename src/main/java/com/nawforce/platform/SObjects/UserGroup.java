@@ -258,4 +258,11 @@ public class UserGroup extends SObject {
 	public UserFieldAccess[] UserFieldAccessRights;
 	public UserPreference[] UserPreferences;
 	public Site[] UserSites;
+
+	public StaticResource clone$() {throw new java.lang.UnsupportedOperationException();}
+	public StaticResource clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public StaticResource clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public StaticResource clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public StaticResource clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
+
 }

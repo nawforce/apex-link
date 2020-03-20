@@ -48,4 +48,10 @@ public class Territory2ModelHistory extends SObject {
 	public Object OldValue;
 	public Id Territory2ModelId;
 	public Territory2Model Territory2Model;
+
+	public Territory2ModelHistory clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Territory2ModelHistory clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Territory2ModelHistory clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Territory2ModelHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Territory2ModelHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

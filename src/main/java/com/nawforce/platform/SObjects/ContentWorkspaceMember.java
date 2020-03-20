@@ -29,10 +29,9 @@ package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.System.Datetime;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class ContentWorkspaceMember extends SObject {
@@ -50,4 +49,10 @@ public class ContentWorkspaceMember extends SObject {
 	public Id MemberId;
 	public Group Member;
 	public String MemberType;
+
+	public ContentWorkspaceMember clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ContentWorkspaceMember clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ContentWorkspaceMember clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ContentWorkspaceMember clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ContentWorkspaceMember clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

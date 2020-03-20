@@ -49,4 +49,10 @@ public class FlowInterviewShare extends SObject {
 	public String RowCause;
 	public Id UserOrGroupId;
 	public Group UserOrGroup;
+
+	public FlowInterviewShare clone$() {throw new java.lang.UnsupportedOperationException();}
+	public FlowInterviewShare clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public FlowInterviewShare clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public FlowInterviewShare clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public FlowInterviewShare clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

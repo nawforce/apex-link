@@ -53,4 +53,10 @@ public class CustomHelpMenuItem extends SObject {
 	public CustomHelpMenuSection Parent;
 	public Integer SortOrder;
 	public Datetime SystemModstamp;
+
+	public CustomHelpMenuItem clone$() {throw new java.lang.UnsupportedOperationException();}
+	public CustomHelpMenuItem clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public CustomHelpMenuItem clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public CustomHelpMenuItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public CustomHelpMenuItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

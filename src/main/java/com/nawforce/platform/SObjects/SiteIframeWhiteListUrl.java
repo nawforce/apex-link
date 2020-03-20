@@ -50,4 +50,10 @@ public class SiteIframeWhiteListUrl extends SObject {
 	public Site Site;
 	public Datetime SystemModstamp;
 	public String Url;
+
+	public SiteIframeWhiteListUrl clone$() {throw new java.lang.UnsupportedOperationException();}
+	public SiteIframeWhiteListUrl clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public SiteIframeWhiteListUrl clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public SiteIframeWhiteListUrl clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public SiteIframeWhiteListUrl clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

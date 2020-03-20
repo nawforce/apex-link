@@ -58,4 +58,10 @@ public class QuickText extends SObject {
 	public Datetime SystemModstamp;
 
 	public QuickTextHistory[] Histories;
+
+	public QuickText clone$() {throw new java.lang.UnsupportedOperationException();}
+	public QuickText clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public QuickText clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public QuickText clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public QuickText clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

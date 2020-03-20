@@ -49,4 +49,10 @@ public class UserProvisioningRequestShare extends SObject {
 	public String RowCause;
 	public Id UserOrGroupId;
 	public Group UserOrGroup;
+
+	public UserProvisioningRequestShare clone$() {throw new java.lang.UnsupportedOperationException();}
+	public UserProvisioningRequestShare clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public UserProvisioningRequestShare clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public UserProvisioningRequestShare clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public UserProvisioningRequestShare clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

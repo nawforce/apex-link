@@ -50,4 +50,10 @@ public class DataUseLegalBasisShare extends SObject {
 	public String RowCause;
 	public Id UserOrGroupId;
 	public Group UserOrGroup;
+
+	public DataUseLegalBasisShare clone$() {throw new java.lang.UnsupportedOperationException();}
+	public DataUseLegalBasisShare clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public DataUseLegalBasisShare clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public DataUseLegalBasisShare clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public DataUseLegalBasisShare clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -64,4 +64,10 @@ public class Pricebook2 extends SObject {
 	public Quote[] Quotes;
 	public RecordActionHistory[] RecordActionHistories;
 	public RecordAction[] RecordActions;
+
+	public Pricebook2 clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Pricebook2 clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Pricebook2 clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Pricebook2 clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Pricebook2 clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

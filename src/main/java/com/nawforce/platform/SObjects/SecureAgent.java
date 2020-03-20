@@ -59,4 +59,10 @@ public class SecureAgent extends SObject {
 	public Datetime SystemModstamp;
 
 	public SecureAgentPlugin[] SecureAgentPlugins;
+
+	public SecureAgent clone$() {throw new java.lang.UnsupportedOperationException();}
+	public SecureAgent clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public SecureAgent clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public SecureAgent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public SecureAgent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

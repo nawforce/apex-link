@@ -48,4 +48,10 @@ public class FeedAttachment extends SObject {
 	public String Title;
 	public String Type;
 	public String Value;
+
+	public FeedAttachment clone$() {throw new java.lang.UnsupportedOperationException();}
+	public FeedAttachment clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public FeedAttachment clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public FeedAttachment clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public FeedAttachment clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

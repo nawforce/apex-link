@@ -60,4 +60,10 @@ public class Group extends SObject {
 	public User[] DelegatedUsers;
 	public GroupMember[] GroupMembers;
 	public QueueSobject[] QueueSobjects;
+
+	public Group clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Group clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Group clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Group clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Group clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

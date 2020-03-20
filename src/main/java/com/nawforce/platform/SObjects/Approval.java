@@ -54,4 +54,10 @@ public class Approval extends SObject {
 	public String RequestComment;
 	public String Status;
 	public Datetime SystemModstamp;
+
+	public Approval clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Approval clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Approval clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Approval clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Approval clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

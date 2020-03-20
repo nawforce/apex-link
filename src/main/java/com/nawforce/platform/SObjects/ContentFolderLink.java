@@ -46,4 +46,10 @@ public class ContentFolderLink extends SObject {
 	public Boolean IsDeleted;
 	public Id ParentEntityId;
 	public ContentWorkspace ParentEntity;
+
+	public ContentFolderLink clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ContentFolderLink clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ContentFolderLink clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ContentFolderLink clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ContentFolderLink clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

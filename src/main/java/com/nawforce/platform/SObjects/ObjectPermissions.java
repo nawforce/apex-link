@@ -54,4 +54,10 @@ public class ObjectPermissions extends SObject {
 	public Boolean PermissionsViewAllRecords;
 	public String SobjectType;
 	public Datetime SystemModstamp;
+
+	public ObjectPermissions clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ObjectPermissions clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ObjectPermissions clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ObjectPermissions clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ObjectPermissions clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

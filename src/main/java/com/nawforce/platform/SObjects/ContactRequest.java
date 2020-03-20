@@ -70,4 +70,10 @@ public class ContactRequest extends SObject {
 	public RecordActionHistory[] RecordActionHistories;
 	public RecordAction[] RecordActions;
 	public Task[] Tasks;
+
+	public ContactRequest clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ContactRequest clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ContactRequest clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ContactRequest clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ContactRequest clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

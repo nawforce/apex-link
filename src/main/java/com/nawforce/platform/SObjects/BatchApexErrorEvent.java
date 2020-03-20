@@ -49,4 +49,10 @@ public class BatchApexErrorEvent extends SObject {
 	public String ReplayId;
 	public String RequestId;
 	public String StackTrace;
+
+	public BatchApexErrorEvent clone$() {throw new java.lang.UnsupportedOperationException();}
+	public BatchApexErrorEvent clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public BatchApexErrorEvent clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public BatchApexErrorEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public BatchApexErrorEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

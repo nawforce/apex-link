@@ -73,4 +73,10 @@ public class EmbeddedServiceDetail extends SObject {
 	public String SmallCompanyLogoImg;
 	public String WaitingStateBackgroundImg;
 	public Integer Width;
+
+	public EmbeddedServiceDetail clone$() {throw new java.lang.UnsupportedOperationException();}
+	public EmbeddedServiceDetail clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public EmbeddedServiceDetail clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public EmbeddedServiceDetail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public EmbeddedServiceDetail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

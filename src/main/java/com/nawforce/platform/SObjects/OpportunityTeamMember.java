@@ -57,4 +57,10 @@ public class OpportunityTeamMember extends SObject {
 	public String Title;
 	public Id UserId;
 	public User User;
+
+	public OpportunityTeamMember clone$() {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityTeamMember clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityTeamMember clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityTeamMember clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public OpportunityTeamMember clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

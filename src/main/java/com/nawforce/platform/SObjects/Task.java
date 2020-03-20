@@ -99,4 +99,10 @@ public class Task extends SObject {
 	public RecordAction[] RecordActions;
 	public Task[] RecurringTasks;
 	public TopicAssignment[] TopicAssignments;
+
+	public Task clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Task clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Task clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Task clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Task clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

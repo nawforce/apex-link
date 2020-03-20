@@ -48,4 +48,10 @@ public class QuickTextHistory extends SObject {
 	public Object OldValue;
 	public Id QuickTextId;
 	public QuickText QuickText;
+
+	public QuickTextHistory clone$() {throw new java.lang.UnsupportedOperationException();}
+	public QuickTextHistory clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public QuickTextHistory clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public QuickTextHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public QuickTextHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

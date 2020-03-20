@@ -63,4 +63,10 @@ public class ActionLinkTemplate extends SObject {
 	public Datetime SystemModstamp;
 	public String UserAlias;
 	public String UserVisibility;
+
+	public ActionLinkTemplate clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ActionLinkTemplate clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ActionLinkTemplate clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ActionLinkTemplate clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ActionLinkTemplate clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

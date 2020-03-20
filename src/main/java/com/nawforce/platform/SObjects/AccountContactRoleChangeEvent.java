@@ -53,4 +53,10 @@ public class AccountContactRoleChangeEvent extends SObject {
 	public Datetime LastModifiedDate;
 	public String ReplayId;
 	public String Role;
+
+	public AccountContactRoleChangeEvent clone$() {throw new java.lang.UnsupportedOperationException();}
+	public AccountContactRoleChangeEvent clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public AccountContactRoleChangeEvent clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public AccountContactRoleChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public AccountContactRoleChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

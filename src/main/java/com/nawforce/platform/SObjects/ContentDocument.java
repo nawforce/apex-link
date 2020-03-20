@@ -79,4 +79,10 @@ public class ContentDocument extends SObject {
 	public ContentDocumentFeed[] Feeds;
 	public ContentDocumentHistory[] Histories;
 	public TopicAssignment[] TopicAssignments;
+
+	public ContentDocument clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ContentDocument clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ContentDocument clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ContentDocument clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ContentDocument clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }
