@@ -52,7 +52,7 @@ class TriggerTest extends AnyFunSuite {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages("/Dummy.trigger") ==
-        "Missing: line 1 at 17-23: No type declaration found for 'Stupid'\n")
+        "Missing: line 1 at 17-23: No type declaration found for 'Schema.Stupid'\n")
     }
   }
 

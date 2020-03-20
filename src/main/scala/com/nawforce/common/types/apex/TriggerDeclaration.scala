@@ -53,7 +53,7 @@ class TriggerDeclaration(path: PathLike, val pkg: PackageImpl, name: Id, objectN
 
   override val isSearchable: Boolean = false
 
-  private val objectTypeName = EncodedName(objectName.name).asTypeName
+  private val objectTypeName = TypeName(objectName.name, Nil, Some(TypeName.Schema))
 
   override def validate(): Unit = {
     ServerOps.debugTime(s"Validated $path") {
