@@ -35,7 +35,6 @@ import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class UserListView extends SObject {
-	public static SObjectType$<UserListView> SObjectType;
 	public static SObjectFields$<UserListView> Fields;
 
 	public Id CreatedById;

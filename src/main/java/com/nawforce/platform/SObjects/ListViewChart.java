@@ -35,7 +35,6 @@ import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class ListViewChart extends SObject {
-	public static SObjectType$<ListViewChart> SObjectType;
 	public static SObjectFields$<ListViewChart> Fields;
 
 	public String AggregateField;

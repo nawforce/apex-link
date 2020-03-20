@@ -35,7 +35,6 @@ import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class ObjectTerritory2Association extends SObject {
-	public static SObjectType$<ObjectTerritory2Association> SObjectType;
 	public static SObjectFields$<ObjectTerritory2Association> Fields;
 
 	public String AssociationCause;

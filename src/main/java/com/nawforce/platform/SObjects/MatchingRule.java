@@ -35,7 +35,6 @@ import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class MatchingRule extends SObject {
-	public static SObjectType$<MatchingRule> SObjectType;
 	public static SObjectFields$<MatchingRule> Fields;
 
 	public String BooleanFilter;

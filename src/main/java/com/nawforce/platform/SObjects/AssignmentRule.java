@@ -35,7 +35,6 @@ import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class AssignmentRule extends SObject {
-	public static SObjectType$<AssignmentRule> SObjectType;
 	public static SObjectFields$<AssignmentRule> Fields;
 
 	public Boolean Active;

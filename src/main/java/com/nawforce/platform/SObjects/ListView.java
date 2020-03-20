@@ -35,7 +35,6 @@ import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class ListView extends SObject {
-	public static SObjectType$<ListView> SObjectType;
 	public static SObjectFields$<ListView> Fields;
 
 	public Id CreatedById;
