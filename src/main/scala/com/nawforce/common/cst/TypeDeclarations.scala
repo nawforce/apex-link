@@ -169,10 +169,20 @@ final case class EnumDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeN
   override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Seq[MethodDeclaration] = {
     staticContext match {
-      case Some(x) => EnumDeclaration.methodMap.get((name, params.size)).filter(_.isStatic == x).toSeq
+      case Some(x) => standardMethods.get((name, params.size)).filter(_.isStatic == x).toSeq
       case _ => Seq()
     }
   }
+
+  private lazy val standardMethods: Map[(Name, Int), MethodDeclaration] =
+    Seq(
+      CustomMethodDeclaration(Name("name"), TypeName.String, Seq()),
+      CustomMethodDeclaration(Name("ordinal"), TypeName.Integer, Seq()),
+      CustomMethodDeclaration(Name("values"), TypeName.listOf(typeName), Seq(), asStatic = true),
+      CustomMethodDeclaration(Name("equals"), TypeName.Boolean, Seq(
+        CustomParameterDeclaration(Name("other"), TypeName.InternalObject))),
+      CustomMethodDeclaration(Name("hashCode"), TypeName.Integer, Seq())
+    ).map(m => ((m.name, m.parameters.size),m)).toMap
 }
 
 object EnumDeclaration {
@@ -199,14 +209,4 @@ object EnumDeclaration {
 
     EnumDeclaration(source, pkg, outerTypeName,id, typeModifiers, fields).withContext(enumDeclaration, context)
   }
-
-  private lazy val methodMap: Map[(Name, Int), MethodDeclaration] =
-    Seq(
-      CustomMethodDeclaration(Name("name"), TypeName.String, Seq()),
-      CustomMethodDeclaration(Name("ordinal"), TypeName.Integer, Seq()),
-      CustomMethodDeclaration(Name("values"), TypeName.listOf(TypeName.String), Seq(), asStatic = true),
-      CustomMethodDeclaration(Name("equals"), TypeName.Boolean, Seq(
-        CustomParameterDeclaration(Name("other"), TypeName.InternalObject))),
-      CustomMethodDeclaration(Name("hashCode"), TypeName.Integer, Seq())
-    ).map(m => ((m.name, m.parameters.size),m)).toMap
 }
