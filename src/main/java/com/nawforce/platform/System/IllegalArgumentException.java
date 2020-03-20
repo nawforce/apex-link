@@ -25,23 +25,12 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.platform.Schema;
-
-import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.String;
+package com.nawforce.platform.System;
 
 @SuppressWarnings("unused")
-public class FieldSetMember {
-	public Boolean DbRequired;
-	public String FieldPath;
-	public String Label;
-	public Boolean Required;
-	public DisplayType Type;
-
-	public Boolean getDbRequired() {throw new java.lang.UnsupportedOperationException();}
-	public String getFieldPath() {throw new java.lang.UnsupportedOperationException();}
-	public String getLabel() {throw new java.lang.UnsupportedOperationException();}
-	public Boolean getRequired() {throw new java.lang.UnsupportedOperationException();}
-	public DisplayType getType() {throw new java.lang.UnsupportedOperationException();}
-	public SObjectField getSObjectField() {throw new java.lang.UnsupportedOperationException();}
+public class IllegalArgumentException extends Exception {
+    public IllegalArgumentException() {throw new java.lang.UnsupportedOperationException();}
+    public IllegalArgumentException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
+    public IllegalArgumentException(String param1) {throw new java.lang.UnsupportedOperationException();}
+    public IllegalArgumentException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
 }

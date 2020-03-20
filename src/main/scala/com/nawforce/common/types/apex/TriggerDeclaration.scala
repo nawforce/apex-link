@@ -73,9 +73,13 @@ class TriggerDeclaration(path: PathLike, val pkg: PackageImpl, name: Id, objectN
           val tc = TriggerContext(pkg, triggerContext)
           pkg.upsertMetadata(tc)
 
-          val blockContext = new OuterBlockVerifyContext(context, isStaticContext = false)
-          blockContext.addVar(Name.Trigger, tc)
-          block.verify(blockContext)
+          try {
+            val blockContext = new OuterBlockVerifyContext(context, isStaticContext = false)
+            blockContext.addVar(Name.Trigger, tc)
+            block.verify(blockContext)
+          } finally {
+            pkg.removeMetadata(tc)
+          }
       }
     }
   }
