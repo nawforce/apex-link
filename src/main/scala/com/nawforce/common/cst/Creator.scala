@@ -71,7 +71,7 @@ object IdCreatedNamePair {
   }
 
   def construct(from: IdCreatedNamePairContext, context: ConstructContext): IdCreatedNamePair = {
-    IdCreatedNamePair(Id.construct(from.anyId(), context),
+    IdCreatedNamePair(Id.constructAny(from.anyId(), context),
       CodeParser.toScala(from.typeList())
         .map(tl => TypeList.construct(tl)).getOrElse(Seq())
     ).withContext(from, context)

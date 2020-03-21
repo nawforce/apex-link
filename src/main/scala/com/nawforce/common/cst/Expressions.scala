@@ -269,7 +269,7 @@ object MethodCall {
   }
 
   def construct(from: DotMethodCallContext, context: ConstructContext): MethodCall = {
-    val caller = Right(Id.construct(from.anyId(), context))
+    val caller = Right(Id.constructAny(from.anyId(), context))
     MethodCall(caller,
       CodeParser.toScala(from.expressionList())
         .map(el => CodeParser.toScala(el.expression()).map(e => Expression.construct(e, context)))
@@ -448,7 +448,7 @@ object Expression {
         case expr: DotExpressionContext =>
           DotExpression(
             Expression.construct(expr.expression(), context),
-            CodeParser.toScala(expr.anyId()).map(id => Left(Id.construct(id, context))).getOrElse(
+            CodeParser.toScala(expr.anyId()).map(id => Left(Id.constructAny(id, context))).getOrElse(
               Right(MethodCall.construct(CodeParser.toScala(expr.dotMethodCall()).get, context))
             )
           )
