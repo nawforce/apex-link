@@ -190,19 +190,26 @@ object MethodMap {
     val key = (method.name, method.parameters.size)
     val methods = workingMap.getOrElse(key, Seq())
 
-    val matched = methods.find(_.hasSameParameters(method))
+    // Only consider matches against Apex defined methods, overriding platform methods such a hashCode is different
+    val matched = methods.find(_.hasSameParameters(method)) match {
+      // TOOD: THis should be a ApexMethodLike but we can't currently tell if these are abstract
+      case Some(am: ApexMethodDeclaration) => Some(am)
+      case _ => None
+    }
 
-    if (matched.nonEmpty && (matched.get.typeName != method.typeName)) {
-      setMethodError(method,
-        s"Method '${method.name}' has wrong return type to override, should be '${matched.get.typeName}'",
-        errors, isWarning = true)
-    } else if (matched.nonEmpty && matched.get.isInstanceOf[ApexMethodDeclaration]) {
-      val am = matched.get.asInstanceOf[ApexMethodDeclaration]
-      if (am.block.nonEmpty) {
-        if (!am.isVirtualOrOverride) {
-          setMethodError(method, s"Method '${method.name}' can not override non-virtual method", errors)
-        } else if (!method.isVirtualOrOverride) {
-          setMethodError(method, s"Method '${method.name}' must use override or virtual keyword", errors)
+    if (matched.nonEmpty) {
+      val matchedMethod = matched.get
+      if (matchedMethod.typeName != method.typeName) {
+        setMethodError(method,
+          s"Method '${method.name}' has wrong return type to override, should be '${matched.get.typeName}'",
+          errors, isWarning = true)
+      } else {
+        if (matchedMethod.block.nonEmpty) {
+          if (!matchedMethod.isVirtualOrOverride) {
+            setMethodError(method, s"Method '${method.name}' can not override non-virtual method", errors)
+          } else if (!method.isVirtualOrOverride) {
+            setMethodError(method, s"Method '${method.name}' must use override or virtual keyword", errors)
+          }
         }
       }
     }

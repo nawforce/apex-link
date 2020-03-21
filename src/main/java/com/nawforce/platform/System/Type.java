@@ -27,14 +27,21 @@
 */
 package com.nawforce.platform.System;
 
+import com.nawforce.platform.Schema.SObjectType;
+
 @SuppressWarnings("unused")
 public class Type {
+	// TODO: Should only be visible on SObjects when immediately accessed
+	public SObjectType SObjectType;
+
 	public Boolean equals$(Object o) {throw new java.lang.UnsupportedOperationException();}
 	public String getName() {throw new java.lang.UnsupportedOperationException();}
 	public Integer hashCode$() {throw new java.lang.UnsupportedOperationException();}
 	public Object newInstance() {throw new java.lang.UnsupportedOperationException();}
 	public String toString$() {throw new java.lang.UnsupportedOperationException();}
 
+
 	public static Type forName(String clsName) {throw new java.lang.UnsupportedOperationException();}
 	public static Type forName(String namespace, String clsName) {throw new java.lang.UnsupportedOperationException();}
+
 }
