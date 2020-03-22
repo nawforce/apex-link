@@ -129,7 +129,7 @@ trait PackageDeploy {
   }
 
   private def getParsedCache: Option[ParsedCache] = {
-    if (ServerOps.isParsedDataCaching)
+    if (ServerOps.getParsedDataCaching)
       ParsedCache.create() match {
         case Left(err) => ServerOps.error(err); None
         case Right(cache) => Some(cache)

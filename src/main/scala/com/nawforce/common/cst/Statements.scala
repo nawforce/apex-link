@@ -27,6 +27,7 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.api.ServerOps
 import com.nawforce.common.cst.stmts.SwitchStatement
 import com.nawforce.common.documents.LineLocationImpl
 import com.nawforce.common.names.{Name, TypeName}
@@ -41,8 +42,19 @@ trait Statement extends CST {
 }
 
 // Treat Block as Statement for blocks in blocks
-final case class LazyBlock(clippedStream: ClippedStream, var blockContextRef: WeakReference[BlockContext], isStatic: Boolean)
-  extends CST with Statement {
+trait Block extends CST with Statement
+
+// Standard eager block
+final case class EagerBlock(statements: Seq[Statement]) extends Block {
+  override def verify(context: BlockVerifyContext): Unit = {
+    val blockContext = new InnerBlockVerifyContext(context)
+    statements.foreach(s => s.verify(blockContext))
+  }
+}
+
+// Lazy block, will re-parse when needed
+final case class LazyBlock(clippedStream: ClippedStream, var blockContextRef: WeakReference[BlockContext])
+  extends Block {
   private var statementsRef: WeakReference[Seq[Statement]] = WeakReference(null)
   private var reParsed = false
 
@@ -82,21 +94,17 @@ final case class LazyBlock(clippedStream: ClippedStream, var blockContextRef: We
   }
 }
 
-final case class Block(statements: Seq[Statement])
-  extends CST with Statement {
-  override def verify(context: BlockVerifyContext): Unit = {
-    val blockContext = new InnerBlockVerifyContext(context)
-    statements.foreach(s => s.verify(blockContext))
-  }
-}
-
 object Block {
-  def constructLazy(blockContext: BlockContext, context: ConstructContext, isStatic: Boolean): LazyBlock = {
-    LazyBlock(CodeParser.clipStream(blockContext), WeakReference(blockContext), isStatic)
+  def constructLazy(blockContext: BlockContext, context: ConstructContext): Block = {
+    if (ServerOps.getLazyBlocks) {
+      LazyBlock(CodeParser.clipStream(blockContext), WeakReference(blockContext))
+    } else {
+      construct(blockContext, context)
+    }
   }
 
   def construct(blockContext: BlockContext, context: ConstructContext): Block = {
-    Block(Statement.construct(CodeParser.toScala(blockContext.statement()), context)).withContext(blockContext, context)
+    EagerBlock(Statement.construct(CodeParser.toScala(blockContext.statement()), context)).withContext(blockContext, context)
   }
 
   def constructOption(blockContext: Option[BlockContext], context: ConstructContext): Option[Block] = {

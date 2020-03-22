@@ -27,6 +27,7 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.api.ServerOps
 import com.nawforce.common.documents.{RangeLocationImpl, Source}
 import com.nawforce.common.finding.RelativeTypeName
 import com.nawforce.common.metadata._
@@ -123,7 +124,7 @@ object ApexInitialiserBlock {
 
 final case class ApexMethodDeclaration(outerTypeName: TypeName, _modifiers: Seq[Modifier],
                                        relativeTypeName: RelativeTypeName, id: Id, parameters: Seq[FormalParameter],
-                                       block: Option[LazyBlock])
+                                       block: Option[Block])
   extends ClassBodyDeclaration(_modifiers) with ApexMethodLike {
 
   override val nameRange: RangeLocationImpl = id.location
@@ -169,7 +170,7 @@ object ApexMethodDeclaration {
                 from: MethodDeclarationContext, context: ConstructContext): ApexMethodDeclaration = {
     val typeName = CodeParser.toScala(from.typeRef()).map(tr => TypeRef.construct(tr)).getOrElse(TypeName.Void)
     val block = CodeParser.toScala(from.block())
-      .map(b => Block.constructLazy(b, context, modifiers.contains(STATIC_MODIFIER)))
+      .map(b => Block.constructLazy(b, context))
 
     ApexMethodDeclaration(outerTypeName,
       modifiers, RelativeTypeName(pkg, outerTypeName, typeName),

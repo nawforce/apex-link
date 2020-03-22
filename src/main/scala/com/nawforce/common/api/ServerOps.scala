@@ -44,6 +44,7 @@ object ServerOps  {
   private var logging: Boolean = false
   private var logger: Logger = new DefaultLogger
   private var parsedCaching: Boolean = true
+  private var lazyBlocks: Boolean = true
 
   val Trace: String = "TRACE"
 
@@ -79,12 +80,22 @@ object ServerOps  {
   }
 
   /** Are we caching parsed data */
-  def isParsedDataCaching: Boolean = {
+  def getParsedDataCaching: Boolean = {
     parsedCaching
   }
 
   /** Enable parsed data caching */
   def setParsedDataCaching(enable: Boolean): Unit = {
     parsedCaching = enable
+  }
+
+  /** Are we caching parsed data */
+  def getLazyBlocks: Boolean = {
+    lazyBlocks
+  }
+
+  /** Enable parsed data caching */
+  def setLazyBlocks(enable: Boolean): Unit = {
+    lazyBlocks = enable
   }
 }

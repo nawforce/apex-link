@@ -27,64 +27,10 @@
 */
 package com.nawforce.runtime
 
-import java.nio.file.Paths
-
-import com.nawforce.common.api.{IssueOptions, Org, Package, ServerOps}
-
-import scala.collection.mutable
+import com.nawforce.common.cmds.Check
 
 object ApexLink {
-  val usage = "Usage: ApexLink [-json] [-verbose] <[namespace=]directory>..."
-
   def main(args: Array[String]): Unit = {
-    val options = Set("-verbose", "-json", "-zombie")
-
-    val validArgs = args.flatMap {
-      case option if options.contains(option) => Some(option)
-      case arg => Some(arg)
-    }
-
-    if (validArgs.length != args.length) {
-      println(usage)
-      return
-    }
-
-    var paths: Seq[String] = validArgs.filterNot(options.contains)
-    if (paths.isEmpty)
-      paths = Seq(Paths.get("").toAbsolutePath.toString)
-    val nsSplit = paths.map(path => {
-      if (path.endsWith("="))
-        (path.take(path.length-1), "")
-      else
-        path.split("=") match {
-          case Array(d) => ("", d)
-          case Array(ns, d) => (ns, d)
-          case _ =>
-            println(usage)
-            return
-        }
-    })
-    val json = validArgs.contains("-json")
-    val verbose = !json && validArgs.contains("-verbose")
-    if (verbose)
-      ServerOps.setDebugLogging(Array("ALL"))
-    val zombie = validArgs.contains("-zombie")
-
-    val org = Org.newOrg()
-    val nsLoaded = mutable.Map[String, Package]()
-    nsSplit.foreach(nsDirPair => {
-      if (!nsLoaded.contains(nsDirPair._1)) {
-        val paths = nsSplit.filter(_._1 == nsDirPair._1).map(_._2).filterNot(_.isEmpty)
-        val pkg = org.newPackage(nsDirPair._1, paths.toArray, nsLoaded.values.toArray)
-        nsLoaded.put(nsDirPair._1, pkg)
-      }
-    })
-    org.flush()
-
-    val issueOptions = new IssueOptions()
-    issueOptions.formatJSON = json
-    issueOptions.includeWarnings = verbose
-    issueOptions.includeZombies = zombie
-    println(org.getIssues(issueOptions))
+    Check.main("ApexLink", args)
   }
 }
