@@ -30,6 +30,7 @@ package com.nawforce.common.diagnostics
 import com.nawforce.common.api.Diagnostic
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.runtime.json.JSON
+import upickle.default.write
 
 import scala.collection.mutable
 
@@ -146,10 +147,14 @@ class IssueLog {
     writer.output
 
   }
-  def asString(warnings: Boolean, maxErrors: Int, asJSON: Boolean=false): String = {
-    writeMessages(
-      if (asJSON) new JSONMessageWriter() else new TextMessageWriter(),
-      warnings, maxErrors)
+  def asString(warnings: Boolean, maxErrors: Int, format: String=""): String = {
+    if (format == "pickle") {
+      write(getIssues)
+    } else {
+      writeMessages(
+        if (format == "json") new JSONMessageWriter() else new TextMessageWriter(),
+        warnings, maxErrors)
+    }
   }
 
   def dump(): Unit = {

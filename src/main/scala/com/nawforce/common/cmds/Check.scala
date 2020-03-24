@@ -35,8 +35,8 @@ import scala.collection.mutable
 object Check {
   def usage(name:String) = s"Usage: $name [-json] [-verbose] <[namespace=]directory>..."
 
-  def main(name: String, args: Array[String]): Unit = {
-    val options = Set("-verbose", "-json", "-zombie")
+  def main(name: String, args: Array[String]): Int = {
+    val options = Set("-verbose", "-json", "-pickle", "-zombie")
 
     val validArgs = args.flatMap {
       case option if options.contains(option) => Some(option)
@@ -44,8 +44,8 @@ object Check {
     }
 
     if (validArgs.length != args.length) {
-      println(usage(name))
-      return
+      System.err.println(usage(name))
+      return -1
     }
 
     var paths: Seq[String] = validArgs.filterNot(options.contains)
@@ -59,15 +59,20 @@ object Check {
           case Array(d) => ("", d)
           case Array(ns, d) => (ns, d)
           case _ =>
-            println(usage(name))
-            return
+            System.err.println(usage(name))
+            return -1
         }
     })
     val json = validArgs.contains("-json")
+    val pickle = validArgs.contains("-pickle")
     val verbose = !json && validArgs.contains("-verbose")
     if (verbose)
       ServerOps.setDebugLogging(Array("ALL"))
     val zombie = validArgs.contains("-zombie")
+    if (json && pickle) {
+      System.err.println("-json and -pickle can not be used together")
+      return -1
+    }
 
     val org = Org.newOrg()
     val nsLoaded = mutable.Map[String, Package]()
@@ -81,9 +86,11 @@ object Check {
     org.flush()
 
     val issueOptions = new IssueOptions()
-    issueOptions.formatJSON = json
+    if (json) issueOptions.format = "json"
+    if (pickle) issueOptions.format = "pickle"
     issueOptions.includeWarnings = verbose
     issueOptions.includeZombies = zombie
     println(org.getIssues(issueOptions))
+    0
   }
 }
