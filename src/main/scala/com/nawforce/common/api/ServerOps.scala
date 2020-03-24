@@ -34,9 +34,9 @@ trait Logger {
 }
 
 class DefaultLogger extends Logger {
-  def error(message: String): Unit = {println("[error] " + message)}
-  def info(message: String): Unit = {println(message)}
-  def debug(message: String): Unit = {println("[debug] " + message)}
+  def error(message: String): Unit = {System.err.println("[error] " + message)}
+  def info(message: String): Unit = {System.out.println(message)}
+  def debug(message: String): Unit = {System.err.println("[debug] " + message)}
 }
 
 /* Collection of Ops functions for changing behaviour */

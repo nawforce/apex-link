@@ -83,7 +83,7 @@ class OrgImpl extends Org {
         } else {
           issues
         }
-      reportableIssues.asString(options.includeWarnings, options.maxErrorsPerFile, options.formatJSON)
+      reportableIssues.asString(options.includeWarnings, options.maxErrorsPerFile, options.format)
     }
   }
 

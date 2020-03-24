@@ -53,8 +53,8 @@ class IssueOptions {
     * for correctness. */
   var includeZombies: Boolean = false
 
-  /** Format output as JSON if true, the default is a text format suitable for display */
-  var formatJSON: Boolean = false
+  /** Override output format for issues, valid options are "json" & "pickle" */
+  var format: String = ""
 
   /** Maximum errors to include for each file, errors are ordered so this is the first 'n' errors. */
   var maxErrorsPerFile: Integer = 10
