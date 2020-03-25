@@ -29,7 +29,7 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.documents.Source
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.org.{OrgImpl, PackageImpl}
+import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
 import com.nawforce.common.types.apex.FullDeclaration
@@ -156,25 +156,11 @@ final case class EnumDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeN
 
   override val nature: Nature = ENUM_NATURE
 
-  override lazy val methodMap: MethodMap = {
-    val mmap = MethodMap(this, Some(id.location), MethodMap.empty(), localMethods, interfaceDeclarations)
-    mmap.errors.foreach(OrgImpl.log)
-    mmap
-  }
-
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     super.verify(new TypeVerifyContext(Some(context), this))
   }
 
-  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Seq[MethodDeclaration] = {
-    staticContext match {
-      case Some(x) => standardMethods.get((name, params.size)).filter(_.isStatic == x).toSeq
-      case _ => Seq()
-    }
-  }
-
-  private lazy val standardMethods: Map[(Name, Int), MethodDeclaration] =
+  override lazy val localMethods: Seq[MethodDeclaration] =
     Seq(
       CustomMethodDeclaration(Name("name"), TypeName.String, Seq()),
       CustomMethodDeclaration(Name("ordinal"), TypeName.Integer, Seq()),
@@ -182,7 +168,7 @@ final case class EnumDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeN
       CustomMethodDeclaration(Name("equals"), TypeName.Boolean, Seq(
         CustomParameterDeclaration(Name("other"), TypeName.InternalObject))),
       CustomMethodDeclaration(Name("hashCode"), TypeName.Integer, Seq())
-    ).map(m => ((m.name, m.parameters.size),m)).toMap
+    )
 }
 
 object EnumDeclaration {

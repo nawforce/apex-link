@@ -85,7 +85,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
     }
   }
 
-  override lazy val localMethods: Seq[ApexMethodDeclaration] = {
+  override lazy val localMethods: Seq[MethodDeclaration] = {
     bodyDeclarations.flatMap({
       case m: ApexMethodDeclaration => Some(m)
       case _ => None

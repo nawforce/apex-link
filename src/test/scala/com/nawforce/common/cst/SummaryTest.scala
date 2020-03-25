@@ -99,7 +99,14 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
     assert(typeDeclarationSummary("public enum Dummy {}") ==
       TypeSummary(-1129410070, Some(new TextRange(new PositionImpl(1,12), new PositionImpl(1,17))),
         "Dummy", dummyTypeName, "enum", List("public"),
-        None, Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set())
+        None, Nil, Nil, Nil, Nil,
+        List(
+          MethodSummary(None, "equals", List("public"), TypeName.Boolean, List(ParameterSummary("other", TypeName.InternalObject)),Set()),
+          MethodSummary(None, "hashCode", List("public"), TypeName.Integer, List(),Set()),
+          MethodSummary(None, "name", List("public"), TypeName.String, List(),Set()),
+          MethodSummary(None, "ordinal", List("public"), TypeName.Integer, List(),Set()),
+          MethodSummary(None, "values", List("public", "static"),TypeName.listOf(dummyTypeName),List(),Set())),
+        Nil, Set(), Set())
     )
   }
 
@@ -213,7 +220,14 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
           FieldSummary(Some(new TextRange(new PositionImpl(1,25), new PositionImpl(1,26))),
             "C", List("public", "static"), dummyTypeName, "public", "public", Set(TypeDependentSummary(dummyTypeName,1277314056))),
         ),
-        Nil, Nil, Nil, Set(), Set())
+        Nil,
+        List(
+          MethodSummary(None, "equals", List("public"), TypeName.Boolean, List(ParameterSummary("other", TypeName.InternalObject)),Set()),
+          MethodSummary(None, "hashCode", List("public"), TypeName.Integer, List(),Set()),
+          MethodSummary(None, "name", List("public"), TypeName.String, List(),Set()),
+          MethodSummary(None, "ordinal", List("public"), TypeName.Integer, List(),Set()),
+          MethodSummary(None, "values", List("public", "static"),TypeName.listOf(dummyTypeName),List(),Set())),
+        Nil, Set(), Set())
     )
   }
 }

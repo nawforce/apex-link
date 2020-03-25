@@ -93,7 +93,7 @@ trait ApexDeclaration extends TypeDeclaration {
   val pkg: PackageImpl
   val nameLocation: LocationImpl
   val localFields: Seq[ApexFieldLike]
-  val localMethods: Seq[ApexMethodLike]
+  val localMethods: Seq[MethodDeclaration]
 
   /** Override to handle request to flush the type to passed cache if dirty */
   def flush(pc: ParsedCache, context: PackageContext): Unit
@@ -210,7 +210,11 @@ trait ApexDeclaration extends TypeDeclaration {
     methodMap
     localFields.filterNot(_.hasHolders)
       .map(field => new Issue(UNUSED_CATEGORY, field.nameRange, s"Unused Field or Property '${field.name}'")) ++
-      localMethods.filterNot(_.isUsed)
+      localMethods
+        .flatMap {
+          case am: ApexMethodLike if !am.isUsed => Some(am)
+          case _ => None
+        }
         .map(method => new Issue(UNUSED_CATEGORY, method.nameRange, s"Unused Method '${method.signature}'"))
   }
 }
