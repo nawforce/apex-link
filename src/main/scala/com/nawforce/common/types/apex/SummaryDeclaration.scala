@@ -29,7 +29,7 @@ package com.nawforce.common.types.apex
 
 import com.nawforce.common.api._
 import com.nawforce.common.cst.Modifier
-import com.nawforce.common.documents.{LocationImpl, PackageContext, ParsedCache, RangeLocationImpl}
+import com.nawforce.common.documents.{LocationImpl, PackageContext, ParsedCache, RangeLocationImpl, TextRange}
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
@@ -155,10 +155,10 @@ class SummaryParameter(parameterSummary: ParameterSummary)
   override val typeName: TypeName = parameterSummary.typeName
 }
 
-class SummaryMethod(pkg: PackageImpl, path: PathLike, val outerTypeName: TypeName, methodSummary: MethodSummary)
-  extends ApexMethodLike {
+class SummaryMethod(pkg: PackageImpl, path: PathLike, defaultNameRange: TextRange, val outerTypeName: TypeName,
+                    methodSummary: MethodSummary) extends ApexMethodLike {
 
-  override val nameRange: RangeLocationImpl = RangeLocationImpl(path, methodSummary.idRange.get)
+  override val nameRange: RangeLocationImpl = RangeLocationImpl(path, methodSummary.idRange.getOrElse(defaultNameRange))
   override val name: Name = Name(methodSummary.name)
   override val modifiers: Seq[Modifier] = methodSummary.modifiers.map(Modifier(_))
   override val typeName: TypeName = methodSummary.typeName
@@ -240,10 +240,14 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
     summary.nestedTypes.map(nt => new SummaryDeclaration(path, pkg, Some(typeName), nt))
   }
 
-  override lazy val blocks: Seq[SummaryBlock] = summary.blocks.map(new SummaryBlock(pkg, _))
-  override lazy val localFields: Seq[SummaryField] = summary.fields.map(new SummaryField(pkg, path, typeName, _))
-  override lazy val constructors: Seq[SummaryConstructor] = summary.constructors.map(new SummaryConstructor(pkg, path, _))
-  override lazy val localMethods: Seq[SummaryMethod] = summary.methods.map(new SummaryMethod(pkg, path, typeName, _))
+  override lazy val blocks: Seq[SummaryBlock] =
+    summary.blocks.map(new SummaryBlock(pkg, _))
+  override lazy val localFields: Seq[SummaryField] =
+    summary.fields.map(new SummaryField(pkg, path, typeName, _))
+  override lazy val constructors: Seq[SummaryConstructor] =
+    summary.constructors.map(new SummaryConstructor(pkg, path, _))
+  override lazy val localMethods: Seq[SummaryMethod] =
+    summary.methods.map(new SummaryMethod(pkg, path, summary.idRange.get, typeName, _))
 
   override def flush(pc: ParsedCache, context: PackageContext): Unit = {
     // TODO: Nothing to do here yet, update when upsert metadata supported

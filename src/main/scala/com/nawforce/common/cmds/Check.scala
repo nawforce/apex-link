@@ -74,23 +74,29 @@ object Check {
       return -1
     }
 
-    val org = Org.newOrg()
-    val nsLoaded = mutable.Map[String, Package]()
-    nsSplit.foreach(nsDirPair => {
-      if (!nsLoaded.contains(nsDirPair._1)) {
-        val paths = nsSplit.filter(_._1 == nsDirPair._1).map(_._2).filterNot(_.isEmpty)
-        val pkg = org.newPackage(nsDirPair._1, paths.toArray, nsLoaded.values.toArray)
-        nsLoaded.put(nsDirPair._1, pkg)
-      }
-    })
-    org.flush()
+    try {
+      val org = Org.newOrg()
+      val nsLoaded = mutable.Map[String, Package]()
+      nsSplit.foreach(nsDirPair => {
+        if (!nsLoaded.contains(nsDirPair._1)) {
+          val paths = nsSplit.filter(_._1 == nsDirPair._1).map(_._2).filterNot(_.isEmpty)
+          val pkg = org.newPackage(nsDirPair._1, paths.toArray, nsLoaded.values.toArray)
+          nsLoaded.put(nsDirPair._1, pkg)
+        }
+      })
+      org.flush()
 
-    val issueOptions = new IssueOptions()
-    if (json) issueOptions.format = "json"
-    if (pickle) issueOptions.format = "pickle"
-    issueOptions.includeWarnings = verbose
-    issueOptions.includeZombies = zombie
-    println(org.getIssues(issueOptions))
-    0
+      val issueOptions = new IssueOptions()
+      if (json) issueOptions.format = "json"
+      if (pickle) issueOptions.format = "pickle"
+      issueOptions.includeWarnings = verbose
+      issueOptions.includeZombies = zombie
+      println(org.getIssues(issueOptions))
+      0
+    } catch {
+      case ex: Throwable =>
+        ex.printStackTrace(System.err)
+        -2
+    }
   }
 }
