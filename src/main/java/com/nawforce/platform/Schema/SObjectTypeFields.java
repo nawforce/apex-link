@@ -30,6 +30,7 @@ package com.nawforce.platform.Schema;
 import com.nawforce.platform.System.Map;
 import com.nawforce.platform.System.String;
 
+@SuppressWarnings("unused")
 public class SObjectTypeFields {
     public Map<String, SObjectField> getMap() {throw new java.lang.UnsupportedOperationException();}
 }

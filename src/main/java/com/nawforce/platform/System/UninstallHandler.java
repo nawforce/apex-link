@@ -27,6 +27,7 @@
 */
 package com.nawforce.platform.System;
 
+@SuppressWarnings("unused")
 public interface UninstallHandler {
     void onUninstall(UninstallContext context);
 }

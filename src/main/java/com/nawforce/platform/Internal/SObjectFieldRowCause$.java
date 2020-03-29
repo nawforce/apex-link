@@ -28,13 +28,7 @@
 package com.nawforce.platform.Internal;
 
 import com.nawforce.platform.Schema.SObjectField;
-import com.nawforce.platform.Schema.SObjectType;
-import com.nawforce.platform.System.*;
-import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
-
-import java.lang.UnsupportedOperationException;
 
 @SuppressWarnings("unused")
 public class SObjectFieldRowCause$ extends SObjectField {

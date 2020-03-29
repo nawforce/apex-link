@@ -168,7 +168,7 @@ final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields
   extends NamedTypeDeclaration(pkg, TypeName.sObjectType$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
   private lazy val fieldField = CustomFieldDeclaration(Name.Fields,
-    TypeName.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeName.Schema))), true)
+    TypeName.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeName.Schema))), asStatic = true)
 
   override val superClass: Option[TypeName] = Some(TypeName.SObjectType)
 

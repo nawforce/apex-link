@@ -134,7 +134,7 @@ object ElementValue {
   def construct(elementValue: ElementValueContext, context: ConstructContext): ElementValue = {
 
     // TODO: Fix up when we have expression support
-    //val expresison = CodeParser.toScala(elementValue.expression())
+    //val expression = CodeParser.toScala(elementValue.expression())
     val annotation = CodeParser.toScala(elementValue.annotation())
     val arrayInitializer = CodeParser.toScala(elementValue.elementValueArrayInitializer())
 

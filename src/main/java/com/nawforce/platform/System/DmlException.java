@@ -27,8 +27,6 @@
 */
 package com.nawforce.platform.System;
 
-import com.nawforce.platform.Schema.SObjectField;
-
 @SuppressWarnings("unused")
 public class DmlException extends Exception {
 	public DmlException() {throw new java.lang.UnsupportedOperationException();}

@@ -28,11 +28,9 @@
 package com.nawforce.platform.Internal;
 
 import com.nawforce.platform.Schema.SObjectType;
-import com.nawforce.platform.System.*;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
-
-import java.lang.UnsupportedOperationException;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class RecordSet$<T> {

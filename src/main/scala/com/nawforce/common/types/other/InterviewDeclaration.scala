@@ -65,7 +65,7 @@ final class InterviewDeclaration(pkg: PackageImpl)
   }
 }
 
-/** The typw for an a custom interview, the only kind */
+/** The type for an a custom interview, the only kind */
 final class CustomInterview(_pkg: PackageImpl, _typeName: TypeName, path: PathLike)
   extends InnerNamedTypeDeclaration(_pkg, _typeName) {
 
