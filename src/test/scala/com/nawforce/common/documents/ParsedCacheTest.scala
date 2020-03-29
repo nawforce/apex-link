@@ -56,7 +56,7 @@ class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("default uses homedir") {
-    val cache = ParsedCache.create()
+    val cache = ParsedCache.create
     assert(cache.isRight)
     assert(cache.right.get.path == Environment.homedir.get.join(ParsedCache.CACHE_DIR))
   }
@@ -67,7 +67,7 @@ class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
       assert(Environment.setVariable("APEXLINK_CACHE_DIR", testPath.toString))
       ParsedCache.clear()
 
-      val cache = ParsedCache.create()
+      val cache = ParsedCache.create
       assert(cache.isRight)
       assert(cache.right.get.path == testPath)
       assert(testPath.delete().isEmpty)
@@ -77,21 +77,21 @@ class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("empty key insert/recover") {
-    val cache = ParsedCache.create().right.get
+    val cache = ParsedCache.create.right.get
     cache.upsert("".getBytes, "Hello".getBytes(), emptyPackageContext)
     assert(cache.get("".getBytes, emptyPackageContext).get.sameElements("Hello".getBytes()))
     assert(cache.get("Foo".getBytes, emptyPackageContext).isEmpty)
   }
 
   test("key insert/recover") {
-    val cache = ParsedCache.create().right.get
+    val cache = ParsedCache.create.right.get
     cache.upsert("Foo".getBytes, "Hello".getBytes(), emptyPackageContext)
     assert(cache.get("".getBytes, emptyPackageContext).isEmpty)
     assert(cache.get("Foo".getBytes, emptyPackageContext).get.sameElements("Hello".getBytes()))
   }
 
   test("overwrite entry") {
-    val cache = ParsedCache.create().right.get
+    val cache = ParsedCache.create.right.get
     cache.upsert("Foo".getBytes, "Hello".getBytes(), emptyPackageContext)
     assert(cache.get("Foo".getBytes, emptyPackageContext).get.sameElements("Hello".getBytes()))
     cache.upsert("Foo".getBytes, "Goodbye".getBytes(), emptyPackageContext)
@@ -99,7 +99,7 @@ class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("key insert/recover wrong packageContext") {
-    val cache = ParsedCache.create().right.get
+    val cache = ParsedCache.create.right.get
     cache.upsert("Foo".getBytes, "Hello".getBytes(), emptyPackageContext)
     assert(cache.get("Foo".getBytes, PackageContext(Some(""), Array(), Array())).isEmpty)
     assert(cache.get("Foo".getBytes, PackageContext(Some("Foo"), Array(), Array())).isEmpty)
@@ -107,7 +107,7 @@ class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
 
   test("key insert/recover with namespaced packageContext") {
     val packageContext = PackageContext(Some("test"), Array(), Array())
-    val cache = ParsedCache.create().right.get
+    val cache = ParsedCache.create.right.get
     cache.upsert("Foo".getBytes, "Hello".getBytes(), packageContext)
     assert(cache.get("".getBytes, packageContext).isEmpty)
     assert(cache.get("Foo".getBytes, packageContext).get.sameElements("Hello".getBytes()))
@@ -115,7 +115,7 @@ class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
 
   test("key insert/recover with bad packageContext") {
     val packageContext = PackageContext(Some("test"), Array("ghosted1", "ghosted2"), Array("analysed1", "analysed2"))
-    val cache = ParsedCache.create().right.get
+    val cache = ParsedCache.create.right.get
     cache.upsert("Foo".getBytes, "Hello".getBytes(), packageContext)
     assert(cache.get("Foo".getBytes, packageContext).get.sameElements("Hello".getBytes()))
     assert(cache.get("Foo".getBytes,
