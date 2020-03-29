@@ -229,7 +229,7 @@ object MapCreatorRestPair {
   def construct(from: MapCreatorRestPairContext, context: ConstructContext): MapCreatorRestPair = {
     val expressions = CodeParser.toScala(from.expression())
     MapCreatorRestPair(
-      Expression.construct(expressions(0), context),
+      Expression.construct(expressions.head, context),
       Expression.construct(expressions(1), context)
     ).withContext(from, context)
   }

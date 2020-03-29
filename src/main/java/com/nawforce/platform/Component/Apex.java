@@ -33,7 +33,6 @@ import com.nawforce.platform.Internal.Object$;
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
-import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
 public class Apex {

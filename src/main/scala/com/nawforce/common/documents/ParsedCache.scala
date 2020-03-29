@@ -164,7 +164,7 @@ object ParsedCache {
   val TEST_FILE: String = "test_file"
   val EXPIRE_WINDOW: Long = 7 * 24 * 60 * 60 * 1000
 
-  def create(): Either[String, ParsedCache] = {
+  def create: Either[String, ParsedCache] = {
     val cacheDirOpt =
       Environment.variable("APEXLINK_CACHE_DIR").map(d => PathFactory(d))
         .orElse(Environment.homedir.map(_.join(CACHE_DIR)))
@@ -194,6 +194,6 @@ object ParsedCache {
   }
 
   def clear(): Unit = {
-    create().map(_.clear())
+    create.map(_.clear())
   }
 }

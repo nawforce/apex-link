@@ -51,7 +51,7 @@ public class System {
 	public static Boolean isScheduled() {throw new java.lang.UnsupportedOperationException();}
 	public static void movePassword(Id targetUserId, Id sourceUserId) {throw new java.lang.UnsupportedOperationException();}
 	public static Datetime now() {throw new java.lang.UnsupportedOperationException();}
-	public static List<Id> process(List workitemIds, String action, String commments, String nextApprover) {throw new java.lang.UnsupportedOperationException();}
+	public static List<Id> process(List<Id> workitemIds, String action, String comments, String nextApprover) {throw new java.lang.UnsupportedOperationException();}
 	public static Integer purgeOldAsyncJobs(Date date) {throw new java.lang.UnsupportedOperationException();}
 	public static Version requestVersion() {throw new java.lang.UnsupportedOperationException();}
 	public static ResetPasswordResult resetPassword(Id userId, Boolean sendUserEmail) {throw new java.lang.UnsupportedOperationException();}
@@ -62,6 +62,6 @@ public class System {
 	public static String scheduleBatch(Object batchable, String jobName, Integer minutesFromNow) {throw new java.lang.UnsupportedOperationException();}
 	public static String scheduleBatch(Object batchable, String jobName, Integer minutesFromNow, Integer scopeSize) {throw new java.lang.UnsupportedOperationException();}
 	public static void setPassword(Id userId, String password) {throw new java.lang.UnsupportedOperationException();}
-	public static List<Id> submit(List ids, String commments, String nextApprover) {throw new java.lang.UnsupportedOperationException();}
+	public static List<Id> submit(List<Id> ids, String commments, String nextApprover) {throw new java.lang.UnsupportedOperationException();}
 	public static Date today() {throw new java.lang.UnsupportedOperationException();}
 }

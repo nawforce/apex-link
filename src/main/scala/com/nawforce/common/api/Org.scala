@@ -31,7 +31,7 @@ import com.nawforce.common.org.OrgImpl
 
 trait Org {
   /** Get array of current packages. All orgs have at least one 'unmanaged' package. */
-  def getPackages(): Array[Package]
+  def getPackages: Array[Package]
 
   /** Get current issue log. See IssueOptions for control over what is returned. */
   def getIssues(options: IssueOptions): String

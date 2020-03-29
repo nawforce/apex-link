@@ -160,7 +160,6 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
 
   // Override to avoid super class access (use local fields & methods) & provide location information
   override lazy val summary: TypeSummary = {
-    val ns = packageDeclaration.flatMap(_.namespace)
     TypeSummary (
       sourceHash,
       Some(new RangeLocation(id.location.start.toPosition, id.location.end.toPosition)),
@@ -169,10 +168,10 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
       nature.value, modifiers.map(_.toString).sorted.toList,
       superClass,
       interfaces.toList,
-      blocks.map(_.summary()).toList,
-      localFields.map(_.summary()).sortBy(_.name).toList,
-      constructors.map(_.summary()).sortBy(_.parameters.size).toList,
-      localMethods.map(_.summary()).sortBy(_.name).toList,
+      blocks.map(_.summary).toList,
+      localFields.map(_.summary).sortBy(_.name).toList,
+      constructors.map(_.summary).sortBy(_.parameters.size).toList,
+      localMethods.map(_.summary).sortBy(_.name).toList,
       nestedTypes.map(_.summary).sortBy(_.name).toList,
       dependencySummary(),
       getTypeDependencyHolders.toSet

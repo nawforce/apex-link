@@ -104,9 +104,9 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
       case Some(docType: MetadataDocumentType) if !docType.ignorable =>
         if (docType.indexByName) {
           if (documentNames(docType.extension).contains(docType.name)) {
-            val duplicate = documents(docType.extension).find(_.name == docType.name)
             // TODO: Re-install this
-            //Org.logMessage(LineLocation(docType.path, 0), s"File has same name as ${duplicate.get}, ignoring")
+            // val duplicate = documents(docType.extension).find(_.name == docType.name)
+            // Org.logMessage(LineLocation(docType.path, 0), s"File has same name as ${duplicate.get}, ignoring")
           } else {
             documentNames(docType.extension).add(docType.name)
             documents.put(docType.extension, docType :: documents(docType.extension))

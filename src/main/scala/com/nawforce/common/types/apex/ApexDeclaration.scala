@@ -42,7 +42,7 @@ import scala.collection.mutable
 trait ApexConstructorLike extends ConstructorDeclaration {
   val nameRange: RangeLocationImpl
 
-  override def summary(): ConstructorSummary = {
+  override def summary: ConstructorSummary = {
     super.summary(Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
   }
 }
@@ -82,7 +82,7 @@ trait ApexFieldLike extends FieldDeclaration {
   val nameRange: RangeLocationImpl
   val outerTypeName: TypeName
 
-  override def summary(): FieldSummary = {
+  override def summary: FieldSummary = {
     super.summary(Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
   }
 }
@@ -155,7 +155,7 @@ trait ApexDeclaration extends TypeDeclaration {
 
   lazy val methodMap: MethodMap = {
     val allMethods = outerStaticMethods ++ localMethods
-    val mmap = superClassDeclaration match {
+    val methods = superClassDeclaration match {
       case Some(at: ApexDeclaration) =>
         MethodMap(this, Some(nameLocation), at.methodMap, allMethods, interfaceDeclarations)
       case Some(td: TypeDeclaration) =>
@@ -166,8 +166,8 @@ trait ApexDeclaration extends TypeDeclaration {
         MethodMap(this, Some(nameLocation), MethodMap.empty(), allMethods, interfaceDeclarations)
     }
 
-    mmap.errors.foreach(OrgImpl.log)
-    mmap
+    methods.errors.foreach(OrgImpl.log)
+    methods
   }
 
   override lazy val methods: Seq[MethodDeclaration] = methodMap.allMethods.toSeq
