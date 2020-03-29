@@ -108,6 +108,68 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+  test("summary of type") {
+    FileSystemHelper.run(Map(
+      "classes/Dummy.cls" -> "public class Dummy {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      val typeLike = pkg.getTypeOfPath(root.join("classes").join("Dummy.cls").toString)
+      val summary = pkg.getSummaryOfType(typeLike)
+
+      assert(summary.name == "Dummy")
+      assert(summary.typeName.toString == "Dummy")
+      assert(summary.modifiers == List("public"))
+    }
+  }
+
+  test("summary of type with namespace") {
+    FileSystemHelper.run(Map(
+      "classes/Dummy.cls" -> "@isTest puBlic class Dummy {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      val typeLike = pkg.getTypeOfPath(root.join("classes").join("Dummy.cls").toString)
+      val summary = pkg.getSummaryOfType(typeLike)
+
+      assert(summary.name == "Dummy")
+      assert(summary.typeName.toString == "test.Dummy")
+      assert(summary.modifiers == List("@IsTest", "public"))
+    }
+  }
+
+  test("summary of type with namespace (cached)") {
+    ParsedCache.clear()
+    ServerOps.setParsedDataCaching(true)
+
+    FileSystemHelper.run(Map(
+      "classes/Dummy.cls" -> "@isTest puBlic class Dummy {}"
+    ), setupCache = true) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+      org.flush()
+
+      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg2 = org2.addPackage(Some(Name("test")), Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org2.issues.hasMessages)
+
+      val typeLike = pkg2.getTypeOfPath(root.join("classes").join("Dummy.cls").toString)
+      val summary = pkg2.getSummaryOfType(typeLike)
+
+      assert(pkg2.getType(TypeName(typeLike), None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+      assert(summary.name == "Dummy")
+      assert(summary.typeName.toString == "test.Dummy")
+      assert(summary.modifiers == List("@IsTest", "public"))
+    }
+
+    ServerOps.setParsedDataCaching(false)
+  }
+
   test("No dependencies") {
     FileSystemHelper.run(Map(
       "classes/Foo.cls" -> "public class Foo {}"

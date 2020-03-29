@@ -42,6 +42,10 @@ trait Package {
     * is not defined within the current package. Currently restricted to only supporting Apex class files. */
   def getPathOfType(typeLike: TypeLike): String
 
+  /** Get the summary information for a type, returns a null if the type is not defined within the current package.
+    * Currently restricted to only supporting Apex class files. */
+  def getSummaryOfType(typeLike: TypeLike): TypeSummary
+
   /** Returns set of Apex defined types that are depended on by the passed Apex type, if the passed type is
     * invalid or does not identify an Apex type returns a null. If inheritanceOnly is true only
     * superClass & inheritance dependencies are reported, otherwise all dependencies are included. */
