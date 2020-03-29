@@ -29,7 +29,6 @@ package com.nawforce.common.types
 
 import com.nawforce.common.api._
 import com.nawforce.common.cst._
-import com.nawforce.common.documents.TextRange
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.metadata.{DependencyHolder, MetadataDeclaration}
 import com.nawforce.common.names.{Name, TypeName}
@@ -76,7 +75,7 @@ trait FieldDeclaration extends DependencyHolder {
     summary(None)
   }
 
-  protected def summary(range: Option[TextRange]): FieldSummary = {
+  protected def summary(range: Option[RangeLocation]): FieldSummary = {
     FieldSummary(range, name.toString,
       modifiers.map(_.toString).sorted.toList,
       typeName,
@@ -103,7 +102,7 @@ trait ConstructorDeclaration extends DependencyHolder {
     summary(None)
   }
 
-  protected def summary(range: Option[TextRange]): ConstructorSummary = {
+  protected def summary(range: Option[RangeLocation]): ConstructorSummary = {
     ConstructorSummary(range,
       modifiers.map(_.toString).sorted.toList,
       parameters.map(_.summary()).sortBy(_.name).toList,
@@ -188,7 +187,7 @@ trait MethodDeclaration extends DependencyHolder {
     summary(None)
   }
 
-  protected def summary(range: Option[TextRange]): MethodSummary = {
+  protected def summary(range: Option[RangeLocation]): MethodSummary = {
     MethodSummary(range,
       name.toString, modifiers.map(_.toString).sorted.toList,
       typeName,

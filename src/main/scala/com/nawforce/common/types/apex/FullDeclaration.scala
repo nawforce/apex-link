@@ -29,7 +29,7 @@ package com.nawforce.common.types.apex
 
 import java.nio.charset.StandardCharsets
 
-import com.nawforce.common.api.{ApexSummary, ServerOps, TypeSummary}
+import com.nawforce.common.api.{ApexSummary, RangeLocation, ServerOps, TypeSummary}
 import com.nawforce.common.cst._
 import com.nawforce.common.documents._
 import com.nawforce.common.metadata.Dependent
@@ -163,7 +163,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
     val ns = packageDeclaration.flatMap(_.namespace)
     TypeSummary (
       sourceHash,
-      Some(new TextRange(id.location.start, id.location.end)),
+      Some(new RangeLocation(id.location.start.toPosition, id.location.end.toPosition)),
       name.toString,
       typeName,
       nature.value, modifiers.map(_.toString).sorted.toList,

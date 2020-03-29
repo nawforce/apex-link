@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.types.apex
 
-import com.nawforce.common.api.{ConstructorSummary, FieldSummary, MethodSummary}
+import com.nawforce.common.api.{ConstructorSummary, FieldSummary, MethodSummary, RangeLocation}
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents._
@@ -43,7 +43,7 @@ trait ApexConstructorLike extends ConstructorDeclaration {
   val nameRange: RangeLocationImpl
 
   override def summary(): ConstructorSummary = {
-    super.summary(Some(new TextRange(nameRange.start, nameRange.end)))
+    super.summary(Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
   }
 }
 
@@ -73,7 +73,7 @@ trait ApexMethodLike extends MethodDeclaration {
   }
 
   override def summary(): MethodSummary = {
-    super.summary(Some(new TextRange(nameRange.start, nameRange.end)))
+    super.summary(Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
   }
 }
 
@@ -83,7 +83,7 @@ trait ApexFieldLike extends FieldDeclaration {
   val outerTypeName: TypeName
 
   override def summary(): FieldSummary = {
-    super.summary(Some(new TextRange(nameRange.start, nameRange.end)))
+    super.summary(Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
   }
 }
 
