@@ -155,7 +155,7 @@ class SummaryParameter(parameterSummary: ParameterSummary)
   override val typeName: TypeName = TypeName(parameterSummary.typeName)
 }
 
-class SummaryMethod(pkg: PackageImpl, path: PathLike, defaultNameRange: TextRange, val outerTypeName: TypeName,
+class SummaryMethod(pkg: PackageImpl, path: PathLike, defaultNameRange: RangeLocation, val outerTypeName: TypeName,
                     methodSummary: MethodSummary) extends ApexMethodLike {
 
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, methodSummary.idRange.getOrElse(defaultNameRange))

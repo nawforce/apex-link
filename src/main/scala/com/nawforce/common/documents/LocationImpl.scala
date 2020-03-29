@@ -163,5 +163,9 @@ object RangeLocationImpl {
   def apply(path: PathLike, range: TextRange): RangeLocationImpl = {
     RangeLocationImpl(path.toString, range.start, range.end)
   }
+
+  def apply(path: PathLike, range: RangeLocation): RangeLocationImpl = {
+    RangeLocationImpl(path.toString, PositionImpl(range.start), PositionImpl(range.end))
+  }
 }
 
