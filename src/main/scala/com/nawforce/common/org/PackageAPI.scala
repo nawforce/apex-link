@@ -1,9 +1,9 @@
 package com.nawforce.common.org
 
-import com.nawforce.common.api.{Package, ServerOps, TypeLike}
+import com.nawforce.common.api.{Package, ServerOps}
 import com.nawforce.common.documents.{ApexDocument, DocumentType}
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.names.TypeName
+import com.nawforce.common.names.{TypeLike, TypeName}
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.common.types.apex.{ApexDeclaration, FullDeclaration}

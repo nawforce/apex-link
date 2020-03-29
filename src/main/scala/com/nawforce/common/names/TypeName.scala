@@ -27,8 +27,19 @@
 */
 package com.nawforce.common.names
 
-import com.nawforce.common.api.TypeLike
 import upickle.default.{macroRW, ReadWriter => RW}
+
+/**
+  * Abstract name of type. This is used to avoid external dependency on the type name structures used in the library.
+  * Currently we only support conversion to a string representation for display purposes.
+  */
+sealed trait TypeLike {
+  def toString: String
+}
+
+object TypeLike {
+  implicit val rw: RW[TypeLike] = macroRW
+}
 
 /**
   * Representation of a type name with optional type arguments. These are stored in inner to outer order to allow

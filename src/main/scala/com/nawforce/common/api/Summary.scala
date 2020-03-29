@@ -28,31 +28,31 @@
 package com.nawforce.common.api
 
 import com.nawforce.common.documents.TextRange
-import com.nawforce.common.names.TypeName
+import com.nawforce.common.names.TypeLike
 import upickle.default.{macroRW, ReadWriter => RW}
 
 case class ApexSummary(typeSummary: TypeSummary, diagnostics: List[Diagnostic])
-case class TypeSummary(sourceHash: Int, idRange: Option[TextRange], name: String, typeName: TypeName,
-                       nature: String, modifiers: List[String], superClass: Option[TypeName], interfaces: List[TypeName],
+case class TypeSummary(sourceHash: Int, idRange: Option[TextRange], name: String, typeName: TypeLike,
+                       nature: String, modifiers: List[String], superClass: Option[TypeLike], interfaces: List[TypeLike],
                        blocks: List[BlockSummary], fields: List[FieldSummary], constructors: List[ConstructorSummary],
                        methods: List[MethodSummary], nestedTypes: List[TypeSummary], dependents: Set[DependentSummary],
-                       holders: Set[TypeName])
+                       holders: Set[TypeLike])
 case class BlockSummary(isStatic: Boolean, dependents: Set[DependentSummary])
 case class FieldSummary(idRange: Option[TextRange], name: String, modifiers: List[String],
-                        typeName: TypeName, readAccess: String, writeAccess: String, dependents: Set[DependentSummary])
+                        typeName: TypeLike, readAccess: String, writeAccess: String, dependents: Set[DependentSummary])
 case class ConstructorSummary(idRange: Option[TextRange], modifiers: List[String], parameters: List[ParameterSummary],
                               dependents: Set[DependentSummary])
-case class MethodSummary(idRange: Option[TextRange], name: String, modifiers: List[String], typeName: TypeName,
+case class MethodSummary(idRange: Option[TextRange], name: String, modifiers: List[String], typeName: TypeLike,
                          parameters: List[ParameterSummary], dependents: Set[DependentSummary])
-case class ParameterSummary(name: String, typeName: TypeName)
+case class ParameterSummary(name: String, typeName: TypeLike)
 
 sealed trait DependentSummary
 @upickle.implicits.key("Type")
-case class TypeDependentSummary(typeName: TypeName, sourceHash: Int) extends DependentSummary
+case class TypeDependentSummary(typeName: TypeLike, sourceHash: Int) extends DependentSummary
 @upickle.implicits.key("Field")
-case class FieldDependentSummary(typeName: TypeName, name: String) extends DependentSummary
+case class FieldDependentSummary(typeName: TypeLike, name: String) extends DependentSummary
 @upickle.implicits.key("Method")
-case class MethodDependentSummary(typeName: TypeName, name: String, parameters: List[ParameterSummary]) extends DependentSummary
+case class MethodDependentSummary(typeName: TypeLike, name: String, parameters: List[ParameterSummary]) extends DependentSummary
 
 case class Diagnostic(category: String, location: Location, message: String)
 

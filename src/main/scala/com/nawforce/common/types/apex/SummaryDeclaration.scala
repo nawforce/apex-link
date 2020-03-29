@@ -29,7 +29,7 @@ package com.nawforce.common.types.apex
 
 import com.nawforce.common.api._
 import com.nawforce.common.cst.Modifier
-import com.nawforce.common.documents.{LocationImpl, PackageContext, ParsedCache, RangeLocationImpl, TextRange}
+import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
@@ -71,7 +71,7 @@ object DependentValidation {
       findType(localType, pkg).orElse(localType.outer.flatMap(findType(_, pkg)))
     }
 
-    findSummaryType(dependent.typeName)
+    findSummaryType(TypeName(dependent.typeName))
       .filter({
         case sd: SummaryDeclaration => sd.sourceHash == dependent.sourceHash
         case _ => true
@@ -104,14 +104,14 @@ object DependentValidation {
   /* Find a type dependency, no need to check this as should have been done via areTypeDependenciesValid */
   def findDependent(dependent: TypeDependentSummary, pkg: PackageImpl)
     : Option[TypeDeclaration] = {
-    findType(dependent.typeName, pkg)
+    findType(TypeName(dependent.typeName), pkg)
   }
 
   /* Find a field dependency */
   def findDependent(dependent: FieldDependentSummary, pkg: PackageImpl)
     : Option[FieldDeclaration] = {
     val name = Name(dependent.name)
-    findExactType(dependent.typeName, pkg)
+    findExactType(TypeName(dependent.typeName), pkg)
       .flatMap(_.fields.find(_.name == name))
   }
 
@@ -119,7 +119,7 @@ object DependentValidation {
   def findDependent(dependent: MethodDependentSummary, pkg: PackageImpl)
   : Option[MethodDeclaration] = {
     val name = Name(dependent.name)
-    findExactType(dependent.typeName, pkg)
+    findExactType(TypeName(dependent.typeName), pkg)
       .flatMap(_.methods.find(m => m.name == name &&
         m.parameters.map(_.typeName) == dependent.parameters.map(_.typeName)))
   }
@@ -152,7 +152,7 @@ class SummaryParameter(parameterSummary: ParameterSummary)
   extends ParameterDeclaration {
 
   override val name: Name = Name(parameterSummary.name)
-  override val typeName: TypeName = parameterSummary.typeName
+  override val typeName: TypeName = TypeName(parameterSummary.typeName)
 }
 
 class SummaryMethod(pkg: PackageImpl, path: PathLike, defaultNameRange: TextRange, val outerTypeName: TypeName,
@@ -161,7 +161,7 @@ class SummaryMethod(pkg: PackageImpl, path: PathLike, defaultNameRange: TextRang
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, methodSummary.idRange.getOrElse(defaultNameRange))
   override val name: Name = Name(methodSummary.name)
   override val modifiers: Seq[Modifier] = methodSummary.modifiers.map(Modifier(_))
-  override val typeName: TypeName = methodSummary.typeName
+  override val typeName: TypeName = TypeName(methodSummary.typeName)
   override val parameters: Seq[ParameterDeclaration] = methodSummary.parameters.map(new SummaryParameter(_))
 
   def areTypeDependenciesValid: Boolean = DependentValidation.areTypeDependenciesValid(methodSummary.dependents, pkg)
@@ -191,7 +191,7 @@ class SummaryField(pkg: PackageImpl, path: PathLike, val outerTypeName: TypeName
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, fieldSummary.idRange.get)
   override val name: Name = Name(fieldSummary.name)
   override val modifiers: Seq[Modifier] = fieldSummary.modifiers.map(Modifier(_))
-  override val typeName: TypeName = fieldSummary.typeName
+  override val typeName: TypeName = TypeName(fieldSummary.typeName)
   override val readAccess: Modifier = Modifier(fieldSummary.readAccess)
   override val writeAccess: Modifier = Modifier(fieldSummary.writeAccess)
 
@@ -224,7 +224,7 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
 
   // For outer types update the dependency holders so we can defer dependency propagation
   if (outerTypeName.isEmpty)
-    summary.holders.foreach(addTypeDependencyHolder)
+    summary.holders.map(TypeName(_)).foreach(addTypeDependencyHolder)
 
   override lazy val sourceHash: Int = summary.sourceHash
   override val nameLocation: LocationImpl = RangeLocationImpl(path, summary.idRange.get)
@@ -234,8 +234,8 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
   override lazy val nature: Nature = Nature(summary.nature)
   override lazy val modifiers: Seq[Modifier] = summary.modifiers.map(Modifier(_))
 
-  override lazy val superClass: Option[TypeName] = summary.superClass
-  override lazy val interfaces: Seq[TypeName] = summary.interfaces
+  override lazy val superClass: Option[TypeName] = summary.superClass.map(TypeName(_))
+  override lazy val interfaces: Seq[TypeName] = summary.interfaces.map(TypeName(_))
   override lazy val nestedTypes: Seq[SummaryDeclaration] = {
     summary.nestedTypes.map(nt => new SummaryDeclaration(path, pkg, Some(typeName), nt))
   }
