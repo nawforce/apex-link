@@ -27,6 +27,8 @@
 */
 package com.nawforce.common.api
 
+import com.nawforce.common.names.TypeLike
+
 trait Package {
   /** The namespace of the package, maybe empty for the unmanaged package, otherwise is unique is Org */
   def getNamespace: String

@@ -30,7 +30,7 @@ package com.nawforce.common.org
 
 import com.nawforce.common.cst.UnusedLog
 import com.nawforce.common.diagnostics.IssueLog
-import com.nawforce.common.documents.{ComponentDocument, DocumentIndex, FlowDocument, MetadataDocumentType, PackageContext}
+import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.metadata.MetadataDeclaration

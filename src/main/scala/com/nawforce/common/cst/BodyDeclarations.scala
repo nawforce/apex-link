@@ -27,7 +27,6 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.ServerOps
 import com.nawforce.common.documents.{RangeLocationImpl, Source}
 import com.nawforce.common.finding.RelativeTypeName
 import com.nawforce.common.metadata._
