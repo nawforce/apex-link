@@ -1,6 +1,6 @@
 package com.nawforce.common.org
 
-import com.nawforce.common.api.{Package, ServerOps, TypeSummary}
+import com.nawforce.common.api.{Package, ServerOps, TypeSummary, ViewInfo}
 import com.nawforce.common.documents.{ApexDocument, DocumentType}
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{TypeLike, TypeName}
@@ -61,6 +61,18 @@ trait PackageAPI extends Package {
     getApexDeclaration(typeLike)
       .map(_.getTypeDependencyHolders.toArray[TypeLike])
       .orNull
+  }
+
+  override def getViewOfType(path: String, contents: String): ViewInfo = {
+    ViewInfoImpl(Array())
+  }
+
+  override def upsertFromView(viewInfo: ViewInfo): Boolean = {
+    true
+  }
+
+  override def deleteType(typeLike: TypeLike): Boolean = {
+    true
   }
 
   private def getApexDeclaration(typeLike: TypeLike): Option[ApexDeclaration] = {
