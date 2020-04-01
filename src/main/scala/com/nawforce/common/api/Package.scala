@@ -55,4 +55,24 @@ trait Package {
     * not identify an Apex type returns a null. The returned array may be stale in that it can contain
     * types which used to hold a dependency but not longer do.*/
   def getDependencyHolders(typeLike: TypeLike): Array[TypeLike]
+
+  /** Return view information for a type. You can either pass in a path and contents or a path and null contents. If
+    * contents are not provided they will be read from the path if possible. Where contents are provided the path is
+    * only used for error identification purposes. The view information contains a detailed description of the type
+    * that can either be inspected and/or used to modify the type in the package. In some cases it may not be possible
+    * to construct a type at all, in which case the view information will only contain diagnostic information.
+    */
+  def getViewOfType(path: String, contents: String): ViewInfo
+
+  /** Upsert a type described by a ViewInfo. If the ViewInfo does not contain a type or the identifying path is
+    * different from an existing type of the same name then this is a noop that returns false. Otherwise if the type
+    * already exists it will be replaced or a new type will be created in the package. NOTE: Types that might be
+    * holding a 'missing dependency' error for the upsert'd type are not automatically re-validated during the upsert.
+    */
+  def upsertFromView(viewInfo: ViewInfo): Boolean
+
+  /** Remove a type from the package. The removes the visibility of the type within the package such that no newly
+    * upsert'd type may reference it. To fully remove all existing types that use the removed type must be upsert'd.
+    */
+  def deleteType(typeLike: TypeLike): Boolean
 }
