@@ -44,8 +44,9 @@ object ViewBench {
         pkgPair._2.getTypes.foreach {
           case sd: SummaryDeclaration =>
             val viewInfo = pkgPair._2.getViewOfType(sd.path, None)
-            if (!viewInfo.hasType || viewInfo.diagnostics.nonEmpty) {
+            if (!viewInfo.hasType || !viewInfo.diagnostics.forall(_.category=="Warning")) {
               println(s"Problem found for ${sd.typeName}")
+              System.exit(-1)
             }
           case _ => ()
         }
