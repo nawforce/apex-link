@@ -41,6 +41,7 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
   private val documentNames = new mutable.HashMap[Name, mutable.Set[Name]]() withDefaultValue mutable.Set()
   private val documents = new mutable.HashMap[Name, List[MetadataDocumentType]]() withDefaultValue List()
 
+  private lazy val absPaths = paths.map(_.absolute)
   private lazy val forceIgnore: Option[ForceIgnore] = createForceIgnore
 
   index()
@@ -61,15 +62,21 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
     * Determine if a path is a file that could be included in index
     */
   def isVisibleFile(path: PathLike): Boolean = {
-      forceIgnore.forall(_.includeFile(path)) && isVisiblePath(path.parent)
+      val absPath = path.absolute
+      forceIgnore.forall(_.includeFile(absPath)) && isVisiblePath(absPath.parent)
   }
 
   // Check a directory path would be included in index
   @scala.annotation.tailrec
   private def isVisiblePath(path: PathLike): Boolean = {
-    if (paths.contains(path)) return true
+    if (absPaths.contains(path)) return true
     if (!forceIgnore.forall(_.includeDirectory(path))) return false
-    isVisiblePath(path.parent)
+
+    val parent = path.parent
+    if (parent != path)
+      isVisiblePath(parent)
+    else
+      false
   }
 
   private def index(): Unit = {
@@ -77,7 +84,6 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
     createGhostSObjectFiles(Name("field"), forceIgnore)
     createGhostSObjectFiles(Name("fieldSet"), forceIgnore)
   }
-
 
   private def indexPath(path: PathLike, forceIgnore: Option[ForceIgnore]): Unit = {
     if (path.basename.toString.startsWith("."))

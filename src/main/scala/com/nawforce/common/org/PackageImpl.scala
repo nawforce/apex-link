@@ -118,6 +118,10 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     workspace.namespace.toSet ++ basePackages.flatMap(_.namespaces) ++ PlatformTypeDeclaration.namespaces
   }
 
+  def getTypes: Iterable[TypeDeclaration] = {
+    types.values
+  }
+
   /* Check if a type is ghosted in this package */
   def isGhostedType(typeName: TypeName): Boolean = {
     if (typeName.outer.contains(TypeName.Schema)) {
