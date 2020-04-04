@@ -253,6 +253,10 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
     // TODO: Nothing to do here yet, update when upsert metadata supported
   }
 
+  override def validate(): Unit = {
+    propagateOuterDependencies()
+  }
+
   override def propagateAllDependencies(): Unit = {
     propagateDependencies()
     blocks.foreach(_.propagateDependencies())

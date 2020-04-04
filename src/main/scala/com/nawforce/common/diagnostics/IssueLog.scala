@@ -34,27 +34,46 @@ import upickle.default.write
 
 import scala.collection.mutable
 
+/** A simple issue logger. We use a central log for this as not all files we process map cleanly to type declarations
+  * which would be the other obvious way to collate them.
+  */
 class IssueLog {
-  var logCount: Int = 0
   private val log = mutable.HashMap[String, List[Issue]]() withDefaultValue List()
 
+  // Access all issues
   def getIssues: Map[String, List[Issue]] = log.toMap
 
+  // Clear the log
   def clear(): Unit = {
    log.clear()
   }
 
+  // Add an issue
   def add(issue: Issue): Unit = {
     log.put(issue.location.path, issue :: log(issue.location.path))
-    logCount += 1
   }
 
+  // Do we have any issues
   def hasMessages: Boolean = log.nonEmpty
 
+  // Extract & remove issues for a specific path
+  def pop(path: String): List[Issue] = {
+    val issues = log.getOrElse(path, Nil)
+    log.remove(path)
+    issues
+  }
+
+  // Replace issues for a specific path
+  def push(path: String, issues: List[Issue]): Unit = {
+    log.put(path, issues)
+  }
+
+  // Merge in issues for another log
   def merge(issueLog: IssueLog): Unit = {
     issueLog.log.foreach(kv => kv._2.foreach(add))
   }
 
+  // Get issues for a specific file in Diagnostic form
   def getDiagnostics(path: String): List[Diagnostic] = {
     log.getOrElse(path, Nil).map(_.toDiagnostic)
   }

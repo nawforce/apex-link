@@ -41,6 +41,8 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
   private val documentNames = new mutable.HashMap[Name, mutable.Set[Name]]() withDefaultValue mutable.Set()
   private val documents = new mutable.HashMap[Name, List[MetadataDocumentType]]() withDefaultValue List()
 
+  private lazy val forceIgnore: Option[ForceIgnore] = createForceIgnore
+
   index()
 
   val size: Int = documents.values.map(_.size).sum
@@ -55,26 +57,27 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
     documents(dt.extension).exists(_.path.toString == abs.toString)
   }
 
+  /**
+    * Determine if a path is a file that could be included in index
+    */
+  def isVisibleFile(path: PathLike): Boolean = {
+      forceIgnore.forall(_.includeFile(path)) && isVisiblePath(path.parent)
+  }
+
+  // Check a directory path would be included in index
+  @scala.annotation.tailrec
+  private def isVisiblePath(path: PathLike): Boolean = {
+    if (paths.contains(path)) return true
+    if (!forceIgnore.forall(_.includeDirectory(path))) return false
+    isVisiblePath(path.parent)
+  }
+
   private def index(): Unit = {
-    val forceIgnore = createForceIgnore()
     paths.reverse.foreach(p => indexPath(p.absolute, forceIgnore))
     createGhostSObjectFiles(Name("field"), forceIgnore)
     createGhostSObjectFiles(Name("fieldSet"), forceIgnore)
   }
 
-  private def createForceIgnore(): Option[ForceIgnore] = {
-    if (ignorePath.nonEmpty && ignorePath.get.isFile) {
-      ForceIgnore(ignorePath.get) match {
-        case Left(err) =>
-          OrgImpl.logError(LineLocationImpl(ignorePath.get.toString, 0), s"Could not read .forceignore, error: $err")
-          None
-        case Right(forceIgnore) =>
-          Some(forceIgnore)
-      }
-    } else {
-      None
-    }
-  }
 
   private def indexPath(path: PathLike, forceIgnore: Option[ForceIgnore]): Unit = {
     if (path.basename.toString.startsWith("."))
@@ -131,5 +134,19 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
         }
       }
     })
+  }
+
+  private def createForceIgnore: Option[ForceIgnore] = {
+    if (ignorePath.nonEmpty && ignorePath.get.isFile) {
+      ForceIgnore(ignorePath.get) match {
+        case Left(err) =>
+          OrgImpl.logError(LineLocationImpl(ignorePath.get.toString, 0), s"Could not read .forceignore, error: $err")
+          None
+        case Right(forceIgnore) =>
+          Some(forceIgnore)
+      }
+    } else {
+      None
+    }
   }
 }

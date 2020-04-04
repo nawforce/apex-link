@@ -179,8 +179,7 @@ trait ApexDeclaration extends TypeDeclaration {
 
   def collectDependenciesByTypeName(dependents: mutable.Set[TypeName])
 
-  override def validate(): Unit = {
-    // Propagate dependency holding to outer type declarations
+  def propagateOuterDependencies(): Unit = {
     val dependsOn = mutable.Set[TypeName]()
     collectDependenciesByTypeName(dependsOn)
     dependsOn.foreach(dependentTypeName =>

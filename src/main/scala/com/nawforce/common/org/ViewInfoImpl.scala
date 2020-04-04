@@ -28,7 +28,8 @@
 package com.nawforce.common.org
 
 import com.nawforce.common.api.{Diagnostic, ViewInfo}
+import com.nawforce.common.types.apex.FullDeclaration
 
-case class ViewInfoImpl(diagnostics: Array[Diagnostic]) extends ViewInfo {
-  override val hasType: Boolean = true
+case class ViewInfoImpl(diagnostics: Array[Diagnostic], td: Option[FullDeclaration]) extends ViewInfo {
+  override val hasType: Boolean = td.nonEmpty
 }
