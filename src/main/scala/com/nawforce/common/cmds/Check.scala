@@ -35,7 +35,7 @@ import scala.collection.mutable
 object Check {
   def usage(name:String) = s"Usage: $name [-json] [-verbose] <[namespace=]directory>..."
 
-  def main(name: String, args: Array[String]): Int = {
+  def main(name: String, args: Array[String], org: Org): Int = {
     val options = Set("-verbose", "-json", "-pickle", "-zombie")
 
     val validArgs = args.flatMap {
@@ -75,7 +75,6 @@ object Check {
     }
 
     try {
-      val org = Org.newOrg()
       val nsLoaded = mutable.Map[String, Package]()
       nsSplit.foreach(nsDirPair => {
         if (!nsLoaded.contains(nsDirPair._1)) {
