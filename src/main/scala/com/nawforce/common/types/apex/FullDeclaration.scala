@@ -102,11 +102,18 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   }
 
   override def validate(): Unit = {
+    validate(withOuterPropagation = true)
+  }
+
+  def validate(withOuterPropagation: Boolean): Unit = {
     val start = System.currentTimeMillis()
     val context = new TypeVerifyContext(None, this)
     if (depends.isEmpty) {
       verify(context)
-      super.validate()
+
+      // When dry-running we don't want outer propagation so holders are not updated
+      if (withOuterPropagation)
+        propagateOuterDependencies()
     }
     val end = System.currentTimeMillis()
     ServerOps.debug(ServerOps.Trace, s"Validated $getPath in ${end - start}ms")

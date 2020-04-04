@@ -35,16 +35,10 @@ class SampleTest extends AnyFunSuite with BeforeAndAfter {
 
   private val npExternalNamespaces = Set("npe01", "npo02", "npe03", "npe4", "npe5")
 
-  private def sample(path: String, namespace: String = "", externalNamespaces: Set[String] = Set(),
-                     expectedCount: Int = 0): Unit = {
+  private def sample(path: String, namespace: String = "", externalNamespaces: Set[String] = Set()): Unit = {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
     val externalPackages = externalNamespaces.map(ens => org.newPackage(ens, Array(), Array())).toArray
     org.newPackage(namespace, Array[String](path), externalPackages)
-
-    if (org.issues.logCount != expectedCount) {
-      org.issues.dump()
-      assert(false)
-    }
   }
 
   before {
