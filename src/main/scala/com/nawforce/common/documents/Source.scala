@@ -27,9 +27,11 @@
 */
 package com.nawforce.common.documents
 
+import com.nawforce.common.path.PathLike
+
 import scala.util.hashing.MurmurHash3
 
 // Apex source code
-case class Source(code: String) {
+case class Source(path: PathLike, code: String) {
   lazy val hash: Int = MurmurHash3.stringHash(code)
 }

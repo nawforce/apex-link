@@ -51,6 +51,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   extends ClassBodyDeclaration(_modifiers) with ApexDeclaration {
 
   lazy val sourceHash: Int = source.hash
+  override val path = source.path
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override val nameLocation: LocationImpl = id.location
   override val name: Name = id.name
@@ -111,7 +112,6 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
     if (depends.isEmpty) {
       verify(context)
 
-      // When dry-running we don't want outer propagation so holders are not updated
       if (withOuterPropagation)
         propagateOuterDependencies()
     }
@@ -120,9 +120,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   }
 
   protected def verify(context: TypeVerifyContext): Unit = {
-    if (depends.nonEmpty)
-      return
-
+    // Check super class is visible
     superClassDeclaration.foreach(context.addDependency)
     if (superClass.nonEmpty) {
       if (superClassDeclaration.isEmpty) {
@@ -134,10 +132,12 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
       }
     }
 
+    // Check for duplicate nested types
     val duplicateNestedType = (this +: nestedTypes).groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
     duplicateNestedType.foreach(td =>
       OrgImpl.logError(td.id.location, s"Duplicate type name '${td.name.toString}'"))
 
+    // Check interfaces are visible
     interfaces.foreach(interface => {
       val td = context.getTypeAndAddDependency(interface, context.thisType).toOption
       if (td.isEmpty) {
@@ -146,8 +146,11 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
       } else if (td.get.nature != INTERFACE_NATURE)
         OrgImpl.logError(id.location, s"Type '${interface.toString}' must be an interface")
     })
+
+    // Detail check each body declaration
     bodyDeclarations.foreach(bd => bd.validate(new BodyDeclarationVerifyContext(context, bd)))
 
+    // Log dependencies logged against this context
     depends = Some(context.dependencies)
   }
 
@@ -194,7 +197,7 @@ object FullDeclaration {
         OrgImpl.logError(LineLocationImpl(path.toString, err.line), err.message)
         None
       case Right(cu) =>
-        Some(CompilationUnit.construct(Source(data), pkg, path, cu, new ConstructContext()).typeDeclaration())
+        Some(CompilationUnit.construct(Source(path, data), pkg, cu, new ConstructContext()).typeDeclaration())
     }
   }
 

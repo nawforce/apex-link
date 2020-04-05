@@ -45,9 +45,9 @@ final case class CompilationUnit(path: PathLike, private val _typeDeclaration: F
 }
 
 object CompilationUnit {
-  def construct(source: Source, pkg: PackageImpl, path: PathLike, compilationUnit: CompilationUnitContext,
+  def construct(source: Source, pkg: PackageImpl,  compilationUnit: CompilationUnitContext,
                 context: ConstructContext): CompilationUnit = {
-    CompilationUnit(path,
+    CompilationUnit(source.path,
       FullDeclaration.construct(source, pkg, None, compilationUnit.typeDeclaration(), context))
       .withContext(compilationUnit, context)
   }
