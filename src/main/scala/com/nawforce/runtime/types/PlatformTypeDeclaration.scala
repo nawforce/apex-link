@@ -230,7 +230,9 @@ object PlatformTypeDeclaration {
     if (uri.getScheme.equalsIgnoreCase("file")) {
       Paths.get(uri)
     } else {
-      FileSystems.newFileSystem(uri, new util.HashMap[String, String]).getPath(path)
+      Option(FileSystems.getFileSystem(uri))
+          .getOrElse(FileSystems.newFileSystem(uri, new util.HashMap[String, String]))
+          .getPath(path)
     }
   }
 
