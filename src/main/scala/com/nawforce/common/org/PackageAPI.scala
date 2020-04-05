@@ -29,7 +29,7 @@ package com.nawforce.common.org
 
 import com.nawforce.common.api.{Diagnostic, LineLocation, Package, ServerOps, TypeSummary, ViewInfo}
 import com.nawforce.common.diagnostics.ERROR_CATEGORY
-import com.nawforce.common.documents.{ApexDocument, DocumentType, MetadataDocumentType}
+import com.nawforce.common.documents.{ApexDocument, DocumentType}
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.metadata.DependencyHolder
 import com.nawforce.common.names.{TypeLike, TypeName}
@@ -107,19 +107,19 @@ trait PackageAPI extends Package {
     }
 
     if (dt.isEmpty) {
-      return ViewInfoImpl(Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
-        "Path does not identify a supported metadata type")), None)
+      return ViewInfoImpl(path.absolute, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
+        "Path does not identify a supported metadata type")))
     }
 
     if (!documents.isVisibleFile(path))
-      return ViewInfoImpl(Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
-        "Path is being ignored in this workspace")), None)
+      return ViewInfoImpl(path.absolute, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
+        "Path is being ignored in this workspace")))
 
     // Read contents from file if needed
     val source = contents.getOrElse({
       path.read() match {
         case Left(err) =>
-          return ViewInfoImpl(Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0), err)), None)
+          return ViewInfoImpl(path.absolute, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0), err)))
         case Right(data) =>
           data
       }
@@ -136,7 +136,7 @@ trait PackageAPI extends Package {
     })
 
     if (td.nonEmpty && td.get.sourceHash == MurmurHash3.stringHash(source))
-      return ViewInfoImpl(Array(), td)
+      return ViewInfoImpl(path.absolute, td, org.issues.getDiagnostics(path.absolute.toString).toArray)
 
     loadAndValidate(path, source)
   }
@@ -153,7 +153,7 @@ trait PackageAPI extends Package {
             decl.validate(withOuterPropagation = false)
           }
         )
-        ViewInfoImpl(org.issues.getDiagnostics(issuesPath).toArray, td)
+        ViewInfoImpl(path.absolute, td, org.issues.getDiagnostics(issuesPath).toArray)
       }
     } finally {
       org.issues.push(issuesPath, issues)
@@ -161,11 +161,29 @@ trait PackageAPI extends Package {
   }
 
   override def upsertFromView(viewInfo: ViewInfo): Boolean = {
+    if (!viewInfo.hasType) return false
+    val viewInfoImpl = viewInfo.asInstanceOf[ViewInfoImpl]
+    val td = viewInfoImpl.td.get
+
+    // Check we are not trying to circumvent no duplicates rule
+    if (types.get(td.typeName) match {
+      case Some(ad: ApexDeclaration) => ad.path.absolute != viewInfoImpl.absPath
+      case _ => true
+    }) return false
+
+    // Upsert it & validate again to ensure dependencies are propagated
+    types.put(td.typeName, td)
+    td.validate()
+    td.propagateOuterDependencies()
     true
   }
 
   override def deleteType(typeLike: TypeLike): Boolean = {
-    true
+    val typeName = TypeName(typeLike)
+    types.get(typeName) match {
+      case Some(_: ApexDeclaration) => types.remove(typeName); true
+      case _ => false
+    }
   }
 
   private def getApexDeclaration(typeLike: TypeLike): Option[ApexDeclaration] = {

@@ -34,6 +34,7 @@ import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
+import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.{ConstructorDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
 
 import scala.collection.mutable
@@ -72,7 +73,7 @@ trait ApexMethodLike extends MethodDeclaration {
       })
   }
 
-  override def summary(): MethodSummary = {
+  override def summary: MethodSummary = {
     super.summary(Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
   }
 }
@@ -89,6 +90,7 @@ trait ApexFieldLike extends FieldDeclaration {
 
 /** Apex defined types core features, be they full or summary style */
 trait ApexDeclaration extends TypeDeclaration {
+  val path: PathLike
   val sourceHash: Int
   val pkg: PackageImpl
   val nameLocation: LocationImpl
