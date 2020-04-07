@@ -65,13 +65,13 @@ final case class NullLiteral() extends Literal {
 }
 
 object Literal {
-  def construct(from: LiteralContext, context: ConstructContext): Literal = {
+  def construct(from: LiteralContext): Literal = {
     val cst: Option[Literal] =
       CodeParser.toScala(from.IntegerLiteral()).map(x => IntegerLiteral(CodeParser.getText(x)))
         .orElse(CodeParser.toScala(from.NumberLiteral()).map(x => NumberLiteral(CodeParser.getText(x))))
         .orElse(CodeParser.toScala(from.StringLiteral()).map(x => StringLiteral(CodeParser.getText(x))))
         .orElse(CodeParser.toScala(from.BooleanLiteral()).map(x => BooleanLiteral(CodeParser.getText(x))))
         .orElse(Some(NullLiteral()))
-    cst.get.withContext(from, context)
+    cst.get.withContext(from)
   }
 }
