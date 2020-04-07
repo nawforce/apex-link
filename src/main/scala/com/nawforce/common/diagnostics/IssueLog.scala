@@ -65,7 +65,8 @@ class IssueLog {
 
   // Replace issues for a specific path
   def push(path: String, issues: List[Issue]): Unit = {
-    log.put(path, issues)
+    if (issues.nonEmpty)
+      log.put(path, issues)
   }
 
   // Merge in issues for another log
