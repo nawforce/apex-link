@@ -130,8 +130,7 @@ object ApexModifiers {
   val visibilityModifiers: Seq[Modifier] = Seq(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PROTECTED_MODIFIER, PRIVATE_MODIFIER)
   val sharingModifiers: Seq[Modifier] = Seq(WITH_SHARING_MODIFIER, WITHOUT_SHARING_MODIFIER, INHERITED_SHARING_MODIFIER)
 
-  def classModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext,
-                     outer: Boolean, idContext: IdContext)
+  def classModifiers(modifierContexts: Seq[ModifierContext], outer: Boolean, idContext: IdContext)
     : Seq[Modifier] = {
 
     val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
@@ -183,8 +182,7 @@ object ApexModifiers {
     }
   }
 
-  def interfaceModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext,
-                     outer: Boolean, idContext: IdContext)
+  def interfaceModifiers(modifierContexts: Seq[ModifierContext], outer: Boolean, idContext: IdContext)
   : Seq[Modifier] = {
 
     val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
@@ -229,8 +227,7 @@ object ApexModifiers {
     }
   }
 
-  def enumModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext,
-                         outer: Boolean, idContext: IdContext)
+  def enumModifiers(modifierContexts: Seq[ModifierContext], outer: Boolean, idContext: IdContext)
   : Seq[Modifier] = {
 
     val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
@@ -274,7 +271,7 @@ object ApexModifiers {
     }
   }
 
-  def fieldModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext, idContext: IdContext)
+  def fieldModifiers(modifierContexts: Seq[ModifierContext], idContext: IdContext)
     : Seq[Modifier] = {
 
     val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
@@ -320,7 +317,7 @@ object ApexModifiers {
     }
   }
 
-  def propertyBlockModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext, idContext: PropertyBlockContext)
+  def propertyBlockModifiers(modifierContexts: Seq[ModifierContext], idContext: PropertyBlockContext)
   : Seq[Modifier] = {
 
     val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext =>
@@ -349,7 +346,7 @@ object ApexModifiers {
     }
   }
 
-  def constructorModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext, parserContext: ParserRuleContext)
+  def constructorModifiers(modifierContexts: Seq[ModifierContext], parserContext: ParserRuleContext)
   : Seq[Modifier] = {
 
     val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
@@ -385,7 +382,7 @@ object ApexModifiers {
     }
   }
 
-  def methodModifiers(modifierContexts: Seq[ModifierContext], context: ConstructContext, idContext: ParserRuleContext)
+  def methodModifiers(modifierContexts: Seq[ModifierContext], idContext: ParserRuleContext)
   : Seq[Modifier] = {
 
     val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
@@ -517,7 +514,7 @@ object ApexModifiers {
   }
 
   // TODO: Remove general use of this
-  def construct(modifiers: Seq[ModifierContext], context: ConstructContext): Seq[Modifier] = {
+  def construct(modifiers: Seq[ModifierContext]): Seq[Modifier] = {
     modifiers.map(CodeParser.getText(_).toLowerCase).flatMap {
       case "public" => Some(PUBLIC_MODIFIER)
       case _ => None

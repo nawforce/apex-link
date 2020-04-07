@@ -155,24 +155,24 @@ final case class SOQL(soql: String) extends Primary {
 }
 
 object Primary {
-  def construct(from: PrimaryContext, context: ConstructContext): Primary = {
+  def construct(from: PrimaryContext): Primary = {
     val cst =
       from match {
         case ctx: SubPrimaryContext =>
-          ExpressionPrimary(Expression.construct(ctx.expression(), context))
+          ExpressionPrimary(Expression.construct(ctx.expression()))
         case _: ThisPrimaryContext =>
           ThisPrimary()
         case _: SuperPrimaryContext =>
           SuperPrimary()
         case ctx: LiteralPrimaryContext =>
-          LiteralPrimary(Literal.construct(ctx.literal(), context))
+          LiteralPrimary(Literal.construct(ctx.literal()))
         case ctx: TypeRefPrimaryContext =>
           TypeRefPrimary(TypeRef.construct(ctx.typeRef()))
         case id: IdPrimaryContext =>
-          IdPrimary(Id.construct(id.id(), context))
+          IdPrimary(Id.construct(id.id()))
         case ctx: SoqlPrimaryContext =>
           SOQL(CodeParser.getText(ctx))
       }
-    cst.withContext(from, context)
+    cst.withContext(from)
   }
 }

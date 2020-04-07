@@ -28,7 +28,7 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.ParserHelper
-import com.nawforce.common.cst.{ConstructContext, Literal}
+import com.nawforce.common.cst.Literal
 import com.nawforce.common.metadata.DependencyHolder
 import com.nawforce.common.names.{Name, TypeName}
 import org.scalatest.funsuite.AnyFunSuite
@@ -36,8 +36,7 @@ import org.scalatest.funsuite.AnyFunSuite
 class LiteralTypeTest extends AnyFunSuite
 {
   def typeLiteral(data: String): DependencyHolder = {
-    val context = new ConstructContext()
-    Literal.construct(ParserHelper.literal(data), context).getType
+    Literal.construct(ParserHelper.literal(data)).getType
   }
 
   def compareLiteral(p: String, r: TypeName): Unit = {

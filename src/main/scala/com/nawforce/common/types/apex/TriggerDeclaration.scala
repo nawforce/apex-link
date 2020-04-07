@@ -95,16 +95,16 @@ object TriggerDeclaration {
         OrgImpl.logError(LineLocationImpl(path.toString, err.line), err.message)
         Nil
       case Right(cu) =>
-        Seq(TriggerDeclaration.construct(pkg, path, cu, new ConstructContext()))
+        Seq(TriggerDeclaration.construct(pkg, path, cu))
     }
   }
 
-  def construct(pkg: PackageImpl, path: PathLike, trigger: TriggerUnitContext, context: ConstructContext)
+  def construct(pkg: PackageImpl, path: PathLike, trigger: TriggerUnitContext)
     : TriggerDeclaration = {
     val ids = CodeParser.toScala(trigger.id())
     val cases = CodeParser.toScala(trigger.triggerCase()).map(constructCase)
     new TriggerDeclaration(path, pkg,
-      Id.construct(ids.head, context), Id.construct(ids(1), context), cases, Block.construct(trigger.block(), context))
+      Id.construct(ids.head), Id.construct(ids(1)), cases, Block.construct(trigger.block()))
   }
 
   def constructCase(triggerCase: TriggerCaseContext): TriggerCase = {

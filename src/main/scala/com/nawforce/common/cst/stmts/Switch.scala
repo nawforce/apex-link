@@ -49,7 +49,7 @@ final case class WhenIntegerLiteral(negate: Boolean, value: String) extends When
 }
 
 object WhenLiteral {
-  def construct(literal: WhenLiteralContext, context: ConstructContext): WhenLiteral = {
+  def construct(literal: WhenLiteralContext): WhenLiteral = {
     val whenLiteral = CodeParser.toScala(literal.NULL())
       .map(_ => new WhenNullLiteral())
       .orElse(CodeParser.toScala(literal.IntegerLiteral())
@@ -57,12 +57,12 @@ object WhenLiteral {
       .orElse(CodeParser.toScala(literal.StringLiteral())
         .map(l => WhenStringLiteral(CodeParser.getText(l))))
       .orElse(CodeParser.toScala(literal.id())
-        .map(l => WhenIdLiteral(Id.construct(l, context))))
+        .map(l => WhenIdLiteral(Id.construct(l))))
 
     if (whenLiteral.isEmpty)
       throw new CSTException()
     else
-      whenLiteral.get.withContext(literal, context)
+      whenLiteral.get.withContext(literal)
   }
 }
 
@@ -150,16 +150,16 @@ final case class WhenIdsValue(ids: Seq[Id]) extends WhenValue {
 }
 
 object WhenValue {
-  def construct(value: WhenValueContext, context: ConstructContext): WhenValue = {
+  def construct(value: WhenValueContext): WhenValue = {
     if (CodeParser.toScala(value.ELSE()).nonEmpty)
       new WhenElseValue()
     else {
-      val literals = CodeParser.toScala(value.whenLiteral()).map(l => WhenLiteral.construct(l, context))
+      val literals = CodeParser.toScala(value.whenLiteral()).map(l => WhenLiteral.construct(l))
       if (literals.nonEmpty)
         WhenLiteralsValue(literals)
       else
         WhenIdsValue(CodeParser.toScala(value.id())
-          .map(id => Id.construct(id, context).withContext(id, context)))
+          .map(id => Id.construct(id).withContext(id)))
     }
   }
 }
@@ -173,10 +173,10 @@ final case class WhenControl(whenValue: WhenValue, block: Block) extends CST {
 }
 
 object WhenControl {
-  def construct(whenControl: WhenControlContext, context: ConstructContext): WhenControl = {
+  def construct(whenControl: WhenControlContext): WhenControl = {
     WhenControl(
-      CodeParser.toScala(whenControl.whenValue()).map(v => WhenValue.construct(v, context)).get,
-      Block.construct(whenControl.block(), context))
+      CodeParser.toScala(whenControl.whenValue()).map(v => WhenValue.construct(v)).get,
+      Block.construct(whenControl.block()))
   }
 }
 
@@ -238,11 +238,11 @@ final case class SwitchStatement(expression: Expression, whenControls: List[When
 }
 
 object SwitchStatement {
-  def construct(switchStatement: SwitchStatementContext, context: ConstructContext): SwitchStatement = {
+  def construct(switchStatement: SwitchStatementContext): SwitchStatement = {
     SwitchStatement(
-      Expression.construct(switchStatement.expression(), context),
+      Expression.construct(switchStatement.expression()),
       CodeParser.toScala(switchStatement.whenControl())
-        .map(wc => WhenControl.construct(wc, context).withContext(wc, context)).toList,
+        .map(wc => WhenControl.construct(wc).withContext(wc)).toList,
     )
   }
 }

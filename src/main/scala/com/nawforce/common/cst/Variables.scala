@@ -49,10 +49,10 @@ final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Exp
 }
 
 object VariableDeclarator {
-  def construct(typeName: TypeName, variableDeclarator: VariableDeclaratorContext, context: ConstructContext): VariableDeclarator = {
-    val init = CodeParser.toScala(variableDeclarator.expression()).map(Expression.construct(_, context))
-    VariableDeclarator(typeName, Id.construct(variableDeclarator.id(), context), init)
-      .withContext(variableDeclarator, context)
+  def construct(typeName: TypeName, variableDeclarator: VariableDeclaratorContext): VariableDeclarator = {
+    val init = CodeParser.toScala(variableDeclarator.expression()).map(Expression.construct)
+    VariableDeclarator(typeName, Id.construct(variableDeclarator.id()), init)
+      .withContext(variableDeclarator)
   }
 }
 
@@ -67,11 +67,11 @@ final case class VariableDeclarators(declarators: List[VariableDeclarator]) exte
 }
 
 object VariableDeclarators {
-  def construct(typeName: TypeName, variableDeclaratorsContext: VariableDeclaratorsContext, context: ConstructContext): VariableDeclarators = {
+  def construct(typeName: TypeName, variableDeclaratorsContext: VariableDeclaratorsContext): VariableDeclarators = {
     val variableDeclarators: Seq[VariableDeclaratorContext] =
       CodeParser.toScala(variableDeclaratorsContext.variableDeclarator())
     VariableDeclarators(variableDeclarators.toList
-      .map(x => VariableDeclarator.construct(typeName, x, context))).withContext(variableDeclaratorsContext, context)
+      .map(x => VariableDeclarator.construct(typeName, x))).withContext(variableDeclaratorsContext)
   }
 }
 
@@ -88,12 +88,12 @@ final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeName: Ty
 }
 
 object LocalVariableDeclaration {
-  def construct(localVariableDeclaration: LocalVariableDeclarationContext, context: ConstructContext): LocalVariableDeclaration = {
+  def construct(localVariableDeclaration: LocalVariableDeclarationContext): LocalVariableDeclaration = {
     val typeName = TypeRef.construct(localVariableDeclaration.typeRef())
     LocalVariableDeclaration(
-      ApexModifiers.construct(CodeParser.toScala(localVariableDeclaration.modifier()), context),
+      ApexModifiers.construct(CodeParser.toScala(localVariableDeclaration.modifier())),
       typeName,
-      VariableDeclarators.construct(typeName, localVariableDeclaration.variableDeclarators(),
-        context)).withContext(localVariableDeclaration, context)
+      VariableDeclarators.construct(typeName, localVariableDeclaration.variableDeclarators()))
+        .withContext(localVariableDeclaration)
   }
 }

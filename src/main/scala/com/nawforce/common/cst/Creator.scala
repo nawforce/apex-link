@@ -49,9 +49,9 @@ final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
 }
 
 object CreatedName {
-  def construct(from: CreatedNameContext, context: ConstructContext): CreatedName = {
+  def construct(from: CreatedNameContext): CreatedName = {
     val pairs: Seq[IdCreatedNamePairContext] = CodeParser.toScala(from.idCreatedNamePair())
-    CreatedName(IdCreatedNamePair.construct(pairs.toList, context)).withContext(from, context)
+    CreatedName(IdCreatedNamePair.construct(pairs.toList)).withContext(from)
   }
 }
 
@@ -66,15 +66,15 @@ final case class IdCreatedNamePair(id: Id, types: Seq[TypeName]) extends CST {
 }
 
 object IdCreatedNamePair {
-  def construct(aList: List[IdCreatedNamePairContext], context: ConstructContext): List[IdCreatedNamePair] = {
-    aList.map(x => IdCreatedNamePair.construct(x, context))
+  def construct(aList: List[IdCreatedNamePairContext]): List[IdCreatedNamePair] = {
+    aList.map(x => IdCreatedNamePair.construct(x))
   }
 
-  def construct(from: IdCreatedNamePairContext, context: ConstructContext): IdCreatedNamePair = {
-    IdCreatedNamePair(Id.constructAny(from.anyId(), context),
+  def construct(from: IdCreatedNamePairContext): IdCreatedNamePair = {
+    IdCreatedNamePair(Id.constructAny(from.anyId()),
       CodeParser.toScala(from.typeList())
         .map(tl => TypeList.construct(tl)).getOrElse(Seq())
-    ).withContext(from, context)
+    ).withContext(from)
   }
 }
 
@@ -99,14 +99,14 @@ final case class Creator(createdName: CreatedName, creatorRest: CreatorRest) ext
 }
 
 object Creator {
-  def construct(from: CreatorContext, context: ConstructContext): Creator = {
+  def construct(from: CreatorContext): Creator = {
     val rest: Option[CreatorRest] =
-      CodeParser.toScala(from.noRest()).map(NoRest.construct(_, context))
-        .orElse(CodeParser.toScala(from.classCreatorRest()).map(ClassCreatorRest.construct(_, context)))
-        .orElse(CodeParser.toScala(from.arrayCreatorRest()).map(ArrayCreatorRest.construct(_, context)))
-        .orElse(CodeParser.toScala(from.mapCreatorRest()).map(MapCreatorRest.construct(_, context)))
-        .orElse(CodeParser.toScala(from.setCreatorRest()).map(SetCreatorRest.construct(_, context)))
-    Creator(CreatedName.construct(from.createdName(), context), rest.get).withContext(from, context)
+      CodeParser.toScala(from.noRest()).map(NoRest.construct)
+        .orElse(CodeParser.toScala(from.classCreatorRest()).map(ClassCreatorRest.construct))
+        .orElse(CodeParser.toScala(from.arrayCreatorRest()).map(ArrayCreatorRest.construct))
+        .orElse(CodeParser.toScala(from.mapCreatorRest()).map(MapCreatorRest.construct))
+        .orElse(CodeParser.toScala(from.setCreatorRest()).map(SetCreatorRest.construct))
+    Creator(CreatedName.construct(from.createdName()), rest.get).withContext(from)
   }
 }
 
@@ -119,8 +119,8 @@ final class NoRest extends CreatorRest {
 }
 
 object NoRest {
-  def construct(from: NoRestContext, context: ConstructContext): NoRest = {
-    new NoRest().withContext(from, context)
+  def construct(from: NoRestContext): NoRest = {
+    new NoRest().withContext(from)
   }
 }
 
@@ -138,8 +138,8 @@ final case class ClassCreatorRest(arguments: Seq[Expression]) extends CreatorRes
 }
 
 object ClassCreatorRest {
-  def construct(from: ClassCreatorRestContext, context: ConstructContext): ClassCreatorRest = {
-    ClassCreatorRest(Arguments.construct(from.arguments(), context)).withContext(from, context)
+  def construct(from: ClassCreatorRestContext): ClassCreatorRest = {
+    ClassCreatorRest(Arguments.construct(from.arguments())).withContext(from)
   }
 }
 
@@ -157,10 +157,10 @@ final case class ArrayCreatorRest(expressions: Option[Expression], arrayInitiali
 }
 
 object ArrayCreatorRest {
-  def construct(from: ArrayCreatorRestContext, context: ConstructContext): ArrayCreatorRest = {
+  def construct(from: ArrayCreatorRestContext): ArrayCreatorRest = {
     ArrayCreatorRest(
-      CodeParser.toScala(from.expression()).map(Expression.construct(_, context)),
-      CodeParser.toScala(from.arrayInitializer()).map(ArrayInitializer.construct(_, context))
+      CodeParser.toScala(from.expression()).map(Expression.construct),
+      CodeParser.toScala(from.arrayInitializer()).map(ArrayInitializer.construct)
     )
   }
 }
@@ -172,9 +172,9 @@ final case class ArrayInitializer(expressions: Seq[Expression]) extends CST {
 }
 
 object ArrayInitializer {
-  def construct(from: ArrayInitializerContext, context: ConstructContext): ArrayInitializer = {
+  def construct(from: ArrayInitializerContext): ArrayInitializer = {
     val initializers: Seq[ExpressionContext] = CodeParser.toScala(from.expression())
-    ArrayInitializer(Expression.construct(initializers.toList, context)).withContext(from, context)
+    ArrayInitializer(Expression.construct(initializers.toList)).withContext(from)
   }
 }
 
@@ -207,9 +207,9 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends Creator
 }
 
 object MapCreatorRest {
-  def construct(from: MapCreatorRestContext, context: ConstructContext): MapCreatorRest = {
+  def construct(from: MapCreatorRestContext): MapCreatorRest = {
     val pairs: Seq[MapCreatorRestPairContext] = CodeParser.toScala(from.mapCreatorRestPair())
-    MapCreatorRest(MapCreatorRestPair.construct(pairs.toList, context)).withContext(from, context)
+    MapCreatorRest(MapCreatorRestPair.construct(pairs.toList)).withContext(from)
   }
 }
 
@@ -222,16 +222,16 @@ final case class MapCreatorRestPair(from: Expression, to: Expression) extends CS
 }
 
 object MapCreatorRestPair {
-  def construct(aList: List[MapCreatorRestPairContext], context: ConstructContext): List[MapCreatorRestPair] = {
-    aList.map(x => MapCreatorRestPair.construct(x, context))
+  def construct(aList: List[MapCreatorRestPairContext]): List[MapCreatorRestPair] = {
+    aList.map(x => MapCreatorRestPair.construct(x))
   }
 
-  def construct(from: MapCreatorRestPairContext, context: ConstructContext): MapCreatorRestPair = {
+  def construct(from: MapCreatorRestPairContext): MapCreatorRestPair = {
     val expressions = CodeParser.toScala(from.expression())
     MapCreatorRestPair(
-      Expression.construct(expressions.head, context),
-      Expression.construct(expressions(1), context)
-    ).withContext(from, context)
+      Expression.construct(expressions.head),
+      Expression.construct(expressions(1))
+    ).withContext(from)
   }
 }
 
@@ -259,9 +259,9 @@ final case class SetCreatorRest(parts: Seq[Expression]) extends CreatorRest {
 }
 
 object SetCreatorRest {
-  def construct(from: SetCreatorRestContext, context: ConstructContext): SetCreatorRest = {
+  def construct(from: SetCreatorRestContext): SetCreatorRest = {
     val parts: Seq[ExpressionContext] = CodeParser.toScala(from.expression())
-    SetCreatorRest(Expression.construct(parts.toList, context)).withContext(from, context)
+    SetCreatorRest(Expression.construct(parts.toList)).withContext(from)
   }
 }
 

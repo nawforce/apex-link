@@ -192,35 +192,35 @@ object FullDeclaration {
         OrgImpl.logError(LineLocationImpl(path.toString, err.line), err.message)
         None
       case Right(cu) =>
-        Some(CompilationUnit.construct(Source(path, data), pkg, cu, new ConstructContext()).typeDeclaration())
+        Some(CompilationUnit.construct(Source(path, data), pkg, cu).typeDeclaration())
     }
   }
 
-  def construct(source: Source, pkg: PackageImpl, outerTypeName: Option[TypeName], typeDecl: TypeDeclarationContext,
-                context: ConstructContext): FullDeclaration = {
+  def construct(source: Source, pkg: PackageImpl, outerTypeName: Option[TypeName], typeDecl: TypeDeclarationContext)
+      : FullDeclaration = {
 
     val modifiers: Seq[ModifierContext] = CodeParser.toScala(typeDecl.modifier())
     val isOuter = outerTypeName.isEmpty
 
     val cst = CodeParser.toScala(typeDecl.classDeclaration())
       .map(cd => ClassDeclaration.construct(source, pkg, outerTypeName,
-        ApexModifiers.classModifiers(modifiers, context, outer = isOuter, cd.id()),
-        cd, context)
+        ApexModifiers.classModifiers(modifiers, outer = isOuter, cd.id()),
+        cd)
       )
     .orElse(CodeParser.toScala(typeDecl.interfaceDeclaration())
       .map(id => InterfaceDeclaration.construct(source, pkg, outerTypeName,
-        ApexModifiers.interfaceModifiers(modifiers, context, outer = isOuter, id.id()),
-        id, context)
+        ApexModifiers.interfaceModifiers(modifiers, outer = isOuter, id.id()),
+        id)
       ))
     .orElse(CodeParser.toScala(typeDecl.enumDeclaration())
       .map(ed => EnumDeclaration.construct(source, pkg, outerTypeName,
-        ApexModifiers.enumModifiers(modifiers, context, outer = isOuter, ed.id()),
-        ed, context)
+        ApexModifiers.enumModifiers(modifiers, outer = isOuter, ed.id()),
+        ed)
       ))
 
     if (cst.isEmpty)
       throw new CSTException()
     else
-       cst.get.withContext(typeDecl, context)
+       cst.get.withContext(typeDecl)
   }
 }

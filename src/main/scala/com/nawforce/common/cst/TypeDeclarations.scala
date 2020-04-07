@@ -45,11 +45,10 @@ final case class CompilationUnit(path: PathLike, private val _typeDeclaration: F
 }
 
 object CompilationUnit {
-  def construct(source: Source, pkg: PackageImpl,  compilationUnit: CompilationUnitContext,
-                context: ConstructContext): CompilationUnit = {
+  def construct(source: Source, pkg: PackageImpl,  compilationUnit: CompilationUnitContext): CompilationUnit = {
     CompilationUnit(source.path,
-      FullDeclaration.construct(source, pkg, None, compilationUnit.typeDeclaration(), context))
-      .withContext(compilationUnit, context)
+      FullDeclaration.construct(source, pkg, None, compilationUnit.typeDeclaration()))
+      .withContext(compilationUnit)
   }
 }
 
@@ -83,7 +82,7 @@ final case class ClassDeclaration(_source: Source, _pkg: PackageImpl, _outerType
 
 object ClassDeclaration {
   def construct(source: Source, pkg: PackageImpl, outerTypeName: Option[TypeName], modifiers: Seq[Modifier],
-                classDeclaration: ClassDeclarationContext, context: ConstructContext): ClassDeclaration = {
+                classDeclaration: ClassDeclarationContext): ClassDeclaration = {
 
     val thisType = TypeName(Name(CodeParser.getText(classDeclaration.id())), Nil,
       outerTypeName.orElse(pkg.namespace.map(TypeName(_))))
@@ -102,16 +101,15 @@ object ClassDeclaration {
         classBodyDeclarations.flatMap(cbd =>
           CodeParser.toScala(cbd.block())
             .map(x => Seq(ApexInitialiserBlock.construct(
-                CodeParser.toScala(cbd.STATIC()).map(_ => Seq(STATIC_MODIFIER)).getOrElse(Seq()),
-              x, context)))
+                CodeParser.toScala(cbd.STATIC()).map(_ => Seq(STATIC_MODIFIER)).getOrElse(Seq()), x)))
           .orElse(CodeParser.toScala(cbd.memberDeclaration())
-            .map(x => ClassBodyDeclaration.construct(pkg, thisType, source, CodeParser.toScala(cbd.modifier()), x, context))
+            .map(x => ClassBodyDeclaration.construct(pkg, thisType, source, CodeParser.toScala(cbd.modifier()), x))
           )
           .orElse(throw new CSTException())
         ).flatten
 
-    ClassDeclaration(source, pkg, outerTypeName, Id.construct(classDeclaration.id(), context), modifiers,
-      Some(extendType),implementsType, bodyDeclarations).withContext(classDeclaration, context)
+    ClassDeclaration(source, pkg, outerTypeName, Id.construct(classDeclaration.id()), modifiers,
+      Some(extendType),implementsType, bodyDeclarations).withContext(classDeclaration)
   }
 }
 
@@ -129,7 +127,7 @@ final case class InterfaceDeclaration(_source: Source, _pkg: PackageImpl, _outer
 
 object InterfaceDeclaration {
   def construct(source: Source, pkg: PackageImpl, outerTypeName: Option[TypeName], modifiers: Seq[Modifier],
-                interfaceDeclaration: InterfaceDeclarationContext, context: ConstructContext)
+                interfaceDeclaration: InterfaceDeclarationContext)
   : InterfaceDeclaration = {
     val thisType = TypeName(Name(CodeParser.getText(interfaceDeclaration.id())), Nil,
       outerTypeName.orElse(pkg.namespace.map(TypeName(_))))
@@ -142,11 +140,11 @@ object InterfaceDeclaration {
     val methods: Seq[ApexMethodDeclaration]
         = CodeParser.toScala(interfaceDeclaration.interfaceBody().interfaceMethodDeclaration()).map(m =>
             ApexMethodDeclaration.construct(pkg, thisType,
-              ApexModifiers.methodModifiers(CodeParser.toScala(m.modifier()), context, m.id()), m, context)
+              ApexModifiers.methodModifiers(CodeParser.toScala(m.modifier()), m.id()), m)
     )
 
-    InterfaceDeclaration(source, pkg, outerTypeName, Id.construct(interfaceDeclaration.id(), context), modifiers,
-      implementsType, methods).withContext(interfaceDeclaration, context)
+    InterfaceDeclaration(source, pkg, outerTypeName, Id.construct(interfaceDeclaration.id()), modifiers,
+      implementsType, methods).withContext(interfaceDeclaration)
   }
 }
 
@@ -173,11 +171,11 @@ final case class EnumDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeN
 
 object EnumDeclaration {
   def construct(source: Source, pkg: PackageImpl, outerTypeName: Option[TypeName], typeModifiers: Seq[Modifier],
-                enumDeclaration: EnumDeclarationContext, context: ConstructContext): EnumDeclaration = {
+                enumDeclaration: EnumDeclarationContext): EnumDeclaration = {
 
     // FUTURE: Add standard enum methods
 
-    val id = Id.construct(enumDeclaration.id(), context)
+    val id = Id.construct(enumDeclaration.id())
     val thisType = TypeName(id.name, Nil,
       outerTypeName.orElse(pkg.namespace.map(TypeName(_)))
     )
@@ -187,12 +185,12 @@ object EnumDeclaration {
       ApexFieldDeclaration(thisType, Seq(PUBLIC_MODIFIER, STATIC_MODIFIER), thisType,
         VariableDeclarator(
           thisType,
-          Id.construct(constant, context),
+          Id.construct(constant),
           None
-        ).withContext(constant, context)
-      ).withContext(constant, context)
+        ).withContext(constant)
+      ).withContext(constant)
     })
 
-    EnumDeclaration(source, pkg, outerTypeName,id, typeModifiers, fields).withContext(enumDeclaration, context)
+    EnumDeclaration(source, pkg, outerTypeName,id, typeModifiers, fields).withContext(enumDeclaration)
   }
 }
