@@ -73,9 +73,7 @@ trait DependencyHolder extends Dependent {
 
   // Inform each dependent this is holding a dependency to them
   def propagateDependencies(): Unit = {
-    if (DependencyHolder.shouldPropagate) {
-      dependencies().foreach(_.addDependencyHolder(this))
-    }
+    dependencies().foreach(_.addDependencyHolder(this))
   }
 
   // Convert dependencies into a summary format
@@ -90,27 +88,5 @@ trait DependencyHolder extends Dependent {
       case _: ApexConstructorLike => None
       case _: BlockDeclaration => None
     }.toSet
-  }
-}
-
-// Global switch on dependency propagation
-// TODO: Replace this hack
-object DependencyHolder {
-  private var propagate: Boolean = true
-
-  def shouldPropagate: Boolean = propagate
-
-  def withoutPropagation[T]()(f: () => T): T = {
-    val previous = propagate
-    try {
-      propagate = false
-      val result = f()
-      propagate = previous
-      result
-    } catch {
-      case ex: Throwable =>
-        propagate = previous
-        throw ex
-    }
   }
 }

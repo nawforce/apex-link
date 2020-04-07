@@ -103,13 +103,13 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   }
 
   override def validate(): Unit = {
-    validate(withOuterPropagation = true)
+    validate(withPropagation = true)
   }
 
-  def validate(withOuterPropagation: Boolean): Unit = {
+  def validate(withPropagation: Boolean): Unit = {
     ServerOps.debugTime(s"Validated $getPath") {
-      verify(new TypeVerifyContext(None, this))
-      if (withOuterPropagation)
+      verify(new TypeVerifyContext(None, this, withPropagation))
+      if (withPropagation)
         propagateOuterDependencies()
     }
   }

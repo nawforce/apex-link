@@ -31,7 +31,6 @@ import com.nawforce.common.api.{Diagnostic, LineLocation, Package, ServerOps, Ty
 import com.nawforce.common.diagnostics.ERROR_CATEGORY
 import com.nawforce.common.documents.{ApexDocument, DocumentType}
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.metadata.DependencyHolder
 import com.nawforce.common.names.{TypeLike, TypeName}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.TypeDeclaration
@@ -149,9 +148,7 @@ trait PackageAPI extends Package {
       OrgImpl.current.withValue(org) {
         val td = FullDeclaration.create(this, path, source)
         td.foreach(decl =>
-          DependencyHolder.withoutPropagation(){() =>
-            decl.validate(withOuterPropagation = false)
-          }
+          decl.validate(withPropagation = false)
         )
         ViewInfoImpl(isNew = true, path.absolute, td, org.issues.getDiagnostics(issuesPath).toArray)
       }

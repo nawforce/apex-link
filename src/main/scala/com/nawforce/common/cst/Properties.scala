@@ -80,7 +80,7 @@ final case class ApexPropertyDeclaration(outerTypeName: TypeName, _modifiers: Se
     }
 
     depends = Some(context.dependencies)
-    propagateDependencies()
+    context.propagateDependencies()
   }
 }
 
