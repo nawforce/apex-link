@@ -67,7 +67,7 @@ final case class ClassDeclaration(_source: Source, _pkg: PackageImpl, _outerType
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     verifyCommon(context)
-    super.verify(new TypeVerifyContext(Some(context), this))
+    super.verify(new TypeVerifyContext(Some(context), this, context.shouldPropagateDependencies))
   }
 
   private def verifyCommon(context: VerifyContext): Unit = {
@@ -123,7 +123,7 @@ final case class InterfaceDeclaration(_source: Source, _pkg: PackageImpl, _outer
   override val nature: Nature = INTERFACE_NATURE
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    super.verify(new TypeVerifyContext(Some(context), this))
+    super.verify(new TypeVerifyContext(Some(context), this, context.shouldPropagateDependencies))
   }
 }
 
@@ -157,7 +157,7 @@ final case class EnumDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeN
   override val nature: Nature = ENUM_NATURE
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    super.verify(new TypeVerifyContext(Some(context), this))
+    super.verify(new TypeVerifyContext(Some(context), this, context.shouldPropagateDependencies))
   }
 
   override lazy val localMethods: Seq[MethodDeclaration] =

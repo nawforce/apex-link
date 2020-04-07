@@ -137,7 +137,8 @@ class TriggerVerifyContext(packageDeclaration: PackageImpl, typeDeclaration: Tri
 }
 
 
-class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: ApexDeclaration)
+class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: ApexDeclaration,
+                        propagateDependencies: Boolean)
     extends HolderVerifyContext with VerifyContext {
 
   override def parent(): Option[VerifyContext] = parentContext
@@ -155,6 +156,13 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: A
 
   override def suppressWarnings: Boolean =
     typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressWarnings)
+
+  def shouldPropagateDependencies: Boolean = propagateDependencies
+
+  def propagateDependencies(): Unit = {
+    if (shouldPropagateDependencies)
+      typeDeclaration.propagateDependencies()
+  }
 }
 
 class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDeclaration: ClassBodyDeclaration)
@@ -175,6 +183,13 @@ class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDe
 
   override def suppressWarnings: Boolean =
     classBodyDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressWarnings)
+
+  def shouldPropagateDependencies: Boolean = parentContext.shouldPropagateDependencies
+
+  def propagateDependencies(): Unit = {
+    if (parentContext.shouldPropagateDependencies)
+      classBodyDeclaration.propagateDependencies()
+  }
 }
 
 abstract class BlockVerifyContext(parentContext: VerifyContext)

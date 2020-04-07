@@ -44,6 +44,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), None)
       assert(!view.hasType)
       assert(!pkg.upsertFromView(view))
+      assert(!org.issues.hasMessages)
     }
   }
 
@@ -56,6 +57,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val view = pkg.getViewOfType(root.join("pkg2/Foo.cls"), Some("public class Foo {}"))
       assert(view.hasType)
       assert(!pkg.upsertFromView(view))
+      assert(!org.issues.hasMessages)
     }
   }
 
@@ -68,6 +70,20 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some("public class Foo {}"))
       assert(view.hasType)
       assert(pkg.upsertFromView(view))
+      assert(!org.issues.hasMessages)
+    }
+  }
+
+  test("valid upsert with changes") {
+    FileSystemHelper.run(Map(
+      "pkg/Foo.cls" -> "public class Foo {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some("public class Foo {Object a;}"))
+      assert(view.hasType)
+      assert(pkg.upsertFromView(view))
+      assert(!org.issues.hasMessages)
     }
   }
 
@@ -94,7 +110,6 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
         == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
     }
   }
-
 
   test("dependencies created") {
     FileSystemHelper.run(Map(
@@ -149,12 +164,14 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some("public class Foo {}"))
       assert(view.hasType)
+      assert(!org.issues.hasMessages)
       assert(pkg.upsertFromView(view))
 
       val fooType = TypeName(Name("Foo"))
 
       assert(pkg.deleteType(fooType))
       assert(pkg.getPathOfType(fooType) == null)
+      assert(!org.issues.hasMessages)
     }
   }
 
@@ -166,10 +183,12 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some("public class Foo {}"))
       assert(view.hasType)
+      assert(!org.issues.hasMessages)
       assert(pkg.upsertFromView(view))
 
       assert(!pkg.deleteType(TypeName(Name("Foo2"))))
       assert(pkg.getPathOfType(TypeName(Name("Foo"))).nonEmpty)
+      assert(!org.issues.hasMessages)
     }
   }
 

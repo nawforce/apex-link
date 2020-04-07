@@ -111,7 +111,7 @@ final case class ApexInitialiserBlock(_modifiers: Seq[Modifier], block: Block)
     val blockContext = new OuterBlockVerifyContext(context, isStatic)
     block.verify(blockContext)
     depends = Some(context.dependencies)
-    propagateDependencies()
+    context.propagateDependencies()
   }
 }
 
@@ -160,7 +160,7 @@ final case class ApexMethodDeclaration(outerTypeName: TypeName, _modifiers: Seq[
     })
 
     depends = Some(context.dependencies)
-    propagateDependencies()
+    context.propagateDependencies()
   }
 }
 
@@ -207,7 +207,7 @@ final case class ApexFieldDeclaration(outerTypeName: TypeName, _modifiers: Seq[M
     variableDeclarator.verify(ExprContext(staticContext, context.thisType),
       new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER)))
     depends = Some(context.dependencies)
-    propagateDependencies()
+    context.propagateDependencies()
   }
 }
 
@@ -235,7 +235,7 @@ final case class ApexConstructorDeclaration(_modifiers: Seq[Modifier], qualified
     parameters.foreach(param => blockContext.addVar(param.name, param.location, param.typeName))
     block.verify(blockContext)
     depends = Some(context.dependencies)
-    propagateDependencies()
+    context.propagateDependencies()
   }
 }
 
