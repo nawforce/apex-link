@@ -71,6 +71,31 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+  test("upsert creates missing") {
+    FileSystemHelper.run(Map(
+      "pkg/Foo.cls" -> "public class Foo {Bar.Inner b;}",
+      "pkg/Bar.cls" -> "public class Bar {public class Inner {}}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("pkg/Bar.cls"), Some("public class Bar {}"))
+      assert(pkg.upsertFromView(view))
+      assert(!org.issues.hasMessages)
+
+      val view2 = pkg.getViewOfType(root.join("pkg/Foo.cls"), None)
+      assert(view2.hasType)
+      assert(view2.diagnostics.isEmpty)
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.upsertFromView(view2))
+      assert(org.issues.getMessages("/pkg/Foo.cls")
+        == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
+    }
+  }
+
+
   test("dependencies created") {
     FileSystemHelper.run(Map(
       "pkg/Foo.cls" -> "public class Foo {}",
@@ -148,4 +173,24 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+  test("delete creates missing") {
+    FileSystemHelper.run(Map(
+      "pkg/Foo.cls" -> "public class Foo {Bar b;}",
+      "pkg/Bar.cls" -> "public class Bar {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.deleteType(TypeName(Name("Bar"))))
+      val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), None)
+      assert(view.hasType)
+      assert(view.diagnostics.isEmpty)
+      assert(!org.issues.hasMessages)
+
+      assert(pkg.upsertFromView(view))
+      assert(org.issues.getMessages("/pkg/Foo.cls")
+        == "Missing: line 1 at 22-23: No type declaration found for 'Bar'\n")
+    }
+  }
 }

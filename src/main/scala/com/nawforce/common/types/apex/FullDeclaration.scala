@@ -51,7 +51,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   extends ClassBodyDeclaration(_modifiers) with ApexDeclaration {
 
   lazy val sourceHash: Int = source.hash
-  override val path = source.path
+  override val path: PathLike = source.path
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override val nameLocation: LocationImpl = id.location
   override val name: Name = id.name
@@ -99,7 +99,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   }
 
   override def propagateAllDependencies(): Unit = {
-    // Not needed, dependencies are propagtes by default during validation
+    // Not needed, dependencies are propagated by default during validation
   }
 
   override def validate(): Unit = {
@@ -107,16 +107,11 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   }
 
   def validate(withOuterPropagation: Boolean): Unit = {
-    val start = System.currentTimeMillis()
-    val context = new TypeVerifyContext(None, this)
-    if (depends.isEmpty) {
-      verify(context)
-
+    ServerOps.debugTime(s"Validated $getPath") {
+      verify(new TypeVerifyContext(None, this))
       if (withOuterPropagation)
         propagateOuterDependencies()
     }
-    val end = System.currentTimeMillis()
-    ServerOps.debug(ServerOps.Trace, s"Validated $getPath in ${end - start}ms")
   }
 
   protected def verify(context: TypeVerifyContext): Unit = {

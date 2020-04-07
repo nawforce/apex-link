@@ -107,19 +107,19 @@ trait PackageAPI extends Package {
     }
 
     if (dt.isEmpty) {
-      return ViewInfoImpl(path.absolute, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
+      return ViewInfoImpl(isNew = false, path.absolute, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
         "Path does not identify a supported metadata type")))
     }
 
     if (!documents.isVisibleFile(path))
-      return ViewInfoImpl(path.absolute, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
+      return ViewInfoImpl(isNew = false, path.absolute, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
         "Path is being ignored in this workspace")))
 
     // Read contents from file if needed
     val source = contents.getOrElse({
       path.read() match {
         case Left(err) =>
-          return ViewInfoImpl(path.absolute, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0), err)))
+          return ViewInfoImpl(isNew = false, path.absolute, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0), err)))
         case Right(data) =>
           data
       }
@@ -136,7 +136,7 @@ trait PackageAPI extends Package {
     })
 
     if (td.nonEmpty && td.get.sourceHash == MurmurHash3.stringHash(source))
-      return ViewInfoImpl(path.absolute, td, org.issues.getDiagnostics(path.absolute.toString).toArray)
+      return ViewInfoImpl(isNew = false, path.absolute, td, org.issues.getDiagnostics(path.absolute.toString).toArray)
 
     loadAndValidate(path, source)
   }
@@ -153,7 +153,7 @@ trait PackageAPI extends Package {
             decl.validate(withOuterPropagation = false)
           }
         )
-        ViewInfoImpl(path.absolute, td, org.issues.getDiagnostics(issuesPath).toArray)
+        ViewInfoImpl(isNew = true, path.absolute, td, org.issues.getDiagnostics(issuesPath).toArray)
       }
     } finally {
       org.issues.push(issuesPath, issues)
@@ -171,11 +171,22 @@ trait PackageAPI extends Package {
       case _ => true
     }) return false
 
-    // Upsert it & validate again to ensure dependencies are propagated
-    types.put(td.typeName, td)
-    td.validate()
-    td.propagateOuterDependencies()
-    true
+    // Split paths here depending on if the view had to create a new TypeDeclaration
+    OrgImpl.current.withValue(org) {
+      val updated =
+        if (viewInfoImpl.isNew) {
+          Some(td)
+        } else {
+          // TODO: Remove need to re-parse for validation to bypass type, method & field caching
+          FullDeclaration.create(this, td.source.path, td.source.code)
+        }
+
+      updated.foreach(utd => {
+        utd.validate()
+        types.put(utd.typeName, utd)
+      })
+      updated.nonEmpty
+    }
   }
 
   override def deleteType(typeLike: TypeLike): Boolean = {
