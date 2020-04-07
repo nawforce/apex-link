@@ -28,7 +28,7 @@
 
 package com.nawforce.runtime.types
 
-import java.nio.file.{FileSystems, Files, Paths}
+import java.nio.file.{FileSystemNotFoundException, FileSystems, Files, Paths}
 import java.util
 
 import com.nawforce.common.cst.{Modifier, PUBLIC_MODIFIER}
@@ -230,9 +230,12 @@ object PlatformTypeDeclaration {
     if (uri.getScheme.equalsIgnoreCase("file")) {
       Paths.get(uri)
     } else {
-      Option(FileSystems.getFileSystem(uri))
-          .getOrElse(FileSystems.newFileSystem(uri, new util.HashMap[String, String]))
-          .getPath(path)
+      try {
+        FileSystems.getFileSystem(uri).getPath(path)
+      } catch {
+        case _: FileSystemNotFoundException =>
+          FileSystems.newFileSystem(uri, new util.HashMap[String, String]).getPath(path)
+      }
     }
   }
 
