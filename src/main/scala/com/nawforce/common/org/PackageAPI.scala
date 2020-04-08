@@ -137,23 +137,32 @@ trait PackageAPI extends Package {
     if (td.nonEmpty && td.get.sourceHash == MurmurHash3.stringHash(source))
       return ViewInfoImpl(isNew = false, path.absolute, td, org.issues.getDiagnostics(path.absolute.toString).toArray)
 
-    loadAndValidate(path, source)
+    loadAndValidate(path.absolute, source)
   }
 
-  // Load a class and validate it without upsert'ing it to package, upsertFromView will do that
-  private def loadAndValidate(path: PathLike, source: String): ViewInfoImpl = {
-    val issuesPath = path.absolute.toString
-    val issues = org.issues.pop(issuesPath)
+  // Load a class and validate it without upsert'ing it into the package, upsertFromView will do that
+  private def loadAndValidate(absPath: PathLike, source: String): ViewInfoImpl = {
+    val issues = org.issues.pop(absPath.toString)
     try {
       OrgImpl.current.withValue(org) {
-        val td = FullDeclaration.create(this, path, source)
-        td.foreach(decl =>
-          decl.validate(withPropagation = false)
-        )
-        ViewInfoImpl(isNew = true, path.absolute, td, org.issues.getDiagnostics(issuesPath).toArray)
+        val td = FullDeclaration.create(this, absPath, source)
+        td.foreach(validateInIsolation)
+        ViewInfoImpl(isNew = true, absPath, td, org.issues.getDiagnostics(absPath.toString).toArray)
       }
     } finally {
-      org.issues.push(issuesPath, issues)
+      org.issues.push(absPath.toString, issues)
+    }
+  }
+
+  // Run validation over the TypeDeclaration without mutating package types or dependencies
+  private def validateInIsolation(td: FullDeclaration): Unit = {
+    val originalTd = types.get(td.typeName)
+    try {
+      types.put(td.typeName, td)
+      td.validate(withPropagation = false)
+    } finally {
+      types.remove(td.typeName)
+      originalTd.foreach(types.put(td.typeName, _))
     }
   }
 
@@ -162,9 +171,10 @@ trait PackageAPI extends Package {
     val viewInfoImpl = viewInfo.asInstanceOf[ViewInfoImpl]
     val td = viewInfoImpl.td.get
 
-    // Check we are not trying to circumvent no duplicates rule
+    // Check we are not trying to circumvent the no duplicates rule
     if (types.get(td.typeName) match {
       case Some(ad: ApexDeclaration) => ad.path.absolute != viewInfoImpl.absPath
+      case None => false
       case _ => true
     }) return false
 
@@ -179,8 +189,9 @@ trait PackageAPI extends Package {
         }
 
       updated.foreach(utd => {
-        utd.validate()
+        org.issues.pop(viewInfoImpl.absPath.toString)
         types.put(utd.typeName, utd)
+        utd.validate()
       })
       updated.nonEmpty
     }
