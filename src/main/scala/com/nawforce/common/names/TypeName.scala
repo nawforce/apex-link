@@ -45,6 +45,7 @@ object TypeLike {
   * Representation of a type name with optional type arguments. These are stored in inner to outer order to allow
   * sharing of namespaces & outer classes.
   */
+@upickle.implicits.key("TypeName")
 case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeName]=None) extends TypeLike {
 
   // Cache hash code as immutable and heavily used in collections
