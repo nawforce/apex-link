@@ -33,6 +33,11 @@ import com.nawforce.common.path.PathFactory
 import scala.collection.mutable
 
 object Check {
+  private val STATUS_OK: Int = 0
+  private val STATUS_ISSUES: Int = -1
+  private val STATUS_ARGS: Int = -2
+  private val STATUS_EXCEPTION: Int = -3
+
   def usage(name:String) = s"Usage: $name [-json] [-verbose] <[namespace=]directory>..."
 
   def main(name: String, args: Array[String], org: Org): Int = {
@@ -45,7 +50,7 @@ object Check {
 
     if (validArgs.length != args.length) {
       System.err.println(usage(name))
-      return -1
+      return STATUS_ARGS
     }
 
     var paths: Seq[String] = validArgs.filterNot(options.contains)
@@ -60,7 +65,7 @@ object Check {
           case Array(ns, d) => (ns, d)
           case _ =>
             System.err.println(usage(name))
-            return -1
+            return STATUS_ARGS
         }
     })
     val json = validArgs.contains("-json")
@@ -71,7 +76,7 @@ object Check {
     val zombie = validArgs.contains("-zombie")
     if (json && pickle) {
       System.err.println("-json and -pickle can not be used together")
-      return -1
+      return STATUS_ARGS
     }
 
     try {
@@ -90,12 +95,13 @@ object Check {
       if (pickle) issueOptions.format = "pickle"
       issueOptions.includeWarnings = verbose
       issueOptions.includeZombies = zombie
-      println(org.getIssues(issueOptions))
-      0
+      val issues = org.getIssues(issueOptions)
+      print(issues)
+      if (issues.isEmpty) STATUS_OK else STATUS_ISSUES
     } catch {
       case ex: Throwable =>
         ex.printStackTrace(System.err)
-        -2
+        STATUS_EXCEPTION
     }
   }
 }

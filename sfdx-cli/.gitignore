@@ -1,0 +1,9 @@
+*-debug.log
+*-error.log
+/.nyc_output
+/dist
+/lib
+/package-lock.json
+/tmp
+/jars
+node_modules

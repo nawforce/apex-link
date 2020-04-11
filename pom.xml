@@ -4,7 +4,7 @@
 
     <groupId>com.github.nawforce</groupId>
     <artifactId>apexlink</artifactId>
-    <version>0.8-SNAPSHOT</version>
+    <version>0.8</version>
     <packaging>jar</packaging>
 
     <name>apexlink</name>
@@ -215,6 +215,7 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/dependency</outputDirectory>
+                            <includeScope>runtime</includeScope>
                         </configuration>
                     </execution>
                 </executions>
