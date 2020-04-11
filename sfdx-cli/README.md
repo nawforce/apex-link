@@ -68,24 +68,34 @@ USAGE
 ```
 <!-- usagestop -->
 <!-- commands -->
-* [`sfdx apexlink:check [--zombie] [--namespaces <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal]`](#sfdx-apexlinkcheck---zombie---namespaces-string---verbose---json---loglevel-tracedebuginfowarnerrorfatal)
+* [`sfdx apexlink:check [--zombie] [--namespaces <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-apexlinkcheck---zombie---namespaces-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 
-## `sfdx apexlink:check [--zombie] [--namespaces <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal]`
+## `sfdx apexlink:check [--zombie] [--namespaces <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+
+Validate Apex code in current or passed directories
 
 ```
 USAGE
   $ sfdx apexlink:check [--zombie] [--namespaces <string>] [--verbose] [--json] [--loglevel 
-  trace|debug|info|warn|error|fatal]
+  trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
 
 ARGUMENTS
   DIRECTORY  directory to search for Apex class files, defaults to current directory
 
 OPTIONS
-  --json                                          show output in json format (disables --verbose)
-  --loglevel=(trace|debug|info|warn|error|fatal)  [default: warn] logging level for this command invocation
-  --namespaces=namespaces                         comma separated list of dependent packages namespaces (without spaces)
-  --verbose                                       show progress messages
-  --zombie                                        show warnings for unused fields & methods
+  --json                                                                            show output in json format (disables
+                                                                                    --verbose)
+
+  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)  [default: warn] logging level for
+                                                                                    this command invocation
+
+  --namespaces=namespaces                                                           comma separated list of dependent
+                                                                                    packages namespaces (without spaces)
+
+  --verbose                                                                         show progress messages
+
+  --zombie                                                                          show warnings for unused fields &
+                                                                                    methods
 
 EXAMPLES
   $ sfdx apexlink:check

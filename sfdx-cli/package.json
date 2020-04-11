@@ -9,11 +9,10 @@
     "@oclif/command": "^1",
     "@oclif/config": "^1",
     "@oclif/errors": "^1",
-    "@salesforce/command": "^1.4.1",
-    "@salesforce/core": "^1.3.2",
-    "@types/cross-spawn": "^6.0.0",
+    "@salesforce/command": "^3.0.0",
+    "@salesforce/core": "^2.3.0",
     "locate-java-home": "1.1.2",
-    "tslib": "^1"
+    "cross-spawn": "7.0.2"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1",
@@ -21,12 +20,13 @@
     "@oclif/test": "^1",
     "@salesforce/dev-config": "1.4.1",
     "@types/chai": "^4",
+    "@types/cross-spawn": "^6.0.0",
     "@types/mocha": "^5",
     "@types/node": "^10",
     "chai": "^4",
     "globby": "^8",
     "mocha": "^5",
-    "nyc": "^13",
+    "nyc": "^15.0.1",
     "ts-node": "^8",
     "tslint": "^5",
     "typescript": "~3.3"
