@@ -27,10 +27,20 @@
 */
 package com.nawforce.runtime.json
 
-import net.liftweb.json._
-
 object JSON {
   def encode(value: String): String = {
-    compactRender(JString(value))
+    val buf = new StringBuilder()
+    value.foreach {
+      case '"' => buf.append("\\\"")
+      case '\\' => buf.append("\\\\")
+      case '\b' => buf.append("\\b")
+      case '\f' => buf.append("\\f")
+      case '\n' => buf.append("\\n")
+      case '\r' => buf.append("\\r")
+      case '\t' => buf.append("\\t")
+      case char if char < 0x20 => buf.append("\\u%04x".format(char: Int))
+      case char => buf.append(char)
+    }
+    buf.mkString
   }
 }

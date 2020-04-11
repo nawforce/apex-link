@@ -74,12 +74,6 @@
         </dependency>
 
         <dependency>
-            <groupId>net.liftweb</groupId>
-            <artifactId>lift-json_2.12</artifactId>
-            <version>3.3.0</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.lihaoyi</groupId>
             <artifactId>upickle_2.12</artifactId>
             <version>0.9.0</version>
