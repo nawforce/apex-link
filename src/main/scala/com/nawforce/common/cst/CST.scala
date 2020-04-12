@@ -38,33 +38,47 @@ import com.nawforce.runtime.parsers.CodeParser
 
 import scala.util.DynamicVariable
 
+// Internal exception for when things go badly wrong in the CST handling
 class CSTException extends Exception
 
+// Information about current parsing context
+case class CSTParsingContext(path: PathLike, lineAdjust: Int=0, columnAdjust: Int=0)
+
+/** Base for all CST nodes, provides some basic location handling, this is mutable for historic reasons, you must
+  * call withContext() on all CST nodes for them to pick up the location information from the parser. It also
+  * supports lines & column adjustments for when we re-parse blocks, see LazyBlock for details.
+  */
 abstract class CST {
   private var range: CSTRange = _
-  private var positionAdjust: (Int, Int) = _
+  private var parsingContext: CSTParsingContext = _
 
   lazy val location: RangeLocationImpl = {
     RangeLocationImpl(
       range.path,
       PositionImpl(range.startLine, range.startPosition)
-        .adjust(positionAdjust._1, positionAdjust._2),
+        .adjust(parsingContext.lineAdjust, parsingContext.columnAdjust),
       PositionImpl(range.stopLine, range.stopPosition)
-        .adjust(positionAdjust._1, positionAdjust._2)
+        .adjust(parsingContext.lineAdjust, parsingContext.columnAdjust)
     )
   }
 
   def getPath: PathLike = PathFactory(range.path)
 
   def withContext(context: CodeParser.ParserRuleContext): this.type = {
-    range = CodeParser.getRange(context)
-    positionAdjust = CST.rangeAdjust.value
+    parsingContext = CST.parsingContext.value.get
+    range = CSTRange(
+      parsingContext.path.toString,
+      context.getStart.getLine,
+      context.getStart.getCharPositionInLine,
+      context.getStop.getLine,
+      context.getStop.getCharPositionInLine + context.getStop.getText.length)
     this
   }
 }
 
 object CST {
-  val rangeAdjust: DynamicVariable[(Int, Int)] = new DynamicVariable[(Int,Int)]((0,0))
+  // Nasty hack to allow content information to be set globally and accessed as needed
+  val parsingContext: DynamicVariable[Option[CSTParsingContext]] = new DynamicVariable(None)
 }
 
 final case class Id(name: Name) extends CST {

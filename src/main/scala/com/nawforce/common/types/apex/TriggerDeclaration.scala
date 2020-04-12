@@ -89,7 +89,7 @@ class TriggerDeclaration(path: PathLike, val pkg: PackageImpl, name: Id, objectN
 
 object TriggerDeclaration {
   def create(pkg: PackageImpl, path: PathLike, data: String): Seq[TriggerDeclaration] = {
-    val parser = new CodeParser(path, data)
+    val parser = CodeParser(path, data)
     parser.parseTrigger() match {
       case Left(err) =>
         OrgImpl.logError(LineLocationImpl(path.toString, err.line), err.message)
@@ -103,8 +103,10 @@ object TriggerDeclaration {
     : TriggerDeclaration = {
     val ids = CodeParser.toScala(trigger.id())
     val cases = CodeParser.toScala(trigger.triggerCase()).map(constructCase)
-    new TriggerDeclaration(path, pkg,
-      Id.construct(ids.head), Id.construct(ids(1)), cases, Block.construct(trigger.block()))
+    CST.parsingContext.withValue(Some(CSTParsingContext(path))) {
+      new TriggerDeclaration(path, pkg,
+        Id.construct(ids.head), Id.construct(ids(1)), cases, Block.construct(trigger.block()))
+    }
   }
 
   def constructCase(triggerCase: TriggerCaseContext): TriggerCase = {

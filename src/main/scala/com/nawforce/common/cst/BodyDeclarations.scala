@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.documents.{RangeLocationImpl, Source}
+import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.finding.RelativeTypeName
 import com.nawforce.common.metadata._
 import com.nawforce.common.names.{Name, TypeName}
@@ -60,39 +60,39 @@ abstract class ClassBodyDeclaration(val modifiers: Seq[Modifier]) extends CST wi
 }
 
 object ClassBodyDeclaration {
-  def construct(pkg: PackageImpl, outerTypeName: TypeName, source: Source, modifiers: Seq[ModifierContext],
-                memberDeclarationContext: MemberDeclarationContext)
+  def construct(parser: CodeParser, pkg: PackageImpl, outerTypeName: TypeName,
+                modifiers: Seq[ModifierContext], memberDeclarationContext: MemberDeclarationContext)
   : Seq[ClassBodyDeclaration] = {
 
     val declarations: Option[Seq[ClassBodyDeclaration]] =
       CodeParser.toScala(memberDeclarationContext.methodDeclaration())
-        .map(x => Seq(ApexMethodDeclaration.construct(pkg, outerTypeName,
-          ApexModifiers.methodModifiers(modifiers, x.id()),
+        .map(x => Seq(ApexMethodDeclaration.construct(parser, pkg, outerTypeName,
+          ApexModifiers.methodModifiers(parser, modifiers, x.id()),
           x)))
       .orElse(CodeParser.toScala(memberDeclarationContext.fieldDeclaration())
         .map(x => ApexFieldDeclaration.construct(outerTypeName,
-          ApexModifiers.fieldModifiers(modifiers,
+          ApexModifiers.fieldModifiers(parser, modifiers,
             CodeParser.toScala(x.variableDeclarators().variableDeclarator()).head.id()),
           x)))
       .orElse(CodeParser.toScala(memberDeclarationContext.constructorDeclaration())
-        .map(x => Seq(ApexConstructorDeclaration.construct(pkg, outerTypeName,
-          ApexModifiers.constructorModifiers(modifiers, x),
+        .map(x => Seq(ApexConstructorDeclaration.construct(parser, pkg, outerTypeName,
+          ApexModifiers.constructorModifiers(parser, modifiers, x),
           x))))
       .orElse(CodeParser.toScala(memberDeclarationContext.interfaceDeclaration())
-        .map(x => Seq(InterfaceDeclaration.construct(source, pkg, Some(outerTypeName),
-          ApexModifiers.interfaceModifiers(modifiers, outer = false, x.id()),
+        .map(x => Seq(InterfaceDeclaration.construct(parser, pkg, Some(outerTypeName),
+          ApexModifiers.interfaceModifiers(parser, modifiers, outer = false, x.id()),
           x))))
       .orElse(CodeParser.toScala(memberDeclarationContext.enumDeclaration())
-        .map(x => Seq(EnumDeclaration.construct(source, pkg, Some(outerTypeName),
-          ApexModifiers.enumModifiers(modifiers, outer = false, x.id()),
+        .map(x => Seq(EnumDeclaration.construct(parser, pkg, Some(outerTypeName),
+          ApexModifiers.enumModifiers(parser, modifiers, outer = false, x.id()),
           x))))
       .orElse(CodeParser.toScala(memberDeclarationContext.propertyDeclaration())
-        .map(x => Seq(ApexPropertyDeclaration.construct(outerTypeName,
-          ApexModifiers.fieldModifiers(modifiers, x.id()),
+        .map(x => Seq(ApexPropertyDeclaration.construct(parser, outerTypeName,
+          ApexModifiers.fieldModifiers(parser, modifiers, x.id()),
           x))))
       .orElse(CodeParser.toScala(memberDeclarationContext.classDeclaration())
-        .map(x => Seq(ClassDeclaration.construct(source, pkg, Some(outerTypeName),
-          ApexModifiers.classModifiers(modifiers, outer = false, x.id()),
+        .map(x => Seq(ClassDeclaration.construct(parser, pkg, Some(outerTypeName),
+          ApexModifiers.classModifiers(parser, modifiers, outer = false, x.id()),
           x))))
 
     if (declarations.isEmpty)
@@ -116,8 +116,8 @@ final case class ApexInitialiserBlock(_modifiers: Seq[Modifier], block: Block)
 }
 
 object ApexInitialiserBlock {
-  def construct(modifiers: Seq[Modifier], block: BlockContext): ApexInitialiserBlock = {
-    ApexInitialiserBlock(modifiers, Block.construct(block))
+  def construct(parser: CodeParser, modifiers: Seq[Modifier], block: BlockContext): ApexInitialiserBlock = {
+    ApexInitialiserBlock(modifiers, Block.constructLazy(parser, block))
   }
 }
 
@@ -165,11 +165,11 @@ final case class ApexMethodDeclaration(outerTypeName: TypeName, _modifiers: Seq[
 }
 
 object ApexMethodDeclaration {
-  def construct(pkg: PackageImpl, outerTypeName: TypeName, modifiers: Seq[Modifier],
+  def construct(parser: CodeParser, pkg: PackageImpl, outerTypeName: TypeName, modifiers: Seq[Modifier],
                 from: MethodDeclarationContext): ApexMethodDeclaration = {
     val typeName = CodeParser.toScala(from.typeRef()).map(tr => TypeRef.construct(tr)).getOrElse(TypeName.Void)
     val block = CodeParser.toScala(from.block())
-      .map(b => Block.constructLazy(b))
+      .map(b => Block.constructLazy(parser, b))
 
     ApexMethodDeclaration(outerTypeName,
       modifiers, RelativeTypeName(pkg, outerTypeName, typeName),
@@ -240,12 +240,12 @@ final case class ApexConstructorDeclaration(_modifiers: Seq[Modifier], qualified
 }
 
 object ApexConstructorDeclaration {
-  def construct(pkg: PackageImpl, outerTypeName: TypeName, modifiers: Seq[Modifier],
+  def construct(parser: CodeParser, pkg: PackageImpl, outerTypeName: TypeName, modifiers: Seq[Modifier],
                 from: ConstructorDeclarationContext): ApexConstructorDeclaration = {
     ApexConstructorDeclaration(modifiers,
       QualifiedName.construct(from.qualifiedName()),
       FormalParameters.construct(pkg, outerTypeName, from.formalParameters()),
-      Block.construct(from.block())
+      Block.constructLazy(parser, from.block())
     ).withContext(from)
   }
 }

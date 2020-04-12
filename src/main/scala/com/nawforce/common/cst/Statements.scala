@@ -70,7 +70,7 @@ final case class LazyBlock(clippedStream: ClippedStream, var blockContextRef: We
       if (statementContext.isEmpty) {
         clippedStream.parse() match {
           case Left(err) =>
-            OrgImpl.logError(LineLocationImpl(clippedStream.path.toString, err.line), err.message)
+            OrgImpl.logError(LineLocationImpl(clippedStream.source.path.toString, err.line), err.message)
             return Nil
           case Right(c) =>
             statementContext = Some(c)
@@ -80,11 +80,11 @@ final case class LazyBlock(clippedStream: ClippedStream, var blockContextRef: We
         }
       }
 
-      var rangeAdjust = CST.rangeAdjust.value
-      assert(rangeAdjust._1 == 0 && rangeAdjust._2 == 0)
+      var parsingContext = CST.parsingContext.value.get
+      assert(parsingContext.lineAdjust == 0 && parsingContext.columnAdjust == 0)
       if (reParsed)
-        rangeAdjust = (clippedStream.line, clippedStream.column)
-        CST.rangeAdjust.withValue(rangeAdjust) {
+        parsingContext = CSTParsingContext(parsingContext.path, clippedStream.line, clippedStream.column)
+      CST.parsingContext.withValue(Some(parsingContext)) {
         val statementContexts: Seq[StatementContext] = CodeParser.toScala(statementContext.get.statement())
         statements = Some(Statement.construct(statementContexts))
         statementsRef = WeakReference(statements.get)
@@ -95,9 +95,9 @@ final case class LazyBlock(clippedStream: ClippedStream, var blockContextRef: We
 }
 
 object Block {
-  def constructLazy(blockContext: BlockContext): Block = {
+  def constructLazy(parser: CodeParser, blockContext: BlockContext): Block = {
     if (ServerOps.getLazyBlocks) {
-      LazyBlock(CodeParser.clipStream(blockContext), WeakReference(blockContext))
+      LazyBlock(parser.clipStream(blockContext), WeakReference(blockContext))
     } else {
       construct(blockContext)
     }

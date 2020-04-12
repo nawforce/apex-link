@@ -33,6 +33,6 @@ import com.nawforce.runtime.parsers.CodeParser
 
 object ParserHelper {
   def literal(literal: String): LiteralContext = {
-    new CodeParser(PathFactory(""), literal).parseLiteral()
+    CodeParser(PathFactory(""), literal).parseLiteral()
   }
 }
