@@ -33,9 +33,6 @@ trait Org {
   /** Get array of current packages. All orgs have at least one 'unmanaged' package. */
   def getPackages: Array[Package]
 
-  /** Get current issue log. See IssueOptions for control over what is returned. */
-  def getIssues(options: IssueOptions): String
-
   /** Create a new package in the org, directories should be priority ordered for duplicate detection. Use
     * namespaces to indicate dependent packages which must already have been created as packages. */
   def newPackage(namespace: String, directories: Array[String], basePackages: Array[Package]): Package
@@ -43,6 +40,13 @@ trait Org {
   /** Force syncing of org metadata with cache. THis should be called periodically to ensure the cache
     * is kept upto date after metadata changes. */
   def flush(): Unit
+
+  /** Get current issue log. See IssueOptions for control over what is returned. */
+  def getIssues(options: IssueOptions): String
+
+  /** Get Apex type dependency map for all types in the Org. This is intended to be used to support
+    * exporting of the map for secondary analysis. */
+  def getDependencies: java.util.Map[String, Array[String]]
 }
 
 class IssueOptions {

@@ -27,6 +27,8 @@
 */
 package com.nawforce.common.org
 
+import java.util
+
 import com.nawforce.common.api.{IssueOptions, Org, Package, ServerOps}
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, IssueLog, WARNING_CATEGORY}
 import com.nawforce.common.documents._
@@ -68,24 +70,6 @@ class OrgImpl extends Org {
 
   /** Current package list for Org */
   override def getPackages: Array[Package] = packagesByNamespace.values.toArray
-
-  /** Collect all issues into a JSON log */
-  override def getIssues(options: IssueOptions): String = {
-    OrgImpl.current.withValue(this) {
-      val reportableIssues =
-        if (options.includeZombies) {
-          val allIssues = IssueLog(issues)
-          packagesByNamespace.values.foreach(pkg => {
-            pkg.propagateAllDependencies()
-            allIssues.merge(pkg.reportUnused())
-          })
-          allIssues
-        } else {
-          issues
-        }
-      reportableIssues.asString(options.includeWarnings, options.maxErrorsPerFile, options.format)
-    }
-  }
 
   /** Create a new package in the org, directories should be priority ordered for duplicate detection. Use
     * namespaces to indicate dependent packages which must already have been created as packages. */
@@ -147,8 +131,35 @@ class OrgImpl extends Org {
     }
   }
 
+  /** Collect all issues into a JSON log */
+  override def getIssues(options: IssueOptions): String = {
+    OrgImpl.current.withValue(this) {
+      val reportableIssues =
+        if (options.includeZombies) {
+          val allIssues = IssueLog(issues)
+          packagesByNamespace.values.foreach(pkg => {
+            pkg.propagateAllDependencies()
+            allIssues.merge(pkg.reportUnused())
+          })
+          allIssues
+        } else {
+          issues
+        }
+      reportableIssues.asString(options.includeWarnings, options.maxErrorsPerFile, options.format)
+    }
+  }
+
   /** Dump current issues to standard out */
   private[nawforce] def dumpIssues(): Unit = issues.dump()
+
+
+  override def getDependencies: java.util.Map[String, Array[String]] = {
+    OrgImpl.current.withValue(this) {
+      val dependencies = new util.HashMap[String, Array[String]]()
+      packagesByNamespace.values.foreach(_.populateDependencies(dependencies))
+      dependencies
+    }
+  }
 }
 
 object OrgImpl {
