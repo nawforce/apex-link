@@ -37,6 +37,7 @@ import com.nawforce.common.metadata.MetadataDeclaration
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types.TypeDeclaration
+import com.nawforce.common.types.apex.ApexDeclaration
 import com.nawforce.common.types.other._
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.schema.SchemaManager
@@ -183,6 +184,19 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
 
     // From may be used to locate type variable types so must be accurate even for a platform type request
     PlatformTypes.get(typeName, from, excludeSObjects)
+  }
+
+  // Add dependencies for Apex types to a map
+  def populateDependencies(dependencies: java.util.Map[String, Array[String]]): Unit = {
+    types.values.foreach {
+      case td: ApexDeclaration =>
+        val depends = mutable.Set[TypeName]()
+        td.collectDependenciesByTypeName(depends)
+        depends.remove(td.typeName)
+        if (depends.nonEmpty)
+          dependencies.put(td.typeName.toString, depends.map(_.toString).toArray)
+      case _ => ()
+    }
   }
 
   private def getPackageType(typeName: TypeName, inPackage: Boolean=true): Option[TypeDeclaration] = {

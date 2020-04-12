@@ -57,10 +57,11 @@ export default class Check extends SfdxCommand {
   ];
 
   protected static flagsConfig = {
-    json: flags.boolean({description: 'show output in json format (disables --verbose)'}),
-    verbose: flags.builtin({description: 'show progress messages'}),
     zombie: flags.boolean({description: 'show warnings for unused fields & methods'}),
-    namespaces: flags.string({description: 'comma separated list of dependent packages namespaces (without spaces)'})
+    depends: flags.boolean({description: 'output map of type dependencies rather than issues, CSV or JSON format'}),
+    namespaces: flags.string({description: 'comma separated list of dependent package namespaces (without spaces)'}),
+    verbose: flags.builtin({description: 'show progress messages'}),
+    json: flags.boolean({description: 'show output in json format (disables --verbose)'})
   };
 
   protected static requiresUsername = false;
@@ -95,6 +96,7 @@ export default class Check extends SfdxCommand {
     if (this.flags.verbose) execArgs.push('-verbose')
     if (this.flags.json) execArgs.push('-json')
     if (this.flags.zombie) execArgs.push('-zombie')
+    if (this.flags.depends) execArgs.push('-depends')
     namespaces.forEach(namespace => {execArgs.push(namespace+"=")})
     execArgs.push(directory)
     return this.execute(javaExecutable, execArgs, this.flags.json)

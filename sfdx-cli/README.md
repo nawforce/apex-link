@@ -68,21 +68,25 @@ USAGE
 ```
 <!-- usagestop -->
 <!-- commands -->
-* [`sfdx apexlink:check [--zombie] [--namespaces <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-apexlinkcheck---zombie---namespaces-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+* [`sfdx apexlink:check [--zombie] [--depends] [--namespaces <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-apexlinkcheck---zombie---depends---namespaces-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 
-## `sfdx apexlink:check [--zombie] [--namespaces <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+## `sfdx apexlink:check [--zombie] [--depends] [--namespaces <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
 Validate Apex code in current or passed directories
 
 ```
 USAGE
-  $ sfdx apexlink:check [--zombie] [--namespaces <string>] [--verbose] [--json] [--loglevel 
+  $ sfdx apexlink:check [--zombie] [--depends] [--namespaces <string>] [--verbose] [--json] [--loglevel 
   trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
 
 ARGUMENTS
   DIRECTORY  directory to search for Apex class files, defaults to current directory
 
 OPTIONS
+  --depends                                                                         output map of type dependencies
+                                                                                    rather than issues, CSV or JSON
+                                                                                    format
+
   --json                                                                            show output in json format (disables
                                                                                     --verbose)
 
@@ -90,7 +94,7 @@ OPTIONS
                                                                                     this command invocation
 
   --namespaces=namespaces                                                           comma separated list of dependent
-                                                                                    packages namespaces (without spaces)
+                                                                                    package namespaces (without spaces)
 
   --verbose                                                                         show progress messages
 

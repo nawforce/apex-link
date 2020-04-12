@@ -29,8 +29,10 @@ package com.nawforce.common.cmds
 
 import com.nawforce.common.api.{IssueOptions, Org, Package, ServerOps}
 import com.nawforce.common.path.PathFactory
+import com.nawforce.runtime.json.JSON
 
 import scala.collection.mutable
+import scala.collection.JavaConverters._
 
 object Check {
   private val STATUS_OK: Int = 0
@@ -41,7 +43,7 @@ object Check {
   def usage(name:String) = s"Usage: $name [-json] [-verbose] <[namespace=]directory>..."
 
   def main(name: String, args: Array[String], org: Org): Int = {
-    val options = Set("-verbose", "-json", "-pickle", "-zombie")
+    val options = Set("-verbose", "-json", "-pickle", "-zombie", "-depends")
 
     val validArgs = args.flatMap {
       case option if options.contains(option) => Some(option)
@@ -71,6 +73,8 @@ object Check {
     val json = validArgs.contains("-json")
     val pickle = validArgs.contains("-pickle")
     val verbose = !json && validArgs.contains("-verbose")
+    val depends = validArgs.contains("-depends")
+
     if (verbose)
       ServerOps.setDebugLogging(Array("ALL"))
     val zombie = validArgs.contains("-zombie")
@@ -90,18 +94,55 @@ object Check {
       })
       org.flush()
 
-      val issueOptions = new IssueOptions()
-      if (json) issueOptions.format = "json"
-      if (pickle) issueOptions.format = "pickle"
-      issueOptions.includeWarnings = verbose
-      issueOptions.includeZombies = zombie
-      val issues = org.getIssues(issueOptions)
-      print(issues)
-      if (issues.isEmpty) STATUS_OK else STATUS_ISSUES
+      if (depends) {
+        if (json) {
+          writeDependenciesAsJSON(org)
+        } else {
+          writeDependenciesAsCSV(org)
+        }
+        STATUS_OK
+      } else {
+        val format = if (pickle) "pickle" else if (json) "json" else ""
+        writeIssues(org, format, verbose, zombie)
+      }
+
     } catch {
       case ex: Throwable =>
         ex.printStackTrace(System.err)
         STATUS_EXCEPTION
     }
+  }
+
+  private def writeDependenciesAsJSON(org: Org): Unit = {
+    val buffer = new StringBuilder()
+    var first = true
+    buffer ++= s"""{ "dependencies": [\n"""
+    org.getDependencies.asScala.foreach(kv => {
+      if (!first)
+        buffer ++= ",\n"
+      first = false
+
+      buffer ++= s"""{ "name": "${JSON.encode(kv._1)}", "dependencies": ["""
+      buffer ++= kv._2.map("\"" + JSON.encode(_) + "\"").mkString(", ")
+      buffer ++= s"]}"
+    })
+    buffer ++= "]}\n"
+    print(buffer.mkString)
+  }
+
+  private def writeDependenciesAsCSV(org: Org): Unit = {
+    org.getDependencies.asScala.foreach(kv => {
+      println(s"${kv._1}, ${kv._2.mkString(", ")}")
+    })
+  }
+
+  private def writeIssues(org: Org, format: String, includeWarnings: Boolean, includeZombies: Boolean): Int = {
+    val issueOptions = new IssueOptions()
+    issueOptions.format = format
+    issueOptions.includeWarnings = includeWarnings
+    issueOptions.includeZombies = includeZombies
+    val issues = org.getIssues(issueOptions)
+    print(issues)
+    if (issues.isEmpty) STATUS_OK else STATUS_ISSUES
   }
 }
