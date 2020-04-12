@@ -28,15 +28,18 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.ParserHelper
-import com.nawforce.common.cst.Literal
+import com.nawforce.common.cst.{CST, CSTParsingContext, Literal}
 import com.nawforce.common.metadata.DependencyHolder
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.path.PathFactory
 import org.scalatest.funsuite.AnyFunSuite
 
 class LiteralTypeTest extends AnyFunSuite
 {
   def typeLiteral(data: String): DependencyHolder = {
-    Literal.construct(ParserHelper.literal(data)).getType
+    CST.parsingContext.withValue(Some(CSTParsingContext(PathFactory("Dummy")))) {
+      Literal.construct(ParserHelper.literal(data)).getType
+    }
   }
 
   def compareLiteral(p: String, r: TypeName): Unit = {

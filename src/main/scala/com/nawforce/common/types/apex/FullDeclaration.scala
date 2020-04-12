@@ -38,7 +38,7 @@ import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
 import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
-import com.nawforce.runtime.parsers.CodeParser
+import com.nawforce.runtime.parsers.{CodeParser, Source}
 import upickle.default.writeBinary
 
 import scala.collection.mutable
@@ -108,9 +108,12 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
 
   def validate(withPropagation: Boolean): Unit = {
     ServerOps.debugTime(s"Validated $getPath") {
-      verify(new TypeVerifyContext(None, this, withPropagation))
-      if (withPropagation)
-        propagateOuterDependencies()
+      // Validate inside a parsing context as LazyBlock may call parser
+      CST.parsingContext.withValue(Some(CSTParsingContext(getPath))) {
+        verify(new TypeVerifyContext(None, this, withPropagation))
+        if (withPropagation)
+          propagateOuterDependencies()
+      }
     }
   }
 
@@ -186,35 +189,36 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
 
 object FullDeclaration {
   def create(pkg: PackageImpl, path: PathLike, data: String): Option[FullDeclaration] = {
-    val parser = new CodeParser(path, data)
+    val parser = CodeParser(path, data)
     parser.parseClass() match {
       case Left(err) =>
         OrgImpl.logError(LineLocationImpl(path.toString, err.line), err.message)
         None
       case Right(cu) =>
-        Some(CompilationUnit.construct(Source(path, data), pkg, cu).typeDeclaration())
+        Some(CompilationUnit.construct(parser, pkg, cu).typeDeclaration)
     }
   }
 
-  def construct(source: Source, pkg: PackageImpl, outerTypeName: Option[TypeName], typeDecl: TypeDeclarationContext)
+  def construct(parser: CodeParser, pkg: PackageImpl,
+                outerTypeName: Option[TypeName], typeDecl: TypeDeclarationContext)
       : FullDeclaration = {
 
     val modifiers: Seq[ModifierContext] = CodeParser.toScala(typeDecl.modifier())
     val isOuter = outerTypeName.isEmpty
 
     val cst = CodeParser.toScala(typeDecl.classDeclaration())
-      .map(cd => ClassDeclaration.construct(source, pkg, outerTypeName,
-        ApexModifiers.classModifiers(modifiers, outer = isOuter, cd.id()),
+      .map(cd => ClassDeclaration.construct(parser, pkg, outerTypeName,
+        ApexModifiers.classModifiers(parser, modifiers, outer = isOuter, cd.id()),
         cd)
       )
     .orElse(CodeParser.toScala(typeDecl.interfaceDeclaration())
-      .map(id => InterfaceDeclaration.construct(source, pkg, outerTypeName,
-        ApexModifiers.interfaceModifiers(modifiers, outer = isOuter, id.id()),
+      .map(id => InterfaceDeclaration.construct(parser, pkg, outerTypeName,
+        ApexModifiers.interfaceModifiers(parser, modifiers, outer = isOuter, id.id()),
         id)
       ))
     .orElse(CodeParser.toScala(typeDecl.enumDeclaration())
-      .map(ed => EnumDeclaration.construct(source, pkg, outerTypeName,
-        ApexModifiers.enumModifiers(modifiers, outer = isOuter, ed.id()),
+      .map(ed => EnumDeclaration.construct(parser, pkg, outerTypeName,
+        ApexModifiers.enumModifiers(parser, modifiers, outer = isOuter, ed.id()),
         ed)
       ))
 

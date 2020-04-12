@@ -70,7 +70,7 @@ object ParserBench {
             case Left(err) => println(err)
             case Right(data) =>
               size = data.length
-              val parser = new CodeParser(doc.path, data)
+              val parser = CodeParser(doc.path, data)
               parser.parseClass() match {
                 case Left(err) => println(s"${doc.path}:${err.line} ${err.message}")
                 case Right(_) => ()

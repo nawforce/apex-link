@@ -85,13 +85,13 @@ final case class ApexPropertyDeclaration(outerTypeName: TypeName, _modifiers: Se
 }
 
 object ApexPropertyDeclaration {
-  def construct(outerTypeName: TypeName, modifiers: Seq[Modifier], propertyDeclaration: PropertyDeclarationContext)
+  def construct(parser: CodeParser, outerTypeName: TypeName, modifiers: Seq[Modifier], propertyDeclaration: PropertyDeclarationContext)
       : ApexPropertyDeclaration = {
     val typeName = TypeRef.construct(propertyDeclaration.typeRef())
     ApexPropertyDeclaration(outerTypeName, modifiers, typeName,
       Id.construct(propertyDeclaration.id()),
       CodeParser.toScala(propertyDeclaration.propertyBlock())
-        .map(pb => PropertyBlock.construct(pb, typeName)),
+        .map(pb => PropertyBlock.construct(parser, pb, typeName)),
     ).withContext(propertyDeclaration)
   }
 }
@@ -115,8 +115,8 @@ final case class SetterPropertyBlock(modifiers: Seq[Modifier], typeName: TypeNam
 }
 
 object PropertyBlock {
-  def construct(propertyBlockContext: PropertyBlockContext, typeName: TypeName): PropertyBlock = {
-    val modifiers: Seq[Modifier] = ApexModifiers.propertyBlockModifiers(
+  def construct(parser: CodeParser, propertyBlockContext: PropertyBlockContext, typeName: TypeName): PropertyBlock = {
+    val modifiers: Seq[Modifier] = ApexModifiers.propertyBlockModifiers(parser,
       CodeParser.toScala(propertyBlockContext.modifier()), propertyBlockContext)
     val cst = {
       val getter = CodeParser.toScala(propertyBlockContext.getter())
