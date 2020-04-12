@@ -27,6 +27,7 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
@@ -151,7 +152,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
         }
 
         if (inputType.isComplete)
-          context.logError(location, s"Unknown field or type '${target.left.get.name}' on '${inputType.typeName}'")
+          context.log(Issue.unknownFieldOrType(location, target.left.get.name, inputType.typeName))
         ExprContext.empty
 
       case _ =>

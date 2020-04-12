@@ -76,6 +76,12 @@ object Issue {
   def noVariableOrType(_location: LocationImpl, name: Name, typeName: TypeName): Issue =
     Issue(MISSING_CATEGORY, _location,s"No variable or type found for '$name' on '$typeName'")
 
+  def unknownFieldOnSObject(_location: LocationImpl, name: Name, typeName: TypeName): Issue =
+    Issue(MISSING_CATEGORY, _location,s"Unknown field '$name' on SObject '$typeName'")
+
+  def unknownFieldOrType(_location: LocationImpl, name: Name, typeName: TypeName): Issue =
+    Issue(MISSING_CATEGORY, _location,s"Unknown field or type '$name' on '$typeName'")
+
   implicit val rw: RW[Issue] = macroRW
 }
 

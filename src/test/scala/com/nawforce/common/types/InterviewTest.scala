@@ -77,7 +77,7 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
       org.addPackage(None, Seq(root), Seq())
       // TODO: This should be a missing issue
       assert(org.issues.getMessages("/Dummy.cls") ==
-        "Error: line 1 at 22-41: Unknown field or type 'Test' on 'Flow.Interview'\n")
+        "Missing: line 1 at 22-41: Unknown field or type 'Test' on 'Flow.Interview'\n")
     }
   }
 

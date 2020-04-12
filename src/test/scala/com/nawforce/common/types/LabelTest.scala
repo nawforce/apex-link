@@ -125,7 +125,7 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages("/Dummy.cls") ==
-        "Error: line 1 at 33-49: Unknown field or type 'TestLabel2' on 'System.Label'\n")
+        "Missing: line 1 at 33-49: Unknown field or type 'TestLabel2' on 'System.Label'\n")
     }
   }
 
@@ -148,7 +148,7 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages("/Dummy.cls") ==
-        "Error: line 1 at 33-49: Unknown field or type 'TestLaBel2' on 'System.Label'\n")
+        "Missing: line 1 at 33-49: Unknown field or type 'TestLaBel2' on 'System.Label'\n")
     }
   }
 
@@ -195,7 +195,7 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
       val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
       org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(org.issues.getMessages("/pkg2/Dummy.cls") ==
-        "Error: line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label.pkg1'\n")
+        "Missing: line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label.pkg1'\n")
     }
   }
 
