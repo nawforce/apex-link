@@ -29,6 +29,7 @@ package com.nawforce.common.types
 
 import com.nawforce.common.api._
 import com.nawforce.common.cst._
+import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.metadata.{DependencyHolder, MetadataDeclaration}
 import com.nawforce.common.names.{Name, TypeName}
@@ -334,7 +335,7 @@ trait TypeDeclaration extends MetadataDeclaration {
 
           if (field.isEmpty) {
             if (isComplete)
-              OrgImpl.logError(id.location, s"Unknown field '${id.name}' on SObject type '$typeName'")
+              context.log(Issue.unknownFieldOnSObject(id.location, id.name, typeName))
             None
           } else {
             context.addDependency(field.get)

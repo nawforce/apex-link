@@ -71,7 +71,7 @@ class PageTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages("/Dummy.cls") ==
-        "Error: line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n")
+        "Missing: line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n")
     }
   }
 

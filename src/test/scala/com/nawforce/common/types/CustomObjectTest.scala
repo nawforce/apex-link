@@ -155,7 +155,7 @@ class CustomObjectTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages("/Dummy.cls") ==
-        "Error: line 1 at 44-50: Unknown field 'Baz__c' on SObject type 'Schema.Foo__c'\n")
+        "Missing: line 1 at 44-50: Unknown field 'Baz__c' on SObject 'Schema.Foo__c'\n")
     }
   }
 
@@ -302,7 +302,7 @@ class CustomObjectTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages("/Dummy.cls") ==
-        "Error: line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__c'\n")
+        "Missing: line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__c'\n")
     }
   }
 
@@ -371,7 +371,7 @@ class CustomObjectTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages("/Dummy.cls") ==
-        "Error: line 1 at 48-66: Unknown field or type 'Foo__c' on 'Schema.SObjectType'\n")
+        "Missing: line 1 at 48-66: Unknown field or type 'Foo__c' on 'Schema.SObjectType'\n")
     }
   }
 
@@ -416,7 +416,7 @@ class CustomObjectTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
             assert(org.issues.getMessages("/Dummy.cls") ==
-        "Error: line 1 at 48-80: Unknown field or type 'Baz__c' on 'Schema.SObjectType.Foo__c.Fields'\n")
+        "Missing: line 1 at 48-80: Unknown field or type 'Baz__c' on 'Schema.SObjectType.Foo__c.Fields'\n")
     }
   }
 
@@ -439,7 +439,7 @@ class CustomObjectTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages("/Dummy.cls") ==
-        "Error: line 1 at 48-84: Unknown field or type 'OtherFS' on 'Schema.SObjectType.Foo__c.FieldSets'\n")
+        "Missing: line 1 at 48-84: Unknown field or type 'OtherFS' on 'Schema.SObjectType.Foo__c.FieldSets'\n")
     }
   }
 

@@ -85,7 +85,7 @@ class PlatformEventTest extends AnyFunSuite {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages("/Dummy.cls") ==
-        "Error: line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__e'\n")
+        "Missing: line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__e'\n")
     }
   }
 }

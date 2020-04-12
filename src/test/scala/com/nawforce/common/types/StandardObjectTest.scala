@@ -104,7 +104,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages("/Dummy.cls") ==
-        "Error: line 1 at 33-41: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
+        "Missing: line 1 at 33-41: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
     }
   }
 
@@ -129,7 +129,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
       org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(org.issues.getMessages("/pkg2/Dummy.cls") ==
-        "Error: line 1 at 33-41: Unknown field or type 'Bar__c' on 'Schema.Account'\n")
+        "Missing: line 1 at 33-41: Unknown field or type 'Bar__c' on 'Schema.Account'\n")
     }
   }
 
@@ -215,7 +215,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages("/Dummy.cls") ==
-        "Error: line 1 at 39-53: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
+        "Missing: line 1 at 39-53: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
     }
   }
 
@@ -259,7 +259,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages("/Dummy.cls") ==
-        "Error: line 1 at 48-63: Unknown field or type 'Foo' on 'Schema.SObjectType'\n")
+        "Missing: line 1 at 48-63: Unknown field or type 'Foo' on 'Schema.SObjectType'\n")
     }
   }
 
@@ -290,7 +290,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages("/Dummy.cls") ==
-        "Error: line 1 at 48-78: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.Fields'\n")
+        "Missing: line 1 at 48-78: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.Fields'\n")
     }
   }
 
@@ -301,7 +301,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages("/Dummy.cls") ==
-        "Error: line 1 at 48-81: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.FieldSets'\n")
+        "Missing: line 1 at 48-81: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.FieldSets'\n")
     }
   }
 
