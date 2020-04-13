@@ -75,9 +75,10 @@ object VariableDeclarators {
   }
 }
 
-final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeName: TypeName, variableDeclarators: VariableDeclarators)
+final case class LocalVariableDeclaration(modifiers: ModifierResults, typeName: TypeName, variableDeclarators: VariableDeclarators)
   extends CST {
   def verify(context: BlockVerifyContext): Unit = {
+    modifiers.issues.foreach(context.log)
     val staticContext = if (context.isStatic) Some(true) else None
     variableDeclarators.verify(ExprContext(isStatic = staticContext, context.thisType), context)
   }
@@ -88,12 +89,12 @@ final case class LocalVariableDeclaration(modifiers: Seq[Modifier], typeName: Ty
 }
 
 object LocalVariableDeclaration {
-  def construct(localVariableDeclaration: LocalVariableDeclarationContext): LocalVariableDeclaration = {
-    val typeName = TypeRef.construct(localVariableDeclaration.typeRef())
+  def construct(parser: CodeParser, from: LocalVariableDeclarationContext): LocalVariableDeclaration = {
+    val typeName = TypeRef.construct(from.typeRef())
     LocalVariableDeclaration(
-      ApexModifiers.construct(CodeParser.toScala(localVariableDeclaration.modifier())),
+      ApexModifiers.localVariableModifiers(parser, CodeParser.toScala(from.modifier()), from),
       typeName,
-      VariableDeclarators.construct(typeName, localVariableDeclaration.variableDeclarators()))
-        .withContext(localVariableDeclaration)
+      VariableDeclarators.construct(typeName, from.variableDeclarators()))
+        .withContext(from)
   }
 }

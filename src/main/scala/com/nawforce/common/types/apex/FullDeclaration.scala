@@ -45,7 +45,7 @@ import scala.collection.mutable
 
 /* Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
 abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val outerTypeName: Option[TypeName],
-                               val id: Id, _modifiers: Seq[Modifier],
+                               val id: Id, _modifiers: ModifierResults,
                                val superClass: Option[TypeName], val interfaces: Seq[TypeName],
                                val bodyDeclarations: Seq[ClassBodyDeclaration])
   extends ClassBodyDeclaration(_modifiers) with ApexDeclaration {
@@ -110,7 +110,9 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
     ServerOps.debugTime(s"Validated $getPath") {
       // Validate inside a parsing context as LazyBlock may call parser
       CST.parsingContext.withValue(Some(CSTParsingContext(getPath))) {
-        verify(new TypeVerifyContext(None, this, withPropagation))
+        val context = new TypeVerifyContext(None, this, withPropagation)
+        modifierResults.issues.foreach(context.log)
+        verify(context)
         if (withPropagation)
           propagateOuterDependencies()
       }

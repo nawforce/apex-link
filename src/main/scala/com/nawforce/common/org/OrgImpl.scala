@@ -46,7 +46,7 @@ class OrgImpl extends Org {
   /**
     * Map of Package namespace to Package. This contains all known Packages, each Package maintains it's own
     * list of dependent Package so that we can enforce boundaries between unrelated Packages.
-    * TODO: This only support 1GP model, work needed for 2GP handling
+    * Future: This only supports 1GP model, work needed for 2GP handling
     */
   private[nawforce] var packagesByNamespace: Map[Option[Name], PackageImpl] = Map()
 
@@ -181,11 +181,4 @@ object OrgImpl {
   private[nawforce] def logError(location: LocationImpl, message: String): Unit = {
     OrgImpl.current.value.issues.add(new Issue(ERROR_CATEGORY, location, message))
   }
-
-  /** Log a warning error against the in-scope org */
-  // TODO: Remove this in favour of passing issues around
-  private[nawforce] def logWarning(location: LocationImpl, message: String): Unit = {
-    OrgImpl.current.value.issues.add(new Issue(WARNING_CATEGORY, location, message))
-  }
-
 }

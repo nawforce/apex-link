@@ -134,7 +134,7 @@ object Annotation {
 
 sealed abstract class ElementValue() extends CST
 
-//final case class ExpressionElementValue(expression: Expression) extends ElementValue
+final case class ExpressionElementValue(expression: Expression) extends ElementValue
 
 final case class AnnotationElementValue(annotation: Annotation) extends ElementValue
 
@@ -146,15 +146,13 @@ object ElementValue {
   }
 
   def construct(elementValue: ElementValueContext): ElementValue = {
-
-    // TODO: Fix up when we have expression support
-    //val expression = CodeParser.toScala(elementValue.expression())
+    val expression = CodeParser.toScala(elementValue.expression())
     val annotation = CodeParser.toScala(elementValue.annotation())
     val arrayInitializer = CodeParser.toScala(elementValue.elementValueArrayInitializer())
 
-    /*if (expression.nonEmpty) {
+    if (expression.nonEmpty) {
       ExpressionElementValue(Expression.construct(elementValue.expression())).withContext(elementValue)
-    } else*/ if (annotation.nonEmpty) {
+    } else if (annotation.nonEmpty) {
       AnnotationElementValue(Annotation.construct(annotation.get)).withContext(elementValue)
     } else if (arrayInitializer.nonEmpty) {
       ArrayInitializerElementValue(ElementValueArrayInitializer.construct(

@@ -47,7 +47,7 @@ object CompilationUnit {
 }
 
 final case class ClassDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeName: Option[TypeName], _id: Id,
-                                  _modifiers: Seq[Modifier], _extendsType: Option[TypeName], _implementsTypes: Seq[TypeName],
+                                  _modifiers: ModifierResults, _extendsType: Option[TypeName], _implementsTypes: Seq[TypeName],
                                   _bodyDeclarations: Seq[ClassBodyDeclaration]) extends
   FullDeclaration(_source, _pkg, _outerTypeName, _id, _modifiers, _extendsType, _implementsTypes, _bodyDeclarations) {
 
@@ -75,7 +75,7 @@ final case class ClassDeclaration(_source: Source, _pkg: PackageImpl, _outerType
 }
 
 object ClassDeclaration {
-  def construct(parser: CodeParser, pkg: PackageImpl, outerTypeName: Option[TypeName], modifiers: Seq[Modifier],
+  def construct(parser: CodeParser, pkg: PackageImpl, outerTypeName: Option[TypeName], modifiers: ModifierResults,
                 classDeclaration: ClassDeclarationContext): ClassDeclaration = {
 
     val thisType = TypeName(Name(CodeParser.getText(classDeclaration.id())), Nil,
@@ -95,7 +95,7 @@ object ClassDeclaration {
         classBodyDeclarations.flatMap(cbd =>
           CodeParser.toScala(cbd.block())
             .map(x => Seq(ApexInitialiserBlock.construct(parser,
-                CodeParser.toScala(cbd.STATIC()).map(_ => Seq(STATIC_MODIFIER)).getOrElse(Seq()), x)))
+                ModifierResults(CodeParser.toScala(cbd.STATIC()).map(_ => Seq(STATIC_MODIFIER)).getOrElse(Seq()), Nil), x)))
           .orElse(CodeParser.toScala(cbd.memberDeclaration())
             .map(x => ClassBodyDeclaration.construct(parser, pkg, thisType, CodeParser.toScala(cbd.modifier()), x))
           )
@@ -108,7 +108,7 @@ object ClassDeclaration {
 }
 
 final case class InterfaceDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeName: Option[TypeName],
-                                      _id: Id, _modifiers: Seq[Modifier], _implementsTypes: Seq[TypeName],
+                                      _id: Id, _modifiers: ModifierResults, _implementsTypes: Seq[TypeName],
                                       _bodyDeclarations: Seq[ClassBodyDeclaration])
   extends FullDeclaration(_source, _pkg, _outerTypeName, _id, _modifiers, None, _implementsTypes, _bodyDeclarations) {
 
@@ -120,7 +120,7 @@ final case class InterfaceDeclaration(_source: Source, _pkg: PackageImpl, _outer
 }
 
 object InterfaceDeclaration {
-  def construct(parser: CodeParser, pkg: PackageImpl, outerTypeName: Option[TypeName], modifiers: Seq[Modifier],
+  def construct(parser: CodeParser, pkg: PackageImpl, outerTypeName: Option[TypeName], modifiers: ModifierResults,
                 interfaceDeclaration: InterfaceDeclarationContext)
   : InterfaceDeclaration = {
     val thisType = TypeName(Name(CodeParser.getText(interfaceDeclaration.id())), Nil,
@@ -133,7 +133,7 @@ object InterfaceDeclaration {
 
     val methods: Seq[ApexMethodDeclaration]
         = CodeParser.toScala(interfaceDeclaration.interfaceBody().interfaceMethodDeclaration()).map(m =>
-            ApexMethodDeclaration.construct(pkg, thisType,
+            ApexMethodDeclaration.construct(parser, pkg, thisType,
               ApexModifiers.methodModifiers(parser, CodeParser.toScala(m.modifier()), m.id()), m)
     )
 
@@ -143,7 +143,7 @@ object InterfaceDeclaration {
 }
 
 final case class EnumDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeName: Option[TypeName], _id: Id,
-                                 _modifiers: Seq[Modifier], _bodyDeclarations: Seq[ClassBodyDeclaration])
+                                 _modifiers:ModifierResults, _bodyDeclarations: Seq[ClassBodyDeclaration])
   extends FullDeclaration(_source, _pkg, _outerTypeName, _id, _modifiers, None, Seq(), _bodyDeclarations) {
 
   override val nature: Nature = ENUM_NATURE
@@ -164,7 +164,7 @@ final case class EnumDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeN
 }
 
 object EnumDeclaration {
-  def construct(parser: CodeParser, pkg: PackageImpl, outerTypeName: Option[TypeName], typeModifiers: Seq[Modifier],
+  def construct(parser: CodeParser, pkg: PackageImpl, outerTypeName: Option[TypeName], typeModifiers: ModifierResults,
                 enumDeclaration: EnumDeclarationContext): EnumDeclaration = {
 
     // FUTURE: Add standard enum methods
@@ -176,7 +176,7 @@ object EnumDeclaration {
     val constants = CodeParser.toScala(enumDeclaration.enumConstants())
       .map(ec => CodeParser.toScala(ec.id())).getOrElse(Seq())
     val fields = constants.map(constant => {
-      ApexFieldDeclaration(thisType, Seq(PUBLIC_MODIFIER, STATIC_MODIFIER), thisType,
+      ApexFieldDeclaration(thisType, ModifierResults(Seq(PUBLIC_MODIFIER, STATIC_MODIFIER), Nil), thisType,
         VariableDeclarator(
           thisType,
           Id.construct(constant),
