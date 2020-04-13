@@ -29,12 +29,12 @@ package com.nawforce.common.org
 
 import com.nawforce.common.api.{Diagnostic, LineLocation, Package, ServerOps, TypeSummary, ViewInfo}
 import com.nawforce.common.diagnostics.ERROR_CATEGORY
-import com.nawforce.common.documents.{ApexDocument, DocumentType}
+import com.nawforce.common.documents.{ApexDocument, ApexTriggerDocument, DocumentType}
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{TypeLike, TypeName}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.TypeDeclaration
-import com.nawforce.common.types.apex.{ApexDeclaration, FullDeclaration}
+import com.nawforce.common.types.apex.{ApexDeclaration, FullDeclaration, TriggerDeclaration}
 import com.nawforce.runtime.types.PlatformTypeException
 
 import scala.collection.mutable
@@ -51,6 +51,8 @@ trait PackageAPI extends Package {
     DocumentType(PathFactory(path)) match {
       case Some(ad: ApexDocument) if documents.isIndexed(ad) =>
         TypeName(ad.name).withNamespace(namespace)
+      case Some(ad: ApexTriggerDocument) if documents.isIndexed(ad) =>
+        TypeName(ad.name, Nil, Some(TriggerDeclaration.namespace)).withNamespace(namespace)
       case _ => null
     }
   }

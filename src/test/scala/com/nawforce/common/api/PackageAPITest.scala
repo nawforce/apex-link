@@ -44,18 +44,25 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
   test("type of path") {
     FileSystemHelper.run(Map(
-      "classes/Dummy.cls" -> "public class Dummy {}"
+      "classes/Dummy.cls" -> "public class Dummy {}",
+      "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
+      assert(pkg.getTypeOfPath(null) == null)
+      assert(pkg.getTypeOfPath("") == null)
+
       assert(pkg.getTypeOfPath(root.join("classes").join("Dummy.cls").toString).toString == "Dummy")
       assert(pkg.getTypeOfPath(root.join("classes").join("Dummy2.cls").toString) == null)
       assert(pkg.getTypeOfPath(root.join("classes").join("Dummy.object").toString) == null)
       assert(pkg.getTypeOfPath(root.join("classes2").join("Dummy.cls").toString) == null)
-      assert(pkg.getTypeOfPath("") == null)
-      assert(pkg.getTypeOfPath(null) == null)
+
+      assert(pkg.getTypeOfPath(root.join("triggers").join("Foo.trigger").toString).toString == "__sfdc_trigger.Foo")
+      assert(pkg.getTypeOfPath(root.join("triggers").join("Foo2.trigger").toString) == null)
+      assert(pkg.getTypeOfPath(root.join("triggers").join("Foo.object").toString) == null)
+      assert(pkg.getTypeOfPath(root.join("triggers2").join("Foo2.trigger").toString) == null)
     }
   }
 

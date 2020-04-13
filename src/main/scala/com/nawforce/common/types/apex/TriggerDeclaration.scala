@@ -49,7 +49,7 @@ case object AFTER_UNDELETE extends TriggerCase(name = "after undelete")
 
 class TriggerDeclaration(path: PathLike, val pkg: PackageImpl, name: Id, objectName: Id,
                          cases: Seq[TriggerCase], block: Block)
-  extends NamedTypeDeclaration(pkg, TypeName(Name(s"__sfdc_trigger/${objectName.name}"))) {
+  extends NamedTypeDeclaration(pkg, TypeName(name.name, Nil, Some(TriggerDeclaration.namespace))) {
 
   override val isSearchable: Boolean = false
 
@@ -88,6 +88,8 @@ class TriggerDeclaration(path: PathLike, val pkg: PackageImpl, name: Id, objectN
 }
 
 object TriggerDeclaration {
+  val namespace: TypeName = TypeName(Name("__sfdc_trigger"))
+
   def create(pkg: PackageImpl, path: PathLike, data: String): Seq[TriggerDeclaration] = {
     val parser = CodeParser(path, data)
     parser.parseTrigger() match {
