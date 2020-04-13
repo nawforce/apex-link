@@ -173,10 +173,10 @@ final case class WhenControl(whenValue: WhenValue, block: Block) extends CST {
 }
 
 object WhenControl {
-  def construct(whenControl: WhenControlContext): WhenControl = {
+  def construct(parser: CodeParser, whenControl: WhenControlContext): WhenControl = {
     WhenControl(
       CodeParser.toScala(whenControl.whenValue()).map(v => WhenValue.construct(v)).get,
-      Block.construct(whenControl.block()))
+      Block.construct(parser, whenControl.block()))
   }
 }
 
@@ -238,11 +238,11 @@ final case class SwitchStatement(expression: Expression, whenControls: List[When
 }
 
 object SwitchStatement {
-  def construct(switchStatement: SwitchStatementContext): SwitchStatement = {
+  def construct(parser: CodeParser, switchStatement: SwitchStatementContext): SwitchStatement = {
     SwitchStatement(
       Expression.construct(switchStatement.expression()),
       CodeParser.toScala(switchStatement.whenControl())
-        .map(wc => WhenControl.construct(wc).withContext(wc)).toList,
+        .map(wc => WhenControl.construct(parser, wc).withContext(wc)).toList,
     )
   }
 }

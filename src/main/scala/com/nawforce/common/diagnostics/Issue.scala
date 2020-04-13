@@ -31,6 +31,8 @@ package com.nawforce.common.diagnostics
 import com.nawforce.common.api.Diagnostic
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.org.OrgImpl
+import com.nawforce.runtime.parsers.{ApexParser, CodeParser}
 import upickle.default.{macroRW, ReadWriter => RW}
 
 sealed class IssueCategory(val value: String)
@@ -68,19 +70,23 @@ object Issue {
     Issue(ERROR_CATEGORY, _location, s"'$name' is not legal identifier in Apex, identifiers $error")
 
   def reservedIdentifier(_location: LocationImpl, name: Name): Issue =
-    Issue(ERROR_CATEGORY, _location,s"'$name' is a reserved identifier in Apex")
+    Issue(ERROR_CATEGORY, _location, s"'$name' is a reserved identifier in Apex")
 
   def noTypeDeclaration(_location: LocationImpl, typeName: TypeName): Issue =
-    Issue(MISSING_CATEGORY, _location,s"No type declaration found for '$typeName'")
+    Issue(MISSING_CATEGORY, _location, s"No type declaration found for '$typeName'")
 
   def noVariableOrType(_location: LocationImpl, name: Name, typeName: TypeName): Issue =
-    Issue(MISSING_CATEGORY, _location,s"No variable or type found for '$name' on '$typeName'")
+    Issue(MISSING_CATEGORY, _location, s"No variable or type found for '$name' on '$typeName'")
 
   def unknownFieldOnSObject(_location: LocationImpl, name: Name, typeName: TypeName): Issue =
-    Issue(MISSING_CATEGORY, _location,s"Unknown field '$name' on SObject '$typeName'")
+    Issue(MISSING_CATEGORY, _location, s"Unknown field '$name' on SObject '$typeName'")
 
   def unknownFieldOrType(_location: LocationImpl, name: Name, typeName: TypeName): Issue =
-    Issue(MISSING_CATEGORY, _location,s"Unknown field or type '$name' on '$typeName'")
+    Issue(MISSING_CATEGORY, _location, s"Unknown field or type '$name' on '$typeName'")
+
+  def unexpectedAnnotationOnClass(_location: LocationImpl, context: ApexParser.QualifiedNameContext): Issue =
+    Issue(ERROR_CATEGORY, _location, s"Unexpected annotation '${CodeParser.getText(context)}' on class declaration")
+
 
   implicit val rw: RW[Issue] = macroRW
 }

@@ -42,9 +42,9 @@ case class Source(path: PathLike, code: String) {
 }
 
 class ClippedStream(val source: Source, start: Int, stop: Int, val line: Int, val column: Int) {
-  def parse(): Either[SyntaxException, ApexParser.BlockContext] = {
+  def parser(): CodeParser = {
     val clipped = source.code.substring(start, stop+1)
-    CodeParser(source.path, clipped).parseBlock()
+    CodeParser(source.path, clipped)
   }
 }
 
