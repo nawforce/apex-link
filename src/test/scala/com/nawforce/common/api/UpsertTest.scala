@@ -74,6 +74,20 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+  test("valid upsert (new)") {
+    FileSystemHelper.run(Map(
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some("public class Foo {}"))
+      assert(view.hasType)
+      assert(pkg.upsertFromView(view))
+      assert(!org.issues.hasMessages)
+      assert(pkg.getTypeOfPath(root.join("pkg/Foo.cls").toString) != null)
+    }
+  }
+
+
   test("valid upsert with changes") {
     FileSystemHelper.run(Map(
       "pkg/Foo.cls" -> "public class Foo {}"

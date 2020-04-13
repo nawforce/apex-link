@@ -58,12 +58,18 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
     documents(dt.extension).exists(_.path.toString == abs.toString)
   }
 
-  /**
-    * Determine if a path is a file that could be included in index
-    */
+  /** Add to the index if not already present si isIndexed can report correctly */
+  def upsert(path: PathLike): Unit = {
+    if (forceIgnore.forall(_.includeFile(path))) {
+      val docType = DocumentType(path)
+      insertDocument(docType, allowDuplicates = true)
+    }
+  }
+
+  /** Determine if a path is a file that could be included in index. */
   def isVisibleFile(path: PathLike): Boolean = {
-      val absPath = path.absolute
-      forceIgnore.forall(_.includeFile(absPath)) && isVisiblePath(absPath.parent)
+    val absPath = path.absolute
+    forceIgnore.forall(_.includeFile(absPath)) && isVisiblePath(absPath.parent)
   }
 
   // Check a directory path would be included in index
@@ -86,7 +92,7 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
   }
 
   private def indexPath(path: PathLike, forceIgnore: Option[ForceIgnore]): Unit = {
-    if (path.basename.toString.startsWith("."))
+    if (path.basename.startsWith("."))
       return
 
     if (path.isDirectory) {
@@ -108,23 +114,31 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
     }
   }
 
-  private def insertDocument(documentType: Option[DocumentType]): Unit = {
+  private def insertDocument(documentType: Option[DocumentType], allowDuplicates: Boolean = false): Unit = {
     documentType match {
       case Some(docType: MetadataDocumentType) if !docType.ignorable =>
         if (docType.indexByName) {
-          if (documentNames(docType.extension).contains(docType.name)) {
-            // TODO: Re-install this
+          if (!allowDuplicates && documentNames(docType.extension).contains(docType.name)) {
+            // TODO: Re-install this, beware upsert() might cause duplicates
             // val duplicate = documents(docType.extension).find(_.name == docType.name)
             // Org.logMessage(LineLocation(docType.path, 0), s"File has same name as ${duplicate.get}, ignoring")
           } else {
             documentNames(docType.extension).add(docType.name)
-            documents.put(docType.extension, docType :: documents(docType.extension))
+            addDocument(docType, allowDuplicates)
           }
         } else {
-          documents.put(docType.extension, docType :: documents(docType.extension))
+          addDocument(docType, allowDuplicates)
         }
       case _ => ()
     }
+  }
+
+  private def addDocument(docType: MetadataDocumentType, allowDuplicates: Boolean): Unit = {
+    if (allowDuplicates) {
+      if (documents(docType.extension).contains(docType))
+        return
+    }
+    documents.put(docType.extension, docType :: documents(docType.extension))
   }
 
   private def createGhostSObjectFiles(name: Name, forceIgnore: Option[ForceIgnore]): Unit = {

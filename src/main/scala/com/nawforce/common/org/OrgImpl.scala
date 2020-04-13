@@ -30,7 +30,7 @@ package com.nawforce.common.org
 import java.util
 
 import com.nawforce.common.api.{IssueOptions, Org, Package, ServerOps}
-import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, IssueLog, WARNING_CATEGORY}
+import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, IssueLog}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.Name
 import com.nawforce.common.path.{PathFactory, PathLike}
