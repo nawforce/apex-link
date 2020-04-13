@@ -31,7 +31,6 @@ package com.nawforce.common.diagnostics
 import com.nawforce.common.api.Diagnostic
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.org.OrgImpl
 import com.nawforce.runtime.parsers.{ApexParser, CodeParser}
 import upickle.default.{macroRW, ReadWriter => RW}
 

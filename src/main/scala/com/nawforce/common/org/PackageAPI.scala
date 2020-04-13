@@ -49,8 +49,7 @@ trait PackageAPI extends Package {
 
   override def getTypeOfPath(path: String): TypeLike = {
     DocumentType(PathFactory(path)) match {
-      // TODO: Handle upsert'd metadata
-      case Some(ad: ApexDocument) if isMetadata(ad) =>
+      case Some(ad: ApexDocument) if documents.isIndexed(ad) =>
         TypeName(ad.name).withNamespace(namespace)
       case _ => null
     }
@@ -58,7 +57,7 @@ trait PackageAPI extends Package {
 
   override def getPathOfType(typeLike: TypeLike): String = {
     getApexDeclaration(typeLike)
-      .map(_.nameLocation.path.toString)
+      .map(_.nameLocation.path)
       .orNull
   }
 
@@ -178,8 +177,8 @@ trait PackageAPI extends Package {
       case _ => true
     }) return false
 
-    // Split paths here depending on if the view had to create a new TypeDeclaration
     OrgImpl.current.withValue(org) {
+      // If view created TD use it, otherwise we need to create fresh
       val updated =
         if (viewInfoImpl.isNew) {
           Some(td)
@@ -191,6 +190,7 @@ trait PackageAPI extends Package {
       updated.foreach(utd => {
         org.issues.pop(viewInfoImpl.absPath.toString)
         types.put(utd.typeName, utd)
+        documents.upsert(viewInfoImpl.absPath)
         utd.validate()
       })
       updated.nonEmpty

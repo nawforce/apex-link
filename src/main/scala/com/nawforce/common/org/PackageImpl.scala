@@ -79,10 +79,6 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     documents.getByExtension(ext)
   }
 
-  protected def isMetadata(dt: MetadataDocumentType): Boolean = {
-    documents.isIndexed(dt)
-  }
-
   def isGhosted: Boolean = workspace.paths.isEmpty
   def hasGhosted: Boolean = isGhosted || basePackages.exists(_.hasGhosted)
   def any(): AnyDeclaration = anyDeclaration
