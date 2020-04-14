@@ -44,6 +44,7 @@ sealed abstract class Nature(val value: String)
 case object CLASS_NATURE extends Nature("class")
 case object INTERFACE_NATURE extends Nature("interface")
 case object ENUM_NATURE extends Nature("enum")
+case object TRIGGER_NATURE extends Nature(value = "trigger")
 
 object Nature {
   def apply(value: String): Nature = {
@@ -51,6 +52,7 @@ object Nature {
       case CLASS_NATURE.value => CLASS_NATURE
       case INTERFACE_NATURE.value => INTERFACE_NATURE
       case ENUM_NATURE.value => ENUM_NATURE
+      case TRIGGER_NATURE.value => TRIGGER_NATURE
     }
   }
 }

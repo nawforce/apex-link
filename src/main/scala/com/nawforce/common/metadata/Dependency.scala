@@ -29,7 +29,7 @@ package com.nawforce.common.metadata
 
 import com.nawforce.common.api.{DependentSummary, FieldDependentSummary, MethodDependentSummary, TypeDependentSummary}
 import com.nawforce.common.types.BlockDeclaration
-import com.nawforce.common.types.apex.{ApexConstructorLike, ApexDeclaration, ApexFieldLike, ApexMethodLike}
+import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexConstructorLike, ApexFieldLike, ApexMethodLike}
 
 import scala.collection.mutable
 
@@ -79,7 +79,7 @@ trait DependencyHolder extends Dependent {
   // Convert dependencies into a summary format
   def dependencySummary(): Set[DependentSummary] = {
     dependencies().flatMap {
-      case td: ApexDeclaration =>
+      case td: ApexClassDeclaration =>
         Some(TypeDependentSummary(td.typeName, td.sourceHash))
       case fd: ApexFieldLike =>
         Some(FieldDependentSummary(fd.outerTypeName, fd.name.value))

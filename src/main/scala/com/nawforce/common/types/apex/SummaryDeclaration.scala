@@ -141,7 +141,7 @@ object DependentValidation {
 
     TypeRequest(typeName, pkg, excludeSObjects = false) match {
       case Left(_) => None
-      case Right(ad: ApexDeclaration) => Some(ad)
+      case Right(ad: ApexClassDeclaration) => Some(ad)
       case Right(_) => None
     }
   }
@@ -216,7 +216,7 @@ class SummaryConstructor(val pkg: PackageImpl, path: PathLike, constructorSummar
 
 class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerTypeName: Option[TypeName],
                          summary: TypeSummary)
-  extends ApexDeclaration with SummaryDependencyHandler {
+  extends ApexClassDeclaration with SummaryDependencyHandler {
 
   // For outer types only, update the dependency holders so we can defer dependency propagation
   if (outerTypeName.isEmpty)
@@ -286,7 +286,7 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
     val localDependencies = mutable.Set[TypeName]()
     def collect(dependents: Set[Dependent]): Unit = {
       dependents.foreach({
-        case ad: ApexDeclaration => localDependencies.add(ad.typeName)
+        case ad: ApexClassDeclaration => localDependencies.add(ad.typeName)
         case _: ApexFieldLike => ()
         case _: ApexMethodLike => ()
       })
@@ -306,9 +306,9 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
     })
   }
 
-  private def getOutermostDeclaration(typeName: TypeName): Option[ApexDeclaration] = {
+  private def getOutermostDeclaration(typeName: TypeName): Option[ApexClassDeclaration] = {
     TypeRequest(typeName, pkg, excludeSObjects = false) match {
-      case Right(td: ApexDeclaration) =>
+      case Right(td: ApexClassDeclaration) =>
         td.outerTypeName.map(getOutermostDeclaration).getOrElse(Some(td))
       case Right(_) => None
       case Left(_) => None

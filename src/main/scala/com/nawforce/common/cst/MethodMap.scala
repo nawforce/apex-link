@@ -32,7 +32,7 @@ import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types._
-import com.nawforce.common.types.apex.{ApexDeclaration, ApexMethodLike}
+import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexMethodLike}
 
 import scala.collection.mutable
 
@@ -124,7 +124,7 @@ object MethodMap {
   }
 
   private def mergeInterface(workingMap: WorkingMap, interface: TypeDeclaration): Unit = {
-    if (interface.isInstanceOf[ApexDeclaration] && interface.nature == INTERFACE_NATURE)
+    if (interface.isInstanceOf[ApexClassDeclaration] && interface.nature == INTERFACE_NATURE)
       mergeInterfaces(workingMap, interface.interfaceDeclarations)
 
     interface.methods.filterNot(_.isStatic).foreach(method => {
@@ -154,7 +154,7 @@ object MethodMap {
 
   private def checkInterface(pkg: Option[PackageImpl], location: Option[LocationImpl], isAbstract: Boolean,
                              workingMap: WorkingMap, interface: TypeDeclaration, errors: mutable.Buffer[Issue]): Unit = {
-    if (interface.isInstanceOf[ApexDeclaration] && interface.nature == INTERFACE_NATURE)
+    if (interface.isInstanceOf[ApexClassDeclaration] && interface.nature == INTERFACE_NATURE)
       checkInterfaces(pkg, location, isAbstract, workingMap, interface.interfaceDeclarations, errors)
 
     interface.methods

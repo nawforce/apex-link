@@ -29,13 +29,13 @@ package com.nawforce.common.types.apex
 
 import com.nawforce.common.api.ServerOps
 import com.nawforce.common.cst._
-import com.nawforce.common.documents.LineLocationImpl
+import com.nawforce.common.documents.{LineLocationImpl, LocationImpl}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
 import com.nawforce.runtime.parsers.ApexParser.{TriggerCaseContext, TriggerUnitContext}
-import com.nawforce.runtime.parsers.CodeParser
+import com.nawforce.runtime.parsers.{CodeParser, Source}
 
 sealed abstract class TriggerCase(val name: String)
 case object BEFORE_INSERT extends TriggerCase("before insert")
@@ -47,21 +47,40 @@ case object AFTER_UPDATE extends TriggerCase(name = "after update")
 case object AFTER_DELETE extends TriggerCase(name= "after delete")
 case object AFTER_UNDELETE extends TriggerCase(name = "after undelete")
 
-class TriggerDeclaration(path: PathLike, val pkg: PackageImpl, name: Id, objectName: Id, _typeName: TypeName,
-                         cases: Seq[TriggerCase], block: Block)
-  extends NamedTypeDeclaration(pkg, _typeName) {
+final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id, objectNameId: Id,
+                                    typeName: TypeName, cases: Seq[TriggerCase], block: Block)
+  extends ApexTriggerDeclaration {
 
-  override val isSearchable: Boolean = false
+  override val path: PathLike  = source.path
+  override val nameLocation: LocationImpl = nameId.location
+  override lazy val sourceHash: Int = source.hash
 
-  private val objectTypeName = TypeName(objectName.name, Nil, Some(TypeName.Schema))
+  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
+  override val name: Name = typeName.name
+  override val outerTypeName: Option[TypeName] = None
+  override val nature: Nature = TRIGGER_NATURE
+  override val modifiers: Seq[Modifier] = Seq.empty
+  override val isComplete: Boolean = true
+  override val isExternallyVisible: Boolean = false
+
+  override val superClass: Option[TypeName] = None
+  override val interfaces: Seq[TypeName] = Seq.empty
+  override def nestedTypes: Seq[TypeDeclaration] = Seq.empty
+
+  override val blocks: Seq[BlockDeclaration] = Seq.empty
+  override val fields: Seq[FieldDeclaration]= Seq.empty
+  override val constructors: Seq[ConstructorDeclaration] = Seq.empty
+  override val methods: Seq[MethodDeclaration]= Seq.empty
+
+  private val objectTypeName = TypeName(objectNameId.name, Nil, Some(TypeName.Schema))
 
   override def validate(): Unit = {
     ServerOps.debugTime(s"Validated $path") {
-      name.validate()
+      nameId.validate()
 
       val duplicateCases = cases.groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
       duplicateCases.foreach(triggerCase =>
-        OrgImpl.logError(objectName.location, s"Duplicate trigger case for '${triggerCase.name}'"))
+        OrgImpl.logError(objectNameId.location, s"Duplicate trigger case for '${triggerCase.name}'"))
 
       val context = new TriggerVerifyContext(pkg, this)
       val tdOpt = context.getTypeAndAddDependency(objectTypeName, Some(this))
@@ -69,7 +88,7 @@ class TriggerDeclaration(path: PathLike, val pkg: PackageImpl, name: Id, objectN
       tdOpt match {
         case Left(error) =>
           if (!pkg.isGhostedType(objectTypeName))
-            OrgImpl.log(error.asIssue(objectName.location))
+            OrgImpl.log(error.asIssue(objectNameId.location))
         case Right(_) =>
           val triggerContext = context.getTypeFor(TypeName.trigger(objectTypeName), Some(this)).right.get
           val tc = TriggerContext(pkg, triggerContext)
@@ -106,7 +125,7 @@ object TriggerDeclaration {
     CST.sourceContext.withValue(Some(parser.source)) {
       val ids = CodeParser.toScala(trigger.id()).map(Id.construct)
       val cases = CodeParser.toScala(trigger.triggerCase()).map(constructCase)
-      new TriggerDeclaration(path, pkg, ids.head, ids(1), constructTypeName(pkg, ids.head.name), cases,
+      new TriggerDeclaration(parser.source, pkg, ids.head, ids(1), constructTypeName(pkg, ids.head.name), cases,
         Block.construct(parser, trigger.block()))
     }
   }

@@ -37,7 +37,7 @@ import com.nawforce.common.metadata.MetadataDeclaration
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types.TypeDeclaration
-import com.nawforce.common.types.apex.ApexDeclaration
+import com.nawforce.common.types.apex.ApexClassDeclaration
 import com.nawforce.common.types.other._
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.schema.SchemaManager
@@ -185,7 +185,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   // Add dependencies for Apex types to a map
   def populateDependencies(dependencies: java.util.Map[String, Array[String]]): Unit = {
     types.values.foreach {
-      case td: ApexDeclaration =>
+      case td: ApexClassDeclaration =>
         val depends = mutable.Set[TypeName]()
         td.collectDependenciesByTypeName(depends)
         depends.remove(td.typeName)

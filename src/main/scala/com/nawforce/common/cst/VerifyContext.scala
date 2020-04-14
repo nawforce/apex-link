@@ -97,7 +97,7 @@ trait HolderVerifyContext {
   /* Record a dependency, we only store between Apex code elements currently */
   def addDependency(dependent: Dependent): Unit = {
     dependent match {
-      case _: ApexDeclaration => _dependencies += dependent
+      case _: ApexClassDeclaration => _dependencies += dependent
       case _: ApexFieldLike => _dependencies += dependent
       case _: ApexMethodLike => _dependencies += dependent
       case _: ApexConstructorLike => _dependencies += dependent
@@ -137,7 +137,7 @@ class TriggerVerifyContext(packageDeclaration: PackageImpl, typeDeclaration: Tri
 }
 
 
-class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: ApexDeclaration,
+class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: ApexClassDeclaration,
                         propagateDependencies: Boolean)
     extends HolderVerifyContext with VerifyContext {
 

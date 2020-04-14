@@ -34,7 +34,7 @@ import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{TypeLike, TypeName}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.TypeDeclaration
-import com.nawforce.common.types.apex.{ApexDeclaration, FullDeclaration, TriggerDeclaration}
+import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexDeclaration, FullDeclaration, TriggerDeclaration}
 import com.nawforce.runtime.types.PlatformTypeException
 
 import scala.collection.mutable
@@ -64,18 +64,18 @@ trait PackageAPI extends Package {
   }
 
   override def getSummaryOfType(typeLike: TypeLike): TypeSummary = {
-    getApexDeclaration(typeLike)
+    getApexClassDeclaration(typeLike)
       .map(_.summary)
       .orNull
   }
 
   override def getDependencies(typeLike: TypeLike, inheritanceOnly: Boolean): Array[TypeLike] = {
-    getApexDeclaration(typeLike)
+    getApexClassDeclaration(typeLike)
       .map(ad => {
         if (inheritanceOnly) {
           (ad +: ad.nestedTypes).flatMap(td => {
             td.dependencies().flatMap({
-              case dt: ApexDeclaration => Some(dt.typeName.asOuterType.asInstanceOf[TypeLike])
+              case dt: ApexClassDeclaration => Some(dt.typeName.asOuterType.asInstanceOf[TypeLike])
               case _ => None
             })
           }).toArray
@@ -89,7 +89,7 @@ trait PackageAPI extends Package {
   }
 
   override def getDependencyHolders(typeLike: TypeLike): Array[TypeLike] = {
-    getApexDeclaration(typeLike)
+    getApexClassDeclaration(typeLike)
       .map(_.getTypeDependencyHolders.toArray[TypeLike])
       .orNull
   }
@@ -174,7 +174,7 @@ trait PackageAPI extends Package {
 
     // Check we are not trying to circumvent the no duplicates rule
     if (types.get(td.typeName) match {
-      case Some(ad: ApexDeclaration) => ad.path.absolute != viewInfoImpl.absPath
+      case Some(ad: ApexClassDeclaration) => ad.path.absolute != viewInfoImpl.absPath
       case None => false
       case _ => true
     }) return false
@@ -202,7 +202,7 @@ trait PackageAPI extends Package {
   override def deleteType(typeLike: TypeLike): Boolean = {
     val typeName = TypeName(typeLike)
     types.get(typeName) match {
-      case Some(_: ApexDeclaration) => types.remove(typeName); true
+      case Some(_: ApexClassDeclaration) => types.remove(typeName); true
       case _ => false
     }
   }
@@ -211,7 +211,22 @@ trait PackageAPI extends Package {
     try {
       types.get(TypeName(typeLike))
         .flatMap {
-          case ad: ApexDeclaration => Some(ad)
+          case ad: ApexClassDeclaration => Some(ad)
+          case td: TriggerDeclaration => Some(td)
+          case _ => None
+        }
+    } catch {
+      case ex: PlatformTypeException =>
+        ServerOps.debug(ServerOps.Trace, ex.getMessage)
+        None
+    }
+  }
+
+  private def getApexClassDeclaration(typeLike: TypeLike): Option[ApexClassDeclaration] = {
+    try {
+      types.get(TypeName(typeLike))
+        .flatMap {
+          case ad: ApexClassDeclaration => Some(ad)
           case _ => None
         }
     } catch {
