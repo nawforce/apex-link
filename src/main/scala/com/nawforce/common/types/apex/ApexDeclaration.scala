@@ -94,6 +94,15 @@ trait ApexDeclaration extends TypeDeclaration {
   val sourceHash: Int
   val pkg: PackageImpl
   val nameLocation: LocationImpl
+}
+
+trait ApexTriggerDeclaration extends ApexDeclaration
+
+trait ApexClassDeclaration extends ApexDeclaration {
+  val path: PathLike
+  val sourceHash: Int
+  val pkg: PackageImpl
+  val nameLocation: LocationImpl
   val localFields: Seq[ApexFieldLike]
   val localMethods: Seq[MethodDeclaration]
 
@@ -141,7 +150,7 @@ trait ApexDeclaration extends TypeDeclaration {
   lazy val staticMethods: Seq[MethodDeclaration] = {
     localMethods.filter(_.isStatic) ++
       (superClassDeclaration match {
-        case Some(td: ApexDeclaration) =>
+        case Some(td: ApexClassDeclaration) =>
           td.localMethods.filter(_.isStatic) ++ td.staticMethods
         case _ =>
           Seq()
@@ -150,7 +159,7 @@ trait ApexDeclaration extends TypeDeclaration {
 
   lazy val outerStaticMethods: Seq[MethodDeclaration] = {
     outerTypeName.flatMap(ot => TypeRequest(ot, this, excludeSObjects = false).toOption) match {
-      case Some(td: ApexDeclaration) => td.staticMethods
+      case Some(td: ApexClassDeclaration) => td.staticMethods
       case _ => Seq()
     }
   }
@@ -158,7 +167,7 @@ trait ApexDeclaration extends TypeDeclaration {
   lazy val methodMap: MethodMap = {
     val allMethods = outerStaticMethods ++ localMethods
     val methods = superClassDeclaration match {
-      case Some(at: ApexDeclaration) =>
+      case Some(at: ApexClassDeclaration) =>
         MethodMap(this, Some(nameLocation), at.methodMap, allMethods, interfaceDeclarations)
       case Some(td: TypeDeclaration) =>
         MethodMap(this, Some(nameLocation),
@@ -188,9 +197,9 @@ trait ApexDeclaration extends TypeDeclaration {
       getOutermostDeclaration(dependentTypeName).map(_.addTypeDependencyHolder(typeName)))
   }
 
-  private def getOutermostDeclaration(typeName: TypeName): Option[ApexDeclaration] = {
+  private def getOutermostDeclaration(typeName: TypeName): Option[ApexClassDeclaration] = {
     TypeRequest(typeName, pkg, excludeSObjects = false) match {
-      case Right(td: ApexDeclaration) =>
+      case Right(td: ApexClassDeclaration) =>
         td.outerTypeName.map(getOutermostDeclaration).getOrElse(Some(td))
       case Right(_) => None
       case Left(_) => None

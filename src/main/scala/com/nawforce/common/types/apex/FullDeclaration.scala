@@ -48,7 +48,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
                                val id: Id, _modifiers: ModifierResults,
                                val superClass: Option[TypeName], val interfaces: Seq[TypeName],
                                val bodyDeclarations: Seq[ClassBodyDeclaration])
-  extends ClassBodyDeclaration(_modifiers) with ApexDeclaration {
+  extends ClassBodyDeclaration(_modifiers) with ApexClassDeclaration {
 
   lazy val sourceHash: Int = source.hash
   override val path: PathLike = source.path
@@ -158,7 +158,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
     val dependents = mutable.Set[Dependent]()
     collectDependencies(dependents)
     dependents.foreach {
-      case ad: ApexDeclaration => dependsOn.add(ad.outerTypeName.getOrElse(ad.typeName))
+      case ad: ApexClassDeclaration => dependsOn.add(ad.outerTypeName.getOrElse(ad.typeName))
       case _ => ()
     }
   }

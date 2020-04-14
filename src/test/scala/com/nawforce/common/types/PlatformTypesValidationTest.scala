@@ -95,6 +95,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
         assert(typeDeclaration.superClass.isEmpty)
         assert(typeDeclaration.interfaces.isEmpty)
       case CLASS_NATURE => ()
+      case TRIGGER_NATURE =>  assert(false)
     }
 
     // PlatformModifiers, always public for outer platform classes
@@ -112,6 +113,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
         assert(typeDeclaration.nestedTypes.isEmpty)
       case CLASS_NATURE =>
         typeDeclaration.nestedTypes.foreach(nested => validateTypeDeclaration(className.append(nested.name), nested))
+      case TRIGGER_NATURE =>  assert(false)
     }
 
     // Fields
@@ -126,6 +128,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
         typeDeclaration.fields.foreach(f =>{
           assert(PlatformTypes.get(f.typeName, Some(typeDeclaration)).isRight)
         })
+      case TRIGGER_NATURE =>  assert(false)
     }
 
     // Constructors (make sure we can decompose them via toString)

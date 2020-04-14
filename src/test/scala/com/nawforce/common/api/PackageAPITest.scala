@@ -92,33 +92,45 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
   test("path of type") {
     FileSystemHelper.run(Map(
-      "classes/Dummy.cls" -> "public class Dummy {}"
+      "classes/Dummy.cls" -> "public class Dummy {}",
+      "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val typeLike = pkg.getTypeOfPath(root.join("classes").join("Dummy.cls").toString)
+      val dummyType = pkg.getTypeOfPath(root.join("classes").join("Dummy.cls").toString)
+      val fooType = pkg.getTypeOfPath(root.join("triggers").join("Foo.trigger").toString)
 
-      assert(typeLike.toString == "Dummy")
-      assert(pkg.getPathOfType(typeLike) == "/classes/Dummy.cls")
       assert(pkg.getPathOfType(null) == null)
+
+      assert(dummyType.toString == "Dummy")
+      assert(pkg.getPathOfType(dummyType) == "/classes/Dummy.cls")
+
+      assert(fooType.toString == "__sfdc_trigger/Foo")
+      assert(pkg.getPathOfType(fooType) == "/triggers/Foo.trigger")
     }
   }
 
   test("path of type with namespace") {
     FileSystemHelper.run(Map(
-      "classes/Dummy.cls" -> "public class Dummy {}"
+      "classes/Dummy.cls" -> "public class Dummy {}",
+      "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val typeLike = pkg.getTypeOfPath(root.join("classes").join("Dummy.cls").toString)
+      val dummyType = pkg.getTypeOfPath(root.join("classes").join("Dummy.cls").toString)
+      val fooType = pkg.getTypeOfPath(root.join("triggers").join("Foo.trigger").toString)
 
-      assert(typeLike.toString == "test.Dummy")
-      assert(pkg.getPathOfType(typeLike) == "/classes/Dummy.cls")
       assert(pkg.getPathOfType(null) == null)
+
+      assert(dummyType.toString == "test.Dummy")
+      assert(pkg.getPathOfType(dummyType) == "/classes/Dummy.cls")
+
+      assert(fooType.toString == "__sfdc_trigger/test/Foo")
+      assert(pkg.getPathOfType(fooType) == "/triggers/Foo.trigger")
     }
   }
 

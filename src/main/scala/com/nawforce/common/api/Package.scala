@@ -35,7 +35,7 @@ trait Package {
 
   /** Get a typename (as a String) from the path of a metadata file, returns a null if the path does not
     * identify metadata that creates a type within the current package. Currently restricted to only supporting
-    * Apex class files. */
+    * Apex class & trigger files. */
   def getTypeOfPath(path: String): TypeLike
 
   /** Get the path (as a String) of the metadata file that defined a type, returns a null if the type

@@ -4,7 +4,7 @@ import com.nawforce.common.api.ServerOps
 import com.nawforce.common.diagnostics.{Issue, MISSING_CATEGORY}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.types.apex.{ApexDeclaration, FullDeclaration, SummaryApex, TriggerDeclaration}
+import com.nawforce.common.types.apex.{ApexClassDeclaration, FullDeclaration, SummaryApex, TriggerDeclaration}
 import com.nawforce.common.types.schema.SObjectDeclaration
 
 import scala.collection.mutable
@@ -156,7 +156,7 @@ trait PackageDeploy {
   def flush(pc: ParsedCache): Unit = {
     val context = packageContext
     types.values.foreach({
-      case ad: ApexDeclaration => ad.flush(pc, context)
+      case ad: ApexClassDeclaration => ad.flush(pc, context)
       case _ => ()
     })
   }
@@ -164,7 +164,7 @@ trait PackageDeploy {
   /** Check all summary types have propagated their dependencies */
   def propagateAllDependencies(): Unit = {
     types.values.foreach({
-      case ad: ApexDeclaration => ad.propagateAllDependencies()
+      case ad: ApexClassDeclaration => ad.propagateAllDependencies()
       case _ => ()
     })
   }
