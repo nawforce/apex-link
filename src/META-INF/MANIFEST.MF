@@ -7,7 +7,6 @@ Class-Path:
   scala-library-2.12.6.jar
   scala-reflect-2.12.10.jar
   scala-xml_2.12-1.1.1.jar
-  lift-json_2.12-3.3.0.jar
   ujson_2.12-0.9.0.jar
   upack_2.12-0.9.0.jar
   upickle-core_2.12-0.9.0.jar
