@@ -47,9 +47,9 @@ case object AFTER_UPDATE extends TriggerCase(name = "after update")
 case object AFTER_DELETE extends TriggerCase(name= "after delete")
 case object AFTER_UNDELETE extends TriggerCase(name = "after undelete")
 
-class TriggerDeclaration(path: PathLike, val pkg: PackageImpl, name: Id, objectName: Id,
+class TriggerDeclaration(path: PathLike, val pkg: PackageImpl, name: Id, objectName: Id, _typeName: TypeName,
                          cases: Seq[TriggerCase], block: Block)
-  extends NamedTypeDeclaration(pkg, TypeName(name.name, Nil, Some(TriggerDeclaration.namespace))) {
+  extends NamedTypeDeclaration(pkg, _typeName) {
 
   override val isSearchable: Boolean = false
 
@@ -88,7 +88,7 @@ class TriggerDeclaration(path: PathLike, val pkg: PackageImpl, name: Id, objectN
 }
 
 object TriggerDeclaration {
-  val namespace: TypeName = TypeName(Name("__sfdc_trigger"))
+  private val prefix: TypeName = TypeName(Name("__sfdc_trigger"))
 
   def create(pkg: PackageImpl, path: PathLike, data: String): Seq[TriggerDeclaration] = {
     val parser = CodeParser(path, data)
@@ -103,12 +103,19 @@ object TriggerDeclaration {
 
   def construct(parser: CodeParser, pkg: PackageImpl, path: PathLike, trigger: TriggerUnitContext)
     : TriggerDeclaration = {
-    val ids = CodeParser.toScala(trigger.id())
-    val cases = CodeParser.toScala(trigger.triggerCase()).map(constructCase)
-    CST.parsingContext.withValue(Some(CSTParsingContext(path))) {
-      new TriggerDeclaration(path, pkg,
-        Id.construct(ids.head), Id.construct(ids(1)), cases, Block.construct(parser, trigger.block()))
+    CST.sourceContext.withValue(Some(parser.source)) {
+      val ids = CodeParser.toScala(trigger.id()).map(Id.construct)
+      val cases = CodeParser.toScala(trigger.triggerCase()).map(constructCase)
+      new TriggerDeclaration(path, pkg, ids.head, ids(1), constructTypeName(pkg, ids.head.name), cases,
+        Block.construct(parser, trigger.block()))
     }
+  }
+
+  // Construct the trigger name, looks like a namespace but doc indicates just a prefix
+  def constructTypeName(pkg: PackageImpl, name: Name): TypeName = {
+    val qname: String = pkg.namespace.map(ns => s"$prefix/${ns.value}/${name.value}")
+      .getOrElse(s"$prefix/${name.value}")
+    TypeName(Name(qname))
   }
 
   def constructCase(triggerCase: TriggerCaseContext): TriggerCase = {

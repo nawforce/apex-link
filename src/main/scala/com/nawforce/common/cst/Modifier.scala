@@ -533,6 +533,7 @@ object ApexModifiers {
       else {
         CodeParser.getText(modifierContext).toLowerCase match {
           case "final" => Some(FINAL_MODIFIER)
+          case "transient" => Some(TRANSIENT_MODIFIER)
           case _ =>
             logger.logError(modifierContext,
               s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on local variables")

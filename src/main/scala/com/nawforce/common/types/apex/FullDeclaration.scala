@@ -94,7 +94,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   }
 
   override def flush(pc: ParsedCache, context: PackageContext): Unit = {
-    val diagnostics = pkg.org.issues.getDiagnostics(getPath.toString)
+    val diagnostics = pkg.org.issues.getDiagnostics(location.path.toString)
     pc.upsert(source.code.getBytes(StandardCharsets.UTF_8), writeBinary(ApexSummary(summary, diagnostics)), context)
   }
 
@@ -107,9 +107,9 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   }
 
   def validate(withPropagation: Boolean): Unit = {
-    ServerOps.debugTime(s"Validated $getPath") {
+    ServerOps.debugTime(s"Validated ${location.path}") {
       // Validate inside a parsing context as LazyBlock may call parser
-      CST.parsingContext.withValue(Some(CSTParsingContext(getPath))) {
+      CST.sourceContext.withValue(Some(source)) {
         val context = new TypeVerifyContext(None, this, withPropagation)
         modifierResults.issues.foreach(context.log)
         verify(context)

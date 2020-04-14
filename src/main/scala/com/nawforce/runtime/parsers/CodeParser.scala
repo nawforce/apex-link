@@ -37,24 +37,30 @@ import org.antlr.v4.runtime.CommonTokenStream
 import scala.collection.JavaConverters._
 import scala.util.hashing.MurmurHash3
 
-case class Source(path: PathLike, code: String) {
-  lazy val hash: Int = MurmurHash3.stringHash(code)
-}
+/** A line & column position in a source block */
+case class SourcePosition(lineOffset: Int=0, columnOffset: Int=0)
 
-class ClippedStream(val source: Source, start: Int, stop: Int, val line: Int, val column: Int) {
-  def parser(): CodeParser = {
-    val clipped = source.code.substring(start, stop+1)
-    CodeParser(source.path, clipped)
+/** Encapsulation of a chunk of Apex code, position tells you where it came from in path */
+case class Source(path: PathLike, code: String, position: SourcePosition, outer: Option[Source]) {
+  lazy val hash: Int = MurmurHash3.stringHash(code)
+
+  /** Find a location for a rule, adapts based on source offsets to give absolute position in file */
+  def getRangeLocation(context: ParserRuleContext): RangeLocationImpl = {
+    RangeLocationImpl(
+      path.toString,
+      PositionImpl(context.start.getLine, context.start.getCharPositionInLine)
+        .adjust(position.lineOffset, position.columnOffset),
+      PositionImpl(context.stop.getLine, context.stop.getCharPositionInLine + context.stop.getText.length)
+        .adjust(position.lineOffset, position.columnOffset)
+    )
   }
 }
 
+/** Apex class parser helper */
 class CodeParser(val source: Source) extends
   CaseInsensitiveInputStream(new ByteArrayInputStream(source.code.getBytes)) {
 
-  // CommonTokenStream is buffered so we can access to retrieve token sequence if needed
-  val tokenStream = new CommonTokenStream(new ApexLexer(this))
-  tokenStream.fill()
-
+  /** Parse source as an Apex class */
   def parseClass(): Either[SyntaxException, ApexParser.CompilationUnitContext] = {
     try {
       Right(getParser.compilationUnit())
@@ -63,6 +69,7 @@ class CodeParser(val source: Source) extends
     }
   }
 
+  /** Parse source as an Apex trigger */
   def parseTrigger(): Either[SyntaxException, ApexParser.TriggerUnitContext] = {
     try {
       Right(getParser.triggerUnit())
@@ -71,6 +78,7 @@ class CodeParser(val source: Source) extends
     }
   }
 
+  /** Parse source as an Apex code block */
   def parseBlock(): Either[SyntaxException, ApexParser.BlockContext] = {
     try {
       Right(getParser.block())
@@ -84,23 +92,21 @@ class CodeParser(val source: Source) extends
       getParser.literal()
   }
 
-  def getRangeLocation(context: ParserRuleContext, lineOffset: Int=0, positionOffset: Int=0): RangeLocationImpl = {
-    RangeLocationImpl(
-      source.path.toString,
-      PositionImpl(context.start.getLine, context.start.getCharPositionInLine)
-        .adjust(lineOffset, positionOffset),
-      PositionImpl(context.stop.getLine, context.stop.getCharPositionInLine + context.stop.getText.length)
-        .adjust(lineOffset, positionOffset)
-    )
+  /** Find a location for a rule, adapts based on source offsets to give absolute position in file */
+  def getRangeLocation(context: ParserRuleContext): RangeLocationImpl = {
+    source.getRangeLocation(context)
   }
 
-  def clipStream(context: ParserRuleContext): ClippedStream = {
-    new ClippedStream(source,
-      context.start.getStartIndex, context.stop.getStopIndex,
-      context.start.getLine-1, context.start.getCharPositionInLine)
+  /** Extract the source used for a parser rule */
+  def extractSource(context: ParserRuleContext): Source = {
+    val clipped = source.code.substring(context.start.getStartIndex, context.stop.getStopIndex+1)
+    Source(source.path, clipped, SourcePosition(context.start.getLine-1, context.start.getCharPositionInLine), Some(source))
   }
 
   private def getParser: ApexParser = {
+    val tokenStream = new CommonTokenStream(new ApexLexer(this))
+    tokenStream.fill()
+
     val parser = new ApexParser(tokenStream)
     parser.removeErrorListeners()
     parser.addErrorListener(new ThrowingErrorListener())
@@ -113,7 +119,7 @@ object CodeParser {
   type TerminalNode = org.antlr.v4.runtime.tree.TerminalNode
 
   def apply(path: PathLike, code: String): CodeParser = {
-    new CodeParser(Source(path, code))
+    new CodeParser(Source(path, code, SourcePosition(), None))
   }
 
   // Helper for JS Portability

@@ -33,7 +33,7 @@ import com.nawforce.common.documents.LineLocationImpl
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.runtime.parsers.ApexParser._
-import com.nawforce.runtime.parsers.{ClippedStream, CodeParser}
+import com.nawforce.runtime.parsers.{CodeParser, Source}
 
 import scala.ref.WeakReference
 
@@ -53,7 +53,7 @@ final case class EagerBlock(statements: Seq[Statement]) extends Block {
 }
 
 // Lazy block, will re-parse when needed
-final case class LazyBlock(clippedStream: ClippedStream, var blockContextRef: WeakReference[BlockContext])
+final case class LazyBlock(source: Source, var blockContextRef: WeakReference[BlockContext])
   extends Block {
   private var statementsRef: WeakReference[Seq[Statement]] = WeakReference(null)
   private var reParsed = false
@@ -65,41 +65,47 @@ final case class LazyBlock(clippedStream: ClippedStream, var blockContextRef: We
 
   def statements(): Seq[Statement] = {
     var statements = statementsRef.get
+
+    // If the statement WeakRef has gone stale we need to re-build them
     if (statements.isEmpty) {
-      val parser = clippedStream.parser()
+      // If the block AST WeakRef has gone stale as well we need to re-parse first
       var statementContext = blockContextRef.get
       if (statementContext.isEmpty) {
+        val parser = new CodeParser(source)
         parser.parseBlock() match {
           case Left(err) =>
-            OrgImpl.logError(LineLocationImpl(clippedStream.source.path.toString, err.line), err.message)
+            OrgImpl.logError(LineLocationImpl(source.path.toString, err.line), err.message)
             return Nil
           case Right(c) =>
             statementContext = Some(c)
             blockContextRef = WeakReference(statementContext.get)
             reParsed = true
-
         }
       }
 
-      var parsingContext = CST.parsingContext.value.get
-      assert(parsingContext.lineAdjust == 0 && parsingContext.columnAdjust == 0)
-      if (reParsed)
-        parsingContext = CSTParsingContext(parsingContext.path, clippedStream.line, clippedStream.column)
-
-      CST.parsingContext.withValue(Some(parsingContext)) {
-        val statementContexts: Seq[StatementContext] = CodeParser.toScala(statementContext.get.statement())
-        statements = Some(Statement.construct(parser, statementContexts))
-        statementsRef = WeakReference(statements.get)
+      // Now rebuild, making sure we put correct source in scope for CST to use
+      val parsedSource = if (reParsed) source else source.outer.get
+      CST.sourceContext.withValue(Some(parsedSource)) {
+        val parser = new CodeParser(parsedSource)
+        statementsRef = createStatements(statementContext.get, parser)
+        statements = statementsRef.get
       }
     }
     statements.get
+  }
+
+  // Construct statements from AST
+  private def createStatements(context: BlockContext, parser: CodeParser): WeakReference[Seq[Statement]] = {
+    val statementContexts: Seq[StatementContext] = CodeParser.toScala(context.statement())
+    val statements = Some(Statement.construct(parser, statementContexts))
+    WeakReference(statements.get)
   }
 }
 
 object Block {
   def constructLazy(parser: CodeParser, blockContext: BlockContext): Block = {
     if (ServerOps.getLazyBlocks) {
-      LazyBlock(parser.clipStream(blockContext), WeakReference(blockContext))
+      LazyBlock(parser.extractSource(blockContext), WeakReference(blockContext))
     } else {
       construct(parser, blockContext)
     }
