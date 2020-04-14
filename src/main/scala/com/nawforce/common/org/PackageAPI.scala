@@ -52,7 +52,7 @@ trait PackageAPI extends Package {
       case Some(ad: ApexDocument) if documents.isIndexed(ad) =>
         TypeName(ad.name).withNamespace(namespace)
       case Some(ad: ApexTriggerDocument) if documents.isIndexed(ad) =>
-        TypeName(ad.name, Nil, Some(TriggerDeclaration.namespace)).withNamespace(namespace)
+        TriggerDeclaration.constructTypeName(this, ad.name)
       case _ => null
     }
   }

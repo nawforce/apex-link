@@ -39,7 +39,7 @@ class CompilationUnit(val typeDeclaration: FullDeclaration) extends CST
 object CompilationUnit {
   def construct(parser: CodeParser, pkg: PackageImpl,  compilationUnit: CompilationUnitContext)
       : CompilationUnit = {
-    CST.parsingContext.withValue(Some(CSTParsingContext(parser.source.path))) {
+    CST.sourceContext.withValue(Some(parser.source)) {
       new CompilationUnit(FullDeclaration.construct(parser, pkg, None, compilationUnit.typeDeclaration()))
         .withContext(compilationUnit)
     }

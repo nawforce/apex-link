@@ -34,7 +34,7 @@ import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.parsers.CSTRange
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.runtime.parsers.ApexParser._
-import com.nawforce.runtime.parsers.CodeParser
+import com.nawforce.runtime.parsers.{CodeParser, Source}
 
 import scala.util.DynamicVariable
 
@@ -49,36 +49,17 @@ case class CSTParsingContext(path: PathLike, lineAdjust: Int=0, columnAdjust: In
   * supports lines & column adjustments for when we re-parse blocks, see LazyBlock for details.
   */
 abstract class CST {
-  private var range: CSTRange = _
-  private var parsingContext: CSTParsingContext = _
-
-  lazy val location: RangeLocationImpl = {
-    RangeLocationImpl(
-      range.path,
-      PositionImpl(range.startLine, range.startPosition)
-        .adjust(parsingContext.lineAdjust, parsingContext.columnAdjust),
-      PositionImpl(range.stopLine, range.stopPosition)
-        .adjust(parsingContext.lineAdjust, parsingContext.columnAdjust)
-    )
-  }
-
-  def getPath: PathLike = PathFactory(range.path)
+  var location: RangeLocationImpl = _
 
   def withContext(context: CodeParser.ParserRuleContext): this.type = {
-    parsingContext = CST.parsingContext.value.get
-    range = CSTRange(
-      parsingContext.path.toString,
-      context.getStart.getLine,
-      context.getStart.getCharPositionInLine,
-      context.getStop.getLine,
-      context.getStop.getCharPositionInLine + context.getStop.getText.length)
+    location = CST.sourceContext.value.get.getRangeLocation(context)
     this
   }
 }
 
 object CST {
   // Nasty hack to allow content information to be set globally and accessed as needed
-  val parsingContext: DynamicVariable[Option[CSTParsingContext]] = new DynamicVariable(None)
+  val sourceContext: DynamicVariable[Option[Source]] = new DynamicVariable(None)
 }
 
 final case class Id(name: Name) extends CST {
