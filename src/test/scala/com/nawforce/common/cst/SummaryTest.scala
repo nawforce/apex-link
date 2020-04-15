@@ -31,7 +31,7 @@ import com.nawforce.common.api._
 import com.nawforce.common.names.{DotName, Name, TypeName}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.apex.FullDeclaration
+import com.nawforce.common.types.apex.{FullDeclaration, TriggerDeclaration}
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -43,9 +43,9 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   private val rawIntegerTypeName = DotName("Integer").asTypeName()
   private val rawStringTypeName = DotName("String").asTypeName()
 
-  def typeDeclarationSummary(clsText: String, hasMessages: Boolean = false): TypeSummary = {
+  def classSummary(text: String, hasMessages: Boolean = false): TypeSummary = {
     OrgImpl.current.withValue(defaultOrg) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
+      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, text)
       td.foreach(defaultOrg.unmanaged.upsertMetadata(_))
       td.foreach(_.validate())
       if (td.isEmpty || defaultOrg.issues.hasMessages != hasMessages)
@@ -55,12 +55,25 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+  def triggerSummary(text: String, hasMessages: Boolean = false): TypeSummary = {
+    OrgImpl.current.withValue(defaultOrg) {
+      val td = TriggerDeclaration.create(defaultOrg.unmanaged, defaultPath, text)
+      td.foreach(defaultOrg.unmanaged.upsertMetadata(_))
+      td.foreach(_.validate())
+      if (td.isEmpty || defaultOrg.issues.hasMessages != hasMessages)
+        defaultOrg.dumpIssues()
+      assert(defaultOrg.issues.hasMessages == hasMessages)
+      td.head.summary
+    }
+  }
+
+
   before {
     defaultOrg = new OrgImpl
   }
 
   test("Public outer class") {
-    assert(typeDeclarationSummary("public class Dummy {}") ==
+    assert(classSummary("public class Dummy {}") ==
       TypeSummary(727760095, Some(new RangeLocation(new Position(1,13), new Position(1,18))),
         "Dummy", dummyTypeName, "class", List("public"), Some(objectTypeName),
         Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set()
@@ -69,7 +82,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Global outer class") {
-    assert(typeDeclarationSummary("global class Dummy {}") ==
+    assert(classSummary("global class Dummy {}") ==
       TypeSummary(-2072849596, Some(new RangeLocation(new Position(1,13), new Position(1,18))),
         "Dummy", dummyTypeName, "class", List("global"), Some(objectTypeName),
         Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set()
@@ -78,7 +91,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Global outer class with isTest") {
-    assert(typeDeclarationSummary("@isTest global class Dummy {}") ==
+    assert(classSummary("@isTest global class Dummy {}") ==
       TypeSummary(-8400113, Some(new RangeLocation(new Position(1,21), new Position(1,26))),
         "Dummy", dummyTypeName, "class", List("@IsTest", "global"), Some(objectTypeName),
         Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set()
@@ -87,7 +100,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Interface") {
-    assert(typeDeclarationSummary("public interface Dummy {}") ==
+    assert(classSummary("public interface Dummy {}") ==
       TypeSummary(-1556463390, Some(new RangeLocation(new Position(1,17), new Position(1,22))),
         "Dummy", dummyTypeName, "interface", List("public"),
         None, Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set())
@@ -95,7 +108,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Enum") {
-    assert(typeDeclarationSummary("public enum Dummy {}") ==
+    assert(classSummary("public enum Dummy {}") ==
       TypeSummary(-1129410070, Some(new RangeLocation(new Position(1,12), new Position(1,17))),
         "Dummy", dummyTypeName, "enum", List("public"),
         None, Nil, Nil, Nil, Nil,
@@ -110,7 +123,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Class with unknown super class") {
-    assert(typeDeclarationSummary("public class Dummy extends Bar {}", hasMessages = true) ==
+    assert(classSummary("public class Dummy extends Bar {}", hasMessages = true) ==
       TypeSummary(-264364603, Some(new RangeLocation(new Position(1,13), new Position(1,18))),
         "Dummy", dummyTypeName, "class", List("public"), Some(TypeName(Name("Bar"))),
           Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set())
@@ -118,7 +131,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Class with unknown interfaces") {
-    assert(typeDeclarationSummary("public class Dummy implements A, B {}", hasMessages = true) ==
+    assert(classSummary("public class Dummy implements A, B {}", hasMessages = true) ==
       TypeSummary(-1699589909, Some(new RangeLocation(new Position(1,13), new Position(1,18))),
         "Dummy", dummyTypeName, "class", List("public"), Some(objectTypeName),
         List(TypeName(Name("A")), TypeName(Name("B"))),
@@ -127,7 +140,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Interface with interfaces") {
-    assert(typeDeclarationSummary("public interface Dummy extends A, B {}", hasMessages = true) ==
+    assert(classSummary("public interface Dummy extends A, B {}", hasMessages = true) ==
       TypeSummary(-1967820565, Some(new RangeLocation(new Position(1,17), new Position(1,22))),
         "Dummy", dummyTypeName, "interface", List("public"), None,
         List(TypeName(Name("A")), TypeName(Name("B"))),
@@ -136,7 +149,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Class with fields") {
-    assert(typeDeclarationSummary("public class Dummy {private String B; public Integer A;}") ==
+    assert(classSummary("public class Dummy {private String B; public Integer A;}") ==
       TypeSummary(574678240, Some(new RangeLocation(new Position(1,13), new Position(1,18))),
         "Dummy", dummyTypeName, "class", List("public"), Some(objectTypeName), Nil, Nil,
         List(
@@ -150,7 +163,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Class with properties") {
-    assert(typeDeclarationSummary("public class Dummy {" +
+    assert(classSummary("public class Dummy {" +
       "private String B {get; set;} public Integer A {private set; get;} }") ==
       TypeSummary(-1261132507, Some(new RangeLocation(new Position(1,13), new Position(1,18))),
         "Dummy", dummyTypeName, "class", List("public"),
@@ -166,7 +179,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Class with constructors") {
-    assert(typeDeclarationSummary("public class Dummy {public Dummy(String a) {} Dummy() {} }") ==
+    assert(classSummary("public class Dummy {public Dummy(String a) {} Dummy() {} }") ==
       TypeSummary(1268538768, Some(new RangeLocation(new Position(1,13), new Position(1,18))),
         "Dummy", dummyTypeName, "class", List("public"), Some(objectTypeName), Nil, Nil, Nil,
         List(
@@ -180,7 +193,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Class with methods") {
-    assert(typeDeclarationSummary("public class Dummy {public String foo(String a) {} void bar() {} }") ==
+    assert(classSummary("public class Dummy {public String foo(String a) {} void bar() {} }") ==
       TypeSummary(-162282491, Some(new RangeLocation(new Position(1,13), new Position(1,18))),
         "Dummy", dummyTypeName, "class", List("public"), Some(objectTypeName), Nil, Nil, Nil, Nil,
         List(
@@ -194,7 +207,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Interfaces with methods") {
-    assert(typeDeclarationSummary("public interface Dummy {public String foo(String a); void bar(); }", hasMessages = true) ==
+    assert(classSummary("public interface Dummy {public String foo(String a); void bar(); }", hasMessages = true) ==
       TypeSummary(-688836916, Some(new RangeLocation(new Position(1,17), new Position(1,22))),
         "Dummy", dummyTypeName, "interface", List("public"),None, Nil, Nil, Nil, Nil,
         List(
@@ -208,7 +221,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Enum with values") {
-    assert(typeDeclarationSummary("public enum Dummy {B, A, C }") ==
+    assert(classSummary("public enum Dummy {B, A, C }") ==
       TypeSummary(1277314056, Some(new RangeLocation(new Position(1,12), new Position(1,17))),
         "Dummy", dummyTypeName, "enum", List("public"), None, Nil, Nil,
         List(
@@ -227,6 +240,16 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
           MethodSummary(None, "ordinal", List("public"), TypeName.Integer, List(),Set()),
           MethodSummary(None, "values", List("public", "static"),TypeName.listOf(dummyTypeName),List(),Set())),
         Nil, Set(), Set())
+    )
+  }
+
+  test("Empty trigger") {
+    println(triggerSummary("trigger Foo on Account(before insert) {}"))
+    val name = "__sfdc_trigger/Foo"
+    assert(triggerSummary("trigger Foo on Account(before insert) {}") ==
+      TypeSummary(0, Some(RangeLocation(Position(1,8),Position(1,11))), name, DotName(name).asTypeName(), "trigger",
+        List(), None, Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set()
+      )
     )
   }
 }

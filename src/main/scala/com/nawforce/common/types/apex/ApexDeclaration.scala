@@ -94,6 +94,12 @@ trait ApexDeclaration extends TypeDeclaration {
   val sourceHash: Int
   val pkg: PackageImpl
   val nameLocation: LocationImpl
+
+  // Collect set of TypeNames that this declaration is dependent on
+  def collectDependenciesByTypeName(dependents: mutable.Set[TypeName])
+
+  // Get set of TypeName holding a dependency on this declaration
+  def getTypeDependencyHolders: mutable.Set[TypeName]
 }
 
 trait ApexTriggerDeclaration extends ApexDeclaration
@@ -188,8 +194,6 @@ trait ApexClassDeclaration extends ApexDeclaration {
     methodMap.findMethod(name, params, staticContext, verifyContext)
   }
 
-  def collectDependenciesByTypeName(dependents: mutable.Set[TypeName])
-
   def propagateOuterDependencies(): Unit = {
     val dependsOn = mutable.Set[TypeName]()
     collectDependenciesByTypeName(dependsOn)
@@ -206,13 +210,13 @@ trait ApexClassDeclaration extends ApexDeclaration {
     }
   }
 
+  override def getTypeDependencyHolders: mutable.Set[TypeName] = {
+    typeDependencyHolders
+  }
+
   def addTypeDependencyHolder(typeName: TypeName): Unit = {
     if (typeName != this.typeName)
       typeDependencyHolders.add(typeName)
-  }
-
-  def getTypeDependencyHolders: mutable.Set[TypeName] = {
-    typeDependencyHolders
   }
 
   def unused(): Seq[Issue] = {

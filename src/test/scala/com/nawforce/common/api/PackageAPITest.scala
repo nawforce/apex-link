@@ -196,6 +196,40 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     ServerOps.setParsedDataCaching(false)
   }
 
+  test("summary of trigger") {
+    FileSystemHelper.run(Map(
+      "triggers/Dummy.trigger" -> "trigger Dummy on Account (before insert) {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      val typeLike = pkg.getTypeOfPath(root.join("triggers").join("Dummy.trigger").toString)
+      val summary = pkg.getSummaryOfType(typeLike)
+
+      assert(summary.name == "__sfdc_trigger/test/Dummy")
+      assert(summary.typeName.toString == "__sfdc_trigger/test/Dummy")
+      assert(summary.modifiers.isEmpty)
+    }
+  }
+
+  test("summary of trigger with namespace") {
+    FileSystemHelper.run(Map(
+      "triggers/Dummy.trigger" -> "trigger Dummy on Account (before insert) {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      val typeLike = pkg.getTypeOfPath(root.join("triggers").join("Dummy.trigger").toString)
+      val summary = pkg.getSummaryOfType(typeLike)
+
+      assert(summary.name == "__sfdc_trigger/Dummy")
+      assert(summary.typeName.toString == "__sfdc_trigger/Dummy")
+      assert(summary.modifiers.isEmpty)
+    }
+  }
+
   test("No dependencies") {
     FileSystemHelper.run(Map(
       "classes/Foo.cls" -> "public class Foo {}"
@@ -571,5 +605,51 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     }
 
     ServerOps.setParsedDataCaching(false)
+  }
+
+  test("Trigger with no block") {
+    FileSystemHelper.run(Map(
+      "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      val fooTypeLike = pkg.getTypeOfPath(root.join("triggers").join("Foo.trigger").toString)
+
+      assert(pkg.getDependencies(fooTypeLike, inheritanceOnly = false).isEmpty)
+    }
+  }
+
+  test("Trigger with block") {
+    FileSystemHelper.run(Map(
+      "classes/Bar.cls" -> "public class Bar {}",
+      "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar b;}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      val barTypeLike = pkg.getTypeOfPath(root.join("classes").join("Bar.cls").toString)
+      val fooTypeLike = pkg.getTypeOfPath(root.join("triggers").join("Foo.trigger").toString)
+
+      assert(pkg.getDependencies(fooTypeLike, inheritanceOnly = false).sameElements(Array(barTypeLike)))
+    }
+  }
+
+  test("Trigger with block with namespace") {
+    FileSystemHelper.run(Map(
+      "classes/Bar.cls" -> "public class Bar {}",
+      "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar b;}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      val barTypeLike = pkg.getTypeOfPath(root.join("classes").join("Bar.cls").toString)
+      val fooTypeLike = pkg.getTypeOfPath(root.join("triggers").join("Foo.trigger").toString)
+
+      assert(pkg.getDependencies(fooTypeLike, inheritanceOnly = false).sameElements(Array(barTypeLike)))
+    }
   }
 }
