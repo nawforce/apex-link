@@ -64,13 +64,13 @@ trait PackageAPI extends Package {
   }
 
   override def getSummaryOfType(typeLike: TypeLike): TypeSummary = {
-    getApexClassDeclaration(typeLike)
+    getApexDeclaration(typeLike)
       .map(_.summary)
       .orNull
   }
 
   override def getDependencies(typeLike: TypeLike, inheritanceOnly: Boolean): Array[TypeLike] = {
-    getApexClassDeclaration(typeLike)
+    getApexDeclaration(typeLike)
       .map(ad => {
         if (inheritanceOnly) {
           (ad +: ad.nestedTypes).flatMap(td => {
@@ -89,7 +89,7 @@ trait PackageAPI extends Package {
   }
 
   override def getDependencyHolders(typeLike: TypeLike): Array[TypeLike] = {
-    getApexClassDeclaration(typeLike)
+    getApexDeclaration(typeLike)
       .map(_.getTypeDependencyHolders.toArray[TypeLike])
       .orNull
   }
@@ -213,20 +213,6 @@ trait PackageAPI extends Package {
         .flatMap {
           case ad: ApexClassDeclaration => Some(ad)
           case td: TriggerDeclaration => Some(td)
-          case _ => None
-        }
-    } catch {
-      case ex: PlatformTypeException =>
-        ServerOps.debug(ServerOps.Trace, ex.getMessage)
-        None
-    }
-  }
-
-  private def getApexClassDeclaration(typeLike: TypeLike): Option[ApexClassDeclaration] = {
-    try {
-      types.get(TypeName(typeLike))
-        .flatMap {
-          case ad: ApexClassDeclaration => Some(ad)
           case _ => None
         }
     } catch {

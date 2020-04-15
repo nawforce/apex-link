@@ -27,15 +27,18 @@
 */
 package com.nawforce.common.types.apex
 
-import com.nawforce.common.api.ServerOps
+import com.nawforce.common.api.{RangeLocation, ServerOps, TypeSummary}
 import com.nawforce.common.cst._
 import com.nawforce.common.documents.{LineLocationImpl, LocationImpl}
+import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
 import com.nawforce.runtime.parsers.ApexParser.{TriggerCaseContext, TriggerUnitContext}
 import com.nawforce.runtime.parsers.{CodeParser, Source}
+
+import scala.collection.mutable
 
 sealed abstract class TriggerCase(val name: String)
 case object BEFORE_INSERT extends TriggerCase("before insert")
@@ -72,6 +75,7 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
   override val constructors: Seq[ConstructorDeclaration] = Seq.empty
   override val methods: Seq[MethodDeclaration]= Seq.empty
 
+  private var depends: Option[mutable.Set[Dependent]] = None
   private val objectTypeName = TypeName(objectNameId.name, Nil, Some(TypeName.Schema))
 
   override def validate(): Unit = {
@@ -102,7 +106,38 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
             pkg.removeMetadata(tc)
           }
       }
+
+      depends = Some(context.dependencies)
     }
+  }
+
+  override def collectDependenciesByTypeName(dependents: mutable.Set[TypeName]): Unit = {
+    depends.foreach(_.foreach {
+      case ad: ApexClassDeclaration => dependents.add(ad.outerTypeName.getOrElse(ad.typeName))
+      case _ => ()
+    })
+  }
+
+  override def getTypeDependencyHolders: mutable.Set[TypeName] = mutable.Set.empty
+
+  // Override to provide location information
+  override def summary: TypeSummary = {
+    TypeSummary(
+      0,
+      Some(new RangeLocation(nameId.location.start.toPosition, nameId.location.end.toPosition)),
+      name.toString,
+      typeName,
+      nature.value, modifiers.map(_.toString).sorted.toList,
+      superClass,
+      interfaces.toList,
+      blocks.map(_.summary).toList,
+      fields.map(_.summary).sortBy(_.name).toList,
+      constructors.map(_.summary).sortBy(_.parameters.size).toList,
+      methods.map(_.summary).sortBy(_.name).toList,
+      nestedTypes.map(_.summary).sortBy(_.name).toList,
+      dependencySummary(),
+      Set.empty
+    )
   }
 }
 
