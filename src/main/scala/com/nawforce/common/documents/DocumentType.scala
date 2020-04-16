@@ -28,8 +28,9 @@
 package com.nawforce.common.documents
 
 import com.nawforce.common.metadata.MetadataDeclaration
-import com.nawforce.common.names.Name
+import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.types.apex.TriggerDeclaration
 
 trait DocumentType {
   val name: Name
@@ -49,16 +50,28 @@ final case class LabelsDocument(_path: PathLike, _name: Name) extends MetadataDo
   lazy val extension: Name = Name("labels")
 }
 
-final case class ApexDocument(_path: PathLike, _name: Name)
+abstract class ApexDocument(_path: PathLike, _name: Name)
   extends MetadataDocumentType(_path, _name) {
+
+  def typeName(namespace: Option[Name]): TypeName
+}
+
+final case class ApexClassDocument(_path: PathLike, _name: Name)
+  extends ApexDocument(_path, _name) {
   lazy val extension: Name = Name("cls")
   override val indexByName: Boolean = true
+  override def typeName(namespace: Option[Name]): TypeName = {
+    TypeName(name).withNamespace(namespace)
+  }
 }
 
 final case class ApexTriggerDocument(_path: PathLike, _name: Name)
-  extends MetadataDocumentType(_path, _name) {
+  extends ApexDocument(_path, _name) {
   lazy val extension: Name = Name("trigger")
   override val indexByName: Boolean = false
+  override def typeName(namespace: Option[Name]): TypeName = {
+    TriggerDeclaration.constructTypeName(namespace, name)
+  }
 }
 
 final case class ComponentDocument(_path: PathLike, _name: Name)
@@ -112,7 +125,7 @@ object DocumentType {
   def apply(path: PathLike): Option[DocumentType] = {
     splitFilename(path) match {
       case Seq(name, Name("cls")) =>
-        Some(ApexDocument(path, name))
+        Some(ApexClassDocument(path, name))
 
       case Seq(name, Name("trigger")) =>
         Some(ApexTriggerDocument(path, name))

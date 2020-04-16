@@ -57,7 +57,7 @@ class DocumentIndexTest extends AnyFunSuite {
       val index = new DocumentIndex(Seq(root.join("pkg")))
       assert(index.size == 1)
       assert(index.getByExtension(Name("cls")).toString() ==
-        Seq(ApexDocument(PathFactory("/pkg/Foo.cls"), Name("Foo"))).toString())
+        Seq(ApexClassDocument(PathFactory("/pkg/Foo.cls"), Name("Foo"))).toString())
     }
   }
 
@@ -68,7 +68,7 @@ class DocumentIndexTest extends AnyFunSuite {
       val index = new DocumentIndex(Seq(root.join("pkg")))
       assert(index.size == 1)
       assert(index.getByExtension(Name("cls")).toString ==
-        Seq(ApexDocument(PathFactory("/pkg/foo/Foo.cls"), Name("Foo"))).toString())
+        Seq(ApexClassDocument(PathFactory("/pkg/foo/Foo.cls"), Name("Foo"))).toString())
     }
   }
 
@@ -80,8 +80,8 @@ class DocumentIndexTest extends AnyFunSuite {
       val index = new DocumentIndex(Seq(root.join("pkg")))
       assert(index.size == 2)
       assert(index.getByExtension(Name("cls")).map(_.toString()).toSet == Set(
-        ApexDocument(PathFactory("/pkg/Foo.cls"), Name("Foo")).toString,
-        ApexDocument(PathFactory("/pkg/bar/Bar.cls"), Name("Bar")).toString
+        ApexClassDocument(PathFactory("/pkg/Foo.cls"), Name("Foo")).toString,
+        ApexClassDocument(PathFactory("/pkg/bar/Bar.cls"), Name("Bar")).toString
       ))
     }
   }

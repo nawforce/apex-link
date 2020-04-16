@@ -29,12 +29,12 @@ package com.nawforce.common.org
 
 import com.nawforce.common.api.{Diagnostic, LineLocation, Package, ServerOps, TypeSummary, ViewInfo}
 import com.nawforce.common.diagnostics.ERROR_CATEGORY
-import com.nawforce.common.documents.{ApexDocument, ApexTriggerDocument, DocumentType}
+import com.nawforce.common.documents.{ApexClassDocument, ApexDocument, ApexTriggerDocument, DocumentType}
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{TypeLike, TypeName}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.TypeDeclaration
-import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexDeclaration, FullDeclaration, TriggerDeclaration}
+import com.nawforce.common.types.apex._
 import com.nawforce.runtime.types.PlatformTypeException
 
 import scala.collection.mutable
@@ -49,10 +49,7 @@ trait PackageAPI extends Package {
 
   override def getTypeOfPath(path: String): TypeLike = {
     DocumentType(PathFactory(path)) match {
-      case Some(ad: ApexDocument) if documents.isIndexed(ad) =>
-        TypeName(ad.name).withNamespace(namespace)
-      case Some(ad: ApexTriggerDocument) if documents.isIndexed(ad) =>
-        TriggerDeclaration.constructTypeName(this, ad.name)
+      case Some(ad: ApexDocument) if documents.isIndexed(ad) => ad.typeName(namespace)
       case _ => null
     }
   }
@@ -101,7 +98,7 @@ trait PackageAPI extends Package {
   // Create a view for a type, contents are optional
   private[nawforce] def getViewOfType(path: PathLike, contents: Option[String]): ViewInfo = {
     // Check path is OK
-    val dt = DocumentType(path) match {
+    val dt: Option[ApexDocument] = DocumentType(path) match {
       case Some(ad: ApexDocument) => Some(ad)
       case _ => None
     }
@@ -127,10 +124,10 @@ trait PackageAPI extends Package {
 
     // Shortcut if data unchanged on a FullDeclaration
     val td = dt.flatMap(ad => {
-      val typeName = TypeName(ad.name).withNamespace(namespace)
-      types.get(typeName)
+      types.get(ad.typeName(namespace))
         .flatMap {
           case fd: FullDeclaration => Some(fd)
+          case td: TriggerDeclaration => Some(td)
           case _ => None
         }
     })
@@ -138,15 +135,19 @@ trait PackageAPI extends Package {
     if (td.nonEmpty && td.get.sourceHash == MurmurHash3.stringHash(source))
       return ViewInfoImpl(isNew = false, path.absolute, td, org.issues.getDiagnostics(path.absolute.toString).toArray)
 
-    loadAndValidate(path.absolute, source)
+    dt.get match {
+      case _: ApexClassDocument => loadAndValidate(path.absolute, source, FullDeclaration.create)
+      case _: ApexTriggerDocument => loadAndValidate(path.absolute, source, TriggerDeclaration.create)
+    }
   }
 
   // Load a class and validate it without upsert'ing it into the package, upsertFromView will do that
-  private def loadAndValidate(absPath: PathLike, source: String): ViewInfoImpl = {
+  private def loadAndValidate(absPath: PathLike, source: String,
+                                   create: (PackageImpl, PathLike, String) => Option[ApexFullDeclaration]): ViewInfoImpl = {
     val issues = org.issues.pop(absPath.toString)
     try {
       OrgImpl.current.withValue(org) {
-        val td = FullDeclaration.create(this, absPath, source)
+        val td = create(this, absPath, source)
         td.foreach(validateInIsolation)
         ViewInfoImpl(isNew = true, absPath, td, org.issues.getDiagnostics(absPath.toString).toArray)
       }
@@ -156,7 +157,7 @@ trait PackageAPI extends Package {
   }
 
   // Run validation over the TypeDeclaration without mutating package types or dependencies
-  private def validateInIsolation(td: FullDeclaration): Unit = {
+  private def validateInIsolation(td: ApexFullDeclaration): Unit = {
     val originalTd = types.get(td.typeName)
     try {
       types.put(td.typeName, td)
@@ -174,19 +175,21 @@ trait PackageAPI extends Package {
 
     // Check we are not trying to circumvent the no duplicates rule
     if (types.get(td.typeName) match {
-      case Some(ad: ApexClassDeclaration) => ad.path.absolute != viewInfoImpl.absPath
+      case Some(ad: ApexDeclaration) => ad.path.absolute != viewInfoImpl.absPath
       case None => false
       case _ => true
     }) return false
 
     OrgImpl.current.withValue(org) {
       // If view created TD use it, otherwise we need to create fresh
-      val updated =
+      val updated : Option[TypeDeclaration] =
         if (viewInfoImpl.isNew) {
           Some(td)
         } else {
-          // TODO: Remove need to re-parse for validation to bypass type, method & field caching
-          FullDeclaration.create(this, td.source.path, td.source.code)
+          td match {
+            case fd: FullDeclaration => FullDeclaration.create(this, fd.source.path, fd.source.code)
+            case td: TriggerDeclaration => TriggerDeclaration.create(this, td.source.path, td.source.code)
+          }
         }
 
       updated.foreach(utd => {
@@ -202,7 +205,7 @@ trait PackageAPI extends Package {
   override def deleteType(typeLike: TypeLike): Boolean = {
     val typeName = TypeName(typeLike)
     types.get(typeName) match {
-      case Some(_: ApexClassDeclaration) => types.remove(typeName); true
+      case Some(_: ApexDeclaration) => types.remove(typeName); true
       case _ => false
     }
   }
@@ -211,8 +214,7 @@ trait PackageAPI extends Package {
     try {
       types.get(TypeName(typeLike))
         .flatMap {
-          case ad: ApexClassDeclaration => Some(ad)
-          case td: TriggerDeclaration => Some(td)
+          case ad: ApexDeclaration => Some(ad)
           case _ => None
         }
     } catch {
@@ -222,7 +224,7 @@ trait PackageAPI extends Package {
     }
   }
 
-  private[nawforce] def deployClasses(documents: Seq[ApexDocument]): Unit = {
+  private[nawforce] def deployClasses(documents: Seq[ApexClassDocument]): Unit = {
     OrgImpl.current.withValue(org) {
       val updated = documents.flatMap(doc => {
         val data = doc.path.read()

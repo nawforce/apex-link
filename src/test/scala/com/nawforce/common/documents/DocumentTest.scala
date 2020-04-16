@@ -35,7 +35,7 @@ class DocumentTest extends AnyFunSuite {
 
   test("cls file") {
     DocumentType(PathFactory("/pkg/Foo.cls")) match {
-      case Some(ApexDocument(PathFactory("/pkg/Foo.cls"), Name("Foo"))) => ()
+      case Some(ApexClassDocument(PathFactory("/pkg/Foo.cls"), Name("Foo"))) => ()
       case x => assert(false, x)
     }
   }

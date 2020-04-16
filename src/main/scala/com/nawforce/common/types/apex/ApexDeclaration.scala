@@ -100,6 +100,32 @@ trait ApexDeclaration extends TypeDeclaration {
 
   // Get set of TypeName holding a dependency on this declaration
   def getTypeDependencyHolders: mutable.Set[TypeName]
+
+  // Update holders on outer dependencies
+  def propagateOuterDependencies(): Unit = {
+    val dependsOn = mutable.Set[TypeName]()
+    collectDependenciesByTypeName(dependsOn)
+    dependsOn.foreach(dependentTypeName =>
+      getOutermostDeclaration(dependentTypeName).map(_.addTypeDependencyHolder(typeName)))
+  }
+
+  private def getOutermostDeclaration(typeName: TypeName): Option[ApexClassDeclaration] = {
+    TypeRequest(typeName, pkg, excludeSObjects = false) match {
+      case Right(td: ApexClassDeclaration) =>
+        td.outerTypeName.map(getOutermostDeclaration).getOrElse(Some(td))
+      case Right(_) => None
+      case Left(_) => None
+    }
+  }
+}
+
+trait ApexFullDeclaration extends ApexDeclaration {
+  // Specialised validation with option to turn off propagation
+  def validate(withPropagation: Boolean): Unit
+
+  override def validate(): Unit = {
+    validate(withPropagation = true)
+  }
 }
 
 trait ApexTriggerDeclaration extends ApexDeclaration
@@ -192,22 +218,6 @@ trait ApexClassDeclaration extends ApexDeclaration {
   override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Seq[MethodDeclaration] = {
     methodMap.findMethod(name, params, staticContext, verifyContext)
-  }
-
-  def propagateOuterDependencies(): Unit = {
-    val dependsOn = mutable.Set[TypeName]()
-    collectDependenciesByTypeName(dependsOn)
-    dependsOn.foreach(dependentTypeName =>
-      getOutermostDeclaration(dependentTypeName).map(_.addTypeDependencyHolder(typeName)))
-  }
-
-  private def getOutermostDeclaration(typeName: TypeName): Option[ApexClassDeclaration] = {
-    TypeRequest(typeName, pkg, excludeSObjects = false) match {
-      case Right(td: ApexClassDeclaration) =>
-        td.outerTypeName.map(getOutermostDeclaration).getOrElse(Some(td))
-      case Right(_) => None
-      case Left(_) => None
-    }
   }
 
   override def getTypeDependencyHolders: mutable.Set[TypeName] = {
