@@ -116,28 +116,7 @@ trait HolderVerifyContext {
   }
 }
 
-class TriggerVerifyContext(packageDeclaration: PackageImpl, typeDeclaration: TriggerDeclaration)
-  extends HolderVerifyContext with VerifyContext {
-
-  override def parent(): Option[VerifyContext] = None
-
-  override def pkg: PackageImpl = packageDeclaration
-
-  override def thisType: Option[TypeDeclaration] = Some(typeDeclaration)
-
-  override def superType: Option[TypeDeclaration] = typeDeclaration.superClassDeclaration
-
-  override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
-                          excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {
-    TypeRequest(typeName, from, thisType.flatMap(_.packageDeclaration), excludeSObjects)
-  }
-
-  override def suppressWarnings: Boolean =
-    typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressWarnings)
-}
-
-
-class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: ApexClassDeclaration,
+class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: ApexDeclaration,
                         propagateDependencies: Boolean)
     extends HolderVerifyContext with VerifyContext {
 

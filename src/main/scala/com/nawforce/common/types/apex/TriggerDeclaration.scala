@@ -52,7 +52,7 @@ case object AFTER_UNDELETE extends TriggerCase(name = "after undelete")
 
 final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id, objectNameId: Id,
                                     typeName: TypeName, cases: Seq[TriggerCase], block: Block)
-  extends ApexTriggerDeclaration {
+  extends ApexTriggerDeclaration with ApexFullDeclaration {
 
   override val path: PathLike  = source.path
   override val nameLocation: LocationImpl = nameId.location
@@ -78,7 +78,7 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
   private var depends: Option[mutable.Set[Dependent]] = None
   private val objectTypeName = TypeName(objectNameId.name, Nil, Some(TypeName.Schema))
 
-  override def validate(): Unit = {
+  override def validate(withPropagation: Boolean): Unit = {
     ServerOps.debugTime(s"Validated $path") {
       nameId.validate()
 
@@ -86,7 +86,7 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
       duplicateCases.foreach(triggerCase =>
         OrgImpl.logError(objectNameId.location, s"Duplicate trigger case for '${triggerCase.name}'"))
 
-      val context = new TriggerVerifyContext(pkg, this)
+      val context = new TypeVerifyContext(None, this, withPropagation)
       val tdOpt = context.getTypeAndAddDependency(objectTypeName, Some(this))
 
       tdOpt match {
@@ -108,6 +108,8 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
       }
 
       depends = Some(context.dependencies)
+      if (withPropagation)
+        propagateOuterDependencies()
     }
   }
 
@@ -144,14 +146,14 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
 object TriggerDeclaration {
   private val prefix: TypeName = TypeName(Name("__sfdc_trigger"))
 
-  def create(pkg: PackageImpl, path: PathLike, data: String): Seq[TriggerDeclaration] = {
+  def create(pkg: PackageImpl, path: PathLike, data: String): Option[TriggerDeclaration] = {
     val parser = CodeParser(path, data)
     parser.parseTrigger() match {
       case Left(err) =>
         OrgImpl.logError(LineLocationImpl(path.toString, err.line), err.message)
-        Nil
+        None
       case Right(cu) =>
-        Seq(TriggerDeclaration.construct(parser, pkg, path, cu))
+        Some(TriggerDeclaration.construct(parser, pkg, path, cu))
     }
   }
 
@@ -160,14 +162,14 @@ object TriggerDeclaration {
     CST.sourceContext.withValue(Some(parser.source)) {
       val ids = CodeParser.toScala(trigger.id()).map(Id.construct)
       val cases = CodeParser.toScala(trigger.triggerCase()).map(constructCase)
-      new TriggerDeclaration(parser.source, pkg, ids.head, ids(1), constructTypeName(pkg, ids.head.name), cases,
+      new TriggerDeclaration(parser.source, pkg, ids.head, ids(1), constructTypeName(pkg.namespace, ids.head.name), cases,
         Block.construct(parser, trigger.block()))
     }
   }
 
   // Construct the trigger name, looks like a namespace but doc indicates just a prefix
-  def constructTypeName(pkg: PackageImpl, name: Name): TypeName = {
-    val qname: String = pkg.namespace.map(ns => s"$prefix/${ns.value}/${name.value}")
+  def constructTypeName(namespace: Option[Name], name: Name): TypeName = {
+    val qname: String = namespace.map(ns => s"$prefix/${ns.value}/${name.value}")
       .getOrElse(s"$prefix/${name.value}")
     TypeName(Name(qname))
   }

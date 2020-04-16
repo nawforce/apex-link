@@ -244,7 +244,6 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Empty trigger") {
-    println(triggerSummary("trigger Foo on Account(before insert) {}"))
     val name = "__sfdc_trigger/Foo"
     assert(triggerSummary("trigger Foo on Account(before insert) {}") ==
       TypeSummary(0, Some(RangeLocation(Position(1,8),Position(1,11))), name, DotName(name).asTypeName(), "trigger",

@@ -48,7 +48,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
                                val id: Id, _modifiers: ModifierResults,
                                val superClass: Option[TypeName], val interfaces: Seq[TypeName],
                                val bodyDeclarations: Seq[ClassBodyDeclaration])
-  extends ClassBodyDeclaration(_modifiers) with ApexClassDeclaration {
+  extends ClassBodyDeclaration(_modifiers) with ApexClassDeclaration with ApexFullDeclaration {
 
   lazy val sourceHash: Int = source.hash
   override val path: PathLike = source.path
@@ -94,16 +94,12 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   }
 
   override def flush(pc: ParsedCache, context: PackageContext): Unit = {
-    val diagnostics = pkg.org.issues.getDiagnostics(location.path.toString)
+    val diagnostics = pkg.org.issues.getDiagnostics(location.path)
     pc.upsert(source.code.getBytes(StandardCharsets.UTF_8), writeBinary(ApexSummary(summary, diagnostics)), context)
   }
 
   override def propagateAllDependencies(): Unit = {
     // Not needed, dependencies are propagated by default during validation
-  }
-
-  override def validate(): Unit = {
-    validate(withPropagation = true)
   }
 
   def validate(withPropagation: Boolean): Unit = {

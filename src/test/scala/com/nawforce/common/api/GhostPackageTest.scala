@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.api
 
-import com.nawforce.common.documents.{ApexDocument, DocumentType}
+import com.nawforce.common.documents.{ApexClassDocument, DocumentType}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
@@ -46,7 +46,7 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter {
       this.root = root
       OrgImpl.current.withValue(defaultOrg) {
         defaultOrg.unmanaged.deployClasses(
-          classes.map(p => DocumentType(root.join(p._1)).get.asInstanceOf[ApexDocument]).toSeq)
+          classes.map(p => DocumentType(root.join(p._1)).get.asInstanceOf[ApexClassDocument]).toSeq)
         defaultOrg.unmanaged.findTypes(classes.keys.map(k => TypeName(Name(k.replaceAll("\\.cls$", "")))).toSeq)
       }
     }

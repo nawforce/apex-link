@@ -147,7 +147,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
-  test("replacement does not create dependency holder") {
+  test("Replacement does not create dependency holder") {
     FileSystemHelper.run(Map(
       "pkg/Bar.cls" -> "public class Bar {}",
       "pkg/Foo.cls" -> "public class Foo {}"
@@ -162,4 +162,72 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+  test("Good path trigger (mdapi)") {
+    FileSystemHelper.run(Map(
+      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), None)
+      assert(view.hasType)
+      assert(view.diagnostics.isEmpty)
+      assert(view.asInstanceOf[ViewInfoImpl].td.get.name == Name("__sfdc_trigger/Foo"))
+    }
+  }
+
+  test("New trigger parse error") {
+    FileSystemHelper.run(Map(
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val view = pkg.getViewOfType(root.join("Foo.trigger"), Some(""))
+      assert(!view.hasType)
+      assert(view.diagnostics.length == 1)
+      assert(view.diagnostics.head.category == "Error")
+      assert(view.diagnostics.head.location == LineLocation(1))
+      assert(view.diagnostics.head.message.nonEmpty)
+    }
+  }
+
+  test("Replacement trigger parse error") {
+    FileSystemHelper.run(Map(
+      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), Some(""))
+      assert(!view.hasType)
+      assert(view.diagnostics.length == 1)
+      assert(view.diagnostics.head.category == "Error")
+      assert(view.diagnostics.head.location == LineLocation(1))
+      assert(view.diagnostics.head.message.nonEmpty)
+    }
+  }
+
+  test("Good replacement trigger") {
+    FileSystemHelper.run(Map(
+      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some("public class Foo {}"))
+      assert(view.hasType)
+      assert(view.diagnostics.isEmpty)
+    }
+  }
+
+  test("Validate trigger error") {
+    FileSystemHelper.run(Map(
+      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), Some("trigger Foo on Account (before insert) {Bar b;}"))
+      assert(view.hasType)
+      assert(view.diagnostics.length == 1)
+      assert(view.diagnostics.head.category == "Missing")
+      assert(view.diagnostics.head.location == RangeLocation(Position(1,44),Position(1,45)))
+      assert(view.diagnostics.head.message.nonEmpty)
+    }
+  }
 }
