@@ -87,5 +87,6 @@ case class Page(location: LocationImpl, name: Name) extends FieldDeclaration {
   override lazy val typeName: TypeName = TypeName.PageReference
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER
   override lazy val writeAccess: Modifier = PRIVATE_MODIFIER
+  override val idTarget: Option[TypeName] = None
 }
 

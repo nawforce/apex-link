@@ -120,10 +120,29 @@ case class PlatformTypeDeclaration(native: Any, outer: Option[PlatformTypeDeclar
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     if (isSObject) {
-      super.findFieldSObject(name, staticContext)
+      findFieldSObject(name, staticContext)
     } else {
       super.findField(name, staticContext)
     }
+  }
+
+  override protected def findFieldSObject(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
+    val field = super.findFieldSObject(name, staticContext)
+
+    // If SObjectField if Id replace with SObjectFields over SObject so can access nested fields
+    field.map(f =>{
+      val isIdLike = f.name.value.endsWith("Id") && f.name.value.length>2
+      if (isIdLike && staticContext.contains(true)) {
+        val relationshipField = super.findFieldSObject(Name(f.name.value.dropRight(2)), staticContext)
+        relationshipField match {
+          case Some(CustomFieldDeclaration(_, TypeName(Name.SObjectFields$, Seq(sObject), Some(TypeName.Internal)), _, _)) =>
+            CustomFieldDeclaration(f.name, TypeName.sObjectFields$(sObject), None, asStatic = true)
+          case _ => f
+        }
+      } else {
+        f
+      }
+    })
   }
 
   override lazy val methods: Seq[MethodDeclaration] = {
@@ -153,12 +172,13 @@ case class PlatformTypeDeclaration(native: Any, outer: Option[PlatformTypeDeclar
 }
 
 class PlatformField(val field: java.lang.reflect.Field) extends FieldDeclaration {
-  lazy val name: Name = Name(decodeName(field.getName))
-  lazy val typeName: TypeName =
+  override lazy val name: Name = Name(decodeName(field.getName))
+  override lazy val typeName: TypeName =
     PlatformTypeDeclaration.typeNameFromType(field.getGenericType, field.getDeclaringClass)
-  lazy val modifiers: Seq[Modifier] = PlatformModifiers.fieldOrMethodModifiers(field.getModifiers)
-  lazy val readAccess: Modifier = PUBLIC_MODIFIER
-  lazy val writeAccess: Modifier = PUBLIC_MODIFIER
+  override lazy val modifiers: Seq[Modifier] = PlatformModifiers.fieldOrMethodModifiers(field.getModifiers)
+  override lazy val readAccess: Modifier = PUBLIC_MODIFIER
+  override lazy val writeAccess: Modifier = PUBLIC_MODIFIER
+  override lazy val idTarget: Option[TypeName] = None
 
   def getGenericTypeName: TypeName =
     PlatformTypeDeclaration.typeNameFromType(field.getGenericType, field.getDeclaringClass)

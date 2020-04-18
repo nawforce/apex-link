@@ -82,6 +82,7 @@ trait ApexMethodLike extends MethodDeclaration {
 trait ApexFieldLike extends FieldDeclaration {
   val nameRange: RangeLocationImpl
   val outerTypeName: TypeName
+  val idTarget: Option[TypeName] = None
 
   override def summary: FieldSummary = {
     super.summary(Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))

@@ -90,6 +90,7 @@ class GenericPlatformField(platformField: PlatformField, _typeDeclaration: Gener
   override val modifiers: Seq[Modifier] = platformField.modifiers
   override val readAccess: Modifier = platformField.readAccess
   override val writeAccess: Modifier = platformField.writeAccess
+  override val idTarget: Option[TypeName] = None
 
   override lazy val typeName: TypeName = {
     val fieldType = _typeDeclaration.replaceParams(platformField.getGenericTypeName)

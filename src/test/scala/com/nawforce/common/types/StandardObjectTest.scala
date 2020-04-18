@@ -196,6 +196,41 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+  test("Lookup SObjectField (via relationship field)") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" ->
+        "public class Dummy { {SObjectField a = Opportunity.Account.Name;} }",
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+    }
+  }
+
+  test("Lookup SObjectField (via id field)") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" ->
+        "public class Dummy { {SObjectField a = Opportunity.AccountId.Name;} }",
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.addPackage(None, Seq(root), Seq())
+      org.issues.dump()
+      assert(!org.issues.hasMessages)
+    }
+  }
+
+  test("Lookup SObjectField (passed to method)") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" ->
+        "public class Dummy { {func(Opportunity.Account);} void func(SObjectField a) {}}",
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+    }
+  }
+
+
   test("Custom field reference") {
     FileSystemHelper.run(Map(
       "Account.object" -> customObject("Account", Seq(("Bar__c", Some("Text"), None))),

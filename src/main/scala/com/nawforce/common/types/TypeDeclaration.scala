@@ -69,6 +69,7 @@ trait FieldDeclaration extends DependencyHolder {
   val name: Name
   val modifiers: Seq[Modifier]
   val typeName: TypeName
+  val idTarget: Option[TypeName]
   val readAccess: Modifier
   val writeAccess: Modifier
 
@@ -258,9 +259,11 @@ trait TypeDeclaration extends MetadataDeclaration {
 
   protected def findFieldSObject(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     val fieldOption = fieldsByName.get(name)
+
+    // Handle the synthetic static SObjectField or abort
     if (fieldOption.isEmpty) {
-      if (name == Name.SObjectField)
-        return Some(CustomFieldDeclaration(Name.SObjectField, TypeName.sObjectFields$(typeName)))
+      if (name == Name.SObjectField && staticContext.contains(true))
+        return Some(CustomFieldDeclaration(Name.SObjectField, TypeName.sObjectFields$(typeName), None))
       else
         return None
     }
@@ -269,16 +272,22 @@ trait TypeDeclaration extends MetadataDeclaration {
     if (staticContext.contains(field.isStatic)) {
       fieldOption
     } else if (staticContext.contains(true)) {
-      if (CustomFieldDeclaration.isSObjectPrimitive(field.typeName)) {
+      // Some messy special cases
+      if (field.typeName == TypeName.Id && field.idTarget.nonEmpty) {
+        // Id field that carries a target SObjectType returns 'fields'
+        PlatformTypes.get(field.idTarget.get, None)
+        Some(CustomFieldDeclaration(field.name, TypeName.sObjectFields$(field.idTarget.get), None, asStatic = true))
+      } else if (CustomFieldDeclaration.isSObjectPrimitive(field.typeName)) {
+        // Primitives (including other Id types)
         // TODO: Identify Share
         if (name == Name.RowCause)
-          Some(CustomFieldDeclaration(field.name, TypeName.SObjectFieldRowCause$, asStatic = true))
+          Some(CustomFieldDeclaration(field.name, TypeName.SObjectFieldRowCause$, None, asStatic = true))
         else
-          Some(CustomFieldDeclaration(field.name, TypeName.SObjectField, asStatic = true))
+          Some(CustomFieldDeclaration(field.name, TypeName.SObjectField, None, asStatic = true))
       } else {
-        // Make sure SObject is loaded so fields can be found
+        // Otherwise must be a SObject, but if Platform it might need loading
         PlatformTypes.get(field.typeName, None)
-        Some(CustomFieldDeclaration(field.name, TypeName.sObjectFields$(field.typeName), asStatic = true))
+        Some(CustomFieldDeclaration(field.name, TypeName.sObjectFields$(field.typeName), None, asStatic = true))
       }
     } else {
       None

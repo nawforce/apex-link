@@ -162,6 +162,7 @@ case class Label(location: LocationImpl, name: Name, isProtected: Boolean) exten
   override lazy val typeName: TypeName = TypeName.String
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER
   override lazy val writeAccess: Modifier = PRIVATE_MODIFIER
+  override val idTarget: Option[TypeName] = None
 }
 
 object Label {
