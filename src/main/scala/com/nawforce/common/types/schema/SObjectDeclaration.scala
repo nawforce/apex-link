@@ -33,8 +33,8 @@ import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{DotName, Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types._
 import com.nawforce.common.types.platform.PlatformTypes
+import com.nawforce.common.types.{CustomFieldDeclaration, _}
 
 import scala.collection.mutable
 
@@ -52,7 +52,7 @@ final case class SObjectDeclaration(pkg: PackageImpl, _typeName: TypeName,
     super.findFieldSObject(name, staticContext).orElse({
       val field = pkg.schema().relatedLists.findField(typeName, name)
       if (field.nonEmpty && staticContext.contains(true)) {
-        Some(CustomFieldDeclaration(field.get.name, TypeName.sObjectFields$(typeName), asStatic = true))
+        Some(CustomFieldDeclaration(field.get.name, TypeName.sObjectFields$(typeName), None, asStatic = true))
       } else {
         field
       }
@@ -183,29 +183,31 @@ object SObjectDeclaration {
   }
 
   private lazy val standardCustomObjectFields: Seq[FieldDeclaration] = {
-    CustomFieldDeclaration(Name.Id, TypeName.Id) +:
-      CustomFieldDeclaration(Name.NameName, TypeName.String) +:
-      CustomFieldDeclaration(Name.RecordTypeId, TypeName.Id) +:
-      CustomFieldDeclaration(Name("CreatedBy"), TypeName.User) +:
-      CustomFieldDeclaration(Name("CreatedById"), TypeName.Id) +:
-      CustomFieldDeclaration(Name("CreatedDate"), TypeName.Datetime) +:
-      CustomFieldDeclaration(Name("LastModifiedBy"), TypeName.User) +:
-      CustomFieldDeclaration(Name("LastModifiedById"), TypeName.Id) +:
-      CustomFieldDeclaration(Name("LastModifiedDate"), TypeName.Datetime) +:
-      CustomFieldDeclaration(Name("IsDeleted"), TypeName.Boolean) +:
-      CustomFieldDeclaration(Name("SystemModstamp"), TypeName.Datetime) +:
-      PlatformTypes.sObjectType.fields.filterNot(f => f.name == Name.SObjectType)
+    Seq(
+      CustomFieldDeclaration(Name.NameName, TypeName.String, None),
+      CustomFieldDeclaration(Name.RecordTypeId, TypeName.Id, None),
+      CustomFieldDeclaration(Name("CreatedBy"), TypeName.User, None),
+      CustomFieldDeclaration(Name("CreatedById"), TypeName.Id, None),
+      CustomFieldDeclaration(Name("CreatedDate"), TypeName.Datetime, None),
+      CustomFieldDeclaration(Name("LastModifiedBy"), TypeName.User, None),
+      CustomFieldDeclaration(Name("LastModifiedById"), TypeName.Id, None),
+      CustomFieldDeclaration(Name("LastModifiedDate"), TypeName.Datetime, None),
+      CustomFieldDeclaration(Name("IsDeleted"), TypeName.Boolean, None),
+      CustomFieldDeclaration(Name("SystemModstamp"), TypeName.Datetime, None)
+    ) ++
+    PlatformTypes.sObjectType.fields.filterNot(f => f.name == Name.SObjectType)
   }
 
   private def customObjectFields(sobjectDetails: SObjectDetails): Seq[FieldDeclaration] = {
     Seq(
-      CustomFieldDeclaration(Name.SObjectType, TypeName.sObjectType$(sobjectDetails.typeName), asStatic = true),
-      CustomFieldDeclaration(Name.Fields, TypeName.sObjectFields$(sobjectDetails.typeName), asStatic = true),
+      CustomFieldDeclaration(Name.SObjectType, TypeName.sObjectType$(sobjectDetails.typeName), None, asStatic = true),
+      CustomFieldDeclaration(Name.Fields, TypeName.sObjectFields$(sobjectDetails.typeName), None, asStatic = true),
+      CustomFieldDeclaration(Name.Id, TypeName.Id, Some(sobjectDetails.typeName))
     ) ++
       standardCustomObjectFields ++
       sobjectDetails.fields ++
       (if (sobjectDetails.sobjectNature == HierarchyCustomSettingsNature)
-        Seq(CustomFieldDeclaration(Name.SetupOwnerId, PlatformTypes.idType.typeName))
+        Seq(CustomFieldDeclaration(Name.SetupOwnerId, PlatformTypes.idType.typeName, None))
       else
         Seq()
         )
@@ -213,30 +215,32 @@ object SObjectDeclaration {
 
   private lazy val standardCustomMetadataFields: Seq[FieldDeclaration] = {
     Seq(
-      CustomFieldDeclaration(Name.Id, TypeName.Id),
-      CustomFieldDeclaration(Name.DeveloperName, TypeName.String),
-      CustomFieldDeclaration(Name.IsProtected, TypeName.Boolean),
-      CustomFieldDeclaration(Name.Label, TypeName.String),
-      CustomFieldDeclaration(Name.Language, TypeName.String),
-      CustomFieldDeclaration(Name.MasterLabel, TypeName.String),
-      CustomFieldDeclaration(Name.NamespacePrefix, TypeName.String),
-      CustomFieldDeclaration(Name.QualifiedAPIName, TypeName.String))
+      CustomFieldDeclaration(Name.DeveloperName, TypeName.String, None),
+      CustomFieldDeclaration(Name.IsProtected, TypeName.Boolean, None),
+      CustomFieldDeclaration(Name.Label, TypeName.String, None),
+      CustomFieldDeclaration(Name.Language, TypeName.String, None),
+      CustomFieldDeclaration(Name.MasterLabel, TypeName.String, None),
+      CustomFieldDeclaration(Name.NamespacePrefix, TypeName.String, None),
+      CustomFieldDeclaration(Name.QualifiedAPIName, TypeName.String, None))
   }
 
   private def customMetadataFields(sobjectDetails: SObjectDetails): Seq[FieldDeclaration] = {
-    standardCustomMetadataFields ++
-      sobjectDetails.fields :+
-      CustomFieldDeclaration(Name.SObjectType, TypeName.sObjectType$(sobjectDetails.typeName), asStatic = true)
+    Seq(
+      CustomFieldDeclaration(Name.Id, TypeName.Id, Some(sobjectDetails.typeName)),
+      CustomFieldDeclaration(Name.SObjectType, TypeName.sObjectType$(sobjectDetails.typeName), None, asStatic = true)
+    ) ++
+      standardCustomMetadataFields ++
+      sobjectDetails.fields
   }
 
   private lazy val standardPlatformEventFields: Seq[FieldDeclaration] = {
-    Seq(CustomFieldDeclaration(Name.ReplayId, TypeName.String))
+    Seq(CustomFieldDeclaration(Name.ReplayId, TypeName.String, None))
   }
 
   private def platformEventFields(sobjectDetails: SObjectDetails): Seq[FieldDeclaration] = {
     standardPlatformEventFields ++
       sobjectDetails.fields :+
-      CustomFieldDeclaration(Name.SObjectType, TypeName.sObjectType$(sobjectDetails.typeName), asStatic = true)
+      CustomFieldDeclaration(Name.SObjectType, TypeName.sObjectType$(sobjectDetails.typeName), None, asStatic = true)
   }
 
   private def extendExisting(sobjectDetails: SObjectDetails, pkg: PackageImpl, base: Option[TypeDeclaration]): TypeDeclaration = {
@@ -275,10 +279,10 @@ object SObjectDeclaration {
   }
 
   private lazy val shareFields = PlatformTypes.sObjectType.fields ++ Seq(
-    CustomFieldDeclaration(Name.AccessLevel, PlatformTypes.stringType.typeName),
-    CustomFieldDeclaration(Name.ParentId, PlatformTypes.idType.typeName),
-    CustomFieldDeclaration(Name.RowCause, PlatformTypes.stringType.typeName),
-    CustomFieldDeclaration(Name.UserOrGroupId, PlatformTypes.idType.typeName)
+    CustomFieldDeclaration(Name.AccessLevel, PlatformTypes.stringType.typeName, None),
+    CustomFieldDeclaration(Name.ParentId, PlatformTypes.idType.typeName, None),
+    CustomFieldDeclaration(Name.RowCause, PlatformTypes.stringType.typeName, None),
+    CustomFieldDeclaration(Name.UserOrGroupId, PlatformTypes.idType.typeName, None)
   )
 
   private def createFeed(pkg: PackageImpl, typeName: TypeName): SObjectDeclaration = {
@@ -289,20 +293,20 @@ object SObjectDeclaration {
   }
 
   private lazy val feedFields = PlatformTypes.sObjectType.fields ++ Seq(
-    CustomFieldDeclaration(Name.BestCommentId, PlatformTypes.idType.typeName),
-    CustomFieldDeclaration(Name.Body, PlatformTypes.stringType.typeName),
-    CustomFieldDeclaration(Name.CommentCount, PlatformTypes.decimalType.typeName),
-    CustomFieldDeclaration(Name.ConnectionId, PlatformTypes.idType.typeName),
-    CustomFieldDeclaration(Name.InsertedById, PlatformTypes.idType.typeName),
-    CustomFieldDeclaration(Name.IsRichText, PlatformTypes.booleanType.typeName),
-    CustomFieldDeclaration(Name.LikeCount, PlatformTypes.decimalType.typeName),
-    CustomFieldDeclaration(Name.LinkUrl, PlatformTypes.stringType.typeName),
-    CustomFieldDeclaration(Name.NetworkScope, PlatformTypes.stringType.typeName),
-    CustomFieldDeclaration(Name.ParentId, PlatformTypes.idType.typeName),
-    CustomFieldDeclaration(Name.RelatedRecordId, PlatformTypes.idType.typeName),
-    CustomFieldDeclaration(Name.Title, PlatformTypes.stringType.typeName),
-    CustomFieldDeclaration(Name.Type, PlatformTypes.stringType.typeName),
-    CustomFieldDeclaration(Name.Visibility, PlatformTypes.stringType.typeName),
+    CustomFieldDeclaration(Name.BestCommentId, PlatformTypes.idType.typeName, None),
+    CustomFieldDeclaration(Name.Body, PlatformTypes.stringType.typeName, None),
+    CustomFieldDeclaration(Name.CommentCount, PlatformTypes.decimalType.typeName, None),
+    CustomFieldDeclaration(Name.ConnectionId, PlatformTypes.idType.typeName, None),
+    CustomFieldDeclaration(Name.InsertedById, PlatformTypes.idType.typeName, None),
+    CustomFieldDeclaration(Name.IsRichText, PlatformTypes.booleanType.typeName, None),
+    CustomFieldDeclaration(Name.LikeCount, PlatformTypes.decimalType.typeName, None),
+    CustomFieldDeclaration(Name.LinkUrl, PlatformTypes.stringType.typeName, None),
+    CustomFieldDeclaration(Name.NetworkScope, PlatformTypes.stringType.typeName, None),
+    CustomFieldDeclaration(Name.ParentId, PlatformTypes.idType.typeName, None),
+    CustomFieldDeclaration(Name.RelatedRecordId, PlatformTypes.idType.typeName, None),
+    CustomFieldDeclaration(Name.Title, PlatformTypes.stringType.typeName, None),
+    CustomFieldDeclaration(Name.Type, PlatformTypes.stringType.typeName, None),
+    CustomFieldDeclaration(Name.Visibility, PlatformTypes.stringType.typeName, None),
   )
 
   private def createHistory(pkg: PackageImpl, typeName: TypeName): SObjectDeclaration = {
@@ -313,8 +317,8 @@ object SObjectDeclaration {
   }
 
   private lazy val historyFields = PlatformTypes.sObjectType.fields ++ Seq(
-    CustomFieldDeclaration(Name.Field, PlatformTypes.stringType.typeName),
-    CustomFieldDeclaration(Name.NewValue, PlatformTypes.objectType.typeName),
-    CustomFieldDeclaration(Name.OldValue, PlatformTypes.objectType.typeName),
+    CustomFieldDeclaration(Name.Field, PlatformTypes.stringType.typeName, None),
+    CustomFieldDeclaration(Name.NewValue, PlatformTypes.objectType.typeName, None),
+    CustomFieldDeclaration(Name.OldValue, PlatformTypes.objectType.typeName, None),
   )
 }

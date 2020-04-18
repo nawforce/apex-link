@@ -34,9 +34,9 @@ class ForceIgnore(rootPath: PathLike, ignoreRules: Seq[IgnoreRule]) {
   private val absRootPath = rootPath.absolute.toString
   private val removeLength =
     if (rootPath.absolute.basename.isEmpty)
-      absRootPath.toString.length
+      absRootPath.length
     else
-      absRootPath.toString.length + 1   // To allow for trailing '/'
+      absRootPath.length + 1   // To allow for trailing '/'
 
   def includeDirectory(path: PathLike): Boolean = {
     include(path, directory = true)
@@ -51,12 +51,12 @@ class ForceIgnore(rootPath: PathLike, ignoreRules: Seq[IgnoreRule]) {
     if (!absPath.startsWith(absRootPath))
       return false
 
-    val relativePath = absPath.toString.substring(removeLength)
+    val relativePath = absPath.substring(removeLength)
     var include = true
     ignoreRules.foreach(rule => {
       if (directory || !rule.dirOnly) {
         if (include != rule.negation) {
-          if (relativePath.toString.matches(rule.regex)) {
+          if (relativePath.matches(rule.regex)) {
             include = !include
           }
         }

@@ -36,7 +36,7 @@ import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.schema.{PlatformObjectNature, SObjectNature}
 import com.nawforce.common.xml.{XMLElementLike, XMLException}
 
-final case class CustomFieldDeclaration(name: Name, typeName: TypeName, asStatic: Boolean = false)
+final case class CustomFieldDeclaration(name: Name, typeName: TypeName, idTarget: Option[TypeName], asStatic: Boolean = false)
   extends FieldDeclaration {
 
   override val modifiers: Seq[Modifier] = Seq(PUBLIC_MODIFIER) ++
@@ -92,30 +92,34 @@ object CustomFieldDeclaration {
       case _ => throw XMLException(TextRange(elem.line), s"Unexpected type '$rawType' on custom field")
     }
 
-    Seq(CustomFieldDeclaration(name, dataType.typeName)) ++
-      (if (rawType == "Lookup" || rawType == "MasterDetail" || rawType == "MetadataRelationship") {
-        val referenceTo = Name(elem.getSingleChildAsString("referenceTo").trim)
-        val relName = Name(elem.getSingleChildAsString("relationshipName").trim+"__r")
-        val refTypeName = TypeName(EncodedName(referenceTo).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeName.Schema))
+    // Create additional fields & lookup relationships for special fields
+    var idTarget: Option[TypeName] = None
+    var referenceFields = Seq[CustomFieldDeclaration]()
+    if (rawType == "Lookup" || rawType == "MasterDetail" || rawType == "MetadataRelationship") {
+      val referenceTo = Name(elem.getSingleChildAsString("referenceTo").trim)
+      val relName = Name(elem.getSingleChildAsString("relationshipName").trim+"__r")
+      val refTypeName = TypeName(EncodedName(referenceTo).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeName.Schema))
+      idTarget = Some(refTypeName)
 
-        pkg.schema().relatedLists.add(refTypeName, relName, name, sObjectType,
-          RangeLocationImpl(path, TextRange(elem.line)))
+      pkg.schema().relatedLists.add(refTypeName, relName, name, sObjectType,
+        RangeLocationImpl(path, TextRange(elem.line)))
 
-        Seq(CustomFieldDeclaration(name.replaceAll("__c$", "__r"), refTypeName))
-      } else if (rawType == "Location") {
-        Seq(
-          CustomFieldDeclaration(name.replaceAll("__c$", "__latitude__s"), TypeName.Double),
-          CustomFieldDeclaration(name.replaceAll("__c$", "__longitude__s"), TypeName.Double)
-        )
-      } else
-        Seq())
+      referenceFields = Seq(CustomFieldDeclaration(name.replaceAll("__c$", "__r"), refTypeName, None))
+    } else if (rawType == "Location") {
+      referenceFields = Seq(
+        CustomFieldDeclaration(name.replaceAll("__c$", "__latitude__s"), TypeName.Double, None),
+        CustomFieldDeclaration(name.replaceAll("__c$", "__longitude__s"), TypeName.Double, None)
+      )
+    }
+
+    Seq(CustomFieldDeclaration(name, dataType.typeName, idTarget)) ++ referenceFields
   }
 
   /* TypeNames that may be used in SObjects (see above for when */
   def isSObjectPrimitive(typeName: TypeName): Boolean = {
     typeName match {
       case TypeName.Id | TypeName.String | TypeName.Boolean | TypeName.Decimal | TypeName.Integer |
-           TypeName.Date | TypeName.Datetime | TypeName.Time | TypeName.Blob | TypeName.Location=> true
+           TypeName.Date | TypeName.Datetime | TypeName.Time | TypeName.Blob | TypeName.Location => true
       case _ => false
     }
   }
