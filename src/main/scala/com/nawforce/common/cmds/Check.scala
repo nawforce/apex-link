@@ -35,10 +35,10 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 object Check {
-  private val STATUS_OK: Int = 0
-  private val STATUS_ISSUES: Int = -1
-  private val STATUS_ARGS: Int = -2
-  private val STATUS_EXCEPTION: Int = -3
+  final val STATUS_OK: Int = 0
+  final val STATUS_ARGS: Int = 1
+  final val STATUS_EXCEPTION: Int = 3
+  final val STATUS_ISSUES: Int = 4
 
   def usage(name:String) = s"Usage: $name [-json] [-verbose] <[namespace=]directory>..."
 
@@ -142,7 +142,12 @@ object Check {
     issueOptions.includeWarnings = includeWarnings
     issueOptions.includeZombies = includeZombies
     val issues = org.getIssues(issueOptions)
-    print(issues)
+    // Workaround for pickle output having an extra unicode character at end of stream if just print() it
+    if (format == "pickle")
+      println(issues)
+    else
+      print(issues)
+    System.out.flush()
     if (issues.isEmpty) STATUS_OK else STATUS_ISSUES
   }
 }
