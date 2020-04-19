@@ -131,7 +131,7 @@ object ElementValue {
     val arrayInitializer = CodeParser.toScala(elementValue.elementValueArrayInitializer())
 
     if (expression.nonEmpty) {
-      ExpressionElementValue(Expression.construct(elementValue.expression())).withContext(elementValue)
+      ExpressionElementValue(Expression.construct(expression.get)).withContext(elementValue)
     } else if (annotation.nonEmpty) {
       AnnotationElementValue(Annotation.construct(annotation.get)).withContext(elementValue)
     } else if (arrayInitializer.nonEmpty) {
