@@ -230,6 +230,7 @@ object TypeName {
   lazy val Time: TypeName = TypeName(Name.Time, Nil, Some(TypeName.System))
   lazy val Blob: TypeName = TypeName(Name.Blob, Nil, Some(TypeName.System))
   lazy val Location: TypeName = TypeName(Name.Location, Nil, Some(TypeName.System))
+  lazy val Address: TypeName = TypeName(Name.Address, Nil, Some(TypeName.System))
 
   lazy val Id: TypeName = TypeName(Name.Id, Nil, Some(TypeName.System))
   lazy val TypeType: TypeName = TypeName(Name.Type, Nil, Some(TypeName.System))

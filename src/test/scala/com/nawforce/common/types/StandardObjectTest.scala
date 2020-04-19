@@ -214,7 +214,6 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
-      org.issues.dump()
       assert(!org.issues.hasMessages)
     }
   }

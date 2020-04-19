@@ -233,7 +233,8 @@ final case class MethodCall(target: Either[Boolean, Id], arguments: Seq[Expressi
                 s"No matching method found for '${id.name}' on '${callee.typeName}' taking no arguments")
             else
               context.logError(location,
-                s"No matching method found for '${id.name}' on '${callee.typeName}' taking arguments '${argTypes.mkString(", ")}'")
+                s"No matching method found for '${id.name}' on '${callee.typeName}' " +
+                  s"taking arguments '${argTypes.map(_.toString).mkString(", ")}'")
           }
           ExprContext.empty
         } else if (methods.head.typeName != TypeName.Void && !context.pkg.isGhostedType(methods.head.typeName)) {

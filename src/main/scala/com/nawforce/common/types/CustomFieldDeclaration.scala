@@ -39,8 +39,7 @@ import com.nawforce.common.xml.{XMLElementLike, XMLException}
 final case class CustomFieldDeclaration(name: Name, typeName: TypeName, idTarget: Option[TypeName], asStatic: Boolean = false)
   extends FieldDeclaration {
 
-  override val modifiers: Seq[Modifier] = Seq(PUBLIC_MODIFIER) ++
-    (if (asStatic) Seq(STATIC_MODIFIER) else Seq())
+  override val modifiers: Seq[Modifier] = Seq(PUBLIC_MODIFIER) ++ (if (asStatic) Seq(STATIC_MODIFIER) else Seq())
   override val readAccess: Modifier = PUBLIC_MODIFIER
   override val writeAccess: Modifier = PUBLIC_MODIFIER
 
@@ -119,7 +118,8 @@ object CustomFieldDeclaration {
   def isSObjectPrimitive(typeName: TypeName): Boolean = {
     typeName match {
       case TypeName.Id | TypeName.String | TypeName.Boolean | TypeName.Decimal | TypeName.Integer |
-           TypeName.Date | TypeName.Datetime | TypeName.Time | TypeName.Blob | TypeName.Location => true
+           TypeName.Date | TypeName.Datetime | TypeName.Time | TypeName.Blob | TypeName.Location | TypeName.Address
+              => true
       case _ => false
     }
   }

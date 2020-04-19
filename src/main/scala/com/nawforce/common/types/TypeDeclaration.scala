@@ -87,6 +87,27 @@ trait FieldDeclaration extends DependencyHolder {
       dependencySummary()
     )
   }
+
+  // Create an SObjectField version of this field
+  def getSObjectField: CustomFieldDeclaration = {
+    // Some messy special cases
+    if (typeName == TypeName.Id && idTarget.nonEmpty) {
+      // Id field that carries a target SObjectType returns 'fields'
+      PlatformTypes.get(idTarget.get, None)
+      CustomFieldDeclaration(name, TypeName.sObjectFields$(idTarget.get), None, asStatic = true)
+    } else if (CustomFieldDeclaration.isSObjectPrimitive(typeName)) {
+      // Primitives (including other Id types)
+      // TODO: Identify Share
+      if (name == Name.RowCause)
+        CustomFieldDeclaration(name, TypeName.SObjectFieldRowCause$, None, asStatic = true)
+      else
+        CustomFieldDeclaration(name, TypeName.SObjectField, None, asStatic = true)
+    } else {
+      // Otherwise must be a SObject, but if Platform it might need loading
+      PlatformTypes.get(typeName, None)
+      CustomFieldDeclaration(name, TypeName.sObjectFields$(typeName), None, asStatic = true)
+    }
+  }
 }
 
 trait ParameterDeclaration {
@@ -272,23 +293,7 @@ trait TypeDeclaration extends MetadataDeclaration {
     if (staticContext.contains(field.isStatic)) {
       fieldOption
     } else if (staticContext.contains(true)) {
-      // Some messy special cases
-      if (field.typeName == TypeName.Id && field.idTarget.nonEmpty) {
-        // Id field that carries a target SObjectType returns 'fields'
-        PlatformTypes.get(field.idTarget.get, None)
-        Some(CustomFieldDeclaration(field.name, TypeName.sObjectFields$(field.idTarget.get), None, asStatic = true))
-      } else if (CustomFieldDeclaration.isSObjectPrimitive(field.typeName)) {
-        // Primitives (including other Id types)
-        // TODO: Identify Share
-        if (name == Name.RowCause)
-          Some(CustomFieldDeclaration(field.name, TypeName.SObjectFieldRowCause$, None, asStatic = true))
-        else
-          Some(CustomFieldDeclaration(field.name, TypeName.SObjectField, None, asStatic = true))
-      } else {
-        // Otherwise must be a SObject, but if Platform it might need loading
-        PlatformTypes.get(field.typeName, None)
-        Some(CustomFieldDeclaration(field.name, TypeName.sObjectFields$(field.typeName), None, asStatic = true))
-      }
+      Some(field.getSObjectField)
     } else {
       None
     }
