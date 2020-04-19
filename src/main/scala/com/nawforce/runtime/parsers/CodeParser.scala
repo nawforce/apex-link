@@ -57,8 +57,8 @@ case class Source(path: PathLike, code: String, position: SourcePosition, outer:
 }
 
 /** Apex class parser helper */
-class CodeParser(val source: Source) extends
-  CaseInsensitiveInputStream(new ByteArrayInputStream(source.code.getBytes)) {
+class CodeParser(val source: Source) {
+  val cis = new CaseInsensitiveInputStream(new ByteArrayInputStream(source.code.getBytes))
 
   /** Parse source as an Apex class */
   def parseClass(): Either[SyntaxException, ApexParser.CompilationUnitContext] = {
@@ -104,7 +104,7 @@ class CodeParser(val source: Source) extends
   }
 
   private def getParser: ApexParser = {
-    val tokenStream = new CommonTokenStream(new ApexLexer(this))
+    val tokenStream = new CommonTokenStream(new ApexLexer(cis))
     tokenStream.fill()
 
     val parser = new ApexParser(tokenStream)
