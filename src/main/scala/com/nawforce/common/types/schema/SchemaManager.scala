@@ -244,15 +244,21 @@ final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
     TypeRequest(TypeName(sobjectName), pkg, excludeSObjects = false).toOption match {
       case Some(sobject: TypeDeclaration) =>
-        sobject.fields.map(field => (field.name, CustomFieldDeclaration(field.name, TypeName.SObjectField, None))).toMap
+        sobject.fields.map(field => (field.name, field.getSObjectField)).toMap
       case _ => Map()
     }
   }
 
   private val ghostedSobjectFields: mutable.Map[Name, FieldDeclaration] = mutable.Map()
 
+  /* Future: I think this needs to allow both static & non-static access, maybe it could be simplified */
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
-    // TODO: check staticContext
+
+    // Mimic SObjectType as we proxy for SObjectField
+    if (name == Name.SObjectType)
+      return Some(CustomFieldDeclaration(name, TypeName.sObjectType$(TypeName(sobjectName, Nil, Some(TypeName.Schema))), None))
+
+    // Provide other fields on the SObject
     sobjectFields.get(name)
       .orElse(ghostedSobjectFields.get(name))
       .orElse({

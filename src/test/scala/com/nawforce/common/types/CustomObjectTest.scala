@@ -574,4 +574,16 @@ class CustomObjectTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
     }
   }
+
+  test("Lookup SObjectField (via relationship field twice)") {
+    FileSystemHelper.run(Map(
+      "Bar__c.object" -> customObject("Bar", Seq(("MyField__c", "Lookup", Some("Account")))),
+      "Foo__c.object" -> customObject("Foo", Seq(("MyBar__c", "Lookup", Some("Bar__c")))),
+      "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__c.MyBar__r.MyField__r.Id;} }"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+    }
+  }
 }

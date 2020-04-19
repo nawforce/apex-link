@@ -126,6 +126,7 @@ object Name {
   lazy val Double: Name = cache("Double")
   lazy val Blob: Name = cache("Blob")
   lazy val Location: Name = cache("Location")
+  lazy val Address: Name = cache("Address")
   lazy val NameName: Name = cache("Name")
   lazy val AccessLevel: Name = cache("AccessLevel")
   lazy val ParentId: Name = cache("ParentId")
