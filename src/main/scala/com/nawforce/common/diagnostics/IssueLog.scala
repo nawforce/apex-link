@@ -113,13 +113,13 @@ class IssueLog {
     }
     override def startDocument(path: String): Unit = {
       buffer ++= (if (firstDocument) "" else ",\n")
-      buffer ++= s"""{ "path": ${encode(path)}, "messages": [\n"""
+      buffer ++= s"""{ "path": "${encode(path)}", "messages": [\n"""
       firstDocument = false
       firstMessage = true
     }
     override def writeMessage(category: IssueCategory, location: LocationImpl, message: String): Unit = {
       buffer ++= (if (firstMessage) "" else ",\n")
-      buffer ++= s"""{${location.asJSON}, "category": ${encode(category.value)}, "message": ${encode(message)}}"""
+      buffer ++= s"""{${location.asJSON}, "category": "${encode(category.value)}", "message": "${encode(message)}"}"""
       firstMessage = false
     }
     override def writeSummary(notShown: Int, total: Int): Unit = ()
