@@ -29,12 +29,14 @@ package com.nawforce.common.org
 
 import java.util
 
-import com.nawforce.common.api.{IssueOptions, Org, Package, ServerOps}
+import com.nawforce.common.api.{IssueOptions, Org, Package, PathLocation, ServerOps}
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, IssueLog}
 import com.nawforce.common.documents._
-import com.nawforce.common.names.Name
+import com.nawforce.common.names.{DotName, Name}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.sfdx.{MDAPIWorkspace, Workspace}
+import com.nawforce.common.types.TypeDeclaration
+import com.nawforce.common.types.apex.ApexDeclaration
 
 import scala.util.DynamicVariable
 
@@ -149,10 +151,7 @@ class OrgImpl extends Org {
     }
   }
 
-  /** Dump current issues to standard out */
-  private[nawforce] def dumpIssues(): Unit = issues.dump()
-
-
+  /** Extract all dependencies */
   override def getDependencies: java.util.Map[String, Array[String]] = {
     OrgImpl.current.withValue(this) {
       val dependencies = new util.HashMap[String, Array[String]]()
@@ -160,6 +159,41 @@ class OrgImpl extends Org {
       dependencies
     }
   }
+
+  /** Find a specific type */
+  def getTypeLocation(name: String): PathLocation = {
+    val typeName = DotName(name).asTypeName()
+    var td: Option[TypeDeclaration] = None
+
+    // Extract namespace
+    val namespace =
+      typeName.outer.map(_ => typeName.outerName)
+      .orElse({
+        val triggerPattern = """__sfdc_trigger/(.*)/.*""".r
+        typeName.name.value match {
+          case triggerPattern(ns) => Some(Name(ns))
+          case _ => None
+        }
+      })
+
+    // Package lookup
+    namespace.foreach(n =>
+      td = packagesByNamespace.get(Some(n)).flatMap(_.searchTypes(typeName))
+    )
+
+    // Otherwise try unmanaged
+    if (td.isEmpty) {
+      td = unmanaged.searchTypes(typeName)
+    }
+
+    td.flatMap {
+      case ad: ApexDeclaration => Some(PathLocation(ad.path.toString, ad.nameLocation.toLocation))
+      case _ => None
+    }.orNull
+  }
+
+  /** Dump current issues to standard out */
+  private[nawforce] def dumpIssues(): Unit = issues.dump()
 }
 
 object OrgImpl {

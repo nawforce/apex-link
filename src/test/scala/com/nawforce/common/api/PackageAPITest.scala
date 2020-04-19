@@ -652,4 +652,75 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(pkg.getDependencies(fooTypeLike, inheritanceOnly = false).sameElements(Array(barTypeLike)))
     }
   }
+
+  test("location of type") {
+    FileSystemHelper.run(Map(
+      "classes/Dummy.cls" -> "public class Dummy {}",
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(org.getTypeLocation("Dummy") ==
+        PathLocation("/classes/Dummy.cls", RangeLocation(Position(1,13), Position(1,18))))
+    }
+  }
+
+  test("location of type (packaged)") {
+    FileSystemHelper.run(Map(
+      "classes/Dummy.cls" -> "public class Dummy {}",
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(org.getTypeLocation("Dummy") == null)
+      assert(org.getTypeLocation("test.Dummy") ==
+        PathLocation("/classes/Dummy.cls", RangeLocation(Position(1,13), Position(1,18))))
+    }
+  }
+
+  test("location of type (packaged & nested)") {
+    FileSystemHelper.run(Map(
+      "classes/Dummy.cls" -> "public class Dummy {class Inner {}}",
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(org.getTypeLocation("Dummy") == null)
+      assert(org.getTypeLocation("Dummy.Inner") == null)
+      assert(org.getTypeLocation("test.Dummy.Inner") ==
+        PathLocation("/classes/Dummy.cls", RangeLocation(Position(1,26), Position(1,31))))
+    }
+  }
+
+  test("location of trigger") {
+    FileSystemHelper.run(Map(
+      "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(org.getTypeLocation("Foo") == null)
+      assert(org.getTypeLocation("__sfdc_trigger/Foo") ==
+        PathLocation("/triggers/Foo.trigger", RangeLocation(Position(1,8), Position(1,11))))
+    }
+  }
+
+  test("location of trigger (packaged)") {
+    FileSystemHelper.run(Map(
+      "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(org.getTypeLocation("Foo") == null)
+      assert(org.getTypeLocation("__sfdc_trigger/Foo") == null)
+      assert(org.getTypeLocation("__sfdc_trigger/test/Foo") ==
+        PathLocation("/triggers/Foo.trigger", RangeLocation(Position(1,8), Position(1,11))))
+    }
+  }
 }

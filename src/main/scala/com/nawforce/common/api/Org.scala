@@ -47,6 +47,12 @@ trait Org {
   /** Get Apex type dependency map for all types in the Org. This is intended to be used to support
     * exporting of the map for secondary analysis. */
   def getDependencies: java.util.Map[String, Array[String]]
+
+  /** Find the location of a typename, the typename must be include the name of an outer type, the may be preceded
+    * by a namespace (if needed) and optionally followed by the name of an inner type. Returns the file & position
+    * within that file if the type is found, otherwise returns null.
+    */
+  def getTypeLocation(name: String): PathLocation
 }
 
 class IssueOptions {

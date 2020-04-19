@@ -115,8 +115,17 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     workspace.namespace.toSet ++ basePackages.flatMap(_.namespaces) ++ PlatformTypeDeclaration.namespaces
   }
 
+  /* Iterator over available types */
   def getTypes: Iterable[TypeDeclaration] = {
     types.values
+  }
+
+  /* Search for a specific outer or inner type */
+  def searchTypes(typeName: TypeName): Option[TypeDeclaration] = {
+    types.get(typeName).orElse(
+      typeName.outer.flatMap(types.get)
+        .flatMap(_.nestedTypes.find(_.typeName == typeName))
+    )
   }
 
   /* Check if a type is ghosted in this package */

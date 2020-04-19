@@ -61,6 +61,7 @@ case class LineRangeLocation(start: Int, end: Int) extends Location
 case class Position(line: Int, offset: Int)
 case class PointLocation(position: Position) extends Location
 case class RangeLocation(start: Position, end: Position) extends Location
+case class PathLocation(path: String, location: Location)
 
 object ApexSummary {
   implicit val rw: RW[ApexSummary] = macroRW
@@ -132,4 +133,8 @@ object RangeLocation {
 
 object Position {
   implicit val rw: RW[Position] = macroRW
+}
+
+object PathLocation {
+  implicit val rw: RW[PathLocation] = macroRW
 }
