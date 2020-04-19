@@ -53,7 +53,7 @@ export default class Check extends SfdxCommand {
   ];
 
   public static args = [
-    {name: 'directory', description: 'directory to search for Apex class files, defaults to current directory'}
+    {name: 'directory', description: 'directory to search for metadata files, defaults to current directory'}
   ];
 
   protected static flagsConfig = {
@@ -78,7 +78,7 @@ export default class Check extends SfdxCommand {
     const jvms = await this.getJavaHome();
     if (jvms.length == 0) {
       throw new SfdxError(messages.getMessage('errorNoJVM'));
-    } 
+    }
 
     const javaExecutable = jvms[0].executables.java
     if (jvms.length > 1 && this.flags.verbose) {
@@ -105,8 +105,8 @@ export default class Check extends SfdxCommand {
   private getJavaHome(): Promise<IJavaHomeInfo[]> {
     return new Promise<IJavaHomeInfo[]>(function(resolve, reject) {
       LocateJavaHome({version: ">=1.8", mustBe64Bit: true}, function(error, javaHomes) {
-        if (error != null) reject(error) 
-        else resolve(javaHomes)    
+        if (error != null) reject(error)
+        else resolve(javaHomes)
       });
     });
   }
@@ -126,7 +126,7 @@ export default class Check extends SfdxCommand {
             if (json)
               resolve(JSON.parse(jsonData))
             else
-              resolve({})  
+              resolve({})
           });
       } catch (e) {
           reject(e)
