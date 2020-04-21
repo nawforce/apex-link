@@ -60,7 +60,7 @@ $ npm install -g apexlink
 $ sfdx COMMAND
 running command...
 $ sfdx (-v|--version|version)
-apexlink/0.8.0 darwin-x64 node-v12.16.1
+apexlink/0.8.0 darwin-x64 node-v12.16.2
 $ sfdx --help [COMMAND]
 USAGE
   $ sfdx COMMAND
@@ -80,7 +80,7 @@ USAGE
   trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
 
 ARGUMENTS
-  DIRECTORY  directory to search for Apex class files, defaults to current directory
+  DIRECTORY  directory to search for metadata files, defaults to current directory
 
 OPTIONS
   --depends                                                                         output map of type dependencies
