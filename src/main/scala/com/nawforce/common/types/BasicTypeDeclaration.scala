@@ -25,67 +25,36 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.types.other
 
-import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
-import com.nawforce.common.documents.{DocumentType, LineLocationImpl, LocationImpl, PageDocument}
+package com.nawforce.common.types
+
+import com.nawforce.common.cst.Modifier
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
-import com.nawforce.common.types._
 
-import scala.collection.mutable
-
-final case class PageDeclaration(pkg: PackageImpl, pages: Seq[Page]) extends TypeDeclaration {
+class BasicTypeDeclaration(pkg: PackageImpl, val typeName: TypeName)
+  extends TypeDeclaration {
 
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
-  override val name: Name = Name.Page
-  override val typeName: TypeName = TypeName(name)
+  override val name: Name = typeName.name
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
-  override val modifiers: Seq[Modifier] = Seq(GLOBAL_MODIFIER)
-  override def isComplete: Boolean = !pkg.hasGhosted
+  override val modifiers: Seq[Modifier] = Seq.empty
+  override val isComplete: Boolean = true
 
   override val superClass: Option[TypeName] = None
   override val interfaces: Seq[TypeName] = Seq.empty
-  override val nestedTypes: Seq[TypeDeclaration] = Seq.empty
+  override def nestedTypes: Seq[TypeDeclaration] = Seq.empty
 
   override val blocks: Seq[BlockDeclaration] = Seq.empty
-  override val fields: Seq[FieldDeclaration]= pages
+  override val fields: Seq[FieldDeclaration]= Seq.empty
   override val constructors: Seq[ConstructorDeclaration] = Seq.empty
   override val methods: Seq[MethodDeclaration]= Seq.empty
 
   override def validate(): Unit = {}
 }
 
-object PageDeclaration {
-  def apply(pkg: PackageImpl): PageDeclaration = {
-    val pages = collectBasePages(pkg).values.flatten ++
-      pkg.documentsByExtension(Name("page")).map(page => DocumentType(page.path)).flatMap {
-        case Some(page: PageDocument) => Some(Page(LineLocationImpl(page.path.toString, 0), page.name))
-        case _ => None
-      }
-    new PageDeclaration(pkg, pages.toSeq)
-  }
-
-  private def collectBasePages(pkg: PackageImpl, collected: mutable.Map[Name, Seq[Page]]=mutable.Map())
-  : mutable.Map[Name, Seq[Page]] = {
-    pkg.basePackages.foreach(basePkg => {
-      val ns = basePkg.namespace.get
-      if (!collected.contains(ns)) {
-        val pages = basePkg.pages().pages.map(page => Page(page.location, Name(s"${ns}__${page.name}")))
-        collected.put(ns, pages)
-        collectBasePages(basePkg, collected)
-      }
-    })
-    collected
-  }
+class InnerBasicTypeDeclaration(_pkg: PackageImpl, _typeName: TypeName)
+  extends BasicTypeDeclaration(_pkg, _typeName) {
+  override val outerTypeName: Option[TypeName] = typeName.outer
 }
-
-case class Page(location: LocationImpl, name: Name) extends FieldDeclaration {
-  override lazy val modifiers: Seq[Modifier] = Seq(STATIC_MODIFIER, GLOBAL_MODIFIER)
-  override lazy val typeName: TypeName = TypeName.PageReference
-  override lazy val readAccess: Modifier = GLOBAL_MODIFIER
-  override lazy val writeAccess: Modifier = PRIVATE_MODIFIER
-  override val idTarget: Option[TypeName] = None
-}
-

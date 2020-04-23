@@ -31,65 +31,50 @@ import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STA
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.org.{OrgImpl, PackageImpl}
+import com.nawforce.common.org.PackageImpl
+import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types._
-import com.nawforce.common.xml.{XMLElementLike, XMLException, XMLFactory}
+import com.nawforce.common.xml.XMLElementLike
 
-import scala.collection.mutable
+/** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
+  * base packages via the Label.namespace.name format. The labels are given 'this' as a controllingHolder so that.
+  */
+final class LabelDeclaration(pkg: PackageImpl, labels: Seq[Label], packageLabels: Seq[TypeDeclaration])
+  extends BasicTypeDeclaration(pkg, TypeName.Label) {
 
-final case class LabelDeclaration(pkg: PackageImpl, name: Name, labelFields: Seq[Label], labelNamespaces: Seq[TypeDeclaration])
-  extends TypeDeclaration {
+  // Set individual labels to use this as the controller
+  labels.foreach(_.setController(Some(this)))
 
-  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
-  override val typeName: TypeName =
-    if (name == Name.Label) TypeName.Label else TypeName(name, Nil, Some(TypeName.Label))
-  override val outerTypeName: Option[TypeName] = typeName.outer
+  override val nestedTypes: Seq[TypeDeclaration] = packageLabels
+  override val fields: Seq[FieldDeclaration] = labels
 
-  override val nature: Nature = CLASS_NATURE
-  override val modifiers: Seq[Modifier] = Seq.empty
-  override val isComplete: Boolean = true
-  override val isExternallyVisible: Boolean = true
-
-  override val superClass: Option[TypeName] = None
-  override val interfaces: Seq[TypeName] = Seq.empty
-  override val nestedTypes: Seq[TypeDeclaration] = labelNamespaces
-
-  override val blocks: Seq[BlockDeclaration] = Seq.empty
-  override val fields: Seq[FieldDeclaration] = labelFields
-  override val constructors: Seq[ConstructorDeclaration] = Seq.empty
-  override val methods: Seq[MethodDeclaration]= Seq.empty
-
-  override def validate(): Unit = {}
-
+  // Report on unused labels
   def unused(): Seq[Issue] = {
-    labelFields.filterNot(_.hasHolders)
+    labels.filterNot(_.hasHolders)
       .map(label => new Issue(UNUSED_CATEGORY, label.location, s"Label '$typeName.${label.name}'"))
   }
 }
 
-final case class GhostedLabelDeclaration(pkg: PackageImpl, name: Name)
-  extends TypeDeclaration {
+/** System.Label.ns implementation for exposing labels from dependent packages. Only public labels are visible through
+  * this. As the exposed labels are owned elsewhere (by the passed LabelDeclaration) there is no need to set a
+  * controller here.
+  */
+final class PackageLabels(pkg: PackageImpl, labelDeclaration: LabelDeclaration)
+  extends InnerBasicTypeDeclaration(pkg,
+    TypeName(labelDeclaration.packageDeclaration.get.namespace.get, Nil, Some(TypeName.Label))) {
 
-  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
-  override val typeName: TypeName = TypeName(name, Nil, Some(TypeName.Label))
-  override val outerTypeName: Option[TypeName] = typeName.outer
+  override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
+    labelDeclaration.findField(name, staticContext) match {
+      case Some(label: Label) if !label.isProtected => Some(label)
+      case _ => None
+    }
+  }
+}
 
-  override val nature: Nature = CLASS_NATURE
-  override val modifiers: Seq[Modifier] = Seq.empty
-  override val isComplete: Boolean = false
-  override val isExternallyVisible: Boolean = true
-
-  override val superClass: Option[TypeName] = None
-  override val interfaces: Seq[TypeName] = Seq.empty
-  override val nestedTypes: Seq[TypeDeclaration] = Seq.empty
-
-  override val blocks: Seq[BlockDeclaration] = Seq.empty
-  override val fields: Seq[FieldDeclaration] = Seq.empty
-  override val constructors: Seq[ConstructorDeclaration] = Seq.empty
-  override val methods: Seq[MethodDeclaration]= Seq.empty
-
-  override def validate(): Unit = {}
+/** System.Label.ns implementation for ghosted packages. This simulates the existence of any label you ask for. */
+final class GhostedLabels(pkg: PackageImpl, ghostedNamespace: Name)
+  extends InnerBasicTypeDeclaration(pkg, TypeName(ghostedNamespace, Nil, Some(TypeName.Label))) {
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     if (staticContext.contains(true)) {
@@ -101,62 +86,25 @@ final case class GhostedLabelDeclaration(pkg: PackageImpl, name: Name)
 }
 
 object LabelDeclaration {
-  def apply(pkg: PackageImpl): LabelDeclaration = {
-    val labels = pkg.documentsByExtension(Name("labels"))
-      .flatMap(labelFile => parseLabels(labelFile.path))
-    val baseLabels = collectBaseLabels(pkg)
-    LabelDeclaration(pkg, Name.Label, labels, baseLabels.values.toSeq)
+  /** Construct System.Label for a package. */
+  def apply(pkg: PackageImpl, stream: PackageStream): LabelDeclaration = {
+    val labels = stream.labels.map(le => Label(le.location, le.name, le.isProtected))
+    new LabelDeclaration(pkg, labels, createPackageLabels(pkg))
   }
 
-  private def collectBaseLabels(pkg: PackageImpl, collected: mutable.Map[Name, TypeDeclaration]=mutable.Map())
-    : mutable.Map[Name, TypeDeclaration] = {
-    pkg.basePackages.foreach(basePkg => {
-      val ns = basePkg.namespace.get
-      if (!collected.contains(ns)) {
-        if (basePkg.isGhosted) {
-          collected.put(ns, GhostedLabelDeclaration(pkg, ns))
-        } else {
-          val labels = LabelDeclaration(pkg, ns,
-            basePkg.labels().labelFields.filterNot(label => label.isProtected),
-            Seq()
-          )
-          collected.put(ns, labels)
-          collectBaseLabels(basePkg, collected)
-        }
+  // Create labels declarations for each base package
+  private def createPackageLabels(pkg: PackageImpl): Seq[TypeDeclaration] = {
+    pkg.transitiveBasePackages.map(basePkg => {
+      if (basePkg.isGhosted) {
+        new GhostedLabels(pkg, basePkg.namespace.get)
+      } else {
+        new PackageLabels(pkg, basePkg.labels())
       }
-    })
-    collected
-  }
-
-  private def parseLabels(path: PathLike): Seq[Label] = {
-    if (!path.isFile) {
-      OrgImpl.logError(LineLocationImpl(path.toString, 0), s"Expecting labels to be in a normal file")
-      return Seq()
-    }
-
-    val data = path.read()
-    if (data.isLeft) {
-      OrgImpl.logError(LineLocationImpl(path.toString, 0), s"Could not read file: ${data.right.get}")
-      return Seq()
-    }
-
-    val parseResult = XMLFactory.parse(path)
-    if (parseResult.isLeft) {
-      OrgImpl.logError(parseResult.left.get._1, parseResult.left.get._2)
-      return Seq()
-    }
-    val rootElement = parseResult.right.get.rootElement
-
-    try {
-      rootElement.assertIs("CustomLabels")
-      rootElement.getChildren("labels")
-        .map(c => Label(path, c))
-    } catch {
-      case e: XMLException => OrgImpl.logError(RangeLocationImpl(path, e.where), e.msg); Seq()
-    }
+    }).toSeq
   }
 }
 
+/** A individual Label being represented as a static field. */
 case class Label(location: LocationImpl, name: Name, isProtected: Boolean) extends FieldDeclaration {
   override lazy val modifiers: Seq[Modifier] = Seq(STATIC_MODIFIER, GLOBAL_MODIFIER)
   override lazy val typeName: TypeName = TypeName.String
@@ -166,11 +114,10 @@ case class Label(location: LocationImpl, name: Name, isProtected: Boolean) exten
 }
 
 object Label {
+  /** Construct a label from a parsed XML element */
   def apply(path: PathLike, element: XMLElementLike): Label = {
-
     val fullName: String = element.getSingleChildAsString("fullName")
     val protect: Boolean = element.getSingleChildAsBoolean( "protected")
-
     Label(RangeLocationImpl(path, TextRange(element.line)), Name(fullName), protect)
   }
 }

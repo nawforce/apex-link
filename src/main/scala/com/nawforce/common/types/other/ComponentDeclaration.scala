@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.types.other
 
-import com.nawforce.common.cst.Modifier
+import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier}
 import com.nawforce.common.documents.ComponentDocument
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
@@ -51,9 +51,8 @@ final case class ComponentDeclaration(pkg: PackageImpl) extends TypeDeclaration 
   override val typeName: TypeName = TypeName(name)
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
-  override val modifiers: Seq[Modifier] = Nil
+  override val modifiers: Seq[Modifier] = Seq(GLOBAL_MODIFIER)
   override val isComplete: Boolean = true
-  override val isExternallyVisible: Boolean = true
 
   override val superClass: Option[TypeName] = None
   override val interfaces: Seq[TypeName] = Nil
@@ -91,9 +90,8 @@ final case class CustomComponent(pkg: PackageImpl, name: Name, typeName: TypeNam
   override lazy val namespace: Option[Name] = None
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
-  override val modifiers: Seq[Modifier] = Nil
+  override val modifiers: Seq[Modifier] = Seq(GLOBAL_MODIFIER)
   override val isComplete: Boolean = true
-  override val isExternallyVisible: Boolean = true
 
   override val superClass: Option[TypeName] = Some(TypeName.ApexPagesComponent)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.componentType)
@@ -115,9 +113,8 @@ final case class ComponentNamespace(pkg: PackageImpl, name: Name) extends TypeDe
   override val typeName: TypeName = TypeName(name)
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
-  override val modifiers: Seq[Modifier] = Nil
+  override val modifiers: Seq[Modifier] = if (name != Name.c ) Seq(GLOBAL_MODIFIER) else Seq.empty
   override val isComplete: Boolean = true
-  override val isExternallyVisible: Boolean = name != Name.c
 
   override val superClass: Option[TypeName] = None
   override val interfaces: Seq[TypeName] = Nil

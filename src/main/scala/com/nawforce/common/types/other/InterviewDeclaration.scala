@@ -39,7 +39,7 @@ import scala.collection.mutable
 
 /** Flow.Interview intercept */
 final class InterviewDeclaration(pkg: PackageImpl)
-  extends NamedTypeDeclaration(pkg, TypeName.Interview) {
+  extends BasicTypeDeclaration(pkg, TypeName.Interview) {
 
   // Map of interviews and namespace wrappers of interviews
   private val interviews = mutable.Map[Name, TypeDeclaration]()
@@ -67,7 +67,7 @@ final class InterviewDeclaration(pkg: PackageImpl)
 
 /** The type for an a custom interview, the only kind */
 final class CustomInterview(_pkg: PackageImpl, _typeName: TypeName, path: PathLike)
-  extends InnerNamedTypeDeclaration(_pkg, _typeName) {
+  extends InnerBasicTypeDeclaration(_pkg, _typeName) {
 
   override val superClass: Option[TypeName] = Some(TypeName.Interview)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.interviewType)
@@ -80,7 +80,7 @@ final class CustomInterview(_pkg: PackageImpl, _typeName: TypeName, path: PathLi
 
 /** Interviews wrapped into a namespace */
 final class InterviewNamespace(_pkg: PackageImpl, _typeName: TypeName)
-  extends InnerNamedTypeDeclaration(_pkg, _typeName) {
+  extends InnerBasicTypeDeclaration(_pkg, _typeName) {
 
   private var interviews: Seq[CustomInterview] = Nil
   override def nestedTypes: Seq[TypeDeclaration] = interviews

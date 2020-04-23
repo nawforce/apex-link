@@ -64,7 +64,6 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
   override val nature: Nature = TRIGGER_NATURE
   override val modifiers: Seq[Modifier] = Seq.empty
   override val isComplete: Boolean = true
-  override val isExternallyVisible: Boolean = false
 
   override val superClass: Option[TypeName] = None
   override val interfaces: Seq[TypeName] = Seq.empty
@@ -198,7 +197,7 @@ object TriggerDeclaration {
 }
 
 final case class TriggerContext(pkg: PackageImpl, baseType: TypeDeclaration)
-  extends NamedTypeDeclaration(pkg, TypeName(Name.Trigger)) {
+  extends BasicTypeDeclaration(pkg, TypeName(Name.Trigger)) {
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     baseType.findField(name, staticContext)

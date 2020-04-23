@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.diagnostics.{CodeParserLogger, Issue, IssueLogger}
+import com.nawforce.common.diagnostics.{CodeParserLogger, Issue, IssueLogger, ParserIssueLogger}
 import com.nawforce.runtime.parsers.ApexParser.{AnnotationContext, IdContext, ModifierContext, PropertyBlockContext}
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
@@ -554,7 +554,7 @@ object ApexModifiers {
     ModifierResults(results, logger.issues)
   }
 
-  private def classAnnotation(logger: IssueLogger, context: AnnotationContext): Option[Modifier] = {
+  private def classAnnotation(logger: ParserIssueLogger, context: AnnotationContext): Option[Modifier] = {
     CodeParser.getText(context.qualifiedName()).toLowerCase match {
       case "deprecated" => Some(DEPRECATED_ANNOTATION)
       case "istest" => Some(ISTEST_ANNOTATION)
@@ -568,7 +568,7 @@ object ApexModifiers {
     }
   }
 
-  private def typeAnnotation(logger: IssueLogger, context: AnnotationContext): Option[Modifier] = {
+  private def typeAnnotation(logger: ParserIssueLogger, context: AnnotationContext): Option[Modifier] = {
     CodeParser.getText(context.qualifiedName()).toLowerCase match {
       case "deprecated" => Some(DEPRECATED_ANNOTATION)
       case "testvisible" => Some(TEST_VISIBLE_ANNOTATION)
@@ -581,7 +581,7 @@ object ApexModifiers {
     }
   }
 
-  private def fieldAnnotation(logger: IssueLogger, context: AnnotationContext): Option[Modifier] = {
+  private def fieldAnnotation(logger: ParserIssueLogger, context: AnnotationContext): Option[Modifier] = {
     // TODO: Validate arguments of the annotations
     CodeParser.getText(context.qualifiedName()).toLowerCase match {
       case "auraenabled" => Some(AURA_ENABLED_ANNOTATION)
@@ -596,7 +596,7 @@ object ApexModifiers {
     }
   }
 
-  private def constructorAnnotation(logger: IssueLogger,  context: AnnotationContext): Option[Modifier] = {
+  private def constructorAnnotation(logger: ParserIssueLogger, context: AnnotationContext): Option[Modifier] = {
     // TODO: Validate arguments of the annotations
     CodeParser.getText(context.qualifiedName()).toLowerCase match {
       case "deprecated" => Some(DEPRECATED_ANNOTATION)
@@ -610,7 +610,7 @@ object ApexModifiers {
     }
   }
 
-  private def methodAnnotation(logger: IssueLogger,  context: AnnotationContext): Option[Modifier] = {
+  private def methodAnnotation(logger: ParserIssueLogger, context: AnnotationContext): Option[Modifier] = {
     // TODO: Validate arguments of the annotations
     CodeParser.getText(context.qualifiedName()).toLowerCase match {
       case "auraenabled" => Some(AURA_ENABLED_ANNOTATION)
@@ -636,19 +636,19 @@ object ApexModifiers {
     }
   }
 
-  private def parameterAnnotation(logger: IssueLogger, context: AnnotationContext): Option[Modifier] = {
+  private def parameterAnnotation(logger: ParserIssueLogger, context: AnnotationContext): Option[Modifier] = {
     logger.logError(context,
       s"Unexpected annotation '${CodeParser.getText(context.qualifiedName())}' on parameter")
     None
   }
 
-  private def catchAnnotation(logger: IssueLogger, context: AnnotationContext): Option[Modifier] = {
+  private def catchAnnotation(logger: ParserIssueLogger, context: AnnotationContext): Option[Modifier] = {
     logger.logError(context,
       s"Unexpected annotation '${CodeParser.getText(context.qualifiedName())}' on catch clause")
     None
   }
 
-  private def localVariableAnnotation(logger: IssueLogger, context: AnnotationContext): Option[Modifier] = {
+  private def localVariableAnnotation(logger: ParserIssueLogger, context: AnnotationContext): Option[Modifier] = {
     logger.logError(context,
       s"Unexpected annotation '${CodeParser.getText(context.qualifiedName())}' on catch clause")
     None

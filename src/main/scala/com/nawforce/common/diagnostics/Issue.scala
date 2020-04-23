@@ -86,7 +86,6 @@ object Issue {
   def unexpectedAnnotationOnClass(_location: LocationImpl, context: ApexParser.QualifiedNameContext): Issue =
     Issue(ERROR_CATEGORY, _location, s"Unexpected annotation '${CodeParser.getText(context)}' on class declaration")
 
-
   implicit val rw: RW[Issue] = macroRW
 }
 

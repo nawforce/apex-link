@@ -62,7 +62,6 @@ case class PlatformTypeDeclaration(native: Any, outer: Option[PlatformTypeDeclar
     }
   }
   override val isComplete: Boolean = true
-  override val isExternallyVisible: Boolean = true
 
   override lazy val superClass: Option[TypeName] = getSuperClass
 

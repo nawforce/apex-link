@@ -28,13 +28,14 @@
 
 package com.nawforce.common.org
 
-import com.nawforce.common.cst.UnusedLog
-import com.nawforce.common.diagnostics.IssueLog
+import com.nawforce.common.cst.{GLOBAL_MODIFIER, UnusedLog}
+import com.nawforce.common.diagnostics.{IssueLog, LocalLogger}
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.metadata.MetadataDeclaration
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
+import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.common.types.apex.ApexClassDeclaration
@@ -49,14 +50,16 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   extends PackageDeploy with PackageAPI with TypeFinder {
 
   val namespace: Option[Name] = workspace.namespace
-  lazy val namespaceAsTypeName: Option[TypeName] = namespace.map(TypeName(_))
+
   protected val documents = new DocumentIndex(workspace.paths, workspace.ignorePath)
+  private val stream = PackageStream(new LocalLogger(org.issues), namespace, documents)
+
   protected val types: mutable.Map[TypeName, TypeDeclaration] = mutable.Map[TypeName, TypeDeclaration]()
   protected val other: mutable.Map[Name, MetadataDeclaration] = mutable.Map[Name, MetadataDeclaration]()
 
   private val schemaManager = new SchemaManager(this)
   private val anyDeclaration = AnyDeclaration(this)
-  private val labelDeclaration = LabelDeclaration(this)
+  private val labelDeclaration = LabelDeclaration(this, stream)
   private val pageDeclaration = PageDeclaration(this)
   private val interviewDeclaration = new InterviewDeclaration(this)
   private val componentDeclaration = ComponentDeclaration(this)
@@ -95,9 +98,10 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
       bases
   }
 
-  /* Transitive Bases (dependent packages for this package) */
+  /* Transitive Bases (dependent packages for this package & its dependents) */
   def transitiveBasePackages: Set[PackageImpl] = {
-    namespace.map(_ => bases.toSet ++ bases.flatMap(_.transitiveBasePackages)).getOrElse(basePackages.toSet)
+    namespace.map(_ => bases.toSet ++ bases.flatMap(_.transitiveBasePackages))
+      .getOrElse(basePackages.toSet)
   }
 
   /* Summary of package context containing namespace & base package namespace information */
@@ -207,7 +211,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   private def getPackageType(typeName: TypeName, inPackage: Boolean=true): Option[TypeDeclaration] = {
     var declaration = findType(typeName)
     if (declaration.nonEmpty) {
-      if (inPackage || declaration.get.isExternallyVisible)
+      if (inPackage || declaration.get.modifiers.contains(GLOBAL_MODIFIER))
         return declaration
       else
         return None
