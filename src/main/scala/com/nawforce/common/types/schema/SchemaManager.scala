@@ -103,7 +103,7 @@ class RelatedLists(pkg: PackageImpl) {
 }
 
 /* Schema.SObjectType implementation */
-final case class SchemaSObjectType(pkg: PackageImpl) extends NamedTypeDeclaration(pkg, TypeName.SObjectType) {
+final case class SchemaSObjectType(pkg: PackageImpl) extends BasicTypeDeclaration(pkg, TypeName.SObjectType) {
   private val sobjectFields: mutable.Map[Name, FieldDeclaration] = mutable.Map()
   private val sobjectTypeDeclarationsCreated = mutable.Set[Name]()
 
@@ -165,7 +165,7 @@ final case class SchemaSObjectType(pkg: PackageImpl) extends NamedTypeDeclaratio
 }
 
 final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields, pkg: PackageImpl)
-  extends NamedTypeDeclaration(pkg, TypeName.sObjectType$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
+  extends BasicTypeDeclaration(pkg, TypeName.sObjectType$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
   private lazy val fieldField = CustomFieldDeclaration(Name.Fields,
     TypeName.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeName.Schema))), None, asStatic = true)
@@ -192,7 +192,7 @@ final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields
 }
 
 final case class SObjectTypeFields(sobjectName: Name, pkg: PackageImpl)
-  extends NamedTypeDeclaration(pkg, TypeName.sObjectTypeFields$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
+  extends BasicTypeDeclaration(pkg, TypeName.sObjectTypeFields$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
     TypeRequest(TypeName(sobjectName), pkg, excludeSObjects = false).toOption match {
@@ -235,7 +235,7 @@ final case class SObjectTypeFields(sobjectName: Name, pkg: PackageImpl)
 }
 
 final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
-  extends NamedTypeDeclaration(pkg, TypeName.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
+  extends BasicTypeDeclaration(pkg, TypeName.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
   // Extend SObjectField for when used as return type for lookup SObjectField
   override val superClass: Option[TypeName] = Some(TypeName.SObjectField)
@@ -277,7 +277,7 @@ final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
 }
 
 final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageImpl)
-  extends NamedTypeDeclaration(pkg, TypeName.sObjectTypeFieldSets$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
+  extends BasicTypeDeclaration(pkg, TypeName.sObjectTypeFieldSets$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
   private lazy val sobjectFieldSets: Map[Name, FieldDeclaration] = {
     val typeName = TypeName(sobjectName)

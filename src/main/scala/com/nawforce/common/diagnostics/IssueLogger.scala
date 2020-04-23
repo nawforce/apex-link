@@ -34,9 +34,27 @@ import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 
 /** Trait to assist with logging in a context specific way */
 trait IssueLogger {
-  // Log an issue
+  // Simply log an issue
   def log(issue: Issue)
 
+  def logError(location: LocationImpl, message: String): Unit = {
+    log(Issue(ERROR_CATEGORY, location, message))
+  }
+
+  def logWarning(location: LocationImpl,  message: String): Unit = {
+    log(Issue(WARNING_CATEGORY, location, message))
+  }
+}
+
+class LocalLogger(val log: IssueLog) extends IssueLogger {
+  override def log(issue: Issue): Unit = log.add(issue)
+}
+
+object LocalLogger {
+  def apply(): LocalLogger = new LocalLogger(new IssueLog)
+}
+
+trait ParserIssueLogger extends IssueLogger {
   // Get location for an AST context
   def location(context: ParserRuleContext): LocationImpl
 
@@ -50,7 +68,7 @@ trait IssueLogger {
 }
 
 /** Logger using a specific CodaParser */
-class CodeParserLogger(parser: CodeParser) extends IssueLogger {
+class CodeParserLogger(parser: CodeParser) extends ParserIssueLogger {
   var issues :List[Issue] = Nil
 
   override def log(issue: Issue): Unit = {

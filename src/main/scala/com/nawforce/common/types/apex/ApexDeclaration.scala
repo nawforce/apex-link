@@ -164,10 +164,6 @@ trait ApexClassDeclaration extends ApexDeclaration {
     (superClassDeclaration.nonEmpty && superClassDeclaration.get.isComplete) || superClass.isEmpty
   }
 
-  override lazy val isExternallyVisible: Boolean = {
-    modifiers.contains(GLOBAL_MODIFIER)
-  }
-
   override lazy val fields: Seq[FieldDeclaration] = {
     val allFields = superClassDeclaration.map(_.fields).getOrElse(Seq()) ++ localFields.groupBy(f => f.name).collect {
       case (_, y :: Nil) => y

@@ -261,8 +261,8 @@ trait TypeDeclaration extends MetadataDeclaration {
   val methods: Seq[MethodDeclaration]
 
   def isComplete: Boolean
-  val isExternallyVisible: Boolean
   val isAny: Boolean = false
+  lazy val isExternallyVisible: Boolean = modifiers.contains(GLOBAL_MODIFIER)
   lazy val isAbstract: Boolean = modifiers.contains(ABSTRACT_MODIFIER)
   lazy val isFieldConstructed: Boolean = isSObject || isApexPagesComponent
   lazy val isSObject: Boolean = superClass.contains(TypeName.SObject)

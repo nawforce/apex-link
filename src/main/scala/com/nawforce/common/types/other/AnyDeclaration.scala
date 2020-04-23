@@ -29,8 +29,8 @@ package com.nawforce.common.types.other
 
 import com.nawforce.common.names.TypeName
 import com.nawforce.common.org.PackageImpl
-import com.nawforce.common.types.NamedTypeDeclaration
+import com.nawforce.common.types.BasicTypeDeclaration
 
-final case class AnyDeclaration(pkg: PackageImpl) extends NamedTypeDeclaration(pkg, TypeName.Any) {
+final case class AnyDeclaration(pkg: PackageImpl) extends BasicTypeDeclaration(pkg, TypeName.Any) {
   override val isAny: Boolean = true
 }

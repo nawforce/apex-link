@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.types.schema
 
-import com.nawforce.common.cst.VerifyContext
+import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, VerifyContext}
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{DotName, Name, TypeName}
@@ -41,7 +41,9 @@ import scala.collection.mutable
 final case class SObjectDeclaration(pkg: PackageImpl, _typeName: TypeName,
                                     sobjectNature: SObjectNature, fieldSets: Set[Name],
                                     override val fields: Seq[FieldDeclaration], override val isComplete: Boolean)
-  extends NamedTypeDeclaration(pkg, _typeName) {
+  extends BasicTypeDeclaration(pkg, _typeName) {
+
+  override val modifiers: Seq[Modifier] = Seq(GLOBAL_MODIFIER)
 
   override val superClass: Option[TypeName] = Some(TypeName.SObject)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = {
@@ -94,7 +96,7 @@ final case class SObjectDeclaration(pkg: PackageImpl, _typeName: TypeName,
       CustomMethodDeclaration(Name("clone"), typeName, Seq(preserveId, isDeepClone)),
       CustomMethodDeclaration(Name("clone"), typeName, Seq(preserveId, isDeepClone, preserveReadOnlyTimestamps)),
       CustomMethodDeclaration(Name("clone"), typeName, Seq(preserveId, isDeepClone, preserveReadOnlyTimestamps, preserveAutonumber))
-    ).map(m => ((m.name, m.parameters.size, m.isStatic),m)).toMap
+    ).map(m => ((m.name, m.parameters.size, m.isStatic), m)).toMap
   }
 
   private lazy val hierarchyCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
@@ -103,7 +105,7 @@ final case class SObjectDeclaration(pkg: PackageImpl, _typeName: TypeName,
       CustomMethodDeclaration(Name("getInstance"), typeName, Seq(CustomParameterDeclaration(Name("Id"), TypeName.Id))),
       CustomMethodDeclaration(Name("getOrgDefaults"), typeName, Seq()),
       CustomMethodDeclaration(Name("getValues"), typeName, Seq(CustomParameterDeclaration(Name("Id"), TypeName.Id))),
-    ).map(m => ((m.name, m.parameters.size),m)).toMap
+    ).map(m => ((m.name, m.parameters.size), m)).toMap
 
   private lazy val listCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
     Seq(
@@ -111,7 +113,7 @@ final case class SObjectDeclaration(pkg: PackageImpl, _typeName: TypeName,
       CustomMethodDeclaration(Name("getInstance"), typeName, Seq()),
       CustomMethodDeclaration(Name("getInstance"), typeName, Seq(CustomParameterDeclaration(Name("Name"), TypeName.String))),
       CustomMethodDeclaration(Name("getValues"), typeName, Seq(CustomParameterDeclaration(Name("Name"), TypeName.String))),
-    ).map(m => ((m.name, m.parameters.size),m)).toMap
+    ).map(m => ((m.name, m.parameters.size), m)).toMap
 }
 
 object SObjectDeclaration {
