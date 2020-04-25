@@ -49,7 +49,7 @@ class DocumentIndex(paths: Seq[PathLike], forceIgnore: Option[ForceIgnore] = Non
   }
 
   private def index(): Unit = {
-    paths.reverse.foreach(p => indexPath(p.absolute, forceIgnore))
+    paths.reverse.foreach(p => indexPath(p, forceIgnore))
     createGhostSObjectFiles(Name("field"), forceIgnore)
     createGhostSObjectFiles(Name("fieldSet"), forceIgnore)
   }

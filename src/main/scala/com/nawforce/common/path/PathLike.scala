@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.path
 
-/* File system path abstraction */
+/* File system path abstraction, to make life simple relative paths are NOT supported */
 abstract class PathLike {
 
   // All paths have a base, it may be empty for root paths
@@ -47,9 +47,6 @@ abstract class PathLike {
 
   // Size of regular file, returns 0 otherwise
   val size: Long
-
-  // As absolute path, relative paths are resolved against cwd
-  val absolute: PathLike
 
   // As native representation, platform specific escape
   val native: Any

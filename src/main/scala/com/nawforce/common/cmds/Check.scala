@@ -57,7 +57,7 @@ object Check {
 
     var paths: Seq[String] = validArgs.filterNot(options.contains)
     if (paths.isEmpty)
-      paths = Seq(PathFactory("").absolute.toString)
+      paths = Seq(PathFactory("").toString)
     val nsSplit = paths.map(path => {
       if (path.endsWith("="))
         (path.take(path.length-1), "")

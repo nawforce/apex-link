@@ -109,19 +109,19 @@ trait PackageAPI extends Package {
     }
 
     if (dt.isEmpty) {
-      return ViewInfoImpl(isNew = false, path.absolute, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
+      return ViewInfoImpl(isNew = false, path, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
         "Path does not identify a supported metadata type")))
     }
 
     if (!workspace.isVisibleFile(path))
-      return ViewInfoImpl(isNew = false, path.absolute, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
+      return ViewInfoImpl(isNew = false, path, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
         "Path is being ignored in this workspace")))
 
     // Read contents from file if needed
     val source = contents.getOrElse({
       path.read() match {
         case Left(err) =>
-          return ViewInfoImpl(isNew = false, path.absolute, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0), err)))
+          return ViewInfoImpl(isNew = false, path, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0), err)))
         case Right(data) =>
           data
       }
@@ -138,11 +138,11 @@ trait PackageAPI extends Package {
     })
 
     if (td.nonEmpty && td.get.sourceHash == MurmurHash3.stringHash(source))
-      return ViewInfoImpl(isNew = false, path.absolute, td, org.issues.getDiagnostics(path.absolute.toString).toArray)
+      return ViewInfoImpl(isNew = false, path, td, org.issues.getDiagnostics(path.toString).toArray)
 
     dt.get match {
-      case _: ApexClassDocument => loadAndValidate(path.absolute, source, FullDeclaration.create)
-      case _: ApexTriggerDocument => loadAndValidate(path.absolute, source, TriggerDeclaration.create)
+      case _: ApexClassDocument => loadAndValidate(path, source, FullDeclaration.create)
+      case _: ApexTriggerDocument => loadAndValidate(path, source, TriggerDeclaration.create)
     }
   }
 
@@ -180,7 +180,7 @@ trait PackageAPI extends Package {
 
     // Check we are not trying to circumvent the no duplicates rule
     if (types.get(td.typeName) match {
-      case Some(ad: ApexDeclaration) => ad.path.absolute != viewInfoImpl.absPath
+      case Some(ad: ApexDeclaration) => ad.path != viewInfoImpl.path
       case None => false
       case _ => true
     }) return false
@@ -198,7 +198,7 @@ trait PackageAPI extends Package {
         }
 
       updated.foreach(utd => {
-        org.issues.pop(viewInfoImpl.absPath.toString)
+        org.issues.pop(viewInfoImpl.path.toString)
         types.put(utd.typeName, utd)
         utd.validate()
       })

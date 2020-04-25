@@ -37,7 +37,6 @@ case class Path(native: java.nio.file.Path) extends PathLike {
 
   override lazy val basename: String = Option(native.getFileName).map(_.toString).getOrElse("")
   override lazy val parent: Path = join("..")
-  override lazy val absolute: Path = Path(native.toAbsolutePath)
   override lazy val exists: Boolean = Files.exists(native)
   override lazy val isDirectory: Boolean = Files.isDirectory(native)
   override lazy val isFile: Boolean = Files.isRegularFile(native)
@@ -137,7 +136,7 @@ case class Path(native: java.nio.file.Path) extends PathLike {
   override def equals(that: Any): Boolean = {
     that match {
       case other: Path =>
-        other.canEqual(this) && other.absolute.toString == absolute.toString
+        other.canEqual(this) && other.toString == toString
       case _ => false
     }
   }
@@ -149,5 +148,5 @@ case class Path(native: java.nio.file.Path) extends PathLike {
 object Path {
   val separator: String = File.separator
 
-  def apply(path: String): Path = Path(java.nio.file.Paths.get(Option(path).getOrElse("")))
+  def apply(path: String): Path = Path(java.nio.file.Paths.get(Option(path).getOrElse("")).toAbsolutePath)
 }

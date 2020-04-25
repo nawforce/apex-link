@@ -54,16 +54,13 @@ trait Workspace {
 
   /** Determine if a path is a file that could be included in index. */
   def isVisibleFile(path: PathLike): Boolean = {
-    val absPath = path.absolute
-    forceIgnore.forall(_.includeFile(absPath)) && isVisiblePath(absPath.parent)
+    forceIgnore.forall(_.includeFile(path)) && isVisiblePath(path.parent)
   }
-
-  private lazy val absPaths = paths.map(_.absolute)
 
   // Check a directory path would be included in index
   @scala.annotation.tailrec
   private def isVisiblePath(path: PathLike): Boolean = {
-    if (absPaths.contains(path)) return true
+    if (paths.contains(path)) return true
     if (!forceIgnore.forall(_.includeDirectory(path))) return false
 
     val parent = path.parent
@@ -109,9 +106,8 @@ object Workspace {
   def apply(namespace: Option[Name], paths: Seq[PathLike]): Either[String, Workspace] = {
     val missing = paths.filterNot(_.isDirectory)
     if (missing.nonEmpty)
-      return Left(s"Workspace '${missing.head.absolute}' is not a directory")
+      return Left(s"Workspace '${missing.head}' is not a directory")
 
-    val absPaths = paths.map(_.absolute)
     if (paths.size == 1) {
       Project(paths.head) match {
         case Left(err) => Left(err)
@@ -122,7 +118,7 @@ object Workspace {
             Right(new MDAPIWorkspace(namespace, paths))
       }
     } else {
-      Right(new MDAPIWorkspace(namespace, absPaths))
+      Right(new MDAPIWorkspace(namespace, paths))
     }
   }
 }

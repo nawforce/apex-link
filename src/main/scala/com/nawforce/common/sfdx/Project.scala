@@ -68,7 +68,7 @@ class Project(config: Value.Value) {
 
 object Project {
   def apply(path: PathLike): Either[String, Option[Project]] = {
-    val projectFile = path.join("sfdx-project.json").absolute
+    val projectFile = path.join("sfdx-project.json")
     if (!projectFile.isFile) {
       return Right(None)
     }
