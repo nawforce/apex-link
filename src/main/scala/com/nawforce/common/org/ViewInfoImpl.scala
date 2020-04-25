@@ -32,7 +32,7 @@ import com.nawforce.common.names.TypeLike
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.apex.ApexFullDeclaration
 
-case class ViewInfoImpl(isNew: Boolean, absPath: PathLike, td: Option[ApexFullDeclaration],
+case class ViewInfoImpl(isNew: Boolean, path: PathLike, td: Option[ApexFullDeclaration],
                         override val diagnostics: Array[Diagnostic]) extends ViewInfo {
   override val hasType: Boolean = td.nonEmpty
   override val typeName: TypeLike = td.map(_.typeName).orNull
