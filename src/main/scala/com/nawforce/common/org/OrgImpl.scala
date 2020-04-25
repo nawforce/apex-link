@@ -101,10 +101,17 @@ class OrgImpl extends Org {
 
   /** Create a Package over a Workspace */
   private[nawforce] def addPackage(workspace: Workspace, basePackages: Seq[PackageImpl]): Package = {
-    if (workspace.namespace.nonEmpty) {
-      if (packagesByNamespace.contains(workspace.namespace))
-        throw new IllegalArgumentException(s"A package using namespace '${workspace.namespace}' already exists")
+
+    if (workspace.namespace.isLeft) {
+      throw new IllegalArgumentException(workspace.namespace.left.get)
     }
+
+    val ns = workspace.namespace.getOrElse(None)
+    if (ns.nonEmpty) {
+      if (packagesByNamespace.contains(ns))
+        throw new IllegalArgumentException(s"A package using namespace '$ns' already exists")
+    }
+
 
     workspace.paths.foreach(path => {
       if (!path.isDirectory)
