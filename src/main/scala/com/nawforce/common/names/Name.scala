@@ -37,7 +37,7 @@ import scala.collection.mutable
 case class Name(value: String) {
   private val normalised = value.toLowerCase
 
-  // Check or return error message
+  /** Check is name is a legal identifier, None if OK or error message string. */
   lazy val isLegalIdentifier: Option[String] = {
     assert(value.nonEmpty)
 
@@ -54,6 +54,7 @@ case class Name(value: String) {
     }
   }
 
+  /** Check is name is a reserved identifier, None if OK or error message string. */
   lazy val isReservedIdentifier: Boolean = {
     Name.allReservedIdentifiers.contains(this)
   }

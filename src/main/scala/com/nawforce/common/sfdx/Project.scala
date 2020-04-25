@@ -50,11 +50,19 @@ class Project(config: Value.Value) {
     })
   }
 
-  lazy val namespace: Option[Name] =
+  lazy val namespace: Either[String, Option[Name]] =
     try {
-      Some(Name(config("namespace").str))
+      val ns = Name(config("namespace").str)
+      if (ns.isEmpty) Right(None)
+      else {
+        ns.isLegalIdentifier match {
+          case None => Right(Some(ns))
+          case Some(error) => Left(s"Package namespace '$ns' in sfdx-project.json is not valid, $error")
+        }
+      }
     } catch {
-      case _: Throwable => None
+      case _: NoSuchElementException => Right(None)
+      case ex: Throwable => Left(s"Failed to read namespace from sfdx-project.json, error: ${ex.toString}")
     }
 }
 

@@ -48,7 +48,7 @@ import scala.collection.mutable
 class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[PackageImpl])
   extends PackageDeploy with PackageAPI with TypeFinder {
 
-  val namespace: Option[Name] = workspace.namespace
+  val namespace: Option[Name] = workspace.namespace.getOrElse(None)
   lazy val namespaceAsTypeName: Option[TypeName] = namespace.map(TypeName(_))
   protected val documents = new DocumentIndex(workspace.paths, workspace.ignorePath)
   protected val types: mutable.Map[TypeName, TypeDeclaration] = mutable.Map[TypeName, TypeDeclaration]()
@@ -112,7 +112,9 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
 
   /* Set of namespaces used by this package and its base packages */
   lazy val namespaces: Set[Name] = {
-    workspace.namespace.toSet ++ basePackages.flatMap(_.namespaces) ++ PlatformTypeDeclaration.namespaces
+    workspace.namespace.getOrElse(None).toSet ++
+      basePackages.flatMap(_.namespaces) ++
+      PlatformTypeDeclaration.namespaces
   }
 
   /* Iterator over available types */

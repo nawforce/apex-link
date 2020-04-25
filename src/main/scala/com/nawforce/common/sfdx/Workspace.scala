@@ -34,14 +34,15 @@ import com.nawforce.common.path.PathLike
 
 trait Workspace {
   val rootPaths: Seq[PathLike]
-  val namespace: Option[Name]
+  val namespace: Either[String, Option[Name]]
   val paths: Seq[PathLike]
   val ignorePath: Option[PathLike] = None
 }
 
-class MDAPIWorkspace(val namespace: Option[Name], val paths: Seq[PathLike]) extends Workspace {
-
+class MDAPIWorkspace(_namespace: Option[Name], val paths: Seq[PathLike]) extends Workspace {
   override lazy val rootPaths: Seq[PathLike] = paths
+
+  override val namespace: Either[String, Option[Name]] = Right(_namespace)
 
   override def toString: String = {
     s"MDAPIWorkspace(namespace=${namespace.getOrElse("")}, paths=${paths.map(_.toString).mkString(", ")})"
@@ -49,7 +50,9 @@ class MDAPIWorkspace(val namespace: Option[Name], val paths: Seq[PathLike]) exte
 }
 
 class SFDXWorkspace(_namespace: Option[Name], val rootPath: PathLike, project: Project) extends Workspace {
-  override val namespace: Option[Name] = _namespace.orElse(project.namespace)
+  override val namespace: Either[String, Option[Name]] = {
+    _namespace.map(ns => Right(Some(ns))).getOrElse(project.namespace)
+  }
 
   override lazy val rootPaths: Seq[PathLike] = Seq(rootPath)
 
