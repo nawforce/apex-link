@@ -132,6 +132,18 @@ case class Path(native: java.nio.file.Path) extends PathLike {
       case _:UnsupportedOperationException => None
     }
   }
+
+  /** As we are using an in-memory FS for testing we need to compare string-wise */
+  override def equals(that: Any): Boolean = {
+    that match {
+      case other: Path =>
+        other.canEqual(this) && other.absolute.toString == absolute.toString
+      case _ => false
+    }
+  }
+
+  def canEqual(that: Any): Boolean = that.isInstanceOf[Path]
+
 }
 
 object Path {

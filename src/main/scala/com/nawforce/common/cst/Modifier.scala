@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.diagnostics.{CodeParserLogger, Issue, IssueLogger, ParserIssueLogger}
+import com.nawforce.common.diagnostics.{CodeParserLogger, Issue, ParserIssueLogger}
 import com.nawforce.runtime.parsers.ApexParser.{AnnotationContext, IdContext, ModifierContext, PropertyBlockContext}
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext

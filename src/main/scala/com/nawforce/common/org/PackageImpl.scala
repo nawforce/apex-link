@@ -51,7 +51,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
 
   val namespace: Option[Name] = workspace.namespace.getOrElse(None)
 
-  protected val documents = new DocumentIndex(workspace.paths, workspace.ignorePath)
+  protected val documents = new DocumentIndex(workspace.paths, workspace.forceIgnore)
   private val stream = PackageStream(new LocalLogger(org.issues), namespace, documents)
 
   protected val types: mutable.Map[TypeName, TypeDeclaration] = mutable.Map[TypeName, TypeDeclaration]()
@@ -60,12 +60,12 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   private val schemaManager = new SchemaManager(this)
   private val anyDeclaration = AnyDeclaration(this)
   private val labelDeclaration = LabelDeclaration(this, stream)
-  private val pageDeclaration = PageDeclaration(this)
+  private val pageDeclaration = PageDeclaration(this, documents)
   private val interviewDeclaration = new InterviewDeclaration(this)
   private val componentDeclaration = ComponentDeclaration(this)
 
   initTypes()
-  deployWorkspace()
+  deployWorkspace(documents)
 
   private def initTypes(): Unit = {
     upsertMetadata(anyDeclaration)
@@ -76,10 +76,6 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     upsertMetadata(pageDeclaration)
     upsertMetadata(interviewDeclaration)
     upsertMetadata(componentDeclaration)
-  }
-
-  def documentsByExtension(ext: Name): Seq[MetadataDocumentType] = {
-    documents.getByExtension(ext)
   }
 
   def isGhosted: Boolean = workspace.paths.isEmpty

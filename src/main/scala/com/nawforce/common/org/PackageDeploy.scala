@@ -41,14 +41,14 @@ trait PackageDeploy {
 
   private val epoch = System.currentTimeMillis()
 
-  def deployWorkspace(): Unit = {
+  def deployWorkspace(documents: DocumentIndex): Unit = {
     val startingTypes = types.size
 
-    loadCustomObjects()
-    loadComponents()
-    loadFlows()
-    loadClasses()
-    loadTriggers()
+    loadCustomObjects(documents)
+    loadComponents(documents)
+    loadFlows(documents)
+    loadClasses(documents)
+    loadTriggers(documents)
 
     if (types.size > startingTypes) {
       val total = System.currentTimeMillis() - epoch
@@ -58,8 +58,8 @@ trait PackageDeploy {
     }
   }
 
-  private def loadCustomObjects(): Unit = {
-    val docs = documentsByExtension(Name("object"))
+  private def loadCustomObjects(documents: DocumentIndex): Unit = {
+    val docs = documents.getByExtension(Name("object"))
     ServerOps.debugTime(s"Parsed ${docs.size} objects", docs.nonEmpty) {
       val tds = docs.flatMap {
         case docType: SObjectDocument =>
@@ -76,8 +76,8 @@ trait PackageDeploy {
     }
   }
 
-  private def loadFlows(): Unit = {
-    val docs = documentsByExtension(Name("flow"))
+  private def loadFlows(documents: DocumentIndex): Unit = {
+    val docs = documents.getByExtension(Name("flow"))
     ServerOps.debugTime(s"Parsed ${docs.size} flows", docs.nonEmpty) {
       docs.foreach {
         case docType: FlowDocument => upsertMetadata(docType)
@@ -86,8 +86,8 @@ trait PackageDeploy {
     }
   }
 
-  private def loadComponents(): Unit = {
-    val docs = documentsByExtension(Name("component"))
+  private def loadComponents(documents: DocumentIndex): Unit = {
+    val docs = documents.getByExtension(Name("component"))
     ServerOps.debugTime(s"Parsed ${docs.size} components", docs.nonEmpty) {
       docs.foreach {
         case docType: ComponentDocument => upsertMetadata(docType)
@@ -96,9 +96,9 @@ trait PackageDeploy {
     }
   }
 
-  private def loadClasses(): Unit = {
+  private def loadClasses(documents: DocumentIndex): Unit = {
     val pcOpt = getParsedCache
-    val docs = documentsByExtension(Name("cls"))
+    val docs = documents.getByExtension(Name("cls"))
     ServerOps.debugTime(s"Loaded summary classes", docs.nonEmpty) {
 
       // Load summary docs that have valid dependents
@@ -165,8 +165,8 @@ trait PackageDeploy {
       None
   }
 
-  private def loadTriggers(): Unit = {
-    val docs = documentsByExtension(Name("trigger"))
+  private def loadTriggers(documents: DocumentIndex): Unit = {
+    val docs = documents.getByExtension(Name("trigger"))
     ServerOps.debugTime(s"Parsed ${docs.size} triggers", docs.nonEmpty) {
       val tds = docs.flatMap {
         case docType: ApexTriggerDocument =>

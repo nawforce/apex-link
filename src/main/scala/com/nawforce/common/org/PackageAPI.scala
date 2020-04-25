@@ -48,8 +48,13 @@ trait PackageAPI extends Package {
   }
 
   override def getTypeOfPath(path: String): TypeLike = {
-    DocumentType(PathFactory(path)) match {
-      case Some(ad: ApexDocument) if documents.isIndexed(ad) => ad.typeName(namespace)
+    val pathLike = PathFactory(path)
+    DocumentType(pathLike) match {
+      case Some(ad: ApexDocument) =>
+        types.get(ad.typeName(namespace)) match {
+          case Some(td: ApexDeclaration) if td.path == pathLike => td.typeName
+          case _ => null
+        }
       case _ => null
     }
   }
@@ -108,7 +113,7 @@ trait PackageAPI extends Package {
         "Path does not identify a supported metadata type")))
     }
 
-    if (!documents.isVisibleFile(path))
+    if (!workspace.isVisibleFile(path))
       return ViewInfoImpl(isNew = false, path.absolute, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
         "Path is being ignored in this workspace")))
 
@@ -195,7 +200,6 @@ trait PackageAPI extends Package {
       updated.foreach(utd => {
         org.issues.pop(viewInfoImpl.absPath.toString)
         types.put(utd.typeName, utd)
-        documents.upsert(viewInfoImpl.absPath)
         utd.validate()
       })
       updated.nonEmpty

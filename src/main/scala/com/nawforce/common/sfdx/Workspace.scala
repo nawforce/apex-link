@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.sfdx
 
-import com.nawforce.common.documents.LineLocationImpl
+import com.nawforce.common.documents.{ForceIgnore, LineLocationImpl}
 import com.nawforce.common.names.Name
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
@@ -37,6 +37,41 @@ trait Workspace {
   val namespace: Either[String, Option[Name]]
   val paths: Seq[PathLike]
   val ignorePath: Option[PathLike] = None
+
+  lazy val forceIgnore: Option[ForceIgnore] = {
+    if (ignorePath.nonEmpty && ignorePath.get.isFile) {
+      ForceIgnore(ignorePath.get) match {
+        case Left(err) =>
+          OrgImpl.logError(LineLocationImpl(ignorePath.get.toString, 0), s"Could not read .forceignore, error: $err")
+          None
+        case Right(forceIgnore) =>
+          Some(forceIgnore)
+      }
+    } else {
+      None
+    }
+  }
+
+  /** Determine if a path is a file that could be included in index. */
+  def isVisibleFile(path: PathLike): Boolean = {
+    val absPath = path.absolute
+    forceIgnore.forall(_.includeFile(absPath)) && isVisiblePath(absPath.parent)
+  }
+
+  private lazy val absPaths = paths.map(_.absolute)
+
+  // Check a directory path would be included in index
+  @scala.annotation.tailrec
+  private def isVisiblePath(path: PathLike): Boolean = {
+    if (absPaths.contains(path)) return true
+    if (!forceIgnore.forall(_.includeDirectory(path))) return false
+
+    val parent = path.parent
+    if (parent != path)
+      isVisiblePath(parent)
+    else
+      false
+  }
 }
 
 class MDAPIWorkspace(_namespace: Option[Name], val paths: Seq[PathLike]) extends Workspace {
