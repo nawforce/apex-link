@@ -29,20 +29,16 @@ package com.nawforce.common.documents
 
 import com.nawforce.common.api.ServerOps
 import com.nawforce.common.names.Name
-import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
 
 import scala.collection.mutable
 
 class DocumentIndexException(msg: String) extends Throwable
 
-class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
+class DocumentIndex(paths: Seq[PathLike], forceIgnore: Option[ForceIgnore] = None) {
   // Partitioned by normalised extension
   private val documentNames = new mutable.HashMap[Name, mutable.Set[Name]]() withDefaultValue mutable.Set()
   private val documents = new mutable.HashMap[Name, List[MetadataDocumentType]]() withDefaultValue List()
-
-  private lazy val absPaths = paths.map(_.absolute)
-  private lazy val forceIgnore: Option[ForceIgnore] = createForceIgnore
 
   index()
 
@@ -50,39 +46,6 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
 
   def getByExtension(name: Name): Seq[MetadataDocumentType] = {
     documents(name)
-  }
-
-  // TODO: Improve performance of this
-  def isIndexed(dt: MetadataDocumentType): Boolean = {
-    val abs = dt.path.absolute
-    documents(dt.extension).exists(_.path.toString == abs.toString)
-  }
-
-  /** Add to the index if not already present si isIndexed can report correctly */
-  def upsert(path: PathLike): Unit = {
-    if (forceIgnore.forall(_.includeFile(path))) {
-      val docType = DocumentType(path)
-      insertDocument(docType, allowDuplicates = true)
-    }
-  }
-
-  /** Determine if a path is a file that could be included in index. */
-  def isVisibleFile(path: PathLike): Boolean = {
-    val absPath = path.absolute
-    forceIgnore.forall(_.includeFile(absPath)) && isVisiblePath(absPath.parent)
-  }
-
-  // Check a directory path would be included in index
-  @scala.annotation.tailrec
-  private def isVisiblePath(path: PathLike): Boolean = {
-    if (absPaths.contains(path)) return true
-    if (!forceIgnore.forall(_.includeDirectory(path))) return false
-
-    val parent = path.parent
-    if (parent != path)
-      isVisiblePath(parent)
-    else
-      false
   }
 
   private def index(): Unit = {
@@ -154,19 +117,5 @@ class DocumentIndex(paths: Seq[PathLike], ignorePath: Option[PathLike] = None) {
         }
       }
     })
-  }
-
-  private def createForceIgnore: Option[ForceIgnore] = {
-    if (ignorePath.nonEmpty && ignorePath.get.isFile) {
-      ForceIgnore(ignorePath.get) match {
-        case Left(err) =>
-          OrgImpl.logError(LineLocationImpl(ignorePath.get.toString, 0), s"Could not read .forceignore, error: $err")
-          None
-        case Right(forceIgnore) =>
-          Some(forceIgnore)
-      }
-    } else {
-      None
-    }
   }
 }

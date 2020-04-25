@@ -30,7 +30,7 @@ package com.nawforce.common.api
 import com.nawforce.common.names.TypeLike
 
 trait Package {
-  /** The namespace of the package, maybe empty for the unmanaged package, otherwise is unique is Org */
+  /** The namespace of the package, maybe empty for the unmanaged package, otherwise is unique within Org */
   def getNamespace: String
 
   /** Get a typename (as a String) from the path of a metadata file, returns a null if the path does not

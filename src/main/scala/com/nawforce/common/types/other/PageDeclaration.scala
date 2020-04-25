@@ -28,7 +28,7 @@
 package com.nawforce.common.types.other
 
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
-import com.nawforce.common.documents.{DocumentType, LineLocationImpl, LocationImpl, PageDocument}
+import com.nawforce.common.documents._
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types._
@@ -58,9 +58,9 @@ final case class PageDeclaration(pkg: PackageImpl, pages: Seq[Page]) extends Typ
 }
 
 object PageDeclaration {
-  def apply(pkg: PackageImpl): PageDeclaration = {
+  def apply(pkg: PackageImpl, documents: DocumentIndex): PageDeclaration = {
     val pages = collectBasePages(pkg).values.flatten ++
-      pkg.documentsByExtension(Name("page")).map(page => DocumentType(page.path)).flatMap {
+      documents.getByExtension(Name("page")).map(page => DocumentType(page.path)).flatMap {
         case Some(page: PageDocument) => Some(Page(LineLocationImpl(page.path.toString, 0), page.name))
         case _ => None
       }
