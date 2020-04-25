@@ -31,56 +31,10 @@ import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STA
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
+import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.types._
 
-import scala.collection.mutable
-
-final case class PageDeclaration(pkg: PackageImpl, pages: Seq[Page]) extends TypeDeclaration {
-
-  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
-  override val name: Name = Name.Page
-  override val typeName: TypeName = TypeName(name)
-  override val outerTypeName: Option[TypeName] = None
-  override val nature: Nature = CLASS_NATURE
-  override val modifiers: Seq[Modifier] = Seq(GLOBAL_MODIFIER)
-  override def isComplete: Boolean = !pkg.hasGhosted
-
-  override val superClass: Option[TypeName] = None
-  override val interfaces: Seq[TypeName] = Seq.empty
-  override val nestedTypes: Seq[TypeDeclaration] = Seq.empty
-
-  override val blocks: Seq[BlockDeclaration] = Seq.empty
-  override val fields: Seq[FieldDeclaration]= pages
-  override val constructors: Seq[ConstructorDeclaration] = Seq.empty
-  override val methods: Seq[MethodDeclaration]= Seq.empty
-
-  override def validate(): Unit = {}
-}
-
-object PageDeclaration {
-  def apply(pkg: PackageImpl, documents: DocumentIndex): PageDeclaration = {
-    val pages = collectBasePages(pkg).values.flatten ++
-      documents.getByExtension(Name("page")).map(page => DocumentType(page.path)).flatMap {
-        case Some(page: PageDocument) => Some(Page(LineLocationImpl(page.path.toString, 0), page.name))
-        case _ => None
-      }
-    new PageDeclaration(pkg, pages.toSeq)
-  }
-
-  private def collectBasePages(pkg: PackageImpl, collected: mutable.Map[Name, Seq[Page]]=mutable.Map())
-  : mutable.Map[Name, Seq[Page]] = {
-    pkg.basePackages.foreach(basePkg => {
-      val ns = basePkg.namespace.get
-      if (!collected.contains(ns)) {
-        val pages = basePkg.pages().pages.map(page => Page(page.location, Name(s"${ns}__${page.name}")))
-        collected.put(ns, pages)
-        collectBasePages(basePkg, collected)
-      }
-    })
-    collected
-  }
-}
-
+/** A individual Page being represented as a static field. */
 case class Page(location: LocationImpl, name: Name) extends FieldDeclaration {
   override lazy val modifiers: Seq[Modifier] = Seq(STATIC_MODIFIER, GLOBAL_MODIFIER)
   override lazy val typeName: TypeName = TypeName.PageReference
@@ -88,4 +42,34 @@ case class Page(location: LocationImpl, name: Name) extends FieldDeclaration {
   override lazy val writeAccess: Modifier = PRIVATE_MODIFIER
   override val idTarget: Option[TypeName] = None
 }
+
+/** Page namespace implementation. Provides access to pages in the package as well as pages that are accessible in
+  * base packages via the namespace__name format.
+  */
+final case class PageDeclaration(pkg: PackageImpl, pages: Seq[Page])
+  extends BasicTypeDeclaration(pkg, TypeName(Name.Page)) {
+
+  override val isComplete: Boolean = !pkg.hasGhosted
+  override val fields: Seq[FieldDeclaration]= pages
+}
+
+object PageDeclaration {
+  def apply(pkg: PackageImpl, stream: PackageStream): PageDeclaration = {
+    val pages = collectBasePages(pkg) ++ stream.pages.map(pe => Page(pe.location, pe.name))
+    new PageDeclaration(pkg, pages)
+  }
+
+  private def collectBasePages(pkg: PackageImpl): Seq[Page] = {
+    pkg.transitiveBasePackages.toSeq.flatMap(basePkg => {
+      val ns = basePkg.namespace.get
+      basePkg.pages().pages.map(page => {
+        if (page.name.contains("__"))
+          page
+        else
+          Page(page.location, Name(s"${ns}__${page.name}"))
+      })
+    })
+  }
+}
+
 

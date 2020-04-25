@@ -60,7 +60,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   private val schemaManager = new SchemaManager(this)
   private val anyDeclaration = AnyDeclaration(this)
   private val labelDeclaration = LabelDeclaration(this, stream)
-  private val pageDeclaration = PageDeclaration(this, documents)
+  private val pageDeclaration = PageDeclaration(this, stream)
   private val interviewDeclaration = new InterviewDeclaration(this)
   private val componentDeclaration = ComponentDeclaration(this)
 

@@ -37,8 +37,26 @@ import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types._
 import com.nawforce.common.xml.XMLElementLike
 
+/** A individual Label being represented as a static field. */
+case class Label(location: LocationImpl, name: Name, isProtected: Boolean) extends FieldDeclaration {
+  override lazy val modifiers: Seq[Modifier] = Seq(STATIC_MODIFIER, GLOBAL_MODIFIER)
+  override lazy val typeName: TypeName = TypeName.String
+  override lazy val readAccess: Modifier = GLOBAL_MODIFIER
+  override lazy val writeAccess: Modifier = PRIVATE_MODIFIER
+  override val idTarget: Option[TypeName] = None
+}
+
+object Label {
+  /** Construct a label from a parsed XML element */
+  def apply(path: PathLike, element: XMLElementLike): Label = {
+    val fullName: String = element.getSingleChildAsString("fullName")
+    val protect: Boolean = element.getSingleChildAsBoolean( "protected")
+    Label(RangeLocationImpl(path, TextRange(element.line)), Name(fullName), protect)
+  }
+}
+
 /** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
-  * base packages via the Label.namespace.name format. The labels are given 'this' as a controllingHolder so that.
+  * base packages via the Label.namespace.name format.
   */
 final class LabelDeclaration(pkg: PackageImpl, labels: Seq[Label], packageLabels: Seq[TypeDeclaration])
   extends BasicTypeDeclaration(pkg, TypeName.Label) {
@@ -101,23 +119,5 @@ object LabelDeclaration {
         new PackageLabels(pkg, basePkg.labels())
       }
     }).toSeq
-  }
-}
-
-/** A individual Label being represented as a static field. */
-case class Label(location: LocationImpl, name: Name, isProtected: Boolean) extends FieldDeclaration {
-  override lazy val modifiers: Seq[Modifier] = Seq(STATIC_MODIFIER, GLOBAL_MODIFIER)
-  override lazy val typeName: TypeName = TypeName.String
-  override lazy val readAccess: Modifier = GLOBAL_MODIFIER
-  override lazy val writeAccess: Modifier = PRIVATE_MODIFIER
-  override val idTarget: Option[TypeName] = None
-}
-
-object Label {
-  /** Construct a label from a parsed XML element */
-  def apply(path: PathLike, element: XMLElementLike): Label = {
-    val fullName: String = element.getSingleChildAsString("fullName")
-    val protect: Boolean = element.getSingleChildAsBoolean( "protected")
-    Label(RangeLocationImpl(path, TextRange(element.line)), Name(fullName), protect)
   }
 }
