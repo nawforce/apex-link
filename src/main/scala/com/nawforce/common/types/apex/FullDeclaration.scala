@@ -56,6 +56,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   override val nameLocation: LocationImpl = id.location
   override val name: Name = id.name
   override val nature: Nature
+  var flushedToCache = false
 
   override val nestedTypes: Seq[FullDeclaration] = {
     bodyDeclarations.flatMap {
@@ -94,8 +95,11 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   }
 
   override def flush(pc: ParsedCache, context: PackageContext): Unit = {
-    val diagnostics = pkg.org.issues.getDiagnostics(location.path)
-    pc.upsert(source.code.getBytes(StandardCharsets.UTF_8), writeBinary(ApexSummary(summary, diagnostics)), context)
+    if (!flushedToCache) {
+      val diagnostics = pkg.org.issues.getDiagnostics(location.path)
+      pc.upsert(source.code.getBytes(StandardCharsets.UTF_8), writeBinary(ApexSummary(summary, diagnostics)), context)
+      flushedToCache = true
+    }
   }
 
   override def propagateAllDependencies(): Unit = {
@@ -111,6 +115,9 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
         verify(context)
         if (withPropagation)
           propagateOuterDependencies()
+
+        // Re-validation may update diagnostics which now need flushing
+        flushedToCache = false
       }
     }
   }
