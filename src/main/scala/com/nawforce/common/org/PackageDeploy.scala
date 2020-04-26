@@ -60,9 +60,11 @@ trait PackageDeploy {
     pages = pages.merge(stream)
     upsertMetadata(pages)
 
+    interviews = interviews.merge(stream)
+    upsertMetadata(interviews)
+
     loadCustomObjects(documents)
     loadComponents(documents)
-    loadFlows(documents)
     loadClasses(documents)
     loadTriggers(documents)
 
@@ -89,16 +91,6 @@ trait PackageDeploy {
       tds.foreach(upsertMetadata(_))
       tds.foreach(_.validate())
       schema().relatedLists.validate()
-    }
-  }
-
-  private def loadFlows(documents: DocumentIndex): Unit = {
-    val docs = documents.getByExtension(Name("flow"))
-    ServerOps.debugTime(s"Parsed ${docs.size} flows", docs.nonEmpty) {
-      docs.foreach {
-        case docType: FlowDocument => upsertMetadata(docType)
-        case _ => assert(false); Seq()
-      }
     }
   }
 

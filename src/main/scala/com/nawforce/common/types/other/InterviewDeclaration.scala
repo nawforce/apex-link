@@ -28,46 +28,16 @@
 package com.nawforce.common.types.other
 
 import com.nawforce.common.cst.VerifyContext
-import com.nawforce.common.documents.FlowDocument
+import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
-import com.nawforce.common.path.PathLike
+import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.types._
 import com.nawforce.common.types.platform.PlatformTypes
 
-import scala.collection.mutable
-
-/** Flow.Interview intercept */
-final class InterviewDeclaration(pkg: PackageImpl)
-  extends BasicTypeDeclaration(pkg, TypeName.Interview) {
-
-  // Map of interviews and namespace wrappers of interviews
-  private val interviews = mutable.Map[Name, TypeDeclaration]()
-  override def nestedTypes: Seq[TypeDeclaration] = interviews.values.toSeq
-
-  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Seq[MethodDeclaration] = {
-    PlatformTypes.interviewType.findMethod(name, params, staticContext, verifyContext)
-  }
-
-  def upsert(namespace: Option[Name], flow: FlowDocument): Unit = {
-    interviews.put(flow.name, new CustomInterview(pkg, TypeName(flow.name, Nil, Some(TypeName.Interview)), flow.path))
-    if (namespace.nonEmpty) {
-      val typeName = TypeName(flow.name, Nil, Some(TypeName(namespace.get, Nil, Some(TypeName.Interview))))
-      getNamespaceContainer(namespace.get).upsert(new CustomInterview(pkg, typeName, flow.path))
-    }
-  }
-
-  private def getNamespaceContainer(namespace: Name): InterviewNamespace = {
-    interviews.getOrElseUpdate(namespace, {
-      new InterviewNamespace(pkg, TypeName(namespace, Nil, Some(TypeName.Interview)))
-    }).asInstanceOf[InterviewNamespace]
-  }
-}
-
-/** The type for an a custom interview, the only kind */
-final class CustomInterview(_pkg: PackageImpl, _typeName: TypeName, path: PathLike)
-  extends InnerBasicTypeDeclaration(_pkg, _typeName) {
+/** A individual custom interview being represented as interview derived type. */
+final case class CustomInterview(pkg: PackageImpl, location: LocationImpl, interviewName: Name)
+  extends InnerBasicTypeDeclaration(pkg, TypeName(interviewName, Nil, Some(TypeName.Interview))) {
 
   override val superClass: Option[TypeName] = Some(TypeName.Interview)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.interviewType)
@@ -78,15 +48,60 @@ final class CustomInterview(_pkg: PackageImpl, _typeName: TypeName, path: PathLi
   }
 }
 
-/** Interviews wrapped into a namespace */
-final class InterviewNamespace(_pkg: PackageImpl, _typeName: TypeName)
-  extends InnerBasicTypeDeclaration(_pkg, _typeName) {
+/** Flow.Interview implementation. Provides access to interviews in the package as well as interviews that are
+  * accessible in base packages via the Flow.Interview.namespace.name format. */
+final class InterviewDeclaration(pkg: PackageImpl, nestedInterviews: Seq[TypeDeclaration])
+  extends BasicTypeDeclaration(pkg, TypeName.Interview) {
 
-  private var interviews: Seq[CustomInterview] = Nil
-  override def nestedTypes: Seq[TypeDeclaration] = interviews
+  override def nestedTypes: Seq[TypeDeclaration] = nestedInterviews ++ namespaceDeclaration.toSeq
 
-  def upsert(interview: CustomInterview): Unit = {
-    interviews = interview +: interviews
+  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
+                          verifyContext: VerifyContext): Seq[MethodDeclaration] = {
+    PlatformTypes.interviewType.findMethod(name, params, staticContext, verifyContext)
+  }
+
+  // This is the optional Flow.Interview.namespace implementation
+  private var namespaceDeclaration = pkg.namespace.map(_ => new NamespaceDeclaration())
+
+  class NamespaceDeclaration(nestedInterviews: Seq[CustomInterview] = Seq()) extends InnerBasicTypeDeclaration(pkg,
+    TypeName(pkg.namespace.get, Nil, Some(TypeName.Interview))) {
+    override def nestedTypes: Seq[TypeDeclaration] = nestedInterviews
+
+    def merge(stream: PackageStream): NamespaceDeclaration = {
+      new NamespaceDeclaration(nestedInterviews ++ stream.flows.map(fe => CustomInterview(pkg, fe.location, fe.name)))
+    }
+  }
+
+  /** Create new from merging those in the provided stream */
+  def merge(stream: PackageStream): InterviewDeclaration = {
+    val interviews = stream.flows.map(fe => CustomInterview(pkg, fe.location, fe.name))
+    val interviewDeclaration = new InterviewDeclaration(pkg, nestedInterviews ++ interviews)
+    interviewDeclaration.namespaceDeclaration.foreach(td =>
+      interviewDeclaration.namespaceDeclaration = Some(td.merge(stream)))
+    interviewDeclaration
   }
 }
+
+/** Flow.Interview.ns implementation for exposing interviews from dependent packages. As the exposed interviews are
+  * owned elsewhere (by the passed LabelDeclaration) there is no need to set a controller here.
+  */
+final class PackageInterviews(pkg: PackageImpl, interviewDeclaration: InterviewDeclaration)
+  extends InnerBasicTypeDeclaration(pkg,
+    TypeName(interviewDeclaration.packageDeclaration.get.namespace.get, Nil, Some(TypeName.Interview))) {
+
+  override def nestedTypes: Seq[TypeDeclaration] = interviewDeclaration.nestedTypes
+}
+
+object InterviewDeclaration {
+  def apply(pkg: PackageImpl): InterviewDeclaration = {
+    new InterviewDeclaration(pkg, collectBaseInterviews(pkg))
+  }
+
+  private def collectBaseInterviews(pkg: PackageImpl): Seq[PackageInterviews] = {
+    // TODO: We should support ghosted packages here but that would require the ability to on-demand created
+    // nested types which is not currently handled by TypeDeclaration
+    pkg.transitiveBasePackages.toSeq.map(basePkg => new PackageInterviews(pkg, basePkg.interviews))
+  }
+}
+
 

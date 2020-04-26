@@ -38,7 +38,7 @@ import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.common.types.apex.ApexClassDeclaration
-import com.nawforce.common.types.other._
+import com.nawforce.common.types.other.{InterviewDeclaration, _}
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.schema.SchemaManager
 import com.nawforce.runtime.types.PlatformTypeDeclaration
@@ -50,15 +50,15 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
 
   val namespace: Option[Name] = workspace.namespace.getOrElse(None)
 
+  var labels: LabelDeclaration = LabelDeclaration(this)
+  var pages: PageDeclaration = PageDeclaration(this)
+  var interviews: InterviewDeclaration = InterviewDeclaration(this)
+
   protected val types: mutable.Map[TypeName, TypeDeclaration] = mutable.Map[TypeName, TypeDeclaration]()
   protected val other: mutable.Map[Name, MetadataDeclaration] = mutable.Map[Name, MetadataDeclaration]()
 
-  protected var labels: LabelDeclaration = LabelDeclaration(this)
-  protected var pages: PageDeclaration = PageDeclaration(this)
-
   private val schemaManager = new SchemaManager(this)
   private val anyDeclaration = AnyDeclaration(this)
-  private val interviewDeclaration = new InterviewDeclaration(this)
   private val componentDeclaration = ComponentDeclaration(this)
 
   initTypes()
@@ -71,7 +71,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     upsertMetadata(labels)
     upsertMetadata(labels, Some(TypeName(labels.name)))
     upsertMetadata(pages)
-    upsertMetadata(interviewDeclaration)
+    upsertMetadata(interviews)
     upsertMetadata(componentDeclaration)
   }
 
@@ -143,8 +143,6 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
         types.put(altTypeName.getOrElse(td.typeName), td)
       case cd: ComponentDocument =>
         componentDeclaration.upsert(namespace, cd)
-      case fd: FlowDocument =>
-        interviewDeclaration.upsert(namespace, fd)
       case _ =>
         other.put(md.internalName, md)
     }

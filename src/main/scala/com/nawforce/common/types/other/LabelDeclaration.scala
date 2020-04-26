@@ -56,8 +56,7 @@ object Label {
 }
 
 /** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
-  * base packages via the Label.namespace.name format.
-  */
+  * base packages via the Label.namespace.name format. */
 final class LabelDeclaration(pkg: PackageImpl, labels: Seq[Label], packageLabels: Seq[TypeDeclaration])
   extends BasicTypeDeclaration(pkg, TypeName.Label) {
 
@@ -121,7 +120,7 @@ object LabelDeclaration {
       if (basePkg.isGhosted) {
         new GhostedLabels(pkg, basePkg.namespace.get)
       } else {
-        new PackageLabels(pkg, basePkg.labels())
+        new PackageLabels(pkg, basePkg.labels)
       }
     }).toSeq
   }

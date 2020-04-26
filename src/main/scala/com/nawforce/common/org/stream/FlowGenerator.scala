@@ -32,58 +32,29 @@ import com.nawforce.common.diagnostics.IssueLogger
 import com.nawforce.common.documents._
 import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.xml.{XMLException, XMLFactory}
 
 import scala.collection.immutable.Queue
 
-case class LabelEvent(location: LocationImpl, name: Name, isProtected: Boolean) extends PackageEvent
+case class FlowEvent(location: LocationImpl, name: Name) extends PackageEvent
 
-object LabelGenerator {
+object FlowGenerator {
 
   def queue(logger: IssueLogger, index: DocumentIndex, queue: Queue[PackageEvent])
-    : Queue[PackageEvent] = {
-    index.getByExtension(Name("labels")).foldRight(queue)((f, q) => queueFromPath(logger, q, f.path))
+  : Queue[PackageEvent] = {
+    index.getByExtension(Name("flow")).foldRight(queue)((f, q) => queueFromPath(logger, q, f.path))
   }
 
   private def queueFromPath(logger: IssueLogger, queue: Queue[PackageEvent], path: PathLike): Queue[PackageEvent] = {
     if (!path.isFile) {
-      logger.logError(LineLocationImpl(path.toString, 0), s"Expecting labels to be in a regular file")
+      logger.logError(LineLocationImpl(path.toString, 0), s"Expecting flow to be in a regular file")
       return queue
     }
 
-    val data = path.read()
-    if (data.isLeft) {
-      logger.logError(LineLocationImpl(path.toString, 0), s"Could not read file: ${data.right.get}")
-      return queue
+    DocumentType(path) match {
+      case Some(flow: FlowDocument) =>
+        queue :+ FlowEvent(LineLocationImpl(flow.path.toString, 0), flow.name)
+      case _ =>
+        queue
     }
-
-    val parseResult = XMLFactory.parse(path)
-    if (parseResult.isLeft) {
-      logger.logError(parseResult.left.get._1, parseResult.left.get._2)
-      return queue
-    }
-    val rootElement = parseResult.right.get.rootElement
-
-    try {
-      rootElement.assertIs("CustomLabels")
-    } catch {
-      case e: XMLException =>
-        logger.logError(RangeLocationImpl(path, e.where), e.msg)
-        return queue
-    }
-
-    val labels = rootElement.getChildren("labels")
-      .flatMap(c => {
-        try {
-          val fullName: String = c.getSingleChildAsString("fullName")
-          val protect: Boolean = c.getSingleChildAsBoolean("protected")
-          Some(LabelEvent(RangeLocationImpl(path, TextRange(c.line)), Name(fullName), protect))
-        } catch {
-          case e: XMLException =>
-            logger.logError(RangeLocationImpl(path, e.where), e.msg)
-            None
-        }
-      })
-      queue ++ labels
   }
 }
