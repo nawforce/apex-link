@@ -67,6 +67,12 @@ final class LabelDeclaration(pkg: PackageImpl, labels: Seq[Label], packageLabels
   override val nestedTypes: Seq[TypeDeclaration] = packageLabels
   override val fields: Seq[FieldDeclaration] = labels
 
+  /** Create new labels from merging those in the provided stream */
+  def merge(stream: PackageStream): LabelDeclaration = {
+    val newLabels = labels ++ stream.labels.map(le => Label(le.location, le.name, le.isProtected))
+    new LabelDeclaration(pkg, newLabels, packageLabels)
+  }
+
   // Report on unused labels
   def unused(): Seq[Issue] = {
     labels.filterNot(_.hasHolders)
@@ -105,9 +111,8 @@ final class GhostedLabels(pkg: PackageImpl, ghostedNamespace: Name)
 
 object LabelDeclaration {
   /** Construct System.Label for a package. */
-  def apply(pkg: PackageImpl, stream: PackageStream): LabelDeclaration = {
-    val labels = stream.labels.map(le => Label(le.location, le.name, le.isProtected))
-    new LabelDeclaration(pkg, labels, createPackageLabels(pkg))
+  def apply(pkg: PackageImpl): LabelDeclaration = {
+    new LabelDeclaration(pkg, Seq(), createPackageLabels(pkg))
   }
 
   // Create labels declarations for each base package
