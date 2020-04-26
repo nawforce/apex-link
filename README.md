@@ -69,7 +69,7 @@ To use the jar in a maven project add the following to your pom.xml
     <dependency>
         <groupId>com.github.nawforce</groupId>
         <artifactId>apexlink</artifactId>
-        <version>0.8</version>
+        <version>0.8.1</version>
     </dependency>
 
 ### Source & Licenses
@@ -78,4 +78,5 @@ The core of ApexLink is written in Scala but should run on any fairly recent JVM
 Javascript via scala.js. Please let me know if you have trouble building or running it. All the source code included 
 uses a 3-clause BSD license. The only third-party component included is the Apex Antlr4 grammar originally from 
 [Tooling-force.com](https://github.com/neowit/tooling-force.com), although the version used is now markedly different 
-from the original.  
+from the original.
+
