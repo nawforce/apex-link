@@ -29,13 +29,12 @@
 package com.nawforce.common.org
 
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, UnusedLog}
-import com.nawforce.common.diagnostics.{IssueLog, LocalLogger}
+import com.nawforce.common.diagnostics.IssueLog
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.metadata.MetadataDeclaration
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
-import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.common.types.apex.ApexClassDeclaration
@@ -51,29 +50,27 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
 
   val namespace: Option[Name] = workspace.namespace.getOrElse(None)
 
-  protected val documents = new DocumentIndex(workspace.paths, workspace.forceIgnore)
-  private val stream = PackageStream(new LocalLogger(org.issues), namespace, documents)
-
   protected val types: mutable.Map[TypeName, TypeDeclaration] = mutable.Map[TypeName, TypeDeclaration]()
   protected val other: mutable.Map[Name, MetadataDeclaration] = mutable.Map[Name, MetadataDeclaration]()
 
+  protected var labels: LabelDeclaration = LabelDeclaration(this)
+  protected var pages: PageDeclaration = PageDeclaration(this)
+
   private val schemaManager = new SchemaManager(this)
   private val anyDeclaration = AnyDeclaration(this)
-  private val labelDeclaration = LabelDeclaration(this, stream)
-  private val pageDeclaration = PageDeclaration(this, stream)
   private val interviewDeclaration = new InterviewDeclaration(this)
   private val componentDeclaration = ComponentDeclaration(this)
 
   initTypes()
-  deployWorkspace(documents)
+  deployFromWorkspace(workspace)
 
   private def initTypes(): Unit = {
     upsertMetadata(anyDeclaration)
     upsertMetadata(schemaManager.sobjectTypes)
     upsertMetadata(schemaManager.sobjectTypes, Some(TypeName(schemaManager.sobjectTypes.name)))
-    upsertMetadata(labelDeclaration)
-    upsertMetadata(labelDeclaration, Some(TypeName(labelDeclaration.name)))
-    upsertMetadata(pageDeclaration)
+    upsertMetadata(labels)
+    upsertMetadata(labels, Some(TypeName(labels.name)))
+    upsertMetadata(pages)
     upsertMetadata(interviewDeclaration)
     upsertMetadata(componentDeclaration)
   }
@@ -82,8 +79,6 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   def hasGhosted: Boolean = isGhosted || basePackages.exists(_.hasGhosted)
   def any(): AnyDeclaration = anyDeclaration
   def schema(): SchemaManager = schemaManager
-  def labels(): LabelDeclaration = labelDeclaration
-  def pages(): PageDeclaration = pageDeclaration
 
   /* Base (dependent packages for this package), unmanaged is treated as dependent on everything */
   def basePackages: Seq[PackageImpl] = {

@@ -51,12 +51,18 @@ final case class PageDeclaration(pkg: PackageImpl, pages: Seq[Page])
 
   override val isComplete: Boolean = !pkg.hasGhosted
   override val fields: Seq[FieldDeclaration]= pages
+
+  /** Create new pages from merging those in the provided stream */
+  def merge(stream: PackageStream): PageDeclaration = {
+    val newPages = pages ++ stream.pages.map(pe => Page(pe.location, pe.name))
+    new PageDeclaration(pkg, newPages)
+  }
+
 }
 
 object PageDeclaration {
-  def apply(pkg: PackageImpl, stream: PackageStream): PageDeclaration = {
-    val pages = collectBasePages(pkg) ++ stream.pages.map(pe => Page(pe.location, pe.name))
-    new PageDeclaration(pkg, pages)
+  def apply(pkg: PackageImpl): PageDeclaration = {
+    new PageDeclaration(pkg, collectBasePages(pkg))
   }
 
   private def collectBasePages(pkg: PackageImpl): Seq[Page] = {
