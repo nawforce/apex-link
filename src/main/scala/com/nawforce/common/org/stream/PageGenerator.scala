@@ -46,7 +46,7 @@ object PageGenerator {
 
   private def queueFromPath(logger: IssueLogger, queue: Queue[PackageEvent], path: PathLike): Queue[PackageEvent] = {
     if (!path.isFile) {
-      logger.logError(LineLocationImpl(path.toString, 0), s"Expecting page to be in a normal file")
+      logger.logError(LineLocationImpl(path.toString, 0), s"Expecting page to be in a regular file")
       return queue
     }
 

@@ -38,6 +38,7 @@ trait PackageEvent
 class PackageStream(val namespace: Option[Name], val events: Seq[PackageEvent]) {
   def labels: Seq[LabelEvent] = events.collect{case e: LabelEvent => e}
   def pages: Seq[PageEvent] = events.collect{case e: PageEvent => e}
+  def flows: Seq[FlowEvent] = events.collect{case e: FlowEvent => e}
 }
 
 object PackageStream {
@@ -45,6 +46,7 @@ object PackageStream {
     var queue = Queue[PackageEvent]()
     queue = LabelGenerator.queue(logger, index, queue)
     queue = PageGenerator.queue(logger, index, queue)
+    queue = FlowGenerator.queue(logger, index, queue)
     new PackageStream(namespace, queue)
   }
 }

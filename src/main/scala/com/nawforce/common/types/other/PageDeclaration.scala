@@ -68,7 +68,7 @@ object PageDeclaration {
   private def collectBasePages(pkg: PackageImpl): Seq[Page] = {
     pkg.transitiveBasePackages.toSeq.flatMap(basePkg => {
       val ns = basePkg.namespace.get
-      basePkg.pages().pages.map(page => {
+      basePkg.pages.pages.map(page => {
         if (page.name.contains("__"))
           page
         else
