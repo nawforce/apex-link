@@ -108,7 +108,7 @@ object MethodMap {
 
     // Validate any interface use in classes
     if (td.nature == CLASS_NATURE) {
-      workingMap.put((Name.Clone, 0), Seq(CustomMethodDeclaration(Name.Clone, td.typeName, Seq())))
+      workingMap.put((Name.Clone, 0), Seq(CustomMethodDeclaration(location, Name.Clone, td.typeName, Seq())))
       checkInterfaces(td.packageDeclaration, location, td.isAbstract, workingMap, interfaces, errors)
     }
 

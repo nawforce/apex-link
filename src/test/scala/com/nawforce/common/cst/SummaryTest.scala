@@ -108,16 +108,17 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Enum") {
+    val idLocation = Some(RangeLocation(Position(1,12),Position(1,17)))
     assert(classSummary("public enum Dummy {}") ==
-      TypeSummary(-1129410070, Some(new RangeLocation(new Position(1,12), new Position(1,17))),
+      TypeSummary(-1129410070, idLocation,
         "Dummy", dummyTypeName, "enum", List("public"),
         None, Nil, Nil, Nil, Nil,
         List(
-          MethodSummary(None, "equals", List("public"), TypeName.Boolean, List(ParameterSummary("other", TypeName.InternalObject)),Set()),
-          MethodSummary(None, "hashCode", List("public"), TypeName.Integer, List(),Set()),
-          MethodSummary(None, "name", List("public"), TypeName.String, List(),Set()),
-          MethodSummary(None, "ordinal", List("public"), TypeName.Integer, List(),Set()),
-          MethodSummary(None, "values", List("public", "static"),TypeName.listOf(dummyTypeName),List(),Set())),
+          MethodSummary(idLocation, "equals", List("public"), TypeName.Boolean, List(ParameterSummary("other", TypeName.InternalObject)),Set()),
+          MethodSummary(idLocation, "hashCode", List("public"), TypeName.Integer, List(),Set()),
+          MethodSummary(idLocation, "name", List("public"), TypeName.String, List(),Set()),
+          MethodSummary(idLocation, "ordinal", List("public"), TypeName.Integer, List(),Set()),
+          MethodSummary(idLocation, "values", List("public", "static"),TypeName.listOf(dummyTypeName),List(),Set())),
         Nil, Set(), Set())
     )
   }
@@ -221,8 +222,9 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Enum with values") {
+    val idLocation = Some(RangeLocation(Position(1,12),Position(1,17)))
     assert(classSummary("public enum Dummy {B, A, C }") ==
-      TypeSummary(1277314056, Some(new RangeLocation(new Position(1,12), new Position(1,17))),
+      TypeSummary(1277314056, idLocation,
         "Dummy", dummyTypeName, "enum", List("public"), None, Nil, Nil,
         List(
           FieldSummary(Some(new RangeLocation(new Position(1,22), new Position(1,23))),
@@ -234,11 +236,11 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
         ),
         Nil,
         List(
-          MethodSummary(None, "equals", List("public"), TypeName.Boolean, List(ParameterSummary("other", TypeName.InternalObject)),Set()),
-          MethodSummary(None, "hashCode", List("public"), TypeName.Integer, List(),Set()),
-          MethodSummary(None, "name", List("public"), TypeName.String, List(),Set()),
-          MethodSummary(None, "ordinal", List("public"), TypeName.Integer, List(),Set()),
-          MethodSummary(None, "values", List("public", "static"),TypeName.listOf(dummyTypeName),List(),Set())),
+          MethodSummary(idLocation, "equals", List("public"), TypeName.Boolean, List(ParameterSummary("other", TypeName.InternalObject)),Set()),
+          MethodSummary(idLocation, "hashCode", List("public"), TypeName.Integer, List(),Set()),
+          MethodSummary(idLocation, "name", List("public"), TypeName.String, List(),Set()),
+          MethodSummary(idLocation, "ordinal", List("public"), TypeName.Integer, List(),Set()),
+          MethodSummary(idLocation, "values", List("public", "static"),TypeName.listOf(dummyTypeName),List(),Set())),
         Nil, Set(), Set())
     )
   }
