@@ -64,7 +64,7 @@ object Pickler {
       Files.createDirectory(nsDir)
 
     val file = nsDir.resolve(td.typeName.name.value+".json")
-    Files.write(file, write(td.summary).getBytes)
+    Files.write(file, write(td.serialise).getBytes)
   }
 }
 

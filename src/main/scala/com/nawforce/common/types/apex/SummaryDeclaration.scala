@@ -184,7 +184,7 @@ class SummaryMethod(val pkg: PackageImpl, path: PathLike, defaultNameRange: Rang
 }
 
 class SummaryBlock(val pkg :PackageImpl, blockSummary: BlockSummary)
-  extends BlockDeclaration with SummaryDependencyHandler {
+  extends ApexBlockLike with SummaryDependencyHandler {
 
   override lazy val dependents: Set[DependentSummary] = blockSummary.dependents
 
@@ -215,7 +215,7 @@ class SummaryConstructor(val pkg: PackageImpl, path: PathLike, constructorSummar
 }
 
 class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerTypeName: Option[TypeName],
-                         summary: TypeSummary)
+                         val summary: TypeSummary)
   extends ApexClassDeclaration with SummaryDependencyHandler {
 
   // For outer types only, update the dependency holders so we can defer dependency propagation

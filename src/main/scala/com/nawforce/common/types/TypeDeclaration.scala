@@ -60,7 +60,7 @@ object Nature {
 trait BlockDeclaration extends DependencyHolder {
   val isStatic: Boolean
 
-  def summary: BlockSummary = {
+  def serialise: BlockSummary = {
     BlockSummary(isStatic, dependencySummary())
   }
 }
@@ -75,11 +75,11 @@ trait FieldDeclaration extends DependencyHolder {
 
   lazy val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
 
-  def summary: FieldSummary = {
-    summary(None)
+  def serialise: FieldSummary = {
+    serialise(None)
   }
 
-  protected def summary(range: Option[RangeLocation]): FieldSummary = {
+  protected def serialise(range: Option[RangeLocation]): FieldSummary = {
     FieldSummary(range, name.toString,
       modifiers.map(_.toString).sorted.toList,
       typeName,
@@ -114,23 +114,25 @@ trait ParameterDeclaration {
   val name: Name
   val typeName: TypeName
 
-  def summary: ParameterSummary = {
+  def serialise: ParameterSummary = {
     ParameterSummary(name.toString, typeName)
   }
+
+  def summary: ParameterSummary = serialise
 }
 
 trait ConstructorDeclaration extends DependencyHolder {
   val modifiers: Seq[Modifier]
   val parameters: Seq[ParameterDeclaration]
 
-  def summary: ConstructorSummary = {
-    summary(None)
+  def serialise: ConstructorSummary = {
+    serialise(None)
   }
 
-  protected def summary(range: Option[RangeLocation]): ConstructorSummary = {
+  protected def serialise(range: Option[RangeLocation]): ConstructorSummary = {
     ConstructorSummary(range,
       modifiers.map(_.toString).sorted.toList,
-      parameters.map(_.summary).sortBy(_.name).toList,
+      parameters.map(_.serialise).sortBy(_.name).toList,
       dependencySummary()
     )
   }
@@ -208,15 +210,15 @@ trait MethodDeclaration extends DependencyHolder {
     }
   }
 
-  def summary: MethodSummary = {
-    summary(None)
+  def serialise: MethodSummary = {
+    serialise(None)
   }
 
-  protected def summary(range: Option[RangeLocation]): MethodSummary = {
+  protected def serialise(range: Option[RangeLocation]): MethodSummary = {
     MethodSummary(range,
       name.toString, modifiers.map(_.toString).sorted.toList,
       typeName,
-      parameters.map(_.summary).toList, dependencySummary()
+      parameters.map(_.serialise).toList, dependencySummary()
     )
   }
 }
@@ -386,8 +388,11 @@ trait TypeDeclaration extends MetadataDeclaration {
       interfaceDeclarations.flatMap(_.superTypes())
   }
 
-  // Obtain a summary representation of the type declaration for caching
-  def summary: TypeSummary = {
+  /** Create a type summary for serialisation purposes. Although this uses the same format as summaries for
+    * consistency, the location fields are not set so that we can serialise platform types that come via Java
+    * reflection for use with the scala.js version of the library.
+    */
+  def serialise: TypeSummary = {
     TypeSummary (
       0,
       None,
@@ -396,11 +401,11 @@ trait TypeDeclaration extends MetadataDeclaration {
       nature.value, modifiers.map(_.toString).sorted.toList,
       superClass,
       interfaces.toList,
-      blocks.map(_.summary).toList,
-      fields.map(_.summary).sortBy(_.name).toList,
-      constructors.map(_.summary).sortBy(_.parameters.size).toList,
-      methods.map(_.summary).sortBy(_.name).toList,
-      nestedTypes.map(_.summary).sortBy(_.name).toList,
+      blocks.map(_.serialise).toList,
+      fields.map(_.serialise).sortBy(_.name).toList,
+      constructors.map(_.serialise).sortBy(_.parameters.size).toList,
+      methods.map(_.serialise).sortBy(_.name).toList,
+      nestedTypes.map(_.serialise).sortBy(_.name).toList,
       dependencySummary(),
       Set.empty
     )

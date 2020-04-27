@@ -147,6 +147,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
       assert(summary.name == "Dummy")
       assert(summary.typeName.toString == "Dummy")
+      assert(summary.idRange.contains(RangeLocation(Position(1,13), Position(1,18))))
       assert(summary.modifiers == List("public"))
     }
   }
@@ -164,6 +165,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
       assert(summary.name == "Dummy")
       assert(summary.typeName.toString == "test.Dummy")
+      assert(summary.idRange.contains(RangeLocation(Position(1,21), Position(1,26))))
       assert(summary.modifiers == List("@IsTest", "public"))
     }
   }
@@ -190,6 +192,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(pkg2.getType(TypeName(typeLike), None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
       assert(summary.name == "Dummy")
       assert(summary.typeName.toString == "test.Dummy")
+      assert(summary.idRange.contains(RangeLocation(Position(1,21), Position(1,26))))
       assert(summary.modifiers == List("@IsTest", "public"))
     }
 
@@ -209,6 +212,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
       assert(summary.name == "__sfdc_trigger/test/Dummy")
       assert(summary.typeName.toString == "__sfdc_trigger/test/Dummy")
+      assert(summary.idRange.contains(RangeLocation(Position(1,8), Position(1,13))))
       assert(summary.modifiers.isEmpty)
     }
   }
@@ -226,6 +230,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
       assert(summary.name == "__sfdc_trigger/Dummy")
       assert(summary.typeName.toString == "__sfdc_trigger/Dummy")
+      assert(summary.idRange.contains(RangeLocation(Position(1,8), Position(1,13))))
       assert(summary.modifiers.isEmpty)
     }
   }

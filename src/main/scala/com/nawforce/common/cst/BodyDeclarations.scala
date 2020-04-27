@@ -33,7 +33,7 @@ import com.nawforce.common.metadata._
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types._
-import com.nawforce.common.types.apex.{ApexConstructorLike, ApexFieldLike, ApexMethodLike}
+import com.nawforce.common.types.apex.{ApexBlockLike, ApexConstructorLike, ApexFieldLike, ApexMethodLike}
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -105,7 +105,7 @@ object ClassBodyDeclaration {
 }
 
 final case class ApexInitialiserBlock(_modifiers: ModifierResults, block: Block)
-  extends ClassBodyDeclaration(_modifiers) with BlockDeclaration {
+  extends ClassBodyDeclaration(_modifiers) with ApexBlockLike {
 
   override val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
 

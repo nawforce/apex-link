@@ -30,7 +30,7 @@ package com.nawforce.common.cst
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types._
-import com.nawforce.common.types.apex.FullDeclaration
+import com.nawforce.common.types.apex.{ApexVisibleMethodLike, FullDeclaration}
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 
@@ -152,14 +152,14 @@ final case class EnumDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeN
     super.verify(new TypeVerifyContext(Some(context), this, context.shouldPropagateDependencies))
   }
 
-  override lazy val localMethods: Seq[MethodDeclaration] =
+  override lazy val localMethods: Seq[ApexVisibleMethodLike] =
     Seq(
-      CustomMethodDeclaration(Name("name"), TypeName.String, Seq()),
-      CustomMethodDeclaration(Name("ordinal"), TypeName.Integer, Seq()),
-      CustomMethodDeclaration(Name("values"), TypeName.listOf(typeName), Seq(), asStatic = true),
-      CustomMethodDeclaration(Name("equals"), TypeName.Boolean, Seq(
+      CustomMethodDeclaration(Some(id.location), Name("name"), TypeName.String, Seq()),
+      CustomMethodDeclaration(Some(id.location),Name("ordinal"), TypeName.Integer, Seq()),
+      CustomMethodDeclaration(Some(id.location),Name("values"), TypeName.listOf(typeName), Seq(), asStatic = true),
+      CustomMethodDeclaration(Some(id.location),Name("equals"), TypeName.Boolean, Seq(
         CustomParameterDeclaration(Name("other"), TypeName.InternalObject))),
-      CustomMethodDeclaration(Name("hashCode"), TypeName.Integer, Seq())
+      CustomMethodDeclaration(Some(id.location),Name("hashCode"), TypeName.Integer, Seq())
     )
 }
 

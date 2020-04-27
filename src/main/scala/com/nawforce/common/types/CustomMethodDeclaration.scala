@@ -27,16 +27,30 @@
 */
 package com.nawforce.common.types
 
+import com.nawforce.common.api.{MethodSummary, Position, RangeLocation}
 import com.nawforce.common.cst.{Modifier, PUBLIC_MODIFIER, STATIC_MODIFIER}
+import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.types.apex.ApexVisibleMethodLike
+
+/** Custom methods are used to inject synthetic methods into types so they fulfil some contract. They extend from
+  * ApexVisibleMethodLike so they can be referenced within Apex code and be included in type summary information
+  * but otherwise have little in common with the usual ApexMethodLike handling.
+  */
+final case class CustomMethodDeclaration(nameRange: Option[LocationImpl], name: Name, typeName: TypeName,
+                                         parameters: Seq[CustomParameterDeclaration], asStatic: Boolean = false)
+  extends ApexVisibleMethodLike {
+
+  override val modifiers: Seq[Modifier] = Seq(PUBLIC_MODIFIER) ++ (if (asStatic) Seq(STATIC_MODIFIER) else Seq())
+  override lazy val isStatic: Boolean = asStatic
+
+  def summary: MethodSummary = {
+    serialise(nameRange.map(nr =>
+      RangeLocation(
+        Position(nr.startPosition._1, nr.startPosition._2),
+        Position(nr.endPosition._1, nr.endPosition._2))
+    ))
+  }
+}
 
 final case class CustomParameterDeclaration(name: Name, typeName: TypeName) extends ParameterDeclaration
-
-final case class CustomMethodDeclaration(name: Name, typeName: TypeName, parameters: Seq[CustomParameterDeclaration], asStatic: Boolean = false)
-  extends MethodDeclaration {
-
-  override val modifiers: Seq[Modifier] = Seq(PUBLIC_MODIFIER) ++
-    (if (asStatic) Seq(STATIC_MODIFIER) else Seq())
-
-  override lazy val isStatic: Boolean = asStatic
-}

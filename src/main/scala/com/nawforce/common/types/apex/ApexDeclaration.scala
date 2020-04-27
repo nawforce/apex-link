@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.types.apex
 
-import com.nawforce.common.api.{ConstructorSummary, FieldSummary, MethodSummary, RangeLocation}
+import com.nawforce.common.api._
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents._
@@ -35,21 +35,32 @@ import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types.{ConstructorDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
+import com.nawforce.common.types._
 
 import scala.collection.mutable
+
+/** Apex block core features, be they full or summary style */
+trait ApexBlockLike extends BlockDeclaration {
+  def summary: BlockSummary = serialise
+}
 
 /** Apex defined constructor core features, be they full or summary style */
 trait ApexConstructorLike extends ConstructorDeclaration {
   val nameRange: RangeLocationImpl
 
-  override def summary: ConstructorSummary = {
-    super.summary(Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
+  def summary: ConstructorSummary = {
+    serialise(Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
   }
 }
 
+/** Unifying trait for ApexMethodLike and CustomMethodDeclaration. Both need to be appears to be visible from a
+  * a type but have little in common beyond allowing for constructions of a summary. */
+trait ApexVisibleMethodLike extends MethodDeclaration {
+  def summary: MethodSummary
+}
+
 /** Apex defined method core features, be they full or summary style */
-trait ApexMethodLike extends MethodDeclaration {
+trait ApexMethodLike extends ApexVisibleMethodLike {
   val nameRange: RangeLocationImpl
   val outerTypeName: TypeName
 
@@ -73,8 +84,8 @@ trait ApexMethodLike extends MethodDeclaration {
       })
   }
 
-  override def summary: MethodSummary = {
-    super.summary(Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
+  def summary: MethodSummary = {
+    serialise(Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
   }
 }
 
@@ -84,8 +95,8 @@ trait ApexFieldLike extends FieldDeclaration {
   val outerTypeName: TypeName
   val idTarget: Option[TypeName] = None
 
-  override def summary: FieldSummary = {
-    super.summary(Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
+  def summary: FieldSummary = {
+    serialise(Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
   }
 }
 
@@ -95,6 +106,9 @@ trait ApexDeclaration extends TypeDeclaration {
   val sourceHash: Int
   val pkg: PackageImpl
   val nameLocation: LocationImpl
+
+  // Get summary of this type
+  def summary: TypeSummary
 
   // Collect set of TypeNames that this declaration is dependent on
   def collectDependenciesByTypeName(dependents: mutable.Set[TypeName])
