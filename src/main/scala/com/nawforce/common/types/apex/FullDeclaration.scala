@@ -65,9 +65,9 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
     }
   }
 
-  override lazy val blocks: Seq[BlockDeclaration] = {
+  override lazy val blocks: Seq[ApexInitialiserBlock] = {
     bodyDeclarations.flatMap {
-      case x: BlockDeclaration => Some(x)
+      case x: ApexInitialiserBlock => Some(x)
       case _ => None
     }
   }
@@ -80,16 +80,16 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
     }
   }
 
-  override lazy val constructors: Seq[ConstructorDeclaration] = {
+  override lazy val constructors: Seq[ApexConstructorDeclaration] = {
     bodyDeclarations.flatMap {
-      case x: ConstructorDeclaration => Some(x)
+      case x: ApexConstructorDeclaration => Some(x)
       case _ => None
     }
   }
 
-  override lazy val localMethods: Seq[MethodDeclaration] = {
+  override lazy val localMethods: Seq[ApexVisibleMethodLike] = {
     bodyDeclarations.flatMap({
-      case m: ApexMethodDeclaration => Some(m)
+      case m: ApexVisibleMethodLike => Some(m)
       case _ => None
     })
   }

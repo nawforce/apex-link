@@ -230,7 +230,7 @@ final case class SObjectTypeFields(sobjectName: Name, pkg: PackageImpl)
 
   lazy val methodMap: Map[(Name, Int), MethodDeclaration] =
     Seq(
-      CustomMethodDeclaration(Name("getMap"), TypeName.mapOf(TypeName.String, TypeName.SObjectField), Seq()),
+      CustomMethodDeclaration(None, Name("getMap"), TypeName.mapOf(TypeName.String, TypeName.SObjectField), Seq()),
     ).map(m => ((m.name, m.parameters.size),m)).toMap
 }
 

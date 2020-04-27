@@ -68,12 +68,12 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
 
   override val superClass: Option[TypeName] = None
   override val interfaces: Seq[TypeName] = Seq.empty
-  override def nestedTypes: Seq[TypeDeclaration] = Seq.empty
+  override def nestedTypes: Seq[ApexFullDeclaration] = Seq.empty
 
-  override val blocks: Seq[BlockDeclaration] = Seq.empty
-  override val fields: Seq[FieldDeclaration]= Seq.empty
-  override val constructors: Seq[ConstructorDeclaration] = Seq.empty
-  override val methods: Seq[MethodDeclaration]= Seq.empty
+  override val blocks: Seq[ApexInitialiserBlock] = Seq.empty
+  override val fields: Seq[ApexFieldDeclaration]= Seq.empty
+  override val constructors: Seq[ApexConstructorDeclaration] = Seq.empty
+  override val methods: Seq[ApexMethodDeclaration]= Seq.empty
 
   private var depends: Option[mutable.Set[Dependent]] = None
   private val objectTypeName = TypeName(objectNameId.name, Nil, Some(TypeName.Schema))

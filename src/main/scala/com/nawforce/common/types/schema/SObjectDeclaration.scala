@@ -89,28 +89,28 @@ final case class SObjectDeclaration(pkg: PackageImpl, _typeName: TypeName,
     val preserveReadOnlyTimestamps = CustomParameterDeclaration(Name("preserveReadOnlyTimestamps"), TypeName.Boolean)
     val preserveAutonumber = CustomParameterDeclaration(Name("preserveAutonumber"), TypeName.Boolean)
     Seq(
-      CustomMethodDeclaration(Name("clone"), typeName, Seq()),
-      CustomMethodDeclaration(Name("clone"), typeName, Seq(preserveId)),
-      CustomMethodDeclaration(Name("clone"), typeName, Seq(preserveId, isDeepClone)),
-      CustomMethodDeclaration(Name("clone"), typeName, Seq(preserveId, isDeepClone, preserveReadOnlyTimestamps)),
-      CustomMethodDeclaration(Name("clone"), typeName, Seq(preserveId, isDeepClone, preserveReadOnlyTimestamps, preserveAutonumber))
+      CustomMethodDeclaration(None, Name("clone"), typeName, Seq()),
+      CustomMethodDeclaration(None, Name("clone"), typeName, Seq(preserveId)),
+      CustomMethodDeclaration(None, Name("clone"), typeName, Seq(preserveId, isDeepClone)),
+      CustomMethodDeclaration(None, Name("clone"), typeName, Seq(preserveId, isDeepClone, preserveReadOnlyTimestamps)),
+      CustomMethodDeclaration(None, Name("clone"), typeName, Seq(preserveId, isDeepClone, preserveReadOnlyTimestamps, preserveAutonumber))
     ).map(m => ((m.name, m.parameters.size, m.isStatic),m)).toMap
   }
 
   private lazy val hierarchyCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
     Seq(
-      CustomMethodDeclaration(Name("getInstance"), typeName, Seq()),
-      CustomMethodDeclaration(Name("getInstance"), typeName, Seq(CustomParameterDeclaration(Name("Id"), TypeName.Id))),
-      CustomMethodDeclaration(Name("getOrgDefaults"), typeName, Seq()),
-      CustomMethodDeclaration(Name("getValues"), typeName, Seq(CustomParameterDeclaration(Name("Id"), TypeName.Id))),
+      CustomMethodDeclaration(None, Name("getInstance"), typeName, Seq()),
+      CustomMethodDeclaration(None, Name("getInstance"), typeName, Seq(CustomParameterDeclaration(Name("Id"), TypeName.Id))),
+      CustomMethodDeclaration(None, Name("getOrgDefaults"), typeName, Seq()),
+      CustomMethodDeclaration(None, Name("getValues"), typeName, Seq(CustomParameterDeclaration(Name("Id"), TypeName.Id))),
     ).map(m => ((m.name, m.parameters.size),m)).toMap
 
   private lazy val listCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
     Seq(
-      CustomMethodDeclaration(Name("getAll"), TypeName.mapOf(TypeName.String, typeName), Seq()),
-      CustomMethodDeclaration(Name("getInstance"), typeName, Seq()),
-      CustomMethodDeclaration(Name("getInstance"), typeName, Seq(CustomParameterDeclaration(Name("Name"), TypeName.String))),
-      CustomMethodDeclaration(Name("getValues"), typeName, Seq(CustomParameterDeclaration(Name("Name"), TypeName.String))),
+      CustomMethodDeclaration(None, Name("getAll"), TypeName.mapOf(TypeName.String, typeName), Seq()),
+      CustomMethodDeclaration(None, Name("getInstance"), typeName, Seq()),
+      CustomMethodDeclaration(None, Name("getInstance"), typeName, Seq(CustomParameterDeclaration(Name("Name"), TypeName.String))),
+      CustomMethodDeclaration(None, Name("getValues"), typeName, Seq(CustomParameterDeclaration(Name("Name"), TypeName.String))),
     ).map(m => ((m.name, m.parameters.size),m)).toMap
 }
 

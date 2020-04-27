@@ -381,12 +381,12 @@ object PlatformTypeDeclaration {
   /* Standard methods to be exposed on enums */
   private lazy val enumMethods: Seq[MethodDeclaration] =
     Seq(
-      CustomMethodDeclaration(Name("name"), TypeName.String, Seq()),
-      CustomMethodDeclaration(Name("original"), TypeName.Integer, Seq()),
-      CustomMethodDeclaration(Name("values"), TypeName.listOf(TypeName.String), Seq(), asStatic = true),
-      CustomMethodDeclaration(Name("equals"), TypeName.Boolean,
+      CustomMethodDeclaration(None, Name("name"), TypeName.String, Seq()),
+      CustomMethodDeclaration(None, Name("original"), TypeName.Integer, Seq()),
+      CustomMethodDeclaration(None, Name("values"), TypeName.listOf(TypeName.String), Seq(), asStatic = true),
+      CustomMethodDeclaration(None, Name("equals"), TypeName.Boolean,
         Seq(CustomParameterDeclaration(Name("other"), TypeName.InternalObject))),
-      CustomMethodDeclaration(Name("hashCode"), TypeName.Integer, Seq())
+      CustomMethodDeclaration(None, Name("hashCode"), TypeName.Integer, Seq())
     )
 }
 
