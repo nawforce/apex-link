@@ -174,7 +174,8 @@ trait PackageAPI extends Package {
     val td = viewInfoImpl.td.get
 
     // Check we are not trying to circumvent the no duplicates rule
-    if (types.get(td.typeName) match {
+    val existing = getApexDeclaration(td.typeName)
+    if (existing match {
       case Some(ad: ApexDeclaration) => ad.path.absolute != viewInfoImpl.absPath
       case None => false
       case _ => true
@@ -182,7 +183,7 @@ trait PackageAPI extends Package {
 
     OrgImpl.current.withValue(org) {
       // If view created TD use it, otherwise we need to create fresh
-      val updated : Option[TypeDeclaration] =
+      val updated : Option[ApexDeclaration] =
         if (viewInfoImpl.isNew) {
           Some(td)
         } else {
@@ -193,7 +194,13 @@ trait PackageAPI extends Package {
         }
 
       updated.foreach(utd => {
+        // Carry forward holders to limit need for invalidation chaining
+        utd.updateTypeDependencyHolders(existing.map(_.getTypeDependencyHolders).getOrElse(mutable.Set()))
+
+        // Clear old errors as we need to validate the upserted
         org.issues.pop(viewInfoImpl.absPath.toString)
+
+        // Update and validate
         types.put(utd.typeName, utd)
         documents.upsert(viewInfoImpl.absPath)
         utd.validate()

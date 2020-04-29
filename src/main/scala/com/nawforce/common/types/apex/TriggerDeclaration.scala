@@ -122,6 +122,8 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
 
   override def getTypeDependencyHolders: mutable.Set[TypeName] = mutable.Set.empty
 
+  override def updateTypeDependencyHolders(holders: mutable.Set[TypeName]): Unit = {}
+
   // Override to provide location information
   override def summary: TypeSummary = {
     TypeSummary(
