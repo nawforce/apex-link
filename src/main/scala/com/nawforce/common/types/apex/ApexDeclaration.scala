@@ -116,6 +116,9 @@ trait ApexDeclaration extends TypeDeclaration {
   // Get set of TypeName holding a dependency on this declaration
   def getTypeDependencyHolders: mutable.Set[TypeName]
 
+  // Set type dependency holders, useful when carrying forward during upsert
+  def updateTypeDependencyHolders(holders: mutable.Set[TypeName]): Unit
+
   // Update holders on outer dependencies
   def propagateOuterDependencies(): Unit = {
     val dependsOn = mutable.Set[TypeName]()
@@ -159,7 +162,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
   /** Override to handle request to propagate all dependencies in type */
   def propagateAllDependencies(): Unit
 
-  private val typeDependencyHolders = mutable.Set[TypeName]()
+  private var typeDependencyHolders = mutable.Set[TypeName]()
 
   override lazy val typeName: TypeName = {
     outerTypeName.map(outer => TypeName(name).withOuter(Some(outer)))
@@ -233,6 +236,10 @@ trait ApexClassDeclaration extends ApexDeclaration {
 
   override def getTypeDependencyHolders: mutable.Set[TypeName] = {
     typeDependencyHolders
+  }
+
+  override def updateTypeDependencyHolders(holders: mutable.Set[TypeName]): Unit = {
+    typeDependencyHolders = holders
   }
 
   def addTypeDependencyHolder(typeName: TypeName): Unit = {
