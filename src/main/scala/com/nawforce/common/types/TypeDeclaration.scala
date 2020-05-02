@@ -34,7 +34,7 @@ import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.metadata.{DependencyHolder, MetadataDeclaration}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
-import com.nawforce.common.types.other.CustomComponent
+import com.nawforce.common.types.other.Component
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.runtime.types._
 
@@ -333,7 +333,7 @@ trait TypeDeclaration extends MetadataDeclaration {
     assert(isFieldConstructed)
 
     // FUTURE: Disable this bypass once VF parsing supported
-    if (isInstanceOf[CustomComponent])
+    if (isInstanceOf[Component])
       return
 
     val validArgs = arguments.flatMap(argument => {

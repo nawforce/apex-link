@@ -33,7 +33,7 @@ import com.nawforce.common.path.PathLike
 
 import scala.collection.mutable
 
-class DocumentIndexException(msg: String) extends Throwable
+class DocumentIndexException(msg: String) extends Throwable(msg)
 
 class DocumentIndex(paths: Seq[PathLike], forceIgnore: Option[ForceIgnore] = None) {
   // Partitioned by normalised extension

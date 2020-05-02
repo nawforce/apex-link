@@ -25,30 +25,28 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 package com.nawforce.common.org.stream
 
 import com.nawforce.common.diagnostics.IssueLogger
-import com.nawforce.common.documents.DocumentIndex
+import com.nawforce.common.documents._
 import com.nawforce.common.names.Name
 
 import scala.collection.immutable.Queue
 
-trait PackageEvent
+case class ComponentEvent(location: LocationImpl, name: Name) extends PackageEvent
 
-class PackageStream(val namespace: Option[Name], val events: Seq[PackageEvent]) {
-  def labels: Seq[LabelEvent] = events.collect{case e: LabelEvent => e}
-  def pages: Seq[PageEvent] = events.collect{case e: PageEvent => e}
-  def flows: Seq[FlowEvent] = events.collect{case e: FlowEvent => e}
-  def components: Seq[ComponentEvent] = events.collect{case e: ComponentEvent => e}
-}
+/** Convert component documents into PackageEvents */
+object ComponentGenerator extends Generator {
 
-object PackageStream {
-  def apply(logger: IssueLogger, namespace: Option[Name], index: DocumentIndex): PackageStream = {
-    var queue = Queue[PackageEvent]()
-    queue = LabelGenerator.queue(logger, index, queue)
-    queue = PageGenerator.queue(logger, index, queue)
-    queue = FlowGenerator.queue(logger, index, queue)
-    queue = ComponentGenerator.queue(logger, index, queue)
-    new PackageStream(namespace, queue)
+  def queue(logger: IssueLogger, index: DocumentIndex, queue: Queue[PackageEvent]): Queue[PackageEvent] = {
+    super.queue(DocumentType.componentExt, logger, index, queue)
+  }
+
+  override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentType): Option[PackageEvent] = {
+    metadata match {
+      case _: ComponentDocument => Some(ComponentEvent(LineLocationImpl(metadata.path.toString, 0), metadata.name))
+      case _ => None
+    }
   }
 }

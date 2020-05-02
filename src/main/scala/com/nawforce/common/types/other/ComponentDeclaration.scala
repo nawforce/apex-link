@@ -27,109 +27,77 @@
 */
 package com.nawforce.common.types.other
 
-import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier}
-import com.nawforce.common.documents.ComponentDocument
-import com.nawforce.common.finding.TypeRequest
+import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
-import com.nawforce.common.path.PathLike
+import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.types._
 import com.nawforce.common.types.platform.PlatformTypes
 
-import scala.collection.mutable
-
-final case class ComponentDeclaration(pkg: PackageImpl) extends TypeDeclaration {
-
-  private val components = mutable.Map[Name, TypeDeclaration]()
-  components.put(Name("Apex"),
-    TypeRequest(TypeName(Name("Apex"), Nil, Some(TypeName(Name("Component")))), excludeSObjects = false).toOption.get)
-  components.put(Name("Chatter"),
-    TypeRequest(TypeName(Name("Chatter"), Nil, Some(TypeName(Name("Component")))), excludeSObjects = false).toOption.get)
-
-  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
-  override val name: Name = Name.Component
-  override val typeName: TypeName = TypeName(name)
-  override val outerTypeName: Option[TypeName] = None
-  override val nature: Nature = CLASS_NATURE
-  override val modifiers: Seq[Modifier] = Seq(GLOBAL_MODIFIER)
-  override val isComplete: Boolean = true
-
-  override val superClass: Option[TypeName] = None
-  override val interfaces: Seq[TypeName] = Nil
-  override def nestedTypes: Seq[TypeDeclaration] = {
-    components.values.toSeq
-  }
-
-  override val blocks: Seq[BlockDeclaration] =  Nil
-  override val fields: Seq[FieldDeclaration] = Nil
-  override val constructors: Seq[ConstructorDeclaration] =  Nil
-  override val methods: Seq[MethodDeclaration] = Nil
-
-  override def validate(): Unit = {}
-
-  def upsert(namespace: Option[Name], component: ComponentDocument): Unit = {
-    getNamespaceContainer(Name.c).foreach(_.upsertComponent(component))
-    if (namespace.nonEmpty)
-      getNamespaceContainer(namespace.get).foreach(_.upsertComponent(component))
-
-    val typeName = TypeName(component.name, Nil, Some(TypeName(Name.Component)))
-    components.put(component.name, CustomComponent(pkg, component.name, typeName, component.path))
-  }
-
-  private def getNamespaceContainer(namespace: Name): Option[ComponentNamespace] = {
-    if (components.get(namespace).isEmpty) {
-      components.put(namespace, ComponentNamespace(pkg, namespace))
-    }
-    components.get(namespace).asInstanceOf[Option[ComponentNamespace]]
-  }
-}
-
-final case class CustomComponent(pkg: PackageImpl, name: Name, typeName: TypeName, path: PathLike) extends TypeDeclaration {
-
-  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
-  override lazy val namespace: Option[Name] = None
-  override val outerTypeName: Option[TypeName] = None
-  override val nature: Nature = CLASS_NATURE
-  override val modifiers: Seq[Modifier] = Seq(GLOBAL_MODIFIER)
-  override val isComplete: Boolean = true
+/** An individual component being represented as a nested type. */
+final case class Component(pkg: PackageImpl, location: LocationImpl, componentName: Name)
+  extends BasicTypeDeclaration(pkg, TypeName(componentName, Nil, Some(TypeName(Name.Component)))) {
 
   override val superClass: Option[TypeName] = Some(TypeName.ApexPagesComponent)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.componentType)
-  override val interfaces: Seq[TypeName] = Nil
-  override val nestedTypes: Seq[TypeDeclaration] = Nil
-
-  override val blocks: Seq[BlockDeclaration] = Nil
   override val fields: Seq[FieldDeclaration] = PlatformTypes.componentType.fields
-  override val constructors: Seq[ConstructorDeclaration] = Nil
-  override val methods: Seq[MethodDeclaration] = Nil
-
-  override def validate(): Unit = {}
 }
 
-final case class ComponentNamespace(pkg: PackageImpl, name: Name) extends TypeDeclaration {
-  private val components = mutable.HashMap[Name, TypeDeclaration]()
+/** Component namespace handler */
+final case class ComponentDeclaration(pkg: PackageImpl, nestedComponents: Seq[TypeDeclaration])
+  extends BasicTypeDeclaration(pkg, TypeName.Component) {
 
-  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
-  override val typeName: TypeName = TypeName(name)
-  override val outerTypeName: Option[TypeName] = None
-  override val nature: Nature = CLASS_NATURE
-  override val modifiers: Seq[Modifier] = if (name != Name.c ) Seq(GLOBAL_MODIFIER) else Seq.empty
-  override val isComplete: Boolean = true
+  override def nestedTypes: Seq[TypeDeclaration] = nestedComponents ++ namespaceDeclaration.toSeq ++ Seq(cDeclaration)
 
-  override val superClass: Option[TypeName] = None
-  override val interfaces: Seq[TypeName] = Nil
-  override def nestedTypes: Seq[TypeDeclaration] = components.values.toSeq
+  // This is the optional Component.namespace implementation
+  private var namespaceDeclaration = pkg.namespace.map(ns => new NamespaceDeclaration(ns))
 
-  override val blocks: Seq[BlockDeclaration] = Nil
-  override val fields: Seq[FieldDeclaration]= Nil
-  override val constructors: Seq[ConstructorDeclaration] = Nil
-  override val methods: Seq[MethodDeclaration]= Nil
+  // This is the Component.c implementation
+  private var cDeclaration = new NamespaceDeclaration(Name.c)
 
-  override def validate(): Unit = {}
+  class NamespaceDeclaration(name: Name, nestedComponents: Seq[Component] = Seq()) extends InnerBasicTypeDeclaration(pkg,
+    TypeName(name, Nil, Some(TypeName.Component))) {
+    override def nestedTypes: Seq[TypeDeclaration] = nestedComponents
 
-  def upsertComponent(component: ComponentDocument): Unit = {
-    val typeName = TypeName(component.name, Nil, Some(TypeName(name, Nil, Some(TypeName(Name.Component)))))
-    components.put(component.name, CustomComponent(pkg, component.name, typeName, component.path))
+    def merge(stream: PackageStream): NamespaceDeclaration = {
+      new NamespaceDeclaration(name, nestedComponents ++ stream.components.map(fe => Component(pkg, fe.location, fe.name)))
+    }
+  }
+
+
+  /** Create new labels from merging those in the provided stream */
+  def merge(stream: PackageStream): ComponentDeclaration = {
+    val components = stream.components.map(fe => Component(pkg, fe.location, fe.name))
+    val componentDeclaration = new ComponentDeclaration(pkg, nestedComponents ++ components)
+    componentDeclaration.namespaceDeclaration.foreach(td =>
+      componentDeclaration.namespaceDeclaration = Some(td.merge(stream)))
+    componentDeclaration.cDeclaration = componentDeclaration.cDeclaration.merge(stream)
+    componentDeclaration
   }
 }
+
+/** Component.ns implementation for exposing components from dependent packages. As the exposed components are
+  * owned elsewhere there is no need to set a controller here.
+  */
+final class PackageComponents(pkg: PackageImpl, componentDeclaration: ComponentDeclaration)
+  extends InnerBasicTypeDeclaration(pkg,
+    TypeName(componentDeclaration.packageDeclaration.get.namespace.get, Nil, Some(TypeName.Component))) {
+
+  override def nestedTypes: Seq[TypeDeclaration] = componentDeclaration.nestedTypes
+}
+
+object ComponentDeclaration {
+  val componentTypes = Seq(PlatformTypes.apexComponent, PlatformTypes.chatterComponent)
+
+  def apply(pkg: PackageImpl): ComponentDeclaration = {
+    new ComponentDeclaration(pkg, componentTypes ++ collectBaseComponents(pkg))
+  }
+
+  private def collectBaseComponents(pkg: PackageImpl): Seq[PackageComponents] = {
+    // TODO: We should support ghosted packages here but that would require the ability to on-demand create
+    // nested types which is not currently handled by TypeDeclaration
+    pkg.transitiveBasePackages.toSeq.map(basePkg => new PackageComponents(pkg, basePkg.components))
+  }
+}
+
 

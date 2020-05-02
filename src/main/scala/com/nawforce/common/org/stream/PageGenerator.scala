@@ -37,24 +37,17 @@ import scala.collection.immutable.Queue
 
 case class PageEvent(location: LocationImpl, name: Name) extends PackageEvent
 
-object PageGenerator {
+/** Convert page documents into PackageEvents */
+object PageGenerator extends Generator {
 
-  def queue(logger: IssueLogger, index: DocumentIndex, queue: Queue[PackageEvent])
-    : Queue[PackageEvent] = {
-    index.getByExtension(Name("page")).foldRight(queue)((f, q) => queueFromPath(logger, q, f.path))
+  def queue(logger: IssueLogger, index: DocumentIndex, queue: Queue[PackageEvent]): Queue[PackageEvent] = {
+    super.queue(DocumentType.pageExt, logger, index, queue)
   }
 
-  private def queueFromPath(logger: IssueLogger, queue: Queue[PackageEvent], path: PathLike): Queue[PackageEvent] = {
-    if (!path.isFile) {
-      logger.logError(LineLocationImpl(path.toString, 0), s"Expecting page to be in a regular file")
-      return queue
-    }
-
-    DocumentType(path) match {
-      case Some(page: PageDocument) =>
-        queue :+ PageEvent(LineLocationImpl(page.path.toString, 0), page.name)
-      case _ =>
-        queue
+  override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentType): Option[PackageEvent] = {
+    metadata match {
+      case _: PageDocument => Some(PageEvent(LineLocationImpl(metadata.path.toString, 0), metadata.name))
+      case _ => None
     }
   }
 }

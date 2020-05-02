@@ -37,24 +37,16 @@ import scala.collection.immutable.Queue
 
 case class FlowEvent(location: LocationImpl, name: Name) extends PackageEvent
 
-object FlowGenerator {
+object FlowGenerator extends Generator {
 
-  def queue(logger: IssueLogger, index: DocumentIndex, queue: Queue[PackageEvent])
-  : Queue[PackageEvent] = {
-    index.getByExtension(Name("flow")).foldRight(queue)((f, q) => queueFromPath(logger, q, f.path))
+  def queue(logger: IssueLogger, index: DocumentIndex, queue: Queue[PackageEvent]): Queue[PackageEvent] = {
+    super.queue(DocumentType.flowExt, logger, index, queue)
   }
 
-  private def queueFromPath(logger: IssueLogger, queue: Queue[PackageEvent], path: PathLike): Queue[PackageEvent] = {
-    if (!path.isFile) {
-      logger.logError(LineLocationImpl(path.toString, 0), s"Expecting flow to be in a regular file")
-      return queue
-    }
-
-    DocumentType(path) match {
-      case Some(flow: FlowDocument) =>
-        queue :+ FlowEvent(LineLocationImpl(flow.path.toString, 0), flow.name)
-      case _ =>
-        queue
+  override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentType): Option[PackageEvent] = {
+    metadata match {
+      case _: FlowDocument => Some(FlowEvent(LineLocationImpl(metadata.path.toString, 0), metadata.name))
+      case _ => None
     }
   }
 }

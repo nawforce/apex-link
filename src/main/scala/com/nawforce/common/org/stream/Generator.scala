@@ -25,30 +25,33 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 package com.nawforce.common.org.stream
 
 import com.nawforce.common.diagnostics.IssueLogger
-import com.nawforce.common.documents.DocumentIndex
+import com.nawforce.common.documents.{DocumentIndex, LineLocationImpl, MetadataDocumentType}
 import com.nawforce.common.names.Name
 
 import scala.collection.immutable.Queue
 
-trait PackageEvent
+trait Generator {
 
-class PackageStream(val namespace: Option[Name], val events: Seq[PackageEvent]) {
-  def labels: Seq[LabelEvent] = events.collect{case e: LabelEvent => e}
-  def pages: Seq[PageEvent] = events.collect{case e: PageEvent => e}
-  def flows: Seq[FlowEvent] = events.collect{case e: FlowEvent => e}
-  def components: Seq[ComponentEvent] = events.collect{case e: ComponentEvent => e}
-}
-
-object PackageStream {
-  def apply(logger: IssueLogger, namespace: Option[Name], index: DocumentIndex): PackageStream = {
-    var queue = Queue[PackageEvent]()
-    queue = LabelGenerator.queue(logger, index, queue)
-    queue = PageGenerator.queue(logger, index, queue)
-    queue = FlowGenerator.queue(logger, index, queue)
-    queue = ComponentGenerator.queue(logger, index, queue)
-    new PackageStream(namespace, queue)
+  protected def queue(metadataType: Name, logger: IssueLogger, index: DocumentIndex, queue: Queue[PackageEvent])
+  : Queue[PackageEvent] = {
+    index.getByExtension(metadataType).foldRight(queue)((d, q) => {
+      queueFromDocument(logger, q, d)
+    })
   }
+
+  private def queueFromDocument(logger: IssueLogger, queue: Queue[PackageEvent],
+                            documentType: MetadataDocumentType): Queue[PackageEvent] = {
+    if (!documentType.path.isFile) {
+      logger.logError(LineLocationImpl(documentType.path.toString, 0), s"Expecting metadata to be in a regular file")
+      return queue
+    }
+
+    queue ++ getMetadata(logger, documentType).toSeq
+  }
+
+  protected def getMetadata(logger: IssueLogger, metadata: MetadataDocumentType): Option[PackageEvent]
 }
