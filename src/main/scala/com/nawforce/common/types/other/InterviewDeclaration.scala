@@ -36,7 +36,7 @@ import com.nawforce.common.types._
 import com.nawforce.common.types.platform.PlatformTypes
 
 /** A individual custom interview being represented as interview derived type. */
-final case class CustomInterview(pkg: PackageImpl, location: LocationImpl, interviewName: Name)
+final case class Interview(pkg: PackageImpl, location: LocationImpl, interviewName: Name)
   extends InnerBasicTypeDeclaration(pkg, TypeName(interviewName, Nil, Some(TypeName.Interview))) {
 
   override val superClass: Option[TypeName] = Some(TypeName.Interview)
@@ -63,18 +63,18 @@ final class InterviewDeclaration(pkg: PackageImpl, nestedInterviews: Seq[TypeDec
   // This is the optional Flow.Interview.namespace implementation
   private var namespaceDeclaration = pkg.namespace.map(_ => new NamespaceDeclaration())
 
-  class NamespaceDeclaration(nestedInterviews: Seq[CustomInterview] = Seq()) extends InnerBasicTypeDeclaration(pkg,
+  class NamespaceDeclaration(nestedInterviews: Seq[Interview] = Seq()) extends InnerBasicTypeDeclaration(pkg,
     TypeName(pkg.namespace.get, Nil, Some(TypeName.Interview))) {
     override def nestedTypes: Seq[TypeDeclaration] = nestedInterviews
 
     def merge(stream: PackageStream): NamespaceDeclaration = {
-      new NamespaceDeclaration(nestedInterviews ++ stream.flows.map(fe => CustomInterview(pkg, fe.location, fe.name)))
+      new NamespaceDeclaration(nestedInterviews ++ stream.flows.map(fe => Interview(pkg, fe.location, fe.name)))
     }
   }
 
   /** Create new from merging those in the provided stream */
   def merge(stream: PackageStream): InterviewDeclaration = {
-    val interviews = stream.flows.map(fe => CustomInterview(pkg, fe.location, fe.name))
+    val interviews = stream.flows.map(fe => Interview(pkg, fe.location, fe.name))
     val interviewDeclaration = new InterviewDeclaration(pkg, nestedInterviews ++ interviews)
     interviewDeclaration.namespaceDeclaration.foreach(td =>
       interviewDeclaration.namespaceDeclaration = Some(td.merge(stream)))
@@ -83,7 +83,7 @@ final class InterviewDeclaration(pkg: PackageImpl, nestedInterviews: Seq[TypeDec
 }
 
 /** Flow.Interview.ns implementation for exposing interviews from dependent packages. As the exposed interviews are
-  * owned elsewhere (by the passed LabelDeclaration) there is no need to set a controller here.
+  * owned elsewhere there is no need to set a controller here.
   */
 final class PackageInterviews(pkg: PackageImpl, interviewDeclaration: InterviewDeclaration)
   extends InnerBasicTypeDeclaration(pkg,
@@ -98,7 +98,7 @@ object InterviewDeclaration {
   }
 
   private def collectBaseInterviews(pkg: PackageImpl): Seq[PackageInterviews] = {
-    // TODO: We should support ghosted packages here but that would require the ability to on-demand created
+    // TODO: We should support ghosted packages here but that would require the ability to on-demand create
     // nested types which is not currently handled by TypeDeclaration
     pkg.transitiveBasePackages.toSeq.map(basePkg => new PackageInterviews(pkg, basePkg.interviews))
   }

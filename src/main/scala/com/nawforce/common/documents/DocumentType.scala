@@ -47,7 +47,7 @@ abstract class MetadataDocumentType(_path: PathLike, _name: Name)
 }
 
 final case class LabelsDocument(_path: PathLike, _name: Name) extends MetadataDocumentType(_path, _name) {
-  lazy val extension: Name = Name("labels")
+  override val extension: Name = DocumentType.labelsExt
 }
 
 abstract class ApexDocument(_path: PathLike, _name: Name)
@@ -58,7 +58,7 @@ abstract class ApexDocument(_path: PathLike, _name: Name)
 
 final case class ApexClassDocument(_path: PathLike, _name: Name)
   extends ApexDocument(_path, _name) {
-  lazy val extension: Name = Name("cls")
+  override val extension: Name = DocumentType.clsExt
   override val indexByName: Boolean = true
   override def typeName(namespace: Option[Name]): TypeName = {
     TypeName(name).withNamespace(namespace)
@@ -67,7 +67,7 @@ final case class ApexClassDocument(_path: PathLike, _name: Name)
 
 final case class ApexTriggerDocument(_path: PathLike, _name: Name)
   extends ApexDocument(_path, _name) {
-  lazy val extension: Name = Name("trigger")
+  override val extension: Name = DocumentType.triggerExt
   override val indexByName: Boolean = false
   override def typeName(namespace: Option[Name]): TypeName = {
     TriggerDeclaration.constructTypeName(namespace, name)
@@ -76,8 +76,8 @@ final case class ApexTriggerDocument(_path: PathLike, _name: Name)
 
 final case class ComponentDocument(_path: PathLike, _name: Name)
   extends MetadataDocumentType(_path, _name) with MetadataDeclaration {
-  override lazy val extension: Name = Name("component")
-  override lazy val internalName: Name = Name(s"Component$$.$name")
+  override val extension: Name = DocumentType.componentExt
+  override val internalName: Name = Name(s"Component$$.$name")
   override def validate(): Unit = {}
 }
 
@@ -85,43 +85,53 @@ abstract class SObjectLike(_path: PathLike, _name: Name) extends MetadataDocumen
 
 final case class SObjectDocument(_path: PathLike, _name: Name)
   extends SObjectLike(_path, _name) {
-  lazy val extension: Name = Name("object")
+  override val extension: Name = DocumentType.objectExt
   override val ignorable: Boolean = path.size == 0
 }
 
 final case class SObjectFieldDocument(_path: PathLike, _name: Name)
   extends MetadataDocumentType(_path, _name) {
-  lazy val extension: Name = Name("field")
+  override val extension: Name = DocumentType.fieldExt
 }
 
 final case class SObjectFieldSetDocument(_path: PathLike, _name: Name)
   extends MetadataDocumentType(_path, _name) {
-  lazy val extension: Name = Name("fieldSet")
+  override val extension: Name = DocumentType.fieldSetExt
 }
 
 final case class CustomMetadataDocument(_path: PathLike, _name: Name)
   extends SObjectLike(_path, _name) {
-  lazy val extension: Name = Name("object")
+  override val extension: Name = DocumentType.objectExt
 }
 
 final case class PlatformEventDocument(_path: PathLike, _name: Name)
   extends SObjectLike(_path, _name) {
-  lazy val extension: Name = Name("object")
+  override val extension: Name = DocumentType.objectExt
 }
 
 final case class PageDocument(_path: PathLike, _name: Name)
   extends MetadataDocumentType(_path, _name) {
-  lazy val extension: Name = Name("page")
+  override val extension: Name = DocumentType.pageExt
 }
 
 final case class FlowDocument(_path: PathLike, _name: Name)
   extends MetadataDocumentType(_path, _name) with MetadataDeclaration {
-  override lazy val extension: Name = Name("flow")
+  override lazy val extension: Name = DocumentType.flowExt
   override lazy val internalName: Name = Name(s"Flow$$.$name")
   override def validate(): Unit = {}
 }
 
 object DocumentType {
+  lazy val labelsExt: Name = Name("labels")
+  lazy val clsExt: Name = Name("cls")
+  lazy val triggerExt: Name = Name("trigger")
+  lazy val componentExt: Name = Name("component")
+  lazy val pageExt: Name = Name("page")
+  lazy val flowExt: Name = Name("flow")
+  lazy val objectExt: Name = Name("object")
+  lazy val fieldExt: Name = Name("field")
+  lazy val fieldSetExt: Name = Name("fieldSet")
+
   def apply(path: PathLike): Option[DocumentType] = {
     splitFilename(path) match {
       case Seq(name, Name("cls")) =>
@@ -172,7 +182,7 @@ object DocumentType {
 
 
   private def splitFilename(path: PathLike): Seq[Name] = {
-    var parts = path.basename.toString.split('.')
+    var parts = path.basename.split('.')
     if (parts.length > 3) {
       parts = List(parts.slice(0, parts.length-2).mkString("."),
         parts(parts.length-2).toLowerCase(), parts(parts.length-1).toLowerCase).toArray

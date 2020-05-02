@@ -58,6 +58,8 @@ object PlatformTypes {
   lazy val locationType: TypeDeclaration = loadType(TypeName.Location)
   lazy val componentType: TypeDeclaration = loadType(TypeName.ApexPagesComponent)
   lazy val interviewType: TypeDeclaration = loadType(TypeName.Interview)
+  lazy val apexComponent: TypeDeclaration = loadType(TypeName.ApexComponent)
+  lazy val chatterComponent: TypeDeclaration = loadType(TypeName.ChatterComponent)
 
   private def loadType(typeName: TypeName): TypeDeclaration = {
     PlatformTypeDeclaration.get(typeName, None).right.get

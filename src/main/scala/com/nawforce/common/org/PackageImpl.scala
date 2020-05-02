@@ -53,13 +53,13 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   var labels: LabelDeclaration = LabelDeclaration(this)
   var pages: PageDeclaration = PageDeclaration(this)
   var interviews: InterviewDeclaration = InterviewDeclaration(this)
+  var components: ComponentDeclaration = ComponentDeclaration(this)
 
   protected val types: mutable.Map[TypeName, TypeDeclaration] = mutable.Map[TypeName, TypeDeclaration]()
   protected val other: mutable.Map[Name, MetadataDeclaration] = mutable.Map[Name, MetadataDeclaration]()
 
   private val schemaManager = new SchemaManager(this)
   private val anyDeclaration = AnyDeclaration(this)
-  private val componentDeclaration = ComponentDeclaration(this)
 
   initTypes()
   deployFromWorkspace(workspace)
@@ -72,7 +72,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     upsertMetadata(labels, Some(TypeName(labels.name)))
     upsertMetadata(pages)
     upsertMetadata(interviews)
-    upsertMetadata(componentDeclaration)
+    upsertMetadata(components)
   }
 
   def isGhosted: Boolean = workspace.paths.isEmpty
@@ -141,8 +141,6 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     md match {
       case td: TypeDeclaration if td.isSearchable =>
         types.put(altTypeName.getOrElse(td.typeName), td)
-      case cd: ComponentDocument =>
-        componentDeclaration.upsert(namespace, cd)
       case _ =>
         other.put(md.internalName, md)
     }

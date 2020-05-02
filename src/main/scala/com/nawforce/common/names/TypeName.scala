@@ -241,6 +241,8 @@ object TypeName {
   lazy val ApexPages: TypeName = TypeName(Name.ApexPages)
   lazy val ApexPagesPageReference: TypeName = TypeName(Name.PageReference, Nil, Some(TypeName.ApexPages))
   lazy val ApexPagesComponent: TypeName = TypeName(Name.Component, Nil, Some(TypeName.ApexPages))
+  lazy val ApexComponent: TypeName = TypeName(Name.Apex, Nil, Some(TypeName.Component))
+  lazy val ChatterComponent: TypeName = TypeName(Name.Chatter, Nil, Some(TypeName.Component))
 
   lazy val Schema: TypeName = TypeName(Name.Schema)
   lazy val SObjectType: TypeName = TypeName(Name.SObjectType, Nil, Some(TypeName.Schema))
@@ -266,6 +268,8 @@ object TypeName {
 
   lazy val Flow: TypeName = TypeName(Name.Flow)
   lazy val Interview: TypeName = TypeName(Name.Interview, Nil, Some(TypeName.Flow))
+
+  lazy val Component: TypeName = TypeName(Name.Component, Nil, None)
 
   def describeSObjectResultOf(typeName: TypeName): TypeName = DescribeSObjectResult$.withParams(Seq(typeName))
   def sObjectType$(typeName: TypeName): TypeName = SObjectType$.withParams(Seq(typeName))

@@ -63,6 +63,9 @@ trait PackageDeploy {
     interviews = interviews.merge(stream)
     upsertMetadata(interviews)
 
+    components = components.merge(stream)
+    upsertMetadata(components)
+
     loadCustomObjects(documents)
     loadComponents(documents)
     loadClasses(documents)

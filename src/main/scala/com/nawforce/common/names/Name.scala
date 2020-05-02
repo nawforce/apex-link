@@ -116,6 +116,8 @@ object Name {
   lazy val Label: Name = cache("Label")
   lazy val Page: Name = cache("Page")
   lazy val Component: Name = cache("Component")
+  lazy val Apex: Name = cache("Apex")
+  lazy val Chatter: Name = cache("Chatter")
   lazy val Flow: Name = cache("Flow")
   lazy val Interview: Name = cache("Interview")
   lazy val c: Name = cache("c")
