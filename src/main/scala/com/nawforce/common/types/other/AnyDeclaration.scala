@@ -29,8 +29,10 @@ package com.nawforce.common.types.other
 
 import com.nawforce.common.names.TypeName
 import com.nawforce.common.org.PackageImpl
+import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.BasicTypeDeclaration
 
-final case class AnyDeclaration(pkg: PackageImpl) extends BasicTypeDeclaration(pkg, TypeName.Any) {
-  override val isAny: Boolean = true
-}
+/** An any type declaration, there are deliberately very few uses of this, hopefully at some point it
+  * can be removed.
+  */
+final case class AnyDeclaration(pkg: PackageImpl) extends BasicTypeDeclaration(Seq.empty, pkg, TypeName.Any)

@@ -33,7 +33,6 @@ import com.nawforce.common.diagnostics.IssueLog
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
-import com.nawforce.common.metadata.MetadataDeclaration
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types.TypeDeclaration
@@ -56,7 +55,6 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   var components: ComponentDeclaration = ComponentDeclaration(this)
 
   protected val types: mutable.Map[TypeName, TypeDeclaration] = mutable.Map[TypeName, TypeDeclaration]()
-  protected val other: mutable.Map[Name, MetadataDeclaration] = mutable.Map[Name, MetadataDeclaration]()
 
   private val schemaManager = new SchemaManager(this)
   private val anyDeclaration = AnyDeclaration(this)
@@ -137,24 +135,14 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   }
 
   // Upsert some metadata to the package
-  def upsertMetadata(md: MetadataDeclaration, altTypeName: Option[TypeName]=None): Unit = {
-    md match {
-      case td: TypeDeclaration if td.isSearchable =>
-        types.put(altTypeName.getOrElse(td.typeName), td)
-      case _ =>
-        other.put(md.internalName, md)
-    }
+  def upsertMetadata(td: TypeDeclaration, altTypeName: Option[TypeName]=None): Unit = {
+    types.put(altTypeName.getOrElse(td.typeName), td)
   }
 
   // Remove some metadata from the package
   // Future: Support component & flow removal
-  def removeMetadata(md: MetadataDeclaration): Unit = {
-    md match {
-      case td: TypeDeclaration if td.isSearchable =>
-        types.remove(td.typeName)
-      case _ =>
-        other.remove(md.internalName)
-    }
+  def removeMetadata(td: TypeDeclaration): Unit = {
+    types.remove(td.typeName)
   }
 
   /** Obtain log with unused metadata warnings */

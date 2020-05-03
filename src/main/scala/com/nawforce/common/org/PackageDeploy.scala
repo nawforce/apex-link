@@ -67,7 +67,6 @@ trait PackageDeploy {
     upsertMetadata(components)
 
     loadCustomObjects(documents)
-    loadComponents(documents)
     loadClasses(documents)
     loadTriggers(documents)
 
@@ -94,16 +93,6 @@ trait PackageDeploy {
       tds.foreach(upsertMetadata(_))
       tds.foreach(_.validate())
       schema().relatedLists.validate()
-    }
-  }
-
-  private def loadComponents(documents: DocumentIndex): Unit = {
-    val docs = documents.getByExtension(Name("component"))
-    ServerOps.debugTime(s"Parsed ${docs.size} components", docs.nonEmpty) {
-      docs.foreach {
-        case docType: ComponentDocument => upsertMetadata(docType)
-        case _ => assert(false); Seq()
-      }
     }
   }
 

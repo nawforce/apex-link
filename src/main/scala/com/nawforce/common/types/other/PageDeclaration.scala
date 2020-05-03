@@ -32,6 +32,7 @@ import com.nawforce.common.documents._
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.org.stream.PackageStream
+import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types._
 
 /** A individual Page being represented as a static field. */
@@ -47,7 +48,7 @@ case class Page(location: LocationImpl, name: Name) extends FieldDeclaration {
   * base packages via the namespace__name format.
   */
 final case class PageDeclaration(pkg: PackageImpl, pages: Seq[Page])
-  extends BasicTypeDeclaration(pkg, TypeName(Name.Page)) {
+  extends BasicTypeDeclaration(pages.map(p => PathFactory(p.location.path)).distinct, pkg, TypeName(Name.Page)) {
 
   override val isComplete: Boolean = !pkg.hasGhosted
   override val fields: Seq[FieldDeclaration]= pages

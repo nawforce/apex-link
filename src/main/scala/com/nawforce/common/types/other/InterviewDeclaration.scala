@@ -32,12 +32,13 @@ import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.org.stream.PackageStream
+import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types._
 import com.nawforce.common.types.platform.PlatformTypes
 
 /** A individual custom interview being represented as interview derived type. */
 final case class Interview(pkg: PackageImpl, location: LocationImpl, interviewName: Name)
-  extends InnerBasicTypeDeclaration(pkg, TypeName(interviewName, Nil, Some(TypeName.Interview))) {
+  extends InnerBasicTypeDeclaration(Seq(PathFactory(location.path)), pkg, TypeName(interviewName, Nil, Some(TypeName.Interview))) {
 
   override val superClass: Option[TypeName] = Some(TypeName.Interview)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.interviewType)
@@ -51,7 +52,7 @@ final case class Interview(pkg: PackageImpl, location: LocationImpl, interviewNa
 /** Flow.Interview implementation. Provides access to interviews in the package as well as interviews that are
   * accessible in base packages via the Flow.Interview.namespace.name format. */
 final class InterviewDeclaration(pkg: PackageImpl, nestedInterviews: Seq[TypeDeclaration])
-  extends BasicTypeDeclaration(pkg, TypeName.Interview) {
+  extends BasicTypeDeclaration(Seq(), pkg, TypeName.Interview) {
 
   override def nestedTypes: Seq[TypeDeclaration] = nestedInterviews ++ namespaceDeclaration.toSeq
 
@@ -63,8 +64,8 @@ final class InterviewDeclaration(pkg: PackageImpl, nestedInterviews: Seq[TypeDec
   // This is the optional Flow.Interview.namespace implementation
   private var namespaceDeclaration = pkg.namespace.map(_ => new NamespaceDeclaration())
 
-  class NamespaceDeclaration(nestedInterviews: Seq[Interview] = Seq()) extends InnerBasicTypeDeclaration(pkg,
-    TypeName(pkg.namespace.get, Nil, Some(TypeName.Interview))) {
+  class NamespaceDeclaration(nestedInterviews: Seq[Interview] = Seq())
+    extends InnerBasicTypeDeclaration(Seq(), pkg, TypeName(pkg.namespace.get, Nil, Some(TypeName.Interview))) {
     override def nestedTypes: Seq[TypeDeclaration] = nestedInterviews
 
     def merge(stream: PackageStream): NamespaceDeclaration = {
@@ -86,7 +87,7 @@ final class InterviewDeclaration(pkg: PackageImpl, nestedInterviews: Seq[TypeDec
   * owned elsewhere there is no need to set a controller here.
   */
 final class PackageInterviews(pkg: PackageImpl, interviewDeclaration: InterviewDeclaration)
-  extends InnerBasicTypeDeclaration(pkg,
+  extends InnerBasicTypeDeclaration(Seq.empty, pkg,
     TypeName(interviewDeclaration.packageDeclaration.get.namespace.get, Nil, Some(TypeName.Interview))) {
 
   override def nestedTypes: Seq[TypeDeclaration] = interviewDeclaration.nestedTypes

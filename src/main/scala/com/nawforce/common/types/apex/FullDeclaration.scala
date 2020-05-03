@@ -32,11 +32,10 @@ import java.nio.charset.StandardCharsets
 import com.nawforce.common.api.{ApexSummary, RangeLocation, ServerOps, TypeSummary}
 import com.nawforce.common.cst._
 import com.nawforce.common.documents._
-import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types._
+import com.nawforce.common.types.{Dependent, _}
 import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 import upickle.default.writeBinary
@@ -52,7 +51,9 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
 
   lazy val sourceHash: Int = source.hash
   override val path: PathLike = source.path
+  override val paths: Seq[PathLike] = Seq(path)
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
+
   override val nameLocation: LocationImpl = id.location
   override val name: Name = id.name
   override val nature: Nature

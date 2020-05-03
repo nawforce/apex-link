@@ -31,7 +31,6 @@ import com.nawforce.common.api._
 import com.nawforce.common.cst.Modifier
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.metadata.{DependencyHolder, Dependent}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
@@ -224,6 +223,7 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
 
   override lazy val dependents: Set[DependentSummary] = summary.dependents
 
+  override val paths: Seq[PathLike] = Seq(path)
   override lazy val sourceHash: Int = summary.sourceHash
   override val nameLocation: LocationImpl = RangeLocationImpl(path, summary.idRange.get)
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)

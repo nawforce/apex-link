@@ -134,12 +134,12 @@ class DocumentIndexTest extends AnyFunSuite {
 
   test("sfdx fieldset ghosts object") {
     FileSystemHelper.run(Map[String, String](
-      "pkg/Foo/fieldSet/Bar.fieldset-meta.xml" -> "<FieldSet xmlns=\\\"http://soap.sforce.com/2006/04/metadata\\\"/>"
+      "pkg/Foo/fieldSets/Bar.fieldset-meta.xml" -> "<FieldSet xmlns=\\\"http://soap.sforce.com/2006/04/metadata\\\"/>"
     )) { root: PathLike =>
       val index = new DocumentIndex(Seq(root.join("pkg")))
       assert(index.size == 2)
       assert(index.getByExtension(Name("fieldset")).toString() ==
-        Seq(SObjectFieldSetDocument(PathFactory("/pkg/Foo/fieldSet/Bar.fieldset-meta.xml"), Name("Bar"))).toString())
+        Seq(SObjectFieldSetDocument(PathFactory("/pkg/Foo/fieldSets/Bar.fieldset-meta.xml"), Name("Bar"))).toString())
       assert(index.getByExtension(Name("object")).toString() ==
         Seq(SObjectDocument(PathFactory("/pkg/Foo/Foo.object-meta.xml"), Name("Foo"))).toString())
     }

@@ -29,7 +29,6 @@ package com.nawforce.common.types
 
 import com.nawforce.common.ParserHelper
 import com.nawforce.common.cst.{CST, Literal}
-import com.nawforce.common.metadata.DependencyHolder
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathFactory
 import com.nawforce.runtime.parsers.{Source, SourcePosition}

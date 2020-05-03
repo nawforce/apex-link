@@ -36,6 +36,7 @@ import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
 import com.nawforce.common.names.{DotName, Name, TypeName}
 import com.nawforce.common.org.PackageImpl
+import com.nawforce.common.path.PathLike
 import com.nawforce.common.types._
 import com.nawforce.common.types.platform.{GenericPlatformTypeDeclaration, PlatformTypes}
 
@@ -50,7 +51,10 @@ case class PlatformTypeDeclaration(native: Any, outer: Option[PlatformTypeDeclar
   extends TypeDeclaration {
 
   val cls: java.lang.Class[_] = native.asInstanceOf[java.lang.Class[_]]
+
+  override lazy val paths: Seq[PathLike] = Seq.empty
   override lazy val packageDeclaration: Option[PackageImpl] = None
+
   override lazy val name: Name = typeName.name
   override lazy val typeName: TypeName = PlatformTypeDeclaration.typeNameFromClass(cls, cls)
   override lazy val outerTypeName: Option[TypeName] = outer.map(_.typeName)

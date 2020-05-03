@@ -104,15 +104,15 @@ class DocumentTest extends AnyFunSuite {
   }
 
   test("field file (sfdx)") {
-    DocumentType(PathFactory("/pkg/Foo.field-meta.xml")) match {
-      case Some(SObjectFieldDocument(PathFactory("/pkg/Foo.field-meta.xml"), Name("Foo"))) => ()
+    DocumentType(PathFactory("/pkg/object/fields/Foo.field-meta.xml")) match {
+      case Some(SObjectFieldDocument(PathFactory("/pkg/object/fields/Foo.field-meta.xml"), Name("Foo"))) => ()
       case x => assert(false, x)
     }
   }
 
   test("fieldset file (sfdx)") {
-    DocumentType(PathFactory("/pkg/Foo.fieldset-meta.xml")) match {
-      case Some(SObjectFieldSetDocument(PathFactory("/pkg/Foo.fieldset-meta.xml"), Name("Foo"))) => ()
+    DocumentType(PathFactory("/pkg/object/fieldSets/Foo.fieldset-meta.xml")) match {
+      case Some(SObjectFieldSetDocument(PathFactory("/pkg/object/fieldSets/Foo.fieldset-meta.xml"), Name("Foo"))) => ()
       case x => assert(false, x)
     }
   }

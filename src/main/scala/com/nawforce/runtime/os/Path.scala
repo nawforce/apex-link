@@ -38,6 +38,7 @@ case class Path(native: java.nio.file.Path) extends PathLike {
   override lazy val basename: String = Option(native.getFileName).map(_.toString).getOrElse("")
   override lazy val parent: Path = join("..")
   override lazy val exists: Boolean = Files.exists(native)
+  override lazy val isRoot: Boolean = toString() == "/"
   override lazy val isDirectory: Boolean = Files.isDirectory(native)
   override lazy val isFile: Boolean = Files.isRegularFile(native)
   override lazy val size: Long = if (isFile) Files.size(native) else 0
@@ -143,6 +144,7 @@ case class Path(native: java.nio.file.Path) extends PathLike {
 
   def canEqual(that: Any): Boolean = that.isInstanceOf[Path]
 
+  override def hashCode(): Int = toString.hashCode
 }
 
 object Path {

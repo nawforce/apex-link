@@ -31,8 +31,9 @@ package com.nawforce.common.types
 import com.nawforce.common.cst.Modifier
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
+import com.nawforce.common.path.PathLike
 
-class BasicTypeDeclaration(pkg: PackageImpl, val typeName: TypeName)
+class BasicTypeDeclaration(val paths: Seq[PathLike], pkg: PackageImpl, val typeName: TypeName)
   extends TypeDeclaration {
 
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
@@ -54,7 +55,7 @@ class BasicTypeDeclaration(pkg: PackageImpl, val typeName: TypeName)
   override def validate(): Unit = {}
 }
 
-class InnerBasicTypeDeclaration(_pkg: PackageImpl, _typeName: TypeName)
-  extends BasicTypeDeclaration(_pkg, _typeName) {
+class InnerBasicTypeDeclaration(_paths: Seq[PathLike], _pkg: PackageImpl, _typeName: TypeName)
+  extends BasicTypeDeclaration(_paths, _pkg, _typeName) {
   override val outerTypeName: Option[TypeName] = typeName.outer
 }
