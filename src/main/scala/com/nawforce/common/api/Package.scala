@@ -38,9 +38,9 @@ trait Package {
     * Apex class & trigger files. */
   def getTypeOfPath(path: String): TypeLike
 
-  /** Get the path (as a String) of the metadata file that defined a type, returns a null if the type
+  /** Get the path(s) of the metadata file that defined a type, returns an empty array if the type
     * is not defined within the current package. Currently restricted to only supporting Apex class files. */
-  def getPathOfType(typeLike: TypeLike): String
+  def getPathsOfType(typeLike: TypeLike): Array[String]
 
   /** Get the summary information for a type, returns a null if the type is not defined within the current package.
     * Currently restricted to only supporting Apex class files. */
