@@ -30,10 +30,9 @@ package com.nawforce.common.cst
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.finding.{TypeError, TypeRequest}
-import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
-import com.nawforce.common.types._
+import com.nawforce.common.types.{Dependent, _}
 import com.nawforce.common.types.apex._
 
 import scala.collection.mutable

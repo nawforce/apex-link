@@ -31,13 +31,15 @@ import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.org.stream.PackageStream
+import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types._
 import com.nawforce.common.types.platform.PlatformTypes
 
 /** An individual component being represented as a nested type. */
 final case class Component(pkg: PackageImpl, location: LocationImpl, componentName: Name)
-  extends BasicTypeDeclaration(pkg, TypeName(componentName, Nil, Some(TypeName(Name.Component)))) {
+  extends BasicTypeDeclaration(Seq(PathFactory(location.path)), pkg, TypeName(componentName, Nil, Some(TypeName(Name.Component)))) {
 
+  override val paths: Seq[PathLike] = Seq(PathFactory(location.path))
   override val superClass: Option[TypeName] = Some(TypeName.ApexPagesComponent)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.componentType)
   override val fields: Seq[FieldDeclaration] = PlatformTypes.componentType.fields
@@ -45,7 +47,7 @@ final case class Component(pkg: PackageImpl, location: LocationImpl, componentNa
 
 /** Component namespace handler */
 final case class ComponentDeclaration(pkg: PackageImpl, nestedComponents: Seq[TypeDeclaration])
-  extends BasicTypeDeclaration(pkg, TypeName.Component) {
+  extends BasicTypeDeclaration(Seq.empty, pkg, TypeName.Component) {
 
   override def nestedTypes: Seq[TypeDeclaration] = nestedComponents ++ namespaceDeclaration.toSeq ++ Seq(cDeclaration)
 
@@ -55,8 +57,8 @@ final case class ComponentDeclaration(pkg: PackageImpl, nestedComponents: Seq[Ty
   // This is the Component.c implementation
   private var cDeclaration = new NamespaceDeclaration(Name.c)
 
-  class NamespaceDeclaration(name: Name, nestedComponents: Seq[Component] = Seq()) extends InnerBasicTypeDeclaration(pkg,
-    TypeName(name, Nil, Some(TypeName.Component))) {
+  class NamespaceDeclaration(name: Name, nestedComponents: Seq[Component] = Seq())
+    extends InnerBasicTypeDeclaration(Seq(), pkg, TypeName(name, Nil, Some(TypeName.Component))) {
     override def nestedTypes: Seq[TypeDeclaration] = nestedComponents
 
     def merge(stream: PackageStream): NamespaceDeclaration = {
@@ -80,7 +82,7 @@ final case class ComponentDeclaration(pkg: PackageImpl, nestedComponents: Seq[Ty
   * owned elsewhere there is no need to set a controller here.
   */
 final class PackageComponents(pkg: PackageImpl, componentDeclaration: ComponentDeclaration)
-  extends InnerBasicTypeDeclaration(pkg,
+  extends InnerBasicTypeDeclaration(Seq(), pkg,
     TypeName(componentDeclaration.packageDeclaration.get.namespace.get, Nil, Some(TypeName.Component))) {
 
   override def nestedTypes: Seq[TypeDeclaration] = componentDeclaration.nestedTypes

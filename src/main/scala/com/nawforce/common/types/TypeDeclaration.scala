@@ -31,9 +31,9 @@ import com.nawforce.common.api._
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.metadata.{DependencyHolder, MetadataDeclaration}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
+import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.other.Component
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.runtime.types._
@@ -233,12 +233,12 @@ object TypeDeclaration {
   }
 }
 
-trait TypeDeclaration extends MetadataDeclaration {
+trait TypeDeclaration extends DependencyHolder {
   val tid: TypeDeclaration.TID = TypeDeclaration.getAndIncrementTID()
-  override lazy val internalName: Name = Name(typeName.toString)
-  val isSearchable: Boolean = true
 
+  val paths: Seq[PathLike]
   val packageDeclaration: Option[PackageImpl]
+
   val name: Name
   val typeName: TypeName
   val outerTypeName: Option[TypeName]
@@ -263,7 +263,6 @@ trait TypeDeclaration extends MetadataDeclaration {
   val methods: Seq[MethodDeclaration]
 
   def isComplete: Boolean
-  val isAny: Boolean = false
   lazy val isExternallyVisible: Boolean = modifiers.contains(GLOBAL_MODIFIER)
   lazy val isAbstract: Boolean = modifiers.contains(ABSTRACT_MODIFIER)
   lazy val isFieldConstructed: Boolean = isSObject || isApexPagesComponent

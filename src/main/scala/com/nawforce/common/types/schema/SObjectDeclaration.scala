@@ -38,10 +38,10 @@ import com.nawforce.common.types.{CustomFieldDeclaration, _}
 
 import scala.collection.mutable
 
-final case class SObjectDeclaration(pkg: PackageImpl, _typeName: TypeName,
+final case class SObjectDeclaration(_paths: Seq[PathLike], pkg: PackageImpl, _typeName: TypeName,
                                     sobjectNature: SObjectNature, fieldSets: Set[Name],
                                     override val fields: Seq[FieldDeclaration], override val isComplete: Boolean)
-  extends BasicTypeDeclaration(pkg, _typeName) {
+  extends BasicTypeDeclaration(_paths, pkg, _typeName) {
 
   override val modifiers: Seq[Modifier] = Seq(GLOBAL_MODIFIER)
 
@@ -176,8 +176,10 @@ object SObjectDeclaration {
         )
       } else Seq()
 
+    // TODO: Provide paths
     val allObjects =
-      new SObjectDeclaration(pkg, typeName, sobjectDetails.sobjectNature, sobjectDetails.fieldSets, fields, isComplete = true) +:
+      new SObjectDeclaration(Seq.empty, pkg, typeName, sobjectDetails.sobjectNature, sobjectDetails.fieldSets,
+        fields, isComplete = true) +:
       supportObjects
 
     allObjects.foreach(pkg.schema().sobjectTypes.add)
@@ -254,8 +256,8 @@ object SObjectDeclaration {
     sobjectDetails.fields.foreach(field => {fields.put(field.name, field)})
 
     // TODO: Collect base fieldsets ?
-
-    val td = new SObjectDeclaration(pkg, typeName, sobjectDetails.sobjectNature, sobjectDetails.fieldSets,
+    // TODO: Provide paths
+    val td = new SObjectDeclaration(Seq.empty, pkg, typeName, sobjectDetails.sobjectNature, sobjectDetails.fieldSets,
       fields.values.toSeq, isComplete)
     pkg.schema().sobjectTypes.add(td)
     td
@@ -276,7 +278,9 @@ object SObjectDeclaration {
   private def createShare(pkg: PackageImpl, typeName: TypeName): SObjectDeclaration = {
     val shareName = typeName.withNameReplace("__c$", "__Share")
     val sobjectDetails = SObjectDetails(CustomObjectNature, shareName, Seq(), Set())
-    SObjectDeclaration(pkg, shareName, CustomObjectNature, Set(),
+
+    // TODO: Provide paths
+    SObjectDeclaration(Seq.empty, pkg, shareName, CustomObjectNature, Set(),
       customObjectFields(sobjectDetails) ++ shareFields, isComplete = true)
   }
 
@@ -290,7 +294,9 @@ object SObjectDeclaration {
   private def createFeed(pkg: PackageImpl, typeName: TypeName): SObjectDeclaration = {
     val feedName = typeName.withNameReplace("__c$", "__Feed")
     val sobjectDetails = SObjectDetails(CustomObjectNature, feedName, Seq(), Set())
-    SObjectDeclaration(pkg, feedName, CustomObjectNature, Set(),
+
+    // TODO: Provide paths
+    SObjectDeclaration(Seq.empty, pkg, feedName, CustomObjectNature, Set(),
       customObjectFields(sobjectDetails) ++ feedFields, isComplete = true)
   }
 
@@ -314,7 +320,9 @@ object SObjectDeclaration {
   private def createHistory(pkg: PackageImpl, typeName: TypeName): SObjectDeclaration = {
     val historyName = typeName.withNameReplace("__c$", "__History")
     val sobjectDetails = SObjectDetails(CustomObjectNature, historyName, Seq(), Set())
-    SObjectDeclaration(pkg, historyName, CustomObjectNature, Set(),
+
+    // TODO: Provide paths
+    SObjectDeclaration(Seq.empty, pkg, historyName, CustomObjectNature, Set(),
       customObjectFields(sobjectDetails) ++ historyFields, isComplete = true)
   }
 

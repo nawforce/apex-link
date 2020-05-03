@@ -30,11 +30,10 @@ package com.nawforce.common.types.apex
 import com.nawforce.common.api.{RangeLocation, ServerOps, TypeSummary}
 import com.nawforce.common.cst._
 import com.nawforce.common.documents.{LineLocationImpl, LocationImpl}
-import com.nawforce.common.metadata.Dependent
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types._
+import com.nawforce.common.types.{Dependent, _}
 import com.nawforce.runtime.parsers.ApexParser.{TriggerCaseContext, TriggerUnitContext}
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 
@@ -57,6 +56,7 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
   override val path: PathLike  = source.path
   override val nameLocation: LocationImpl = nameId.location
   override lazy val sourceHash: Int = source.hash
+  override val paths: Seq[PathLike] = Seq(path)
 
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override val name: Name = typeName.name
@@ -199,7 +199,7 @@ object TriggerDeclaration {
 }
 
 final case class TriggerContext(pkg: PackageImpl, baseType: TypeDeclaration)
-  extends BasicTypeDeclaration(pkg, TypeName(Name.Trigger)) {
+  extends BasicTypeDeclaration(Seq.empty, pkg, TypeName(Name.Trigger)) {
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     baseType.findField(name, staticContext)

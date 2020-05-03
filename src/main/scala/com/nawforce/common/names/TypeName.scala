@@ -271,6 +271,8 @@ object TypeName {
 
   lazy val Component: TypeName = TypeName(Name.Component, Nil, None)
 
+  lazy val Page: TypeName = TypeName(Name.Page, Nil, None)
+
   def describeSObjectResultOf(typeName: TypeName): TypeName = DescribeSObjectResult$.withParams(Seq(typeName))
   def sObjectType$(typeName: TypeName): TypeName = SObjectType$.withParams(Seq(typeName))
   def sObjectTypeFields$(typeName: TypeName): TypeName = SObjectTypeFields$.withParams(Seq(typeName))

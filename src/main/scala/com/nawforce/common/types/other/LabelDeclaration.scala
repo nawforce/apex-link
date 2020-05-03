@@ -57,8 +57,8 @@ object Label {
 
 /** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
   * base packages via the Label.namespace.name format. */
-final class LabelDeclaration(pkg: PackageImpl, labels: Seq[Label], packageLabels: Seq[TypeDeclaration])
-  extends BasicTypeDeclaration(pkg, TypeName.Label) {
+final class LabelDeclaration(paths: Seq[PathLike], pkg: PackageImpl, labels: Seq[Label], packageLabels: Seq[TypeDeclaration])
+  extends BasicTypeDeclaration(paths, pkg, TypeName.Label) {
 
   // Set individual labels to use this as the controller
   labels.foreach(_.setController(Some(this)))
@@ -69,7 +69,8 @@ final class LabelDeclaration(pkg: PackageImpl, labels: Seq[Label], packageLabels
   /** Create new labels from merging those in the provided stream */
   def merge(stream: PackageStream): LabelDeclaration = {
     val newLabels = labels ++ stream.labels.map(le => Label(le.location, le.name, le.isProtected))
-    new LabelDeclaration(pkg, newLabels, packageLabels)
+    val paths = newLabels.map(l => PathFactory(l.location.path)).distinct
+    new LabelDeclaration(paths, pkg, newLabels, packageLabels)
   }
 
   // Report on unused labels
@@ -84,7 +85,7 @@ final class LabelDeclaration(pkg: PackageImpl, labels: Seq[Label], packageLabels
   * controller here.
   */
 final class PackageLabels(pkg: PackageImpl, labelDeclaration: LabelDeclaration)
-  extends InnerBasicTypeDeclaration(pkg,
+  extends InnerBasicTypeDeclaration(Seq.empty, pkg,
     TypeName(labelDeclaration.packageDeclaration.get.namespace.get, Nil, Some(TypeName.Label))) {
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
@@ -97,7 +98,7 @@ final class PackageLabels(pkg: PackageImpl, labelDeclaration: LabelDeclaration)
 
 /** System.Label.ns implementation for ghosted packages. This simulates the existence of any label you ask for. */
 final class GhostedLabels(pkg: PackageImpl, ghostedNamespace: Name)
-  extends InnerBasicTypeDeclaration(pkg, TypeName(ghostedNamespace, Nil, Some(TypeName.Label))) {
+  extends InnerBasicTypeDeclaration(Seq(), pkg, TypeName(ghostedNamespace, Nil, Some(TypeName.Label))) {
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     if (staticContext.contains(true)) {
@@ -111,7 +112,7 @@ final class GhostedLabels(pkg: PackageImpl, ghostedNamespace: Name)
 object LabelDeclaration {
   /** Construct System.Label for a package. */
   def apply(pkg: PackageImpl): LabelDeclaration = {
-    new LabelDeclaration(pkg, Seq(), createPackageLabels(pkg))
+    new LabelDeclaration(Seq(), pkg, Seq(), createPackageLabels(pkg))
   }
 
   // Create labels declarations for each base package

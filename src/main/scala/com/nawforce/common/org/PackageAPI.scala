@@ -29,7 +29,7 @@ package com.nawforce.common.org
 
 import com.nawforce.common.api.{Diagnostic, LineLocation, Package, ServerOps, TypeSummary, ViewInfo}
 import com.nawforce.common.diagnostics.ERROR_CATEGORY
-import com.nawforce.common.documents.{ApexClassDocument, ApexDocument, ApexTriggerDocument, DocumentType}
+import com.nawforce.common.documents.{ApexClassDocument, ApexDocument, ApexTriggerDocument, DocumentType, MetadataDocumentType}
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{TypeLike, TypeName}
 import com.nawforce.common.path.{PathFactory, PathLike}
@@ -50,9 +50,9 @@ trait PackageAPI extends Package {
   override def getTypeOfPath(path: String): TypeLike = {
     val pathLike = PathFactory(path)
     DocumentType(pathLike) match {
-      case Some(ad: ApexDocument) =>
-        types.get(ad.typeName(namespace)) match {
-          case Some(td: ApexDeclaration) if td.path == pathLike => td.typeName
+      case Some(md: MetadataDocumentType) =>
+        types.get(md.typeName(namespace)) match {
+          case Some(td: TypeDeclaration) if td.paths.contains(pathLike) => td.typeName
           case _ => null
         }
       case _ => null

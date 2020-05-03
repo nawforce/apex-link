@@ -29,7 +29,6 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.finding.RelativeTypeName
-import com.nawforce.common.metadata._
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types._

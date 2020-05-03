@@ -25,10 +25,9 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.metadata
+package com.nawforce.common.types
 
 import com.nawforce.common.api.{DependentSummary, FieldDependentSummary, MethodDependentSummary, TypeDependentSummary}
-import com.nawforce.common.types.BlockDeclaration
 import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexConstructorLike, ApexFieldLike, ApexMethodLike}
 
 import scala.collection.mutable

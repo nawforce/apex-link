@@ -31,6 +31,7 @@ import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
+import com.nawforce.common.types.other.AnyDeclaration
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.runtime.parsers.ApexParser._
@@ -50,7 +51,7 @@ trait ExprContext {
 }
 
 case class TypeExprContext(isStatic: Option[Boolean], declaration: Option[TypeDeclaration]) extends ExprContext {
-  override def isDefined: Boolean = declaration.nonEmpty && !declaration.exists(_.isAny)
+  override def isDefined: Boolean = declaration.nonEmpty && !declaration.exists(_.isInstanceOf[AnyDeclaration])
 
   override def typeDeclarationOpt: Option[TypeDeclaration] = declaration
   override def packageDeclarationOpt: Option[PackageImpl] = typeDeclarationOpt.flatMap(_.packageDeclaration)

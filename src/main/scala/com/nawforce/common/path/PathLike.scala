@@ -39,6 +39,9 @@ abstract class PathLike {
   // Is anything present at path
   val exists: Boolean
 
+  // Is this the root
+  val isRoot: Boolean
+
   // Is this a directory
   val isDirectory: Boolean
 
