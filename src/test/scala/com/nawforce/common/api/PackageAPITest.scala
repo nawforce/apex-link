@@ -102,13 +102,13 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val dummyType = pkg.getTypeOfPath(root.join("classes").join("Dummy.cls").toString)
       val fooType = pkg.getTypeOfPath(root.join("triggers").join("Foo.trigger").toString)
 
-      assert(pkg.getPathOfType(null) == null)
+      assert(pkg.getPathsOfType(null).isEmpty)
 
       assert(dummyType.toString == "Dummy")
-      assert(pkg.getPathOfType(dummyType) == "/classes/Dummy.cls")
+      assert(pkg.getPathsOfType(dummyType).sameElements(Array("/classes/Dummy.cls")))
 
       assert(fooType.toString == "__sfdc_trigger/Foo")
-      assert(pkg.getPathOfType(fooType) == "/triggers/Foo.trigger")
+      assert(pkg.getPathsOfType(fooType).sameElements(Array("/triggers/Foo.trigger")))
     }
   }
 
@@ -124,13 +124,13 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val dummyType = pkg.getTypeOfPath(root.join("classes").join("Dummy.cls").toString)
       val fooType = pkg.getTypeOfPath(root.join("triggers").join("Foo.trigger").toString)
 
-      assert(pkg.getPathOfType(null) == null)
+      assert(pkg.getPathsOfType(null).isEmpty)
 
       assert(dummyType.toString == "test.Dummy")
-      assert(pkg.getPathOfType(dummyType) == "/classes/Dummy.cls")
+      assert(pkg.getPathsOfType(dummyType).sameElements(Array("/classes/Dummy.cls")))
 
       assert(fooType.toString == "__sfdc_trigger/test/Foo")
-      assert(pkg.getPathOfType(fooType) == "/triggers/Foo.trigger")
+      assert(pkg.getPathsOfType(fooType).sameElements(Array("/triggers/Foo.trigger")))
     }
   }
 

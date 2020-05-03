@@ -183,7 +183,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val fooType = TypeName(Name("Foo"))
 
       assert(pkg.deleteType(fooType))
-      assert(pkg.getPathOfType(fooType) == null)
+      assert(pkg.getPathsOfType(fooType).isEmpty)
       assert(!org.issues.hasMessages)
     }
   }
@@ -200,7 +200,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       assert(pkg.upsertFromView(view))
 
       assert(!pkg.deleteType(TypeName(Name("Foo2"))))
-      assert(pkg.getPathOfType(TypeName(Name("Foo"))).nonEmpty)
+      assert(pkg.getPathsOfType(TypeName(Name("Foo"))).nonEmpty)
       assert(!org.issues.hasMessages)
     }
   }
@@ -348,7 +348,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val fooType = TypeName(Name("__sfdc_trigger/Foo"))
 
       assert(pkg.deleteType(fooType))
-      assert(pkg.getPathOfType(fooType) == null)
+      assert(pkg.getPathsOfType(fooType).isEmpty)
       assert(!org.issues.hasMessages)
     }
   }
@@ -368,7 +368,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val fooType2 = TypeName(Name("__sfdc_trigger/Foo2"))
 
       assert(!pkg.deleteType(fooType2))
-      assert(pkg.getPathOfType(fooType).nonEmpty)
+      assert(pkg.getPathsOfType(fooType).nonEmpty)
       assert(!org.issues.hasMessages)
     }
   }

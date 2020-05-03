@@ -59,10 +59,10 @@ trait PackageAPI extends Package {
     }
   }
 
-  override def getPathOfType(typeLike: TypeLike): String = {
+  override def getPathsOfType(typeLike: TypeLike): Array[String] = {
     getApexDeclaration(typeLike)
-      .map(_.nameLocation.path)
-      .orNull
+      .map(ad => Array(ad.nameLocation.path))
+      .getOrElse(Array())
   }
 
   override def getSummaryOfType(typeLike: TypeLike): TypeSummary = {
