@@ -60,8 +60,8 @@ trait PackageAPI extends Package {
   }
 
   override def getPathsOfType(typeLike: TypeLike): Array[String] = {
-    getApexDeclaration(typeLike)
-      .map(ad => Array(ad.nameLocation.path))
+    types.get(TypeName(typeLike))
+      .map(td => td.paths.map(_.toString).toArray)
       .getOrElse(Array())
   }
 

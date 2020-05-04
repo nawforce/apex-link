@@ -36,6 +36,7 @@ import com.nawforce.common.xml.{XMLException, XMLFactory}
 
 import scala.collection.immutable.Queue
 
+case class LabelFileEvent(location: LocationImpl) extends PackageEvent
 case class LabelEvent(location: LocationImpl, name: Name, isProtected: Boolean) extends PackageEvent
 
 object LabelGenerator {
@@ -84,6 +85,6 @@ object LabelGenerator {
             None
         }
       })
-      queue ++ labels
+      queue ++ labels :+ LabelFileEvent(LineLocationImpl(path.toString, 0))
   }
 }
