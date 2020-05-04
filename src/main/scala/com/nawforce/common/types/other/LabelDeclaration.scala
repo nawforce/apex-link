@@ -69,7 +69,7 @@ final class LabelDeclaration(paths: Seq[PathLike], pkg: PackageImpl, labels: Seq
   /** Create new labels from merging those in the provided stream */
   def merge(stream: PackageStream): LabelDeclaration = {
     val newLabels = labels ++ stream.labels.map(le => Label(le.location, le.name, le.isProtected))
-    val paths = newLabels.map(l => PathFactory(l.location.path)).distinct
+    val paths = stream.labelsFiles.map(l => PathFactory(l.location.path)).distinct
     new LabelDeclaration(paths, pkg, newLabels, packageLabels)
   }
 

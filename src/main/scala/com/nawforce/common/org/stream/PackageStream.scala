@@ -36,6 +36,7 @@ import scala.collection.immutable.Queue
 trait PackageEvent
 
 class PackageStream(val namespace: Option[Name], val events: Seq[PackageEvent]) {
+  def labelsFiles: Seq[LabelFileEvent] = events.collect{case e: LabelFileEvent => e}
   def labels: Seq[LabelEvent] = events.collect{case e: LabelEvent => e}
   def pages: Seq[PageEvent] = events.collect{case e: PageEvent => e}
   def flows: Seq[FlowEvent] = events.collect{case e: FlowEvent => e}
