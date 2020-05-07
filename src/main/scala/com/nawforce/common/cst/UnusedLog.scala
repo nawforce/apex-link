@@ -29,8 +29,8 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.diagnostics.IssueLog
-import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.common.types.apex.ApexClassDeclaration
+import com.nawforce.common.types.core.TypeDeclaration
 
 class UnusedLog(types: Iterable[TypeDeclaration]) extends IssueLog {
 

@@ -35,8 +35,8 @@ import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.sfdx.Workspace
-import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.common.types.apex.ApexClassDeclaration
+import com.nawforce.common.types.core.TypeDeclaration
 import com.nawforce.common.types.other.{InterviewDeclaration, _}
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.schema.SchemaManager

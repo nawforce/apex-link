@@ -29,12 +29,12 @@ package com.nawforce.common.org
 
 import com.nawforce.common.api.{Diagnostic, LineLocation, Package, ServerOps, TypeSummary, ViewInfo}
 import com.nawforce.common.diagnostics.ERROR_CATEGORY
-import com.nawforce.common.documents.{ApexClassDocument, ApexDocument, ApexTriggerDocument, DocumentType, MetadataDocumentType}
+import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{TypeLike, TypeName}
 import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.common.types.apex._
+import com.nawforce.common.types.core.{DependentType, TypeDeclaration}
 import com.nawforce.runtime.types.PlatformTypeException
 
 import scala.collection.mutable
@@ -91,7 +91,7 @@ trait PackageAPI extends Package {
   }
 
   override def getDependencyHolders(typeLike: TypeLike): Array[TypeLike] = {
-    getApexDeclaration(typeLike)
+    getDependentType(typeLike)
       .map(_.getTypeDependencyHolders.toArray[TypeLike])
       .orNull
   }
@@ -226,6 +226,20 @@ trait PackageAPI extends Package {
       types.get(TypeName(typeLike))
         .flatMap {
           case ad: ApexDeclaration => Some(ad)
+          case _ => None
+        }
+    } catch {
+      case ex: PlatformTypeException =>
+        ServerOps.debug(ServerOps.Trace, ex.getMessage)
+        None
+    }
+  }
+
+  private def getDependentType(typeLike: TypeLike): Option[DependentType] = {
+    try {
+      types.get(TypeName(typeLike))
+        .flatMap {
+          case dt: DependentType => Some(dt)
           case _ => None
         }
     } catch {

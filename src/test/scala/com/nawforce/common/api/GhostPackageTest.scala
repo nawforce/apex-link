@@ -31,7 +31,7 @@ import com.nawforce.common.documents.{ApexClassDocument, DocumentType}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types.TypeDeclaration
+import com.nawforce.common.types.core.TypeDeclaration
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite

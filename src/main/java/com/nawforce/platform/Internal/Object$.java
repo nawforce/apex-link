@@ -27,9 +27,9 @@
 */
 package com.nawforce.platform.Internal;
 
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
-import com.nawforce.platform.System.Boolean;
 
 @SuppressWarnings("unused")
 public class Object$ {

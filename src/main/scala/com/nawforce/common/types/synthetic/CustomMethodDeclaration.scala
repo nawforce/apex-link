@@ -25,13 +25,14 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.types
+package com.nawforce.common.types.synthetic
 
 import com.nawforce.common.api.{MethodSummary, Position, RangeLocation}
 import com.nawforce.common.cst.{Modifier, PUBLIC_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.types.apex.ApexVisibleMethodLike
+import com.nawforce.common.types.core.ParameterDeclaration
 
 /** Custom methods are used to inject synthetic methods into types so they fulfil some contract. They extend from
   * ApexVisibleMethodLike so they can be referenced within Apex code and be included in type summary information

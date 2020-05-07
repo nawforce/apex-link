@@ -35,7 +35,7 @@ import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types._
+import com.nawforce.common.types.core._
 
 import scala.collection.mutable
 
@@ -101,7 +101,7 @@ trait ApexFieldLike extends FieldDeclaration {
 }
 
 /** Apex defined types core features, be they full or summary style */
-trait ApexDeclaration extends TypeDeclaration {
+trait ApexDeclaration extends TypeDeclaration with DependentType {
   val path: PathLike
   val sourceHash: Int
   val pkg: PackageImpl
@@ -109,32 +109,6 @@ trait ApexDeclaration extends TypeDeclaration {
 
   // Get summary of this type
   def summary: TypeSummary
-
-  // Collect set of TypeNames that this declaration is dependent on
-  def collectDependenciesByTypeName(dependents: mutable.Set[TypeName])
-
-  // Get set of TypeName holding a dependency on this declaration
-  def getTypeDependencyHolders: mutable.Set[TypeName]
-
-  // Set type dependency holders, useful when carrying forward during upsert
-  def updateTypeDependencyHolders(holders: mutable.Set[TypeName]): Unit
-
-  // Update holders on outer dependencies
-  def propagateOuterDependencies(): Unit = {
-    val dependsOn = mutable.Set[TypeName]()
-    collectDependenciesByTypeName(dependsOn)
-    dependsOn.foreach(dependentTypeName =>
-      getOutermostDeclaration(dependentTypeName).map(_.addTypeDependencyHolder(typeName)))
-  }
-
-  private def getOutermostDeclaration(typeName: TypeName): Option[ApexClassDeclaration] = {
-    TypeRequest(typeName, pkg, excludeSObjects = false) match {
-      case Right(td: ApexClassDeclaration) =>
-        td.outerTypeName.map(getOutermostDeclaration).getOrElse(Some(td))
-      case Right(_) => None
-      case Left(_) => None
-    }
-  }
 }
 
 trait ApexFullDeclaration extends ApexDeclaration {
@@ -161,8 +135,6 @@ trait ApexClassDeclaration extends ApexDeclaration {
 
   /** Override to handle request to propagate all dependencies in type */
   def propagateAllDependencies(): Unit
-
-  private var typeDependencyHolders = mutable.Set[TypeName]()
 
   override lazy val typeName: TypeName = {
     outerTypeName.map(outer => TypeName(name).withOuter(Some(outer)))
@@ -232,19 +204,6 @@ trait ApexClassDeclaration extends ApexDeclaration {
   override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Seq[MethodDeclaration] = {
     methodMap.findMethod(name, params, staticContext, verifyContext)
-  }
-
-  override def getTypeDependencyHolders: mutable.Set[TypeName] = {
-    typeDependencyHolders
-  }
-
-  override def updateTypeDependencyHolders(holders: mutable.Set[TypeName]): Unit = {
-    typeDependencyHolders = holders
-  }
-
-  def addTypeDependencyHolder(typeName: TypeName): Unit = {
-    if (typeName != this.typeName)
-      typeDependencyHolders.add(typeName)
   }
 
   def unused(): Seq[Issue] = {

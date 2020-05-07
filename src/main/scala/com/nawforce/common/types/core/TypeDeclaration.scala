@@ -25,7 +25,7 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.types
+package com.nawforce.common.types.core
 
 import com.nawforce.common.api._
 import com.nawforce.common.cst._
@@ -36,6 +36,7 @@ import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.other.Component
 import com.nawforce.common.types.platform.PlatformTypes
+import com.nawforce.common.types.synthetic.CustomFieldDeclaration
 import com.nawforce.runtime.types._
 
 import scala.collection.mutable

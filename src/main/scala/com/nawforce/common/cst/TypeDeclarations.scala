@@ -29,8 +29,9 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
-import com.nawforce.common.types._
 import com.nawforce.common.types.apex.{ApexVisibleMethodLike, FullDeclaration}
+import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, Nature}
+import com.nawforce.common.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 

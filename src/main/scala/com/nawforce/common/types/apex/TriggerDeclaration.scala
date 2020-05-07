@@ -33,7 +33,7 @@ import com.nawforce.common.documents.{LineLocationImpl, LocationImpl}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types.{Dependent, _}
+import com.nawforce.common.types.core._
 import com.nawforce.runtime.parsers.ApexParser.{TriggerCaseContext, TriggerUnitContext}
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 

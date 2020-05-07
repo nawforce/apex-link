@@ -29,7 +29,7 @@ package com.nawforce.common.finding
 
 import com.nawforce.common.names.TypeName
 import com.nawforce.common.org.PackageImpl
-import com.nawforce.common.types.TypeDeclaration
+import com.nawforce.common.types.core.TypeDeclaration
 import com.nawforce.common.types.platform.PlatformTypes
 
 /** Helper for abstracting various ways of finding types based on context info, these are:

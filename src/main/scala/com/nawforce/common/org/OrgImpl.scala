@@ -35,8 +35,8 @@ import com.nawforce.common.documents._
 import com.nawforce.common.names.{DotName, Name}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.sfdx.{MDAPIWorkspace, Workspace}
-import com.nawforce.common.types.TypeDeclaration
 import com.nawforce.common.types.apex.ApexDeclaration
+import com.nawforce.common.types.core.TypeDeclaration
 
 import scala.util.DynamicVariable
 

@@ -27,8 +27,8 @@
 */
 package com.nawforce.platform.eventbus;
 
-import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.Exception;
+import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
 public class RetryableException extends Exception {

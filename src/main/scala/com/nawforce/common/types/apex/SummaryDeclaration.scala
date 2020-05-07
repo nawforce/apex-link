@@ -34,7 +34,7 @@ import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types._
+import com.nawforce.common.types.core._
 import upickle.default._
 
 import scala.collection.mutable

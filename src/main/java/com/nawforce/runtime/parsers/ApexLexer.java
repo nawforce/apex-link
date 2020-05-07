@@ -1,13 +1,12 @@
 // Generated from /Users/kevin/Projects/ApexLink/src/main/antlr4/com/nawforce/parsers/ApexLexer.g4 by ANTLR 4.8
 package com.nawforce.runtime.parsers;
-import org.antlr.v4.runtime.Lexer;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
+
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.atn.*;
+import org.antlr.v4.runtime.atn.ATN;
+import org.antlr.v4.runtime.atn.ATNDeserializer;
+import org.antlr.v4.runtime.atn.LexerATNSimulator;
+import org.antlr.v4.runtime.atn.PredictionContextCache;
 import org.antlr.v4.runtime.dfa.DFA;
-import org.antlr.v4.runtime.misc.*;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class ApexLexer extends Lexer {
@@ -17,23 +16,23 @@ public class ApexLexer extends Lexer {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		ABSTRACT=1, AFTER=2, BEFORE=3, BREAK=4, CATCH=5, CLASS=6, CONTINUE=7, 
-		DELETE=8, DO=9, ELSE=10, ENUM=11, EXTENDS=12, FINAL=13, FINALLY=14, FOR=15, 
-		GET=16, GLOBAL=17, IF=18, IMPLEMENTS=19, INHERITED=20, INSERT=21, INSTANCEOF=22, 
-		INTERFACE=23, MERGE=24, NEW=25, NULL=26, ON=27, OVERRIDE=28, PRIVATE=29, 
-		PROTECTED=30, PUBLIC=31, RETURN=32, SYSTEMRUNAS=33, SET=34, SHARING=35, 
-		STATIC=36, SUPER=37, SWITCH=38, TESTMETHOD=39, THIS=40, THROW=41, TRANSIENT=42, 
-		TRIGGER=43, TRY=44, UNDELETE=45, UPDATE=46, UPSERT=47, VIRTUAL=48, VOID=49, 
-		WEBSERVICE=50, WHEN=51, WHILE=52, WITH=53, WITHOUT=54, LIST=55, MAP=56, 
-		IntegerLiteral=57, NumberLiteral=58, BooleanLiteral=59, StringLiteral=60, 
-		NullLiteral=61, LPAREN=62, RPAREN=63, LBRACE=64, RBRACE=65, LBRACK=66, 
-		RBRACK=67, SEMI=68, COMMA=69, DOT=70, ASSIGN=71, GT=72, LT=73, BANG=74, 
-		TILDE=75, QUESTION=76, COLON=77, EQUAL=78, TRIPLEEQUAL=79, NOTEQUAL=80, 
-		LESSANDGREATER=81, TRIPLENOTEQUAL=82, AND=83, OR=84, INC=85, DEC=86, ADD=87, 
-		SUB=88, MUL=89, DIV=90, BITAND=91, BITOR=92, CARET=93, MOD=94, MAPTO=95, 
-		ADD_ASSIGN=96, SUB_ASSIGN=97, MUL_ASSIGN=98, DIV_ASSIGN=99, AND_ASSIGN=100, 
-		OR_ASSIGN=101, XOR_ASSIGN=102, MOD_ASSIGN=103, LSHIFT_ASSIGN=104, RSHIFT_ASSIGN=105, 
-		URSHIFT_ASSIGN=106, AT=107, Identifier=108, WS=109, DOC_COMMENT=110, COMMENT=111, 
+		ABSTRACT=1, AFTER=2, BEFORE=3, BREAK=4, CATCH=5, CLASS=6, CONTINUE=7,
+		DELETE=8, DO=9, ELSE=10, ENUM=11, EXTENDS=12, FINAL=13, FINALLY=14, FOR=15,
+		GET=16, GLOBAL=17, IF=18, IMPLEMENTS=19, INHERITED=20, INSERT=21, INSTANCEOF=22,
+		INTERFACE=23, MERGE=24, NEW=25, NULL=26, ON=27, OVERRIDE=28, PRIVATE=29,
+		PROTECTED=30, PUBLIC=31, RETURN=32, SYSTEMRUNAS=33, SET=34, SHARING=35,
+		STATIC=36, SUPER=37, SWITCH=38, TESTMETHOD=39, THIS=40, THROW=41, TRANSIENT=42,
+		TRIGGER=43, TRY=44, UNDELETE=45, UPDATE=46, UPSERT=47, VIRTUAL=48, VOID=49,
+		WEBSERVICE=50, WHEN=51, WHILE=52, WITH=53, WITHOUT=54, LIST=55, MAP=56,
+		IntegerLiteral=57, NumberLiteral=58, BooleanLiteral=59, StringLiteral=60,
+		NullLiteral=61, LPAREN=62, RPAREN=63, LBRACE=64, RBRACE=65, LBRACK=66,
+		RBRACK=67, SEMI=68, COMMA=69, DOT=70, ASSIGN=71, GT=72, LT=73, BANG=74,
+		TILDE=75, QUESTION=76, COLON=77, EQUAL=78, TRIPLEEQUAL=79, NOTEQUAL=80,
+		LESSANDGREATER=81, TRIPLENOTEQUAL=82, AND=83, OR=84, INC=85, DEC=86, ADD=87,
+		SUB=88, MUL=89, DIV=90, BITAND=91, BITOR=92, CARET=93, MOD=94, MAPTO=95,
+		ADD_ASSIGN=96, SUB_ASSIGN=97, MUL_ASSIGN=98, DIV_ASSIGN=99, AND_ASSIGN=100,
+		OR_ASSIGN=101, XOR_ASSIGN=102, MOD_ASSIGN=103, LSHIFT_ASSIGN=104, RSHIFT_ASSIGN=105,
+		URSHIFT_ASSIGN=106, AT=107, Identifier=108, WS=109, DOC_COMMENT=110, COMMENT=111,
 		LINE_COMMENT=112;
 	public static final int
 		WHITESPACE_CHANNEL=2, COMMENT_CHANNEL=3;
@@ -47,23 +46,23 @@ public class ApexLexer extends Lexer {
 
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"ABSTRACT", "AFTER", "BEFORE", "BREAK", "CATCH", "CLASS", "CONTINUE", 
-			"DELETE", "DO", "ELSE", "ENUM", "EXTENDS", "FINAL", "FINALLY", "FOR", 
-			"GET", "GLOBAL", "IF", "IMPLEMENTS", "INHERITED", "INSERT", "INSTANCEOF", 
-			"INTERFACE", "MERGE", "NEW", "NULL", "ON", "OVERRIDE", "PRIVATE", "PROTECTED", 
-			"PUBLIC", "RETURN", "SYSTEMRUNAS", "SET", "SHARING", "STATIC", "SUPER", 
-			"SWITCH", "TESTMETHOD", "THIS", "THROW", "TRANSIENT", "TRIGGER", "TRY", 
-			"UNDELETE", "UPDATE", "UPSERT", "VIRTUAL", "VOID", "WEBSERVICE", "WHEN", 
-			"WHILE", "WITH", "WITHOUT", "LIST", "MAP", "IntegerLiteral", "NumberLiteral", 
-			"HexCharacter", "Digit", "BooleanLiteral", "StringLiteral", "StringCharacters", 
-			"StringCharacter", "EscapeSequence", "NullLiteral", "LPAREN", "RPAREN", 
-			"LBRACE", "RBRACE", "LBRACK", "RBRACK", "SEMI", "COMMA", "DOT", "ASSIGN", 
-			"GT", "LT", "BANG", "TILDE", "QUESTION", "COLON", "EQUAL", "TRIPLEEQUAL", 
-			"NOTEQUAL", "LESSANDGREATER", "TRIPLENOTEQUAL", "AND", "OR", "INC", "DEC", 
-			"ADD", "SUB", "MUL", "DIV", "BITAND", "BITOR", "CARET", "MOD", "MAPTO", 
-			"ADD_ASSIGN", "SUB_ASSIGN", "MUL_ASSIGN", "DIV_ASSIGN", "AND_ASSIGN", 
-			"OR_ASSIGN", "XOR_ASSIGN", "MOD_ASSIGN", "LSHIFT_ASSIGN", "RSHIFT_ASSIGN", 
-			"URSHIFT_ASSIGN", "AT", "Identifier", "JavaLetter", "JavaLetterOrDigit", 
+			"ABSTRACT", "AFTER", "BEFORE", "BREAK", "CATCH", "CLASS", "CONTINUE",
+			"DELETE", "DO", "ELSE", "ENUM", "EXTENDS", "FINAL", "FINALLY", "FOR",
+			"GET", "GLOBAL", "IF", "IMPLEMENTS", "INHERITED", "INSERT", "INSTANCEOF",
+			"INTERFACE", "MERGE", "NEW", "NULL", "ON", "OVERRIDE", "PRIVATE", "PROTECTED",
+			"PUBLIC", "RETURN", "SYSTEMRUNAS", "SET", "SHARING", "STATIC", "SUPER",
+			"SWITCH", "TESTMETHOD", "THIS", "THROW", "TRANSIENT", "TRIGGER", "TRY",
+			"UNDELETE", "UPDATE", "UPSERT", "VIRTUAL", "VOID", "WEBSERVICE", "WHEN",
+			"WHILE", "WITH", "WITHOUT", "LIST", "MAP", "IntegerLiteral", "NumberLiteral",
+			"HexCharacter", "Digit", "BooleanLiteral", "StringLiteral", "StringCharacters",
+			"StringCharacter", "EscapeSequence", "NullLiteral", "LPAREN", "RPAREN",
+			"LBRACE", "RBRACE", "LBRACK", "RBRACK", "SEMI", "COMMA", "DOT", "ASSIGN",
+			"GT", "LT", "BANG", "TILDE", "QUESTION", "COLON", "EQUAL", "TRIPLEEQUAL",
+			"NOTEQUAL", "LESSANDGREATER", "TRIPLENOTEQUAL", "AND", "OR", "INC", "DEC",
+			"ADD", "SUB", "MUL", "DIV", "BITAND", "BITOR", "CARET", "MOD", "MAPTO",
+			"ADD_ASSIGN", "SUB_ASSIGN", "MUL_ASSIGN", "DIV_ASSIGN", "AND_ASSIGN",
+			"OR_ASSIGN", "XOR_ASSIGN", "MOD_ASSIGN", "LSHIFT_ASSIGN", "RSHIFT_ASSIGN",
+			"URSHIFT_ASSIGN", "AT", "Identifier", "JavaLetter", "JavaLetterOrDigit",
 			"WS", "DOC_COMMENT", "COMMENT", "LINE_COMMENT"
 		};
 	}
@@ -71,42 +70,42 @@ public class ApexLexer extends Lexer {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, "'abstract'", "'after'", "'before'", "'break'", "'catch'", "'class'", 
-			"'continue'", "'delete'", "'do'", "'else'", "'enum'", "'extends'", "'final'", 
-			"'finally'", "'for'", "'get'", "'global'", "'if'", "'implements'", "'inherited'", 
-			"'insert'", "'instanceof'", "'interface'", "'merge'", "'new'", "'null'", 
-			"'on'", "'override'", "'private'", "'protected'", "'public'", "'return'", 
-			"'system.runas'", "'set'", "'sharing'", "'static'", "'super'", "'switch'", 
-			"'testmethod'", "'this'", "'throw'", "'transient'", "'trigger'", "'try'", 
-			"'undelete'", "'update'", "'upsert'", "'virtual'", "'void'", "'webservice'", 
-			"'when'", "'while'", "'with'", "'without'", "'list'", "'map'", null, 
-			null, null, null, null, "'('", "')'", "'{'", "'}'", "'['", "']'", "';'", 
-			"','", "'.'", "'='", "'>'", "'<'", "'!'", "'~'", "'?'", "':'", "'=='", 
-			"'==='", "'!='", "'<>'", "'!=='", "'&&'", "'||'", "'++'", "'--'", "'+'", 
-			"'-'", "'*'", "'/'", "'&'", "'|'", "'^'", "'%'", "'=>'", "'+='", "'-='", 
-			"'*='", "'/='", "'&='", "'|='", "'^='", "'%='", "'<<='", "'>>='", "'>>>='", 
+			null, "'abstract'", "'after'", "'before'", "'break'", "'catch'", "'class'",
+			"'continue'", "'delete'", "'do'", "'else'", "'enum'", "'extends'", "'final'",
+			"'finally'", "'for'", "'get'", "'global'", "'if'", "'implements'", "'inherited'",
+			"'insert'", "'instanceof'", "'interface'", "'merge'", "'new'", "'null'",
+			"'on'", "'override'", "'private'", "'protected'", "'public'", "'return'",
+			"'system.runas'", "'set'", "'sharing'", "'static'", "'super'", "'switch'",
+			"'testmethod'", "'this'", "'throw'", "'transient'", "'trigger'", "'try'",
+			"'undelete'", "'update'", "'upsert'", "'virtual'", "'void'", "'webservice'",
+			"'when'", "'while'", "'with'", "'without'", "'list'", "'map'", null,
+			null, null, null, null, "'('", "')'", "'{'", "'}'", "'['", "']'", "';'",
+			"','", "'.'", "'='", "'>'", "'<'", "'!'", "'~'", "'?'", "':'", "'=='",
+			"'==='", "'!='", "'<>'", "'!=='", "'&&'", "'||'", "'++'", "'--'", "'+'",
+			"'-'", "'*'", "'/'", "'&'", "'|'", "'^'", "'%'", "'=>'", "'+='", "'-='",
+			"'*='", "'/='", "'&='", "'|='", "'^='", "'%='", "'<<='", "'>>='", "'>>>='",
 			"'@'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "ABSTRACT", "AFTER", "BEFORE", "BREAK", "CATCH", "CLASS", "CONTINUE", 
-			"DELETE", "DO", "ELSE", "ENUM", "EXTENDS", "FINAL", "FINALLY", "FOR", 
-			"GET", "GLOBAL", "IF", "IMPLEMENTS", "INHERITED", "INSERT", "INSTANCEOF", 
-			"INTERFACE", "MERGE", "NEW", "NULL", "ON", "OVERRIDE", "PRIVATE", "PROTECTED", 
-			"PUBLIC", "RETURN", "SYSTEMRUNAS", "SET", "SHARING", "STATIC", "SUPER", 
-			"SWITCH", "TESTMETHOD", "THIS", "THROW", "TRANSIENT", "TRIGGER", "TRY", 
-			"UNDELETE", "UPDATE", "UPSERT", "VIRTUAL", "VOID", "WEBSERVICE", "WHEN", 
-			"WHILE", "WITH", "WITHOUT", "LIST", "MAP", "IntegerLiteral", "NumberLiteral", 
-			"BooleanLiteral", "StringLiteral", "NullLiteral", "LPAREN", "RPAREN", 
-			"LBRACE", "RBRACE", "LBRACK", "RBRACK", "SEMI", "COMMA", "DOT", "ASSIGN", 
-			"GT", "LT", "BANG", "TILDE", "QUESTION", "COLON", "EQUAL", "TRIPLEEQUAL", 
-			"NOTEQUAL", "LESSANDGREATER", "TRIPLENOTEQUAL", "AND", "OR", "INC", "DEC", 
-			"ADD", "SUB", "MUL", "DIV", "BITAND", "BITOR", "CARET", "MOD", "MAPTO", 
-			"ADD_ASSIGN", "SUB_ASSIGN", "MUL_ASSIGN", "DIV_ASSIGN", "AND_ASSIGN", 
-			"OR_ASSIGN", "XOR_ASSIGN", "MOD_ASSIGN", "LSHIFT_ASSIGN", "RSHIFT_ASSIGN", 
-			"URSHIFT_ASSIGN", "AT", "Identifier", "WS", "DOC_COMMENT", "COMMENT", 
+			null, "ABSTRACT", "AFTER", "BEFORE", "BREAK", "CATCH", "CLASS", "CONTINUE",
+			"DELETE", "DO", "ELSE", "ENUM", "EXTENDS", "FINAL", "FINALLY", "FOR",
+			"GET", "GLOBAL", "IF", "IMPLEMENTS", "INHERITED", "INSERT", "INSTANCEOF",
+			"INTERFACE", "MERGE", "NEW", "NULL", "ON", "OVERRIDE", "PRIVATE", "PROTECTED",
+			"PUBLIC", "RETURN", "SYSTEMRUNAS", "SET", "SHARING", "STATIC", "SUPER",
+			"SWITCH", "TESTMETHOD", "THIS", "THROW", "TRANSIENT", "TRIGGER", "TRY",
+			"UNDELETE", "UPDATE", "UPSERT", "VIRTUAL", "VOID", "WEBSERVICE", "WHEN",
+			"WHILE", "WITH", "WITHOUT", "LIST", "MAP", "IntegerLiteral", "NumberLiteral",
+			"BooleanLiteral", "StringLiteral", "NullLiteral", "LPAREN", "RPAREN",
+			"LBRACE", "RBRACE", "LBRACK", "RBRACK", "SEMI", "COMMA", "DOT", "ASSIGN",
+			"GT", "LT", "BANG", "TILDE", "QUESTION", "COLON", "EQUAL", "TRIPLEEQUAL",
+			"NOTEQUAL", "LESSANDGREATER", "TRIPLENOTEQUAL", "AND", "OR", "INC", "DEC",
+			"ADD", "SUB", "MUL", "DIV", "BITAND", "BITOR", "CARET", "MOD", "MAPTO",
+			"ADD_ASSIGN", "SUB_ASSIGN", "MUL_ASSIGN", "DIV_ASSIGN", "AND_ASSIGN",
+			"OR_ASSIGN", "XOR_ASSIGN", "MOD_ASSIGN", "LSHIFT_ASSIGN", "RSHIFT_ASSIGN",
+			"URSHIFT_ASSIGN", "AT", "Identifier", "WS", "DOC_COMMENT", "COMMENT",
 			"LINE_COMMENT"
 		};
 	}

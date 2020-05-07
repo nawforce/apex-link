@@ -35,7 +35,8 @@ import com.nawforce.common.documents._
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types.{Dependent, _}
+import com.nawforce.common.types.core.{CLASS_NATURE, Dependent, INTERFACE_NATURE, Nature}
+import com.nawforce.common.types.other.Label
 import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 import upickle.default.writeBinary
@@ -162,7 +163,10 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
     val dependents = mutable.Set[Dependent]()
     collectDependencies(dependents)
     dependents.foreach {
-      case ad: ApexClassDeclaration => dependsOn.add(ad.outerTypeName.getOrElse(ad.typeName))
+      case ad: ApexClassDeclaration =>
+        dependsOn.add(ad.outerTypeName.getOrElse(ad.typeName))
+      case _: Label =>
+        dependsOn.add(TypeName.Label)
       case _ => ()
     }
   }

@@ -30,7 +30,7 @@ package com.nawforce.runtime.types
 import java.lang.reflect.{Modifier => JavaModifier}
 
 import com.nawforce.common.cst._
-import com.nawforce.common.types._
+import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, Nature}
 
 object PlatformModifiers {
   def typeModifiers(javaBits: Int, nature: Nature): Seq[Modifier] = {

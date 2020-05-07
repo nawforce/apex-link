@@ -32,8 +32,9 @@ import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.finding.{TypeError, TypeRequest}
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
-import com.nawforce.common.types.{Dependent, _}
 import com.nawforce.common.types.apex._
+import com.nawforce.common.types.core.{BlockDeclaration, Dependent, TypeDeclaration}
+import com.nawforce.common.types.other.Label
 
 import scala.collection.mutable
 
@@ -93,7 +94,7 @@ trait HolderVerifyContext {
   def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
                  excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration]
 
-  /* Record a dependency, we only store between Apex code elements currently */
+  /* Record a dependency, we only store for some elements currently */
   def addDependency(dependent: Dependent): Unit = {
     dependent match {
       case _: ApexClassDeclaration => _dependencies += dependent
@@ -102,6 +103,7 @@ trait HolderVerifyContext {
       case _: ApexConstructorLike => _dependencies += dependent
       // Block is an odd man out here as there can't be platform blocks
       case _: BlockDeclaration => _dependencies += dependent
+      case _: Label => _dependencies += dependent
       case _ => ()
     }
   }
