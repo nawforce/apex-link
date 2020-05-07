@@ -29,8 +29,7 @@ package com.nawforce.common.types.other
 
 import com.nawforce.common.names.TypeName
 import com.nawforce.common.org.PackageImpl
-import com.nawforce.common.path.PathLike
-import com.nawforce.common.types.BasicTypeDeclaration
+import com.nawforce.common.types.core.BasicTypeDeclaration
 
 /** An any type declaration, there are deliberately very few uses of this, hopefully at some point it
   * can be removed.

@@ -34,8 +34,10 @@ import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.types._
+import com.nawforce.common.types.core._
 import com.nawforce.common.xml.XMLElementLike
+
+import scala.collection.mutable
 
 /** A individual Label being represented as a static field. */
 case class Label(location: LocationImpl, name: Name, isProtected: Boolean) extends FieldDeclaration {
@@ -58,7 +60,7 @@ object Label {
 /** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
   * base packages via the Label.namespace.name format. */
 final class LabelDeclaration(paths: Seq[PathLike], pkg: PackageImpl, labels: Seq[Label], packageLabels: Seq[TypeDeclaration])
-  extends BasicTypeDeclaration(paths, pkg, TypeName.Label) {
+  extends BasicTypeDeclaration(paths, pkg, TypeName.Label) with DependentType {
 
   // Set individual labels to use this as the controller
   labels.foreach(_.setController(Some(this)))
@@ -72,6 +74,9 @@ final class LabelDeclaration(paths: Seq[PathLike], pkg: PackageImpl, labels: Seq
     val paths = stream.labelsFiles.map(l => PathFactory(l.location.path)).distinct
     new LabelDeclaration(paths, pkg, newLabels, packageLabels)
   }
+
+  /** Labels don't have dependencies */
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeName]): Unit = {}
 
   // Report on unused labels
   def unused(): Seq[Issue] = {

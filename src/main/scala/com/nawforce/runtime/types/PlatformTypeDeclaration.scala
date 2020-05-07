@@ -37,8 +37,9 @@ import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
 import com.nawforce.common.names.{DotName, Name, TypeName}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types._
+import com.nawforce.common.types.core._
 import com.nawforce.common.types.platform.{GenericPlatformTypeDeclaration, PlatformTypes}
+import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration, CustomParameterDeclaration}
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.HashMap

@@ -31,6 +31,7 @@ import com.nawforce.common.ParserHelper
 import com.nawforce.common.cst.{CST, Literal}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.path.PathFactory
+import com.nawforce.common.types.core.{DependencyHolder, TypeDeclaration}
 import com.nawforce.runtime.parsers.{Source, SourcePosition}
 import org.scalatest.funsuite.AnyFunSuite
 

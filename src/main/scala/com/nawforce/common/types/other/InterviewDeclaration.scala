@@ -33,7 +33,7 @@ import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types._
+import com.nawforce.common.types.core.{BasicTypeDeclaration, InnerBasicTypeDeclaration, MethodDeclaration, TypeDeclaration}
 import com.nawforce.common.types.platform.PlatformTypes
 
 /** A individual custom interview being represented as interview derived type. */

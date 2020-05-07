@@ -25,10 +25,11 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.types
+package com.nawforce.common.types.core
 
 import com.nawforce.common.api.{DependentSummary, FieldDependentSummary, MethodDependentSummary, TypeDependentSummary}
 import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexConstructorLike, ApexFieldLike, ApexMethodLike}
+import com.nawforce.common.types.other.Label
 
 import scala.collection.mutable
 
@@ -99,6 +100,8 @@ trait DependencyHolder extends Dependent {
         Some(MethodDependentSummary(md.outerTypeName, md.name.value, md.parameters.map(_.summary).toList))
       case _: ApexConstructorLike => None
       case _: BlockDeclaration => None
+      // TODO: Label summary
+      case _: Label => None
     }.toSet
   }
 }

@@ -26,7 +26,7 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package com.nawforce.common.types
+package com.nawforce.common.types.core
 
 import com.nawforce.common.cst.Modifier
 import com.nawforce.common.names.{Name, TypeName}

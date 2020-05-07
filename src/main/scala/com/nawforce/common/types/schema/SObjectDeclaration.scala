@@ -33,8 +33,9 @@ import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{DotName, Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
 import com.nawforce.common.types.platform.PlatformTypes
-import com.nawforce.common.types.{CustomFieldDeclaration, _}
+import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration, CustomParameterDeclaration}
 
 import scala.collection.mutable
 

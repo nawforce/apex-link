@@ -32,7 +32,7 @@ import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
-import com.nawforce.common.types.{Nature, TypeDeclaration}
+import com.nawforce.common.types.core.{Nature, TypeDeclaration}
 
 /* Lazy TypeName resolver for relative types. The package & enclosing (outer) typename are used to allow
  * the relative TypeName to be converted to an absolute form. Assumes outerTypeName can always be resolved

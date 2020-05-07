@@ -29,7 +29,7 @@ package com.nawforce.common.finding
 
 import com.nawforce.common.names.{DotName, TypeName}
 import com.nawforce.common.org.PackageImpl
-import com.nawforce.common.types.TypeDeclaration
+import com.nawforce.common.types.core.TypeDeclaration
 
 import scala.collection.mutable
 
