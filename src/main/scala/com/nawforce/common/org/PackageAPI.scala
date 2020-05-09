@@ -27,14 +27,14 @@
 */
 package com.nawforce.common.org
 
-import com.nawforce.common.api.{Diagnostic, LineLocation, Package, ServerOps, TypeSummary, ViewInfo}
+import com.nawforce.common.api.{Diagnostic, LineLocation, Package, ServerOps, TypeIdentifier, TypeSummary, ViewInfo}
 import com.nawforce.common.diagnostics.ERROR_CATEGORY
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.names.{TypeLike, TypeName}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.apex._
-import com.nawforce.common.types.core.{DependentType, TypeDeclaration}
+import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.runtime.types.PlatformTypeException
 
 import scala.collection.mutable
@@ -47,53 +47,69 @@ trait PackageAPI extends Package {
     namespace.map(_.value).getOrElse("")
   }
 
-  override def getTypeOfPath(path: String): TypeLike = {
+  override def getTypeOfPath(path: String): TypeIdentifier = {
     val pathLike = PathFactory(path)
     DocumentType(pathLike) match {
       case Some(md: MetadataDocumentType) =>
         types.get(md.typeName(namespace)) match {
-          case Some(td: TypeDeclaration) if td.paths.contains(pathLike) => td.typeName
+          case Some(td: TypeDeclaration) if td.paths.contains(pathLike) => TypeIdentifier(namespace.orNull, td.typeName)
           case _ => null
         }
       case _ => null
     }
   }
 
-  override def getPathsOfType(typeLike: TypeLike): Array[String] = {
-    types.get(TypeName(typeLike))
-      .map(td => td.paths.map(_.toString).toArray)
-      .getOrElse(Array())
+  override def getPathsOfType(typeId: TypeIdentifier): Array[String] = {
+    if (typeId != null && typeId.safeNamespace == namespace) {
+      types.get(TypeName(typeId.typeName))
+        .map(td => td.paths.map(_.toString).toArray)
+        .getOrElse(Array())
+    } else {
+      Array()
+    }
   }
 
-  override def getSummaryOfType(typeLike: TypeLike): TypeSummary = {
-    getApexDeclaration(typeLike)
-      .map(_.summary)
-      .orNull
+  override def getSummaryOfType(typeId: TypeIdentifier): TypeSummary = {
+    if (typeId != null && typeId.safeNamespace == namespace) {
+      getApexDeclaration(typeId.typeName)
+        .map(_.summary)
+        .orNull
+    } else {
+      null
+    }
   }
 
-  override def getDependencies(typeLike: TypeLike, inheritanceOnly: Boolean): Array[TypeLike] = {
-    getApexDeclaration(typeLike)
-      .map(ad => {
-        if (inheritanceOnly) {
-          (ad +: ad.nestedTypes).flatMap(td => {
-            td.dependencies().flatMap({
-              case dt: ApexClassDeclaration => Some(dt.typeName.asOuterType.asInstanceOf[TypeLike])
-              case _ => None
-            })
-          }).toArray
-        } else {
-          val dependencies = mutable.Set[TypeName]()
-          ad.collectDependenciesByTypeName(dependencies)
-          dependencies.toArray[TypeLike]
-        }
-      })
-      .orNull
+  override def getDependencies(typeId: TypeIdentifier, inheritanceOnly: Boolean): Array[TypeIdentifier] = {
+    if (typeId != null && typeId.safeNamespace == namespace) {
+      getApexDeclaration(typeId.typeName)
+        .map(ad => {
+          if (inheritanceOnly) {
+            (ad +: ad.nestedTypes).flatMap(td => {
+              td.dependencies().flatMap({
+                case dt: ApexClassDeclaration => Some(dt.outerTypeId.asTypeIdentifier)
+                case _ => None
+              })
+            }).toArray[TypeIdentifier]
+          } else {
+            val dependencies = mutable.Set[TypeId]()
+            ad.collectDependenciesByTypeName(dependencies)
+            dependencies.map(_.asTypeIdentifier).toArray
+          }
+        })
+        .orNull
+    } else {
+      null
+    }
   }
 
-  override def getDependencyHolders(typeLike: TypeLike): Array[TypeLike] = {
-    getDependentType(typeLike)
-      .map(_.getTypeDependencyHolders.toArray[TypeLike])
-      .orNull
+  override def getDependencyHolders(typeId: TypeIdentifier): Array[TypeIdentifier] = {
+    if (typeId != null && typeId.safeNamespace == namespace) {
+      getDependentType(typeId.typeName)
+        .map(_.getTypeDependencyHolders.map(_.asTypeIdentifier).toArray)
+        .orNull
+    } else {
+      null
+    }
   }
 
   override def getViewOfType(path: String, contents: String): ViewInfo = {
@@ -213,11 +229,15 @@ trait PackageAPI extends Package {
     }
   }
 
-  override def deleteType(typeLike: TypeLike): Boolean = {
-    val typeName = TypeName(typeLike)
-    types.get(typeName) match {
-      case Some(_: ApexDeclaration) => types.remove(typeName); true
-      case _ => false
+  override def deleteType(typeId: TypeIdentifier): Boolean = {
+    if (typeId != null && typeId.safeNamespace == namespace) {
+      val typeName = TypeName(typeId.typeName)
+      types.get(typeName) match {
+        case Some(_: ApexDeclaration) => types.remove(typeName); true
+        case _ => false
+      }
+    } else {
+      false
     }
   }
 

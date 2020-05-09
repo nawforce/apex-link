@@ -31,7 +31,7 @@ import com.nawforce.common.api._
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.names.{Name, Names, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.other.Component
@@ -99,7 +99,7 @@ trait FieldDeclaration extends DependencyHolder {
     } else if (CustomFieldDeclaration.isSObjectPrimitive(typeName)) {
       // Primitives (including other Id types)
       // TODO: Identify Share
-      if (name == Name.RowCause)
+      if (name == Names.RowCause)
         CustomFieldDeclaration(name, TypeName.SObjectFieldRowCause$, None, asStatic = true)
       else
         CustomFieldDeclaration(name, TypeName.SObjectField, None, asStatic = true)
@@ -285,8 +285,8 @@ trait TypeDeclaration extends DependencyHolder {
 
     // Handle the synthetic static SObjectField or abort
     if (fieldOption.isEmpty) {
-      if (name == Name.SObjectField && staticContext.contains(true))
-        return Some(CustomFieldDeclaration(Name.SObjectField, TypeName.sObjectFields$(typeName), None))
+      if (name == Names.SObjectField && staticContext.contains(true))
+        return Some(CustomFieldDeclaration(Names.SObjectField, TypeName.sObjectFields$(typeName), None))
       else
         return None
     }
@@ -318,7 +318,7 @@ trait TypeDeclaration extends DependencyHolder {
     val found = methodMap.findMethod(name, params, staticContext, verifyContext)
 
     // Horrible skulduggery to support SObject.GetSObjectType()
-    if (found.isEmpty && name == Name.GetSObjectType && params.isEmpty && staticContext.contains(true)) {
+    if (found.isEmpty && name == Names.GetSObjectType && params.isEmpty && staticContext.contains(true)) {
       findMethod(name, params, Some(false), verifyContext)
     } else {
       found
@@ -406,8 +406,7 @@ trait TypeDeclaration extends DependencyHolder {
       constructors.map(_.serialise).sortBy(_.parameters.size).toList,
       methods.map(_.serialise).sortBy(_.name).toList,
       nestedTypes.map(_.serialise).sortBy(_.name).toList,
-      dependencySummary(),
-      Set.empty
+      dependencySummary()
     )
   }
 }

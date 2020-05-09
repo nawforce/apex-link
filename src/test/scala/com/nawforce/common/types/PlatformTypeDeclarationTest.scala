@@ -29,7 +29,7 @@ package com.nawforce.common.types
 
 import com.nawforce.common.cst.{PUBLIC_MODIFIER, STATIC_MODIFIER, VIRTUAL_MODIFIER}
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
-import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.names.{Name, Names, TypeName}
 import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE}
 import com.nawforce.runtime.types.PlatformTypeDeclaration
 import org.scalatest.funsuite.AnyFunSuite
@@ -278,7 +278,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Too many type params") {
-    val typeName = TypeName(Name("List"), Seq(TypeName(Name.String), TypeName(Name.String)), Some(TypeName.System))
+    val typeName = TypeName(Name("List"), Seq(TypeName(Names.String), TypeName(Names.String)), Some(TypeName.System))
     val td = PlatformTypeDeclaration.get(typeName, None)
     td match {
       case Left(e: WrongTypeArguments) => assert(e.typeName == typeName)
@@ -296,7 +296,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Relative type in param") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("List"), Seq(TypeName(Name.String)), Some(TypeName.System)), None)
+    val td = PlatformTypeDeclaration.get(TypeName(Name("List"), Seq(TypeName(Names.String)), Some(TypeName.System)), None)
     assert(td.isRight)
     assert(td.right.get.typeName == TypeName(Name("List"), Seq(TypeName.String), Some(TypeName.System)))
   }

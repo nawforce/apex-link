@@ -30,7 +30,7 @@ package com.nawforce.common.types.schema
 import com.nawforce.common.cst.VerifyContext
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.names.{EncodedName, Name, TypeName}
+import com.nawforce.common.names.{EncodedName, Name, Names, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
 import com.nawforce.common.types.platform.PlatformTypes
@@ -171,7 +171,7 @@ final case class SchemaSObjectType(pkg: PackageImpl) extends BasicTypeDeclaratio
 final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields, pkg: PackageImpl)
   extends BasicTypeDeclaration(Seq.empty, pkg, TypeName.sObjectType$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
 
-  private lazy val fieldField = CustomFieldDeclaration(Name.Fields,
+  private lazy val fieldField = CustomFieldDeclaration(Names.Fields,
     TypeName.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeName.Schema))), None, asStatic = true)
 
   override val superClass: Option[TypeName] = Some(TypeName.SObjectType)
@@ -182,9 +182,9 @@ final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     (name, staticContext) match {
-      case (Name.Fields, Some(false)) => Some(fieldField)
+      case (Names.Fields, Some(false)) => Some(fieldField)
       // Workaround for bug when doing Account.SObjectType.SObjectType
-      case (Name.SObjectType, Some(false)) => Some(CustomFieldDeclaration(Name.SObjectType, typeName, None))
+      case (Names.SObjectType, Some(false)) => Some(CustomFieldDeclaration(Names.SObjectType, typeName, None))
       case _ => sobjectFields.findField(name, staticContext)
     }
   }
@@ -261,7 +261,7 @@ final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
 
     // Mimic SObjectType as we proxy for SObjectField
-    if (name == Name.SObjectType)
+    if (name == Names.SObjectType)
       return Some(CustomFieldDeclaration(name, TypeName.sObjectType$(TypeName(sobjectName, Nil, Some(TypeName.Schema))), None))
 
     // Provide other fields on the SObject

@@ -61,8 +61,8 @@ trait ApexVisibleMethodLike extends MethodDeclaration {
 
 /** Apex defined method core features, be they full or summary style */
 trait ApexMethodLike extends ApexVisibleMethodLike {
+  val outerTypeId: TypeId
   val nameRange: RangeLocationImpl
-  val outerTypeName: TypeName
 
   // Populated by type MethodMap construction
   lazy val shadows: mutable.Set[MethodDeclaration] = mutable.Set()
@@ -91,8 +91,8 @@ trait ApexMethodLike extends ApexVisibleMethodLike {
 
 /** Apex defined fields core features, be they full or summary style */
 trait ApexFieldLike extends FieldDeclaration {
+  val outerTypeId: TypeId
   val nameRange: RangeLocationImpl
-  val outerTypeName: TypeName
   val idTarget: Option[TypeName] = None
 
   def summary: FieldSummary = {

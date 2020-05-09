@@ -29,10 +29,6 @@ package com.nawforce.common.names
 
 import upickle.default.{macroRW, ReadWriter => RW}
 
-/**
-  * Abstract name of type. This is used to avoid external dependency on the type name structures used in the library.
-  * Currently we only support conversion to a string representation for display purposes.
-  */
 sealed trait TypeLike {
   def toString: String
 }
@@ -135,9 +131,9 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
   }
 
   def getArrayType: Option[TypeName] = {
-    if (name == Name.List$ && outer.contains(TypeName.System) && params.size == 1) {
+    if (name == Names.List$ && outer.contains(TypeName.System) && params.size == 1) {
       params.headOption
-    } else if (name == Name.RecordSet$ && outer.contains(TypeName.Internal) && params.size == 1) {
+    } else if (name == Names.RecordSet$ && outer.contains(TypeName.Internal) && params.size == 1) {
       params.headOption
     } else {
       None
@@ -145,7 +141,7 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
   }
 
   def getSetOrListType: Option[TypeName] = {
-    if ((name == Name.Set$  || name == Name.List$) && outer.contains(TypeName.System) && params.size == 1) {
+    if ((name == Names.Set$  || name == Names.List$) && outer.contains(TypeName.System) && params.size == 1) {
       params.headOption
     } else {
       None
@@ -153,7 +149,7 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
   }
 
   def getMapType: Option[(TypeName, TypeName)] = {
-    if (name == Name.Map$ && outer.contains(TypeName.System) && params.size == 2) {
+    if (name == Names.Map$ && outer.contains(TypeName.System) && params.size == 2) {
       Some(params.head, params(1))
     } else {
       None
@@ -162,14 +158,14 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
 
   def isStringOrId: Boolean = this == TypeName.String || this == TypeName.Id
 
-  def isList: Boolean = name == Name.List$ && outer.contains(TypeName.System) && params.size == 1
-  def asListOf: TypeName = new TypeName(Name.List$, Seq(this), Some(TypeName.System))
+  def isList: Boolean = name == Names.List$ && outer.contains(TypeName.System) && params.size == 1
+  def asListOf: TypeName = new TypeName(Names.List$, Seq(this), Some(TypeName.System))
 
-  def isRecordSet: Boolean = name == Name.RecordSet$ && outer.contains(TypeName.Internal) && params.size == 1
+  def isRecordSet: Boolean = name == Names.RecordSet$ && outer.contains(TypeName.Internal) && params.size == 1
   def isSObjectList: Boolean = isList && params.head == TypeName.SObject
   def isObjectList: Boolean = isList && params.head == TypeName.InternalObject
 
-  def isBatchable: Boolean = name == Name.Batchable && outer.contains(TypeName.Database)
+  def isBatchable: Boolean = name == Names.Batchable && outer.contains(TypeName.Database)
 
   override def toString: String = {
     this match {
@@ -178,15 +174,15 @@ case class TypeName(name: Name, params: Seq[TypeName]=Nil, outer: Option[TypeNam
       case TypeName.InternalObject => "Object"
       case TypeName.RecordSet => "[SOQL Results]"
       case TypeName.SObjectFieldRowCause$ => "SObjectField"
-      case TypeName(Name.DescribeSObjectResult$, Seq(TypeName(name, Nil, None)), Some(TypeName.Internal)) =>
+      case TypeName(Names.DescribeSObjectResult$, Seq(TypeName(name, Nil, None)), Some(TypeName.Internal)) =>
         s"Schema.SObjectType.$name"
-      case TypeName(Name.SObjectType$, Seq(TypeName(name, Nil, Some(TypeName.Schema))), Some(TypeName.Internal)) =>
+      case TypeName(Names.SObjectType$, Seq(TypeName(name, Nil, Some(TypeName.Schema))), Some(TypeName.Internal)) =>
         s"$name.SObjectType"
-      case TypeName(Name.SObjectTypeFields$, Seq(TypeName(name, Nil, Some(TypeName.Schema))), Some(TypeName.Internal)) =>
+      case TypeName(Names.SObjectTypeFields$, Seq(TypeName(name, Nil, Some(TypeName.Schema))), Some(TypeName.Internal)) =>
         s"Schema.SObjectType.$name.Fields"
-      case TypeName(Name.SObjectTypeFieldSets$, Seq(TypeName(name, Nil, Some(TypeName.Schema))), Some(TypeName.Internal)) =>
+      case TypeName(Names.SObjectTypeFieldSets$, Seq(TypeName(name, Nil, Some(TypeName.Schema))), Some(TypeName.Internal)) =>
         s"Schema.SObjectType.$name.FieldSets"
-      case TypeName(Name.SObjectFields$, Seq(TypeName(name, Nil, Some(TypeName.Schema))), Some(TypeName.Internal)) =>
+      case TypeName(Names.SObjectFields$, Seq(TypeName(name, Nil, Some(TypeName.Schema))), Some(TypeName.Internal)) =>
         s"Schema.$name.Fields"
       case _ => asString
     }
@@ -212,66 +208,66 @@ object TypeName {
   lazy val Void: TypeName = TypeName(Name("void"))
   lazy val Object: TypeName = TypeName(Name("Object"))
 
-  lazy val Internal: TypeName = TypeName(Name.Internal)
-  lazy val Null: TypeName = TypeName(Name.Null$, Nil, Some(TypeName.Internal))
-  lazy val Any: TypeName = TypeName(Name.Any$, Nil, Some(TypeName.Internal))
-  lazy val RecordSet: TypeName = TypeName(Name.RecordSet$, Seq(TypeName.SObject), Some(TypeName.Internal))
-  lazy val InternalObject: TypeName = TypeName(Name.Object$, Nil, Some(TypeName.Internal))
+  lazy val Internal: TypeName = TypeName(Names.Internal)
+  lazy val Null: TypeName = TypeName(Names.Null$, Nil, Some(TypeName.Internal))
+  lazy val Any: TypeName = TypeName(Names.Any$, Nil, Some(TypeName.Internal))
+  lazy val RecordSet: TypeName = TypeName(Names.RecordSet$, Seq(TypeName.SObject), Some(TypeName.Internal))
+  lazy val InternalObject: TypeName = TypeName(Names.Object$, Nil, Some(TypeName.Internal))
 
-  lazy val System: TypeName = TypeName(Name.System)
-  lazy val Long: TypeName = TypeName(Name.Long, Nil, Some(TypeName.System))
-  lazy val Integer: TypeName = TypeName(Name.Integer, Nil, Some(TypeName.System))
-  lazy val Double: TypeName = TypeName(Name.Double, Nil, Some(TypeName.System))
-  lazy val Decimal: TypeName = TypeName(Name.Decimal, Nil, Some(TypeName.System))
-  lazy val String: TypeName = TypeName(Name.String, Nil, Some(TypeName.System))
-  lazy val Boolean: TypeName = TypeName(Name.Boolean, Nil, Some(TypeName.System))
-  lazy val Date: TypeName = TypeName(Name.Date, Nil, Some(TypeName.System))
-  lazy val Datetime: TypeName = TypeName(Name.Datetime, Nil, Some(TypeName.System))
-  lazy val Time: TypeName = TypeName(Name.Time, Nil, Some(TypeName.System))
-  lazy val Blob: TypeName = TypeName(Name.Blob, Nil, Some(TypeName.System))
-  lazy val Location: TypeName = TypeName(Name.Location, Nil, Some(TypeName.System))
-  lazy val Address: TypeName = TypeName(Name.Address, Nil, Some(TypeName.System))
+  lazy val System: TypeName = TypeName(Names.System)
+  lazy val Long: TypeName = TypeName(Names.Long, Nil, Some(TypeName.System))
+  lazy val Integer: TypeName = TypeName(Names.Integer, Nil, Some(TypeName.System))
+  lazy val Double: TypeName = TypeName(Names.Double, Nil, Some(TypeName.System))
+  lazy val Decimal: TypeName = TypeName(Names.Decimal, Nil, Some(TypeName.System))
+  lazy val String: TypeName = TypeName(Names.String, Nil, Some(TypeName.System))
+  lazy val Boolean: TypeName = TypeName(Names.Boolean, Nil, Some(TypeName.System))
+  lazy val Date: TypeName = TypeName(Names.Date, Nil, Some(TypeName.System))
+  lazy val Datetime: TypeName = TypeName(Names.Datetime, Nil, Some(TypeName.System))
+  lazy val Time: TypeName = TypeName(Names.Time, Nil, Some(TypeName.System))
+  lazy val Blob: TypeName = TypeName(Names.Blob, Nil, Some(TypeName.System))
+  lazy val Location: TypeName = TypeName(Names.Location, Nil, Some(TypeName.System))
+  lazy val Address: TypeName = TypeName(Names.Address, Nil, Some(TypeName.System))
 
-  lazy val Id: TypeName = TypeName(Name.Id, Nil, Some(TypeName.System))
-  lazy val TypeType: TypeName = TypeName(Name.Type, Nil, Some(TypeName.System))
-  lazy val PageReference: TypeName = TypeName(Name.PageReference, Nil, Some(TypeName.System))
-  lazy val SObject: TypeName = TypeName(Name.SObject, Nil, Some(TypeName.System))
-  lazy val Label: TypeName = TypeName(Name.Label, Nil, Some(TypeName.System))
+  lazy val Id: TypeName = TypeName(Names.Id, Nil, Some(TypeName.System))
+  lazy val TypeType: TypeName = TypeName(Names.Type, Nil, Some(TypeName.System))
+  lazy val PageReference: TypeName = TypeName(Names.PageReference, Nil, Some(TypeName.System))
+  lazy val SObject: TypeName = TypeName(Names.SObject, Nil, Some(TypeName.System))
+  lazy val Label: TypeName = TypeName(Names.Label, Nil, Some(TypeName.System))
 
-  lazy val ApexPages: TypeName = TypeName(Name.ApexPages)
-  lazy val ApexPagesPageReference: TypeName = TypeName(Name.PageReference, Nil, Some(TypeName.ApexPages))
-  lazy val ApexPagesComponent: TypeName = TypeName(Name.Component, Nil, Some(TypeName.ApexPages))
-  lazy val ApexComponent: TypeName = TypeName(Name.Apex, Nil, Some(TypeName.Component))
-  lazy val ChatterComponent: TypeName = TypeName(Name.Chatter, Nil, Some(TypeName.Component))
+  lazy val ApexPages: TypeName = TypeName(Names.ApexPages)
+  lazy val ApexPagesPageReference: TypeName = TypeName(Names.PageReference, Nil, Some(TypeName.ApexPages))
+  lazy val ApexPagesComponent: TypeName = TypeName(Names.Component, Nil, Some(TypeName.ApexPages))
+  lazy val ApexComponent: TypeName = TypeName(Names.Apex, Nil, Some(TypeName.Component))
+  lazy val ChatterComponent: TypeName = TypeName(Names.Chatter, Nil, Some(TypeName.Component))
 
-  lazy val Schema: TypeName = TypeName(Name.Schema)
-  lazy val SObjectType: TypeName = TypeName(Name.SObjectType, Nil, Some(TypeName.Schema))
-  lazy val SObjectField: TypeName = TypeName(Name.SObjectField, Nil, Some(TypeName.Schema))
-  lazy val FieldSet: TypeName = TypeName(Name.FieldSet, Nil, Some(TypeName.Schema))
-  lazy val DescribeSObjectResult: TypeName = TypeName(Name.DescribeSObjectResult, Nil, Some(TypeName.Schema))
-  lazy val DescribeFieldResult: TypeName = TypeName(Name.DescribeFieldResult, Nil, Some(TypeName.Schema))
-  lazy val SObjectTypeFieldSets: TypeName = TypeName(Name.SObjectTypeFieldSets, Nil, Some(TypeName.Schema))
+  lazy val Schema: TypeName = TypeName(Names.Schema)
+  lazy val SObjectType: TypeName = TypeName(Names.SObjectType, Nil, Some(TypeName.Schema))
+  lazy val SObjectField: TypeName = TypeName(Names.SObjectField, Nil, Some(TypeName.Schema))
+  lazy val FieldSet: TypeName = TypeName(Names.FieldSet, Nil, Some(TypeName.Schema))
+  lazy val DescribeSObjectResult: TypeName = TypeName(Names.DescribeSObjectResult, Nil, Some(TypeName.Schema))
+  lazy val DescribeFieldResult: TypeName = TypeName(Names.DescribeFieldResult, Nil, Some(TypeName.Schema))
+  lazy val SObjectTypeFieldSets: TypeName = TypeName(Names.SObjectTypeFieldSets, Nil, Some(TypeName.Schema))
 
-  lazy val DescribeSObjectResult$: TypeName = TypeName(Name.DescribeSObjectResult$, Nil, Some(TypeName.Internal))
-  lazy val SObjectType$: TypeName = TypeName(Name.SObjectType$, Nil, Some(TypeName.Internal))
-  lazy val SObjectTypeFields$: TypeName = TypeName(Name.SObjectTypeFields$, Nil, Some(TypeName.Internal))
-  lazy val SObjectTypeFieldSets$: TypeName = TypeName(Name.SObjectTypeFieldSets$, Nil, Some(TypeName.Internal))
-  lazy val SObjectFields$: TypeName = TypeName(Name.SObjectFields$, Nil, Some(TypeName.Internal))
-  lazy val SObjectFieldRowCause$: TypeName = TypeName(Name.SObjectFieldRowCause$, Nil, Some(TypeName.Internal))
-  lazy val Trigger$: TypeName = TypeName(Name.Trigger$, Nil, Some(TypeName.Internal))
+  lazy val DescribeSObjectResult$: TypeName = TypeName(Names.DescribeSObjectResult$, Nil, Some(TypeName.Internal))
+  lazy val SObjectType$: TypeName = TypeName(Names.SObjectType$, Nil, Some(TypeName.Internal))
+  lazy val SObjectTypeFields$: TypeName = TypeName(Names.SObjectTypeFields$, Nil, Some(TypeName.Internal))
+  lazy val SObjectTypeFieldSets$: TypeName = TypeName(Names.SObjectTypeFieldSets$, Nil, Some(TypeName.Internal))
+  lazy val SObjectFields$: TypeName = TypeName(Names.SObjectFields$, Nil, Some(TypeName.Internal))
+  lazy val SObjectFieldRowCause$: TypeName = TypeName(Names.SObjectFieldRowCause$, Nil, Some(TypeName.Internal))
+  lazy val Trigger$: TypeName = TypeName(Names.Trigger$, Nil, Some(TypeName.Internal))
 
-  lazy val Database: TypeName = TypeName(Name.Database)
-  lazy val BatchableContext: TypeName = TypeName(Name.BatchableContext, Nil, Some(TypeName.Database))
+  lazy val Database: TypeName = TypeName(Names.Database)
+  lazy val BatchableContext: TypeName = TypeName(Names.BatchableContext, Nil, Some(TypeName.Database))
 
-  lazy val User: TypeName = TypeName(Name.User)
-  lazy val UserRecordAccess: TypeName = TypeName(Name.UserRecordAccess)
+  lazy val User: TypeName = TypeName(Names.User)
+  lazy val UserRecordAccess: TypeName = TypeName(Names.UserRecordAccess)
 
-  lazy val Flow: TypeName = TypeName(Name.Flow)
-  lazy val Interview: TypeName = TypeName(Name.Interview, Nil, Some(TypeName.Flow))
+  lazy val Flow: TypeName = TypeName(Names.Flow)
+  lazy val Interview: TypeName = TypeName(Names.Interview, Nil, Some(TypeName.Flow))
 
-  lazy val Component: TypeName = TypeName(Name.Component, Nil, None)
+  lazy val Component: TypeName = TypeName(Names.Component, Nil, None)
 
-  lazy val Page: TypeName = TypeName(Name.Page, Nil, None)
+  lazy val Page: TypeName = TypeName(Names.Page, Nil, None)
 
   def describeSObjectResultOf(typeName: TypeName): TypeName = DescribeSObjectResult$.withParams(Seq(typeName))
   def sObjectType$(typeName: TypeName): TypeName = SObjectType$.withParams(Seq(typeName))
@@ -280,9 +276,9 @@ object TypeName {
   def sObjectFields$(typeName: TypeName): TypeName = SObjectFields$.withParams(Seq(typeName))
   def trigger(typeName: TypeName): TypeName = Trigger$.withParams(Seq(typeName))
 
-  def listOf(typeName: TypeName): TypeName = TypeName(Name.List$, Seq(typeName), Some(TypeName.System))
-  def mapOf(keyType: TypeName, valueType: TypeName): TypeName = TypeName(Name.Map$, Seq(keyType, valueType), Some(TypeName.System))
-  def recordSetOf(typeName: TypeName): TypeName = TypeName(Name.RecordSet$, Seq(typeName), Some(TypeName.Internal))
+  def listOf(typeName: TypeName): TypeName = TypeName(Names.List$, Seq(typeName), Some(TypeName.System))
+  def mapOf(keyType: TypeName, valueType: TypeName): TypeName = TypeName(Names.Map$, Seq(keyType, valueType), Some(TypeName.System))
+  def recordSetOf(typeName: TypeName): TypeName = TypeName(Names.RecordSet$, Seq(typeName), Some(TypeName.Internal))
 
   def apply(names: Seq[Name]): TypeName = {
     names match {

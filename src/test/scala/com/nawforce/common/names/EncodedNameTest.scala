@@ -33,10 +33,10 @@ class EncodedNameTest extends AnyFunSuite {
 
   test("Empty name") {
     val testName = EncodedName("")
-    assert(testName == EncodedName(Name.Empty, None, None))
-    assert(testName.localName == Name.Empty)
-    assert(testName.fullName == Name.Empty)
-    assert(testName.asTypeName == TypeName(Name.Empty))
+    assert(testName == EncodedName(Names.Empty, None, None))
+    assert(testName.localName == Names.Empty)
+    assert(testName.fullName == Names.Empty)
+    assert(testName.asTypeName == TypeName(Names.Empty))
   }
 
   test("Simple name") {

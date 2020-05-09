@@ -78,12 +78,12 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(pkg.getTypeOfPath(null) == null)
       assert(pkg.getTypeOfPath("") == null)
 
-      assert(pkg.getTypeOfPath(root.join("classes").join("Dummy.cls").toString).toString == "test.Dummy")
+      assert(pkg.getTypeOfPath(root.join("classes").join("Dummy.cls").toString).toString == "test.Dummy (test)")
       assert(pkg.getTypeOfPath(root.join("classes").join("Dummy2.cls").toString) == null)
       assert(pkg.getTypeOfPath(root.join("classes").join("Dummy.object").toString) == null)
       assert(pkg.getTypeOfPath(root.join("classes2").join("Dummy.cls").toString) == null)
 
-      assert(pkg.getTypeOfPath(root.join("triggers").join("Foo.trigger").toString).toString == "__sfdc_trigger/test/Foo")
+      assert(pkg.getTypeOfPath(root.join("triggers").join("Foo.trigger").toString).toString == "__sfdc_trigger/test/Foo (test)")
       assert(pkg.getTypeOfPath(root.join("triggers").join("Foo2.trigger").toString) == null)
       assert(pkg.getTypeOfPath(root.join("triggers").join("Foo.object").toString) == null)
       assert(pkg.getTypeOfPath(root.join("triggers2").join("Foo2.trigger").toString) == null)
@@ -126,10 +126,10 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
       assert(pkg.getPathsOfType(null).isEmpty)
 
-      assert(dummyType.toString == "test.Dummy")
+      assert(dummyType.toString == "test.Dummy (test)")
       assert(pkg.getPathsOfType(dummyType).sameElements(Array("/classes/Dummy.cls")))
 
-      assert(fooType.toString == "__sfdc_trigger/test/Foo")
+      assert(fooType.toString == "__sfdc_trigger/test/Foo (test)")
       assert(pkg.getPathsOfType(fooType).sameElements(Array("/triggers/Foo.trigger")))
     }
   }
@@ -189,7 +189,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val typeLike = pkg2.getTypeOfPath(root.join("classes").join("Dummy.cls").toString)
       val summary = pkg2.getSummaryOfType(typeLike)
 
-      assert(pkg2.getType(TypeName(typeLike), None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+      assert(pkg2.getType(TypeName(typeLike.typeName), None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
       assert(summary.name == "Dummy")
       assert(summary.typeName.toString == "test.Dummy")
       assert(summary.idRange.contains(RangeLocation(Position(1,21), Position(1,26))))
@@ -281,11 +281,11 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
         val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
         assert(!org.issues.hasMessages)
 
-        val fooTypeLike = pkg.getTypeOfPath(root.join("classes").join("Foo.cls").toString).asInstanceOf[TypeName]
-        val barTypeLike = pkg.getTypeOfPath(root.join("classes").join("Bar.cls").toString).asInstanceOf[TypeName]
+        val fooTypeLike = pkg.getTypeOfPath(root.join("classes").join("Foo.cls").toString)
+        val barTypeLike = pkg.getTypeOfPath(root.join("classes").join("Bar.cls").toString)
 
-        assert(pkg.getType(fooTypeLike, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
-        assert(pkg.getType(barTypeLike, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+        assert(pkg.getType(fooTypeLike.typeName.asInstanceOf[TypeName], None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+        assert(pkg.getType(barTypeLike.typeName.asInstanceOf[TypeName], None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
 
         assert(pkg.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
         assert(pkg.getDependencyHolders(barTypeLike).isEmpty)
@@ -549,11 +549,11 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg22 = org2.addPackage(None, Seq(root.join("pkg2")), Seq(pkg21)).asInstanceOf[PackageImpl]
       assert(!org2.issues.hasMessages)
 
-      val fooTypeLike = pkg21.getTypeOfPath(root.join("pkg1").join("Foo.cls").toString).asInstanceOf[TypeName]
-      val barTypeLike = pkg22.getTypeOfPath(root.join("pkg2").join("Bar.cls").toString).asInstanceOf[TypeName]
+      val fooTypeLike = pkg21.getTypeOfPath(root.join("pkg1").join("Foo.cls").toString)
+      val barTypeLike = pkg22.getTypeOfPath(root.join("pkg2").join("Bar.cls").toString)
 
-      assert(pkg21.getType(fooTypeLike, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
-      assert(pkg22.getType(barTypeLike, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+      assert(pkg21.getType(fooTypeLike.typeName.asInstanceOf[TypeName], None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+      assert(pkg22.getType(barTypeLike.typeName.asInstanceOf[TypeName], None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
 
       assert(pkg21.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
       assert(pkg22.getDependencyHolders(barTypeLike).isEmpty)
@@ -599,11 +599,11 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg22 = org2.addPackage(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg21)).asInstanceOf[PackageImpl]
       assert(!org2.issues.hasMessages)
 
-      val fooTypeLike = pkg21.getTypeOfPath(root.join("pkg1").join("Foo.cls").toString).asInstanceOf[TypeName]
-      val barTypeLike = pkg22.getTypeOfPath(root.join("pkg2").join("Bar.cls").toString).asInstanceOf[TypeName]
+      val fooTypeLike = pkg21.getTypeOfPath(root.join("pkg1").join("Foo.cls").toString)
+      val barTypeLike = pkg22.getTypeOfPath(root.join("pkg2").join("Bar.cls").toString)
 
-      assert(pkg21.getType(fooTypeLike, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
-      assert(pkg22.getType(barTypeLike, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+      assert(pkg21.getType(fooTypeLike.typeName.asInstanceOf[TypeName], None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+      assert(pkg22.getType(barTypeLike.typeName.asInstanceOf[TypeName], None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
 
       assert(pkg21.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
       assert(pkg22.getDependencyHolders(barTypeLike).isEmpty)

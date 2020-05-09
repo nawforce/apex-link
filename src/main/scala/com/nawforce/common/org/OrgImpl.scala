@@ -32,7 +32,7 @@ import java.util
 import com.nawforce.common.api.{IssueOptions, Org, Package, PathLocation, ServerOps}
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, IssueLog}
 import com.nawforce.common.documents._
-import com.nawforce.common.names.{DotName, Name}
+import com.nawforce.common.names.{DotName, Name, Names}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.sfdx.{MDAPIWorkspace, Workspace}
 import com.nawforce.common.types.apex.ApexDeclaration
@@ -73,10 +73,15 @@ class OrgImpl extends Org {
   /** Current package list for Org */
   override def getPackages: Array[Package] = packagesByNamespace.values.toArray
 
+  /** Find a specific package */
+  def getPackage(namespace: Option[Name]): Option[PackageImpl] = {
+    packagesByNamespace.get(namespace)
+  }
+
   /** Create a new package in the org, directories should be priority ordered for duplicate detection. Use
     * namespaces to indicate dependent packages which must already have been created as packages. */
   override def newPackage(namespace: String, directories: Array[String], basePackages: Array[Package]): Package = {
-    val namespaceName: Option[Name] = Name.safeApply(namespace)
+    val namespaceName: Option[Name] = Names.safeApply(namespace)
 
      val packages = basePackages.map(pkg => {
        val pkgImpl = pkg.asInstanceOf[PackageImpl]

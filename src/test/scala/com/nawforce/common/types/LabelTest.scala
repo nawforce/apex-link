@@ -209,13 +209,16 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       val labelsTypeLike = pkg1.getTypeOfPath(root.join("pkg1/CustomLabels.labels").toString)
-      assert(labelsTypeLike.toString == "System.Label")
+      assert(labelsTypeLike.toString == "System.Label (pkg1)")
       assert(pkg1.getPathsOfType(labelsTypeLike).sameElements(Array("/pkg1/CustomLabels.labels")))
       assert(pkg1.getDependencies(labelsTypeLike, inheritanceOnly = false) == null)
 
       val dummyTypeLike = pkg2.getTypeOfPath(root.join("pkg2/Dummy.cls").toString)
-      assert(pkg2.getDependencies(dummyTypeLike, inheritanceOnly = false).sameElements(Array(labelsTypeLike)))
-      assert(pkg2.getDependencyHolders(labelsTypeLike).sameElements(Array(dummyTypeLike)))
+      assert(pkg2.getDependencies(dummyTypeLike, inheritanceOnly = false).map(_.toString)
+        .sameElements(Array("System.Label (pkg2)")))
+
+      // TODO: Restore when we can access pkg2 Labels
+      // assert(pkg2.getDependencyHolders(labelsTypeLike).sameElements(Array(dummyTypeLike)))
     }
   }
 
@@ -242,13 +245,15 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
         "Missing: line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label.pkg1'\n")
 
       val labelsTypeLike = pkg1.getTypeOfPath(root.join("pkg1").join("CustomLabels.labels").toString)
-      assert(labelsTypeLike.toString == "System.Label")
+      assert(labelsTypeLike.toString == "System.Label (pkg1)")
       assert(pkg1.getPathsOfType(labelsTypeLike).sameElements(Array("/pkg1/CustomLabels.labels")))
       assert(pkg2.getTypeOfPath(root.join("CustomLabels.labels").toString) == null)
 
       val dummyTypeLike = pkg2.getTypeOfPath(root.join("pkg2/Dummy.cls").toString)
       assert(pkg2.getDependencies(dummyTypeLike, inheritanceOnly = false).sameElements(Array[TypeLike]()))
-      assert(pkg2.getDependencyHolders(labelsTypeLike).sameElements(Array[TypeLike]()))
+
+      // TODO: Restore when we can access pkg2 Labels
+      // assert(pkg2.getDependencyHolders(labelsTypeLike).sameElements(Array[TypeLike]()))
     }
   }
 

@@ -30,7 +30,7 @@ package com.nawforce.common.types.apex
 import com.nawforce.common.api.{RangeLocation, ServerOps, TypeSummary}
 import com.nawforce.common.cst._
 import com.nawforce.common.documents.{LineLocationImpl, LocationImpl}
-import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.names.{Name, Names, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
@@ -99,7 +99,7 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
 
           try {
             val blockContext = new OuterBlockVerifyContext(context, isStaticContext = false)
-            blockContext.addVar(Name.Trigger, tc)
+            blockContext.addVar(Names.Trigger, tc)
             block.verify(blockContext)
           } finally {
             pkg.removeMetadata(tc)
@@ -112,16 +112,16 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
     }
   }
 
-  override def collectDependenciesByTypeName(dependents: mutable.Set[TypeName]): Unit = {
+  override def collectDependenciesByTypeName(dependents: mutable.Set[TypeId]): Unit = {
     depends.foreach(_.foreach {
-      case ad: ApexClassDeclaration => dependents.add(ad.outerTypeName.getOrElse(ad.typeName))
+      case ad: ApexClassDeclaration => dependents.add(ad.outerTypeId)
       case _ => ()
     })
   }
 
-  override def getTypeDependencyHolders: mutable.Set[TypeName] = mutable.Set.empty
+  override def getTypeDependencyHolders: mutable.Set[TypeId] = mutable.Set.empty
 
-  override def updateTypeDependencyHolders(holders: mutable.Set[TypeName]): Unit = {}
+  override def updateTypeDependencyHolders(holders: mutable.Set[TypeId]): Unit = {}
 
   // Override to provide location information
   override def summary: TypeSummary = {
@@ -138,8 +138,7 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
       constructors.map(_.summary).sortBy(_.parameters.size).toList,
       methods.map(_.summary).sortBy(_.name).toList,
       nestedTypes.map(_.summary).sortBy(_.name).toList,
-      dependencySummary(),
-      Set.empty
+      dependencySummary()
     )
   }
 }
@@ -199,7 +198,7 @@ object TriggerDeclaration {
 }
 
 final case class TriggerContext(pkg: PackageImpl, baseType: TypeDeclaration)
-  extends BasicTypeDeclaration(Seq.empty, pkg, TypeName(Name.Trigger)) {
+  extends BasicTypeDeclaration(Seq.empty, pkg, TypeName(Names.Trigger)) {
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     baseType.findField(name, staticContext)

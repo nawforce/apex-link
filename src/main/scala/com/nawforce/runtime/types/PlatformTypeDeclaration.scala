@@ -34,7 +34,7 @@ import java.util
 import com.nawforce.common.cst.{Modifier, PUBLIC_MODIFIER}
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
-import com.nawforce.common.names.{DotName, Name, TypeName}
+import com.nawforce.common.names.{DotName, Name, Names, TypeName}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
@@ -139,7 +139,7 @@ case class PlatformTypeDeclaration(native: Any, outer: Option[PlatformTypeDeclar
       if (isIdLike && staticContext.contains(true)) {
         val relationshipField = super.findFieldSObject(Name(f.name.value.dropRight(2)), staticContext)
         relationshipField match {
-          case Some(CustomFieldDeclaration(_, TypeName(Name.SObjectFields$, Seq(sObject), Some(TypeName.Internal)), _, _)) =>
+          case Some(CustomFieldDeclaration(_, TypeName(Names.SObjectFields$, Seq(sObject), Some(TypeName.Internal)), _, _)) =>
             CustomFieldDeclaration(f.name, TypeName.sObjectFields$(sObject), None, asStatic = true)
           case _ => f
         }
@@ -302,7 +302,7 @@ object PlatformTypeDeclaration {
 
   /* All the namespaces - excluding our special ones! */
   lazy val namespaces: Set[Name] = classNameMap.keys.filter(_.isCompound).map(_.firstName)
-    .filterNot(name => name == Name.SObjects || name == Name.Internal).toSet
+    .filterNot(name => name == Names.SObjects || name == Names.Internal).toSet
 
   /* Map of class names, it's a map just to allow easy recovery of the original case by looking at value */
   private lazy val classNameMap: HashMap[DotName, DotName] = {
@@ -320,8 +320,8 @@ object PlatformTypeDeclaration {
       if (Files.isRegularFile(entry) && filename.endsWith(".class") &&
         (filename.endsWith("$.class") || !filename.contains('$'))) {
         val dotName = prefix.append(Name(filename.dropRight(".class".length)))
-        if (dotName.names.head == Name.SObjects) {
-          accum.put(DotName(Name.Schema +: dotName.names.tail), dotName)
+        if (dotName.names.head == Names.SObjects) {
+          accum.put(DotName(Names.Schema +: dotName.names.tail), dotName)
         } else {
           accum.put(dotName, dotName)
         }
@@ -369,7 +369,7 @@ object PlatformTypeDeclaration {
       } else if (cname.startsWith(platformPackage+".SObjects")) {
         val names = cname.drop(platformPackage.length + 10).split('.').map(n => Name(n)).reverse
         val params = cls.getTypeParameters.map(tp => Name(tp.getName))
-        TypeName(names :+ Name.Schema).withParams(params.toSeq.map(TypeName(_)))
+        TypeName(names :+ Names.Schema).withParams(params.toSeq.map(TypeName(_)))
       } else {
         assert(cname.startsWith(platformPackage), s"Reference to non-platform type $cname in ${contextCls.getCanonicalName}")
         val names = cname.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse

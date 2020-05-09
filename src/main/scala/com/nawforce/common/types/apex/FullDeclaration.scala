@@ -35,7 +35,7 @@ import com.nawforce.common.documents._
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types.core.{CLASS_NATURE, Dependent, INTERFACE_NATURE, Nature}
+import com.nawforce.common.types.core.{CLASS_NATURE, Dependent, INTERFACE_NATURE, Nature, TypeId}
 import com.nawforce.common.types.other.Label
 import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.runtime.parsers.{CodeParser, Source}
@@ -159,14 +159,14 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
     depends = Some(context.dependencies)
   }
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeName]): Unit = {
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {
     val dependents = mutable.Set[Dependent]()
     collectDependencies(dependents)
     dependents.foreach {
       case ad: ApexClassDeclaration =>
-        dependsOn.add(ad.outerTypeName.getOrElse(ad.typeName))
+        dependsOn.add(ad.outerTypeId)
       case _: Label =>
-        dependsOn.add(TypeName.Label)
+        dependsOn.add(TypeId(pkg, TypeName.Label))
       case _ => ()
     }
   }
@@ -191,8 +191,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
       constructors.map(_.summary).sortBy(_.parameters.size).toList,
       localMethods.map(_.summary).sortBy(_.name).toList,
       nestedTypes.map(_.summary).sortBy(_.name).toList,
-      dependencySummary(),
-      getTypeDependencyHolders.toSet
+      dependencySummary()
     )
   }
 }

@@ -29,7 +29,7 @@
 package com.nawforce.common.types.core
 
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.names.TypeName
+import com.nawforce.common.org.PackageImpl
 
 import scala.collection.mutable
 
@@ -40,43 +40,50 @@ import scala.collection.mutable
 trait DependentType {
   this: TypeDeclaration =>
 
+  /** The owning package, this is needed to disambiguate but restricts where DependentType can be used currently. */
+  val pkg: PackageImpl
+
+  /** TypeId for this type */
+  lazy val typeId: TypeId = TypeId(pkg, typeName)
+
+  /** TypeId for outer type (might be self) */
+  lazy val outerTypeId: TypeId = outerTypeName.map(TypeId(pkg, _)).getOrElse(typeId)
+
   /** Current set of holders from this TypeDeclaration */
-  private var typeDependencyHolders = mutable.Set[TypeName]()
+  private var typeDependencyHolders = mutable.Set[TypeId]()
 
   /** Get current dependency holders */
-  def getTypeDependencyHolders: mutable.Set[TypeName] = {
+  def getTypeDependencyHolders: mutable.Set[TypeId] = {
     typeDependencyHolders
   }
 
   /** Set type dependency holders, useful when carrying forward during upsert */
-  def updateTypeDependencyHolders(holders: mutable.Set[TypeName]): Unit = {
+  def updateTypeDependencyHolders(holders: mutable.Set[TypeId]): Unit = {
     typeDependencyHolders = holders
   }
 
   /** Collect set of TypeNames that this declaration is dependent on */
-  def collectDependenciesByTypeName(dependents: mutable.Set[TypeName])
+  def collectDependenciesByTypeName(dependents: mutable.Set[TypeId])
 
-  def addTypeDependencyHolder(typeName: TypeName): Unit = {
-    if (typeName != this.typeName)
-      typeDependencyHolders.add(typeName)
+  def addTypeDependencyHolder(typeId: TypeId): Unit = {
+    if (typeId != this.typeId)
+      typeDependencyHolders.add(typeId)
   }
 
   // Update holders on outer dependencies
   def propagateOuterDependencies(): Unit = {
-    val dependsOn = mutable.Set[TypeName]()
+    val dependsOn = mutable.Set[TypeId]()
     collectDependenciesByTypeName(dependsOn)
     dependsOn.foreach(dependentTypeName =>
-      getOutermostDeclaration(dependentTypeName).map(_.addTypeDependencyHolder(typeName)))
+      getOutermostDeclaration(dependentTypeName).map(_.addTypeDependencyHolder(this.typeId)))
   }
 
-  private def getOutermostDeclaration(typeName: TypeName): Option[DependentType] = {
-    this.packageDeclaration.flatMap(pkg => {
-      TypeRequest(typeName, pkg, excludeSObjects = false) match {
-        case Right(td: DependentType) =>
-          td.outerTypeName.map(getOutermostDeclaration).getOrElse(Some(td))
-        case Right(_) => None
-        case Left(_) => None
-      }
-    })
+  private def getOutermostDeclaration(typeId: TypeId): Option[DependentType] = {
+    TypeRequest(typeId.typeName, typeId.pkg, excludeSObjects = false) match {
+      case Right(td: DependentType) =>
+        td.outerTypeName.map(ot => getOutermostDeclaration(TypeId(typeId.pkg, ot))).getOrElse(Some(td))
+      case Right(_) => None
+      case Left(_) => None
+    }
   }
 }

@@ -30,7 +30,7 @@ package com.nawforce.common.cst
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types.apex.{ApexVisibleMethodLike, FullDeclaration}
-import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, Nature}
+import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, Nature, TypeId}
 import com.nawforce.common.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.{CodeParser, Source}
@@ -83,7 +83,7 @@ object ClassDeclaration {
       outerTypeName.orElse(pkg.namespace.map(TypeName(_))))
     val extendType =
       CodeParser.toScala(classDeclaration.typeRef())
-        .map(tr => TypeRef.construct(tr))
+        .map(tr => TypeReference.construct(tr))
         .getOrElse(TypeName.InternalObject)
     val implementsType =
       CodeParser.toScala(classDeclaration.typeList())
@@ -134,7 +134,7 @@ object InterfaceDeclaration {
 
     val methods: Seq[ApexMethodDeclaration]
         = CodeParser.toScala(interfaceDeclaration.interfaceBody().interfaceMethodDeclaration()).map(m =>
-            ApexMethodDeclaration.construct(parser, pkg, thisType,
+            ApexMethodDeclaration.construct(parser, pkg, TypeId(pkg, thisType),
               ApexModifiers.methodModifiers(parser, CodeParser.toScala(m.modifier()), m.id()), m)
     )
 
@@ -177,7 +177,7 @@ object EnumDeclaration {
     val constants = CodeParser.toScala(enumDeclaration.enumConstants())
       .map(ec => CodeParser.toScala(ec.id())).getOrElse(Seq())
     val fields = constants.map(constant => {
-      ApexFieldDeclaration(thisType, ModifierResults(Seq(PUBLIC_MODIFIER, STATIC_MODIFIER), Nil), thisType,
+      ApexFieldDeclaration(TypeId(pkg, thisType), ModifierResults(Seq(PUBLIC_MODIFIER, STATIC_MODIFIER), Nil), thisType,
         VariableDeclarator(
           thisType,
           Id.construct(constant),

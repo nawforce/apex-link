@@ -93,11 +93,11 @@ trait DependencyHolder extends Dependent {
   def dependencySummary(): Set[DependentSummary] = {
     dependencies().flatMap {
       case td: ApexClassDeclaration =>
-        Some(TypeDependentSummary(td.typeName, td.sourceHash))
+        Some(TypeDependentSummary(td.typeId.asTypeIdentifier, td.sourceHash))
       case fd: ApexFieldLike =>
-        Some(FieldDependentSummary(fd.outerTypeName, fd.name.value))
+        Some(FieldDependentSummary(fd.outerTypeId.asTypeIdentifier, fd.name.value))
       case md: ApexMethodLike =>
-        Some(MethodDependentSummary(md.outerTypeName, md.name.value, md.parameters.map(_.summary).toList))
+        Some(MethodDependentSummary(md.outerTypeId.asTypeIdentifier, md.name.value, md.parameters.map(_.summary).toList))
       case _: ApexConstructorLike => None
       case _: BlockDeclaration => None
       // TODO: Label summary

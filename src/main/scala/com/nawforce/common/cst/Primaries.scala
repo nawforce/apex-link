@@ -82,7 +82,7 @@ final case class LiteralPrimary(literal: Literal) extends Primary {
   }
 }
 
-final case class TypeRefPrimary(typeName: TypeName) extends Primary {
+final case class TypeReferencePrimary(typeName: TypeName) extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.typeDeclarationOpt.nonEmpty)
     val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
@@ -167,7 +167,7 @@ object Primary {
         case ctx: LiteralPrimaryContext =>
           LiteralPrimary(Literal.construct(ctx.literal()))
         case ctx: TypeRefPrimaryContext =>
-          TypeRefPrimary(TypeRef.construct(ctx.typeRef()))
+          TypeReferencePrimary(TypeReference.construct(ctx.typeRef()))
         case id: IdPrimaryContext =>
           IdPrimary(Id.construct(id.id()))
         case ctx: SoqlPrimaryContext =>

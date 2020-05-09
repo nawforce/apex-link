@@ -466,7 +466,7 @@ object Expression {
         case expr: NewExpressionContext =>
           NewExpression(Creator.construct(expr.creator()))
         case expr: CastExpressionContext =>
-          CastExpression(TypeRef.construct(expr.typeRef()), Expression.construct(expr.expression()))
+          CastExpression(TypeReference.construct(expr.typeRef()), Expression.construct(expr.expression()))
         case expr: PostOpExpressionContext =>
           val op = CodeParser.toScala(expr.INC())
             .orElse(CodeParser.toScala(expr.DEC()))
@@ -515,7 +515,7 @@ object Expression {
             Expression.construct(expressions(1)), opText)
         case expr: InstanceOfExpressionContext =>
           InstanceOfExpression(Expression.construct(expr.expression()),
-            TypeRef.construct(expr.typeRef()))
+            TypeReference.construct(expr.typeRef()))
         case expr: EqualityExpressionContext =>
           val op = CodeParser.toScala(expr.EQUAL())
             .orElse(CodeParser.toScala(expr.LESSANDGREATER()))
@@ -581,7 +581,7 @@ final case class TypeArguments(typeList: List[TypeName]) extends CST
 object TypeArguments {
   def construct(from: TypeArgumentsContext): TypeArguments = {
     val types: Seq[TypeRefContext] = CodeParser.toScala(from.typeList().typeRef())
-    TypeArguments(TypeRef.construct(types.toList)).withContext(from)
+    TypeArguments(TypeReference.construct(types.toList)).withContext(from)
   }
 }
 

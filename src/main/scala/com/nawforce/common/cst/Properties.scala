@@ -30,10 +30,11 @@ package com.nawforce.common.cst
 import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.types.apex.ApexFieldLike
+import com.nawforce.common.types.core.TypeId
 import com.nawforce.runtime.parsers.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
 import com.nawforce.runtime.parsers.CodeParser
 
-final case class ApexPropertyDeclaration(outerTypeName: TypeName, _modifiers: ModifierResults, typeName: TypeName, id: Id,
+final case class ApexPropertyDeclaration(outerTypeId: TypeId, _modifiers: ModifierResults, typeName: TypeName, id: Id,
                                          propertyBlocks: Seq[PropertyBlock])
   extends ClassBodyDeclaration(_modifiers) with ApexFieldLike {
 
@@ -87,10 +88,10 @@ final case class ApexPropertyDeclaration(outerTypeName: TypeName, _modifiers: Mo
 }
 
 object ApexPropertyDeclaration {
-  def construct(parser: CodeParser, outerTypeName: TypeName, modifiers: ModifierResults,
+  def construct(parser: CodeParser, outerTypeId: TypeId, modifiers: ModifierResults,
                 propertyDeclaration: PropertyDeclarationContext) : ApexPropertyDeclaration = {
-    val typeName = TypeRef.construct(propertyDeclaration.typeRef())
-    ApexPropertyDeclaration(outerTypeName, modifiers, typeName,
+    val typeName = TypeReference.construct(propertyDeclaration.typeRef())
+    ApexPropertyDeclaration(outerTypeId, modifiers, typeName,
       Id.construct(propertyDeclaration.id()),
       CodeParser.toScala(propertyDeclaration.propertyBlock())
         .map(pb => PropertyBlock.construct(parser, pb, typeName)),
