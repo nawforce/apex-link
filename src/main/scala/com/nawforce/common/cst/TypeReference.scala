@@ -27,13 +27,13 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.names.{EncodedName, Name, TypeName}
+import com.nawforce.common.names.{EncodedName, Name, Names, TypeName}
 import com.nawforce.runtime.parsers.ApexParser.{TypeArgumentsContext, TypeListContext, TypeNameContext, TypeRefContext}
 import com.nawforce.runtime.parsers.CodeParser
 
-object TypeRef {
+object TypeReference {
   def construct(aList: List[TypeRefContext]): List[TypeName] = {
-    aList.map(x => TypeRef.construct(x))
+    aList.map(x => TypeReference.construct(x))
   }
 
   def construct(typeRef: TypeRefContext): TypeName = {
@@ -46,9 +46,9 @@ object TypeRef {
   }
 
   private def getName(name: TypeNameContext): Name = {
-    if (CodeParser.toScala(name.LIST()).nonEmpty) Name.ListName
-    else if (CodeParser.toScala(name.SET()).nonEmpty) Name.SetName
-    else if (CodeParser.toScala(name.MAP()).nonEmpty) Name.MapName
+    if (CodeParser.toScala(name.LIST()).nonEmpty) Names.ListName
+    else if (CodeParser.toScala(name.SET()).nonEmpty) Names.SetName
+    else if (CodeParser.toScala(name.MAP()).nonEmpty) Names.MapName
     else Name(CodeParser.getText(name.id))
   }
 
@@ -80,14 +80,14 @@ object TypeRef {
     typeArguments
       .map(a => CodeParser.toScala(a.typeList().typeRef()))
       .getOrElse(Seq())
-      .map(param => TypeRef.construct(param))
+      .map(param => TypeReference.construct(param))
   }
 }
 
 object TypeList {
   def construct(typeList: TypeListContext): Seq[TypeName] = {
     val types: Seq[TypeRefContext] = CodeParser.toScala(typeList.typeRef())
-    types.toList.map(t => TypeRef.construct(t))
+    types.toList.map(t => TypeReference.construct(t))
   }
 }
 

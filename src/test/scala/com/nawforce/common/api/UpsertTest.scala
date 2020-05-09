@@ -135,13 +135,14 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       assert(view.hasType)
       assert(pkg.upsertFromView(view))
 
-      assert(pkg.getDependencyHolders(TypeName(Name("Foo"))).isEmpty)
-      assert(pkg.getDependencies(TypeName(Name("Foo")), inheritanceOnly = false)
-        .sameElements(Array(TypeName(Name("Bar")))))
+      val fooTypeId = pkg.getTypeOfPath(root.join("pkg/Foo.cls").toString)
+      val barTypeId = pkg.getTypeOfPath(root.join("pkg/Bar.cls").toString)
 
-      assert(pkg.getDependencyHolders(TypeName(Name("Bar")))
-        .sameElements(Array(TypeName(Name("Foo")))))
-      assert(pkg.getDependencies(TypeName(Name("Bar")), inheritanceOnly = false).isEmpty)
+      assert(pkg.getDependencyHolders(fooTypeId).isEmpty)
+      assert(pkg.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
+
+      assert(pkg.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
+      assert(pkg.getDependencies(barTypeId, inheritanceOnly = false).isEmpty)
     }
   }
 
@@ -158,14 +159,14 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       assert(view.diagnostics.isEmpty)
       assert(pkg2.upsertFromView(view))
 
-      val fooType = TypeName(Name("Foo")).withOuter(Some(TypeName(Name("p2"))))
-      val barType = TypeName(Name("Bar")).withOuter(Some(TypeName(Name("p1"))))
+      val barTypeId = pkg1.getTypeOfPath(root.join("pkg1/Bar.cls").toString)
+      val fooTypeId = pkg2.getTypeOfPath(root.join("pkg2/Foo.cls").toString)
 
-      assert(pkg2.getDependencyHolders(fooType).isEmpty)
-      assert(pkg2.getDependencies(fooType, inheritanceOnly = false).sameElements(Array(barType)))
+      assert(pkg2.getDependencyHolders(fooTypeId).isEmpty)
+      assert(pkg2.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
 
-      assert(pkg1.getDependencyHolders(barType).sameElements(Array(fooType)))
-      assert(pkg1.getDependencies(barType, inheritanceOnly = false).isEmpty)
+      assert(pkg1.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
+      assert(pkg1.getDependencies(barTypeId, inheritanceOnly = false).isEmpty)
     }
   }
 
@@ -180,27 +181,10 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
       assert(pkg.upsertFromView(view))
 
-      val fooType = TypeName(Name("Foo"))
+      val fooTypeId = pkg.getTypeOfPath(root.join("pkg/Foo.cls").toString)
 
-      assert(pkg.deleteType(fooType))
-      assert(pkg.getPathsOfType(fooType).isEmpty)
-      assert(!org.issues.hasMessages)
-    }
-  }
-
-  test("Invalid delete") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.cls" -> "public class Foo {}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
-      val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some("public class Foo {}"))
-      assert(view.hasType)
-      assert(!org.issues.hasMessages)
-      assert(pkg.upsertFromView(view))
-
-      assert(!pkg.deleteType(TypeName(Name("Foo2"))))
-      assert(pkg.getPathsOfType(TypeName(Name("Foo"))).nonEmpty)
+      assert(pkg.deleteType(fooTypeId))
+      assert(pkg.getPathsOfType(fooTypeId).isEmpty)
       assert(!org.issues.hasMessages)
     }
   }
@@ -214,7 +198,9 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
       assert(!org.issues.hasMessages)
 
-      assert(pkg.deleteType(TypeName(Name("Bar"))))
+      val barTypeId = pkg.getTypeOfPath(root.join("pkg/Bar.cls").toString)
+
+      assert(pkg.deleteType(barTypeId))
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), None)
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
@@ -300,13 +286,14 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       assert(view.hasType)
       assert(pkg.upsertFromView(view))
 
-      assert(pkg.getDependencyHolders(TypeName(Name("__sfdc_trigger/Foo"))).isEmpty)
-      assert(pkg.getDependencies(TypeName(Name("__sfdc_trigger/Foo")), inheritanceOnly = false)
-        .sameElements(Array(TypeName(Name("Bar")))))
+      val fooTypeId = pkg.getTypeOfPath(root.join("pkg/Foo.trigger").toString)
+      val barTypeId = pkg.getTypeOfPath(root.join("pkg/Bar.cls").toString)
 
-      assert(pkg.getDependencyHolders(TypeName(Name("Bar")))
-        .sameElements(Array(TypeName(Name("__sfdc_trigger/Foo")))))
-      assert(pkg.getDependencies(TypeName(Name("Bar")), inheritanceOnly = false).isEmpty)
+      assert(pkg.getDependencyHolders(fooTypeId).isEmpty)
+      assert(pkg.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
+
+      assert(pkg.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
+      assert(pkg.getDependencies(barTypeId, inheritanceOnly = false).isEmpty)
     }
   }
 
@@ -323,14 +310,14 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       assert(view.diagnostics.isEmpty)
       assert(pkg2.upsertFromView(view))
 
-      val fooType = TypeName(Name("__sfdc_trigger/p2/Foo"))
-      val barType = TypeName(Name("Bar")).withOuter(Some(TypeName(Name("p1"))))
+      val fooTypeId = pkg2.getTypeOfPath(root.join("pkg2/Foo.trigger").toString)
+      val barTypeId = pkg1.getTypeOfPath(root.join("pkg1/Bar.cls").toString)
 
-      assert(pkg2.getDependencyHolders(fooType).isEmpty)
-      assert(pkg2.getDependencies(fooType, inheritanceOnly = false).sameElements(Array(barType)))
+      assert(pkg2.getDependencyHolders(fooTypeId).isEmpty)
+      assert(pkg2.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
 
-      assert(pkg1.getDependencyHolders(barType).sameElements(Array(fooType)))
-      assert(pkg1.getDependencies(barType, inheritanceOnly = false).isEmpty)
+      assert(pkg1.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
+      assert(pkg1.getDependencies(barTypeId, inheritanceOnly = false).isEmpty)
     }
   }
 
@@ -345,30 +332,10 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
       assert(pkg.upsertFromView(view))
 
-      val fooType = TypeName(Name("__sfdc_trigger/Foo"))
+      val fooTypeId = pkg.getTypeOfPath(root.join("pkg/Foo.trigger").toString)
 
-      assert(pkg.deleteType(fooType))
-      assert(pkg.getPathsOfType(fooType).isEmpty)
-      assert(!org.issues.hasMessages)
-    }
-  }
-
-  test("Trigger invalid delete") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
-      val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), Some("trigger Foo on Account (before insert) {}"))
-      assert(view.hasType)
-      assert(!org.issues.hasMessages)
-      assert(pkg.upsertFromView(view))
-
-      val fooType = TypeName(Name("__sfdc_trigger/Foo"))
-      val fooType2 = TypeName(Name("__sfdc_trigger/Foo2"))
-
-      assert(!pkg.deleteType(fooType2))
-      assert(pkg.getPathsOfType(fooType).nonEmpty)
+      assert(pkg.deleteType(fooTypeId))
+      assert(pkg.getPathsOfType(fooTypeId).isEmpty)
       assert(!org.issues.hasMessages)
     }
   }
@@ -382,7 +349,9 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
       assert(!org.issues.hasMessages)
 
-      assert(pkg.deleteType(TypeName(Name("Bar"))))
+      val barTypeId = pkg.getTypeOfPath(root.join("pkg/Bar.cls").toString)
+
+      assert(pkg.deleteType(barTypeId))
       val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), None)
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)

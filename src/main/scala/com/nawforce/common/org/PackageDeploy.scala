@@ -125,6 +125,9 @@ trait PackageDeploy {
           invalidDocs = validSummaryDocs.filterNot(_._2.declaration.hasValidDependencies)
         }
 
+        // Validate for dependency propagation purposes
+        validSummaryDocs.foreach(_._2.declaration.validate())
+
         // Report diagnostics for those that get this far
         validSummaryDocs.foreach(pair => {
           val summary: SummaryApex = pair._2

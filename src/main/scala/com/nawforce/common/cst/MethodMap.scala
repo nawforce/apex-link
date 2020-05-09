@@ -29,7 +29,7 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue}
 import com.nawforce.common.documents.LocationImpl
-import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.names.{Name, Names, TypeName}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexMethodLike}
 import com.nawforce.common.types.core.{CLASS_NATURE, INTERFACE_NATURE, MethodDeclaration, TypeDeclaration}
@@ -109,7 +109,7 @@ object MethodMap {
 
     // Validate any interface use in classes
     if (td.nature == CLASS_NATURE) {
-      workingMap.put((Name.Clone, 0), Seq(CustomMethodDeclaration(location, Name.Clone, td.typeName, Seq())))
+      workingMap.put((Names.Clone, 0), Seq(CustomMethodDeclaration(location, Names.Clone, td.typeName, Seq())))
       checkInterfaces(td.packageDeclaration, location, td.isAbstract, workingMap, interfaces, errors)
     }
 

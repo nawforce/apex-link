@@ -59,7 +59,7 @@ object Label {
 
 /** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
   * base packages via the Label.namespace.name format. */
-final class LabelDeclaration(paths: Seq[PathLike], pkg: PackageImpl, labels: Seq[Label], packageLabels: Seq[TypeDeclaration])
+final class LabelDeclaration(paths: Seq[PathLike], override val pkg: PackageImpl, labels: Seq[Label], packageLabels: Seq[TypeDeclaration])
   extends BasicTypeDeclaration(paths, pkg, TypeName.Label) with DependentType {
 
   // Set individual labels to use this as the controller
@@ -76,7 +76,7 @@ final class LabelDeclaration(paths: Seq[PathLike], pkg: PackageImpl, labels: Seq
   }
 
   /** Labels don't have dependencies */
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeName]): Unit = {}
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {}
 
   // Report on unused labels
   def unused(): Seq[Issue] = {

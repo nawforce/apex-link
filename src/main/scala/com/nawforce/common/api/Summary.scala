@@ -34,8 +34,7 @@ case class ApexSummary(typeSummary: TypeSummary, diagnostics: List[Diagnostic])
 case class TypeSummary(sourceHash: Int, idRange: Option[RangeLocation], name: String, typeName: TypeLike,
                        nature: String, modifiers: List[String], superClass: Option[TypeLike], interfaces: List[TypeLike],
                        blocks: List[BlockSummary], fields: List[FieldSummary], constructors: List[ConstructorSummary],
-                       methods: List[MethodSummary], nestedTypes: List[TypeSummary], dependents: Set[DependentSummary],
-                       holders: Set[TypeLike])
+                       methods: List[MethodSummary], nestedTypes: List[TypeSummary], dependents: Set[DependentSummary])
 case class BlockSummary(isStatic: Boolean, dependents: Set[DependentSummary])
 case class FieldSummary(idRange: Option[RangeLocation], name: String, modifiers: List[String],
                         typeName: TypeLike, readAccess: String, writeAccess: String, dependents: Set[DependentSummary])
@@ -47,11 +46,11 @@ case class ParameterSummary(name: String, typeName: TypeLike)
 
 sealed trait DependentSummary
 @upickle.implicits.key("Type")
-case class TypeDependentSummary(typeName: TypeLike, sourceHash: Int) extends DependentSummary
+case class TypeDependentSummary(typeId: TypeIdentifier, sourceHash: Int) extends DependentSummary
 @upickle.implicits.key("Field")
-case class FieldDependentSummary(typeName: TypeLike, name: String) extends DependentSummary
+case class FieldDependentSummary(typeId: TypeIdentifier, name: String) extends DependentSummary
 @upickle.implicits.key("Method")
-case class MethodDependentSummary(typeName: TypeLike, name: String, parameters: List[ParameterSummary]) extends DependentSummary
+case class MethodDependentSummary(typeId: TypeIdentifier, name: String, parameters: List[ParameterSummary]) extends DependentSummary
 
 case class Diagnostic(category: String, location: Location, message: String)
 

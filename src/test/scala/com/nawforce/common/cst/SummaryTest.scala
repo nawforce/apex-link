@@ -39,6 +39,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   private val defaultPath = PathFactory("Dummy.cls")
   private var defaultOrg: OrgImpl = new OrgImpl
   private val dummyTypeName = DotName("Dummy").asTypeName()
+  private val dummyTypeId = TypeIdentifier(null, dummyTypeName)
   private val objectTypeName = DotName("Internal.Object$").asTypeName()
   private val rawIntegerTypeName = DotName("Integer").asTypeName()
   private val rawStringTypeName = DotName("String").asTypeName()
@@ -76,7 +77,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
     assert(classSummary("public class Dummy {}") ==
       TypeSummary(727760095, Some(new RangeLocation(new Position(1,13), new Position(1,18))),
         "Dummy", dummyTypeName, "class", List("public"), Some(objectTypeName),
-        Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set()
+        Nil, Nil, Nil, Nil, Nil, Nil, Set()
       )
     )
   }
@@ -85,7 +86,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
     assert(classSummary("global class Dummy {}") ==
       TypeSummary(-2072849596, Some(new RangeLocation(new Position(1,13), new Position(1,18))),
         "Dummy", dummyTypeName, "class", List("global"), Some(objectTypeName),
-        Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set()
+        Nil, Nil, Nil, Nil, Nil, Nil, Set()
       )
     )
   }
@@ -94,7 +95,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
     assert(classSummary("@isTest global class Dummy {}") ==
       TypeSummary(-8400113, Some(new RangeLocation(new Position(1,21), new Position(1,26))),
         "Dummy", dummyTypeName, "class", List("@IsTest", "global"), Some(objectTypeName),
-        Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set()
+        Nil, Nil, Nil, Nil, Nil, Nil, Set()
       )
     )
   }
@@ -103,7 +104,8 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
     assert(classSummary("public interface Dummy {}") ==
       TypeSummary(-1556463390, Some(new RangeLocation(new Position(1,17), new Position(1,22))),
         "Dummy", dummyTypeName, "interface", List("public"),
-        None, Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set())
+        None, Nil, Nil, Nil, Nil, Nil, Nil, Set()
+      )
     )
   }
 
@@ -119,7 +121,8 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
           MethodSummary(idLocation, "name", List("public"), TypeName.String, List(),Set()),
           MethodSummary(idLocation, "ordinal", List("public"), TypeName.Integer, List(),Set()),
           MethodSummary(idLocation, "values", List("public", "static"),TypeName.listOf(dummyTypeName),List(),Set())),
-        Nil, Set(), Set())
+        Nil, Set()
+      )
     )
   }
 
@@ -127,7 +130,8 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
     assert(classSummary("public class Dummy extends Bar {}", hasMessages = true) ==
       TypeSummary(-264364603, Some(new RangeLocation(new Position(1,13), new Position(1,18))),
         "Dummy", dummyTypeName, "class", List("public"), Some(TypeName(Name("Bar"))),
-          Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set())
+          Nil, Nil, Nil, Nil, Nil, Nil, Set()
+      )
     )
   }
 
@@ -136,7 +140,8 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
       TypeSummary(-1699589909, Some(new RangeLocation(new Position(1,13), new Position(1,18))),
         "Dummy", dummyTypeName, "class", List("public"), Some(objectTypeName),
         List(TypeName(Name("A")), TypeName(Name("B"))),
-        Nil, Nil, Nil, Nil, Nil, Set(), Set())
+        Nil, Nil, Nil, Nil, Nil, Set()
+      )
     )
   }
 
@@ -145,7 +150,8 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
       TypeSummary(-1967820565, Some(new RangeLocation(new Position(1,17), new Position(1,22))),
         "Dummy", dummyTypeName, "interface", List("public"), None,
         List(TypeName(Name("A")), TypeName(Name("B"))),
-        Nil, Nil, Nil, Nil, Nil, Set(), Set())
+        Nil, Nil, Nil, Nil, Nil, Set()
+      )
     )
   }
 
@@ -159,7 +165,8 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
           FieldSummary(Some(new RangeLocation(new Position(1,35), new Position(1, 36))),
             "B", List("private"), rawStringTypeName, "private", "private", Set()),
         ),
-        Nil, Nil, Nil, Set(), Set())
+        Nil, Nil, Nil, Set()
+      )
     )
   }
 
@@ -175,7 +182,8 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
           FieldSummary(Some(new RangeLocation(new Position(1,35), new Position(1,36))),
             "B", List("private"), rawStringTypeName, "private", "private", Set()),
         ),
-        Nil, Nil, Nil, Set(), Set())
+        Nil, Nil, Nil, Set()
+      )
     )
   }
 
@@ -189,7 +197,8 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
           ConstructorSummary(Some(new RangeLocation(new Position(1,27), new Position(1,32))),
             List("public"), List(ParameterSummary("a", TypeName.String)), Set())
         ),
-        Nil, Nil, Set(), Set())
+        Nil, Nil, Set()
+      )
     )
   }
 
@@ -203,7 +212,8 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
           MethodSummary(Some(new RangeLocation(new Position(1,34), new Position(1,37))),
             "foo", List("public"), TypeName.String, List(ParameterSummary("a", TypeName.String)), Set()),
         ),
-        Nil, Set(), Set())
+        Nil, Set()
+      )
     )
   }
 
@@ -217,7 +227,8 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
           MethodSummary(Some(new RangeLocation(new Position(1,38), new Position(1,41))),
             "foo", List("public"), TypeName.String, List(ParameterSummary("a", TypeName.String)), Set())
         ),
-        Nil, Set(), Set())
+        Nil, Set()
+      )
     )
   }
 
@@ -228,11 +239,11 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
         "Dummy", dummyTypeName, "enum", List("public"), None, Nil, Nil,
         List(
           FieldSummary(Some(new RangeLocation(new Position(1,22), new Position(1,23))),
-            "A", List("public", "static"), dummyTypeName, "public", "public", Set(TypeDependentSummary(dummyTypeName,1277314056))),
+            "A", List("public", "static"), dummyTypeName, "public", "public", Set(TypeDependentSummary(dummyTypeId,1277314056))),
           FieldSummary(Some(new RangeLocation(new Position(1,19), new Position(1,20))),
-            "B", List("public", "static"), dummyTypeName, "public", "public", Set(TypeDependentSummary(dummyTypeName,1277314056))),
+            "B", List("public", "static"), dummyTypeName, "public", "public", Set(TypeDependentSummary(dummyTypeId,1277314056))),
           FieldSummary(Some(new RangeLocation(new Position(1,25), new Position(1,26))),
-            "C", List("public", "static"), dummyTypeName, "public", "public", Set(TypeDependentSummary(dummyTypeName,1277314056))),
+            "C", List("public", "static"), dummyTypeName, "public", "public", Set(TypeDependentSummary(dummyTypeId,1277314056))),
         ),
         Nil,
         List(
@@ -241,7 +252,8 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
           MethodSummary(idLocation, "name", List("public"), TypeName.String, List(),Set()),
           MethodSummary(idLocation, "ordinal", List("public"), TypeName.Integer, List(),Set()),
           MethodSummary(idLocation, "values", List("public", "static"),TypeName.listOf(dummyTypeName),List(),Set())),
-        Nil, Set(), Set())
+        Nil, Set()
+      )
     )
   }
 
@@ -249,7 +261,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
     val name = "__sfdc_trigger/Foo"
     assert(triggerSummary("trigger Foo on Account(before insert) {}") ==
       TypeSummary(0, Some(RangeLocation(Position(1,8),Position(1,11))), name, DotName(name).asTypeName(), "trigger",
-        List(), None, Nil, Nil, Nil, Nil, Nil, Nil, Set(), Set()
+        List(), None, Nil, Nil, Nil, Nil, Nil, Nil, Set()
       )
     )
   }

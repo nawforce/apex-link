@@ -36,7 +36,7 @@ import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types.apex.ApexClassDeclaration
-import com.nawforce.common.types.core.TypeDeclaration
+import com.nawforce.common.types.core.{TypeDeclaration, TypeId}
 import com.nawforce.common.types.other.{InterviewDeclaration, _}
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.schema.SchemaManager
@@ -176,9 +176,9 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   def populateDependencies(dependencies: java.util.Map[String, Array[String]]): Unit = {
     types.values.foreach {
       case td: ApexClassDeclaration =>
-        val depends = mutable.Set[TypeName]()
+        val depends = mutable.Set[TypeId]()
         td.collectDependenciesByTypeName(depends)
-        depends.remove(td.typeName)
+        depends.remove(td.typeId)
         if (depends.nonEmpty)
           dependencies.put(td.typeName.toString, depends.map(_.toString).toArray)
       case _ => ()

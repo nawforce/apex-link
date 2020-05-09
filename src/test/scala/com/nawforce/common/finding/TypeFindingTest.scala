@@ -28,7 +28,7 @@
 package com.nawforce.common.finding
 
 import com.nawforce.common.api.Org
-import com.nawforce.common.names.{DotName, Name, TypeName}
+import com.nawforce.common.names.{DotName, Name, Names, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.apex.FullDeclaration
@@ -42,7 +42,7 @@ class TypeFindingTest extends AnyFunSuite {
   private val unmanaged: PackageImpl = defaultOrg.unmanaged
 
   private def getType(namespace: String, dotName: String, org: OrgImpl = defaultOrg): TypeDeclaration = {
-    val ns = Name.safeApply(namespace)
+    val ns = Names.safeApply(namespace)
     val dn = DotName(dotName)
     val pkgOpt = org.packagesByNamespace.get(ns)
     pkgOpt.flatMap(pkg => TypeRequest(dn.asTypeName(), pkg, excludeSObjects = false).toOption).orNull
@@ -56,14 +56,14 @@ class TypeFindingTest extends AnyFunSuite {
 
   test("Platform type") {
     OrgImpl.current.withValue(defaultOrg) {
-      val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Name.System)))
+      val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Names.System)))
       assert(unmanaged.getType(TypeName(Name("String")), None).toOption.get.typeName == typeName)
     }
   }
 
   test("Platform type (wrong case)") {
     OrgImpl.current.withValue(defaultOrg) {
-      val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Name.System)))
+      val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Names.System)))
       assert(unmanaged.getType(TypeName(Name("STRING")), None).toOption.get.typeName == typeName)
     }
   }

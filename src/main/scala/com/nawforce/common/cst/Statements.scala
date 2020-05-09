@@ -206,7 +206,7 @@ final case class EnhancedForControl(typeName: TypeName, id: Id, expression: Expr
 object EnhancedForControl {
   def construct(from: EnhancedForControlContext): EnhancedForControl = {
     EnhancedForControl(
-      TypeRef.construct(from.typeRef()),
+      TypeReference.construct(from.typeRef()),
       Id.construct(from.id()),
       Expression.construct(from.expression()).withContext(from)
     )

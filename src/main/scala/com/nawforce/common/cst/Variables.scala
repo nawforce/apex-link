@@ -90,7 +90,7 @@ final case class LocalVariableDeclaration(modifiers: ModifierResults, typeName: 
 
 object LocalVariableDeclaration {
   def construct(parser: CodeParser, from: LocalVariableDeclarationContext): LocalVariableDeclaration = {
-    val typeName = TypeRef.construct(from.typeRef())
+    val typeName = TypeReference.construct(from.typeRef())
     LocalVariableDeclaration(
       ApexModifiers.localVariableModifiers(parser, CodeParser.toScala(from.modifier()), from),
       typeName,
