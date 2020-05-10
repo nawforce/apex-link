@@ -27,22 +27,21 @@
 */
 package com.nawforce.common.api
 
-import com.nawforce.common.names.TypeLike
 import upickle.default.{macroRW, ReadWriter => RW}
 
 case class ApexSummary(typeSummary: TypeSummary, diagnostics: List[Diagnostic])
-case class TypeSummary(sourceHash: Int, idRange: Option[RangeLocation], name: String, typeName: TypeLike,
-                       nature: String, modifiers: List[String], superClass: Option[TypeLike], interfaces: List[TypeLike],
+case class TypeSummary(sourceHash: Int, idRange: Option[RangeLocation], name: String, typeName: TypeName,
+                       nature: String, modifiers: List[String], superClass: Option[TypeName], interfaces: List[TypeName],
                        blocks: List[BlockSummary], fields: List[FieldSummary], constructors: List[ConstructorSummary],
                        methods: List[MethodSummary], nestedTypes: List[TypeSummary], dependents: Set[DependentSummary])
 case class BlockSummary(isStatic: Boolean, dependents: Set[DependentSummary])
 case class FieldSummary(idRange: Option[RangeLocation], name: String, modifiers: List[String],
-                        typeName: TypeLike, readAccess: String, writeAccess: String, dependents: Set[DependentSummary])
+                        typeName: TypeName, readAccess: String, writeAccess: String, dependents: Set[DependentSummary])
 case class ConstructorSummary(idRange: Option[RangeLocation], modifiers: List[String], parameters: List[ParameterSummary],
                               dependents: Set[DependentSummary])
-case class MethodSummary(idRange: Option[RangeLocation], name: String, modifiers: List[String], typeName: TypeLike,
+case class MethodSummary(idRange: Option[RangeLocation], name: String, modifiers: List[String], typeName: TypeName,
                          parameters: List[ParameterSummary], dependents: Set[DependentSummary])
-case class ParameterSummary(name: String, typeName: TypeLike)
+case class ParameterSummary(name: String, typeName: TypeName)
 
 sealed trait DependentSummary
 @upickle.implicits.key("Type")

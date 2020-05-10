@@ -27,15 +27,16 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.names.TypeName
+import com.nawforce.common.api.TypeName
+import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.types.core.TypeDeclaration
 import com.nawforce.common.types.platform.PlatformTypes
 
 trait AssignableSupport {
   def isAssignable(toType: TypeName, fromType: TypeDeclaration, context: VerifyContext): Boolean = {
-    if (fromType.typeName == TypeName.Null ||
+    if (fromType.typeName == TypeNames.Null ||
       (fromType.typeName == toType) ||
-      (toType == TypeName.InternalObject) ||
+      (toType == TypeNames.InternalObject) ||
       context.pkg.isGhostedType(toType)) {
       true
     } else if (fromType.typeName.isRecordSet) {
@@ -74,8 +75,8 @@ trait AssignableSupport {
 
   private def isSObjectListAssignment(toType: TypeName, fromType: TypeDeclaration, context: VerifyContext): Boolean = {
     if (toType.isList && fromType.typeName.isList &&
-      fromType.typeName.params.head == TypeName.SObject &&
-      toType.params.head != TypeName.SObject) {
+      fromType.typeName.params.head == TypeNames.SObject &&
+      toType.params.head != TypeNames.SObject) {
       context.getTypeFor(toType.params.head, context.thisType) match {
         case Left(_) => false
         case Right(toDeclaration) => toDeclaration.isSObject
@@ -87,7 +88,7 @@ trait AssignableSupport {
 
   @scala.annotation.tailrec
   private def isRecordSetAssignable(toType: TypeName, context: VerifyContext): Boolean = {
-    if (toType == TypeName.SObject || toType.isSObjectList || toType.isObjectList) {
+    if (toType == TypeNames.SObject || toType.isSObjectList || toType.isObjectList) {
       true
     } else if (toType.isList) {
       isRecordSetAssignable(toType.params.head, context)
@@ -107,16 +108,16 @@ trait AssignableSupport {
 
 object AssignableSupport {
   private lazy val baseAssignable: Set[(TypeName, TypeName)] = Set(
-    (TypeName.Long, TypeName.Integer),
-    (TypeName.Decimal, TypeName.Integer),
-    (TypeName.Double, TypeName.Integer),
-    (TypeName.Decimal, TypeName.Long),
-    (TypeName.Double, TypeName.Long),
-    (TypeName.Double, TypeName.Decimal),
-    (TypeName.Decimal, TypeName.Double),
-    (TypeName.Id, TypeName.String),
-    (TypeName.String, TypeName.Id),
-    (TypeName.Datetime, TypeName.Date)
+    (TypeNames.Long, TypeNames.Integer),
+    (TypeNames.Decimal, TypeNames.Integer),
+    (TypeNames.Double, TypeNames.Integer),
+    (TypeNames.Decimal, TypeNames.Long),
+    (TypeNames.Double, TypeNames.Long),
+    (TypeNames.Double, TypeNames.Decimal),
+    (TypeNames.Decimal, TypeNames.Double),
+    (TypeNames.Id, TypeNames.String),
+    (TypeNames.String, TypeNames.Id),
+    (TypeNames.Datetime, TypeNames.Date)
   )
 }
 
@@ -132,20 +133,20 @@ abstract class Operation extends AssignableSupport {
   }
 
   def isNumericKind(typeName: TypeName): Boolean = {
-    typeName == TypeName.Integer ||
-    typeName == TypeName.Long ||
-    typeName == TypeName.Decimal ||
-    typeName == TypeName.Double
+    typeName == TypeNames.Integer ||
+    typeName == TypeNames.Long ||
+    typeName == TypeNames.Decimal ||
+    typeName == TypeNames.Double
   }
 
   def isStringKind(typeName: TypeName): Boolean = {
-    typeName == TypeName.String ||
-    typeName == TypeName.Id
+    typeName == TypeNames.String ||
+    typeName == TypeNames.Id
   }
 
   def isDateKind(typeName: TypeName): Boolean = {
-    typeName == TypeName.Date ||
-    typeName == TypeName.Datetime
+    typeName == TypeNames.Date ||
+    typeName == TypeNames.Datetime
   }
 
   def isNonReferenceKind(typeName: TypeName): Boolean = {
@@ -175,99 +176,99 @@ abstract class Operation extends AssignableSupport {
 
 object Operation {
   private lazy val nonReferenceTypes: Set[TypeName] = Set (
-    TypeName.Integer,
-    TypeName.Long,
-    TypeName.Decimal,
-    TypeName.Double,
-    TypeName.String,
-    TypeName.Date,
-    TypeName.Datetime,
-    TypeName.Time,
-    TypeName.Blob,
-    TypeName.Id
+    TypeNames.Integer,
+    TypeNames.Long,
+    TypeNames.Decimal,
+    TypeNames.Double,
+    TypeNames.String,
+    TypeNames.Date,
+    TypeNames.Datetime,
+    TypeNames.Time,
+    TypeNames.Blob,
+    TypeNames.Id
   )
 
   private lazy val arithmeticOps: Map[(TypeName, TypeName), TypeDeclaration] = Map(
-    (TypeName.Integer, TypeName.Integer) -> PlatformTypes.integerType,
-    (TypeName.Integer, TypeName.Long) -> PlatformTypes.longType,
-    (TypeName.Integer, TypeName.Decimal) -> PlatformTypes.decimalType,
-    (TypeName.Integer, TypeName.Double) -> PlatformTypes.doubleType,
-    (TypeName.Long, TypeName.Integer) -> PlatformTypes.longType,
-    (TypeName.Long, TypeName.Long) -> PlatformTypes.longType,
-    (TypeName.Long, TypeName.Decimal) -> PlatformTypes.decimalType,
-    (TypeName.Long, TypeName.Double) -> PlatformTypes.doubleType,
-    (TypeName.Decimal, TypeName.Integer) -> PlatformTypes.decimalType,
-    (TypeName.Decimal, TypeName.Long) -> PlatformTypes.decimalType,
-    (TypeName.Decimal, TypeName.Decimal) -> PlatformTypes.decimalType,
-    (TypeName.Decimal, TypeName.Double) -> PlatformTypes.decimalType,
-    (TypeName.Double, TypeName.Integer) -> PlatformTypes.doubleType,
-    (TypeName.Double, TypeName.Long) -> PlatformTypes.doubleType,
-    (TypeName.Double, TypeName.Decimal) -> PlatformTypes.decimalType,
-    (TypeName.Double, TypeName.Double) -> PlatformTypes.doubleType,
-    (TypeName.Date, TypeName.Integer) -> PlatformTypes.dateType,
-    (TypeName.Date, TypeName.Long) -> PlatformTypes.dateType,
-    (TypeName.Datetime, TypeName.Integer) -> PlatformTypes.datetimeType,
-    (TypeName.Datetime, TypeName.Long) -> PlatformTypes.datetimeType,
-    (TypeName.Datetime, TypeName.Decimal) -> PlatformTypes.datetimeType,
-    (TypeName.Datetime, TypeName.Double) -> PlatformTypes.datetimeType,
-    (TypeName.Time, TypeName.Integer) -> PlatformTypes.timeType,
-    (TypeName.Time, TypeName.Long) -> PlatformTypes.timeType,
+    (TypeNames.Integer, TypeNames.Integer) -> PlatformTypes.integerType,
+    (TypeNames.Integer, TypeNames.Long) -> PlatformTypes.longType,
+    (TypeNames.Integer, TypeNames.Decimal) -> PlatformTypes.decimalType,
+    (TypeNames.Integer, TypeNames.Double) -> PlatformTypes.doubleType,
+    (TypeNames.Long, TypeNames.Integer) -> PlatformTypes.longType,
+    (TypeNames.Long, TypeNames.Long) -> PlatformTypes.longType,
+    (TypeNames.Long, TypeNames.Decimal) -> PlatformTypes.decimalType,
+    (TypeNames.Long, TypeNames.Double) -> PlatformTypes.doubleType,
+    (TypeNames.Decimal, TypeNames.Integer) -> PlatformTypes.decimalType,
+    (TypeNames.Decimal, TypeNames.Long) -> PlatformTypes.decimalType,
+    (TypeNames.Decimal, TypeNames.Decimal) -> PlatformTypes.decimalType,
+    (TypeNames.Decimal, TypeNames.Double) -> PlatformTypes.decimalType,
+    (TypeNames.Double, TypeNames.Integer) -> PlatformTypes.doubleType,
+    (TypeNames.Double, TypeNames.Long) -> PlatformTypes.doubleType,
+    (TypeNames.Double, TypeNames.Decimal) -> PlatformTypes.decimalType,
+    (TypeNames.Double, TypeNames.Double) -> PlatformTypes.doubleType,
+    (TypeNames.Date, TypeNames.Integer) -> PlatformTypes.dateType,
+    (TypeNames.Date, TypeNames.Long) -> PlatformTypes.dateType,
+    (TypeNames.Datetime, TypeNames.Integer) -> PlatformTypes.datetimeType,
+    (TypeNames.Datetime, TypeNames.Long) -> PlatformTypes.datetimeType,
+    (TypeNames.Datetime, TypeNames.Decimal) -> PlatformTypes.datetimeType,
+    (TypeNames.Datetime, TypeNames.Double) -> PlatformTypes.datetimeType,
+    (TypeNames.Time, TypeNames.Integer) -> PlatformTypes.timeType,
+    (TypeNames.Time, TypeNames.Long) -> PlatformTypes.timeType,
   )
 
   private lazy val arithmeticAddSubtractAssigmentOps: Map[(TypeName, TypeName), TypeDeclaration] = Map(
-    (TypeName.Integer, TypeName.Integer) -> PlatformTypes.integerType,
-    (TypeName.Long, TypeName.Integer) -> PlatformTypes.longType,
-    (TypeName.Long, TypeName.Long) -> PlatformTypes.longType,
-    (TypeName.Decimal, TypeName.Integer) -> PlatformTypes.decimalType,
-    (TypeName.Decimal, TypeName.Long) -> PlatformTypes.decimalType,
-    (TypeName.Decimal, TypeName.Double) -> PlatformTypes.decimalType,
-    (TypeName.Decimal, TypeName.Decimal) -> PlatformTypes.decimalType,
-    (TypeName.Double, TypeName.Integer) -> PlatformTypes.doubleType,
-    (TypeName.Double, TypeName.Long) -> PlatformTypes.doubleType,
-    (TypeName.Double, TypeName.Decimal) -> PlatformTypes.decimalType,
-    (TypeName.Double, TypeName.Double) -> PlatformTypes.doubleType,
-    (TypeName.Date, TypeName.Integer) -> PlatformTypes.dateType,
-    (TypeName.Date, TypeName.Long) -> PlatformTypes.dateType,
-    (TypeName.Datetime, TypeName.Integer) -> PlatformTypes.datetimeType,
-    (TypeName.Datetime, TypeName.Long) -> PlatformTypes.datetimeType,
-    (TypeName.Time, TypeName.Integer) -> PlatformTypes.timeType,
-    (TypeName.Time, TypeName.Long) -> PlatformTypes.timeType,
+    (TypeNames.Integer, TypeNames.Integer) -> PlatformTypes.integerType,
+    (TypeNames.Long, TypeNames.Integer) -> PlatformTypes.longType,
+    (TypeNames.Long, TypeNames.Long) -> PlatformTypes.longType,
+    (TypeNames.Decimal, TypeNames.Integer) -> PlatformTypes.decimalType,
+    (TypeNames.Decimal, TypeNames.Long) -> PlatformTypes.decimalType,
+    (TypeNames.Decimal, TypeNames.Double) -> PlatformTypes.decimalType,
+    (TypeNames.Decimal, TypeNames.Decimal) -> PlatformTypes.decimalType,
+    (TypeNames.Double, TypeNames.Integer) -> PlatformTypes.doubleType,
+    (TypeNames.Double, TypeNames.Long) -> PlatformTypes.doubleType,
+    (TypeNames.Double, TypeNames.Decimal) -> PlatformTypes.decimalType,
+    (TypeNames.Double, TypeNames.Double) -> PlatformTypes.doubleType,
+    (TypeNames.Date, TypeNames.Integer) -> PlatformTypes.dateType,
+    (TypeNames.Date, TypeNames.Long) -> PlatformTypes.dateType,
+    (TypeNames.Datetime, TypeNames.Integer) -> PlatformTypes.datetimeType,
+    (TypeNames.Datetime, TypeNames.Long) -> PlatformTypes.datetimeType,
+    (TypeNames.Time, TypeNames.Integer) -> PlatformTypes.timeType,
+    (TypeNames.Time, TypeNames.Long) -> PlatformTypes.timeType,
   )
 
   private lazy val arithmeticMultiplyDivideAssigmentOps: Map[(TypeName, TypeName), TypeDeclaration] = Map(
-    (TypeName.Integer, TypeName.Integer) -> PlatformTypes.integerType,
-    (TypeName.Long, TypeName.Integer) -> PlatformTypes.longType,
-    (TypeName.Long, TypeName.Long) -> PlatformTypes.longType,
-    (TypeName.Decimal, TypeName.Integer) -> PlatformTypes.decimalType,
-    (TypeName.Decimal, TypeName.Long) -> PlatformTypes.decimalType,
-    (TypeName.Decimal, TypeName.Double) -> PlatformTypes.decimalType,
-    (TypeName.Decimal, TypeName.Decimal) -> PlatformTypes.decimalType,
-    (TypeName.Double, TypeName.Integer) -> PlatformTypes.doubleType,
-    (TypeName.Double, TypeName.Long) -> PlatformTypes.doubleType,
-    (TypeName.Double, TypeName.Decimal) -> PlatformTypes.decimalType,
-    (TypeName.Double, TypeName.Double) -> PlatformTypes.doubleType,
+    (TypeNames.Integer, TypeNames.Integer) -> PlatformTypes.integerType,
+    (TypeNames.Long, TypeNames.Integer) -> PlatformTypes.longType,
+    (TypeNames.Long, TypeNames.Long) -> PlatformTypes.longType,
+    (TypeNames.Decimal, TypeNames.Integer) -> PlatformTypes.decimalType,
+    (TypeNames.Decimal, TypeNames.Long) -> PlatformTypes.decimalType,
+    (TypeNames.Decimal, TypeNames.Double) -> PlatformTypes.decimalType,
+    (TypeNames.Decimal, TypeNames.Decimal) -> PlatformTypes.decimalType,
+    (TypeNames.Double, TypeNames.Integer) -> PlatformTypes.doubleType,
+    (TypeNames.Double, TypeNames.Long) -> PlatformTypes.doubleType,
+    (TypeNames.Double, TypeNames.Decimal) -> PlatformTypes.decimalType,
+    (TypeNames.Double, TypeNames.Double) -> PlatformTypes.doubleType,
   )
 
   private lazy val bitwiseOps: Map[(TypeName, TypeName), TypeDeclaration] = Map(
-    (TypeName.Integer, TypeName.Integer) -> PlatformTypes.integerType,
-    (TypeName.Integer, TypeName.Long) -> PlatformTypes.longType,
-    (TypeName.Long, TypeName.Integer) -> PlatformTypes.longType,
-    (TypeName.Long, TypeName.Long) -> PlatformTypes.longType,
-    (TypeName.Boolean, TypeName.Boolean) -> PlatformTypes.booleanType,
+    (TypeNames.Integer, TypeNames.Integer) -> PlatformTypes.integerType,
+    (TypeNames.Integer, TypeNames.Long) -> PlatformTypes.longType,
+    (TypeNames.Long, TypeNames.Integer) -> PlatformTypes.longType,
+    (TypeNames.Long, TypeNames.Long) -> PlatformTypes.longType,
+    (TypeNames.Boolean, TypeNames.Boolean) -> PlatformTypes.booleanType,
   )
 
   private lazy val bitwiseAssignmentOps: Map[(TypeName, TypeName), TypeDeclaration] = Map(
-    (TypeName.Integer, TypeName.Integer) -> PlatformTypes.integerType,
-    (TypeName.Long, TypeName.Integer) -> PlatformTypes.longType,
-    (TypeName.Long, TypeName.Long) -> PlatformTypes.longType,
-    (TypeName.Boolean, TypeName.Boolean) -> PlatformTypes.longType,
+    (TypeNames.Integer, TypeNames.Integer) -> PlatformTypes.integerType,
+    (TypeNames.Long, TypeNames.Integer) -> PlatformTypes.longType,
+    (TypeNames.Long, TypeNames.Long) -> PlatformTypes.longType,
+    (TypeNames.Boolean, TypeNames.Boolean) -> PlatformTypes.longType,
   )
 }
 
 case object AssignmentOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
                       op: String, context: VerifyContext): Either[String, ExprContext] = {
-    if (rightContext.typeName == TypeName.Null) {
+    if (rightContext.typeName == TypeNames.Null) {
       Right(leftContext)
     } else if (isAssignable(leftContext.typeName, rightContext.typeDeclaration, context)) {
       Right(leftContext)
@@ -280,9 +281,9 @@ case object AssignmentOperation extends Operation {
 case object LogicalOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
                       op: String, context: VerifyContext): Either[String, ExprContext] = {
-    if (!isAssignable(TypeName.Boolean, rightContext.typeDeclaration, context)) {
+    if (!isAssignable(TypeNames.Boolean, rightContext.typeDeclaration, context)) {
       Left(s"Right expression of logical $op must a boolean, not '${rightContext.typeName}'")
-    } else if (!isAssignable(TypeName.Boolean, leftContext.typeDeclaration, context)) {
+    } else if (!isAssignable(TypeNames.Boolean, leftContext.typeDeclaration, context)) {
       Left(s"Left expression of logical $op must a boolean, not '${leftContext.typeName}'")
     } else {
       Right(leftContext)
@@ -322,8 +323,8 @@ case object ExactEqualityOperation extends Operation {
       Left(s"Exact equality/inequality requires is not supported on non-reference types '${rightContext.typeName}'")
     } else if (
       leftContext.typeName == rightContext.typeName ||
-      leftContext.typeName == TypeName.InternalObject ||
-      rightContext.typeName == TypeName.InternalObject ||
+      leftContext.typeName == TypeNames.InternalObject ||
+      rightContext.typeName == TypeNames.InternalObject ||
       leftContext.typeDeclaration.extendsOrImplements(rightContext.typeName) ||
       rightContext.typeDeclaration.extendsOrImplements(leftContext.typeName)
     )
@@ -346,7 +347,7 @@ case object EqualityOperation extends Operation {
 case object PlusOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
                       op: String, context: VerifyContext): Either[String, ExprContext] = {
-    if (leftContext.typeName == TypeName.String || rightContext.typeName == TypeName.String) {
+    if (leftContext.typeName == TypeNames.String || rightContext.typeName == TypeNames.String) {
       Right(ExprContext(isStatic = Some(false), PlatformTypes.stringType))
     }
     else {
@@ -373,7 +374,7 @@ case object ArithmeticOperation extends Operation {
 case object ArithmeticAddSubtractAssignmentOperation extends Operation {
   override def verify(leftContext: ExprContext, rightContext: ExprContext,
                       op: String, context: VerifyContext): Either[String, ExprContext] = {
-    if (leftContext.typeName == TypeName.String && op == "+=") {
+    if (leftContext.typeName == TypeNames.String && op == "+=") {
       Right(ExprContext(isStatic = Some(false), PlatformTypes.stringType))
     } else {
       val td = getArithmeticAddSubtractAssigmentResult(leftContext.typeName, rightContext.typeName)

@@ -28,7 +28,6 @@
 package com.nawforce.common.api
 
 import com.nawforce.common.documents.{ApexClassDocument, DocumentType}
-import com.nawforce.common.names.TypeName
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.TypeDeclaration

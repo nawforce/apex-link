@@ -29,6 +29,7 @@ package com.nawforce.runtime.cmds
 
 import java.nio.file.{Files, Path, Paths}
 
+import com.nawforce.common.names._
 import com.nawforce.runtime.types.PlatformTypeDeclaration
 import upickle.default._
 

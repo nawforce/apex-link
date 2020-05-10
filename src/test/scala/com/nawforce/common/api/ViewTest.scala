@@ -27,7 +27,6 @@
 */
 package com.nawforce.common.api
 
-import com.nawforce.common.names.TypeLike
 import com.nawforce.common.org.{OrgImpl, PackageImpl, ViewInfoImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
@@ -159,7 +158,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       assert(view.diagnostics.isEmpty)
 
       val barTypeId = pkg.getTypeOfPath(root.join("pkg/Bar.cls").toString)
-      assert(pkg.getDependencyHolders(barTypeId).sameElements(Array[TypeLike]()))
+      assert(pkg.getDependencyHolders(barTypeId).sameElements(Array[TypeName]()))
     }
   }
 

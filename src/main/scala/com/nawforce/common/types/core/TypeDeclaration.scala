@@ -31,7 +31,7 @@ import com.nawforce.common.api._
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.names.{Names, TypeName}
+import com.nawforce.common.names.{Names, TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.other.Component
@@ -92,21 +92,21 @@ trait FieldDeclaration extends DependencyHolder {
   // Create an SObjectField version of this field
   def getSObjectField: CustomFieldDeclaration = {
     // Some messy special cases
-    if (typeName == TypeName.Id && idTarget.nonEmpty) {
+    if (typeName == TypeNames.Id && idTarget.nonEmpty) {
       // Id field that carries a target SObjectType returns 'fields'
       PlatformTypes.get(idTarget.get, None)
-      CustomFieldDeclaration(name, TypeName.sObjectFields$(idTarget.get), None, asStatic = true)
+      CustomFieldDeclaration(name, TypeNames.sObjectFields$(idTarget.get), None, asStatic = true)
     } else if (CustomFieldDeclaration.isSObjectPrimitive(typeName)) {
       // Primitives (including other Id types)
       // TODO: Identify Share
       if (name == Names.RowCause)
-        CustomFieldDeclaration(name, TypeName.SObjectFieldRowCause$, None, asStatic = true)
+        CustomFieldDeclaration(name, TypeNames.SObjectFieldRowCause$, None, asStatic = true)
       else
-        CustomFieldDeclaration(name, TypeName.SObjectField, None, asStatic = true)
+        CustomFieldDeclaration(name, TypeNames.SObjectField, None, asStatic = true)
     } else {
       // Otherwise must be a SObject, but if Platform it might need loading
       PlatformTypes.get(typeName, None)
-      CustomFieldDeclaration(name, TypeName.sObjectFields$(typeName), None, asStatic = true)
+      CustomFieldDeclaration(name, TypeNames.sObjectFields$(typeName), None, asStatic = true)
     }
   }
 }
@@ -267,8 +267,8 @@ trait TypeDeclaration extends DependencyHolder {
   lazy val isExternallyVisible: Boolean = modifiers.contains(GLOBAL_MODIFIER)
   lazy val isAbstract: Boolean = modifiers.contains(ABSTRACT_MODIFIER)
   lazy val isFieldConstructed: Boolean = isSObject || isApexPagesComponent
-  lazy val isSObject: Boolean = superClass.contains(TypeName.SObject)
-  lazy val isApexPagesComponent: Boolean = superClass.contains(TypeName.ApexPagesComponent)
+  lazy val isSObject: Boolean = superClass.contains(TypeNames.SObject)
+  lazy val isApexPagesComponent: Boolean = superClass.contains(TypeNames.ApexPagesComponent)
 
   def validate(): Unit
 
@@ -286,7 +286,7 @@ trait TypeDeclaration extends DependencyHolder {
     // Handle the synthetic static SObjectField or abort
     if (fieldOption.isEmpty) {
       if (name == Names.SObjectField && staticContext.contains(true))
-        return Some(CustomFieldDeclaration(Names.SObjectField, TypeName.sObjectFields$(typeName), None))
+        return Some(CustomFieldDeclaration(Names.SObjectField, TypeNames.sObjectFields$(typeName), None))
       else
         return None
     }

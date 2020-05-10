@@ -27,8 +27,8 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.Name
-import com.nawforce.common.names.{EncodedName, Names, TypeName}
+import com.nawforce.common.api.{Name, TypeName}
+import com.nawforce.common.names.{EncodedName, Names, TypeNames, _}
 import com.nawforce.runtime.parsers.ApexParser.{TypeArgumentsContext, TypeListContext, TypeNameContext, TypeRefContext}
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -58,7 +58,7 @@ object TypeReference {
     val typeName = getName(name)
     val encType = EncodedName(typeName)
     if (encType.ext.nonEmpty)
-      TypeName(encType.fullName, params, Some(TypeName.Schema))
+      TypeName(encType.fullName, params, Some(TypeNames.Schema))
     else
       TypeName(typeName, params, None)
   }

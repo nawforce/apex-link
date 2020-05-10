@@ -27,11 +27,10 @@
 */
 package com.nawforce.common.org
 
-import com.nawforce.common.api.{Diagnostic, LineLocation, Package, ServerOps, TypeIdentifier, TypeSummary, ViewInfo}
+import com.nawforce.common.api.{Diagnostic, LineLocation, Package, ServerOps, TypeIdentifier, TypeName, TypeSummary, ViewInfo}
 import com.nawforce.common.diagnostics.ERROR_CATEGORY
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.names.{TypeLike, TypeName}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
@@ -61,7 +60,7 @@ trait PackageAPI extends Package {
 
   override def getPathsOfType(typeId: TypeIdentifier): Array[String] = {
     if (typeId != null && typeId.safeNamespace == namespace) {
-      types.get(TypeName(typeId.typeName))
+      types.get(typeId.typeName)
         .map(td => td.paths.map(_.toString).toArray)
         .getOrElse(Array())
     } else {
@@ -231,9 +230,8 @@ trait PackageAPI extends Package {
 
   override def deleteType(typeId: TypeIdentifier): Boolean = {
     if (typeId != null && typeId.safeNamespace == namespace) {
-      val typeName = TypeName(typeId.typeName)
-      types.get(typeName) match {
-        case Some(_: ApexDeclaration) => types.remove(typeName); true
+      types.get(typeId.typeName) match {
+        case Some(_: ApexDeclaration) => types.remove(typeId.typeName); true
         case _ => false
       }
     } else {
@@ -241,9 +239,9 @@ trait PackageAPI extends Package {
     }
   }
 
-  private def getApexDeclaration(typeLike: TypeLike): Option[ApexDeclaration] = {
+  private def getApexDeclaration(typeName: TypeName): Option[ApexDeclaration] = {
     try {
-      types.get(TypeName(typeLike))
+      types.get(typeName)
         .flatMap {
           case ad: ApexDeclaration => Some(ad)
           case _ => None
@@ -255,9 +253,9 @@ trait PackageAPI extends Package {
     }
   }
 
-  private def getDependentType(typeLike: TypeLike): Option[DependentType] = {
+  private def getDependentType(typeName: TypeName): Option[DependentType] = {
     try {
-      types.get(TypeName(typeLike))
+      types.get(typeName)
         .flatMap {
           case dt: DependentType => Some(dt)
           case _ => None

@@ -27,11 +27,11 @@
 */
 package com.nawforce.common.types.other
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents._
-import com.nawforce.common.names.TypeName
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.path.{PathFactory, PathLike}
@@ -43,7 +43,7 @@ import scala.collection.mutable
 /** A individual Label being represented as a static field. */
 case class Label(location: LocationImpl, name: Name, isProtected: Boolean) extends FieldDeclaration {
   override lazy val modifiers: Seq[Modifier] = Seq(STATIC_MODIFIER, GLOBAL_MODIFIER)
-  override lazy val typeName: TypeName = TypeName.String
+  override lazy val typeName: TypeName = TypeNames.String
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER
   override lazy val writeAccess: Modifier = PRIVATE_MODIFIER
   override val idTarget: Option[TypeName] = None
@@ -61,7 +61,7 @@ object Label {
 /** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
   * base packages via the Label.namespace.name format. */
 final class LabelDeclaration(paths: Seq[PathLike], override val pkg: PackageImpl, labels: Seq[Label], packageLabels: Seq[TypeDeclaration])
-  extends BasicTypeDeclaration(paths, pkg, TypeName.Label) with DependentType {
+  extends BasicTypeDeclaration(paths, pkg, TypeNames.Label) with DependentType {
 
   // Set individual labels to use this as the controller
   labels.foreach(_.setController(Some(this)))
@@ -92,7 +92,7 @@ final class LabelDeclaration(paths: Seq[PathLike], override val pkg: PackageImpl
   */
 final class PackageLabels(pkg: PackageImpl, labelDeclaration: LabelDeclaration)
   extends InnerBasicTypeDeclaration(Seq.empty, pkg,
-    TypeName(labelDeclaration.packageDeclaration.get.namespace.get, Nil, Some(TypeName.Label))) {
+    TypeName(labelDeclaration.packageDeclaration.get.namespace.get, Nil, Some(TypeNames.Label))) {
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     labelDeclaration.findField(name, staticContext) match {
@@ -104,7 +104,7 @@ final class PackageLabels(pkg: PackageImpl, labelDeclaration: LabelDeclaration)
 
 /** System.Label.ns implementation for ghosted packages. This simulates the existence of any label you ask for. */
 final class GhostedLabels(pkg: PackageImpl, ghostedNamespace: Name)
-  extends InnerBasicTypeDeclaration(Seq(), pkg, TypeName(ghostedNamespace, Nil, Some(TypeName.Label))) {
+  extends InnerBasicTypeDeclaration(Seq(), pkg, TypeName(ghostedNamespace, Nil, Some(TypeNames.Label))) {
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     if (staticContext.contains(true)) {

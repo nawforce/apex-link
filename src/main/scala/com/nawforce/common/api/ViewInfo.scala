@@ -27,10 +27,8 @@
 */
 package com.nawforce.common.api
 
-import com.nawforce.common.names.TypeLike
-
 trait ViewInfo {
   val diagnostics: Array[Diagnostic]
   val hasType: Boolean
-  val typeName: TypeLike
+  val typeName: TypeName
 }

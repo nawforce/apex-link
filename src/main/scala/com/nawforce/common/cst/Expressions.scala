@@ -27,10 +27,10 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents.LocationImpl
-import com.nawforce.common.names.{EncodedName, TypeName}
+import com.nawforce.common.names.{EncodedName, TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.common.types.other.AnyDeclaration
@@ -185,7 +185,7 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
     val index = arrayExpression.verify(ExprContext(isStatic = Some(false), context.thisType), context)
     if (index.typeDeclarationOpt.isEmpty)
       return ExprContext.empty
-    if (index.typeName != TypeName.Integer) {
+    if (index.typeName != TypeNames.Integer) {
       context.logError(arrayExpression.location,
         s"Array indexes must be Integers, found '${index.typeName}'")
       return ExprContext.empty
@@ -239,7 +239,7 @@ final case class MethodCall(target: Either[Boolean, Id], arguments: Seq[Expressi
                   s"taking arguments '${argTypes.map(_.toString).mkString(", ")}'")
           }
           ExprContext.empty
-        } else if (methods.head.typeName != TypeName.Void && !context.pkg.isGhostedType(methods.head.typeName)) {
+        } else if (methods.head.typeName != TypeNames.Void && !context.pkg.isGhostedType(methods.head.typeName)) {
           val td = context.getTypeAndAddDependency(methods.head.typeName, context.thisType)
           td match {
             case Left(error) =>
@@ -310,7 +310,7 @@ final case class PostfixExpression(expression: Expression, op: String) extends E
 
     val td = inter.typeDeclarationOpt.get
     td.typeName match {
-      case TypeName.Integer | TypeName.Long | TypeName.Decimal | TypeName.Double if inter.isStatic.contains(false) => inter
+      case TypeNames.Integer | TypeNames.Long | TypeNames.Decimal | TypeNames.Double if inter.isStatic.contains(false) => inter
       case _ =>
         OrgImpl.logError(location, s"Postfix increment/decrement is not supported on type '${td.typeName}'")
         ExprContext.empty
@@ -326,7 +326,7 @@ final case class PrefixExpression(expression: Expression, op: String) extends Ex
 
     val td = inter.typeDeclarationOpt.get
     td.typeName match {
-      case TypeName.Integer | TypeName.Long | TypeName.Decimal | TypeName.Double if inter.isStatic.contains(false) => inter
+      case TypeNames.Integer | TypeNames.Long | TypeNames.Decimal | TypeNames.Double if inter.isStatic.contains(false) => inter
       case _ if inter.isStatic.contains(false) && op == "+" => ExprContext(isStatic = Some(false), PlatformTypes.stringType)
       case _ =>
         OrgImpl.logError(location, s"Prefix operations are not supported on type '${td.typeName}'")
@@ -343,9 +343,9 @@ final case class NegationExpression(expression: Expression, isBitwise: Boolean) 
 
     val td = inter.typeDeclarationOpt.get
     td.typeName match {
-      case TypeName.Boolean if !isBitwise && inter.isStatic.contains(false) => inter
-      case TypeName.Integer if isBitwise && inter.isStatic.contains(false) => inter
-      case TypeName.Long if isBitwise && inter.isStatic.contains(false) => inter
+      case TypeNames.Boolean if !isBitwise && inter.isStatic.contains(false) => inter
+      case TypeNames.Integer if isBitwise && inter.isStatic.contains(false) => inter
+      case TypeNames.Long if isBitwise && inter.isStatic.contains(false) => inter
       case _ =>
         OrgImpl.logError(location, s"Negation operations is not supported on type '${td.typeName}'")
         ExprContext.empty

@@ -27,10 +27,9 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{Name, ServerOps}
+import com.nawforce.common.api.{Name, ServerOps, TypeName}
 import com.nawforce.common.cst.stmts.SwitchStatement
 import com.nawforce.common.documents.LineLocationImpl
-import com.nawforce.common.names.TypeName
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.{CodeParser, Source}

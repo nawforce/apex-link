@@ -27,10 +27,10 @@
 */
 package com.nawforce.common.types.synthetic
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.{Modifier, PUBLIC_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.documents.{RangeLocationImpl, TextRange}
-import com.nawforce.common.names.{EncodedName, TypeName, _}
+import com.nawforce.common.names.{EncodedName, _}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.FieldDeclaration
@@ -99,7 +99,7 @@ object CustomFieldDeclaration {
     if (rawType == "Lookup" || rawType == "MasterDetail" || rawType == "MetadataRelationship") {
       val referenceTo = Name(elem.getSingleChildAsString("referenceTo").trim)
       val relName = Name(elem.getSingleChildAsString("relationshipName").trim+"__r")
-      val refTypeName = TypeName(EncodedName(referenceTo).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeName.Schema))
+      val refTypeName = TypeName(EncodedName(referenceTo).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeNames.Schema))
       idTarget = Some(refTypeName)
 
       pkg.schema().relatedLists.add(refTypeName, relName, name, sObjectType,
@@ -108,8 +108,8 @@ object CustomFieldDeclaration {
       referenceFields = Seq(CustomFieldDeclaration(name.replaceAll("__c$", "__r"), refTypeName, None))
     } else if (rawType == "Location") {
       referenceFields = Seq(
-        CustomFieldDeclaration(name.replaceAll("__c$", "__latitude__s"), TypeName.Double, None),
-        CustomFieldDeclaration(name.replaceAll("__c$", "__longitude__s"), TypeName.Double, None)
+        CustomFieldDeclaration(name.replaceAll("__c$", "__latitude__s"), TypeNames.Double, None),
+        CustomFieldDeclaration(name.replaceAll("__c$", "__longitude__s"), TypeNames.Double, None)
       )
     }
 
@@ -119,8 +119,8 @@ object CustomFieldDeclaration {
   /* TypeNames that may be used in SObjects (see above for when */
   def isSObjectPrimitive(typeName: TypeName): Boolean = {
     typeName match {
-      case TypeName.Id | TypeName.String | TypeName.Boolean | TypeName.Decimal | TypeName.Integer |
-           TypeName.Date | TypeName.Datetime | TypeName.Time | TypeName.Blob | TypeName.Location | TypeName.Address
+      case TypeNames.Id | TypeNames.String | TypeNames.Boolean | TypeNames.Decimal | TypeNames.Integer |
+           TypeNames.Date | TypeNames.Datetime | TypeNames.Time | TypeNames.Blob | TypeNames.Location | TypeNames.Address
               => true
       case _ => false
     }

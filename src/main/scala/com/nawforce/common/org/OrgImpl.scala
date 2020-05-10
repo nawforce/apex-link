@@ -32,7 +32,7 @@ import java.util
 import com.nawforce.common.api.{IssueOptions, Name, Org, Package, PathLocation, ServerOps}
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, IssueLog}
 import com.nawforce.common.documents._
-import com.nawforce.common.names.{DotName, Names}
+import com.nawforce.common.names.{DotName, Names, _}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.sfdx.{MDAPIWorkspace, Workspace}
 import com.nawforce.common.types.apex.ApexDeclaration

@@ -28,13 +28,13 @@
 
 package com.nawforce.common.org
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, UnusedLog}
 import com.nawforce.common.diagnostics.IssueLog
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
-import com.nawforce.common.names.{EncodedName, TypeName}
+import com.nawforce.common.names.{EncodedName, TypeNames, _}
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types.apex.ApexClassDeclaration
 import com.nawforce.common.types.core.{TypeDeclaration, TypeId}
@@ -126,7 +126,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
 
   /* Check if a type is ghosted in this package */
   def isGhostedType(typeName: TypeName): Boolean = {
-    if (typeName.outer.contains(TypeName.Schema)) {
+    if (typeName.outer.contains(TypeNames.Schema)) {
       val encName = EncodedName(typeName.name)
       basePackages.filter(_.isGhosted).exists(_.namespace == encName.namespace)
     } else {
@@ -214,14 +214,14 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     if (declaration.nonEmpty)
       return declaration
 
-    declaration = types.get(typeName.withTail(TypeName.Schema))
+    declaration = types.get(typeName.withTail(TypeNames.Schema))
     if (declaration.nonEmpty)
       return declaration
 
-    if (typeName.params.isEmpty && (typeName.outer.isEmpty || typeName.outer.contains(TypeName.Schema))) {
+    if (typeName.params.isEmpty && (typeName.outer.isEmpty || typeName.outer.contains(TypeNames.Schema))) {
       val encName = EncodedName(typeName.name).defaultNamespace(namespace)
       if (encName.ext.nonEmpty) {
-        return types.get(TypeName(encName.fullName, Nil, Some(TypeName.Schema)))
+        return types.get(TypeName(encName.fullName, Nil, Some(TypeNames.Schema)))
       }
     }
     None

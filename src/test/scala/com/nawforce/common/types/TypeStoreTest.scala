@@ -27,8 +27,8 @@
 */
 package com.nawforce.common.types
 
-import com.nawforce.common.api.Name
-import com.nawforce.common.names.{Names, TypeName}
+import com.nawforce.common.api.{Name, TypeName}
+import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.types.platform.PlatformTypes
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -39,15 +39,15 @@ class TypeStoreTest extends AnyFunSuite {
   }
 
   test("Scoped system class found") {
-    assert(PlatformTypes.get(TypeName.String, None).right.get.typeName == TypeName.String)
+    assert(PlatformTypes.get(TypeNames.String, None).right.get.typeName == TypeNames.String)
   }
 
   test("Unscoped system class found") {
-    assert(PlatformTypes.get(TypeName(Names.String), None).right.get.typeName == TypeName.String)
+    assert(PlatformTypes.get(TypeName(Names.String), None).right.get.typeName == TypeNames.String)
   }
 
   test("Unscoped schema class found") {
-    assert(PlatformTypes.get(TypeName(Names.SObjectType), None).right.get.typeName == TypeName.SObjectType)
+    assert(PlatformTypes.get(TypeName(Names.SObjectType), None).right.get.typeName == TypeNames.SObjectType)
   }
 
   test("Unscoped database class not found") {

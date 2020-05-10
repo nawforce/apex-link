@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.names
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, TypeName}
 
 /**
   * A name with optional namespace prefixing & type suffix such as foo__field__c

@@ -28,7 +28,6 @@
 package com.nawforce.common.api
 
 import com.nawforce.common.documents.ParsedCache
-import com.nawforce.common.names.TypeName
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.apex.SummaryDeclaration
@@ -189,7 +188,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val typeLike = pkg2.getTypeOfPath(root.join("classes").join("Dummy.cls").toString)
       val summary = pkg2.getSummaryOfType(typeLike)
 
-      assert(pkg2.getType(TypeName(typeLike.typeName), None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+      assert(pkg2.getType(typeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
       assert(summary.name == "Dummy")
       assert(summary.typeName.toString == "test.Dummy")
       assert(summary.idRange.contains(RangeLocation(Position(1,21), Position(1,26))))

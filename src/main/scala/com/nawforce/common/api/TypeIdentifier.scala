@@ -1,6 +1,5 @@
 package com.nawforce.common.api
 
-import com.nawforce.common.names.TypeLike
 import upickle.default.{macroRW, ReadWriter => RW}
 
 /**
@@ -8,7 +7,7 @@ import upickle.default.{macroRW, ReadWriter => RW}
   * structures used in the library. Currently we only support conversion to a string representation for display
   * purposes.
   */
-case class TypeIdentifier(namespace: Name, typeName: TypeLike) {
+case class TypeIdentifier(namespace: Name, typeName: TypeName) {
 
   lazy val safeNamespace: Option[Name] = Option(namespace)
 

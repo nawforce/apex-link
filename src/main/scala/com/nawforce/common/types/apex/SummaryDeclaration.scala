@@ -27,11 +27,10 @@
 */
 package com.nawforce.common.types.apex
 
-import com.nawforce.common.api._
+import com.nawforce.common.api.{TypeName, _}
 import com.nawforce.common.cst.Modifier
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.names.TypeName
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
@@ -177,7 +176,7 @@ class SummaryParameter(parameterSummary: ParameterSummary)
   extends ParameterDeclaration {
 
   override val name: Name = Name(parameterSummary.name)
-  override val typeName: TypeName = TypeName(parameterSummary.typeName)
+  override val typeName: TypeName = parameterSummary.typeName
 }
 
 class SummaryMethod(val pkg: PackageImpl, path: PathLike, defaultNameRange: RangeLocation, val outerTypeId: TypeId,
@@ -188,7 +187,7 @@ class SummaryMethod(val pkg: PackageImpl, path: PathLike, defaultNameRange: Rang
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, methodSummary.idRange.getOrElse(defaultNameRange))
   override val name: Name = Name(methodSummary.name)
   override val modifiers: Seq[Modifier] = methodSummary.modifiers.map(Modifier(_))
-  override val typeName: TypeName = TypeName(methodSummary.typeName)
+  override val typeName: TypeName = methodSummary.typeName
   override val parameters: Seq[ParameterDeclaration] = methodSummary.parameters.map(new SummaryParameter(_))
 }
 
@@ -208,7 +207,7 @@ class SummaryField(val pkg: PackageImpl, path: PathLike, val outerTypeId: TypeId
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, fieldSummary.idRange.get)
   override val name: Name = Name(fieldSummary.name)
   override val modifiers: Seq[Modifier] = fieldSummary.modifiers.map(Modifier(_))
-  override val typeName: TypeName = TypeName(fieldSummary.typeName)
+  override val typeName: TypeName = fieldSummary.typeName
   override val readAccess: Modifier = Modifier(fieldSummary.readAccess)
   override val writeAccess: Modifier = Modifier(fieldSummary.writeAccess)
 }
@@ -238,8 +237,8 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
   override lazy val nature: Nature = Nature(summary.nature)
   override lazy val modifiers: Seq[Modifier] = summary.modifiers.map(Modifier(_))
 
-  override lazy val superClass: Option[TypeName] = summary.superClass.map(TypeName(_))
-  override lazy val interfaces: Seq[TypeName] = summary.interfaces.map(TypeName(_))
+  override lazy val superClass: Option[TypeName] = summary.superClass
+  override lazy val interfaces: Seq[TypeName] = summary.interfaces
   override lazy val nestedTypes: Seq[SummaryDeclaration] = {
     summary.nestedTypes.map(nt => new SummaryDeclaration(path, pkg, Some(typeId.typeName), nt))
   }

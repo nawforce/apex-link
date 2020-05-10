@@ -28,8 +28,7 @@
 
 package com.nawforce.common.types
 
-import com.nawforce.common.api.{Name, Org, ServerOps}
-import com.nawforce.common.names.TypeLike
+import com.nawforce.common.api.{Name, Org, ServerOps, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
@@ -250,7 +249,7 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
       assert(pkg2.getTypeOfPath(root.join("CustomLabels.labels").toString) == null)
 
       val dummyTypeLike = pkg2.getTypeOfPath(root.join("pkg2/Dummy.cls").toString)
-      assert(pkg2.getDependencies(dummyTypeLike, inheritanceOnly = false).sameElements(Array[TypeLike]()))
+      assert(pkg2.getDependencies(dummyTypeLike, inheritanceOnly = false).sameElements(Array[TypeName]()))
 
       // TODO: Restore when we can access pkg2 Labels
       // assert(pkg2.getDependencyHolders(labelsTypeLike).sameElements(Array[TypeLike]()))
