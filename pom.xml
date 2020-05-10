@@ -170,9 +170,9 @@
             -->
 
             <plugin>
-                <groupId>org.scala-tools</groupId>
-                <artifactId>maven-scala-plugin</artifactId>
-                <version>2.15.2</version>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>4.3.1</version>
                 <configuration>
                     <args>
                         <arg>-deprecation</arg>
@@ -195,6 +195,13 @@
                         <goals>
                             <goal>testCompile</goal>
                         </goals>
+                    </execution>
+                    <execution>
+                      <id>attach-javadocs</id>
+                      <goals>
+                        <goal>add-source</goal>
+                        <goal>doc-jar</goal>
+                      </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -254,20 +261,6 @@
                         <id>attach-sources</id>
                         <goals>
                             <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
