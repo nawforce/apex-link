@@ -27,9 +27,10 @@
 */
 package com.nawforce.common.types.other
 
+import com.nawforce.common.api.Name
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.documents._
-import com.nawforce.common.names.{Name, Names, TypeName}
+import com.nawforce.common.names.{Names, TypeName, _}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.path.PathFactory
@@ -45,7 +46,7 @@ case class Page(location: LocationImpl, name: Name) extends FieldDeclaration {
 }
 
 /** Page namespace implementation. Provides access to pages in the package as well as pages that are accessible in
-  * base packages via the namespace__name format.
+  * base packages via the `namespace__name` format.
   */
 final case class PageDeclaration(pkg: PackageImpl, pages: Seq[Page])
   extends BasicTypeDeclaration(pages.map(p => PathFactory(p.location.path)).distinct, pkg, TypeName(Names.Page)) {

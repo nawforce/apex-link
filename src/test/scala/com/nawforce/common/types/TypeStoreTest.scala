@@ -27,7 +27,8 @@
 */
 package com.nawforce.common.types
 
-import com.nawforce.common.names.{Name, Names, TypeName}
+import com.nawforce.common.api.Name
+import com.nawforce.common.names.{Names, TypeName}
 import com.nawforce.common.types.platform.PlatformTypes
 import org.scalatest.funsuite.AnyFunSuite
 

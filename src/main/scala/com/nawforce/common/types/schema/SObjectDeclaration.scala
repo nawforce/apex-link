@@ -27,10 +27,11 @@
 */
 package com.nawforce.common.types.schema
 
+import com.nawforce.common.api.Name
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, VerifyContext}
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.names.{DotName, Name, Names, TypeName}
+import com.nawforce.common.names.{DotName, Names, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}

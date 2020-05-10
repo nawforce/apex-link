@@ -27,8 +27,9 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.api.Name
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.names.{EncodedName, Name, TypeName}
+import com.nawforce.common.names.{EncodedName, TypeName}
 import com.nawforce.common.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.runtime.parsers.ApexParser._

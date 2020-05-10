@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.documents
 
-import com.nawforce.common.names.Name
+import com.nawforce.common.api.Name
 import com.nawforce.common.path.PathFactory
 import org.scalatest.funsuite.AnyFunSuite
 

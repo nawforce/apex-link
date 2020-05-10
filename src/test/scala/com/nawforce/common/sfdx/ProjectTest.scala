@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.sfdx
 
-import com.nawforce.common.names.Name
+import com.nawforce.common.api.Name
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.funsuite.AnyFunSuite

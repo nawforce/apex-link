@@ -28,10 +28,11 @@
 
 package com.nawforce.common.types.platform
 
+import com.nawforce.common.api.Name
 import com.nawforce.common.cst.Modifier
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.finding.{MissingType, TypeError, TypeRequest}
-import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.names.TypeName
 import com.nawforce.common.types.core.{FieldDeclaration, MethodDeclaration, ParameterDeclaration, TypeDeclaration}
 import com.nawforce.runtime.types.{PlatformField, PlatformMethod, PlatformParameter, PlatformTypeDeclaration}
 

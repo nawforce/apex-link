@@ -27,8 +27,7 @@
 */
 package com.nawforce.common.documents
 
-import com.nawforce.common.api.ServerOps
-import com.nawforce.common.names.Name
+import com.nawforce.common.api.{Name, ServerOps}
 import com.nawforce.common.path.PathLike
 
 import scala.collection.mutable

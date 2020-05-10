@@ -27,9 +27,10 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.api.Name
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents.LocationImpl
-import com.nawforce.common.names.{EncodedName, Name, TypeName}
+import com.nawforce.common.names.{EncodedName, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.common.types.other.AnyDeclaration
