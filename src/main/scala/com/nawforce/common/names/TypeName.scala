@@ -27,6 +27,7 @@
 */
 package com.nawforce.common.names
 
+import com.nawforce.common.api.Name
 import upickle.default.{macroRW, ReadWriter => RW}
 
 sealed trait TypeLike {

@@ -27,6 +27,8 @@
 */
 package com.nawforce.common.names
 
+import com.nawforce.common.api.Name
+
 import scala.collection.mutable
 
 object Names {

@@ -27,8 +27,8 @@
 */
 package com.nawforce.common.sfdx
 
+import com.nawforce.common.api.Name
 import com.nawforce.common.documents.{ForceIgnore, LineLocationImpl}
-import com.nawforce.common.names.Name
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
 

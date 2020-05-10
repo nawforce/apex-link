@@ -27,7 +27,8 @@
 */
 package com.nawforce.common.sfdx
 
-import com.nawforce.common.names.Name
+import com.nawforce.common.api.Name
+import com.nawforce.common.names._
 import com.nawforce.common.path.PathLike
 import ujson.{Arr, Value}
 

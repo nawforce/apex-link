@@ -27,8 +27,9 @@
 */
 package com.nawforce.common.types.other
 
+import com.nawforce.common.api.Name
 import com.nawforce.common.documents.LocationImpl
-import com.nawforce.common.names.{Name, Names, TypeName}
+import com.nawforce.common.names.{Names, TypeName}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.path.{PathFactory, PathLike}

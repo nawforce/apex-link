@@ -27,6 +27,8 @@
 */
 package com.nawforce.common.names
 
+import com.nawforce.common.api.Name
+
 object Identifier {
 
   /** Check is name is a legal identifier, None if OK or error message string. */

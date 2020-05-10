@@ -28,9 +28,9 @@
 
 package com.nawforce.common.org.stream
 
+import com.nawforce.common.api.Name
 import com.nawforce.common.diagnostics.IssueLogger
 import com.nawforce.common.documents._
-import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.xml.{XMLException, XMLFactory}
 

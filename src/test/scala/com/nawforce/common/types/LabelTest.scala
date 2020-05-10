@@ -28,8 +28,8 @@
 
 package com.nawforce.common.types
 
-import com.nawforce.common.api.{Org, ServerOps}
-import com.nawforce.common.names.{Name, TypeLike}
+import com.nawforce.common.api.{Name, Org, ServerOps}
+import com.nawforce.common.names.TypeLike
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper

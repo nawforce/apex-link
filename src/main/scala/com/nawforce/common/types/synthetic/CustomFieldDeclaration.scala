@@ -27,9 +27,10 @@
 */
 package com.nawforce.common.types.synthetic
 
+import com.nawforce.common.api.Name
 import com.nawforce.common.cst.{Modifier, PUBLIC_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.documents.{RangeLocationImpl, TextRange}
-import com.nawforce.common.names.{EncodedName, Name, TypeName}
+import com.nawforce.common.names.{EncodedName, TypeName, _}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.FieldDeclaration

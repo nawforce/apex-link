@@ -27,6 +27,8 @@
 */
 package com.nawforce.common.names
 
+import com.nawforce.common.api.Name
+
 /**
   * A qualified name with notional 'dot' separators
   */

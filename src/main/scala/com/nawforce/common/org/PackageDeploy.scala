@@ -27,10 +27,10 @@
 */
 package com.nawforce.common.org
 
-import com.nawforce.common.api.ServerOps
+import com.nawforce.common.api.{Name, ServerOps}
 import com.nawforce.common.diagnostics.{Issue, LocalLogger, MISSING_CATEGORY}
 import com.nawforce.common.documents._
-import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.names.TypeName
 import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.sfdx.Workspace

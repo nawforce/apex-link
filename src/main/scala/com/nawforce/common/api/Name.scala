@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2020 Kevin Jones
+ Copyright (c) 2019 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -25,28 +25,35 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+package com.nawforce.common.api
 
-package com.nawforce.common.org.stream
+import upickle.default.{macroRW, ReadWriter => RW}
 
-import com.nawforce.common.api.Name
-import com.nawforce.common.diagnostics.IssueLogger
-import com.nawforce.common.documents._
+/** Case insensitive string for symbol names.
+  *
+  * The value of the Name is stored as is but equality and hashing is performed against a normalised lower case
+  * value.
+  */
+case class Name(value: String) {
+  private lazy val normalised = value.toLowerCase
 
-import scala.collection.immutable.Queue
+  def canEqual(that: Any): Boolean = that.isInstanceOf[Name]
 
-case class ComponentEvent(location: LocationImpl, name: Name) extends PackageEvent
-
-/** Convert component documents into PackageEvents */
-object ComponentGenerator extends Generator {
-
-  def queue(logger: IssueLogger, index: DocumentIndex, queue: Queue[PackageEvent]): Queue[PackageEvent] = {
-    super.queue(DocumentType.componentExt, logger, index, queue)
-  }
-
-  override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentType): Option[PackageEvent] = {
-    metadata match {
-      case _: ComponentDocument => Some(ComponentEvent(LineLocationImpl(metadata.path.toString, 0), metadata.name))
-      case _ => None
+  override def equals(that: Any): Boolean = {
+    that match {
+      case otherName: Name =>
+        otherName.canEqual(this) && otherName.normalised == normalised
+      case _ => false
     }
   }
+
+  override def hashCode(): Int = normalised.hashCode
+
+  override def toString: String = value
 }
+
+object Name {
+  implicit val rw: RW[Name] = macroRW
+}
+
+

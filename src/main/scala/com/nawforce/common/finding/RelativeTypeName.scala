@@ -27,10 +27,11 @@
 */
 package com.nawforce.common.finding
 
+import com.nawforce.common.api.Name
 import com.nawforce.common.cst.BlockVerifyContext
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.finding.TypeRequest.TypeRequest
-import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.names.TypeName
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types.core.{Nature, TypeDeclaration}
 

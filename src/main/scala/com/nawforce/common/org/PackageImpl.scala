@@ -28,12 +28,13 @@
 
 package com.nawforce.common.org
 
+import com.nawforce.common.api.Name
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, UnusedLog}
 import com.nawforce.common.diagnostics.IssueLog
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
-import com.nawforce.common.names.{EncodedName, Name, TypeName}
+import com.nawforce.common.names.{EncodedName, TypeName}
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types.apex.ApexClassDeclaration
 import com.nawforce.common.types.core.{TypeDeclaration, TypeId}

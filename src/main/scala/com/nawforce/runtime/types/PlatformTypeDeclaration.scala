@@ -31,10 +31,11 @@ package com.nawforce.runtime.types
 import java.nio.file.{FileSystemNotFoundException, FileSystems, Files, Paths}
 import java.util
 
+import com.nawforce.common.api.Name
 import com.nawforce.common.cst.{Modifier, PUBLIC_MODIFIER}
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
-import com.nawforce.common.names.{DotName, Name, Names, TypeName}
+import com.nawforce.common.names.{DotName, Names, TypeName}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._

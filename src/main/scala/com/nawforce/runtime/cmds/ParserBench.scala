@@ -29,9 +29,8 @@ package com.nawforce.runtime.cmds
 
 import java.nio.file.{Files, Paths}
 
-import com.nawforce.common.api.ServerOps
+import com.nawforce.common.api.{Name, ServerOps}
 import com.nawforce.common.documents.DocumentIndex
-import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.os.Path
 import com.nawforce.runtime.parsers.CodeParser

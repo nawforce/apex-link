@@ -27,9 +27,10 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.api.Name
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents.RangeLocationImpl
-import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.names.{TypeName, _}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.parsers.ApexParser._

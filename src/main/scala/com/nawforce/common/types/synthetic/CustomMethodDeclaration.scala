@@ -27,10 +27,10 @@
 */
 package com.nawforce.common.types.synthetic
 
-import com.nawforce.common.api.{MethodSummary, Position, RangeLocation}
+import com.nawforce.common.api.{MethodSummary, Name, Position, RangeLocation}
 import com.nawforce.common.cst.{Modifier, PUBLIC_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.documents.LocationImpl
-import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.names.TypeName
 import com.nawforce.common.types.apex.ApexVisibleMethodLike
 import com.nawforce.common.types.core.ParameterDeclaration
 

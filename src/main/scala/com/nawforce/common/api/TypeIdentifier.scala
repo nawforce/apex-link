@@ -1,6 +1,6 @@
 package com.nawforce.common.api
 
-import com.nawforce.common.names.{Name, TypeLike}
+import com.nawforce.common.names.TypeLike
 import upickle.default.{macroRW, ReadWriter => RW}
 
 /**

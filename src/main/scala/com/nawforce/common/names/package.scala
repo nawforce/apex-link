@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
+ Copyright (c) 2020 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -25,49 +25,34 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.names
+package com.nawforce.common
 
-import upickle.default.{macroRW, ReadWriter => RW}
+import com.nawforce.common.api.Name
 
-import scala.collection.mutable
-
-/**
-  * A case insensitive string typically used for holding symbol names
+/** Name handling support.
+  *
+  * The two most visible types of name (Name & TypeName) are included in the api package. Additional support is
+  * included here for caching of Name objects to reduce GC pressure, simple dot formatted names and the encoded
+  * names we see used with SObjects that have suffixes such as `__c` and optional namespaces prefixes. There is
+  * also some support here for legal & reserved identifier validation.
   */
-case class Name(value: String) {
-  private val normalised = value.toLowerCase
+package object names {
 
-  /** Check is name is a legal identifier, None if OK or error message string. */
-  def isLegalIdentifier: Option[String] = Identifier.isLegalIdentifier(this)
+  /** Name extensions */
+  implicit class NameUtils(name: Name) {
 
-  /** Check is name is a reserved identifier, None if OK or error message string. */
-  def isReservedIdentifier: Boolean = Identifier.isReservedIdentifier(this)
+    /** Check is name is a legal identifier, None if OK or error message string. */
+    def isLegalIdentifier: Option[String] = Identifier.isLegalIdentifier(name)
 
-  def canEqual(that: Any): Boolean = that.isInstanceOf[Name]
+    /** Check is name is a reserved identifier, None if OK or error message string. */
+    def isReservedIdentifier: Boolean = Identifier.isReservedIdentifier(name)
 
-  override def equals(that: Any): Boolean = {
-    that match {
-      case otherName: Name =>
-        otherName.canEqual(this) && otherName.normalised == normalised
-      case _ => false
-    }
-  }
+    def isEmpty: Boolean = name.value.isEmpty
 
-  override def hashCode(): Int = normalised.hashCode
+    def nonEmpty: Boolean = name.value.nonEmpty
 
-  override def toString: String = value
+    def contains(seq: CharSequence): Boolean = name.value.contains(seq)
 
-  def isEmpty: Boolean = value.isEmpty
-  def nonEmpty: Boolean = value.nonEmpty
-  def contains(seq: CharSequence): Boolean = value.contains(seq)
-
-  def replaceAll(regex: String, replace: String): Name = {
-    Name(value.replaceAll(regex, replace))
+    def replaceAll(regex: String, replace: String): Name = Name(name.value.replaceAll(regex, replace))
   }
 }
-
-object Name {
-  implicit val rw: RW[Name] = macroRW
-}
-
-
