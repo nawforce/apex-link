@@ -28,9 +28,8 @@
 
 package com.nawforce.common.diagnostics
 
-import com.nawforce.common.api.{Diagnostic, Name}
+import com.nawforce.common.api.{Diagnostic, Name, TypeName}
 import com.nawforce.common.documents.LocationImpl
-import com.nawforce.common.names.TypeName
 import com.nawforce.runtime.parsers.{ApexParser, CodeParser}
 import upickle.default.{macroRW, ReadWriter => RW}
 

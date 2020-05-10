@@ -28,8 +28,7 @@
 
 package com.nawforce.common.types.core
 
-import com.nawforce.common.api.TypeIdentifier
-import com.nawforce.common.names.TypeName
+import com.nawforce.common.api.{TypeIdentifier, TypeName}
 import com.nawforce.common.org.PackageImpl
 
 case class TypeId(pkg: PackageImpl, typeName: TypeName) {
@@ -40,7 +39,7 @@ case class TypeId(pkg: PackageImpl, typeName: TypeName) {
 
 object TypeId {
   def apply(pkg: PackageImpl, typeIdentifier: TypeIdentifier): Option[TypeId] = {
-    val typeName = TypeName(typeIdentifier.typeName)
+    val typeName = typeIdentifier.typeName
     if (typeIdentifier.safeNamespace == pkg.namespace)
       return Some(new TypeId(pkg, typeName))
 

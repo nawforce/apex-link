@@ -27,11 +27,11 @@
 */
 package com.nawforce.common.types.schema
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.VerifyContext
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.names.{EncodedName, Names, TypeName}
+import com.nawforce.common.names.{EncodedName, Names, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
 import com.nawforce.common.types.platform.PlatformTypes
@@ -62,7 +62,7 @@ class RelatedLists(pkg: PackageImpl) {
   /* Declare a new relationship field */
   def add(sObject: TypeName, relationshipName: Name, holdingFieldName: Name, holdingSObject: TypeName, location: LocationImpl): Unit = {
     val encodedName = EncodedName(relationshipName).defaultNamespace(pkg.namespace).fullName
-    val field = CustomFieldDeclaration(encodedName, TypeName.recordSetOf(holdingSObject), None)
+    val field = CustomFieldDeclaration(encodedName, TypeNames.recordSetOf(holdingSObject), None)
     relationshipFields.put(sObject, (field, holdingFieldName, location) +: relationshipFields(sObject))
   }
 
@@ -107,7 +107,7 @@ class RelatedLists(pkg: PackageImpl) {
 }
 
 /* Schema.SObjectType implementation */
-final case class SchemaSObjectType(pkg: PackageImpl) extends BasicTypeDeclaration(Seq.empty, pkg, TypeName.SObjectType) {
+final case class SchemaSObjectType(pkg: PackageImpl) extends BasicTypeDeclaration(Seq.empty, pkg, TypeNames.SObjectType) {
   private val sobjectFields: mutable.Map[Name, FieldDeclaration] = mutable.Map()
   private val sobjectTypeDeclarationsCreated = mutable.Set[Name]()
 
@@ -129,7 +129,7 @@ final case class SchemaSObjectType(pkg: PackageImpl) extends BasicTypeDeclaratio
     sobjectFields.get(name).orElse({
       /* If not yet present check if we should create and cache */
       val td = TypeRequest(TypeName(name), pkg, excludeSObjects = false).toOption
-      if (td.nonEmpty && td.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
+      if (td.nonEmpty && td.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeNames.SObject)) {
         Some(createSObjectDescribeField(name, td.get.typeName))
       } else {
         None
@@ -148,7 +148,7 @@ final case class SchemaSObjectType(pkg: PackageImpl) extends BasicTypeDeclaratio
   private def createSObjectDescribeField(sobjectName: Name, typeName: TypeName): FieldDeclaration = {
     createSObjectTypeDeclarations(sobjectName)
 
-    val describeField = CustomFieldDeclaration(sobjectName, TypeName.describeSObjectResultOf(typeName), None, asStatic = true)
+    val describeField = CustomFieldDeclaration(sobjectName, TypeNames.describeSObjectResultOf(typeName), None, asStatic = true)
     sobjectFields.put(sobjectName, describeField)
     describeField
   }
@@ -170,12 +170,12 @@ final case class SchemaSObjectType(pkg: PackageImpl) extends BasicTypeDeclaratio
 
 // TODO: Provide paths
 final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields, pkg: PackageImpl)
-  extends BasicTypeDeclaration(Seq.empty, pkg, TypeName.sObjectType$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
+  extends BasicTypeDeclaration(Seq.empty, pkg, TypeNames.sObjectType$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
   private lazy val fieldField = CustomFieldDeclaration(Names.Fields,
-    TypeName.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeName.Schema))), None, asStatic = true)
+    TypeNames.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema))), None, asStatic = true)
 
-  override val superClass: Option[TypeName] = Some(TypeName.SObjectType)
+  override val superClass: Option[TypeName] = Some(TypeNames.SObjectType)
 
   override lazy val superClassDeclaration: Option[TypeDeclaration] = {
     superClass.flatMap(sc => PlatformTypes.get(sc, None).toOption)
@@ -198,12 +198,12 @@ final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields
 
 // TODO: Provide paths
 final case class SObjectTypeFields(sobjectName: Name, pkg: PackageImpl)
-  extends BasicTypeDeclaration(Seq.empty, pkg, TypeName.sObjectTypeFields$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
+  extends BasicTypeDeclaration(Seq.empty, pkg, TypeNames.sObjectTypeFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
     TypeRequest(TypeName(sobjectName), pkg, excludeSObjects = false).toOption match {
       case Some(sobject: TypeDeclaration) =>
-        sobject.fields.map(field => (field.name, CustomFieldDeclaration(field.name, TypeName.DescribeFieldResult, None))).toMap
+        sobject.fields.map(field => (field.name, CustomFieldDeclaration(field.name, TypeNames.DescribeFieldResult, None))).toMap
       case _ => Map()
     }
   }
@@ -218,7 +218,7 @@ final case class SObjectTypeFields(sobjectName: Name, pkg: PackageImpl)
       .orElse({
         val typeName = EncodedName(name).asTypeName
         if (pkg.isGhostedType(typeName)) {
-          ghostedSobjectFields.put(name, CustomFieldDeclaration(name, TypeName.DescribeFieldResult, None))
+          ghostedSobjectFields.put(name, CustomFieldDeclaration(name, TypeNames.DescribeFieldResult, None))
         }
         ghostedSobjectFields.get(name)
       })
@@ -236,16 +236,16 @@ final case class SObjectTypeFields(sobjectName: Name, pkg: PackageImpl)
 
   lazy val methodMap: Map[(Name, Int), MethodDeclaration] =
     Seq(
-      CustomMethodDeclaration(None, Name("getMap"), TypeName.mapOf(TypeName.String, TypeName.SObjectField), Seq()),
+      CustomMethodDeclaration(None, Name("getMap"), TypeNames.mapOf(TypeNames.String, TypeNames.SObjectField), Seq()),
     ).map(m => ((m.name, m.parameters.size),m)).toMap
 }
 
 // TODO: Provide paths
 final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
-  extends BasicTypeDeclaration(Seq(), pkg, TypeName.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
+  extends BasicTypeDeclaration(Seq(), pkg, TypeNames.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
   // Extend SObjectField for when used as return type for lookup SObjectField
-  override val superClass: Option[TypeName] = Some(TypeName.SObjectField)
+  override val superClass: Option[TypeName] = Some(TypeNames.SObjectField)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.sObjectFieldType)
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
@@ -263,7 +263,7 @@ final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
 
     // Mimic SObjectType as we proxy for SObjectField
     if (name == Names.SObjectType)
-      return Some(CustomFieldDeclaration(name, TypeName.sObjectType$(TypeName(sobjectName, Nil, Some(TypeName.Schema))), None))
+      return Some(CustomFieldDeclaration(name, TypeNames.sObjectType$(TypeName(sobjectName, Nil, Some(TypeNames.Schema))), None))
 
     // Provide other fields on the SObject
     sobjectFields.get(name)
@@ -271,7 +271,7 @@ final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
       .orElse({
         val typeName = EncodedName(name).asTypeName
         if (pkg.isGhostedType(typeName)) {
-          ghostedSobjectFields.put(name, CustomFieldDeclaration(name, TypeName.SObjectField, None))
+          ghostedSobjectFields.put(name, CustomFieldDeclaration(name, TypeNames.SObjectField, None))
         }
         ghostedSobjectFields.get(name)
       })
@@ -285,13 +285,13 @@ final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
 
 // TODO: Provide paths
 final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageImpl)
-  extends BasicTypeDeclaration(Seq.empty, pkg, TypeName.sObjectTypeFieldSets$(TypeName(sobjectName, Nil, Some(TypeName.Schema)))) {
+  extends BasicTypeDeclaration(Seq.empty, pkg, TypeNames.sObjectTypeFieldSets$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
   private lazy val sobjectFieldSets: Map[Name, FieldDeclaration] = {
     val typeName = TypeName(sobjectName)
     TypeRequest(typeName, pkg, excludeSObjects = false).toOption match {
       case Some(sobject: SObjectDeclaration) =>
-        sobject.fieldSets.map(name => (name, CustomFieldDeclaration(name, TypeName.FieldSet, None))).toMap
+        sobject.fieldSets.map(name => (name, CustomFieldDeclaration(name, TypeNames.FieldSet, None))).toMap
       case _ => Map()
     }
   }

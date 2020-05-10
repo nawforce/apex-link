@@ -27,39 +27,40 @@
 */
 package com.nawforce.common.types.platform
 
+import com.nawforce.common.api.TypeName
 import com.nawforce.common.finding.MissingType
 import com.nawforce.common.finding.TypeRequest.TypeRequest
-import com.nawforce.common.names.TypeName
+import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.types.core.TypeDeclaration
 import com.nawforce.runtime.types.PlatformTypeDeclaration
 
 import scala.ref.WeakReference
 
 object PlatformTypes {
-  lazy val nullType: TypeDeclaration = loadType(TypeName.Null)
-  lazy val recordSetType: TypeDeclaration = loadType(TypeName.RecordSet)
-  lazy val objectType: TypeDeclaration = loadType(TypeName.InternalObject)
-  lazy val sObjectType: TypeDeclaration = loadType(TypeName.SObject)
-  lazy val sObjectTypeType: TypeDeclaration = loadType(TypeName.SObjectType)
-  lazy val sObjectTypeFieldSets: TypeDeclaration = loadType(TypeName.SObjectTypeFieldSets)
-  lazy val sObjectFieldType: TypeDeclaration = loadType(TypeName.SObjectField)
-  lazy val typeType: TypeDeclaration = loadType(TypeName.TypeType)
-  lazy val stringType: TypeDeclaration = loadType(TypeName.String)
-  lazy val idType: TypeDeclaration = loadType(TypeName.Id)
-  lazy val integerType: TypeDeclaration = loadType(TypeName.Integer)
-  lazy val longType: TypeDeclaration = loadType(TypeName.Long)
-  lazy val doubleType: TypeDeclaration = loadType(TypeName.Double)
-  lazy val booleanType: TypeDeclaration = loadType(TypeName.Boolean)
-  lazy val decimalType: TypeDeclaration = loadType(TypeName.Decimal)
-  lazy val dateType: TypeDeclaration = loadType(TypeName.Date)
-  lazy val datetimeType: TypeDeclaration = loadType(TypeName.Datetime)
-  lazy val timeType: TypeDeclaration = loadType(TypeName.Time)
-  lazy val blobType: TypeDeclaration = loadType(TypeName.Blob)
-  lazy val locationType: TypeDeclaration = loadType(TypeName.Location)
-  lazy val componentType: TypeDeclaration = loadType(TypeName.ApexPagesComponent)
-  lazy val interviewType: TypeDeclaration = loadType(TypeName.Interview)
-  lazy val apexComponent: TypeDeclaration = loadType(TypeName.ApexComponent)
-  lazy val chatterComponent: TypeDeclaration = loadType(TypeName.ChatterComponent)
+  lazy val nullType: TypeDeclaration = loadType(TypeNames.Null)
+  lazy val recordSetType: TypeDeclaration = loadType(TypeNames.RecordSet)
+  lazy val objectType: TypeDeclaration = loadType(TypeNames.InternalObject)
+  lazy val sObjectType: TypeDeclaration = loadType(TypeNames.SObject)
+  lazy val sObjectTypeType: TypeDeclaration = loadType(TypeNames.SObjectType)
+  lazy val sObjectTypeFieldSets: TypeDeclaration = loadType(TypeNames.SObjectTypeFieldSets)
+  lazy val sObjectFieldType: TypeDeclaration = loadType(TypeNames.SObjectField)
+  lazy val typeType: TypeDeclaration = loadType(TypeNames.TypeType)
+  lazy val stringType: TypeDeclaration = loadType(TypeNames.String)
+  lazy val idType: TypeDeclaration = loadType(TypeNames.Id)
+  lazy val integerType: TypeDeclaration = loadType(TypeNames.Integer)
+  lazy val longType: TypeDeclaration = loadType(TypeNames.Long)
+  lazy val doubleType: TypeDeclaration = loadType(TypeNames.Double)
+  lazy val booleanType: TypeDeclaration = loadType(TypeNames.Boolean)
+  lazy val decimalType: TypeDeclaration = loadType(TypeNames.Decimal)
+  lazy val dateType: TypeDeclaration = loadType(TypeNames.Date)
+  lazy val datetimeType: TypeDeclaration = loadType(TypeNames.Datetime)
+  lazy val timeType: TypeDeclaration = loadType(TypeNames.Time)
+  lazy val blobType: TypeDeclaration = loadType(TypeNames.Blob)
+  lazy val locationType: TypeDeclaration = loadType(TypeNames.Location)
+  lazy val componentType: TypeDeclaration = loadType(TypeNames.ApexPagesComponent)
+  lazy val interviewType: TypeDeclaration = loadType(TypeNames.Interview)
+  lazy val apexComponent: TypeDeclaration = loadType(TypeNames.ApexComponent)
+  lazy val chatterComponent: TypeDeclaration = loadType(TypeNames.ChatterComponent)
 
   private def loadType(typeName: TypeName): TypeDeclaration = {
     PlatformTypeDeclaration.get(typeName, None).right.get
@@ -106,14 +107,14 @@ object PlatformTypes {
     }
 
     if (!excludeSObjects) {
-      val schemaResult = findOuterOrNestedPlatformType(alias.wrap(TypeName.Schema))
+      val schemaResult = findOuterOrNestedPlatformType(alias.wrap(TypeNames.Schema))
       if (schemaResult.isRight) {
         fireLoadingEvents(schemaResult.right.get)
         return schemaResult
       }
     }
 
-    val systemResult = findOuterOrNestedPlatformType(alias.wrap(TypeName.System))
+    val systemResult = findOuterOrNestedPlatformType(alias.wrap(TypeNames.System))
     if (systemResult.isRight) {
       fireLoadingEvents(systemResult.right.get)
       return systemResult
@@ -129,8 +130,8 @@ object PlatformTypes {
   }
 
   private val typeAliasMap: Map[TypeName, TypeName] = Map(
-    TypeName.Object -> TypeName.InternalObject,
-    TypeName.ApexPagesPageReference -> TypeName.PageReference
+    TypeNames.Object -> TypeNames.InternalObject,
+    TypeNames.ApexPagesPageReference -> TypeNames.PageReference
   )
 }
 

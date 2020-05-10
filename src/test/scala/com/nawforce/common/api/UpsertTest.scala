@@ -27,7 +27,6 @@
 */
 package com.nawforce.common.api
 
-import com.nawforce.common.names.TypeName
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper

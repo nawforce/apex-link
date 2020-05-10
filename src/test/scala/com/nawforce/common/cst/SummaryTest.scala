@@ -28,7 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.api._
-import com.nawforce.common.names.{DotName, TypeName}
+import com.nawforce.common.names.{DotName, TypeNames}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types.apex.{FullDeclaration, TriggerDeclaration}
@@ -116,11 +116,11 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
         "Dummy", dummyTypeName, "enum", List("public"),
         None, Nil, Nil, Nil, Nil,
         List(
-          MethodSummary(idLocation, "equals", List("public"), TypeName.Boolean, List(ParameterSummary("other", TypeName.InternalObject)),Set()),
-          MethodSummary(idLocation, "hashCode", List("public"), TypeName.Integer, List(),Set()),
-          MethodSummary(idLocation, "name", List("public"), TypeName.String, List(),Set()),
-          MethodSummary(idLocation, "ordinal", List("public"), TypeName.Integer, List(),Set()),
-          MethodSummary(idLocation, "values", List("public", "static"),TypeName.listOf(dummyTypeName),List(),Set())),
+          MethodSummary(idLocation, "equals", List("public"), TypeNames.Boolean, List(ParameterSummary("other", TypeNames.InternalObject)),Set()),
+          MethodSummary(idLocation, "hashCode", List("public"), TypeNames.Integer, List(),Set()),
+          MethodSummary(idLocation, "name", List("public"), TypeNames.String, List(),Set()),
+          MethodSummary(idLocation, "ordinal", List("public"), TypeNames.Integer, List(),Set()),
+          MethodSummary(idLocation, "values", List("public", "static"),TypeNames.listOf(dummyTypeName),List(),Set())),
         Nil, Set()
       )
     )
@@ -195,7 +195,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
           ConstructorSummary(Some(new RangeLocation(new Position(1,46), new Position(1,51))),
             List("private"), Nil, Set()),
           ConstructorSummary(Some(new RangeLocation(new Position(1,27), new Position(1,32))),
-            List("public"), List(ParameterSummary("a", TypeName.String)), Set())
+            List("public"), List(ParameterSummary("a", TypeNames.String)), Set())
         ),
         Nil, Nil, Set()
       )
@@ -208,9 +208,9 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
         "Dummy", dummyTypeName, "class", List("public"), Some(objectTypeName), Nil, Nil, Nil, Nil,
         List(
           MethodSummary(Some(new RangeLocation(new Position(1,56), new Position(1,59))),
-            "bar", List(), TypeName.Void, Nil, Set()),
+            "bar", List(), TypeNames.Void, Nil, Set()),
           MethodSummary(Some(new RangeLocation(new Position(1,34), new Position(1,37))),
-            "foo", List("public"), TypeName.String, List(ParameterSummary("a", TypeName.String)), Set()),
+            "foo", List("public"), TypeNames.String, List(ParameterSummary("a", TypeNames.String)), Set()),
         ),
         Nil, Set()
       )
@@ -223,9 +223,9 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
         "Dummy", dummyTypeName, "interface", List("public"),None, Nil, Nil, Nil, Nil,
         List(
           MethodSummary(Some(new RangeLocation(new Position(1,58), new Position(1,61))),
-            "bar", List(), TypeName.Void, Nil, Set()),
+            "bar", List(), TypeNames.Void, Nil, Set()),
           MethodSummary(Some(new RangeLocation(new Position(1,38), new Position(1,41))),
-            "foo", List("public"), TypeName.String, List(ParameterSummary("a", TypeName.String)), Set())
+            "foo", List("public"), TypeNames.String, List(ParameterSummary("a", TypeNames.String)), Set())
         ),
         Nil, Set()
       )
@@ -247,11 +247,11 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
         ),
         Nil,
         List(
-          MethodSummary(idLocation, "equals", List("public"), TypeName.Boolean, List(ParameterSummary("other", TypeName.InternalObject)),Set()),
-          MethodSummary(idLocation, "hashCode", List("public"), TypeName.Integer, List(),Set()),
-          MethodSummary(idLocation, "name", List("public"), TypeName.String, List(),Set()),
-          MethodSummary(idLocation, "ordinal", List("public"), TypeName.Integer, List(),Set()),
-          MethodSummary(idLocation, "values", List("public", "static"),TypeName.listOf(dummyTypeName),List(),Set())),
+          MethodSummary(idLocation, "equals", List("public"), TypeNames.Boolean, List(ParameterSummary("other", TypeNames.InternalObject)),Set()),
+          MethodSummary(idLocation, "hashCode", List("public"), TypeNames.Integer, List(),Set()),
+          MethodSummary(idLocation, "name", List("public"), TypeNames.String, List(),Set()),
+          MethodSummary(idLocation, "ordinal", List("public"), TypeNames.Integer, List(),Set()),
+          MethodSummary(idLocation, "values", List("public", "static"),TypeNames.listOf(dummyTypeName),List(),Set())),
         Nil, Set()
       )
     )

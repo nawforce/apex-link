@@ -27,9 +27,9 @@
 */
 package com.nawforce.common.finding
 
+import com.nawforce.common.api.TypeName
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, MISSING_CATEGORY}
 import com.nawforce.common.documents.LocationImpl
-import com.nawforce.common.names.TypeName
 
 /** Collection of error types returned from type requests */
 sealed abstract class TypeError(val typeName: TypeName) {

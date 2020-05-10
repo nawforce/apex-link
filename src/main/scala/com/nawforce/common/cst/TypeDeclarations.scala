@@ -27,8 +27,8 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.Name
-import com.nawforce.common.names.TypeName
+import com.nawforce.common.api.{Name, TypeName}
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types.apex.{ApexVisibleMethodLike, FullDeclaration}
 import com.nawforce.common.types.core._
@@ -85,7 +85,7 @@ object ClassDeclaration {
     val extendType =
       CodeParser.toScala(classDeclaration.typeRef())
         .map(tr => TypeReference.construct(tr))
-        .getOrElse(TypeName.InternalObject)
+        .getOrElse(TypeNames.InternalObject)
     val implementsType =
       CodeParser.toScala(classDeclaration.typeList())
         .map(tl => TypeList.construct(tl))
@@ -156,12 +156,12 @@ final case class EnumDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeN
 
   override lazy val localMethods: Seq[ApexVisibleMethodLike] =
     Seq(
-      CustomMethodDeclaration(Some(id.location), Name("name"), TypeName.String, Seq()),
-      CustomMethodDeclaration(Some(id.location),Name("ordinal"), TypeName.Integer, Seq()),
-      CustomMethodDeclaration(Some(id.location),Name("values"), TypeName.listOf(typeName), Seq(), asStatic = true),
-      CustomMethodDeclaration(Some(id.location),Name("equals"), TypeName.Boolean, Seq(
-        CustomParameterDeclaration(Name("other"), TypeName.InternalObject))),
-      CustomMethodDeclaration(Some(id.location),Name("hashCode"), TypeName.Integer, Seq())
+      CustomMethodDeclaration(Some(id.location), Name("name"), TypeNames.String, Seq()),
+      CustomMethodDeclaration(Some(id.location),Name("ordinal"), TypeNames.Integer, Seq()),
+      CustomMethodDeclaration(Some(id.location),Name("values"), TypeNames.listOf(typeName), Seq(), asStatic = true),
+      CustomMethodDeclaration(Some(id.location),Name("equals"), TypeNames.Boolean, Seq(
+        CustomParameterDeclaration(Name("other"), TypeNames.InternalObject))),
+      CustomMethodDeclaration(Some(id.location),Name("hashCode"), TypeNames.Integer, Seq())
     )
 }
 

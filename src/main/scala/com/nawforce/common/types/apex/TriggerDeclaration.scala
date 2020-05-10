@@ -27,10 +27,10 @@
 */
 package com.nawforce.common.types.apex
 
-import com.nawforce.common.api.{Name, RangeLocation, ServerOps, TypeSummary}
+import com.nawforce.common.api._
 import com.nawforce.common.cst._
 import com.nawforce.common.documents.{LineLocationImpl, LocationImpl}
-import com.nawforce.common.names.{Names, TypeName}
+import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
@@ -75,7 +75,7 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
   override val methods: Seq[ApexMethodDeclaration]= Seq.empty
 
   private var depends: Option[mutable.Set[Dependent]] = None
-  private val objectTypeName = TypeName(objectNameId.name, Nil, Some(TypeName.Schema))
+  private val objectTypeName = TypeName(objectNameId.name, Nil, Some(TypeNames.Schema))
 
   override def validate(withPropagation: Boolean): Unit = {
     ServerOps.debugTime(s"Validated $path") {
@@ -93,7 +93,7 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
           if (!pkg.isGhostedType(objectTypeName))
             OrgImpl.log(error.asIssue(objectNameId.location))
         case Right(_) =>
-          val triggerContext = context.getTypeFor(TypeName.trigger(objectTypeName), Some(this)).right.get
+          val triggerContext = context.getTypeFor(TypeNames.trigger(objectTypeName), Some(this)).right.get
           val tc = TriggerContext(pkg, triggerContext)
           pkg.upsertMetadata(tc)
 

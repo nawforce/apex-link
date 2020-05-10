@@ -27,10 +27,10 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.finding.RelativeTypeName
-import com.nawforce.common.names.TypeName
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.apex.{ApexBlockLike, ApexConstructorLike, ApexFieldLike, ApexMethodLike}
 import com.nawforce.common.types.core._
@@ -170,7 +170,7 @@ final case class ApexMethodDeclaration(outerTypeId: TypeId, _modifiers: Modifier
 object ApexMethodDeclaration {
   def construct(parser: CodeParser, pkg: PackageImpl, outerTypeId: TypeId, modifiers: ModifierResults,
                 from: MethodDeclarationContext): ApexMethodDeclaration = {
-    val typeName = CodeParser.toScala(from.typeRef()).map(tr => TypeReference.construct(tr)).getOrElse(TypeName.Void)
+    val typeName = CodeParser.toScala(from.typeRef()).map(tr => TypeReference.construct(tr)).getOrElse(TypeNames.Void)
     val block = CodeParser.toScala(from.block())
       .map(b => Block.constructLazy(parser, b))
 
@@ -184,7 +184,7 @@ object ApexMethodDeclaration {
 
   def construct(parser: CodeParser, pkg: PackageImpl, outerTypeId: TypeId, modifiers: ModifierResults,
                 from: InterfaceMethodDeclarationContext): ApexMethodDeclaration = {
-    val typeName = CodeParser.toScala(from.typeRef()).map(tr => TypeReference.construct(tr)).getOrElse(TypeName.Void)
+    val typeName = CodeParser.toScala(from.typeRef()).map(tr => TypeReference.construct(tr)).getOrElse(TypeNames.Void)
     ApexMethodDeclaration(outerTypeId,
       modifiers, RelativeTypeName(pkg, outerTypeId.typeName, typeName),
       Id.construct(from.id()),

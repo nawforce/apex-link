@@ -27,11 +27,11 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.finding.{TypeError, TypeRequest}
-import com.nawforce.common.names.{EncodedName, TypeName}
+import com.nawforce.common.names.EncodedName
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{BlockDeclaration, Dependent, TypeDeclaration}

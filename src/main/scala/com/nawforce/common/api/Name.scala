@@ -34,6 +34,7 @@ import upickle.default.{macroRW, ReadWriter => RW}
   * The value of the Name is stored as is but equality and hashing is performed against a normalised lower case
   * value.
   */
+@upickle.implicits.key("Name")
 case class Name(value: String) {
   private lazy val normalised = value.toLowerCase
 

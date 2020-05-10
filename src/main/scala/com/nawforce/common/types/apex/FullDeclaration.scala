@@ -32,7 +32,7 @@ import java.nio.charset.StandardCharsets
 import com.nawforce.common.api._
 import com.nawforce.common.cst._
 import com.nawforce.common.documents._
-import com.nawforce.common.names.TypeName
+import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
@@ -166,7 +166,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
       case ad: ApexClassDeclaration =>
         dependsOn.add(ad.outerTypeId)
       case _: Label =>
-        dependsOn.add(TypeId(pkg, TypeName.Label))
+        dependsOn.add(TypeId(pkg, TypeNames.Label))
       case _ => ()
     }
   }

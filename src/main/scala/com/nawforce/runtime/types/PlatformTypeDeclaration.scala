@@ -31,11 +31,11 @@ package com.nawforce.runtime.types
 import java.nio.file.{FileSystemNotFoundException, FileSystems, Files, Paths}
 import java.util
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.{Modifier, PUBLIC_MODIFIER}
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
-import com.nawforce.common.names.{DotName, Names, TypeName}
+import com.nawforce.common.names.{DotName, Names, TypeNames, _}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
@@ -140,8 +140,8 @@ case class PlatformTypeDeclaration(native: Any, outer: Option[PlatformTypeDeclar
       if (isIdLike && staticContext.contains(true)) {
         val relationshipField = super.findFieldSObject(Name(f.name.value.dropRight(2)), staticContext)
         relationshipField match {
-          case Some(CustomFieldDeclaration(_, TypeName(Names.SObjectFields$, Seq(sObject), Some(TypeName.Internal)), _, _)) =>
-            CustomFieldDeclaration(f.name, TypeName.sObjectFields$(sObject), None, asStatic = true)
+          case Some(CustomFieldDeclaration(_, TypeName(Names.SObjectFields$, Seq(sObject), Some(TypeNames.Internal)), _, _)) =>
+            CustomFieldDeclaration(f.name, TypeNames.sObjectFields$(sObject), None, asStatic = true)
           case _ => f
         }
       } else {
@@ -364,9 +364,9 @@ object PlatformTypeDeclaration {
     val cname = if (cls.isArray) cls.getComponentType.getCanonicalName else cls.getCanonicalName
     val typeName =
       if (cname == "java.lang.Object") {
-        TypeName.InternalObject
+        TypeNames.InternalObject
       } else if (cname == "void") {
-        TypeName.Void
+        TypeNames.Void
       } else if (cname.startsWith(platformPackage+".SObjects")) {
         val names = cname.drop(platformPackage.length + 10).split('.').map(n => Name(n)).reverse
         val params = cls.getTypeParameters.map(tp => Name(tp.getName))
@@ -378,7 +378,7 @@ object PlatformTypeDeclaration {
         TypeName(names).withParams(params.toSeq.map(TypeName(_)))
       }
     if (cls.isArray)
-      TypeName.listOf(typeName)
+      TypeNames.listOf(typeName)
     else
       typeName
   }
@@ -386,12 +386,12 @@ object PlatformTypeDeclaration {
   /* Standard methods to be exposed on enums */
   private lazy val enumMethods: Seq[MethodDeclaration] =
     Seq(
-      CustomMethodDeclaration(None, Name("name"), TypeName.String, Seq()),
-      CustomMethodDeclaration(None, Name("original"), TypeName.Integer, Seq()),
-      CustomMethodDeclaration(None, Name("values"), TypeName.listOf(TypeName.String), Seq(), asStatic = true),
-      CustomMethodDeclaration(None, Name("equals"), TypeName.Boolean,
-        Seq(CustomParameterDeclaration(Name("other"), TypeName.InternalObject))),
-      CustomMethodDeclaration(None, Name("hashCode"), TypeName.Integer, Seq())
+      CustomMethodDeclaration(None, Name("name"), TypeNames.String, Seq()),
+      CustomMethodDeclaration(None, Name("original"), TypeNames.Integer, Seq()),
+      CustomMethodDeclaration(None, Name("values"), TypeNames.listOf(TypeNames.String), Seq(), asStatic = true),
+      CustomMethodDeclaration(None, Name("equals"), TypeNames.Boolean,
+        Seq(CustomParameterDeclaration(Name("other"), TypeNames.InternalObject))),
+      CustomMethodDeclaration(None, Name("hashCode"), TypeNames.Integer, Seq())
     )
 }
 

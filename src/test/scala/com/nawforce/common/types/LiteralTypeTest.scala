@@ -28,9 +28,9 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.ParserHelper
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.{CST, Literal}
-import com.nawforce.common.names.{Names, TypeName}
+import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types.core.{DependencyHolder, TypeDeclaration}
 import com.nawforce.runtime.parsers.{Source, SourcePosition}
@@ -61,23 +61,23 @@ class LiteralTypeTest extends AnyFunSuite
     compareLiteral(value, r)
 
   test("Primary literal") {
-    literal("0", TypeName.Integer)
-    literal("1", TypeName.Integer)
-    literal("0l", TypeName.Long)
-    literal("1l", TypeName.Long)
-    literal("0L", TypeName.Long)
-    literal("1L", TypeName.Long)
-    literal("''", TypeName.String)
-    literal("'a'", TypeName.String)
-    literal("'az'", TypeName.String)
-    literal("'\t'", TypeName.String)
-    literal("true", TypeName.Boolean)
-    literal("False", TypeName.Boolean)
+    literal("0", TypeNames.Integer)
+    literal("1", TypeNames.Integer)
+    literal("0l", TypeNames.Long)
+    literal("1l", TypeNames.Long)
+    literal("0L", TypeNames.Long)
+    literal("1L", TypeNames.Long)
+    literal("''", TypeNames.String)
+    literal("'a'", TypeNames.String)
+    literal("'az'", TypeNames.String)
+    literal("'\t'", TypeNames.String)
+    literal("true", TypeNames.Boolean)
+    literal("False", TypeNames.Boolean)
     literal("null", TypeName(Name("Null$"), Nil, Some(TypeName(Names.Internal))))
-    literal("0.0", TypeName.Decimal)
-    literal(".0", TypeName.Decimal)
-    literal("0.123", TypeName.Decimal)
-    literal("0.123456789012345678901234567890123456789012345678", TypeName.Decimal)
-    literal("0.1234567890123456789012345678901234567890123456789", TypeName.Double)
+    literal("0.0", TypeNames.Decimal)
+    literal(".0", TypeNames.Decimal)
+    literal("0.123", TypeNames.Decimal)
+    literal("0.123456789012345678901234567890123456789012345678", TypeNames.Decimal)
+    literal("0.1234567890123456789012345678901234567890123456789", TypeNames.Double)
   }
 }

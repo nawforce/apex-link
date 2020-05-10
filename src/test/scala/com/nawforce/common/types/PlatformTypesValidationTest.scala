@@ -27,9 +27,9 @@
 */
 package com.nawforce.common.types
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.{PUBLIC_MODIFIER, VIRTUAL_MODIFIER}
-import com.nawforce.common.names.{DotName, TypeName}
+import com.nawforce.common.names.{DotName, TypeNames}
 import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, TRIGGER_NATURE}
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.runtime.types.PlatformTypeDeclaration
@@ -60,7 +60,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
   test("SObject type is visible") {
     val td = PlatformTypes.get(TypeName(Name("User")), None)
     assert(td.isRight)
-    assert(td.right.get.typeName == TypeName(Name("User"), Nil, Some(TypeName.Schema)))
+    assert(td.right.get.typeName == TypeName(Name("User"), Nil, Some(TypeNames.Schema)))
   }
 
   test("All outer types are valid") {

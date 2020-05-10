@@ -27,7 +27,8 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.names.{EncodedName, TypeName}
+import com.nawforce.common.api.TypeName
+import com.nawforce.common.names.{EncodedName, TypeNames, _}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
@@ -59,7 +60,7 @@ final case class IdCreatedNamePair(id: Id, types: Seq[TypeName]) extends CST {
   val typeName: TypeName = {
     val encName = EncodedName(id.name)
     if (encName.ext.nonEmpty)
-      TypeName(encName.fullName, types, Some(TypeName.Schema))
+      TypeName(encName.fullName, types, Some(TypeNames.Schema))
     else
       TypeName(encName.fullName, types, None)
   }

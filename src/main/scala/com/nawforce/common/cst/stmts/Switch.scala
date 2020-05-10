@@ -28,8 +28,9 @@
 
 package com.nawforce.common.cst.stmts
 
+import com.nawforce.common.api.TypeName
 import com.nawforce.common.cst._
-import com.nawforce.common.names.TypeName
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.types.core.{ENUM_NATURE, TypeDeclaration}
 import com.nawforce.runtime.parsers.ApexParser.{SwitchStatementContext, WhenControlContext, WhenLiteralContext, WhenValueContext}
@@ -93,9 +94,9 @@ final case class WhenLiteralsValue(literals: Seq[WhenLiteral]) extends WhenValue
 
     val nonNull = literals.filterNot(_.isInstanceOf[WhenNullLiteral])
     typeName match {
-      case TypeName.Integer | TypeName.Long =>
+      case TypeNames.Integer | TypeNames.Long =>
         processErrors(nonNull.filter(!_.isInstanceOf[WhenIntegerLiteral]), nonNull, typeName)
-      case TypeName.String =>
+      case TypeNames.String =>
         processErrors(nonNull.filter(!_.isInstanceOf[WhenStringLiteral]), nonNull, typeName)
       case _ => assert(false); Seq()
     }
@@ -185,9 +186,9 @@ final case class SwitchStatement(expression: Expression, whenControls: List[When
     val result = expression.verify(context)
     if (result.isDefined) {
       val values = result.typeName match {
-        case TypeName.Integer | TypeName.Long | TypeName.String =>
+        case TypeNames.Integer | TypeNames.Long | TypeNames.String =>
           checkMatchableTo(result.typeName)
-        case TypeName.SObject =>
+        case TypeNames.SObject =>
           checkIsSObject(context)
         case _ if result.typeDeclaration.nature == ENUM_NATURE =>
           checkEnumValue(result.typeDeclaration)

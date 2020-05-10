@@ -27,9 +27,8 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.documents.RangeLocationImpl
-import com.nawforce.common.names.TypeName
 import com.nawforce.common.types.apex.ApexFieldLike
 import com.nawforce.common.types.core.TypeId
 import com.nawforce.runtime.parsers.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}

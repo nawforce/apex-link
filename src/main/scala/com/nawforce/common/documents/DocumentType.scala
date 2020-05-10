@@ -27,8 +27,8 @@
 */
 package com.nawforce.common.documents
 
-import com.nawforce.common.api.Name
-import com.nawforce.common.names.TypeName
+import com.nawforce.common.api.{Name, TypeName}
+import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.apex.TriggerDeclaration
 
@@ -50,7 +50,7 @@ abstract class MetadataDocumentType(_path: PathLike, _name: Name)
 
 final case class LabelsDocument(_path: PathLike, _name: Name) extends MetadataDocumentType(_path, _name) {
   override val extension: Name = DocumentType.labelsExt
-  override def typeName(namespace: Option[Name]): TypeName = TypeName.Label
+  override def typeName(namespace: Option[Name]): TypeName = TypeNames.Label
 }
 
 abstract class ApexDocument(_path: PathLike, _name: Name) extends MetadataDocumentType(_path, _name)
@@ -78,8 +78,8 @@ final case class ComponentDocument(_path: PathLike, _name: Name)
   override val extension: Name = DocumentType.componentExt
   override def typeName(namespace: Option[Name]): TypeName = {
     namespace
-      .map(ns => TypeName(name, Nil, Some(TypeName(ns, Nil, Some(TypeName.Component)))))
-      .getOrElse(TypeName(name, Nil, Some(TypeName.Component)))
+      .map(ns => TypeName(name, Nil, Some(TypeName(ns, Nil, Some(TypeNames.Component)))))
+      .getOrElse(TypeName(name, Nil, Some(TypeNames.Component)))
   }
 }
 
@@ -91,7 +91,7 @@ final case class SObjectDocument(_path: PathLike, _name: Name)
   override val ignorable: Boolean = path.size == 0
   override def typeName(namespace: Option[Name]): TypeName = {
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix+name+"__c"), Nil, Some(TypeName.Schema))
+    TypeName(Name(prefix+name+"__c"), Nil, Some(TypeNames.Schema))
   }
 }
 
@@ -101,7 +101,7 @@ final case class SObjectFieldDocument(_path: PathLike, _name: Name)
   override def typeName(namespace: Option[Name]): TypeName = {
     val sobjectName = path.parent.parent.basename
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix+sobjectName+"__c"), Nil, Some(TypeName.Schema))
+    TypeName(Name(prefix+sobjectName+"__c"), Nil, Some(TypeNames.Schema))
   }
 }
 
@@ -111,7 +111,7 @@ final case class SObjectFieldSetDocument(_path: PathLike, _name: Name)
   override def typeName(namespace: Option[Name]): TypeName = {
     val sobjectName = path.parent.parent.basename
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix+sobjectName+"__c"), Nil, Some(TypeName.Schema))
+    TypeName(Name(prefix+sobjectName+"__c"), Nil, Some(TypeNames.Schema))
   }
 }
 
@@ -120,7 +120,7 @@ final case class CustomMetadataDocument(_path: PathLike, _name: Name)
   override val extension: Name = DocumentType.objectExt
   override def typeName(namespace: Option[Name]): TypeName = {
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix+name+"__mdt"), Nil, Some(TypeName.Schema))
+    TypeName(Name(prefix+name+"__mdt"), Nil, Some(TypeNames.Schema))
   }
 }
 
@@ -129,7 +129,7 @@ final case class PlatformEventDocument(_path: PathLike, _name: Name)
   override val extension: Name = DocumentType.objectExt
   override def typeName(namespace: Option[Name]): TypeName = {
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix+name+"__e"), Nil, Some(TypeName.Schema))
+    TypeName(Name(prefix+name+"__e"), Nil, Some(TypeNames.Schema))
   }
 }
 
@@ -138,7 +138,7 @@ final case class PageDocument(_path: PathLike, _name: Name)
   override val extension: Name = DocumentType.pageExt
   override def typeName(namespace: Option[Name]): TypeName = {
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix+name), Nil, Some(TypeName.Page))
+    TypeName(Name(prefix+name), Nil, Some(TypeNames.Page))
   }
 }
 
@@ -147,8 +147,8 @@ final case class FlowDocument(_path: PathLike, _name: Name)
   override lazy val extension: Name = DocumentType.flowExt
   override def typeName(namespace: Option[Name]): TypeName = {
     namespace
-      .map(ns => TypeName(name, Nil, Some(TypeName(ns, Nil, Some(TypeName.Page)))))
-      .getOrElse(TypeName(name, Nil, Some(TypeName.Page)))
+      .map(ns => TypeName(name, Nil, Some(TypeName(ns, Nil, Some(TypeNames.Page)))))
+      .getOrElse(TypeName(name, Nil, Some(TypeNames.Page)))
   }
 }
 

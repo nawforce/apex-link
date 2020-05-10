@@ -27,9 +27,9 @@
 */
 package com.nawforce.common.types.schema
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.documents._
-import com.nawforce.common.names.{EncodedName, TypeName}
+import com.nawforce.common.names.{EncodedName, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.synthetic.CustomFieldDeclaration
@@ -66,7 +66,7 @@ object SObjectDetails {
   def parseSObject(path: PathLike, pkg: PackageImpl): Option[SObjectDetails] = {
     val dt = DocumentType(path)
     assert(dt.exists(_.isInstanceOf[SObjectLike]))
-    val typeName = TypeName(EncodedName(dt.get.name).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeName.Schema))
+    val typeName = TypeName(EncodedName(dt.get.name).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeNames.Schema))
 
     // TODO: Improve handling of ghosted SObject types
     if (!path.exists) {

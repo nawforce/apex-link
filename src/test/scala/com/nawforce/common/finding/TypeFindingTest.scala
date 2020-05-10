@@ -27,8 +27,8 @@
 */
 package com.nawforce.common.finding
 
-import com.nawforce.common.api.{Name, Org}
-import com.nawforce.common.names.{DotName, Names, TypeName}
+import com.nawforce.common.api.{Name, Org, TypeName}
+import com.nawforce.common.names.{DotName, Names, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.apex.FullDeclaration

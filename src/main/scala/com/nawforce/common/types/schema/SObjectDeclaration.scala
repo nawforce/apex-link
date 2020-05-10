@@ -27,11 +27,11 @@
 */
 package com.nawforce.common.types.schema
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, VerifyContext}
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
-import com.nawforce.common.names.{DotName, Names, TypeName}
+import com.nawforce.common.names.{DotName, Names, TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
@@ -47,16 +47,16 @@ final case class SObjectDeclaration(_paths: Seq[PathLike], pkg: PackageImpl, _ty
 
   override val modifiers: Seq[Modifier] = Seq(GLOBAL_MODIFIER)
 
-  override val superClass: Option[TypeName] = Some(TypeName.SObject)
+  override val superClass: Option[TypeName] = Some(TypeNames.SObject)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = {
-    pkg.getTypeFor(TypeName.SObject, this)
+    pkg.getTypeFor(TypeNames.SObject, this)
   }
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     super.findFieldSObject(name, staticContext).orElse({
       val field = pkg.schema().relatedLists.findField(typeName, name)
       if (field.nonEmpty && staticContext.contains(true)) {
-        Some(CustomFieldDeclaration(field.get.name, TypeName.sObjectFields$(typeName), None, asStatic = true))
+        Some(CustomFieldDeclaration(field.get.name, TypeNames.sObjectFields$(typeName), None, asStatic = true))
       } else {
         field
       }
@@ -88,10 +88,10 @@ final case class SObjectDeclaration(_paths: Seq[PathLike], pkg: PackageImpl, _ty
   }
 
   private lazy val cloneMethods: Map[(Name, Int, Boolean), MethodDeclaration] = {
-    val preserveId = CustomParameterDeclaration(Name("preserveId"), TypeName.Boolean)
-    val isDeepClone = CustomParameterDeclaration(Name("isDeepClone"), TypeName.Boolean)
-    val preserveReadOnlyTimestamps = CustomParameterDeclaration(Name("preserveReadOnlyTimestamps"), TypeName.Boolean)
-    val preserveAutonumber = CustomParameterDeclaration(Name("preserveAutonumber"), TypeName.Boolean)
+    val preserveId = CustomParameterDeclaration(Name("preserveId"), TypeNames.Boolean)
+    val isDeepClone = CustomParameterDeclaration(Name("isDeepClone"), TypeNames.Boolean)
+    val preserveReadOnlyTimestamps = CustomParameterDeclaration(Name("preserveReadOnlyTimestamps"), TypeNames.Boolean)
+    val preserveAutonumber = CustomParameterDeclaration(Name("preserveAutonumber"), TypeNames.Boolean)
     Seq(
       CustomMethodDeclaration(None, Name("clone"), typeName, Seq()),
       CustomMethodDeclaration(None, Name("clone"), typeName, Seq(preserveId)),
@@ -104,17 +104,17 @@ final case class SObjectDeclaration(_paths: Seq[PathLike], pkg: PackageImpl, _ty
   private lazy val hierarchyCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
     Seq(
       CustomMethodDeclaration(None, Name("getInstance"), typeName, Seq()),
-      CustomMethodDeclaration(None, Name("getInstance"), typeName, Seq(CustomParameterDeclaration(Name("Id"), TypeName.Id))),
+      CustomMethodDeclaration(None, Name("getInstance"), typeName, Seq(CustomParameterDeclaration(Name("Id"), TypeNames.Id))),
       CustomMethodDeclaration(None, Name("getOrgDefaults"), typeName, Seq()),
-      CustomMethodDeclaration(None, Name("getValues"), typeName, Seq(CustomParameterDeclaration(Name("Id"), TypeName.Id))),
+      CustomMethodDeclaration(None, Name("getValues"), typeName, Seq(CustomParameterDeclaration(Name("Id"), TypeNames.Id))),
     ).map(m => ((m.name, m.parameters.size),m)).toMap
 
   private lazy val listCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
     Seq(
-      CustomMethodDeclaration(None, Name("getAll"), TypeName.mapOf(TypeName.String, typeName), Seq()),
+      CustomMethodDeclaration(None, Name("getAll"), TypeNames.mapOf(TypeNames.String, typeName), Seq()),
       CustomMethodDeclaration(None, Name("getInstance"), typeName, Seq()),
-      CustomMethodDeclaration(None, Name("getInstance"), typeName, Seq(CustomParameterDeclaration(Name("Name"), TypeName.String))),
-      CustomMethodDeclaration(None, Name("getValues"), typeName, Seq(CustomParameterDeclaration(Name("Name"), TypeName.String))),
+      CustomMethodDeclaration(None, Name("getInstance"), typeName, Seq(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
+      CustomMethodDeclaration(None, Name("getValues"), typeName, Seq(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
     ).map(m => ((m.name, m.parameters.size),m)).toMap
 }
 
@@ -148,7 +148,7 @@ object SObjectDeclaration {
         createExisting(sobjectDetails.withTypeName(typeName.withName(Names.Event)), path, pkg)
     } else {
       val sobjectType = TypeRequest(typeName, pkg, excludeSObjects = false).toOption
-      if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeName.SObject)) {
+      if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeNames.SObject)) {
         OrgImpl.logError(LineLocationImpl(path.toString, 0), s"No SObject declaration found for '$typeName'")
         return Seq()
       }
@@ -190,25 +190,25 @@ object SObjectDeclaration {
 
   private lazy val standardCustomObjectFields: Seq[FieldDeclaration] = {
     Seq(
-      CustomFieldDeclaration(Names.NameName, TypeName.String, None),
-      CustomFieldDeclaration(Names.RecordTypeId, TypeName.Id, None),
-      CustomFieldDeclaration(Name("CreatedBy"), TypeName.User, None),
-      CustomFieldDeclaration(Name("CreatedById"), TypeName.Id, None),
-      CustomFieldDeclaration(Name("CreatedDate"), TypeName.Datetime, None),
-      CustomFieldDeclaration(Name("LastModifiedBy"), TypeName.User, None),
-      CustomFieldDeclaration(Name("LastModifiedById"), TypeName.Id, None),
-      CustomFieldDeclaration(Name("LastModifiedDate"), TypeName.Datetime, None),
-      CustomFieldDeclaration(Name("IsDeleted"), TypeName.Boolean, None),
-      CustomFieldDeclaration(Name("SystemModstamp"), TypeName.Datetime, None)
+      CustomFieldDeclaration(Names.NameName, TypeNames.String, None),
+      CustomFieldDeclaration(Names.RecordTypeId, TypeNames.Id, None),
+      CustomFieldDeclaration(Name("CreatedBy"), TypeNames.User, None),
+      CustomFieldDeclaration(Name("CreatedById"), TypeNames.Id, None),
+      CustomFieldDeclaration(Name("CreatedDate"), TypeNames.Datetime, None),
+      CustomFieldDeclaration(Name("LastModifiedBy"), TypeNames.User, None),
+      CustomFieldDeclaration(Name("LastModifiedById"), TypeNames.Id, None),
+      CustomFieldDeclaration(Name("LastModifiedDate"), TypeNames.Datetime, None),
+      CustomFieldDeclaration(Name("IsDeleted"), TypeNames.Boolean, None),
+      CustomFieldDeclaration(Name("SystemModstamp"), TypeNames.Datetime, None)
     ) ++
     PlatformTypes.sObjectType.fields.filterNot(f => f.name == Names.SObjectType)
   }
 
   private def customObjectFields(sobjectDetails: SObjectDetails): Seq[FieldDeclaration] = {
     Seq(
-      CustomFieldDeclaration(Names.SObjectType, TypeName.sObjectType$(sobjectDetails.typeName), None, asStatic = true),
-      CustomFieldDeclaration(Names.Fields, TypeName.sObjectFields$(sobjectDetails.typeName), None, asStatic = true),
-      CustomFieldDeclaration(Names.Id, TypeName.Id, Some(sobjectDetails.typeName))
+      CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(sobjectDetails.typeName), None, asStatic = true),
+      CustomFieldDeclaration(Names.Fields, TypeNames.sObjectFields$(sobjectDetails.typeName), None, asStatic = true),
+      CustomFieldDeclaration(Names.Id, TypeNames.Id, Some(sobjectDetails.typeName))
     ) ++
       standardCustomObjectFields ++
       sobjectDetails.fields ++
@@ -221,32 +221,32 @@ object SObjectDeclaration {
 
   private lazy val standardCustomMetadataFields: Seq[FieldDeclaration] = {
     Seq(
-      CustomFieldDeclaration(Names.DeveloperName, TypeName.String, None),
-      CustomFieldDeclaration(Names.IsProtected, TypeName.Boolean, None),
-      CustomFieldDeclaration(Names.Label, TypeName.String, None),
-      CustomFieldDeclaration(Names.Language, TypeName.String, None),
-      CustomFieldDeclaration(Names.MasterLabel, TypeName.String, None),
-      CustomFieldDeclaration(Names.NamespacePrefix, TypeName.String, None),
-      CustomFieldDeclaration(Names.QualifiedAPIName, TypeName.String, None))
+      CustomFieldDeclaration(Names.DeveloperName, TypeNames.String, None),
+      CustomFieldDeclaration(Names.IsProtected, TypeNames.Boolean, None),
+      CustomFieldDeclaration(Names.Label, TypeNames.String, None),
+      CustomFieldDeclaration(Names.Language, TypeNames.String, None),
+      CustomFieldDeclaration(Names.MasterLabel, TypeNames.String, None),
+      CustomFieldDeclaration(Names.NamespacePrefix, TypeNames.String, None),
+      CustomFieldDeclaration(Names.QualifiedAPIName, TypeNames.String, None))
   }
 
   private def customMetadataFields(sobjectDetails: SObjectDetails): Seq[FieldDeclaration] = {
     Seq(
-      CustomFieldDeclaration(Names.Id, TypeName.Id, Some(sobjectDetails.typeName)),
-      CustomFieldDeclaration(Names.SObjectType, TypeName.sObjectType$(sobjectDetails.typeName), None, asStatic = true)
+      CustomFieldDeclaration(Names.Id, TypeNames.Id, Some(sobjectDetails.typeName)),
+      CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(sobjectDetails.typeName), None, asStatic = true)
     ) ++
       standardCustomMetadataFields ++
       sobjectDetails.fields
   }
 
   private lazy val standardPlatformEventFields: Seq[FieldDeclaration] = {
-    Seq(CustomFieldDeclaration(Names.ReplayId, TypeName.String, None))
+    Seq(CustomFieldDeclaration(Names.ReplayId, TypeNames.String, None))
   }
 
   private def platformEventFields(sobjectDetails: SObjectDetails): Seq[FieldDeclaration] = {
     standardPlatformEventFields ++
       sobjectDetails.fields :+
-      CustomFieldDeclaration(Names.SObjectType, TypeName.sObjectType$(sobjectDetails.typeName), None, asStatic = true)
+      CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(sobjectDetails.typeName), None, asStatic = true)
   }
 
   private def extendExisting(sobjectDetails: SObjectDetails, pkg: PackageImpl, base: Option[TypeDeclaration]): TypeDeclaration = {

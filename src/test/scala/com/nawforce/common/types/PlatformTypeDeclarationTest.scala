@@ -27,10 +27,10 @@
 */
 package com.nawforce.common.types
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.{PUBLIC_MODIFIER, STATIC_MODIFIER, VIRTUAL_MODIFIER}
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
-import com.nawforce.common.names.{Names, TypeName}
+import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE}
 import com.nawforce.runtime.types.PlatformTypeDeclaration
 import org.scalatest.funsuite.AnyFunSuite
@@ -46,7 +46,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Scoped class") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("String"), Nil, Some(TypeName.System)), None).toOption
+    val td = PlatformTypeDeclaration.get(TypeName(Name("String"), Nil, Some(TypeNames.System)), None).toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "String")
     assert(td.get.typeName.toString == "System.String")
@@ -59,15 +59,15 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Case insensitive class name") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("StrIng"), Nil, Some(TypeName.System)), None).toOption
+    val td = PlatformTypeDeclaration.get(TypeName(Name("StrIng"), Nil, Some(TypeNames.System)), None).toOption
     assert(td.nonEmpty)
-    assert(td.get eq PlatformTypeDeclaration.get(TypeName.String, None).toOption.get)
+    assert(td.get eq PlatformTypeDeclaration.get(TypeNames.String, None).toOption.get)
   }
 
   test("Case insensitive namespace") {
     val td = PlatformTypeDeclaration.get(TypeName(Name("String"), Nil, Some(TypeName(Name("SyStem")))), None).toOption
     assert(td.nonEmpty)
-    assert(td.get eq PlatformTypeDeclaration.get(TypeName.String, None).toOption.get)
+    assert(td.get eq PlatformTypeDeclaration.get(TypeNames.String, None).toOption.get)
   }
 
   test("Extending class") {
@@ -84,7 +84,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Interface nature") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("Callable"), Nil, Some(TypeName.System)), None).toOption
+    val td = PlatformTypeDeclaration.get(TypeName(Name("Callable"), Nil, Some(TypeNames.System)), None).toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "Callable")
     assert(td.get.typeName.toString == "System.Callable")
@@ -97,7 +97,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Enum nature") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("RoundingMode"), Nil, Some(TypeName.System)), None).toOption
+    val td = PlatformTypeDeclaration.get(TypeName(Name("RoundingMode"), Nil, Some(TypeNames.System)), None).toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "RoundingMode")
     assert(td.get.typeName.toString == "System.RoundingMode")
@@ -128,7 +128,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Field access") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("Address"), Nil, Some(TypeName.System)), None).toOption
+    val td = PlatformTypeDeclaration.get(TypeName(Name("Address"), Nil, Some(TypeNames.System)), None).toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "Address")
     assert(td.get.typeName.toString == "System.Address")
@@ -148,7 +148,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Constructor access") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("DmlException"), Nil, Some(TypeName.System)), None).toOption
+    val td = PlatformTypeDeclaration.get(TypeName(Name("DmlException"), Nil, Some(TypeNames.System)), None).toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "DmlException")
     assert(td.get.typeName.toString == "System.DmlException")
@@ -169,7 +169,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Method access") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("Address"), Nil, Some(TypeName.System)), None).toOption
+    val td = PlatformTypeDeclaration.get(TypeName(Name("Address"), Nil, Some(TypeNames.System)), None).toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "Address")
     assert(td.get.typeName.toString == "System.Address")
@@ -212,7 +212,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Generic class") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("List"), Seq(TypeName.String), Some(TypeName.System)), None).toOption
+    val td = PlatformTypeDeclaration.get(TypeName(Name("List"), Seq(TypeNames.String), Some(TypeNames.System)), None).toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "List")
     assert(td.get.typeName.toString == "System.List<System.String>")
@@ -252,8 +252,8 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Nested Generic class") {
-    val inner = TypeName(Name("List"), Seq(TypeName.String), Some(TypeName.System))
-    val td = PlatformTypeDeclaration.get(TypeName(Name("Iterable"), Seq(inner), Some(TypeName.System)), None).toOption
+    val inner = TypeName(Name("List"), Seq(TypeNames.String), Some(TypeNames.System))
+    val td = PlatformTypeDeclaration.get(TypeName(Name("Iterable"), Seq(inner), Some(TypeNames.System)), None).toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "Iterable")
     assert(td.get.typeName.toString == "System.Iterable<System.List<System.String>>")
@@ -270,7 +270,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Non-generic type") {
-    val typeName = TypeName(Name("String"), Seq(TypeName.Integer), Some(TypeName.System))
+    val typeName = TypeName(Name("String"), Seq(TypeNames.Integer), Some(TypeNames.System))
     val td = PlatformTypeDeclaration.get(typeName, None)
     td match {
       case Left(e: WrongTypeArguments) => assert(e.typeName == typeName)
@@ -279,7 +279,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Too many type params") {
-    val typeName = TypeName(Name("List"), Seq(TypeName(Names.String), TypeName(Names.String)), Some(TypeName.System))
+    val typeName = TypeName(Name("List"), Seq(TypeName(Names.String), TypeName(Names.String)), Some(TypeNames.System))
     val td = PlatformTypeDeclaration.get(typeName, None)
     td match {
       case Left(e: WrongTypeArguments) => assert(e.typeName == typeName)
@@ -288,7 +288,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Too few type params") {
-    val typeName = TypeName(Name("List"), Seq(), Some(TypeName.System))
+    val typeName = TypeName(Name("List"), Seq(), Some(TypeNames.System))
     val td = PlatformTypeDeclaration.get(typeName, None)
     td match {
       case Left(e: WrongTypeArguments) => assert(e.typeName == typeName)
@@ -297,8 +297,8 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Relative type in param") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("List"), Seq(TypeName(Names.String)), Some(TypeName.System)), None)
+    val td = PlatformTypeDeclaration.get(TypeName(Name("List"), Seq(TypeName(Names.String)), Some(TypeNames.System)), None)
     assert(td.isRight)
-    assert(td.right.get.typeName == TypeName(Name("List"), Seq(TypeName.String), Some(TypeName.System)))
+    assert(td.right.get.typeName == TypeName(Name("List"), Seq(TypeNames.String), Some(TypeNames.System)))
   }
 }

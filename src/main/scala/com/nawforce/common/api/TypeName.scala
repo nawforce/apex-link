@@ -25,45 +25,36 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.names
+package com.nawforce.common.api
 
-import com.nawforce.common.api.{Name, TypeName}
+import com.nawforce.common.names._
+import upickle.default.{macroRW, ReadWriter => RW}
 
 /**
-  * A qualified name with notional 'dot' separators
+  * Representation of a type name with optional type arguments. These are stored in inner to outer order to allow
+  * sharing of namespaces & outer classes.
   */
-case class DotName(names: Seq[Name]) {
+@upickle.implicits.key("TypeName")
+case class TypeName(name: Name, params: Seq[TypeName], outer: Option[TypeName]) {
 
-  val isCompound: Boolean = names.size > 1
+  // Cache hash code as immutable and heavily used in collections
+  override val hashCode: Int = scala.util.hashing.MurmurHash3.productHash(this)
 
-  def head: DotName = DotName(Seq(names.head))
-  def tail: DotName = DotName(names.tail)
-  def headNames: DotName = DotName(names.reverse.tail.reverse)
-  def tailNames: DotName = DotName(names.tail)
-  def firstName: Name = names.head
-  def lastName: Name = names.last
+  override def toString: String = this.asString
+}
 
-  def append(name: Name): DotName = DotName(names :+ name)
-  def prepend(name: Name): DotName = DotName(name +: names)
-  def prepend(name: Option[Name]): DotName = {
-    name match {
-      case Some(value) => DotName(value +: names)
-      case _ => this
+object TypeName {
+  implicit val rw: RW[TypeName] = macroRW
+
+  def apply(names: Seq[Name]): TypeName = {
+    names match {
+      case hd +: Nil => new TypeName(hd, Nil, None)
+      case hd +: tl => new TypeName(hd, Nil, Some(TypeName(tl)))
     }
   }
 
-  def asTypeName() : TypeName = {
-    TypeName(names.reverse)
-  }
-
-  override def toString: String = names.mkString(".")
-}
-
-object DotName {
-  def apply(name: String): DotName = {
-    DotName(name.split('.').toSeq.map(p => Name(p)))
-  }
-  def apply(name: Name): DotName = {
-    DotName(Seq(name))
+  def apply(name: Name): TypeName = {
+    new TypeName(name, Nil, None)
   }
 }
+

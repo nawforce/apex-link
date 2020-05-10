@@ -27,10 +27,10 @@
 */
 package com.nawforce.common.types.other
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.documents._
-import com.nawforce.common.names.{Names, TypeName, _}
+import com.nawforce.common.names.{Names, TypeNames, _}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.path.PathFactory
@@ -39,7 +39,7 @@ import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration}
 /** A individual Page being represented as a static field. */
 case class Page(location: LocationImpl, name: Name) extends FieldDeclaration {
   override lazy val modifiers: Seq[Modifier] = Seq(STATIC_MODIFIER, GLOBAL_MODIFIER)
-  override lazy val typeName: TypeName = TypeName.PageReference
+  override lazy val typeName: TypeName = TypeNames.PageReference
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER
   override lazy val writeAccess: Modifier = PRIVATE_MODIFIER
   override val idTarget: Option[TypeName] = None
