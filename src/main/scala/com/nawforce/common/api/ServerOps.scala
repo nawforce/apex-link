@@ -27,19 +27,21 @@
 */
 package com.nawforce.common.api
 
+/** Logging interface */
 trait Logger {
-  def error(message: String): Unit
   def info(message: String): Unit
+  def error(message: String): Unit
   def debug(message: String): Unit
 }
 
+/** Default logging support, info goes to stdout, error & debug to stderr */
 class DefaultLogger extends Logger {
-  def error(message: String): Unit = {System.err.println("[error] " + message)}
   def info(message: String): Unit = {System.out.println(message)}
+  def error(message: String): Unit = {System.err.println("[error] " + message)}
   def debug(message: String): Unit = {System.err.println("[debug] " + message)}
 }
 
-/* Collection of Ops functions for changing behaviour */
+/** Collection of Ops functions for changing global behaviours */
 object ServerOps  {
   private var logging: Boolean = false
   private var logger: Logger = new DefaultLogger
@@ -48,26 +50,31 @@ object ServerOps  {
 
   val Trace: String = "TRACE"
 
-  /* Set debug logging categories, only supported option is 'ALL' */
+  /** Set debug logging categories, only currently supported option is 'ALL', debug logging is disabled by default. */
   def setDebugLogging(flags: Array[String]): Unit = {
     logging = flags.contains("ALL")
   }
 
+  /** Override the default logger */
   def setLogger(newLogger: Logger): Logger = {
     val old = logger
     logger = newLogger
     old
   }
 
-  def error(message: String): Unit = logger.error(message)
-
+  /** Log an information message */
   def info(message: String): Unit = logger.info(message)
 
+  /** Log an error */
+  def error(message: String): Unit = logger.error(message)
+
+  /** Log a debug message against a category */
   def debug(category: String, message: String): Unit = {
     if (logging)
       logger.debug(message)
   }
 
+  /** Time an operation and debug log how long it took */
   def debugTime[T](msg: String, show: Boolean=true)(op: => T): T = {
     val start = System.currentTimeMillis()
     try {
@@ -79,22 +86,22 @@ object ServerOps  {
     }
   }
 
-  /** Are we caching parsed data */
+  /** Are we caching parsed data, this is enabled by default */
   def getParsedDataCaching: Boolean = {
     parsedCaching
   }
 
-  /** Enable parsed data caching */
+  /** Update parsed data caching flag */
   def setParsedDataCaching(enable: Boolean): Unit = {
     parsedCaching = enable
   }
 
-  /** Are we caching parsed data */
+  /** Are we using lazy blocks, this is enabled by default */
   def getLazyBlocks: Boolean = {
     lazyBlocks
   }
 
-  /** Enable parsed data caching */
+  /** Update lazy block flag */
   def setLazyBlocks(enable: Boolean): Unit = {
     lazyBlocks = enable
   }

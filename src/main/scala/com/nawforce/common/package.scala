@@ -26,28 +26,12 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package com.nawforce.common.types.core
+package com.nawforce
 
-import com.nawforce.common.api.{TypeIdentifier, TypeName}
-import com.nawforce.common.org.PackageImpl
-
-case class TypeId(pkg: PackageImpl, typeName: TypeName) {
-  def asTypeIdentifier: TypeIdentifier = {
-    TypeIdentifier(pkg.namespace, typeName)
-  }
-}
-
-object TypeId {
-  def apply(pkg: PackageImpl, typeIdentifier: TypeIdentifier): Option[TypeId] = {
-    val typeName = typeIdentifier.typeName
-    if (typeIdentifier.namespace == pkg.namespace)
-      return Some(new TypeId(pkg, typeName))
-
-    pkg.org.getPackage(typeIdentifier.namespace)
-      .map(pkg => TypeId(pkg, typeName))
-      .orElse({
-        assert(false)
-        None
-      })
-  }
-}
+/** Analysis code suitable for both execution on JVM & node
+  *
+  * This package contains the bulk of the analysis code. Platform dependent handling is in the [[com.nawforce.runtime]]
+  * package. The [[com.nawforce.common.api]] package contains the stable API for this package. A good starting point
+  * is [[com.nawforce.common.api.Org]].
+  **/
+package object common

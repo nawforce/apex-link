@@ -31,7 +31,7 @@ import upickle.default.{macroRW, ReadWriter => RW}
 
 /** Case insensitive string for symbol names.
   *
-  * The value of the Name is stored as is but equality and hashing is performed against a normalised lower case
+  * The value of the Name is stored as is but equality and hashing are performed against a normalised lower case
   * value.
   */
 @upickle.implicits.key("Name")

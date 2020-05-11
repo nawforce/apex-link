@@ -27,13 +27,34 @@
 */
 package com.nawforce.common.api
 
+/** A virtual Package used to constructed around some metadata
+  *
+  * Packages must be created in the context of a specific [[Org]]. Once constructed you can use the package APIs to
+  * introspect dependency relationships, obtain summary and view information about types and replace or delete types.
+  *
+  * The term dependency can be rather ambiguous, we use it here to mean a 'using' relationship. So if class A calls a
+  * method on class B, we say A has a dependency that is B. The reverse relationship is a 'dependency holder', so B has
+  * a dependency holder that is A. Transitive dependencies or dependency holder relationships are not exposed by these
+  * APIs but can be obtained by recursive iteration.
+  *
+  * The package upsert & deletion model also do not support invalidation handling that is typically used to cause
+  * dependency holders to be re-analysed when a dependency changes. This again can be handled via recursive iteration
+  * of the method provided.
+  *
+  * Summary and View are information provide two different levels of looking at the structure of types. In summary
+  * form only the most important details are provided but it is essentially free to access since it is the same
+  * format used in the disk cache. View information requires both more CPU and memory to use but can provide full
+  * details on the implementations of Apex classes.
+  *
+  * Packages only handle metadata types that are important to Apex class analysis, other types of metadata that might
+  * appear in the package directory are ignored.
+  **/
 trait Package {
   /** The namespace of the package, maybe empty for the unmanaged package, otherwise is unique within Org */
   def getNamespace: String
 
   /** Get a typename (as a String) from the path of a metadata file, returns a null if the path does not
-    * identify metadata that creates a type within the current package. Currently restricted to only supporting
-    * Apex class & trigger files. */
+    * identify metadata that creates a type within the current package. */
   def getTypeOfPath(path: String): TypeIdentifier
 
   /** Get the path(s) of the metadata file that defined a type, returns an empty array if the type

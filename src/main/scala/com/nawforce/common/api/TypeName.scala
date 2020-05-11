@@ -30,22 +30,32 @@ package com.nawforce.common.api
 import com.nawforce.common.names._
 import upickle.default.{macroRW, ReadWriter => RW}
 
-/**
-  * Representation of a type name with optional type arguments. These are stored in inner to outer order to allow
-  * sharing of namespaces & outer classes.
+/** Representation of a type name with optional type arguments.
+  *
+  * The outer value provides an optional enclosing type name to allow for qualifying inner types. The outer may also
+  * be used to scope a type to a specific namespace. The mapping between a type name and its toString value is
+  * mostly straight forward but for some internally defined types toString will produce better formatted output so
+  * it is advised you always use this when displaying a TypeName.
   */
 @upickle.implicits.key("TypeName")
 case class TypeName(name: Name, params: Seq[TypeName], outer: Option[TypeName]) {
 
-  // Cache hash code as immutable and heavily used in collections
+  /** Cache hash code as heavily used in collections */
   override val hashCode: Int = scala.util.hashing.MurmurHash3.productHash(this)
 
+  /** Provide custom handling to toString to deal with internal type display */
   override def toString: String = this.asString
 }
 
 object TypeName {
   implicit val rw: RW[TypeName] = macroRW
 
+  /** Helper for construction from Java, outer may be null */
+  def fromJava(name: Name, params: Array[TypeName], outer: TypeName): TypeName = {
+    new TypeName(name, params, Option(outer))
+  }
+
+  /** Create a type name from a sequence of names, these should be provided in inner->outer order */
   def apply(names: Seq[Name]): TypeName = {
     names match {
       case hd +: Nil => new TypeName(hd, Nil, None)
@@ -53,6 +63,7 @@ object TypeName {
     }
   }
 
+  /** Create a simple type name from a single name */
   def apply(name: Name): TypeName = {
     new TypeName(name, Nil, None)
   }
