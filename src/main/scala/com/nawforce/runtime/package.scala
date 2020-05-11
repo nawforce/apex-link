@@ -25,29 +25,12 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+package com.nawforce
 
-package com.nawforce.common.types.core
-
-import com.nawforce.common.api.{TypeIdentifier, TypeName}
-import com.nawforce.common.org.PackageImpl
-
-case class TypeId(pkg: PackageImpl, typeName: TypeName) {
-  def asTypeIdentifier: TypeIdentifier = {
-    TypeIdentifier(pkg.namespace, typeName)
-  }
-}
-
-object TypeId {
-  def apply(pkg: PackageImpl, typeIdentifier: TypeIdentifier): Option[TypeId] = {
-    val typeName = typeIdentifier.typeName
-    if (typeIdentifier.namespace == pkg.namespace)
-      return Some(new TypeId(pkg, typeName))
-
-    pkg.org.getPackage(typeIdentifier.namespace)
-      .map(pkg => TypeId(pkg, typeName))
-      .orElse({
-        assert(false)
-        None
-      })
-  }
-}
+/** Platform specific handling for JVM execution.
+  *
+  * Contains a number of abstractions for handling the differences between JVM & Node execution. This is just the JVM
+  * implementation, the node version of the same abstraction is not in this project. See [[com.nawforce.common]] for
+  * the analysis code.
+  **/
+package object runtime

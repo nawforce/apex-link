@@ -39,7 +39,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   private val defaultPath = PathFactory("Dummy.cls")
   private var defaultOrg: OrgImpl = new OrgImpl
   private val dummyTypeName = DotName("Dummy").asTypeName()
-  private val dummyTypeId = TypeIdentifier(null, dummyTypeName)
+  private val dummyTypeId = TypeIdentifier.fromJava(null, dummyTypeName)
   private val objectTypeName = DotName("Internal.Object$").asTypeName()
   private val rawIntegerTypeName = DotName("Integer").asTypeName()
   private val rawStringTypeName = DotName("String").asTypeName()

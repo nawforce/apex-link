@@ -27,6 +27,10 @@
 */
 package com.nawforce.common.api
 
+/** Detailed view of an ApexClass.
+  *
+  * This is currently WIP and will be expanded later.
+  */
 trait ViewInfo {
   val diagnostics: Array[Diagnostic]
   val hasType: Boolean

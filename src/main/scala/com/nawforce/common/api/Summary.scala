@@ -29,36 +29,75 @@ package com.nawforce.common.api
 
 import upickle.default.{macroRW, ReadWriter => RW}
 
+/**
+  * Summary types are used both by the disk cache and to provide a quick & cheap way to examine what is available
+  * in a type. See [[Package.getViewOfType()]] for more access to more detailed information.
+  */
+
+/** Summary of an Apex class with diagnostic information */
 case class ApexSummary(typeSummary: TypeSummary, diagnostics: List[Diagnostic])
+
+/** Summary of a type */
 case class TypeSummary(sourceHash: Int, idRange: Option[RangeLocation], name: String, typeName: TypeName,
                        nature: String, modifiers: List[String], superClass: Option[TypeName], interfaces: List[TypeName],
                        blocks: List[BlockSummary], fields: List[FieldSummary], constructors: List[ConstructorSummary],
                        methods: List[MethodSummary], nestedTypes: List[TypeSummary], dependents: Set[DependentSummary])
+
+/** Summary of a initialiser block */
 case class BlockSummary(isStatic: Boolean, dependents: Set[DependentSummary])
+
+/** Summary of a type field (or property)*/
 case class FieldSummary(idRange: Option[RangeLocation], name: String, modifiers: List[String],
                         typeName: TypeName, readAccess: String, writeAccess: String, dependents: Set[DependentSummary])
+
+/** Summary of a type constructor*/
 case class ConstructorSummary(idRange: Option[RangeLocation], modifiers: List[String], parameters: List[ParameterSummary],
                               dependents: Set[DependentSummary])
+
+/** Summary of a type method*/
 case class MethodSummary(idRange: Option[RangeLocation], name: String, modifiers: List[String], typeName: TypeName,
                          parameters: List[ParameterSummary], dependents: Set[DependentSummary])
+
+/** Summary of a constructor or method parameters*/
 case class ParameterSummary(name: String, typeName: TypeName)
 
+/** Dependency information interface for detailing types of dependency */
 sealed trait DependentSummary
+
+/** Dependency information for a type */
 @upickle.implicits.key("Type")
 case class TypeDependentSummary(typeId: TypeIdentifier, sourceHash: Int) extends DependentSummary
+
+/** Dependency information for a field */
 @upickle.implicits.key("Field")
 case class FieldDependentSummary(typeId: TypeIdentifier, name: String) extends DependentSummary
+
+/** Dependency information for a method */
 @upickle.implicits.key("Method")
 case class MethodDependentSummary(typeId: TypeIdentifier, name: String, parameters: List[ParameterSummary]) extends DependentSummary
 
+/** A diagnostic message, category tells us what type of diagnostic this is while location and messages provide details */
 case class Diagnostic(category: String, location: Location, message: String)
 
+/** Location interface for identify a sub-part of a file */
 sealed trait Location
+
+/** Single line location */
 case class LineLocation(line: Int) extends Location
+
+/** Range of lines location */
 case class LineRangeLocation(start: Int, end: Int) extends Location
+
+/** Position in a file */
 case class Position(line: Int, offset: Int)
+
+/** Single position location */
 case class PointLocation(position: Position) extends Location
+
+/** Range between to positions */
 case class RangeLocation(start: Position, end: Position) extends Location
+
+/** Combined path and location within the path */
 case class PathLocation(path: String, location: Location)
 
 object ApexSummary {

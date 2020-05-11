@@ -51,7 +51,7 @@ trait PackageAPI extends Package {
     DocumentType(pathLike) match {
       case Some(md: MetadataDocumentType) =>
         types.get(md.typeName(namespace)) match {
-          case Some(td: TypeDeclaration) if td.paths.contains(pathLike) => TypeIdentifier(namespace.orNull, td.typeName)
+          case Some(td: TypeDeclaration) if td.paths.contains(pathLike) => TypeIdentifier(namespace, td.typeName)
           case _ => null
         }
       case _ => null
@@ -59,7 +59,7 @@ trait PackageAPI extends Package {
   }
 
   override def getPathsOfType(typeId: TypeIdentifier): Array[String] = {
-    if (typeId != null && typeId.safeNamespace == namespace) {
+    if (typeId != null && typeId.namespace == namespace) {
       types.get(typeId.typeName)
         .map(td => td.paths.map(_.toString).toArray)
         .getOrElse(Array())
@@ -69,7 +69,7 @@ trait PackageAPI extends Package {
   }
 
   override def getSummaryOfType(typeId: TypeIdentifier): TypeSummary = {
-    if (typeId != null && typeId.safeNamespace == namespace) {
+    if (typeId != null && typeId.namespace == namespace) {
       getApexDeclaration(typeId.typeName)
         .map(_.summary)
         .orNull
@@ -79,7 +79,7 @@ trait PackageAPI extends Package {
   }
 
   override def getDependencies(typeId: TypeIdentifier, inheritanceOnly: Boolean): Array[TypeIdentifier] = {
-    if (typeId != null && typeId.safeNamespace == namespace) {
+    if (typeId != null && typeId.namespace == namespace) {
       getApexDeclaration(typeId.typeName)
         .map(ad => {
           if (inheritanceOnly) {
@@ -102,7 +102,7 @@ trait PackageAPI extends Package {
   }
 
   override def getDependencyHolders(typeId: TypeIdentifier): Array[TypeIdentifier] = {
-    if (typeId != null && typeId.safeNamespace == namespace) {
+    if (typeId != null && typeId.namespace == namespace) {
       getDependentType(typeId.typeName)
         .map(_.getTypeDependencyHolders.map(_.asTypeIdentifier).toArray)
         .orNull
@@ -229,7 +229,7 @@ trait PackageAPI extends Package {
   }
 
   override def deleteType(typeId: TypeIdentifier): Boolean = {
-    if (typeId != null && typeId.safeNamespace == namespace) {
+    if (typeId != null && typeId.namespace == namespace) {
       types.get(typeId.typeName) match {
         case Some(_: ApexDeclaration) => types.remove(typeId.typeName); true
         case _ => false
