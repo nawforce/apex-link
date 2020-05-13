@@ -256,7 +256,7 @@ trait TypeDeclaration extends DependencyHolder {
   lazy val superClassDeclaration: Option[TypeDeclaration] = None
   val interfaces: Seq[TypeName]
   lazy val interfaceDeclarations: Seq[TypeDeclaration] = Nil
-  def nestedTypes: Seq[TypeDeclaration]
+  val nestedTypes: Seq[TypeDeclaration]
 
   val blocks: Seq[BlockDeclaration]
   val fields: Seq[FieldDeclaration]

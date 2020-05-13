@@ -60,39 +60,58 @@ object Label {
 
 /** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
   * base packages via the Label.namespace.name format. */
-final class LabelDeclaration(paths: Seq[PathLike], override val pkg: PackageImpl, labels: Seq[Label], packageLabels: Seq[TypeDeclaration])
+final class LabelDeclaration(paths: Seq[PathLike], override val pkg: PackageImpl, labels: Seq[Label],
+                             nestedLabels: Seq[NestedLabels])
   extends BasicTypeDeclaration(paths, pkg, TypeNames.Label) with DependentType {
 
   // Set individual labels to use this as the controller
   labels.foreach(_.setController(Some(this)))
 
-  override val nestedTypes: Seq[TypeDeclaration] = packageLabels
+  // Propagate dependencies to nested
+  nestedLabels.foreach(_.addTypeDependencyHolder(typeId))
+
+  override val nestedTypes: Seq[TypeDeclaration] = nestedLabels
   override val fields: Seq[FieldDeclaration] = labels
 
   /** Create new labels from merging those in the provided stream */
   def merge(stream: PackageStream): LabelDeclaration = {
     val newLabels = labels ++ stream.labels.map(le => Label(le.location, le.name, le.isProtected))
     val paths = stream.labelsFiles.map(l => PathFactory(l.location.path)).distinct
-    new LabelDeclaration(paths, pkg, newLabels, packageLabels)
+    new LabelDeclaration(paths, pkg, newLabels, nestedLabels)
   }
 
-  /** Labels don't have dependencies */
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {}
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {
+    // Labels depend on labels from dependent packages
+    nestedLabels.foreach(nl => nl.labelTypeId.foreach(dependsOn.add))
+  }
 
-  // Report on unused labels
+  /** Report on unused labels */
   def unused(): Seq[Issue] = {
     labels.filterNot(_.hasHolders)
       .map(label => new Issue(UNUSED_CATEGORY, label.location, s"Label '$typeName.${label.name}'"))
   }
 }
 
+/** Access to label type id for dependent packages label wrappers */
+trait NestedLabels extends TypeDeclaration {
+  val labelTypeId: Option[TypeId]
+
+  def addTypeDependencyHolder(typeId: TypeId): Unit
+}
+
 /** System.Label.ns implementation for exposing labels from dependent packages. Only public labels are visible through
   * this. As the exposed labels are owned elsewhere (by the passed LabelDeclaration) there is no need to set a
   * controller here.
   */
-final class PackageLabels(pkg: PackageImpl, labelDeclaration: LabelDeclaration)
+private final class PackageLabels(pkg: PackageImpl, labelDeclaration: LabelDeclaration)
   extends InnerBasicTypeDeclaration(Seq.empty, pkg,
-    TypeName(labelDeclaration.packageDeclaration.get.namespace.get, Nil, Some(TypeNames.Label))) {
+    TypeName(labelDeclaration.packageDeclaration.get.namespace.get, Nil, Some(TypeNames.Label))) with NestedLabels {
+
+  override val labelTypeId: Option[TypeId] = Some(labelDeclaration.typeId)
+
+  def addTypeDependencyHolder(typeId: TypeId): Unit = {
+    labelDeclaration.addTypeDependencyHolder(typeId)
+  }
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     labelDeclaration.findField(name, staticContext) match {
@@ -104,7 +123,11 @@ final class PackageLabels(pkg: PackageImpl, labelDeclaration: LabelDeclaration)
 
 /** System.Label.ns implementation for ghosted packages. This simulates the existence of any label you ask for. */
 final class GhostedLabels(pkg: PackageImpl, ghostedNamespace: Name)
-  extends InnerBasicTypeDeclaration(Seq(), pkg, TypeName(ghostedNamespace, Nil, Some(TypeNames.Label))) {
+  extends InnerBasicTypeDeclaration(Seq(), pkg, TypeName(ghostedNamespace, Nil, Some(TypeNames.Label))) with NestedLabels {
+
+  override val labelTypeId: Option[TypeId] = None
+
+  def addTypeDependencyHolder(typeId: TypeId): Unit = {}
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     if (staticContext.contains(true)) {
@@ -122,7 +145,7 @@ object LabelDeclaration {
   }
 
   // Create labels declarations for each base package
-  private def createPackageLabels(pkg: PackageImpl): Seq[TypeDeclaration] = {
+  private def createPackageLabels(pkg: PackageImpl): Seq[NestedLabels] = {
     pkg.transitiveBasePackages.map(basePkg => {
       if (basePkg.isGhosted) {
         new GhostedLabels(pkg, basePkg.namespace.get)

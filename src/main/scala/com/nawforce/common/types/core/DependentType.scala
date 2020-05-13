@@ -37,8 +37,7 @@ import scala.collection.mutable
   * in Dependency & DependencyHolder. Type level analysis is more useful for the API as it more directly maps
   * to file updates that drive invalidation handling.
   */
-trait DependentType {
-  this: TypeDeclaration =>
+trait DependentType extends TypeDeclaration {
 
   /** The owning package, this is needed to disambiguate but restricts where DependentType can be used currently. */
   val pkg: PackageImpl
