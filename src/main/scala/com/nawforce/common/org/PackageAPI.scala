@@ -80,7 +80,7 @@ trait PackageAPI extends Package {
 
   override def getDependencies(typeId: TypeIdentifier, inheritanceOnly: Boolean): Array[TypeIdentifier] = {
     if (typeId != null && typeId.namespace == namespace) {
-      getApexDeclaration(typeId.typeName)
+      getDependentType(typeId.typeName)
         .map(ad => {
           if (inheritanceOnly) {
             (ad +: ad.nestedTypes).flatMap(td => {

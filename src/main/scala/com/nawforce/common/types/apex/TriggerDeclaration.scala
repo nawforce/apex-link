@@ -67,7 +67,7 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
 
   override val superClass: Option[TypeName] = None
   override val interfaces: Seq[TypeName] = Seq.empty
-  override def nestedTypes: Seq[ApexFullDeclaration] = Seq.empty
+  override val nestedTypes: Seq[ApexFullDeclaration] = Seq.empty
 
   override val blocks: Seq[ApexInitialiserBlock] = Seq.empty
   override val fields: Seq[ApexFieldDeclaration]= Seq.empty
