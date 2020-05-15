@@ -324,15 +324,14 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
   }
 
-  /* TODO Update
   test("Complex New creates dependency") {
     val tds = typeDeclarations(Map(
       "Dummy.cls" -> "public class Dummy { void func() { Object a = new List<A>(); } }",
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == Set(tds.tail.head, listClass, objectClass))
-  } */
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == Set(tds.tail.head))
+  }
 
   test("Unknown new type") {
     val tds = typeDeclarations(Map(
@@ -454,16 +453,14 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == Set(tds.tail.head))
   }
 
-  /* TODO Update
   test("Inner Complex New creates dependency") {
     val tds = typeDeclarations(Map(
       "Dummy.cls" -> "public class Dummy { class Inner {void func() { Object a = new List<A>(); } } }",
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == Set(tds.tail.head,listClass, objectClass))
+    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == Set(tds.tail.head))
   }
-  */
 
   test("Inner instanceOf creates dependency") {
     val tds = typeDeclarations(Map(
