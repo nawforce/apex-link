@@ -113,7 +113,10 @@ trait HolderVerifyContext {
   def getTypeAndAddDependency(typeName: TypeName, from: Option[TypeDeclaration],
                               excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {
     val result = getTypeFor(typeName, from, excludeSObjects)
-    result.foreach(addDependency)
+    result.foreach(td => {
+      addDependency(td)
+      td.typeName.params.foreach(getTypeAndAddDependency(_, from, excludeSObjects))
+    })
     result
   }
 }
