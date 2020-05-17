@@ -226,4 +226,135 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
         "/pkg2/Foo.cls\nError: line 1 at 19-24: No matching method found for 'bar' on 'Foo' taking no arguments\n")
     }
   }
+
+  test("Label dependency is cached") {
+    FileSystemHelper.run(Map(
+      "CustomLabels.labels" ->
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+          |    <labels>
+          |        <fullName>TestLabel</fullName>
+          |        <language>en_US</language>
+          |        <protected>false</protected>
+          |        <shortDescription>TestLabel Description</shortDescription>
+          |        <value>TestLabel Value</value>
+          |    </labels>
+          |</CustomLabels>
+          |""".stripMargin,
+      "Dummy.cls" -> "public class Dummy { {String a = System.label.TestLabel;} }"
+    ), setupCache = true) { root: PathLike =>
+      val org1 = Org.newOrg().asInstanceOf[OrgImpl]
+      org1.addPackage(None, Seq(root), Seq())
+      assert(!org1.issues.hasMessages)
+      org1.flush()
+
+      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg2 = org2.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org2.issues.hasMessages)
+
+      assertIsSummaryDeclaration(pkg2, "Dummy")
+      assert(pkg2.getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), inheritanceOnly = false)
+        .sameElements(Array(TypeIdentifier(None, TypeNames.Label))))
+
+      root.createFile("CustomLabels.labels",
+        "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
+
+      val org3 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg3 = org3.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assertIsFullDeclaration(pkg3, "Dummy")
+      assert(org3.getIssues(new IssueOptions()) ==
+        "/Dummy.cls\nMissing: line 1 at 33-55: Unknown field or type 'TestLabel' on 'System.Label'\n")
+    }
+  }
+
+  test("Packaged label dependency is cached") {
+    FileSystemHelper.run(Map(
+      "pkg1/CustomLabels.labels" ->
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+          |    <labels>
+          |        <fullName>TestLabel</fullName>
+          |        <language>en_US</language>
+          |        <protected>false</protected>
+          |        <shortDescription>TestLabel Description</shortDescription>
+          |        <value>TestLabel Value</value>
+          |    </labels>
+          |</CustomLabels>
+          |""".stripMargin,
+      "pkg2/Dummy.cls" -> "public class Dummy { {String a = System.label.pkg1.TestLabel;} }"
+    ), setupCache = true) { root: PathLike =>
+      val org1 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg11 = org1.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      val pkg12 = org1.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg11))
+      assert(!org1.issues.hasMessages)
+      org1.flush()
+
+      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg21 = org2.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      val pkg22 = org2.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg21)).asInstanceOf[PackageImpl]
+      assert(!org2.issues.hasMessages)
+
+      assertIsSummaryDeclaration(pkg22, "Dummy")
+      assert(pkg22.getDependencies(
+        TypeIdentifier(Some(Name("pkg2")), TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))), inheritanceOnly = false)
+        .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Label))))
+
+      root.createFile("pkg1/CustomLabels.labels",
+        "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
+
+      val org3 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg31 = org3.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      val pkg32 = org3.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg31)).asInstanceOf[PackageImpl]
+
+      // Still summary as Dummy does not *directly* depend on pkg1 labels
+      assertIsSummaryDeclaration(pkg32, "Dummy")
+      assert(!org1.issues.hasMessages)
+    }
+  }
+
+  test("Multi-file label dependency is cached") {
+    FileSystemHelper.run(Map(
+      "CustomLabels.labels" ->
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+          |    <labels>
+          |        <fullName>TestLabel</fullName>
+          |        <protected>false</protected>
+          |    </labels>
+          |</CustomLabels>
+          |""".stripMargin,
+      "AltLabels.labels" ->
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+          |    <labels>
+          |        <fullName>TestLabel2</fullName>
+          |        <protected>false</protected>
+          |    </labels>
+          |</CustomLabels>
+          |""".stripMargin,
+      "Dummy.cls" -> "public class Dummy { {String a = System.label.TestLabel2;} }"
+    ), setupCache = true) { root: PathLike =>
+      val org1 = Org.newOrg().asInstanceOf[OrgImpl]
+      org1.addPackage(None, Seq(root), Seq())
+      assert(!org1.issues.hasMessages)
+      org1.flush()
+
+      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg2 = org2.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org2.issues.hasMessages)
+
+      assertIsSummaryDeclaration(pkg2, "Dummy")
+      assert(pkg2.getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), inheritanceOnly = false)
+        .sameElements(Array(TypeIdentifier(None, TypeNames.Label))))
+
+      root.createFile("AltLabels.labels",
+        "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
+
+      val org3 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg3 = org3.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assertIsFullDeclaration(pkg3, "Dummy")
+      assert(org3.getIssues(new IssueOptions()) ==
+        "/Dummy.cls\nMissing: line 1 at 33-56: Unknown field or type 'TestLabel2' on 'System.Label'\n")
+    }
+  }
 }

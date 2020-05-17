@@ -28,8 +28,8 @@
 package com.nawforce.common.types.core
 
 import com.nawforce.common.api.{DependentSummary, FieldDependentSummary, MethodDependentSummary, TypeDependentSummary}
-import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexConstructorLike, ApexFieldLike, ApexMethodLike}
-import com.nawforce.common.types.other.Label
+import com.nawforce.common.types.apex._
+import com.nawforce.common.types.other.{Label, LabelDeclaration}
 
 import scala.collection.mutable
 
@@ -39,17 +39,6 @@ import scala.collection.mutable
  * to help with collections performance.
  */
 trait Dependent {
-
-  /** Another dependent who is considered to be controlling from an re-loading perspective for this dependent. */
-  private var controller: Option[Dependent] = None
-
-  /**
-    * Update the controlling dependent. This is mutable because as it often needs to be set in the reverse
-    * of construction order, i.e. child->parent
-    */
-  def setController(controlling: Option[Dependent]): Unit = controller = controlling
-
-
   // The set of holders on this dependency element, may be stale!
   private val dependencyHolders = mutable.Set[DependencyHolder]()
 
@@ -98,10 +87,16 @@ trait DependencyHolder extends Dependent {
         Some(FieldDependentSummary(fd.outerTypeId.asTypeIdentifier, fd.name.value))
       case md: ApexMethodLike =>
         Some(MethodDependentSummary(md.outerTypeId.asTypeIdentifier, md.name.value, md.parameters.map(_.summary).toList))
+      // Don't need these yet
       case _: ApexConstructorLike => None
-      case _: BlockDeclaration => None
-      // TODO: Label summary
+      case _: ApexBlockLike => None
+
+      case ld: LabelDeclaration =>
+        Some(TypeDependentSummary(ld.typeId.asTypeIdentifier, ld.sourceHash))
+      case label: Label if label.outerTypeId.nonEmpty =>
+        Some(FieldDependentSummary(label.outerTypeId.get.asTypeIdentifier, label.name.value))
       case _: Label => None
+
     }.toSet
   }
 }

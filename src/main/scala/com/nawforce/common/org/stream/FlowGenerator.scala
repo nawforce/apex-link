@@ -38,14 +38,15 @@ case class FlowEvent(location: LocationImpl, name: Name) extends PackageEvent
 
 object FlowGenerator extends Generator {
 
-  def queue(logger: IssueLogger, index: DocumentIndex, queue: Queue[PackageEvent]): Queue[PackageEvent] = {
-    super.queue(DocumentType.flowExt, logger, index, queue)
+  def queue(logger: IssueLogger, provider: MetadataProvider, queue: Queue[PackageEvent]): Queue[PackageEvent] = {
+    super.queue(DocumentType.flowExt, logger, provider, queue)
   }
 
-  override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentType): Option[PackageEvent] = {
-    metadata match {
-      case _: FlowDocument => Some(FlowEvent(LineLocationImpl(metadata.path.toString, 0), metadata.name))
-      case _ => None
+  override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
+    val docType = metadata.docType
+    docType match {
+      case _: FlowDocument => Seq(FlowEvent(LineLocationImpl(docType.path.toString, 0), docType.name))
+      case _ => Seq.empty
     }
   }
 }

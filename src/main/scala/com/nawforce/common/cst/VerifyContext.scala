@@ -34,8 +34,8 @@ import com.nawforce.common.finding.{TypeError, TypeRequest}
 import com.nawforce.common.names.EncodedName
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.apex._
-import com.nawforce.common.types.core.{BlockDeclaration, Dependent, TypeDeclaration}
-import com.nawforce.common.types.other.Label
+import com.nawforce.common.types.core.{Dependent, TypeDeclaration}
+import com.nawforce.common.types.other.{Label, LabelDeclaration}
 
 import scala.collection.mutable
 
@@ -102,9 +102,11 @@ trait HolderVerifyContext {
       case _: ApexFieldLike => _dependencies += dependent
       case _: ApexMethodLike => _dependencies += dependent
       case _: ApexConstructorLike => _dependencies += dependent
-      // Block is an odd man out here as there can't be platform blocks
-      case _: BlockDeclaration => _dependencies += dependent
+      case _: ApexBlockLike => _dependencies += dependent
+
+      case _: LabelDeclaration => _dependencies += dependent
       case _: Label => _dependencies += dependent
+
       case _ => ()
     }
   }

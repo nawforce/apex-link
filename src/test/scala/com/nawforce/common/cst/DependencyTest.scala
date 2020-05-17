@@ -27,9 +27,10 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{Name, ServerOps, TypeName}
+import com.nawforce.common.api.{Name, Org, ServerOps, TypeName}
 import com.nawforce.common.documents.{ApexClassDocument, DocumentType}
-import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.names.TypeNames
+import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.TypeDeclaration
 import com.nawforce.runtime.FileSystemHelper
@@ -469,5 +470,65 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.nestedTypes.head.blocks.head.dependencies() == Set(tds.tail.head))
+  }
+
+  test("Label creates dependency") {
+    FileSystemHelper.run(Map(
+      "CustomLabels.labels" ->
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+          |    <labels>
+          |        <fullName>TestLabel</fullName>
+          |        <language>en_US</language>
+          |        <protected>true</protected>
+          |        <shortDescription>TestLabel Description</shortDescription>
+          |        <value>TestLabel Value</value>
+          |    </labels>
+          |</CustomLabels>
+          |""".stripMargin,
+      "Dummy.cls" -> "public class Dummy { {String a = label.TestLabel;} }"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val labelsType = pkg.searchTypes(TypeNames.Label).get
+      val labelField = labelsType.fields.find(_.name.value == "TestLabel").head
+      val dummyType = pkg.searchTypes(TypeName(Name("Dummy"))).get
+
+      assert(dummyType.blocks.head.dependencies() == Set(labelField, labelsType))
+      assert(labelField.getDependencyHolders == Set(dummyType.blocks.head))
+    }
+  }
+
+  test("Packaged label creates dependency") {
+    FileSystemHelper.run(Map(
+      "pkg1/CustomLabels.labels" ->
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+          |    <labels>
+          |        <fullName>TestLabel</fullName>
+          |        <language>en_US</language>
+          |        <protected>false</protected>
+          |        <shortDescription>TestLabel Description</shortDescription>
+          |        <value>TestLabel Value</value>
+          |    </labels>
+          |</CustomLabels>
+          |""".stripMargin,
+      "pkg2/Dummy.cls" -> "public class Dummy { {String a = label.pkg1.TestLabel;} }"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      val pkg2 = org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1)).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val labels1Type = pkg1.searchTypes(TypeNames.Label).get
+      val labels2Type = pkg2.searchTypes(TypeNames.Label).get
+      val labelField = labels1Type.fields.find(_.name.value == "TestLabel").head
+      val dummyType = pkg2.searchTypes(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))).get
+
+      assert(dummyType.blocks.head.dependencies() == Set(labelField, labels2Type))
+      assert(labelField.getDependencyHolders == Set(dummyType.blocks.head))
+    }
   }
 }

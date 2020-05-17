@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2020 Kevin Jones
+ Copyright (c) 2019 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -25,29 +25,17 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+package com.nawforce.common.documents
 
-package com.nawforce.common.org.stream
+import com.nawforce.common.path.PathLike
 
-import com.nawforce.common.api.Name
-import com.nawforce.common.diagnostics.IssueLogger
-import com.nawforce.common.documents._
+import scala.util.hashing.MurmurHash3
 
-import scala.collection.immutable.Queue
+/** Source information carrier */
+case class SourceInfo(path: PathLike, hash: Int)
 
-case class ComponentEvent(location: LocationImpl, name: Name) extends PackageEvent
-
-/** Convert component documents into PackageEvents */
-object ComponentGenerator extends Generator {
-
-  def queue(logger: IssueLogger, provider: MetadataProvider, queue: Queue[PackageEvent]): Queue[PackageEvent] = {
-    super.queue(DocumentType.componentExt, logger, provider, queue)
-  }
-
-  override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
-    val docType = metadata.docType
-    docType match {
-      case _: ComponentDocument => Seq(ComponentEvent(LineLocationImpl(docType.path.toString, 0), docType.name))
-      case _ => Seq.empty
-    }
+object SourceInfo {
+  def apply(path: PathLike, data: String): SourceInfo = {
+    new SourceInfo(path, MurmurHash3.stringHash(data))
   }
 }

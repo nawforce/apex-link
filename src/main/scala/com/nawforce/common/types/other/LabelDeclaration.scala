@@ -34,14 +34,14 @@ import com.nawforce.common.documents._
 import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.org.stream.PackageStream
-import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.core._
-import com.nawforce.common.xml.XMLElementLike
 
 import scala.collection.mutable
+import scala.util.hashing.MurmurHash3
 
 /** A individual Label being represented as a static field. */
-case class Label(location: LocationImpl, name: Name, isProtected: Boolean) extends FieldDeclaration {
+case class Label(outerTypeId: Option[TypeId], location: Option[LocationImpl], name: Name, isProtected: Boolean)
+  extends FieldDeclaration {
   override lazy val modifiers: Seq[Modifier] = Seq(STATIC_MODIFIER, GLOBAL_MODIFIER)
   override lazy val typeName: TypeName = TypeNames.String
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER
@@ -49,23 +49,13 @@ case class Label(location: LocationImpl, name: Name, isProtected: Boolean) exten
   override val idTarget: Option[TypeName] = None
 }
 
-object Label {
-  /** Construct a label from a parsed XML element */
-  def apply(path: PathLike, element: XMLElementLike): Label = {
-    val fullName: String = element.getSingleChildAsString("fullName")
-    val protect: Boolean = element.getSingleChildAsBoolean( "protected")
-    Label(RangeLocationImpl(path, TextRange(element.line)), Name(fullName), protect)
-  }
-}
-
 /** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
   * base packages via the Label.namespace.name format. */
-final class LabelDeclaration(paths: Seq[PathLike], override val pkg: PackageImpl, labels: Seq[Label],
+final class LabelDeclaration(sources: Seq[SourceInfo], override val pkg: PackageImpl, labels: Seq[Label],
                              nestedLabels: Seq[NestedLabels])
-  extends BasicTypeDeclaration(paths, pkg, TypeNames.Label) with DependentType {
+  extends BasicTypeDeclaration(sources.map(_.path), pkg, TypeNames.Label) with DependentType {
 
-  // Set individual labels to use this as the controller
-  labels.foreach(_.setController(Some(this)))
+  val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash),0)
 
   // Propagate dependencies to nested
   nestedLabels.foreach(_.addTypeDependencyHolder(typeId))
@@ -75,9 +65,10 @@ final class LabelDeclaration(paths: Seq[PathLike], override val pkg: PackageImpl
 
   /** Create new labels from merging those in the provided stream */
   def merge(stream: PackageStream): LabelDeclaration = {
-    val newLabels = labels ++ stream.labels.map(le => Label(le.location, le.name, le.isProtected))
-    val paths = stream.labelsFiles.map(l => PathFactory(l.location.path)).distinct
-    new LabelDeclaration(paths, pkg, newLabels, nestedLabels)
+    val outerTypeId = TypeId(pkg, typeName)
+    val newLabels = labels ++ stream.labels.map(le => Label(Some(outerTypeId), Some(le.location), le.name, le.isProtected))
+    val sourceInfo = stream.labelsFiles.map(_.sourceInfo).distinct
+    new LabelDeclaration(sourceInfo, pkg, newLabels, nestedLabels)
   }
 
   override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {
@@ -87,8 +78,8 @@ final class LabelDeclaration(paths: Seq[PathLike], override val pkg: PackageImpl
 
   /** Report on unused labels */
   def unused(): Seq[Issue] = {
-    labels.filterNot(_.hasHolders)
-      .map(label => new Issue(UNUSED_CATEGORY, label.location, s"Label '$typeName.${label.name}'"))
+    labels.filterNot(_.hasHolders).filterNot(_.location.isEmpty)
+      .map(label => new Issue(UNUSED_CATEGORY, label.location.get, s"Label '$typeName.${label.name}'"))
   }
 }
 
@@ -131,7 +122,7 @@ final class GhostedLabels(pkg: PackageImpl, ghostedNamespace: Name)
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     if (staticContext.contains(true)) {
-      Some(Label(LineLocationImpl(PathFactory(s"$name.labels").toString, 0), name, isProtected = false))
+      Some(Label(None, None, name, isProtected = false))
     } else {
       None
     }

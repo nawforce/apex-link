@@ -56,12 +56,13 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   var components: ComponentDeclaration = ComponentDeclaration(this)
 
   protected val types: mutable.Map[TypeName, TypeDeclaration] = mutable.Map[TypeName, TypeDeclaration]()
+  protected val documents = new DocumentIndex(workspace.paths, workspace.forceIgnore)
 
   private val schemaManager = new SchemaManager(this)
   private val anyDeclaration = AnyDeclaration(this)
 
   initTypes()
-  deployFromWorkspace(workspace)
+  deployFromWorkspace()
 
   private def initTypes(): Unit = {
     upsertMetadata(anyDeclaration)
