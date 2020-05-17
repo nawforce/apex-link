@@ -45,11 +45,12 @@ class PackageStream(val namespace: Option[Name], val events: Seq[PackageEvent]) 
 
 object PackageStream {
   def apply(logger: IssueLogger, namespace: Option[Name], index: DocumentIndex): PackageStream = {
+    val provider = new DocumentIndexMetadataProvider(index)
     var queue = Queue[PackageEvent]()
-    queue = LabelGenerator.queue(logger, index, queue)
-    queue = PageGenerator.queue(logger, index, queue)
-    queue = FlowGenerator.queue(logger, index, queue)
-    queue = ComponentGenerator.queue(logger, index, queue)
+    queue = LabelGenerator.queue(logger, provider, queue)
+    queue = PageGenerator.queue(logger, provider, queue)
+    queue = FlowGenerator.queue(logger, provider, queue)
+    queue = ComponentGenerator.queue(logger, provider, queue)
     new PackageStream(namespace, queue)
   }
 }

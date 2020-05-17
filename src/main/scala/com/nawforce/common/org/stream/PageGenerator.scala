@@ -39,14 +39,15 @@ case class PageEvent(location: LocationImpl, name: Name) extends PackageEvent
 /** Convert page documents into PackageEvents */
 object PageGenerator extends Generator {
 
-  def queue(logger: IssueLogger, index: DocumentIndex, queue: Queue[PackageEvent]): Queue[PackageEvent] = {
-    super.queue(DocumentType.pageExt, logger, index, queue)
+  def queue(logger: IssueLogger, provider: MetadataProvider, queue: Queue[PackageEvent]): Queue[PackageEvent] = {
+    super.queue(DocumentType.pageExt, logger, provider, queue)
   }
 
-  override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentType): Option[PackageEvent] = {
-    metadata match {
-      case _: PageDocument => Some(PageEvent(LineLocationImpl(metadata.path.toString, 0), metadata.name))
-      case _ => None
+  override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
+    val docType = metadata.docType
+    docType match {
+      case _: PageDocument => Seq(PageEvent(LineLocationImpl(docType.path.toString, 0), docType.name))
+      case _ => Seq.empty
     }
   }
 }

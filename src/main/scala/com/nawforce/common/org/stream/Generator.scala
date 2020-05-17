@@ -30,28 +30,23 @@ package com.nawforce.common.org.stream
 
 import com.nawforce.common.api.Name
 import com.nawforce.common.diagnostics.IssueLogger
-import com.nawforce.common.documents.{DocumentIndex, LineLocationImpl, MetadataDocumentType}
 
 import scala.collection.immutable.Queue
 
+/** Package stream generator, assists queuing package stream events. */
 trait Generator {
 
-  protected def queue(metadataType: Name, logger: IssueLogger, index: DocumentIndex, queue: Queue[PackageEvent])
+  protected def queue(metadataType: Name, logger: IssueLogger, provider: MetadataProvider, queue: Queue[PackageEvent])
   : Queue[PackageEvent] = {
-    index.getByExtension(metadataType).foldRight(queue)((d, q) => {
+    provider.retrieve(metadataType, logger).foldRight(queue)((d, q) => {
       queueFromDocument(logger, q, d)
     })
   }
 
   private def queueFromDocument(logger: IssueLogger, queue: Queue[PackageEvent],
-                            documentType: MetadataDocumentType): Queue[PackageEvent] = {
-    if (!documentType.path.isFile) {
-      logger.logError(LineLocationImpl(documentType.path.toString, 0), s"Expecting metadata to be in a regular file")
-      return queue
-    }
-
-    queue ++ getMetadata(logger, documentType).toSeq
+                                metadata: MetadataDocumentWithData): Queue[PackageEvent] = {
+    queue ++ getMetadata(logger, metadata)
   }
 
-  protected def getMetadata(logger: IssueLogger, metadata: MetadataDocumentType): Option[PackageEvent]
+  protected def getMetadata(logger: IssueLogger, metadata: MetadataDocumentWithData): Seq[PackageEvent]
 }

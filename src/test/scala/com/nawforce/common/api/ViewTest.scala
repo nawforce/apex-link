@@ -27,6 +27,7 @@
 */
 package com.nawforce.common.api
 
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.{OrgImpl, PackageImpl, ViewInfoImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
@@ -228,6 +229,70 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       assert(view.diagnostics.head.category == "Missing")
       assert(view.diagnostics.head.location == RangeLocation(Position(1,44),Position(1,45)))
       assert(view.diagnostics.head.message.nonEmpty)
+    }
+  }
+
+  test("Empty labels file") {
+    FileSystemHelper.run(Map(
+      "CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("CustomLabels.labels"), None)
+      assert(view.hasType)
+      assert(view.diagnostics.isEmpty)
+      assert(view.typeName == TypeNames.Label)
+    }
+  }
+
+  test("Labels replacement error") {
+    FileSystemHelper.run(Map(
+      "CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("CustomLabels.labels"), Some(""))
+      assert(view.hasType)
+      assert(view.diagnostics.sameElements(Array(Diagnostic("Error",PointLocation(Position(1,1)),"Premature end of file."))))
+      assert(view.typeName == TypeNames.Label)
+    }
+  }
+
+  test("Multiple label files ") {
+    FileSystemHelper.run(Map(
+      "CustomLabels.labels" ->
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+          |    <labels>
+          |        <fullName>TestLabel</fullName>
+          |        <protected>false</protected>
+          |    </labels>
+          |</CustomLabels>
+          |""".stripMargin,
+      "AltLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("AltLabels.labels"), Some(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+          |    <labels>
+          |        <fullName>TestLabel2</fullName>
+          |        <protected>false</protected>
+          |    </labels>
+          |</CustomLabels>
+          |""".stripMargin,
+      )).asInstanceOf[ViewInfoImpl]
+      assert(view.hasType)
+      assert(view.diagnostics.isEmpty)
+      assert(view.typeName == TypeNames.Label)
+      assert(view.td.get.fields.map(_.name).toSet == Set(Name("TestLabel"), Name("TestLabel2")))
     }
   }
 }

@@ -29,9 +29,9 @@ package com.nawforce.common.org
 
 import com.nawforce.common.api.{Diagnostic, TypeName, ViewInfo}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types.apex.ApexFullDeclaration
+import com.nawforce.common.types.core.DependentType
 
-case class ViewInfoImpl(isNew: Boolean, path: PathLike, td: Option[ApexFullDeclaration],
+case class ViewInfoImpl(isNew: Boolean, path: PathLike, td: Option[DependentType],
                         override val diagnostics: Array[Diagnostic]) extends ViewInfo {
   override val hasType: Boolean = td.nonEmpty
   override val typeName: TypeName = td.map(_.typeName).orNull

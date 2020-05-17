@@ -28,14 +28,17 @@
 package com.nawforce.common.org
 
 import com.nawforce.common.api.{Diagnostic, LineLocation, Package, ServerOps, TypeIdentifier, TypeName, TypeSummary, ViewInfo}
-import com.nawforce.common.diagnostics.ERROR_CATEGORY
+import com.nawforce.common.diagnostics.{ERROR_CATEGORY, LocalLogger}
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeRequest
+import com.nawforce.common.org.stream._
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
+import com.nawforce.common.types.other.LabelDeclaration
 import com.nawforce.runtime.types.PlatformTypeException
 
+import scala.collection.immutable.Queue
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
@@ -118,8 +121,9 @@ trait PackageAPI extends Package {
   // Create a view for a type, contents are optional
   private[nawforce] def getViewOfType(path: PathLike, contents: Option[String]): ViewInfo = {
     // Check path is OK
-    val dt: Option[ApexDocument] = DocumentType(path) match {
+    val dt: Option[MetadataDocumentType] = DocumentType(path) match {
       case Some(ad: ApexDocument) => Some(ad)
+      case Some(ld: LabelsDocument) => Some(ld)
       case _ => None
     }
 
@@ -156,23 +160,24 @@ trait PackageAPI extends Package {
       return ViewInfoImpl(isNew = false, path, td, org.issues.getDiagnostics(path.toString).toArray)
 
     dt.get match {
-      case _: ApexClassDocument => loadAndValidate(path, source, FullDeclaration.create)
-      case _: ApexTriggerDocument => loadAndValidate(path, source, TriggerDeclaration.create)
+      case _: ApexClassDocument => loadApexAndValidate(path, source, FullDeclaration.create)
+      case _: ApexTriggerDocument => loadApexAndValidate(path, source, TriggerDeclaration.create)
+      case ld: LabelsDocument => loadLabelsAndValidate(MetadataDocumentWithData(ld, source))
     }
   }
 
   // Load a class and validate it without upsert'ing it into the package, upsertFromView will do that
-  private def loadAndValidate(absPath: PathLike, source: String,
-                                   create: (PackageImpl, PathLike, String) => Option[ApexFullDeclaration]): ViewInfoImpl = {
-    val issues = org.issues.pop(absPath.toString)
+  private def loadApexAndValidate(path: PathLike, source: String,
+                                  create: (PackageImpl, PathLike, String) => Option[ApexFullDeclaration]): ViewInfoImpl = {
+    val issues = org.issues.pop(path.toString)
     try {
       OrgImpl.current.withValue(org) {
-        val td = create(this, absPath, source)
+        val td = create(this, path, source)
         td.foreach(validateInIsolation)
-        ViewInfoImpl(isNew = true, absPath, td, org.issues.getDiagnostics(absPath.toString).toArray)
+        ViewInfoImpl(isNew = true, path, td, org.issues.getDiagnostics(path.toString).toArray)
       }
     } finally {
-      org.issues.push(absPath.toString, issues)
+      org.issues.push(path.toString, issues)
     }
   }
 
@@ -185,6 +190,24 @@ trait PackageAPI extends Package {
     } finally {
       types.remove(td.typeName)
       originalTd.foreach(types.put(td.typeName, _))
+    }
+  }
+
+  private def loadLabelsAndValidate(metadata: MetadataDocumentWithData): ViewInfoImpl = {
+    val path = metadata.docType.path
+    val issues = org.issues.pop(path.toString)
+    try {
+      OrgImpl.current.withValue(org) {
+        // Re-create labels
+        var labels = LabelDeclaration(this)
+        val provider = new OverrideMetadataProvider(Seq(metadata), new DocumentIndexMetadataProvider(documents))
+        val queue = LabelGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
+        labels = labels.merge(new PackageStream(namespace, queue))
+
+        ViewInfoImpl(isNew = true, path, Some(labels), org.issues.getDiagnostics(path.toString).toArray)
+      }
+    } finally {
+      org.issues.push(path.toString, issues)
     }
   }
 
@@ -203,7 +226,7 @@ trait PackageAPI extends Package {
 
     OrgImpl.current.withValue(org) {
       // If view created TD use it, otherwise we need to create fresh
-      val updated : Option[ApexDeclaration] =
+      val updated : Option[DependentType] =
         if (viewInfoImpl.isNew) {
           Some(td)
         } else {
@@ -223,6 +246,8 @@ trait PackageAPI extends Package {
         // Update and validate
         types.put(utd.typeName, utd)
         utd.validate()
+
+        // TODO: Push new files to DocumentIndex
       })
       updated.nonEmpty
     }

@@ -31,37 +31,28 @@ package com.nawforce.common.org.stream
 import com.nawforce.common.api.Name
 import com.nawforce.common.diagnostics.IssueLogger
 import com.nawforce.common.documents._
-import com.nawforce.common.path.PathLike
-import com.nawforce.common.xml.{XMLException, XMLFactory}
+import com.nawforce.common.xml.XMLException
+import com.nawforce.runtime.xml.XMLDocument
 
 import scala.collection.immutable.Queue
 
-case class LabelFileEvent(location: LocationImpl) extends PackageEvent
+case class LabelFileEvent(sourceInfo: SourceInfo) extends PackageEvent
 case class LabelEvent(location: LocationImpl, name: Name, isProtected: Boolean) extends PackageEvent
 
-object LabelGenerator {
+object LabelGenerator extends Generator {
 
-  def queue(logger: IssueLogger, index: DocumentIndex, queue: Queue[PackageEvent])
+  def queue(logger: IssueLogger, provider: MetadataProvider, queue: Queue[PackageEvent])
     : Queue[PackageEvent] = {
-    index.getByExtension(Name("labels")).foldRight(queue)((f, q) => queueFromPath(logger, q, f.path))
+    super.queue(DocumentType.labelsExt, logger, provider, queue)
   }
 
-  private def queueFromPath(logger: IssueLogger, queue: Queue[PackageEvent], path: PathLike): Queue[PackageEvent] = {
-    if (!path.isFile) {
-      logger.logError(LineLocationImpl(path.toString, 0), s"Expecting labels to be in a regular file")
-      return queue
-    }
+  protected override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
 
-    val data = path.read()
-    if (data.isLeft) {
-      logger.logError(LineLocationImpl(path.toString, 0), s"Could not read file: ${data.right.get}")
-      return queue
-    }
-
-    val parseResult = XMLFactory.parse(path)
+    val path = metadata.docType.path
+    val parseResult = XMLDocument(path, metadata.data)
     if (parseResult.isLeft) {
       logger.logError(parseResult.left.get._1, parseResult.left.get._2)
-      return queue
+      return Seq.empty
     }
     val rootElement = parseResult.right.get.rootElement
 
@@ -70,7 +61,7 @@ object LabelGenerator {
     } catch {
       case e: XMLException =>
         logger.logError(RangeLocationImpl(path, e.where), e.msg)
-        return queue
+        return Seq.empty
     }
 
     val labels = rootElement.getChildren("labels")
@@ -85,6 +76,6 @@ object LabelGenerator {
             None
         }
       })
-      queue ++ labels :+ LabelFileEvent(LineLocationImpl(path.toString, 0))
+    labels :+ LabelFileEvent(SourceInfo(path, metadata.data))
   }
 }

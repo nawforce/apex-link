@@ -34,6 +34,7 @@ import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
+import com.nawforce.common.types.other.{Label, LabelDeclaration}
 import upickle.default._
 
 import scala.collection.mutable
@@ -65,13 +66,15 @@ object DependentValidation {
 
     // Fallback to outer type if we are given an inner to find
     def findSummaryType(typeId: TypeId): Option[TypeDeclaration] = {
-      findType(typeId.typeName, typeId.pkg).orElse(typeId.typeName.outer.flatMap(findType(_, typeId.pkg)))
+      findDependentType(typeId.typeName, typeId.pkg)
+        .orElse(typeId.typeName.outer.flatMap(findDependentType(_, typeId.pkg)))
     }
 
     TypeId(pkg, dependent.typeId).flatMap(typeId => {
       findSummaryType(typeId)
         .filter({
           case sd: SummaryDeclaration => sd.sourceHash == dependent.sourceHash
+          case ld: LabelDeclaration => ld.sourceHash == dependent.sourceHash
           case _ => true
         })
     })
@@ -104,7 +107,7 @@ object DependentValidation {
   def findDependent(dependent: TypeDependentSummary, pkg: PackageImpl)
     : Option[TypeDeclaration] = {
     TypeId(pkg, dependent.typeId).flatMap(typeId => {
-      findType(typeId.typeName, typeId.pkg)
+      findDependentType(typeId.typeName, typeId.pkg)
     })
   }
 
@@ -114,7 +117,7 @@ object DependentValidation {
     val name = Name(dependent.name)
 
     TypeId(pkg, dependent.typeId).flatMap(typeId => {
-      findExactType(typeId.typeName, typeId.pkg)
+      findExactDependentType(typeId.typeName, typeId.pkg)
         .flatMap(_.fields.find(_.name == name))
     })
   }
@@ -125,16 +128,16 @@ object DependentValidation {
     val name = Name(dependent.name)
 
     TypeId(pkg, dependent.typeId).flatMap(typeId => {
-      findExactType(typeId.typeName, typeId.pkg)
+      findExactDependentType(typeId.typeName, typeId.pkg)
         .flatMap(_.methods.find(m => m.name == name &&
           m.parameters.map(_.typeName) == dependent.parameters.map(_.typeName)))
     })
   }
 
   /* Find an outer or inner type from namespace mapping to a package */
-  private def findExactType(typeName: TypeName, pkg: PackageImpl)
+  private def findExactDependentType(typeName: TypeName, pkg: PackageImpl)
     : Option[TypeDeclaration] = {
-    findType(typeName, pkg).flatMap(td => {
+    findDependentType(typeName, pkg).flatMap(td => {
       if (td.typeName != typeName) {
         td.nestedTypes.find(_.typeName == typeName)
       } else {
@@ -144,12 +147,13 @@ object DependentValidation {
   }
 
   /* Find an Apex type declaration from a package */
-  private def findType(typeName: TypeName, pkg: PackageImpl)
+  private def findDependentType(typeName: TypeName, pkg: PackageImpl)
     : Option[TypeDeclaration] = {
 
     TypeRequest(typeName, pkg, excludeSObjects = false) match {
       case Left(_) => None
       case Right(ad: ApexClassDeclaration) => Some(ad)
+      case Right(ld: LabelDeclaration) => Some(ld)
       case Right(_) => None
     }
   }
@@ -292,8 +296,10 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
     def collect(dependents: Set[Dependent]): Unit = {
       dependents.foreach({
         case ad: ApexClassDeclaration => localDependencies.add(ad.typeId)
+        case ld: LabelDeclaration => localDependencies.add(ld.typeId)
         case _: ApexFieldLike => ()
         case _: ApexMethodLike => ()
+        case _: Label => ()
       })
     }
 
@@ -307,14 +313,15 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
 
     // Use outermost of each to get top-level dependencies
     localDependencies.foreach(dependentTypeName => {
-      getOutermostDeclaration(dependentTypeName.typeName).foreach(td => dependsOn.add(td.typeId))
+      getOutermostDeclaration(dependentTypeName.typeName).foreach(dependsOn.add)
     })
   }
 
-  private def getOutermostDeclaration(typeName: TypeName): Option[ApexClassDeclaration] = {
+  private def getOutermostDeclaration(typeName: TypeName): Option[TypeId] = {
     TypeRequest(typeName, pkg, excludeSObjects = false) match {
       case Right(td: ApexClassDeclaration) =>
-        td.outerTypeName.map(getOutermostDeclaration).getOrElse(Some(td))
+        td.outerTypeName.map(getOutermostDeclaration).getOrElse(Some(td.typeId))
+      case Right(ld: LabelDeclaration) => Some(ld.typeId)
       case Right(_) => None
       case Left(_) => None
     }

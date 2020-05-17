@@ -32,8 +32,6 @@ import com.nawforce.common.diagnostics.{Issue, LocalLogger, MISSING_CATEGORY}
 import com.nawforce.common.documents._
 import com.nawforce.common.names._
 import com.nawforce.common.org.stream.PackageStream
-import com.nawforce.common.path.PathLike
-import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types.apex.{ApexClassDeclaration, FullDeclaration, SummaryApex, TriggerDeclaration}
 import com.nawforce.common.types.schema.SObjectDeclaration
 
@@ -44,13 +42,8 @@ trait PackageDeploy {
 
   private val epoch = System.currentTimeMillis()
 
-  def deployFromWorkspace(workspace: Workspace): Unit = {
-    workspace.paths.foreach(path => deployFromPath(workspace, path))
-  }
-
-  def deployFromPath(workspace: Workspace, path: PathLike): Unit = {
+  def deployFromWorkspace(): Unit = {
     val startingTypes = types.size
-    val documents = new DocumentIndex(Seq(path), workspace.forceIgnore)
     val stream = PackageStream(new LocalLogger(org.issues), namespace, documents)
 
     labels = labels.merge(stream)
