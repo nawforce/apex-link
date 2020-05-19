@@ -30,21 +30,21 @@ package com.nawforce.common.org.stream
 
 import com.nawforce.common.api.Name
 import com.nawforce.common.diagnostics.IssueLogger
-import com.nawforce.common.documents.{DocumentIndex, LineLocationImpl, MetadataDocumentType}
+import com.nawforce.common.documents.{DocumentIndex, LineLocationImpl, MetadataDocument}
 
-case class MetadataDocumentWithData(docType: MetadataDocumentType, data: String)
+case class MetadataDocumentWithData(docType: MetadataDocument, data: String)
 
 /** Provider for metadata files */
 trait MetadataProvider {
   /** Retrieves files of a specific type, if file is not readable an issue is logged. */
-  def retrieve(metadataExt: Name, logger: IssueLogger): Seq[MetadataDocumentWithData]
+  def retrieve(metadataExt: Name, logger: IssueLogger): Set[MetadataDocumentWithData]
 }
 
 /** MetadataProvider that uses a DocumentIndex as a source */
 class DocumentIndexMetadataProvider(index: DocumentIndex) extends MetadataProvider {
 
   /** Retrieve from the provided DocumentIndex with error handling */
-  def retrieve(metadataExt: Name, logger: IssueLogger): Seq[MetadataDocumentWithData] = {
+  override def retrieve(metadataExt: Name, logger: IssueLogger): Set[MetadataDocumentWithData] = {
     index.getByExtension(metadataExt).flatMap(documentType => {
       if (!documentType.path.isFile) {
         logger.logError(LineLocationImpl(documentType.path.toString, 0),
@@ -70,7 +70,7 @@ class OverrideMetadataProvider(overrides: Seq[MetadataDocumentWithData], base: M
 
   private lazy val overrideByExt: Map[Name, Seq[MetadataDocumentWithData]] = overrides.groupBy(_.docType.extension)
 
-  override def retrieve(metadataExt: Name, logger: IssueLogger): Seq[MetadataDocumentWithData] = {
+  override def retrieve(metadataExt: Name, logger: IssueLogger): Set[MetadataDocumentWithData] = {
     val metadata = base.retrieve(metadataExt, logger)
     val overrides = overrideByExt.getOrElse(metadataExt, Seq())
     val overridesByPath = overrides.groupBy(_.docType.path)

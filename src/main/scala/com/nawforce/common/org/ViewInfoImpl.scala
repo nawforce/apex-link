@@ -31,7 +31,13 @@ import com.nawforce.common.api.{Diagnostic, TypeName, ViewInfo}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.DependentType
 
-case class ViewInfoImpl(isNew: Boolean, path: PathLike, td: Option[DependentType],
+sealed class ViewStatus
+
+case object IN_ERROR extends ViewStatus
+case object EXISTING_TYPE extends ViewStatus
+case object NEW_TYPE extends ViewStatus
+
+case class ViewInfoImpl(status: ViewStatus, path: PathLike, td: Option[DependentType],
                         override val diagnostics: Array[Diagnostic]) extends ViewInfo {
   override val hasType: Boolean = td.nonEmpty
   override val typeName: TypeName = td.map(_.typeName).orNull

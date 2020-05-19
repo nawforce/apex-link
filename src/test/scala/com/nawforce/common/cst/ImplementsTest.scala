@@ -28,7 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, ServerOps, TypeName}
-import com.nawforce.common.documents.{ApexClassDocument, DocumentType}
+import com.nawforce.common.documents.{ApexClassDocument, MetadataDocument}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.TypeDeclaration
@@ -46,7 +46,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
       this.root = root
       OrgImpl.current.withValue(defaultOrg) {
         defaultOrg.unmanaged.deployClasses(
-          classes.map(p => DocumentType(root.join(p._1)).get.asInstanceOf[ApexClassDocument]).toSeq)
+          classes.map(p => MetadataDocument(root.join(p._1)).get.asInstanceOf[ApexClassDocument]).toSeq)
         defaultOrg.unmanaged.findTypes(classes.keys.map(k => TypeName(Name(k.replaceAll("\\.cls$", "")))).toSeq)
       }
     }

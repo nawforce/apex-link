@@ -40,7 +40,7 @@ case class PageEvent(location: LocationImpl, name: Name) extends PackageEvent
 object PageGenerator extends Generator {
 
   def queue(logger: IssueLogger, provider: MetadataProvider, queue: Queue[PackageEvent]): Queue[PackageEvent] = {
-    super.queue(DocumentType.pageExt, logger, provider, queue)
+    super.queue(MetadataDocument.pageExt, logger, provider, queue)
   }
 
   override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentWithData): Seq[PackageEvent] = {

@@ -40,7 +40,7 @@ case class ComponentEvent(location: LocationImpl, name: Name) extends PackageEve
 object ComponentGenerator extends Generator {
 
   def queue(logger: IssueLogger, provider: MetadataProvider, queue: Queue[PackageEvent]): Queue[PackageEvent] = {
-    super.queue(DocumentType.componentExt, logger, provider, queue)
+    super.queue(MetadataDocument.componentExt, logger, provider, queue)
   }
 
   override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentWithData): Seq[PackageEvent] = {

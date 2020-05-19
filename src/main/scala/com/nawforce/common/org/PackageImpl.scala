@@ -30,7 +30,7 @@ package com.nawforce.common.org
 
 import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, UnusedLog}
-import com.nawforce.common.diagnostics.IssueLog
+import com.nawforce.common.diagnostics.{IssueLog, LocalLogger}
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
@@ -56,7 +56,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   var components: ComponentDeclaration = ComponentDeclaration(this)
 
   protected val types: mutable.Map[TypeName, TypeDeclaration] = mutable.Map[TypeName, TypeDeclaration]()
-  protected val documents = new DocumentIndex(workspace.paths, workspace.forceIgnore)
+  protected val documents = new DocumentIndex(namespace, workspace.paths, new LocalLogger(org.issues), workspace.forceIgnore)
 
   private val schemaManager = new SchemaManager(this)
   private val anyDeclaration = AnyDeclaration(this)
