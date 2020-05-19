@@ -64,7 +64,7 @@ final case class SObjectDetails(sobjectNature: SObjectNature, typeName: TypeName
 
 object SObjectDetails {
   def parseSObject(path: PathLike, pkg: PackageImpl): Option[SObjectDetails] = {
-    val dt = DocumentType(path)
+    val dt = MetadataDocument(path)
     assert(dt.exists(_.isInstanceOf[SObjectLike]))
     val typeName = TypeName(EncodedName(dt.get.name).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeNames.Schema))
 

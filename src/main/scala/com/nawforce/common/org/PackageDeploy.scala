@@ -100,7 +100,7 @@ trait PackageDeploy {
           val data = doc.path.read()
           val value = pcOpt.flatMap(_.get(data.right.get.getBytes(), packageContext))
           value.map(v => new SummaryApex(doc.path, this, v))
-        })
+        }).toSeq
 
         // Upsert any summary docs that don't have missing diagnostics that might be resolvable
         val validSummaryDocs: mutable.Map[TypeName, SummaryApex] = mutable.Map(summaryDocs

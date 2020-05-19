@@ -28,16 +28,24 @@
 package com.nawforce.common.documents
 
 import com.nawforce.common.api.Name
+import com.nawforce.common.diagnostics.{CatchingLogger, ERROR_CATEGORY, Issue}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.runtime.FileSystemHelper
+import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class DocumentIndexTest extends AnyFunSuite {
+class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
+
+  var logger: CatchingLogger = _
+
+  before {
+    logger = new CatchingLogger
+  }
 
   test("bad dir has no files") {
     FileSystemHelper.run(Map[String, String](
     )) {root: PathLike =>
-      val index = new DocumentIndex(Seq(root.join("foo")))
+      val index = new DocumentIndex(None, Seq(root.join("foo")), logger)
       assert(index.size == 0)
     }
   }
@@ -45,7 +53,7 @@ class DocumentIndexTest extends AnyFunSuite {
   test("empty dir has no files") {
     FileSystemHelper.run(Map[String, String](
     )) {root: PathLike =>
-      val index = new DocumentIndex(Seq(root))
+      val index = new DocumentIndex(None, Seq(root), logger)
       assert(index.size == 0)
     }
   }
@@ -54,10 +62,9 @@ class DocumentIndexTest extends AnyFunSuite {
     FileSystemHelper.run(Map[String, String](
       "pkg/Foo.cls" -> "public class Foo {}"
     )) {root: PathLike =>
-      val index = new DocumentIndex(Seq(root.join("pkg")))
+      val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
       assert(index.size == 1)
-      assert(index.getByExtension(Name("cls")).toString() ==
-        Seq(ApexClassDocument(PathFactory("/pkg/Foo.cls"), Name("Foo"))).toString())
+      assert(index.getByExtension(Name("cls")) == Set(ApexClassDocument(PathFactory("/pkg/Foo.cls"), Name("Foo"))))
     }
   }
 
@@ -65,10 +72,9 @@ class DocumentIndexTest extends AnyFunSuite {
     FileSystemHelper.run(Map[String, String](
       "pkg/foo/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
-      val index = new DocumentIndex(Seq(root.join("pkg")))
+      val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
       assert(index.size == 1)
-      assert(index.getByExtension(Name("cls")).toString ==
-        Seq(ApexClassDocument(PathFactory("/pkg/foo/Foo.cls"), Name("Foo"))).toString())
+      assert(index.getByExtension(Name("cls")) == Set(ApexClassDocument(PathFactory("/pkg/foo/Foo.cls"), Name("Foo"))))
     }
   }
 
@@ -77,9 +83,9 @@ class DocumentIndexTest extends AnyFunSuite {
       "pkg/Foo.cls" -> "public class Foo {}",
       "/pkg/bar/Bar.cls" -> "public class Bar {}"
     )) { root: PathLike =>
-      val index = new DocumentIndex(Seq(root.join("pkg")))
+      val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
       assert(index.size == 2)
-      assert(index.getByExtension(Name("cls")).map(_.toString()).toSet == Set(
+      assert(index.getByExtension(Name("cls")).map(_.toString()) == Set(
         ApexClassDocument(PathFactory("/pkg/Foo.cls"), Name("Foo")).toString,
         ApexClassDocument(PathFactory("/pkg/bar/Bar.cls"), Name("Bar")).toString
       ))
@@ -91,20 +97,34 @@ class DocumentIndexTest extends AnyFunSuite {
       "pkg/foo/Foo.cls" -> "public class Foo {}",
       "/pkg/bar/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
-      val index = new DocumentIndex(Seq(root.join("pkg")))
+      val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
       assert(index.size == 1)
-      // TODO: Check duplicate issues exists
+      assert(logger.issues == List(
+        Issue(ERROR_CATEGORY,LineLocationImpl("/pkg/bar/Foo.cls", 0),
+          "File has creates duplicate type 'Foo' as '/pkg/foo/Foo.cls', ignoring")
+      ))
     }
   }
+
+  test("duplicate labels no error") {
+    FileSystemHelper.run(Map[String, String](
+      "pkg/foo/CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
+      "/pkg/bar/CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>"
+    )) { root: PathLike =>
+      val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
+      assert(index.size == 2)
+      assert(logger.issues.isEmpty)
+    }
+  }
+
 
   test("object file found") {
     FileSystemHelper.run(Map[String, String](
       "pkg/Foo.object" -> "<CustomObject xmlns=\\\"http://soap.sforce.com/2006/04/metadata\\\"/>"
     )) { root: PathLike =>
-      val index = new DocumentIndex(Seq(root.join("pkg")))
+      val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
       assert(index.size == 1)
-      assert(index.getByExtension(Name("object")).toString ==
-        Seq(SObjectDocument(PathFactory("/pkg/Foo.object"), Name("Foo"))).toString())
+      assert(index.getByExtension(Name("object")) == Set(SObjectDocument(PathFactory("/pkg/Foo.object"), Name("Foo"))))
     }
   }
 
@@ -112,10 +132,10 @@ class DocumentIndexTest extends AnyFunSuite {
     FileSystemHelper.run(Map[String, String](
       "pkg/Foo.object-meta.xml" -> "<CustomObject xmlns=\\\"http://soap.sforce.com/2006/04/metadata\\\"/>"
     )) { root: PathLike =>
-      val index = new DocumentIndex(Seq(root.join("pkg")))
+      val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
       assert(index.size == 1)
-      assert(index.getByExtension(Name("object")).toString ==
-        Seq(SObjectDocument(PathFactory("/pkg/Foo.object-meta.xml"), Name("Foo"))).toString())
+      assert(index.getByExtension(Name("object")) ==
+        Set(SObjectDocument(PathFactory("/pkg/Foo.object-meta.xml"), Name("Foo"))))
     }
   }
 
@@ -123,12 +143,12 @@ class DocumentIndexTest extends AnyFunSuite {
     FileSystemHelper.run(Map[String, String](
       "pkg/Foo/fields/Bar.field-meta.xml" -> "<CustomField xmlns=\\\"http://soap.sforce.com/2006/04/metadata\\\"/>"
     )) { root: PathLike =>
-      val index = new DocumentIndex(Seq(root.join("pkg")))
+      val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
       assert(index.size == 2)
-      assert(index.getByExtension(Name("field")).toString() ==
-        Seq(SObjectFieldDocument(PathFactory("/pkg/Foo/fields/Bar.field-meta.xml"), Name("Bar"))).toString())
-      assert(index.getByExtension(Name("object")).toString() ==
-        Seq(SObjectDocument(PathFactory("/pkg/Foo/Foo.object-meta.xml"), Name("Foo"))).toString())
+      assert(index.getByExtension(Name("field")) ==
+        Set(SObjectFieldDocument(PathFactory("/pkg/Foo/fields/Bar.field-meta.xml"), Name("Bar"))))
+      assert(index.getByExtension(Name("object")) ==
+        Set(SObjectDocument(PathFactory("/pkg/Foo/Foo.object-meta.xml"), Name("Foo"))))
     }
   }
 
@@ -136,12 +156,12 @@ class DocumentIndexTest extends AnyFunSuite {
     FileSystemHelper.run(Map[String, String](
       "pkg/Foo/fieldSets/Bar.fieldset-meta.xml" -> "<FieldSet xmlns=\\\"http://soap.sforce.com/2006/04/metadata\\\"/>"
     )) { root: PathLike =>
-      val index = new DocumentIndex(Seq(root.join("pkg")))
+      val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
       assert(index.size == 2)
-      assert(index.getByExtension(Name("fieldset")).toString() ==
-        Seq(SObjectFieldSetDocument(PathFactory("/pkg/Foo/fieldSets/Bar.fieldset-meta.xml"), Name("Bar"))).toString())
-      assert(index.getByExtension(Name("object")).toString() ==
-        Seq(SObjectDocument(PathFactory("/pkg/Foo/Foo.object-meta.xml"), Name("Foo"))).toString())
+      assert(index.getByExtension(Name("fieldset")) ==
+        Set(SObjectFieldSetDocument(PathFactory("/pkg/Foo/fieldSets/Bar.fieldset-meta.xml"), Name("Bar"))))
+      assert(index.getByExtension(Name("object")) ==
+        Set(SObjectDocument(PathFactory("/pkg/Foo/Foo.object-meta.xml"), Name("Foo"))))
     }
   }
 }

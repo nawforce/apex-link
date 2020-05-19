@@ -39,7 +39,7 @@ case class FlowEvent(location: LocationImpl, name: Name) extends PackageEvent
 object FlowGenerator extends Generator {
 
   def queue(logger: IssueLogger, provider: MetadataProvider, queue: Queue[PackageEvent]): Queue[PackageEvent] = {
-    super.queue(DocumentType.flowExt, logger, provider, queue)
+    super.queue(MetadataDocument.flowExt, logger, provider, queue)
   }
 
   override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentWithData): Seq[PackageEvent] = {

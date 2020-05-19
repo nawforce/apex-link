@@ -51,8 +51,8 @@ trait PackageAPI extends Package {
 
   override def getTypeOfPath(path: String): TypeIdentifier = {
     val pathLike = PathFactory(path)
-    DocumentType(pathLike) match {
-      case Some(md: MetadataDocumentType) =>
+    MetadataDocument(pathLike) match {
+      case Some(md: MetadataDocument) =>
         types.get(md.typeName(namespace)) match {
           case Some(td: TypeDeclaration) if td.paths.contains(pathLike) => TypeIdentifier(namespace, td.typeName)
           case _ => null
@@ -120,29 +120,27 @@ trait PackageAPI extends Package {
 
   // Create a view for a type, contents are optional
   private[nawforce] def getViewOfType(path: PathLike, contents: Option[String]): ViewInfo = {
-    // Check path is OK
-    val dt: Option[MetadataDocumentType] = DocumentType(path) match {
+    // Check path is something we known how to handle & is not being ignored
+    val dt: Option[MetadataDocument] = MetadataDocument(path) match {
       case Some(ad: ApexDocument) => Some(ad)
       case Some(ld: LabelsDocument) => Some(ld)
       case _ => None
     }
 
     if (dt.isEmpty) {
-      return ViewInfoImpl(isNew = false, path, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
+      return ViewInfoImpl(IN_ERROR, path, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
         "Path does not identify a supported metadata type")))
     }
 
     if (!workspace.isVisibleFile(path))
-      return ViewInfoImpl(isNew = false, path, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
+      return ViewInfoImpl(IN_ERROR, path, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
         "Path is being ignored in this workspace")))
 
-    // Read contents from file if needed
-    val source = contents.getOrElse({
+    // Read contents from file if we were not provided with
+    val source = contents.orElse({
       path.read() match {
-        case Left(err) =>
-          return ViewInfoImpl(isNew = false, path, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0), err)))
-        case Right(data) =>
-          data
+        case Left(_) => None
+        case Right(data) =>Some(data)
       }
     })
 
@@ -156,25 +154,26 @@ trait PackageAPI extends Package {
         }
     })
 
-    if (td.nonEmpty && td.get.sourceHash == MurmurHash3.stringHash(source))
-      return ViewInfoImpl(isNew = false, path, td, org.issues.getDiagnostics(path.toString).toArray)
+    if (td.nonEmpty && source.nonEmpty && td.get.sourceHash == MurmurHash3.stringHash(source.get))
+      return ViewInfoImpl(EXISTING_TYPE, path, td, org.issues.getDiagnostics(path.toString).toArray)
 
+    // Prepare the view for a replacement or deletion
     dt.get match {
       case _: ApexClassDocument => loadApexAndValidate(path, source, FullDeclaration.create)
       case _: ApexTriggerDocument => loadApexAndValidate(path, source, TriggerDeclaration.create)
-      case ld: LabelsDocument => loadLabelsAndValidate(MetadataDocumentWithData(ld, source))
+      case _: LabelsDocument => loadLabelsAndValidate(dt.get, source)
     }
   }
 
   // Load a class and validate it without upsert'ing it into the package, upsertFromView will do that
-  private def loadApexAndValidate(path: PathLike, source: String,
+  private def loadApexAndValidate(path: PathLike, source: Option[String],
                                   create: (PackageImpl, PathLike, String) => Option[ApexFullDeclaration]): ViewInfoImpl = {
     val issues = org.issues.pop(path.toString)
     try {
       OrgImpl.current.withValue(org) {
-        val td = create(this, path, source)
+        val td = source.flatMap(data => create(this, path, data))
         td.foreach(validateInIsolation)
-        ViewInfoImpl(isNew = true, path, td, org.issues.getDiagnostics(path.toString).toArray)
+        ViewInfoImpl(NEW_TYPE, path, td, org.issues.getDiagnostics(path.toString).toArray)
       }
     } finally {
       org.issues.push(path.toString, issues)
@@ -193,18 +192,19 @@ trait PackageAPI extends Package {
     }
   }
 
-  private def loadLabelsAndValidate(metadata: MetadataDocumentWithData): ViewInfoImpl = {
-    val path = metadata.docType.path
+  private def loadLabelsAndValidate(docType: MetadataDocument, source: Option[String]): ViewInfoImpl = {
+    val path = docType.path
     val issues = org.issues.pop(path.toString)
     try {
       OrgImpl.current.withValue(org) {
         // Re-create labels
         var labels = LabelDeclaration(this)
-        val provider = new OverrideMetadataProvider(Seq(metadata), new DocumentIndexMetadataProvider(documents))
+        val metadata = source.map(data => MetadataDocumentWithData(docType, data)).toSeq
+        val provider = new OverrideMetadataProvider(metadata, new DocumentIndexMetadataProvider(documents))
         val queue = LabelGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
         labels = labels.merge(new PackageStream(namespace, queue))
 
-        ViewInfoImpl(isNew = true, path, Some(labels), org.issues.getDiagnostics(path.toString).toArray)
+        ViewInfoImpl(NEW_TYPE, path, Some(labels), org.issues.getDiagnostics(path.toString).toArray)
       }
     } finally {
       org.issues.push(path.toString, issues)
@@ -212,22 +212,29 @@ trait PackageAPI extends Package {
   }
 
   override def upsertFromView(viewInfo: ViewInfo): Boolean = {
-    if (!viewInfo.hasType) return false
+    // Reject views with error state
     val viewInfoImpl = viewInfo.asInstanceOf[ViewInfoImpl]
-    val td = viewInfoImpl.td.get
+    if (viewInfoImpl.status == IN_ERROR)
+      return false
 
     // Check we are not trying to circumvent the no duplicates rule
-    val existing = getApexDeclaration(td.typeName)
-    if (existing match {
-      case Some(ad: ApexDeclaration) => ad.path != viewInfoImpl.path
-      case None => false
-      case _ => true
-    }) return false
+    if (!MetadataDocument(viewInfoImpl.path).exists(documents.checkUpsertableAndIndex))
+      return false
 
+    // If there is no td this is a deletion
+    if (viewInfoImpl.td.isEmpty) {
+      val metadata = MetadataDocument(viewInfoImpl.path).get
+      documents.remove(metadata)
+      org.issues.pop(viewInfoImpl.path.toString)
+      return types.remove(metadata.typeName(namespace)).nonEmpty
+    }
+
+    // Handle a replacement
     OrgImpl.current.withValue(org) {
       // If view created TD use it, otherwise we need to create fresh
+      val td = viewInfoImpl.td.get
       val updated : Option[DependentType] =
-        if (viewInfoImpl.isNew) {
+        if (viewInfoImpl.status == NEW_TYPE) {
           Some(td)
         } else {
           td match {
@@ -238,6 +245,7 @@ trait PackageAPI extends Package {
 
       updated.foreach(utd => {
         // Carry forward holders to limit need for invalidation chaining
+        val existing = getDependentType(td.typeName)
         utd.updateTypeDependencyHolders(existing.map(_.getTypeDependencyHolders).getOrElse(mutable.Set()))
 
         // Clear old errors as we need to validate the upserted
@@ -246,21 +254,8 @@ trait PackageAPI extends Package {
         // Update and validate
         types.put(utd.typeName, utd)
         utd.validate()
-
-        // TODO: Push new files to DocumentIndex
       })
       updated.nonEmpty
-    }
-  }
-
-  override def deleteType(typeId: TypeIdentifier): Boolean = {
-    if (typeId != null && typeId.namespace == namespace) {
-      types.get(typeId.typeName) match {
-        case Some(_: ApexDeclaration) => types.remove(typeId.typeName); true
-        case _ => false
-      }
-    } else {
-      false
     }
   }
 

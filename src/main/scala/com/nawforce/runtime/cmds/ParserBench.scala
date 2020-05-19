@@ -30,6 +30,7 @@ package com.nawforce.runtime.cmds
 import java.nio.file.{Files, Paths}
 
 import com.nawforce.common.api.{Name, ServerOps}
+import com.nawforce.common.diagnostics.CatchingLogger
 import com.nawforce.common.documents.DocumentIndex
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.os.Path
@@ -53,9 +54,10 @@ object ParserBench {
     //Thread.sleep(10000)
 
     // Indexing
+    val logger = new CatchingLogger()
     ServerOps.setDebugLogging(Array("ALL"))
     val index = ServerOps.debugTime("Index") {
-      new DocumentIndex(Seq(new Path(dir)), None)
+      new DocumentIndex(None, Seq(new Path(dir)), logger)
     }
 
     // Parsing

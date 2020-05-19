@@ -54,6 +54,12 @@ object LocalLogger {
   def apply(): LocalLogger = new LocalLogger(new IssueLog)
 }
 
+class CatchingLogger extends IssueLogger {
+  var issues: List[Issue] = Nil
+
+  override def log(issue: Issue): Unit = issues = issue :: issues
+}
+
 trait ParserIssueLogger extends IssueLogger {
   // Get location for an AST context
   def location(context: ParserRuleContext): LocationImpl
