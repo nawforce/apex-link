@@ -58,6 +58,24 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+  test("dot dir is ignored") {
+    FileSystemHelper.run(Map[String, String](
+      ".pkg/Foo.cls" -> ""
+    )) {root: PathLike =>
+      val index = new DocumentIndex(None, Seq(root), logger)
+      assert(index.size == 0)
+    }
+  }
+
+  test("node_modules dir is ignored") {
+    FileSystemHelper.run(Map[String, String](
+      "node_modules/Foo.cls" -> ""
+    )) {root: PathLike =>
+      val index = new DocumentIndex(None, Seq(root), logger)
+      assert(index.size == 0)
+    }
+  }
+
   test("class file found") {
     FileSystemHelper.run(Map[String, String](
       "pkg/Foo.cls" -> "public class Foo {}"
