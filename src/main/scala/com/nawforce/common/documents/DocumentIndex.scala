@@ -105,7 +105,7 @@ class DocumentIndex(namespace: Option[Name], paths: Seq[PathLike], logger: Issue
   }
 
   private def indexPath(path: PathLike, forceIgnore: Option[ForceIgnore]): Unit = {
-    if (path.basename.startsWith("."))
+    if (DocumentIndex.isExcluded(path))
       return
 
     if (path.isDirectory) {
@@ -169,5 +169,15 @@ class DocumentIndex(namespace: Option[Name], paths: Seq[PathLike], logger: Issue
         }
       }
     })
+  }
+}
+
+object DocumentIndex {
+  /** Exclude some paths that we would waste time searching */
+  def isExcluded(path: PathLike): Boolean = {
+    val basename = path.basename
+    if (basename.startsWith(".")) return true
+    if (basename == "node_modules") return true
+    false
   }
 }
