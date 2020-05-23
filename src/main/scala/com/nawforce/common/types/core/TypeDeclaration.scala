@@ -234,7 +234,13 @@ object TypeDeclaration {
   }
 }
 
-trait TypeDeclaration extends DependencyHolder {
+trait AbstractTypeDeclaration {
+  def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration]
+  def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean], verifyContext: VerifyContext): Seq[MethodDeclaration]
+  def findNestedType(name: Name): Option[AbstractTypeDeclaration]
+}
+
+trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   val tid: TypeDeclaration.TID = TypeDeclaration.getAndIncrementTID()
 
   val paths: Seq[PathLike]
@@ -272,7 +278,11 @@ trait TypeDeclaration extends DependencyHolder {
 
   def validate(): Unit
 
-  def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
+  override def findNestedType(name: Name): Option[TypeDeclaration] = {
+    nestedTypes.find(_.name == name)
+  }
+
+  override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     val matches = fieldsByName.get(name)
     staticContext match {
       case Some(x) => matches.find(f => f.isStatic == x)
@@ -313,7 +323,7 @@ trait TypeDeclaration extends DependencyHolder {
 
   private lazy val methodMap: MethodMap = MethodMap(this, None, MethodMap.empty(), methods, Seq())
 
-  def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
+  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
                  verifyContext: VerifyContext): Seq[MethodDeclaration] = {
     val found = methodMap.findMethod(name, params, staticContext, verifyContext)
 
