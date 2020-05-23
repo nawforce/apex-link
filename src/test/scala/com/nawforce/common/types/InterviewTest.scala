@@ -28,7 +28,7 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.api.{Name, Org}
-import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
@@ -113,6 +113,17 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+  test("Create flow (ghosted)") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.ghosted.Test(new Map<String, Object>());} }"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg1 = org.addPackage(Some(Name("ghosted")), Seq(), Seq()).asInstanceOf[PackageImpl]
+      org.addPackage(Some(Name("pkg")), Seq(root), Seq(pkg1))
+      assert(!org.issues.hasMessages)
+    }
+  }
+
   test("Create flow (missing flow)") {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }"
@@ -134,5 +145,4 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
     }
   }
-
 }

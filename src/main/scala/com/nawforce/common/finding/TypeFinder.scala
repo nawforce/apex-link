@@ -81,9 +81,7 @@ trait TypeFinder {
     if (dotName.isCompound) {
       None
     } else {
-      val matched = from.nestedTypes.filter(_.name == dotName.names.head)
-      assert(matched.size < 2)
-      matched.headOption
+      from.findNestedType(dotName.names.head)
     }
   }
 

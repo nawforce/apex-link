@@ -198,7 +198,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
 
     if (typeName.outer.nonEmpty) {
       declaration = getPackageType(typeName.outer.get, inPackage = inPackage).flatMap(
-        _.nestedTypes.find(td => td.name == typeName.name && (td.isExternallyVisible || inPackage)))
+        _.findNestedType(typeName.name).filter(td => td.isExternallyVisible || inPackage))
       if (declaration.nonEmpty)
         return declaration
     }
