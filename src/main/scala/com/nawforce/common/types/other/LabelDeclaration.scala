@@ -100,7 +100,7 @@ private final class PackageLabels(pkg: PackageImpl, labelDeclaration: LabelDecla
 
   override val labelTypeId: Option[TypeId] = Some(labelDeclaration.typeId)
 
-  def addTypeDependencyHolder(typeId: TypeId): Unit = {
+  override def addTypeDependencyHolder(typeId: TypeId): Unit = {
     labelDeclaration.addTypeDependencyHolder(typeId)
   }
 
@@ -118,7 +118,7 @@ final class GhostedLabels(pkg: PackageImpl, ghostedNamespace: Name)
 
   override val labelTypeId: Option[TypeId] = None
 
-  def addTypeDependencyHolder(typeId: TypeId): Unit = {}
+  override def addTypeDependencyHolder(typeId: TypeId): Unit = {}
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     if (staticContext.contains(true)) {

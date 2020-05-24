@@ -34,8 +34,10 @@ import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.core.{BasicTypeDeclaration, InnerBasicTypeDeclaration, MethodDeclaration, TypeDeclaration}
+import com.nawforce.common.types.core._
 import com.nawforce.common.types.platform.PlatformTypes
+
+import scala.collection.mutable
 
 /** A individual custom interview being represented as interview derived type. */
 final case class Interview(pkg: PackageImpl, location: Option[LocationImpl], interviewName: Name)
@@ -53,17 +55,22 @@ final case class Interview(pkg: PackageImpl, location: Option[LocationImpl], int
 
 /** Flow.Interview implementation. Provides access to interviews in the package as well as interviews that are
   * accessible in base packages via the Flow.Interview.namespace.name format. */
-final class InterviewDeclaration(pkg: PackageImpl, nestedInterviews: Seq[TypeDeclaration])
-  extends BasicTypeDeclaration(Seq(), pkg, TypeNames.Interview) {
+final class InterviewDeclaration(override val pkg: PackageImpl, interviews: Seq[TypeDeclaration],
+                                 nestedInterviews: Seq[NestedInterviews])
+  extends BasicTypeDeclaration(Seq(), pkg, TypeNames.Interview) with DependentType {
 
-  override def findNestedType(name: Name): Option[TypeDeclaration] =
-    super.findNestedType(name)
+  // Propagate dependencies to nested
+  nestedInterviews.foreach(_.addTypeDependencyHolder(typeId))
 
-  override def nestedTypes: Seq[TypeDeclaration] = nestedInterviews ++ namespaceDeclaration.toSeq
+  override def nestedTypes: Seq[TypeDeclaration] = interviews ++ nestedInterviews ++ namespaceDeclaration.toSeq
 
   override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Seq[MethodDeclaration] = {
     PlatformTypes.interviewType.findMethod(name, params, staticContext, verifyContext)
+  }
+
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {
+    nestedInterviews.foreach(ni => ni.interviewTypeId.foreach(dependsOn.add))
   }
 
   // This is the optional Flow.Interview.namespace implementation
@@ -80,21 +87,31 @@ final class InterviewDeclaration(pkg: PackageImpl, nestedInterviews: Seq[TypeDec
 
   /** Create new from merging those in the provided stream */
   def merge(stream: PackageStream): InterviewDeclaration = {
-    val interviews = stream.flows.map(fe => Interview(pkg, Some(fe.location), fe.name))
-    val interviewDeclaration = new InterviewDeclaration(pkg, nestedInterviews ++ interviews)
+    val newInterviews = interviews ++ stream.flows.map(fe => Interview(pkg, Some(fe.location), fe.name))
+    val interviewDeclaration = new InterviewDeclaration(pkg, newInterviews, nestedInterviews)
     interviewDeclaration.namespaceDeclaration.foreach(td =>
       interviewDeclaration.namespaceDeclaration = Some(td.merge(stream)))
     interviewDeclaration
   }
 }
 
-trait NestedInterviews extends TypeDeclaration
+trait NestedInterviews extends TypeDeclaration {
+  val interviewTypeId: Option[TypeId]
+
+  def addTypeDependencyHolder(typeId: TypeId): Unit
+}
 
 /** Flow.Interview.ns implementation for exposing interviews from dependent packages. */
 final class PackageInterviews(pkg: PackageImpl, interviewDeclaration: InterviewDeclaration)
   extends InnerBasicTypeDeclaration(Seq.empty, pkg,
     TypeName(interviewDeclaration.packageDeclaration.get.namespace.get, Nil, Some(TypeNames.Interview)))
   with NestedInterviews {
+
+  override val interviewTypeId: Option[TypeId] = Some(interviewDeclaration.typeId)
+
+  override def addTypeDependencyHolder(typeId: TypeId): Unit = {
+    interviewDeclaration.addTypeDependencyHolder(typeId)
+  }
 
   override val nestedTypes: Seq[TypeDeclaration] = interviewDeclaration.nestedTypes
 }
@@ -105,6 +122,10 @@ final class GhostedInterviews(pkg: PackageImpl, ghostedPackage: PackageImpl)
     TypeName(ghostedPackage.namespace.get, Nil, Some(TypeNames.Interview)))
   with NestedInterviews {
 
+  override val interviewTypeId: Option[TypeId] = None
+
+  override def addTypeDependencyHolder(typeId: TypeId): Unit = {}
+
   override def findNestedType(name: Name): Option[TypeDeclaration] = {
     Some(Interview(ghostedPackage, None, name))
   }
@@ -112,7 +133,7 @@ final class GhostedInterviews(pkg: PackageImpl, ghostedPackage: PackageImpl)
 
 object InterviewDeclaration {
   def apply(pkg: PackageImpl): InterviewDeclaration = {
-    new InterviewDeclaration(pkg, collectBaseInterviews(pkg))
+    new InterviewDeclaration(pkg, Seq.empty, collectBaseInterviews(pkg))
   }
 
   private def collectBaseInterviews(pkg: PackageImpl): Seq[NestedInterviews] = {
