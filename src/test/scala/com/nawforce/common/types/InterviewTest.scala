@@ -27,7 +27,8 @@
 */
 package com.nawforce.common.types
 
-import com.nawforce.common.api.{Name, Org}
+import com.nawforce.common.api.{Name, Org, TypeIdentifier}
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
@@ -123,6 +124,28 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
     }
   }
+
+  test("Create flow (packaged)") {
+    FileSystemHelper.run(Map(
+      "pkg1/Test.flow-meta.xml" -> "",
+      "pkg2/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg1.Test(new Map<String, Object>());} }"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      val pkg2 = org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1)).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val interviewType1 = TypeIdentifier.fromJava(Name("pkg1"), TypeNames.Interview)
+      val interviewType2 = TypeIdentifier.fromJava(Name("pkg2"), TypeNames.Interview)
+      assert(pkg2.getDependencies(interviewType2, inheritanceOnly = false).sameElements(Array(interviewType1)))
+      assert(pkg1.getDependencyHolders(interviewType1).sameElements(Array(interviewType2)))
+
+      val dummyType = pkg2.getTypeOfPath("/pkg2/Dummy.cls")
+      assert(pkg2.getDependencies(dummyType, inheritanceOnly = false).sameElements(Array(interviewType2)))
+      assert(pkg2.getDependencyHolders(interviewType2).sameElements(Array(dummyType)))
+    }
+  }
+
 
   test("Create flow (missing flow)") {
     FileSystemHelper.run(Map(

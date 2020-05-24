@@ -177,7 +177,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Dummy.cls" -> "@isTest puBlic class Dummy {}"
     ), setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      org.addPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
       org.flush()
 
@@ -283,8 +283,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
         val fooTypeLike = pkg.getTypeOfPath(root.join("classes").join("Foo.cls").toString)
         val barTypeLike = pkg.getTypeOfPath(root.join("classes").join("Bar.cls").toString)
 
-        assert(pkg.getType(fooTypeLike.typeName.asInstanceOf[TypeName], None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
-        assert(pkg.getType(barTypeLike.typeName.asInstanceOf[TypeName], None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+        assert(pkg.getType(fooTypeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+        assert(pkg.getType(barTypeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
 
         assert(pkg.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
         assert(pkg.getDependencyHolders(barTypeLike).isEmpty)
@@ -539,7 +539,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     ), setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg1 = org.addPackage(Some(Name("test")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg2 = org.addPackage(None, Seq(root.join("pkg2")), Seq(pkg1))
+      org.addPackage(None, Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
       org.flush()
 
@@ -551,8 +551,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val fooTypeLike = pkg21.getTypeOfPath(root.join("pkg1").join("Foo.cls").toString)
       val barTypeLike = pkg22.getTypeOfPath(root.join("pkg2").join("Bar.cls").toString)
 
-      assert(pkg21.getType(fooTypeLike.typeName.asInstanceOf[TypeName], None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
-      assert(pkg22.getType(barTypeLike.typeName.asInstanceOf[TypeName], None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+      assert(pkg21.getType(fooTypeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+      assert(pkg22.getType(barTypeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
 
       assert(pkg21.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
       assert(pkg22.getDependencyHolders(barTypeLike).isEmpty)
@@ -589,7 +589,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     ), setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg1 = org.addPackage(Some(Name("test1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg2 = org.addPackage(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg1))
+      org.addPackage(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
       org.flush()
 
@@ -601,8 +601,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val fooTypeLike = pkg21.getTypeOfPath(root.join("pkg1").join("Foo.cls").toString)
       val barTypeLike = pkg22.getTypeOfPath(root.join("pkg2").join("Bar.cls").toString)
 
-      assert(pkg21.getType(fooTypeLike.typeName.asInstanceOf[TypeName], None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
-      assert(pkg22.getType(barTypeLike.typeName.asInstanceOf[TypeName], None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+      assert(pkg21.getType(fooTypeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+      assert(pkg22.getType(barTypeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
 
       assert(pkg21.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
       assert(pkg22.getDependencyHolders(barTypeLike).isEmpty)
@@ -662,7 +662,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Dummy.cls" -> "public class Dummy {}",
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq())
+      org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       assert(org.getTypeLocation("Dummy") ==
@@ -675,7 +675,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Dummy.cls" -> "public class Dummy {}",
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      org.addPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       assert(org.getTypeLocation("Dummy") == null)
@@ -689,7 +689,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Dummy.cls" -> "public class Dummy {class Inner {}}",
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      org.addPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       assert(org.getTypeLocation("Dummy") == null)
@@ -704,7 +704,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq())
+      org.addPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       assert(org.getTypeLocation("Foo") == null)
@@ -718,7 +718,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      org.addPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       assert(org.getTypeLocation("Foo") == null)

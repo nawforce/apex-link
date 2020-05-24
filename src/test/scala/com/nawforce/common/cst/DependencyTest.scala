@@ -531,4 +531,41 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       assert(labelField.getDependencyHolders == Set(dummyType.blocks.head))
     }
   }
+
+  test("Flow creates dependency") {
+    FileSystemHelper.run(Map(
+      "Test.flow-meta.xml" -> "",
+      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val interviewType = pkg.searchTypes(TypeNames.Interview).get
+      val flowType = interviewType.findNestedType(Name("Test")).head
+      val dummyType = pkg.searchTypes(TypeName(Name("Dummy"))).get
+
+      assert(dummyType.blocks.head.dependencies() == Set(flowType))
+      assert(flowType.getDependencyHolders == Set(dummyType.blocks.head))
+    }
+  }
+
+  test("packaged flow creates dependency") {
+    FileSystemHelper.run(Map(
+      "pkg1/Test.flow-meta.xml" -> "",
+      "pkg2/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg1.Test(new Map<String, Object>());} }"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      val pkg2 = org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1)).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val interviewType1 = pkg1.searchTypes(TypeNames.Interview).get
+      val flowType = interviewType1.findNestedType(Name("Test")).head
+      val dummyType = pkg2.searchTypes(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))).get
+
+      assert(dummyType.blocks.head.dependencies() == Set(flowType))
+      assert(flowType.getDependencyHolders == Set(dummyType.blocks.head))
+    }
+  }
 }
