@@ -34,7 +34,7 @@ import com.nawforce.common.documents._
 
 import scala.collection.immutable.Queue
 
-case class FlowEvent(location: LocationImpl, name: Name) extends PackageEvent
+case class FlowEvent(sourceInfo: SourceInfo, location: LocationImpl, name: Name) extends PackageEvent
 
 object FlowGenerator extends Generator {
 
@@ -45,7 +45,8 @@ object FlowGenerator extends Generator {
   override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
     val docType = metadata.docType
     docType match {
-      case _: FlowDocument => Seq(FlowEvent(LineLocationImpl(docType.path.toString, 0), docType.name))
+      case _: FlowDocument => Seq(FlowEvent(SourceInfo(docType.path, metadata.data),
+        LineLocationImpl(docType.path.toString, 0), docType.name))
       case _ => Seq.empty
     }
   }

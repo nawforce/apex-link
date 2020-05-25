@@ -285,7 +285,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
     ), setupCache = true) { root: PathLike =>
       val org1 = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg11 = org1.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg12 = org1.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg11))
+      org1.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg11))
       assert(!org1.issues.hasMessages)
       org1.flush()
 
@@ -308,7 +308,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
 
       // Still summary as Dummy does not *directly* depend on pkg1 labels
       assertIsSummaryDeclaration(pkg32, "Dummy")
-      assert(!org1.issues.hasMessages)
+      assert(!org3.issues.hasMessages)
     }
   }
 
@@ -355,6 +355,67 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       assertIsFullDeclaration(pkg3, "Dummy")
       assert(org3.getIssues(new IssueOptions()) ==
         "/Dummy.cls\nMissing: line 1 at 33-56: Unknown field or type 'TestLabel2' on 'System.Label'\n")
+    }
+  }
+
+  test("Flow dependency is cached") {
+    FileSystemHelper.run(Map(
+      "Test.flow-meta.xml" -> "",
+      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }"
+    ), setupCache = true) { root: PathLike =>
+      val org1 = Org.newOrg().asInstanceOf[OrgImpl]
+      org1.addPackage(None, Seq(root), Seq())
+      assert(!org1.issues.hasMessages)
+      org1.flush()
+
+      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg2 = org2.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org2.issues.hasMessages)
+
+      assertIsSummaryDeclaration(pkg2, "Dummy")
+      assert(pkg2.getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), inheritanceOnly = false)
+        .sameElements(Array(TypeIdentifier(None, TypeNames.Interview))))
+
+      root.join("Test.flow-meta.xml").delete()
+
+      val org3 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg3 = org3.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assertIsFullDeclaration(pkg3, "Dummy")
+      assert(org3.getIssues(new IssueOptions()) ==
+        "/Dummy.cls\nMissing: line 1 at 45-64: No type declaration found for 'Flow.Interview.Test'\n")
+    }
+  }
+
+  test("Packaged flow dependency is cached") {
+    FileSystemHelper.run(Map(
+      "pkg1/Test.flow-meta.xml" -> "",
+      "pkg2/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg1.Test(new Map<String, Object>());} }"
+    ), setupCache = true) { root: PathLike =>
+      val org1 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg11 = org1.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      org1.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg11))
+      assert(!org1.issues.hasMessages)
+      org1.flush()
+
+      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg21 = org2.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      val pkg22 = org2.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg21)).asInstanceOf[PackageImpl]
+      assert(!org2.issues.hasMessages)
+
+      assertIsSummaryDeclaration(pkg22, "Dummy")
+      assert(pkg22.getDependencies(
+        TypeIdentifier(Some(Name("pkg2")), TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))), inheritanceOnly = false)
+        .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Interview))))
+
+      root.join("pkg1/Test.flow-meta.xml").delete()
+
+      val org3 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg31 = org3.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      val pkg32 = org3.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg31)).asInstanceOf[PackageImpl]
+
+      assertIsFullDeclaration(pkg32, "Dummy")
+      assert(org3.getIssues(new IssueOptions()) ==
+        "/pkg2/Dummy.cls\nMissing: line 1 at 45-69: No type declaration found for 'Flow.Interview.pkg1.Test'\n")
     }
   }
 }

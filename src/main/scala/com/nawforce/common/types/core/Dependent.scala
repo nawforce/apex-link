@@ -29,7 +29,7 @@ package com.nawforce.common.types.core
 
 import com.nawforce.common.api.{DependentSummary, FieldDependentSummary, MethodDependentSummary, TypeDependentSummary}
 import com.nawforce.common.types.apex._
-import com.nawforce.common.types.other.{Label, LabelDeclaration}
+import com.nawforce.common.types.other.{Interview, InterviewDeclaration, Label, LabelDeclaration}
 
 import scala.collection.mutable
 
@@ -96,6 +96,10 @@ trait DependencyHolder extends Dependent {
       case label: Label if label.outerTypeId.nonEmpty =>
         Some(FieldDependentSummary(label.outerTypeId.get.asTypeIdentifier, label.name.value))
       case _: Label => None
+
+      case i: Interview =>
+        val id = i.pkg.interviews
+        Some(TypeDependentSummary(id.typeId.asTypeIdentifier, id.sourceHash))
 
     }.toSet
   }

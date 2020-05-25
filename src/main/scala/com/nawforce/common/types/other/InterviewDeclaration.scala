@@ -29,7 +29,7 @@ package com.nawforce.common.types.other
 
 import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.VerifyContext
-import com.nawforce.common.documents.LocationImpl
+import com.nawforce.common.documents.{LocationImpl, SourceInfo}
 import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.org.stream.PackageStream
@@ -38,6 +38,7 @@ import com.nawforce.common.types.core._
 import com.nawforce.common.types.platform.PlatformTypes
 
 import scala.collection.mutable
+import scala.util.hashing.MurmurHash3
 
 /** A individual custom interview being represented as interview derived type. */
 final case class Interview(pkg: PackageImpl, location: Option[LocationImpl], interviewName: Name)
@@ -55,9 +56,11 @@ final case class Interview(pkg: PackageImpl, location: Option[LocationImpl], int
 
 /** Flow.Interview implementation. Provides access to interviews in the package as well as interviews that are
   * accessible in base packages via the Flow.Interview.namespace.name format. */
-final class InterviewDeclaration(override val pkg: PackageImpl, interviews: Seq[TypeDeclaration],
+final class InterviewDeclaration(sources: Seq[SourceInfo], override val pkg: PackageImpl, interviews: Seq[TypeDeclaration],
                                  nestedInterviews: Seq[NestedInterviews])
   extends BasicTypeDeclaration(Seq(), pkg, TypeNames.Interview) with DependentType {
+
+  val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash),0)
 
   // Propagate dependencies to nested
   nestedInterviews.foreach(_.addTypeDependencyHolder(typeId))
@@ -88,7 +91,8 @@ final class InterviewDeclaration(override val pkg: PackageImpl, interviews: Seq[
   /** Create new from merging those in the provided stream */
   def merge(stream: PackageStream): InterviewDeclaration = {
     val newInterviews = interviews ++ stream.flows.map(fe => Interview(pkg, Some(fe.location), fe.name))
-    val interviewDeclaration = new InterviewDeclaration(pkg, newInterviews, nestedInterviews)
+    val sourceInfo = stream.flows.map(_.sourceInfo).distinct
+    val interviewDeclaration = new InterviewDeclaration(sourceInfo, pkg, newInterviews, nestedInterviews)
     interviewDeclaration.namespaceDeclaration.foreach(td =>
       interviewDeclaration.namespaceDeclaration = Some(td.merge(stream)))
     interviewDeclaration
@@ -133,7 +137,7 @@ final class GhostedInterviews(pkg: PackageImpl, ghostedPackage: PackageImpl)
 
 object InterviewDeclaration {
   def apply(pkg: PackageImpl): InterviewDeclaration = {
-    new InterviewDeclaration(pkg, Seq.empty, collectBaseInterviews(pkg))
+    new InterviewDeclaration(Seq(), pkg, Seq.empty, collectBaseInterviews(pkg))
   }
 
   private def collectBaseInterviews(pkg: PackageImpl): Seq[NestedInterviews] = {

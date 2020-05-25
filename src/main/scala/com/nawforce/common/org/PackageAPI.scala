@@ -35,7 +35,7 @@ import com.nawforce.common.org.stream._
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
-import com.nawforce.common.types.other.LabelDeclaration
+import com.nawforce.common.types.other.{InterviewDeclaration, LabelDeclaration}
 import com.nawforce.runtime.types.PlatformTypeException
 
 import scala.collection.immutable.Queue
@@ -124,6 +124,7 @@ trait PackageAPI extends Package {
     val dt: Option[MetadataDocument] = MetadataDocument(path) match {
       case Some(ad: ApexDocument) => Some(ad)
       case Some(ld: LabelsDocument) => Some(ld)
+      case Some(fd: FlowDocument) => Some(fd)
       case _ => None
     }
 
@@ -162,6 +163,7 @@ trait PackageAPI extends Package {
       case _: ApexClassDocument => loadApexAndValidate(path, source, FullDeclaration.create)
       case _: ApexTriggerDocument => loadApexAndValidate(path, source, TriggerDeclaration.create)
       case _: LabelsDocument => loadLabelsAndValidate(dt.get, source)
+      case _: FlowDocument =>  loadFlowsAndValidate(dt.get, source)
     }
   }
 
@@ -198,11 +200,12 @@ trait PackageAPI extends Package {
     try {
       OrgImpl.current.withValue(org) {
         // Re-create labels
-        var labels = LabelDeclaration(this)
+        var newLabels = LabelDeclaration(this)
         val metadata = source.map(data => MetadataDocumentWithData(docType, data)).toSeq
         val provider = new OverrideMetadataProvider(metadata, new DocumentIndexMetadataProvider(documents))
         val queue = LabelGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
-        labels = labels.merge(new PackageStream(namespace, queue))
+        newLabels = newLabels.merge(new PackageStream(namespace, queue))
+        labels = newLabels
 
         ViewInfoImpl(NEW_TYPE, path, Some(labels), org.issues.getDiagnostics(path.toString).toArray)
       }
@@ -210,6 +213,27 @@ trait PackageAPI extends Package {
       org.issues.push(path.toString, issues)
     }
   }
+
+  private def loadFlowsAndValidate(docType: MetadataDocument, source: Option[String]): ViewInfoImpl = {
+    val path = docType.path
+    val issues = org.issues.pop(path.toString)
+    try {
+      OrgImpl.current.withValue(org) {
+        // Re-create Interviews
+        var newInterviews = InterviewDeclaration(this)
+        val metadata = source.map(data => MetadataDocumentWithData(docType, data)).toSeq
+        val provider = new OverrideMetadataProvider(metadata, new DocumentIndexMetadataProvider(documents))
+        val queue = FlowGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
+        newInterviews = newInterviews.merge(new PackageStream(namespace, queue))
+        interviews = newInterviews
+
+        ViewInfoImpl(NEW_TYPE, path, Some(interviews), org.issues.getDiagnostics(path.toString).toArray)
+      }
+    } finally {
+      org.issues.push(path.toString, issues)
+    }
+  }
+
 
   override def upsertFromView(viewInfo: ViewInfo): Boolean = {
     // Reject views with error state
