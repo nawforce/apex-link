@@ -34,7 +34,7 @@ import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
-import com.nawforce.common.types.other.{Label, LabelDeclaration}
+import com.nawforce.common.types.other.{InterviewDeclaration, Label, LabelDeclaration}
 import upickle.default._
 
 import scala.collection.mutable
@@ -75,6 +75,7 @@ object DependentValidation {
         .filter({
           case sd: SummaryDeclaration => sd.sourceHash == dependent.sourceHash
           case ld: LabelDeclaration => ld.sourceHash == dependent.sourceHash
+          case id: InterviewDeclaration => id.sourceHash == dependent.sourceHash
           case _ => true
         })
     })
@@ -154,6 +155,7 @@ object DependentValidation {
       case Left(_) => None
       case Right(ad: ApexClassDeclaration) => Some(ad)
       case Right(ld: LabelDeclaration) => Some(ld)
+      case Right(id: InterviewDeclaration) => Some(id)
       case Right(_) => None
     }
   }
@@ -297,6 +299,7 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
       dependents.foreach({
         case ad: ApexClassDeclaration => localDependencies.add(ad.typeId)
         case ld: LabelDeclaration => localDependencies.add(ld.typeId)
+        case id: InterviewDeclaration => localDependencies.add(id.typeId)
         case _: ApexFieldLike => ()
         case _: ApexMethodLike => ()
         case _: Label => ()
@@ -322,6 +325,7 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
       case Right(td: ApexClassDeclaration) =>
         td.outerTypeName.map(getOutermostDeclaration).getOrElse(Some(td.typeId))
       case Right(ld: LabelDeclaration) => Some(ld.typeId)
+      case Right(id: InterviewDeclaration) => Some(id.typeId)
       case Right(_) => None
       case Left(_) => None
     }

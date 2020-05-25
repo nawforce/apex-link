@@ -295,4 +295,36 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       assert(view.td.get.fields.map(_.name).toSet == Set(Name("TestLabel"), Name("TestLabel2")))
     }
   }
+
+  test("Flow") {
+    FileSystemHelper.run(Map(
+      "Test.flow-meta.xml" -> "",
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("Test.flow-meta.xml"), None).asInstanceOf[ViewInfoImpl]
+      assert(view.hasType)
+      assert(view.diagnostics.isEmpty)
+      assert(view.typeName == TypeNames.Interview)
+      assert(view.td.get.nestedTypes.map(_.name).toSet == Set(Name("Test")))
+    }
+  }
+
+  test("Additional Flow") {
+    FileSystemHelper.run(Map(
+      "Test.flow-meta.xml" -> "",
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("Test2.flow-meta.xml"), Some("")).asInstanceOf[ViewInfoImpl]
+      assert(view.hasType)
+      assert(view.diagnostics.isEmpty)
+      assert(view.typeName == TypeNames.Interview)
+      assert(view.td.get.nestedTypes.map(_.name).toSet == Set(Name("Test"), Name("Test2")))
+    }
+  }
 }

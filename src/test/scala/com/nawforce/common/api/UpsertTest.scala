@@ -523,4 +523,90 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       assert(labels.fields.exists(_.name.value == "TestLabel2"))
     }
   }
+
+  test("Valid flow upsert") {
+    FileSystemHelper.run(Map(
+      "Test.flow-meta.xml" -> ""
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("Test.flow-meta.xml"), Some(""))
+      assert(pkg.upsertFromView(view))
+      assert(pkg.interviews.findNestedType(Name("Test")).nonEmpty)
+    }
+  }
+
+  test("Valid flow upsert (new)") {
+    FileSystemHelper.run(Map(
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("Test.flow-meta.xml"), Some(""))
+      assert(pkg.upsertFromView(view))
+      assert(pkg.interviews.findNestedType(Name("Test")).nonEmpty)
+    }
+  }
+
+  test("Valid flow upsert (changed)") {
+    FileSystemHelper.run(Map(
+      "Test.flow-meta.xml" -> ""
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("Test.flow-meta.xml"), Some("Changed"))
+      assert(pkg.upsertFromView(view))
+      assert(pkg.interviews.findNestedType(Name("Test")).nonEmpty)
+    }
+  }
+
+  test("Valid flow upsert (new flow)") {
+    FileSystemHelper.run(Map(
+      "Test.flow-meta.xml" -> ""
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("Test2.flow-meta.xml"), Some(""))
+      assert(pkg.upsertFromView(view))
+      assert(pkg.interviews.nestedTypes.map(_.name).toSet == Set(Name("Test"), Name("Test2")))
+    }
+  }
+
+  test("Delete flow file") {
+    FileSystemHelper.run(Map(
+      "Test.flow-meta.xml" -> ""
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val path = root.join("Test.flow-meta.xml")
+      path.delete()
+      assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
+      assert(pkg.interviews.nestedTypes.isEmpty)
+    }
+  }
+
+  test("Delete flow file (multiple)") {
+    FileSystemHelper.run(Map(
+      "Test.flow-meta.xml" -> "",
+      "Test2.flow-meta.xml" -> ""
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val path = root.join("Test.flow-meta.xml")
+      path.delete()
+      assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
+      assert(pkg.interviews.nestedTypes.map(_.name).toSet == Set(Name("Test2")))
+    }
+  }
 }
