@@ -85,4 +85,15 @@ class PageTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
     }
   }
+
+  test("Ghost package page") {
+    FileSystemHelper.run(Map(
+      "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(), Seq()).asInstanceOf[PackageImpl]
+      org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+      assert(!org.issues.hasMessages)
+    }
+  }
 }

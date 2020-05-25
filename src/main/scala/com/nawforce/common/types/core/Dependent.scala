@@ -29,7 +29,7 @@ package com.nawforce.common.types.core
 
 import com.nawforce.common.api.{DependentSummary, FieldDependentSummary, MethodDependentSummary, TypeDependentSummary}
 import com.nawforce.common.types.apex._
-import com.nawforce.common.types.other.{Interview, InterviewDeclaration, Label, LabelDeclaration}
+import com.nawforce.common.types.other._
 
 import scala.collection.mutable
 
@@ -101,6 +101,11 @@ trait DependencyHolder extends Dependent {
         val id = i.pkg.interviews
         Some(TypeDependentSummary(id.typeId.asTypeIdentifier, id.sourceHash))
 
+      case pd: PageDeclaration =>
+        Some(TypeDependentSummary(pd.typeId.asTypeIdentifier, pd.sourceHash))
+      case page: Page =>
+        val id = page.pkg.pages
+        Some(FieldDependentSummary(id.typeId.asTypeIdentifier, page.name.value))
     }.toSet
   }
 }

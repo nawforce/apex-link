@@ -35,7 +35,7 @@ import com.nawforce.common.names.EncodedName
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{Dependent, TypeDeclaration}
-import com.nawforce.common.types.other.{Interview, Label, LabelDeclaration}
+import com.nawforce.common.types.other._
 
 import scala.collection.mutable
 
@@ -107,7 +107,11 @@ trait HolderVerifyContext {
       case _: LabelDeclaration => _dependencies += dependent
       case _: Label => _dependencies += dependent
 
+      // No InterviewDeclaration as Interview is a type
       case _: Interview => _dependencies += dependent
+
+      case _: PageDeclaration => _dependencies += dependent
+      case _: Page => _dependencies += dependent
 
       case _ => ()
     }

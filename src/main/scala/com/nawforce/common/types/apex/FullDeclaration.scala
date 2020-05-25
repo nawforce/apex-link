@@ -36,7 +36,7 @@ import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
-import com.nawforce.common.types.other.{Interview, Label}
+import com.nawforce.common.types.other.{Interview, Label, Page}
 import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 import upickle.default.writeBinary
@@ -169,6 +169,8 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
         dependsOn.add(TypeId(pkg, TypeNames.Label))
       case _: Interview =>
         dependsOn.add(TypeId(pkg, TypeNames.Interview))
+      case _: Page =>
+        dependsOn.add(TypeId(pkg, TypeNames.Page))
       case _ => ()
     }
   }
