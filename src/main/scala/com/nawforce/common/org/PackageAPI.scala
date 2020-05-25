@@ -35,7 +35,7 @@ import com.nawforce.common.org.stream._
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
-import com.nawforce.common.types.other.{InterviewDeclaration, LabelDeclaration}
+import com.nawforce.common.types.other.{InterviewDeclaration, LabelDeclaration, PageDeclaration}
 import com.nawforce.runtime.types.PlatformTypeException
 
 import scala.collection.immutable.Queue
@@ -122,9 +122,10 @@ trait PackageAPI extends Package {
   private[nawforce] def getViewOfType(path: PathLike, contents: Option[String]): ViewInfo = {
     // Check path is something we known how to handle & is not being ignored
     val dt: Option[MetadataDocument] = MetadataDocument(path) match {
-      case Some(ad: ApexDocument) => Some(ad)
-      case Some(ld: LabelsDocument) => Some(ld)
-      case Some(fd: FlowDocument) => Some(fd)
+      case Some(d: ApexDocument) => Some(d)
+      case Some(d: LabelsDocument) => Some(d)
+      case Some(d: FlowDocument) => Some(d)
+      case Some(d: PageDocument) => Some(d)
       case _ => None
     }
 
@@ -164,6 +165,7 @@ trait PackageAPI extends Package {
       case _: ApexTriggerDocument => loadApexAndValidate(path, source, TriggerDeclaration.create)
       case _: LabelsDocument => loadLabelsAndValidate(dt.get, source)
       case _: FlowDocument =>  loadFlowsAndValidate(dt.get, source)
+      case _: PageDocument =>  loadPagesAndValidate(dt.get, source)
     }
   }
 
@@ -234,6 +236,25 @@ trait PackageAPI extends Package {
     }
   }
 
+  private def loadPagesAndValidate(docType: MetadataDocument, source: Option[String]): ViewInfoImpl = {
+    val path = docType.path
+    val issues = org.issues.pop(path.toString)
+    try {
+      OrgImpl.current.withValue(org) {
+        // Re-create Interviews
+        var newPages = PageDeclaration(this)
+        val metadata = source.map(data => MetadataDocumentWithData(docType, data)).toSeq
+        val provider = new OverrideMetadataProvider(metadata, new DocumentIndexMetadataProvider(documents))
+        val queue = PageGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
+        newPages = newPages.merge(new PackageStream(namespace, queue))
+        pages = newPages
+
+        ViewInfoImpl(NEW_TYPE, path, Some(pages), org.issues.getDiagnostics(path.toString).toArray)
+      }
+    } finally {
+      org.issues.push(path.toString, issues)
+    }
+  }
 
   override def upsertFromView(viewInfo: ViewInfo): Boolean = {
     // Reject views with error state

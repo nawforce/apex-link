@@ -34,10 +34,13 @@ import com.nawforce.common.names.{Names, TypeNames, _}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration}
+import com.nawforce.common.types.core.{BasicTypeDeclaration, DependentType, FieldDeclaration, TypeId}
+
+import scala.collection.mutable
+import scala.util.hashing.MurmurHash3
 
 /** A individual Page being represented as a static field. */
-case class Page(location: LocationImpl, name: Name) extends FieldDeclaration {
+case class Page(pkg: PackageImpl, location: LocationImpl, name: Name) extends FieldDeclaration {
   override lazy val modifiers: Seq[Modifier] = Seq(STATIC_MODIFIER, GLOBAL_MODIFIER)
   override lazy val typeName: TypeName = TypeNames.PageReference
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER
@@ -45,26 +48,36 @@ case class Page(location: LocationImpl, name: Name) extends FieldDeclaration {
   override val idTarget: Option[TypeName] = None
 }
 
-/** Page namespace implementation. Provides access to pages in the package as well as pages that are accessible in
+/** Page 'namespace' implementation. Provides access to pages in the package as well as pages that are accessible in
   * base packages via the `namespace__name` format.
   */
-final case class PageDeclaration(pkg: PackageImpl, pages: Seq[Page])
-  extends BasicTypeDeclaration(pages.map(p => PathFactory(p.location.path)).distinct, pkg, TypeName(Names.Page)) {
+final case class PageDeclaration(sources: Seq[SourceInfo], override val pkg: PackageImpl, pages: Seq[Page])
+  extends BasicTypeDeclaration(pages.map(p => PathFactory(p.location.path)).distinct, pkg, TypeName(Names.Page))
+    with DependentType {
+
+  // Propagate dependencies to base packages
+  pkg.basePackages.foreach(_.pages.addTypeDependencyHolder(typeId))
+
+  val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash),0)
 
   override val isComplete: Boolean = !pkg.hasGhosted
   override val fields: Seq[FieldDeclaration]= pages
 
   /** Create new pages from merging those in the provided stream */
   def merge(stream: PackageStream): PageDeclaration = {
-    val newPages = pages ++ stream.pages.map(pe => Page(pe.location, pe.name))
-    new PageDeclaration(pkg, newPages)
+    val newPages = pages ++ stream.pages.map(pe => Page(pkg, pe.location, pe.name))
+    val sourceInfo = stream.pages.map(_.sourceInfo).distinct
+    new PageDeclaration(sourceInfo, pkg, newPages)
   }
 
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {
+    pkg.basePackages.foreach(bp => dependsOn.add(bp.pages.typeId))
+  }
 }
 
 object PageDeclaration {
   def apply(pkg: PackageImpl): PageDeclaration = {
-    new PageDeclaration(pkg, collectBasePages(pkg))
+    new PageDeclaration(Seq(), pkg, collectBasePages(pkg))
   }
 
   private def collectBasePages(pkg: PackageImpl): Seq[Page] = {
@@ -74,7 +87,7 @@ object PageDeclaration {
         if (page.name.contains("__"))
           page
         else
-          Page(page.location, Name(s"${ns}__${page.name}"))
+          Page(pkg, page.location, Name(s"${ns}__${page.name}"))
       })
     })
   }

@@ -327,4 +327,36 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       assert(view.td.get.nestedTypes.map(_.name).toSet == Set(Name("Test"), Name("Test2")))
     }
   }
+
+  test("Page") {
+    FileSystemHelper.run(Map(
+      "TestPage.page" -> "",
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("TestPage.page"), None).asInstanceOf[ViewInfoImpl]
+      assert(view.hasType)
+      assert(view.diagnostics.isEmpty)
+      assert(view.typeName == TypeNames.Page)
+      assert(view.td.get.fields.map(_.name).toSet == Set(Name("TestPage")))
+    }
+  }
+
+  test("Additional Page") {
+    FileSystemHelper.run(Map(
+      "TestPage.page" -> "",
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("TestPage2.page"), Some("")).asInstanceOf[ViewInfoImpl]
+      assert(view.hasType)
+      assert(view.diagnostics.isEmpty)
+      assert(view.typeName == TypeNames.Page)
+      assert(view.td.get.fields.map(_.name).toSet == Set(Name("TestPage"), Name("TestPage2")))
+    }
+  }
 }

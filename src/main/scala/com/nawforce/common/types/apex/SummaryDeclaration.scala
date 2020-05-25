@@ -34,7 +34,7 @@ import com.nawforce.common.finding.TypeRequest
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
-import com.nawforce.common.types.other.{InterviewDeclaration, Label, LabelDeclaration}
+import com.nawforce.common.types.other._
 import upickle.default._
 
 import scala.collection.mutable
@@ -73,9 +73,10 @@ object DependentValidation {
     TypeId(pkg, dependent.typeId).flatMap(typeId => {
       findSummaryType(typeId)
         .filter({
-          case sd: SummaryDeclaration => sd.sourceHash == dependent.sourceHash
-          case ld: LabelDeclaration => ld.sourceHash == dependent.sourceHash
-          case id: InterviewDeclaration => id.sourceHash == dependent.sourceHash
+          case d: SummaryDeclaration => d.sourceHash == dependent.sourceHash
+          case d: LabelDeclaration => d.sourceHash == dependent.sourceHash
+          case d: InterviewDeclaration => d.sourceHash == dependent.sourceHash
+          case d: PageDeclaration => d.sourceHash == dependent.sourceHash
           case _ => true
         })
     })
@@ -153,9 +154,10 @@ object DependentValidation {
 
     TypeRequest(typeName, pkg, excludeSObjects = false) match {
       case Left(_) => None
-      case Right(ad: ApexClassDeclaration) => Some(ad)
-      case Right(ld: LabelDeclaration) => Some(ld)
-      case Right(id: InterviewDeclaration) => Some(id)
+      case Right(d: ApexClassDeclaration) => Some(d)
+      case Right(d: LabelDeclaration) => Some(d)
+      case Right(d: InterviewDeclaration) => Some(d)
+      case Right(d: PageDeclaration) => Some(d)
       case Right(_) => None
     }
   }
@@ -297,12 +299,14 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
     val localDependencies = mutable.Set[TypeId]()
     def collect(dependents: Set[Dependent]): Unit = {
       dependents.foreach({
-        case ad: ApexClassDeclaration => localDependencies.add(ad.typeId)
-        case ld: LabelDeclaration => localDependencies.add(ld.typeId)
-        case id: InterviewDeclaration => localDependencies.add(id.typeId)
+        case d: ApexClassDeclaration => localDependencies.add(d.typeId)
+        case d: LabelDeclaration => localDependencies.add(d.typeId)
+        case d: InterviewDeclaration => localDependencies.add(d.typeId)
+        case d: PageDeclaration => localDependencies.add(d.typeId)
         case _: ApexFieldLike => ()
         case _: ApexMethodLike => ()
         case _: Label => ()
+        case _: Page => ()
       })
     }
 
@@ -322,10 +326,11 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
 
   private def getOutermostDeclaration(typeName: TypeName): Option[TypeId] = {
     TypeRequest(typeName, pkg, excludeSObjects = false) match {
-      case Right(td: ApexClassDeclaration) =>
-        td.outerTypeName.map(getOutermostDeclaration).getOrElse(Some(td.typeId))
-      case Right(ld: LabelDeclaration) => Some(ld.typeId)
-      case Right(id: InterviewDeclaration) => Some(id.typeId)
+      case Right(d: ApexClassDeclaration) =>
+        d.outerTypeName.map(getOutermostDeclaration).getOrElse(Some(d.typeId))
+      case Right(d: LabelDeclaration) => Some(d.typeId)
+      case Right(d: InterviewDeclaration) => Some(d.typeId)
+      case Right(d: PageDeclaration) => Some(d.typeId)
       case Right(_) => None
       case Left(_) => None
     }

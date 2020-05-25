@@ -550,7 +550,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
-  test("packaged flow creates dependency") {
+  test("Packaged flow creates dependency") {
     FileSystemHelper.run(Map(
       "pkg1/Test.flow-meta.xml" -> "",
       "pkg2/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg1.Test(new Map<String, Object>());} }"
@@ -566,6 +566,45 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
       assert(dummyType.blocks.head.dependencies() == Set(flowType))
       assert(flowType.getDependencyHolders == Set(dummyType.blocks.head))
+    }
+  }
+
+  test("Page creates dependency") {
+    FileSystemHelper.run(Map(
+      "TestPage.page" -> "",
+      "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val pageType = pkg.searchTypes(TypeNames.Page).get
+      val pageField = pageType.fields.find(_.name.value == "TestPage").get
+      val dummyType = pkg.searchTypes(TypeName(Name("Dummy"))).get
+
+      assert(dummyType.blocks.head.dependencies() == Set(pageType, pageField))
+      assert(pageType.getDependencyHolders == Set(dummyType.blocks.head))
+      assert(pageField.getDependencyHolders == Set(dummyType.blocks.head))
+    }
+  }
+
+  test("Packaged page creates dependency") {
+    FileSystemHelper.run(Map(
+      "pkg1/TestPage.page" -> "",
+      "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      val pkg2 = org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1)).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val page2Type = pkg2.searchTypes(TypeNames.Page).get
+      val page2Field = page2Type.fields.find(_.name.value == "pkg1__TestPage").get
+      val dummyType = pkg2.searchTypes(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))).get
+
+      assert(dummyType.blocks.head.dependencies() == Set(page2Type, page2Field))
+      assert(page2Type.getDependencyHolders == Set(dummyType.blocks.head))
+      assert(page2Field.getDependencyHolders == Set(dummyType.blocks.head))
     }
   }
 }

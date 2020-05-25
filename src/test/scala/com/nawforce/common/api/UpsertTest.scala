@@ -609,4 +609,90 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       assert(pkg.interviews.nestedTypes.map(_.name).toSet == Set(Name("Test2")))
     }
   }
+
+  test("Valid page upsert") {
+    FileSystemHelper.run(Map(
+      "TestPage.page" -> ""
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("TestPage.page"), Some(""))
+      assert(pkg.upsertFromView(view))
+      assert(pkg.pages.findField(Name("TestPage"), Some(true)).nonEmpty)
+    }
+  }
+
+  test("Valid page upsert (new)") {
+    FileSystemHelper.run(Map(
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("TestPage.page"), Some(""))
+      assert(pkg.upsertFromView(view))
+      assert(pkg.pages.findField(Name("TestPage"), Some(true)).nonEmpty)
+    }
+  }
+
+  test("Valid page upsert (changed)") {
+    FileSystemHelper.run(Map(
+      "TestPage.page" -> ""
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("TestPage.page"), Some("Changed"))
+      assert(pkg.upsertFromView(view))
+      assert(pkg.pages.findField(Name("TestPage"), Some(true)).nonEmpty)
+    }
+  }
+
+  test("Valid page upsert (new flow)") {
+    FileSystemHelper.run(Map(
+      "TestPage.page" -> ""
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("TestPage2.page"), Some(""))
+      assert(pkg.upsertFromView(view))
+      assert(pkg.pages.fields.map(_.name).toSet == Set(Name("TestPage"), Name("TestPage2")))
+    }
+  }
+
+  test("Delete page file") {
+    FileSystemHelper.run(Map(
+      "TestPage.page" -> ""
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val path = root.join("TestPage.page")
+      path.delete()
+      assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
+      assert(pkg.pages.fields.isEmpty)
+    }
+  }
+
+  test("Delete page file (multiple)") {
+    FileSystemHelper.run(Map(
+      "Test.page" -> "",
+      "Test2.page" -> ""
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val path = root.join("Test.page")
+      path.delete()
+      assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
+      assert(pkg.pages.fields.map(_.name).toSet == Set(Name("Test2")))
+    }
+  }
 }
