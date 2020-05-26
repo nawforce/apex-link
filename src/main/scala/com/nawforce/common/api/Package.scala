@@ -99,7 +99,7 @@ trait Package {
     * You can either pass in a path and contents or a path and null contents. If contents are not provided they will
     * be read from the path if possible. Where contents are provided the path is only used for error identification
     * purposes. The view information contains a detailed description of the Type that can either be inspected and/or
-    * later used to modify the Type in the package, see [[upsertFromView()]]. In some cases it may not be possible
+    * later used to modify the Type in the package, see [[upsertFromView]]. In some cases it may not be possible
     * to construct a Type at all, in which case the view information may only contain diagnostic information.
     *
     * If the path does not identify a supported metadata or that path is not valid for this package no Type will be
@@ -107,7 +107,7 @@ trait Package {
     *
     * To prepare a view for deletion pass the path of the file that has already been deleted without contents. The
     * returned view may contain a Type constructed from other metadata files still in use in the project. In either
-    * case using this view with [[upsertFromView()]] will effect the deletion.
+    * case using this view with [[upsertFromView]] will effect the deletion.
     */
   def getViewOfType(path: String, contents: String): ViewInfo
 

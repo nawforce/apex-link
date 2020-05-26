@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.api
 
-import com.nawforce.common.names.TypeNames
+import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
@@ -693,6 +693,93 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       path.delete()
       assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
       assert(pkg.pages.fields.map(_.name).toSet == Set(Name("Test2")))
+    }
+  }
+
+  test("Valid component upsert") {
+    FileSystemHelper.run(Map(
+      "Test.component" -> ""
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("Test.component"), Some(""))
+      assert(pkg.upsertFromView(view))
+      assert(pkg.components.findNestedType(Name("Test")).nonEmpty)
+    }
+  }
+
+  test("Valid component upsert (new)") {
+    FileSystemHelper.run(Map(
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("Test.component"), Some(""))
+      assert(pkg.upsertFromView(view))
+      assert(pkg.components.findNestedType(Name("Test")).nonEmpty)
+    }
+  }
+
+  test("Valid component upsert (changed)") {
+    FileSystemHelper.run(Map(
+      "Test.component" -> ""
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("Test.component"), Some("Changed"))
+      assert(pkg.upsertFromView(view))
+      assert(pkg.components.findNestedType(Name("Test")).nonEmpty)
+    }
+  }
+
+  test("Valid component upsert (new component)") {
+    FileSystemHelper.run(Map(
+      "Test.component" -> ""
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("Test2.component"), Some(""))
+      assert(pkg.upsertFromView(view))
+      assert(pkg.components.nestedTypes.map(_.name).toSet ==
+        Set(Name("Test"), Name("Test2"), Names.c, Names.Apex, Names.Chatter))
+    }
+  }
+
+  test("Delete component file") {
+    FileSystemHelper.run(Map(
+      "Test.component" -> ""
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val path = root.join("Test.component")
+      path.delete()
+      assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
+      assert(pkg.components.nestedTypes.map(_.name).toSet == Set(Names.c, Names.Apex, Names.Chatter))
+    }
+  }
+
+  test("Delete component file (multiple)") {
+    FileSystemHelper.run(Map(
+      "Test.component" -> "",
+      "Test2.component" -> ""
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val path = root.join("Test.component")
+      path.delete()
+      assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
+      assert(pkg.components.nestedTypes.map(_.name).toSet == Set(Name("Test2"), Names.c, Names.Apex, Names.Chatter))
     }
   }
 }
