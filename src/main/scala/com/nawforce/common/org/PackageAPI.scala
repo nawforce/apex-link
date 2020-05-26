@@ -35,7 +35,7 @@ import com.nawforce.common.org.stream._
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
-import com.nawforce.common.types.other.{InterviewDeclaration, LabelDeclaration, PageDeclaration}
+import com.nawforce.common.types.other.{ComponentDeclaration, InterviewDeclaration, LabelDeclaration, PageDeclaration}
 import com.nawforce.runtime.types.PlatformTypeException
 
 import scala.collection.immutable.Queue
@@ -126,6 +126,7 @@ trait PackageAPI extends Package {
       case Some(d: LabelsDocument) => Some(d)
       case Some(d: FlowDocument) => Some(d)
       case Some(d: PageDocument) => Some(d)
+      case Some(d: ComponentDocument) => Some(d)
       case _ => None
     }
 
@@ -166,6 +167,7 @@ trait PackageAPI extends Package {
       case _: LabelsDocument => loadLabelsAndValidate(dt.get, source)
       case _: FlowDocument =>  loadFlowsAndValidate(dt.get, source)
       case _: PageDocument =>  loadPagesAndValidate(dt.get, source)
+      case _: ComponentDocument =>  loadComponentsAndValidate(dt.get, source)
     }
   }
 
@@ -250,6 +252,26 @@ trait PackageAPI extends Package {
         pages = newPages
 
         ViewInfoImpl(NEW_TYPE, path, Some(pages), org.issues.getDiagnostics(path.toString).toArray)
+      }
+    } finally {
+      org.issues.push(path.toString, issues)
+    }
+  }
+
+  private def loadComponentsAndValidate(docType: MetadataDocument, source: Option[String]): ViewInfoImpl = {
+    val path = docType.path
+    val issues = org.issues.pop(path.toString)
+    try {
+      OrgImpl.current.withValue(org) {
+        // Re-create Interviews
+        var newComponents = ComponentDeclaration(this)
+        val metadata = source.map(data => MetadataDocumentWithData(docType, data)).toSeq
+        val provider = new OverrideMetadataProvider(metadata, new DocumentIndexMetadataProvider(documents))
+        val queue = ComponentGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
+        newComponents = newComponents.merge(new PackageStream(namespace, queue))
+        components = newComponents
+
+        ViewInfoImpl(NEW_TYPE, path, Some(components), org.issues.getDiagnostics(path.toString).toArray)
       }
     } finally {
       org.issues.push(path.toString, issues)

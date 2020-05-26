@@ -106,6 +106,11 @@ trait DependencyHolder extends Dependent {
       case page: Page =>
         val id = page.pkg.pages
         Some(FieldDependentSummary(id.typeId.asTypeIdentifier, page.name.value))
+
+      case c: Component =>
+        val id = c.pkg.components
+        Some(TypeDependentSummary(id.typeId.asTypeIdentifier, id.sourceHash))
+
     }.toSet
   }
 }

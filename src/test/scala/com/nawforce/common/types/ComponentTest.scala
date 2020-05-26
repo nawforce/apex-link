@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2017 Kevin Jones
+ Copyright (c) 2020 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,11 +35,12 @@ import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class InterviewTest extends AnyFunSuite with BeforeAndAfter {
+class ComponentTest extends AnyFunSuite with BeforeAndAfter {
 
-  test("Interview createInterview") {
+  test("Custom component (MDAPI)") {
     FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = Flow.Interview.createInterview('', new Map<String, Object>());} }"
+      "Test.component" -> "",
+      "Dummy.cls" -> "public class Dummy { {Component.Test;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
@@ -47,44 +48,22 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
-  test("Custom flow (MDAPI)") {
+  test("Missing component") {
     FileSystemHelper.run(Map(
-      "Test.flow" -> "",
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-    }
-  }
-
-  test("Custom flow (SFDX)") {
-    FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> "",
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-    }
-  }
-
-  test("Missing flow") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }"
+      "Dummy.cls" -> "public class Dummy { {Component.Test;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
       // TODO: This should be a missing issue
       assert(org.issues.getMessages("/Dummy.cls") ==
-        "Missing: line 1 at 22-41: Unknown field or type 'Test' on 'Flow.Interview'\n")
+        "Missing: line 1 at 22-36: Unknown field or type 'Test' on 'Component'\n")
     }
   }
 
-  test("Create flow") {
+  test("Create component") {
     FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> "",
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }"
+      "Test.component" -> "",
+      "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(None, Seq(root), Seq())
@@ -92,10 +71,21 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
-  test("Create flow (namespaced)") {
+  test("Create component (c namespace)") {
     FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> "",
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg.Test(new Map<String, Object>());} }"
+      "Test.component" -> "",
+      "Dummy.cls" -> "public class Dummy { {Component c = new Component.c.Test();} }"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.addPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+    }
+  }
+
+  test("Create component (namespaced)") {
+    FileSystemHelper.run(Map(
+      "Test.component" -> "",
+      "Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg.Test();} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(Some(Name("pkg")), Seq(root), Seq())
@@ -103,10 +93,10 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
-  test("Create flow (namespaced but without namespace)") {
+  test("Create component (namespaced but without namespace)") {
     FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> "",
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }"
+      "Test.component" -> "",
+      "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.addPackage(Some(Name("pkg")), Seq(root), Seq())
@@ -114,9 +104,9 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
-  test("Create flow (ghosted)") {
+  test("Create component (ghosted)") {
     FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.ghosted.Test(new Map<String, Object>());} }"
+      "Dummy.cls" -> "public class Dummy { {Component c = new Component.ghosted.Test();} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg1 = org.addPackage(Some(Name("ghosted")), Seq(), Seq()).asInstanceOf[PackageImpl]
@@ -125,46 +115,24 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
-  test("Create flow (packaged)") {
+  test("Create component (packaged)") {
     FileSystemHelper.run(Map(
-      "pkg1/Test.flow-meta.xml" -> "",
-      "pkg2/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg1.Test(new Map<String, Object>());} }"
+      "pkg1/Test.component" -> "",
+      "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
       val pkg2 = org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1)).asInstanceOf[PackageImpl]
       assert(!org.issues.hasMessages)
 
-      val interviewType1 = TypeIdentifier.fromJava(Name("pkg1"), TypeNames.Interview)
-      val interviewType2 = TypeIdentifier.fromJava(Name("pkg2"), TypeNames.Interview)
-      assert(pkg2.getDependencies(interviewType2, inheritanceOnly = false).sameElements(Array(interviewType1)))
-      assert(pkg1.getDependencyHolders(interviewType1).sameElements(Array(interviewType2)))
+      val componentType1 = TypeIdentifier.fromJava(Name("pkg1"), TypeNames.Component)
+      val componentType2 = TypeIdentifier.fromJava(Name("pkg2"), TypeNames.Component)
+      assert(pkg2.getDependencies(componentType2, inheritanceOnly = false).sameElements(Array(componentType1)))
+      assert(pkg1.getDependencyHolders(componentType1).sameElements(Array(componentType2)))
 
       val dummyType = pkg2.getTypeOfPath("/pkg2/Dummy.cls")
-      assert(pkg2.getDependencies(dummyType, inheritanceOnly = false).sameElements(Array(interviewType2)))
-      assert(pkg2.getDependencyHolders(interviewType2).sameElements(Array(dummyType)))
-    }
-  }
-
-  test("Create flow (missing flow)") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(Some(Name("pkg")), Seq(root), Seq())
-      assert(org.issues.getMessages("/Dummy.cls") ==
-        "Missing: line 1 at 45-64: No type declaration found for 'Flow.Interview.Test'\n")
-    }
-  }
-
-  test("Start flow") {
-    FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> "",
-      "Dummy.cls" -> "public class Dummy { {new Flow.Interview.Test(new Map<String, Object>()).start();} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+      assert(pkg2.getDependencies(dummyType, inheritanceOnly = false).sameElements(Array(componentType2)))
+      assert(pkg2.getDependencyHolders(componentType2).sameElements(Array(dummyType)))
     }
   }
 }

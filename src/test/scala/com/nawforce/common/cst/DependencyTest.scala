@@ -607,4 +607,42 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       assert(page2Field.getDependencyHolders == Set(dummyType.blocks.head))
     }
   }
+
+  test("Component creates dependency") {
+    FileSystemHelper.run(Map(
+      "Test.component" -> "",
+      "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val componentsType = pkg.searchTypes(TypeNames.Component).get
+      val componentType = componentsType.findNestedType(Name("Test")).head
+      val dummyType = pkg.searchTypes(TypeName(Name("Dummy"))).get
+
+      assert(dummyType.blocks.head.dependencies() == Set(componentType))
+      assert(componentType.getDependencyHolders == Set(dummyType.blocks.head))
+    }
+  }
+
+  test("Packaged component creates dependency") {
+    FileSystemHelper.run(Map(
+      "pkg1/Test.component" -> "",
+      "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      val pkg2 = org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1)).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val componentsType1 = pkg1.searchTypes(TypeNames.Component).get
+      val componentType = componentsType1.findNestedType(Name("Test")).head
+      val dummyType = pkg2.searchTypes(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))).get
+
+      assert(dummyType.blocks.head.dependencies() == Set(componentType))
+      assert(componentType.getDependencyHolders == Set(dummyType.blocks.head))
+    }
+  }
+
 }

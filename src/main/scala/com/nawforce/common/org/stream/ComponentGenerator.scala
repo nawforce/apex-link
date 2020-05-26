@@ -34,7 +34,7 @@ import com.nawforce.common.documents._
 
 import scala.collection.immutable.Queue
 
-case class ComponentEvent(location: LocationImpl, name: Name) extends PackageEvent
+case class ComponentEvent(sourceInfo: SourceInfo, location: LocationImpl, name: Name) extends PackageEvent
 
 /** Convert component documents into PackageEvents */
 object ComponentGenerator extends Generator {
@@ -46,7 +46,9 @@ object ComponentGenerator extends Generator {
   override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
     val docType = metadata.docType
     docType match {
-      case _: ComponentDocument => Seq(ComponentEvent(LineLocationImpl(docType.path.toString, 0), docType.name))
+      case _: ComponentDocument => Seq(ComponentEvent(
+        SourceInfo(docType.path, metadata.data),
+        LineLocationImpl(docType.path.toString, 0), docType.name))
       case _ => Seq.empty
     }
   }

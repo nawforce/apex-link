@@ -77,6 +77,7 @@ object DependentValidation {
           case d: LabelDeclaration => d.sourceHash == dependent.sourceHash
           case d: InterviewDeclaration => d.sourceHash == dependent.sourceHash
           case d: PageDeclaration => d.sourceHash == dependent.sourceHash
+          case d: ComponentDeclaration => d.sourceHash == dependent.sourceHash
           case _ => true
         })
     })
@@ -158,6 +159,7 @@ object DependentValidation {
       case Right(d: LabelDeclaration) => Some(d)
       case Right(d: InterviewDeclaration) => Some(d)
       case Right(d: PageDeclaration) => Some(d)
+      case Right(d: ComponentDeclaration) => Some(d)
       case Right(_) => None
     }
   }
@@ -303,6 +305,7 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
         case d: LabelDeclaration => localDependencies.add(d.typeId)
         case d: InterviewDeclaration => localDependencies.add(d.typeId)
         case d: PageDeclaration => localDependencies.add(d.typeId)
+        case d: ComponentDeclaration => localDependencies.add(d.typeId)
         case _: ApexFieldLike => ()
         case _: ApexMethodLike => ()
         case _: Label => ()
@@ -331,6 +334,7 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
       case Right(d: LabelDeclaration) => Some(d.typeId)
       case Right(d: InterviewDeclaration) => Some(d.typeId)
       case Right(d: PageDeclaration) => Some(d.typeId)
+      case Right(d: ComponentDeclaration) => Some(d.typeId)
       case Right(_) => None
       case Left(_) => None
     }

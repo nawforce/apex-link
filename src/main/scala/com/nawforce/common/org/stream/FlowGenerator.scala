@@ -45,7 +45,8 @@ object FlowGenerator extends Generator {
   override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
     val docType = metadata.docType
     docType match {
-      case _: FlowDocument => Seq(FlowEvent(SourceInfo(docType.path, metadata.data),
+      case _: FlowDocument => Seq(FlowEvent(
+        SourceInfo(docType.path, metadata.data),
         LineLocationImpl(docType.path.toString, 0), docType.name))
       case _ => Seq.empty
     }

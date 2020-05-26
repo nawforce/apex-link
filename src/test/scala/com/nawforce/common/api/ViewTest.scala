@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.api
 
-import com.nawforce.common.names.TypeNames
+import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl, ViewInfoImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
@@ -357,6 +357,38 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       assert(view.diagnostics.isEmpty)
       assert(view.typeName == TypeNames.Page)
       assert(view.td.get.fields.map(_.name).toSet == Set(Name("TestPage"), Name("TestPage2")))
+    }
+  }
+
+  test("Component") {
+    FileSystemHelper.run(Map(
+      "Test.component" -> "",
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("Test.component"), None).asInstanceOf[ViewInfoImpl]
+      assert(view.hasType)
+      assert(view.diagnostics.isEmpty)
+      assert(view.typeName == TypeNames.Component)
+      assert(view.td.get.nestedTypes.map(_.name).toSet == Set(Name("Test"), Names.c, Names.Apex, Names.Chatter))
+    }
+  }
+
+  test("Additional Component") {
+    FileSystemHelper.run(Map(
+      "Test.component" -> "",
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      assert(!org.issues.hasMessages)
+
+      val view = pkg.getViewOfType(root.join("Test2.component"), Some("")).asInstanceOf[ViewInfoImpl]
+      assert(view.hasType)
+      assert(view.diagnostics.isEmpty)
+      assert(view.typeName == TypeNames.Component)
+      assert(view.td.get.nestedTypes.map(_.name).toSet == Set(Name("Test"), Name("Test2"), Names.c, Names.Apex, Names.Chatter))
     }
   }
 }

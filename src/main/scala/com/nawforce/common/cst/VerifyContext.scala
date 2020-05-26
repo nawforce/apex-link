@@ -113,6 +113,9 @@ trait HolderVerifyContext {
       case _: PageDeclaration => _dependencies += dependent
       case _: Page => _dependencies += dependent
 
+      // No ComponentDeclaration as Component is a type
+      case _: Component => _dependencies += dependent
+
       case _ => ()
     }
   }
