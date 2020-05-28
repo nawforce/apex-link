@@ -61,7 +61,7 @@ class PlatformEventTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.ReplayId;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
   }
@@ -72,7 +72,7 @@ class PlatformEventTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.Bar__c;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
     }
   }
@@ -83,7 +83,7 @@ class PlatformEventTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.Baz__c;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq())
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages("/Dummy.cls") ==
         "Missing: line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__e'\n")
     }

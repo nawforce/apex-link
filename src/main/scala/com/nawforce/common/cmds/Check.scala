@@ -87,9 +87,19 @@ object Check {
       val nsLoaded = mutable.Map[String, Package]()
       nsSplit.foreach(nsDirPair => {
         if (!nsLoaded.contains(nsDirPair._1)) {
-          val paths = nsSplit.filter(_._1 == nsDirPair._1).map(_._2).filterNot(_.isEmpty)
-          val pkg = org.newPackage(nsDirPair._1, paths.toArray, nsLoaded.values.toArray)
-          nsLoaded.put(nsDirPair._1, pkg)
+          val path = PathFactory(nsDirPair._2)
+          if (path.join("sfdx-project.json").exists) {
+            if (nsDirPair._1.nonEmpty) {
+              System.err.println(s"Namespaces should not be provided for SFDX directories such as'$path''")
+              return STATUS_ARGS
+            }
+            org.newSFDXPackage(path.toString, nsLoaded.values.toArray)
+          } else {
+            val paths = nsSplit.filter(_._1 == nsDirPair._1).map(_._2).filterNot(_.isEmpty).toArray
+            val nonSfdxPaths = paths.map(PathFactory(_)).filterNot(_.join("sfdx-project.json").exists)
+            val pkg = org.newMDAPIPackage(nsDirPair._1, nonSfdxPaths.map(_.toString), nsLoaded.values.toArray)
+            nsLoaded.put(nsDirPair._1, pkg)
+          }
         }
       })
       org.flush()

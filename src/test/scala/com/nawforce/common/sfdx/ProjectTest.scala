@@ -38,8 +38,8 @@ class ProjectTest extends AnyFunSuite {
     FileSystemHelper.run(Map(
     )) { root: PathLike =>
       Project(root) match {
-        case Left(_) => assert(false)
-        case Right(project) => assert(project.isEmpty)
+        case Left(err) => assert(err == "Missing project file at /sfdx-project.json")
+        case Right(_) => assert(false)
       }
     }
   }
@@ -72,7 +72,7 @@ class ProjectTest extends AnyFunSuite {
     )) { root: PathLike =>
       Project(root) match {
         case Left(_) => assert(false)
-        case Right(project) => assert(project.get.packageDirectories.arr.isEmpty)
+        case Right(project) => assert(project.packageDirectories.arr.isEmpty)
       }
     }
   }
@@ -83,7 +83,7 @@ class ProjectTest extends AnyFunSuite {
     )) { root: PathLike =>
       Project(root) match {
         case Left(_) => assert(false)
-        case Right(project) => assert(project.get.packageDirectories.arr.isEmpty)
+        case Right(project) => assert(project.packageDirectories.arr.isEmpty)
       }
     }
   }
@@ -94,7 +94,7 @@ class ProjectTest extends AnyFunSuite {
     )) { root: PathLike =>
       Project(root) match {
         case Left(_) => assert(false)
-        case Right(project) => assert(project.get.packageDirectories.arr.isEmpty)
+        case Right(project) => assert(project.packageDirectories.arr.isEmpty)
       }
     }
   }
@@ -105,7 +105,7 @@ class ProjectTest extends AnyFunSuite {
     )) { root: PathLike =>
       Project(root) match {
         case Left(_) => assert(false)
-        case Right(project) => assert(project.get.packageDirectories.arr.size == 1)
+        case Right(project) => assert(project.packageDirectories.arr.size == 1)
       }
     }
   }
@@ -116,7 +116,7 @@ class ProjectTest extends AnyFunSuite {
     )) { root: PathLike =>
       Project(root) match {
         case Left(_) => assert(false)
-        case Right(project) => assert(project.get.packageDirectories.arr.size == 3)
+        case Right(project) => assert(project.packageDirectories.arr.size == 3)
       }
     }
   }
@@ -128,8 +128,8 @@ class ProjectTest extends AnyFunSuite {
       Project(root) match {
         case Left(_) => assert(false)
         case Right(project) =>
-          assert(project.get.paths.size == 1)
-          assert(project.get.paths.head ==
+          assert(project.paths.size == 1)
+          assert(project.paths.head ==
             Left("Expecting all 'path' properties to be strings in packageDirectories, error: ujson.Value$InvalidData: Expected ujson.Str (data: {})"))
       }
     }
@@ -142,8 +142,8 @@ class ProjectTest extends AnyFunSuite {
       Project(root) match {
         case Left(_) => assert(false)
         case Right(project) =>
-          assert(project.get.paths.size == 1)
-          assert(project.get.paths.head == Right("Hello"))
+          assert(project.paths.size == 1)
+          assert(project.paths.head == Right("Hello"))
       }
     }
   }
@@ -155,9 +155,9 @@ class ProjectTest extends AnyFunSuite {
       Project(root) match {
         case Left(_) => assert(false)
         case Right(project) =>
-          assert(project.get.paths.size == 2)
-          assert(project.get.paths.head == Right("Foo"))
-          assert(project.get.paths(1) == Right("Bar"))
+          assert(project.paths.size == 2)
+          assert(project.paths.head == Right("Foo"))
+          assert(project.paths(1) == Right("Bar"))
       }
     }
   }
@@ -169,7 +169,7 @@ class ProjectTest extends AnyFunSuite {
       Project(root) match {
         case Left(_) => assert(false)
         case Right(project) =>
-          assert(project.get.namespace == Right(None))
+          assert(project.namespace == Right(None))
       }
     }
   }
@@ -181,7 +181,7 @@ class ProjectTest extends AnyFunSuite {
       Project(root) match {
         case Left(_) => assert(false)
         case Right(project) =>
-          assert(project.get.namespace ==
+          assert(project.namespace ==
             Left("Failed to read namespace from sfdx-project.json, error: ujson.Value$InvalidData: Expected ujson.Str (data: {})"))
       }
     }
@@ -194,7 +194,7 @@ class ProjectTest extends AnyFunSuite {
       Project(root) match {
         case Left(_) => assert(false)
         case Right(project) =>
-          assert(project.get.namespace == Right(None))
+          assert(project.namespace == Right(None))
       }
     }
   }
@@ -207,7 +207,7 @@ class ProjectTest extends AnyFunSuite {
         case Left(_) =>
           assert(false)
         case Right(project) =>
-          assert(project.get.namespace ==
+          assert(project.namespace ==
             Left("Package namespace ' ' in sfdx-project.json is not valid, can only use characters A-Z, a-z, 0-9 or _"))
       }
     }
@@ -221,7 +221,7 @@ class ProjectTest extends AnyFunSuite {
         case Left(_) =>
           assert(false)
         case Right(project) =>
-          assert(project.get.namespace ==
+          assert(project.namespace ==
             Left("Package namespace 'foo__bar' in sfdx-project.json is not valid, can not use '__'"))
       }
     }
@@ -234,7 +234,7 @@ class ProjectTest extends AnyFunSuite {
       Project(root) match {
         case Left(_) => assert(false)
         case Right(project) =>
-          assert(project.get.namespace == Right(Some(Name("ns"))))
+          assert(project.namespace == Right(Some(Name("ns"))))
       }
     }
   }

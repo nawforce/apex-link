@@ -68,21 +68,21 @@ class Project(config: Value.Value) {
 }
 
 object Project {
-  def apply(path: PathLike): Either[String, Option[Project]] = {
+  def apply(path: PathLike): Either[String, Project] = {
     val projectFile = path.join("sfdx-project.json")
     if (!projectFile.isFile) {
-      return Right(None)
-    }
-
-    projectFile.read() match {
-      case Left(err) => Left(err)
-      case Right(data) =>
-        try {
-          Right(Some(new Project(ujson.read(data))))
-        } catch {
-          case ex: Throwable =>
-            Left(s"Failed to parse '$projectFile', error: ${ex.toString}")
-        }
+      Left(s"Missing project file at $projectFile")
+    } else {
+      projectFile.read() match {
+        case Left(err) => Left(err)
+        case Right(data) =>
+          try {
+            Right(new Project(ujson.read(data)))
+          } catch {
+            case ex: Throwable =>
+              Left(s"Failed to parse '$projectFile', error: ${ex.toString}")
+          }
+      }
     }
   }
 }
