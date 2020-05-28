@@ -31,12 +31,18 @@ package com.nawforce.common.api
 import com.nawforce.common.names._
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.sfdx.MDAPIWorkspace
 import com.nawforce.common.types.apex.{FullDeclaration, SummaryDeclaration}
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class CachedTest extends AnyFunSuite with BeforeAndAfter {
+
+  private def addPackage(org: OrgImpl, path: PathLike, namespace: Option[Name] = None,
+                         basePackages: Seq[PackageImpl] = Seq.empty): PackageImpl = {
+    org.addPackage(new MDAPIWorkspace(namespace, Seq(path)), basePackages)
+  }
 
   before {
     ServerOps.setParsedDataCaching(true)
@@ -65,7 +71,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
     ), setupCache = true) { root: PathLike =>
       // Cache classes
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = addPackage(org, root)
       assert(!org.issues.hasMessages)
       assertIsFullDeclaration(pkg, "Bar")
       assertIsFullDeclaration(pkg, "Foo")
@@ -73,7 +79,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
 
       // Reload from cache
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg2 = org2.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg2 = addPackage(org2, root)
       assert(!org2.issues.hasMessages)
       assertIsSummaryDeclaration(pkg2, "Bar")
       assertIsSummaryDeclaration(pkg2, "Foo")
@@ -83,7 +89,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       root.createFile("Bar.cls", newBar)
       root.join("Foo.cls").delete()
       val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg3 = org3.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg3 = addPackage(org3, root)
       assert(!org3.issues.hasMessages)
       assertIsFullDeclaration(pkg3, "Bar")
       assertIsNotDeclaration(pkg3, "Foo")
@@ -92,7 +98,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       // Test if we notice change, i.e. Foo should not be cached
       root.createFile("Foo.cls", foo)
       val org4 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg4 = org4.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg4 = addPackage(org4, root)
       assert(!org4.issues.hasMessages)
       assertIsSummaryDeclaration(pkg4, "Bar")
       assertIsFullDeclaration(pkg4, "Foo")
@@ -195,12 +201,12 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
     ), setupCache = true) { root: PathLike =>
       // Setup as cached
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      val pkg = addPackage(org, root.join("pkg1"))
       assertIsFullDeclaration(pkg, "Foo")
       assert(org.getIssues(new IssueOptions()) == "/pkg1/Foo.cls\nMissing: line 1 at 13-16: No type declaration found for 'Bar'\n")
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg2 = org2.addPackage(None, Seq(root.join("pkg2")), Seq()).asInstanceOf[PackageImpl]
+      val pkg2 = addPackage(org2, root.join("pkg2"))
       assertIsFullDeclaration(pkg2, "Foo")
       assert(org2.getIssues(new IssueOptions()) == "/pkg2/Foo.cls\nMissing: line 1 at 13-16: No type declaration found for 'Bar'\n")
     }
@@ -213,14 +219,14 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
     ), setupCache = true) { root: PathLike =>
       // Setup as cached
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
+      val pkg = addPackage(org, root.join("pkg1"))
       assertIsFullDeclaration(pkg, "Foo")
       assert(org.getIssues(new IssueOptions()) ==
         "/pkg1/Foo.cls\nError: line 1 at 19-24: No matching method found for 'bar' on 'Foo' taking no arguments\n")
       org.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg2 = org2.addPackage(None, Seq(root.join("pkg2")), Seq()).asInstanceOf[PackageImpl]
+      val pkg2 = addPackage(org2, root.join("pkg2"))
       assertIsSummaryDeclaration(pkg2, "Foo")
       assert(org2.getIssues(new IssueOptions()) ==
         "/pkg2/Foo.cls\nError: line 1 at 19-24: No matching method found for 'bar' on 'Foo' taking no arguments\n")
@@ -244,12 +250,12 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {String a = System.label.TestLabel;} }"
     ), setupCache = true) { root: PathLike =>
       val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      org1.addPackage(None, Seq(root), Seq())
+      addPackage(org1, root)
       assert(!org1.issues.hasMessages)
       org1.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg2 = org2.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg2 = addPackage(org2, root)
       assert(!org2.issues.hasMessages)
 
       assertIsSummaryDeclaration(pkg2, "Dummy")
@@ -260,7 +266,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
         "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
 
       val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg3 = org3.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg3 = addPackage(org3, root)
       assertIsFullDeclaration(pkg3, "Dummy")
       assert(org3.getIssues(new IssueOptions()) ==
         "/Dummy.cls\nMissing: line 1 at 33-55: Unknown field or type 'TestLabel' on 'System.Label'\n")
@@ -284,14 +290,14 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       "pkg2/Dummy.cls" -> "public class Dummy { {String a = System.label.pkg1.TestLabel;} }"
     ), setupCache = true) { root: PathLike =>
       val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg11 = org1.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      org1.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg11))
+      val pkg11 = addPackage(org1, root.join("pkg1"), Some(Name("pkg1")))
+      addPackage(org1, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg11))
       assert(!org1.issues.hasMessages)
       org1.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg21 = org2.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg22 = org2.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg21)).asInstanceOf[PackageImpl]
+      val pkg21 = addPackage(org2, root.join("pkg1"), Some(Name("pkg1")))
+      val pkg22 = addPackage(org2, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg21))
       assert(!org2.issues.hasMessages)
 
       assertIsSummaryDeclaration(pkg22, "Dummy")
@@ -303,8 +309,8 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
         "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
 
       val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg31 = org3.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg32 = org3.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg31)).asInstanceOf[PackageImpl]
+      val pkg31 = addPackage(org3, root.join("pkg1"), Some(Name("pkg1")))
+      val pkg32 = addPackage(org3, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg31))
 
       // Still summary as Dummy does not *directly* depend on pkg1 labels
       assertIsSummaryDeclaration(pkg32, "Dummy")
@@ -335,12 +341,12 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {String a = System.label.TestLabel2;} }"
     ), setupCache = true) { root: PathLike =>
       val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      org1.addPackage(None, Seq(root), Seq())
+      addPackage(org1, root)
       assert(!org1.issues.hasMessages)
       org1.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg2 = org2.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg2 = addPackage(org2, root)
       assert(!org2.issues.hasMessages)
 
       assertIsSummaryDeclaration(pkg2, "Dummy")
@@ -351,7 +357,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
         "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
 
       val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg3 = org3.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg3 = addPackage(org3, root)
       assertIsFullDeclaration(pkg3, "Dummy")
       assert(org3.getIssues(new IssueOptions()) ==
         "/Dummy.cls\nMissing: line 1 at 33-56: Unknown field or type 'TestLabel2' on 'System.Label'\n")
@@ -364,12 +370,12 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }"
     ), setupCache = true) { root: PathLike =>
       val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      org1.addPackage(None, Seq(root), Seq())
+      addPackage(org1, root)
       assert(!org1.issues.hasMessages)
       org1.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg2 = org2.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg2 = addPackage(org2, root)
       assert(!org2.issues.hasMessages)
 
       assertIsSummaryDeclaration(pkg2, "Dummy")
@@ -379,7 +385,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       root.join("Test.flow-meta.xml").delete()
 
       val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg3 = org3.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg3 = addPackage(org3, root)
       assertIsFullDeclaration(pkg3, "Dummy")
       assert(org3.getIssues(new IssueOptions()) ==
         "/Dummy.cls\nMissing: line 1 at 45-64: No type declaration found for 'Flow.Interview.Test'\n")
@@ -392,14 +398,14 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       "pkg2/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg1.Test(new Map<String, Object>());} }"
     ), setupCache = true) { root: PathLike =>
       val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg11 = org1.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      org1.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg11))
+      val pkg11 = addPackage(org1, root.join("pkg1"), Some(Name("pkg1")))
+      addPackage(org1, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg11))
       assert(!org1.issues.hasMessages)
       org1.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg21 = org2.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg22 = org2.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg21)).asInstanceOf[PackageImpl]
+      val pkg21 = addPackage(org2, root.join("pkg1"), Some(Name("pkg1")))
+      val pkg22 = addPackage(org2, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg21))
       assert(!org2.issues.hasMessages)
 
       assertIsSummaryDeclaration(pkg22, "Dummy")
@@ -410,8 +416,8 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       root.join("pkg1/Test.flow-meta.xml").delete()
 
       val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg31 = org3.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg32 = org3.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg31)).asInstanceOf[PackageImpl]
+      val pkg31 = addPackage(org3, root.join("pkg1"), Some(Name("pkg1")))
+      val pkg32 = addPackage(org3, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg31))
 
       assertIsFullDeclaration(pkg32, "Dummy")
       assert(org3.getIssues(new IssueOptions()) ==
@@ -425,12 +431,12 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }"
     ), setupCache = true) { root: PathLike =>
       val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      org1.addPackage(None, Seq(root), Seq())
+      addPackage(org1, root)
       assert(!org1.issues.hasMessages)
       org1.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg2 = org2.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg2 = addPackage(org2, root)
       assert(!org2.issues.hasMessages)
 
       assertIsSummaryDeclaration(pkg2, "Dummy")
@@ -440,7 +446,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       root.join("TestPage.page").delete()
 
       val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg3 = org3.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg3 = addPackage(org3, root)
       assertIsFullDeclaration(pkg3, "Dummy")
       assert(org3.getIssues(new IssueOptions()) ==
         "/Dummy.cls\nMissing: line 1 at 40-53: Unknown field or type 'TestPage' on 'Page'\n")
@@ -453,14 +459,14 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }"
     ), setupCache = true) { root: PathLike =>
       val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg11 = org1.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      org1.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg11))
+      val pkg11 = addPackage(org1, root.join("pkg1"), Some(Name("pkg1")))
+      addPackage(org1, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg11))
       assert(!org1.issues.hasMessages)
       org1.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg21 = org2.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg22 = org2.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg21)).asInstanceOf[PackageImpl]
+      val pkg21 = addPackage(org2, root.join("pkg1"), Some(Name("pkg1")), Seq())
+      val pkg22 = addPackage(org2, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg21))
       assert(!org2.issues.hasMessages)
 
       assertIsSummaryDeclaration(pkg22, "Dummy")
@@ -471,8 +477,8 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       root.join("pkg1/TestPage.page").delete()
 
       val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg31 = org3.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg32 = org3.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg31)).asInstanceOf[PackageImpl]
+      val pkg31 = addPackage(org3, root.join("pkg1"), Some(Name("pkg1")))
+      val pkg32 = addPackage(org3, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg31))
 
       // Still summary as Dummy does not *directly* depend on pkg1 pages
       assertIsSummaryDeclaration(pkg32, "Dummy")
@@ -486,12 +492,12 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }"
     ), setupCache = true) { root: PathLike =>
       val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      org1.addPackage(None, Seq(root), Seq())
+      addPackage(org1, root)
       assert(!org1.issues.hasMessages)
       org1.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg2 = org2.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg2 = addPackage(org2, root)
       assert(!org2.issues.hasMessages)
 
       assertIsSummaryDeclaration(pkg2, "Dummy")
@@ -501,7 +507,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       root.join("Test.component").delete()
 
       val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg3 = org3.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg3 = addPackage(org3, root)
       assertIsFullDeclaration(pkg3, "Dummy")
       assert(org3.getIssues(new IssueOptions()) ==
         "/Dummy.cls\nMissing: line 1 at 40-54: No type declaration found for 'Component.Test'\n")
@@ -514,14 +520,14 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }"
     ), setupCache = true) { root: PathLike =>
       val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg11 = org1.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      org1.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg11))
+      val pkg11 = addPackage(org1, root.join("pkg1"), Some(Name("pkg1")))
+      addPackage(org1, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg11))
       assert(!org1.issues.hasMessages)
       org1.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg21 = org2.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg22 = org2.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg21)).asInstanceOf[PackageImpl]
+      val pkg21 = addPackage(org2, root.join("pkg1"), Some(Name("pkg1")))
+      val pkg22 = addPackage(org2, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg21))
       assert(!org2.issues.hasMessages)
 
       assertIsSummaryDeclaration(pkg22, "Dummy")
@@ -532,8 +538,8 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
       root.join("pkg1/Test.component").delete()
 
       val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg31 = org3.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg32 = org3.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg31)).asInstanceOf[PackageImpl]
+      val pkg31 = addPackage(org3, root.join("pkg1"), Some(Name("pkg1")))
+      val pkg32 = addPackage(org3, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg31))
 
       assertIsFullDeclaration(pkg32, "Dummy")
       assert(org3.getIssues(new IssueOptions()) ==

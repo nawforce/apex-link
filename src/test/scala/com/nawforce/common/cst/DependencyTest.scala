@@ -30,7 +30,7 @@ package com.nawforce.common.cst
 import com.nawforce.common.api.{Name, Org, ServerOps, TypeName}
 import com.nawforce.common.documents.{ApexClassDocument, MetadataDocument}
 import com.nawforce.common.names.TypeNames
-import com.nawforce.common.org.{OrgImpl, PackageImpl}
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.TypeDeclaration
 import com.nawforce.runtime.FileSystemHelper
@@ -489,7 +489,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {String a = label.TestLabel;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val labelsType = pkg.searchTypes(TypeNames.Label).get
@@ -518,8 +518,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "pkg2/Dummy.cls" -> "public class Dummy { {String a = label.pkg1.TestLabel;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg2 = org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1)).asInstanceOf[PackageImpl]
+      val pkg1 = org.addMDAPITestPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+      val pkg2 = org.addMDAPITestPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
       val labels1Type = pkg1.searchTypes(TypeNames.Label).get
@@ -538,7 +538,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val interviewType = pkg.searchTypes(TypeNames.Interview).get
@@ -556,8 +556,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "pkg2/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg1.Test(new Map<String, Object>());} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg2 = org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1)).asInstanceOf[PackageImpl]
+      val pkg1 = org.addMDAPITestPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+      val pkg2 = org.addMDAPITestPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
       val interviewType1 = pkg1.searchTypes(TypeNames.Interview).get
@@ -575,7 +575,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val pageType = pkg.searchTypes(TypeNames.Page).get
@@ -594,8 +594,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg2 = org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1)).asInstanceOf[PackageImpl]
+      val pkg1 = org.addMDAPITestPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+      val pkg2 = org.addMDAPITestPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
       val page2Type = pkg2.searchTypes(TypeNames.Page).get
@@ -614,7 +614,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val componentsType = pkg.searchTypes(TypeNames.Component).get
@@ -632,8 +632,8 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.addPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg2 = org.addPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1)).asInstanceOf[PackageImpl]
+      val pkg1 = org.addMDAPITestPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+      val pkg2 = org.addMDAPITestPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
       val componentsType1 = pkg1.searchTypes(TypeNames.Component).get

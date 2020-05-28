@@ -28,7 +28,7 @@
 package com.nawforce.common.api
 
 import com.nawforce.common.names.{Names, TypeNames}
-import com.nawforce.common.org.{OrgImpl, PackageImpl}
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
@@ -40,7 +40,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), None)
       assert(!view.hasType)
       assert(!pkg.upsertFromView(view))
@@ -53,7 +53,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("pkg2/Foo.cls"), Some("public class Foo {}"))
       assert(view.hasType)
       assert(!pkg.upsertFromView(view))
@@ -66,7 +66,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some("public class Foo {}"))
       assert(view.hasType)
       assert(pkg.upsertFromView(view))
@@ -78,7 +78,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some("public class Foo {}"))
       assert(view.hasType)
       assert(pkg.upsertFromView(view))
@@ -92,7 +92,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some("public class Foo {Object a;}"))
       assert(view.hasType)
       assert(pkg.upsertFromView(view))
@@ -106,7 +106,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Bar.cls" -> "public class Bar {public class Inner {}}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("pkg/Bar.cls"), Some("public class Bar {}"))
@@ -130,7 +130,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Bar.cls" -> "public class Bar {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some("public class Foo {Bar b;}"))
       assert(view.hasType)
       assert(pkg.upsertFromView(view))
@@ -152,8 +152,8 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "pkg2/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.addPackage(Some(Name("p1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg2 = org.addPackage(Some(Name("p2")), Seq(root.join("pkg2")), Seq(pkg1)).asInstanceOf[PackageImpl]
+      val pkg1 = org.addMDAPITestPackage(Some(Name("p1")), Seq(root.join("pkg1")), Seq())
+      val pkg2 = org.addMDAPITestPackage(Some(Name("p2")), Seq(root.join("pkg2")), Seq(pkg1))
       val view = pkg2.getViewOfType(root.join("pkg2/Foo.cls"), Some("public class Foo {p1.Bar b;}"))
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
@@ -176,7 +176,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val path = root.join("pkg/Foo.cls")
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       val view = pkg.getViewOfType(path, Some("public class Foo {}"))
       assert(view.hasType)
       assert(!org.issues.hasMessages)
@@ -198,7 +198,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Bar.cls" -> "public class Bar {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val path = root.join("pkg/Bar.cls")
@@ -221,7 +221,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), Some("trigger Foo on Account (before insert) {}"))
       assert(view.hasType)
       assert(pkg.upsertFromView(view))
@@ -233,7 +233,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), Some("trigger Foo on Account (before insert) {}"))
       assert(view.hasType)
       assert(pkg.upsertFromView(view))
@@ -247,7 +247,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), Some("trigger Foo on Account (before insert) {Object a;}"))
       assert(view.hasType)
       assert(pkg.upsertFromView(view))
@@ -261,7 +261,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Bar.cls" -> "public class Bar {public class Inner {}}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("pkg/Bar.cls"), Some("public class Bar {}"))
@@ -285,7 +285,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Bar.cls" -> "public class Bar {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), Some("trigger Foo on Account (before insert) {Bar b;}"))
       assert(view.hasType)
       assert(pkg.upsertFromView(view))
@@ -307,8 +307,8 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "pkg2/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.addPackage(Some(Name("p1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg2 = org.addPackage(Some(Name("p2")), Seq(root.join("pkg2")), Seq(pkg1)).asInstanceOf[PackageImpl]
+      val pkg1 = org.addMDAPITestPackage(Some(Name("p1")), Seq(root.join("pkg1")), Seq())
+      val pkg2 = org.addMDAPITestPackage(Some(Name("p2")), Seq(root.join("pkg2")), Seq(pkg1))
       val view = pkg2.getViewOfType(root.join("pkg2/Foo.trigger"), Some("trigger Foo on Account (before insert) {p1.Bar b;}"))
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
@@ -330,7 +330,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), Some("trigger Foo on Account (before insert) {}"))
       assert(view.hasType)
       assert(!org.issues.hasMessages)
@@ -352,7 +352,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Bar.cls" -> "public class Bar {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val path = root.join("pkg/Bar.cls")
@@ -375,7 +375,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("CustomLabels.labels"), Some(
@@ -388,7 +388,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("CustomLabels.labels"), Some(
@@ -410,7 +410,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
           |""".stripMargin,
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("CustomLabels.labels"), Some(
@@ -443,7 +443,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
           |""".stripMargin,
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("Alt.labels"), Some(
@@ -477,7 +477,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
           |""".stripMargin,
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val path = root.join("CustomLabels.labels")
@@ -511,7 +511,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
           |""".stripMargin,
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val path = root.join("CustomLabels.labels")
@@ -529,7 +529,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "Test.flow-meta.xml" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("Test.flow-meta.xml"), Some(""))
@@ -542,7 +542,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("Test.flow-meta.xml"), Some(""))
@@ -556,7 +556,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "Test.flow-meta.xml" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("Test.flow-meta.xml"), Some("Changed"))
@@ -570,7 +570,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "Test.flow-meta.xml" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("Test2.flow-meta.xml"), Some(""))
@@ -584,7 +584,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "Test.flow-meta.xml" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val path = root.join("Test.flow-meta.xml")
@@ -600,7 +600,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "Test2.flow-meta.xml" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val path = root.join("Test.flow-meta.xml")
@@ -615,7 +615,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "TestPage.page" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("TestPage.page"), Some(""))
@@ -628,7 +628,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("TestPage.page"), Some(""))
@@ -642,7 +642,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "TestPage.page" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("TestPage.page"), Some("Changed"))
@@ -656,7 +656,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "TestPage.page" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("TestPage2.page"), Some(""))
@@ -670,7 +670,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "TestPage.page" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val path = root.join("TestPage.page")
@@ -686,7 +686,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "Test2.page" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val path = root.join("Test.page")
@@ -701,7 +701,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "Test.component" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("Test.component"), Some(""))
@@ -714,7 +714,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("Test.component"), Some(""))
@@ -728,7 +728,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "Test.component" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("Test.component"), Some("Changed"))
@@ -742,7 +742,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "Test.component" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("Test2.component"), Some(""))
@@ -757,7 +757,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "Test.component" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val path = root.join("Test.component")
@@ -773,7 +773,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       "Test2.component" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val path = root.join("Test.component")

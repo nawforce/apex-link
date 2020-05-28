@@ -29,10 +29,15 @@ package com.nawforce.common.api
 
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.sfdx.MDAPIWorkspace
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.funsuite.AnyFunSuite
 
 class BugTest extends AnyFunSuite {
+
+  private def addPackage(org: OrgImpl, path: PathLike): Package = {
+    org.addPackage(new MDAPIWorkspace(None, Seq(path)), Seq())
+  }
 
   test("Enum scoping") {
     FileSystemHelper.run(Map(
@@ -50,7 +55,7 @@ class BugTest extends AnyFunSuite {
            |""".stripMargin
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -61,7 +66,7 @@ class BugTest extends AnyFunSuite {
         "public class Dummy {{ DescribeFieldResult a; List<Schema.PicklistEntry> b = a.getPicklistValues();}}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -71,7 +76,7 @@ class BugTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy {{ DescribeFieldResult a; Integer b = a.getByteLength();}}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -82,7 +87,7 @@ class BugTest extends AnyFunSuite {
         "public class Dummy {{String b = Site.getName();}}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -92,7 +97,7 @@ class BugTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy {{Site a; SObjectType b = a.getSObjectType();}}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -102,7 +107,7 @@ class BugTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy {{SObjectType b = Account.getSobjectType();}}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -112,7 +117,7 @@ class BugTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy {{Dummy a,b; b = a.clone();}}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -122,7 +127,7 @@ class BugTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy {String Matcher; {Matcher.capitalize();}}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -133,7 +138,7 @@ class BugTest extends AnyFunSuite {
       "Super.cls" -> "public virtual class SuperClass {public static void func() {}}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -150,7 +155,7 @@ class BugTest extends AnyFunSuite {
            |""".stripMargin
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -169,7 +174,7 @@ class BugTest extends AnyFunSuite {
            |""".stripMargin
     )) {root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -184,8 +189,8 @@ class BugTest extends AnyFunSuite {
            |""".stripMargin
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
-      
+      addPackage(org, root)
+
       assert(!org.issues.hasMessages)
     }
   }
@@ -200,7 +205,7 @@ class BugTest extends AnyFunSuite {
            |""".stripMargin
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -216,7 +221,7 @@ class BugTest extends AnyFunSuite {
            |""".stripMargin
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -226,7 +231,7 @@ class BugTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {Decimal a; Double b; a+=b; } }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -236,7 +241,7 @@ class BugTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {Decimal a; Double b; Math.max(a * b, b).round(System.RoundingMode.DOWN); } }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -254,7 +259,7 @@ class BugTest extends AnyFunSuite {
            |""".stripMargin
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -269,7 +274,7 @@ class BugTest extends AnyFunSuite {
            |""".stripMargin
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -285,7 +290,7 @@ class BugTest extends AnyFunSuite {
            |""".stripMargin
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -300,7 +305,7 @@ class BugTest extends AnyFunSuite {
            |""".stripMargin
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -315,7 +320,7 @@ class BugTest extends AnyFunSuite {
            |""".stripMargin
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -330,7 +335,7 @@ class BugTest extends AnyFunSuite {
           |""".stripMargin
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -344,7 +349,7 @@ class BugTest extends AnyFunSuite {
           |""".stripMargin
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      addPackage(org, root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -363,7 +368,7 @@ class BugTest extends AnyFunSuite {
            |""".stripMargin
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg = addPackage(org, root).asInstanceOf[PackageImpl]
 
       assert(!org.issues.hasMessages)
       assert(!pkg.reportUnused().hasMessages)

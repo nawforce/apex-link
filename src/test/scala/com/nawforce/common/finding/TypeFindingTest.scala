@@ -112,7 +112,7 @@ class TypeFindingTest extends AnyFunSuite {
 
   test("Custom Outer type with namespace") {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
-    val pkg = org.newPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
+    val pkg = org.newMDAPIPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
     OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(pkg, defaultPath,
         "global class Dummy {}").head
@@ -125,7 +125,7 @@ class TypeFindingTest extends AnyFunSuite {
 
   test("Custom Outer type with namespace not visible") {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
-    val pkg = org.newPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
+    val pkg = org.newMDAPIPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
     OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(pkg, defaultPath,
         "public class Dummy {}").head
@@ -139,7 +139,7 @@ class TypeFindingTest extends AnyFunSuite {
 
   test("Custom Inner type with namespace") {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
-    val pkg = org.newPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
+    val pkg = org.newMDAPIPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
     OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(pkg, defaultPath,
         "global class Dummy {class Inner {}}").head
@@ -152,7 +152,7 @@ class TypeFindingTest extends AnyFunSuite {
 
   test("Custom Inner type with namespace not visible") {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
-    val pkg = org.newPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
+    val pkg = org.newMDAPIPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
     OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(pkg, defaultPath,
         "public class Dummy {class Inner {}}").head

@@ -28,7 +28,7 @@
 package com.nawforce.common.api
 
 import com.nawforce.common.documents.ParsedCache
-import com.nawforce.common.org.{OrgImpl, PackageImpl}
+import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.apex.SummaryDeclaration
 import com.nawforce.runtime.FileSystemHelper
@@ -47,7 +47,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq())
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       assert(pkg.getTypeOfPath(null) == null)
@@ -71,7 +71,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      val pkg = org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       assert(pkg.getTypeOfPath(null) == null)
@@ -95,7 +95,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq())
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val dummyType = pkg.getTypeOfPath(root.join("classes").join("Dummy.cls").toString)
@@ -117,7 +117,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      val pkg = org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val dummyType = pkg.getTypeOfPath(root.join("classes").join("Dummy.cls").toString)
@@ -138,7 +138,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Dummy.cls" -> "public class Dummy {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq())
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val typeLike = pkg.getTypeOfPath(root.join("classes").join("Dummy.cls").toString)
@@ -156,7 +156,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Dummy.cls" -> "@isTest puBlic class Dummy {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      val pkg = org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val typeLike = pkg.getTypeOfPath(root.join("classes").join("Dummy.cls").toString)
@@ -177,12 +177,12 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Dummy.cls" -> "@isTest puBlic class Dummy {}"
     ), setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(Some(Name("test")), Seq(root), Seq())
+      org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
       org.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg2 = org2.addPackage(Some(Name("test")), Seq(root), Seq()).asInstanceOf[PackageImpl]
+      val pkg2 = org2.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org2.issues.hasMessages)
 
       val typeLike = pkg2.getTypeOfPath(root.join("classes").join("Dummy.cls").toString)
@@ -203,7 +203,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "triggers/Dummy.trigger" -> "trigger Dummy on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      val pkg = org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val typeLike = pkg.getTypeOfPath(root.join("triggers").join("Dummy.trigger").toString)
@@ -221,7 +221,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "triggers/Dummy.trigger" -> "trigger Dummy on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq())
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val typeLike = pkg.getTypeOfPath(root.join("triggers").join("Dummy.trigger").toString)
@@ -239,7 +239,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq())
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val fooTypeLike = pkg.getTypeOfPath(root.join("classes").join("Foo.cls").toString)
@@ -255,7 +255,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       // Basic non-cached test
       {
         val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg = org.addPackage(None, Seq(root), Seq())
+        val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
         assert(!org.issues.hasMessages)
 
         val fooTypeLike = pkg.getTypeOfPath(root.join("classes").join("Foo.cls").toString)
@@ -277,7 +277,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       // Extended cache test
       {
         val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg = org.addPackage(None, Seq(root), Seq()).asInstanceOf[PackageImpl]
+        val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
         assert(!org.issues.hasMessages)
 
         val fooTypeLike = pkg.getTypeOfPath(root.join("classes").join("Foo.cls").toString)
@@ -517,8 +517,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "pkg2/Bar.cls" -> "public class Bar extends test.Foo {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.addPackage(Some(Name("test")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg2 = org.addPackage(None, Seq(root.join("pkg2")), Seq(pkg1))
+      val pkg1 = org.addMDAPITestPackage(Some(Name("test")), Seq(root.join("pkg1")), Seq())
+      val pkg2 = org.addMDAPITestPackage(None, Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
       val fooTypeLike = pkg1.getTypeOfPath(root.join("pkg1").join("Foo.cls").toString)
@@ -538,14 +538,14 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "pkg2/Bar.cls" -> "public class Bar extends test.Foo {}"
     ), setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.addPackage(Some(Name("test")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      org.addPackage(None, Seq(root.join("pkg2")), Seq(pkg1))
+      val pkg1 = org.addMDAPITestPackage(Some(Name("test")), Seq(root.join("pkg1")), Seq())
+      org.addMDAPITestPackage(None, Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
       org.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg21 = org2.addPackage(Some(Name("test")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg22 = org2.addPackage(None, Seq(root.join("pkg2")), Seq(pkg21)).asInstanceOf[PackageImpl]
+      val pkg21 = org2.addMDAPITestPackage(Some(Name("test")), Seq(root.join("pkg1")), Seq())
+      val pkg22 = org2.addMDAPITestPackage(None, Seq(root.join("pkg2")), Seq(pkg21))
       assert(!org2.issues.hasMessages)
 
       val fooTypeLike = pkg21.getTypeOfPath(root.join("pkg1").join("Foo.cls").toString)
@@ -567,8 +567,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "pkg2/Bar.cls" -> "public class Bar extends test1.Foo {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.addPackage(Some(Name("test1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg2 = org.addPackage(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg1))
+      val pkg1 = org.addMDAPITestPackage(Some(Name("test1")), Seq(root.join("pkg1")), Seq())
+      val pkg2 = org.addMDAPITestPackage(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
       val fooTypeLike = pkg1.getTypeOfPath(root.join("pkg1").join("Foo.cls").toString)
@@ -588,14 +588,14 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "pkg2/Bar.cls" -> "public class Bar extends test1.Foo {}"
     ), setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.addPackage(Some(Name("test1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      org.addPackage(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg1))
+      val pkg1 = org.addMDAPITestPackage(Some(Name("test1")), Seq(root.join("pkg1")), Seq())
+      org.addMDAPITestPackage(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
       org.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg21 = org2.addPackage(Some(Name("test1")), Seq(root.join("pkg1")), Seq()).asInstanceOf[PackageImpl]
-      val pkg22 = org2.addPackage(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg21)).asInstanceOf[PackageImpl]
+      val pkg21 = org2.addMDAPITestPackage(Some(Name("test1")), Seq(root.join("pkg1")), Seq())
+      val pkg22 = org2.addMDAPITestPackage(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg21))
       assert(!org2.issues.hasMessages)
 
       val fooTypeLike = pkg21.getTypeOfPath(root.join("pkg1").join("Foo.cls").toString)
@@ -616,7 +616,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq())
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val fooTypeLike = pkg.getTypeOfPath(root.join("triggers").join("Foo.trigger").toString)
@@ -631,7 +631,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar b;}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(None, Seq(root), Seq())
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val barTypeLike = pkg.getTypeOfPath(root.join("classes").join("Bar.cls").toString)
@@ -647,7 +647,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar b;}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addPackage(Some(Name("test")), Seq(root), Seq())
+      val pkg = org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val barTypeLike = pkg.getTypeOfPath(root.join("classes").join("Bar.cls").toString)
@@ -662,7 +662,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Dummy.cls" -> "public class Dummy {}",
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       assert(org.getTypeLocation("Dummy") ==
@@ -675,7 +675,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Dummy.cls" -> "public class Dummy {}",
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(Some(Name("test")), Seq(root), Seq())
+      org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       assert(org.getTypeLocation("Dummy") == null)
@@ -689,7 +689,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "classes/Dummy.cls" -> "public class Dummy {class Inner {}}",
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(Some(Name("test")), Seq(root), Seq())
+      org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       assert(org.getTypeLocation("Dummy") == null)
@@ -704,7 +704,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(None, Seq(root), Seq())
+      org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       assert(org.getTypeLocation("Foo") == null)
@@ -718,7 +718,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addPackage(Some(Name("test")), Seq(root), Seq())
+      org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       assert(org.getTypeLocation("Foo") == null)

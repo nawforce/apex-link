@@ -37,8 +37,8 @@ class SampleTest extends AnyFunSuite with BeforeAndAfter {
 
   private def sample(path: String, namespace: String = "", externalNamespaces: Set[String] = Set()): Unit = {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
-    val externalPackages = externalNamespaces.map(ens => org.newPackage(ens, Array(), Array())).toArray
-    org.newPackage(namespace, Array[String](path), externalPackages)
+    val externalPackages = externalNamespaces.map(ens => org.newMDAPIPackage(ens, Array(), Array())).toArray
+    org.newMDAPIPackage(namespace, Array[String](path), externalPackages)
   }
 
   before {

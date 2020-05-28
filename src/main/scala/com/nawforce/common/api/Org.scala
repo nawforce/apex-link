@@ -51,26 +51,47 @@ trait Org {
   /** Get array of current packages. */
   def getPackages: Array[Package]
 
-  /** Create a new package in the org, directories should be priority ordered for duplicate detection. Use
-    * namespaces to indicate dependent packages which must already have been created as packages. Use null
-    * to indicate you want to replace the 'unmanaged' package.
+  /** Create a new package in the org from MDAPI format metadata.
+    *
+    * To use this package to replace the 'unmanaged' package modeled in all Orgs pass a null or empty namespace. The
+    * directories are scanned in the order provided which influences how duplicate metadata is reported. The
+    * basePackages array should contain any packages that this package depends on. References to metadata not
+    * included in basePackage is not possible.
     **/
-  def newPackage(namespace: String, directories: Array[String], basePackages: Array[Package]): Package
+  def newMDAPIPackage(namespace: String, directories: Array[String], basePackages: Array[Package]): Package
 
-  /** Force syncing of org metadata with cache. THis should be called periodically to ensure the cache
-    * is kept upto date after metadata changes. */
+  /** Create a new package in the org from SFDX format metadata.
+    *
+    * The metadata directory must contain a well formed sfdx-project.json file. The package namespace & package
+    * directories to use are read from that sfdx-project.json file. If a .forceignore file is present in the
+    * metadata directory it will be honoured. The basePackages array should contain any packages that this package
+    * depends on. References to metadata not included in basePackage is not possible.
+    **/
+  def newSFDXPackage(directory: String, basePackages: Array[Package]): Package
+
+  /** Force syncing of org metadata with cache.
+    *
+    * This should be called periodically to ensure the cache is kept upto date after metadata changes.
+    */
   def flush(): Unit
 
-  /** Get current issue log. See IssueOptions for control over what is returned. */
+  /** Get current issue log.
+    *
+    * See IssueOptions for control over what is returned.
+    */
   def getIssues(options: IssueOptions): String
 
-  /** Get Apex type dependency map for all types in the Org. This is intended to be used to support
-    * exporting of the map for secondary analysis. */
+  /** Get Apex type dependency map for all types in the Org.
+    *
+    * This is intended to be used to support exporting of the map for secondary analysis.
+    */
   def getDependencies: java.util.Map[String, Array[String]]
 
-  /** Find the location of a typename, the typename must be include the name of an outer type, the may be preceded
-    * by a namespace (if needed) and optionally followed by the name of an inner type. Returns the file & position
-    * within that file if the type is found, otherwise returns null.
+  /** Find the location of a typename.
+    *
+    * The typename must be include the name of an outer type, this may be preceded by a namespace (if needed) and
+    * optionally followed by the name of an inner type. Returns the file & position* within that file if the type is
+    * found, otherwise returns null.
     */
   def getTypeLocation(name: String): PathLocation
 }

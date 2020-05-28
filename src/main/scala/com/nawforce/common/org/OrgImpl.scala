@@ -34,7 +34,7 @@ import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, IssueLog}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{DotName, Names, _}
 import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.sfdx.{MDAPIWorkspace, Workspace}
+import com.nawforce.common.sfdx.{MDAPIWorkspace, Project, SFDXWorkspace, Workspace}
 import com.nawforce.common.types.apex.ApexDeclaration
 import com.nawforce.common.types.core.TypeDeclaration
 
@@ -78,34 +78,54 @@ class OrgImpl extends Org {
     packagesByNamespace.get(namespace)
   }
 
-  /** Create a new package in the org, directories should be priority ordered for duplicate detection. Use
-    * namespaces to indicate dependent packages which must already have been created as packages. */
-  override def newPackage(namespace: String, directories: Array[String], basePackages: Array[Package]): Package = {
-    val namespaceName: Option[Name] = Names.safeApply(namespace)
-
-     val packages = basePackages.map(pkg => {
-       val pkgImpl = pkg.asInstanceOf[PackageImpl]
-       if (pkgImpl.org != this)
-         throw new IllegalArgumentException(s"Base package '${pkgImpl.namespace.getOrElse("")}' was created for use in a different org")
-       pkgImpl
-     })
-
-    val paths = directories.filterNot(_.isEmpty).map(directory => PathFactory(directory))
-    addPackage(namespaceName, paths, packages)
+  /** Create a MDAPI format package */
+  override def newMDAPIPackage(namespace: String, directories: Array[String], basePackages: Array[Package]): Package = {
+    addPackage(new MDAPIWorkspace(Names.safeApply(namespace), getDirectoryPaths(directories)), collectPackages(basePackages))
   }
 
-  /** Create a Package over a set of paths */
-  private[nawforce] def addPackage(namespace: Option[Name], paths: Seq[PathLike], basePackages: Seq[PackageImpl]): Package = {
-    val workspace =
-      Workspace(namespace, paths) match {
-        case Left(err) => throw new IllegalArgumentException(err)
-        case Right(workspace) => workspace
-      }
-    addPackage(workspace, basePackages)
+  /** Create a SFDX format package */
+  override def newSFDXPackage(directory: String, basePackages: Array[Package]): Package = {
+    val path = getDirectoryPaths(Array(directory)).head
+    Project(path) match {
+      case Left(err) =>
+        throw new IllegalArgumentException(err)
+      case Right(project) =>
+        addPackage(new SFDXWorkspace(path, project), collectPackages(basePackages))
+    }
+  }
+
+  /** Convert directory strings to paths, checking they are valid directories */
+  private def getDirectoryPaths(directories: Array[String]): Seq[PathLike] = {
+    val paths = directories.map(PathFactory(_))
+    val missing = paths.filterNot(_.isDirectory)
+    if (missing.nonEmpty)
+      throw new IllegalArgumentException(s"Workspace '${missing.head}' is not a directory")
+    paths
+  }
+
+  /** Collect as PackageImpl checking they are for correct Org as we go */
+  private def collectPackages(basePackages: Array[Package]): Seq[PackageImpl] = {
+    basePackages.map(pkg => {
+      val pkgImpl = pkg.asInstanceOf[PackageImpl]
+      if (pkgImpl.org != this)
+        throw new IllegalArgumentException(s"Base package '${pkgImpl.namespace.getOrElse("")}' was created for use in a different org")
+      pkgImpl
+    })
+  }
+
+  /** Test helper to allow passing a PathLike for virtual FS support */
+  private[nawforce] def addMDAPITestPackage(namespace: Option[Name], paths: Seq[PathLike],
+                                            basePackages: Seq[PackageImpl]): PackageImpl = {
+    addPackage(new MDAPIWorkspace(namespace, paths), basePackages)
+  }
+
+  /** Test helper to allow passing a PathLike for virtual FS support */
+  private[nawforce] def addSFDXTestPackage(path: PathLike, basePackages: Seq[PackageImpl]): PackageImpl = {
+    addPackage(new SFDXWorkspace(path, Project(path).right.get), basePackages)
   }
 
   /** Create a Package over a Workspace */
-  private[nawforce] def addPackage(workspace: Workspace, basePackages: Seq[PackageImpl]): Package = {
+  private[nawforce] def addPackage(workspace: Workspace, basePackages: Seq[PackageImpl]): PackageImpl = {
 
     if (workspace.namespace.isLeft) {
       throw new IllegalArgumentException(workspace.namespace.left.get)

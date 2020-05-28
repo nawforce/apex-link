@@ -72,19 +72,17 @@ trait Workspace {
 }
 
 class MDAPIWorkspace(_namespace: Option[Name], val paths: Seq[PathLike]) extends Workspace {
-  override lazy val rootPaths: Seq[PathLike] = paths
-
   override val namespace: Either[String, Option[Name]] = Right(_namespace)
 
+  override lazy val rootPaths: Seq[PathLike] = paths
+
   override def toString: String = {
-    s"MDAPIWorkspace(namespace=${namespace.getOrElse("")}, paths=${paths.map(_.toString).mkString(", ")})"
+    s"MDAPIWorkspace(namespace=$namespace, paths=${paths.map(_.toString).mkString(", ")})"
   }
 }
 
-class SFDXWorkspace(_namespace: Option[Name], val rootPath: PathLike, project: Project) extends Workspace {
-  override val namespace: Either[String, Option[Name]] = {
-    _namespace.map(ns => Right(Some(ns))).getOrElse(project.namespace)
-  }
+class SFDXWorkspace(val rootPath: PathLike, project: Project) extends Workspace {
+  override val namespace: Either[String, Option[Name]] = project.namespace
 
   override lazy val rootPaths: Seq[PathLike] = Seq(rootPath)
 
@@ -99,26 +97,5 @@ class SFDXWorkspace(_namespace: Option[Name], val rootPath: PathLike, project: P
 
   override def toString: String = {
     s"SFDXWorkspace(namespace=${namespace.getOrElse("")}, paths=${paths.map(_.toString).mkString(", ")})"
-  }
-}
-
-object Workspace {
-  def apply(namespace: Option[Name], paths: Seq[PathLike]): Either[String, Workspace] = {
-    val missing = paths.filterNot(_.isDirectory)
-    if (missing.nonEmpty)
-      return Left(s"Workspace '${missing.head}' is not a directory")
-
-    if (paths.size == 1) {
-      Project(paths.head) match {
-        case Left(err) => Left(err)
-        case Right(project) =>
-          if (project.nonEmpty)
-            Right(new SFDXWorkspace(namespace, paths.head, project.get))
-          else
-            Right(new MDAPIWorkspace(namespace, paths))
-      }
-    } else {
-      Right(new MDAPIWorkspace(namespace, paths))
-    }
   }
 }
