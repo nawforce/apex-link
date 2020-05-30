@@ -27,15 +27,9 @@
 */
 package com.nawforce.platform.Schema;
 
-import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
-
 @SuppressWarnings("unused")
-public class SObjectType {
-	public DescribeSObjectResult getDescribe() {throw new java.lang.UnsupportedOperationException();}
-	public DescribeSObjectResult getDescribe(Object options) {throw new java.lang.UnsupportedOperationException();}
-	public SObject newSObject() {throw new java.lang.UnsupportedOperationException();}
-	public SObject newSObject(Id id) {throw new java.lang.UnsupportedOperationException();}
-	public SObject newSObject(Id recordTypeId, Boolean loadDefaultValues) {throw new java.lang.UnsupportedOperationException();}
+public enum SObjectDescribeOptions {
+    DEFAULT,
+    DEFERRED,
+    FULL
 }
