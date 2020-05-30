@@ -67,7 +67,7 @@ object ParserBench {
         val start = System.currentTimeMillis()
         var size = 0
         try {
-          doc.path.read() match {
+          doc.path.readSourceData() match {
             case Left(err) => println(err)
             case Right(data) =>
               size = data.length

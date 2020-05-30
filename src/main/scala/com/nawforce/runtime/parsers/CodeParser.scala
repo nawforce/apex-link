@@ -27,38 +27,17 @@
 */
 package com.nawforce.runtime.parsers
 
-import java.io.ByteArrayInputStream
-
-import com.nawforce.common.documents.{PositionImpl, RangeLocationImpl}
+import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.path.PathLike
+import com.nawforce.runtime.SourceData
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import org.antlr.v4.runtime.CommonTokenStream
 
 import scala.collection.JavaConverters._
-import scala.util.hashing.MurmurHash3
-
-/** A line & column position in a source block */
-case class SourcePosition(lineOffset: Int=0, columnOffset: Int=0)
-
-/** Encapsulation of a chunk of Apex code, position tells you where it came from in path */
-case class Source(path: PathLike, code: String, position: SourcePosition, outer: Option[Source]) {
-  lazy val hash: Int = MurmurHash3.stringHash(code)
-
-  /** Find a location for a rule, adapts based on source offsets to give absolute position in file */
-  def getRangeLocation(context: ParserRuleContext): RangeLocationImpl = {
-    RangeLocationImpl(
-      path.toString,
-      PositionImpl(context.start.getLine, context.start.getCharPositionInLine)
-        .adjust(position.lineOffset, position.columnOffset),
-      PositionImpl(context.stop.getLine, context.stop.getCharPositionInLine + context.stop.getText.length)
-        .adjust(position.lineOffset, position.columnOffset)
-    )
-  }
-}
 
 /** Apex class parser helper */
 class CodeParser(val source: Source) {
-  val cis = new CaseInsensitiveInputStream(new ByteArrayInputStream(source.code.getBytes))
+  private val cis = source.asStream
 
   /** Parse source as an Apex class */
   def parseClass(): Either[SyntaxException, ApexParser.CompilationUnitContext] = {
@@ -99,7 +78,7 @@ class CodeParser(val source: Source) {
 
   /** Extract the source used for a parser rule */
   def extractSource(context: ParserRuleContext): Source = {
-    val clipped = source.code.substring(context.start.getStartIndex, context.stop.getStopIndex+1)
+    val clipped = source.slice(context.start.getStartIndex, context.stop.getStopIndex+1)
     Source(source.path, clipped, SourcePosition(context.start.getLine-1, context.start.getCharPositionInLine), Some(source))
   }
 
@@ -118,7 +97,7 @@ object CodeParser {
   type ParserRuleContext = org.antlr.v4.runtime.ParserRuleContext
   type TerminalNode = org.antlr.v4.runtime.tree.TerminalNode
 
-  def apply(path: PathLike, code: String): CodeParser = {
+  def apply(path: PathLike, code: SourceData): CodeParser = {
     new CodeParser(Source(path, code, SourcePosition(), None))
   }
 

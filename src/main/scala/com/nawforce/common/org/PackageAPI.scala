@@ -37,10 +37,10 @@ import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.common.types.other.{ComponentDeclaration, InterviewDeclaration, LabelDeclaration, PageDeclaration}
 import com.nawforce.runtime.types.PlatformTypeException
+import com.nawforce.runtime.{SourceData, _}
 
 import scala.collection.immutable.Queue
 import scala.collection.mutable
-import scala.util.hashing.MurmurHash3
 
 trait PackageAPI extends Package {
   this: PackageImpl =>
@@ -114,12 +114,12 @@ trait PackageAPI extends Package {
     }
   }
 
-  override def getViewOfType(path: String, contents: String): ViewInfo = {
+  override def getViewOfType(path: String, contents: SourceData): ViewInfo = {
     getViewOfType(PathFactory(path), Option(contents))
   }
 
   // Create a view for a type, contents are optional
-  private[nawforce] def getViewOfType(path: PathLike, contents: Option[String]): ViewInfo = {
+  private[nawforce] def getViewOfType(path: PathLike, contents: Option[SourceData]): ViewInfo = {
     // Check path is something we known how to handle & is not being ignored
     val dt: Option[MetadataDocument] = MetadataDocument(path) match {
       case Some(d: ApexDocument) => Some(d)
@@ -141,7 +141,7 @@ trait PackageAPI extends Package {
 
     // Read contents from file if we were not provided with
     val source = contents.orElse({
-      path.read() match {
+      path.readSourceData() match {
         case Left(_) => None
         case Right(data) =>Some(data)
       }
@@ -157,7 +157,7 @@ trait PackageAPI extends Package {
         }
     })
 
-    if (td.nonEmpty && source.nonEmpty && td.get.sourceHash == MurmurHash3.stringHash(source.get))
+    if (td.nonEmpty && source.nonEmpty && td.get.sourceHash == source.get.hash)
       return ViewInfoImpl(EXISTING_TYPE, path, td, org.issues.getDiagnostics(path.toString).toArray)
 
     // Prepare the view for a replacement or deletion
@@ -172,8 +172,8 @@ trait PackageAPI extends Package {
   }
 
   // Load a class and validate it without upsert'ing it into the package, upsertFromView will do that
-  private def loadApexAndValidate(path: PathLike, source: Option[String],
-                                  create: (PackageImpl, PathLike, String) => Option[ApexFullDeclaration]): ViewInfoImpl = {
+  private def loadApexAndValidate(path: PathLike, source: Option[SourceData],
+                                  create: (PackageImpl, PathLike, SourceData) => Option[ApexFullDeclaration]): ViewInfoImpl = {
     val issues = org.issues.pop(path.toString)
     try {
       OrgImpl.current.withValue(org) {
@@ -198,14 +198,14 @@ trait PackageAPI extends Package {
     }
   }
 
-  private def loadLabelsAndValidate(docType: MetadataDocument, source: Option[String]): ViewInfoImpl = {
+  private def loadLabelsAndValidate(docType: MetadataDocument, source: Option[SourceData]): ViewInfoImpl = {
     val path = docType.path
     val issues = org.issues.pop(path.toString)
     try {
       OrgImpl.current.withValue(org) {
         // Re-create labels
         var newLabels = LabelDeclaration(this)
-        val metadata = source.map(data => MetadataDocumentWithData(docType, data)).toSeq
+        val metadata = source.map(data => MetadataDocumentWithData(docType, data.asString)).toSeq
         val provider = new OverrideMetadataProvider(metadata, new DocumentIndexMetadataProvider(documents))
         val queue = LabelGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
         newLabels = newLabels.merge(new PackageStream(namespace, queue))
@@ -218,14 +218,14 @@ trait PackageAPI extends Package {
     }
   }
 
-  private def loadFlowsAndValidate(docType: MetadataDocument, source: Option[String]): ViewInfoImpl = {
+  private def loadFlowsAndValidate(docType: MetadataDocument, source: Option[SourceData]): ViewInfoImpl = {
     val path = docType.path
     val issues = org.issues.pop(path.toString)
     try {
       OrgImpl.current.withValue(org) {
         // Re-create Interviews
         var newInterviews = InterviewDeclaration(this)
-        val metadata = source.map(data => MetadataDocumentWithData(docType, data)).toSeq
+        val metadata = source.map(data => MetadataDocumentWithData(docType, data.asString)).toSeq
         val provider = new OverrideMetadataProvider(metadata, new DocumentIndexMetadataProvider(documents))
         val queue = FlowGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
         newInterviews = newInterviews.merge(new PackageStream(namespace, queue))
@@ -238,14 +238,14 @@ trait PackageAPI extends Package {
     }
   }
 
-  private def loadPagesAndValidate(docType: MetadataDocument, source: Option[String]): ViewInfoImpl = {
+  private def loadPagesAndValidate(docType: MetadataDocument, source: Option[SourceData]): ViewInfoImpl = {
     val path = docType.path
     val issues = org.issues.pop(path.toString)
     try {
       OrgImpl.current.withValue(org) {
         // Re-create Interviews
         var newPages = PageDeclaration(this)
-        val metadata = source.map(data => MetadataDocumentWithData(docType, data)).toSeq
+        val metadata = source.map(data => MetadataDocumentWithData(docType, data.asString)).toSeq
         val provider = new OverrideMetadataProvider(metadata, new DocumentIndexMetadataProvider(documents))
         val queue = PageGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
         newPages = newPages.merge(new PackageStream(namespace, queue))
@@ -258,14 +258,14 @@ trait PackageAPI extends Package {
     }
   }
 
-  private def loadComponentsAndValidate(docType: MetadataDocument, source: Option[String]): ViewInfoImpl = {
+  private def loadComponentsAndValidate(docType: MetadataDocument, source: Option[SourceData]): ViewInfoImpl = {
     val path = docType.path
     val issues = org.issues.pop(path.toString)
     try {
       OrgImpl.current.withValue(org) {
         // Re-create Interviews
         var newComponents = ComponentDeclaration(this)
-        val metadata = source.map(data => MetadataDocumentWithData(docType, data)).toSeq
+        val metadata = source.map(data => MetadataDocumentWithData(docType, data.asString)).toSeq
         val provider = new OverrideMetadataProvider(metadata, new DocumentIndexMetadataProvider(documents))
         val queue = ComponentGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
         newComponents = newComponents.merge(new PackageStream(namespace, queue))
@@ -357,7 +357,7 @@ trait PackageAPI extends Package {
   private[nawforce] def deployClasses(documents: Seq[ApexClassDocument]): Unit = {
     OrgImpl.current.withValue(org) {
       val updated = documents.flatMap(doc => {
-        val data = doc.path.read()
+        val data = doc.path.readSourceData()
         val d = ServerOps.debugTime(s"Parsed ${doc.path}") {
           FullDeclaration.create(this, doc.path, data.right.get).toSeq
         }

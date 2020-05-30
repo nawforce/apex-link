@@ -28,11 +28,12 @@
 package com.nawforce.common
 
 import com.nawforce.common.path.PathFactory
+import com.nawforce.runtime.SourceData
 import com.nawforce.runtime.parsers.ApexParser.LiteralContext
 import com.nawforce.runtime.parsers.CodeParser
 
 object ParserHelper {
   def literal(literal: String): LiteralContext = {
-    CodeParser(PathFactory(""), literal).parseLiteral()
+    CodeParser(PathFactory(""), SourceData(literal)).parseLiteral()
   }
 }
