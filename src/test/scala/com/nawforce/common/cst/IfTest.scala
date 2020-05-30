@@ -31,6 +31,7 @@ import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types.apex.FullDeclaration
 import com.nawforce.common.types.core.TypeDeclaration
+import com.nawforce.runtime.SourceData
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -40,7 +41,7 @@ class IfTest extends AnyFunSuite with BeforeAndAfter {
 
   def typeDeclaration(clsText: String): Option[TypeDeclaration] = {
     OrgImpl.current.withValue(defaultOrg) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, clsText)
+      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, SourceData(clsText))
       td.headOption.foreach(_.validate())
       td.headOption
     }

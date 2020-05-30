@@ -136,7 +136,7 @@ trait PackageDeploy {
       // Load full docs for rest of set
       val fullTypes = missingTypes
         .flatMap(doc => {
-          val data = doc.path.read()
+          val data = doc.path.readSourceData()
           val tdOpt = ServerOps.debugTime(s"Parsed ${doc.path}") {
             FullDeclaration.create(this, doc.path, data.right.get)
           }
@@ -166,7 +166,7 @@ trait PackageDeploy {
     ServerOps.debugTime(s"Parsed ${docs.size} triggers", docs.nonEmpty) {
       val tds = docs.flatMap {
         case docType: ApexTriggerDocument =>
-          val data = docType.path.read()
+          val data = docType.path.readSourceData()
           TriggerDeclaration.create(this, docType.path, data.right.get)
         case _ => assert(false); Seq()
       }

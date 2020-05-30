@@ -33,6 +33,7 @@ import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.apex.FullDeclaration
 import com.nawforce.common.types.core.TypeDeclaration
+import com.nawforce.runtime.SourceData
 import org.scalatest.funsuite.AnyFunSuite
 
 class TypeFindingTest extends AnyFunSuite {
@@ -72,7 +73,7 @@ class TypeFindingTest extends AnyFunSuite {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(org.unmanaged, defaultPath,
-        "public class Dummy {}").head
+        SourceData("public class Dummy {}")).head
       org.unmanaged.upsertMetadata(td)
       assert(org.unmanaged.getType(TypeName(Name("Dummy")), None).toOption.get.typeName == td.typeName)
     }
@@ -82,7 +83,7 @@ class TypeFindingTest extends AnyFunSuite {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath,
-        "public class Dummy {}").head
+        SourceData("public class Dummy {}")).head
       org.unmanaged.upsertMetadata(td)
       assert(org.unmanaged.getType(TypeName(Name("dummy")), None).toOption.get.typeName == td.typeName)
     }
@@ -92,7 +93,7 @@ class TypeFindingTest extends AnyFunSuite {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath,
-        "public class Dummy {class Inner {}}").head
+        SourceData("public class Dummy {class Inner {}}")).head
       org.unmanaged.upsertMetadata(td)
       val innerTypeName = TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"))))
       assert(org.unmanaged.getType(innerTypeName, None).toOption.get.typeName == innerTypeName)
@@ -103,7 +104,7 @@ class TypeFindingTest extends AnyFunSuite {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath,
-        "public class Dummy {class Inner {}}").head
+        SourceData("public class Dummy {class Inner {}}")).head
       org.unmanaged.upsertMetadata(td)
       val innerTypeName = TypeName(Name("iNner"), Nil, Some(TypeName(Name("Dummy"))))
       assert(org.unmanaged.getType(innerTypeName, None).toOption.get.typeName == innerTypeName)
@@ -115,7 +116,7 @@ class TypeFindingTest extends AnyFunSuite {
     val pkg = org.newMDAPIPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
     OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(pkg, defaultPath,
-        "global class Dummy {}").head
+        SourceData("global class Dummy {}")).head
       pkg.upsertMetadata(td)
       assert(org.unmanaged.getType(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("NS")))), None)
         .toOption.get.typeName == td.typeName)
@@ -128,7 +129,7 @@ class TypeFindingTest extends AnyFunSuite {
     val pkg = org.newMDAPIPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
     OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(pkg, defaultPath,
-        "public class Dummy {}").head
+        SourceData("public class Dummy {}")).head
       pkg.upsertMetadata(td)
       assert(getType("", "NS.Dummy", org) == null)
       assert(getType("", "Dummy", org) == null)
@@ -142,7 +143,7 @@ class TypeFindingTest extends AnyFunSuite {
     val pkg = org.newMDAPIPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
     OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(pkg, defaultPath,
-        "global class Dummy {class Inner {}}").head
+        SourceData("global class Dummy {class Inner {}}")).head
       pkg.upsertMetadata(td)
       val innerTypeName = TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("NS"))))))
       assert(org.unmanaged.getType(innerTypeName, None).toOption.get.typeName == innerTypeName)
@@ -155,7 +156,7 @@ class TypeFindingTest extends AnyFunSuite {
     val pkg = org.newMDAPIPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
     OrgImpl.current.withValue(org) {
       val td = FullDeclaration.create(pkg, defaultPath,
-        "public class Dummy {class Inner {}}").head
+        SourceData("public class Dummy {class Inner {}}")).head
       pkg.upsertMetadata(td)
 
       assert(getType("", "NS.Dummy.Inner", org) == null)

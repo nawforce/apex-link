@@ -34,6 +34,7 @@ import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
+import com.nawforce.runtime.SourceData
 import com.nawforce.runtime.parsers.ApexParser.{TriggerCaseContext, TriggerUnitContext}
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 
@@ -146,7 +147,7 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
 object TriggerDeclaration {
   private val prefix: TypeName = TypeName(Name("__sfdc_trigger"))
 
-  def create(pkg: PackageImpl, path: PathLike, data: String): Option[TriggerDeclaration] = {
+  def create(pkg: PackageImpl, path: PathLike, data: SourceData): Option[TriggerDeclaration] = {
     val parser = CodeParser(path, data)
     parser.parseTrigger() match {
       case Left(err) =>

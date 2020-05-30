@@ -27,8 +27,6 @@
 */
 package com.nawforce.common.types.apex
 
-import java.nio.charset.StandardCharsets
-
 import com.nawforce.common.api._
 import com.nawforce.common.cst._
 import com.nawforce.common.documents._
@@ -37,6 +35,7 @@ import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
 import com.nawforce.common.types.other.{Component, Interview, Label, Page}
+import com.nawforce.runtime.SourceData
 import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 import upickle.default.writeBinary
@@ -99,7 +98,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   override def flush(pc: ParsedCache, context: PackageContext): Unit = {
     if (!flushedToCache) {
       val diagnostics = pkg.org.issues.getDiagnostics(location.path)
-      pc.upsert(source.code.getBytes(StandardCharsets.UTF_8), writeBinary(ApexSummary(summary, diagnostics)), context)
+      pc.upsert(source.asUTF8, writeBinary(ApexSummary(summary, diagnostics)), context)
       flushedToCache = true
     }
   }
@@ -203,7 +202,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
 }
 
 object FullDeclaration {
-  def create(pkg: PackageImpl, path: PathLike, data: String): Option[FullDeclaration] = {
+  def create(pkg: PackageImpl, path: PathLike, data: SourceData): Option[FullDeclaration] = {
     val parser = CodeParser(path, data)
     parser.parseClass() match {
       case Left(err) =>

@@ -27,6 +27,8 @@
 */
 package com.nawforce.common.api
 
+import com.nawforce.runtime.SourceData
+
 /** A virtual Package constructed from metadata.
   *
   * Packages must be created in the context of a specific [[Org]]. Each Package manages a set of Types which are
@@ -109,7 +111,7 @@ trait Package {
     * returned view may contain a Type constructed from other metadata files still in use in the project. In either
     * case using this view with [[upsertFromView]] will effect the deletion.
     */
-  def getViewOfType(path: String, contents: String): ViewInfo
+  def getViewOfType(path: String, contents: SourceData): ViewInfo
 
   /** Upsert a Type described by a ViewInfo.
     *

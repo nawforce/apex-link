@@ -27,6 +27,8 @@
 */
 package com.nawforce.common.path
 
+import com.nawforce.runtime.SourceData
+
 /* File system path abstraction, to make life simple relative paths are NOT supported */
 abstract class PathLike {
 
@@ -65,6 +67,9 @@ abstract class PathLike {
 
   // Read the contents of a file or return an error message
   def readBytes(): Either[String, Array[Byte]]
+
+  // Read the contents of a file or return an error message
+  def readSourceData(): Either[String, SourceData]
 
   // Write a file or return an error message
   def write(data: String): Option[String]
