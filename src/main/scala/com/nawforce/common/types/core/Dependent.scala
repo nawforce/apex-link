@@ -33,24 +33,25 @@ import com.nawforce.common.types.other._
 
 import scala.collection.mutable
 
-/* Dependents are referencable elements in code such as types, fields, constructors, methods & labels. Each dependent
- * may have a controller which is the Dependent that acts as a parent type for re-loading purposes. A dependent has a
- * set of 'holders' of that dependency for reverse lookup although the set may be stale. They use identity equality
- * to help with collections performance.
+/* Dependents are referencable elements in code such as types, fields, constructors, methods & labels.
+ *
+ * A dependent has a set of 'holders' of that dependency for reverse lookup although the set may be stale. They use
+ * identity equality to help with collections performance.
  */
 trait Dependent {
   // The set of holders on this dependency element, may be stale!
-  private val dependencyHolders = mutable.Set[DependencyHolder]()
+  private var dependencyHolders: Option[mutable.Set[DependencyHolder]] = None
 
   // Has any holders
-  def hasHolders: Boolean = dependencyHolders.nonEmpty
+  def hasHolders: Boolean = dependencyHolders.exists(_.nonEmpty)
 
   // The set of current holders
-  def getDependencyHolders: Set[DependencyHolder] = dependencyHolders.toSet
+  def getDependencyHolders: Set[DependencyHolder] = dependencyHolders.map(_.toSet).getOrElse(Set())
 
   // Add a new holder
   def addDependencyHolder(dependencyHolder: DependencyHolder): Unit = {
-    dependencyHolders.add(dependencyHolder)
+    if (dependencyHolders.isEmpty) dependencyHolders = Some(mutable.Set())
+    dependencyHolders.get.add(dependencyHolder)
   }
 
   // Identity equality
