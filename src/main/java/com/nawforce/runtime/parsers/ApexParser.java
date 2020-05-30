@@ -1,15 +1,13 @@
 // Generated from /Users/kevin/Projects/ApexLink/src/main/antlr4/com/nawforce/parsers/ApexParser.g4 by ANTLR 4.8
 package com.nawforce.runtime.parsers;
-
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.atn.ATNDeserializer;
-import org.antlr.v4.runtime.atn.ParserATNSimulator;
-import org.antlr.v4.runtime.atn.PredictionContextCache;
+import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
-import org.antlr.v4.runtime.tree.TerminalNode;
-
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.misc.*;
+import org.antlr.v4.runtime.tree.*;
 import java.util.List;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class ApexParser extends Parser {
@@ -19,74 +17,74 @@ public class ApexParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		ABSTRACT=1, AFTER=2, BEFORE=3, BREAK=4, CATCH=5, CLASS=6, CONTINUE=7,
-		DELETE=8, DO=9, ELSE=10, ENUM=11, EXTENDS=12, FINAL=13, FINALLY=14, FOR=15,
-		GET=16, GLOBAL=17, IF=18, IMPLEMENTS=19, INHERITED=20, INSERT=21, INSTANCEOF=22,
-		INTERFACE=23, MERGE=24, NEW=25, NULL=26, ON=27, OVERRIDE=28, PRIVATE=29,
-		PROTECTED=30, PUBLIC=31, RETURN=32, SYSTEMRUNAS=33, SET=34, SHARING=35,
-		STATIC=36, SUPER=37, SWITCH=38, TESTMETHOD=39, THIS=40, THROW=41, TRANSIENT=42,
-		TRIGGER=43, TRY=44, UNDELETE=45, UPDATE=46, UPSERT=47, VIRTUAL=48, VOID=49,
-		WEBSERVICE=50, WHEN=51, WHILE=52, WITH=53, WITHOUT=54, LIST=55, MAP=56,
-		IntegerLiteral=57, NumberLiteral=58, BooleanLiteral=59, StringLiteral=60,
-		NullLiteral=61, LPAREN=62, RPAREN=63, LBRACE=64, RBRACE=65, LBRACK=66,
-		RBRACK=67, SEMI=68, COMMA=69, DOT=70, ASSIGN=71, GT=72, LT=73, BANG=74,
-		TILDE=75, QUESTION=76, COLON=77, EQUAL=78, TRIPLEEQUAL=79, NOTEQUAL=80,
-		LESSANDGREATER=81, TRIPLENOTEQUAL=82, AND=83, OR=84, INC=85, DEC=86, ADD=87,
-		SUB=88, MUL=89, DIV=90, BITAND=91, BITOR=92, CARET=93, MOD=94, MAPTO=95,
-		ADD_ASSIGN=96, SUB_ASSIGN=97, MUL_ASSIGN=98, DIV_ASSIGN=99, AND_ASSIGN=100,
-		OR_ASSIGN=101, XOR_ASSIGN=102, MOD_ASSIGN=103, LSHIFT_ASSIGN=104, RSHIFT_ASSIGN=105,
-		URSHIFT_ASSIGN=106, AT=107, Identifier=108, WS=109, DOC_COMMENT=110, COMMENT=111,
+		ABSTRACT=1, AFTER=2, BEFORE=3, BREAK=4, CATCH=5, CLASS=6, CONTINUE=7, 
+		DELETE=8, DO=9, ELSE=10, ENUM=11, EXTENDS=12, FINAL=13, FINALLY=14, FOR=15, 
+		GET=16, GLOBAL=17, IF=18, IMPLEMENTS=19, INHERITED=20, INSERT=21, INSTANCEOF=22, 
+		INTERFACE=23, MERGE=24, NEW=25, NULL=26, ON=27, OVERRIDE=28, PRIVATE=29, 
+		PROTECTED=30, PUBLIC=31, RETURN=32, SYSTEMRUNAS=33, SET=34, SHARING=35, 
+		STATIC=36, SUPER=37, SWITCH=38, TESTMETHOD=39, THIS=40, THROW=41, TRANSIENT=42, 
+		TRIGGER=43, TRY=44, UNDELETE=45, UPDATE=46, UPSERT=47, VIRTUAL=48, VOID=49, 
+		WEBSERVICE=50, WHEN=51, WHILE=52, WITH=53, WITHOUT=54, LIST=55, MAP=56, 
+		IntegerLiteral=57, NumberLiteral=58, BooleanLiteral=59, StringLiteral=60, 
+		NullLiteral=61, LPAREN=62, RPAREN=63, LBRACE=64, RBRACE=65, LBRACK=66, 
+		RBRACK=67, SEMI=68, COMMA=69, DOT=70, ASSIGN=71, GT=72, LT=73, BANG=74, 
+		TILDE=75, QUESTION=76, COLON=77, EQUAL=78, TRIPLEEQUAL=79, NOTEQUAL=80, 
+		LESSANDGREATER=81, TRIPLENOTEQUAL=82, AND=83, OR=84, INC=85, DEC=86, ADD=87, 
+		SUB=88, MUL=89, DIV=90, BITAND=91, BITOR=92, CARET=93, MOD=94, MAPTO=95, 
+		ADD_ASSIGN=96, SUB_ASSIGN=97, MUL_ASSIGN=98, DIV_ASSIGN=99, AND_ASSIGN=100, 
+		OR_ASSIGN=101, XOR_ASSIGN=102, MOD_ASSIGN=103, LSHIFT_ASSIGN=104, RSHIFT_ASSIGN=105, 
+		URSHIFT_ASSIGN=106, AT=107, Identifier=108, WS=109, DOC_COMMENT=110, COMMENT=111, 
 		LINE_COMMENT=112;
 	public static final int
-		RULE_triggerUnit = 0, RULE_triggerCase = 1, RULE_compilationUnit = 2,
-		RULE_typeDeclaration = 3, RULE_classDeclaration = 4, RULE_enumDeclaration = 5,
-		RULE_enumConstants = 6, RULE_interfaceDeclaration = 7, RULE_typeList = 8,
-		RULE_classBody = 9, RULE_interfaceBody = 10, RULE_classBodyDeclaration = 11,
-		RULE_modifier = 12, RULE_memberDeclaration = 13, RULE_methodDeclaration = 14,
-		RULE_constructorDeclaration = 15, RULE_fieldDeclaration = 16, RULE_propertyDeclaration = 17,
-		RULE_interfaceMethodDeclaration = 18, RULE_variableDeclarators = 19, RULE_variableDeclarator = 20,
-		RULE_arrayInitializer = 21, RULE_typeRef = 22, RULE_arraySubscripts = 23,
-		RULE_typeName = 24, RULE_typeArguments = 25, RULE_formalParameters = 26,
-		RULE_formalParameterList = 27, RULE_formalParameter = 28, RULE_qualifiedName = 29,
-		RULE_literal = 30, RULE_annotation = 31, RULE_elementValuePairs = 32,
-		RULE_elementValuePair = 33, RULE_elementValue = 34, RULE_elementValueArrayInitializer = 35,
-		RULE_block = 36, RULE_localVariableDeclarationStatement = 37, RULE_localVariableDeclaration = 38,
-		RULE_statement = 39, RULE_ifStatement = 40, RULE_switchStatement = 41,
-		RULE_whenControl = 42, RULE_whenValue = 43, RULE_whenLiteral = 44, RULE_forStatement = 45,
-		RULE_whileStatement = 46, RULE_doWhileStatement = 47, RULE_tryStatement = 48,
-		RULE_returnStatement = 49, RULE_throwStatement = 50, RULE_breakStatement = 51,
-		RULE_continueStatement = 52, RULE_insertStatement = 53, RULE_updateStatement = 54,
-		RULE_deleteStatement = 55, RULE_undeleteStatement = 56, RULE_upsertStatement = 57,
-		RULE_mergeStatement = 58, RULE_runAsStatement = 59, RULE_expressionStatement = 60,
-		RULE_propertyBlock = 61, RULE_getter = 62, RULE_setter = 63, RULE_catchClause = 64,
-		RULE_finallyBlock = 65, RULE_forControl = 66, RULE_forInit = 67, RULE_enhancedForControl = 68,
-		RULE_forUpdate = 69, RULE_parExpression = 70, RULE_expressionList = 71,
-		RULE_expression = 72, RULE_primary = 73, RULE_methodCall = 74, RULE_dotMethodCall = 75,
-		RULE_creator = 76, RULE_createdName = 77, RULE_idCreatedNamePair = 78,
-		RULE_noRest = 79, RULE_classCreatorRest = 80, RULE_arrayCreatorRest = 81,
-		RULE_mapCreatorRest = 82, RULE_mapCreatorRestPair = 83, RULE_setCreatorRest = 84,
+		RULE_triggerUnit = 0, RULE_triggerCase = 1, RULE_compilationUnit = 2, 
+		RULE_typeDeclaration = 3, RULE_classDeclaration = 4, RULE_enumDeclaration = 5, 
+		RULE_enumConstants = 6, RULE_interfaceDeclaration = 7, RULE_typeList = 8, 
+		RULE_classBody = 9, RULE_interfaceBody = 10, RULE_classBodyDeclaration = 11, 
+		RULE_modifier = 12, RULE_memberDeclaration = 13, RULE_methodDeclaration = 14, 
+		RULE_constructorDeclaration = 15, RULE_fieldDeclaration = 16, RULE_propertyDeclaration = 17, 
+		RULE_interfaceMethodDeclaration = 18, RULE_variableDeclarators = 19, RULE_variableDeclarator = 20, 
+		RULE_arrayInitializer = 21, RULE_typeRef = 22, RULE_arraySubscripts = 23, 
+		RULE_typeName = 24, RULE_typeArguments = 25, RULE_formalParameters = 26, 
+		RULE_formalParameterList = 27, RULE_formalParameter = 28, RULE_qualifiedName = 29, 
+		RULE_literal = 30, RULE_annotation = 31, RULE_elementValuePairs = 32, 
+		RULE_elementValuePair = 33, RULE_elementValue = 34, RULE_elementValueArrayInitializer = 35, 
+		RULE_block = 36, RULE_localVariableDeclarationStatement = 37, RULE_localVariableDeclaration = 38, 
+		RULE_statement = 39, RULE_ifStatement = 40, RULE_switchStatement = 41, 
+		RULE_whenControl = 42, RULE_whenValue = 43, RULE_whenLiteral = 44, RULE_forStatement = 45, 
+		RULE_whileStatement = 46, RULE_doWhileStatement = 47, RULE_tryStatement = 48, 
+		RULE_returnStatement = 49, RULE_throwStatement = 50, RULE_breakStatement = 51, 
+		RULE_continueStatement = 52, RULE_insertStatement = 53, RULE_updateStatement = 54, 
+		RULE_deleteStatement = 55, RULE_undeleteStatement = 56, RULE_upsertStatement = 57, 
+		RULE_mergeStatement = 58, RULE_runAsStatement = 59, RULE_expressionStatement = 60, 
+		RULE_propertyBlock = 61, RULE_getter = 62, RULE_setter = 63, RULE_catchClause = 64, 
+		RULE_finallyBlock = 65, RULE_forControl = 66, RULE_forInit = 67, RULE_enhancedForControl = 68, 
+		RULE_forUpdate = 69, RULE_parExpression = 70, RULE_expressionList = 71, 
+		RULE_expression = 72, RULE_primary = 73, RULE_methodCall = 74, RULE_dotMethodCall = 75, 
+		RULE_creator = 76, RULE_createdName = 77, RULE_idCreatedNamePair = 78, 
+		RULE_noRest = 79, RULE_classCreatorRest = 80, RULE_arrayCreatorRest = 81, 
+		RULE_mapCreatorRest = 82, RULE_mapCreatorRestPair = 83, RULE_setCreatorRest = 84, 
 		RULE_arguments = 85, RULE_soqlLiteral = 86, RULE_id = 87, RULE_anyId = 88;
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"triggerUnit", "triggerCase", "compilationUnit", "typeDeclaration", "classDeclaration",
-			"enumDeclaration", "enumConstants", "interfaceDeclaration", "typeList",
-			"classBody", "interfaceBody", "classBodyDeclaration", "modifier", "memberDeclaration",
-			"methodDeclaration", "constructorDeclaration", "fieldDeclaration", "propertyDeclaration",
-			"interfaceMethodDeclaration", "variableDeclarators", "variableDeclarator",
-			"arrayInitializer", "typeRef", "arraySubscripts", "typeName", "typeArguments",
-			"formalParameters", "formalParameterList", "formalParameter", "qualifiedName",
-			"literal", "annotation", "elementValuePairs", "elementValuePair", "elementValue",
-			"elementValueArrayInitializer", "block", "localVariableDeclarationStatement",
-			"localVariableDeclaration", "statement", "ifStatement", "switchStatement",
-			"whenControl", "whenValue", "whenLiteral", "forStatement", "whileStatement",
-			"doWhileStatement", "tryStatement", "returnStatement", "throwStatement",
-			"breakStatement", "continueStatement", "insertStatement", "updateStatement",
-			"deleteStatement", "undeleteStatement", "upsertStatement", "mergeStatement",
-			"runAsStatement", "expressionStatement", "propertyBlock", "getter", "setter",
-			"catchClause", "finallyBlock", "forControl", "forInit", "enhancedForControl",
-			"forUpdate", "parExpression", "expressionList", "expression", "primary",
-			"methodCall", "dotMethodCall", "creator", "createdName", "idCreatedNamePair",
-			"noRest", "classCreatorRest", "arrayCreatorRest", "mapCreatorRest", "mapCreatorRestPair",
+			"triggerUnit", "triggerCase", "compilationUnit", "typeDeclaration", "classDeclaration", 
+			"enumDeclaration", "enumConstants", "interfaceDeclaration", "typeList", 
+			"classBody", "interfaceBody", "classBodyDeclaration", "modifier", "memberDeclaration", 
+			"methodDeclaration", "constructorDeclaration", "fieldDeclaration", "propertyDeclaration", 
+			"interfaceMethodDeclaration", "variableDeclarators", "variableDeclarator", 
+			"arrayInitializer", "typeRef", "arraySubscripts", "typeName", "typeArguments", 
+			"formalParameters", "formalParameterList", "formalParameter", "qualifiedName", 
+			"literal", "annotation", "elementValuePairs", "elementValuePair", "elementValue", 
+			"elementValueArrayInitializer", "block", "localVariableDeclarationStatement", 
+			"localVariableDeclaration", "statement", "ifStatement", "switchStatement", 
+			"whenControl", "whenValue", "whenLiteral", "forStatement", "whileStatement", 
+			"doWhileStatement", "tryStatement", "returnStatement", "throwStatement", 
+			"breakStatement", "continueStatement", "insertStatement", "updateStatement", 
+			"deleteStatement", "undeleteStatement", "upsertStatement", "mergeStatement", 
+			"runAsStatement", "expressionStatement", "propertyBlock", "getter", "setter", 
+			"catchClause", "finallyBlock", "forControl", "forInit", "enhancedForControl", 
+			"forUpdate", "parExpression", "expressionList", "expression", "primary", 
+			"methodCall", "dotMethodCall", "creator", "createdName", "idCreatedNamePair", 
+			"noRest", "classCreatorRest", "arrayCreatorRest", "mapCreatorRest", "mapCreatorRestPair", 
 			"setCreatorRest", "arguments", "soqlLiteral", "id", "anyId"
 		};
 	}
@@ -94,42 +92,42 @@ public class ApexParser extends Parser {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, "'abstract'", "'after'", "'before'", "'break'", "'catch'", "'class'",
-			"'continue'", "'delete'", "'do'", "'else'", "'enum'", "'extends'", "'final'",
-			"'finally'", "'for'", "'get'", "'global'", "'if'", "'implements'", "'inherited'",
-			"'insert'", "'instanceof'", "'interface'", "'merge'", "'new'", "'null'",
-			"'on'", "'override'", "'private'", "'protected'", "'public'", "'return'",
-			"'system.runas'", "'set'", "'sharing'", "'static'", "'super'", "'switch'",
-			"'testmethod'", "'this'", "'throw'", "'transient'", "'trigger'", "'try'",
-			"'undelete'", "'update'", "'upsert'", "'virtual'", "'void'", "'webservice'",
-			"'when'", "'while'", "'with'", "'without'", "'list'", "'map'", null,
-			null, null, null, null, "'('", "')'", "'{'", "'}'", "'['", "']'", "';'",
-			"','", "'.'", "'='", "'>'", "'<'", "'!'", "'~'", "'?'", "':'", "'=='",
-			"'==='", "'!='", "'<>'", "'!=='", "'&&'", "'||'", "'++'", "'--'", "'+'",
-			"'-'", "'*'", "'/'", "'&'", "'|'", "'^'", "'%'", "'=>'", "'+='", "'-='",
-			"'*='", "'/='", "'&='", "'|='", "'^='", "'%='", "'<<='", "'>>='", "'>>>='",
+			null, "'abstract'", "'after'", "'before'", "'break'", "'catch'", "'class'", 
+			"'continue'", "'delete'", "'do'", "'else'", "'enum'", "'extends'", "'final'", 
+			"'finally'", "'for'", "'get'", "'global'", "'if'", "'implements'", "'inherited'", 
+			"'insert'", "'instanceof'", "'interface'", "'merge'", "'new'", "'null'", 
+			"'on'", "'override'", "'private'", "'protected'", "'public'", "'return'", 
+			"'system.runas'", "'set'", "'sharing'", "'static'", "'super'", "'switch'", 
+			"'testmethod'", "'this'", "'throw'", "'transient'", "'trigger'", "'try'", 
+			"'undelete'", "'update'", "'upsert'", "'virtual'", "'void'", "'webservice'", 
+			"'when'", "'while'", "'with'", "'without'", "'list'", "'map'", null, 
+			null, null, null, null, "'('", "')'", "'{'", "'}'", "'['", "']'", "';'", 
+			"','", "'.'", "'='", "'>'", "'<'", "'!'", "'~'", "'?'", "':'", "'=='", 
+			"'==='", "'!='", "'<>'", "'!=='", "'&&'", "'||'", "'++'", "'--'", "'+'", 
+			"'-'", "'*'", "'/'", "'&'", "'|'", "'^'", "'%'", "'=>'", "'+='", "'-='", 
+			"'*='", "'/='", "'&='", "'|='", "'^='", "'%='", "'<<='", "'>>='", "'>>>='", 
 			"'@'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "ABSTRACT", "AFTER", "BEFORE", "BREAK", "CATCH", "CLASS", "CONTINUE",
-			"DELETE", "DO", "ELSE", "ENUM", "EXTENDS", "FINAL", "FINALLY", "FOR",
-			"GET", "GLOBAL", "IF", "IMPLEMENTS", "INHERITED", "INSERT", "INSTANCEOF",
-			"INTERFACE", "MERGE", "NEW", "NULL", "ON", "OVERRIDE", "PRIVATE", "PROTECTED",
-			"PUBLIC", "RETURN", "SYSTEMRUNAS", "SET", "SHARING", "STATIC", "SUPER",
-			"SWITCH", "TESTMETHOD", "THIS", "THROW", "TRANSIENT", "TRIGGER", "TRY",
-			"UNDELETE", "UPDATE", "UPSERT", "VIRTUAL", "VOID", "WEBSERVICE", "WHEN",
-			"WHILE", "WITH", "WITHOUT", "LIST", "MAP", "IntegerLiteral", "NumberLiteral",
-			"BooleanLiteral", "StringLiteral", "NullLiteral", "LPAREN", "RPAREN",
-			"LBRACE", "RBRACE", "LBRACK", "RBRACK", "SEMI", "COMMA", "DOT", "ASSIGN",
-			"GT", "LT", "BANG", "TILDE", "QUESTION", "COLON", "EQUAL", "TRIPLEEQUAL",
-			"NOTEQUAL", "LESSANDGREATER", "TRIPLENOTEQUAL", "AND", "OR", "INC", "DEC",
-			"ADD", "SUB", "MUL", "DIV", "BITAND", "BITOR", "CARET", "MOD", "MAPTO",
-			"ADD_ASSIGN", "SUB_ASSIGN", "MUL_ASSIGN", "DIV_ASSIGN", "AND_ASSIGN",
-			"OR_ASSIGN", "XOR_ASSIGN", "MOD_ASSIGN", "LSHIFT_ASSIGN", "RSHIFT_ASSIGN",
-			"URSHIFT_ASSIGN", "AT", "Identifier", "WS", "DOC_COMMENT", "COMMENT",
+			null, "ABSTRACT", "AFTER", "BEFORE", "BREAK", "CATCH", "CLASS", "CONTINUE", 
+			"DELETE", "DO", "ELSE", "ENUM", "EXTENDS", "FINAL", "FINALLY", "FOR", 
+			"GET", "GLOBAL", "IF", "IMPLEMENTS", "INHERITED", "INSERT", "INSTANCEOF", 
+			"INTERFACE", "MERGE", "NEW", "NULL", "ON", "OVERRIDE", "PRIVATE", "PROTECTED", 
+			"PUBLIC", "RETURN", "SYSTEMRUNAS", "SET", "SHARING", "STATIC", "SUPER", 
+			"SWITCH", "TESTMETHOD", "THIS", "THROW", "TRANSIENT", "TRIGGER", "TRY", 
+			"UNDELETE", "UPDATE", "UPSERT", "VIRTUAL", "VOID", "WEBSERVICE", "WHEN", 
+			"WHILE", "WITH", "WITHOUT", "LIST", "MAP", "IntegerLiteral", "NumberLiteral", 
+			"BooleanLiteral", "StringLiteral", "NullLiteral", "LPAREN", "RPAREN", 
+			"LBRACE", "RBRACE", "LBRACK", "RBRACK", "SEMI", "COMMA", "DOT", "ASSIGN", 
+			"GT", "LT", "BANG", "TILDE", "QUESTION", "COLON", "EQUAL", "TRIPLEEQUAL", 
+			"NOTEQUAL", "LESSANDGREATER", "TRIPLENOTEQUAL", "AND", "OR", "INC", "DEC", 
+			"ADD", "SUB", "MUL", "DIV", "BITAND", "BITOR", "CARET", "MOD", "MAPTO", 
+			"ADD_ASSIGN", "SUB_ASSIGN", "MUL_ASSIGN", "DIV_ASSIGN", "AND_ASSIGN", 
+			"OR_ASSIGN", "XOR_ASSIGN", "MOD_ASSIGN", "LSHIFT_ASSIGN", "RSHIFT_ASSIGN", 
+			"URSHIFT_ASSIGN", "AT", "Identifier", "WS", "DOC_COMMENT", "COMMENT", 
 			"LINE_COMMENT"
 		};
 	}
@@ -178,6 +176,11 @@ public class ApexParser extends Parser {
 
 	@Override
 	public ATN getATN() { return _ATN; }
+
+
+	    public void clearCache() {
+	        _interp.clearDFA();
+	    }
 
 	public ApexParser(TokenStream input) {
 		super(input);
@@ -927,7 +930,7 @@ public class ApexParser extends Parser {
 						setState(291);
 						modifier();
 						}
-						}
+						} 
 					}
 					setState(296);
 					_errHandler.sync(this);
@@ -1492,7 +1495,7 @@ public class ApexParser extends Parser {
 					setState(359);
 					modifier();
 					}
-					}
+					} 
 				}
 				setState(364);
 				_errHandler.sync(this);
@@ -1701,7 +1704,7 @@ public class ApexParser extends Parser {
 						setState(389);
 						expression(0);
 						}
-						}
+						} 
 					}
 					setState(394);
 					_errHandler.sync(this);
@@ -1776,7 +1779,7 @@ public class ApexParser extends Parser {
 					setState(404);
 					typeName();
 					}
-					}
+					} 
 				}
 				setState(409);
 				_errHandler.sync(this);
@@ -1831,7 +1834,7 @@ public class ApexParser extends Parser {
 					setState(413);
 					match(RBRACK);
 					}
-					}
+					} 
 				}
 				setState(418);
 				_errHandler.sync(this);
@@ -2128,7 +2131,7 @@ public class ApexParser extends Parser {
 					setState(455);
 					modifier();
 					}
-					}
+					} 
 				}
 				setState(460);
 				_errHandler.sync(this);
@@ -2559,7 +2562,7 @@ public class ApexParser extends Parser {
 						setState(506);
 						elementValue();
 						}
-						}
+						} 
 					}
 					setState(511);
 					_errHandler.sync(this);
@@ -2716,7 +2719,7 @@ public class ApexParser extends Parser {
 					setState(531);
 					modifier();
 					}
-					}
+					} 
 				}
 				setState(536);
 				_errHandler.sync(this);
@@ -3056,7 +3059,7 @@ public class ApexParser extends Parser {
 			expression(0);
 			setState(572);
 			match(LBRACE);
-			setState(574);
+			setState(574); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
@@ -3066,7 +3069,7 @@ public class ApexParser extends Parser {
 				whenControl();
 				}
 				}
-				setState(576);
+				setState(576); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==WHEN );
@@ -3462,7 +3465,7 @@ public class ApexParser extends Parser {
 			switch (_input.LA(1)) {
 			case CATCH:
 				{
-				setState(626);
+				setState(626); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
@@ -3472,7 +3475,7 @@ public class ApexParser extends Parser {
 					catchClause();
 					}
 					}
-					setState(628);
+					setState(628); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				} while ( _la==CATCH );
@@ -4205,7 +4208,7 @@ public class ApexParser extends Parser {
 					setState(713);
 					modifier();
 					}
-					}
+					} 
 				}
 				setState(718);
 				_errHandler.sync(this);
@@ -4575,7 +4578,7 @@ public class ApexParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_expression; }
-
+	 
 		public ExpressionContext() { }
 		public void copyFrom(ExpressionContext ctx) {
 			super.copyFrom(ctx);
@@ -5232,7 +5235,7 @@ public class ApexParser extends Parser {
 						}
 						break;
 					}
-					}
+					} 
 				}
 				setState(850);
 				_errHandler.sync(this);
@@ -5256,7 +5259,7 @@ public class ApexParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_primary; }
-
+	 
 		public PrimaryContext() { }
 		public void copyFrom(PrimaryContext ctx) {
 			super.copyFrom(ctx);
@@ -6137,7 +6140,7 @@ public class ApexParser extends Parser {
 						}
 						break;
 					}
-					}
+					} 
 				}
 				setState(972);
 				_errHandler.sync(this);
