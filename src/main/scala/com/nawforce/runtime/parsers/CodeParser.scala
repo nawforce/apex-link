@@ -27,6 +27,8 @@
 */
 package com.nawforce.runtime.parsers
 
+import java.io.ByteArrayInputStream
+
 import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.SourceData
@@ -100,6 +102,14 @@ object CodeParser {
   def apply(path: PathLike, code: SourceData): CodeParser = {
     new CodeParser(Source(path, code, SourcePosition(), None))
   }
+
+  def clearCaches(): Unit = {
+    val lexer = new ApexLexer(new CaseInsensitiveInputStream(new ByteArrayInputStream(Array[Byte]())))
+    val parser = new ApexParser(new CommonTokenStream(lexer))
+    lexer.clearCache()
+    parser.clearCache()
+  }
+
 
   // Helper for JS Portability
   def getText(context: ParserRuleContext): String = {

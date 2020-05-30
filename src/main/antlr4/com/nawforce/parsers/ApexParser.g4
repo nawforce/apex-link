@@ -41,6 +41,12 @@
 parser grammar ApexParser;
 options {tokenVocab=ApexLexer;}
 
+@parser::members {
+    public void clearCache() {
+        _interp.clearDFA();
+    }
+}
+
 // entry point for Apex trigger files
 triggerUnit
     : TRIGGER id ON id LPAREN triggerCase (COMMA triggerCase)* RPAREN block EOF
