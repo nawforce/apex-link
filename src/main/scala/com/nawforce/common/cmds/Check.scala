@@ -83,16 +83,22 @@ object Check {
       return STATUS_ARGS
     }
 
+    // Check for bad use of a namespace on SFDX dir
+    val namespacedSFDX = nsSplit
+      .filter(_._1.nonEmpty)
+      .map(nsDirPair => PathFactory(nsDirPair._2))
+      .filter(_.join("sfdx-project.json").exists)
+    if (namespacedSFDX.nonEmpty) {
+      System.err.println(s"Namespaces should not be provided for SFDX directories such as '${namespacedSFDX.head}''")
+      return STATUS_ARGS
+    }
+
     try {
       val nsLoaded = mutable.Map[String, Package]()
       nsSplit.foreach(nsDirPair => {
         if (!nsLoaded.contains(nsDirPair._1)) {
           val path = PathFactory(nsDirPair._2)
           if (path.join("sfdx-project.json").exists) {
-            if (nsDirPair._1.nonEmpty) {
-              System.err.println(s"Namespaces should not be provided for SFDX directories such as'$path''")
-              return STATUS_ARGS
-            }
             org.newSFDXPackage(path.toString, nsLoaded.values.toArray)
           } else {
             val paths = nsSplit.filter(_._1 == nsDirPair._1).map(_._2).filterNot(_.isEmpty).toArray
