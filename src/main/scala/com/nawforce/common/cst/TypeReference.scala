@@ -50,7 +50,7 @@ object TypeReference {
     if (CodeParser.toScala(name.LIST()).nonEmpty) Names.ListName
     else if (CodeParser.toScala(name.SET()).nonEmpty) Names.SetName
     else if (CodeParser.toScala(name.MAP()).nonEmpty) Names.MapName
-    else Name(CodeParser.getText(name.id))
+    else Names(CodeParser.getText(name.id))
   }
 
   private def decodeName(name: TypeNameContext): TypeName = {

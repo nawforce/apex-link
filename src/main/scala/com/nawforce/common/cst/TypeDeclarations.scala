@@ -28,7 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, TypeName}
-import com.nawforce.common.names.TypeNames
+import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types.apex.{ApexVisibleMethodLike, FullDeclaration}
 import com.nawforce.common.types.core._
@@ -80,7 +80,7 @@ object ClassDeclaration {
   def construct(parser: CodeParser, pkg: PackageImpl, outerTypeName: Option[TypeName], modifiers: ModifierResults,
                 classDeclaration: ClassDeclarationContext): ClassDeclaration = {
 
-    val thisType = TypeName(Name(CodeParser.getText(classDeclaration.id())), Nil,
+    val thisType = TypeName(Names(CodeParser.getText(classDeclaration.id())), Nil,
       outerTypeName.orElse(pkg.namespace.map(TypeName(_))))
     val extendType =
       CodeParser.toScala(classDeclaration.typeRef())
@@ -125,7 +125,7 @@ object InterfaceDeclaration {
   def construct(parser: CodeParser, pkg: PackageImpl, outerTypeName: Option[TypeName], modifiers: ModifierResults,
                 interfaceDeclaration: InterfaceDeclarationContext)
   : InterfaceDeclaration = {
-    val thisType = TypeName(Name(CodeParser.getText(interfaceDeclaration.id())), Nil,
+    val thisType = TypeName(Names(CodeParser.getText(interfaceDeclaration.id())), Nil,
       outerTypeName.orElse(pkg.namespace.map(TypeName(_))))
 
     val implementsType =

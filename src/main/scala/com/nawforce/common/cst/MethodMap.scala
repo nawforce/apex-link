@@ -138,7 +138,7 @@ object MethodMap {
         workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method)))
       } else {
         matched.get match {
-          case am: ApexMethodLike => am.shadows(method)
+          case am: ApexMethodLike => am.addShadow(method)
           case _ => ()
         }
       }
@@ -179,7 +179,7 @@ object MethodMap {
             s"Method '${method.signature}' from interface '${interface.typeName}' must be implemented")))
       } else {
         matched.get match {
-          case am: ApexMethodLike => am.shadows.add(method)
+          case am: ApexMethodLike => am.addShadow(method)
           case _ => ()
         }
       }
@@ -216,7 +216,7 @@ object MethodMap {
       }
     }
     method match {
-      case am: ApexMethodLike => matched.foreach(am.shadows.add)
+      case am: ApexMethodLike => matched.foreach(am.addShadow)
       case _ => ()
     }
 
