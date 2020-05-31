@@ -62,12 +62,12 @@ trait ApexVisibleMethodLike extends MethodDeclaration {
 /** Apex defined method core features, be they full or summary style */
 trait ApexMethodLike extends ApexVisibleMethodLike {
   val outerTypeId: TypeId
-  val nameRange: RangeLocationImpl
+  def nameRange: RangeLocationImpl
 
   // Populated by type MethodMap construction
-  lazy val shadows: mutable.Set[MethodDeclaration] = mutable.Set()
+  val shadows: mutable.Set[MethodDeclaration] = mutable.Set()
 
-  lazy val isEntry: Boolean = {
+  def isEntry: Boolean = {
     modifiers.contains(ISTEST_ANNOTATION) ||
       modifiers.contains(TEST_SETUP_ANNOTATION) ||
       modifiers.contains(TEST_METHOD_MODIFIER) ||

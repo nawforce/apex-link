@@ -27,12 +27,19 @@
 */
 package com.nawforce.common.parsers
 
-import com.nawforce.common.path.PathFactory
-import com.nawforce.runtime.SourceData
-import com.nawforce.runtime.parsers.CodeParser
+import com.nawforce.common.api.{Org, Package}
+import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.common.sfdx.MDAPIWorkspace
+import com.nawforce.runtime.FileSystemHelper
+import com.nawforce.runtime.parsers.{CodeParser, SourceData}
 import org.scalatest.funsuite.AnyFunSuite
 
 class CodeParserTest extends AnyFunSuite {
+
+  private def addPackage(org: OrgImpl, path: PathLike): Package = {
+    org.addPackage(new MDAPIWorkspace(None, Seq(path)), Seq())
+  }
 
   test("Good class") {
     val parser = CodeParser(PathFactory("Hello.cls"), SourceData("public class Hello {}"))
@@ -47,6 +54,16 @@ class CodeParserTest extends AnyFunSuite {
     parser.parseClass() match {
       case Left(ex) => ()
       case Right(_) => assert(false)
+    }
+  }
+
+  test("UTF-8 class") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy {{String a = 'Kimi Räikkönen';}}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      addPackage(org, root)
+      assert(!org.issues.hasMessages)
     }
   }
 }

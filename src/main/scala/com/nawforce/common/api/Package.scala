@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.api
 
-import com.nawforce.runtime.SourceData
+import com.nawforce.runtime.SourceBlob
 
 /** A virtual Package constructed from metadata.
   *
@@ -111,7 +111,7 @@ trait Package {
     * returned view may contain a Type constructed from other metadata files still in use in the project. In either
     * case using this view with [[upsertFromView]] will effect the deletion.
     */
-  def getViewOfType(path: String, contents: SourceData): ViewInfo
+  def getViewOfType(path: String, contents: SourceBlob): ViewInfo
 
   /** Upsert a Type described by a ViewInfo.
     *

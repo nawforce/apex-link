@@ -145,14 +145,14 @@ trait MethodDeclaration extends DependencyHolder {
   val typeName: TypeName
   val parameters: Seq[ParameterDeclaration]
 
-  lazy val signature: String = s"$typeName $name($parameterTypes)"
-  lazy val parameterTypes: String = parameters.map(_.typeName).mkString(", ")
+  def signature: String = s"$typeName $name($parameterTypes)"
+  def parameterTypes: String = parameters.map(_.typeName).mkString(", ")
 
-  lazy val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
-  lazy val isAbstract: Boolean = modifiers.contains(ABSTRACT_MODIFIER)
-  lazy val isVirtual: Boolean = modifiers.contains(VIRTUAL_MODIFIER)
-  lazy val isVirtualOrOverride: Boolean = isVirtual || modifiers.contains(OVERRIDE_MODIFIER)
-  lazy val isGlobalOrPublic: Boolean = modifiers.exists(m => m == GLOBAL_MODIFIER || m == PUBLIC_MODIFIER)
+  def isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
+  def isAbstract: Boolean = modifiers.contains(ABSTRACT_MODIFIER)
+  def isVirtual: Boolean = modifiers.contains(VIRTUAL_MODIFIER)
+  def isVirtualOrOverride: Boolean = isVirtual || modifiers.contains(OVERRIDE_MODIFIER)
+  def isGlobalOrPublic: Boolean = modifiers.exists(m => m == GLOBAL_MODIFIER || m == PUBLIC_MODIFIER)
 
   def hasSameSignature(other: MethodDeclaration): Boolean = {
     name == other.name &&

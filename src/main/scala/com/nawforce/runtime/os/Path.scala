@@ -32,7 +32,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 
 import com.nawforce.common.path._
-import com.nawforce.runtime.SourceData
+import com.nawforce.runtime.parsers.SourceData
 
 case class Path(native: java.nio.file.Path) extends PathLike {
 
@@ -71,7 +71,7 @@ case class Path(native: java.nio.file.Path) extends PathLike {
   }
 
   override def readSourceData(): Either[String, SourceData] = {
-    readBytes()
+    readBytes().map(SourceData(_))
   }
 
   override def write(data: String): Option[String] = {

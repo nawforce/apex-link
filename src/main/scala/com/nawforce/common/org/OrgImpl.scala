@@ -37,6 +37,7 @@ import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.sfdx.{MDAPIWorkspace, Project, SFDXWorkspace, Workspace}
 import com.nawforce.common.types.apex.ApexDeclaration
 import com.nawforce.common.types.core.TypeDeclaration
+import com.nawforce.runtime.os.Environment
 
 import scala.util.DynamicVariable
 
@@ -163,6 +164,9 @@ class OrgImpl extends Org {
         }
       }
     }
+
+    // JVM can be a bit lazy about gc frequency
+    Environment.gc
   }
 
   /** Collect all issues into a JSON log */

@@ -29,8 +29,6 @@ package com.nawforce
 
 import java.nio.charset.StandardCharsets
 
-import scala.util.hashing.MurmurHash3
-
 /** Platform specific handling for JVM execution.
   *
   * Contains a number of abstractions for handling the differences between JVM & Node execution. This is just the JVM
@@ -38,18 +36,10 @@ import scala.util.hashing.MurmurHash3
   * the analysis code.
   **/
 package object runtime {
-  type SourceData = Array[Byte]
+  type SourceBlob = Array[Byte]
 
-  implicit class SourceDataOps(sourceData: SourceData) {
-    val hash: Int = MurmurHash3.arrayHash(sourceData)
-
-    def asString: String = {
-      new String(sourceData, StandardCharsets.UTF_8)
-    }
-  }
-
-  object SourceData {
-    def apply(value: String): SourceData = {
+  object SourceBlob {
+    def apply(value: String): SourceBlob = {
       value.getBytes(StandardCharsets.UTF_8)
     }
   }
