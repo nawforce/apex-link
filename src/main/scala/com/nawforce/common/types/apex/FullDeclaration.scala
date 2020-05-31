@@ -35,9 +35,8 @@ import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
 import com.nawforce.common.types.other.{Component, Interview, Label, Page}
-import com.nawforce.runtime.SourceData
 import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
-import com.nawforce.runtime.parsers.{CodeParser, Source}
+import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 import upickle.default.writeBinary
 
 import scala.collection.mutable
@@ -112,7 +111,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
       // Validate inside a parsing context as LazyBlock may call parser
       CST.sourceContext.withValue(Some(source)) {
         val context = new TypeVerifyContext(None, this, withPropagation)
-        modifierResults.issues.foreach(context.log)
+        modifierIssues.foreach(context.log)
         verify(context)
         if (withPropagation)
           propagateOuterDependencies()
@@ -182,7 +181,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   }
 
   // Override to avoid super class access (use local fields & methods) & provide location information
-  override lazy val summary: TypeSummary = {
+  override def summary: TypeSummary = {
     TypeSummary (
       sourceHash,
       Some(new RangeLocation(id.location.start.toPosition, id.location.end.toPosition)),

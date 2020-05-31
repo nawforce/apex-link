@@ -33,7 +33,7 @@ import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.apex.FullDeclaration
 import com.nawforce.common.types.core.TypeDeclaration
-import com.nawforce.runtime.SourceData
+import com.nawforce.runtime.parsers.SourceData
 import org.scalatest.funsuite.AnyFunSuite
 
 class TypeFindingTest extends AnyFunSuite {

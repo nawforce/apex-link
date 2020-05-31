@@ -27,33 +27,42 @@
 */
 package com.nawforce.runtime.parsers
 
-import java.io.ByteArrayInputStream
-
 import com.nawforce.common.documents.{PositionImpl, RangeLocationImpl}
 import com.nawforce.common.path.PathLike
+import com.nawforce.runtime.SourceBlob
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
-import com.nawforce.runtime.{SourceData, _}
 
-import scala.util.hashing.MurmurHash3
+trait Locatable {
+  var locationPath: String
+  var startLine: Int
+  var startOffset: Int
+  var endLine: Int
+  var endOffset: Int
 
-/** A line & column position in a source block */
-case class SourcePosition(lineOffset: Int=0, columnOffset: Int=0)
+  def location: RangeLocationImpl = {
+    RangeLocationImpl(
+      locationPath,
+      PositionImpl(startLine, startOffset),
+      PositionImpl(endLine, endOffset)
+    )
+  }
+}
 
 /** Encapsulation of a chunk of Apex code, position tells you where it came from in path */
-case class Source(path: PathLike, code: SourceData, position: SourcePosition, outer: Option[Source]) {
-  lazy val hash: Int = MurmurHash3.arrayHash(code)
+case class Source(path: PathLike, code: SourceData, lineOffset: Int, columnOffset: Int, outer: Option[Source]) {
+  lazy val hash: Int = code.hash
 
-  def slice(start: Int, end: Int): SourceData = {
-    // Done via string in case there are non-ASCII chars
-    SourceData(code.asString.substring(start, end))
+  def extractSource(context: ParserRuleContext): Source = {
+    val subdata = code.subdata(context.start.getStartIndex, context.stop.getStopIndex+1)
+    new Source(path, subdata, context.start.getLine-1, context.start.getCharPositionInLine, outer = Some(this))
   }
 
   def asStream: CaseInsensitiveInputStream = {
-    new CaseInsensitiveInputStream(new ByteArrayInputStream(code))
+    code.asStream
   }
 
   def asUTF8: Array[Byte] = {
-    code
+    code.asUTF8
   }
 
   /** Find a location for a rule, adapts based on source offsets to give absolute position in file */
@@ -61,9 +70,31 @@ case class Source(path: PathLike, code: SourceData, position: SourcePosition, ou
     RangeLocationImpl(
       path.toString,
       PositionImpl(context.start.getLine, context.start.getCharPositionInLine)
-        .adjust(position.lineOffset, position.columnOffset),
+        .adjust(lineOffset, columnOffset),
       PositionImpl(context.stop.getLine, context.stop.getCharPositionInLine + context.stop.getText.length)
-        .adjust(position.lineOffset, position.columnOffset)
+        .adjust(lineOffset, columnOffset)
     )
+  }
+
+  def stampLocation(locatable: Locatable, context: ParserRuleContext): Unit = {
+    locatable.locationPath = path.toString
+    locatable.startLine = context.start.getLine + lineOffset
+    locatable.startOffset =
+      if (context.start.getLine == 1)
+        context.start.getCharPositionInLine + columnOffset
+      else
+        context.start.getCharPositionInLine
+    locatable.endLine = context.stop.getLine + lineOffset
+    locatable.endOffset =
+      if (context.stop.getLine == 1)
+        context.stop.getCharPositionInLine + context.stop.getText.length + columnOffset
+      else
+        context.stop.getCharPositionInLine + context.stop.getText.length
+  }
+}
+
+object Source {
+  def apply(path: PathLike, source: SourceBlob): Source = {
+    new Source(path, SourceData(source), lineOffset = 0, columnOffset = 0, None)
   }
 }

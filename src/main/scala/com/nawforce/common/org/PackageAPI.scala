@@ -36,8 +36,9 @@ import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.common.types.other.{ComponentDeclaration, InterviewDeclaration, LabelDeclaration, PageDeclaration}
+import com.nawforce.runtime.SourceBlob
+import com.nawforce.runtime.parsers.SourceData
 import com.nawforce.runtime.types.PlatformTypeException
-import com.nawforce.runtime.{SourceData, _}
 
 import scala.collection.immutable.Queue
 import scala.collection.mutable
@@ -114,12 +115,12 @@ trait PackageAPI extends Package {
     }
   }
 
-  override def getViewOfType(path: String, contents: SourceData): ViewInfo = {
+  override def getViewOfType(path: String, contents: SourceBlob): ViewInfo = {
     getViewOfType(PathFactory(path), Option(contents))
   }
 
   // Create a view for a type, contents are optional
-  private[nawforce] def getViewOfType(path: PathLike, contents: Option[SourceData]): ViewInfo = {
+  private[nawforce] def getViewOfType(path: PathLike, contents: Option[SourceBlob]): ViewInfo = {
     // Check path is something we known how to handle & is not being ignored
     val dt: Option[MetadataDocument] = MetadataDocument(path) match {
       case Some(d: ApexDocument) => Some(d)
@@ -140,7 +141,8 @@ trait PackageAPI extends Package {
         "Path is being ignored in this workspace")))
 
     // Read contents from file if we were not provided with
-    val source = contents.orElse({
+
+    val source: Option[SourceData] = contents.map(blob => SourceData(blob)).orElse({
       path.readSourceData() match {
         case Left(_) => None
         case Right(data) =>Some(data)

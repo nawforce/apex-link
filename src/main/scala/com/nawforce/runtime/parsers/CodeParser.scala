@@ -31,7 +31,6 @@ import java.io.ByteArrayInputStream
 
 import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.path.PathLike
-import com.nawforce.runtime.SourceData
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import org.antlr.v4.runtime.CommonTokenStream
 
@@ -80,8 +79,7 @@ class CodeParser(val source: Source) {
 
   /** Extract the source used for a parser rule */
   def extractSource(context: ParserRuleContext): Source = {
-    val clipped = source.slice(context.start.getStartIndex, context.stop.getStopIndex+1)
-    Source(source.path, clipped, SourcePosition(context.start.getLine-1, context.start.getCharPositionInLine), Some(source))
+    source.extractSource(context)
   }
 
   private def getParser: ApexParser = {
@@ -100,7 +98,7 @@ object CodeParser {
   type TerminalNode = org.antlr.v4.runtime.tree.TerminalNode
 
   def apply(path: PathLike, code: SourceData): CodeParser = {
-    new CodeParser(Source(path, code, SourcePosition(), None))
+    new CodeParser(Source(path, code, 0, 0, None))
   }
 
   def clearCaches(): Unit = {

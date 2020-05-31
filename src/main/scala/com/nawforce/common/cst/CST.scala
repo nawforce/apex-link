@@ -29,12 +29,11 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.diagnostics.Issue
-import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.names._
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.parsers.ApexParser._
-import com.nawforce.runtime.parsers.{CodeParser, Source}
+import com.nawforce.runtime.parsers.{CodeParser, Locatable, Source}
 
 import scala.util.DynamicVariable
 
@@ -44,15 +43,22 @@ class CSTException extends Exception
 // Information about current parsing context
 case class CSTParsingContext(path: PathLike, lineAdjust: Int=0, columnAdjust: Int=0)
 
-/** Base for all CST nodes, provides some basic location handling, this is mutable for historic reasons, you must
-  * call withContext() on all CST nodes for them to pick up the location information from the parser. It also
-  * supports lines & column adjustments for when we re-parse blocks, see LazyBlock for details.
+/** Base for all CST nodes, provides some basic location handling.
+  *
+  * This is mutable for historic reasons, you must call withContext() on all CST nodes for them to pick up the
+  * location information from the parser. It also supports lines & column adjustments for when we re-parse blocks,
+  * see LazyBlock for details.
   */
-abstract class CST {
-  var location: RangeLocationImpl = _
+class CST extends Locatable {
+  // We store the location unwrapped to reduce object count, use location() to access
+  override var locationPath: String = _
+  override var startLine: Int = _
+  override var startOffset: Int = _
+  override var endLine: Int = _
+  override var endOffset: Int = _
 
   def withContext(context: CodeParser.ParserRuleContext): this.type = {
-    location = CST.sourceContext.value.get.getRangeLocation(context)
+    CST.sourceContext.value.get.stampLocation(this, context)
     this
   }
 }

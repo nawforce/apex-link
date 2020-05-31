@@ -34,9 +34,8 @@ import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
-import com.nawforce.runtime.SourceData
 import com.nawforce.runtime.parsers.ApexParser.{TriggerCaseContext, TriggerUnitContext}
-import com.nawforce.runtime.parsers.{CodeParser, Source}
+import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 
 import scala.collection.mutable
 

@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.path
 
-import com.nawforce.runtime.SourceData
+import com.nawforce.runtime.parsers.SourceData
 
 /* File system path abstraction, to make life simple relative paths are NOT supported */
 abstract class PathLike {

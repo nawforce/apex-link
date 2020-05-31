@@ -29,6 +29,10 @@
 package com.nawforce.runtime.os
 
 object Environment {
+  def gc: Unit = {
+    System.gc()
+  }
+
   def homedir: Option[Path] = {
     variable("user.home").map(Path(_))
   }

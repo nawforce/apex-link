@@ -28,6 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, TypeName}
+import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.finding.RelativeTypeName
 import com.nawforce.common.names.TypeNames
@@ -39,8 +40,9 @@ import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.mutable
 
-abstract class ClassBodyDeclaration(val modifierResults: ModifierResults) extends CST with DependencyHolder {
+abstract class ClassBodyDeclaration(modifierResults: ModifierResults) extends CST with DependencyHolder {
   val modifiers: Seq[Modifier] = modifierResults.modifiers
+  val modifierIssues: Seq[Issue] = modifierResults.issues
   lazy val isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER) || modifiers.contains(WEBSERVICE_MODIFIER)
 
   protected var depends: Option[mutable.Set[Dependent]] = None
@@ -54,7 +56,7 @@ abstract class ClassBodyDeclaration(val modifierResults: ModifierResults) extend
   }
 
   def validate(context: BodyDeclarationVerifyContext): Unit = {
-    modifierResults.issues.foreach(context.log)
+    modifierIssues.foreach(context.log)
     verify(context)
   }
 
@@ -124,12 +126,12 @@ object ApexInitialiserBlock {
   }
 }
 
-final case class ApexMethodDeclaration(outerTypeId: TypeId, _modifiers: ModifierResults,
-                                       relativeTypeName: RelativeTypeName, id: Id, parameters: Seq[FormalParameter],
-                                       block: Option[Block])
+final class ApexMethodDeclaration(override val outerTypeId: TypeId, _modifiers: ModifierResults,
+                                  relativeTypeName: RelativeTypeName, id: Id,
+                                  override val parameters: Seq[FormalParameter], val block: Option[Block])
   extends ClassBodyDeclaration(_modifiers) with ApexMethodLike {
 
-  override val nameRange: RangeLocationImpl = id.location
+  override def nameRange: RangeLocationImpl = id.location
   override val name: Name = id.name
 
   override lazy val typeName: TypeName = relativeTypeName.typeName
@@ -174,7 +176,7 @@ object ApexMethodDeclaration {
     val block = CodeParser.toScala(from.block())
       .map(b => Block.constructLazy(parser, b))
 
-    ApexMethodDeclaration(outerTypeId,
+    new ApexMethodDeclaration(outerTypeId,
       modifiers, RelativeTypeName(pkg, outerTypeId.typeName, typeName),
       Id.construct(from.id()),
       FormalParameters.construct(parser, pkg, outerTypeId.typeName, from.formalParameters()),
@@ -185,7 +187,7 @@ object ApexMethodDeclaration {
   def construct(parser: CodeParser, pkg: PackageImpl, outerTypeId: TypeId, modifiers: ModifierResults,
                 from: InterfaceMethodDeclarationContext): ApexMethodDeclaration = {
     val typeName = CodeParser.toScala(from.typeRef()).map(tr => TypeReference.construct(tr)).getOrElse(TypeNames.Void)
-    ApexMethodDeclaration(outerTypeId,
+    new ApexMethodDeclaration(outerTypeId,
       modifiers, RelativeTypeName(pkg, outerTypeId.typeName, typeName),
       Id.construct(from.id()),
       FormalParameters.construct(parser, pkg, outerTypeId.typeName, from.formalParameters()),

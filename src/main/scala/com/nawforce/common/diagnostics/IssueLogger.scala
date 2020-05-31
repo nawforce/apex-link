@@ -75,10 +75,10 @@ trait ParserIssueLogger extends IssueLogger {
 
 /** Logger using a specific CodaParser */
 class CodeParserLogger(parser: CodeParser) extends ParserIssueLogger {
-  var issues :List[Issue] = Nil
+  var issues: Array[Issue] = Array()
 
   override def log(issue: Issue): Unit = {
-    issues = issue :: issues
+    issues :+= issue
   }
 
   override def location(context: ParserRuleContext): LocationImpl = {

@@ -32,7 +32,7 @@ import com.nawforce.common.names.{DotName, TypeNames}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types.apex.{FullDeclaration, TriggerDeclaration}
-import com.nawforce.runtime.SourceData
+import com.nawforce.runtime.parsers.SourceData
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
