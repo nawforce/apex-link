@@ -65,7 +65,12 @@ trait ApexMethodLike extends ApexVisibleMethodLike {
   def nameRange: RangeLocationImpl
 
   // Populated by type MethodMap construction
-  val shadows: mutable.Set[MethodDeclaration] = mutable.Set()
+  private var shadows: Option[mutable.Set[MethodDeclaration]] = None
+
+  def addShadow(method: MethodDeclaration): Unit = {
+    if (shadows.isEmpty) shadows = Some(mutable.Set())
+    shadows.get.add(method)
+  }
 
   def isEntry: Boolean = {
     modifiers.contains(ISTEST_ANNOTATION) ||
@@ -77,11 +82,11 @@ trait ApexMethodLike extends ApexVisibleMethodLike {
   /* Is the method in use, NOTE: requires a MethodMap is constructed for shadow support first! */
   def isUsed: Boolean = {
     isEntry || hasHolders ||
-      shadows.exists({
+      shadows.exists(_.exists({
         case am: ApexMethodLike => am.isUsed
         case _: MethodDeclaration => true
         case _ => false
-      })
+      }))
   }
 
   def summary: MethodSummary = {

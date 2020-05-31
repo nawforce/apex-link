@@ -36,19 +36,18 @@ import upickle.default.{macroRW, ReadWriter => RW}
   */
 @upickle.implicits.key("Name")
 case class Name(value: String) {
-  private lazy val normalised = value.toLowerCase
 
   def canEqual(that: Any): Boolean = that.isInstanceOf[Name]
 
   override def equals(that: Any): Boolean = {
     that match {
       case otherName: Name =>
-        otherName.canEqual(this) && otherName.normalised == normalised
+        otherName.canEqual(this) && otherName.value.equalsIgnoreCase(value)
       case _ => false
     }
   }
 
-  override def hashCode(): Int = normalised.hashCode
+  override def hashCode(): Int = value.toLowerCase.hashCode
 
   override def toString: String = value
 }

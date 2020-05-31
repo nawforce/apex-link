@@ -80,11 +80,11 @@ final case class Id(name: Name) extends CST {
 
 object Id {
   def construct(idContext: IdContext): Id = {
-    Id(Name(CodeParser.getText(idContext))).withContext(idContext)
+    Id(Names(CodeParser.getText(idContext))).withContext(idContext)
   }
 
   def constructAny(idContext: AnyIdContext): Id = {
-    Id(Name(CodeParser.getText(idContext))).withContext(idContext)
+    Id(Names(CodeParser.getText(idContext))).withContext(idContext)
   }
 }
 
@@ -99,7 +99,7 @@ object QualifiedName {
 
   def construct(qualifiedName: QualifiedNameContext): QualifiedName = {
     val ids: Seq[IdContext] = CodeParser.toScala(qualifiedName.id())
-    QualifiedName(ids.toList.map(id => Name(CodeParser.getText(id)))).withContext(qualifiedName)
+    QualifiedName(ids.toList.map(id => Names(CodeParser.getText(id)))).withContext(qualifiedName)
   }
 }
 
