@@ -37,6 +37,8 @@ import upickle.default.{macroRW, ReadWriter => RW}
 @upickle.implicits.key("Name")
 case class Name(value: String) {
 
+  override val hashCode: Int = value.toLowerCase.hashCode
+
   def canEqual(that: Any): Boolean = that.isInstanceOf[Name]
 
   override def equals(that: Any): Boolean = {
@@ -46,8 +48,6 @@ case class Name(value: String) {
       case _ => false
     }
   }
-
-  override def hashCode(): Int = value.toLowerCase.hashCode
 
   override def toString: String = value
 }
