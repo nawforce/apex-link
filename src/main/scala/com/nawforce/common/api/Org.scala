@@ -115,7 +115,7 @@ object Org {
   /** Create a new empty Org to which you can add packages for code analysis.
     *
     * You can use an Org without code analysis enabled but many of the API methods will not function. This mode is
-    * supported to allow the available metadata to be examined specifically via [[Org.getLocation()]].
+    * supported to allow the available metadata to be examined specifically via [[Org.getIdentifierLocation()]].
     */
   def newOrg(analysis: Boolean=true): Org = {
     new OrgImpl(analysis)
