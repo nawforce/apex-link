@@ -28,7 +28,7 @@
 
 package com.nawforce.common.org
 
-import com.nawforce.common.api.{Name, TypeName}
+import com.nawforce.common.api.{LineLocation, Name, PathLocation, TypeName}
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, UnusedLog}
 import com.nawforce.common.diagnostics.{IssueLog, LocalLogger}
 import com.nawforce.common.documents._
@@ -36,7 +36,7 @@ import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeRequest.TypeRequest
 import com.nawforce.common.names.{EncodedName, TypeNames, _}
 import com.nawforce.common.sfdx.Workspace
-import com.nawforce.common.types.apex.ApexClassDeclaration
+import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexDeclaration}
 import com.nawforce.common.types.core.{TypeDeclaration, TypeId}
 import com.nawforce.common.types.other.{InterviewDeclaration, _}
 import com.nawforce.common.types.platform.PlatformTypes
@@ -62,7 +62,8 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   private val anyDeclaration = AnyDeclaration(this)
 
   initTypes()
-  deployFromWorkspace()
+  if (org.analysis)
+    deployFromWorkspace()
 
   private def initTypes(): Unit = {
     upsertMetadata(anyDeclaration)
@@ -133,6 +134,20 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     } else {
       basePackages.filter(_.isGhosted).exists(_.namespace.contains(typeName.outerName)) ||
       typeName.params.exists(isGhostedType)
+    }
+  }
+
+  /* Find a document location for the type */
+  def getTypeLocation(typeName: TypeName): Option[PathLocation] = {
+    if (org.analysis) {
+      searchTypes(typeName) match {
+        case Some(ad: ApexDeclaration) => Some(PathLocation(ad.path.toString, ad.nameLocation.toLocation))
+        case _ => None
+      }
+    } else {
+      val docType = documents.getByType(typeName).orElse(
+        typeName.outer.flatMap(documents.getByType))
+      docType.map(d => PathLocation(d.path.toString, LineLocation(0)))
     }
   }
 

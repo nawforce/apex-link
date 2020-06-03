@@ -85,10 +85,16 @@ abstract class SObjectLike(_path: PathLike, _name: Name) extends MetadataDocumen
 
 final case class SObjectDocument(_path: PathLike, _name: Name)
   extends SObjectLike(_path, _name) {
+
+  private val isCustom = name.value.endsWith("__c")
   override val extension: Name = MetadataDocument.objectExt
   override val ignorable: Boolean = path.size == 0
   override def typeName(namespace: Option[Name]): TypeName = {
-    val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
+    val prefix =
+      if (isCustom)
+        namespace.map(ns => s"${ns}__").getOrElse("")
+      else
+        ""
     TypeName(Name(prefix+name), Nil, Some(TypeNames.Schema))
   }
 }
