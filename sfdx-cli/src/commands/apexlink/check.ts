@@ -70,7 +70,7 @@ export default class Check extends SfdxCommand {
 
   public async run(): Promise<AnyJson> {
 
-    const jarFile = path.join(__dirname, '..', '..', '..', 'jars', 'apexlink-0.8.jar')
+    const jarFile = path.join(__dirname, '..', '..', '..', 'jars', 'apexlink-0.9.0-SNAPSHOT.jar')
     if (!fs.existsSync(jarFile) || !fs.lstatSync(jarFile).isFile()) {
       throw new SfdxError(messages.getMessage('errorNoJarFile', [jarFile]));
     }
