@@ -35,8 +35,6 @@ import com.nawforce.common.documents._
 import com.nawforce.common.names.{DotName, Names, _}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.sfdx.{MDAPIWorkspace, Project, SFDXWorkspace, Workspace}
-import com.nawforce.common.types.apex.ApexDeclaration
-import com.nawforce.common.types.core.TypeDeclaration
 
 import scala.util.DynamicVariable
 
@@ -44,7 +42,7 @@ import scala.util.DynamicVariable
   * the org being currently worked on. Typically only one org will be being used but some use cases might require
   * multiple. Problems with the metadata are recorded in the the associated issue log.
   */
-class OrgImpl extends Org {
+class OrgImpl(val analysis: Boolean=true) extends Org {
   /**
     * Map of Package namespace to Package. This contains all known Packages, each Package maintains it's own
     * list of dependent Package so that we can enforce boundaries between unrelated Packages.
@@ -192,10 +190,10 @@ class OrgImpl extends Org {
     }
   }
 
-  /** Find a specific type */
-  def getTypeLocation(name: String): PathLocation = {
-    val typeName = DotName(name).asTypeName()
-    var td: Option[TypeDeclaration] = None
+  /** Find a location for an identifier */
+  override def getIdentifierLocation(identifier: String): PathLocation = {
+    val typeName = DotName(identifier).asTypeName()
+    var loc: Option[PathLocation] = None
 
     // Extract namespace
     val namespace =
@@ -210,18 +208,15 @@ class OrgImpl extends Org {
 
     // Package lookup
     namespace.foreach(n =>
-      td = packagesByNamespace.get(Some(n)).flatMap(_.searchTypes(typeName))
+      loc = packagesByNamespace.get(Some(n)).flatMap(_.getTypeLocation(typeName))
     )
 
     // Otherwise try unmanaged
-    if (td.isEmpty) {
-      td = unmanaged.searchTypes(typeName)
+    if (loc.isEmpty) {
+      loc = unmanaged.getTypeLocation(typeName)
     }
 
-    td.flatMap {
-      case ad: ApexDeclaration => Some(PathLocation(ad.path.toString, ad.nameLocation.toLocation))
-      case _ => None
-    }.orNull
+    loc.orNull
   }
 
   /** Dump current issues to standard out */

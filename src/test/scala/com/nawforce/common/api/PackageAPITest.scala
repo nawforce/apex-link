@@ -665,7 +665,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      assert(org.getTypeLocation("Dummy") ==
+      assert(org.getIdentifierLocation("Dummy") ==
         PathLocation("/classes/Dummy.cls", RangeLocation(Position(1,13), Position(1,18))))
     }
   }
@@ -678,8 +678,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      assert(org.getTypeLocation("Dummy") == null)
-      assert(org.getTypeLocation("test.Dummy") ==
+      assert(org.getIdentifierLocation("Dummy") == null)
+      assert(org.getIdentifierLocation("test.Dummy") ==
         PathLocation("/classes/Dummy.cls", RangeLocation(Position(1,13), Position(1,18))))
     }
   }
@@ -692,9 +692,9 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      assert(org.getTypeLocation("Dummy") == null)
-      assert(org.getTypeLocation("Dummy.Inner") == null)
-      assert(org.getTypeLocation("test.Dummy.Inner") ==
+      assert(org.getIdentifierLocation("Dummy") == null)
+      assert(org.getIdentifierLocation("Dummy.Inner") == null)
+      assert(org.getIdentifierLocation("test.Dummy.Inner") ==
         PathLocation("/classes/Dummy.cls", RangeLocation(Position(1,26), Position(1,31))))
     }
   }
@@ -707,8 +707,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      assert(org.getTypeLocation("Foo") == null)
-      assert(org.getTypeLocation("__sfdc_trigger/Foo") ==
+      assert(org.getIdentifierLocation("Foo") == null)
+      assert(org.getIdentifierLocation("__sfdc_trigger/Foo") ==
         PathLocation("/triggers/Foo.trigger", RangeLocation(Position(1,8), Position(1,11))))
     }
   }
@@ -721,10 +721,82 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      assert(org.getTypeLocation("Foo") == null)
-      assert(org.getTypeLocation("__sfdc_trigger/Foo") == null)
-      assert(org.getTypeLocation("__sfdc_trigger/test/Foo") ==
+      assert(org.getIdentifierLocation("Foo") == null)
+      assert(org.getIdentifierLocation("__sfdc_trigger/Foo") == null)
+      assert(org.getIdentifierLocation("__sfdc_trigger/test/Foo") ==
         PathLocation("/triggers/Foo.trigger", RangeLocation(Position(1,8), Position(1,11))))
     }
   }
+
+  test("location of type (no analysis)") {
+    FileSystemHelper.run(Map(
+      "classes/Dummy.cls" -> "public class Dummy {}",
+    )) { root: PathLike =>
+      val org = Org.newOrg(analysis = false).asInstanceOf[OrgImpl]
+      org.addMDAPITestPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(org.getIdentifierLocation("Dummy") ==
+        PathLocation("/classes/Dummy.cls", LineLocation(0)))
+    }
+  }
+
+  test("location of type (packaged) (no analysis)") {
+    FileSystemHelper.run(Map(
+      "classes/Dummy.cls" -> "public class Dummy {}",
+    )) { root: PathLike =>
+      val org = Org.newOrg(analysis = false).asInstanceOf[OrgImpl]
+      org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(org.getIdentifierLocation("Dummy") == null)
+      assert(org.getIdentifierLocation("test.Dummy") ==
+        PathLocation("/classes/Dummy.cls", LineLocation(0)))
+    }
+  }
+
+  test("location of type (packaged & nested) (no analysis)") {
+    FileSystemHelper.run(Map(
+      "classes/Dummy.cls" -> "public class Dummy {class Inner {}}",
+    )) { root: PathLike =>
+      val org = Org.newOrg(analysis = false).asInstanceOf[OrgImpl]
+      org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(org.getIdentifierLocation("Dummy") == null)
+      assert(org.getIdentifierLocation("Dummy.Inner") == null)
+      assert(org.getIdentifierLocation("test.Dummy.Inner") ==
+        PathLocation("/classes/Dummy.cls", LineLocation(0)))
+    }
+  }
+
+  test("location of trigger (no analysis)") {
+    FileSystemHelper.run(Map(
+      "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg(analysis = false).asInstanceOf[OrgImpl]
+      org.addMDAPITestPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(org.getIdentifierLocation("Foo") == null)
+      assert(org.getIdentifierLocation("__sfdc_trigger/Foo") ==
+        PathLocation("/triggers/Foo.trigger", LineLocation(0)))
+    }
+  }
+
+  test("location of trigger (packaged) (no analysis)") {
+    FileSystemHelper.run(Map(
+      "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg(analysis = false).asInstanceOf[OrgImpl]
+      org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      assert(org.getIdentifierLocation("Foo") == null)
+      assert(org.getIdentifierLocation("__sfdc_trigger/Foo") == null)
+      assert(org.getIdentifierLocation("__sfdc_trigger/test/Foo") ==
+        PathLocation("/triggers/Foo.trigger", LineLocation(0)))
+    }
+  }
+
 }

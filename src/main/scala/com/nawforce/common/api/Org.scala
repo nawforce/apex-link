@@ -87,13 +87,13 @@ trait Org {
     */
   def getDependencies: java.util.Map[String, Array[String]]
 
-  /** Find the location of a typename.
+  /** Find the location of some form of identifier.
     *
-    * The typename must be include the name of an outer type, this may be preceded by a namespace (if needed) and
-    * optionally followed by the name of an inner type. Returns the file & position* within that file if the type is
-    * found, otherwise returns null.
+    * Currently this supports locating Outer & Inner classes and Triggers by name. These must include a namespace
+    * using the usual conventions to find a location for the identifier. Returns the file & position* within that
+    * file if the identifier is found, otherwise returns null.
     */
-  def getTypeLocation(name: String): PathLocation
+  def getIdentifierLocation(identifier: String): PathLocation
 }
 
 /** Options available when retrieving Org issues. */
@@ -112,8 +112,12 @@ class IssueOptions {
 }
 
 object Org {
-  /** Create a new empty Org to which you can add packages for analysis */
-  def newOrg(): Org = {
-    new OrgImpl
+  /** Create a new empty Org to which you can add packages for code analysis.
+    *
+    * You can use an Org without code analysis enabled but many of the API methods will not function. This mode is
+    * supported to allow the available metadata to be examined specifically via [[Org.getLocation()]].
+    */
+  def newOrg(analysis: Boolean=true): Org = {
+    new OrgImpl(analysis)
   }
 }

@@ -81,7 +81,7 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.cls" -> "public class Foo {}"
     )) {root: PathLike =>
       val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
-      assert(index.size == 1)
+      assert(index.getByExtension(MetadataDocument.clsExt).size == 1)
       assert(index.getByExtension(Name("cls")) == Set(ApexClassDocument(PathFactory("/pkg/Foo.cls"), Name("Foo"))))
     }
   }
@@ -91,7 +91,7 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/foo/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
       val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
-      assert(index.size == 1)
+      assert(index.getByExtension(MetadataDocument.clsExt).size == 1)
       assert(index.getByExtension(Name("cls")) == Set(ApexClassDocument(PathFactory("/pkg/foo/Foo.cls"), Name("Foo"))))
     }
   }
@@ -102,7 +102,6 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
       "/pkg/bar/Bar.cls" -> "public class Bar {}"
     )) { root: PathLike =>
       val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
-      assert(index.size == 2)
       assert(index.getByExtension(Name("cls")).map(_.toString()) == Set(
         ApexClassDocument(PathFactory("/pkg/Foo.cls"), Name("Foo")).toString,
         ApexClassDocument(PathFactory("/pkg/bar/Bar.cls"), Name("Bar")).toString
@@ -116,7 +115,7 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
       "/pkg/bar/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
       val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
-      assert(index.size == 1)
+      assert(index.getByExtension(MetadataDocument.clsExt).size == 1)
       assert(logger.issues == List(
         Issue(ERROR_CATEGORY,LineLocationImpl("/pkg/bar/Foo.cls", 0),
           "File has creates duplicate type 'Foo' as '/pkg/foo/Foo.cls', ignoring")
@@ -130,18 +129,16 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
       "/pkg/bar/CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>"
     )) { root: PathLike =>
       val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
-      assert(index.size == 2)
+      assert(index.getByExtension(Name("labels")).size == 2)
       assert(logger.issues.isEmpty)
     }
   }
-
 
   test("object file found") {
     FileSystemHelper.run(Map[String, String](
       "pkg/Foo.object" -> "<CustomObject xmlns=\\\"http://soap.sforce.com/2006/04/metadata\\\"/>"
     )) { root: PathLike =>
       val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
-      assert(index.size == 1)
       assert(index.getByExtension(Name("object")) == Set(SObjectDocument(PathFactory("/pkg/Foo.object"), Name("Foo"))))
     }
   }
@@ -151,7 +148,6 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.object-meta.xml" -> "<CustomObject xmlns=\\\"http://soap.sforce.com/2006/04/metadata\\\"/>"
     )) { root: PathLike =>
       val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
-      assert(index.size == 1)
       assert(index.getByExtension(Name("object")) ==
         Set(SObjectDocument(PathFactory("/pkg/Foo.object-meta.xml"), Name("Foo"))))
     }
@@ -162,7 +158,6 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo/fields/Bar.field-meta.xml" -> "<CustomField xmlns=\\\"http://soap.sforce.com/2006/04/metadata\\\"/>"
     )) { root: PathLike =>
       val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
-      assert(index.size == 2)
       assert(index.getByExtension(Name("field")) ==
         Set(SObjectFieldDocument(PathFactory("/pkg/Foo/fields/Bar.field-meta.xml"), Name("Bar"))))
       assert(index.getByExtension(Name("object")) ==
@@ -175,7 +170,6 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo/fieldSets/Bar.fieldset-meta.xml" -> "<FieldSet xmlns=\\\"http://soap.sforce.com/2006/04/metadata\\\"/>"
     )) { root: PathLike =>
       val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
-      assert(index.size == 2)
       assert(index.getByExtension(Name("fieldset")) ==
         Set(SObjectFieldSetDocument(PathFactory("/pkg/Foo/fieldSets/Bar.fieldset-meta.xml"), Name("Bar"))))
       assert(index.getByExtension(Name("object")) ==
