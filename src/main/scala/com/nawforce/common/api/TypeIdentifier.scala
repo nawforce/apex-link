@@ -48,6 +48,11 @@ object TypeIdentifier {
   def fromJava(namespace: Name, typeName: TypeName): TypeIdentifier = {
     new TypeIdentifier(Option(namespace), typeName)
   }
+
+  /** Helper for construction from a package relative TypeName */
+  def fromPackage(pkg: Package, typeName: TypeName): TypeIdentifier = {
+    TypeIdentifier(if (pkg.getNamespace.isEmpty) None else Some(Name(pkg.getNamespace)), typeName)
+  }
 }
 
 

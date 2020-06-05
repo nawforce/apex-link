@@ -94,7 +94,7 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
 
   /** Convert directory strings to paths, checking they are valid directories */
   private def getDirectoryPaths(directories: Array[String]): Seq[PathLike] = {
-    val paths = directories.map(PathFactory(_))
+    val paths = directories.filterNot(_.isEmpty).map(PathFactory(_))
     val missing = paths.filterNot(_.isDirectory)
     if (missing.nonEmpty)
       throw new IllegalArgumentException(s"Workspace '${missing.head}' is not a directory")
