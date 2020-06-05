@@ -90,10 +90,11 @@ trait Org {
   /** Find the location of some form of identifier.
     *
     * Currently this supports locating Outer & Inner classes and Triggers by name. These must include a namespace
-    * using the usual conventions to find a location for the identifier. Returns the file & position* within that
+    * using the usual conventions to find a location for the identifier. Returns the file & position within that
     * file if the identifier is found, otherwise returns null.
     */
   def getIdentifierLocation(identifier: String): PathLocation
+
 }
 
 /** Options available when retrieving Org issues. */
@@ -115,7 +116,7 @@ object Org {
   /** Create a new empty Org to which you can add packages for code analysis.
     *
     * You can use an Org without code analysis enabled but many of the API methods will not function. This mode is
-    * supported to allow the available metadata to be examined specifically via [[Org.getIdentifierLocation()]].
+    * supported to allow the available metadata to be examined specifically via getIdentifierLocation().
     */
   def newOrg(analysis: Boolean=true): Org = {
     new OrgImpl(analysis)
