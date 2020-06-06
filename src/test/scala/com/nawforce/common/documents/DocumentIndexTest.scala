@@ -116,10 +116,8 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
       assert(index.getByExtension(MetadataDocument.clsExt).size == 1)
-      assert(logger.issues == List(
-        Issue(ERROR_CATEGORY,LineLocationImpl("/pkg/bar/Foo.cls", 0),
-          "File has creates duplicate type 'Foo' as '/pkg/foo/Foo.cls', ignoring")
-      ))
+      assert(logger.issues.head.category == ERROR_CATEGORY)
+      assert(logger.issues.head.message.contains("File creates duplicate type 'Foo'"))
     }
   }
 
