@@ -258,7 +258,8 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
 
       val view = pkg.getViewOfType(root.join("CustomLabels.labels"), Some(SourceBlob("")))
       assert(view.hasType)
-      assert(view.diagnostics.sameElements(Array(Diagnostic("Error",PointLocation(Position(1,1)),"Premature end of file."))))
+      assert(view.diagnostics.length == 1)
+      assert(view.diagnostics.head.category == "Error")
       assert(view.typeName == TypeNames.Label)
     }
   }

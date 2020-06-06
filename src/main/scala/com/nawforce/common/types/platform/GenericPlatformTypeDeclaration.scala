@@ -44,12 +44,12 @@ import scala.collection.mutable
 class GenericPlatformTypeDeclaration(_typeName: TypeName, genericDecl: PlatformTypeDeclaration)
   extends PlatformTypeDeclaration(genericDecl.native, genericDecl.outer) {
 
+  override lazy val typeName: TypeName = _typeName
+
   private val paramsMap: Map[Name, TypeName] = {
     genericDecl.typeName.params.zip(typeName.params)
       .map(p => (p._1.name, p._2)).toMap
   }
-
-  override lazy val typeName: TypeName = _typeName
 
   override lazy val superClass: Option[TypeName] = getSuperClass.map(replaceParams)
 

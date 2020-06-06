@@ -197,7 +197,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
         td.collectDependenciesByTypeName(depends)
         depends.remove(td.typeId)
         if (depends.nonEmpty)
-          dependencies.put(td.typeName.toString, depends.map(_.toString).toArray)
+          dependencies.put(td.typeName.toString, depends.map(_.typeName.toString).toArray)
       case _ => ()
     }
   }

@@ -48,8 +48,8 @@ export default class Check extends SfdxCommand {
 
   public static examples = [
   `$ sfdx apexlink:check`,
-  `$ sfdx apexlink:check -verbose $HOME/myproject`,
-  `$ sfdx apexlink:check -zombie -namespaces ns1,ns2 $HOME/myproject`
+  `$ sfdx apexlink:check --verbose $HOME/myproject`,
+  `$ sfdx apexlink:check --zombie --namespaces ns1,ns2 $HOME/myproject`
   ];
 
   public static args = [
