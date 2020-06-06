@@ -148,7 +148,7 @@ class DocumentIndex(namespace: Option[Name], paths: Seq[PathLike], logger: Issue
       if (typeNames.contains(typeName)) {
         val duplicate = documents(documentType.extension).get(typeName)
         logger.log(Issue(ERROR_CATEGORY, LineLocationImpl(documentType.path.toString, 0),
-          s"File has creates duplicate type '$typeName' as '${duplicate.get.head.path}', ignoring"))
+          s"File creates duplicate type '$typeName' as '${duplicate.get.head.path}', ignoring"))
       } else {
         typeNames.add(typeName)
         addDocument(documentType)
