@@ -94,17 +94,20 @@ object Check {
     }
 
     try {
-      val nsLoaded = mutable.Map[String, Package]()
+      var nsLoaded: List[String] = Nil
+      var loaded: List[Package] = Nil
       nsSplit.foreach(nsDirPair => {
         if (!nsLoaded.contains(nsDirPair._1)) {
           val path = PathFactory(nsDirPair._2)
           if (path.join("sfdx-project.json").exists) {
-            org.newSFDXPackage(path.toString, nsLoaded.values.toArray)
+            val pkg = org.newSFDXPackage(path.toString, loaded.toArray)
+            loaded = pkg :: loaded
           } else {
             val paths = nsSplit.filter(_._1 == nsDirPair._1).map(_._2).filterNot(_.isEmpty).toArray
             val nonSfdxPaths = paths.map(PathFactory(_)).filterNot(_.join("sfdx-project.json").exists)
-            val pkg = org.newMDAPIPackage(nsDirPair._1, nonSfdxPaths.map(_.toString), nsLoaded.values.toArray)
-            nsLoaded.put(nsDirPair._1, pkg)
+            val pkg = org.newMDAPIPackage(nsDirPair._1, nonSfdxPaths.map(_.toString), loaded.toArray)
+            loaded = pkg :: loaded
+            nsLoaded = nsDirPair._1 :: nsLoaded
           }
         }
       })
