@@ -103,8 +103,8 @@ OPTIONS
 
 EXAMPLES
   $ sfdx apexlink:check
-  $ sfdx apexlink:check -verbose $HOME/myproject
-  $ sfdx apexlink:check -zombie -namespaces ns1,ns2 $HOME/myproject
+  $ sfdx apexlink:check --verbose $HOME/myproject
+  $ sfdx apexlink:check --zombie --namespaces ns1,ns2 $HOME/myproject
 ```
 
 _See code: [src/commands/apexlink/check.ts](https://github.com/nawforce/apexlink/blob/v0.9.0/src/commands/apexlink/check.ts)_
