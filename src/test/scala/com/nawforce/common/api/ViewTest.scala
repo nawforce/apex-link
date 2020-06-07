@@ -77,14 +77,15 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("ignored path (sfdx)") {
-    FileSystemHelper.run(Map(
+    // Use tmp dir as .forceIgnore needs native paths
+    FileSystemHelper.runTempDir(Map(
       "sfdx-project.json" -> "{\"packageDirectories\" : [{ \"path\": \"force-app\", \"default\": true}]}",
       ".forceignore" -> "force-app/pkg/",
       "force-app/pkg/Foo.cls" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addSFDXTestPackage(root, Array[PackageImpl]())
-      val view = pkg.getViewOfType(root.join("force-app/pkg/Foo.cls"), None)
+      val view = pkg.getViewOfType(root.join("force-app").join("pkg").join("Foo.cls"), None)
       assert(!view.hasType)
       assert(view.diagnostics.sameElements(Array(Diagnostic("Error", LineLocation(0),
         "Path is being ignored in this workspace"))))
@@ -158,7 +159,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
 
-      val barTypeId = pkg.getTypeOfPath(root.join("pkg/Bar.cls").toString)
+      val barTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls"))
       assert(pkg.getDependencyHolders(barTypeId).sameElements(Array[TypeName]()))
     }
   }

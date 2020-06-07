@@ -28,112 +28,114 @@
 package com.nawforce.common.documents
 
 import com.nawforce.common.api.Name
-import com.nawforce.common.path.PathFactory
+import com.nawforce.common.path.{PathFactory, PathLike}
 import org.scalatest.funsuite.AnyFunSuite
 
 class DocumentTest extends AnyFunSuite {
 
+  private val root :PathLike = PathFactory("pkg")
+
   test("cls file") {
-    MetadataDocument(PathFactory("/pkg/Foo.cls")) match {
-      case Some(ApexClassDocument(PathFactory("/pkg/Foo.cls"), Name("Foo"))) => ()
+    MetadataDocument(root.join("Foo.cls")) match {
+      case Some(ApexClassDocument(path, Name("Foo"))) if path == root.join("Foo.cls")=> ()
       case x => assert(false, x)
     }
   }
 
   test("component file") {
-    MetadataDocument(PathFactory("/pkg/Foo.component")) match {
-      case Some(ComponentDocument(PathFactory("/pkg/Foo.component"), Name("Foo"))) => ()
+    MetadataDocument(root.join("Foo.component")) match {
+      case Some(ComponentDocument(path, Name("Foo"))) if path == root.join("Foo.component") => ()
       case x => assert(false, x)
     }
   }
 
   test("object file") {
-    MetadataDocument(PathFactory("/pkg/Foo.object")) match {
-      case Some(SObjectDocument(PathFactory("/pkg/Foo.object"), Name("Foo"))) => ()
+    MetadataDocument(root.join("Foo.object")) match {
+      case Some(SObjectDocument(path, Name("Foo"))) if path == root.join("Foo.object")=> ()
       case x => assert(false, x)
     }
   }
 
   test("object file (sfdx)") {
-    MetadataDocument(PathFactory("/pkg/Foo.object-meta.xml")) match {
-      case Some(SObjectDocument(PathFactory("/pkg/Foo.object-meta.xml"), Name("Foo"))) => ()
+    MetadataDocument(root.join("Foo.object-meta.xml")) match {
+      case Some(SObjectDocument(path, Name("Foo"))) if path == root.join("Foo.object-meta.xml")=> ()
       case x => assert(false, x)
     }
   }
 
   test("custom object file") {
-    MetadataDocument(PathFactory("/pkg/Foo__c.object")) match {
-      case Some(SObjectDocument(PathFactory("/pkg/Foo__c.object"), Name("Foo__c"))) => ()
+    MetadataDocument(root.join("Foo__c.object")) match {
+      case Some(SObjectDocument(path, Name("Foo__c"))) if path == root.join("Foo__c.object")=> ()
       case x => assert(false, x)
     }
   }
 
   test("custom object file (sfdx)") {
-    MetadataDocument(PathFactory("/pkg/Foo__c.object-meta.xml")) match {
-      case Some(SObjectDocument(PathFactory("/pkg/Foo__c.object-meta.xml"), Name("Foo__c"))) => ()
+    MetadataDocument(root.join("Foo__c.object-meta.xml")) match {
+      case Some(SObjectDocument(path, Name("Foo__c"))) if path == root.join("Foo__c.object-meta.xml")=> ()
       case x => assert(false, x)
     }
   }
 
   test("custom metadata file") {
-    MetadataDocument(PathFactory("/pkg/Foo__mdt.object")) match {
-      case Some(CustomMetadataDocument(PathFactory("/pkg/Foo__mdt.object"), Name("Foo__mdt"))) => ()
+    MetadataDocument(root.join("Foo__mdt.object")) match {
+      case Some(CustomMetadataDocument(path, Name("Foo__mdt"))) if path == root.join("Foo__mdt.object")=> ()
       case x => assert(false, x)
     }
   }
 
   test("custom metadata file (sfdx)") {
-    MetadataDocument(PathFactory("/pkg/Foo__mdt.object-meta.xml")) match {
-      case Some(CustomMetadataDocument(PathFactory("/pkg/Foo__mdt.object-meta.xml"), Name("Foo__mdt"))) => ()
+    MetadataDocument(root.join("Foo__mdt.object-meta.xml")) match {
+      case Some(CustomMetadataDocument(path, Name("Foo__mdt"))) if path == root.join("Foo__mdt.object-meta.xml")=> ()
       case x => assert(false, x)
     }
   }
 
   test("platform event file") {
-    MetadataDocument(PathFactory("/pkg/Foo__e.object")) match {
-      case Some(PlatformEventDocument(PathFactory("/pkg/Foo__e.object"), Name("Foo__e"))) => ()
+    MetadataDocument(root.join("Foo__e.object")) match {
+      case Some(PlatformEventDocument(path, Name("Foo__e"))) if path == root.join("Foo__e.object") => ()
       case x => assert(false, x)
     }
   }
 
   test("platform event file (sfdx)") {
-    MetadataDocument(PathFactory("/pkg/Foo__e.object-meta.xml")) match {
-      case Some(PlatformEventDocument(PathFactory("/pkg/Foo__e.object-meta.xml"), Name("Foo__e"))) => ()
+    MetadataDocument(root.join("Foo__e.object-meta.xml")) match {
+      case Some(PlatformEventDocument(path, Name("Foo__e"))) if path == root.join("Foo__e.object-meta.xml") => ()
       case x => assert(false, x)
     }
   }
 
   test("field file (sfdx)") {
-    MetadataDocument(PathFactory("/pkg/object/fields/Foo.field-meta.xml")) match {
-      case Some(SObjectFieldDocument(PathFactory("/pkg/object/fields/Foo.field-meta.xml"), Name("Foo"))) => ()
+    MetadataDocument(root.join("object/fields/Foo.field-meta.xml")) match {
+      case Some(SObjectFieldDocument(path, Name("Foo"))) if path == root.join("object/fields/Foo.field-meta.xml") => ()
       case x => assert(false, x)
     }
   }
 
   test("fieldset file (sfdx)") {
-    MetadataDocument(PathFactory("/pkg/object/fieldSets/Foo.fieldset-meta.xml")) match {
-      case Some(SObjectFieldSetDocument(PathFactory("/pkg/object/fieldSets/Foo.fieldset-meta.xml"), Name("Foo"))) => ()
+    MetadataDocument(root.join("object/fieldSets/Foo.fieldset-meta.xml")) match {
+      case Some(SObjectFieldSetDocument(path, Name("Foo"))) if path == root.join("object/fieldSets/Foo.fieldset-meta.xml")=> ()
       case x => assert(false, x)
     }
   }
 
   test("labels file") {
-    MetadataDocument(PathFactory("/pkg/Foo.labels")) match {
-      case Some(LabelsDocument(PathFactory("/pkg/Foo.labels"), Name("Foo"))) => ()
+    MetadataDocument(root.join("Foo.labels")) match {
+      case Some(LabelsDocument(path, Name("Foo"))) if path == root.join("Foo.labels") => ()
       case x => assert(false, x)
     }
   }
 
   test("labels file (sfdx)") {
-    MetadataDocument(PathFactory("/pkg/Foo.labels-meta.xml")) match {
-      case Some(LabelsDocument(PathFactory("/pkg/Foo.labels-meta.xml"), Name("Foo"))) => ()
+    MetadataDocument(root.join("Foo.labels-meta.xml")) match {
+      case Some(LabelsDocument(path, Name("Foo"))) if path == root.join("Foo.labels-meta.xml") => ()
       case x => assert(false, x)
     }
   }
 
   test("page file") {
-    MetadataDocument(PathFactory("/pkg/Foo.page")) match {
-      case Some(PageDocument(PathFactory("/pkg/Foo.page"), Name("Foo"))) => ()
+    MetadataDocument(root.join("Foo.page")) match {
+      case Some(PageDocument(path, Name("Foo"))) if path == root.join("Foo.page") => ()
       case x => assert(false, x)
     }
   }

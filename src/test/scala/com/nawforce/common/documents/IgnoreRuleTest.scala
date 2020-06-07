@@ -113,11 +113,13 @@ class IgnoreRuleTest extends AnyFunSuite {
   }
 
   test("A name with question mark regex") {
-    assert(IgnoreRule.read("f?o").head.regex == "f[^\\/]o$")
+    val re = IgnoreRule.read("f?o").head.regex
+    assert(re == "f[^\\/]o$" || re == "f[^\\\\]o$")
   }
 
   test("A name with wildcard regex") {
-    assert(IgnoreRule.read("f*o").head.regex == "f[^\\/]*o$")
+    val re = IgnoreRule.read("f*o").head.regex
+    assert(re == "f[^\\/]*o$" || re == "f[^\\\\]*o$" )
   }
 
   test("A name with range regex") {
@@ -125,15 +127,18 @@ class IgnoreRuleTest extends AnyFunSuite {
   }
 
   test("A sub-path regex") {
-    assert(IgnoreRule.read("foo/bar").head.regex == "foo\\/bar$")
+    val re = IgnoreRule.read("foo/bar").head.regex
+    assert(re == "foo\\/bar$" || re == "foo\\\\bar$")
   }
 
   test("A sub-path with wildcard regex") {
-    assert(IgnoreRule.read("foo/*/bar").head.regex == "foo\\/[^\\/]*\\/bar$")
+    val re = IgnoreRule.read("foo/*/bar").head.regex
+    assert(re == "foo\\/[^\\/]*\\/bar$" || re == "foo\\\\[^\\\\]*\\\\bar$")
   }
 
   test("A sub-path with double wildcard regex") {
-    assert(IgnoreRule.read("foo/**/bar").head.regex == "foo\\/.*\\/?bar$")
+    val re = IgnoreRule.read("foo/**/bar").head.regex
+    assert(re == "foo\\/.*\\/?bar$" || re == "foo\\\\.*\\\\?bar$")
   }
 
   test("Leading / regex") {
