@@ -27,6 +27,7 @@
 */
 package com.nawforce.runtime.cmds
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths}
 
 import com.nawforce.common.names._
@@ -65,7 +66,7 @@ object Pickler {
       Files.createDirectory(nsDir)
 
     val file = nsDir.resolve(td.typeName.name.value+".json")
-    Files.write(file, write(td.serialise).getBytes)
+    Files.write(file, write(td.serialise).getBytes(StandardCharsets.UTF_8))
   }
 }
 

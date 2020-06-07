@@ -92,7 +92,7 @@ export default class Check extends SfdxCommand {
 
     const namespaces: String[] = (this.flags.namespaces || "").split(",")
 
-    let execArgs = ['-jar', jarFile]
+    let execArgs = ['-Dfile.encoding=UTF-8', '-jar', jarFile]
     if (this.flags.verbose) execArgs.push('-verbose')
     if (this.flags.json) execArgs.push('-json')
     if (this.flags.zombie) execArgs.push('-zombie')
