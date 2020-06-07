@@ -82,7 +82,8 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
     )) {root: PathLike =>
       val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
       assert(index.getByExtension(MetadataDocument.clsExt).size == 1)
-      assert(index.getByExtension(Name("cls")) == Set(ApexClassDocument(PathFactory("/pkg/Foo.cls"), Name("Foo"))))
+      assert(index.getByExtension(Name("cls")) ==
+        Set(ApexClassDocument(root.join("pkg").join("Foo.cls"), Name("Foo"))))
     }
   }
 
@@ -92,7 +93,8 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
       assert(index.getByExtension(MetadataDocument.clsExt).size == 1)
-      assert(index.getByExtension(Name("cls")) == Set(ApexClassDocument(PathFactory("/pkg/foo/Foo.cls"), Name("Foo"))))
+      assert(index.getByExtension(Name("cls")) ==
+        Set(ApexClassDocument(root.join("pkg").join("foo").join("Foo.cls"), Name("Foo"))))
     }
   }
 
@@ -103,8 +105,8 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
       assert(index.getByExtension(Name("cls")).map(_.toString()) == Set(
-        ApexClassDocument(PathFactory("/pkg/Foo.cls"), Name("Foo")).toString,
-        ApexClassDocument(PathFactory("/pkg/bar/Bar.cls"), Name("Bar")).toString
+        ApexClassDocument(root.join("pkg").join("Foo.cls"), Name("Foo")).toString,
+        ApexClassDocument(root.join("pkg").join("bar").join("Bar.cls"), Name("Bar")).toString
       ))
     }
   }
@@ -137,7 +139,8 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.object" -> "<CustomObject xmlns=\\\"http://soap.sforce.com/2006/04/metadata\\\"/>"
     )) { root: PathLike =>
       val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
-      assert(index.getByExtension(Name("object")) == Set(SObjectDocument(PathFactory("/pkg/Foo.object"), Name("Foo"))))
+      assert(index.getByExtension(Name("object")) ==
+        Set(SObjectDocument(root.join("pkg").join("Foo.object"), Name("Foo"))))
     }
   }
 
@@ -147,7 +150,7 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
       assert(index.getByExtension(Name("object")) ==
-        Set(SObjectDocument(PathFactory("/pkg/Foo.object-meta.xml"), Name("Foo"))))
+        Set(SObjectDocument(root.join("pkg").join("Foo.object-meta.xml"), Name("Foo"))))
     }
   }
 
@@ -157,9 +160,9 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
       assert(index.getByExtension(Name("field")) ==
-        Set(SObjectFieldDocument(PathFactory("/pkg/Foo/fields/Bar.field-meta.xml"), Name("Bar"))))
+        Set(SObjectFieldDocument(root.join("pkg").join("Foo").join("fields").join("Bar.field-meta.xml"), Name("Bar"))))
       assert(index.getByExtension(Name("object")) ==
-        Set(SObjectDocument(PathFactory("/pkg/Foo/Foo.object-meta.xml"), Name("Foo"))))
+        Set(SObjectDocument(root.join("pkg").join("Foo").join("Foo.object-meta.xml"), Name("Foo"))))
     }
   }
 
@@ -169,9 +172,9 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val index = new DocumentIndex(None, Seq(root.join("pkg")), logger)
       assert(index.getByExtension(Name("fieldset")) ==
-        Set(SObjectFieldSetDocument(PathFactory("/pkg/Foo/fieldSets/Bar.fieldset-meta.xml"), Name("Bar"))))
+        Set(SObjectFieldSetDocument(root.join("pkg").join("Foo").join("fieldSets").join("Bar.fieldset-meta.xml"), Name("Bar"))))
       assert(index.getByExtension(Name("object")) ==
-        Set(SObjectDocument(PathFactory("/pkg/Foo/Foo.object-meta.xml"), Name("Foo"))))
+        Set(SObjectDocument(root.join("pkg").join("Foo").join("Foo.object-meta.xml"), Name("Foo"))))
     }
   }
 }

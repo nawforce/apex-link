@@ -51,11 +51,14 @@ trait PackageAPI extends Package {
   }
 
   override def getTypeOfPath(path: String): TypeIdentifier = {
-    val pathLike = PathFactory(path)
-    MetadataDocument(pathLike) match {
+    getTypeOfPathInternal(PathFactory(path))
+  }
+
+  private[nawforce] def getTypeOfPathInternal(path: PathLike): TypeIdentifier = {
+    MetadataDocument(path) match {
       case Some(md: MetadataDocument) =>
         types.get(md.typeName(namespace)) match {
-          case Some(td: TypeDeclaration) if td.paths.contains(pathLike) => TypeIdentifier(namespace, td.typeName)
+          case Some(td: TypeDeclaration) if td.paths.contains(path) => TypeIdentifier(namespace, td.typeName)
           case _ => null
         }
       case _ => null

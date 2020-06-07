@@ -48,7 +48,7 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(org.issues.getMessages(root.join("CustomLabels.labels").toString).nonEmpty)
-      assert(pkg.getTypeOfPath(root.join("CustomLabels.labels").toString) == null)
+      assert(pkg.getTypeOfPathInternal(root.join("CustomLabels.labels")) == null)
     }
   }
 
@@ -60,7 +60,7 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val typeId = pkg.getTypeOfPath(root.join("CustomLabels.labels").toString)
+      val typeId = pkg.getTypeOfPathInternal(root.join("CustomLabels.labels"))
       assert(typeId.toString == "System.Label")
       assert(pkg.getPathsOfType(typeId).sameElements(Array("/CustomLabels.labels")))
       assert(pkg.getDependencies(typeId, inheritanceOnly = false).isEmpty)
@@ -77,8 +77,8 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val typeId1 = pkg.getTypeOfPath(root.join("CustomLabels.labels").toString)
-      val typeId2 = pkg.getTypeOfPath(root.join("CustomLabels2.labels").toString)
+      val typeId1 = pkg.getTypeOfPathInternal(root.join("CustomLabels.labels"))
+      val typeId2 = pkg.getTypeOfPathInternal(root.join("CustomLabels2.labels"))
       assert(typeId1.toString == "System.Label")
       assert(typeId2.toString == "System.Label")
       assert(pkg.getPathsOfType(typeId1).sorted.sameElements(Array("/CustomLabels.labels", "/CustomLabels2.labels")))
@@ -107,12 +107,12 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val labelsTypeId = pkg.getTypeOfPath(root.join("CustomLabels.labels").toString)
+      val labelsTypeId = pkg.getTypeOfPathInternal(root.join("CustomLabels.labels"))
       assert(labelsTypeId.toString == "System.Label")
       assert(pkg.getPathsOfType(labelsTypeId).sameElements(Array("/CustomLabels.labels")))
       assert(pkg.getDependencies(labelsTypeId, inheritanceOnly = false).isEmpty)
 
-      val dummyTypeId = pkg.getTypeOfPath(root.join("Dummy.cls").toString)
+      val dummyTypeId = pkg.getTypeOfPathInternal(root.join("Dummy.cls"))
       assert(pkg.getDependencies(dummyTypeId, inheritanceOnly = false).sameElements(Array(labelsTypeId)))
       assert(pkg.getDependencyHolders(labelsTypeId).sameElements(Array(dummyTypeId)))
     }
@@ -207,12 +207,12 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
       val pkg2 = org.addMDAPITestPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
-      val labels1TypeId = pkg1.getTypeOfPath(root.join("pkg1/CustomLabels.labels").toString)
+      val labels1TypeId = pkg1.getTypeOfPathInternal(root.join("pkg1/CustomLabels.labels"))
       assert(labels1TypeId.toString == "System.Label (pkg1)")
       assert(pkg1.getPathsOfType(labels1TypeId).sameElements(Array("/pkg1/CustomLabels.labels")))
       assert(pkg1.getDependencies(labels1TypeId, inheritanceOnly = false).isEmpty)
 
-      val dummyTypeId = pkg2.getTypeOfPath(root.join("pkg2/Dummy.cls").toString)
+      val dummyTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2/Dummy.cls"))
       assert(pkg2.getDependencies(dummyTypeId, inheritanceOnly = false).map(_.toString)
         .sameElements(Array("System.Label (pkg2)")))
 
@@ -244,12 +244,12 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
       assert(org.issues.getMessages("/pkg2/Dummy.cls") ==
         "Missing: line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label.pkg1'\n")
 
-      val labels1TypeId = pkg1.getTypeOfPath(root.join("pkg1").join("CustomLabels.labels").toString)
+      val labels1TypeId = pkg1.getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels"))
       assert(labels1TypeId.toString == "System.Label (pkg1)")
       assert(pkg1.getPathsOfType(labels1TypeId).sameElements(Array("/pkg1/CustomLabels.labels")))
-      assert(pkg2.getTypeOfPath(root.join("CustomLabels.labels").toString) == null)
+      assert(pkg2.getTypeOfPathInternal(root.join("CustomLabels.labels")) == null)
 
-      val dummyTypeId = pkg2.getTypeOfPath(root.join("pkg2/Dummy.cls").toString)
+      val dummyTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2/Dummy.cls"))
       assert(pkg2.getDependencies(dummyTypeId, inheritanceOnly = false).sameElements(Array[TypeName]()))
 
       val label2TypeId = TypeIdentifier.fromJava(Name("pkg2"), TypeName(Name("Label"), Seq(), Some(TypeName(Name("System")))))
@@ -327,9 +327,9 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
       val pkg2 = org.addMDAPITestPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
-      val label1Type = pkg1.getTypeOfPath(root.join("pkg1").join("CustomLabels.labels").toString)
+      val label1Type = pkg1.getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels"))
       assert(label1Type.toString == "System.Label (pkg1)")
-      val label2Type = pkg2.getTypeOfPath(root.join("pkg2").join("CustomLabels.labels").toString)
+      val label2Type = pkg2.getTypeOfPathInternal(root.join("pkg2").join("CustomLabels.labels"))
       assert(label2Type.toString == "System.Label (pkg2)")
 
       assert(pkg1.getDependencies(label1Type, inheritanceOnly = false).isEmpty)
@@ -377,14 +377,14 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
       val pkg2 = org.addMDAPITestPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
-      val label1Type = pkg1.getTypeOfPath(root.join("pkg1").join("CustomLabels.labels").toString)
+      val label1Type = pkg1.getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels"))
       assert(label1Type.toString == "System.Label (pkg1)")
-      val label2Type = pkg2.getTypeOfPath(root.join("pkg2").join("CustomLabels.labels").toString)
+      val label2Type = pkg2.getTypeOfPathInternal(root.join("pkg2").join("CustomLabels.labels"))
       assert(label2Type.toString == "System.Label (pkg2)")
-      val secondaryType = pkg2.getTypeOfPath(root.join("pkg2").join("Secondary.labels").toString)
+      val secondaryType = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Secondary.labels"))
       assert(secondaryType == label2Type)
 
-      val dummyTypeId = pkg2.getTypeOfPath(root.join("pkg2/Dummy.cls").toString)
+      val dummyTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2/Dummy.cls"))
 
       assert(pkg1.getDependencies(label1Type, inheritanceOnly = false).isEmpty)
       assert(pkg2.getDependencyHolders(label2Type).sameElements(Array(dummyTypeId)))
@@ -431,14 +431,14 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
       val pkg2 = org.addMDAPITestPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
-      val label1Type = pkg1.getTypeOfPath(root.join("pkg1").join("CustomLabels.labels").toString)
+      val label1Type = pkg1.getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels"))
       assert(label1Type.toString == "System.Label (pkg1)")
-      val secondaryType = pkg1.getTypeOfPath(root.join("pkg1").join("Secondary.labels").toString)
+      val secondaryType = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Secondary.labels"))
       assert(secondaryType == label1Type)
 
-      val label2Type = pkg2.getTypeOfPath(root.join("pkg2").join("CustomLabels.labels").toString)
+      val label2Type = pkg2.getTypeOfPathInternal(root.join("pkg2").join("CustomLabels.labels"))
       assert(label2Type.toString == "System.Label (pkg2)")
-      val dummyTypeId = pkg2.getTypeOfPath(root.join("pkg2/Dummy.cls").toString)
+      val dummyTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2/Dummy.cls"))
 
       assert(pkg1.getDependencies(label1Type, inheritanceOnly = false).isEmpty)
       assert(pkg2.getDependencyHolders(label2Type).sameElements(Array(dummyTypeId)))

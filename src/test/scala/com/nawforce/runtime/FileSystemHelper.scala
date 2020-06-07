@@ -28,4 +28,29 @@ object FileSystemHelper {
 
     verify(Path(rootDir))
   }
+
+  // Temp directory based model
+  def runTempDir[T](files: Map[String, String], setupCache: Boolean = false)(verify: PathLike => T): T = {
+    val tempDir = Files.createTempDirectory("apexlinktest")
+    files.foreach(kv => {
+      val path = tempDir.resolve(kv._1)
+      Files.createDirectories(path.getParent)
+      Files.write(path, kv._2.getBytes())
+    })
+
+    // Make sure cache is empty if we are going to use it
+    if (setupCache)
+      ParsedCache.clear()
+    
+    try {
+      verify(Path(tempDir))
+    } finally {
+      files.foreach(kv => {
+        val path = tempDir.resolve(kv._1)
+        path.toFile.delete()
+      })
+      tempDir.toFile.delete()
+    }
+  }
+
 }

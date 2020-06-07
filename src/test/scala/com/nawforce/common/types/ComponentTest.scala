@@ -130,7 +130,7 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
       assert(pkg2.getDependencies(componentType2, inheritanceOnly = false).sameElements(Array(componentType1)))
       assert(pkg1.getDependencyHolders(componentType1).sameElements(Array(componentType2)))
 
-      val dummyType = pkg2.getTypeOfPath("/pkg2/Dummy.cls")
+      val dummyType = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Dummy.cls"))
       assert(pkg2.getDependencies(dummyType, inheritanceOnly = false).sameElements(Array(componentType2)))
       assert(pkg2.getDependencyHolders(componentType2).sameElements(Array(dummyType)))
     }
