@@ -41,6 +41,42 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     ServerOps.setParsedDataCaching(false)
   }
 
+  test("Duplicate unmanaged (MDAPI)") {
+    FileSystemHelper.run(Map(
+      "classes/Dummy.cls" -> "public class Dummy {}",
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.addMDAPITestPackage(None, Seq(), Seq())
+      org.addMDAPITestPackage(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+      try {
+        org.addMDAPITestPackage(None, Seq(root), Seq())
+        assert(false)
+      } catch {
+        case ex: IllegalArgumentException =>
+          assert(ex.getMessage == "An \"unmanaged\" package using an empty namespace already exists")
+      }
+    }
+  }
+
+  test("Duplicate unmanaged (SFDX)") {
+    FileSystemHelper.run(Map(
+      "sfdx-project.json" -> "{\"packageDirectories\" : [{ \"namespace\": \"\", \"path\": \"classes\"}]}",
+      "classes/Dummy.cls" -> "public class Dummy {}",
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.addSFDXTestPackage(root, Seq())
+      assert(!org.issues.hasMessages)
+      try {
+        org.addSFDXTestPackage(root, Seq())
+        assert(false)
+      } catch {
+        case ex: IllegalArgumentException =>
+          assert(ex.getMessage == "An \"unmanaged\" package using an empty namespace already exists")
+      }
+    }
+  }
+
   test("type of path") {
     FileSystemHelper.run(Map(
       "classes/Dummy.cls" -> "public class Dummy {}",
