@@ -114,12 +114,16 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
   /** Test helper to allow passing a PathLike for virtual FS support */
   private[nawforce] def addMDAPITestPackage(namespace: Option[Name], paths: Seq[PathLike],
                                             basePackages: Seq[PackageImpl]): PackageImpl = {
-    addPackage(new MDAPIWorkspace(namespace, paths), basePackages)
+    OrgImpl.current.withValue(this) {
+      addPackage(new MDAPIWorkspace(namespace, paths), basePackages)
+    }
   }
 
   /** Test helper to allow passing a PathLike for virtual FS support */
   private[nawforce] def addSFDXTestPackage(path: PathLike, basePackages: Seq[PackageImpl]): PackageImpl = {
-    addPackage(new SFDXWorkspace(path, Project(path).right.get), basePackages)
+    OrgImpl.current.withValue(this) {
+      addPackage(new SFDXWorkspace(path, Project(path).right.get), basePackages)
+    }
   }
 
   /** Create a Package over a Workspace */
@@ -133,8 +137,9 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
     if (ns.nonEmpty) {
       if (packagesByNamespace.contains(ns))
         throw new IllegalArgumentException(s"A package using namespace '$ns' already exists")
+    } else if (!unmanaged.isGhosted) {
+      throw new IllegalArgumentException("An \"unmanaged\" package using an empty namespace already exists")
     }
-
 
     workspace.paths.foreach(path => {
       if (!path.isDirectory)
@@ -226,11 +231,6 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
 object OrgImpl {
   /** Access the in-scope Org */
   private[nawforce] val current: DynamicVariable[OrgImpl] = new DynamicVariable[OrgImpl](null)
-
-  /** Unmanaged package of in-scope org */
-  private[nawforce] def unmanaged(): PackageImpl = {
-    OrgImpl.current.value.unmanaged
-  }
 
   /** Log an issue against the in-scope org */
   private[nawforce] def log(issue: Issue): Unit = {
