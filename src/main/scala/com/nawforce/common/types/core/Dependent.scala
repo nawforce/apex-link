@@ -30,8 +30,7 @@ package com.nawforce.common.types.core
 import com.nawforce.common.api.{DependentSummary, FieldDependentSummary, MethodDependentSummary, TypeDependentSummary}
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.other._
-
-import scala.collection.mutable
+import com.nawforce.runtime.types.WeakSet
 
 /* Dependents are referencable elements in code such as types, fields, constructors, methods & labels.
  *
@@ -40,18 +39,18 @@ import scala.collection.mutable
  */
 trait Dependent {
   // The set of holders on this dependency element, may be stale!
-  private var dependencyHolders: Option[mutable.Set[DependencyHolder]] = None
+  private var dependencyHolders: WeakSet[DependencyHolder] = _
 
   // Has any holders
-  def hasHolders: Boolean = dependencyHolders.exists(_.nonEmpty)
+  def hasHolders: Boolean = Option(dependencyHolders).exists(_.nonEmpty)
 
   // The set of current holders
-  def getDependencyHolders: Set[DependencyHolder] = dependencyHolders.map(_.toSet).getOrElse(Set())
+  def getDependencyHolders: Set[DependencyHolder] = Option(dependencyHolders).map(_.toSet).getOrElse(Set().empty)
 
   // Add a new holder
   def addDependencyHolder(dependencyHolder: DependencyHolder): Unit = {
-    if (dependencyHolders.isEmpty) dependencyHolders = Some(mutable.Set())
-    dependencyHolders.get.add(dependencyHolder)
+    if (dependencyHolders == null) dependencyHolders = new WeakSet[DependencyHolder]()
+    dependencyHolders.add(dependencyHolder)
   }
 
   // Identity equality
