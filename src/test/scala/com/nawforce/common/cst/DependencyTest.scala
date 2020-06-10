@@ -69,7 +69,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public virtual class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Class depends on interface") {
@@ -79,7 +79,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "B.cls" -> "public interface B {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Interface depends on interface") {
@@ -89,7 +89,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "B.cls" -> "public interface B {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Empty inner class has no dependencies") {
@@ -106,7 +106,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public virtual class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.nestedTypes.head.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Inner class depends on interface") {
@@ -116,7 +116,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "B.cls" -> "public interface B {}",
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.nestedTypes.head.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Inner interface depends on interface") {
@@ -126,7 +126,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "B.cls" -> "public interface B {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.nestedTypes.head.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Class reference creates dependency") {
@@ -135,7 +135,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.blocks.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.blocks.head.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Class self-reference creates dependency") {
@@ -143,7 +143,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {Type t = Dummy.class;} }"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.blocks.head.dependencies() == Set(tds.head))
+    assert(tds.head.blocks.head.dependencies().toSet == Set(tds.head))
   }
 
   test("Class reference via super types create dependency") {
@@ -152,7 +152,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public virtual class A extends B {}",
       "B.cls" -> "public virtual class B {public class C {} }"
     ))
-    assert(tds.head.blocks.head.dependencies() == Set(tds(2).nestedTypes.head))
+    assert(tds.head.blocks.head.dependencies().toSet == Set(tds(2).nestedTypes.head))
   }
 
   test("Class reference with ambiguous name") {
@@ -178,7 +178,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Unknown method return") {
@@ -195,7 +195,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Unknown method parameter") {
@@ -213,7 +213,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     ))
     assert(!defaultOrg.issues.hasMessages)
     OrgImpl.current.withValue(defaultOrg) {
-      assert(tds.head.fields.head.dependencies() == tds.tail.toSet)
+      assert(tds.head.fields.head.dependencies().toSet == tds.tail.toSet)
     }
   }
 
@@ -234,7 +234,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     ))
     assert(!defaultOrg.issues.hasMessages)
     OrgImpl.current.withValue(defaultOrg) {
-      assert(tds.head.fields.head.dependencies() == tds.tail.toSet)
+      assert(tds.head.fields.head.dependencies().toSet == tds.tail.toSet)
     }
   }
 
@@ -254,7 +254,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.blocks.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.blocks.head.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Unknown local var type") {
@@ -271,7 +271,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.blocks.head.dependencies() == Set(tds.tail.head))
+    assert(tds.head.blocks.head.dependencies().toSet == Set(tds.tail.head))
   }
 
   test("Unknown cast type") {
@@ -288,7 +288,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Unknown for control type") {
@@ -305,7 +305,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Unknown catch type") {
@@ -322,7 +322,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Complex New creates dependency") {
@@ -331,7 +331,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies() == Set(tds.tail.head))
+    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().toSet == Set(tds.tail.head))
   }
 
   test("Unknown new type") {
@@ -348,7 +348,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.blocks.head.dependencies() == Set(tds.tail.head))
+    assert(tds.head.blocks.head.dependencies().toSet == Set(tds.tail.head))
   }
 
   test("Unknown instanceOf type") {
@@ -366,7 +366,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     ))
     assert(!defaultOrg.issues.hasMessages)
 
-    assert(tds.head.nestedTypes.head.blocks.head.dependencies() == Set(tds.tail.head))
+    assert(tds.head.nestedTypes.head.blocks.head.dependencies().toSet == Set(tds.tail.head))
   }
 
   test("Method return in Inner creates dependency") {
@@ -375,7 +375,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
+    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Method parameter in Inner creates dependency") {
@@ -384,7 +384,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
+    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Inner Field type creates dependency") {
@@ -394,7 +394,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     ))
     assert(!defaultOrg.issues.hasMessages)
     OrgImpl.current.withValue(defaultOrg) {
-      assert(tds.head.nestedTypes.head.fields.head.dependencies() == tds.tail.toSet)
+      assert(tds.head.nestedTypes.head.fields.head.dependencies().toSet == tds.tail.toSet)
     }
   }
 
@@ -405,7 +405,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
     ))
     assert(!defaultOrg.issues.hasMessages)
     OrgImpl.current.withValue(defaultOrg) {
-      assert(tds.head.nestedTypes.head.fields.head.dependencies() == tds.tail.toSet)
+      assert(tds.head.nestedTypes.head.fields.head.dependencies().toSet == tds.tail.toSet)
     }
   }
 
@@ -415,7 +415,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.blocks.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.nestedTypes.head.blocks.head.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Inner Cast creates dependency") {
@@ -424,7 +424,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.blocks.head.dependencies() == Set(tds.tail.head))
+    assert(tds.head.nestedTypes.head.blocks.head.dependencies().toSet == Set(tds.tail.head))
   }
 
   test("Inner For control creates dependency") {
@@ -433,7 +433,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
+    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Inner Catch creates dependency") {
@@ -442,7 +442,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == tds.tail.toSet)
+    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies().toSet == tds.tail.toSet)
   }
 
   test("Inner New creates dependency") {
@@ -451,7 +451,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == Set(tds.tail.head))
+    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies().toSet == Set(tds.tail.head))
   }
 
   test("Inner Complex New creates dependency") {
@@ -460,7 +460,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies() == Set(tds.tail.head))
+    assert(tds.head.nestedTypes.head.methods.find(_.name == Name("func")).get.dependencies().toSet == Set(tds.tail.head))
   }
 
   test("Inner instanceOf creates dependency") {
@@ -469,7 +469,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public class A {}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.nestedTypes.head.blocks.head.dependencies() == Set(tds.tail.head))
+    assert(tds.head.nestedTypes.head.blocks.head.dependencies().toSet == Set(tds.tail.head))
   }
 
   test("Label creates dependency") {
@@ -496,7 +496,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       val labelField = labelsType.fields.find(_.name.value == "TestLabel").head
       val dummyType = pkg.searchTypes(TypeName(Name("Dummy"))).get
 
-      assert(dummyType.blocks.head.dependencies() == Set(labelField, labelsType))
+      assert(dummyType.blocks.head.dependencies().toSet == Set(labelField, labelsType))
       assert(labelField.getDependencyHolders == Set(dummyType.blocks.head))
     }
   }
@@ -527,7 +527,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       val labelField = labels1Type.fields.find(_.name.value == "TestLabel").head
       val dummyType = pkg2.searchTypes(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))).get
 
-      assert(dummyType.blocks.head.dependencies() == Set(labelField, labels2Type))
+      assert(dummyType.blocks.head.dependencies().toSet == Set(labelField, labels2Type))
       assert(labelField.getDependencyHolders == Set(dummyType.blocks.head))
     }
   }
@@ -545,7 +545,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       val flowType = interviewType.findNestedType(Name("Test")).head
       val dummyType = pkg.searchTypes(TypeName(Name("Dummy"))).get
 
-      assert(dummyType.blocks.head.dependencies() == Set(flowType))
+      assert(dummyType.blocks.head.dependencies().toSet == Set(flowType))
       assert(flowType.getDependencyHolders == Set(dummyType.blocks.head))
     }
   }
@@ -564,7 +564,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       val flowType = interviewType1.findNestedType(Name("Test")).head
       val dummyType = pkg2.searchTypes(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))).get
 
-      assert(dummyType.blocks.head.dependencies() == Set(flowType))
+      assert(dummyType.blocks.head.dependencies().toSet == Set(flowType))
       assert(flowType.getDependencyHolders == Set(dummyType.blocks.head))
     }
   }
@@ -582,7 +582,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       val pageField = pageType.fields.find(_.name.value == "TestPage").get
       val dummyType = pkg.searchTypes(TypeName(Name("Dummy"))).get
 
-      assert(dummyType.blocks.head.dependencies() == Set(pageType, pageField))
+      assert(dummyType.blocks.head.dependencies().toSet == Set(pageType, pageField))
       assert(pageType.getDependencyHolders == Set(dummyType.blocks.head))
       assert(pageField.getDependencyHolders == Set(dummyType.blocks.head))
     }
@@ -602,7 +602,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       val page2Field = page2Type.fields.find(_.name.value == "pkg1__TestPage").get
       val dummyType = pkg2.searchTypes(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))).get
 
-      assert(dummyType.blocks.head.dependencies() == Set(page2Type, page2Field))
+      assert(dummyType.blocks.head.dependencies().toSet == Set(page2Type, page2Field))
       assert(page2Type.getDependencyHolders == Set(dummyType.blocks.head))
       assert(page2Field.getDependencyHolders == Set(dummyType.blocks.head))
     }
@@ -621,7 +621,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       val componentType = componentsType.findNestedType(Name("Test")).head
       val dummyType = pkg.searchTypes(TypeName(Name("Dummy"))).get
 
-      assert(dummyType.blocks.head.dependencies() == Set(componentType))
+      assert(dummyType.blocks.head.dependencies().toSet == Set(componentType))
       assert(componentType.getDependencyHolders == Set(dummyType.blocks.head))
     }
   }
@@ -640,7 +640,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       val componentType = componentsType1.findNestedType(Name("Test")).head
       val dummyType = pkg2.searchTypes(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))).get
 
-      assert(dummyType.blocks.head.dependencies() == Set(componentType))
+      assert(dummyType.blocks.head.dependencies().toSet == Set(componentType))
       assert(componentType.getDependencyHolders == Set(dummyType.blocks.head))
     }
   }

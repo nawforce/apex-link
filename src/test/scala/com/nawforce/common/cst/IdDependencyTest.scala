@@ -109,7 +109,7 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public virtual class A {Object a;}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.dependencies().toSet == tds.tail.toSet)
 
     val func = tds.head.methods.find(_.name == Name("func")).get
     val field = tds(1).fields.find(_.name == Name("a")).get
@@ -158,7 +158,7 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
       "A.cls" -> "public virtual class A {Object a {get;}}"
     ))
     assert(!defaultOrg.issues.hasMessages)
-    assert(tds.head.dependencies() == tds.tail.toSet)
+    assert(tds.head.dependencies().toSet == tds.tail.toSet)
 
     val func = tds.head.methods.find(_.name == Name("func")).get
     val field = tds(1).fields.find(_.name == Name("a")).get

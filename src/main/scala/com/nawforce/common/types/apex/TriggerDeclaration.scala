@@ -34,6 +34,7 @@ import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
+import com.nawforce.runtime.gc.SkinnySet
 import com.nawforce.runtime.parsers.ApexParser.{TriggerCaseContext, TriggerUnitContext}
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 
@@ -74,7 +75,7 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
   override val constructors: Seq[ApexConstructorDeclaration] = Seq.empty
   override val methods: Seq[ApexMethodDeclaration]= Seq.empty
 
-  private var depends: Option[mutable.Set[Dependent]] = None
+  private var depends: Option[SkinnySet[Dependent]] = None
   private val objectTypeName = TypeName(objectNameId.name, Nil, Some(TypeNames.Schema))
 
   override def validate(withPropagation: Boolean): Unit = {
@@ -113,7 +114,7 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
   }
 
   override def collectDependenciesByTypeName(dependents: mutable.Set[TypeId]): Unit = {
-    depends.foreach(_.foreach {
+    depends.foreach(_.toIterable.foreach {
       case ad: ApexClassDeclaration => dependents.add(ad.outerTypeId)
       case _ => ()
     })

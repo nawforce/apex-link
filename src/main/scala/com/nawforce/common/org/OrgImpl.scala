@@ -35,6 +35,7 @@ import com.nawforce.common.documents._
 import com.nawforce.common.names.{DotName, Names, _}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.sfdx.{MDAPIWorkspace, Project, SFDXWorkspace, Workspace}
+import com.nawforce.runtime.gc.Monitor
 
 import scala.util.DynamicVariable
 
@@ -158,7 +159,7 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
 
   /** Write dirty metadata to the cache */
   def flush(): Unit = {
-    ServerOps.debugTime("Org flushed") {
+    ServerOps.debugTime("Org flushed", show = true, postMsg = s", ${Monitor.size} full types") {
       OrgImpl.current.withValue(this) {
         ParsedCache.create match {
           case Left(err) => ServerOps.error(err)

@@ -36,6 +36,7 @@ import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{Dependent, TypeDeclaration}
 import com.nawforce.common.types.other._
+import com.nawforce.runtime.gc.SkinnySet
 
 import scala.collection.mutable
 
@@ -87,9 +88,9 @@ trait VerifyContext {
 
 /* Dependency holding support, used by other types of context */
 trait HolderVerifyContext {
-  private val _dependencies = mutable.Set[Dependent]()
+  private val _dependencies = new SkinnySet[Dependent]()
 
-  def dependencies: mutable.Set[Dependent] = _dependencies
+  def dependencies: SkinnySet[Dependent] = _dependencies
 
   /* Locate a type, typeName may be relative so searching must be performed wrt a typeDeclaration */
   def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
@@ -98,23 +99,23 @@ trait HolderVerifyContext {
   /* Record a dependency, we only store for some elements currently */
   def addDependency(dependent: Dependent): Unit = {
     dependent match {
-      case _: ApexClassDeclaration => _dependencies += dependent
-      case _: ApexFieldLike => _dependencies += dependent
-      case _: ApexMethodLike => _dependencies += dependent
-      case _: ApexConstructorLike => _dependencies += dependent
-      case _: ApexBlockLike => _dependencies += dependent
+      case _: ApexClassDeclaration => _dependencies.add(dependent)
+      case _: ApexFieldLike => _dependencies.add(dependent)
+      case _: ApexMethodLike => _dependencies.add(dependent)
+      case _: ApexConstructorLike => _dependencies.add(dependent)
+      case _: ApexBlockLike => _dependencies.add(dependent)
 
-      case _: LabelDeclaration => _dependencies += dependent
-      case _: Label => _dependencies += dependent
+      case _: LabelDeclaration => _dependencies.add(dependent)
+      case _: Label => _dependencies.add(dependent)
 
       // No InterviewDeclaration as Interview is a type
-      case _: Interview => _dependencies += dependent
+      case _: Interview => _dependencies.add(dependent)
 
-      case _: PageDeclaration => _dependencies += dependent
-      case _: Page => _dependencies += dependent
+      case _: PageDeclaration => _dependencies.add(dependent)
+      case _: Page => _dependencies.add(dependent)
 
       // No ComponentDeclaration as Component is a type
-      case _: Component => _dependencies += dependent
+      case _: Component => _dependencies.add(dependent)
 
       case _ => ()
     }
