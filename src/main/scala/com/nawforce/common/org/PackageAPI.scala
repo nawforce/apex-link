@@ -318,7 +318,8 @@ trait PackageAPI extends Package {
       updated.foreach(utd => {
         // Carry forward holders to limit need for invalidation chaining
         val existing = getDependentType(td.typeName)
-        utd.updateTypeDependencyHolders(existing.map(_.getTypeDependencyHolders).getOrElse(mutable.Set()))
+        val holders = existing.map(_.getTypeDependencyHolders).getOrElse(mutable.Set())
+        utd.updateTypeDependencyHolders(holders)
 
         // Clear old errors as we need to validate the upserted
         org.issues.pop(viewInfoImpl.path.toString)
@@ -326,6 +327,12 @@ trait PackageAPI extends Package {
         // Update and validate
         types.put(utd.typeName, utd)
         utd.validate()
+
+        // Revalidate holders to detect errors and release existing refs
+        holders.foreach(typeId => {
+          typeId.pkg.searchTypes(typeId.typeName).foreach(_.validate())
+        })
+
       })
       updated.nonEmpty
     }

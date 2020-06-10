@@ -35,6 +35,7 @@ import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.apex.{ApexBlockLike, ApexConstructorLike, ApexFieldLike, ApexMethodLike}
 import com.nawforce.common.types.core._
+import com.nawforce.runtime.gc.SkinnySet
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -45,10 +46,10 @@ abstract class ClassBodyDeclaration(modifierResults: ModifierResults) extends CS
   val modifierIssues: Seq[Issue] = modifierResults.issues
   lazy val isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER) || modifiers.contains(WEBSERVICE_MODIFIER)
 
-  protected var depends: Option[mutable.Set[Dependent]] = None
+  protected var depends: Option[SkinnySet[Dependent]] = None
 
-  override def dependencies(): mutable.Set[Dependent] = {
-    depends.get
+  override def dependencies(): Iterable[Dependent] = {
+    depends.get.toIterable
   }
 
   def collectDependencies(dependsOn: mutable.Set[Dependent]): Unit = {

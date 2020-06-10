@@ -75,14 +75,14 @@ object ServerOps  {
   }
 
   /** Time an operation and debug log how long it took */
-  def debugTime[T](msg: String, show: Boolean=true)(op: => T): T = {
+  def debugTime[T](msg: String, show: Boolean=true, postMsg: String = "")(op: => T): T = {
     val start = System.currentTimeMillis()
     try {
       op
     } finally {
       val end = System.currentTimeMillis()
       if (show)
-        ServerOps.debug(ServerOps.Trace, s"$msg in ${end - start}ms")
+        ServerOps.debug(ServerOps.Trace, s"$msg in ${end - start}ms$postMsg")
     }
   }
 

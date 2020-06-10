@@ -35,6 +35,7 @@ import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
 import com.nawforce.common.types.other.{Component, Interview, Label, Page}
+import com.nawforce.runtime.gc.Monitor
 import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 import upickle.default.writeBinary
@@ -237,7 +238,9 @@ object FullDeclaration {
 
     if (cst.isEmpty)
       throw new CSTException()
-    else
+    else {
+       Monitor.push(cst.get)
        cst.get.withContext(typeDecl)
+    }
   }
 }
