@@ -30,7 +30,7 @@ package com.nawforce.common.types.schema
 import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.VerifyContext
 import com.nawforce.common.documents.LocationImpl
-import com.nawforce.common.finding.TypeRequest
+import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.names.{EncodedName, Names, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
@@ -73,7 +73,7 @@ class RelatedLists(pkg: PackageImpl) {
     // Validate lookups will function
     val sobjects = relationshipFields.keys.toSet
     sobjects.foreach(sobject => {
-      val td = TypeRequest(sobject, pkg, excludeSObjects = false).toOption
+      val td = TypeResolver(sobject, pkg, excludeSObjects = false).toOption
       if ((td.isEmpty || !td.exists(_.isSObject)) && !pkg.isGhostedType(sobject)) {
         relationshipFields(sobject).foreach(field => {
           OrgImpl.logError(field._3,
@@ -128,7 +128,7 @@ final case class SchemaSObjectType(pkg: PackageImpl) extends BasicTypeDeclaratio
 
     sobjectFields.get(name).orElse({
       /* If not yet present check if we should create and cache */
-      val td = TypeRequest(TypeName(name), pkg, excludeSObjects = false).toOption
+      val td = TypeResolver(TypeName(name), pkg, excludeSObjects = false).toOption
       if (td.nonEmpty && td.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeNames.SObject)) {
         Some(createSObjectDescribeField(name, td.get.typeName))
       } else {
@@ -201,7 +201,7 @@ final case class SObjectTypeFields(sobjectName: Name, pkg: PackageImpl)
   extends BasicTypeDeclaration(Seq.empty, pkg, TypeNames.sObjectTypeFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
-    TypeRequest(TypeName(sobjectName), pkg, excludeSObjects = false).toOption match {
+    TypeResolver(TypeName(sobjectName), pkg, excludeSObjects = false).toOption match {
       case Some(sobject: TypeDeclaration) =>
         sobject.fields.map(field => (field.name, CustomFieldDeclaration(field.name, TypeNames.DescribeFieldResult, None))).toMap
       case _ => Map()
@@ -249,7 +249,7 @@ final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.sObjectFieldType)
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
-    TypeRequest(TypeName(sobjectName), pkg, excludeSObjects = false).toOption match {
+    TypeResolver(TypeName(sobjectName), pkg, excludeSObjects = false).toOption match {
       case Some(sobject: TypeDeclaration) =>
         sobject.fields.map(field => (field.name, field.getSObjectField)).toMap
       case _ => Map()
@@ -289,7 +289,7 @@ final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageImpl)
 
   private lazy val sobjectFieldSets: Map[Name, FieldDeclaration] = {
     val typeName = TypeName(sobjectName)
-    TypeRequest(typeName, pkg, excludeSObjects = false).toOption match {
+    TypeResolver(typeName, pkg, excludeSObjects = false).toOption match {
       case Some(sobject: SObjectDeclaration) =>
         sobject.fieldSets.map(name => (name, CustomFieldDeclaration(name, TypeNames.FieldSet, None))).toMap
       case _ => Map()

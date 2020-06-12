@@ -492,9 +492,9 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val labelsType = pkg.searchTypes(TypeNames.Label).get
+      val labelsType = pkg.packageType(TypeNames.Label).get
       val labelField = labelsType.fields.find(_.name.value == "TestLabel").head
-      val dummyType = pkg.searchTypes(TypeName(Name("Dummy"))).get
+      val dummyType = pkg.packageType(TypeName(Name("Dummy"))).get
 
       assert(dummyType.blocks.head.dependencies().toSet == Set(labelField, labelsType))
       assert(labelField.getDependencyHolders == Set(dummyType.blocks.head))
@@ -522,10 +522,10 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       val pkg2 = org.addMDAPITestPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
-      val labels1Type = pkg1.searchTypes(TypeNames.Label).get
-      val labels2Type = pkg2.searchTypes(TypeNames.Label).get
+      val labels1Type = pkg1.packageType(TypeNames.Label).get
+      val labels2Type = pkg2.packageType(TypeNames.Label).get
       val labelField = labels1Type.fields.find(_.name.value == "TestLabel").head
-      val dummyType = pkg2.searchTypes(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))).get
+      val dummyType = pkg2.packageType(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))).get
 
       assert(dummyType.blocks.head.dependencies().toSet == Set(labelField, labels2Type))
       assert(labelField.getDependencyHolders == Set(dummyType.blocks.head))
@@ -541,9 +541,9 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val interviewType = pkg.searchTypes(TypeNames.Interview).get
+      val interviewType = pkg.packageType(TypeNames.Interview).get
       val flowType = interviewType.findNestedType(Name("Test")).head
-      val dummyType = pkg.searchTypes(TypeName(Name("Dummy"))).get
+      val dummyType = pkg.packageType(TypeName(Name("Dummy"))).get
 
       assert(dummyType.blocks.head.dependencies().toSet == Set(flowType))
       assert(flowType.getDependencyHolders == Set(dummyType.blocks.head))
@@ -560,9 +560,9 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       val pkg2 = org.addMDAPITestPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
-      val interviewType1 = pkg1.searchTypes(TypeNames.Interview).get
+      val interviewType1 = pkg1.packageType(TypeNames.Interview).get
       val flowType = interviewType1.findNestedType(Name("Test")).head
-      val dummyType = pkg2.searchTypes(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))).get
+      val dummyType = pkg2.packageType(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))).get
 
       assert(dummyType.blocks.head.dependencies().toSet == Set(flowType))
       assert(flowType.getDependencyHolders == Set(dummyType.blocks.head))
@@ -578,9 +578,9 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val pageType = pkg.searchTypes(TypeNames.Page).get
+      val pageType = pkg.packageType(TypeNames.Page).get
       val pageField = pageType.fields.find(_.name.value == "TestPage").get
-      val dummyType = pkg.searchTypes(TypeName(Name("Dummy"))).get
+      val dummyType = pkg.packageType(TypeName(Name("Dummy"))).get
 
       assert(dummyType.blocks.head.dependencies().toSet == Set(pageType, pageField))
       assert(pageType.getDependencyHolders == Set(dummyType.blocks.head))
@@ -598,9 +598,9 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       val pkg2 = org.addMDAPITestPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
-      val page2Type = pkg2.searchTypes(TypeNames.Page).get
+      val page2Type = pkg2.packageType(TypeNames.Page).get
       val page2Field = page2Type.fields.find(_.name.value == "pkg1__TestPage").get
-      val dummyType = pkg2.searchTypes(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))).get
+      val dummyType = pkg2.packageType(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))).get
 
       assert(dummyType.blocks.head.dependencies().toSet == Set(page2Type, page2Field))
       assert(page2Type.getDependencyHolders == Set(dummyType.blocks.head))
@@ -617,9 +617,9 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val componentsType = pkg.searchTypes(TypeNames.Component).get
+      val componentsType = pkg.packageType(TypeNames.Component).get
       val componentType = componentsType.findNestedType(Name("Test")).head
-      val dummyType = pkg.searchTypes(TypeName(Name("Dummy"))).get
+      val dummyType = pkg.packageType(TypeName(Name("Dummy"))).get
 
       assert(dummyType.blocks.head.dependencies().toSet == Set(componentType))
       assert(componentType.getDependencyHolders == Set(dummyType.blocks.head))
@@ -636,9 +636,9 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
       val pkg2 = org.addMDAPITestPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
-      val componentsType1 = pkg1.searchTypes(TypeNames.Component).get
+      val componentsType1 = pkg1.packageType(TypeNames.Component).get
       val componentType = componentsType1.findNestedType(Name("Test")).head
-      val dummyType = pkg2.searchTypes(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))).get
+      val dummyType = pkg2.packageType(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))).get
 
       assert(dummyType.blocks.head.dependencies().toSet == Set(componentType))
       assert(componentType.getDependencyHolders == Set(dummyType.blocks.head))

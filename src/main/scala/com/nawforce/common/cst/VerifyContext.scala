@@ -30,7 +30,7 @@ package com.nawforce.common.cst
 import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents.LocationImpl
-import com.nawforce.common.finding.{TypeError, TypeRequest}
+import com.nawforce.common.finding.{TypeError, TypeResolver}
 import com.nawforce.common.names.EncodedName
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.apex._
@@ -137,6 +137,8 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: A
                         propagateDependencies: Boolean)
     extends HolderVerifyContext with VerifyContext {
 
+  private val typeResolver = new TypeResolver
+
   override def parent(): Option[VerifyContext] = parentContext
 
   override def pkg: PackageImpl = typeDeclaration.pkg
@@ -147,7 +149,7 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: A
 
   override def getTypeFor(typeName: TypeName, from: Option[TypeDeclaration],
                           excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {
-    TypeRequest(typeName, from, thisType.flatMap(_.packageDeclaration), excludeSObjects)
+    typeResolver.find(typeName, from, thisType.flatMap(_.packageDeclaration), excludeSObjects)
   }
 
   override def suppressWarnings: Boolean =

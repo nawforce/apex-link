@@ -30,7 +30,7 @@ package com.nawforce.common.finding
 import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.BlockVerifyContext
 import com.nawforce.common.documents.LocationImpl
-import com.nawforce.common.finding.TypeRequest.TypeRequest
+import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types.core.{Nature, TypeDeclaration}
@@ -62,17 +62,17 @@ final case class RelativeTypeName(pkg: PackageImpl, outerTypeName: TypeName, rel
   }
 
   // TypeRequest for the relative type, None if not required
-  lazy val typeRequest: Option[TypeRequest] = {
+  lazy val typeRequest: Option[TypeResponse] = {
     if (relativeTypeName != TypeNames.Void && !pkg.isGhostedType(relativeTypeName)) {
 
       // Simulation of a bug, the type resolves against package, ignoring outer, sometimes..
       if (relativeTypeName.outer.nonEmpty) {
-        TypeRequest(relativeTypeName, pkg, excludeSObjects = false) match {
+        TypeResolver(relativeTypeName, pkg, excludeSObjects = false) match {
           case Right(td) => Some(Right(td))
-          case Left(_) => Some(TypeRequest(relativeTypeName, outerTypeDeclaration, excludeSObjects = false))
+          case Left(_) => Some(TypeResolver(relativeTypeName, outerTypeDeclaration, excludeSObjects = false))
         }
       } else {
-        Some(TypeRequest(relativeTypeName, outerTypeDeclaration, excludeSObjects = false))
+        Some(TypeResolver(relativeTypeName, outerTypeDeclaration, excludeSObjects = false))
       }
     } else {
       None
@@ -83,6 +83,6 @@ final case class RelativeTypeName(pkg: PackageImpl, outerTypeName: TypeName, rel
   lazy val outerNature: Nature = outerTypeDeclaration.nature
 
   private lazy val outerTypeDeclaration: TypeDeclaration = {
-    TypeRequest(outerTypeName, pkg, excludeSObjects = false).right.get
+    TypeResolver(outerTypeName, pkg, excludeSObjects = false).right.get
   }
 }

@@ -31,8 +31,9 @@ package com.nawforce.common.org.stream
 import com.nawforce.common.api.Name
 import com.nawforce.common.diagnostics.IssueLogger
 import com.nawforce.common.documents.{DocumentIndex, LineLocationImpl, MetadataDocument}
+import com.nawforce.runtime.parsers.SourceData
 
-case class MetadataDocumentWithData(docType: MetadataDocument, data: String)
+case class MetadataDocumentWithData(docType: MetadataDocument, source: SourceData)
 
 /** Provider for metadata files */
 trait MetadataProvider {
@@ -51,7 +52,7 @@ class DocumentIndexMetadataProvider(index: DocumentIndex) extends MetadataProvid
           s"Expecting metadata to be in a regular file")
         None
       } else {
-        documentType.path.read() match {
+        documentType.path.readSourceData() match {
           case Left(err) =>
             logger.logError(LineLocationImpl(documentType.path.toString, 0),
               s"Could not read file ${documentType.path}, error '$err")

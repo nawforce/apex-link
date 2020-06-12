@@ -96,6 +96,21 @@ trait Package {
     */
   def getDependencyHolders(typeId: TypeIdentifier): Array[TypeIdentifier]
 
+  /** Refresh a type in the package.
+    *
+    * This replaces or creates a new type in the package from the supplied metadata. It returns null if successful
+    * or an error message related to the refresh process. Errors found with the metadata contents are reported in the
+    * usual way via the Org.getIssues.
+    *
+    * Refreshing causes dependent metadata to be re-validated so issues may be reported against other metadata types
+    * after the refresh has completed.
+    *
+    * You can either pass in a path and contents or a path and null contents. If contents are not provided they will
+    * be read from the path if possible. Where contents are provided the path is only used for error identification
+    * purposes.
+    */
+  def refresh(path: String, contents: SourceBlob): String
+
   /** Obtain view information for a Type.
     *
     * You can either pass in a path and contents or a path and null contents. If contents are not provided they will
@@ -125,4 +140,5 @@ trait Package {
     * Types need upserting.
     */
   def upsertFromView(viewInfo: ViewInfo): Boolean
+
 }

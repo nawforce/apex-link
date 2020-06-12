@@ -58,7 +58,8 @@ final case class Interview(pkg: PackageImpl, location: Option[LocationImpl], int
   * accessible in base packages via the Flow.Interview.namespace.name format. */
 final class InterviewDeclaration(sources: Seq[SourceInfo], override val pkg: PackageImpl, interviews: Seq[TypeDeclaration],
                                  nestedInterviews: Seq[NestedInterviews])
-  extends BasicTypeDeclaration(Seq(), pkg, TypeNames.Interview) with DependentType {
+  extends BasicTypeDeclaration(Seq(), pkg, TypeNames.Interview)
+    with DependentType with OtherTypeDeclaration {
 
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash),0)
 

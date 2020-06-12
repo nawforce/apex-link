@@ -30,12 +30,12 @@ package com.nawforce.common.org
 import com.nawforce.common.api.{Diagnostic, LineLocation, Package, ServerOps, TypeIdentifier, TypeName, TypeSummary, ViewInfo}
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, LocalLogger}
 import com.nawforce.common.documents._
-import com.nawforce.common.finding.TypeRequest
+import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.org.stream._
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
-import com.nawforce.common.types.other.{ComponentDeclaration, InterviewDeclaration, LabelDeclaration, PageDeclaration}
+import com.nawforce.common.types.other._
 import com.nawforce.runtime.SourceBlob
 import com.nawforce.runtime.parsers.SourceData
 import com.nawforce.runtime.types.PlatformTypeException
@@ -116,6 +116,96 @@ trait PackageAPI extends Package {
     } else {
       null
     }
+  }
+
+  override def refresh(path: String, contents: SourceBlob): String = {
+    refresh(PathFactory(path), Option(contents))
+  }
+
+  private[nawforce] def refresh(path: PathLike, contents: Option[SourceBlob]): String = {
+    try {
+      OrgImpl.current.withValue(org) {
+        refreshInternal(path, contents)
+        null
+      }
+    } catch {
+      case ex: IllegalArgumentException => ex.getMessage
+    }
+  }
+
+  private def refreshInternal(path: PathLike, contents: Option[SourceBlob], invalidateReferences: Boolean=true): Unit = {
+
+    Some(workspace.isVisibleFile(path)).filterNot(v => v)
+      .foreach{_ => throw new IllegalArgumentException(s"Metadata is not part of this package for $path")}
+
+    val dt = (MetadataDocument(path) collect {case dt: UpdatableMetadata => dt})
+      .getOrElse(throw new IllegalArgumentException(s"Metadata refresh is not supported for $path"))
+
+    val source = resolveSource(path, contents)
+      .getOrElse(throw new IllegalArgumentException(s"Metatdata could not be loaded for $path"))
+
+    if (isUnchangedSource(dt, source)) return
+
+    createType(dt, source).foreach(newType => {
+      // Carry forward holders to limit need for invalidation chaining
+      val existing = getDependentType(newType.typeName)
+      val holders = existing.map(_.getTypeDependencyHolders).getOrElse(mutable.Set())
+      newType.updateTypeDependencyHolders(holders)
+
+      // Clear old errors as we need to validate the upserted
+      org.issues.pop(dt.path.toString)
+
+      // Update and validate
+      insertType(newType)
+      newType.validate()
+
+      // Re-validate holders to detect errors and release existing refs
+      // TODO: This is not handling inheritance or missing invalidation
+      if (invalidateReferences) {
+        holders.foreach(typeId => {
+          typeId.pkg.packageType(typeId.typeName).foreach {
+            case holder: SummaryDeclaration =>
+              refreshInternal(holder.path, None, invalidateReferences = false)
+            case holder =>
+              holder.validate()
+          }
+        })
+      }
+    })
+  }
+
+  private def createType(dt: UpdatableMetadata, source: SourceData): Option[DependentType] = {
+    dt match {
+      case _: ApexClassDocument => FullDeclaration.create(this, dt.path, source)
+      case _: ApexTriggerDocument => TriggerDeclaration.create(this, dt.path, source)
+      case _ => Some(createOtherType(dt, source))
+    }
+  }
+
+  private def createOtherType(dt: UpdatableMetadata, source: SourceData): DependentType = {
+    val metadata = MetadataDocumentWithData(dt, source)
+    val provider = new OverrideMetadataProvider(Seq(metadata), new DocumentIndexMetadataProvider(documents))
+    val queue = Generator.queue(dt, new LocalLogger(org.issues), provider)
+    Other(dt, this).merge(new PackageStream(namespace, queue))
+  }
+
+  private def resolveSource(path: PathLike, contents: Option[SourceBlob]): Option[SourceData] = {
+    contents.map(blob => SourceData(blob)).orElse({
+      path.readSourceData() match {
+        case Left(_) => None
+        case Right(data) => Some(data)
+      }
+    })
+  }
+
+  private def isUnchangedSource(dt: MetadataDocument, source: SourceData): Boolean = {
+    types.get(dt.typeName(namespace))
+      .flatMap {
+        case fd: FullDeclaration => Some(fd)
+        case td: TriggerDeclaration => Some(td)
+        case _ => None
+      }
+      .exists(_.sourceHash == source.hash)
   }
 
   override def getViewOfType(path: String, contents: SourceBlob): ViewInfo = {
@@ -210,7 +300,7 @@ trait PackageAPI extends Package {
       OrgImpl.current.withValue(org) {
         // Re-create labels
         var newLabels = LabelDeclaration(this)
-        val metadata = source.map(data => MetadataDocumentWithData(docType, data.asString)).toSeq
+        val metadata = source.map(data => MetadataDocumentWithData(docType, data)).toSeq
         val provider = new OverrideMetadataProvider(metadata, new DocumentIndexMetadataProvider(documents))
         val queue = LabelGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
         newLabels = newLabels.merge(new PackageStream(namespace, queue))
@@ -230,7 +320,7 @@ trait PackageAPI extends Package {
       OrgImpl.current.withValue(org) {
         // Re-create Interviews
         var newInterviews = InterviewDeclaration(this)
-        val metadata = source.map(data => MetadataDocumentWithData(docType, data.asString)).toSeq
+        val metadata = source.map(data => MetadataDocumentWithData(docType, data)).toSeq
         val provider = new OverrideMetadataProvider(metadata, new DocumentIndexMetadataProvider(documents))
         val queue = FlowGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
         newInterviews = newInterviews.merge(new PackageStream(namespace, queue))
@@ -250,7 +340,7 @@ trait PackageAPI extends Package {
       OrgImpl.current.withValue(org) {
         // Re-create Interviews
         var newPages = PageDeclaration(this)
-        val metadata = source.map(data => MetadataDocumentWithData(docType, data.asString)).toSeq
+        val metadata = source.map(data => MetadataDocumentWithData(docType, data)).toSeq
         val provider = new OverrideMetadataProvider(metadata, new DocumentIndexMetadataProvider(documents))
         val queue = PageGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
         newPages = newPages.merge(new PackageStream(namespace, queue))
@@ -270,7 +360,7 @@ trait PackageAPI extends Package {
       OrgImpl.current.withValue(org) {
         // Re-create Interviews
         var newComponents = ComponentDeclaration(this)
-        val metadata = source.map(data => MetadataDocumentWithData(docType, data.asString)).toSeq
+        val metadata = source.map(data => MetadataDocumentWithData(docType, data)).toSeq
         val provider = new OverrideMetadataProvider(metadata, new DocumentIndexMetadataProvider(documents))
         val queue = ComponentGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
         newComponents = newComponents.merge(new PackageStream(namespace, queue))
@@ -330,7 +420,7 @@ trait PackageAPI extends Package {
 
         // Revalidate holders to detect errors and release existing refs
         holders.foreach(typeId => {
-          typeId.pkg.searchTypes(typeId.typeName).foreach(_.validate())
+          typeId.pkg.packageType(typeId.typeName).foreach(_.validate())
         })
 
       })
@@ -383,7 +473,7 @@ trait PackageAPI extends Package {
 
   private[nawforce] def findTypes(typeNames: Seq[TypeName]): Seq[TypeDeclaration] = {
     OrgImpl.current.withValue(org) {
-      typeNames.flatMap(typeName => TypeRequest(typeName, this, excludeSObjects = false).toOption)
+      typeNames.flatMap(typeName => TypeResolver(typeName, this, excludeSObjects = false).toOption)
     }
   }
 }

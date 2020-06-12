@@ -47,13 +47,15 @@ abstract class MetadataDocument(val path: PathLike, val name: Name) {
   def typeName(namespace: Option[Name]): TypeName
 }
 
-final case class LabelsDocument(_path: PathLike, _name: Name) extends MetadataDocument(_path, _name) {
+abstract class UpdatableMetadata(_path: PathLike, _name: Name) extends MetadataDocument(_path, _name)
+
+final case class LabelsDocument(_path: PathLike, _name: Name) extends UpdatableMetadata(_path, _name) {
   override val extension: Name = MetadataDocument.labelsExt
   override val duplicatesAllowed: Boolean = true
   override def typeName(namespace: Option[Name]): TypeName = TypeNames.Label
 }
 
-abstract class ApexDocument(_path: PathLike, _name: Name) extends MetadataDocument(_path, _name)
+abstract class ApexDocument(_path: PathLike, _name: Name) extends UpdatableMetadata(_path, _name)
 
 final case class ApexClassDocument(_path: PathLike, _name: Name)
   extends ApexDocument(_path, _name) {
@@ -72,7 +74,7 @@ final case class ApexTriggerDocument(_path: PathLike, _name: Name)
 }
 
 final case class ComponentDocument(_path: PathLike, _name: Name)
-  extends MetadataDocument(_path, _name) {
+  extends UpdatableMetadata(_path, _name) {
   override val extension: Name = MetadataDocument.componentExt
   override def typeName(namespace: Option[Name]): TypeName = {
     namespace
@@ -140,7 +142,7 @@ final case class PlatformEventDocument(_path: PathLike, _name: Name)
 }
 
 final case class PageDocument(_path: PathLike, _name: Name)
-  extends MetadataDocument(_path, _name) {
+  extends UpdatableMetadata(_path, _name) {
   override val extension: Name = MetadataDocument.pageExt
   override def typeName(namespace: Option[Name]): TypeName = {
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
@@ -149,7 +151,7 @@ final case class PageDocument(_path: PathLike, _name: Name)
 }
 
 final case class FlowDocument(_path: PathLike, _name: Name)
-  extends MetadataDocument(_path, _name){
+  extends UpdatableMetadata(_path, _name){
   override lazy val extension: Name = MetadataDocument.flowExt
   override def typeName(namespace: Option[Name]): TypeName = {
     namespace

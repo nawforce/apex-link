@@ -47,7 +47,7 @@ object ComponentGenerator extends Generator {
     val docType = metadata.docType
     docType match {
       case _: ComponentDocument => Seq(ComponentEvent(
-        SourceInfo(docType.path, metadata.data),
+        SourceInfo(docType.path, metadata.source.asString),
         LineLocationImpl(docType.path.toString, 0), docType.name))
       case _ => Seq.empty
     }

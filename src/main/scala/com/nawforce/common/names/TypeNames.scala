@@ -33,7 +33,6 @@ object TypeNames {
   lazy val TypeType: TypeName = TypeName(Names.Type, Nil, Some(TypeNames.System))
   lazy val PageReference: TypeName = TypeName(Names.PageReference, Nil, Some(TypeNames.System))
   lazy val SObject: TypeName = TypeName(Names.SObject, Nil, Some(TypeNames.System))
-  lazy val Label: TypeName = TypeName(Names.Label, Nil, Some(TypeNames.System))
 
   lazy val ApexPages: TypeName = TypeName(Names.ApexPages)
   lazy val ApexPagesPageReference: TypeName = TypeName(Names.PageReference, Nil, Some(TypeNames.ApexPages))
@@ -63,11 +62,10 @@ object TypeNames {
   lazy val User: TypeName = TypeName(Names.User)
   lazy val UserRecordAccess: TypeName = TypeName(Names.UserRecordAccess)
 
+  lazy val Label: TypeName = TypeName(Names.Label, Nil, Some(TypeNames.System))
   lazy val Flow: TypeName = TypeName(Names.Flow)
   lazy val Interview: TypeName = TypeName(Names.Interview, Nil, Some(TypeNames.Flow))
-
   lazy val Component: TypeName = TypeName(Names.Component, Nil, None)
-
   lazy val Page: TypeName = TypeName(Names.Page, Nil, None)
 
   def describeSObjectResultOf(typeName: TypeName): TypeName = DescribeSObjectResult$.withParams(Seq(typeName))

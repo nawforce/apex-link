@@ -33,7 +33,7 @@ import java.util
 
 import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.{Modifier, PUBLIC_MODIFIER}
-import com.nawforce.common.finding.TypeRequest.TypeRequest
+import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
 import com.nawforce.common.names.{DotName, Names, TypeNames, _}
 import com.nawforce.common.org.PackageImpl
@@ -49,7 +49,7 @@ import scala.collection.mutable
 class PlatformTypeException(msg: String) extends Exception(msg)
 
 /* Platform type declaration, a wrapper around a com.nawforce.platform Java classes */
-case class PlatformTypeDeclaration(native: Any, outer: Option[PlatformTypeDeclaration])
+class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDeclaration])
   extends TypeDeclaration {
 
   val cls: java.lang.Class[_] = native.asInstanceOf[java.lang.Class[_]]
@@ -102,7 +102,7 @@ case class PlatformTypeDeclaration(native: Any, outer: Option[PlatformTypeDeclar
   }
 
   override lazy val nestedTypes: Seq[PlatformTypeDeclaration] =
-    cls.getClasses.map(nested => PlatformTypeDeclaration(nested, Some(this)))
+    cls.getClasses.map(nested => new PlatformTypeDeclaration(nested, Some(this)))
 
   override lazy val blocks: Seq[BlockDeclaration] = Seq.empty
 
@@ -268,7 +268,7 @@ object PlatformTypeDeclaration {
    * needed. If needed this will construct a GenericPlatformTypeDeclaration to specialise a
    * PlatformTypeDeclaration but it does not handle nested classes, see PlatformTypes for that.
    */
-  def get(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {
+  def get(typeName: TypeName, from: Option[TypeDeclaration]): TypeResponse = {
     val tdOption = getDeclaration(typeName.asDotName)
     if (tdOption.isEmpty)
       return Left(MissingType(typeName))
@@ -292,7 +292,7 @@ object PlatformTypeDeclaration {
     declarationCache.getOrElseUpdate(name, {
       val matched = classNameMap.get(name)
       assert(matched.size < 2, s"Found multiple platform type matches for $name")
-      matched.map(name => PlatformTypeDeclaration(
+      matched.map(name => new PlatformTypeDeclaration(
         classOf[PlatformTypeDeclaration].getClassLoader.loadClass(platformPackage + "." + name),
         None))
     })

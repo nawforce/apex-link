@@ -30,7 +30,7 @@ package com.nawforce.common.types.core
 import com.nawforce.common.api._
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.Issue
-import com.nawforce.common.finding.TypeRequest
+import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.names.{Names, TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
@@ -182,7 +182,7 @@ trait MethodDeclaration extends DependencyHolder {
         (z._1.typeName == z._2) ||
           (z._1.typeName.isStringOrId && z._2.isStringOrId) ||
           (z._2.isSObjectList && z._1.typeName.isList &&
-            (TypeRequest(z._1.typeName.params.head, None, pkg, excludeSObjects = false) match {
+            (TypeResolver(z._1.typeName.params.head, None, pkg, excludeSObjects = false) match {
               case Right(td) => td.isSObject
               case Left(_) => false
             }))
@@ -197,9 +197,9 @@ trait MethodDeclaration extends DependencyHolder {
       parameters.zip(params).forall(z =>
         z._1.typeName == z._2 ||
           (z._1.typeName.equalsIgnoreParams(z._2) &&
-            (TypeRequest(z._1.typeName, None, Some(pkg), excludeSObjects = false) match {
+            (TypeResolver(z._1.typeName, None, Some(pkg), excludeSObjects = false) match {
               case Right(x: PlatformTypeDeclaration) if x.nature == INTERFACE_NATURE =>
-                TypeRequest(z._2, None, Some(pkg), excludeSObjects = false) match {
+                TypeResolver(z._2, None, Some(pkg), excludeSObjects = false) match {
                   case Right(y: PlatformTypeDeclaration) if y.nature == INTERFACE_NATURE => true
                   case _ => false
                 }
@@ -224,16 +224,6 @@ trait MethodDeclaration extends DependencyHolder {
   }
 }
 
-object TypeDeclaration {
-  type TID = Int
-  private var tidCounter: TID = 0
-
-  def getAndIncrementTID(): TID = {
-    tidCounter += 1
-    tidCounter
-  }
-}
-
 trait AbstractTypeDeclaration {
   def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration]
   def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean], verifyContext: VerifyContext): Seq[MethodDeclaration]
@@ -241,8 +231,6 @@ trait AbstractTypeDeclaration {
 }
 
 trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
-  val tid: TypeDeclaration.TID = TypeDeclaration.getAndIncrementTID()
-
   val paths: Seq[PathLike]
   val packageDeclaration: Option[PackageImpl]
 
@@ -312,7 +300,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   }
 
   private lazy val fieldsByName: mutable.Map[Name, FieldDeclaration] = {
-    val outerType = outerTypeName.flatMap(typeName => TypeRequest(typeName, this, excludeSObjects = false).toOption)
+    val outerType = outerTypeName.flatMap(typeName => TypeResolver(typeName, this, excludeSObjects = false).toOption)
     val fieldsByName = mutable.Map(fields.map(f => (f.name, f)) : _*)
     outerType.foreach(td => td.fields.filter(_.isStatic).foreach(f => {
       if (!fieldsByName.contains(f.name))

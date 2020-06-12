@@ -28,7 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, TypeName}
-import com.nawforce.common.finding.TypeRequest
+import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.names.EncodedName
 import com.nawforce.common.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.common.types.platform.PlatformTypes
@@ -127,7 +127,7 @@ final case class IdPrimary(id: Id) extends Primary {
       case _ => ()
     }
 
-    val absTd = TypeRequest(TypeName(id.name), context.pkg, excludeSObjects = false)
+    val absTd = TypeResolver(TypeName(id.name), context.pkg, excludeSObjects = false)
     if (absTd.isRight) {
       context.addDependency(absTd.right.get)
       return ExprContext(isStatic =  Some(true), absTd.right.get)

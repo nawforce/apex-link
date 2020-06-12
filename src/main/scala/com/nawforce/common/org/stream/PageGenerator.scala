@@ -46,7 +46,7 @@ object PageGenerator extends Generator {
   override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
     val docType = metadata.docType
     docType match {
-      case _: PageDocument => Seq(PageEvent(SourceInfo(docType.path, metadata.data),
+      case _: PageDocument => Seq(PageEvent(SourceInfo(docType.path, metadata.source.asString),
         LineLocationImpl(docType.path.toString, 0), docType.name))
       case _ => Seq.empty
     }
