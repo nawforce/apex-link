@@ -32,7 +32,6 @@ import com.nawforce.common.path.PathFactory
 import com.nawforce.runtime.json.JSON
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 
 object Check {
   final val STATUS_OK: Int = 0

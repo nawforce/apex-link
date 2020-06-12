@@ -29,7 +29,7 @@ package com.nawforce.common.types.platform
 
 import com.nawforce.common.api.TypeName
 import com.nawforce.common.finding.MissingType
-import com.nawforce.common.finding.TypeRequest.TypeRequest
+import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.types.core.TypeDeclaration
 import com.nawforce.runtime.types.PlatformTypeDeclaration
@@ -80,9 +80,9 @@ object PlatformTypes {
    * needed. The builds over PlatformTypeDeclaration by adding support for typeName aliases, nested
    * types and namespace defaulting.
    */
-  def get(typeName: TypeName, from: Option[TypeDeclaration], excludeSObjects: Boolean=false): TypeRequest = {
+  def get(typeName: TypeName, from: Option[TypeDeclaration], excludeSObjects: Boolean=false): TypeResponse = {
 
-    def findOuterOrNestedPlatformType(localTypeName: TypeName): TypeRequest = {
+    def findOuterOrNestedPlatformType(localTypeName: TypeName): TypeResponse = {
       PlatformTypeDeclaration.get(localTypeName, from) match {
         case Left(_) if localTypeName.outer.nonEmpty =>
           findOuterOrNestedPlatformType(localTypeName.outer.get) match {

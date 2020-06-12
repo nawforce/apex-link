@@ -33,7 +33,7 @@ import com.nawforce.common.cst.{GLOBAL_MODIFIER, UnusedLog}
 import com.nawforce.common.diagnostics.{IssueLog, LocalLogger}
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeFinder
-import com.nawforce.common.finding.TypeRequest.TypeRequest
+import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.names.{EncodedName, TypeNames, _}
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexDeclaration}
@@ -119,11 +119,22 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   }
 
   /* Search for a specific outer or inner type */
-  def searchTypes(typeName: TypeName): Option[TypeDeclaration] = {
+  def packageType(typeName: TypeName): Option[TypeDeclaration] = {
     types.get(typeName).orElse(
       typeName.outer.flatMap(types.get)
         .flatMap(_.nestedTypes.find(_.typeName == typeName))
     )
+  }
+
+  def insertType(typeDeclaration: TypeDeclaration): Unit = {
+    typeDeclaration.typeName match {
+      case TypeNames.Label => labels = typeDeclaration.asInstanceOf[LabelDeclaration]
+      case TypeNames.Page => pages = typeDeclaration.asInstanceOf[PageDeclaration]
+      case TypeNames.Interview => interviews = typeDeclaration.asInstanceOf[InterviewDeclaration]
+      case TypeNames.Component => components = typeDeclaration.asInstanceOf[ComponentDeclaration]
+      case _ => ()
+    }
+    types.put(typeDeclaration.typeName, typeDeclaration)
   }
 
   /* Check if a type is ghosted in this package */
@@ -140,7 +151,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   /* Find a document location for the type */
   def getTypeLocation(typeName: TypeName): Option[PathLocation] = {
     if (org.analysis) {
-      searchTypes(typeName) match {
+      packageType(typeName) match {
         case Some(ad: ApexDeclaration) => Some(PathLocation(ad.path.toString, ad.nameLocation.toLocation))
         case _ => None
       }
@@ -171,7 +182,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
    * if needed. This is the fallback handling for the TypeFinder which performs local searching for types, so this is
    * only useful if *you* know local searching is not required.
    */
-  def getType(typeName: TypeName, from: Option[TypeDeclaration], excludeSObjects: Boolean = false): TypeRequest = {
+  def getType(typeName: TypeName, from: Option[TypeDeclaration], excludeSObjects: Boolean = false): TypeResponse = {
 
     if (!excludeSObjects) {
       var td = getPackageType(typeName).map(Right(_))

@@ -30,6 +30,7 @@ package com.nawforce.common.org.stream
 
 import com.nawforce.common.api.Name
 import com.nawforce.common.diagnostics.IssueLogger
+import com.nawforce.common.documents._
 
 import scala.collection.immutable.Queue
 
@@ -49,4 +50,15 @@ trait Generator {
   }
 
   protected def getMetadata(logger: IssueLogger, metadata: MetadataDocumentWithData): Seq[PackageEvent]
+}
+
+object Generator {
+  def queue(dt: UpdatableMetadata, logger: IssueLogger, provider: MetadataProvider): Queue[PackageEvent] = {
+    dt match {
+      case _: LabelsDocument => LabelGenerator.queue(logger, provider, Queue[PackageEvent]())
+      case _: PageDocument => PageGenerator.queue(logger, provider, Queue[PackageEvent]())
+      case _: ComponentDocument => ComponentGenerator.queue(logger, provider, Queue[PackageEvent]())
+      case _: FlowDocument => FlowGenerator.queue(logger, provider, Queue[PackageEvent]())
+    }
+  }
 }

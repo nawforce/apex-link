@@ -30,7 +30,7 @@ package com.nawforce.common.types.other
 import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.documents._
-import com.nawforce.common.names.{Names, TypeNames, _}
+import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.path.PathFactory
@@ -52,8 +52,8 @@ case class Page(pkg: PackageImpl, location: LocationImpl, name: Name) extends Fi
   * base packages via the `namespace__name` format.
   */
 final case class PageDeclaration(sources: Seq[SourceInfo], override val pkg: PackageImpl, pages: Seq[Page])
-  extends BasicTypeDeclaration(pages.map(p => PathFactory(p.location.path)).distinct, pkg, TypeName(Names.Page))
-    with DependentType {
+  extends BasicTypeDeclaration(pages.map(p => PathFactory(p.location.path)).distinct, pkg, TypeNames.Page)
+    with DependentType with OtherTypeDeclaration {
 
   // Propagate dependencies to base packages
   pkg.basePackages.foreach(_.pages.addTypeDependencyHolder(typeId))

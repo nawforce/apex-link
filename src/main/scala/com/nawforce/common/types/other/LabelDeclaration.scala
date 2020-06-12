@@ -53,7 +53,8 @@ case class Label(outerTypeId: Option[TypeId], location: Option[LocationImpl], na
   * base packages via the Label.namespace.name format. */
 final class LabelDeclaration(sources: Seq[SourceInfo], override val pkg: PackageImpl, labels: Seq[Label],
                              nestedLabels: Seq[NestedLabels])
-  extends BasicTypeDeclaration(sources.map(_.path), pkg, TypeNames.Label) with DependentType {
+  extends BasicTypeDeclaration(sources.map(_.path), pkg, TypeNames.Label)
+    with DependentType with OtherTypeDeclaration {
 
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash),0)
 

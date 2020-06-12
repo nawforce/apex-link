@@ -30,7 +30,7 @@ package com.nawforce.common.types.apex
 import com.nawforce.common.api.{TypeName, _}
 import com.nawforce.common.cst.Modifier
 import com.nawforce.common.documents._
-import com.nawforce.common.finding.TypeRequest
+import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
@@ -77,7 +77,8 @@ object DependentValidation {
           case d: LabelDeclaration => d.sourceHash == dependent.sourceHash
           case d: InterviewDeclaration => d.sourceHash == dependent.sourceHash
           case d: PageDeclaration => d.sourceHash == dependent.sourceHash
-          case d: ComponentDeclaration => d.sourceHash == dependent.sourceHash
+          case d: ComponentDeclaration =>
+            d.sourceHash == dependent.sourceHash
           case _ => true
         })
     })
@@ -153,7 +154,7 @@ object DependentValidation {
   private def findDependentType(typeName: TypeName, pkg: PackageImpl)
     : Option[TypeDeclaration] = {
 
-    TypeRequest(typeName, pkg, excludeSObjects = false) match {
+    TypeResolver(typeName, pkg, excludeSObjects = false) match {
       case Left(_) => None
       case Right(d: ApexClassDeclaration) => Some(d)
       case Right(d: LabelDeclaration) => Some(d)
@@ -328,7 +329,7 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
   }
 
   private def getOutermostDeclaration(typeName: TypeName): Option[TypeId] = {
-    TypeRequest(typeName, pkg, excludeSObjects = false) match {
+    TypeResolver(typeName, pkg, excludeSObjects = false) match {
       case Right(d: ApexClassDeclaration) =>
         d.outerTypeName.map(getOutermostDeclaration).getOrElse(Some(d.typeId))
       case Right(d: LabelDeclaration) => Some(d.typeId)

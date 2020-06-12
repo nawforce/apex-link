@@ -30,7 +30,7 @@ package com.nawforce.common.types.schema
 import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, VerifyContext}
 import com.nawforce.common.documents._
-import com.nawforce.common.finding.TypeRequest
+import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.names.{DotName, Names, TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
@@ -147,7 +147,7 @@ object SObjectDeclaration {
       createExisting(sobjectDetails.withTypeName(typeName.withName(Names.Task)), path, pkg) ++
         createExisting(sobjectDetails.withTypeName(typeName.withName(Names.Event)), path, pkg)
     } else {
-      val sobjectType = TypeRequest(typeName, pkg, excludeSObjects = false).toOption
+      val sobjectType = TypeResolver(typeName, pkg, excludeSObjects = false).toOption
       if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass => superClass.typeName == TypeNames.SObject)) {
         OrgImpl.logError(LineLocationImpl(path.toString, 0), s"No SObject declaration found for '$typeName'")
         return Seq()
@@ -268,7 +268,7 @@ object SObjectDeclaration {
   private def collectBaseFields(sObject: DotName, pkg: PackageImpl): mutable.Map[Name, FieldDeclaration] = {
     val collected: mutable.Map[Name, FieldDeclaration] = mutable.Map()
     pkg.basePackages.filterNot(_.isGhosted).foreach(basePkg => {
-      val fields: Seq[FieldDeclaration] = TypeRequest(sObject.asTypeName(), basePkg, excludeSObjects = false).toOption.map {
+      val fields: Seq[FieldDeclaration] = TypeResolver(sObject.asTypeName(), basePkg, excludeSObjects = false).toOption.map {
         case baseTd: SObjectDeclaration => baseTd.fields
         case _ => Nil
       }.getOrElse(Seq())

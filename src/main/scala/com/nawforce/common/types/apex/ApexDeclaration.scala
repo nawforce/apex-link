@@ -31,7 +31,7 @@ import com.nawforce.common.api.{TypeName, _}
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents._
-import com.nawforce.common.finding.TypeRequest
+import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.names._
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
@@ -181,7 +181,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
   }
 
   lazy val outerStaticMethods: Seq[MethodDeclaration] = {
-    outerTypeName.flatMap(ot => TypeRequest(ot, this, excludeSObjects = false).toOption) match {
+    outerTypeName.flatMap(ot => TypeResolver(ot, this, excludeSObjects = false).toOption) match {
       case Some(td: ApexClassDeclaration) => td.staticMethods
       case _ => Seq()
     }

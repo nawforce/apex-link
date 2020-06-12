@@ -49,7 +49,8 @@ object LabelGenerator extends Generator {
   protected override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
 
     val path = metadata.docType.path
-    val parseResult = XMLDocument(path, metadata.data)
+    val source = metadata.source.asString
+    val parseResult = XMLDocument(path, source)
     if (parseResult.isLeft) {
       logger.logError(parseResult.left.get._1, parseResult.left.get._2)
       return Seq.empty
@@ -76,6 +77,6 @@ object LabelGenerator extends Generator {
             None
         }
       })
-    labels :+ LabelFileEvent(SourceInfo(path, metadata.data))
+    labels :+ LabelFileEvent(SourceInfo(path, source))
   }
 }

@@ -30,8 +30,8 @@ package com.nawforce.common.types.platform
 
 import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.Modifier
-import com.nawforce.common.finding.TypeRequest.TypeRequest
-import com.nawforce.common.finding.{MissingType, TypeError, TypeRequest}
+import com.nawforce.common.finding.TypeResolver.TypeResponse
+import com.nawforce.common.finding.{MissingType, TypeError, TypeResolver}
 import com.nawforce.common.names._
 import com.nawforce.common.types.core.{FieldDeclaration, MethodDeclaration, ParameterDeclaration, TypeDeclaration}
 import com.nawforce.runtime.types.{PlatformField, PlatformMethod, PlatformParameter, PlatformTypeDeclaration}
@@ -135,21 +135,21 @@ class GenericPlatformParameter(platformParameter: PlatformParameter, _typeDeclar
 object GenericPlatformTypeDeclaration {
 
   // Cache of generic type requests
-  private val declarationCache = mutable.Map[(TypeName, Option[TypeDeclaration.TID]), TypeRequest]()
+  private val declarationCache = mutable.Map[(TypeName, Option[TypeDeclaration]), TypeResponse]()
 
   /* Get a generic type, in general don't call this direct, use TypeRequest which will delegate here if
    * needed. Implicit in this model is that all generics are currently platform types, hopefully that
    * won't be true forever.
    */
-  def get(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {
-    declarationCache.getOrElseUpdate((typeName, from.map(_.tid)), {
+  def get(typeName: TypeName, from: Option[TypeDeclaration]): TypeResponse = {
+    declarationCache.getOrElseUpdate((typeName, from), {
       create(typeName, from)
     })
   }
 
-  private def create(typeName: TypeName, from: Option[TypeDeclaration]): TypeRequest = {
+  private def create(typeName: TypeName, from: Option[TypeDeclaration]): TypeResponse = {
     // Make sure params are resolvable first
-    val params = typeName.params.map(pt => (pt, TypeRequest(pt, from, None, excludeSObjects = false)))
+    val params = typeName.params.map(pt => (pt, TypeResolver(pt, from, None, excludeSObjects = false)))
     val pkg = from.flatMap(_.packageDeclaration)
     val failedParams = params.find(_._2.isLeft).filterNot(p => pkg.exists(_.isGhostedType(p._1)))
     if (failedParams.nonEmpty) {

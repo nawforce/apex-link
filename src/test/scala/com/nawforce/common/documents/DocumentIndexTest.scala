@@ -28,8 +28,8 @@
 package com.nawforce.common.documents
 
 import com.nawforce.common.api.Name
-import com.nawforce.common.diagnostics.{CatchingLogger, ERROR_CATEGORY, Issue}
-import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.common.diagnostics.{CatchingLogger, ERROR_CATEGORY}
+import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite

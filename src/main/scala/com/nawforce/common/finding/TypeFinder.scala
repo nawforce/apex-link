@@ -32,21 +32,13 @@ import com.nawforce.common.names.{DotName, _}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types.core.TypeDeclaration
 
-import scala.collection.mutable
-
 /** Helper that implements local type searching, extracted out as logic is a bit involved */
 trait TypeFinder {
   this: PackageImpl =>
 
-  private val typeCache = mutable.Map[(TypeName, TypeDeclaration.TID), Option[TypeDeclaration]]()
-
   /** Find a type relative to a starting type with a local or global name*/
   def getTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {
-      typeCache.getOrElseUpdate((typeName, from.tid), {
-        val td = getLocalTypeFor(typeName, from).orElse(this.getType(typeName, Some(from)).toOption)
-        typeCache.put((typeName, from.tid), td)
-        td
-      })
+    getLocalTypeFor(typeName, from).orElse(this.getType(typeName, Some(from)).toOption)
   }
 
   def getLocalTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {

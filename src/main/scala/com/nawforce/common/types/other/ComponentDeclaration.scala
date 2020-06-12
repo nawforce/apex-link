@@ -52,7 +52,8 @@ final case class Component(pkg: PackageImpl, location: Option[LocationImpl], com
 /** Component namespace handler */
 final case class ComponentDeclaration(sources: Seq[SourceInfo], pkg: PackageImpl, components: Seq[TypeDeclaration],
                                       nestedComponents: Seq[NestedComponents])
-  extends BasicTypeDeclaration(Seq.empty, pkg, TypeNames.Component) with DependentType {
+  extends BasicTypeDeclaration(Seq.empty, pkg, TypeNames.Component)
+    with DependentType with OtherTypeDeclaration {
 
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash),0)
 

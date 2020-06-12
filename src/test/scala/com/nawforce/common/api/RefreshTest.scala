@@ -34,73 +34,42 @@ import com.nawforce.runtime.{FileSystemHelper, SourceBlob}
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class UpsertTest extends AnyFunSuite with BeforeAndAfter {
+class RefreshTest extends AnyFunSuite with BeforeAndAfter {
 
-  test("No type definition") {
-    FileSystemHelper.run(Map(
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), None)
-      assert(!view.hasType)
-      assert(!pkg.upsertFromView(view))
-      assert(!org.issues.hasMessages)
-    }
-  }
-
-  test("Wrong path for type") {
+  test("Valid refresh") {
     FileSystemHelper.run(Map(
       "pkg/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg2/Foo.cls"), Some(SourceBlob("public class Foo {}")))
-      assert(view.hasType)
-      assert(!pkg.upsertFromView(view))
+      assert(pkg.refresh(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {}"))) == null)
       assert(!org.issues.hasMessages)
     }
   }
 
-  test("Valid upsert") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.cls" -> "public class Foo {}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {}")))
-      assert(view.hasType)
-      assert(pkg.upsertFromView(view))
-      assert(!org.issues.hasMessages)
-    }
-  }
-
-  test("Valid upsert (new)") {
+  test("Valid refresh (new)") {
     FileSystemHelper.run(Map(
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg").join("Foo.cls"), Some(SourceBlob("public class Foo {}")))
-      assert(view.hasType)
-      assert(pkg.upsertFromView(view))
+      assert(pkg.refresh(root.join("pkg").join("Foo.cls"), Some(SourceBlob("public class Foo {}"))) == null)
       assert(!org.issues.hasMessages)
       assert(pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.cls")) != null)
     }
   }
 
-  test("Valid upsert with changes") {
+  test("Valid refresh with changes") {
     FileSystemHelper.run(Map(
       "pkg/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Object a;}")))
-      assert(view.hasType)
-      assert(pkg.upsertFromView(view))
+      assert(pkg.refresh(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Object a;}"))) == null)
       assert(!org.issues.hasMessages)
     }
   }
 
-  test("Upsert creates missing") {
+  test("Refresh creates missing") {
     FileSystemHelper.run(Map(
       "pkg/Foo.cls" -> "public class Foo {Bar.Inner b;}",
       "pkg/Bar.cls" -> "public class Bar {public class Inner {}}"
@@ -109,8 +78,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {}")))
-      assert(pkg.upsertFromView(view))
+      assert(pkg.refresh(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {}"))) == null)
       assert(org.issues.getMessages("/pkg/Foo.cls")
         == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
     }
@@ -123,9 +91,8 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Bar b;}")))
-      assert(view.hasType)
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Bar b;}")))
+      assert(!org.issues.hasMessages)
 
       val fooTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.cls"))
       val barTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls"))
@@ -146,10 +113,8 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg1 = org.addMDAPITestPackage(Some(Name("p1")), Seq(root.join("pkg1")), Seq())
       val pkg2 = org.addMDAPITestPackage(Some(Name("p2")), Seq(root.join("pkg2")), Seq(pkg1))
-      val view = pkg2.getViewOfType(root.join("pkg2/Foo.cls"), Some(SourceBlob("public class Foo {p1.Bar b;}")))
-      assert(view.hasType)
-      assert(view.diagnostics.isEmpty)
-      assert(pkg2.upsertFromView(view))
+      pkg2.refresh(root.join("pkg2/Foo.cls"), Some(SourceBlob("public class Foo {p1.Bar b;}")))
+      assert(!org.issues.hasMessages)
 
       val barTypeId = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls"))
       val fooTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Foo.cls"))
@@ -162,95 +127,40 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
-  test("Valid delete") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.cls" -> "public class Foo {}"
-    )) { root: PathLike =>
-      val path = root.join("pkg/Foo.cls")
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(path, Some(SourceBlob("public class Foo {}")))
-      assert(view.hasType)
-      assert(!org.issues.hasMessages)
-      assert(pkg.upsertFromView(view))
-
-      path.delete()
-      val view2 = pkg.getViewOfType(path, None)
-      assert(!view2.hasType)
-      assert(pkg.upsertFromView(view2))
-
-      assert(pkg.getTypeOfPath(path.toString) == null)
-      assert(!org.issues.hasMessages)
-    }
-  }
-
-  test("Delete creates missing") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.cls" -> "public class Foo {Bar b;}",
-      "pkg/Bar.cls" -> "public class Bar {}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-
-      val path = root.join("pkg/Bar.cls")
-      path.delete()
-      assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
-
-      val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), None)
-      assert(view.hasType)
-      assert(view.diagnostics.isEmpty)
-      assert(!org.issues.hasMessages)
-
-      assert(pkg.upsertFromView(view))
-      assert(org.issues.getMessages("/pkg/Foo.cls")
-        == "Missing: line 1 at 22-23: No type declaration found for 'Bar'\n")
-    }
-  }
-
-  test("Valid trigger upsert") {
+  test("Valid trigger refresh") {
     FileSystemHelper.run(Map(
       "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"),
-        Some(SourceBlob("trigger Foo on Account (before insert) {}")))
-      assert(view.hasType)
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("pkg/Foo.trigger"), Some(SourceBlob("trigger Foo on Account (before insert) {}")))
       assert(!org.issues.hasMessages)
     }
   }
 
-  test("Valid trigger upsert (new)") {
+  test("Valid trigger refresh (new)") {
     FileSystemHelper.run(Map(
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"),
-        Some(SourceBlob("trigger Foo on Account (before insert) {}")))
-      assert(view.hasType)
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("pkg/Foo.trigger"), Some(SourceBlob("trigger Foo on Account (before insert) {}")))
       assert(!org.issues.hasMessages)
       assert(pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.trigger")) != null)
     }
   }
 
-  test("Valid trigger upsert with changes") {
+  test("Valid trigger refresh with changes") {
     FileSystemHelper.run(Map(
       "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"),
-        Some(SourceBlob("trigger Foo on Account (before insert) {Object a;}")))
-      assert(view.hasType)
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("pkg/Foo.trigger"), Some(SourceBlob("trigger Foo on Account (before insert) {Object a;}")))
       assert(!org.issues.hasMessages)
     }
   }
 
-  test("Upsert creates trigger missing") {
+  test("Refresh creates trigger missing") {
     FileSystemHelper.run(Map(
       "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar.Inner b;}",
       "pkg/Bar.cls" -> "public class Bar {public class Inner {}}"
@@ -259,8 +169,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {}")))
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {}")))
       assert(org.issues.getMessages("/pkg/Foo.trigger")
         == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n")
     }
@@ -273,10 +182,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"),
-        Some(SourceBlob("trigger Foo on Account (before insert) {Bar b;}")))
-      assert(view.hasType)
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("pkg/Foo.trigger"), Some(SourceBlob("trigger Foo on Account (before insert) {Bar b;}")))
 
       val fooTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.trigger"))
       val barTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls"))
@@ -297,11 +203,8 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg1 = org.addMDAPITestPackage(Some(Name("p1")), Seq(root.join("pkg1")), Seq())
       val pkg2 = org.addMDAPITestPackage(Some(Name("p2")), Seq(root.join("pkg2")), Seq(pkg1))
-      val view = pkg2.getViewOfType(root.join("pkg2/Foo.trigger"),
+      pkg2.refresh(root.join("pkg2/Foo.trigger"),
         Some(SourceBlob("trigger Foo on Account (before insert) {p1.Bar b;}")))
-      assert(view.hasType)
-      assert(view.diagnostics.isEmpty)
-      assert(pkg2.upsertFromView(view))
 
       val fooTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Foo.trigger"))
       val barTypeId = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls"))
@@ -314,52 +217,6 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
-  test("Trigger valid delete") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"),
-        Some(SourceBlob("trigger Foo on Account (before insert) {}")))
-      assert(view.hasType)
-      assert(!org.issues.hasMessages)
-      assert(pkg.upsertFromView(view))
-
-      val path = root.join("pkg/Foo.trigger")
-      path.delete()
-      assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
-
-      val fooTypeId = pkg.getTypeOfPath(root.join("pkg/Foo.trigger").toString)
-      assert(pkg.getPathsOfType(fooTypeId).isEmpty)
-      assert(!org.issues.hasMessages)
-    }
-  }
-
-  test("Delete creates trigger missing") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar b;}",
-      "pkg/Bar.cls" -> "public class Bar {}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-
-      val path = root.join("pkg/Bar.cls")
-      path.delete()
-      assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
-
-      val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), None)
-      assert(view.hasType)
-      assert(view.diagnostics.isEmpty)
-      assert(!org.issues.hasMessages)
-
-      assert(pkg.upsertFromView(view))
-      assert(org.issues.getMessages("/pkg/Foo.trigger")
-        == "Missing: line 1 at 44-45: No type declaration found for 'Bar'\n")
-    }
-  }
-
   test("Valid label upsert") {
     FileSystemHelper.run(Map(
       "CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>"
@@ -368,9 +225,9 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("CustomLabels.labels"), Some(SourceBlob(
+      pkg.refresh(root.join("CustomLabels.labels"), Some(SourceBlob(
         "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")))
-      assert(pkg.upsertFromView(view))
+      assert(!org.issues.hasMessages)
     }
   }
 
@@ -381,9 +238,9 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("CustomLabels.labels"), Some(SourceBlob(
+      pkg.refresh(root.join("CustomLabels.labels"), Some(SourceBlob(
         "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")))
-      assert(pkg.upsertFromView(view))
+      assert(!org.issues.hasMessages)
     }
   }
 
@@ -403,7 +260,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("CustomLabels.labels"), Some(SourceBlob(
+      pkg.refresh(root.join("CustomLabels.labels"), Some(SourceBlob(
         """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
@@ -413,7 +270,6 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
           |</CustomLabels>
           |""".stripMargin,
       )))
-      assert(pkg.upsertFromView(view))
       val labels = pkg.packageType(TypeNames.Label).get
       assert(labels.fields.size == 1)
       assert(labels.fields.exists(_.name.value == "TestLabel2"))
@@ -436,7 +292,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("Alt.labels"), Some(SourceBlob(
+      pkg.refresh(root.join("Alt.labels"), Some(SourceBlob(
         """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
@@ -446,70 +302,9 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
           |</CustomLabels>
           |""".stripMargin,
       )))
-      assert(pkg.upsertFromView(view))
       val labels = pkg.packageType(TypeNames.Label).get
       assert(labels.fields.size == 2)
       assert(labels.fields.exists(_.name.value == "TestLabel"))
-      assert(labels.fields.exists(_.name.value == "TestLabel2"))
-    }
-  }
-
-  test("Delete label file") {
-    FileSystemHelper.run(Map(
-      "CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
-          |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
-          |    <labels>
-          |        <fullName>TestLabel</fullName>
-          |        <protected>false</protected>
-          |    </labels>
-          |</CustomLabels>
-          |""".stripMargin,
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-
-      val path = root.join("CustomLabels.labels")
-      path.delete()
-      assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
-
-      val labels = pkg.packageType(TypeNames.Label).get
-      assert(labels.fields.isEmpty)
-    }
-  }
-
-  test("Delete label file (multiple files)") {
-    FileSystemHelper.run(Map(
-      "CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
-          |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
-          |    <labels>
-          |        <fullName>TestLabel</fullName>
-          |        <protected>false</protected>
-          |    </labels>
-          |</CustomLabels>
-          |""".stripMargin,
-      "Alt.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
-          |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
-          |    <labels>
-          |        <fullName>TestLabel2</fullName>
-          |        <protected>false</protected>
-          |    </labels>
-          |</CustomLabels>
-          |""".stripMargin,
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-
-      val path = root.join("CustomLabels.labels")
-      path.delete()
-      assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
-
-      val labels = pkg.packageType(TypeNames.Label).get
-      assert(labels.fields.size == 1)
       assert(labels.fields.exists(_.name.value == "TestLabel2"))
     }
   }
@@ -522,9 +317,9 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("Test.flow-meta.xml"), Some(SourceBlob("")))
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("Test.flow-meta.xml"), Some(SourceBlob("")))
       assert(pkg.interviews.findNestedType(Name("Test")).nonEmpty)
+      assert(!org.issues.hasMessages)
     }
   }
 
@@ -535,9 +330,9 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("Test.flow-meta.xml"), Some(SourceBlob("")))
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("Test.flow-meta.xml"), Some(SourceBlob("")))
       assert(pkg.interviews.findNestedType(Name("Test")).nonEmpty)
+      assert(!org.issues.hasMessages)
     }
   }
 
@@ -549,8 +344,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("Test.flow-meta.xml"), Some(SourceBlob("Changed")))
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("Test.flow-meta.xml"), Some(SourceBlob("Changed")))
       assert(pkg.interviews.findNestedType(Name("Test")).nonEmpty)
     }
   }
@@ -563,40 +357,8 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("Test2.flow-meta.xml"), Some(SourceBlob("")))
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("Test2.flow-meta.xml"), Some(SourceBlob("")))
       assert(pkg.interviews.nestedTypes.map(_.name).toSet == Set(Name("Test"), Name("Test2")))
-    }
-  }
-
-  test("Delete flow file") {
-    FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> ""
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-
-      val path = root.join("Test.flow-meta.xml")
-      path.delete()
-      assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
-      assert(pkg.interviews.nestedTypes.isEmpty)
-    }
-  }
-
-  test("Delete flow file (multiple)") {
-    FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> "",
-      "Test2.flow-meta.xml" -> ""
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-
-      val path = root.join("Test.flow-meta.xml")
-      path.delete()
-      assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
-      assert(pkg.interviews.nestedTypes.map(_.name).toSet == Set(Name("Test2")))
     }
   }
 
@@ -608,8 +370,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("TestPage.page"), Some(SourceBlob("")))
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("TestPage.page"), Some(SourceBlob("")))
       assert(pkg.pages.findField(Name("TestPage"), Some(true)).nonEmpty)
     }
   }
@@ -621,8 +382,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("TestPage.page"), Some(SourceBlob("")))
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("TestPage.page"), Some(SourceBlob("")))
       assert(pkg.pages.findField(Name("TestPage"), Some(true)).nonEmpty)
     }
   }
@@ -635,13 +395,12 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("TestPage.page"), Some(SourceBlob("Changed")))
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("TestPage.page"), Some(SourceBlob("Changed")))
       assert(pkg.pages.findField(Name("TestPage"), Some(true)).nonEmpty)
     }
   }
 
-  test("Valid page upsert (new flow)") {
+  test("Valid page upsert (new page)") {
     FileSystemHelper.run(Map(
       "TestPage.page" -> ""
     )) { root: PathLike =>
@@ -649,40 +408,8 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("TestPage2.page"), Some(SourceBlob("")))
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("TestPage2.page"), Some(SourceBlob("")))
       assert(pkg.pages.fields.map(_.name).toSet == Set(Name("TestPage"), Name("TestPage2")))
-    }
-  }
-
-  test("Delete page file") {
-    FileSystemHelper.run(Map(
-      "TestPage.page" -> ""
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-
-      val path = root.join("TestPage.page")
-      path.delete()
-      assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
-      assert(pkg.pages.fields.isEmpty)
-    }
-  }
-
-  test("Delete page file (multiple)") {
-    FileSystemHelper.run(Map(
-      "Test.page" -> "",
-      "Test2.page" -> ""
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-
-      val path = root.join("Test.page")
-      path.delete()
-      assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
-      assert(pkg.pages.fields.map(_.name).toSet == Set(Name("Test2")))
     }
   }
 
@@ -694,8 +421,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("Test.component"), Some(SourceBlob("")))
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("Test.component"), Some(SourceBlob("")))
       assert(pkg.components.findNestedType(Name("Test")).nonEmpty)
     }
   }
@@ -721,8 +447,7 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("Test.component"), Some(SourceBlob("Changed")))
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("Test.component"), Some(SourceBlob("Changed")))
       assert(pkg.components.findNestedType(Name("Test")).nonEmpty)
     }
   }
@@ -735,41 +460,9 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("Test2.component"), Some(SourceBlob("")))
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("Test2.component"), Some(SourceBlob("")))
       assert(pkg.components.nestedTypes.map(_.name).toSet ==
         Set(Name("Test"), Name("Test2"), Names.c, Names.Apex, Names.Chatter))
-    }
-  }
-
-  test("Delete component file") {
-    FileSystemHelper.run(Map(
-      "Test.component" -> ""
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-
-      val path = root.join("Test.component")
-      path.delete()
-      assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
-      assert(pkg.components.nestedTypes.map(_.name).toSet == Set(Names.c, Names.Apex, Names.Chatter))
-    }
-  }
-
-  test("Delete component file (multiple)") {
-    FileSystemHelper.run(Map(
-      "Test.component" -> "",
-      "Test2.component" -> ""
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-
-      val path = root.join("Test.component")
-      path.delete()
-      assert(pkg.upsertFromView(pkg.getViewOfType(path, None)))
-      assert(pkg.components.nestedTypes.map(_.name).toSet == Set(Name("Test2"), Names.c, Names.Apex, Names.Chatter))
     }
   }
 }

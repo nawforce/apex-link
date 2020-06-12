@@ -28,7 +28,7 @@
 
 package com.nawforce.common.types.core
 
-import com.nawforce.common.finding.TypeRequest
+import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.org.PackageImpl
 
 import scala.collection.mutable
@@ -78,7 +78,7 @@ trait DependentType extends TypeDeclaration {
   }
 
   private def getOutermostDeclaration(typeId: TypeId): Option[DependentType] = {
-    TypeRequest(typeId.typeName, typeId.pkg, excludeSObjects = false) match {
+    TypeResolver(typeId.typeName, typeId.pkg, excludeSObjects = false) match {
       case Right(td: DependentType) =>
         td.outerTypeName.map(ot => getOutermostDeclaration(TypeId(typeId.pkg, ot))).getOrElse(Some(td))
       case Right(_) => None

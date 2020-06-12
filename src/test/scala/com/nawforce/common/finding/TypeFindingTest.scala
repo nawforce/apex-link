@@ -46,7 +46,7 @@ class TypeFindingTest extends AnyFunSuite {
     val ns = Names.safeApply(namespace)
     val dn = DotName(dotName)
     val pkgOpt = org.packagesByNamespace.get(ns)
-    pkgOpt.flatMap(pkg => TypeRequest(dn.asTypeName(), pkg, excludeSObjects = false).toOption).orNull
+    pkgOpt.flatMap(pkg => TypeResolver(dn.asTypeName(), pkg, excludeSObjects = false).toOption).orNull
   }
 
   test("Bad type not") {
