@@ -89,15 +89,15 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(pkg.getTypeOfPath(null) == null)
       assert(pkg.getTypeOfPath("") == null)
 
-      assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).toString == "Dummy")
-      assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy2.cls")) == null)
-      assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.object")) == null)
-      assert(pkg.getTypeOfPathInternal(root.join("classes2").join("Dummy.cls")) == null)
+      assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.toString == "Dummy")
+      assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy2.cls")).isEmpty)
+      assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.object")).isEmpty)
+      assert(pkg.getTypeOfPathInternal(root.join("classes2").join("Dummy.cls")).isEmpty)
 
-      assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).toString == "__sfdc_trigger/Foo")
-      assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo2.trigger")) == null)
-      assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.object")) == null)
-      assert(pkg.getTypeOfPathInternal(root.join("triggers2").join("Foo2.trigger")) == null)
+      assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.toString == "__sfdc_trigger/Foo")
+      assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo2.trigger")).isEmpty)
+      assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.object")).isEmpty)
+      assert(pkg.getTypeOfPathInternal(root.join("triggers2").join("Foo2.trigger")).isEmpty)
     }
   }
 
@@ -113,15 +113,15 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(pkg.getTypeOfPath(null) == null)
       assert(pkg.getTypeOfPath("") == null)
 
-      assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).toString == "test.Dummy (test)")
-      assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy2.cls")) == null)
-      assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.object")) == null)
-      assert(pkg.getTypeOfPathInternal(root.join("classes2").join("Dummy.cls")) == null)
+      assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.toString == "test.Dummy (test)")
+      assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy2.cls")).isEmpty)
+      assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.object")).isEmpty)
+      assert(pkg.getTypeOfPathInternal(root.join("classes2").join("Dummy.cls")).isEmpty)
 
-      assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).toString == "__sfdc_trigger/test/Foo (test)")
-      assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo2.trigger")) == null)
-      assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.object")) == null)
-      assert(pkg.getTypeOfPathInternal(root.join("triggers2").join("Foo2.trigger")) == null)
+      assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.toString == "__sfdc_trigger/test/Foo (test)")
+      assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo2.trigger")).isEmpty)
+      assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.object")).isEmpty)
+      assert(pkg.getTypeOfPathInternal(root.join("triggers2").join("Foo2.trigger")).isEmpty)
     }
   }
 
@@ -134,8 +134,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val dummyType = pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls"))
-      val fooType = pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger"))
+      val dummyType = pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.asTypeIdentifier
+      val fooType = pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.asTypeIdentifier
 
       assert(pkg.getPathsOfType(null).isEmpty)
 
@@ -156,8 +156,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val dummyType = pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls"))
-      val fooType = pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger"))
+      val dummyType = pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.asTypeIdentifier
+      val fooType = pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.asTypeIdentifier
 
       assert(pkg.getPathsOfType(null).isEmpty)
 
@@ -177,7 +177,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val typeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls"))
+      val typeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.asTypeIdentifier
       val summary = pkg.getSummaryOfType(typeLike)
 
       assert(summary.name == "Dummy")
@@ -195,7 +195,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val typeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls"))
+      val typeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.asTypeIdentifier
       val summary = pkg.getSummaryOfType(typeLike)
 
       assert(summary.name == "Dummy")
@@ -221,7 +221,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg2 = org2.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org2.issues.hasMessages)
 
-      val typeLike = pkg2.getTypeOfPathInternal(root.join("classes").join("Dummy.cls"))
+      val typeLike = pkg2.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.asTypeIdentifier
       val summary = pkg2.getSummaryOfType(typeLike)
 
       assert(pkg2.getType(typeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
@@ -242,7 +242,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val typeLike = pkg.getTypeOfPathInternal(root.join("triggers").join("Dummy.trigger"))
+      val typeLike = pkg.getTypeOfPathInternal(root.join("triggers").join("Dummy.trigger")).get.asTypeIdentifier
       val summary = pkg.getSummaryOfType(typeLike)
 
       assert(summary.name == "__sfdc_trigger/test/Dummy")
@@ -260,7 +260,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val typeLike = pkg.getTypeOfPathInternal(root.join("triggers").join("Dummy.trigger"))
+      val typeLike = pkg.getTypeOfPathInternal(root.join("triggers").join("Dummy.trigger")).get.asTypeIdentifier
       val summary = pkg.getSummaryOfType(typeLike)
 
       assert(summary.name == "__sfdc_trigger/Dummy")
@@ -278,7 +278,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val fooTypeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Foo.cls"))
+      val fooTypeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Foo.cls")).get.asTypeIdentifier
 
       assert(pkg.getDependencyHolders(fooTypeLike).isEmpty)
     }
@@ -294,8 +294,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
         val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
         assert(!org.issues.hasMessages)
 
-        val fooTypeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Foo.cls"))
-        val barTypeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls"))
+        val fooTypeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Foo.cls")).get.asTypeIdentifier
+        val barTypeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls")).get.asTypeIdentifier
 
         assert(pkg.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
         assert(pkg.getDependencyHolders(barTypeLike).isEmpty)
@@ -316,8 +316,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
         val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
         assert(!org.issues.hasMessages)
 
-        val fooTypeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Foo.cls"))
-        val barTypeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls"))
+        val fooTypeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Foo.cls")).get.asTypeIdentifier
+        val barTypeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls")).get.asTypeIdentifier
 
         assert(pkg.getType(fooTypeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
         assert(pkg.getType(barTypeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
@@ -557,8 +557,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg2 = org.addMDAPITestPackage(None, Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
-      val fooTypeLike = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Foo.cls"))
-      val barTypeLike = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Bar.cls"))
+      val fooTypeLike = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Foo.cls")).get.asTypeIdentifier
+      val barTypeLike = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Bar.cls")).get.asTypeIdentifier
 
       assert(pkg1.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
       assert(pkg2.getDependencyHolders(barTypeLike).isEmpty)
@@ -584,8 +584,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg22 = org2.addMDAPITestPackage(None, Seq(root.join("pkg2")), Seq(pkg21))
       assert(!org2.issues.hasMessages)
 
-      val fooTypeLike = pkg21.getTypeOfPathInternal(root.join("pkg1").join("Foo.cls"))
-      val barTypeLike = pkg22.getTypeOfPathInternal(root.join("pkg2").join("Bar.cls"))
+      val fooTypeLike = pkg21.getTypeOfPathInternal(root.join("pkg1").join("Foo.cls")).get.asTypeIdentifier
+      val barTypeLike = pkg22.getTypeOfPathInternal(root.join("pkg2").join("Bar.cls")).get.asTypeIdentifier
 
       assert(pkg21.getType(fooTypeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
       assert(pkg22.getType(barTypeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
@@ -607,8 +607,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg2 = org.addMDAPITestPackage(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
-      val fooTypeLike = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Foo.cls"))
-      val barTypeLike = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Bar.cls"))
+      val fooTypeLike = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Foo.cls")).get.asTypeIdentifier
+      val barTypeLike = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Bar.cls")).get.asTypeIdentifier
 
       assert(pkg1.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
       assert(pkg2.getDependencyHolders(barTypeLike).isEmpty)
@@ -634,8 +634,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg22 = org2.addMDAPITestPackage(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg21))
       assert(!org2.issues.hasMessages)
 
-      val fooTypeLike = pkg21.getTypeOfPathInternal(root.join("pkg1").join("Foo.cls"))
-      val barTypeLike = pkg22.getTypeOfPathInternal(root.join("pkg2").join("Bar.cls"))
+      val fooTypeLike = pkg21.getTypeOfPathInternal(root.join("pkg1").join("Foo.cls")).get.asTypeIdentifier
+      val barTypeLike = pkg22.getTypeOfPathInternal(root.join("pkg2").join("Bar.cls")).get.asTypeIdentifier
 
       assert(pkg21.getType(fooTypeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
       assert(pkg22.getType(barTypeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
@@ -655,7 +655,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val fooTypeLike = pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger"))
+      val fooTypeLike = pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.asTypeIdentifier
 
       assert(pkg.getDependencies(fooTypeLike, inheritanceOnly = false).isEmpty)
     }
@@ -670,8 +670,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val barTypeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls"))
-      val fooTypeLike = pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger"))
+      val barTypeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls")).get.asTypeIdentifier
+      val fooTypeLike = pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.asTypeIdentifier
 
       assert(pkg.getDependencies(fooTypeLike, inheritanceOnly = false).sameElements(Array(barTypeLike)))
     }
@@ -686,8 +686,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val barTypeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls"))
-      val fooTypeLike = pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger"))
+      val barTypeLike = pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls")).get.asTypeIdentifier
+      val fooTypeLike = pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.asTypeIdentifier
 
       assert(pkg.getDependencies(fooTypeLike, inheritanceOnly = false).sameElements(Array(barTypeLike)))
     }

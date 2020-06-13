@@ -158,7 +158,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
 
-      val barTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls"))
+      val barTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
       assert(pkg.getDependencyHolders(barTypeId).sameElements(Array[TypeName]()))
     }
   }

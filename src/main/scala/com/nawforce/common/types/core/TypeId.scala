@@ -35,6 +35,8 @@ case class TypeId(pkg: PackageImpl, typeName: TypeName) {
   def asTypeIdentifier: TypeIdentifier = {
     TypeIdentifier(pkg.namespace, typeName)
   }
+
+  override def toString: String = asTypeIdentifier.toString
 }
 
 object TypeId {
