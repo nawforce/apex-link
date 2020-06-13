@@ -146,15 +146,15 @@ trait ApexClassDeclaration extends ApexDeclaration {
       .getOrElse(TypeName(name, Nil, pkg.namespace.map(TypeName(_))))
   }
 
-  override lazy val superClassDeclaration: Option[TypeDeclaration] = {
+  override def superClassDeclaration: Option[TypeDeclaration] = {
     superClass.flatMap(sc => pkg.getTypeFor(sc, this))
   }
 
-  override lazy val interfaceDeclarations: Seq[TypeDeclaration] = {
+  override def interfaceDeclarations: Seq[TypeDeclaration] = {
     interfaces.flatMap(i => pkg.getTypeFor(i, this))
   }
 
-  override lazy val isComplete: Boolean = {
+  override def isComplete: Boolean = {
     (superClassDeclaration.nonEmpty && superClassDeclaration.get.isComplete) || superClass.isEmpty
   }
 

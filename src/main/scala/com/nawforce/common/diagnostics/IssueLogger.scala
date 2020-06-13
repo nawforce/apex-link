@@ -32,6 +32,8 @@ import com.nawforce.common.documents.LocationImpl
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 
+import scala.collection.mutable.ArrayBuffer
+
 /** Trait to assist with logging in a context specific way */
 trait IssueLogger {
   // Simply log an issue
@@ -75,13 +77,15 @@ trait ParserIssueLogger extends IssueLogger {
 
 /** Logger using a specific CodaParser */
 class CodeParserLogger(parser: CodeParser) extends ParserIssueLogger {
-  var issues: Array[Issue] = Array()
+  private val issueLog = new ArrayBuffer[Issue]()
 
   override def log(issue: Issue): Unit = {
-    issues :+= issue
+    issueLog.append(issue)
   }
 
   override def location(context: ParserRuleContext): LocationImpl = {
     parser.getRangeLocation(context)
   }
+
+  def issues: Array[Issue] = issueLog.toArray
 }

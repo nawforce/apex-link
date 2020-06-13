@@ -46,11 +46,6 @@ class TypeResolver {
   type TypeResponse = Either[TypeError, TypeDeclaration]
   private lazy val typeCache = mutable.Map[(TypeName, TypeDeclaration), Option[TypeDeclaration]]()
 
-  /** Search for a Platform type */
-  def find(typeName: TypeName, excludeSObjects: Boolean): TypeResponse = {
-    PlatformTypes.get(typeName, None, excludeSObjects)
-  }
-
   /** Search for a Package, Dependent Package or Platform Type */
   def find(typeName: TypeName, pkg: PackageImpl, excludeSObjects: Boolean): TypeResponse = {
     pkg.getType(typeName, None, excludeSObjects)
@@ -83,7 +78,7 @@ class TypeResolver {
     } else if (pkg.nonEmpty)
       find(typeName, pkg.get, excludeSObjects)
     else
-      find(typeName, excludeSObjects)
+      PlatformTypes.get(typeName, None, excludeSObjects)
   }
 
   private def getPackageTypeFor(pkg: PackageImpl, typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {
@@ -97,10 +92,6 @@ class TypeResolver {
 
 object TypeResolver {
   type TypeResponse = Either[TypeError, TypeDeclaration]
-
-  def apply(typeName: TypeName, excludeSObjects: Boolean): TypeResponse = {
-    new TypeResolver().find(typeName, excludeSObjects)
-  }
 
   def apply(typeName: TypeName, pkg: PackageImpl, excludeSObjects: Boolean): TypeResponse = {
     new TypeResolver().find(typeName, pkg, excludeSObjects)

@@ -53,7 +53,7 @@ final case class RelativeTypeName(pkg: PackageImpl, outerTypeName: TypeName, rel
   }
 
   // Returns absolute type or may fallback to relative if not found, use typeRequest for error detection
-  lazy val typeName: TypeName = {
+  def typeName: TypeName = {
     // We need the absolute type if we can get it
     typeRequest.map(_.map(_.typeName)) match {
       case Some(Right(tn)) => tn
@@ -62,7 +62,7 @@ final case class RelativeTypeName(pkg: PackageImpl, outerTypeName: TypeName, rel
   }
 
   // TypeRequest for the relative type, None if not required
-  lazy val typeRequest: Option[TypeResponse] = {
+  def typeRequest: Option[TypeResponse] = {
     if (relativeTypeName != TypeNames.Void && !pkg.isGhostedType(relativeTypeName)) {
 
       // Simulation of a bug, the type resolves against package, ignoring outer, sometimes..
@@ -82,7 +82,7 @@ final case class RelativeTypeName(pkg: PackageImpl, outerTypeName: TypeName, rel
   // Recover outer types nature, bit of a hack but sometimes useful
   lazy val outerNature: Nature = outerTypeDeclaration.nature
 
-  private lazy val outerTypeDeclaration: TypeDeclaration = {
+  private def outerTypeDeclaration: TypeDeclaration = {
     TypeResolver(outerTypeName, pkg, excludeSObjects = false).right.get
   }
 }
