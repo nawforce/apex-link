@@ -50,17 +50,17 @@ trait PackageAPI extends Package {
   }
 
   override def getTypeOfPath(path: String): TypeIdentifier = {
-    getTypeOfPathInternal(PathFactory(path))
+    getTypeOfPathInternal(PathFactory(path)).map(_.asTypeIdentifier).orNull
   }
 
-  private[nawforce] def getTypeOfPathInternal(path: PathLike): TypeIdentifier = {
+  private[nawforce] def getTypeOfPathInternal(path: PathLike): Option[TypeId] = {
     MetadataDocument(path) match {
       case Some(md: MetadataDocument) =>
         types.get(md.typeName(namespace)) match {
-          case Some(td: TypeDeclaration) if td.paths.contains(path) => TypeIdentifier(namespace, td.typeName)
-          case _ => null
+          case Some(td: TypeDeclaration) if td.paths.contains(path) => Some(TypeId(this, td.typeName))
+          case _ => None
         }
-      case _ => null
+      case _ => None
     }
   }
 
@@ -146,8 +146,8 @@ trait PackageAPI extends Package {
 
     createType(dt, source).foreach(newType => {
       // Carry forward holders to limit need for invalidation chaining
-      val existing = getDependentType(newType.typeName)
-      val holders = existing.map(_.getTypeDependencyHolders).getOrElse(mutable.Set())
+      val existingType = getDependentType(newType.typeName)
+      val holders = existingType.map(_.getTypeDependencyHolders).getOrElse(mutable.Set())
       newType.updateTypeDependencyHolders(holders)
 
       // Update and validate
@@ -155,17 +155,28 @@ trait PackageAPI extends Package {
       newType.validate()
 
       // Re-validate holders to detect errors and release existing refs
-      // TODO: This is not handling inheritance or missing invalidation
-      // TODO: Check if shape has changed?
+      // TODO: This is not handling inheritance correctly, needs multi-level handling
       if (invalidateReferences) {
-        holders.foreach(typeId => {
-          typeId.pkg.packageType(typeId.typeName).foreach {
-            case holder: SummaryDeclaration =>
-              refreshInternal(holder.path, None, invalidateReferences = false)
-            case holder =>
-              holder.validate()
+        val references = holders ++ getTypesWithMissingIssues
+        if (references.nonEmpty) {
+          // Check for a shape change
+          val sameShape = (existingType, newType) match {
+            case (Some(ed: ApexDeclaration), nd: ApexDeclaration) => summaryShape(ed.summary) == summaryShape(nd.summary)
+            case _ => false
           }
-        })
+
+          if (!sameShape) {
+            references.foreach(typeId => {
+              typeId.pkg.packageType(typeId.typeName).foreach {
+                case ref: SummaryDeclaration =>
+                  refreshInternal(ref.path, None, invalidateReferences = false)
+                case ref =>
+                  ref.paths.foreach(p => org.issues.pop(p.toString))
+                  ref.validate()
+              }
+            })
+          }
+        }
       }
     })
   }
@@ -375,5 +386,22 @@ trait PackageAPI extends Package {
         case Right(data) => Some(data)
       }
     })
+  }
+
+  private def summaryShape(summary: TypeSummary): TypeSummary = {
+    TypeSummary(0, summary.idRange, summary.name, summary.typeName, summary.nature, summary.modifiers,
+      summary.superClass, summary.interfaces, summary.blocks, summary.fields, summary.constructors,
+      summary.methods, summary.nestedTypes.map(summaryShape), Set.empty)
+  }
+
+  private def getTypesWithMissingIssues: Seq[TypeId] = {
+    org.issues.getMissing
+      .flatMap(path => findTypeIdOfPath(PathFactory(path)))
+  }
+
+  private def findTypeIdOfPath(path: PathLike): Option[TypeId] = {
+    org.packagesByNamespace.values
+      .flatMap(p => p.getTypeOfPathInternal(path))
+      .headOption
   }
 }

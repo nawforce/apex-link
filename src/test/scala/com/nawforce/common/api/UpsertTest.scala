@@ -127,8 +127,8 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       assert(view.hasType)
       assert(pkg.upsertFromView(view))
 
-      val fooTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.cls"))
-      val barTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls"))
+      val fooTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.cls")).get.asTypeIdentifier
+      val barTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
 
       assert(pkg.getDependencyHolders(fooTypeId).isEmpty)
       assert(pkg.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
@@ -151,8 +151,8 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       assert(view.diagnostics.isEmpty)
       assert(pkg2.upsertFromView(view))
 
-      val barTypeId = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls"))
-      val fooTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Foo.cls"))
+      val barTypeId = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls")).get.asTypeIdentifier
+      val fooTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Foo.cls")).get.asTypeIdentifier
 
       assert(pkg2.getDependencyHolders(fooTypeId).isEmpty)
       assert(pkg2.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
@@ -278,8 +278,8 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       assert(view.hasType)
       assert(pkg.upsertFromView(view))
 
-      val fooTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.trigger"))
-      val barTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls"))
+      val fooTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.trigger")).get.asTypeIdentifier
+      val barTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
 
       assert(pkg.getDependencyHolders(fooTypeId).isEmpty)
       assert(pkg.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
@@ -303,8 +303,8 @@ class UpsertTest extends AnyFunSuite with BeforeAndAfter {
       assert(view.diagnostics.isEmpty)
       assert(pkg2.upsertFromView(view))
 
-      val fooTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Foo.trigger"))
-      val barTypeId = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls"))
+      val fooTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Foo.trigger")).get.asTypeIdentifier
+      val barTypeId = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls")).get.asTypeIdentifier
 
       assert(pkg2.getDependencyHolders(fooTypeId).isEmpty)
       assert(pkg2.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))

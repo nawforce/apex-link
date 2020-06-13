@@ -39,6 +39,7 @@ import scala.collection.mutable
   */
 class IssueLog {
   private val log = mutable.HashMap[String, List[Issue]]() withDefaultValue List()
+  private val possibleMissing = mutable.HashSet[String]()
 
   // Access all issues
   def getIssues: Map[String, List[Issue]] = log.toMap
@@ -51,6 +52,8 @@ class IssueLog {
   // Add an issue
   def add(issue: Issue): Unit = {
     log.put(issue.location.path, issue :: log(issue.location.path))
+    if (issue.category == MISSING_CATEGORY)
+      possibleMissing.add(issue.location.path)
   }
 
   // Do we have any issues
@@ -77,6 +80,20 @@ class IssueLog {
   // Get issues for a specific file in Diagnostic form
   def getDiagnostics(path: String): List[Diagnostic] = {
     log.getOrElse(path, Nil).map(_.toDiagnostic)
+  }
+
+  // Get paths that have a MISSING_CATEGORY issue
+  def getMissing: Seq[String] = {
+    val missing = new mutable.ArrayBuffer[String]()
+    possibleMissing.foreach(possible => {
+      val issues = log.getOrElse(possible, Nil).filter(_.category == MISSING_CATEGORY)
+      if (issues.nonEmpty) {
+        missing.append(possible)
+      }
+    })
+    possibleMissing.clear()
+    missing.foreach(possibleMissing.add)
+    missing
   }
 
   private trait MessageWriter {

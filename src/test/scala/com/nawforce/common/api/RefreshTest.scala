@@ -69,6 +69,17 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+  test("Valid refresh with non-significant changes") {
+    FileSystemHelper.run(Map(
+      "pkg/Foo.cls" -> "public class Foo {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      assert(pkg.refresh(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {/* A change */}"))) == null)
+      assert(!org.issues.hasMessages)
+    }
+  }
+
   test("Refresh creates missing") {
     FileSystemHelper.run(Map(
       "pkg/Foo.cls" -> "public class Foo {Bar.Inner b;}",
@@ -84,6 +95,21 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+  test("Refresh resolves missing") {
+    FileSystemHelper.run(Map(
+      "pkg/Foo.cls" -> "public class Foo {Bar.Inner b;}",
+      "pkg/Bar.cls" -> "public class Bar {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      assert(org.issues.getMessages("/pkg/Foo.cls")
+        == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
+
+      assert(pkg.refresh(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {public class Inner {}}"))) == null)
+      assert(!org.issues.hasMessages)
+    }
+  }
+
   test("Dependencies created") {
     FileSystemHelper.run(Map(
       "pkg/Foo.cls" -> "public class Foo {}",
@@ -94,8 +120,8 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       pkg.refresh(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Bar b;}")))
       assert(!org.issues.hasMessages)
 
-      val fooTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.cls"))
-      val barTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls"))
+      val fooTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.cls")).get.asTypeIdentifier
+      val barTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
 
       assert(pkg.getDependencyHolders(fooTypeId).isEmpty)
       assert(pkg.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
@@ -116,8 +142,8 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       pkg2.refresh(root.join("pkg2/Foo.cls"), Some(SourceBlob("public class Foo {p1.Bar b;}")))
       assert(!org.issues.hasMessages)
 
-      val barTypeId = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls"))
-      val fooTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Foo.cls"))
+      val barTypeId = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls")).get.asTypeIdentifier
+      val fooTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Foo.cls")).get.asTypeIdentifier
 
       assert(pkg2.getDependencyHolders(fooTypeId).isEmpty)
       assert(pkg2.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
@@ -175,6 +201,21 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+  test("Refresh resolves trigger missing") {
+    FileSystemHelper.run(Map(
+      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar.Inner b;}",
+      "pkg/Bar.cls" -> "public class Bar {}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      assert(org.issues.getMessages("/pkg/Foo.trigger")
+        == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n")
+
+      pkg.refresh(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {public class Inner {}}")))
+      assert(!org.issues.hasMessages)
+    }
+  }
+
   test("Trigger dependencies created") {
     FileSystemHelper.run(Map(
       "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}",
@@ -184,8 +225,8 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       pkg.refresh(root.join("pkg/Foo.trigger"), Some(SourceBlob("trigger Foo on Account (before insert) {Bar b;}")))
 
-      val fooTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.trigger"))
-      val barTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls"))
+      val fooTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.trigger")).get.asTypeIdentifier
+      val barTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
 
       assert(pkg.getDependencyHolders(fooTypeId).isEmpty)
       assert(pkg.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
@@ -206,8 +247,8 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       pkg2.refresh(root.join("pkg2/Foo.trigger"),
         Some(SourceBlob("trigger Foo on Account (before insert) {p1.Bar b;}")))
 
-      val fooTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Foo.trigger"))
-      val barTypeId = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls"))
+      val fooTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Foo.trigger")).get.asTypeIdentifier
+      val barTypeId = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls")).get.asTypeIdentifier
 
       assert(pkg2.getDependencyHolders(fooTypeId).isEmpty)
       assert(pkg2.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
