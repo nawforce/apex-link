@@ -167,6 +167,7 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
         }
       }
     }
+    Monitor.reportDuplicateTypes
   }
 
   /** Collect all issues into a JSON log */

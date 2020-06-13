@@ -36,8 +36,6 @@ import com.nawforce.common.names._
 import com.nawforce.common.types.core.{FieldDeclaration, MethodDeclaration, ParameterDeclaration, TypeDeclaration}
 import com.nawforce.runtime.types.{PlatformField, PlatformMethod, PlatformParameter, PlatformTypeDeclaration}
 
-import scala.collection.mutable
-
 /* Wrapper for the few generic types we support, this specialises the methods of the type so that
  * List<T> presents as say a List<Foo>.
  */
@@ -134,20 +132,11 @@ class GenericPlatformParameter(platformParameter: PlatformParameter, _typeDeclar
 
 object GenericPlatformTypeDeclaration {
 
-  // Cache of generic type requests
-  private val declarationCache = mutable.Map[(TypeName, Option[TypeDeclaration]), TypeResponse]()
-
   /* Get a generic type, in general don't call this direct, use TypeRequest which will delegate here if
    * needed. Implicit in this model is that all generics are currently platform types, hopefully that
    * won't be true forever.
    */
   def get(typeName: TypeName, from: Option[TypeDeclaration]): TypeResponse = {
-    declarationCache.getOrElseUpdate((typeName, from), {
-      create(typeName, from)
-    })
-  }
-
-  private def create(typeName: TypeName, from: Option[TypeDeclaration]): TypeResponse = {
     // Make sure params are resolvable first
     val params = typeName.params.map(pt => (pt, TypeResolver(pt, from, None, excludeSObjects = false)))
     val pkg = from.flatMap(_.packageDeclaration)

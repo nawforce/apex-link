@@ -97,7 +97,7 @@ object ClassDeclaration {
         classBodyDeclarations.flatMap(cbd =>
           CodeParser.toScala(cbd.block())
             .map(x => Seq(ApexInitialiserBlock.construct(parser,
-                ModifierResults(CodeParser.toScala(cbd.STATIC()).map(_ => Seq(STATIC_MODIFIER)).getOrElse(Seq()), Nil), x)))
+                ModifierResults(CodeParser.toScala(cbd.STATIC()).map(_ => Seq(STATIC_MODIFIER)).getOrElse(Seq()).toArray, Array()), x)))
           .orElse(CodeParser.toScala(cbd.memberDeclaration())
             .map(x => ClassBodyDeclaration.construct(parser, pkg, thisType, CodeParser.toScala(cbd.modifier()), x))
           )
@@ -178,7 +178,7 @@ object EnumDeclaration {
     val constants = CodeParser.toScala(enumDeclaration.enumConstants())
       .map(ec => CodeParser.toScala(ec.id())).getOrElse(Seq())
     val fields = constants.map(constant => {
-      ApexFieldDeclaration(TypeId(pkg, thisType), ModifierResults(Seq(PUBLIC_MODIFIER, STATIC_MODIFIER), Nil), thisType,
+      ApexFieldDeclaration(TypeId(pkg, thisType), ModifierResults(Array(PUBLIC_MODIFIER, STATIC_MODIFIER), Array()), thisType,
         VariableDeclarator(
           thisType,
           Id.construct(constant),

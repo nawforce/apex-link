@@ -247,9 +247,10 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   }
 
   val superClass: Option[TypeName]
-  lazy val superClassDeclaration: Option[TypeDeclaration] = None
   val interfaces: Seq[TypeName]
-  lazy val interfaceDeclarations: Seq[TypeDeclaration] = Nil
+
+  def superClassDeclaration: Option[TypeDeclaration] = None
+  def interfaceDeclarations: Seq[TypeDeclaration] = Nil
   def nestedTypes: Seq[TypeDeclaration]
 
   val blocks: Seq[BlockDeclaration]
@@ -373,17 +374,20 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   }
 
   def extendsOrImplements(typeName: TypeName): Boolean = {
+    lazy val interfaces = interfaceDeclarations
     superClassDeclaration.exists(_.typeName == typeName) ||
-      interfaceDeclarations.exists(_.typeName == typeName) ||
-      superClassDeclaration.exists(_.extendsOrImplements(typeName)) ||
-      interfaceDeclarations.exists(_.extendsOrImplements(typeName))
+      interfaces.exists(_.typeName == typeName) ||
+      interfaces.exists(_.extendsOrImplements(typeName)) ||
+      interfaces.exists(_.extendsOrImplements(typeName))
   }
 
   def superTypes(): List[TypeName] = {
-    superClassDeclaration.map(_.typeName).toList ++
-      interfaceDeclarations.map(_.typeName).toList ++
-      superClassDeclaration.map(_.superTypes()).getOrElse(Nil) ++
-      interfaceDeclarations.flatMap(_.superTypes())
+    lazy val superclasses = superClassDeclaration
+    lazy val interfaces = interfaceDeclarations
+    superclasses.map(_.typeName).toList ++
+      interfaces.map(_.typeName).toList ++
+      superclasses.map(_.superTypes()).getOrElse(Nil) ++
+      interfaces.flatMap(_.superTypes())
   }
 
   /** Create a type summary for serialisation purposes. Although this uses the same format as summaries for

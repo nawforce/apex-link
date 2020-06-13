@@ -122,7 +122,7 @@ object Modifier {
 }
 
 // Result wrapper
-case class ModifierResults(modifiers: Seq[Modifier], issues: Seq[Issue])
+case class ModifierResults(modifiers: Array[Modifier], issues: Array[Issue])
 
 // TODO: Validate arguments of the annotations
 // TODO: Cross modifier/annotation checking
@@ -185,7 +185,7 @@ object ApexModifiers {
         mods
       }
 
-    ModifierResults(results, logger.issues)
+    ModifierResults(results.toArray, logger.issues)
   }
 
   def interfaceModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], outer: Boolean, idContext: IdContext)
@@ -234,7 +234,7 @@ object ApexModifiers {
         mods
       }
     }
-    ModifierResults(results, logger.issues)
+    ModifierResults(results.toArray, logger.issues)
   }
 
   def enumModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], outer: Boolean, idContext: IdContext)
@@ -282,7 +282,7 @@ object ApexModifiers {
         mods
       }
     }
-    ModifierResults(results, logger.issues)
+    ModifierResults(results.toArray, logger.issues)
   }
 
   def fieldModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], idContext: IdContext)
@@ -331,7 +331,7 @@ object ApexModifiers {
         mods
       }
     }
-    ModifierResults(results, logger.issues)
+    ModifierResults(results.toArray, logger.issues)
   }
 
   def propertyBlockModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], idContext: PropertyBlockContext)
@@ -364,7 +364,7 @@ object ApexModifiers {
         mods
       }
     }
-    ModifierResults(results, logger.issues)
+    ModifierResults(results.toArray, logger.issues)
   }
 
   def constructorModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], parserContext: ParserRuleContext)
@@ -404,7 +404,7 @@ object ApexModifiers {
         mods
       }
     }
-    ModifierResults(results, logger.issues)
+    ModifierResults(results.toArray, logger.issues)
   }
 
   def methodModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], idContext: ParserRuleContext)
@@ -456,7 +456,7 @@ object ApexModifiers {
         mods
       }
     }
-    ModifierResults(results, logger.issues)
+    ModifierResults(results.toArray, logger.issues)
   }
 
   def parameterModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], idContext: ParserRuleContext)
@@ -487,7 +487,7 @@ object ApexModifiers {
         mods
       }
     }
-    ModifierResults(results, logger.issues)
+    ModifierResults(results.toArray, logger.issues)
   }
 
   def catchModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], idContext: ParserRuleContext)
@@ -519,7 +519,7 @@ object ApexModifiers {
         mods
       }
     }
-    ModifierResults(results, logger.issues)
+    ModifierResults(results.toArray, logger.issues)
   }
 
   def localVariableModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], idContext: ParserRuleContext)
@@ -551,7 +551,7 @@ object ApexModifiers {
         mods
       }
     }
-    ModifierResults(results, logger.issues)
+    ModifierResults(results.toArray, logger.issues)
   }
 
   private def classAnnotation(logger: ParserIssueLogger, context: AnnotationContext): Option[Modifier] = {

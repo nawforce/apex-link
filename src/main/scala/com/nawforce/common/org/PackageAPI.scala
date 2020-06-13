@@ -146,14 +146,14 @@ trait PackageAPI extends Package {
 
     if (isUnchangedSource(dt, source)) return
 
+    // Clear errors as might fail to create type
+    org.issues.pop(dt.path.toString)
+
     createType(dt, source).foreach(newType => {
       // Carry forward holders to limit need for invalidation chaining
       val existing = getDependentType(newType.typeName)
       val holders = existing.map(_.getTypeDependencyHolders).getOrElse(mutable.Set())
       newType.updateTypeDependencyHolders(holders)
-
-      // Clear old errors as we need to validate the upserted
-      org.issues.pop(dt.path.toString)
 
       // Update and validate
       insertType(newType)
@@ -161,6 +161,7 @@ trait PackageAPI extends Package {
 
       // Re-validate holders to detect errors and release existing refs
       // TODO: This is not handling inheritance or missing invalidation
+      // TODO: Check if shape has changed?
       if (invalidateReferences) {
         holders.foreach(typeId => {
           typeId.pkg.packageType(typeId.typeName).foreach {
