@@ -27,8 +27,8 @@
 */
 package com.nawforce.common.org
 
-import com.nawforce.common.api.{Diagnostic, LineLocation, Package, ServerOps, TypeIdentifier, TypeName, TypeSummary, ViewInfo}
-import com.nawforce.common.diagnostics.{ERROR_CATEGORY, LocalLogger}
+import com.nawforce.common.api.{Package, ServerOps, TypeIdentifier, TypeName, TypeSummary, ViewInfo}
+import com.nawforce.common.diagnostics.LocalLogger
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.org.stream._
@@ -40,7 +40,6 @@ import com.nawforce.runtime.SourceBlob
 import com.nawforce.runtime.parsers.SourceData
 import com.nawforce.runtime.types.PlatformTypeException
 
-import scala.collection.immutable.Queue
 import scala.collection.mutable
 
 trait PackageAPI extends Package {
@@ -134,17 +133,13 @@ trait PackageAPI extends Package {
   }
 
   private def refreshInternal(path: PathLike, contents: Option[SourceBlob], invalidateReferences: Boolean=true): Unit = {
+    checkPathInPackageOrThrow(path)
+    val dt = getUpdateableDocumentTypeOrThrow(path)
+    val source = getPathSourceOrThrow(path, contents)
 
-    Some(workspace.isVisibleFile(path)).filterNot(v => v)
-      .foreach{_ => throw new IllegalArgumentException(s"Metadata is not part of this package for $path")}
-
-    val dt = (MetadataDocument(path) collect {case dt: UpdatableMetadata => dt})
-      .getOrElse(throw new IllegalArgumentException(s"Metadata refresh is not supported for $path"))
-
-    val source = resolveSource(path, contents)
-      .getOrElse(throw new IllegalArgumentException(s"Metatdata could not be loaded for $path"))
-
-    if (isUnchangedSource(dt, source)) return
+    val td = getFullDeclaration(dt)
+    if (td.exists(_.sourceHash == source.hash))
+      return
 
     // Clear errors as might fail to create type
     org.issues.pop(dt.path.toString)
@@ -175,111 +170,30 @@ trait PackageAPI extends Package {
     })
   }
 
-  private def createType(dt: UpdatableMetadata, source: SourceData): Option[DependentType] = {
-    dt match {
-      case _: ApexClassDocument => FullDeclaration.create(this, dt.path, source)
-      case _: ApexTriggerDocument => TriggerDeclaration.create(this, dt.path, source)
-      case _ => Some(createOtherType(dt, source))
-    }
-  }
-
-  private def createOtherType(dt: UpdatableMetadata, source: SourceData): DependentType = {
-    val metadata = MetadataDocumentWithData(dt, source)
-    val provider = new OverrideMetadataProvider(Seq(metadata), new DocumentIndexMetadataProvider(documents))
-    val queue = Generator.queue(dt, new LocalLogger(org.issues), provider)
-    Other(dt, this).merge(new PackageStream(namespace, queue))
-  }
-
-  private def resolveSource(path: PathLike, contents: Option[SourceBlob]): Option[SourceData] = {
-    contents.map(blob => SourceData(blob)).orElse({
-      path.readSourceData() match {
-        case Left(_) => None
-        case Right(data) => Some(data)
-      }
-    })
-  }
-
-  private def isUnchangedSource(dt: MetadataDocument, source: SourceData): Boolean = {
-    types.get(dt.typeName(namespace))
-      .flatMap {
-        case fd: FullDeclaration => Some(fd)
-        case td: TriggerDeclaration => Some(td)
-        case _ => None
-      }
-      .exists(_.sourceHash == source.hash)
-  }
-
   override def getViewOfType(path: String, contents: SourceBlob): ViewInfo = {
     getViewOfType(PathFactory(path), Option(contents))
   }
 
-  // Create a view for a type, contents are optional
   private[nawforce] def getViewOfType(path: PathLike, contents: Option[SourceBlob]): ViewInfo = {
-    // Check path is something we known how to handle & is not being ignored
-    val dt: Option[MetadataDocument] = MetadataDocument(path) match {
-      case Some(d: ApexDocument) => Some(d)
-      case Some(d: LabelsDocument) => Some(d)
-      case Some(d: FlowDocument) => Some(d)
-      case Some(d: PageDocument) => Some(d)
-      case Some(d: ComponentDocument) => Some(d)
-      case _ => None
-    }
-
-    if (dt.isEmpty) {
-      return ViewInfoImpl(IN_ERROR, path, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
-        "Path does not identify a supported metadata type")))
-    }
-
-    if (!workspace.isVisibleFile(path))
-      return ViewInfoImpl(IN_ERROR, path, None, Array(Diagnostic(ERROR_CATEGORY.value, LineLocation(0),
-        "Path is being ignored in this workspace")))
-
-    // Read contents from file if we were not provided with
-
-    val source: Option[SourceData] = contents.map(blob => SourceData(blob)).orElse({
-      path.readSourceData() match {
-        case Left(_) => None
-        case Right(data) =>Some(data)
+    try {
+      OrgImpl.current.withValue(org) {
+        getViewOfTypeInternal(path, contents)
       }
-    })
-
-    // Shortcut if data unchanged on a FullDeclaration
-    val td = dt.flatMap(ad => {
-      types.get(ad.typeName(namespace))
-        .flatMap {
-          case fd: FullDeclaration => Some(fd)
-          case td: TriggerDeclaration => Some(td)
-          case _ => None
-        }
-    })
-
-    if (td.nonEmpty && source.nonEmpty && td.get.sourceHash == source.get.hash)
-      return ViewInfoImpl(EXISTING_TYPE, path, td, org.issues.getDiagnostics(path.toString).toArray)
-
-    // Prepare the view for a replacement or deletion
-    dt.get match {
-      case _: ApexClassDocument => loadApexAndValidate(path, source, FullDeclaration.create)
-      case _: ApexTriggerDocument => loadApexAndValidate(path, source, TriggerDeclaration.create)
-      case _: LabelsDocument => loadLabelsAndValidate(dt.get, source)
-      case _: FlowDocument =>  loadFlowsAndValidate(dt.get, source)
-      case _: PageDocument =>  loadPagesAndValidate(dt.get, source)
-      case _: ComponentDocument =>  loadComponentsAndValidate(dt.get, source)
+    } catch {
+      case ex: IllegalArgumentException => ViewInfoImpl(IN_ERROR, path, None, Array(), ex.getMessage)
     }
   }
 
-  // Load a class and validate it without upsert'ing it into the package, upsertFromView will do that
-  private def loadApexAndValidate(path: PathLike, source: Option[SourceData],
-                                  create: (PackageImpl, PathLike, SourceData) => Option[ApexFullDeclaration]): ViewInfoImpl = {
-    val issues = org.issues.pop(path.toString)
-    try {
-      OrgImpl.current.withValue(org) {
-        val td = source.flatMap(data => create(this, path, data))
-        td.foreach(validateInIsolation)
-        ViewInfoImpl(NEW_TYPE, path, td, org.issues.getDiagnostics(path.toString).toArray)
-      }
-    } finally {
-      org.issues.push(path.toString, issues)
-    }
+  private def getViewOfTypeInternal(path: PathLike, contents: Option[SourceBlob]): ViewInfo = {
+    checkPathInPackageOrThrow(path)
+    val dt = getUpdateableDocumentTypeOrThrow(path)
+    val source = getPathSourceOrThrow(path, contents)
+
+    val td = getFullDeclaration(dt)
+    if (td.exists(_.sourceHash == source.hash))
+      return ViewInfoImpl(EXISTING_TYPE, path, td, org.issues.getDiagnostics(path.toString).toArray)
+
+    createTypeInIsolation(dt, source)
   }
 
   // Run validation over the TypeDeclaration without mutating package types or dependencies
@@ -291,86 +205,6 @@ trait PackageAPI extends Package {
     } finally {
       types.remove(td.typeName)
       originalTd.foreach(types.put(td.typeName, _))
-    }
-  }
-
-  private def loadLabelsAndValidate(docType: MetadataDocument, source: Option[SourceData]): ViewInfoImpl = {
-    val path = docType.path
-    val issues = org.issues.pop(path.toString)
-    try {
-      OrgImpl.current.withValue(org) {
-        // Re-create labels
-        var newLabels = LabelDeclaration(this)
-        val metadata = source.map(data => MetadataDocumentWithData(docType, data)).toSeq
-        val provider = new OverrideMetadataProvider(metadata, new DocumentIndexMetadataProvider(documents))
-        val queue = LabelGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
-        newLabels = newLabels.merge(new PackageStream(namespace, queue))
-        labels = newLabels
-
-        ViewInfoImpl(NEW_TYPE, path, Some(labels), org.issues.getDiagnostics(path.toString).toArray)
-      }
-    } finally {
-      org.issues.push(path.toString, issues)
-    }
-  }
-
-  private def loadFlowsAndValidate(docType: MetadataDocument, source: Option[SourceData]): ViewInfoImpl = {
-    val path = docType.path
-    val issues = org.issues.pop(path.toString)
-    try {
-      OrgImpl.current.withValue(org) {
-        // Re-create Interviews
-        var newInterviews = InterviewDeclaration(this)
-        val metadata = source.map(data => MetadataDocumentWithData(docType, data)).toSeq
-        val provider = new OverrideMetadataProvider(metadata, new DocumentIndexMetadataProvider(documents))
-        val queue = FlowGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
-        newInterviews = newInterviews.merge(new PackageStream(namespace, queue))
-        interviews = newInterviews
-
-        ViewInfoImpl(NEW_TYPE, path, Some(interviews), org.issues.getDiagnostics(path.toString).toArray)
-      }
-    } finally {
-      org.issues.push(path.toString, issues)
-    }
-  }
-
-  private def loadPagesAndValidate(docType: MetadataDocument, source: Option[SourceData]): ViewInfoImpl = {
-    val path = docType.path
-    val issues = org.issues.pop(path.toString)
-    try {
-      OrgImpl.current.withValue(org) {
-        // Re-create Interviews
-        var newPages = PageDeclaration(this)
-        val metadata = source.map(data => MetadataDocumentWithData(docType, data)).toSeq
-        val provider = new OverrideMetadataProvider(metadata, new DocumentIndexMetadataProvider(documents))
-        val queue = PageGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
-        newPages = newPages.merge(new PackageStream(namespace, queue))
-        pages = newPages
-
-        ViewInfoImpl(NEW_TYPE, path, Some(pages), org.issues.getDiagnostics(path.toString).toArray)
-      }
-    } finally {
-      org.issues.push(path.toString, issues)
-    }
-  }
-
-  private def loadComponentsAndValidate(docType: MetadataDocument, source: Option[SourceData]): ViewInfoImpl = {
-    val path = docType.path
-    val issues = org.issues.pop(path.toString)
-    try {
-      OrgImpl.current.withValue(org) {
-        // Re-create Interviews
-        var newComponents = ComponentDeclaration(this)
-        val metadata = source.map(data => MetadataDocumentWithData(docType, data)).toSeq
-        val provider = new OverrideMetadataProvider(metadata, new DocumentIndexMetadataProvider(documents))
-        val queue = ComponentGenerator.queue(new LocalLogger(org.issues), provider, Queue[PackageEvent]())
-        newComponents = newComponents.merge(new PackageStream(namespace, queue))
-        components = newComponents
-
-        ViewInfoImpl(NEW_TYPE, path, Some(components), org.issues.getDiagnostics(path.toString).toArray)
-      }
-    } finally {
-      org.issues.push(path.toString, issues)
     }
   }
 
@@ -416,7 +250,7 @@ trait PackageAPI extends Package {
         org.issues.pop(viewInfoImpl.path.toString)
 
         // Update and validate
-        types.put(utd.typeName, utd)
+        insertType(utd)
         utd.validate()
 
         // Revalidate holders to detect errors and release existing refs
@@ -476,5 +310,70 @@ trait PackageAPI extends Package {
     OrgImpl.current.withValue(org) {
       typeNames.flatMap(typeName => TypeResolver(typeName, this, excludeSObjects = false).toOption)
     }
+  }
+
+  private def createTypeInIsolation(dt: UpdatableMetadata, source: SourceData): ViewInfoImpl = {
+    val path = dt.path
+    val issues = org.issues.pop(path.toString)
+    try {
+      val td = createType(dt, source)
+      td match {
+        case Some(td: ApexFullDeclaration) => validateInIsolation(td)
+        case _ => ()
+      }
+      ViewInfoImpl(NEW_TYPE, path, td, org.issues.getDiagnostics(path.toString).toArray)
+    } finally {
+      org.issues.push(path.toString, issues)
+    }
+  }
+
+  private def createType(dt: UpdatableMetadata, source: SourceData): Option[DependentType] = {
+    dt match {
+      case _: ApexClassDocument => FullDeclaration.create(this, dt.path, source)
+      case _: ApexTriggerDocument => TriggerDeclaration.create(this, dt.path, source)
+      case _ => Some(createOtherType(dt, source))
+    }
+  }
+
+  private def createOtherType(dt: UpdatableMetadata, source: SourceData): DependentType = {
+    val metadata = MetadataDocumentWithData(dt, source)
+    val provider = new OverrideMetadataProvider(Seq(metadata), new DocumentIndexMetadataProvider(documents))
+    val queue = Generator.queue(dt, new LocalLogger(org.issues), provider)
+    Other(dt, this).merge(new PackageStream(namespace, queue))
+  }
+
+  private def getFullDeclaration(dt: MetadataDocument): Option[ApexFullDeclaration] = {
+    types.get(dt.typeName(namespace))
+      .flatMap {
+        case fd: FullDeclaration => Some(fd)
+        case td: TriggerDeclaration => Some(td)
+        case _ => None
+      }
+  }
+
+  private def getUpdateableDocumentTypeOrThrow(path: PathLike): UpdatableMetadata = {
+    (MetadataDocument (path) collect {
+      case dt: UpdatableMetadata => dt
+    })
+    .getOrElse (throw new IllegalArgumentException (s"Metadata type is not supported for '$path'") )
+  }
+
+  private def checkPathInPackageOrThrow(path: PathLike): Unit = {
+    Some(workspace.isVisibleFile(path)).filterNot(v => v)
+      .foreach{_ => throw new IllegalArgumentException(s"Metadata is not part of this package for '$path'")}
+  }
+
+  private def getPathSourceOrThrow(path: PathLike, contents: Option[SourceBlob]): SourceData = {
+    resolveSource(path, contents)
+      .getOrElse(throw new IllegalArgumentException(s"Metatdata could not be loaded for '$path'"))
+  }
+
+  private def resolveSource(path: PathLike, contents: Option[SourceBlob]): Option[SourceData] = {
+    contents.map(blob => SourceData(blob)).orElse({
+      path.readSourceData() match {
+        case Left(_) => None
+        case Right(data) => Some(data)
+      }
+    })
   }
 }

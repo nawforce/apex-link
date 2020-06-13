@@ -433,8 +433,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("Test.component"), Some(SourceBlob("")))
-      assert(pkg.upsertFromView(view))
+      pkg.refresh(root.join("Test.component"), Some(SourceBlob("")))
       assert(pkg.components.findNestedType(Name("Test")).nonEmpty)
     }
   }
