@@ -38,7 +38,7 @@ case object EXISTING_TYPE extends ViewStatus
 case object NEW_TYPE extends ViewStatus
 
 case class ViewInfoImpl(status: ViewStatus, path: PathLike, td: Option[DependentType],
-                        override val diagnostics: Array[Diagnostic]) extends ViewInfo {
+                        override val diagnostics: Array[Diagnostic], error: String=null) extends ViewInfo {
   override val hasType: Boolean = td.nonEmpty
   override val typeName: TypeName = td.map(_.typeName).orNull
 }

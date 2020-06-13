@@ -32,7 +32,8 @@ package com.nawforce.common.api
   * This is currently WIP and will be expanded later.
   */
 trait ViewInfo {
-  val diagnostics: Array[Diagnostic]
-  val hasType: Boolean
   val typeName: TypeName
+  val error: String
+  val hasType: Boolean
+  val diagnostics: Array[Diagnostic]
 }

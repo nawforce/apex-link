@@ -57,8 +57,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("foo.scala"), None)
       assert(!view.hasType)
-      assert(view.diagnostics.sameElements(Array(Diagnostic("Error", LineLocation(0),
-        "Path does not identify a supported metadata type"))))
+      assert(view.error == "Metadata type is not supported for '/foo.scala'")
     }
   }
 
@@ -85,10 +84,10 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addSFDXTestPackage(root, Array[PackageImpl]())
-      val view = pkg.getViewOfType(root.join("force-app").join("pkg").join("Foo.cls"), None)
+      val path = root.join("force-app").join("pkg").join("Foo.cls")
+      val view = pkg.getViewOfType(path, None)
       assert(!view.hasType)
-      assert(view.diagnostics.sameElements(Array(Diagnostic("Error", LineLocation(0),
-        "Path is being ignored in this workspace"))))
+      assert(view.error == s"Metadata is not part of this package for '$path'")
     }
   }
 
