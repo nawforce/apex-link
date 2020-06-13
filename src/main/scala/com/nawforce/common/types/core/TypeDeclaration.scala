@@ -374,10 +374,11 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   }
 
   def extendsOrImplements(typeName: TypeName): Boolean = {
+    lazy val superclasses = superClassDeclaration
     lazy val interfaces = interfaceDeclarations
     superClassDeclaration.exists(_.typeName == typeName) ||
       interfaces.exists(_.typeName == typeName) ||
-      interfaces.exists(_.extendsOrImplements(typeName)) ||
+      superclasses.exists(_.extendsOrImplements(typeName)) ||
       interfaces.exists(_.extendsOrImplements(typeName))
   }
 
