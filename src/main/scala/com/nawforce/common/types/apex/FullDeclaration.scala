@@ -189,7 +189,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   override def summary(shapeOnly: Boolean): TypeSummary = {
     TypeSummary (
       if (shapeOnly) 0 else sourceHash,
-      Some(new RangeLocation(id.location.start.toPosition, id.location.end.toPosition)),
+      if (shapeOnly) None else Some(new RangeLocation(id.location.start.toPosition, id.location.end.toPosition)),
       name.toString,
       typeName,
       nature.value,
