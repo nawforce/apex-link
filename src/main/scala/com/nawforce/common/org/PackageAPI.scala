@@ -170,8 +170,10 @@ trait PackageAPI extends Package {
       if (references.nonEmpty) {
         // Check for a shape change
         val sameShape = (existingType, newType) match {
-          case (Some(ed: ApexDeclaration), nd: ApexDeclaration) => summaryShape(ed.summary) == summaryShape(nd.summary)
-          case _ => false
+          case (Some(ed: FullDeclaration), Some(nd: FullDeclaration)) =>
+            ed.summary(shapeOnly = true) == nd.summary(shapeOnly = true)
+          case _ =>
+            false
         }
 
         if (!sameShape) {
@@ -342,12 +344,6 @@ trait PackageAPI extends Package {
         case Right(data) => Some(data)
       }
     })
-  }
-
-  private def summaryShape(summary: TypeSummary): TypeSummary = {
-    TypeSummary(0, summary.idRange, summary.name, summary.typeName, summary.nature, summary.modifiers,
-      summary.superClass, summary.interfaces, summary.blocks, summary.fields, summary.constructors,
-      summary.methods, summary.nestedTypes.map(summaryShape), Set.empty)
   }
 
   private def getTypesWithMissingIssues: Seq[TypeId] = {

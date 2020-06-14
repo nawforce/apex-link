@@ -124,8 +124,12 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
 
   override def updateTypeDependencyHolders(holders: mutable.Set[TypeId]): Unit = {}
 
-  // Override to provide location information
   override def summary: TypeSummary = {
+    summary(shapeOnly = false)
+  }
+
+  // Override to provide location information
+  override def summary(shapeOnly: Boolean): TypeSummary = {
     TypeSummary(
       0,
       Some(new RangeLocation(nameId.location.start.toPosition, nameId.location.end.toPosition)),
@@ -134,12 +138,12 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
       nature.value, modifiers.map(_.toString).sorted.toList,
       superClass,
       interfaces.toList,
-      blocks.map(_.summary).toList,
-      fields.map(_.summary).sortBy(_.name).toList,
-      constructors.map(_.summary).sortBy(_.parameters.size).toList,
-      methods.map(_.summary).sortBy(_.name).toList,
-      nestedTypes.map(_.summary).sortBy(_.name).toList,
-      dependencySummary()
+      blocks.map(_.summary(shapeOnly)).toList,
+      fields.map(_.summary(shapeOnly)).sortBy(_.name).toList,
+      constructors.map(_.summary(shapeOnly)).sortBy(_.parameters.size).toList,
+      methods.map(_.summary(shapeOnly)).sortBy(_.name).toList,
+      nestedTypes.map(_.summary(shapeOnly)).sortBy(_.name).toList,
+      if (shapeOnly) Set.empty else dependencySummary()
     )
   }
 }

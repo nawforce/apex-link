@@ -98,7 +98,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   override def flush(pc: ParsedCache, context: PackageContext): Unit = {
     if (!flushedToCache) {
       val diagnostics = pkg.org.issues.getDiagnostics(location.path)
-      pc.upsert(source.asUTF8, writeBinary(ApexSummary(summary, diagnostics)), context)
+      pc.upsert(source.asUTF8, writeBinary(ApexSummary(summary(shapeOnly = false), diagnostics)), context)
       flushedToCache = true
     }
   }
@@ -181,22 +181,27 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
     bodyDeclarations.foreach(_.collectDependencies(dependsOn))
   }
 
-  // Override to avoid super class access (use local fields & methods) & provide location information
   override def summary: TypeSummary = {
+    summary(shapeOnly = false)
+  }
+
+  // Override to avoid super class access (use local fields & methods) & provide location information
+  override def summary(shapeOnly: Boolean): TypeSummary = {
     TypeSummary (
-      sourceHash,
+      if (shapeOnly) 0 else sourceHash,
       Some(new RangeLocation(id.location.start.toPosition, id.location.end.toPosition)),
       name.toString,
       typeName,
-      nature.value, modifiers.map(_.toString).sorted.toList,
+      nature.value,
+      modifiers.map(_.toString).sorted.toList,
       superClass,
       interfaces.toList,
-      blocks.map(_.summary).toList,
-      localFields.map(_.summary).sortBy(_.name).toList,
-      constructors.map(_.summary).sortBy(_.parameters.size).toList,
-      localMethods.map(_.summary).sortBy(_.name).toList,
-      nestedTypes.map(_.summary).sortBy(_.name).toList,
-      dependencySummary()
+      blocks.map(_.summary(shapeOnly)).toList,
+      localFields.map(_.summary(shapeOnly)).sortBy(_.name).toList,
+      constructors.map(_.summary(shapeOnly)).sortBy(_.parameters.size).toList,
+      localMethods.map(_.summary(shapeOnly)).sortBy(_.name).toList,
+      nestedTypes.map(_.summary(shapeOnly)).sortBy(_.name).toList,
+      if (shapeOnly) Set.empty else dependencySummary()
     )
   }
 }
