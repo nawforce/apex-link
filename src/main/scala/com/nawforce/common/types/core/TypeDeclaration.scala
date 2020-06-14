@@ -85,7 +85,9 @@ trait FieldDeclaration extends DependencyHolder {
   }
 
   protected def serialise(shapeOnly: Boolean, range: Option[RangeLocation]): FieldSummary = {
-    FieldSummary(range, name.toString,
+    FieldSummary(
+      if (shapeOnly) None else range,
+      name.toString,
       modifiers.map(_.toString).sorted.toList,
       typeName,
       readAccess.toString, writeAccess.toString,
@@ -135,7 +137,8 @@ trait ConstructorDeclaration extends DependencyHolder {
   }
 
   protected def serialise(shapeOnly: Boolean, range: Option[RangeLocation]): ConstructorSummary = {
-    ConstructorSummary(range,
+    ConstructorSummary(
+      if (shapeOnly) None else range,
       modifiers.map(_.toString).sorted.toList,
       parameters.map(_.serialise).sortBy(_.name).toList,
       if (shapeOnly) Set.empty else dependencySummary()
@@ -220,7 +223,8 @@ trait MethodDeclaration extends DependencyHolder {
   }
 
   protected def serialise(shapeOnly: Boolean, range: Option[RangeLocation]): MethodSummary = {
-    MethodSummary(range,
+    MethodSummary(
+      if (shapeOnly) None else range,
       name.toString, modifiers.map(_.toString).sorted.toList,
       typeName,
       parameters.map(_.serialise).toList,
