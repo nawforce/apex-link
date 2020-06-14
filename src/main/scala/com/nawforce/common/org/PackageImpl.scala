@@ -126,15 +126,20 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     )
   }
 
-  def insertType(typeDeclaration: TypeDeclaration): Unit = {
-    typeDeclaration.typeName match {
-      case TypeNames.Label => labels = typeDeclaration.asInstanceOf[LabelDeclaration]
-      case TypeNames.Page => pages = typeDeclaration.asInstanceOf[PageDeclaration]
-      case TypeNames.Interview => interviews = typeDeclaration.asInstanceOf[InterviewDeclaration]
-      case TypeNames.Component => components = typeDeclaration.asInstanceOf[ComponentDeclaration]
-      case _ => ()
+  def replaceType(typeName: TypeName, typeDeclaration: Option[TypeDeclaration]): Unit = {
+    if (typeDeclaration.nonEmpty) {
+      val td = typeDeclaration.get
+      typeName match {
+        case TypeNames.Label => labels = td.asInstanceOf[LabelDeclaration]
+        case TypeNames.Page => pages = td.asInstanceOf[PageDeclaration]
+        case TypeNames.Interview => interviews = td.asInstanceOf[InterviewDeclaration]
+        case TypeNames.Component => components = td.asInstanceOf[ComponentDeclaration]
+        case _ => ()
+      }
+      types.put(typeName, td)
+    } else {
+      types.remove(typeName)
     }
-    types.put(typeDeclaration.typeName, typeDeclaration)
   }
 
   /* Check if a type is ghosted in this package */

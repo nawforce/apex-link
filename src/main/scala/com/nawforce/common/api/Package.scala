@@ -45,10 +45,6 @@ import com.nawforce.runtime.SourceBlob
   * a dependency holder that is A. Transitives of dependencies or dependency holder relationships are not exposed by
   * these APIs but can be easily obtained by recursive iteration.
   *
-  * The package upsert & deletion model does not support invalidation handling that is typically used to cause
-  * dependency holders to be re-analysed when a dependency changes. This again can be handled via recursive iteration
-  * of the methods provided.
-  *
   * Summary and View information provide two different levels of looking at the structure of Types. In summary
   * form only the most important details are provided but it is essentially free to access since it is the same
   * format used in the disk cache. View information requires both more CPU and memory to use but can provide fuller
@@ -98,7 +94,7 @@ trait Package {
 
   /** Refresh a type in the package.
     *
-    * This replaces or creates a new type in the package from the supplied metadata. It returns null if successful
+    * This replaces, creates or deletes a type in the package from the supplied metadata. It returns null if successful
     * or an error message related to the refresh process. Errors found with the metadata contents are reported in the
     * usual way via the Org.getIssues.
     *
@@ -107,38 +103,23 @@ trait Package {
     *
     * You can either pass in a path and contents or a path and null contents. If contents are not provided they will
     * be read from the path if possible. Where contents are provided the path is only used for error identification
-    * purposes.
+    * purposes. If no contents are provided and there is no file to read the contexts from the contribution of
+    * this metadata to a type will be removed.
     */
   def refresh(path: String, contents: SourceBlob): String
 
   /** Obtain view information for a Type.
     *
+    * The view information contains a detailed description of the Type that can either be inspected. In some cases it
+    * may not be possible to construct a Type at all, in which case the view information may only contain diagnostic
+    * information.
+    *
     * You can either pass in a path and contents or a path and null contents. If contents are not provided they will
     * be read from the path if possible. Where contents are provided the path is only used for error identification
-    * purposes. The view information contains a detailed description of the Type that can either be inspected and/or
-    * later used to modify the Type in the package, see [[upsertFromView]]. In some cases it may not be possible
-    * to construct a Type at all, in which case the view information may only contain diagnostic information.
+    * purposes.
     *
-    * If the path does not identify a supported metadata or that path is not valid for this package no Type will be
+    * If the path does not identify supported metadata or that path is not valid for this package no Type will be
     * returned and the view diagnostics will indicate the error.
-    *
-    * To prepare a view for deletion pass the path of the file that has already been deleted without contents. The
-    * returned view may contain a Type constructed from other metadata files still in use in the project. In either
-    * case using this view with [[upsertFromView]] will effect the deletion.
     */
   def getViewOfType(path: String, contents: SourceBlob): ViewInfo
-
-  /** Upsert a Type described by a ViewInfo.
-    *
-    * This uses the supplied viewInfo to either replace or remove metadata from the package. If the viewInfo was
-    * created with unsupported metadata or metadata that might create a duplicate Type then this return false.
-    * Otherwise the view Type is replaced or removed as needed to update the package.
-    *
-    * NOTE: Upserting does not impact other Types in this or other packages. To update diagnostics for other Types
-    * to take into account any change made in the Type upserted you should upsert them as well. When a Type is
-    * upserted it inherits the dependency holders of the previous version which can be used to identify which other
-    * Types need upserting.
-    */
-  def upsertFromView(viewInfo: ViewInfo): Boolean
-
 }

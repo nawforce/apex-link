@@ -29,8 +29,7 @@
 package com.nawforce.common.org.stream
 
 import com.nawforce.common.api.Name
-import com.nawforce.common.diagnostics.IssueLogger
-import com.nawforce.common.documents.{DocumentIndex, LineLocationImpl, MetadataDocument}
+import com.nawforce.common.documents.{DocumentIndex, MetadataDocument}
 import com.nawforce.runtime.parsers.SourceData
 
 case class MetadataDocumentWithData(docType: MetadataDocument, source: SourceData)
@@ -38,28 +37,20 @@ case class MetadataDocumentWithData(docType: MetadataDocument, source: SourceDat
 /** Provider for metadata files */
 trait MetadataProvider {
   /** Retrieves files of a specific type, if file is not readable an issue is logged. */
-  def retrieve(metadataExt: Name, logger: IssueLogger): Set[MetadataDocumentWithData]
+  def retrieve(metadataExt: Name): Set[MetadataDocumentWithData]
 }
 
 /** MetadataProvider that uses a DocumentIndex as a source */
 class DocumentIndexMetadataProvider(index: DocumentIndex) extends MetadataProvider {
 
   /** Retrieve from the provided DocumentIndex with error handling */
-  override def retrieve(metadataExt: Name, logger: IssueLogger): Set[MetadataDocumentWithData] = {
+  override def retrieve(metadataExt: Name): Set[MetadataDocumentWithData] = {
     index.getByExtension(metadataExt).flatMap(documentType => {
-      if (!documentType.path.isFile) {
-        logger.logError(LineLocationImpl(documentType.path.toString, 0),
-          s"Expecting metadata to be in a regular file")
-        None
-      } else {
-        documentType.path.readSourceData() match {
-          case Left(err) =>
-            logger.logError(LineLocationImpl(documentType.path.toString, 0),
-              s"Could not read file ${documentType.path}, error '$err")
-            None
-          case Right(data) =>
-            Some(MetadataDocumentWithData(documentType, data))
-        }
+      documentType.path.readSourceData() match {
+        case Left(_) =>
+          None
+        case Right(data) =>
+          Some(MetadataDocumentWithData(documentType, data))
       }
     })
   }
@@ -71,8 +62,8 @@ class OverrideMetadataProvider(overrides: Seq[MetadataDocumentWithData], base: M
 
   private lazy val overrideByExt: Map[Name, Seq[MetadataDocumentWithData]] = overrides.groupBy(_.docType.extension)
 
-  override def retrieve(metadataExt: Name, logger: IssueLogger): Set[MetadataDocumentWithData] = {
-    val metadata = base.retrieve(metadataExt, logger)
+  override def retrieve(metadataExt: Name): Set[MetadataDocumentWithData] = {
+    val metadata = base.retrieve(metadataExt)
     val overrides = overrideByExt.getOrElse(metadataExt, Seq())
     val overridesByPath = overrides.groupBy(_.docType.path)
 
