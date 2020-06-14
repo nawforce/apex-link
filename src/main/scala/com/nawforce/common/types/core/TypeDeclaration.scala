@@ -61,8 +61,12 @@ object Nature {
 trait BlockDeclaration extends DependencyHolder {
   val isStatic: Boolean
 
-  def serialise: BlockSummary = {
-    BlockSummary(isStatic, dependencySummary())
+  def serialise(): BlockSummary = {
+    serialise(shapeOnly = false)
+  }
+
+  def serialise(shapeOnly: Boolean): BlockSummary = {
+    BlockSummary(isStatic, if (shapeOnly) Set.empty else dependencySummary())
   }
 }
 
@@ -77,15 +81,15 @@ trait FieldDeclaration extends DependencyHolder {
   lazy val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
 
   def serialise: FieldSummary = {
-    serialise(None)
+    serialise(shapeOnly = false, None)
   }
 
-  protected def serialise(range: Option[RangeLocation]): FieldSummary = {
+  protected def serialise(shapeOnly: Boolean, range: Option[RangeLocation]): FieldSummary = {
     FieldSummary(range, name.toString,
       modifiers.map(_.toString).sorted.toList,
       typeName,
       readAccess.toString, writeAccess.toString,
-      dependencySummary()
+      if (shapeOnly) Set.empty else dependencySummary()
     )
   }
 
@@ -127,14 +131,14 @@ trait ConstructorDeclaration extends DependencyHolder {
   val parameters: Seq[ParameterDeclaration]
 
   def serialise: ConstructorSummary = {
-    serialise(None)
+    serialise(shapeOnly = false, None)
   }
 
-  protected def serialise(range: Option[RangeLocation]): ConstructorSummary = {
+  protected def serialise(shapeOnly: Boolean, range: Option[RangeLocation]): ConstructorSummary = {
     ConstructorSummary(range,
       modifiers.map(_.toString).sorted.toList,
       parameters.map(_.serialise).sortBy(_.name).toList,
-      dependencySummary()
+      if (shapeOnly) Set.empty else dependencySummary()
     )
   }
 }
@@ -212,14 +216,15 @@ trait MethodDeclaration extends DependencyHolder {
   }
 
   def serialise: MethodSummary = {
-    serialise(None)
+    serialise(shapeOnly = false, None)
   }
 
-  protected def serialise(range: Option[RangeLocation]): MethodSummary = {
+  protected def serialise(shapeOnly: Boolean, range: Option[RangeLocation]): MethodSummary = {
     MethodSummary(range,
       name.toString, modifiers.map(_.toString).sorted.toList,
       typeName,
-      parameters.map(_.serialise).toList, dependencySummary()
+      parameters.map(_.serialise).toList,
+      if (shapeOnly) Set.empty else dependencySummary()
     )
   }
 }

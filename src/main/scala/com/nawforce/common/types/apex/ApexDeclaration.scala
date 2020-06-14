@@ -41,22 +41,22 @@ import scala.collection.mutable
 
 /** Apex block core features, be they full or summary style */
 trait ApexBlockLike extends BlockDeclaration {
-  def summary: BlockSummary = serialise
+  def summary(shapeOnly: Boolean): BlockSummary = serialise(shapeOnly)
 }
 
 /** Apex defined constructor core features, be they full or summary style */
 trait ApexConstructorLike extends ConstructorDeclaration {
   val nameRange: RangeLocationImpl
 
-  def summary: ConstructorSummary = {
-    serialise(Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
+  def summary(shapeOnly: Boolean): ConstructorSummary = {
+    serialise(shapeOnly, Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
   }
 }
 
 /** Unifying trait for ApexMethodLike and CustomMethodDeclaration. Both need to be appears to be visible from a
   * a type but have little in common beyond allowing for constructions of a summary. */
 trait ApexVisibleMethodLike extends MethodDeclaration {
-  def summary: MethodSummary
+  def summary(shapeOnly: Boolean): MethodSummary
 }
 
 /** Apex defined method core features, be they full or summary style */
@@ -89,8 +89,8 @@ trait ApexMethodLike extends ApexVisibleMethodLike {
       }))
   }
 
-  def summary: MethodSummary = {
-    serialise(Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
+  def summary(shapeOnly: Boolean): MethodSummary = {
+    serialise(shapeOnly, Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
   }
 }
 
@@ -100,8 +100,8 @@ trait ApexFieldLike extends FieldDeclaration {
   val nameRange: RangeLocationImpl
   val idTarget: Option[TypeName] = None
 
-  def summary: FieldSummary = {
-    serialise(Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
+  def summary(shapeOnly: Boolean): FieldSummary = {
+    serialise(shapeOnly, Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
   }
 }
 
@@ -123,6 +123,8 @@ trait ApexFullDeclaration extends ApexDeclaration {
   override def validate(): Unit = {
     validate(withPropagation = true)
   }
+
+  def summary(shapeOnly: Boolean): TypeSummary
 }
 
 trait ApexTriggerDeclaration extends ApexDeclaration

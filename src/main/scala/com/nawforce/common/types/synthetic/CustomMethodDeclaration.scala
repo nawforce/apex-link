@@ -44,8 +44,8 @@ final case class CustomMethodDeclaration(nameRange: Option[LocationImpl], name: 
   override val modifiers: Seq[Modifier] = Seq(PUBLIC_MODIFIER) ++ (if (asStatic) Seq(STATIC_MODIFIER) else Seq())
   override lazy val isStatic: Boolean = asStatic
 
-  def summary: MethodSummary = {
-    serialise(nameRange.map(nr =>
+  def summary(shapeOnly: Boolean): MethodSummary = {
+    serialise(shapeOnly, nameRange.map(nr =>
       RangeLocation(
         Position(nr.startPosition._1, nr.startPosition._2),
         Position(nr.endPosition._1, nr.endPosition._2))
