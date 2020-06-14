@@ -135,50 +135,58 @@ trait PackageAPI extends Package {
   private def refreshInternal(path: PathLike, contents: Option[SourceBlob], invalidateReferences: Boolean=true): Unit = {
     checkPathInPackageOrThrow(path)
     val dt = getUpdateableDocumentTypeOrThrow(path)
-    val source = getPathSourceOrThrow(path, contents)
+    val sourceOpt = resolveSource(path, contents)
 
-    val td = getFullDeclaration(dt)
-    if (td.exists(_.sourceHash == source.hash))
+    // If we have source & it's not changed then ignore
+    if (sourceOpt.exists(s => getFullDeclaration(dt).exists(_.sourceHash == s.hash)))
       return
+
+    // Update internal document tracking
+    if (sourceOpt.isEmpty) {
+      documents.remove(dt)
+    } else {
+      if (!documents.checkUpsertableAndIndex(dt))
+        throw new IllegalArgumentException(s"Metadata would create duplicate type, ignoring '$path'")
+    }
 
     // Clear errors as might fail to create type
     org.issues.pop(dt.path.toString)
 
-    createType(dt, source).foreach(newType => {
-      // Carry forward holders to limit need for invalidation chaining
-      val existingType = getDependentType(newType.typeName)
-      val holders = existingType.map(_.getTypeDependencyHolders).getOrElse(mutable.Set())
-      newType.updateTypeDependencyHolders(holders)
+    // Create type & forward holders to limit need for invalidation chaining
+    val newType = createType(dt, sourceOpt)
+    val typeName = newType.map(_.typeName).getOrElse(dt.typeName(namespace))
+    val existingType = getDependentType(typeName)
+    val holders = existingType.map(_.getTypeDependencyHolders).getOrElse(mutable.Set())
+    newType.foreach(_.updateTypeDependencyHolders(holders))
 
-      // Update and validate
-      insertType(newType)
-      newType.validate()
+    // Update and validate
+    replaceType(typeName, newType)
+    newType.foreach(_.validate())
 
-      // Re-validate holders to detect errors and release existing refs
-      // TODO: This is not handling inheritance correctly, needs multi-level handling
-      if (invalidateReferences) {
-        val references = holders ++ getTypesWithMissingIssues
-        if (references.nonEmpty) {
-          // Check for a shape change
-          val sameShape = (existingType, newType) match {
-            case (Some(ed: ApexDeclaration), nd: ApexDeclaration) => summaryShape(ed.summary) == summaryShape(nd.summary)
-            case _ => false
-          }
+    // Re-validate references to detect errors and release existing refs
+    // TODO: This is not handling inheritance correctly, needs multi-level handling
+    if (invalidateReferences) {
+      val references = holders ++ getTypesWithMissingIssues
+      if (references.nonEmpty) {
+        // Check for a shape change
+        val sameShape = (existingType, newType) match {
+          case (Some(ed: ApexDeclaration), nd: ApexDeclaration) => summaryShape(ed.summary) == summaryShape(nd.summary)
+          case _ => false
+        }
 
-          if (!sameShape) {
-            references.foreach(typeId => {
-              typeId.pkg.packageType(typeId.typeName).foreach {
-                case ref: SummaryDeclaration =>
-                  refreshInternal(ref.path, None, invalidateReferences = false)
-                case ref =>
-                  ref.paths.foreach(p => org.issues.pop(p.toString))
-                  ref.validate()
-              }
-            })
-          }
+        if (!sameShape) {
+          references.foreach(typeId => {
+            typeId.pkg.packageType(typeId.typeName).foreach {
+              case ref: SummaryDeclaration =>
+                refreshInternal(ref.path, None, invalidateReferences = false)
+              case ref =>
+                ref.paths.foreach(p => org.issues.pop(p.toString))
+                ref.validate()
+            }
+          })
         }
       }
-    })
+    }
   }
 
   override def getViewOfType(path: String, contents: SourceBlob): ViewInfo = {
@@ -216,61 +224,6 @@ trait PackageAPI extends Package {
     } finally {
       types.remove(td.typeName)
       originalTd.foreach(types.put(td.typeName, _))
-    }
-  }
-
-  override def upsertFromView(viewInfo: ViewInfo): Boolean = {
-    // Reject views with error state
-    val viewInfoImpl = viewInfo.asInstanceOf[ViewInfoImpl]
-    if (viewInfoImpl.status == IN_ERROR)
-      return false
-
-    // Check we are not trying to circumvent the no duplicates rule
-    if (!MetadataDocument(viewInfoImpl.path).exists(documents.checkUpsertableAndIndex))
-      return false
-
-    // If there is no td this is a deletion
-    if (viewInfoImpl.td.isEmpty) {
-      val metadata = MetadataDocument(viewInfoImpl.path).get
-      documents.remove(metadata)
-      org.issues.pop(viewInfoImpl.path.toString)
-      return types.remove(metadata.typeName(namespace)).nonEmpty
-    }
-
-    // Handle a replacement
-    OrgImpl.current.withValue(org) {
-      // If view created TD use it, otherwise we need to create fresh
-      val td = viewInfoImpl.td.get
-      val updated : Option[DependentType] =
-        if (viewInfoImpl.status == NEW_TYPE) {
-          Some(td)
-        } else {
-          td match {
-            case fd: FullDeclaration => FullDeclaration.create(this, fd.source.path, fd.source.code)
-            case td: TriggerDeclaration => TriggerDeclaration.create(this, td.source.path, td.source.code)
-          }
-        }
-
-      updated.foreach(utd => {
-        // Carry forward holders to limit need for invalidation chaining
-        val existing = getDependentType(td.typeName)
-        val holders = existing.map(_.getTypeDependencyHolders).getOrElse(mutable.Set())
-        utd.updateTypeDependencyHolders(holders)
-
-        // Clear old errors as we need to validate the upserted
-        org.issues.pop(viewInfoImpl.path.toString)
-
-        // Update and validate
-        insertType(utd)
-        utd.validate()
-
-        // Revalidate holders to detect errors and release existing refs
-        holders.foreach(typeId => {
-          typeId.pkg.packageType(typeId.typeName).foreach(_.validate())
-        })
-
-      })
-      updated.nonEmpty
     }
   }
 
@@ -327,7 +280,7 @@ trait PackageAPI extends Package {
     val path = dt.path
     val issues = org.issues.pop(path.toString)
     try {
-      val td = createType(dt, source)
+      val td = createType(dt, Some(source))
       td match {
         case Some(td: ApexFullDeclaration) => validateInIsolation(td)
         case _ => ()
@@ -338,17 +291,20 @@ trait PackageAPI extends Package {
     }
   }
 
-  private def createType(dt: UpdatableMetadata, source: SourceData): Option[DependentType] = {
+  private def createType(dt: UpdatableMetadata, source: Option[SourceData]): Option[DependentType] = {
     dt match {
-      case _: ApexClassDocument => FullDeclaration.create(this, dt.path, source)
-      case _: ApexTriggerDocument => TriggerDeclaration.create(this, dt.path, source)
-      case _ => Some(createOtherType(dt, source))
+      case _: ApexClassDocument =>
+        source.flatMap(s => FullDeclaration.create(this, dt.path, s))
+      case _: ApexTriggerDocument =>
+        source.flatMap(s => TriggerDeclaration.create(this, dt.path, s))
+      case _ =>
+        Some(createOtherType(dt, source))
     }
   }
 
-  private def createOtherType(dt: UpdatableMetadata, source: SourceData): DependentType = {
-    val metadata = MetadataDocumentWithData(dt, source)
-    val provider = new OverrideMetadataProvider(Seq(metadata), new DocumentIndexMetadataProvider(documents))
+  private def createOtherType(dt: UpdatableMetadata, source: Option[SourceData]): DependentType = {
+    val metadata = source.map(s => MetadataDocumentWithData(dt, s))
+    val provider = new OverrideMetadataProvider(metadata.toSeq, new DocumentIndexMetadataProvider(documents))
     val queue = Generator.queue(dt, new LocalLogger(org.issues), provider)
     Other(dt, this).merge(new PackageStream(namespace, queue))
   }

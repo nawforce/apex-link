@@ -39,7 +39,7 @@ trait Generator {
 
   protected def queue(metadataType: Name, logger: IssueLogger, provider: MetadataProvider, queue: Queue[PackageEvent])
   : Queue[PackageEvent] = {
-    provider.retrieve(metadataType, logger).foldRight(queue)((d, q) => {
+    provider.retrieve(metadataType).foldRight(queue)((d, q) => {
       queueFromDocument(logger, q, d)
     })
   }

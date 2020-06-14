@@ -100,9 +100,14 @@ class DocumentIndex(namespace: Option[Name], paths: Seq[PathLike], logger: Issue
   def remove(metadataDocumentType: MetadataDocument): Unit = {
     documents.get(metadataDocumentType.extension).foreach(docs => {
       val typeName = metadataDocumentType.typeName(namespace)
-      docs.remove(typeName)
-      if (!metadataDocumentType.duplicatesAllowed)
+      if (!metadataDocumentType.duplicatesAllowed) {
+        docs.remove(typeName)
         typeNames.remove(typeName)
+      } else {
+        val filtered = docs.getOrElse(typeName, Nil).filterNot(_.path == metadataDocumentType.path)
+        docs.put(typeName, filtered)
+        typeNames.remove(typeName)
+      }
     })
   }
 

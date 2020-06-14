@@ -155,8 +155,8 @@ final case class FlowDocument(_path: PathLike, _name: Name)
   override lazy val extension: Name = MetadataDocument.flowExt
   override def typeName(namespace: Option[Name]): TypeName = {
     namespace
-      .map(ns => TypeName(name, Nil, Some(TypeName(ns, Nil, Some(TypeNames.Page)))))
-      .getOrElse(TypeName(name, Nil, Some(TypeNames.Page)))
+      .map(ns => TypeName(name, Nil, Some(TypeName(ns, Nil, Some(TypeNames.Interview)))))
+      .getOrElse(TypeName(name, Nil, Some(TypeNames.Interview)))
   }
 }
 
