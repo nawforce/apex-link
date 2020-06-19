@@ -28,7 +28,7 @@
 package com.nawforce.runtime.gc
 
 import scala.collection.mutable
-import scala.ref.WeakReference
+import java.lang.ref.WeakReference
 
 /** Low memory weak reference set.
   *
@@ -44,7 +44,7 @@ class SkinnyWeakSet[T <: AnyRef] {
     if (setOf != null)
       setOf.isEmpty
     else
-      arrayOf.forall(_.get.isEmpty)
+      arrayOf.forall(_.get == null)
   }
 
   def nonEmpty: Boolean = !isEmpty
@@ -53,18 +53,18 @@ class SkinnyWeakSet[T <: AnyRef] {
     if (setOf != null)
       setOf.size
     else
-      arrayOf.count(_.get.nonEmpty)
+      arrayOf.count(_.get != null)
   }
 
   def add(t: T): Unit = {
     if (setOf != null)
       setOf.put(t, true)
     else
-      arrayOf.append(WeakReference(t))
+      arrayOf.append(new WeakReference(t))
 
     if (arrayOf != null && arrayOf.length>64) {
       setOf = new mutable.WeakHashMap[T, Boolean]()
-      arrayOf.flatMap(_.get).foreach(setOf.put(_, true))
+      arrayOf.filter(_.get != null).foreach(wr => setOf.put(wr.get, true))
       arrayOf = null
     }
   }
@@ -73,6 +73,6 @@ class SkinnyWeakSet[T <: AnyRef] {
     if (setOf != null)
       setOf.keys.toSet
     else
-      arrayOf.flatMap(_.get).toSet
+      arrayOf.filter(_.get != null).map(_.get).toSet
   }
 }

@@ -34,7 +34,7 @@ import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.types.core.TypeDeclaration
 import com.nawforce.runtime.types.PlatformTypeDeclaration
 
-import scala.ref.WeakReference
+import java.lang.ref.WeakReference
 
 object PlatformTypes {
   lazy val nullType: TypeDeclaration = loadType(TypeNames.Null)
@@ -73,7 +73,7 @@ object PlatformTypes {
   private var loadingObservers: Seq[WeakReference[PlatformTypeObserver]] = Seq()
 
   def addLoadingObserver(observer: PlatformTypeObserver): Unit = {
-    loadingObservers = loadingObservers :+ WeakReference(observer)
+    loadingObservers = loadingObservers :+ new WeakReference(observer)
   }
 
   /* Get a type, in general don't call this direct, use TypeRequest which will delegate here if
@@ -124,9 +124,9 @@ object PlatformTypes {
   }
 
   private def fireLoadingEvents(td: TypeDeclaration): Unit= {
-    loadingObservers = loadingObservers.filter(_.get.nonEmpty)
     val ptd = td.asInstanceOf[PlatformTypeDeclaration]
-    loadingObservers.foreach(_.get.map(_.loaded(ptd)))
+    loadingObservers = loadingObservers.filter(_.get != null)
+    loadingObservers.foreach(wr => wr.get.loaded(ptd))
   }
 
   private val typeAliasMap: Map[TypeName, TypeName] = Map(

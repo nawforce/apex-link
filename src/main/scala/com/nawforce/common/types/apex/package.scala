@@ -30,12 +30,14 @@ package com.nawforce.common.types
 
 import com.nawforce.common.api._
 import com.nawforce.common.names.Names
+import com.nawforce.common.names.TypeNames._
 
 import scala.collection.mutable
-import scala.ref.WeakReference
+import java.lang.ref.WeakReference
 
 package object apex {
 
+  /** Interning support for DependentSummary, used to reduce memory load from cached data. */
   implicit class DependentSummaryOps(dependency: DependentSummary) {
 
     def intern: DependentSummary = {
@@ -60,6 +62,7 @@ package object apex {
     }
   }
 
+  /** Interning support for TypeIdentifier, used to reduce memory load from cached data. */
   implicit class TypeIdentifierOps(typeIdentifier: TypeIdentifier) {
     def intern: TypeIdentifier = {
       TypeIdentifierOps.weakCache(
@@ -72,28 +75,7 @@ package object apex {
     private val cache = mutable.WeakHashMap[TypeIdentifier, WeakReference[TypeIdentifier]]()
 
     def weakCache(typeName: TypeIdentifier): TypeIdentifier = {
-      cache.getOrElseUpdate(typeName, WeakReference(typeName)).get.get
-    }
-  }
-
-
-  implicit class TypeNameOps(typeName: TypeName) {
-    def intern: TypeName = {
-      TypeNameOps.weakCache(
-        TypeName(intern(typeName.name), typeName.params.map(_.intern), typeName.outer.map(_.intern))
-      )
-    }
-
-    private def intern(name: Name): Name = {
-      Names(name.value)
-    }
-  }
-
-  object TypeNameOps {
-    private val cache = mutable.WeakHashMap[TypeName, WeakReference[TypeName]]()
-
-    def weakCache(typeName: TypeName): TypeName = {
-      cache.getOrElseUpdate(typeName, WeakReference(typeName)).get.get
+      cache.getOrElseUpdate(typeName, new WeakReference(typeName)).get
     }
   }
 

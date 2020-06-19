@@ -155,7 +155,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
     bodyDeclarations.foreach(bd => bd.validate(new BodyDeclarationVerifyContext(context, bd)))
 
     // Log dependencies logged against this context
-    depends = Some(context.dependencies)
+    setDepends(context.dependencies)
   }
 
   override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {

@@ -32,6 +32,7 @@ import com.nawforce.common.cst.Modifier
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.names.Names
+import com.nawforce.common.names.TypeNames._
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._

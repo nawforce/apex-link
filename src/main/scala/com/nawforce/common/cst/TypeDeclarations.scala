@@ -28,6 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, TypeName}
+import com.nawforce.common.names.TypeNames._
 import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types.apex.{ApexVisibleMethodLike, FullDeclaration}
@@ -81,7 +82,7 @@ object ClassDeclaration {
                 classDeclaration: ClassDeclarationContext): ClassDeclaration = {
 
     val thisType = TypeName(Names(CodeParser.getText(classDeclaration.id())), Nil,
-      outerTypeName.orElse(pkg.namespace.map(TypeName(_))))
+      outerTypeName.orElse(pkg.namespace.map(TypeName(_)))).intern
     val extendType =
       CodeParser.toScala(classDeclaration.typeRef())
         .map(tr => TypeReference.construct(tr))
@@ -126,7 +127,7 @@ object InterfaceDeclaration {
                 interfaceDeclaration: InterfaceDeclarationContext)
   : InterfaceDeclaration = {
     val thisType = TypeName(Names(CodeParser.getText(interfaceDeclaration.id())), Nil,
-      outerTypeName.orElse(pkg.namespace.map(TypeName(_))))
+      outerTypeName.orElse(pkg.namespace.map(TypeName(_)))).intern
 
     val implementsType =
       CodeParser.toScala(interfaceDeclaration.typeList())
@@ -173,8 +174,7 @@ object EnumDeclaration {
 
     val id = Id.construct(enumDeclaration.id())
     val thisType = TypeName(id.name, Nil,
-      outerTypeName.orElse(pkg.namespace.map(TypeName(_)))
-    )
+      outerTypeName.orElse(pkg.namespace.map(TypeName(_)))).intern
     val constants = CodeParser.toScala(enumDeclaration.enumConstants())
       .map(ec => CodeParser.toScala(ec.id())).getOrElse(Seq())
     val fields = constants.map(constant => {

@@ -159,7 +159,8 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
 
   /** Write dirty metadata to the cache */
   def flush(): Unit = {
-    ServerOps.debugTime("Org flushed", show = true, postMsg = s", ${Monitor.size} full types") {
+    val postMessage = if (Monitor.size > 0) s", ${Monitor.size} full types" else ""
+    ServerOps.debugTime("Org flushed", show = true, postMessage) {
       OrgImpl.current.withValue(this) {
         ParsedCache.create match {
           case Left(err) => ServerOps.error(err)
