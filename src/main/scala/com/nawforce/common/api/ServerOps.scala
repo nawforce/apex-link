@@ -47,6 +47,7 @@ object ServerOps  {
   private var logger: Logger = new DefaultLogger
   private var parsedCaching: Boolean = true
   private var lazyBlocks: Boolean = true
+  private var duplicateObjectMonitor: Boolean = false
 
   val Trace: String = "TRACE"
 
@@ -105,4 +106,15 @@ object ServerOps  {
   def setLazyBlocks(enable: Boolean): Unit = {
     lazyBlocks = enable
   }
+
+  /** Is duplicate object monitor enabled, this is disabled by default */
+  def getDuplicateObjectMonitoring: Boolean = {
+    duplicateObjectMonitor
+  }
+
+  /** Update lazy block flag */
+  def setDuplicateObjectMonitoring(enable: Boolean): Unit = {
+    duplicateObjectMonitor = enable
+  }
+
 }

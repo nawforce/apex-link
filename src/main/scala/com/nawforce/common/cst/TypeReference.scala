@@ -28,6 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, TypeName}
+import com.nawforce.common.names.TypeNames._
 import com.nawforce.common.names.{EncodedName, Names, TypeNames, _}
 import com.nawforce.runtime.parsers.ApexParser.{TypeArgumentsContext, TypeListContext, TypeNameContext, TypeRefContext}
 import com.nawforce.runtime.parsers.CodeParser
@@ -58,9 +59,9 @@ object TypeReference {
     val typeName = getName(name)
     val encType = EncodedName(typeName)
     if (encType.ext.nonEmpty)
-      TypeName(encType.fullName, params, Some(TypeNames.Schema))
+      TypeName(encType.fullName, params, Some(TypeNames.Schema)).intern
     else
-      TypeName(typeName, params, None)
+      TypeName(typeName, params, None).intern
   }
 
   @scala.annotation.tailrec
@@ -71,7 +72,7 @@ object TypeReference {
       case hd +: tl =>
         createTypeName(
           TypeName(getName(hd),
-            createTypeParams(CodeParser.toScala(hd.typeArguments())), Some(outer)),
+            createTypeParams(CodeParser.toScala(hd.typeArguments())), Some(outer)).intern,
           tl
         )
     }

@@ -30,6 +30,7 @@ package com.nawforce.common.cst
 import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents.LocationImpl
+import com.nawforce.common.names.TypeNames._
 import com.nawforce.common.names.{EncodedName, TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.core.{FieldDeclaration, TypeDeclaration}
@@ -87,7 +88,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
     if (target.isLeft) {
       expression match {
         case PrimaryExpression(primary: IdPrimary) if isNamespace(primary.id.name, td) =>
-          val typeName = TypeName(target.left.get.name, Nil, Some(TypeName(primary.id.name)))
+          val typeName = TypeName(target.left.get.name, Nil, Some(TypeName(primary.id.name))).intern
           val td = context.getTypeAndAddDependency(typeName, None).toOption
           if (td.nonEmpty)
             return ExprContext(isStatic = Some(true), td.get)

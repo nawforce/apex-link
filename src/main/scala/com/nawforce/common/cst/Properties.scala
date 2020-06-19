@@ -82,7 +82,7 @@ final case class ApexPropertyDeclaration(outerTypeId: TypeId, _modifiers: Modifi
       context.logError(location, "Getter visibility must be same or less than property")
     }
 
-    depends = Some(context.dependencies)
+    setDepends(context.dependencies)
     context.propagateDependencies()
   }
 }

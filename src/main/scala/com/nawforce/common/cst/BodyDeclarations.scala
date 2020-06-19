@@ -49,7 +49,14 @@ abstract class ClassBodyDeclaration(modifierResults: ModifierResults) extends CS
   protected var depends: Option[SkinnySet[Dependent]] = None
 
   override def dependencies(): Iterable[Dependent] = {
-    depends.get.toIterable
+    depends.map(_.toIterable).getOrElse(Array().toIterable)
+  }
+
+  def setDepends(dependencies: SkinnySet[Dependent]): Unit = {
+    if (dependencies.isEmpty)
+      depends = None
+    else
+      depends = Some(dependencies)
   }
 
   def collectDependencies(dependsOn: mutable.Set[Dependent]): Unit = {
@@ -116,7 +123,7 @@ final case class ApexInitialiserBlock(_modifiers: ModifierResults, block: Block)
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     val blockContext = new OuterBlockVerifyContext(context, isStatic)
     block.verify(blockContext)
-    depends = Some(context.dependencies)
+    setDepends(context.dependencies)
     context.propagateDependencies()
   }
 }
@@ -165,7 +172,7 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId, _modifiers: 
       blk.verify(blockContext)
     })
 
-    depends = Some(context.dependencies)
+    setDepends(context.dependencies)
     context.propagateDependencies()
   }
 }
@@ -212,7 +219,7 @@ final case class ApexFieldDeclaration(outerTypeId: TypeId, _modifiers: ModifierR
     val staticContext = if (isStatic) Some(true) else None
     variableDeclarator.verify(ExprContext(staticContext, context.thisType),
       new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER)))
-    depends = Some(context.dependencies)
+    setDepends(context.dependencies)
     context.propagateDependencies()
   }
 }
@@ -240,7 +247,7 @@ final case class ApexConstructorDeclaration(_modifiers: ModifierResults, qualifi
     val blockContext = new OuterBlockVerifyContext(context, isStaticContext = false)
     parameters.foreach(param => blockContext.addVar(param.name, param.location, param.typeName))
     block.verify(blockContext)
-    depends = Some(context.dependencies)
+    setDepends(context.dependencies)
     context.propagateDependencies()
   }
 }
