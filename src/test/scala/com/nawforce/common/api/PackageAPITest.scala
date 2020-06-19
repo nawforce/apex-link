@@ -183,7 +183,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(summary.name == "Dummy")
       assert(summary.typeName.toString == "Dummy")
       assert(summary.idRange.contains(RangeLocation(Position(1,13), Position(1,18))))
-      assert(summary.modifiers == List("public"))
+      assert(summary.modifiers sameElements Array("public"))
     }
   }
 
@@ -201,7 +201,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(summary.name == "Dummy")
       assert(summary.typeName.toString == "test.Dummy")
       assert(summary.idRange.contains(RangeLocation(Position(1,21), Position(1,26))))
-      assert(summary.modifiers == List("@IsTest", "public"))
+      assert(summary.modifiers sameElements Array("@IsTest", "public"))
     }
   }
 
@@ -228,7 +228,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(summary.name == "Dummy")
       assert(summary.typeName.toString == "test.Dummy")
       assert(summary.idRange.contains(RangeLocation(Position(1,21), Position(1,26))))
-      assert(summary.modifiers == List("@IsTest", "public"))
+      assert(summary.modifiers sameElements Array("@IsTest", "public"))
     }
 
     ServerOps.setParsedDataCaching(false)
