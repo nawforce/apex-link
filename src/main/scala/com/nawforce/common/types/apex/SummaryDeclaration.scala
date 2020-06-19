@@ -31,6 +31,7 @@ import com.nawforce.common.api.{TypeName, _}
 import com.nawforce.common.cst.Modifier
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
+import com.nawforce.common.names.Names
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
@@ -45,7 +46,7 @@ import scala.collection.mutable
 object DependentValidation {
 
   /* Test if all Type dependencies are valid. Ignore other types of dependency since these can't be checked */
-  def areTypeDependenciesValid(dependents: Set[DependentSummary], pkg: PackageImpl) : Boolean = {
+  def areTypeDependenciesValid(dependents: Seq[DependentSummary], pkg: PackageImpl) : Boolean = {
     // Horrible iteration, could this be @tailrec
     for (dependent <- dependents) {
       dependent match {
@@ -87,7 +88,7 @@ object DependentValidation {
   /* Collect actual dependents from DependentSummary entries. This must run against full package metadata since the
    * dependents may be inherited elements coming from other types in the package.
    */
-  def getDependents(dependents: Set[DependentSummary], pkg: PackageImpl): Set[Dependent] = {
+  def getDependents(dependents: Seq[DependentSummary], pkg: PackageImpl): Seq[Dependent] = {
     dependents.flatMap(dependent => {
       val dep = findDependent(dependent, pkg)
       if (dep.isEmpty) {
@@ -134,7 +135,7 @@ object DependentValidation {
     TypeId(pkg, dependent.typeId).flatMap(typeId => {
       findExactDependentType(typeId.typeName, typeId.pkg)
         .flatMap(_.methods.find(m => m.name == name &&
-          m.parameters.map(_.typeName) == dependent.parameters.map(_.typeName)))
+          m.parameters.map(_.typeName) == dependent.parameterTypes.toSeq))
     })
   }
 
@@ -169,13 +170,13 @@ object DependentValidation {
 /** Common dependency handling for Summary elements */
 trait SummaryDependencyHandler extends DependencyHolder {
   val pkg: PackageImpl
-  val dependents: Set[DependentSummary]
+  val dependents: Array[DependentSummary]
 
   // Check any type dependencies are valid
   def areTypeDependenciesValid: Boolean = DependentValidation.areTypeDependenciesValid(dependents, pkg)
 
   // Get all dependents, this list is only valid if areTypeDependenciesValid returns true
-  override lazy val dependencies: Set[Dependent] = DependentValidation.getDependents(dependents, pkg)
+  override lazy val dependencies: Seq[Dependent] = DependentValidation.getDependents(dependents, pkg)
 
   // For summary types we defer propagation of internal dependencies as they are only needed for
   // unused analysis currently but we don't want to re-execute them every time.
@@ -186,26 +187,26 @@ trait SummaryDependencyHandler extends DependencyHolder {
 class SummaryParameter(parameterSummary: ParameterSummary)
   extends ParameterDeclaration {
 
-  override val name: Name = Name(parameterSummary.name)
-  override val typeName: TypeName = parameterSummary.typeName
+  override val name: Name = Names(parameterSummary.name)
+  override val typeName: TypeName = parameterSummary.typeName.intern
 }
 
 class SummaryMethod(val pkg: PackageImpl, path: PathLike, defaultNameRange: RangeLocation, val outerTypeId: TypeId,
                     methodSummary: MethodSummary) extends ApexMethodLike with SummaryDependencyHandler {
 
-  override lazy val dependents: Set[DependentSummary] = methodSummary.dependents
+  override val dependents: Array[DependentSummary] = methodSummary.dependents.map(_.intern)
 
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, methodSummary.idRange.getOrElse(defaultNameRange))
-  override val name: Name = Name(methodSummary.name)
+  override val name: Name = Names(methodSummary.name)
   override val modifiers: Seq[Modifier] = methodSummary.modifiers.map(Modifier(_))
-  override val typeName: TypeName = methodSummary.typeName
+  override val typeName: TypeName = methodSummary.typeName.intern
   override val parameters: Seq[ParameterDeclaration] = methodSummary.parameters.map(new SummaryParameter(_))
 }
 
 class SummaryBlock(val pkg :PackageImpl, blockSummary: BlockSummary)
   extends ApexBlockLike with SummaryDependencyHandler {
 
-  override lazy val dependents: Set[DependentSummary] = blockSummary.dependents
+  override val dependents: Array[DependentSummary] = blockSummary.dependents.map(_.intern)
 
   override val isStatic: Boolean = blockSummary.isStatic
 }
@@ -213,12 +214,12 @@ class SummaryBlock(val pkg :PackageImpl, blockSummary: BlockSummary)
 class SummaryField(val pkg: PackageImpl, path: PathLike, val outerTypeId: TypeId, fieldSummary: FieldSummary)
   extends ApexFieldLike with SummaryDependencyHandler {
 
-  override lazy val dependents: Set[DependentSummary] = fieldSummary.dependents
+  override val dependents: Array[DependentSummary] = fieldSummary.dependents.map(_.intern)
 
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, fieldSummary.idRange.get)
-  override val name: Name = Name(fieldSummary.name)
+  override val name: Name = Names(fieldSummary.name)
   override val modifiers: Seq[Modifier] = fieldSummary.modifiers.map(Modifier(_))
-  override val typeName: TypeName = fieldSummary.typeName
+  override val typeName: TypeName = fieldSummary.typeName.intern
   override val readAccess: Modifier = Modifier(fieldSummary.readAccess)
   override val writeAccess: Modifier = Modifier(fieldSummary.writeAccess)
 }
@@ -226,7 +227,7 @@ class SummaryField(val pkg: PackageImpl, path: PathLike, val outerTypeId: TypeId
 class SummaryConstructor(val pkg: PackageImpl, path: PathLike, constructorSummary: ConstructorSummary)
   extends ApexConstructorLike with SummaryDependencyHandler {
 
-  override lazy val dependents: Set[DependentSummary] = constructorSummary.dependents
+  override val dependents: Array[DependentSummary] = constructorSummary.dependents.map(_.intern)
 
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, constructorSummary.idRange.get)
   override val modifiers: Seq[Modifier] = constructorSummary.modifiers.map(Modifier(_))
@@ -234,37 +235,58 @@ class SummaryConstructor(val pkg: PackageImpl, path: PathLike, constructorSummar
 }
 
 class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerTypeName: Option[TypeName],
-                         val summary: TypeSummary)
+                         typeSummary: TypeSummary)
   extends ApexClassDeclaration with SummaryDependencyHandler {
 
-  override lazy val dependents: Set[DependentSummary] = summary.dependents
+  override val dependents: Array[DependentSummary] = typeSummary.dependents.map(_.intern)
 
   override val paths: Seq[PathLike] = Seq(path)
-  override lazy val sourceHash: Int = summary.sourceHash
-  override val nameLocation: LocationImpl = RangeLocationImpl(path, summary.idRange.get)
+  override val sourceHash: Int = typeSummary.sourceHash
+  override val nameLocation: RangeLocationImpl = RangeLocationImpl(path, typeSummary.idRange.get)
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
 
-  override lazy val name: Name = Name(summary.name)
-  override lazy val nature: Nature = Nature(summary.nature)
-  override lazy val modifiers: Seq[Modifier] = summary.modifiers.map(Modifier(_))
+  override val name: Name = Names(typeSummary.name)
+  override val nature: Nature = Nature(typeSummary.nature)
+  override val modifiers: Seq[Modifier] = typeSummary.modifiers.map(Modifier(_))
 
-  override lazy val superClass: Option[TypeName] = summary.superClass
-  override lazy val interfaces: Seq[TypeName] = summary.interfaces
-  override lazy val nestedTypes: Seq[SummaryDeclaration] = {
-    summary.nestedTypes.map(nt => new SummaryDeclaration(path, pkg, Some(typeId.typeName), nt))
+  override val superClass: Option[TypeName] = typeSummary.superClass
+  override val interfaces: Seq[TypeName] = typeSummary.interfaces
+  override val nestedTypes: Seq[SummaryDeclaration] = {
+    typeSummary.nestedTypes.map(nt => new SummaryDeclaration(path, pkg, Some(typeId.typeName.intern), nt))
   }
 
-  override lazy val blocks: Seq[SummaryBlock] =
-    summary.blocks.map(new SummaryBlock(pkg, _))
-  override lazy val localFields: Seq[SummaryField] =
-    summary.fields.map(new SummaryField(pkg, path, typeId, _))
-  override lazy val constructors: Seq[SummaryConstructor] =
-    summary.constructors.map(new SummaryConstructor(pkg, path, _))
-  override lazy val localMethods: Seq[SummaryMethod] =
-    summary.methods.map(new SummaryMethod(pkg, path, summary.idRange.get, typeId, _))
+  override val blocks: Seq[SummaryBlock] =
+    typeSummary.blocks.map(new SummaryBlock(pkg, _))
+  override val localFields: Seq[SummaryField] =
+    typeSummary.fields.map(new SummaryField(pkg, path, typeId, _))
+  override val constructors: Seq[SummaryConstructor] =
+    typeSummary.constructors.map(new SummaryConstructor(pkg, path, _))
+  override val localMethods: Seq[SummaryMethod] = {
+    val l = nameLocation.toLocation
+    typeSummary.methods.map(new SummaryMethod(pkg, path, l, typeId, _))
+  }
+
+  override def summary: TypeSummary = {
+    TypeSummary (
+      sourceHash,
+      Some(nameLocation.toLocation),
+      name.toString,
+      typeName,
+      nature.value,
+      modifiers.map(_.toString).sorted.toArray,
+      superClass,
+      interfaces.toArray,
+      blocks.map(_.summary(shapeOnly = false)).toArray,
+      localFields.map(_.summary(shapeOnly = false)).sortBy(_.name).toArray,
+      constructors.map(_.summary(shapeOnly = false)).sortBy(_.parameters.length).toArray,
+      localMethods.map(_.summary(shapeOnly = false)).sortBy(_.name).toArray,
+      nestedTypes.map(_.summary).sortBy(_.name).toArray,
+      dependents
+    )
+  }
 
   override def flush(pc: ParsedCache, context: PackageContext): Unit = {
-    // TODO: Nothing to do here yet, update when upsert metadata supported
+    // Nothing to do here
   }
 
   override def validate(): Unit = {
@@ -300,7 +322,7 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
 
   override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {
     val localDependencies = mutable.Set[TypeId]()
-    def collect(dependents: Set[Dependent]): Unit = {
+    def collect(dependents: Seq[Dependent]): Unit = {
       dependents.foreach({
         case d: ApexClassDeclaration => localDependencies.add(d.typeId)
         case d: LabelDeclaration => localDependencies.add(d.typeId)
@@ -347,5 +369,5 @@ class SummaryApex(path: PathLike, pkg: PackageImpl, data: Array[Byte]) {
   lazy val summary: ApexSummary = readBinary[ApexSummary](data)
 
   lazy val declaration: SummaryDeclaration = new SummaryDeclaration(path, pkg, None, summary.typeSummary)
-  lazy val diagnostics: List[Diagnostic] = summary.diagnostics
+  lazy val diagnostics: Array[Diagnostic] = summary.diagnostics
 }

@@ -61,12 +61,12 @@ object Nature {
 trait BlockDeclaration extends DependencyHolder {
   val isStatic: Boolean
 
-  def serialise(): BlockSummary = {
+  def serialise: BlockSummary = {
     serialise(shapeOnly = false)
   }
 
   def serialise(shapeOnly: Boolean): BlockSummary = {
-    BlockSummary(isStatic, if (shapeOnly) Set.empty else dependencySummary())
+    BlockSummary(isStatic, if (shapeOnly) Array.empty else dependencySummary())
   }
 }
 
@@ -88,10 +88,10 @@ trait FieldDeclaration extends DependencyHolder {
     FieldSummary(
       if (shapeOnly) None else range,
       name.toString,
-      modifiers.map(_.toString).sorted.toList,
+      modifiers.map(_.toString).sorted.toArray,
       typeName,
       readAccess.toString, writeAccess.toString,
-      if (shapeOnly) Set.empty else dependencySummary()
+      if (shapeOnly) Array() else dependencySummary()
     )
   }
 
@@ -139,9 +139,9 @@ trait ConstructorDeclaration extends DependencyHolder {
   protected def serialise(shapeOnly: Boolean, range: Option[RangeLocation]): ConstructorSummary = {
     ConstructorSummary(
       if (shapeOnly) None else range,
-      modifiers.map(_.toString).sorted.toList,
-      parameters.map(_.serialise).sortBy(_.name).toList,
-      if (shapeOnly) Set.empty else dependencySummary()
+      modifiers.map(_.toString).sorted.toArray,
+      parameters.map(_.serialise).sortBy(_.name).toArray,
+      if (shapeOnly) Array.empty else dependencySummary()
     )
   }
 }
@@ -225,10 +225,10 @@ trait MethodDeclaration extends DependencyHolder {
   protected def serialise(shapeOnly: Boolean, range: Option[RangeLocation]): MethodSummary = {
     MethodSummary(
       if (shapeOnly) None else range,
-      name.toString, modifiers.map(_.toString).sorted.toList,
+      name.toString, modifiers.map(_.toString).sorted.toArray,
       typeName,
-      parameters.map(_.serialise).toList,
-      if (shapeOnly) Set.empty else dependencySummary()
+      parameters.map(_.serialise).toArray,
+      if (shapeOnly) Array.empty else dependencySummary()
     )
   }
 }
@@ -410,14 +410,14 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
       None,
       name.toString,
       typeName,
-      nature.value, modifiers.map(_.toString).sorted.toList,
+      nature.value, modifiers.map(_.toString).sorted.toArray,
       superClass,
-      interfaces.toList,
-      blocks.map(_.serialise).toList,
-      fields.map(_.serialise).sortBy(_.name).toList,
-      constructors.map(_.serialise).sortBy(_.parameters.size).toList,
-      methods.map(_.serialise).sortBy(_.name).toList,
-      nestedTypes.map(_.serialise).sortBy(_.name).toList,
+      interfaces.toArray,
+      blocks.map(_.serialise).toArray,
+      fields.map(_.serialise).sortBy(_.name).toArray,
+      constructors.map(_.serialise).sortBy(_.parameters.length).toArray,
+      methods.map(_.serialise).sortBy(_.name).toArray,
+      nestedTypes.map(_.serialise).sortBy(_.name).toArray,
       dependencySummary()
     )
   }

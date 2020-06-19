@@ -135,15 +135,15 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
       Some(new RangeLocation(nameId.location.start.toPosition, nameId.location.end.toPosition)),
       name.toString,
       typeName,
-      nature.value, modifiers.map(_.toString).sorted.toList,
+      nature.value, modifiers.map(_.toString).sorted.toArray,
       superClass,
-      interfaces.toList,
-      blocks.map(_.summary(shapeOnly)).toList,
-      fields.map(_.summary(shapeOnly)).sortBy(_.name).toList,
-      constructors.map(_.summary(shapeOnly)).sortBy(_.parameters.size).toList,
-      methods.map(_.summary(shapeOnly)).sortBy(_.name).toList,
-      nestedTypes.map(_.summary(shapeOnly)).sortBy(_.name).toList,
-      if (shapeOnly) Set.empty else dependencySummary()
+      interfaces.toArray,
+      blocks.map(_.summary(shapeOnly)).toArray,
+      fields.map(_.summary(shapeOnly)).sortBy(_.name).toArray,
+      constructors.map(_.summary(shapeOnly)).sortBy(_.parameters.length).toArray,
+      methods.map(_.summary(shapeOnly)).sortBy(_.name).toArray,
+      nestedTypes.map(_.summary(shapeOnly)).sortBy(_.name).toArray,
+      if (shapeOnly) Array.empty else dependencySummary()
     )
   }
 }

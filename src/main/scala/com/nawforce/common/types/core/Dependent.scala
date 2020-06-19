@@ -79,14 +79,14 @@ trait DependencyHolder extends Dependent {
   }
 
   // Convert dependencies into a summary format
-  def dependencySummary(): Set[DependentSummary] = {
+  def dependencySummary(): Array[DependentSummary] = {
     dependencies().flatMap {
       case td: ApexClassDeclaration =>
         Some(TypeDependentSummary(td.typeId.asTypeIdentifier, td.sourceHash))
       case fd: ApexFieldLike =>
         Some(FieldDependentSummary(fd.outerTypeId.asTypeIdentifier, fd.name.value))
       case md: ApexMethodLike =>
-        Some(MethodDependentSummary(md.outerTypeId.asTypeIdentifier, md.name.value, md.parameters.map(_.summary).toList))
+        Some(MethodDependentSummary(md.outerTypeId.asTypeIdentifier, md.name.value, md.parameters.map(_.typeName).toArray))
       // Don't need these yet
       case _: ApexConstructorLike => None
       case _: ApexBlockLike => None
@@ -111,6 +111,6 @@ trait DependencyHolder extends Dependent {
         val id = c.pkg.components
         Some(TypeDependentSummary(id.typeId.asTypeIdentifier, id.sourceHash))
 
-    }.toSet
+    }.toSet.toArray
   }
 }

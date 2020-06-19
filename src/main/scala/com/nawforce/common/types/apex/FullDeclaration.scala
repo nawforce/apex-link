@@ -97,7 +97,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
 
   override def flush(pc: ParsedCache, context: PackageContext): Unit = {
     if (!flushedToCache) {
-      val diagnostics = pkg.org.issues.getDiagnostics(location.path)
+      val diagnostics = pkg.org.issues.getDiagnostics(location.path).toArray
       pc.upsert(source.asUTF8, writeBinary(ApexSummary(summary(shapeOnly = false), diagnostics)), context)
       flushedToCache = true
     }
@@ -193,15 +193,15 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
       name.toString,
       typeName,
       nature.value,
-      modifiers.map(_.toString).sorted.toList,
+      modifiers.map(_.toString).sorted.toArray,
       superClass,
-      interfaces.toList,
-      blocks.map(_.summary(shapeOnly)).toList,
-      localFields.map(_.summary(shapeOnly)).sortBy(_.name).toList,
-      constructors.map(_.summary(shapeOnly)).sortBy(_.parameters.size).toList,
-      localMethods.map(_.summary(shapeOnly)).sortBy(_.name).toList,
-      nestedTypes.map(_.summary(shapeOnly)).sortBy(_.name).toList,
-      if (shapeOnly) Set.empty else dependencySummary()
+      interfaces.toArray,
+      blocks.map(_.summary(shapeOnly)).toArray,
+      localFields.map(_.summary(shapeOnly)).sortBy(_.name).toArray,
+      constructors.map(_.summary(shapeOnly)).sortBy(_.parameters.length).toArray,
+      localMethods.map(_.summary(shapeOnly)).sortBy(_.name).toArray,
+      nestedTypes.map(_.summary(shapeOnly)).sortBy(_.name).toArray,
+      if (shapeOnly) Array.empty else dependencySummary()
     )
   }
 }
