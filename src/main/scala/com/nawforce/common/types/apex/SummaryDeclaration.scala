@@ -28,7 +28,7 @@
 package com.nawforce.common.types.apex
 
 import com.nawforce.common.api.{TypeName, _}
-import com.nawforce.common.cst.Modifier
+import com.nawforce.common.cst.{Modifier, ModifierOps}
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.names.Names
@@ -136,7 +136,7 @@ object DependentValidation {
     TypeId(pkg, dependent.typeId).flatMap(typeId => {
       findExactDependentType(typeId.typeName, typeId.pkg)
         .flatMap(_.methods.find(m => m.name == name &&
-          m.parameters.map(_.typeName) == dependent.parameterTypes.toSeq))
+          m.parameters.map(_.typeName).sameElements(dependent.parameterTypes)))
     })
   }
 
@@ -199,9 +199,9 @@ class SummaryMethod(val pkg: PackageImpl, path: PathLike, defaultNameRange: Rang
 
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, methodSummary.idRange.getOrElse(defaultNameRange))
   override val name: Name = Names(methodSummary.name)
-  override val modifiers: Seq[Modifier] = methodSummary.modifiers.map(Modifier(_))
+  override val modifiers: Array[Modifier] = methodSummary.modifiers.flatMap(ModifierOps(_))
   override val typeName: TypeName = methodSummary.typeName.intern
-  override val parameters: Seq[ParameterDeclaration] = methodSummary.parameters.map(new SummaryParameter(_))
+  override val parameters: Array[ParameterDeclaration] = methodSummary.parameters.map(new SummaryParameter(_))
 }
 
 class SummaryBlock(val pkg :PackageImpl, blockSummary: BlockSummary)
@@ -219,10 +219,10 @@ class SummaryField(val pkg: PackageImpl, path: PathLike, val outerTypeId: TypeId
 
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, fieldSummary.idRange.get)
   override val name: Name = Names(fieldSummary.name)
-  override val modifiers: Seq[Modifier] = fieldSummary.modifiers.map(Modifier(_))
+  override val modifiers: Array[Modifier] = fieldSummary.modifiers.flatMap(ModifierOps(_))
   override val typeName: TypeName = fieldSummary.typeName.intern
-  override val readAccess: Modifier = Modifier(fieldSummary.readAccess)
-  override val writeAccess: Modifier = Modifier(fieldSummary.writeAccess)
+  override val readAccess: Modifier = ModifierOps(fieldSummary.readAccess).get
+  override val writeAccess: Modifier = ModifierOps(fieldSummary.writeAccess).get
 }
 
 class SummaryConstructor(val pkg: PackageImpl, path: PathLike, constructorSummary: ConstructorSummary)
@@ -231,8 +231,8 @@ class SummaryConstructor(val pkg: PackageImpl, path: PathLike, constructorSummar
   override val dependents: Array[DependentSummary] = constructorSummary.dependents.map(_.intern)
 
   override val nameRange: RangeLocationImpl = RangeLocationImpl(path, constructorSummary.idRange.get)
-  override val modifiers: Seq[Modifier] = constructorSummary.modifiers.map(Modifier(_))
-  override val parameters: Seq[ParameterDeclaration] = constructorSummary.parameters.map(new SummaryParameter(_))
+  override val modifiers: Array[Modifier] = constructorSummary.modifiers.flatMap(ModifierOps(_))
+  override val parameters: Array[ParameterDeclaration] = constructorSummary.parameters.map(new SummaryParameter(_))
 }
 
 class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerTypeName: Option[TypeName],
@@ -248,7 +248,7 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
 
   override val name: Name = Names(typeSummary.name)
   override val nature: Nature = Nature(typeSummary.nature)
-  override val modifiers: Seq[Modifier] = typeSummary.modifiers.map(Modifier(_))
+  override val modifiers: Array[Modifier] = typeSummary.modifiers.flatMap(ModifierOps(_))
 
   override val superClass: Option[TypeName] = typeSummary.superClass
   override val interfaces: Seq[TypeName] = typeSummary.interfaces
@@ -274,7 +274,7 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
       name.toString,
       typeName,
       nature.value,
-      modifiers.map(_.toString).sorted.toArray,
+      modifiers.map(_.toString).sorted,
       superClass,
       interfaces.toArray,
       blocks.map(_.summary(shapeOnly = false)).toArray,

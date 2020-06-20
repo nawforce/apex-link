@@ -42,7 +42,7 @@ import scala.util.hashing.MurmurHash3
 /** A individual Label being represented as a static field. */
 case class Label(outerTypeId: Option[TypeId], location: Option[LocationImpl], name: Name, isProtected: Boolean)
   extends FieldDeclaration {
-  override lazy val modifiers: Seq[Modifier] = Seq(STATIC_MODIFIER, GLOBAL_MODIFIER)
+  override lazy val modifiers: Array[Modifier] = Array(STATIC_MODIFIER, GLOBAL_MODIFIER)
   override lazy val typeName: TypeName = TypeNames.String
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER
   override lazy val writeAccess: Modifier = PRIVATE_MODIFIER

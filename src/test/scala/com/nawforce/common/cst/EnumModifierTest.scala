@@ -60,17 +60,17 @@ class EnumModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Global outer") {
-    assert(typeDeclaration("global enum Dummy {}").modifiers == Seq(GLOBAL_MODIFIER))
+    assert(typeDeclaration("global enum Dummy {}").modifiers sameElements Array(GLOBAL_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Public outer") {
-    assert(typeDeclaration("public enum Dummy {}").modifiers == Seq(PUBLIC_MODIFIER))
+    assert(typeDeclaration("public enum Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Public outer (mixed case)") {
-    assert(typeDeclaration("puBlIc enum Dummy {}").modifiers == Seq(PUBLIC_MODIFIER))
+    assert(typeDeclaration("puBlIc enum Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
@@ -87,13 +87,13 @@ class EnumModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("No modifier class") {
-    assert(typeDeclaration("enum Dummy {}").modifiers == Seq(PUBLIC_MODIFIER))
+    assert(typeDeclaration("enum Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "Error: line 1 at 5-10: Outer enums must be declared either 'global' or 'public'\n")
   }
 
   test("Illegal modifier") {
-    assert(typeDeclaration("global static enum Dummy {}").modifiers == Seq(GLOBAL_MODIFIER))
+    assert(typeDeclaration("global static enum Dummy {}").modifiers sameElements Array(GLOBAL_MODIFIER))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "Error: line 1 at 7-13: Modifier 'static' is not supported on enums\n")
   }
@@ -129,18 +129,18 @@ class EnumModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Global inner") {
-    assert(typeDeclarationInner("global class Dummy {global enum Inner{}}").modifiers == Seq(GLOBAL_MODIFIER))
+    assert(typeDeclarationInner("global class Dummy {global enum Inner{}}").modifiers sameElements Array(GLOBAL_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Global inner of public outer") {
-    assert(typeDeclarationInner("public class Dummy {global enum Inner{}}").modifiers == Seq(GLOBAL_MODIFIER))
+    assert(typeDeclarationInner("public class Dummy {global enum Inner{}}").modifiers sameElements Array(GLOBAL_MODIFIER))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "Error: line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
   test("Public inner") {
-    assert(typeDeclarationInner("public class Dummy {public enum Inner{}}").modifiers == Seq(PUBLIC_MODIFIER))
+    assert(typeDeclarationInner("public class Dummy {public enum Inner{}}").modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
@@ -151,7 +151,7 @@ class EnumModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Private inner") {
-    assert(typeDeclarationInner("public class Dummy {private enum Inner{}}").modifiers == Seq(PRIVATE_MODIFIER))
+    assert(typeDeclarationInner("public class Dummy {private enum Inner{}}").modifiers sameElements Array(PRIVATE_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 

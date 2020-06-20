@@ -95,7 +95,7 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
 
   protected def getInterfaces: Seq[TypeName] = cls.getInterfaces.map(i => PlatformTypeDeclaration.typeNameFromClass(i, cls))
 
-  override lazy val modifiers: Seq[Modifier] = PlatformModifiers.typeModifiers(cls.getModifiers, nature)
+  override lazy val modifiers: Array[Modifier] = PlatformModifiers.typeModifiers(cls.getModifiers, nature)
 
   override lazy val constructors: Seq[PlatformConstructor] = {
     cls.getConstructors.map(c => new PlatformConstructor(c, this))
@@ -180,7 +180,7 @@ class PlatformField(val field: java.lang.reflect.Field) extends FieldDeclaration
   override lazy val name: Name = Name(decodeName(field.getName))
   override lazy val typeName: TypeName =
     PlatformTypeDeclaration.typeNameFromType(field.getGenericType, field.getDeclaringClass)
-  override lazy val modifiers: Seq[Modifier] = PlatformModifiers.fieldOrMethodModifiers(field.getModifiers)
+  override lazy val modifiers: Array[Modifier] = PlatformModifiers.fieldOrMethodModifiers(field.getModifiers)
   override lazy val readAccess: Modifier = PUBLIC_MODIFIER
   override lazy val writeAccess: Modifier = PUBLIC_MODIFIER
   override lazy val idTarget: Option[TypeName] = None
@@ -208,8 +208,8 @@ class PlatformParameter(val parameter: java.lang.reflect.Parameter, val declarin
 
 class PlatformConstructor(ctor: java.lang.reflect.Constructor[_], typeDeclaration: PlatformTypeDeclaration)
   extends ConstructorDeclaration {
-  lazy val modifiers: Seq[Modifier] = PlatformModifiers.methodModifiers(ctor.getModifiers, typeDeclaration.nature)
-  lazy val parameters: Seq[PlatformParameter] = ctor.getParameters.map(p => new PlatformParameter(p, ctor.getDeclaringClass))
+  lazy val modifiers: Array[Modifier] = PlatformModifiers.methodModifiers(ctor.getModifiers, typeDeclaration.nature)
+  lazy val parameters: Array[ParameterDeclaration] = ctor.getParameters.map(p => new PlatformParameter(p, ctor.getDeclaringClass))
   def getDeclaringClass: Class[_] =  ctor.getDeclaringClass
 
   override def toString: String =
@@ -221,10 +221,10 @@ class PlatformMethod(val method: java.lang.reflect.Method, val typeDeclaration: 
   extends MethodDeclaration {
   lazy val name: Name = Name(decodeName(method.getName))
   lazy val typeName: TypeName = PlatformTypeDeclaration.typeNameFromType(method.getGenericReturnType, method.getDeclaringClass)
-  lazy val modifiers: Seq[Modifier] = PlatformModifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
-  lazy val parameters: Seq[ParameterDeclaration] = getParameters
+  lazy val modifiers: Array[Modifier] = PlatformModifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
+  lazy val parameters: Array[ParameterDeclaration] = getParameters
 
-  def getParameters: Seq[PlatformParameter] = method.getParameters.map(p => new PlatformParameter(p, method.getDeclaringClass))
+  def getParameters: Array[ParameterDeclaration] = method.getParameters.map(p => new PlatformParameter(p, method.getDeclaringClass))
 
   def getGenericTypeName: TypeName =
     PlatformTypeDeclaration.typeNameFromType(method.getGenericReturnType, method.getDeclaringClass)
@@ -384,14 +384,14 @@ object PlatformTypeDeclaration {
   }
 
   /* Standard methods to be exposed on enums */
-  private lazy val enumMethods: Seq[MethodDeclaration] =
-    Seq(
-      CustomMethodDeclaration(None, Name("name"), TypeNames.String, Seq()),
-      CustomMethodDeclaration(None, Name("original"), TypeNames.Integer, Seq()),
-      CustomMethodDeclaration(None, Name("values"), TypeNames.listOf(TypeNames.String), Seq(), asStatic = true),
+  private lazy val enumMethods: Array[MethodDeclaration] =
+    Array(
+      CustomMethodDeclaration(None, Name("name"), TypeNames.String, Array()),
+      CustomMethodDeclaration(None, Name("original"), TypeNames.Integer, Array()),
+      CustomMethodDeclaration(None, Name("values"), TypeNames.listOf(TypeNames.String), Array(), asStatic = true),
       CustomMethodDeclaration(None, Name("equals"), TypeNames.Boolean,
-        Seq(CustomParameterDeclaration(Name("other"), TypeNames.InternalObject))),
-      CustomMethodDeclaration(None, Name("hashCode"), TypeNames.Integer, Seq())
+        Array(CustomParameterDeclaration(Name("other"), TypeNames.InternalObject))),
+      CustomMethodDeclaration(None, Name("hashCode"), TypeNames.Integer, Array())
     )
 }
 

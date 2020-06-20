@@ -79,6 +79,8 @@ trait ParserIssueLogger extends IssueLogger {
 class CodeParserLogger(parser: CodeParser) extends ParserIssueLogger {
   private val issueLog = new ArrayBuffer[Issue]()
 
+  def isEmpty: Boolean = issueLog.isEmpty
+
   override def log(issue: Issue): Unit = {
     issueLog.append(issue)
   }

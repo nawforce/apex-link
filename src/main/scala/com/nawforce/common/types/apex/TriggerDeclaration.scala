@@ -63,7 +63,7 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
   override val name: Name = typeName.name
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = TRIGGER_NATURE
-  override val modifiers: Seq[Modifier] = Seq.empty
+  override val modifiers: Array[Modifier] = Array.empty
   override val isComplete: Boolean = true
 
   override val superClass: Option[TypeName] = None

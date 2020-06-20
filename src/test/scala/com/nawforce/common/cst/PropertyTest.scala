@@ -112,35 +112,35 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Default property access private" ) {
     val property = typeDeclaration("public class Dummy {String foo{get; set;}}").fields.head
-    assert(property.modifiers == Seq(PRIVATE_MODIFIER))
+    assert(property.modifiers sameElements Array(PRIVATE_MODIFIER))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
   }
 
   test("Private property access" ) {
     val property = typeDeclaration("public class Dummy {private String foo{get; set;}}").fields.head
-    assert(property.modifiers == Seq(PRIVATE_MODIFIER))
+    assert(property.modifiers sameElements Array(PRIVATE_MODIFIER))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
   }
 
   test("Protected property access" ) {
     val property = typeDeclaration("public class Dummy {protected String foo{get; set;}}").fields.head
-    assert(property.modifiers == Seq(PROTECTED_MODIFIER))
+    assert(property.modifiers sameElements Array(PROTECTED_MODIFIER))
     assert(property.readAccess == PROTECTED_MODIFIER)
     assert(property.writeAccess == property.readAccess)
   }
 
   test("Public property access" ) {
     val property = typeDeclaration("public class Dummy {public String foo{get; set;}}").fields.head
-    assert(property.modifiers == Seq(PUBLIC_MODIFIER))
+    assert(property.modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(property.readAccess == PUBLIC_MODIFIER)
     assert(property.writeAccess == property.readAccess)
   }
 
   test("Global property access" ) {
     val property = typeDeclaration("public class Dummy {global String foo{get; set;}}", hasMessages = true).fields.head
-    assert(property.modifiers == Seq(GLOBAL_MODIFIER))
+    assert(property.modifiers sameElements Array(GLOBAL_MODIFIER))
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
@@ -149,21 +149,21 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Global property access in global class" ) {
     val property = typeDeclaration("global class Dummy {global String foo{get; set;}}").fields.head
-    assert(property.modifiers == Seq(GLOBAL_MODIFIER))
+    assert(property.modifiers sameElements Array(GLOBAL_MODIFIER))
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == property.readAccess)
   }
 
   test("Global property access with get modifier in global class" ) {
     val property = typeDeclaration("global class Dummy {global String foo{global get; public set;}}").fields.head
-    assert(property.modifiers == Seq(GLOBAL_MODIFIER))
+    assert(property.modifiers sameElements Array(GLOBAL_MODIFIER))
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == PUBLIC_MODIFIER)
   }
 
   test("Webservice property access" ) {
     val property = typeDeclaration("public class Dummy {webservice String foo{get; set;}}", hasMessages = true).fields.head
-    assert(property.modifiers == Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
+    assert(property.modifiers sameElements Array(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
@@ -172,28 +172,28 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Webservice property access with get/set modifiers" ) {
     val property = typeDeclaration("global class Dummy {webservice String foo{global get; public set;}}").fields.head
-    assert(property.modifiers == Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
+    assert(property.modifiers sameElements Array(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == PUBLIC_MODIFIER)
   }
 
   test("Webservice property access in global class" ) {
     val property = typeDeclaration("global class Dummy {webservice String foo{get; set;}}").fields.head
-    assert(property.modifiers == Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
+    assert(property.modifiers sameElements Array(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == property.readAccess)
   }
 
   test("Property setter lower visibility" ) {
     val property = typeDeclaration("public class Dummy {public String foo{get; private set;}}").fields.head
-    assert(property.modifiers == Seq(PUBLIC_MODIFIER))
+    assert(property.modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(property.readAccess == PUBLIC_MODIFIER)
     assert(property.writeAccess == PRIVATE_MODIFIER)
   }
 
   test("Property setter higher visibility" ) {
     val property = typeDeclaration("public class Dummy {private String foo{get; public set;}}", hasMessages = true).fields.head
-    assert(property.modifiers == Seq(PRIVATE_MODIFIER))
+    assert(property.modifiers sameElements Array(PRIVATE_MODIFIER))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == PUBLIC_MODIFIER)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
@@ -202,14 +202,14 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Property getter lower visibility" ) {
     val property = typeDeclaration("public class Dummy {public String foo{private get; set;}}").fields.head
-    assert(property.modifiers == Seq(PUBLIC_MODIFIER))
+    assert(property.modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == PUBLIC_MODIFIER)
   }
 
   test("Property getter higher visibility" ) {
     val property = typeDeclaration("public class Dummy {private String foo{public get; set;}}", hasMessages = true).fields.head
-    assert(property.modifiers == Seq(PRIVATE_MODIFIER))
+    assert(property.modifiers sameElements Array(PRIVATE_MODIFIER))
     assert(property.readAccess == PUBLIC_MODIFIER)
     assert(property.writeAccess == PRIVATE_MODIFIER)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
@@ -218,21 +218,21 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Static property" ) {
     val property = typeDeclaration("public class Dummy {static String foo{get; set;}}").fields.head
-    assert(property.modifiers == Seq(PRIVATE_MODIFIER, STATIC_MODIFIER))
+    assert(property.modifiers sameElements Array(PRIVATE_MODIFIER, STATIC_MODIFIER))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
   }
 
   test("Final property" ) {
     val property = typeDeclaration("public class Dummy {final String foo{get; set;}}").fields.head
-    assert(property.modifiers == Seq(PRIVATE_MODIFIER, FINAL_MODIFIER))
+    assert(property.modifiers sameElements Array(PRIVATE_MODIFIER, FINAL_MODIFIER))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
   }
 
   test("Many modifiers property" ) {
     val property = typeDeclaration("public class Dummy {protected transient final static String foo{get; set;}}").fields.head
-    assert(property.modifiers == Seq(PROTECTED_MODIFIER, TRANSIENT_MODIFIER, FINAL_MODIFIER, STATIC_MODIFIER))
+    assert(property.modifiers sameElements Array(PROTECTED_MODIFIER, TRANSIENT_MODIFIER, FINAL_MODIFIER, STATIC_MODIFIER))
     assert(property.readAccess == PROTECTED_MODIFIER)
     assert(property.writeAccess == property.readAccess)
   }
@@ -240,7 +240,7 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
   test("Duplicate modifiers property" ) {
     val property = typeDeclaration("public class Dummy {protected protected String foo{get; set;}}",
       hasMessages = true).fields.head
-    assert(property.modifiers == Seq(PROTECTED_MODIFIER))
+    assert(property.modifiers sameElements Array(PROTECTED_MODIFIER))
     assert(property.readAccess == PROTECTED_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
@@ -250,7 +250,7 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
   test("Mixed access property" ) {
     val property = typeDeclaration("public class Dummy {global webservice String foo{get; set;}}",
       hasMessages = true).fields.head
-    assert(property.modifiers == Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
+    assert(property.modifiers sameElements Array(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
@@ -259,51 +259,51 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("AuraEnabled property" ) {
     val property = typeDeclaration("public class Dummy {@AuraEnabled String foo{get; set;}}").fields.head
-    assert(property.modifiers == Seq(PRIVATE_MODIFIER, AURA_ENABLED_ANNOTATION))
+    assert(property.modifiers sameElements Array(PRIVATE_MODIFIER, AURA_ENABLED_ANNOTATION))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
   }
 
   test("Deprecated property" ) {
     val property = typeDeclaration("public class Dummy {@Deprecated String foo{get; set;}}").fields.head
-    assert(property.modifiers == Seq(PRIVATE_MODIFIER, DEPRECATED_ANNOTATION))
+    assert(property.modifiers sameElements Array(PRIVATE_MODIFIER, DEPRECATED_ANNOTATION))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
   }
 
   test("InvocableVariable property" ) {
     val property = typeDeclaration("public class Dummy {@InvocableVariable String foo{get; set;}}").fields.head
-    assert(property.modifiers == Seq(PRIVATE_MODIFIER, INVOCABLE_VARIABLE_ANNOTATION))
+    assert(property.modifiers sameElements Array(PRIVATE_MODIFIER, INVOCABLE_VARIABLE_ANNOTATION))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
   }
 
   test("TestVisible property" ) {
     val property = typeDeclaration("public class Dummy {@TestVisible String foo{get; set;}}").fields.head
-    assert(property.modifiers == Seq(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION))
+    assert(property.modifiers sameElements Array(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
   }
 
   test("SuppressWarnings property" ) {
     val property = typeDeclaration("public class Dummy {@SuppressWarnings String foo{get; set;}}").fields.head
-    assert(property.modifiers == Seq(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION))
+    assert(property.modifiers sameElements Array(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
   }
 
   test("Bad annotation property" ) {
     val property = typeDeclaration("public class Dummy {@TestSetup String foo{get; set;}}", hasMessages = true).fields.head
-    assert(property.modifiers == Seq(PRIVATE_MODIFIER))
+    assert(property.modifiers sameElements Array(PRIVATE_MODIFIER))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 20-30: Unexpected annotation 'TestSetup' on field/property declaration\n")
+      "Error: line 1 at 20-30: Annotation '@TestSetup' is not supported on fields\n")
   }
 
   test("Duplicate annotation property" ) {
     val property = typeDeclaration("public class Dummy {@TestVisible @TestVisible String foo{get; set;}}", hasMessages = true).fields.head
-    assert(property.modifiers == Seq(TEST_VISIBLE_ANNOTATION))
+    assert(property.modifiers sameElements Array(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(defaultOrg.issues.getMessages(defaultPath) ==

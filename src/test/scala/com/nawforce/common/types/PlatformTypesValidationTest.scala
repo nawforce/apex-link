@@ -150,7 +150,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
         assert(td.superClass.get.toString == "System.Exception")
       assert(td.interfaces.isEmpty)
       assert(td.nature == CLASS_NATURE)
-      assert(td.modifiers == Seq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
+      assert(td.modifiers sameElements Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
       assert(td.outer.isEmpty)
       assert(td.nestedTypes.isEmpty)
 

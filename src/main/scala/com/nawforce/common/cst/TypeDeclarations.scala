@@ -157,12 +157,12 @@ final case class EnumDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeN
 
   override lazy val localMethods: Seq[ApexVisibleMethodLike] =
     Seq(
-      CustomMethodDeclaration(Some(id.location), Name("name"), TypeNames.String, Seq()),
-      CustomMethodDeclaration(Some(id.location),Name("ordinal"), TypeNames.Integer, Seq()),
-      CustomMethodDeclaration(Some(id.location),Name("values"), TypeNames.listOf(typeName), Seq(), asStatic = true),
-      CustomMethodDeclaration(Some(id.location),Name("equals"), TypeNames.Boolean, Seq(
+      CustomMethodDeclaration(Some(id.location), Name("name"), TypeNames.String, Array()),
+      CustomMethodDeclaration(Some(id.location),Name("ordinal"), TypeNames.Integer, Array()),
+      CustomMethodDeclaration(Some(id.location),Name("values"), TypeNames.listOf(typeName), Array(), asStatic = true),
+      CustomMethodDeclaration(Some(id.location),Name("equals"), TypeNames.Boolean, Array(
         CustomParameterDeclaration(Name("other"), TypeNames.InternalObject))),
-      CustomMethodDeclaration(Some(id.location),Name("hashCode"), TypeNames.Integer, Seq())
+      CustomMethodDeclaration(Some(id.location),Name("hashCode"), TypeNames.Integer, Array())
     )
 }
 

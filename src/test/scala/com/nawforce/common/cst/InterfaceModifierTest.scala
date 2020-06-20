@@ -58,17 +58,17 @@ class InterfaceModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Global outer") {
-    assert(typeDeclaration("global interface Dummy {}").modifiers == Seq(GLOBAL_MODIFIER))
+    assert(typeDeclaration("global interface Dummy {}").modifiers sameElements Array(GLOBAL_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Public outer") {
-    assert(typeDeclaration("public interface Dummy {}").modifiers == Seq(PUBLIC_MODIFIER))
+    assert(typeDeclaration("public interface Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Public outer (mixed case)") {
-    assert(typeDeclaration("puBlIc interface Dummy {}").modifiers == Seq(PUBLIC_MODIFIER))
+    assert(typeDeclaration("puBlIc interface Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
@@ -85,13 +85,13 @@ class InterfaceModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("No modifier class") {
-    assert(typeDeclaration("interface Dummy {}").modifiers == Seq(PUBLIC_MODIFIER))
+    assert(typeDeclaration("interface Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "Error: line 1 at 10-15: Outer interfaces must be declared either 'global' or 'public'\n")
   }
 
   test("Illegal modifier") {
-    assert(typeDeclaration("global static interface Dummy {}").modifiers == Seq(GLOBAL_MODIFIER))
+    assert(typeDeclaration("global static interface Dummy {}").modifiers sameElements Array(GLOBAL_MODIFIER))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "Error: line 1 at 7-13: Modifier 'static' is not supported on interfaces\n")
   }
@@ -127,18 +127,18 @@ class InterfaceModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Global inner") {
-    assert(typeDeclarationInner("global class Dummy {global interface Inner{}}").modifiers == Seq(GLOBAL_MODIFIER))
+    assert(typeDeclarationInner("global class Dummy {global interface Inner{}}").modifiers sameElements Array(GLOBAL_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Global inner of public outer") {
-    assert(typeDeclarationInner("public class Dummy {global interface Inner{}}").modifiers == Seq(GLOBAL_MODIFIER))
+    assert(typeDeclarationInner("public class Dummy {global interface Inner{}}").modifiers sameElements Array(GLOBAL_MODIFIER))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "Error: line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
   test("Public inner") {
-    assert(typeDeclarationInner("public class Dummy {public interface Inner{}}").modifiers == Seq(PUBLIC_MODIFIER))
+    assert(typeDeclarationInner("public class Dummy {public interface Inner{}}").modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
@@ -149,7 +149,7 @@ class InterfaceModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Private inner") {
-    assert(typeDeclarationInner("public class Dummy {private interface Inner{}}").modifiers == Seq(PRIVATE_MODIFIER))
+    assert(typeDeclarationInner("public class Dummy {private interface Inner{}}").modifiers sameElements Array(PRIVATE_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 

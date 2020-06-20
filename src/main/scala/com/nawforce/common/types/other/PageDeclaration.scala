@@ -41,7 +41,7 @@ import scala.util.hashing.MurmurHash3
 
 /** A individual Page being represented as a static field. */
 case class Page(pkg: PackageImpl, location: LocationImpl, name: Name) extends FieldDeclaration {
-  override lazy val modifiers: Seq[Modifier] = Seq(STATIC_MODIFIER, GLOBAL_MODIFIER)
+  override lazy val modifiers: Array[Modifier] = Array(STATIC_MODIFIER, GLOBAL_MODIFIER)
   override lazy val typeName: TypeName = TypeNames.PageReference
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER
   override lazy val writeAccess: Modifier = PRIVATE_MODIFIER

@@ -25,32 +25,44 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.types.synthetic
 
-import com.nawforce.common.api._
-import com.nawforce.common.cst.{Modifier, PUBLIC_MODIFIER, STATIC_MODIFIER}
-import com.nawforce.common.documents.LocationImpl
-import com.nawforce.common.types.apex.ApexVisibleMethodLike
-import com.nawforce.common.types.core.ParameterDeclaration
+package com.nawforce.common.cst
 
-/** Custom methods are used to inject synthetic methods into types so they fulfil some contract. They extend from
-  * ApexVisibleMethodLike so they can be referenced within Apex code and be included in type summary information
-  * but otherwise have little in common with the usual ApexMethodLike handling.
-  */
-final case class CustomMethodDeclaration(nameRange: Option[LocationImpl], name: Name, typeName: TypeName,
-                                         parameters: Array[ParameterDeclaration], asStatic: Boolean = false)
-  extends ApexVisibleMethodLike {
+import java.lang.ref.WeakReference
 
-  override val modifiers: Array[Modifier] = Array(PUBLIC_MODIFIER) ++ (if (asStatic) Array(STATIC_MODIFIER) else Seq())
-  override lazy val isStatic: Boolean = asStatic
+import com.nawforce.common.diagnostics.Issue
 
-  def summary(shapeOnly: Boolean): MethodSummary = {
-    serialise(shapeOnly, nameRange.map(nr =>
-      RangeLocation(
-        Position(nr.startPosition._1, nr.startPosition._2),
-        Position(nr.endPosition._1, nr.endPosition._2))
-    ))
+import scala.collection.mutable
+
+/** Results from modifier analysis.
+  *
+  * Modifiers are examined before the CST is constructed to make things a bit simpler. The results of the analysis
+  * are returned via this type. Interning is supported to reduce memory use.
+  **/
+case class ModifierResults(modifiers: Array[Modifier], issues: Array[Issue]) {
+
+  def intern: ModifierResults = ModifierResults.intern(this)
+
+  override def equals(that: Any): Boolean = {
+    that match {
+      case other: ModifierResults =>
+        other.canEqual(this) && doesEqual(other)
+      case _ => false
+    }
+  }
+
+  override def canEqual(that: Any): Boolean = that.isInstanceOf[ModifierResults]
+
+  private def doesEqual(other: ModifierResults): Boolean = {
+    this.modifiers.sameElements(other.modifiers) &&
+      this.issues.sameElements(other.issues)
   }
 }
 
-final case class CustomParameterDeclaration(name: Name, typeName: TypeName) extends ParameterDeclaration
+object ModifierResults {
+  private val cache = mutable.WeakHashMap[ModifierResults, WeakReference[ModifierResults]]()
+
+  def intern(modifierResults: ModifierResults): ModifierResults = {
+    cache.getOrElseUpdate(modifierResults, new WeakReference[ModifierResults](modifierResults)).get
+  }
+}

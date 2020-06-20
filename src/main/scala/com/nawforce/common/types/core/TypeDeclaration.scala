@@ -72,7 +72,7 @@ trait BlockDeclaration extends DependencyHolder {
 
 trait FieldDeclaration extends DependencyHolder {
   val name: Name
-  val modifiers: Seq[Modifier]
+  val modifiers: Array[Modifier]
   val typeName: TypeName
   val idTarget: Option[TypeName]
   val readAccess: Modifier
@@ -129,8 +129,8 @@ trait ParameterDeclaration {
 }
 
 trait ConstructorDeclaration extends DependencyHolder {
-  val modifiers: Seq[Modifier]
-  val parameters: Seq[ParameterDeclaration]
+  val modifiers: Array[Modifier]
+  val parameters: Array[ParameterDeclaration]
 
   def serialise: ConstructorSummary = {
     serialise(shapeOnly = false, None)
@@ -148,9 +148,9 @@ trait ConstructorDeclaration extends DependencyHolder {
 
 trait MethodDeclaration extends DependencyHolder {
   val name: Name
-  val modifiers: Seq[Modifier]
+  val modifiers: Array[Modifier]
   val typeName: TypeName
-  val parameters: Seq[ParameterDeclaration]
+  val parameters: Array[ParameterDeclaration]
 
   def signature: String = s"$typeName $name($parameterTypes)"
   def parameterTypes: String = parameters.map(_.typeName).mkString(", ")
@@ -247,7 +247,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   val typeName: TypeName
   val outerTypeName: Option[TypeName]
   val nature: Nature
-  val modifiers: Seq[Modifier]
+  val modifiers: Array[Modifier]
 
   lazy val namespace: Option[Name] = {
     val outermostType = outerTypeName.getOrElse(typeName).outer
