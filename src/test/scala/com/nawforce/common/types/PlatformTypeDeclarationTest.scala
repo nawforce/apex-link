@@ -53,7 +53,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
+    assert(td.get.modifiers sameElements  Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
     assert(td.get.outerTypeName.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
   }
@@ -78,7 +78,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     assert(td.get.superClass.get.toString == "ConnectApi.FeedElement")
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
+    assert(td.get.modifiers sameElements Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
     assert(td.get.outerTypeName.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
   }
@@ -91,7 +91,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == INTERFACE_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
+    assert(td.get.modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(td.get.outerTypeName.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
   }
@@ -104,7 +104,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == ENUM_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
+    assert(td.get.modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(td.get.outerTypeName.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
   }
@@ -117,7 +117,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
+    assert(td.get.modifiers sameElements Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
     assert(td.get.outerTypeName.isEmpty)
 
     val nested = td.get.nestedTypes.sortBy(_.name.toString)
@@ -135,7 +135,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
+    assert(td.get.modifiers sameElements Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
     assert(td.get.outerTypeName.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
 
@@ -143,7 +143,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     assert(fields.size == 8)
     assert(fields.map(_.name.toString) ==
       Seq("city", "country", "countryCode", "geocodeAccuracy", "postalCode", "state", "stateCode", "street"))
-    assert(fields.filter(_.modifiers == Seq(PUBLIC_MODIFIER)) == fields)
+    assert(fields.filter(_.modifiers sameElements Array(PUBLIC_MODIFIER)) == fields)
     assert(fields.filter(_.typeName.toString == "System.String") == fields)
   }
 
@@ -155,13 +155,13 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     assert(td.get.superClass.get.toString == "System.Exception")
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
+    assert(td.get.modifiers sameElements Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
     assert(td.get.outerTypeName.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
 
     val constructors = td.get.constructors.sortBy(_.toString)
     assert(constructors.size == 4)
-    assert(constructors.filter(_.modifiers == Seq(PUBLIC_MODIFIER)) == constructors)
+    assert(constructors.filter(_.modifiers sameElements Array(PUBLIC_MODIFIER)) == constructors)
     assert(constructors.head.toString == "public System.DmlException()")
     assert(constructors(1).toString == "public System.DmlException(System.Exception param1)")
     assert(constructors(2).toString == "public System.DmlException(System.String param1)")
@@ -176,7 +176,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
+    assert(td.get.modifiers sameElements Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
     assert(td.get.outerTypeName.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
 
@@ -185,7 +185,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     assert(methods.map(_.name.toString) ==
       Seq("getCity", "getCountry", "getCountryCode", "getDistance", "getGeocodeAccuracy", "getLatitude",
         "getLongitude", "getPostalCode", "getState", "getStateCode", "getStreet"))
-    assert(methods.filter(_.modifiers == Seq(PUBLIC_MODIFIER)) == methods)
+    assert(methods.filter(_.modifiers sameElements Array(PUBLIC_MODIFIER)) == methods)
     assert(methods.filter(_.name.toString == "getCity").head.toString == "public System.String getCity()")
     assert(methods.filter(_.name.toString == "getDistance").head.toString ==
       "public System.Double getDistance(System.Location other, System.String unit)")
@@ -199,7 +199,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     assert(td.get.superClass.get.toString == "System.Exception")
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
+    assert(td.get.modifiers sameElements Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
     assert(td.get.outerTypeName.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
 
@@ -208,7 +208,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     assert(methods.map(_.name.toString) == Seq("getCause", "getDmlFieldNames", "getDmlFields", "getDmlId",
       "getDmlIndex", "getDmlMessage", "getDmlStatusCode", "getDmlType", "getLineNumber", "getMessage", "getNumDml",
       "getStackTraceString", "getTypeName", "initCause", "setMessage"))
-    assert(methods.filter(_.modifiers == Seq(PUBLIC_MODIFIER)) == methods)
+    assert(methods.filter(_.modifiers sameElements Array(PUBLIC_MODIFIER)) == methods)
   }
 
   test("Generic class") {
@@ -220,7 +220,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     assert(td.get.interfaces.size == 1)
     assert(td.get.interfaces.head.toString == "System.Iterable<System.String>")
     assert(td.get.nature == CLASS_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
+    assert(td.get.modifiers sameElements Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
     assert(td.get.outerTypeName.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
 
@@ -260,7 +260,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == INTERFACE_NATURE)
-    assert(td.get.modifiers == Seq(PUBLIC_MODIFIER))
+    assert(td.get.modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(td.get.outerTypeName.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
 

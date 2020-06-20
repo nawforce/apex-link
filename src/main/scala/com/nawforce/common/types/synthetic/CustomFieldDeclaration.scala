@@ -41,7 +41,7 @@ import com.nawforce.common.xml.{XMLElementLike, XMLException}
 final case class CustomFieldDeclaration(name: Name, typeName: TypeName, idTarget: Option[TypeName], asStatic: Boolean = false)
   extends FieldDeclaration {
 
-  override val modifiers: Seq[Modifier] = Seq(PUBLIC_MODIFIER) ++ (if (asStatic) Seq(STATIC_MODIFIER) else Seq())
+  override val modifiers: Array[Modifier] = Array(PUBLIC_MODIFIER) ++ (if (asStatic) Array(STATIC_MODIFIER) else Seq())
   override val readAccess: Modifier = PUBLIC_MODIFIER
   override val writeAccess: Modifier = PUBLIC_MODIFIER
 

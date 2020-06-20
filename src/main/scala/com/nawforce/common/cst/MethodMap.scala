@@ -99,7 +99,7 @@ object MethodMap {
 
     // Add statics is they are not being shadowed by an instance method
     localMethods.filter(_.isStatic).foreach(method => {
-      val key = (method.name, method.parameters.size)
+      val key = (method.name, method.parameters.length)
       val methods = workingMap.getOrElse(key, Seq())
       val matched = methods.find(m => m.hasSameParameters(method))
       if (matched.isEmpty)
@@ -110,7 +110,7 @@ object MethodMap {
 
     // Validate any interface use in classes
     if (td.nature == CLASS_NATURE) {
-      workingMap.put((Names.Clone, 0), Seq(CustomMethodDeclaration(location, Names.Clone, td.typeName, Seq())))
+      workingMap.put((Names.Clone, 0), Seq(CustomMethodDeclaration(location, Names.Clone, td.typeName, Array())))
       checkInterfaces(td.packageDeclaration, location, td.isAbstract, workingMap, interfaces, errors)
     }
 
@@ -130,7 +130,7 @@ object MethodMap {
       mergeInterfaces(workingMap, interface.interfaceDeclarations)
 
     interface.methods.filterNot(_.isStatic).foreach(method => {
-      val key = (method.name, method.parameters.size)
+      val key = (method.name, method.parameters.length)
       val methods = workingMap.getOrElse(key, Seq())
 
       val matched = methods.find(m => m.hasSameParameters(method))
@@ -162,7 +162,7 @@ object MethodMap {
     interface.methods
       .filterNot(_.isStatic)
       .foreach(method => {
-      val key = (method.name, method.parameters.size)
+      val key = (method.name, method.parameters.length)
       val methods = workingMap.getOrElse(key, Seq())
 
       var matched = methods.find(m => m.hasSameParameters(method))
@@ -189,7 +189,7 @@ object MethodMap {
   private def applyInstanceMethod(workingMap: WorkingMap, method: MethodDeclaration, errors: mutable.Buffer[Issue]): Unit = {
     assert(!method.isStatic)
 
-    val key = (method.name, method.parameters.size)
+    val key = (method.name, method.parameters.length)
     val methods = workingMap.getOrElse(key, Seq())
 
     // Only consider matches against Apex defined methods, overriding platform methods such a hashCode is different

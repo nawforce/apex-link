@@ -27,8 +27,8 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.diagnostics.{CodeParserLogger, Issue, ParserIssueLogger}
-import com.nawforce.runtime.parsers.ApexParser.{AnnotationContext, IdContext, ModifierContext, PropertyBlockContext}
+import com.nawforce.common.diagnostics.{CodeParserLogger, Issue}
+import com.nawforce.runtime.parsers.ApexParser.{IdContext, ModifierContext, PropertyBlockContext}
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 
@@ -41,8 +41,11 @@ case object GLOBAL_MODIFIER extends Modifier("global", order = 3)
 case object PUBLIC_MODIFIER extends Modifier("public", order = 2)
 case object PROTECTED_MODIFIER extends Modifier("protected", order = 1)
 case object PRIVATE_MODIFIER extends Modifier("private", order = 0)
-case object TEST_CLASS_MODIFIER extends Modifier("@isTest")
 case object TEST_METHOD_MODIFIER extends Modifier("testmethod")
+
+case object WITH_SHARING_MODIFIER extends Modifier("with sharing")
+case object WITHOUT_SHARING_MODIFIER extends Modifier("without sharing")
+case object INHERITED_SHARING_MODIFIER extends Modifier("inherited sharing")
 
 case object STATIC_MODIFIER extends Modifier("static")
 case object ABSTRACT_MODIFIER extends Modifier("abstract")
@@ -51,15 +54,11 @@ case object OVERRIDE_MODIFIER extends Modifier("override")
 case object VIRTUAL_MODIFIER extends Modifier("virtual")
 case object TRANSIENT_MODIFIER extends Modifier("transient")
 
-case object WITH_SHARING_MODIFIER extends Modifier("with sharing")
-case object WITHOUT_SHARING_MODIFIER extends Modifier("without sharing")
-case object INHERITED_SHARING_MODIFIER extends Modifier("inherited sharing")
-
 case object AURA_ENABLED_ANNOTATION extends Modifier("@AuraEnabled")
 case object DEPRECATED_ANNOTATION extends Modifier("@Deprecated")
 case object FUTURE_ANNOTATION extends Modifier("@Future")
 case object INVOCABLE_METHOD_ANNOTATION extends Modifier("@InvocableMethod")
-case object INVOCABLE_VARIABLE_ANNOTATION extends Modifier("@InvocableField")
+case object INVOCABLE_VARIABLE_ANNOTATION extends Modifier("@InvocableVariable")
 case object ISTEST_ANNOTATION extends Modifier("@IsTest")
 case object READ_ONLY_ANNOTATION extends Modifier("@ReadOnly")
 case object REMOTE_ACTION_ANNOTATION extends Modifier("@RemoteAction")
@@ -75,109 +74,163 @@ case object HTTP_PATCH_ANNOTATION extends Modifier("@HttpPatch")
 case object HTTP_POST_ANNOTATION extends Modifier("@HttpPost")
 case object HTTP_PUT_ANNOTATION extends Modifier("@HttpPut")
 
-object Modifier {
-  def apply(value: String): Modifier = {
-    // TODO: Why can't this be @switch
-    value match {
-      case WEBSERVICE_MODIFIER.name => WEBSERVICE_MODIFIER
-      case GLOBAL_MODIFIER.name => GLOBAL_MODIFIER
-      case PUBLIC_MODIFIER.name => PUBLIC_MODIFIER
-      case PROTECTED_MODIFIER.name => PROTECTED_MODIFIER
-      case PRIVATE_MODIFIER.name => PRIVATE_MODIFIER
-      case TEST_CLASS_MODIFIER.name => TEST_CLASS_MODIFIER
-      case TEST_METHOD_MODIFIER.name => TEST_METHOD_MODIFIER
+object ModifierOps {
+  private val bitModifiers =
+    Set(WEBSERVICE_MODIFIER, GLOBAL_MODIFIER, PUBLIC_MODIFIER, PROTECTED_MODIFIER, PRIVATE_MODIFIER,
+      TEST_METHOD_MODIFIER, STATIC_MODIFIER, ABSTRACT_MODIFIER, FINAL_MODIFIER, OVERRIDE_MODIFIER, VIRTUAL_MODIFIER,
+      TRANSIENT_MODIFIER, WITH_SHARING_MODIFIER, WITHOUT_SHARING_MODIFIER, INHERITED_SHARING_MODIFIER)
 
-      case STATIC_MODIFIER.name => STATIC_MODIFIER
-      case ABSTRACT_MODIFIER.name => ABSTRACT_MODIFIER
-      case FINAL_MODIFIER.name => FINAL_MODIFIER
-      case OVERRIDE_MODIFIER.name => OVERRIDE_MODIFIER
-      case VIRTUAL_MODIFIER.name => VIRTUAL_MODIFIER
-      case TRANSIENT_MODIFIER.name => TRANSIENT_MODIFIER
+  private val annotations =
+    Set(AURA_ENABLED_ANNOTATION, DEPRECATED_ANNOTATION, FUTURE_ANNOTATION, INVOCABLE_METHOD_ANNOTATION,
+      INVOCABLE_VARIABLE_ANNOTATION, ISTEST_ANNOTATION, READ_ONLY_ANNOTATION, REMOTE_ACTION_ANNOTATION,
+      SUPPRESS_WARNINGS_ANNOTATION, TEST_SETUP_ANNOTATION, TEST_VISIBLE_ANNOTATION, NAMESPACE_ACCESSIBLE_ANNOTATION,
+      REST_RESOURCE_ANNOTATION, HTTP_DELETE_ANNOTATION, HTTP_GET_ANNOTATION, HTTP_PATCH_ANNOTATION, HTTP_POST_ANNOTATION,
+      HTTP_PUT_ANNOTATION)
 
-      case WITH_SHARING_MODIFIER.name => WITH_SHARING_MODIFIER
-      case WITHOUT_SHARING_MODIFIER.name => WITHOUT_SHARING_MODIFIER
-      case INHERITED_SHARING_MODIFIER.name => INHERITED_SHARING_MODIFIER
+  private lazy val byName = (bitModifiers ++ annotations)
+    // The parser text strips WS for '* sharing' so we do same
+    .map(m => (m.name.replace(" ", "").toLowerCase, m)).toMap
 
-      case AURA_ENABLED_ANNOTATION.name => AURA_ENABLED_ANNOTATION
-      case DEPRECATED_ANNOTATION.name => DEPRECATED_ANNOTATION
-      case FUTURE_ANNOTATION.name => FUTURE_ANNOTATION
-      case INVOCABLE_METHOD_ANNOTATION.name => INVOCABLE_METHOD_ANNOTATION
-      case INVOCABLE_VARIABLE_ANNOTATION.name => INVOCABLE_VARIABLE_ANNOTATION
-      case ISTEST_ANNOTATION.name => ISTEST_ANNOTATION
-      case READ_ONLY_ANNOTATION.name => READ_ONLY_ANNOTATION
-      case REMOTE_ACTION_ANNOTATION.name => REMOTE_ACTION_ANNOTATION
-      case SUPPRESS_WARNINGS_ANNOTATION.name => SUPPRESS_WARNINGS_ANNOTATION
-      case TEST_SETUP_ANNOTATION.name => TEST_SETUP_ANNOTATION
-      case TEST_VISIBLE_ANNOTATION.name => TEST_VISIBLE_ANNOTATION
-      case NAMESPACE_ACCESSIBLE_ANNOTATION.name => NAMESPACE_ACCESSIBLE_ANNOTATION
-
-      case REST_RESOURCE_ANNOTATION.name => REST_RESOURCE_ANNOTATION
-      case HTTP_DELETE_ANNOTATION.name => HTTP_DELETE_ANNOTATION
-      case HTTP_GET_ANNOTATION.name => HTTP_GET_ANNOTATION
-      case HTTP_PATCH_ANNOTATION.name => HTTP_PATCH_ANNOTATION
-      case HTTP_POST_ANNOTATION.name => HTTP_POST_ANNOTATION
-      case HTTP_PUT_ANNOTATION.name => HTTP_PUT_ANNOTATION
-    }
+  /** Recover from name, use safeApply  */
+  def apply(name: String): Option[Modifier] = {
+    byName.get(name.toLowerCase())
   }
 }
-
-// Result wrapper
-case class ModifierResults(modifiers: Array[Modifier], issues: Array[Issue])
 
 // TODO: Validate arguments of the annotations
 // TODO: Cross modifier/annotation checking
 // TODO: Protected not supported on class, interface & enum
 
 object ApexModifiers {
-  val visibilityModifiers: Seq[Modifier] = Seq(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PROTECTED_MODIFIER, PRIVATE_MODIFIER)
-  val sharingModifiers: Seq[Modifier] = Seq(WITH_SHARING_MODIFIER, WITHOUT_SHARING_MODIFIER, INHERITED_SHARING_MODIFIER)
+  val visibilityModifiers = Seq(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PROTECTED_MODIFIER, PRIVATE_MODIFIER)
+  private val sharingModifiers = Seq(WITH_SHARING_MODIFIER, WITHOUT_SHARING_MODIFIER, INHERITED_SHARING_MODIFIER)
+
+  private val legalTypeAnnotations: Set[Modifier] =
+    Set(DEPRECATED_ANNOTATION, TEST_VISIBLE_ANNOTATION, SUPPRESS_WARNINGS_ANNOTATION, NAMESPACE_ACCESSIBLE_ANNOTATION)
+
+  private val legalTypeModifiers: Set[Modifier] =
+    Set(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PRIVATE_MODIFIER)
+
+  private val legalTypeModifiersAndAnnotations: Set[Modifier] =
+    legalTypeAnnotations ++ legalTypeModifiers
+
+  private val legalClassAnnotations: Set[Modifier] =
+    legalTypeAnnotations ++ Set(ISTEST_ANNOTATION, REST_RESOURCE_ANNOTATION)
+
+  private val legalClassModifiers: Set[Modifier] =
+    legalTypeModifiers ++ Set(ABSTRACT_MODIFIER, VIRTUAL_MODIFIER) ++ sharingModifiers.toSet
+
+  private val legalClassModifiersAndAnnotations: Set[Modifier] =
+    legalClassAnnotations ++ legalClassModifiers
+
+  private val legalFieldModifiers: Set[Modifier] =
+    visibilityModifiers.toSet ++ Set(FINAL_MODIFIER, STATIC_MODIFIER, TRANSIENT_MODIFIER, WEBSERVICE_MODIFIER)
+
+  private val legalFieldAnnotations: Set[Modifier] =
+     Set(AURA_ENABLED_ANNOTATION, DEPRECATED_ANNOTATION, INVOCABLE_VARIABLE_ANNOTATION, TEST_VISIBLE_ANNOTATION,
+       SUPPRESS_WARNINGS_ANNOTATION)
+
+  private val legalFieldModifiersAndAnnotations: Set[Modifier] = legalFieldAnnotations ++ legalFieldModifiers
+
+  private val legalConstructorModifiersAndAnnotations: Set[Modifier] = visibilityModifiers.toSet ++ legalTypeAnnotations
+
+  private val legalMethodModifiers: Set[Modifier] = visibilityModifiers.toSet ++ Set(ABSTRACT_MODIFIER,
+    OVERRIDE_MODIFIER, STATIC_MODIFIER, TEST_METHOD_MODIFIER, WEBSERVICE_MODIFIER, VIRTUAL_MODIFIER)
+
+  private val legalMethodAnnotations: Set[Modifier] = Set(AURA_ENABLED_ANNOTATION, DEPRECATED_ANNOTATION,
+    FUTURE_ANNOTATION, INVOCABLE_METHOD_ANNOTATION, ISTEST_ANNOTATION, TEST_VISIBLE_ANNOTATION,
+    NAMESPACE_ACCESSIBLE_ANNOTATION, READ_ONLY_ANNOTATION, SUPPRESS_WARNINGS_ANNOTATION, READ_ONLY_ANNOTATION,
+    SUPPRESS_WARNINGS_ANNOTATION, TEST_SETUP_ANNOTATION, HTTP_DELETE_ANNOTATION, HTTP_GET_ANNOTATION,
+    HTTP_PATCH_ANNOTATION, HTTP_POST_ANNOTATION, HTTP_PUT_ANNOTATION, REMOTE_ACTION_ANNOTATION)
+
+  private val legalMethodModifiersAndAnnotations: Set[Modifier] = legalMethodAnnotations ++ legalMethodModifiers
+
+  private val legalParameterModifiersAndAnnotations: Set[Modifier] = Set(FINAL_MODIFIER)
+
+  private val legalCatchModifiersAndAnnotations: Set[Modifier] = Set(FINAL_MODIFIER, STATIC_MODIFIER)
+
+  private val legalLocalVarsModifiersAndAnnotations: Set[Modifier] = Set(FINAL_MODIFIER, TRANSIENT_MODIFIER)
+
+  /* Convert parser contexts to Modifiers */
+  private def asModifiers(modifierContexts: Seq[ModifierContext], allow: Set[Modifier], pluralName: String,
+                  logger: CodeParserLogger, idContext: ParserRuleContext): Seq[Modifier] = {
+
+    val modifiers = toModifiers(modifierContexts, allow, pluralName, logger)
+    if (modifiers.size == modifierContexts.size) {
+      val duplicates = modifiers.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
+      if (duplicates.nonEmpty) {
+        logger.logError(idContext, s"Modifier '${duplicates.head.toString}' is used more than once")
+      }
+    }
+    modifiers.distinct
+  }
+
+  private def toModifiers(modifierContexts: Seq[ModifierContext], allow: Set[Modifier], pluralName: String,
+                  logger: CodeParserLogger): Seq[Modifier] = {
+    modifierContexts.flatMap(modifierContext => {
+      val annotation = CodeParser.toScala(modifierContext.annotation())
+      var modifier =
+        if (annotation.nonEmpty)
+          annotation.flatMap(a => ModifierOps("@" + CodeParser.getText(a.qualifiedName()).toLowerCase))
+        else
+          ModifierOps(CodeParser.getText(modifierContext).toLowerCase)
+      if (!modifier.exists(allow.contains)) {
+        modifier = None
+        val modifierType = if (annotation.nonEmpty) "Annotation" else "Modifier"
+        logger.logError(modifierContext,
+          s"$modifierType '${CodeParser.getText(modifierContext)}' is not supported on $pluralName")
+      }
+      modifier
+    })
+  }
+
+  private def deduplicateVisibility(modifiers: Seq[Modifier], pluralName: String,
+                                    logger: CodeParserLogger, idContext: ParserRuleContext): Seq[Modifier] = {
+    if (modifiers.intersect(visibilityModifiers).size > 1) {
+      if (logger.isEmpty)
+        logger.logWarning(idContext,
+          s"Only one visibility modifier from 'global', 'public' & 'private' should be used on $pluralName")
+      PUBLIC_MODIFIER +: modifiers.diff(visibilityModifiers)
+    } else {
+      modifiers
+    }
+  }
+
+  private def deduplicateSharing(modifiers: Seq[Modifier], pluralName: String, logger: CodeParserLogger,
+                                 idContext: ParserRuleContext): Seq[Modifier] = {
+    if (modifiers.intersect(sharingModifiers).size > 1) {
+      if (logger.isEmpty)
+        logger.logWarning(idContext,
+          s"Only one sharing modifier from 'with sharing', 'without sharing' & 'inherited sharing' should be used on $pluralName")
+      WITHOUT_SHARING_MODIFIER +: modifiers.diff(visibilityModifiers)
+    } else {
+      modifiers
+    }
+  }
+
+  private def deduplicate(modifiers: Seq[Modifier], pluralName: String, logger: CodeParserLogger,
+    idContext: ParserRuleContext): Seq[Modifier] = {
+    deduplicateVisibility(
+      deduplicateSharing(modifiers, pluralName, logger, idContext),
+      pluralName, logger, idContext)
+  }
 
   def classModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], outer: Boolean, idContext: IdContext)
   : ModifierResults = {
 
     val logger = new CodeParserLogger(parser)
-    val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
-      val annotation = CodeParser.toScala(modifierContext.annotation())
-      if (annotation.nonEmpty)
-        annotation.flatMap(a => classAnnotation(logger, a))
-      else {
-        CodeParser.getText(modifierContext).toLowerCase match {
-          case "global" => Some(GLOBAL_MODIFIER)
-          case "public" => Some(PUBLIC_MODIFIER)
-          case "private" => Some(PRIVATE_MODIFIER)
-          case "withsharing" => Some(WITH_SHARING_MODIFIER)
-          case "withoutsharing" => Some(WITHOUT_SHARING_MODIFIER)
-          case "inheritedsharing" => Some(INHERITED_SHARING_MODIFIER)
-          case "abstract" => Some(ABSTRACT_MODIFIER)
-          case "virtual" => Some(VIRTUAL_MODIFIER)
-          case _ =>
-            logger.logError(modifierContext,
-              s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on classes")
-            None
-        }
-      }
-    })
+    val mods = deduplicate(
+      asModifiers(modifierContexts, legalClassModifiersAndAnnotations, "classes", logger, idContext),
+      "classes", logger, idContext)
 
     val results =
-      if (mods.size == modifierContexts.size) {
-        val duplicates = mods.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
-        if (duplicates.nonEmpty) {
-          logger.logError(idContext, s"Modifier '${duplicates.head.toString}' is used more than once")
-          mods.toSet.toSeq
-        } else if (outer && !mods.contains(ISTEST_ANNOTATION) && mods.contains(PRIVATE_MODIFIER)) {
+      if (logger.isEmpty) {
+        if (outer && !mods.contains(ISTEST_ANNOTATION) && mods.contains(PRIVATE_MODIFIER)) {
           logger.logWarning(idContext, s"Private modifier is not allowed on outer classes")
           mods.filterNot(_ == PRIVATE_MODIFIER)
         } else if (outer && !mods.contains(ISTEST_ANNOTATION) && !(mods.contains(GLOBAL_MODIFIER) || mods.contains(PUBLIC_MODIFIER))) {
           logger.logError(idContext, s"Outer classes must be declared either 'global' or 'public'")
           PUBLIC_MODIFIER +: mods
-        } else if (mods.intersect(visibilityModifiers).size > 1) {
-          logger.logWarning(idContext,
-            s"Only one visibility modifier from 'global', 'public' & 'private' should be used on classes")
-          PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
-        } else if (mods.intersect(sharingModifiers).size > 1) {
-          logger.logError(idContext,
-            s"Only one sharing modifier from 'with sharing', 'without sharing' & 'inherited sharing' may be used on classes")
-          mods.diff(sharingModifiers)
         } else {
           mods
         }
@@ -185,48 +238,26 @@ object ApexModifiers {
         mods
       }
 
-    ModifierResults(results.toArray, logger.issues)
+    ModifierResults(results.toArray, logger.issues).intern
   }
 
   def interfaceModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], outer: Boolean, idContext: IdContext)
   : ModifierResults = {
 
     val logger = new CodeParserLogger(parser)
-    val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
-      val annotation = CodeParser.toScala(modifierContext.annotation())
-      if (annotation.nonEmpty)
-        annotation.flatMap(a => typeAnnotation(logger, a))
-      else {
-        CodeParser.getText(modifierContext).toLowerCase match {
-          case "global" => Some(GLOBAL_MODIFIER)
-          case "public" => Some(PUBLIC_MODIFIER)
-          case "private" => Some(PRIVATE_MODIFIER)
-          case "virtual" => Some(VIRTUAL_MODIFIER)
-          case _ =>
-            logger.logError(modifierContext,
-              s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on interfaces")
-            None
-        }
-      }
-    })
+    val mods = deduplicateVisibility(
+      asModifiers(modifierContexts, legalTypeModifiersAndAnnotations, "interfaces", logger, idContext),
+      "interfaces", logger, idContext)
 
     val results = {
-      if (mods.size == modifierContexts.size) {
-        val duplicates = mods.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
-        if (duplicates.nonEmpty) {
-          logger.logError(idContext, s"Modifier '${duplicates.head.toString}' is used more than once")
-          mods.toSet.toSeq
-        } else if (outer && mods.contains(PRIVATE_MODIFIER)) {
+      if (logger.isEmpty) {
+        if (outer && mods.contains(PRIVATE_MODIFIER)) {
           logger.logError(idContext,
             s"Private modifier is not allowed on outer interfaces")
           mods.filterNot(_ == PRIVATE_MODIFIER)
         } else if (outer && !(mods.contains(GLOBAL_MODIFIER) || mods.contains(PUBLIC_MODIFIER))) {
           logger.logError(idContext, s"Outer interfaces must be declared either 'global' or 'public'")
           PUBLIC_MODIFIER +: mods
-        } else if (mods.intersect(visibilityModifiers).size > 1) {
-          logger.logWarning(idContext,
-            s"Only one visibility modifier from 'global', 'public' & 'private' should be used on interfaces")
-          PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
         } else {
           mods
         }
@@ -234,47 +265,26 @@ object ApexModifiers {
         mods
       }
     }
-    ModifierResults(results.toArray, logger.issues)
+    ModifierResults(results.toArray, logger.issues).intern
   }
 
   def enumModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], outer: Boolean, idContext: IdContext)
   : ModifierResults = {
 
     val logger = new CodeParserLogger(parser)
-    val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
-      val annotation = CodeParser.toScala(modifierContext.annotation())
-      if (annotation.nonEmpty)
-        annotation.flatMap(a => typeAnnotation(logger, a))
-      else {
-        CodeParser.getText(modifierContext).toLowerCase match {
-          case "global" => Some(GLOBAL_MODIFIER)
-          case "public" => Some(PUBLIC_MODIFIER)
-          case "private" => Some(PRIVATE_MODIFIER)
-          case _ =>
-            logger.logError(modifierContext,
-              s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on enums")
-            None
-        }
-      }
-    })
+    val mods = deduplicateVisibility(
+      asModifiers(modifierContexts, legalTypeModifiersAndAnnotations, "enums", logger, idContext),
+      "enums", logger, idContext)
 
     val results = {
-      if (mods.size == modifierContexts.size) {
-        val duplicates = mods.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
-        if (duplicates.nonEmpty) {
-          logger.logError(idContext, s"Modifier '${duplicates.head.toString}' is used more than once")
-          mods.toSet.toSeq
-        } else if (outer && mods.contains(PRIVATE_MODIFIER)) {
+      if (logger.isEmpty) {
+        if (outer && mods.contains(PRIVATE_MODIFIER)) {
           logger.logError(idContext,
             s"Private modifier is not allowed on outer enums")
           mods.filterNot(_ == PRIVATE_MODIFIER)
         } else if (outer && !(mods.contains(GLOBAL_MODIFIER) || mods.contains(PUBLIC_MODIFIER))) {
           logger.logError(idContext, s"Outer enums must be declared either 'global' or 'public'")
           PUBLIC_MODIFIER +: mods
-        } else if (mods.intersect(visibilityModifiers).size > 1) {
-          logger.logWarning(idContext,
-            s"Only one visibility modifier from 'global', 'public' & 'private' should be used on enums")
-          PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
         } else {
           mods
         }
@@ -282,45 +292,19 @@ object ApexModifiers {
         mods
       }
     }
-    ModifierResults(results.toArray, logger.issues)
+    ModifierResults(results.toArray, logger.issues).intern
   }
 
   def fieldModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], idContext: IdContext)
   : ModifierResults = {
 
     val logger = new CodeParserLogger(parser)
-    val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
-      val annotation = CodeParser.toScala(modifierContext.annotation())
-      if (annotation.nonEmpty)
-        annotation.flatMap(a => fieldAnnotation(logger, a))
-      else {
-        CodeParser.getText(modifierContext).toLowerCase match {
-          case "global" => Some(GLOBAL_MODIFIER)
-          case "public" => Some(PUBLIC_MODIFIER)
-          case "protected" => Some(PROTECTED_MODIFIER)
-          case "private" => Some(PRIVATE_MODIFIER)
-          case "final" => Some(FINAL_MODIFIER)
-          case "static" => Some(STATIC_MODIFIER)
-          case "transient" => Some(TRANSIENT_MODIFIER)
-          case "webservice" => Some(WEBSERVICE_MODIFIER)
-          case _ =>
-            logger.logError(modifierContext,
-              s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on fields")
-            None
-        }
-      }
-    })
+    val mods = deduplicateVisibility(
+      asModifiers(modifierContexts, legalFieldModifiersAndAnnotations, "fields", logger, idContext),
+      "fields", logger, idContext)
 
     val results = {
-      val duplicates = mods.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
-      if (duplicates.nonEmpty) {
-        logger.logError(idContext, s"Modifier '${duplicates.head.toString}' is used more than once")
-        mods.toSet.toSeq
-      } else if (mods.intersect(visibilityModifiers).size > 1) {
-        logger.logWarning(idContext,
-          s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' should be used on fields")
-        PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
-      } else if (mods.intersect(visibilityModifiers).isEmpty && mods.contains(WEBSERVICE_MODIFIER)) {
+      if (mods.intersect(visibilityModifiers).isEmpty && mods.contains(WEBSERVICE_MODIFIER)) {
         GLOBAL_MODIFIER +: mods
       } else if (!mods.intersect(visibilityModifiers).contains(GLOBAL_MODIFIER) && mods.contains(WEBSERVICE_MODIFIER)) {
         logger.logError(idContext, s"webservice methods must be global")
@@ -331,327 +315,91 @@ object ApexModifiers {
         mods
       }
     }
-    ModifierResults(results.toArray, logger.issues)
+    ModifierResults(results.toArray, logger.issues).intern
   }
 
   def propertyBlockModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], idContext: PropertyBlockContext)
   : ModifierResults = {
 
     val logger = new CodeParserLogger(parser)
-    val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext =>
-      CodeParser.getText(modifierContext).toLowerCase match {
-        case "global" => Some(GLOBAL_MODIFIER)
-        case "public" => Some(PUBLIC_MODIFIER)
-        case "protected" => Some(PROTECTED_MODIFIER)
-        case "private" => Some(PRIVATE_MODIFIER)
-        case _ =>
-          logger.logError(modifierContext,
-            s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on property set/get")
-          None
-      }
-    )
-
-    val results = {
-      val duplicates = mods.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
-      if (duplicates.nonEmpty) {
-        logger.logError(idContext, s"Modifier '${duplicates.head.toString}' is used more than once")
-        mods.toSet.toSeq
-      } else if (mods.intersect(visibilityModifiers).size > 1) {
-        logger.logWarning(idContext,
-          s"Only one visibility modifier from 'global, 'public', 'protected' & 'private' should be used on property set/get")
-        mods.diff(visibilityModifiers)
-      } else {
-        mods
-      }
-    }
-    ModifierResults(results.toArray, logger.issues)
+    val mods = deduplicateVisibility(
+      asModifiers(modifierContexts, visibilityModifiers.toSet, "property set/get", logger, idContext),
+      "property set/get", logger, idContext)
+    ModifierResults(mods.toArray, logger.issues)
   }
 
-  def constructorModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], parserContext: ParserRuleContext)
+  def constructorModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], context: ParserRuleContext)
   : ModifierResults = {
 
     val logger = new CodeParserLogger(parser)
-    val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
-      val annotation = CodeParser.toScala(modifierContext.annotation())
-      if (annotation.nonEmpty)
-        annotation.flatMap(a => constructorAnnotation(logger, a))
-      else {
-        CodeParser.getText(modifierContext).toLowerCase match {
-          case "global" => Some(GLOBAL_MODIFIER)
-          case "public" => Some(PUBLIC_MODIFIER)
-          case "protected" => Some(PROTECTED_MODIFIER)
-          case "private" => Some(PRIVATE_MODIFIER)
-          case _ =>
-            logger.logError(modifierContext,
-              s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on constructors")
-            None
-        }
-      }
-    })
+    val mods = deduplicateVisibility(
+      asModifiers(modifierContexts, legalConstructorModifiersAndAnnotations, "constructors", logger, context),
+      "constructors", logger, context)
 
     val results = {
-      val duplicates = mods.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
-      if (duplicates.nonEmpty) {
-        logger.logError(parserContext, s"Modifier '${duplicates.head.toString}' is used more than once")
-        mods.toSet.toSeq
-      } else if (mods.intersect(visibilityModifiers).size > 1) {
-        logger.logWarning(parserContext,
-          s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' should be used on methods")
-        PUBLIC_MODIFIER +: mods.diff(visibilityModifiers)
-      } else if (mods.intersect(visibilityModifiers).isEmpty) {
+      if (mods.intersect(visibilityModifiers).isEmpty) {
         PRIVATE_MODIFIER +: mods
       } else {
         mods
       }
     }
-    ModifierResults(results.toArray, logger.issues)
+    ModifierResults(results.toArray, logger.issues).intern
   }
 
-  def methodModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], idContext: ParserRuleContext)
+  def methodModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], context: ParserRuleContext)
   : ModifierResults = {
 
     val logger = new CodeParserLogger(parser)
-    val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
-      val annotation = CodeParser.toScala(modifierContext.annotation())
-      if (annotation.nonEmpty)
-        annotation.flatMap(a => methodAnnotation(logger, a))
-      else {
-        CodeParser.getText(modifierContext).toLowerCase match {
-          case "abstract" => Some(ABSTRACT_MODIFIER)
-          case "global" => Some(GLOBAL_MODIFIER)
-          case "override" => Some(OVERRIDE_MODIFIER)
-          case "public" => Some(PUBLIC_MODIFIER)
-          case "protected" => Some(PROTECTED_MODIFIER)
-          case "private" => Some(PRIVATE_MODIFIER)
-          case "static" => Some(STATIC_MODIFIER)
-          case "testmethod" => Some(TEST_METHOD_MODIFIER)
-          case "webservice" => Some(WEBSERVICE_MODIFIER)
-          case "virtual" => Some(VIRTUAL_MODIFIER)
-          case _ =>
-            logger.logError(modifierContext,
-              s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on methods")
-            None
-        }
-      }
-    })
+    val mods = deduplicateVisibility(
+      asModifiers(modifierContexts, legalMethodModifiersAndAnnotations, "methods", logger, context),
+      "methods", logger, context)
 
     // TODO: webservice must be on outer static method
 
     val results = {
-      val duplicates = mods.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
-      if (duplicates.nonEmpty) {
-        logger.logError(idContext, s"Modifier '${duplicates.head.toString}' is used more than once")
-        mods.toSet.toSeq
-      } else if (mods.intersect(visibilityModifiers).size > 1) {
-        logger.logWarning(idContext,
-          s"Only one visibility modifier from 'global', 'public', 'protected' & 'private' should be used on methods")
-        mods.diff(visibilityModifiers)
-      } else if (mods.intersect(visibilityModifiers).isEmpty && mods.contains(WEBSERVICE_MODIFIER)) {
+      if (mods.intersect(visibilityModifiers).isEmpty && mods.contains(WEBSERVICE_MODIFIER)) {
         GLOBAL_MODIFIER +: mods
       } else if (!mods.intersect(visibilityModifiers).contains(GLOBAL_MODIFIER) && mods.contains(WEBSERVICE_MODIFIER)) {
-        logger.logError(idContext,
-          s"webservice methods must be global")
+        logger.logError(context,s"webservice methods must be global")
         GLOBAL_MODIFIER +: mods.diff(visibilityModifiers)
       } else {
         mods
       }
     }
-    ModifierResults(results.toArray, logger.issues)
+    ModifierResults(results.toArray, logger.issues).intern
   }
 
-  def parameterModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], idContext: ParserRuleContext)
+  def parameterModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], context: ParserRuleContext)
   : ModifierResults = {
 
     val logger = new CodeParserLogger(parser)
-    val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
-      val annotation = CodeParser.toScala(modifierContext.annotation())
-      if (annotation.nonEmpty)
-        annotation.flatMap(a => parameterAnnotation(logger, a))
-      else {
-        CodeParser.getText(modifierContext).toLowerCase match {
-          case "final" => Some(FINAL_MODIFIER)
-          case _ =>
-            logger.logError(modifierContext,
-              s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on parameters")
-            None
-        }
-      }
-    })
+    val mods = deduplicateVisibility(
+      asModifiers(modifierContexts, legalParameterModifiersAndAnnotations, "parameters", logger, context),
+      "parameters", logger, context)
 
-    val results = {
-      val duplicates = mods.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
-      if (duplicates.nonEmpty) {
-        logger.logError(idContext, s"Modifier '${duplicates.head.toString}' is used more than once")
-        mods.toSet.toSeq
-      } else {
-        mods
-      }
-    }
-    ModifierResults(results.toArray, logger.issues)
+    ModifierResults(mods.toArray, logger.issues).intern
   }
 
-  def catchModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], idContext: ParserRuleContext)
+  def catchModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], context: ParserRuleContext)
   : ModifierResults = {
 
     val logger = new CodeParserLogger(parser)
-    val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
-      val annotation = CodeParser.toScala(modifierContext.annotation())
-      if (annotation.nonEmpty)
-        annotation.flatMap(a => catchAnnotation(logger, a))
-      else {
-        CodeParser.getText(modifierContext).toLowerCase match {
-          case "final" => Some(FINAL_MODIFIER)
-          case "static" => Some(STATIC_MODIFIER)
-          case _ =>
-            logger.logError(modifierContext,
-              s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on parameters")
-            None
-        }
-      }
-    })
+    val mods = deduplicateVisibility(
+      asModifiers(modifierContexts, legalCatchModifiersAndAnnotations, "local variables", logger, context),
+      "local variables", logger, context)
 
-    val results = {
-      val duplicates = mods.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
-      if (duplicates.nonEmpty) {
-        logger.logError(idContext, s"Modifier '${duplicates.head.toString}' is used more than once")
-        mods.toSet.toSeq
-      } else {
-        mods
-      }
-    }
-    ModifierResults(results.toArray, logger.issues)
+    ModifierResults(mods.toArray, logger.issues).intern
   }
 
-  def localVariableModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], idContext: ParserRuleContext)
+  def localVariableModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], context: ParserRuleContext)
   : ModifierResults = {
 
     val logger = new CodeParserLogger(parser)
-    val mods: Seq[Modifier] = modifierContexts.flatMap(modifierContext => {
-      val annotation = CodeParser.toScala(modifierContext.annotation())
-      if (annotation.nonEmpty)
-        annotation.flatMap(a => localVariableAnnotation(logger, a))
-      else {
-        CodeParser.getText(modifierContext).toLowerCase match {
-          case "final" => Some(FINAL_MODIFIER)
-          case "transient" => Some(TRANSIENT_MODIFIER)
-          case _ =>
-            logger.logError(modifierContext,
-              s"Modifier '${CodeParser.getText(modifierContext)}' is not supported on local variables")
-            None
-        }
-      }
-    })
+    val mods = deduplicateVisibility(
+      asModifiers(modifierContexts, legalLocalVarsModifiersAndAnnotations, "parameters", logger, context),
+      "parameters", logger, context)
 
-    val results = {
-      val duplicates = mods.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
-      if (duplicates.nonEmpty) {
-        logger.logError(idContext, s"Modifier '${duplicates.head.toString}' is used more than once")
-        mods.toSet.toSeq
-      } else {
-        mods
-      }
-    }
-    ModifierResults(results.toArray, logger.issues)
-  }
-
-  private def classAnnotation(logger: ParserIssueLogger, context: AnnotationContext): Option[Modifier] = {
-    CodeParser.getText(context.qualifiedName()).toLowerCase match {
-      case "deprecated" => Some(DEPRECATED_ANNOTATION)
-      case "istest" => Some(ISTEST_ANNOTATION)
-      case "testvisible" => Some(TEST_VISIBLE_ANNOTATION)
-      case "suppresswarnings" => Some(SUPPRESS_WARNINGS_ANNOTATION)
-      case "restresource" => Some(REST_RESOURCE_ANNOTATION)
-      case "namespaceaccessible" => Some(NAMESPACE_ACCESSIBLE_ANNOTATION)
-      case _ =>
-        logger.log(Issue.unexpectedAnnotationOnClass(logger.location(context), context.qualifiedName()))
-        None
-    }
-  }
-
-  private def typeAnnotation(logger: ParserIssueLogger, context: AnnotationContext): Option[Modifier] = {
-    CodeParser.getText(context.qualifiedName()).toLowerCase match {
-      case "deprecated" => Some(DEPRECATED_ANNOTATION)
-      case "testvisible" => Some(TEST_VISIBLE_ANNOTATION)
-      case "suppresswarnings" => Some(SUPPRESS_WARNINGS_ANNOTATION)
-      case "namespaceaccessible" => Some(NAMESPACE_ACCESSIBLE_ANNOTATION)
-      case _ =>
-        logger.logError(context,
-          s"Unexpected annotation '${CodeParser.getText(context.qualifiedName())}' on interface declaration")
-        None
-    }
-  }
-
-  private def fieldAnnotation(logger: ParserIssueLogger, context: AnnotationContext): Option[Modifier] = {
-    // TODO: Validate arguments of the annotations
-    CodeParser.getText(context.qualifiedName()).toLowerCase match {
-      case "auraenabled" => Some(AURA_ENABLED_ANNOTATION)
-      case "deprecated" => Some(DEPRECATED_ANNOTATION)
-      case "invocablevariable" => Some(INVOCABLE_VARIABLE_ANNOTATION)
-      case "testvisible" => Some(TEST_VISIBLE_ANNOTATION)
-      case "suppresswarnings" => Some(SUPPRESS_WARNINGS_ANNOTATION)
-      case _ =>
-        logger.logError(context,
-          s"Unexpected annotation '${CodeParser.getText(context.qualifiedName())}' on field/property declaration")
-        None
-    }
-  }
-
-  private def constructorAnnotation(logger: ParserIssueLogger, context: AnnotationContext): Option[Modifier] = {
-    // TODO: Validate arguments of the annotations
-    CodeParser.getText(context.qualifiedName()).toLowerCase match {
-      case "deprecated" => Some(DEPRECATED_ANNOTATION)
-      case "testvisible" => Some(TEST_VISIBLE_ANNOTATION)
-      case "namespaceaccessible" => Some(NAMESPACE_ACCESSIBLE_ANNOTATION)
-      case "suppresswarnings" => Some(SUPPRESS_WARNINGS_ANNOTATION)
-      case _ =>
-        logger.logError(context,
-          s"Unexpected annotation '${CodeParser.getText(context.qualifiedName())}' on method declaration")
-        None
-    }
-  }
-
-  private def methodAnnotation(logger: ParserIssueLogger, context: AnnotationContext): Option[Modifier] = {
-    // TODO: Validate arguments of the annotations
-    CodeParser.getText(context.qualifiedName()).toLowerCase match {
-      case "auraenabled" => Some(AURA_ENABLED_ANNOTATION)
-      case "deprecated" => Some(DEPRECATED_ANNOTATION)
-      case "future" => Some(FUTURE_ANNOTATION)
-      case "invocablemethod" => Some(INVOCABLE_VARIABLE_ANNOTATION)
-      case "istest" => Some(ISTEST_ANNOTATION)
-      case "testvisible" => Some(TEST_VISIBLE_ANNOTATION)
-      case "namespaceaccessible" => Some(NAMESPACE_ACCESSIBLE_ANNOTATION)
-      case "readonly" => Some(READ_ONLY_ANNOTATION)
-      case "suppresswarnings" => Some(SUPPRESS_WARNINGS_ANNOTATION)
-      case "testsetup" => Some(TEST_SETUP_ANNOTATION)
-      case "httpdelete" => Some(HTTP_DELETE_ANNOTATION)
-      case "httpget" => Some(HTTP_GET_ANNOTATION)
-      case "httppatch" => Some(HTTP_PATCH_ANNOTATION)
-      case "httppost" => Some(HTTP_POST_ANNOTATION)
-      case "httpput" => Some(HTTP_PUT_ANNOTATION)
-      case "remoteaction" => Some(REMOTE_ACTION_ANNOTATION)
-      case _ =>
-        logger.logError(context,
-          s"Unexpected annotation '${CodeParser.getText(context.qualifiedName())}' on method declaration")
-        None
-    }
-  }
-
-  private def parameterAnnotation(logger: ParserIssueLogger, context: AnnotationContext): Option[Modifier] = {
-    logger.logError(context,
-      s"Unexpected annotation '${CodeParser.getText(context.qualifiedName())}' on parameter")
-    None
-  }
-
-  private def catchAnnotation(logger: ParserIssueLogger, context: AnnotationContext): Option[Modifier] = {
-    logger.logError(context,
-      s"Unexpected annotation '${CodeParser.getText(context.qualifiedName())}' on catch clause")
-    None
-  }
-
-  private def localVariableAnnotation(logger: ParserIssueLogger, context: AnnotationContext): Option[Modifier] = {
-    logger.logError(context,
-      s"Unexpected annotation '${CodeParser.getText(context.qualifiedName())}' on catch clause")
-    None
+    ModifierResults(mods.toArray, logger.issues).intern
   }
 }
 

@@ -59,17 +59,17 @@ class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Global outer") {
-    assert(typeDeclaration("global class Dummy {}").modifiers == Seq(GLOBAL_MODIFIER))
+    assert(typeDeclaration("global class Dummy {}").modifiers sameElements Array(GLOBAL_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Public outer") {
-    assert(typeDeclaration("public class Dummy {}").modifiers == Seq(PUBLIC_MODIFIER))
+    assert(typeDeclaration("public class Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Public outer (mixed case)") {
-    assert(typeDeclaration("puBlIc class Dummy {}").modifiers == Seq(PUBLIC_MODIFIER))
+    assert(typeDeclaration("puBlIc class Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
@@ -86,13 +86,13 @@ class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("No modifier class") {
-    assert(typeDeclaration("class Dummy {}").modifiers == Seq(PUBLIC_MODIFIER))
+    assert(typeDeclaration("class Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "Error: line 1 at 6-11: Outer classes must be declared either 'global' or 'public'\n")
   }
 
   test("Illegal modifier class") {
-    assert(typeDeclaration("global static class Dummy {}").modifiers == Seq(GLOBAL_MODIFIER))
+    assert(typeDeclaration("global static class Dummy {}").modifiers sameElements  Array(GLOBAL_MODIFIER))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "Error: line 1 at 7-13: Modifier 'static' is not supported on classes\n")
   }
@@ -161,7 +161,7 @@ class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
     val modifiers = typeDeclaration("@HttpGet public class Dummy {}").modifiers
     assert(modifiers.toSet == Set(PUBLIC_MODIFIER))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 0-8: Unexpected annotation 'HttpGet' on class declaration\n")
+      "Error: line 1 at 0-8: Annotation '@HttpGet' is not supported on classes\n")
   }
 
   test("SuppressWarnings & isTest annotation class") {
@@ -171,18 +171,18 @@ class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Global inner") {
-    assert(typeDeclarationInner("global class Dummy {global class Inner{}}").modifiers == Seq(GLOBAL_MODIFIER))
+    assert(typeDeclarationInner("global class Dummy {global class Inner{}}").modifiers sameElements  Array(GLOBAL_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Global inner of public outer") {
-    assert(typeDeclarationInner("public class Dummy {global class Inner{}}").modifiers == Seq(GLOBAL_MODIFIER))
+    assert(typeDeclarationInner("public class Dummy {global class Inner{}}").modifiers sameElements Array(GLOBAL_MODIFIER))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "Error: line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
   test("Public inner") {
-    assert(typeDeclarationInner("public class Dummy {public class Inner{}}").modifiers == Seq(PUBLIC_MODIFIER))
+    assert(typeDeclarationInner("public class Dummy {public class Inner{}}").modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
@@ -193,7 +193,7 @@ class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Private inner") {
-    assert(typeDeclarationInner("public class Dummy {private class Inner{}}").modifiers == Seq(PRIVATE_MODIFIER))
+    assert(typeDeclarationInner("public class Dummy {private class Inner{}}").modifiers sameElements Array(PRIVATE_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 

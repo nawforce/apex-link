@@ -45,7 +45,7 @@ final case class SObjectDeclaration(_paths: Seq[PathLike], pkg: PackageImpl, _ty
                                     override val fields: Seq[FieldDeclaration], override val isComplete: Boolean)
   extends BasicTypeDeclaration(_paths, pkg, _typeName) {
 
-  override val modifiers: Seq[Modifier] = Seq(GLOBAL_MODIFIER)
+  override val modifiers: Array[Modifier] = Array(GLOBAL_MODIFIER)
 
   override val superClass: Option[TypeName] = Some(TypeNames.SObject)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = {
@@ -93,34 +93,34 @@ final case class SObjectDeclaration(_paths: Seq[PathLike], pkg: PackageImpl, _ty
     val preserveReadOnlyTimestamps = CustomParameterDeclaration(Name("preserveReadOnlyTimestamps"), TypeNames.Boolean)
     val preserveAutonumber = CustomParameterDeclaration(Name("preserveAutonumber"), TypeNames.Boolean)
     Seq(
-      CustomMethodDeclaration(None, Name("clone"), typeName, Seq()),
-      CustomMethodDeclaration(None, Name("clone"), typeName, Seq(preserveId)),
-      CustomMethodDeclaration(None, Name("clone"), typeName, Seq(preserveId, isDeepClone)),
-      CustomMethodDeclaration(None, Name("clone"), typeName, Seq(preserveId, isDeepClone, preserveReadOnlyTimestamps)),
-      CustomMethodDeclaration(None, Name("clone"), typeName, Seq(preserveId, isDeepClone, preserveReadOnlyTimestamps, preserveAutonumber))
-    ).map(m => ((m.name, m.parameters.size, m.isStatic),m)).toMap
+      CustomMethodDeclaration(None, Name("clone"), typeName, Array()),
+      CustomMethodDeclaration(None, Name("clone"), typeName, Array(preserveId)),
+      CustomMethodDeclaration(None, Name("clone"), typeName, Array(preserveId, isDeepClone)),
+      CustomMethodDeclaration(None, Name("clone"), typeName, Array(preserveId, isDeepClone, preserveReadOnlyTimestamps)),
+      CustomMethodDeclaration(None, Name("clone"), typeName, Array(preserveId, isDeepClone, preserveReadOnlyTimestamps, preserveAutonumber))
+    ).map(m => ((m.name, m.parameters.length, m.isStatic),m)).toMap
   }
 
   private lazy val hierarchyCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
     Seq(
-      CustomMethodDeclaration(None, Name("getInstance"), typeName, Seq()),
-      CustomMethodDeclaration(None, Name("getInstance"), typeName, Seq(CustomParameterDeclaration(Name("Id"), TypeNames.Id))),
-      CustomMethodDeclaration(None, Name("getOrgDefaults"), typeName, Seq()),
-      CustomMethodDeclaration(None, Name("getValues"), typeName, Seq(CustomParameterDeclaration(Name("Id"), TypeNames.Id))),
-    ).map(m => ((m.name, m.parameters.size),m)).toMap
+      CustomMethodDeclaration(None, Name("getInstance"), typeName, Array()),
+      CustomMethodDeclaration(None, Name("getInstance"), typeName, Array(CustomParameterDeclaration(Name("Id"), TypeNames.Id))),
+      CustomMethodDeclaration(None, Name("getOrgDefaults"), typeName, Array()),
+      CustomMethodDeclaration(None, Name("getValues"), typeName, Array(CustomParameterDeclaration(Name("Id"), TypeNames.Id))),
+    ).map(m => ((m.name, m.parameters.length),m)).toMap
 
   private lazy val listCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
     Seq(
-      CustomMethodDeclaration(None, Name("getAll"), TypeNames.mapOf(TypeNames.String, typeName), Seq()),
-      CustomMethodDeclaration(None, Name("getInstance"), typeName, Seq()),
-      CustomMethodDeclaration(None, Name("getInstance"), typeName, Seq(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
-      CustomMethodDeclaration(None, Name("getValues"), typeName, Seq(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
-    ).map(m => ((m.name, m.parameters.size),m)).toMap
+      CustomMethodDeclaration(None, Name("getAll"), TypeNames.mapOf(TypeNames.String, typeName), Array()),
+      CustomMethodDeclaration(None, Name("getInstance"), typeName, Array()),
+      CustomMethodDeclaration(None, Name("getInstance"), typeName, Array(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
+      CustomMethodDeclaration(None, Name("getValues"), typeName, Array(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
+    ).map(m => ((m.name, m.parameters.length),m)).toMap
 }
 
 object SObjectDeclaration {
   private lazy val sObjectMethodMap: Map[(Name, Int), MethodDeclaration] =
-    PlatformTypes.sObjectType.methods.map(m => ((m.name, m.parameters.size),m)).toMap
+    PlatformTypes.sObjectType.methods.map(m => ((m.name, m.parameters.length),m)).toMap
 
   def create(pkg: PackageImpl, path: PathLike): Seq[TypeDeclaration] = {
     val sobjectDetailsOpt = SObjectDetails.parseSObject(path, pkg)

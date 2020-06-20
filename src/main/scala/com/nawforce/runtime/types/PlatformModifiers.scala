@@ -33,7 +33,7 @@ import com.nawforce.common.cst._
 import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, Nature}
 
 object PlatformModifiers {
-  def typeModifiers(javaBits: Int, nature: Nature): Seq[Modifier] = {
+  def typeModifiers(javaBits: Int, nature: Nature): Array[Modifier] = {
     assert(JavaModifier.isPublic(javaBits))
     if (nature == CLASS_NATURE) assert(!JavaModifier.isAbstract(javaBits))
     if (nature != ENUM_NATURE) assert(!JavaModifier.isFinal(javaBits))
@@ -43,12 +43,12 @@ object PlatformModifiers {
     assert(!JavaModifier.isNative(javaBits))
     assert(!JavaModifier.isStrict(javaBits))
 
-    Seq(PUBLIC_MODIFIER) ++
+    Array(PUBLIC_MODIFIER) ++
       (if (nature == CLASS_NATURE) Seq(VIRTUAL_MODIFIER) else Seq()) ++
       (if (JavaModifier.isStatic(javaBits)) Seq(STATIC_MODIFIER) else Seq())
   }
 
-  def fieldOrMethodModifiers(javaBits: Int): Seq[Modifier] = {
+  def fieldOrMethodModifiers(javaBits: Int): Array[Modifier] = {
     assert(JavaModifier.isPublic(javaBits))
     assert(!JavaModifier.isAbstract(javaBits))
     assert(!JavaModifier.isTransient(javaBits))
@@ -57,12 +57,12 @@ object PlatformModifiers {
     assert(!JavaModifier.isNative(javaBits))
     assert(!JavaModifier.isStrict(javaBits))
 
-    Seq(PUBLIC_MODIFIER) ++
+    Array(PUBLIC_MODIFIER) ++
       (if (JavaModifier.isStatic(javaBits)) Seq(STATIC_MODIFIER) else Seq()) ++
       (if (JavaModifier.isFinal(javaBits)) Seq(FINAL_MODIFIER) else Seq())
   }
 
-  def methodModifiers(javaBits: Int, nature: Nature): Seq[Modifier] = {
+  def methodModifiers(javaBits: Int, nature: Nature): Array[Modifier] = {
     assert(JavaModifier.isPublic(javaBits))
     if (nature == INTERFACE_NATURE)
       assert(JavaModifier.isAbstract(javaBits))
@@ -74,7 +74,7 @@ object PlatformModifiers {
     assert(!JavaModifier.isNative(javaBits))
     assert(!JavaModifier.isStrict(javaBits))
 
-    Seq(PUBLIC_MODIFIER) ++
+    Array(PUBLIC_MODIFIER) ++
       (if (JavaModifier.isStatic(javaBits)) Seq(STATIC_MODIFIER) else Seq())
 
   }

@@ -86,7 +86,7 @@ class GenericPlatformField(platformField: PlatformField, _typeDeclaration: Gener
   extends FieldDeclaration {
 
   override val name: Name = platformField.name
-  override val modifiers: Seq[Modifier] = platformField.modifiers
+  override val modifiers: Array[Modifier] = platformField.modifiers
   override val readAccess: Modifier = platformField.readAccess
   override val writeAccess: Modifier = platformField.writeAccess
   override val idTarget: Option[TypeName] = None
@@ -101,15 +101,17 @@ class GenericPlatformMethod(platformMethod: PlatformMethod, _typeDeclaration: Ge
   extends MethodDeclaration {
 
   override lazy val name: Name = platformMethod.name
-  override lazy val modifiers: Seq[Modifier] = platformMethod.modifiers
+  override lazy val modifiers: Array[Modifier] = platformMethod.modifiers
 
   override lazy val typeName: TypeName = {
     val paramType = _typeDeclaration.replaceParams(platformMethod.getGenericTypeName)
     _typeDeclaration.getTypeVariable(paramType).getOrElse(paramType)
   }
 
-  override lazy val parameters: Seq[ParameterDeclaration] =
-    platformMethod.getParameters.map(p => new GenericPlatformParameter(p, _typeDeclaration))
+  override lazy val parameters: Array[ParameterDeclaration] =
+    platformMethod.getParameters
+      .collect {case p: PlatformParameter => p}
+      .map(p => new GenericPlatformParameter(p, _typeDeclaration))
 
   override def toString: String =
     modifiers.map(_.toString).mkString(" ") + " " + typeName.toString + " " + name.toString + "(" +
