@@ -35,6 +35,7 @@ import com.nawforce.common.types.apex.{ApexVisibleMethodLike, FullDeclaration}
 import com.nawforce.common.types.core._
 import com.nawforce.common.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
 import com.nawforce.runtime.parsers.ApexParser._
+import com.nawforce.runtime.parsers.CodeParser.TerminalNode
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 
 class CompilationUnit(val typeDeclaration: FullDeclaration) extends CST
@@ -78,6 +79,8 @@ final case class ClassDeclaration(_source: Source, _pkg: PackageImpl, _outerType
 }
 
 object ClassDeclaration {
+  val staticModifier: Array[Modifier] = Array(STATIC_MODIFIER)
+
   def construct(parser: CodeParser, pkg: PackageImpl, outerTypeName: Option[TypeName], modifiers: ModifierResults,
                 classDeclaration: ClassDeclarationContext): ClassDeclaration = {
 
@@ -94,11 +97,12 @@ object ClassDeclaration {
 
     val classBody = classDeclaration.classBody()
     val classBodyDeclarations: Seq[ClassBodyDeclarationContext] = CodeParser.toScala(classBody.classBodyDeclaration())
+
     val bodyDeclarations: Seq[ClassBodyDeclaration] =
         classBodyDeclarations.flatMap(cbd =>
           CodeParser.toScala(cbd.block())
             .map(x => Seq(ApexInitialiserBlock.construct(parser,
-                ModifierResults(CodeParser.toScala(cbd.STATIC()).map(_ => Seq(STATIC_MODIFIER)).getOrElse(Seq()).toArray, Array()), x)))
+                ModifierResults(getModifiers(CodeParser.toScala(cbd.STATIC())), Array()), x)))
           .orElse(CodeParser.toScala(cbd.memberDeclaration())
             .map(x => ClassBodyDeclaration.construct(parser, pkg, thisType, CodeParser.toScala(cbd.modifier()), x))
           )
@@ -108,6 +112,11 @@ object ClassDeclaration {
     ClassDeclaration(parser.source, pkg, outerTypeName, Id.construct(classDeclaration.id()), modifiers,
       Some(extendType),implementsType, bodyDeclarations).withContext(classDeclaration)
   }
+
+  private def getModifiers(isStatic: Option[TerminalNode]): Array[Modifier]= {
+    isStatic.map(_ => staticModifier).getOrElse(ModifierOps.emptyModifiers)
+  }
+
 }
 
 final case class InterfaceDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeName: Option[TypeName],

@@ -33,6 +33,13 @@ import com.nawforce.common.cst._
 import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, Nature}
 
 object PlatformModifiers {
+  private val modPublic: Array[Modifier] = Array(PUBLIC_MODIFIER)
+  private val modPublicVirtual: Array[Modifier] = Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER)
+  private val modPublicStatic: Array[Modifier] = Array(PUBLIC_MODIFIER, STATIC_MODIFIER)
+  private val modPublicVirtualStatic: Array[Modifier] = Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER, STATIC_MODIFIER)
+  private val modPublicFinal: Array[Modifier] = Array(PUBLIC_MODIFIER, FINAL_MODIFIER)
+  private val modPublicFinalStatic: Array[Modifier] = Array(PUBLIC_MODIFIER, FINAL_MODIFIER, STATIC_MODIFIER)
+
   def typeModifiers(javaBits: Int, nature: Nature): Array[Modifier] = {
     assert(JavaModifier.isPublic(javaBits))
     if (nature == CLASS_NATURE) assert(!JavaModifier.isAbstract(javaBits))
@@ -43,9 +50,16 @@ object PlatformModifiers {
     assert(!JavaModifier.isNative(javaBits))
     assert(!JavaModifier.isStrict(javaBits))
 
-    Array(PUBLIC_MODIFIER) ++
-      (if (nature == CLASS_NATURE) Seq(VIRTUAL_MODIFIER) else Seq()) ++
-      (if (JavaModifier.isStatic(javaBits)) Seq(STATIC_MODIFIER) else Seq())
+    getTypeModifier(nature == CLASS_NATURE, JavaModifier.isStatic(javaBits))
+  }
+
+  private def getTypeModifier(isVirtual: Boolean, isStatic:Boolean): Array[Modifier] = {
+    (isVirtual, isStatic) match {
+      case (false, false) => modPublic
+      case (false, true) => modPublicStatic
+      case (true, false) => modPublicVirtual
+      case (true, true) => modPublicVirtualStatic
+    }
   }
 
   def fieldOrMethodModifiers(javaBits: Int): Array[Modifier] = {
@@ -57,9 +71,16 @@ object PlatformModifiers {
     assert(!JavaModifier.isNative(javaBits))
     assert(!JavaModifier.isStrict(javaBits))
 
-    Array(PUBLIC_MODIFIER) ++
-      (if (JavaModifier.isStatic(javaBits)) Seq(STATIC_MODIFIER) else Seq()) ++
-      (if (JavaModifier.isFinal(javaBits)) Seq(FINAL_MODIFIER) else Seq())
+    getFieldOrMethodModifier(JavaModifier.isFinal(javaBits), JavaModifier.isStatic(javaBits))
+  }
+
+  private def getFieldOrMethodModifier(isFinal: Boolean, isStatic:Boolean): Array[Modifier] = {
+    (isFinal, isStatic) match {
+      case (false, false) => modPublic
+      case (false, true) => modPublicStatic
+      case (true, false) => modPublicFinal
+      case (true, true) => modPublicFinalStatic
+    }
   }
 
   def methodModifiers(javaBits: Int, nature: Nature): Array[Modifier] = {
@@ -74,8 +95,15 @@ object PlatformModifiers {
     assert(!JavaModifier.isNative(javaBits))
     assert(!JavaModifier.isStrict(javaBits))
 
-    Array(PUBLIC_MODIFIER) ++
-      (if (JavaModifier.isStatic(javaBits)) Seq(STATIC_MODIFIER) else Seq())
-
+    getMethodModifier(JavaModifier.isStatic(javaBits))
   }
+
+  private def getMethodModifier(isStatic:Boolean): Array[Modifier] = {
+    if (isStatic) {
+      modPublicStatic
+    } else {
+      modPublic
+    }
+  }
+
 }

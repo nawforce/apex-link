@@ -45,7 +45,7 @@ final case class SObjectDeclaration(_paths: Seq[PathLike], pkg: PackageImpl, _ty
                                     override val fields: Seq[FieldDeclaration], override val isComplete: Boolean)
   extends BasicTypeDeclaration(_paths, pkg, _typeName) {
 
-  override val modifiers: Array[Modifier] = Array(GLOBAL_MODIFIER)
+  override val modifiers: Array[Modifier] = SObjectDeclaration.globalModifiers
 
   override val superClass: Option[TypeName] = Some(TypeNames.SObject)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = {
@@ -119,6 +119,8 @@ final case class SObjectDeclaration(_paths: Seq[PathLike], pkg: PackageImpl, _ty
 }
 
 object SObjectDeclaration {
+  val globalModifiers: Array[Modifier] = Array(GLOBAL_MODIFIER)
+
   private lazy val sObjectMethodMap: Map[(Name, Int), MethodDeclaration] =
     PlatformTypes.sObjectType.methods.map(m => ((m.name, m.parameters.length),m)).toMap
 

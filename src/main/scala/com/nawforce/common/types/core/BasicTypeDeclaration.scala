@@ -29,7 +29,7 @@
 package com.nawforce.common.types.core
 
 import com.nawforce.common.api.{Name, TypeName}
-import com.nawforce.common.cst.Modifier
+import com.nawforce.common.cst.{Modifier, ModifierOps}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 
@@ -40,7 +40,7 @@ class BasicTypeDeclaration(val paths: Seq[PathLike], pkg: PackageImpl, val typeN
   override val name: Name = typeName.name
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
-  override val modifiers: Array[Modifier] = Array.empty
+  override val modifiers: Array[Modifier] = ModifierOps.emptyModifiers
   override val isComplete: Boolean = true
 
   override val superClass: Option[TypeName] = None

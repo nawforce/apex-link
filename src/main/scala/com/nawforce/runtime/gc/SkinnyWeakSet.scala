@@ -37,7 +37,7 @@ import java.lang.ref.WeakReference
   * in the array there is some overhead for accessing the values as the array is converted to a set.
   */
 class SkinnyWeakSet[T <: AnyRef] {
-  private var arrayOf = new mutable.ArrayBuffer[WeakReference[T]](8)
+  private var arrayOf = new mutable.ArrayBuffer[WeakReference[T]](4)
   private var setOf: mutable.WeakHashMap[T, Boolean] = _
 
   def isEmpty: Boolean = {
