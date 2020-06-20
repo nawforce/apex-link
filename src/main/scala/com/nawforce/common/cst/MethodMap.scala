@@ -41,8 +41,8 @@ import scala.collection.mutable
 final case class MethodMap(methodsByName: Map[(Name, Int), Seq[MethodDeclaration]], errors: List[Issue])
   extends AssignableSupport {
 
-  lazy val externalMethods: Iterable[MethodDeclaration] = methodsByName.values.flatMap(_.filter(_.isGlobalOrPublic))
-  val allMethods: Iterable[MethodDeclaration] = methodsByName.values.flatten
+  lazy val externalMethods: Array[MethodDeclaration] = methodsByName.values.flatMap(_.filter(_.isGlobalOrPublic)).toArray
+  lazy val allMethods: Array[MethodDeclaration] = methodsByName.values.flatten.toArray
 
   def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
                  context: VerifyContext): Seq[MethodDeclaration] = {

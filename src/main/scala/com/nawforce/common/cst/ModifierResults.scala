@@ -28,7 +28,7 @@
 
 package com.nawforce.common.cst
 
-import java.lang.ref.WeakReference
+import java.lang.ref.SoftReference
 
 import com.nawforce.common.diagnostics.Issue
 
@@ -40,6 +40,8 @@ import scala.collection.mutable
   * are returned via this type. Interning is supported to reduce memory use.
   **/
 case class ModifierResults(modifiers: Array[Modifier], issues: Array[Issue]) {
+
+  override val hashCode: Int = modifiers.toSeq.hashCode()
 
   def intern: ModifierResults = ModifierResults.intern(this)
 
@@ -60,9 +62,9 @@ case class ModifierResults(modifiers: Array[Modifier], issues: Array[Issue]) {
 }
 
 object ModifierResults {
-  private val cache = mutable.WeakHashMap[ModifierResults, WeakReference[ModifierResults]]()
+  private val cache = mutable.WeakHashMap[ModifierResults, SoftReference[ModifierResults]]()
 
   def intern(modifierResults: ModifierResults): ModifierResults = {
-    cache.getOrElseUpdate(modifierResults, new WeakReference[ModifierResults](modifierResults)).get
+    cache.getOrElseUpdate(modifierResults, new SoftReference[ModifierResults](modifierResults)).get
   }
 }

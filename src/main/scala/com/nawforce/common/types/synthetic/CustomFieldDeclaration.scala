@@ -41,7 +41,7 @@ import com.nawforce.common.xml.{XMLElementLike, XMLException}
 final case class CustomFieldDeclaration(name: Name, typeName: TypeName, idTarget: Option[TypeName], asStatic: Boolean = false)
   extends FieldDeclaration {
 
-  override val modifiers: Array[Modifier] = Array(PUBLIC_MODIFIER) ++ (if (asStatic) Array(STATIC_MODIFIER) else Seq())
+  override val modifiers: Array[Modifier] = CustomFieldDeclaration.getModifiers(asStatic)
   override val readAccess: Modifier = PUBLIC_MODIFIER
   override val writeAccess: Modifier = PUBLIC_MODIFIER
 
@@ -49,6 +49,12 @@ final case class CustomFieldDeclaration(name: Name, typeName: TypeName, idTarget
 }
 
 object CustomFieldDeclaration {
+  val standardModifiers: Array[Modifier] = Array(PUBLIC_MODIFIER)
+  val staticModifiers: Array[Modifier] = Array(PUBLIC_MODIFIER, STATIC_MODIFIER)
+
+  def getModifiers(isStatic: Boolean): Array[Modifier] = {
+    if (isStatic) standardModifiers else standardModifiers
+  }
 
   def parseField(elem: XMLElementLike, path: PathLike, pkg: PackageImpl, sObjectType: TypeName,
                  sObjectNature: SObjectNature): Seq[CustomFieldDeclaration] = {

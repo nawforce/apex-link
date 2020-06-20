@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.diagnostics.{CodeParserLogger, Issue}
+import com.nawforce.common.diagnostics.CodeParserLogger
 import com.nawforce.runtime.parsers.ApexParser.{IdContext, ModifierContext, PropertyBlockContext}
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
@@ -75,6 +75,8 @@ case object HTTP_POST_ANNOTATION extends Modifier("@HttpPost")
 case object HTTP_PUT_ANNOTATION extends Modifier("@HttpPut")
 
 object ModifierOps {
+  val emptyModifiers: Array[Modifier] = Array()
+
   private val bitModifiers =
     Set(WEBSERVICE_MODIFIER, GLOBAL_MODIFIER, PUBLIC_MODIFIER, PROTECTED_MODIFIER, PRIVATE_MODIFIER,
       TEST_METHOD_MODIFIER, STATIC_MODIFIER, ABSTRACT_MODIFIER, FINAL_MODIFIER, OVERRIDE_MODIFIER, VIRTUAL_MODIFIER,
@@ -325,7 +327,7 @@ object ApexModifiers {
     val mods = deduplicateVisibility(
       asModifiers(modifierContexts, visibilityModifiers.toSet, "property set/get", logger, idContext),
       "property set/get", logger, idContext)
-    ModifierResults(mods.toArray, logger.issues)
+    ModifierResults(mods.toArray, logger.issues).intern
   }
 
   def constructorModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], context: ParserRuleContext)

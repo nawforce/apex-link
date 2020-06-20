@@ -43,7 +43,7 @@ import scala.collection.mutable
 
 abstract class ClassBodyDeclaration(modifierResults: ModifierResults) extends CST with DependencyHolder {
   val modifiers: Array[Modifier] = modifierResults.modifiers
-  val modifierIssues: Array[Issue] = modifierResults.issues
+  def modifierIssues: Array[Issue] = modifierResults.issues
   lazy val isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER) || modifiers.contains(WEBSERVICE_MODIFIER)
 
   protected var depends: Option[SkinnySet[Dependent]] = None

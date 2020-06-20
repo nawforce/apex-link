@@ -115,7 +115,7 @@ object Block {
   }
 
   def constructOption(parser: CodeParser, blockContext: Option[BlockContext]): Option[Block] = {
-    blockContext.map(bc => construct(parser, bc))
+    blockContext.map(bc => constructLazy(parser, bc))
   }
 }
 

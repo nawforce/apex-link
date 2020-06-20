@@ -63,7 +63,7 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
   override val name: Name = typeName.name
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = TRIGGER_NATURE
-  override val modifiers: Array[Modifier] = Array.empty
+  override val modifiers: Array[Modifier] = ModifierOps.emptyModifiers
   override val isComplete: Boolean = true
 
   override val superClass: Option[TypeName] = None
@@ -168,7 +168,7 @@ object TriggerDeclaration {
       val ids = CodeParser.toScala(trigger.id()).map(Id.construct)
       val cases = CodeParser.toScala(trigger.triggerCase()).map(constructCase)
       new TriggerDeclaration(parser.source, pkg, ids.head, ids(1), constructTypeName(pkg.namespace, ids.head.name), cases,
-        Block.construct(parser, trigger.block()))
+        Block.constructLazy(parser, trigger.block()))
     }
   }
 

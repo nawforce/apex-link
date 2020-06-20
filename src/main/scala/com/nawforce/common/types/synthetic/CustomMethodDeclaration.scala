@@ -41,7 +41,7 @@ final case class CustomMethodDeclaration(nameRange: Option[LocationImpl], name: 
                                          parameters: Array[ParameterDeclaration], asStatic: Boolean = false)
   extends ApexVisibleMethodLike {
 
-  override val modifiers: Array[Modifier] = Array(PUBLIC_MODIFIER) ++ (if (asStatic) Array(STATIC_MODIFIER) else Seq())
+  override val modifiers: Array[Modifier] = CustomMethodDeclaration.getModifiers(asStatic)
   override lazy val isStatic: Boolean = asStatic
 
   def summary(shapeOnly: Boolean): MethodSummary = {
@@ -50,6 +50,15 @@ final case class CustomMethodDeclaration(nameRange: Option[LocationImpl], name: 
         Position(nr.startPosition._1, nr.startPosition._2),
         Position(nr.endPosition._1, nr.endPosition._2))
     ))
+  }
+}
+
+object CustomMethodDeclaration {
+  val standardModifiers: Array[Modifier] = Array(PUBLIC_MODIFIER)
+  val staticModifiers: Array[Modifier] = Array(PUBLIC_MODIFIER, STATIC_MODIFIER)
+
+  def getModifiers(isStatic: Boolean): Array[Modifier] = {
+    if (isStatic) standardModifiers else standardModifiers
   }
 }
 
