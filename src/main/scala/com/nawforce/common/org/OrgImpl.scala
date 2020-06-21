@@ -30,12 +30,15 @@ package com.nawforce.common.org
 import java.util
 
 import com.nawforce.common.api.{IssueOptions, Name, Org, Package, PathLocation, ServerOps}
+import com.nawforce.common.cst.ModifierResults
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, IssueLog}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{DotName, Names, _}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.sfdx.{MDAPIWorkspace, Project, SFDXWorkspace, Workspace}
+import com.nawforce.common.types.apex.TypeIdentifierOps
 import com.nawforce.runtime.gc.Monitor
+import com.nawforce.runtime.os.Environment
 
 import scala.util.DynamicVariable
 
@@ -169,6 +172,10 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
       }
     }
     Monitor.reportDuplicateTypes
+    ModifierResults.clearCache()
+    TypeNames.clearCache()
+    TypeIdentifierOps.clearCache()
+    Environment.gc
   }
 
   /** Collect all issues into a JSON log */

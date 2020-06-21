@@ -38,15 +38,14 @@ import com.nawforce.common.types.synthetic.CustomMethodDeclaration
 
 import scala.collection.mutable
 
-final case class MethodMap(methodsByName: Map[(Name, Int), Seq[MethodDeclaration]], errors: List[Issue])
+final case class MethodMap(methodsByName: Map[(Name, Int), Array[MethodDeclaration]], errors: List[Issue])
   extends AssignableSupport {
 
-  lazy val externalMethods: Array[MethodDeclaration] = methodsByName.values.flatMap(_.filter(_.isGlobalOrPublic)).toArray
-  lazy val allMethods: Array[MethodDeclaration] = methodsByName.values.flatten.toArray
+  def allMethods: Array[MethodDeclaration] = methodsByName.values.flatten.toArray
 
-  def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
-                 context: VerifyContext): Seq[MethodDeclaration] = {
-    val matches = methodsByName.getOrElse((name, params.size),Seq())
+  def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
+                 context: VerifyContext): Array[MethodDeclaration] = {
+    val matches = methodsByName.getOrElse((name, params.length),Array())
     val filteredMatches = staticContext match {
       case None => matches
       case Some(x) => matches.filter(m => m.isStatic == x)
@@ -54,11 +53,11 @@ final case class MethodMap(methodsByName: Map[(Name, Int), Seq[MethodDeclaration
 
     val exactMatches = filteredMatches.filter(_.hasParameters(params))
     if (exactMatches.nonEmpty)
-      return Seq(exactMatches.head)
+      return Array(exactMatches.head)
 
     val erasedMatches = filteredMatches.filter(_.hasCallErasedParameters(context.pkg, params))
     if (erasedMatches.nonEmpty)
-      return Seq(erasedMatches.head)
+      return Array(erasedMatches.head)
 
     val assignableMatches = filteredMatches.map(m => {
       val argZip = m.parameters.map(_.typeName).zip(params)
@@ -71,22 +70,22 @@ final case class MethodMap(methodsByName: Map[(Name, Int), Seq[MethodDeclaration
       val maxIdentical = assignableMatches.map(_._1).max
       assignableMatches.filter(_._1 == maxIdentical).map(_._2)
     } else {
-      Seq()
+      Array()
     }
   }
 }
 
 object MethodMap {
-  type WorkingMap = mutable.Map[(Name, Int), Seq[MethodDeclaration]]
+  type WorkingMap = mutable.Map[(Name, Int), Array[MethodDeclaration]]
 
   def empty(): MethodMap = {
     new MethodMap(Map(), Nil)
   }
 
   def apply(td: TypeDeclaration, location: Option[LocationImpl],
-            superClassMap: MethodMap, localMethods: Seq[MethodDeclaration], interfaces: Seq[TypeDeclaration]): MethodMap = {
+            superClassMap: MethodMap, localMethods: Array[MethodDeclaration], interfaces: Array[TypeDeclaration]): MethodMap = {
 
-    val workingMap = collection.mutable.Map[(Name, Int), Seq[MethodDeclaration]]() ++= superClassMap.methodsByName
+    val workingMap = collection.mutable.Map[(Name, Int), Array[MethodDeclaration]]() ++= superClassMap.methodsByName
     val errors = mutable.Buffer[Issue]()
 
     // Add instance methods first with validation checks
@@ -100,7 +99,7 @@ object MethodMap {
     // Add statics is they are not being shadowed by an instance method
     localMethods.filter(_.isStatic).foreach(method => {
       val key = (method.name, method.parameters.length)
-      val methods = workingMap.getOrElse(key, Seq())
+      val methods = workingMap.getOrElse(key, Array())
       val matched = methods.find(m => m.hasSameParameters(method))
       if (matched.isEmpty)
         workingMap.put(key, method +: methods)
@@ -110,7 +109,7 @@ object MethodMap {
 
     // Validate any interface use in classes
     if (td.nature == CLASS_NATURE) {
-      workingMap.put((Names.Clone, 0), Seq(CustomMethodDeclaration(location, Names.Clone, td.typeName, Array())))
+      workingMap.put((Names.Clone, 0), Array(CustomMethodDeclaration(location, Names.Clone, td.typeName, Array())))
       checkInterfaces(td.packageDeclaration, location, td.isAbstract, workingMap, interfaces, errors)
     }
 
@@ -131,7 +130,7 @@ object MethodMap {
 
     interface.methods.filterNot(_.isStatic).foreach(method => {
       val key = (method.name, method.parameters.length)
-      val methods = workingMap.getOrElse(key, Seq())
+      val methods = workingMap.getOrElse(key, Array())
 
       val matched = methods.find(m => m.hasSameParameters(method))
       if (matched.isEmpty) {
@@ -163,7 +162,7 @@ object MethodMap {
       .filterNot(_.isStatic)
       .foreach(method => {
       val key = (method.name, method.parameters.length)
-      val methods = workingMap.getOrElse(key, Seq())
+      val methods = workingMap.getOrElse(key, Array())
 
       var matched = methods.find(m => m.hasSameParameters(method))
       if (matched.isEmpty)
@@ -190,7 +189,7 @@ object MethodMap {
     assert(!method.isStatic)
 
     val key = (method.name, method.parameters.length)
-    val methods = workingMap.getOrElse(key, Seq())
+    val methods = workingMap.getOrElse(key, Array())
 
     // Only consider matches against Apex defined methods, overriding platform methods such a hashCode is different
     val matched = methods.find(_.hasSameParameters(method)) match {

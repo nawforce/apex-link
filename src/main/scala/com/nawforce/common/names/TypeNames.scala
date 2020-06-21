@@ -1,6 +1,6 @@
 package com.nawforce.common.names
 
-import java.lang.ref.WeakReference
+import java.lang.ref.SoftReference
 
 import com.nawforce.common.api.{Name, TypeName}
 import upickle.default.{macroRW, ReadWriter => RW}
@@ -10,7 +10,8 @@ import scala.collection.mutable
 object TypeNames {
   implicit val rw: RW[TypeName] = macroRW
 
-  private val cache = mutable.WeakHashMap[TypeName, WeakReference[TypeName]]()
+  //private var cache = mutable.WeakHashMap[TypeName, SoftReference[TypeName]]()
+  private var cache = mutable.HashMap[TypeName, TypeName]()
 
   lazy val Void: TypeName = TypeName(Name("void")).intern
   lazy val Object: TypeName = TypeName(Name("Object")).intern
@@ -99,7 +100,13 @@ object TypeNames {
   }
 
   def intern(typeName: TypeName): TypeName = {
-    cache.getOrElseUpdate(typeName, new WeakReference(typeName)).get
+    //cache.getOrElseUpdate(typeName, new SoftReference(typeName)).get
+    cache.getOrElseUpdate(typeName, typeName)
+  }
+
+  def clearCache(): Unit = {
+    //cache = new mutable.WeakHashMap[TypeName, SoftReference[TypeName]]()
+    cache = new mutable.HashMap[TypeName, TypeName]()
   }
 
 }

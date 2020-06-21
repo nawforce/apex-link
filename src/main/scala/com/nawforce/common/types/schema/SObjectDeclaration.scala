@@ -40,9 +40,9 @@ import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethod
 
 import scala.collection.mutable
 
-final case class SObjectDeclaration(_paths: Seq[PathLike], pkg: PackageImpl, _typeName: TypeName,
-                                    sobjectNature: SObjectNature, fieldSets: Set[Name],
-                                    override val fields: Seq[FieldDeclaration], override val isComplete: Boolean)
+final case class SObjectDeclaration(_paths: Array[PathLike], pkg: PackageImpl, _typeName: TypeName,
+                                    sobjectNature: SObjectNature, fieldSets: Array[Name],
+                                    override val fields: Array[FieldDeclaration], override val isComplete: Boolean)
   extends BasicTypeDeclaration(_paths, pkg, _typeName) {
 
   override val modifiers: Array[Modifier] = SObjectDeclaration.globalModifiers
@@ -63,26 +63,26 @@ final case class SObjectDeclaration(_paths: Seq[PathLike], pkg: PackageImpl, _ty
     })
   }
 
-  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Seq[MethodDeclaration] = {
+  override def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
+                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
     if (staticContext.contains(true)) {
       val customMethods = sobjectNature match {
         case HierarchyCustomSettingsNature => hierarchyCustomSettingsMethods
         case ListCustomSettingNature => listCustomSettingsMethods
         case _ => SObjectDeclaration.sObjectMethodMap
       }
-      val customMethod = customMethods.get((name, params.size))
+      val customMethod = customMethods.get((name, params.length))
       if (customMethod.nonEmpty)
-        return customMethod.toSeq
+        return customMethod.toArray
     }
     defaultFindMethod(name, params, staticContext, verifyContext)
   }
 
-  def defaultFindMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
-                        verifyContext: VerifyContext): Seq[MethodDeclaration] = {
-    val clone = cloneMethods.get((name, params.size, staticContext.contains(true)))
+  def defaultFindMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
+                        verifyContext: VerifyContext): Array[MethodDeclaration] = {
+    val clone = cloneMethods.get((name, params.length, staticContext.contains(true)))
     if (clone.nonEmpty)
-      clone.toSeq
+      clone.toArray
     else
       PlatformTypes.sObjectType.findMethod(name, params, staticContext, verifyContext)
   }
@@ -182,8 +182,8 @@ object SObjectDeclaration {
 
     // TODO: Provide paths
     val allObjects =
-      new SObjectDeclaration(Seq.empty, pkg, typeName, sobjectDetails.sobjectNature, sobjectDetails.fieldSets,
-        fields, isComplete = true) +:
+      new SObjectDeclaration(Array.empty, pkg, typeName, sobjectDetails.sobjectNature,
+        sobjectDetails.fieldSets.toArray, fields, isComplete = true) +:
       supportObjects
 
     allObjects.foreach(pkg.schema().sobjectTypes.add)
@@ -206,8 +206,8 @@ object SObjectDeclaration {
     PlatformTypes.sObjectType.fields.filterNot(f => f.name == Names.SObjectType)
   }
 
-  private def customObjectFields(sobjectDetails: SObjectDetails): Seq[FieldDeclaration] = {
-    Seq(
+  private def customObjectFields(sobjectDetails: SObjectDetails): Array[FieldDeclaration] = {
+    Array(
       CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(sobjectDetails.typeName), None, asStatic = true),
       CustomFieldDeclaration(Names.Fields, TypeNames.sObjectFields$(sobjectDetails.typeName), None, asStatic = true),
       CustomFieldDeclaration(Names.Id, TypeNames.Id, Some(sobjectDetails.typeName))
@@ -215,14 +215,14 @@ object SObjectDeclaration {
       standardCustomObjectFields ++
       sobjectDetails.fields ++
       (if (sobjectDetails.sobjectNature == HierarchyCustomSettingsNature)
-        Seq(CustomFieldDeclaration(Names.SetupOwnerId, PlatformTypes.idType.typeName, None))
+        Array(CustomFieldDeclaration(Names.SetupOwnerId, PlatformTypes.idType.typeName, None))
       else
-        Seq()
+        Array[FieldDeclaration]()
         )
   }
 
-  private lazy val standardCustomMetadataFields: Seq[FieldDeclaration] = {
-    Seq(
+  private lazy val standardCustomMetadataFields: Array[FieldDeclaration] = {
+    Array(
       CustomFieldDeclaration(Names.DeveloperName, TypeNames.String, None),
       CustomFieldDeclaration(Names.IsProtected, TypeNames.Boolean, None),
       CustomFieldDeclaration(Names.Label, TypeNames.String, None),
@@ -232,8 +232,8 @@ object SObjectDeclaration {
       CustomFieldDeclaration(Names.QualifiedAPIName, TypeNames.String, None))
   }
 
-  private def customMetadataFields(sobjectDetails: SObjectDetails): Seq[FieldDeclaration] = {
-    Seq(
+  private def customMetadataFields(sobjectDetails: SObjectDetails): Array[FieldDeclaration] = {
+    Array(
       CustomFieldDeclaration(Names.Id, TypeNames.Id, Some(sobjectDetails.typeName)),
       CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(sobjectDetails.typeName), None, asStatic = true)
     ) ++
@@ -241,11 +241,11 @@ object SObjectDeclaration {
       sobjectDetails.fields
   }
 
-  private lazy val standardPlatformEventFields: Seq[FieldDeclaration] = {
-    Seq(CustomFieldDeclaration(Names.ReplayId, TypeNames.String, None))
+  private lazy val standardPlatformEventFields: Array[FieldDeclaration] = {
+    Array(CustomFieldDeclaration(Names.ReplayId, TypeNames.String, None))
   }
 
-  private def platformEventFields(sobjectDetails: SObjectDetails): Seq[FieldDeclaration] = {
+  private def platformEventFields(sobjectDetails: SObjectDetails): Array[FieldDeclaration] = {
     standardPlatformEventFields ++
       sobjectDetails.fields :+
       CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(sobjectDetails.typeName), None, asStatic = true)
@@ -261,8 +261,8 @@ object SObjectDeclaration {
 
     // TODO: Collect base fieldsets ?
     // TODO: Provide paths
-    val td = new SObjectDeclaration(Seq.empty, pkg, typeName, sobjectDetails.sobjectNature, sobjectDetails.fieldSets,
-      fields.values.toSeq, isComplete)
+    val td = new SObjectDeclaration(Array.empty, pkg, typeName, sobjectDetails.sobjectNature,
+      sobjectDetails.fieldSets.toArray, fields.values.toArray, isComplete)
     pkg.schema().sobjectTypes.add(td)
     td
   }
@@ -270,10 +270,11 @@ object SObjectDeclaration {
   private def collectBaseFields(sObject: DotName, pkg: PackageImpl): mutable.Map[Name, FieldDeclaration] = {
     val collected: mutable.Map[Name, FieldDeclaration] = mutable.Map()
     pkg.basePackages.filterNot(_.isGhosted).foreach(basePkg => {
-      val fields: Seq[FieldDeclaration] = TypeResolver(sObject.asTypeName(), basePkg, excludeSObjects = false).toOption.map {
-        case baseTd: SObjectDeclaration => baseTd.fields
-        case _ => Nil
-      }.getOrElse(Seq())
+      val fields: Array[FieldDeclaration] =
+        TypeResolver(sObject.asTypeName(), basePkg, excludeSObjects = false).toOption.map {
+          case baseTd: SObjectDeclaration => baseTd.fields
+          case _ => FieldDeclaration.emptyFieldDeclarations
+        }.getOrElse(FieldDeclaration.emptyFieldDeclarations)
       fields.foreach(field => {collected.put(field.name, field)})
     })
     collected
@@ -284,7 +285,7 @@ object SObjectDeclaration {
     val sobjectDetails = SObjectDetails(CustomObjectNature, shareName, Seq(), Set())
 
     // TODO: Provide paths
-    SObjectDeclaration(Seq.empty, pkg, shareName, CustomObjectNature, Set(),
+    SObjectDeclaration(Array.empty, pkg, shareName, CustomObjectNature, Array(),
       customObjectFields(sobjectDetails) ++ shareFields, isComplete = true)
   }
 
@@ -300,7 +301,7 @@ object SObjectDeclaration {
     val sobjectDetails = SObjectDetails(CustomObjectNature, feedName, Seq(), Set())
 
     // TODO: Provide paths
-    SObjectDeclaration(Seq.empty, pkg, feedName, CustomObjectNature, Set(),
+    SObjectDeclaration(PathLike.emptyPaths, pkg, feedName, CustomObjectNature, Name.emptyNames,
       customObjectFields(sobjectDetails) ++ feedFields, isComplete = true)
   }
 
@@ -326,7 +327,7 @@ object SObjectDeclaration {
     val sobjectDetails = SObjectDetails(CustomObjectNature, historyName, Seq(), Set())
 
     // TODO: Provide paths
-    SObjectDeclaration(Seq.empty, pkg, historyName, CustomObjectNature, Set(),
+    SObjectDeclaration(PathLike.emptyPaths, pkg, historyName, CustomObjectNature, Name.emptyNames,
       customObjectFields(sobjectDetails) ++ historyFields, isComplete = true)
   }
 

@@ -301,21 +301,25 @@ object FormalParameter {
 }
 
 object FormalParameterList {
+  val noParams: Array[ParameterDeclaration] = Array()
+
   def construct(parser: CodeParser, pkg: PackageImpl, outerTypeName: TypeName, from: FormalParameterListContext)
   : Array[ParameterDeclaration] = {
     if (from.formalParameter() != null) {
       FormalParameter.construct(parser, pkg, outerTypeName, CodeParser.toScala(from.formalParameter()).toArray)
     } else {
-      Array()
+      noParams
     }
   }
 }
 
 object FormalParameters {
+  val noParams: Array[ParameterDeclaration] = Array()
+
   def construct(parser: CodeParser, pkg: PackageImpl, outerTypeName: TypeName, from: FormalParametersContext)
   : Array[ParameterDeclaration] = {
     CodeParser.toScala(from.formalParameterList())
       .map(x => FormalParameterList.construct(parser, pkg, outerTypeName, x))
-      .getOrElse(Array())
+      .getOrElse(noParams)
   }
 }

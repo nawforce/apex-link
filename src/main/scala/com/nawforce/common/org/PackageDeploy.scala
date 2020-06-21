@@ -98,22 +98,14 @@ trait PackageDeploy {
 
   private def loadClasses(documents: DocumentIndex): Unit = {
     val pcOpt = getParsedCache
-    val docs = documents.getByExtension(Name("cls"))
+    val docs = documents.getByExtensionIterable(Name("cls"))
+
     ServerOps.debugTime(s"Loaded summary classes", docs.nonEmpty) {
 
       // Load summary docs that have valid dependents
       if (pcOpt.nonEmpty) {
-        val summaryDocs = docs.flatMap(doc => {
-          val data = doc.path.read()
-          val value = pcOpt.flatMap(_.get(data.right.get.getBytes(StandardCharsets.UTF_8), packageContext))
-          value.map(v => new SummaryApex(doc.path, this, v))
-        }).toSeq
-
-        // Upsert any summary docs that don't have missing diagnostics that might be resolvable
-        val validSummaryDocs: mutable.Map[TypeName, SummaryApex] = mutable.Map(summaryDocs
-          .filterNot(_.diagnostics.exists(_.category == MISSING_CATEGORY.value))
-          .map(doc => (doc.declaration.typeName, doc)): _*)
-        validSummaryDocs.foreach(pair => upsertMetadata(pair._2.declaration))
+        val validSummaryDocs = new mutable.HashMap[TypeName, SummaryApex]()
+        docs.grouped(500).foreach(grp => loadClassesFromCache(grp, pcOpt.get, validSummaryDocs))
 
         // Multi-pass removal of those with invalid dependencies to counter resolving cyclic links
         var invalidDocs = validSummaryDocs.filterNot(_._2.declaration.hasValidDependencies)
@@ -134,6 +126,7 @@ trait PackageDeploy {
           val path = summary.declaration.path.toString
           summary.diagnostics.foreach(diagnostic => org.issues.add(Issue.fromDiagnostic(path, diagnostic)))
         })
+
       }
     }
 
@@ -156,6 +149,20 @@ trait PackageDeploy {
       // Validate the full types
       fullTypes.foreach(_._1.validate())
     }
+  }
+
+  private def loadClassesFromCache(docs: Iterable[MetadataDocument], pc: ParsedCache,
+                                   accum: mutable.Map[TypeName, SummaryApex]): Unit  = {
+    val pkgContext = packageContext
+    docs.foreach(doc => {
+      val data = doc.path.readBytes()
+      val value = pc.get(data.right.get, pkgContext)
+      val ad = value.map(v => SummaryApex(doc.path, this, v))
+      if (ad.nonEmpty && !ad.get.diagnostics.exists(_.category == MISSING_CATEGORY.value)) {
+        accum.put(ad.get.declaration.typeName, ad.get)
+        upsertMetadata(ad.get.declaration)
+      }
+    })
   }
 
   private def getParsedCache: Option[ParsedCache] = {

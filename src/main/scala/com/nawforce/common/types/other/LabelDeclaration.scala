@@ -34,6 +34,7 @@ import com.nawforce.common.documents._
 import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.org.stream.PackageStream
+import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
 
 import scala.collection.mutable
@@ -55,8 +56,8 @@ object Label {
 
 /** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
   * base packages via the Label.namespace.name format. */
-final class LabelDeclaration(sources: Seq[SourceInfo], override val pkg: PackageImpl, labels: Seq[Label],
-                             nestedLabels: Seq[NestedLabels])
+final class LabelDeclaration(sources: Array[SourceInfo], override val pkg: PackageImpl, labels: Array[Label],
+                             nestedLabels: Array[NestedLabels])
   extends BasicTypeDeclaration(sources.map(_.path), pkg, TypeNames.Label)
     with DependentType with OtherTypeDeclaration {
 
@@ -65,14 +66,14 @@ final class LabelDeclaration(sources: Seq[SourceInfo], override val pkg: Package
   // Propagate dependencies to nested
   nestedLabels.foreach(_.addTypeDependencyHolder(typeId))
 
-  override val nestedTypes: Seq[TypeDeclaration] = nestedLabels
-  override val fields: Seq[FieldDeclaration] = labels
+  override val nestedTypes: Array[TypeDeclaration] = nestedLabels.asInstanceOf[Array[TypeDeclaration]]
+  override val fields: Array[FieldDeclaration] = labels.asInstanceOf[Array[FieldDeclaration]]
 
   /** Create new labels from merging those in the provided stream */
   def merge(stream: PackageStream): LabelDeclaration = {
     val outerTypeId = TypeId(pkg, typeName)
     val newLabels = labels ++ stream.labels.map(le => Label(Some(outerTypeId), Some(le.location), le.name, le.isProtected))
-    val sourceInfo = stream.labelsFiles.map(_.sourceInfo).distinct
+    val sourceInfo = stream.labelsFiles.map(_.sourceInfo).distinct.toArray
     new LabelDeclaration(sourceInfo, pkg, newLabels, nestedLabels)
   }
 
@@ -100,7 +101,7 @@ trait NestedLabels extends TypeDeclaration {
   * controller here.
   */
 private final class PackageLabels(pkg: PackageImpl, labelDeclaration: LabelDeclaration)
-  extends InnerBasicTypeDeclaration(Seq.empty, pkg,
+  extends InnerBasicTypeDeclaration(PathLike.emptyPaths, pkg,
     TypeName(labelDeclaration.packageDeclaration.get.namespace.get, Nil, Some(TypeNames.Label))) with NestedLabels {
 
   override val labelTypeId: Option[TypeId] = Some(labelDeclaration.typeId)
@@ -119,7 +120,7 @@ private final class PackageLabels(pkg: PackageImpl, labelDeclaration: LabelDecla
 
 /** System.Label.ns implementation for ghosted packages. This simulates the existence of any label you ask for. */
 final class GhostedLabels(pkg: PackageImpl, ghostedNamespace: Name)
-  extends InnerBasicTypeDeclaration(Seq(), pkg, TypeName(ghostedNamespace, Nil, Some(TypeNames.Label))) with NestedLabels {
+  extends InnerBasicTypeDeclaration(PathLike.emptyPaths, pkg, TypeName(ghostedNamespace, Nil, Some(TypeNames.Label))) with NestedLabels {
 
   override val labelTypeId: Option[TypeId] = None
 
@@ -137,17 +138,17 @@ final class GhostedLabels(pkg: PackageImpl, ghostedNamespace: Name)
 object LabelDeclaration {
   /** Construct System.Label for a package. */
   def apply(pkg: PackageImpl): LabelDeclaration = {
-    new LabelDeclaration(Seq(), pkg, Seq(), createPackageLabels(pkg))
+    new LabelDeclaration(Array(), pkg, Array(), createPackageLabels(pkg))
   }
 
   // Create labels declarations for each base package
-  private def createPackageLabels(pkg: PackageImpl): Seq[NestedLabels] = {
+  private def createPackageLabels(pkg: PackageImpl): Array[NestedLabels] = {
     pkg.transitiveBasePackages.map(basePkg => {
       if (basePkg.isGhosted) {
         new GhostedLabels(pkg, basePkg.namespace.get)
       } else {
         new PackageLabels(pkg, basePkg.labels)
       }
-    }).toSeq
+    }).toArray
   }
 }

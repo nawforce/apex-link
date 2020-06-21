@@ -51,8 +51,9 @@ object CompilationUnit {
 }
 
 final case class ClassDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeName: Option[TypeName], _id: Id,
-                                  _modifiers: ModifierResults, _extendsType: Option[TypeName], _implementsTypes: Seq[TypeName],
-                                  _bodyDeclarations: Seq[ClassBodyDeclaration]) extends
+                                  _modifiers: ModifierResults, _extendsType: Option[TypeName],
+                                  _implementsTypes: Array[TypeName], _bodyDeclarations: Array[ClassBodyDeclaration])
+  extends
   FullDeclaration(_source, _pkg, _outerTypeName, _id, _modifiers, _extendsType, _implementsTypes, _bodyDeclarations) {
 
   override val nature: Nature = CLASS_NATURE
@@ -93,12 +94,12 @@ object ClassDeclaration {
     val implementsType =
       CodeParser.toScala(classDeclaration.typeList())
         .map(tl => TypeList.construct(tl))
-        .getOrElse(Seq())
+        .getOrElse(TypeName.emptyTypeNames)
 
     val classBody = classDeclaration.classBody()
     val classBodyDeclarations: Seq[ClassBodyDeclarationContext] = CodeParser.toScala(classBody.classBodyDeclaration())
 
-    val bodyDeclarations: Seq[ClassBodyDeclaration] =
+    val bodyDeclarations: Array[ClassBodyDeclaration] =
         classBodyDeclarations.flatMap(cbd =>
           CodeParser.toScala(cbd.block())
             .map(x => Seq(ApexInitialiserBlock.construct(parser,
@@ -107,7 +108,7 @@ object ClassDeclaration {
             .map(x => ClassBodyDeclaration.construct(parser, pkg, thisType, CodeParser.toScala(cbd.modifier()), x))
           )
           .orElse(throw new CSTException())
-        ).flatten
+        ).flatten.toArray
 
     ClassDeclaration(parser.source, pkg, outerTypeName, Id.construct(classDeclaration.id()), modifiers,
       Some(extendType),implementsType, bodyDeclarations).withContext(classDeclaration)
@@ -120,8 +121,8 @@ object ClassDeclaration {
 }
 
 final case class InterfaceDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeName: Option[TypeName],
-                                      _id: Id, _modifiers: ModifierResults, _implementsTypes: Seq[TypeName],
-                                      _bodyDeclarations: Seq[ClassBodyDeclaration])
+                                      _id: Id, _modifiers: ModifierResults, _implementsTypes: Array[TypeName],
+                                      _bodyDeclarations: Array[ClassBodyDeclaration])
   extends FullDeclaration(_source, _pkg, _outerTypeName, _id, _modifiers, None, _implementsTypes, _bodyDeclarations) {
 
   override val nature: Nature = INTERFACE_NATURE
@@ -141,13 +142,13 @@ object InterfaceDeclaration {
     val implementsType =
       CodeParser.toScala(interfaceDeclaration.typeList())
         .map(x => TypeList.construct(x))
-        .getOrElse(Seq())
+        .getOrElse(TypeName.emptyTypeNames)
 
-    val methods: Seq[ApexMethodDeclaration]
+    val methods: Array[ClassBodyDeclaration]
         = CodeParser.toScala(interfaceDeclaration.interfaceBody().interfaceMethodDeclaration()).map(m =>
             ApexMethodDeclaration.construct(parser, pkg, TypeId(pkg, thisType),
               ApexModifiers.methodModifiers(parser, CodeParser.toScala(m.modifier()), m.id()), m)
-    )
+    ).toArray
 
     InterfaceDeclaration(parser.source, pkg, outerTypeName, Id.construct(interfaceDeclaration.id()), modifiers,
       implementsType, methods).withContext(interfaceDeclaration)
@@ -155,8 +156,8 @@ object InterfaceDeclaration {
 }
 
 final case class EnumDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeName: Option[TypeName], _id: Id,
-                                 _modifiers:ModifierResults, _bodyDeclarations: Seq[ClassBodyDeclaration])
-  extends FullDeclaration(_source, _pkg, _outerTypeName, _id, _modifiers, None, Seq(), _bodyDeclarations) {
+                                 _modifiers:ModifierResults, _bodyDeclarations: Array[ClassBodyDeclaration])
+  extends FullDeclaration(_source, _pkg, _outerTypeName, _id, _modifiers, None, TypeName.emptyTypeNames, _bodyDeclarations) {
 
   override val nature: Nature = ENUM_NATURE
 
@@ -164,8 +165,8 @@ final case class EnumDeclaration(_source: Source, _pkg: PackageImpl, _outerTypeN
     super.verify(new TypeVerifyContext(Some(context), this, context.shouldPropagateDependencies))
   }
 
-  override lazy val localMethods: Seq[ApexVisibleMethodLike] =
-    Seq(
+  override lazy val _localMethods: Array[ApexVisibleMethodLike] =
+    Array(
       CustomMethodDeclaration(Some(id.location), Name("name"), TypeNames.String, Array()),
       CustomMethodDeclaration(Some(id.location),Name("ordinal"), TypeNames.Integer, Array()),
       CustomMethodDeclaration(Some(id.location),Name("values"), TypeNames.listOf(typeName), Array(), asStatic = true),
@@ -186,7 +187,7 @@ object EnumDeclaration {
       outerTypeName.orElse(pkg.namespace.map(TypeName(_)))).intern
     val constants = CodeParser.toScala(enumDeclaration.enumConstants())
       .map(ec => CodeParser.toScala(ec.id())).getOrElse(Seq())
-    val fields = constants.map(constant => {
+    val fields: Array[ClassBodyDeclaration] = constants.map(constant => {
       ApexFieldDeclaration(TypeId(pkg, thisType), ModifierResults(Array(PUBLIC_MODIFIER, STATIC_MODIFIER), Array()), thisType,
         VariableDeclarator(
           thisType,
@@ -194,7 +195,7 @@ object EnumDeclaration {
           None
         ).withContext(constant)
       ).withContext(constant)
-    })
+    }).toArray
 
     EnumDeclaration(parser.source, pkg, outerTypeName,id, typeModifiers, fields).withContext(enumDeclaration)
   }

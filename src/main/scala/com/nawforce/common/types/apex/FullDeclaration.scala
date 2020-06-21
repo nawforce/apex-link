@@ -33,6 +33,7 @@ import com.nawforce.common.documents._
 import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.types.apex
 import com.nawforce.common.types.core._
 import com.nawforce.common.types.other.{Component, Interview, Label, Page}
 import com.nawforce.runtime.gc.Monitor
@@ -45,13 +46,13 @@ import scala.collection.mutable
 /* Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
 abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val outerTypeName: Option[TypeName],
                                val id: Id, _modifiers: ModifierResults,
-                               val superClass: Option[TypeName], val interfaces: Seq[TypeName],
-                               val bodyDeclarations: Seq[ClassBodyDeclaration])
+                               val superClass: Option[TypeName], val interfaces: Array[TypeName],
+                               val bodyDeclarations: Array[ClassBodyDeclaration])
   extends ClassBodyDeclaration(_modifiers) with ApexClassDeclaration with ApexFullDeclaration {
 
   lazy val sourceHash: Int = source.hash
   override val path: PathLike = source.path
-  override val paths: Seq[PathLike] = Seq(path)
+  override val paths: Array[PathLike] = Array(path)
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
 
   override val nameLocation: LocationImpl = id.location
@@ -59,21 +60,23 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   override val nature: Nature
   var flushedToCache = false
 
-  override val nestedTypes: Seq[FullDeclaration] = {
+  override lazy val nestedTypes: Array[TypeDeclaration] = _nestedTypes.asInstanceOf[Array[TypeDeclaration]]
+  private lazy val _nestedTypes: Array[FullDeclaration] = {
     bodyDeclarations.flatMap {
       case x: FullDeclaration => Some(x)
       case _ => None
     }
   }
 
-  override lazy val blocks: Seq[ApexInitialiserBlock] = {
+  override lazy val blocks: Array[BlockDeclaration] = _blocks.asInstanceOf[Array[BlockDeclaration]]
+  private lazy val _blocks: Array[ApexInitialiserBlock] = {
     bodyDeclarations.flatMap {
       case x: ApexInitialiserBlock => Some(x)
       case _ => None
     }
   }
 
-  lazy val localFields: Seq[ApexFieldLike] = {
+  lazy val localFields: Array[ApexFieldLike] = {
     bodyDeclarations.flatMap {
       case x: ApexFieldDeclaration => Some(x)
       case x: ApexPropertyDeclaration => Some(x)
@@ -81,14 +84,16 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
     }
   }
 
-  override lazy val constructors: Seq[ApexConstructorDeclaration] = {
+  override lazy val constructors: Array[ConstructorDeclaration] = _constructors.asInstanceOf[Array[ConstructorDeclaration]]
+  private lazy val _constructors: Array[ApexConstructorDeclaration] = {
     bodyDeclarations.flatMap {
       case x: ApexConstructorDeclaration => Some(x)
       case _ => None
     }
   }
 
-  override lazy val localMethods: Seq[ApexVisibleMethodLike] = {
+  override lazy val localMethods: Array[MethodDeclaration] = _localMethods.asInstanceOf[Array[MethodDeclaration]]
+  lazy val _localMethods: Array[ApexVisibleMethodLike] = {
     bodyDeclarations.flatMap({
       case m: ApexVisibleMethodLike => Some(m)
       case _ => None
@@ -137,9 +142,9 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
     }
 
     // Check for duplicate nested types
-    val duplicateNestedType = (this +: nestedTypes).groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
+    val duplicateNestedType = (this +: nestedTypes).toSeq.groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
     duplicateNestedType.foreach(td =>
-      OrgImpl.logError(td.id.location, s"Duplicate type name '${td.name.toString}'"))
+      OrgImpl.logError(td.asInstanceOf[apex.FullDeclaration].location, s"Duplicate type name '${td.name.toString}'"))
 
     // Check interfaces are visible
     interfaces.foreach(interface => {
@@ -193,14 +198,14 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
       name.toString,
       typeName,
       nature.value,
-      modifiers.map(_.toString).sorted.toArray,
+      modifiers.map(_.toString).sorted,
       superClass,
-      interfaces.toArray,
-      blocks.map(_.summary(shapeOnly)).toArray,
-      localFields.map(_.summary(shapeOnly)).sortBy(_.name).toArray,
-      constructors.map(_.summary(shapeOnly)).sortBy(_.parameters.length).toArray,
-      localMethods.map(_.summary(shapeOnly)).sortBy(_.name).toArray,
-      nestedTypes.map(_.summary(shapeOnly)).sortBy(_.name).toArray,
+      interfaces,
+      _blocks.map(_.summary(shapeOnly)),
+      localFields.map(_.summary(shapeOnly)).sortBy(_.name),
+      _constructors.map(_.summary(shapeOnly)).sortBy(_.parameters.length),
+      _localMethods.map(_.summary(shapeOnly)).sortBy(_.name),
+      _nestedTypes.map(_.summary(shapeOnly)).sortBy(_.name),
       if (shapeOnly) Array.empty else dependencySummary()
     )
   }

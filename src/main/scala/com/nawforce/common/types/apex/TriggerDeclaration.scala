@@ -33,7 +33,7 @@ import com.nawforce.common.documents.{LineLocationImpl, LocationImpl}
 import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types.core._
+import com.nawforce.common.types.core.{BlockDeclaration, _}
 import com.nawforce.runtime.gc.SkinnySet
 import com.nawforce.runtime.parsers.ApexParser.{TriggerCaseContext, TriggerUnitContext}
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
@@ -57,7 +57,7 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
   override val path: PathLike  = source.path
   override val nameLocation: LocationImpl = nameId.location
   override lazy val sourceHash: Int = source.hash
-  override val paths: Seq[PathLike] = Seq(path)
+  override val paths: Array[PathLike] = Array(path)
 
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override val name: Name = typeName.name
@@ -67,13 +67,13 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
   override val isComplete: Boolean = true
 
   override val superClass: Option[TypeName] = None
-  override val interfaces: Seq[TypeName] = Seq.empty
-  override val nestedTypes: Seq[ApexFullDeclaration] = Seq.empty
+  override val interfaces: Array[TypeName] = TypeName.emptyTypeNames
+  override val nestedTypes: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
 
-  override val blocks: Seq[ApexInitialiserBlock] = Seq.empty
-  override val fields: Seq[ApexFieldDeclaration]= Seq.empty
-  override val constructors: Seq[ApexConstructorDeclaration] = Seq.empty
-  override val methods: Seq[ApexMethodDeclaration]= Seq.empty
+  override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
+  override val fields: Array[FieldDeclaration]= FieldDeclaration.emptyFieldDeclarations
+  override val constructors: Array[ConstructorDeclaration] = ConstructorDeclaration.emptyConstructorDeclarations
+  override val methods: Array[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
 
   private var depends: Option[SkinnySet[Dependent]] = None
   private val objectTypeName = TypeName(objectNameId.name, Nil, Some(TypeNames.Schema))
@@ -120,9 +120,9 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
     })
   }
 
-  override def getTypeDependencyHolders: mutable.Set[TypeId] = mutable.Set.empty
+  override def getTypeDependencyHolders: SkinnySet[TypeId] = DependentType.emptyTypeDependencyHolders
 
-  override def updateTypeDependencyHolders(holders: mutable.Set[TypeId]): Unit = {}
+  override def updateTypeDependencyHolders(holders: SkinnySet[TypeId]): Unit = {}
 
   override def summary: TypeSummary = {
     summary(shapeOnly = false)
@@ -135,14 +135,14 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
       Some(new RangeLocation(nameId.location.start.toPosition, nameId.location.end.toPosition)),
       name.toString,
       typeName,
-      nature.value, modifiers.map(_.toString).sorted.toArray,
+      nature.value, modifiers.map(_.toString).sorted,
       superClass,
-      interfaces.toArray,
-      blocks.map(_.summary(shapeOnly)).toArray,
-      fields.map(_.summary(shapeOnly)).sortBy(_.name).toArray,
-      constructors.map(_.summary(shapeOnly)).sortBy(_.parameters.length).toArray,
-      methods.map(_.summary(shapeOnly)).sortBy(_.name).toArray,
-      nestedTypes.map(_.summary(shapeOnly)).sortBy(_.name).toArray,
+      interfaces,
+      Array(),
+      Array(),
+      Array(),
+      Array(),
+      Array(),
       if (shapeOnly) Array.empty else dependencySummary()
     )
   }
@@ -203,14 +203,14 @@ object TriggerDeclaration {
 }
 
 final case class TriggerContext(pkg: PackageImpl, baseType: TypeDeclaration)
-  extends BasicTypeDeclaration(Seq.empty, pkg, TypeName(Names.Trigger)) {
+  extends BasicTypeDeclaration(PathLike.emptyPaths, pkg, TypeName(Names.Trigger)) {
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     baseType.findField(name, staticContext)
   }
 
-  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Seq[MethodDeclaration] = {
+  override def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
+                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
     baseType.findMethod(name, params, staticContext, verifyContext)
   }
 }

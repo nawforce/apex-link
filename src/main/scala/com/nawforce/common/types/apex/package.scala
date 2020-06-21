@@ -72,10 +72,14 @@ package object apex {
   }
 
   object TypeIdentifierOps {
-    private val cache = mutable.WeakHashMap[TypeIdentifier, WeakReference[TypeIdentifier]]()
+    private var cache = mutable.WeakHashMap[TypeIdentifier, WeakReference[TypeIdentifier]]()
 
     def weakCache(typeName: TypeIdentifier): TypeIdentifier = {
       cache.getOrElseUpdate(typeName, new WeakReference(typeName)).get
+    }
+
+    def clearCache(): Unit = {
+      cache = new mutable.WeakHashMap[TypeIdentifier, WeakReference[TypeIdentifier]]()
     }
   }
 

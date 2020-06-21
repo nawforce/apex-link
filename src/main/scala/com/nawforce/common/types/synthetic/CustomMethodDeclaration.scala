@@ -58,7 +58,7 @@ object CustomMethodDeclaration {
   val staticModifiers: Array[Modifier] = Array(PUBLIC_MODIFIER, STATIC_MODIFIER)
 
   def getModifiers(isStatic: Boolean): Array[Modifier] = {
-    if (isStatic) standardModifiers else standardModifiers
+    if (isStatic) staticModifiers else standardModifiers
   }
 }
 

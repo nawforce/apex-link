@@ -33,7 +33,7 @@ import com.nawforce.common.cst.{Modifier, ModifierOps}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 
-class BasicTypeDeclaration(val paths: Seq[PathLike], pkg: PackageImpl, val typeName: TypeName)
+class BasicTypeDeclaration(val paths: Array[PathLike], pkg: PackageImpl, val typeName: TypeName)
   extends TypeDeclaration {
 
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
@@ -44,18 +44,18 @@ class BasicTypeDeclaration(val paths: Seq[PathLike], pkg: PackageImpl, val typeN
   override val isComplete: Boolean = true
 
   override val superClass: Option[TypeName] = None
-  override val interfaces: Seq[TypeName] = Seq.empty
-  override def nestedTypes: Seq[TypeDeclaration] = Seq.empty
+  override val interfaces: Array[TypeName] = TypeName.emptyTypeNames
+  override def nestedTypes: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
 
-  override val blocks: Seq[BlockDeclaration] = Seq.empty
-  override val fields: Seq[FieldDeclaration]= Seq.empty
-  override val constructors: Seq[ConstructorDeclaration] = Seq.empty
-  override val methods: Seq[MethodDeclaration]= Seq.empty
+  override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
+  override val fields: Array[FieldDeclaration] = FieldDeclaration.emptyFieldDeclarations
+  override val constructors: Array[ConstructorDeclaration] = ConstructorDeclaration.emptyConstructorDeclarations
+  override val methods: Array[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
 
   override def validate(): Unit = {}
 }
 
-class InnerBasicTypeDeclaration(_paths: Seq[PathLike], _pkg: PackageImpl, _typeName: TypeName)
+class InnerBasicTypeDeclaration(_paths: Array[PathLike], _pkg: PackageImpl, _typeName: TypeName)
   extends BasicTypeDeclaration(_paths, _pkg, _typeName) {
   override val outerTypeName: Option[TypeName] = typeName.outer
 }

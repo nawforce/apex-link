@@ -110,7 +110,7 @@ trait PackageAPI extends Package {
   override def getDependencyHolders(typeId: TypeIdentifier): Array[TypeIdentifier] = {
     if (typeId != null && typeId.namespace == namespace) {
       getDependentType(typeId.typeName)
-        .map(_.getTypeDependencyHolders.map(_.asTypeIdentifier).toArray)
+        .map(_.getTypeDependencyHolders.toSet.map(_.asTypeIdentifier).toArray)
         .orNull
     } else {
       null
@@ -156,7 +156,7 @@ trait PackageAPI extends Package {
     val newType = createType(dt, sourceOpt)
     val typeName = newType.map(_.typeName).getOrElse(dt.typeName(namespace))
     val existingType = getDependentType(typeName)
-    val holders = existingType.map(_.getTypeDependencyHolders).getOrElse(mutable.Set())
+    val holders = existingType.map(_.getTypeDependencyHolders).getOrElse(DependentType.emptyTypeDependencyHolders)
     newType.foreach(_.updateTypeDependencyHolders(holders))
 
     // Update and validate
@@ -166,7 +166,7 @@ trait PackageAPI extends Package {
     // Re-validate references to detect errors and release existing refs
     // TODO: This is not handling inheritance correctly, needs multi-level handling
     if (invalidateReferences) {
-      val references = holders ++ getTypesWithMissingIssues
+      val references = holders.toSet ++ getTypesWithMissingIssues
       if (references.nonEmpty) {
         // Check for a shape change
         val sameShape = (existingType, newType) match {

@@ -30,6 +30,7 @@ package com.nawforce.common.types.core
 
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.org.PackageImpl
+import com.nawforce.runtime.gc.SkinnySet
 
 import scala.collection.mutable
 
@@ -49,15 +50,15 @@ trait DependentType extends TypeDeclaration {
   lazy val outerTypeId: TypeId = outerTypeName.map(TypeId(pkg, _)).getOrElse(typeId)
 
   /** Current set of holders from this TypeDeclaration */
-  private var typeDependencyHolders = mutable.Set[TypeId]()
+  private var typeDependencyHolders: SkinnySet[TypeId] = _
 
   /** Get current dependency holders */
-  def getTypeDependencyHolders: mutable.Set[TypeId] = {
-    typeDependencyHolders
+  def getTypeDependencyHolders: SkinnySet[TypeId] = {
+    Option(typeDependencyHolders).getOrElse(DependentType.emptyTypeDependencyHolders)
   }
 
   /** Set type dependency holders, useful when carrying forward during upsert */
-  def updateTypeDependencyHolders(holders: mutable.Set[TypeId]): Unit = {
+  def updateTypeDependencyHolders(holders: SkinnySet[TypeId]): Unit = {
     typeDependencyHolders = holders
   }
 
@@ -65,8 +66,11 @@ trait DependentType extends TypeDeclaration {
   def collectDependenciesByTypeName(dependents: mutable.Set[TypeId])
 
   def addTypeDependencyHolder(typeId: TypeId): Unit = {
-    if (typeId != this.typeId)
+    if (typeId != this.typeId) {
+      if (typeDependencyHolders == null || typeDependencyHolders == DependentType.emptyTypeDependencyHolders)
+        typeDependencyHolders = new SkinnySet()
       typeDependencyHolders.add(typeId)
+    }
   }
 
   // Update holders on outer dependencies
@@ -85,4 +89,8 @@ trait DependentType extends TypeDeclaration {
       case Left(_) => None
     }
   }
+}
+
+object DependentType {
+  val emptyTypeDependencyHolders: SkinnySet[TypeId] = new SkinnySet[TypeId]()
 }
