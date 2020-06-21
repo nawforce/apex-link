@@ -87,9 +87,9 @@ object TypeReference {
 }
 
 object TypeList {
-  def construct(typeList: TypeListContext): Seq[TypeName] = {
-    val types: Seq[TypeRefContext] = CodeParser.toScala(typeList.typeRef())
-    types.toList.map(t => TypeReference.construct(t))
+  def construct(typeList: TypeListContext): Array[TypeName] = {
+    val types = CodeParser.toScala(typeList.typeRef()).toArray
+    types.map(t => TypeReference.construct(t))
   }
 }
 

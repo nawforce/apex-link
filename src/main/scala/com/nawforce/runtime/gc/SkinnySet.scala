@@ -34,7 +34,7 @@ import scala.collection.mutable
   * Uses a an array for small size before using a set.
   */
 class SkinnySet[T <: AnyRef] {
-  private var arrayOf = new mutable.ArrayBuffer[T](8)
+  private var arrayOf = new mutable.ArrayBuffer[T](4)
   private var setOf: mutable.Set[T] = _
 
   def isEmpty: Boolean = {

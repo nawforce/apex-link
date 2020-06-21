@@ -32,7 +32,7 @@ import com.nawforce.common.documents.{LocationImpl, SourceInfo}
 import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.org.stream.PackageStream
-import com.nawforce.common.path.PathFactory
+import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.core._
 import com.nawforce.common.types.platform.PlatformTypes
 
@@ -41,23 +41,28 @@ import scala.util.hashing.MurmurHash3
 
 /** An individual component being represented as a nested type. */
 final case class Component(pkg: PackageImpl, location: Option[LocationImpl], componentName: Name)
-  extends InnerBasicTypeDeclaration(location.map(l => PathFactory(l.path)).toSeq,
+  extends InnerBasicTypeDeclaration(location.map(l => PathFactory(l.path)).toArray,
     pkg, TypeName(componentName, Nil, Some(TypeName(Names.Component)))) {
 
   override val superClass: Option[TypeName] = Some(TypeNames.ApexPagesComponent)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.componentType)
-  override val fields: Seq[FieldDeclaration] = PlatformTypes.componentType.fields
+  override val fields: Array[FieldDeclaration] = PlatformTypes.componentType.fields
+}
+
+object Component {
+  val emptyComponents: Array[Component] = Array()
 }
 
 /** Component namespace handler */
 final case class ComponentDeclaration(sources: Seq[SourceInfo], pkg: PackageImpl, components: Seq[TypeDeclaration],
                                       nestedComponents: Seq[NestedComponents])
-  extends BasicTypeDeclaration(Seq.empty, pkg, TypeNames.Component)
+  extends BasicTypeDeclaration(PathLike.emptyPaths, pkg, TypeNames.Component)
     with DependentType with OtherTypeDeclaration {
 
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash),0)
 
-  override def nestedTypes: Seq[TypeDeclaration] = components ++ nestedComponents ++ namespaceDeclaration.toSeq ++ Seq(cDeclaration)
+  override def nestedTypes: Array[TypeDeclaration] =
+    (components ++ nestedComponents ++ namespaceDeclaration.toSeq ++ Seq(cDeclaration)).toArray
 
   // This is the optional Component.namespace implementation
   private var namespaceDeclaration = pkg.namespace.map(ns => new NamespaceDeclaration(ns))
@@ -72,9 +77,9 @@ final case class ComponentDeclaration(sources: Seq[SourceInfo], pkg: PackageImpl
     nestedComponents.foreach(ni => ni.componentTypeId.foreach(dependsOn.add))
   }
 
-  class NamespaceDeclaration(name: Name, nestedComponents: Seq[Component] = Seq())
-    extends InnerBasicTypeDeclaration(Seq(), pkg, TypeName(name, Nil, Some(TypeNames.Component))) {
-    override def nestedTypes: Seq[TypeDeclaration] = nestedComponents
+  class NamespaceDeclaration(name: Name, nestedComponents: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations)
+    extends InnerBasicTypeDeclaration(PathLike.emptyPaths, pkg, TypeName(name, Nil, Some(TypeNames.Component))) {
+    override def nestedTypes: Array[TypeDeclaration] = nestedComponents
 
     def merge(stream: PackageStream): NamespaceDeclaration = {
       new NamespaceDeclaration(name, nestedComponents ++
@@ -105,7 +110,7 @@ trait NestedComponents extends TypeDeclaration {
   * owned elsewhere there is no need to set a controller here.
   */
 final class PackageComponents(pkg: PackageImpl, componentDeclaration: ComponentDeclaration)
-  extends InnerBasicTypeDeclaration(Seq(), pkg,
+  extends InnerBasicTypeDeclaration(PathLike.emptyPaths, pkg,
     TypeName(componentDeclaration.packageDeclaration.get.namespace.get, Nil, Some(TypeNames.Component)))
   with NestedComponents {
 
@@ -115,11 +120,11 @@ final class PackageComponents(pkg: PackageImpl, componentDeclaration: ComponentD
     componentDeclaration.addTypeDependencyHolder(typeId)
   }
 
-  override def nestedTypes: Seq[TypeDeclaration] = componentDeclaration.nestedTypes
+  override def nestedTypes: Array[TypeDeclaration] = componentDeclaration.nestedTypes
 }
 
 final class GhostedComponents(pkg: PackageImpl, ghostedPackage: PackageImpl)
-  extends InnerBasicTypeDeclaration(Seq.empty, pkg,
+  extends InnerBasicTypeDeclaration(PathLike.emptyPaths, pkg,
     TypeName(ghostedPackage.namespace.get, Nil, Some(TypeNames.Interview)))
   with NestedComponents {
 

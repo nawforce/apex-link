@@ -50,6 +50,8 @@ case class TypeName(name: Name, params: Seq[TypeName], outer: Option[TypeName]) 
 object TypeName {
   implicit val rw: RW[TypeName] = macroRW
 
+  val emptyTypeNames: Array[TypeName] = Array()
+
   /** Helper for construction from Java, outer may be null */
   def fromJava(name: Name, params: Array[TypeName], outer: TypeName): TypeName = {
     new TypeName(name, params, Option(outer))

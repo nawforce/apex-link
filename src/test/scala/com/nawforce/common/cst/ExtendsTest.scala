@@ -61,13 +61,13 @@ class ExtendsTest extends AnyFunSuite with BeforeAndAfter {
   test("Duplicate inner type names") {
     assert(typeDeclarations(Map("Dummy.cls" -> "global class Dummy {class Inner {} interface Inner{}}")).nonEmpty)
     assert(defaultOrg.issues.getMessages("/Dummy.cls") ==
-      "Error: line 1 at 45-50: Duplicate type name 'Inner'\n")
+      "Error: line 1 at 35-52: Duplicate type name 'Inner'\n")
   }
 
   test("Duplicate outer & inner type names") {
     assert(typeDeclarations(Map("Dummy.cls" -> "global class Dummy {class Dummy{}}")).nonEmpty)
     assert(defaultOrg.issues.getMessages("/Dummy.cls") ==
-      "Error: line 1 at 26-31: Duplicate type name 'Dummy'\n")
+      "Error: line 1 at 20-33: Duplicate type name 'Dummy'\n")
   }
 
   test("Missing superclass") {

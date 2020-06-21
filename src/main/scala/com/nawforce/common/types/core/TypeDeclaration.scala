@@ -70,6 +70,10 @@ trait BlockDeclaration extends DependencyHolder {
   }
 }
 
+object BlockDeclaration {
+  val emptyBlockDeclarations: Array[BlockDeclaration] = Array()
+}
+
 trait FieldDeclaration extends DependencyHolder {
   val name: Name
   val modifiers: Array[Modifier]
@@ -88,7 +92,7 @@ trait FieldDeclaration extends DependencyHolder {
     FieldSummary(
       if (shapeOnly) None else range,
       name.toString,
-      modifiers.map(_.toString).sorted.toArray,
+      modifiers.map(_.toString).sorted,
       typeName,
       readAccess.toString, writeAccess.toString,
       if (shapeOnly) Array() else dependencySummary()
@@ -117,6 +121,10 @@ trait FieldDeclaration extends DependencyHolder {
   }
 }
 
+object FieldDeclaration {
+  val emptyFieldDeclarations: Array[FieldDeclaration] = Array()
+}
+
 trait ParameterDeclaration {
   val name: Name
   val typeName: TypeName
@@ -139,11 +147,15 @@ trait ConstructorDeclaration extends DependencyHolder {
   protected def serialise(shapeOnly: Boolean, range: Option[RangeLocation]): ConstructorSummary = {
     ConstructorSummary(
       if (shapeOnly) None else range,
-      modifiers.map(_.toString).sorted.toArray,
-      parameters.map(_.serialise).sortBy(_.name).toArray,
+      modifiers.map(_.toString).sorted,
+      parameters.map(_.serialise).sortBy(_.name),
       if (shapeOnly) Array.empty else dependencySummary()
     )
   }
+}
+
+object ConstructorDeclaration {
+  val emptyConstructorDeclarations: Array[ConstructorDeclaration] = Array()
 }
 
 trait MethodDeclaration extends DependencyHolder {
@@ -171,8 +183,8 @@ trait MethodDeclaration extends DependencyHolder {
     hasParameters(other.parameters.map(_.typeName))
   }
 
-  def hasParameters(params: Seq[TypeName]): Boolean = {
-    if (parameters.size == params.size) {
+  def hasParameters(params: Array[TypeName]): Boolean = {
+    if (parameters.length == params.length) {
       parameters.zip(params).forall(z => z._1.typeName == z._2)
     } else {
       false
@@ -183,8 +195,8 @@ trait MethodDeclaration extends DependencyHolder {
     hasErasedParameters(pkg, other.parameters.map(_.typeName))
   }
 
-  def hasErasedParameters(pkg: Option[PackageImpl], params: Seq[TypeName]): Boolean = {
-    if (parameters.size == params.size) {
+  def hasErasedParameters(pkg: Option[PackageImpl], params: Array[TypeName]): Boolean = {
+    if (parameters.length == params.length) {
       parameters.zip(params).forall(z =>
         (z._1.typeName == z._2) ||
           (z._1.typeName.isStringOrId && z._2.isStringOrId) ||
@@ -199,8 +211,8 @@ trait MethodDeclaration extends DependencyHolder {
     }
   }
 
-  def hasCallErasedParameters(pkg: PackageImpl, params: Seq[TypeName]): Boolean = {
-    if (parameters.size == params.size) {
+  def hasCallErasedParameters(pkg: PackageImpl, params: Array[TypeName]): Boolean = {
+    if (parameters.length == params.length) {
       parameters.zip(params).forall(z =>
         z._1.typeName == z._2 ||
           (z._1.typeName.equalsIgnoreParams(z._2) &&
@@ -225,22 +237,26 @@ trait MethodDeclaration extends DependencyHolder {
   protected def serialise(shapeOnly: Boolean, range: Option[RangeLocation]): MethodSummary = {
     MethodSummary(
       if (shapeOnly) None else range,
-      name.toString, modifiers.map(_.toString).sorted.toArray,
+      name.toString, modifiers.map(_.toString).sorted,
       typeName,
-      parameters.map(_.serialise).toArray,
+      parameters.map(_.serialise),
       if (shapeOnly) Array.empty else dependencySummary()
     )
   }
 }
 
+object MethodDeclaration {
+  val emptyMethodDeclarations: Array[MethodDeclaration] = Array()
+}
+
 trait AbstractTypeDeclaration {
   def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration]
-  def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean], verifyContext: VerifyContext): Seq[MethodDeclaration]
+  def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean], verifyContext: VerifyContext): Array[MethodDeclaration]
   def findNestedType(name: Name): Option[AbstractTypeDeclaration]
 }
 
 trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
-  val paths: Seq[PathLike]
+  val paths: Array[PathLike]
   val packageDeclaration: Option[PackageImpl]
 
   val name: Name
@@ -256,16 +272,16 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   }
 
   val superClass: Option[TypeName]
-  val interfaces: Seq[TypeName]
+  val interfaces: Array[TypeName]
 
   def superClassDeclaration: Option[TypeDeclaration] = None
-  def interfaceDeclarations: Seq[TypeDeclaration] = Nil
-  def nestedTypes: Seq[TypeDeclaration]
+  def interfaceDeclarations: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
+  def nestedTypes: Array[TypeDeclaration]
 
-  val blocks: Seq[BlockDeclaration]
-  val fields: Seq[FieldDeclaration]
-  val constructors: Seq[ConstructorDeclaration]
-  val methods: Seq[MethodDeclaration]
+  val blocks: Array[BlockDeclaration]
+  val fields: Array[FieldDeclaration]
+  val constructors: Array[ConstructorDeclaration]
+  val methods: Array[MethodDeclaration]
 
   def isComplete: Boolean
   lazy val isExternallyVisible: Boolean = modifiers.contains(GLOBAL_MODIFIER)
@@ -319,10 +335,10 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
     fieldsByName
   }
 
-  private lazy val methodMap: MethodMap = MethodMap(this, None, MethodMap.empty(), methods, Seq())
+  private lazy val methodMap: MethodMap = MethodMap(this, None, MethodMap.empty(), methods, Array())
 
-  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
-                 verifyContext: VerifyContext): Seq[MethodDeclaration] = {
+  override def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
+                 verifyContext: VerifyContext): Array[MethodDeclaration] = {
     val found = methodMap.findMethod(name, params, staticContext, verifyContext)
 
     // Horrible skulduggery to support SObject.GetSObjectType()
@@ -337,44 +353,42 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
     packageDeclaration.flatMap(pkg => pkg.getLocalTypeFor(typeName, this))
   }
 
-  def validateFieldConstructorArguments(input: ExprContext, arguments: Seq[Expression], context: ExpressionVerifyContext): Unit = {
+  def validateFieldConstructorArguments(input: ExprContext, arguments: Array[Expression], context: ExpressionVerifyContext): Unit = {
     assert(isFieldConstructed)
 
     // FUTURE: Disable this bypass once VF parsing supported
     if (isInstanceOf[Component])
       return
 
-    val validArgs = arguments.flatMap(argument => {
-      argument match {
-        case BinaryExpression(PrimaryExpression(IdPrimary(id)), rhs, "=") =>
-          rhs.verify(input, context)
-          // Future: check type against field being assigned
+    val validArgs = arguments.flatMap {
+      case BinaryExpression(PrimaryExpression(IdPrimary(id)), rhs, "=") =>
+        rhs.verify(input, context)
+        // Future: check type against field being assigned
 
-          var field : Option[FieldDeclaration] = None
+        var field: Option[FieldDeclaration] = None
 
-          if (context.pkg.namespace.nonEmpty) {
-            field = findField(context.defaultNamespace(id.name), staticContext = Some(false))
-          }
+        if (context.pkg.namespace.nonEmpty) {
+          field = findField(context.defaultNamespace(id.name), staticContext = Some(false))
+        }
 
-          if (field.isEmpty)
-            field = findField(id.name, staticContext = Some(false))
+        if (field.isEmpty)
+          field = findField(id.name, staticContext = Some(false))
 
-          if (field.isEmpty) {
-            if (isComplete)
-              context.log(Issue.unknownFieldOnSObject(id.location, id.name, typeName))
-            None
-          } else {
-            context.addDependency(field.get)
-            Some(id)
-          }
-        case _ =>
-          OrgImpl.logError(argument.location, s"SObject type '$typeName' construction needs '<field name> = <value>' arguments")
+        if (field.isEmpty) {
+          if (isComplete)
+            context.log(Issue.unknownFieldOnSObject(id.location, id.name, typeName))
           None
-      }
-    })
+        } else {
+          context.addDependency(field.get)
+          Some(id)
+        }
+      case argument =>
+        OrgImpl.logError(argument.location, s"SObject type '$typeName' construction needs '<field name> = <value>' arguments")
+        None
+    }
 
-    if (validArgs.size == arguments.size) {
-      val duplicates = validArgs.groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
+    if (validArgs.length == arguments.length) {
+      val duplicates = validArgs.groupBy(_.name).collect { case (_, Array(_, y, _*)) => y }
       if (duplicates.nonEmpty) {
         OrgImpl.logError(duplicates.head.location,
           s"Duplicate assignment to field '${duplicates.head.name}' on SObject type '$typeName'")
@@ -410,15 +424,19 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
       None,
       name.toString,
       typeName,
-      nature.value, modifiers.map(_.toString).sorted.toArray,
+      nature.value, modifiers.map(_.toString).sorted,
       superClass,
-      interfaces.toArray,
-      blocks.map(_.serialise).toArray,
-      fields.map(_.serialise).sortBy(_.name).toArray,
-      constructors.map(_.serialise).sortBy(_.parameters.length).toArray,
-      methods.map(_.serialise).sortBy(_.name).toArray,
-      nestedTypes.map(_.serialise).sortBy(_.name).toArray,
+      interfaces,
+      blocks.map(_.serialise),
+      fields.map(_.serialise).sortBy(_.name),
+      constructors.map(_.serialise).sortBy(_.parameters.length),
+      methods.map(_.serialise).sortBy(_.name),
+      nestedTypes.map(_.serialise).sortBy(_.name),
       dependencySummary()
     )
   }
+}
+
+object TypeDeclaration {
+  val emptyTypeDeclarations: Array[TypeDeclaration] = Array()
 }

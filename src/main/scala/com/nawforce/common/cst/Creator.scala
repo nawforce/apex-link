@@ -57,7 +57,7 @@ object CreatedName {
   }
 }
 
-final case class IdCreatedNamePair(id: Id, types: Seq[TypeName]) extends CST {
+final case class IdCreatedNamePair(id: Id, types: Array[TypeName]) extends CST {
   val typeName: TypeName = {
     val encName = EncodedName(id.name)
     if (encName.ext.nonEmpty)
@@ -75,7 +75,7 @@ object IdCreatedNamePair {
   def construct(from: IdCreatedNamePairContext): IdCreatedNamePair = {
     IdCreatedNamePair(Id.constructAny(from.anyId()),
       CodeParser.toScala(from.typeList())
-        .map(tl => TypeList.construct(tl)).getOrElse(Seq())
+        .map(tl => TypeList.construct(tl)).getOrElse(TypeName.emptyTypeNames)
     ).withContext(from)
   }
 }
@@ -126,7 +126,7 @@ object NoRest {
   }
 }
 
-final case class ClassCreatorRest(arguments: Seq[Expression]) extends CreatorRest {
+final case class ClassCreatorRest(arguments: Array[Expression]) extends CreatorRest {
   override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {
     assert(creating.typeDeclarationOpt.nonEmpty)
     val td = creating.typeDeclarationOpt.get
@@ -167,7 +167,7 @@ object ArrayCreatorRest {
   }
 }
 
-final case class ArrayInitializer(expressions: Seq[Expression]) extends CST {
+final case class ArrayInitializer(expressions: Array[Expression]) extends CST {
   def verify(input: ExprContext, context: ExpressionVerifyContext): Unit = {
     expressions.foreach(_.verify(input, context))
   }
@@ -175,8 +175,8 @@ final case class ArrayInitializer(expressions: Seq[Expression]) extends CST {
 
 object ArrayInitializer {
   def construct(from: ArrayInitializerContext): ArrayInitializer = {
-    val initializers: Seq[ExpressionContext] = CodeParser.toScala(from.expression())
-    ArrayInitializer(Expression.construct(initializers.toList)).withContext(from)
+    val initializers = CodeParser.toScala(from.expression()).toArray
+    ArrayInitializer(Expression.construct(initializers)).withContext(from)
   }
 }
 
@@ -262,8 +262,8 @@ final case class SetCreatorRest(parts: Seq[Expression]) extends CreatorRest {
 
 object SetCreatorRest {
   def construct(from: SetCreatorRestContext): SetCreatorRest = {
-    val parts: Seq[ExpressionContext] = CodeParser.toScala(from.expression())
-    SetCreatorRest(Expression.construct(parts.toList)).withContext(from)
+    val parts = CodeParser.toScala(from.expression()).toArray
+    SetCreatorRest(Expression.construct(parts)).withContext(from)
   }
 }
 

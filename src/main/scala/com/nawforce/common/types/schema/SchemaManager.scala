@@ -33,6 +33,7 @@ import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.names.{EncodedName, Names, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
+import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.schema
@@ -91,7 +92,8 @@ class RelatedLists(pkg: PackageImpl) {
     // Wrap any objects with lookups relationships so they are visible
     changedObjects.foreach(td => {
       // TODO: Provide paths
-      pkg.upsertMetadata(schema.SObjectDeclaration(Seq.empty, pkg, td.typeName, CustomObjectNature, Set(), td.fields, isComplete = true))
+      pkg.upsertMetadata(schema.SObjectDeclaration(PathLike.emptyPaths, pkg, td.typeName, CustomObjectNature,
+        Name.emptyNames, td.fields, isComplete = true))
     })
   }
 
@@ -107,7 +109,7 @@ class RelatedLists(pkg: PackageImpl) {
 }
 
 /* Schema.SObjectType implementation */
-final case class SchemaSObjectType(pkg: PackageImpl) extends BasicTypeDeclaration(Seq.empty, pkg, TypeNames.SObjectType) {
+final case class SchemaSObjectType(pkg: PackageImpl) extends BasicTypeDeclaration(PathLike.emptyPaths, pkg, TypeNames.SObjectType) {
   private val sobjectFields: mutable.Map[Name, FieldDeclaration] = mutable.Map()
   private val sobjectTypeDeclarationsCreated = mutable.Set[Name]()
 
@@ -137,8 +139,8 @@ final case class SchemaSObjectType(pkg: PackageImpl) extends BasicTypeDeclaratio
     })
   }
 
-  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
-        verifyContext: VerifyContext): Seq[MethodDeclaration] = {
+  override def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
+        verifyContext: VerifyContext): Array[MethodDeclaration] = {
     PlatformTypes.sObjectTypeType.findMethod(name, params, staticContext, verifyContext)
   }
 
@@ -170,7 +172,7 @@ final case class SchemaSObjectType(pkg: PackageImpl) extends BasicTypeDeclaratio
 
 // TODO: Provide paths
 final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields, pkg: PackageImpl)
-  extends BasicTypeDeclaration(Seq.empty, pkg, TypeNames.sObjectType$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
+  extends BasicTypeDeclaration(PathLike.emptyPaths, pkg, TypeNames.sObjectType$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
   private lazy val fieldField = CustomFieldDeclaration(Names.Fields,
     TypeNames.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema))), None, asStatic = true)
@@ -190,15 +192,15 @@ final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields
     }
   }
 
-  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Seq[MethodDeclaration] = {
+  override def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
+                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
     PlatformTypes.sObjectTypeType.findMethod(name, params, staticContext, verifyContext)
   }
 }
 
 // TODO: Provide paths
 final case class SObjectTypeFields(sobjectName: Name, pkg: PackageImpl)
-  extends BasicTypeDeclaration(Seq.empty, pkg, TypeNames.sObjectTypeFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
+  extends BasicTypeDeclaration(PathLike.emptyPaths, pkg, TypeNames.sObjectTypeFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
     TypeResolver(TypeName(sobjectName), pkg, excludeSObjects = false).toOption match {
@@ -224,12 +226,12 @@ final case class SObjectTypeFields(sobjectName: Name, pkg: PackageImpl)
       })
   }
 
-  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Seq[MethodDeclaration] = {
+  override def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
+                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
     if (staticContext.contains(false)) {
       val method = methodMap.get((name, params.size))
       if (method.nonEmpty)
-        return method.toSeq
+        return method.toArray
     }
     super.findMethod(name, params, staticContext, verifyContext)
   }
@@ -242,7 +244,7 @@ final case class SObjectTypeFields(sobjectName: Name, pkg: PackageImpl)
 
 // TODO: Provide paths
 final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
-  extends BasicTypeDeclaration(Seq(), pkg, TypeNames.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
+  extends BasicTypeDeclaration(PathLike.emptyPaths, pkg, TypeNames.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
   // Extend SObjectField for when used as return type for lookup SObjectField
   override val superClass: Option[TypeName] = Some(TypeNames.SObjectField)
@@ -277,15 +279,15 @@ final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
       })
   }
 
-  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Seq[MethodDeclaration] = {
+  override def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
+                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
     PlatformTypes.sObjectFieldType.findMethod(name, params, staticContext, verifyContext)
   }
 }
 
 // TODO: Provide paths
 final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageImpl)
-  extends BasicTypeDeclaration(Seq.empty, pkg, TypeNames.sObjectTypeFieldSets$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
+  extends BasicTypeDeclaration(PathLike.emptyPaths, pkg, TypeNames.sObjectTypeFieldSets$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
   private lazy val sobjectFieldSets: Map[Name, FieldDeclaration] = {
     val typeName = TypeName(sobjectName)
@@ -300,8 +302,8 @@ final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageImpl)
     sobjectFieldSets.get(name)
   }
 
-  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Seq[MethodDeclaration] = {
+  override def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
+                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
     PlatformTypes.sObjectTypeFieldSets.findMethod(name, params, staticContext, verifyContext)
   }
 }

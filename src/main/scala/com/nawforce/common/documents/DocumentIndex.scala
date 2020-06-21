@@ -61,6 +61,12 @@ class DocumentIndex(namespace: Option[Name], paths: Seq[PathLike], logger: Issue
     documents(ext).values.flatten.toSet
   }
 
+  /** Get index'd metadata by declared extension */
+  def getByExtensionIterable(ext: Name): Iterable[MetadataDocument] = {
+    if (!documents.contains(ext)) return Set.empty
+    documents(ext).values.flatten
+  }
+
   /* Find a class or trigger by its typename */
   def getByType(typeName: TypeName): Option[MetadataDocument] = {
     documents.get(MetadataDocument.clsExt).flatMap(_.get(typeName)).orElse(

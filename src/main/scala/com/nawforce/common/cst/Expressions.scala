@@ -212,7 +212,7 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
   }
 }
 
-final case class MethodCall(target: Either[Boolean, Id], arguments: Seq[Expression]) extends Expression {
+final case class MethodCall(target: Either[Boolean, Id], arguments: Array[Expression]) extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     verify(location, input.typeDeclaration, None, input, context)
   }
@@ -268,8 +268,8 @@ object MethodCall {
 
     MethodCall(caller,
       CodeParser.toScala(from.expressionList())
-        .map(el => CodeParser.toScala(el.expression()).map(e => Expression.construct(e)))
-        .getOrElse(Seq())
+        .map(el => CodeParser.toScala(el.expression()).map(e => Expression.construct(e)).toArray)
+        .getOrElse(Expression.emptyExpressions)
     )
   }
 
@@ -277,8 +277,8 @@ object MethodCall {
     val caller = Right(Id.constructAny(from.anyId()))
     MethodCall(caller,
       CodeParser.toScala(from.expressionList())
-        .map(el => CodeParser.toScala(el.expression()).map(e => Expression.construct(e)))
-        .getOrElse(Seq())
+        .map(el => CodeParser.toScala(el.expression()).map(e => Expression.construct(e)).toArray)
+        .getOrElse(Expression.emptyExpressions)
     )
   }
 }
@@ -447,6 +447,8 @@ final case class PrimaryExpression(var primary: Primary) extends Expression {
 }
 
 object Expression {
+  val emptyExpressions: Array[Expression] = Array()
+
   def construct(from: ExpressionContext): Expression = {
     val cst =
       from match {
@@ -573,7 +575,7 @@ object Expression {
     cst.withContext(from)
   }
 
-  def construct(expression: Seq[ExpressionContext]): Seq[Expression] = {
+  def construct(expression: Array[ExpressionContext]): Array[Expression] = {
     expression.map(x => Expression.construct(x))
   }
 }
@@ -588,13 +590,12 @@ object TypeArguments {
 }
 
 object Arguments {
-  def construct(from: ArgumentsContext): Seq[Expression] = {
+  def construct(from: ArgumentsContext): Array[Expression] = {
     val el = CodeParser.toScala(from.expressionList())
     if (el.nonEmpty) {
-      val expressions: Seq[ExpressionContext] = CodeParser.toScala(el.get.expression())
-      Expression.construct(expressions.toList)
+      Expression.construct(CodeParser.toScala(el.get.expression()).toArray)
     } else {
-      Seq()
+      Expression.emptyExpressions
     }
   }
 }

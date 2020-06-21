@@ -125,6 +125,12 @@ object ApexModifiers {
   private val legalClassModifiersAndAnnotations: Set[Modifier] =
     legalClassAnnotations ++ legalClassModifiers
 
+  private val legalInterfaceModifiers: Set[Modifier] =
+    Set(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PRIVATE_MODIFIER, VIRTUAL_MODIFIER)
+
+  private val legalInterfaceModifiersAndAnnotations: Set[Modifier] =
+    legalTypeAnnotations ++ legalInterfaceModifiers
+
   private val legalFieldModifiers: Set[Modifier] =
     visibilityModifiers.toSet ++ Set(FINAL_MODIFIER, STATIC_MODIFIER, TRANSIENT_MODIFIER, WEBSERVICE_MODIFIER)
 
@@ -248,7 +254,7 @@ object ApexModifiers {
 
     val logger = new CodeParserLogger(parser)
     val mods = deduplicateVisibility(
-      asModifiers(modifierContexts, legalTypeModifiersAndAnnotations, "interfaces", logger, idContext),
+      asModifiers(modifierContexts, legalInterfaceModifiersAndAnnotations, "interfaces", logger, idContext),
       "interfaces", logger, idContext)
 
     val results = {

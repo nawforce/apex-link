@@ -269,8 +269,8 @@ object ForInit {
     CodeParser.toScala(from.localVariableDeclaration())
       .map(lvd => LocalVariableForInit(LocalVariableDeclaration.construct(parser, lvd)))
       .getOrElse({
-        val expressions: Seq[ExpressionContext] = CodeParser.toScala(
-          CodeParser.toScala(from.expressionList()).get.expression())
+        val expressions = CodeParser.toScala(
+          CodeParser.toScala(from.expressionList()).get.expression()).toArray
         ExpressionListForInit(Expression.construct(expressions))
       })
       .withContext(from)
@@ -285,8 +285,8 @@ final case class ForUpdate(expressions: Seq[Expression]) extends CST {
 
 object ForUpdate {
   def construct(from: ForUpdateContext): ForUpdate = {
-    val expressions: Seq[ExpressionContext] = CodeParser.toScala(from.expressionList().expression())
-    ForUpdate(Expression.construct(expressions.toList)).withContext(from)
+    val expressions = CodeParser.toScala(from.expressionList().expression()).toArray
+    ForUpdate(Expression.construct(expressions)).withContext(from)
   }
 }
 
@@ -492,7 +492,7 @@ object MergeStatement {
   }
 }
 
-final case class RunAsStatement(expressions: Seq[Expression], block: Option[Block]) extends Statement {
+final case class RunAsStatement(expressions: Array[Expression], block: Option[Block]) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
     block.foreach(_.verify(context))
@@ -503,8 +503,8 @@ object RunAsStatement {
   def construct(parser: CodeParser, statement: RunAsStatementContext): RunAsStatement = {
     val expressions =
       CodeParser.toScala(statement.expressionList())
-        .map(el => Expression.construct(CodeParser.toScala(el.expression())))
-        .getOrElse(Seq())
+        .map(el => Expression.construct(CodeParser.toScala(el.expression()).toArray))
+        .getOrElse(Expression.emptyExpressions)
     val block =
       CodeParser.toScala(statement.block())
         .map(b => Block.construct(parser, b))

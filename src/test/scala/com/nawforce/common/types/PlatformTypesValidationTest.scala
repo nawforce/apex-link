@@ -114,7 +114,8 @@ class PlatformTypesValidationTest extends AnyFunSuite {
       case ENUM_NATURE =>
         assert(typeDeclaration.nestedTypes.isEmpty)
       case CLASS_NATURE =>
-        typeDeclaration.nestedTypes.foreach(nested => validateTypeDeclaration(className.append(nested.name), nested))
+        typeDeclaration.nestedTypes.foreach(
+          nested => validateTypeDeclaration(className.append(nested.name), nested.asInstanceOf[PlatformTypeDeclaration]))
       case TRIGGER_NATURE =>  assert(false)
     }
 
@@ -125,7 +126,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
       case ENUM_NATURE =>
         assert(typeDeclaration.fields.nonEmpty)
         assert(typeDeclaration.fields.filter(_.typeName.toString == typeDeclaration.typeName.toString)
-          == typeDeclaration.fields)
+          sameElements typeDeclaration.fields)
       case CLASS_NATURE =>
         typeDeclaration.fields.foreach(f =>{
           assert(PlatformTypes.get(f.typeName, Some(typeDeclaration)).isRight)

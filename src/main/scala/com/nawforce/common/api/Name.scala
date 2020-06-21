@@ -54,6 +54,8 @@ case class Name(value: String) {
 
 object Name {
   implicit val rw: RW[Name] = macroRW
+
+  val emptyNames: Array[Name] = Array()
 }
 
 

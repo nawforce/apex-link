@@ -241,7 +241,7 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
 
   override val dependents: Array[DependentSummary] = typeSummary.dependents.map(_.intern)
 
-  override val paths: Seq[PathLike] = Seq(path)
+  override val paths: Array[PathLike] = Array(path)
   override val sourceHash: Int = typeSummary.sourceHash
   override val nameLocation: RangeLocationImpl = RangeLocationImpl(path, typeSummary.idRange.get)
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
@@ -251,21 +251,22 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
   override val modifiers: Array[Modifier] = typeSummary.modifiers.flatMap(ModifierOps(_))
 
   override val superClass: Option[TypeName] = typeSummary.superClass
-  override val interfaces: Seq[TypeName] = typeSummary.interfaces
-  override val nestedTypes: Seq[SummaryDeclaration] = {
+  override val interfaces: Array[TypeName] = typeSummary.interfaces
+  override val nestedTypes: Array[TypeDeclaration] = {
     typeSummary.nestedTypes.map(nt => new SummaryDeclaration(path, pkg, Some(typeId.typeName.intern), nt))
   }
 
-  override val blocks: Seq[SummaryBlock] =
-    typeSummary.blocks.map(new SummaryBlock(pkg, _))
-  override val localFields: Seq[SummaryField] =
-    typeSummary.fields.map(new SummaryField(pkg, path, typeId, _))
-  override val constructors: Seq[SummaryConstructor] =
-    typeSummary.constructors.map(new SummaryConstructor(pkg, path, _))
-  override val localMethods: Seq[SummaryMethod] = {
+  private val _blocks: Array[SummaryBlock] = typeSummary.blocks.map(new SummaryBlock(pkg, _))
+  override val blocks: Array[BlockDeclaration] = _blocks.asInstanceOf[Array[BlockDeclaration]]
+  private val _localFields: Array[SummaryField] = typeSummary.fields.map(new SummaryField(pkg, path, typeId, _))
+  override val localFields: Array[ApexFieldLike] = _localFields.asInstanceOf[Array[ApexFieldLike]]
+  private val _constructors: Array[SummaryConstructor] = typeSummary.constructors.map(new SummaryConstructor(pkg, path, _))
+  override val constructors: Array[ConstructorDeclaration] = _constructors.asInstanceOf[Array[ConstructorDeclaration]]
+  private val _localMethods: Array[SummaryMethod] = {
     val l = nameLocation.toLocation
     typeSummary.methods.map(new SummaryMethod(pkg, path, l, typeId, _))
   }
+  override val localMethods: Array[MethodDeclaration] = _localMethods.asInstanceOf[Array[MethodDeclaration]]
 
   override def summary: TypeSummary = {
     TypeSummary (
@@ -276,12 +277,12 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
       nature.value,
       modifiers.map(_.toString).sorted,
       superClass,
-      interfaces.toArray,
-      blocks.map(_.summary(shapeOnly = false)).toArray,
-      localFields.map(_.summary(shapeOnly = false)).sortBy(_.name).toArray,
-      constructors.map(_.summary(shapeOnly = false)).sortBy(_.parameters.length).toArray,
-      localMethods.map(_.summary(shapeOnly = false)).sortBy(_.name).toArray,
-      nestedTypes.map(_.summary).sortBy(_.name).toArray,
+      interfaces,
+      _blocks.map(_.summary(shapeOnly = false)),
+      _localFields.map(_.summary(shapeOnly = false)).sortBy(_.name),
+      _constructors.map(_.summary(shapeOnly = false)).sortBy(_.parameters.length),
+      _localMethods.map(_.summary(shapeOnly = false)).sortBy(_.name),
+      nestedTypes.collect{case x: SummaryDeclaration => x}.map(_.summary).sortBy(_.name),
       dependents
     )
   }
@@ -308,11 +309,11 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
 
   def hasValidDependencies: Boolean =
       areTypeDependenciesValid &&
-      blocks.forall(b => b.areTypeDependenciesValid) &&
-      localFields.forall(f => f.areTypeDependenciesValid) &&
-      constructors.forall(c => c.areTypeDependenciesValid) &&
-      localMethods.forall(m => m.areTypeDependenciesValid) &&
-      nestedTypes.forall(_.hasValidDependencies)
+      _blocks.forall(b => b.areTypeDependenciesValid) &&
+      _localFields.forall(f => f.areTypeDependenciesValid) &&
+      _constructors.forall(c => c.areTypeDependenciesValid) &&
+      _localMethods.forall(m => m.areTypeDependenciesValid) &&
+      nestedTypes.collect{case x: SummaryDeclaration => x}.forall(_.hasValidDependencies)
 
   override def propagateDependencies(): Unit = propagated
   private lazy val propagated: Boolean = {
@@ -339,11 +340,11 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
 
     // Collect them all
     collect(dependencies)
-    blocks.foreach(x => collect(x.dependencies))
-    localFields.foreach(x => collect(x.dependencies))
-    constructors.foreach(x => collect(x.dependencies))
-    localMethods.foreach(x => collect(x.dependencies))
-    nestedTypes.foreach(_.collectDependenciesByTypeName(dependsOn))
+    _blocks.foreach(x => collect(x.dependencies))
+    _localFields.foreach(x => collect(x.dependencies))
+    _constructors.foreach(x => collect(x.dependencies))
+    _localMethods.foreach(x => collect(x.dependencies))
+    nestedTypes.collect{case x: SummaryDeclaration => x}.foreach(_.collectDependenciesByTypeName(dependsOn))
 
     // Use outermost of each to get top-level dependencies
     localDependencies.foreach(dependentTypeName => {
@@ -365,10 +366,12 @@ class SummaryDeclaration(val path: PathLike, val pkg: PackageImpl, val outerType
   }
 }
 
-class SummaryApex(path: PathLike, pkg: PackageImpl, data: Array[Byte]) {
+case class SummaryApex(pkg: PackageImpl, declaration: SummaryDeclaration, diagnostics: Array[Diagnostic])
 
-  lazy val summary: ApexSummary = readBinary[ApexSummary](data)
-
-  lazy val declaration: SummaryDeclaration = new SummaryDeclaration(path, pkg, None, summary.typeSummary)
-  lazy val diagnostics: Array[Diagnostic] = summary.diagnostics
+object SummaryApex {
+  def apply(path: PathLike, pkg: PackageImpl, data: Array[Byte]): SummaryApex = {
+    val summary: ApexSummary = readBinary[ApexSummary](data)
+    val sd = new SummaryDeclaration(path, pkg, None, summary.typeSummary)
+    new SummaryApex(pkg, sd, summary.diagnostics)
+  }
 }

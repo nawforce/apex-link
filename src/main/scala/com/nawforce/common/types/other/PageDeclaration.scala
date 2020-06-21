@@ -51,7 +51,7 @@ case class Page(pkg: PackageImpl, location: LocationImpl, name: Name) extends Fi
 /** Page 'namespace' implementation. Provides access to pages in the package as well as pages that are accessible in
   * base packages via the `namespace__name` format.
   */
-final case class PageDeclaration(sources: Seq[SourceInfo], override val pkg: PackageImpl, pages: Seq[Page])
+final case class PageDeclaration(sources: Array[SourceInfo], override val pkg: PackageImpl, pages: Array[Page])
   extends BasicTypeDeclaration(pages.map(p => PathFactory(p.location.path)).distinct, pkg, TypeNames.Page)
     with DependentType with OtherTypeDeclaration {
 
@@ -61,12 +61,12 @@ final case class PageDeclaration(sources: Seq[SourceInfo], override val pkg: Pac
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash),0)
 
   override val isComplete: Boolean = !pkg.hasGhosted
-  override val fields: Seq[FieldDeclaration]= pages
+  override val fields: Array[FieldDeclaration]= pages.asInstanceOf[Array[FieldDeclaration]]
 
   /** Create new pages from merging those in the provided stream */
   def merge(stream: PackageStream): PageDeclaration = {
     val newPages = pages ++ stream.pages.map(pe => Page(pkg, pe.location, pe.name))
-    val sourceInfo = stream.pages.map(_.sourceInfo).distinct
+    val sourceInfo = stream.pages.map(_.sourceInfo).distinct.toArray
     new PageDeclaration(sourceInfo, pkg, newPages)
   }
 
@@ -77,11 +77,11 @@ final case class PageDeclaration(sources: Seq[SourceInfo], override val pkg: Pac
 
 object PageDeclaration {
   def apply(pkg: PackageImpl): PageDeclaration = {
-    new PageDeclaration(Seq(), pkg, collectBasePages(pkg))
+    new PageDeclaration(Array(), pkg, collectBasePages(pkg))
   }
 
-  private def collectBasePages(pkg: PackageImpl): Seq[Page] = {
-    pkg.transitiveBasePackages.toSeq.flatMap(basePkg => {
+  private def collectBasePages(pkg: PackageImpl): Array[Page] = {
+    pkg.transitiveBasePackages.toArray.flatMap(basePkg => {
       val ns = basePkg.namespace.get
       basePkg.pages.pages.map(page => {
         if (page.name.contains("__"))

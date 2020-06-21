@@ -89,3 +89,7 @@ abstract class PathLike {
   // Last modified timestamp
   def lastModified(): Option[Long]
 }
+
+object PathLike {
+  val emptyPaths: Array[PathLike] = Array()
+}

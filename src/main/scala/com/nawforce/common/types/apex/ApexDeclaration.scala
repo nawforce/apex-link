@@ -37,8 +37,6 @@ import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
 
-import scala.collection.mutable
-
 /** Apex block core features, be they full or summary style */
 trait ApexBlockLike extends BlockDeclaration {
   def summary(shapeOnly: Boolean): BlockSummary = serialise(shapeOnly)
@@ -65,11 +63,10 @@ trait ApexMethodLike extends ApexVisibleMethodLike {
   def nameRange: RangeLocationImpl
 
   // Populated by type MethodMap construction
-  private var shadows: Option[mutable.Set[MethodDeclaration]] = None
+  private var shadows: List[MethodDeclaration] = Nil
 
   def addShadow(method: MethodDeclaration): Unit = {
-    if (shadows.isEmpty) shadows = Some(mutable.Set())
-    shadows.get.add(method)
+    shadows = method :: shadows
   }
 
   def isEntry: Boolean = {
@@ -82,11 +79,11 @@ trait ApexMethodLike extends ApexVisibleMethodLike {
   /* Is the method in use, NOTE: requires a MethodMap is constructed for shadow support first! */
   def isUsed: Boolean = {
     isEntry || hasHolders ||
-      shadows.exists(_.exists({
+      shadows.exists({
         case am: ApexMethodLike => am.isUsed
         case _: MethodDeclaration => true
         case _ => false
-      }))
+      })
   }
 
   def summary(shapeOnly: Boolean): MethodSummary = {
@@ -134,8 +131,8 @@ trait ApexClassDeclaration extends ApexDeclaration {
   val sourceHash: Int
   val pkg: PackageImpl
   val nameLocation: LocationImpl
-  val localFields: Seq[ApexFieldLike]
-  val localMethods: Seq[MethodDeclaration]
+  val localFields: Array[ApexFieldLike]
+  val localMethods: Array[MethodDeclaration]
 
   /** Override to handle request to flush the type to passed cache if dirty */
   def flush(pc: ParsedCache, context: PackageContext): Unit
@@ -152,7 +149,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
     superClass.flatMap(sc => pkg.getTypeFor(sc, this))
   }
 
-  override def interfaceDeclarations: Seq[TypeDeclaration] = {
+  override def interfaceDeclarations: Array[TypeDeclaration] = {
     interfaces.flatMap(i => pkg.getTypeFor(i, this))
   }
 
@@ -160,32 +157,38 @@ trait ApexClassDeclaration extends ApexDeclaration {
     (superClassDeclaration.nonEmpty && superClassDeclaration.get.isComplete) || superClass.isEmpty
   }
 
-  override lazy val fields: Seq[FieldDeclaration] = {
-    val allFields = superClassDeclaration.map(_.fields).getOrElse(Seq()) ++ localFields.groupBy(f => f.name).collect {
-      case (_, y :: Nil) => y
-      case (_, duplicates) =>
-        duplicates.tail.foreach(d => {
-          OrgImpl.logError(d.nameRange, s"Duplicate field/property: '${d.name}'")
-        })
-        duplicates.head
-    }.toSeq
-    allFields.map(f => (f.name, f)).toMap.values.toSeq
+  override lazy val fields: Array[FieldDeclaration] = {
+    val uniqueLocalFields: Iterable[FieldDeclaration] = localFields.groupBy(f => f.name)
+      .collect {
+        case (_, single) if single.length == 1 => single.head
+        case (_, duplicates) =>
+          duplicates.tail.foreach {
+            case af: ApexFieldLike =>
+              OrgImpl.logError(af.nameRange, s"Duplicate field/property: '${af.name}'")
+            case _ => assert(false)
+          }
+          duplicates.head
+      }
+
+    val allFields: Array[FieldDeclaration] =
+      superClassDeclaration.map(_.fields).getOrElse(FieldDeclaration.emptyFieldDeclarations) ++ uniqueLocalFields
+    allFields.map(f => (f.name, f)).toMap.values.toArray
   }
 
-  lazy val staticMethods: Seq[MethodDeclaration] = {
+  lazy val staticMethods: Array[MethodDeclaration] = {
     localMethods.filter(_.isStatic) ++
       (superClassDeclaration match {
         case Some(td: ApexClassDeclaration) =>
           td.localMethods.filter(_.isStatic) ++ td.staticMethods
         case _ =>
-          Seq()
+          MethodDeclaration.emptyMethodDeclarations
       })
   }
 
-  lazy val outerStaticMethods: Seq[MethodDeclaration] = {
+  lazy val outerStaticMethods: Array[MethodDeclaration] = {
     outerTypeName.flatMap(ot => TypeResolver(ot, this, excludeSObjects = false).toOption) match {
       case Some(td: ApexClassDeclaration) => td.staticMethods
-      case _ => Seq()
+      case _ => MethodDeclaration.emptyMethodDeclarations
     }
   }
 
@@ -196,7 +199,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
         MethodMap(this, Some(nameLocation), at.methodMap, allMethods, interfaceDeclarations)
       case Some(td: TypeDeclaration) =>
         MethodMap(this, Some(nameLocation),
-          MethodMap(td, None, MethodMap.empty(), td.methods, Seq()),
+          MethodMap(td, None, MethodMap.empty(), td.methods, TypeDeclaration.emptyTypeDeclarations),
           allMethods, interfaceDeclarations)
       case _ =>
         MethodMap(this, Some(nameLocation), MethodMap.empty(), allMethods, interfaceDeclarations)
@@ -206,10 +209,10 @@ trait ApexClassDeclaration extends ApexDeclaration {
     methods
   }
 
-  override lazy val methods: Seq[MethodDeclaration] = methodMap.allMethods.toSeq
+  override lazy val methods: Array[MethodDeclaration] = methodMap.allMethods
 
-  override def findMethod(name: Name, params: Seq[TypeName], staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Seq[MethodDeclaration] = {
+  override def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
+                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
     methodMap.findMethod(name, params, staticContext, verifyContext)
   }
 

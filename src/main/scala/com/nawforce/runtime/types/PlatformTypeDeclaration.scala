@@ -54,7 +54,7 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
 
   val cls: java.lang.Class[_] = native.asInstanceOf[java.lang.Class[_]]
 
-  override lazy val paths: Seq[PathLike] = Seq.empty
+  override lazy val paths: Array[PathLike] = PathLike.emptyPaths
   override lazy val packageDeclaration: Option[PackageImpl] = None
 
   override lazy val name: Name = typeName.name
@@ -87,28 +87,28 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
     superClass.flatMap(sc => PlatformTypes.get(sc, None).toOption)
   }
 
-  override lazy val interfaces: Seq[TypeName] = getInterfaces
+  override lazy val interfaces: Array[TypeName] = getInterfaces
 
-  override lazy val interfaceDeclarations: Seq[TypeDeclaration] = {
+  override lazy val interfaceDeclarations: Array[TypeDeclaration] = {
     getInterfaces.flatMap(id => PlatformTypes.get(id, None).toOption)
   }
 
-  protected def getInterfaces: Seq[TypeName] = cls.getInterfaces.map(i => PlatformTypeDeclaration.typeNameFromClass(i, cls))
+  protected def getInterfaces: Array[TypeName] = cls.getInterfaces.map(i => PlatformTypeDeclaration.typeNameFromClass(i, cls))
 
   override lazy val modifiers: Array[Modifier] = PlatformModifiers.typeModifiers(cls.getModifiers, nature)
 
-  override lazy val constructors: Seq[PlatformConstructor] = {
+  override lazy val constructors: Array[ConstructorDeclaration] = {
     cls.getConstructors.map(c => new PlatformConstructor(c, this))
   }
 
-  override lazy val nestedTypes: Seq[PlatformTypeDeclaration] =
+  override lazy val nestedTypes: Array[TypeDeclaration] =
     cls.getClasses.map(nested => new PlatformTypeDeclaration(nested, Some(this)))
 
-  override lazy val blocks: Seq[BlockDeclaration] = Seq.empty
+  override lazy val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
 
-  override lazy val fields: Seq[FieldDeclaration] = getFields
+  override lazy val fields: Array[FieldDeclaration] = getFields.asInstanceOf[Array[FieldDeclaration]]
 
-  protected def getFields: Seq[PlatformField] = collectFields(cls).values.toSeq
+  protected def getFields: Array[PlatformField] = collectFields(cls).values.toArray
 
   private def collectFields(cls: Class[_],
                             accum: mutable.Map[Name, PlatformField] = mutable.Map()): mutable.Map[Name, PlatformField] = {
@@ -150,22 +150,21 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
     })
   }
 
-  override lazy val methods: Seq[MethodDeclaration] = {
-    val localMethods = getMethods
+  override lazy val methods: Array[MethodDeclaration] = {
     nature match {
       case ENUM_NATURE => PlatformTypeDeclaration.enumMethods
-      case _  => localMethods
+      case _  => getMethods.asInstanceOf[Array[MethodDeclaration]]
     }
   }
 
-  protected def getMethods: Seq[PlatformMethod] = {
+  protected def getMethods: Array[PlatformMethod] = {
     val localMethods = cls.getMethods.filter(
       _.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
     nature match {
       case ENUM_NATURE =>
         assert(localMethods.forall(m => m.getName == "values" || m.getName == "valueOf"),
           s"Enum $name has locally defined methods which are not supported in platform types")
-        Seq()
+        Array[PlatformMethod]()
       case _ =>
         localMethods.map(m => new PlatformMethod(m, this))
     }

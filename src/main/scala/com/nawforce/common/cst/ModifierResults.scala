@@ -28,7 +28,7 @@
 
 package com.nawforce.common.cst
 
-import java.lang.ref.SoftReference
+import java.lang.ref.WeakReference
 
 import com.nawforce.common.diagnostics.Issue
 
@@ -62,9 +62,13 @@ case class ModifierResults(modifiers: Array[Modifier], issues: Array[Issue]) {
 }
 
 object ModifierResults {
-  private val cache = mutable.WeakHashMap[ModifierResults, SoftReference[ModifierResults]]()
+  private var cache = mutable.WeakHashMap[ModifierResults, WeakReference[ModifierResults]]()
 
   def intern(modifierResults: ModifierResults): ModifierResults = {
-    cache.getOrElseUpdate(modifierResults, new SoftReference[ModifierResults](modifierResults)).get
+    cache.getOrElseUpdate(modifierResults, new WeakReference[ModifierResults](modifierResults)).get
+  }
+
+  def clearCache(): Unit = {
+    cache = new mutable.WeakHashMap[ModifierResults, WeakReference[ModifierResults]]()
   }
 }
