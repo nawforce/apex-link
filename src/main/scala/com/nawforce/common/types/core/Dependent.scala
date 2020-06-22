@@ -28,9 +28,9 @@
 package com.nawforce.common.types.core
 
 import com.nawforce.common.api.{DependentSummary, FieldDependentSummary, MethodDependentSummary, TypeDependentSummary}
+import com.nawforce.common.memory.SkinnyWeakSet
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.other._
-import com.nawforce.runtime.gc.SkinnyWeakSet
 
 /* Dependents are referencable elements in code such as types, fields, constructors, methods & labels.
  *

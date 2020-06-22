@@ -29,11 +29,9 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.api._
+import com.nawforce.common.memory.InternCache
 import com.nawforce.common.names.Names
 import com.nawforce.common.names.TypeNames._
-
-import scala.collection.mutable
-import java.lang.ref.WeakReference
 
 package object apex {
 
@@ -65,22 +63,12 @@ package object apex {
   /** Interning support for TypeIdentifier, used to reduce memory load from cached data. */
   implicit class TypeIdentifierOps(typeIdentifier: TypeIdentifier) {
     def intern: TypeIdentifier = {
-      TypeIdentifierOps.weakCache(
+      TypeIdentifierOps.intern(
         TypeIdentifier(typeIdentifier.namespace.map(n => Names(n.value)), typeIdentifier.typeName.intern)
       )
     }
   }
 
-  object TypeIdentifierOps {
-    private var cache = mutable.WeakHashMap[TypeIdentifier, WeakReference[TypeIdentifier]]()
-
-    def weakCache(typeName: TypeIdentifier): TypeIdentifier = {
-      cache.getOrElseUpdate(typeName, new WeakReference(typeName)).get
-    }
-
-    def clearCache(): Unit = {
-      cache = new mutable.WeakHashMap[TypeIdentifier, WeakReference[TypeIdentifier]]()
-    }
-  }
+  object TypeIdentifierOps extends InternCache[TypeIdentifier]
 
 }

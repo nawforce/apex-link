@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
+ Copyright (c) 2020 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -25,37 +25,29 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+package com.nawforce.common.memory
 
-package com.nawforce.common.cst
+import com.nawforce.runtime.os.Environment
 
-import com.nawforce.common.diagnostics.Issue
-import com.nawforce.common.memory.InternCache
+import scala.collection.mutable
 
-/** Results from modifier analysis.
-  *
-  * Modifiers are examined before the CST is constructed to make things a bit simpler. The results of the analysis
-  * are returned via this type. Interning is supported to reduce memory use.
-  **/
-case class ModifierResults(modifiers: Array[Modifier], issues: Array[Issue]) {
+/** For Caches that can be cleaned/reset as needed to recover memory. */
+trait CleanableCache {
+  Cleanable.register(this)
 
-  override val hashCode: Int = modifiers.toSeq.hashCode()
-
-  def intern: ModifierResults = ModifierResults.intern(this)
-
-  override def equals(that: Any): Boolean = {
-    that match {
-      case other: ModifierResults =>
-        other.canEqual(this) && doesEqual(other)
-      case _ => false
-    }
-  }
-
-  override def canEqual(that: Any): Boolean = that.isInstanceOf[ModifierResults]
-
-  private def doesEqual(other: ModifierResults): Boolean = {
-    this.modifiers.sameElements(other.modifiers) &&
-      this.issues.sameElements(other.issues)
-  }
+  def clean(): Unit
 }
 
-object ModifierResults extends InternCache[ModifierResults]
+/** Manager of cleanable caches. */
+object Cleanable {
+  private val cleanable = mutable.Set[IdentityBox[CleanableCache]]()
+
+  def register(cache: CleanableCache): Unit = {
+    cleanable.add(new IdentityBox(cache))
+  }
+
+  def clean(): Unit = {
+    cleanable.foreach(_.value.clean())
+    Environment.gc
+  }
+}

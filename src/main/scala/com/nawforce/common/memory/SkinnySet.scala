@@ -25,26 +25,23 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.gc
+package com.nawforce.common.memory
 
 import scala.collection.mutable
-import java.lang.ref.WeakReference
 
-/** Low memory weak reference set.
+/** Low memory set.
   *
-  * The natural representation for a WeakHasMap but the hashing can create a lot of memory overhead. To avoid this
-  * we use an ArrayBuffer for small sets and convert to a WeakHashMap as the WeakSet grows. For small sets contained
-  * in the array there is some overhead for accessing the values as the array is converted to a set.
+  * Uses a an array for small size before using a set.
   */
-class SkinnyWeakSet[T <: AnyRef] {
-  private var arrayOf = new mutable.ArrayBuffer[WeakReference[T]](4)
-  private var setOf: mutable.WeakHashMap[T, Boolean] = _
+class SkinnySet[T <: AnyRef] {
+  private var arrayOf = new mutable.ArrayBuffer[T](4)
+  private var setOf: mutable.Set[T] = _
 
   def isEmpty: Boolean = {
     if (setOf != null)
       setOf.isEmpty
     else
-      arrayOf.forall(_.get == null)
+      arrayOf.isEmpty
   }
 
   def nonEmpty: Boolean = !isEmpty
@@ -53,26 +50,33 @@ class SkinnyWeakSet[T <: AnyRef] {
     if (setOf != null)
       setOf.size
     else
-      arrayOf.count(_.get != null)
+      arrayOf.size
   }
 
   def add(t: T): Unit = {
     if (setOf != null)
-      setOf.put(t, true)
+      setOf.add(t)
     else
-      arrayOf.append(new WeakReference(t))
+      arrayOf.append(t)
 
     if (arrayOf != null && arrayOf.length>64) {
-      setOf = new mutable.WeakHashMap[T, Boolean]()
-      arrayOf.filter(_.get != null).foreach(wr => setOf.put(wr.get, true))
+      setOf = new mutable.HashSet[T]()
+      arrayOf.foreach(setOf.add)
       arrayOf = null
     }
   }
 
   def toSet: Set[T] = {
     if (setOf != null)
-      setOf.keys.toSet
+      setOf.toSet
     else
-      arrayOf.filter(_.get != null).map(_.get).toSet
+      arrayOf.toSet
+  }
+
+  def toIterable: mutable.Iterable[T] = {
+    if (setOf != null)
+      setOf
+    else
+      arrayOf.distinct
   }
 }

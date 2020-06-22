@@ -30,13 +30,13 @@ package com.nawforce.common.types.apex
 import com.nawforce.common.api._
 import com.nawforce.common.cst._
 import com.nawforce.common.documents._
+import com.nawforce.common.memory.Monitor
 import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.apex
 import com.nawforce.common.types.core._
 import com.nawforce.common.types.other.{Component, Interview, Label, Page}
-import com.nawforce.runtime.gc.Monitor
 import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 import upickle.default.writeBinary

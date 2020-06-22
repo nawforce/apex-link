@@ -29,8 +29,8 @@
 package com.nawforce.common.types.core
 
 import com.nawforce.common.finding.TypeResolver
+import com.nawforce.common.memory.SkinnySet
 import com.nawforce.common.org.PackageImpl
-import com.nawforce.runtime.gc.SkinnySet
 
 import scala.collection.mutable
 

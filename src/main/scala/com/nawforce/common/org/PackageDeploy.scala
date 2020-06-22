@@ -27,8 +27,6 @@
 */
 package com.nawforce.common.org
 
-import java.nio.charset.StandardCharsets
-
 import com.nawforce.common.api.{Name, ServerOps, TypeName}
 import com.nawforce.common.diagnostics.{Issue, LocalLogger, MISSING_CATEGORY}
 import com.nawforce.common.documents._
