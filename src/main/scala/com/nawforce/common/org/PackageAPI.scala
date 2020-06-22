@@ -31,6 +31,7 @@ import com.nawforce.common.api.{Package, ServerOps, TypeIdentifier, TypeName, Ty
 import com.nawforce.common.diagnostics.LocalLogger
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.stream._
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.apex._
@@ -55,6 +56,10 @@ trait PackageAPI extends Package {
 
   private[nawforce] def getTypeOfPathInternal(path: PathLike): Option[TypeId] = {
     MetadataDocument(path) match {
+      // Page handling is weird, they are modeled as static fields
+      case Some(pd: PageDocument) =>
+          val typeName = pd.typeName(namespace)
+          pages.fields.find(_.name == pd.name).map(_ => {TypeId(this, typeName)}).orElse(None)
       case Some(md: MetadataDocument) =>
         types.get(md.typeName(namespace)) match {
           case Some(td: TypeDeclaration) if td.paths.contains(path) => Some(TypeId(this, td.typeName))
