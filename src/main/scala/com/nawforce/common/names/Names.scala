@@ -28,14 +28,24 @@
 package com.nawforce.common.names
 
 import com.nawforce.common.api.Name
+import com.nawforce.common.memory.CleanableCache
 
 import scala.collection.mutable
 
-object Names {
-  private val nameCache = mutable.Map[String, Name]()
+/* Common names & Name interning support. */
+object Names extends CleanableCache {
+  private var nameCache = mutable.HashMap[String, Name]()
 
   def apply(name: String): Name = cache(name)
   def safeApply(name: String): Option[Name] = Option(name).filterNot(_.isEmpty).map(n => Name(n))
+
+  private def cache(value: String): Name = {
+    nameCache.getOrElseUpdate(value, {new Name(value)})
+  }
+
+  override def clean(): Unit = {
+    nameCache = new mutable.HashMap[String, Name]()
+  }
 
   lazy val Empty: Name = cache("")
   lazy val System: Name = cache("System")
@@ -136,8 +146,4 @@ object Names {
   lazy val ListName: Name = cache("List")
   lazy val SetName: Name = cache("Set")
   lazy val MapName: Name = cache("Map")
-
-  private def cache(value: String): Name = {
-    nameCache.getOrElseUpdate(value, {new Name(value)})
-  }
 }

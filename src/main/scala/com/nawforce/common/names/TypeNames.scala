@@ -1,17 +1,9 @@
 package com.nawforce.common.names
 
-import java.lang.ref.SoftReference
-
 import com.nawforce.common.api.{Name, TypeName}
-import upickle.default.{macroRW, ReadWriter => RW}
+import com.nawforce.common.memory.InternCache
 
-import scala.collection.mutable
-
-object TypeNames {
-  implicit val rw: RW[TypeName] = macroRW
-
-  //private var cache = mutable.WeakHashMap[TypeName, SoftReference[TypeName]]()
-  private var cache = mutable.HashMap[TypeName, TypeName]()
+object TypeNames extends InternCache[TypeName] {
 
   lazy val Void: TypeName = TypeName(Name("void")).intern
   lazy val Object: TypeName = TypeName(Name("Object")).intern
@@ -90,23 +82,8 @@ object TypeNames {
   implicit class TypeNameOps(typeName: TypeName) {
     def intern: TypeName = {
       TypeNames.intern(
-        TypeName(intern(typeName.name), typeName.params.map(_.intern), typeName.outer.map(_.intern))
+        TypeName(Names(typeName.name.value), typeName.params.map(_.intern), typeName.outer.map(_.intern))
       )
     }
-
-    private def intern(name: Name): Name = {
-      Names(name.value)
-    }
   }
-
-  def intern(typeName: TypeName): TypeName = {
-    //cache.getOrElseUpdate(typeName, new SoftReference(typeName)).get
-    cache.getOrElseUpdate(typeName, typeName)
-  }
-
-  def clearCache(): Unit = {
-    //cache = new mutable.WeakHashMap[TypeName, SoftReference[TypeName]]()
-    cache = new mutable.HashMap[TypeName, TypeName]()
-  }
-
 }

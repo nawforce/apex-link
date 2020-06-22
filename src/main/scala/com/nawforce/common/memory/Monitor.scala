@@ -1,4 +1,4 @@
-package com.nawforce.runtime.gc
+package com.nawforce.common.memory
 
 import com.nawforce.common.api.ServerOps
 import com.nawforce.common.types.core.TypeDeclaration

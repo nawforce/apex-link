@@ -25,58 +25,18 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.gc
+package com.nawforce.common.memory
 
-import scala.collection.mutable
+/* Value wrapper giving identity equality handling. */
+class IdentityBox[T <: AnyRef](var value: T) {
 
-/** Low memory set.
-  *
-  * Uses a an array for small size before using a set.
-  */
-class SkinnySet[T <: AnyRef] {
-  private var arrayOf = new mutable.ArrayBuffer[T](4)
-  private var setOf: mutable.Set[T] = _
+  override val hashCode: Int = value.hashCode
 
-  def isEmpty: Boolean = {
-    if (setOf != null)
-      setOf.isEmpty
-    else
-      arrayOf.isEmpty
-  }
-
-  def nonEmpty: Boolean = !isEmpty
-
-  def size: Int = {
-    if (setOf != null)
-      setOf.size
-    else
-      arrayOf.size
-  }
-
-  def add(t: T): Unit = {
-    if (setOf != null)
-      setOf.add(t)
-    else
-      arrayOf.append(t)
-
-    if (arrayOf != null && arrayOf.length>64) {
-      setOf = new mutable.HashSet[T]()
-      arrayOf.foreach(setOf.add)
-      arrayOf = null
+  override def equals(that: Any): Boolean = {
+    that match {
+      case other: IdentityBox[T] => other.value eq this.value
+      case _ => false
     }
   }
 
-  def toSet: Set[T] = {
-    if (setOf != null)
-      setOf.toSet
-    else
-      arrayOf.toSet
-  }
-
-  def toIterable: mutable.Iterable[T] = {
-    if (setOf != null)
-      setOf
-    else
-      arrayOf.distinct
-  }
 }
