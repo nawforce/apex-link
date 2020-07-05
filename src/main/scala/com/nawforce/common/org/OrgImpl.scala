@@ -32,11 +32,12 @@ import java.util
 import com.nawforce.common.api.{IssueOptions, Name, Org, Package, PathLocation, ServerOps}
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, IssueLog}
 import com.nawforce.common.documents._
-import com.nawforce.common.memory.{Cleanable, Monitor}
+import com.nawforce.common.memory.{Cleanable, IdentityBox, Monitor}
 import com.nawforce.common.names.{DotName, Names, _}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.sfdx.{MDAPIWorkspace, Project, SFDXWorkspace, Workspace}
 
+import scala.collection.mutable.ArrayBuffer
 import scala.util.DynamicVariable
 
 /** Org abstraction, a simulation of the metadata installed on an org. Use the 'current' dynamic variable to access
@@ -67,6 +68,21 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
       packagesByNamespace = Map(None -> pkg)
       pkg
     }
+  }
+
+  /**
+    * Packages in bottom-up ordering.
+    */
+  private def orderedPackages: Seq[PackageImpl] = {
+    val ordered = new ArrayBuffer[PackageImpl]()
+    var unassigned = packagesByNamespace.values.map(new IdentityBox(_)).toList
+
+    while (unassigned.nonEmpty) {
+      val available = unassigned.filter(_.value.basePackages.forall(ordered.contains))
+      available.foreach(b => ordered.append(b.value))
+      unassigned = unassigned.filterNot(available.contains)
+    }
+    ordered
   }
 
   /** Current package list for Org */
@@ -164,7 +180,7 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
       OrgImpl.current.withValue(this) {
         ParsedCache.create match {
           case Left(err) => ServerOps.error(err)
-          case Right(pc) => packagesByNamespace.values.foreach(_.flush(pc))
+          case Right(pc) => orderedPackages.foreach(_.flush(pc))
         }
       }
     }

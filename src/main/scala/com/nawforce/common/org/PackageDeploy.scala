@@ -187,15 +187,6 @@ trait PackageDeploy {
     }
   }
 
-  /** Flush all types to the passed cache */
-  def flush(pc: ParsedCache): Unit = {
-    val context = packageContext
-    types.values.foreach({
-      case ad: ApexClassDeclaration => ad.flush(pc, context)
-      case _ => ()
-    })
-  }
-
   /** Check all summary types have propagated their dependencies */
   def propagateAllDependencies(): Unit = {
     types.values.foreach({
