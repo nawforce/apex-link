@@ -31,7 +31,6 @@ import com.nawforce.common.api.{Package, ServerOps, TypeIdentifier, TypeName, Ty
 import com.nawforce.common.diagnostics.LocalLogger
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
-import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.stream._
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.apex._
@@ -45,6 +44,10 @@ import scala.collection.mutable
 
 trait PackageAPI extends Package {
   this: PackageImpl =>
+
+  private var lastRefresh: Long = _
+  private val refreshGaps = mutable.Queue[Long]()
+  private var batched: mutable.Queue[RefreshRequest] = _
 
   override def getNamespace: String = {
     namespace.map(_.value).getOrElse("")
@@ -72,7 +75,7 @@ trait PackageAPI extends Package {
   override def getPathsOfType(typeId: TypeIdentifier): Array[String] = {
     if (typeId != null && typeId.namespace == namespace) {
       types.get(typeId.typeName)
-        .map(td => td.paths.map(_.toString).toArray)
+        .map(td => td.paths.map(_.toString))
         .getOrElse(Array())
     } else {
       Array()
@@ -99,7 +102,7 @@ trait PackageAPI extends Package {
                 case dt: ApexClassDeclaration => Some(dt.outerTypeId.asTypeIdentifier)
                 case _ => None
               })
-            }).toArray[TypeIdentifier]
+            })
           } else {
             val dependencies = mutable.Set[TypeId]()
             ad.collectDependenciesByTypeName(dependencies)
@@ -123,15 +126,45 @@ trait PackageAPI extends Package {
   }
 
   override def refresh(path: String, contents: SourceBlob): String = {
-    refresh(PathFactory(path), Option(contents))
+    refreshOrBatch(PathFactory(path), Option(contents))
+  }
+
+  private[nawforce] def refreshOrBatch(path: PathLike, contents: Option[SourceBlob]): String = {
+    try {
+      // Do we need to enable batching
+      if (batched == null && lastRefresh != 0) {
+        refreshGaps.enqueue(lastRefresh -  System.currentTimeMillis())
+        if (refreshGaps.size > 3) refreshGaps.dequeue
+        if (refreshGaps.sum < 1000) {
+          batched = new mutable.Queue[RefreshRequest]()
+        }
+      }
+
+      // If batching store for later or deal with immediately
+      if (batched != null) {
+        batched.enqueue(RefreshRequest(path, contents))
+        null
+      } else {
+        refresh(path, contents)
+      }
+    } catch {
+      case ex: IllegalArgumentException => ex.getMessage
+    } finally {
+      lastRefresh = System.currentTimeMillis()
+    }
+  }
+
+  private[nawforce] def enableBatching(): Unit = {
+    if (batched == null)
+      batched = new mutable.Queue[RefreshRequest]()
   }
 
   private[nawforce] def refresh(path: PathLike, contents: Option[SourceBlob]): String = {
     try {
       OrgImpl.current.withValue(org) {
         refreshInternal(path, contents)
-        null
       }
+      null
     } catch {
       case ex: IllegalArgumentException => ex.getMessage
     }
@@ -360,5 +393,25 @@ trait PackageAPI extends Package {
     org.packagesByNamespace.values
       .flatMap(p => p.getTypeOfPathInternal(path))
       .headOption
+  }
+
+  /** Flush all types to the passed cache */
+  def flush(pc: ParsedCache): Unit = {
+    flushBatched()
+    val context = packageContext
+    types.values.foreach({
+      case ad: ApexClassDeclaration => ad.flush(pc, context)
+      case _ => ()
+    })
+  }
+
+  def flushBatched(): Unit = {
+    if (batched == null)
+      return
+
+    val requests = new mutable.HashMap[PathLike, RefreshRequest]()
+    batched.foreach(r => requests.put(r.path, r))
+    requests.foreach(r => refresh(r._1, r._2.source))
+    batched = null
   }
 }
