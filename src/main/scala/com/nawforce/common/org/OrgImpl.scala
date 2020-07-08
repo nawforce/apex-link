@@ -174,18 +174,20 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
   }
 
   /** Write dirty metadata to the cache */
-  def flush(): Unit = {
-    val postMessage = if (Monitor.size > 0) s", ${Monitor.size} full types" else ""
-    ServerOps.debugTime("Org flushed", show = true, postMessage) {
-      OrgImpl.current.withValue(this) {
-        ParsedCache.create match {
-          case Left(err) => ServerOps.error(err)
-          case Right(pc) => orderedPackages.foreach(_.flush(pc))
-        }
+  def flush(): Boolean = {
+    OrgImpl.current.withValue(this) {
+      val postMessage = if (Monitor.size > 0) s", ${Monitor.size} full types" else ""
+      val flushed = ServerOps.debugTime("Org flushed", show = true, postMessage) {
+          ParsedCache.create match {
+            case Left(err) => ServerOps.error(err); false
+            case Right(pc) => orderedPackages.exists(_.flush(pc))
+          }
+
       }
+      Monitor.reportDuplicateTypes
+      Cleanable.clean()
+      flushed
     }
-    Monitor.reportDuplicateTypes
-    Cleanable.clean()
   }
 
   /** Collect all issues into a JSON log */
