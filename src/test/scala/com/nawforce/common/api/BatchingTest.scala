@@ -49,7 +49,7 @@ class BatchingTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       pkg.refreshOrBatch(root.join("Dummy.cls"), None)
-      org.flush()
+      assert(org.flush())
       assert(!org.issues.hasMessages)
     }
   }
@@ -66,7 +66,7 @@ class BatchingTest extends AnyFunSuite with BeforeAndAfter {
       assert(pkg.refreshOrBatch(root.join("Dummy.cls"), Some(SourceBlob("public class Dummy {"))) == null)
       assert(!org.issues.hasMessages)
 
-      org.flush()
+      assert(org.flush())
       assert(org.issues.getMessages("/Dummy.cls")
         .startsWith("Error: line 1: mismatched input '<EOF>' expecting {"))
     }

@@ -133,18 +133,20 @@ trait PackageAPI extends Package {
     try {
       // Do we need to enable batching
       if (batched == null && lastRefresh != 0) {
-        refreshGaps.enqueue(lastRefresh -  System.currentTimeMillis())
+        refreshGaps.enqueue(System.currentTimeMillis() - lastRefresh)
         if (refreshGaps.size > 3) refreshGaps.dequeue
-        if (refreshGaps.sum < 1000) {
+        if (refreshGaps.size == 3 && refreshGaps.sum < 1000) {
           batched = new mutable.Queue[RefreshRequest]()
         }
       }
 
       // If batching store for later or deal with immediately
       if (batched != null) {
+        ServerOps.debug(ServerOps.Trace, s"Deferring refresh of $path")
         batched.enqueue(RefreshRequest(path, contents))
         null
       } else {
+        ServerOps.debug(ServerOps.Trace, s"Refreshing $path")
         refresh(path, contents)
       }
     } catch {
@@ -176,7 +178,7 @@ trait PackageAPI extends Package {
     val sourceOpt = resolveSource(path, contents)
 
     // If we have source & it's not changed then ignore
-    if (sourceOpt.exists(s => getFullDeclaration(dt).exists(_.sourceHash == s.hash)))
+    if (sourceOpt.exists(s => getFullDeclaration(dt).exists(fd => fd.path == path && fd.sourceHash == s.hash)))
       return
 
     // Update internal document tracking
@@ -396,22 +398,33 @@ trait PackageAPI extends Package {
   }
 
   /** Flush all types to the passed cache */
-  def flush(pc: ParsedCache): Unit = {
-    flushBatched()
+  def flush(pc: ParsedCache): Boolean = {
+    val flushed = flushBatched()
     val context = packageContext
     types.values.foreach({
       case ad: ApexClassDeclaration => ad.flush(pc, context)
       case _ => ()
     })
+    flushed
   }
 
-  def flushBatched(): Unit = {
+  def flushBatched(): Boolean = {
     if (batched == null)
-      return
+      return false
 
     val requests = new mutable.HashMap[PathLike, RefreshRequest]()
     batched.foreach(r => requests.put(r.path, r))
-    requests.foreach(r => refresh(r._1, r._2.source))
+
+    val removed = requests.groupBy(r => r._2.source.isEmpty && !r._1.exists)
+    removed.getOrElse(true, Seq()).foreach(r => {
+      ServerOps.debug(ServerOps.Trace, s"Removing ${r._1}")
+      refresh(r._1, r._2.source)
+    })
+    removed.getOrElse(false, Seq()).foreach(r => {
+      ServerOps.debug(ServerOps.Trace, s"Refreshing ${r._1}")
+      refresh(r._1, r._2.source)
+    })
     batched = null
+    true
   }
 }

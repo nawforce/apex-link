@@ -71,9 +71,10 @@ trait Org {
 
   /** Force syncing of org metadata with cache.
     *
-    * This should be called periodically to ensure the cache is kept upto date after metadata changes.
+    * This should be called periodically to ensure the cache is kept upto date after metadata changes. If it returns
+    * true then getIssues should be called to retrieved the latest set of issues.
     */
-  def flush(): Unit
+  def flush(): Boolean
 
   /** Get current issue log.
     *
