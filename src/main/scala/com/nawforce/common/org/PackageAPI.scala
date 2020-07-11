@@ -164,7 +164,8 @@ trait PackageAPI extends Package {
   private[nawforce] def refresh(path: PathLike, contents: Option[SourceBlob]): String = {
     try {
       OrgImpl.current.withValue(org) {
-        refreshInternal(path, contents)
+        val references = refreshInternal(path, contents)
+        reValidate(references._2 ++ getTypesWithMissingIssues)
       }
       null
     } catch {
@@ -172,14 +173,15 @@ trait PackageAPI extends Package {
     }
   }
 
-  private def refreshInternal(path: PathLike, contents: Option[SourceBlob], invalidateReferences: Boolean=true): Unit = {
+  private def refreshInternal(path: PathLike, contents: Option[SourceBlob]): (TypeId, Set[TypeId]) = {
     checkPathInPackageOrThrow(path)
     val dt = getUpdateableDocumentTypeOrThrow(path)
     val sourceOpt = resolveSource(path, contents)
+    val typeId = TypeId(this, dt.typeName(namespace))
 
     // If we have source & it's not changed then ignore
     if (sourceOpt.exists(s => getFullDeclaration(dt).exists(fd => fd.path == path && fd.sourceHash == s.hash)))
-      return
+      return (typeId, Set.empty)
 
     // Update internal document tracking
     if (sourceOpt.isEmpty) {
@@ -203,32 +205,34 @@ trait PackageAPI extends Package {
     replaceType(typeName, newType)
     newType.foreach(_.validate())
 
-    // Re-validate references to detect errors and release existing refs
-    // TODO: This is not handling inheritance correctly, needs multi-level handling
-    if (invalidateReferences) {
-      val references = holders.toSet ++ getTypesWithMissingIssues
-      if (references.nonEmpty) {
-        // Check for a shape change
-        val sameShape = (existingType, newType) match {
-          case (Some(ed: FullDeclaration), Some(nd: FullDeclaration)) =>
-            ed.summary(shapeOnly = true) == nd.summary(shapeOnly = true)
-          case _ =>
-            false
-        }
+    // If has references and shape has changed, return refs for invalidation handling
+    val references = holders.toSet ++ getTypesWithMissingIssues
+    if (references.nonEmpty) {
+      // Check for a shape change
+      val sameShape = (existingType, newType) match {
+        case (Some(ed: FullDeclaration), Some(nd: FullDeclaration)) =>
+          ed.summary(shapeOnly = true) == nd.summary(shapeOnly = true)
+        case _ =>
+          false
+      }
 
-        if (!sameShape) {
-          references.foreach(typeId => {
-            typeId.pkg.packageType(typeId.typeName).foreach {
-              case ref: SummaryDeclaration =>
-                refreshInternal(ref.path, None, invalidateReferences = false)
-              case ref =>
-                ref.paths.foreach(p => org.issues.pop(p.toString))
-                ref.validate()
-            }
-          })
-        }
+      if (!sameShape) {
+        return (typeId, references)
       }
     }
+    (typeId, Set.empty)
+  }
+
+  private def reValidate(references: Set[TypeId]): Unit = {
+    references.foreach(typeId => {
+      typeId.pkg.packageType(typeId.typeName).foreach {
+        case ref: SummaryDeclaration =>
+          refreshInternal(ref.path, None)
+        case ref =>
+          ref.paths.foreach(p => org.issues.pop(p.toString))
+          ref.validate()
+      }
+    })
   }
 
   override def getViewOfType(path: String, contents: SourceBlob): ViewInfo = {
@@ -415,15 +419,38 @@ trait PackageAPI extends Package {
     val requests = new mutable.HashMap[PathLike, RefreshRequest]()
     batched.foreach(r => requests.put(r.path, r))
 
-    val removed = requests.groupBy(r => r._2.source.isEmpty && !r._1.exists)
-    removed.getOrElse(true, Seq()).foreach(r => {
+    val splitRequests = requests.groupBy(r => r._2.source.isEmpty && !r._1.exists)
+
+    // Do removals first to avoid duplicate type issues if source is being moved
+    val references = mutable.Set[TypeId]()
+    val removed = mutable.Set[TypeId]()
+    splitRequests.getOrElse(true, Seq()).foreach(r => {
       ServerOps.debug(ServerOps.Trace, s"Removing ${r._1}")
-      refresh(r._1, r._2.source)
+      try {
+        val refreshResult = refreshInternal(r._1, r._2.source)
+        removed += refreshResult._1
+        references ++= refreshResult._2
+      } catch {
+        case ex: IllegalArgumentException => ServerOps.debug(ServerOps.Trace, ex.getMessage)
+      }
     })
-    removed.getOrElse(false, Seq()).foreach(r => {
+    removed.foreach(references.remove)
+
+    // Then additions or modifications
+    splitRequests.getOrElse(false, Seq()).foreach(r => {
       ServerOps.debug(ServerOps.Trace, s"Refreshing ${r._1}")
-      refresh(r._1, r._2.source)
+      try {
+        val refreshResult = refreshInternal(r._1, r._2.source)
+        references ++= refreshResult._2
+        references.remove(refreshResult._1)
+      } catch {
+        case ex: IllegalArgumentException => ServerOps.debug(ServerOps.Trace, ex.getMessage)
+      }
     })
+
+    // Finally batched invalidation
+    reValidate(references.toSet)
+
     batched = null
     true
   }
