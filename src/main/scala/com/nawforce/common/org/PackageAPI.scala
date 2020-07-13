@@ -183,12 +183,13 @@ trait PackageAPI extends Package {
     if (sourceOpt.exists(s => getFullDeclaration(dt).exists(fd => fd.path == path && fd.sourceHash == s.hash)))
       return (typeId, Set.empty)
 
+    // No duplicate types, no exceptions
+    if (!documents.checkUpsertableAndIndex(dt))
+      throw new IllegalArgumentException(s"Metadata would create duplicate type, ignoring '$path'")
+
     // Update internal document tracking
     if (sourceOpt.isEmpty) {
       documents.remove(dt)
-    } else {
-      if (!documents.checkUpsertableAndIndex(dt))
-        throw new IllegalArgumentException(s"Metadata would create duplicate type, ignoring '$path'")
     }
 
     // Clear errors as might fail to create type
@@ -419,7 +420,9 @@ trait PackageAPI extends Package {
     val requests = new mutable.HashMap[PathLike, RefreshRequest]()
     batched.foreach(r => requests.put(r.path, r))
 
-    val splitRequests = requests.groupBy(r => r._2.source.isEmpty && !r._1.exists)
+    val splitRequests = requests
+      .filter(r => workspace.isVisibleFile(r._1))
+      .groupBy(r => r._2.source.isEmpty && !r._1.exists)
 
     // Do removals first to avoid duplicate type issues if source is being moved
     val references = mutable.Set[TypeId]()
