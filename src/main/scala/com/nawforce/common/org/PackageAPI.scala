@@ -132,12 +132,13 @@ trait PackageAPI extends Package {
   private[nawforce] def refreshOrBatch(path: PathLike, contents: Option[SourceBlob]): String = {
     try {
       // Do we need to enable batching
+      val missing = getTypesWithMissingIssues
       if (batched == null && lastRefresh != 0) {
         refreshGaps.enqueue(System.currentTimeMillis() - lastRefresh)
         if (refreshGaps.size > 3) refreshGaps.dequeue
-        if (refreshGaps.size == 3 && refreshGaps.sum < 1000) {
-          batched = new mutable.Queue[RefreshRequest]()
-        }
+      }
+      if (missing.size > 100 || (refreshGaps.size == 3 && refreshGaps.sum < 1000)) {
+          enableBatching()
       }
 
       // If batching store for later or deal with immediately
@@ -147,7 +148,7 @@ trait PackageAPI extends Package {
         null
       } else {
         ServerOps.debug(ServerOps.Trace, s"Refreshing $path")
-        refresh(path, contents)
+        refresh(path, contents, missing)
       }
     } catch {
       case ex: IllegalArgumentException => ex.getMessage
@@ -161,11 +162,11 @@ trait PackageAPI extends Package {
       batched = new mutable.Queue[RefreshRequest]()
   }
 
-  private[nawforce] def refresh(path: PathLike, contents: Option[SourceBlob]): String = {
+  private[nawforce] def refresh(path: PathLike, contents: Option[SourceBlob], missing: Seq[TypeId]=Seq()): String = {
     try {
       OrgImpl.current.withValue(org) {
         val references = refreshInternal(path, contents)
-        reValidate(references._2 ++ getTypesWithMissingIssues)
+        reValidate(references._2 ++ missing)
       }
       null
     } catch {
@@ -207,7 +208,7 @@ trait PackageAPI extends Package {
     newType.foreach(_.validate())
 
     // If has references and shape has changed, return refs for invalidation handling
-    val references = holders.toSet ++ getTypesWithMissingIssues
+    val references = holders.toSet
     if (references.nonEmpty) {
       // Check for a shape change
       val sameShape = (existingType, newType) match {
@@ -425,7 +426,7 @@ trait PackageAPI extends Package {
       .groupBy(r => r._2.source.isEmpty && !r._1.exists)
 
     // Do removals first to avoid duplicate type issues if source is being moved
-    val references = mutable.Set[TypeId]()
+    val references = mutable.Set[TypeId](getTypesWithMissingIssues: _*)
     val removed = mutable.Set[TypeId]()
     splitRequests.getOrElse(true, Seq()).foreach(r => {
       ServerOps.debug(ServerOps.Trace, s"Removing ${r._1}")

@@ -158,11 +158,6 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
       throw new IllegalArgumentException("An \"unmanaged\" package using an empty namespace already exists")
     }
 
-    workspace.paths.foreach(path => {
-      if (!path.isDirectory)
-        throw new IllegalArgumentException(s"Package root '${path.toString}' must be a directory")
-    })
-
     OrgImpl.current.withValue(this) {
       val pkg = new PackageImpl(this, workspace, basePackages)
       if (pkg.namespace.isEmpty) {
