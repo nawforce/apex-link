@@ -118,7 +118,7 @@ class DocumentIndex(namespace: Option[Name], paths: Seq[PathLike], logger: Issue
   }
 
   private def index(): Unit = {
-    paths.reverse.foreach(p => indexPath(p, forceIgnore))
+    paths.reverse.filter(_.isDirectory).foreach(p => indexPath(p, forceIgnore))
     createGhostSObjectFiles(Name("field"), forceIgnore)
     createGhostSObjectFiles(Name("fieldSet"), forceIgnore)
   }

@@ -105,7 +105,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       assert(org.issues.getMessages("/pkg/Foo.cls")
         == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
 
-      assert(pkg.refresh(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {public class Inner {}}"))) == null)
+      assert(pkg.refreshOrBatch(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {public class Inner {}}"))) == null)
       assert(!org.issues.hasMessages)
     }
   }
@@ -211,7 +211,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       assert(org.issues.getMessages("/pkg/Foo.trigger")
         == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n")
 
-      pkg.refresh(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {public class Inner {}}")))
+      pkg.refreshOrBatch(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {public class Inner {}}")))
       assert(!org.issues.hasMessages)
     }
   }
