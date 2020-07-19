@@ -60,7 +60,7 @@ $ npm install -g apexlink
 $ sfdx COMMAND
 running command...
 $ sfdx (-v|--version|version)
-apexlink/0.9.3 darwin-x64 node-v12.16.2
+apexlink/0.9.4 darwin-x64 node-v12.16.2
 $ sfdx --help [COMMAND]
 USAGE
   $ sfdx COMMAND

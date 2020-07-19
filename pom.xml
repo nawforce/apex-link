@@ -4,7 +4,7 @@
 
     <groupId>com.github.nawforce</groupId>
     <artifactId>apexlink</artifactId>
-    <version>0.9.4-SNAPSHOT</version>
+    <version>0.9.4</version>
     <packaging>jar</packaging>
 
     <name>apexlink</name>
