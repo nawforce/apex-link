@@ -374,4 +374,15 @@ class BugTest extends AnyFunSuite {
       assert(!pkg.reportUnused().hasMessages)
     }
   }
+
+  test("Interface missing formal argument") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public interface Dummy {void foo(bar a);}"
+    )) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      addPackage(org, root).asInstanceOf[PackageImpl]
+      assert(org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 33-38: No type declaration found for 'bar'\n")
+    }
+  }
+
 }

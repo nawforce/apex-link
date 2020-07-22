@@ -169,11 +169,9 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId, _modifiers: 
 
     formalParameters.foreach(_.verify(context))
 
-    block.foreach(blk => {
-      val blockContext = new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))
-      formalParameters.foreach(param => param.addVar(blockContext))
-      blk.verify(blockContext)
-    })
+    val blockContext = new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))
+    formalParameters.foreach(param => param.addVar(blockContext))
+    block.foreach(_.verify(blockContext))
 
     setDepends(context.dependencies)
     context.propagateDependencies()
