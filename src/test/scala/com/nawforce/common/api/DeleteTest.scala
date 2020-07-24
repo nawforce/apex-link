@@ -45,7 +45,8 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
 
       path.delete()
-      assert(pkg.refresh(path, None) == null)
+      pkg.refresh(path, None)
+      assert(org.flush())
 
       assert(pkg.getTypeOfPath(path.toString) == null)
       assert(!org.issues.hasMessages)
@@ -63,7 +64,9 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
 
       val path = root.join("pkg/Bar.cls")
       path.delete()
-      assert(pkg.refresh(path, None) == null)
+      pkg.refresh(path, None)
+      assert(org.flush())
+
       assert(org.issues.getMessages("/pkg/Foo.cls")
         == "Missing: line 1 at 22-23: No type declaration found for 'Bar'\n")
     }
@@ -78,7 +81,8 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
 
       val path = root.join("pkg/Foo.trigger")
       path.delete()
-      assert(pkg.refresh(path, None) == null)
+      pkg.refresh(path, None)
+      assert(org.flush())
 
       val fooTypeId = pkg.getTypeOfPath(root.join("pkg/Foo.trigger").toString)
       assert(pkg.getPathsOfType(fooTypeId).isEmpty)
@@ -97,7 +101,8 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
 
       val path = root.join("pkg/Bar.cls")
       path.delete()
-      assert(pkg.refresh(path, None) == null)
+      pkg.refresh(path, None)
+      assert(org.flush())
       assert(org.issues.getMessages("/pkg/Foo.trigger")
         == "Missing: line 1 at 44-45: No type declaration found for 'Bar'\n")
     }
@@ -121,7 +126,8 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
 
       val path = root.join("CustomLabels.labels")
       path.delete()
-      assert(pkg.refresh(path, None) == null)
+      pkg.refresh(path, None)
+      assert(org.flush())
 
       val labels = pkg.packageType(TypeNames.Label).get
       assert(labels.fields.isEmpty)
@@ -155,10 +161,11 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
 
       val path = root.join("CustomLabels.labels")
       path.delete()
-      assert(pkg.refresh(path, None) == null)
+      pkg.refresh(path, None)
+      assert(org.flush())
 
       val labels = pkg.packageType(TypeNames.Label).get
-      assert(labels.fields.size == 1)
+      assert(labels.fields.length == 1)
       assert(labels.fields.exists(_.name.value == "TestLabel2"))
     }
   }
@@ -173,7 +180,8 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
 
       val path = root.join("Test.flow-meta.xml")
       path.delete()
-      assert(pkg.refresh(path, None) == null)
+      pkg.refresh(path, None)
+      assert(org.flush())
       assert(pkg.interviews.nestedTypes.isEmpty)
     }
   }
@@ -189,7 +197,8 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
 
       val path = root.join("Test.flow-meta.xml")
       path.delete()
-      assert(pkg.refresh(path, None) == null)
+      pkg.refresh(path, None)
+      assert(org.flush())
       assert(pkg.interviews.nestedTypes.map(_.name).toSet == Set(Name("Test2")))
     }
   }
@@ -204,7 +213,8 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
 
       val path = root.join("TestPage.page")
       path.delete()
-      assert(pkg.refresh(path, None) == null)
+      pkg.refresh(path, None)
+      assert(org.flush())
       assert(pkg.pages.fields.isEmpty)
     }
   }
@@ -220,7 +230,8 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
 
       val path = root.join("Test.page")
       path.delete()
-      assert(pkg.refresh(path, None) == null)
+      pkg.refresh(path, None)
+      assert(org.flush())
       assert(pkg.pages.fields.map(_.name).toSet == Set(Name("Test2")))
     }
   }
@@ -235,7 +246,8 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
 
       val path = root.join("Test.component")
       path.delete()
-      assert(pkg.refresh(path, None) == null)
+      pkg.refresh(path, None)
+      assert(org.flush())
       assert(pkg.components.nestedTypes.map(_.name).toSet == Set(Names.c, Names.Apex, Names.Chatter))
     }
   }
@@ -251,7 +263,8 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
 
       val path = root.join("Test.component")
       path.delete()
-      assert(pkg.refresh(path, None) == null)
+      pkg.refresh(path, None)
+      assert(org.flush())
       assert(pkg.components.nestedTypes.map(_.name).toSet == Set(Name("Test2"), Names.c, Names.Apex, Names.Chatter))
     }
   }

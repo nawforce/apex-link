@@ -42,7 +42,8 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      assert(pkg.refresh(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {}"))) == null)
+      pkg.refresh(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {}")))
+      assert(org.flush())
       assert(!org.issues.hasMessages)
     }
   }
@@ -52,7 +53,8 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      assert(pkg.refresh(root.join("pkg").join("Foo.cls"), Some(SourceBlob("public class Foo {}"))) == null)
+      pkg.refresh(root.join("pkg").join("Foo.cls"), Some(SourceBlob("public class Foo {}")))
+      assert(org.flush())
       assert(!org.issues.hasMessages)
       assert(pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.cls")) != null)
     }
@@ -64,7 +66,8 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      assert(pkg.refresh(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Object a;}"))) == null)
+      pkg.refresh(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Object a;}")))
+      assert(org.flush())
       assert(!org.issues.hasMessages)
     }
   }
@@ -75,7 +78,8 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      assert(pkg.refresh(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {/* A change */}"))) == null)
+      pkg.refresh(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {/* A change */}")))
+      assert(org.flush())
       assert(!org.issues.hasMessages)
     }
   }
@@ -89,7 +93,8 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      assert(pkg.refresh(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {}"))) == null)
+      pkg.refresh(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {}")))
+      assert(org.flush())
       assert(org.issues.getMessages("/pkg/Foo.cls")
         == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
     }
@@ -105,7 +110,8 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       assert(org.issues.getMessages("/pkg/Foo.cls")
         == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
 
-      assert(pkg.refreshOrBatch(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {public class Inner {}}"))) == null)
+      pkg.refresh(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {public class Inner {}}")))
+      assert(org.flush())
       assert(!org.issues.hasMessages)
     }
   }
@@ -118,6 +124,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       pkg.refresh(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Bar b;}")))
+      assert(org.flush())
       assert(!org.issues.hasMessages)
 
       val fooTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.cls")).get.asTypeIdentifier
@@ -140,6 +147,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       val pkg1 = org.addMDAPITestPackage(Some(Name("p1")), Seq(root.join("pkg1")), Seq())
       val pkg2 = org.addMDAPITestPackage(Some(Name("p2")), Seq(root.join("pkg2")), Seq(pkg1))
       pkg2.refresh(root.join("pkg2/Foo.cls"), Some(SourceBlob("public class Foo {p1.Bar b;}")))
+      assert(org.flush())
       assert(!org.issues.hasMessages)
 
       val barTypeId = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls")).get.asTypeIdentifier
@@ -160,6 +168,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       pkg.refresh(root.join("pkg/Foo.trigger"), Some(SourceBlob("trigger Foo on Account (before insert) {}")))
+      assert(org.flush())
       assert(!org.issues.hasMessages)
     }
   }
@@ -170,6 +179,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       pkg.refresh(root.join("pkg/Foo.trigger"), Some(SourceBlob("trigger Foo on Account (before insert) {}")))
+      assert(org.flush())
       assert(!org.issues.hasMessages)
       assert(pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.trigger")) != null)
     }
@@ -182,6 +192,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       pkg.refresh(root.join("pkg/Foo.trigger"), Some(SourceBlob("trigger Foo on Account (before insert) {Object a;}")))
+      assert(org.flush())
       assert(!org.issues.hasMessages)
     }
   }
@@ -196,6 +207,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {}")))
+      assert(org.flush())
       assert(org.issues.getMessages("/pkg/Foo.trigger")
         == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n")
     }
@@ -211,7 +223,8 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       assert(org.issues.getMessages("/pkg/Foo.trigger")
         == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n")
 
-      pkg.refreshOrBatch(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {public class Inner {}}")))
+      pkg.refresh(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {public class Inner {}}")))
+      assert(org.flush())
       assert(!org.issues.hasMessages)
     }
   }
@@ -224,6 +237,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
       pkg.refresh(root.join("pkg/Foo.trigger"), Some(SourceBlob("trigger Foo on Account (before insert) {Bar b;}")))
+      assert(org.flush())
 
       val fooTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.trigger")).get.asTypeIdentifier
       val barTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
@@ -246,6 +260,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       val pkg2 = org.addMDAPITestPackage(Some(Name("p2")), Seq(root.join("pkg2")), Seq(pkg1))
       pkg2.refresh(root.join("pkg2/Foo.trigger"),
         Some(SourceBlob("trigger Foo on Account (before insert) {p1.Bar b;}")))
+      assert(org.flush())
 
       val fooTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Foo.trigger")).get.asTypeIdentifier
       val barTypeId = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls")).get.asTypeIdentifier
@@ -268,6 +283,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
 
       pkg.refresh(root.join("CustomLabels.labels"), Some(SourceBlob(
         "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")))
+      assert(org.flush())
       assert(!org.issues.hasMessages)
     }
   }
@@ -281,6 +297,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
 
       pkg.refresh(root.join("CustomLabels.labels"), Some(SourceBlob(
         "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")))
+      assert(org.flush())
       assert(!org.issues.hasMessages)
     }
   }
@@ -311,8 +328,9 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
           |</CustomLabels>
           |""".stripMargin,
       )))
+      assert(org.flush())
       val labels = pkg.packageType(TypeNames.Label).get
-      assert(labels.fields.size == 1)
+      assert(labels.fields.length == 1)
       assert(labels.fields.exists(_.name.value == "TestLabel2"))
     }
   }
@@ -343,8 +361,9 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
           |</CustomLabels>
           |""".stripMargin,
       )))
+      org.flush()
       val labels = pkg.packageType(TypeNames.Label).get
-      assert(labels.fields.size == 2)
+      assert(labels.fields.length == 2)
       assert(labels.fields.exists(_.name.value == "TestLabel"))
       assert(labels.fields.exists(_.name.value == "TestLabel2"))
     }
@@ -359,6 +378,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("Test.flow-meta.xml"), Some(SourceBlob("")))
+      assert(org.flush())
       assert(pkg.interviews.findNestedType(Name("Test")).nonEmpty)
       assert(!org.issues.hasMessages)
     }
@@ -372,6 +392,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("Test.flow-meta.xml"), Some(SourceBlob("")))
+      assert(org.flush())
       assert(pkg.interviews.findNestedType(Name("Test")).nonEmpty)
       assert(!org.issues.hasMessages)
     }
@@ -386,6 +407,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("Test.flow-meta.xml"), Some(SourceBlob("Changed")))
+      assert(org.flush())
       assert(pkg.interviews.findNestedType(Name("Test")).nonEmpty)
     }
   }
@@ -399,6 +421,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("Test2.flow-meta.xml"), Some(SourceBlob("")))
+      assert(org.flush())
       assert(pkg.interviews.nestedTypes.map(_.name).toSet == Set(Name("Test"), Name("Test2")))
     }
   }
@@ -412,6 +435,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("TestPage.page"), Some(SourceBlob("")))
+      assert(org.flush())
       assert(pkg.pages.findField(Name("TestPage"), Some(true)).nonEmpty)
     }
   }
@@ -424,6 +448,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("TestPage.page"), Some(SourceBlob("")))
+      assert(org.flush())
       assert(pkg.pages.findField(Name("TestPage"), Some(true)).nonEmpty)
     }
   }
@@ -437,6 +462,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("TestPage.page"), Some(SourceBlob("Changed")))
+      assert(org.flush())
       assert(pkg.pages.findField(Name("TestPage"), Some(true)).nonEmpty)
     }
   }
@@ -450,6 +476,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("TestPage2.page"), Some(SourceBlob("")))
+      assert(org.flush())
       assert(pkg.pages.fields.map(_.name).toSet == Set(Name("TestPage"), Name("TestPage2")))
     }
   }
@@ -463,6 +490,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("Test.component"), Some(SourceBlob("")))
+      assert(org.flush())
       assert(pkg.components.findNestedType(Name("Test")).nonEmpty)
     }
   }
@@ -475,6 +503,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("Test.component"), Some(SourceBlob("")))
+      assert(org.flush())
       assert(pkg.components.findNestedType(Name("Test")).nonEmpty)
     }
   }
@@ -488,6 +517,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("Test.component"), Some(SourceBlob("Changed")))
+      assert(org.flush())
       assert(pkg.components.findNestedType(Name("Test")).nonEmpty)
     }
   }
@@ -501,6 +531,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("Test2.component"), Some(SourceBlob("")))
+      assert(org.flush())
       assert(pkg.components.nestedTypes.map(_.name).toSet ==
         Set(Name("Test"), Name("Test2"), Names.c, Names.Apex, Names.Chatter))
     }

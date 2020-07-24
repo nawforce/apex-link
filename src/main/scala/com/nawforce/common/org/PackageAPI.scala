@@ -45,9 +45,7 @@ import scala.collection.mutable
 trait PackageAPI extends Package {
   this: PackageImpl =>
 
-  private var lastRefresh: Long = _
-  private val refreshGaps = mutable.Queue[Long]()
-  private var batched: mutable.Queue[RefreshRequest] = _
+  private var refreshQueue: mutable.Queue[RefreshRequest] = new mutable.Queue[RefreshRequest]()
 
   override def getNamespace: String = {
     namespace.map(_.value).getOrElse("")
@@ -125,53 +123,12 @@ trait PackageAPI extends Package {
     }
   }
 
-  override def refresh(path: String, contents: SourceBlob): String = {
-    refreshOrBatch(PathFactory(path), Option(contents))
+  override def refresh(path: String, contents: SourceBlob): Unit = {
+    refresh(PathFactory(path), Option(contents))
   }
 
-  private[nawforce] def refreshOrBatch(path: PathLike, contents: Option[SourceBlob]): String = {
-    try {
-      // Do we need to enable batching
-      val missing = getTypesWithMissingIssues
-      if (batched == null && lastRefresh != 0) {
-        refreshGaps.enqueue(System.currentTimeMillis() - lastRefresh)
-        if (refreshGaps.size > 3) refreshGaps.dequeue
-      }
-      if (missing.size > 100 || (refreshGaps.size == 3 && refreshGaps.sum < 1000)) {
-          enableBatching()
-      }
-
-      // If batching store for later or deal with immediately
-      if (batched != null) {
-        ServerOps.debug(ServerOps.Trace, s"Deferring refresh of $path")
-        batched.enqueue(RefreshRequest(path, contents))
-        null
-      } else {
-        ServerOps.debug(ServerOps.Trace, s"Refreshing $path")
-        refresh(path, contents, missing)
-      }
-    } catch {
-      case ex: IllegalArgumentException => ex.getMessage
-    } finally {
-      lastRefresh = System.currentTimeMillis()
-    }
-  }
-
-  private[nawforce] def enableBatching(): Unit = {
-    if (batched == null)
-      batched = new mutable.Queue[RefreshRequest]()
-  }
-
-  private[nawforce] def refresh(path: PathLike, contents: Option[SourceBlob], missing: Seq[TypeId]=Seq()): String = {
-    try {
-      OrgImpl.current.withValue(org) {
-        val references = refreshInternal(path, contents)
-        reValidate(references._2 ++ missing)
-      }
-      null
-    } catch {
-      case ex: IllegalArgumentException => ex.getMessage
-    }
+  private[nawforce] def refresh(path: PathLike, contents: Option[SourceBlob]): Unit = {
+    refreshQueue.enqueue(RefreshRequest(path, contents))
   }
 
   private def refreshInternal(path: PathLike, contents: Option[SourceBlob]): (TypeId, Set[TypeId]) = {
@@ -185,7 +142,7 @@ trait PackageAPI extends Package {
       return (typeId, Set.empty)
 
     // No duplicate types, no exceptions
-    if (!documents.checkUpsertableAndIndex(dt))
+    if (!documents.canUpsert(dt))
       throw new IllegalArgumentException(s"Metadata would create duplicate type, ignoring '$path'")
 
     // Update internal document tracking
@@ -415,11 +372,9 @@ trait PackageAPI extends Package {
   }
 
   def flushBatched(): Boolean = {
-    if (batched == null)
-      return false
-
     val requests = new mutable.HashMap[PathLike, RefreshRequest]()
-    batched.foreach(r => requests.put(r.path, r))
+    refreshQueue.foreach(r => requests.put(r.path, r))
+    refreshQueue.clear()
 
     val splitRequests = requests
       .filter(r => workspace.isVisibleFile(r._1))
@@ -454,8 +409,6 @@ trait PackageAPI extends Package {
 
     // Finally batched invalidation
     reValidate(references.toSet)
-
-    batched = null
     true
   }
 }

@@ -45,10 +45,9 @@ class BatchingTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      pkg.enableBatching()
       assert(!org.issues.hasMessages)
 
-      pkg.refreshOrBatch(root.join("Dummy.cls"), None)
+      pkg.refresh(root.join("Dummy.cls"), None)
       assert(org.flush())
       assert(!org.issues.hasMessages)
     }
@@ -60,10 +59,9 @@ class BatchingTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
-      pkg.enableBatching()
       assert(!org.issues.hasMessages)
 
-      assert(pkg.refreshOrBatch(root.join("Dummy.cls"), Some(SourceBlob("public class Dummy {"))) == null)
+      pkg.refresh(root.join("Dummy.cls"), Some(SourceBlob("public class Dummy {")))
       assert(!org.issues.hasMessages)
 
       assert(org.flush())

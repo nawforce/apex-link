@@ -94,19 +94,18 @@ trait Package {
 
   /** Refresh a type in the package.
     *
-    * This replaces, creates or deletes a type in the package from the supplied metadata. It returns null if successful
-    * or an error message related to the refresh process. Errors found with the metadata contents are reported in the
-    * usual way via the Org.getIssues.
+    * This registers that the metadata in a file may need updating. The refresh is queued until the next Org.flush
+    * is called so that changes are made in batches for efficiency.
     *
     * Refreshing causes dependent metadata to be re-validated so issues may be reported against other metadata types
-    * after the refresh has completed.
+    * after the flush has completed.
     *
     * You can either pass in a path and contents or a path and null contents. If contents are not provided they will
     * be read from the path if possible. Where contents are provided the path is only used for error identification
-    * purposes. If no contents are provided and there is no file to read the contexts from the contribution of
+    * purposes. If no contents are provided and there is no file to read the content from the contribution of
     * this metadata to a type will be removed.
     */
-  def refresh(path: String, contents: SourceBlob): String
+  def refresh(path: String, contents: SourceBlob): Unit
 
   /** Obtain view information for a Type.
     *

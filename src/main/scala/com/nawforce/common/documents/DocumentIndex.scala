@@ -75,7 +75,7 @@ class DocumentIndex(namespace: Option[Name], paths: Seq[PathLike], logger: Issue
   }
 
   /** Check if we can upsert a metadata document without causing a duplicate violation */
-  def checkUpsertableAndIndex(metadata: MetadataDocument): Boolean = {
+  def canUpsert(metadata: MetadataDocument): Boolean = {
     // Duplicates always good
     if (metadata.duplicatesAllowed) {
       addDocument(metadata)
@@ -95,10 +95,12 @@ class DocumentIndex(namespace: Option[Name], paths: Seq[PathLike], logger: Issue
 
     // Existing with same path OK
     val existing = documents.get(metadata.extension).flatMap(_.get(typeName)).getOrElse(Nil)
-    if (existing.nonEmpty && existing.contains(metadata)) {
+    if (existing.isEmpty || existing.contains(metadata)) {
       return true
     }
 
+    logger.log(Issue(ERROR_CATEGORY, LineLocationImpl(metadata.path.toString, 0),
+      s"File creates duplicate type '$typeName' as '${existing.head.path}', ignoring"))
     false
   }
 

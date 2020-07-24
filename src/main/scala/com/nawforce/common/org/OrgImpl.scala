@@ -175,9 +175,8 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
       val flushed = ServerOps.debugTime("Org flushed", show = true, postMessage) {
           ParsedCache.create match {
             case Left(err) => ServerOps.error(err); false
-            case Right(pc) => orderedPackages.exists(_.flush(pc))
+            case Right(pc) => orderedPackages.map(_.flush(pc)).foldLeft(false) {_ || _}
           }
-
       }
       Monitor.reportDuplicateTypes
       Cleanable.clean()
