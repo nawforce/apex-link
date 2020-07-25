@@ -32,7 +32,6 @@ import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
-import com.nawforce.common.names._
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
@@ -139,11 +138,6 @@ trait ApexClassDeclaration extends ApexDeclaration {
 
   /** Override to handle request to propagate all dependencies in type */
   def propagateAllDependencies(): Unit
-
-  override lazy val typeName: TypeName = {
-    outerTypeName.map(outer => TypeName(name).withOuter(Some(outer)))
-      .getOrElse(TypeName(name, Nil, pkg.namespace.map(TypeName(_))))
-  }
 
   override def superClassDeclaration: Option[TypeDeclaration] = {
     superClass.flatMap(sc => pkg.getTypeFor(sc, this))

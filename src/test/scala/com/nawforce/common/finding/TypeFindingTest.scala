@@ -28,9 +28,10 @@
 package com.nawforce.common.finding
 
 import com.nawforce.common.api.{Name, Org, TypeName}
+import com.nawforce.common.documents.ApexClassDocument
 import com.nawforce.common.names.{DotName, Names, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
-import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types.apex.FullDeclaration
 import com.nawforce.common.types.core.TypeDeclaration
 import com.nawforce.runtime.parsers.SourceData
@@ -39,7 +40,7 @@ import org.scalatest.funsuite.AnyFunSuite
 class TypeFindingTest extends AnyFunSuite {
 
   private val defaultOrg: OrgImpl = new OrgImpl
-  private val defaultPath: PathLike = PathFactory("Dummy.cls")
+  private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
   private val unmanaged: PackageImpl = defaultOrg.unmanaged
 
   private def getType(namespace: String, dotName: String, org: OrgImpl = defaultOrg): TypeDeclaration = {
@@ -72,7 +73,7 @@ class TypeFindingTest extends AnyFunSuite {
   test("Custom Outer type") {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(org) {
-      val td = FullDeclaration.create(org.unmanaged, defaultPath,
+      val td = FullDeclaration.create(org.unmanaged, defaultDoc,
         SourceData("public class Dummy {}")).head
       org.unmanaged.upsertMetadata(td)
       assert(org.unmanaged.getType(TypeName(Name("Dummy")), None).toOption.get.typeName == td.typeName)
@@ -82,7 +83,7 @@ class TypeFindingTest extends AnyFunSuite {
   test("Custom Outer type (Wrong Case)") {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(org) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath,
+      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultDoc,
         SourceData("public class Dummy {}")).head
       org.unmanaged.upsertMetadata(td)
       assert(org.unmanaged.getType(TypeName(Name("dummy")), None).toOption.get.typeName == td.typeName)
@@ -92,7 +93,7 @@ class TypeFindingTest extends AnyFunSuite {
   test("Custom Inner type") {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(org) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath,
+      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultDoc,
         SourceData("public class Dummy {class Inner {}}")).head
       org.unmanaged.upsertMetadata(td)
       val innerTypeName = TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"))))
@@ -103,7 +104,7 @@ class TypeFindingTest extends AnyFunSuite {
   test("Custom Inner type (Wrong case)") {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(org) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath,
+      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultDoc,
         SourceData("public class Dummy {class Inner {}}")).head
       org.unmanaged.upsertMetadata(td)
       val innerTypeName = TypeName(Name("iNner"), Nil, Some(TypeName(Name("Dummy"))))
@@ -115,7 +116,7 @@ class TypeFindingTest extends AnyFunSuite {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
     val pkg = org.newMDAPIPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
     OrgImpl.current.withValue(org) {
-      val td = FullDeclaration.create(pkg, defaultPath,
+      val td = FullDeclaration.create(pkg, defaultDoc,
         SourceData("global class Dummy {}")).head
       pkg.upsertMetadata(td)
       assert(org.unmanaged.getType(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("NS")))), None)
@@ -128,7 +129,7 @@ class TypeFindingTest extends AnyFunSuite {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
     val pkg = org.newMDAPIPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
     OrgImpl.current.withValue(org) {
-      val td = FullDeclaration.create(pkg, defaultPath,
+      val td = FullDeclaration.create(pkg, defaultDoc,
         SourceData("public class Dummy {}")).head
       pkg.upsertMetadata(td)
       assert(getType("", "NS.Dummy", org) == null)
@@ -142,7 +143,7 @@ class TypeFindingTest extends AnyFunSuite {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
     val pkg = org.newMDAPIPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
     OrgImpl.current.withValue(org) {
-      val td = FullDeclaration.create(pkg, defaultPath,
+      val td = FullDeclaration.create(pkg, defaultDoc,
         SourceData("global class Dummy {class Inner {}}")).head
       pkg.upsertMetadata(td)
       val innerTypeName = TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("NS"))))))
@@ -155,7 +156,7 @@ class TypeFindingTest extends AnyFunSuite {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
     val pkg = org.newMDAPIPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
     OrgImpl.current.withValue(org) {
-      val td = FullDeclaration.create(pkg, defaultPath,
+      val td = FullDeclaration.create(pkg, defaultDoc,
         SourceData("public class Dummy {class Inner {}}")).head
       pkg.upsertMetadata(td)
 

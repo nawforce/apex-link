@@ -27,6 +27,8 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.api.Name
+import com.nawforce.common.documents.ApexClassDocument
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types.apex.FullDeclaration
@@ -38,11 +40,12 @@ import org.scalatest.funsuite.AnyFunSuite
 class ArrayTest extends AnyFunSuite with BeforeAndAfter {
 
   private val defaultPath = PathFactory("Dummy.cls")
+  private val defaultDoc = ApexClassDocument(defaultPath, Name("Dummy"))
   private var defaultOrg: OrgImpl = new OrgImpl
 
   def typeDeclaration(clsText: String): TypeDeclaration = {
     OrgImpl.current.withValue(defaultOrg) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, SourceData(clsText)).head
+      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultDoc, SourceData(clsText)).head
       defaultOrg.unmanaged.upsertMetadata(td)
       td.validate()
       td

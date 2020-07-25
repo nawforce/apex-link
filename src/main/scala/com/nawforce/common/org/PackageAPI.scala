@@ -265,7 +265,7 @@ trait PackageAPI extends Package {
       val updated = documents.flatMap(doc => {
         val data = doc.path.readSourceData()
         val d = ServerOps.debugTime(s"Parsed ${doc.path}") {
-          FullDeclaration.create(this, doc.path, data.right.get).toSeq
+          FullDeclaration.create(this, doc, data.right.get).toSeq
         }
         d.foreach(upsertMetadata(_))
         d
@@ -298,8 +298,8 @@ trait PackageAPI extends Package {
 
   private def createType(dt: UpdatableMetadata, source: Option[SourceData]): Option[DependentType] = {
     dt match {
-      case _: ApexClassDocument =>
-        source.flatMap(s => FullDeclaration.create(this, dt.path, s))
+      case ad: ApexClassDocument =>
+        source.flatMap(s => FullDeclaration.create(this, ad, s))
       case _: ApexTriggerDocument =>
         source.flatMap(s => TriggerDeclaration.create(this, dt.path, s))
       case _ =>

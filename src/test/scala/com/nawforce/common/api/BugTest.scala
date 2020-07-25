@@ -134,8 +134,8 @@ class BugTest extends AnyFunSuite {
 
   test("Static method of super class of outer") {
     FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy extends SuperClass {class Inner {public void ifunc(){ func(); } }}",
-      "Super.cls" -> "public virtual class SuperClass {public static void func() {}}"
+      "Dummy.cls" -> "public class Dummy extends SuperClass {class Inner {public void func(){ func(); } }}",
+      "SuperClass.cls" -> "public virtual class SuperClass {public static void func() {}}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       addPackage(org, root)
@@ -377,11 +377,11 @@ class BugTest extends AnyFunSuite {
 
   test("Interface missing formal argument") {
     FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public interface Dummy {void foo(bar a);}"
+      "Dummy.cls" -> "public interface Dummy {void foo(Bar a);}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       addPackage(org, root).asInstanceOf[PackageImpl]
-      assert(org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 33-38: No type declaration found for 'bar'\n")
+      assert(org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 33-38: No type declaration found for 'Bar'\n")
     }
   }
 

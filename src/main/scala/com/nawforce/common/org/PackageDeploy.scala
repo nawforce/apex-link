@@ -96,7 +96,7 @@ trait PackageDeploy {
 
   private def loadClasses(documents: DocumentIndex): Unit = {
     val pcOpt = getParsedCache
-    val docs = documents.getByExtensionIterable(Name("cls"))
+    val docs = documents.getByExtensionIterable(Name("cls")).collect{case ad: ApexClassDocument => ad}
 
     ServerOps.debugTime(s"Loaded summary classes", docs.nonEmpty) {
 
@@ -136,7 +136,7 @@ trait PackageDeploy {
         .flatMap(doc => {
           val data = doc.path.readSourceData()
           val tdOpt = ServerOps.debugTime(s"Parsed ${doc.path}") {
-            FullDeclaration.create(this, doc.path, data.right.get)
+            FullDeclaration.create(this, doc, data.right.get)
           }
           tdOpt.map(td => {
             upsertMetadata(td)

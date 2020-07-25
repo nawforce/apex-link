@@ -28,6 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.api._
+import com.nawforce.common.documents.ApexClassDocument
 import com.nawforce.common.names.{DotName, TypeNames}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathFactory
@@ -38,6 +39,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   private val defaultPath = PathFactory("Dummy.cls")
+  private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
   private var defaultOrg: OrgImpl = new OrgImpl
   private val dummyTypeName = DotName("Dummy").asTypeName()
   private val dummyTypeId = TypeIdentifier.fromJava(null, dummyTypeName)
@@ -47,7 +49,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
 
   def classSummary(text: String, hasMessages: Boolean = false): TypeSummary = {
     OrgImpl.current.withValue(defaultOrg) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultPath, SourceData(text))
+      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultDoc, SourceData(text))
       td.foreach(defaultOrg.unmanaged.upsertMetadata(_))
       td.foreach(_.validate())
       if (td.isEmpty || defaultOrg.issues.hasMessages != hasMessages)

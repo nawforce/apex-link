@@ -92,11 +92,11 @@ object ClassBodyDeclaration {
           ApexModifiers.constructorModifiers(parser, modifiers, x),
           x))))
       .orElse(CodeParser.toScala(memberDeclarationContext.interfaceDeclaration())
-        .map(x => Seq(InterfaceDeclaration.construct(parser, pkg, Some(outerTypeName),
+        .map(x => Seq(InterfaceDeclaration.constructInner(parser, pkg, outerTypeName,
           ApexModifiers.interfaceModifiers(parser, modifiers, outer = false, x.id()),
           x))))
       .orElse(CodeParser.toScala(memberDeclarationContext.enumDeclaration())
-        .map(x => Seq(EnumDeclaration.construct(parser, pkg, Some(outerTypeName),
+        .map(x => Seq(EnumDeclaration.constructInner(parser, pkg, outerTypeName,
           ApexModifiers.enumModifiers(parser, modifiers, outer = false, x.id()),
           x))))
       .orElse(CodeParser.toScala(memberDeclarationContext.propertyDeclaration())
@@ -104,7 +104,7 @@ object ClassBodyDeclaration {
           ApexModifiers.fieldModifiers(parser, modifiers, x.id()),
           x))))
       .orElse(CodeParser.toScala(memberDeclarationContext.classDeclaration())
-        .map(x => Seq(ClassDeclaration.construct(parser, pkg, Some(outerTypeName),
+        .map(x => Seq(ClassDeclaration.constructInner(parser, pkg, outerTypeName,
           ApexModifiers.classModifiers(parser, modifiers, outer = false, x.id()),
           x))))
 

@@ -44,8 +44,8 @@ import upickle.default.writeBinary
 import scala.collection.mutable
 
 /* Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
-abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val outerTypeName: Option[TypeName],
-                               val id: Id, _modifiers: ModifierResults,
+abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, override val typeName: TypeName,
+                               override val outerTypeName: Option[TypeName], val id: Id, _modifiers: ModifierResults,
                                val superClass: Option[TypeName], val interfaces: Array[TypeName],
                                val bodyDeclarations: Array[ClassBodyDeclaration])
   extends ClassBodyDeclaration(_modifiers) with ApexClassDeclaration with ApexFullDeclaration {
@@ -54,9 +54,9 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   override val path: PathLike = source.path
   override val paths: Array[PathLike] = Array(path)
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
+  override val name: Name = typeName.name
 
   override val nameLocation: LocationImpl = id.location
-  override val name: Name = id.name
   override val nature: Nature
   var flushedToCache = false
 
@@ -129,6 +129,11 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
   }
 
   protected def verify(context: TypeVerifyContext): Unit = {
+    // Check for name/path mismatch on outer types
+    if (outerTypeName.isEmpty && !path.basename.equalsIgnoreCase(s"${id.name}.${MetadataDocument.clsExt}")) {
+      context.logError(id.location, s"Type name '${id.name}' does not match file name '${path.basename}'")
+    }
+
     // Check super class is visible
     superClassDeclaration.foreach(context.addDependency)
     if (superClass.nonEmpty) {
@@ -212,37 +217,36 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, val out
 }
 
 object FullDeclaration {
-  def create(pkg: PackageImpl, path: PathLike, data: SourceData): Option[FullDeclaration] = {
-    val parser = CodeParser(path, data)
+  def create(pkg: PackageImpl, doc: ApexClassDocument, data: SourceData): Option[FullDeclaration] = {
+    val parser = CodeParser(doc.path, data)
     parser.parseClass() match {
       case Left(err) =>
-        OrgImpl.logError(LineLocationImpl(path.toString, err.line), err.message)
+        OrgImpl.logError(LineLocationImpl(doc.path.toString, err.line), err.message)
         None
       case Right(cu) =>
-        Some(CompilationUnit.construct(parser, pkg, cu).typeDeclaration)
+        Some(CompilationUnit.construct(parser, pkg, doc.name, cu).typeDeclaration)
     }
   }
 
-  def construct(parser: CodeParser, pkg: PackageImpl,
-                outerTypeName: Option[TypeName], typeDecl: TypeDeclarationContext)
+  def construct(parser: CodeParser, pkg: PackageImpl, name: Name, typeDecl: TypeDeclarationContext)
       : FullDeclaration = {
 
     val modifiers: Seq[ModifierContext] = CodeParser.toScala(typeDecl.modifier())
-    val isOuter = outerTypeName.isEmpty
+    val thisType = TypeName(name).withNamespace(pkg.namespace)
 
     val cst = CodeParser.toScala(typeDecl.classDeclaration())
-      .map(cd => ClassDeclaration.construct(parser, pkg, outerTypeName,
-        ApexModifiers.classModifiers(parser, modifiers, outer = isOuter, cd.id()),
+      .map(cd => ClassDeclaration.construct(parser, pkg, thisType, None,
+        ApexModifiers.classModifiers(parser, modifiers, outer = true, cd.id()),
         cd)
       )
     .orElse(CodeParser.toScala(typeDecl.interfaceDeclaration())
-      .map(id => InterfaceDeclaration.construct(parser, pkg, outerTypeName,
-        ApexModifiers.interfaceModifiers(parser, modifiers, outer = isOuter, id.id()),
+      .map(id => InterfaceDeclaration.construct(parser, pkg, thisType, None,
+        ApexModifiers.interfaceModifiers(parser, modifiers, outer = true, id.id()),
         id)
       ))
     .orElse(CodeParser.toScala(typeDecl.enumDeclaration())
-      .map(ed => EnumDeclaration.construct(parser, pkg, outerTypeName,
-        ApexModifiers.enumModifiers(parser, modifiers, outer = isOuter, ed.id()),
+      .map(ed => EnumDeclaration.construct(parser, pkg, thisType, None,
+        ApexModifiers.enumModifiers(parser, modifiers, outer = true, ed.id()),
         ed)
       ))
 
