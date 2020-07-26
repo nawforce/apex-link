@@ -74,8 +74,8 @@ class DocumentIndex(namespace: Option[Name], paths: Seq[PathLike], logger: Issue
     ).map(_.head)
   }
 
-  /** Check if we can upsert a metadata document without causing a duplicate violation */
-  def canUpsert(metadata: MetadataDocument): Boolean = {
+  /** Upsert a metadata document with duplicate detection */
+  def upsert(metadata: MetadataDocument): Boolean = {
     // Duplicates always good
     if (metadata.duplicatesAllowed) {
       addDocument(metadata)
@@ -93,14 +93,21 @@ class DocumentIndex(namespace: Option[Name], paths: Seq[PathLike], logger: Issue
       return true
     }
 
-    // Existing with same path OK
-    val existing = documents.get(metadata.extension).flatMap(_.get(typeName)).getOrElse(Nil)
-    if (existing.isEmpty || existing.contains(metadata)) {
+    // Existing with same path OK, but beware some files may have been deleted without notification
+    val knownDocs = documents.get(metadata.extension)
+      .flatMap(_.get(typeName)).getOrElse(Nil)
+    val docs = knownDocs.filter(_.path.exists)
+    if (docs.size != knownDocs.size)
+      documents(metadata.extension).put(typeName, docs)
+
+    if (docs.isEmpty || docs.contains(metadata)) {
       return true
     }
 
-    logger.log(Issue(ERROR_CATEGORY, LineLocationImpl(metadata.path.toString, 0),
-      s"File creates duplicate type '$typeName' as '${existing.head.path}', ignoring"))
+    docs.foreach(doc => {
+      logger.log(Issue(ERROR_CATEGORY, LineLocationImpl(doc.path.toString, 0),
+        s"Duplicate type '$typeName' found in '${metadata.path}', ignoring this file"))
+    })
     false
   }
 

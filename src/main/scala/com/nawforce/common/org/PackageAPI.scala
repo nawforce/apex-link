@@ -141,14 +141,10 @@ trait PackageAPI extends Package {
     if (sourceOpt.exists(s => getFullDeclaration(dt).exists(fd => fd.path == path && fd.sourceHash == s.hash)))
       return (typeId, Set.empty)
 
-    // No duplicate types, no exceptions
-    if (!documents.canUpsert(dt))
-      throw new IllegalArgumentException(s"Metadata would create duplicate type, ignoring '$path'")
-
     // Update internal document tracking
-    if (sourceOpt.isEmpty) {
+    documents.upsert(dt)
+    if (sourceOpt.isEmpty)
       documents.remove(dt)
-    }
 
     // Clear errors as might fail to create type
     org.issues.pop(dt.path.toString)
