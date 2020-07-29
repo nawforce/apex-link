@@ -48,7 +48,7 @@ import scala.collection.mutable
 class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[PackageImpl])
   extends PackageDeploy with PackageAPI with TypeFinder {
 
-  val namespace: Option[Name] = workspace.namespace.getOrElse(None)
+  val namespace: Option[Name] = workspace.namespace
 
   var labels: LabelDeclaration = LabelDeclaration(this)
   var pages: PageDeclaration = PageDeclaration(this)
@@ -108,7 +108,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
 
   /* Set of namespaces used by this package and its base packages */
   lazy val namespaces: Set[Name] = {
-    workspace.namespace.getOrElse(None).toSet ++
+    workspace.namespace.toSet ++
       basePackages.flatMap(_.namespaces) ++
       PlatformTypeDeclaration.namespaces
   }

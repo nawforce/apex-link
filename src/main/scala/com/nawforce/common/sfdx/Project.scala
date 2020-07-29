@@ -30,41 +30,51 @@ package com.nawforce.common.sfdx
 import com.nawforce.common.api.Name
 import com.nawforce.common.names._
 import com.nawforce.common.path.PathLike
-import ujson.{Arr, Value}
+import ujson.Value
 
-class Project(config: Value.Value) {
-  lazy val packageDirectories: Seq[Value.Value] =
+class ProjectError(message: String) extends Throwable(message)
+
+class Project(projectPath: PathLike, config: Value.Value) {
+  val packageDirectories: Seq[PackageDirectory] =
     try {
-      config("packageDirectories").asInstanceOf[Arr].value
+      config("packageDirectories") match {
+        case ujson.Arr(value) => value.map(pd => new PackageDirectory(projectPath, pd))
+        case _ => throw new ProjectError("'packageDirectories' should be an array")
+      }
     } catch {
-      case _: Throwable => Arr().value
+      case _: NoSuchElementException => throw new ProjectError("'packageDirectories' is required")
     }
 
-  lazy val paths: Seq[Either[String, String]] = {
-    packageDirectories.map(dir => {
-      try {
-        Right(dir("path").str)
-      } catch {
-        case err: Throwable =>
-          Left(s"Expecting all 'path' properties to be strings in packageDirectories, error: $err")
-      }
-    })
-  }
-
-  lazy val namespace: Either[String, Option[Name]] =
+  val namespace: Option[Name] =
     try {
-      val ns = Name(config("namespace").str)
-      if (ns.isEmpty) Right(None)
+      val ns = config("namespace") match {
+        case ujson.Str(value) => Name(value)
+        case _ => throw new ProjectError("'namespace' should be a string")
+      }
+      if (ns.isEmpty)
+        None
       else {
         ns.isLegalIdentifier match {
-          case None => Right(Some(ns))
-          case Some(error) => Left(s"Package namespace '$ns' in sfdx-project.json is not valid, $error")
+          case None => Some(ns)
+          case Some(error) => throw new ProjectError(s"namespace '$ns' is not valid, $error")
         }
       }
     } catch {
-      case _: NoSuchElementException => Right(None)
-      case ex: Throwable => Left(s"Failed to read namespace from sfdx-project.json, error: ${ex.toString}")
+      case _: NoSuchElementException => None
     }
+
+  val plugins: Map[String, Value.Value] =
+    try {
+      config("plugins") match {
+        case ujson.Obj(value) => value.toMap
+        case _ => throw new ProjectError("'plugins' should be an object")
+      }
+    } catch {
+      case _: NoSuchElementException => Map()
+    }
+
+  val projectOptions: Option[ProjectOptions] =
+    plugins.get("apexlink").map(v => new ProjectOptions(projectPath, v))
 }
 
 object Project {
@@ -77,8 +87,10 @@ object Project {
         case Left(err) => Left(err)
         case Right(data) =>
           try {
-            Right(new Project(ujson.read(data)))
+            Right(new Project(path, ujson.read(data)))
           } catch {
+            case ex: ProjectError =>
+              Left(s"Failed to parse '$projectFile', error: ${ex.getMessage}")
             case ex: Throwable =>
               Left(s"Failed to parse '$projectFile', error: ${ex.toString}")
           }

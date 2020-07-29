@@ -71,8 +71,8 @@ class ProjectTest extends AnyFunSuite {
       "sfdx-project.json" -> "{ }"
     )) { root: PathLike =>
       Project(root) match {
-        case Left(_) => assert(false)
-        case Right(project) => assert(project.packageDirectories.arr.isEmpty)
+        case Left(err) => assert(err == "Failed to parse '/sfdx-project.json', error: 'packageDirectories' is required")
+        case Right(project) => assert(false)
       }
     }
   }
@@ -82,8 +82,8 @@ class ProjectTest extends AnyFunSuite {
       "sfdx-project.json" -> "{ \"packageDirectories\": \"Hello\"}"
     )) { root: PathLike =>
       Project(root) match {
-        case Left(_) => assert(false)
-        case Right(project) => assert(project.packageDirectories.arr.isEmpty)
+        case Left(err) => assert(err == "Failed to parse '/sfdx-project.json', error: 'packageDirectories' should be an array")
+        case Right(_) => assert(false)
       }
     }
   }
@@ -94,29 +94,45 @@ class ProjectTest extends AnyFunSuite {
     )) { root: PathLike =>
       Project(root) match {
         case Left(_) => assert(false)
-        case Right(project) => assert(project.packageDirectories.arr.isEmpty)
+        case Right(project) => assert(project.packageDirectories.isEmpty)
       }
     }
   }
 
   test("Single packageDirectories") {
     FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{ \"packageDirectories\": [{}]}"
+      "sfdx-project.json" -> "{ \"packageDirectories\": [{\"path\": \"foo\"}]}"
     )) { root: PathLike =>
       Project(root) match {
         case Left(_) => assert(false)
-        case Right(project) => assert(project.packageDirectories.arr.size == 1)
+        case Right(project) =>
+          assert(project.packageDirectories.size == 1)
+          assert(project.packageDirectories.head.path == root.join("foo"))
+      }
+    }
+  }
+
+  test("Single packageDirectories without path") {
+    FileSystemHelper.run(Map(
+      "sfdx-project.json" -> "{ \"packageDirectories\": [{}]}"
+    )) { root: PathLike =>
+      Project(root) match {
+        case Left(err) => assert(err == "Failed to parse '/sfdx-project.json', error: 'path' is required for all 'packageDirectories' elements")
+        case Right(_) => assert(false)
       }
     }
   }
 
   test("Multiple packageDirectories") {
     FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{ \"packageDirectories\": [{}, {}, {}]}"
+      "sfdx-project.json" -> "{ \"packageDirectories\": [{\"path\": \"foo\"}, {\"path\": \"bar\"}]}"
     )) { root: PathLike =>
       Project(root) match {
         case Left(_) => assert(false)
-        case Right(project) => assert(project.packageDirectories.arr.size == 3)
+        case Right(project) =>
+          assert(project.packageDirectories.size == 2)
+          assert(project.packageDirectories.head.path == root.join("foo"))
+          assert(project.packageDirectories(1).path == root.join("bar"))
       }
     }
   }
@@ -126,116 +142,141 @@ class ProjectTest extends AnyFunSuite {
       "sfdx-project.json" -> "{ \"packageDirectories\": [{\"path\": {}}]}"
     )) { root: PathLike =>
       Project(root) match {
-        case Left(_) => assert(false)
-        case Right(project) =>
-          assert(project.paths.size == 1)
-          assert(project.paths.head ==
-            Left("Expecting all 'path' properties to be strings in packageDirectories, error: ujson.Value$InvalidData: Expected ujson.Str (data: {})"))
-      }
-    }
-  }
-
-  test("Good path type") {
-    FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{ \"packageDirectories\": [{\"path\": \"Hello\"}]}"
-    )) { root: PathLike =>
-      Project(root) match {
-        case Left(_) => assert(false)
-        case Right(project) =>
-          assert(project.paths.size == 1)
-          assert(project.paths.head == Right("Hello"))
-      }
-    }
-  }
-
-  test("Multiple paths") {
-    FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{ \"packageDirectories\": [{\"path\": \"Foo\"}, {\"path\": \"Bar\"}]}"
-    )) { root: PathLike =>
-      Project(root) match {
-        case Left(_) => assert(false)
-        case Right(project) =>
-          assert(project.paths.size == 2)
-          assert(project.paths.head == Right("Foo"))
-          assert(project.paths(1) == Right("Bar"))
+        case Left(err) => assert(err == "Failed to parse '/sfdx-project.json', error: 'path' should be a string")
+        case Right(_) => assert(false)
       }
     }
   }
 
   test("No namespace") {
     FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{}"
+      "sfdx-project.json" -> "{\"packageDirectories\": []}"
     )) { root: PathLike =>
       Project(root) match {
         case Left(_) => assert(false)
-        case Right(project) =>
-          assert(project.namespace == Right(None))
+        case Right(project) => assert(project.namespace.isEmpty)
       }
     }
   }
 
   test("Invalid namespace json") {
     FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{\"namespace\": {}}"
+      "sfdx-project.json" -> "{\"namespace\": {}, \"packageDirectories\": []}"
     )) { root: PathLike =>
       Project(root) match {
-        case Left(_) => assert(false)
-        case Right(project) =>
-          assert(project.namespace ==
-            Left("Failed to read namespace from sfdx-project.json, error: ujson.Value$InvalidData: Expected ujson.Str (data: {})"))
+        case Left(err) => assert(err == "Failed to parse '/sfdx-project.json', error: 'namespace' should be a string")
+        case Right(_) => assert(false)
       }
     }
   }
 
   test("Empty namespace") {
     FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{\"namespace\": \"\"}"
+      "sfdx-project.json" -> "{\"namespace\": \"\", \"packageDirectories\": []}"
     )) { root: PathLike =>
       Project(root) match {
         case Left(_) => assert(false)
-        case Right(project) =>
-          assert(project.namespace == Right(None))
+        case Right(project) => assert(project.namespace.isEmpty)
       }
     }
   }
 
   test("Whitespace namespace") {
     FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{\"namespace\": \" \"}"
+      "sfdx-project.json" -> "{\"namespace\": \" \", \"packageDirectories\": []}"
     )) { root: PathLike =>
       Project(root) match {
-        case Left(_) =>
-          assert(false)
-        case Right(project) =>
-          assert(project.namespace ==
-            Left("Package namespace ' ' in sfdx-project.json is not valid, can only use characters A-Z, a-z, 0-9 or _"))
+        case Left(err) => assert(err == "Failed to parse '/sfdx-project.json', " +
+          "error: namespace ' ' is not valid, can only use characters A-Z, a-z, 0-9 or _")
+        case Right(_) => assert(false)
       }
     }
   }
 
   test("Invalid namespace") {
     FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{\"namespace\": \"foo__bar\"}"
+      "sfdx-project.json" -> "{\"namespace\": \"foo__bar\", \"packageDirectories\": []}"
     )) { root: PathLike =>
       Project(root) match {
-        case Left(_) =>
-          assert(false)
-        case Right(project) =>
-          assert(project.namespace ==
-            Left("Package namespace 'foo__bar' in sfdx-project.json is not valid, can not use '__'"))
+        case Left(err) => assert(err == "Failed to parse '/sfdx-project.json', " +
+          "error: namespace 'foo__bar' is not valid, can not use '__'")
+        case Right(_) => assert(false)
       }
     }
   }
 
   test("Valid namespace") {
     FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{\"namespace\": \"ns\"}"
+      "sfdx-project.json" -> "{\"namespace\": \"ns\", \"packageDirectories\": []}"
     )) { root: PathLike =>
       Project(root) match {
         case Left(_) => assert(false)
         case Right(project) =>
-          assert(project.namespace == Right(Some(Name("ns"))))
+          assert(project.namespace.contains(Name("ns")))
       }
     }
   }
+
+  test("No plugins") {
+    FileSystemHelper.run(Map(
+      "sfdx-project.json" -> "{\"packageDirectories\": []}"
+    )) { root: PathLike =>
+      Project(root) match {
+        case Left(_) => assert(false)
+        case Right(project) => assert(project.plugins.isEmpty)
+      }
+    }
+  }
+
+  test("Plugins of wrong type") {
+    FileSystemHelper.run(Map(
+      "sfdx-project.json" -> "{\"plugins\": \"foo\", \"packageDirectories\": []}"
+    )) { root: PathLike =>
+      Project(root) match {
+        case Left(err) => assert(err == "Failed to parse '/sfdx-project.json', error: 'plugins' should be an object")
+        case Right(_) => assert(false)
+      }
+    }
+  }
+
+  test("Plugins empty") {
+    FileSystemHelper.run(Map(
+      "sfdx-project.json" -> "{\"plugins\": {}, \"packageDirectories\": []}"
+    )) { root: PathLike =>
+      Project(root) match {
+        case Left(_) => assert(false)
+        case Right(project) => assert(project.plugins.isEmpty)
+      }
+    }
+  }
+
+  test("Plugins multiple keys") {
+    FileSystemHelper.run(Map(
+      "sfdx-project.json" -> "{\"plugins\": {\"foo\": {}, \"bar\": {}}, \"packageDirectories\": []}"
+    )) { root: PathLike =>
+      Project(root) match {
+        case Left(_) => assert(false)
+        case Right(project) =>
+          assert(project.plugins.size == 2)
+          assert(project.plugins.contains("foo"))
+          assert(project.plugins.contains("bar"))
+          assert(project.projectOptions.isEmpty)
+      }
+    }
+  }
+
+  test("Project Options") {
+    FileSystemHelper.run(Map(
+      "sfdx-project.json" -> "{\"plugins\": {\"apexlink\": {}}, \"packageDirectories\": []}"
+    )) { root: PathLike =>
+      Project(root) match {
+        case Left(_) => assert(false)
+        case Right(project) =>
+          assert(project.plugins.size == 1)
+          assert(project.plugins.contains("apexlink"))
+          assert(project.projectOptions.nonEmpty)
+      }
+    }
+  }
+
 }

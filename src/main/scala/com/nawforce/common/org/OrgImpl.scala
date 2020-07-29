@@ -139,18 +139,19 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
   /** Test helper to allow passing a PathLike for virtual FS support */
   private[nawforce] def addSFDXTestPackage(path: PathLike, basePackages: Seq[PackageImpl]): PackageImpl = {
     OrgImpl.current.withValue(this) {
-      addPackage(new SFDXWorkspace(path, Project(path).right.get), basePackages)
+      Project(path) match {
+        case Left(err) =>
+          throw new IllegalArgumentException(err)
+        case Right(project) =>
+          addPackage(new SFDXWorkspace(path, project), basePackages)
+      }
     }
   }
 
   /** Create a Package over a Workspace */
   private[nawforce] def addPackage(workspace: Workspace, basePackages: Seq[PackageImpl]): PackageImpl = {
 
-    if (workspace.namespace.isLeft) {
-      throw new IllegalArgumentException(workspace.namespace.left.get)
-    }
-
-    val ns = workspace.namespace.getOrElse(None)
+    val ns = workspace.namespace
     if (ns.nonEmpty) {
       if (packagesByNamespace.contains(ns))
         throw new IllegalArgumentException(s"A package using namespace '$ns' already exists")
