@@ -32,7 +32,7 @@ class SchemaManagerTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Account;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addMDAPITestPackage(None, Seq(root), Seq())
+      org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
     }
   }
@@ -43,7 +43,7 @@ class SchemaManagerTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Foo__c;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addMDAPITestPackage(None, Seq(root), Seq())
+      org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
     }
   }
@@ -53,8 +53,8 @@ class SchemaManagerTest extends AnyFunSuite {
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.ghosted__Foo__c;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val ghosted = org.addMDAPITestPackage(Some(Name("ghosted")), Seq(), Seq())
-      org.addMDAPITestPackage(None, Seq(root), Seq(ghosted))
+      val ghosted = org.newMDAPIPackageInternal(Some(Name("ghosted")), Array(), Array())
+      org.newMDAPIPackageInternal(None, Array(root), Array(ghosted))
       assert(!org.issues.hasMessages)
     }
   }

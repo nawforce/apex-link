@@ -42,7 +42,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
     )) { root: PathLike =>
       val path = root.join("pkg/Foo.cls")
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
 
       path.delete()
       pkg.refresh(path, None)
@@ -59,7 +59,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Bar.cls" -> "public class Bar {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val path = root.join("pkg/Bar.cls")
@@ -77,7 +77,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
 
       val path = root.join("pkg/Foo.trigger")
       path.delete()
@@ -96,7 +96,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Bar.cls" -> "public class Bar {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val path = root.join("pkg/Bar.cls")
@@ -121,7 +121,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
           |""".stripMargin,
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val path = root.join("CustomLabels.labels")
@@ -156,7 +156,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
           |""".stripMargin,
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val path = root.join("CustomLabels.labels")
@@ -175,7 +175,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
       "Test.flow-meta.xml" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val path = root.join("Test.flow-meta.xml")
@@ -192,7 +192,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
       "Test2.flow-meta.xml" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val path = root.join("Test.flow-meta.xml")
@@ -208,7 +208,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
       "TestPage.page" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val path = root.join("TestPage.page")
@@ -225,7 +225,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
       "Test2.page" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val path = root.join("Test.page")
@@ -241,7 +241,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
       "Test.component" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val path = root.join("Test.component")
@@ -258,7 +258,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
       "Test2.component" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val path = root.join("Test.component")

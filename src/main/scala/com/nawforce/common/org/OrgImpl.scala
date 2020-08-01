@@ -95,23 +95,44 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
 
   /** Create a MDAPI format package */
   override def newMDAPIPackage(namespace: String, directories: Array[String], basePackages: Array[Package]): Package = {
-    addPackage(new MDAPIWorkspace(Names.safeApply(namespace), getDirectoryPaths(directories)), collectPackages(basePackages))
+    newMDAPIPackageInternal(Names.safeApply(namespace), directories.map(PathFactory(_)), basePackages)
+  }
+
+  private[nawforce] def newMDAPIPackageInternal(namespace: Option[Name], directories: Array[PathLike],
+                                                basePackages: Array[Package]): PackageImpl = {
+    addPackage(new MDAPIWorkspace(namespace, getDirectoryPaths(directories)), collectPackages(basePackages))
   }
 
   /** Create a SFDX format package */
-  override def newSFDXPackage(directory: String, basePackages: Array[Package]): Package = {
+  override def newSFDXPackage(directory: String): Package = {
+    newSFDXPackageInternal(PathFactory(directory))
+  }
+
+  /** Create a SFDX format package */
+  private[nawforce] def newSFDXPackageInternal(directory: PathLike): PackageImpl = {
     val path = getDirectoryPaths(Array(directory)).head
     Project(path) match {
       case Left(err) =>
         throw new IllegalArgumentException(err)
       case Right(project) =>
-        addPackage(new SFDXWorkspace(path, project), collectPackages(basePackages))
+        addPackage(new SFDXWorkspace(path, project), resolveDependentProjects(project))
     }
   }
 
-  /** Convert directory strings to paths, checking they are valid directories */
-  private def getDirectoryPaths(directories: Array[String]): Seq[PathLike] = {
-    val paths = directories.filterNot(_.isEmpty).map(PathFactory(_))
+  /** Find or create dependent packages for a project */
+  private def resolveDependentProjects(project: Project): Seq[PackageImpl] = {
+    project.dependencies.map(pkg => {
+      packagesByNamespace.getOrElse(Some(pkg.namespace), {
+        if (pkg.path.isEmpty || !pkg.path.get.join("sfdx-project.json").exists)
+          newMDAPIPackageInternal(Some(pkg.namespace), pkg.path.toArray, Array())
+        else
+          newSFDXPackageInternal(pkg.path.get)
+      })
+    })
+  }
+
+  /** Check paths are directories */
+  private def getDirectoryPaths(paths: Array[PathLike]): Seq[PathLike] = {
     val missing = paths.filterNot(_.isDirectory)
     if (missing.nonEmpty)
       throw new IllegalArgumentException(s"Workspace '${missing.head}' is not a directory")
@@ -119,33 +140,13 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
   }
 
   /** Collect as PackageImpl checking they are for correct Org as we go */
-  private def collectPackages(basePackages: Array[Package]): Seq[PackageImpl] = {
+  private def collectPackages(basePackages: Array[Package]): Array[PackageImpl] = {
     basePackages.map(pkg => {
       val pkgImpl = pkg.asInstanceOf[PackageImpl]
       if (pkgImpl.org != this)
         throw new IllegalArgumentException(s"Base package '${pkgImpl.namespace.getOrElse("")}' was created for use in a different org")
       pkgImpl
     })
-  }
-
-  /** Test helper to allow passing a PathLike for virtual FS support */
-  private[nawforce] def addMDAPITestPackage(namespace: Option[Name], paths: Seq[PathLike],
-                                            basePackages: Seq[PackageImpl]): PackageImpl = {
-    OrgImpl.current.withValue(this) {
-      addPackage(new MDAPIWorkspace(namespace, paths), basePackages)
-    }
-  }
-
-  /** Test helper to allow passing a PathLike for virtual FS support */
-  private[nawforce] def addSFDXTestPackage(path: PathLike, basePackages: Seq[PackageImpl]): PackageImpl = {
-    OrgImpl.current.withValue(this) {
-      Project(path) match {
-        case Left(err) =>
-          throw new IllegalArgumentException(err)
-        case Right(project) =>
-          addPackage(new SFDXWorkspace(path, project), basePackages)
-      }
-    }
   }
 
   /** Create a Package over a Workspace */

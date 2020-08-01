@@ -43,7 +43,7 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {Component.Test;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addMDAPITestPackage(None, Seq(root), Seq())
+      org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
     }
   }
@@ -53,7 +53,7 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {Component.Test;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addMDAPITestPackage(None, Seq(root), Seq())
+      org.newMDAPIPackageInternal(None, Array(root), Array())
       // TODO: This should be a missing issue
       assert(org.issues.getMessages("/Dummy.cls") ==
         "Missing: line 1 at 22-36: Unknown field or type 'Test' on 'Component'\n")
@@ -66,7 +66,7 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addMDAPITestPackage(None, Seq(root), Seq())
+      org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
     }
   }
@@ -77,7 +77,7 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {Component c = new Component.c.Test();} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addMDAPITestPackage(None, Seq(root), Seq())
+      org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
     }
   }
@@ -88,7 +88,7 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg.Test();} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addMDAPITestPackage(Some(Name("pkg")), Seq(root), Seq())
+      org.newMDAPIPackageInternal(Some(Name("pkg")), Array(root), Array())
       assert(!org.issues.hasMessages)
     }
   }
@@ -99,7 +99,7 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addMDAPITestPackage(Some(Name("pkg")), Seq(root), Seq())
+      org.newMDAPIPackageInternal(Some(Name("pkg")), Array(root), Array())
       assert(!org.issues.hasMessages)
     }
   }
@@ -109,8 +109,8 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {Component c = new Component.ghosted.Test();} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.addMDAPITestPackage(Some(Name("ghosted")), Seq(), Seq())
-      org.addMDAPITestPackage(Some(Name("pkg")), Seq(root), Seq(pkg1))
+      val pkg1 = org.newMDAPIPackageInternal(Some(Name("ghosted")), Array(), Array())
+      org.newMDAPIPackageInternal(Some(Name("pkg")), Array(root), Array(pkg1))
       assert(!org.issues.hasMessages)
     }
   }
@@ -121,8 +121,8 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
       "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.addMDAPITestPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-      val pkg2 = org.addMDAPITestPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+      val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Array(root.join("pkg1")), Array())
+      val pkg2 = org.newMDAPIPackageInternal(Some(Name("pkg2")), Array(root.join("pkg2")), Array(pkg1))
       assert(!org.issues.hasMessages)
 
       val componentType1 = TypeIdentifier.fromJava(Name("pkg1"), TypeNames.Component)

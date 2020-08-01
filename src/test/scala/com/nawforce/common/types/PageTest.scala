@@ -46,7 +46,7 @@ class PageTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addMDAPITestPackage(None, Seq(root), Seq())
+      org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
     }
   }
@@ -57,7 +57,7 @@ class PageTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {PageReference a = Page.tesTPage;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addMDAPITestPackage(None, Seq(root), Seq())
+      org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
     }
   }
@@ -68,7 +68,7 @@ class PageTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy { {PageReference a = Page.AnotherPage;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addMDAPITestPackage(None, Seq(root), Seq())
+      org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(org.issues.getMessages("/Dummy.cls") ==
         "Missing: line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n")
     }
@@ -80,8 +80,8 @@ class PageTest extends AnyFunSuite with BeforeAndAfter {
       "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.addMDAPITestPackage(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-      org.addMDAPITestPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+      val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Array(root.join("pkg1")), Array())
+      org.newMDAPIPackageInternal(Some(Name("pkg2")), Array(root.join("pkg2")), Array(pkg1))
       assert(!org.issues.hasMessages)
     }
   }
@@ -91,8 +91,8 @@ class PageTest extends AnyFunSuite with BeforeAndAfter {
       "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.addMDAPITestPackage(Some(Name("pkg1")), Seq(), Seq())
-      org.addMDAPITestPackage(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+      val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Array(), Array())
+      org.newMDAPIPackageInternal(Some(Name("pkg2")), Array(root.join("pkg2")), Array(pkg1))
       assert(!org.issues.hasMessages)
     }
   }

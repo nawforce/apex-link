@@ -64,10 +64,10 @@ trait Org {
     *
     * The metadata directory must contain a well formed sfdx-project.json file. The package namespace & package
     * directories to use are read from that sfdx-project.json file. If a .forceignore file is present in the
-    * metadata directory it will be honoured. The basePackages array should contain any packages that this package
-    * depends on. References to metadata not included in basePackage is not possible.
+    * metadata directory it will be honoured. Any dependent packages that are also required can be specified
+    * in the "plugins" section of sfdx-project.json under in a "dependencies" array.
     **/
-  def newSFDXPackage(directory: String, basePackages: Array[Package]): Package
+  def newSFDXPackage(directory: String): Package
 
   /** Force syncing of org metadata with cache.
     *

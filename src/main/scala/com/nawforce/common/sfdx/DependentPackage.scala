@@ -27,8 +27,40 @@
 */
 package com.nawforce.common.sfdx
 
+import com.nawforce.common.api.Name
+import com.nawforce.common.names._
 import com.nawforce.common.path.PathLike
 import ujson.Value
 
-class ProjectOptions(projectPath: PathLike, config: Value.Value) {
+class DependentPackage(projectPath: PathLike, config: Value.Value) {
+  val namespace: Name =
+    try {
+      val ns = config("namespace") match {
+        case ujson.Str(value) => Name(value)
+        case _ => throw new ProjectError("'namespace' should be a string")
+      }
+      if (ns.value.isEmpty)
+        throw new ProjectError("'namespace' can not be empty")
+      else {
+        ns.isLegalIdentifier match {
+          case None => ns
+          case Some(error) => throw new ProjectError(s"namespace '$ns' is not valid, $error")
+        }
+      }
+    } catch {
+      case _: NoSuchElementException => throw new ProjectError("'namespace' is required for each entry in 'dependencies'")
+    }
+
+  val path: Option[PathLike] = {
+    try {
+      config("path") match {
+        case ujson.Str(value) =>
+          Some(projectPath.join(value))
+        case _ =>
+          throw new ProjectError("'path' should be a string")
+      }
+    } catch {
+      case _: NoSuchElementException => None
+    }
+  }
 }

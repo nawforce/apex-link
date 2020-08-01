@@ -260,23 +260,88 @@ class ProjectTest extends AnyFunSuite {
           assert(project.plugins.size == 2)
           assert(project.plugins.contains("foo"))
           assert(project.plugins.contains("bar"))
-          assert(project.projectOptions.isEmpty)
+          assert(project.dependencies.isEmpty)
       }
     }
   }
 
-  test("Project Options") {
+  test("Empty Dependencies") {
     FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{\"plugins\": {\"apexlink\": {}}, \"packageDirectories\": []}"
+      "sfdx-project.json" -> "{\"plugins\": {\"dependencies\": []}, \"packageDirectories\": []}"
     )) { root: PathLike =>
       Project(root) match {
         case Left(_) => assert(false)
         case Right(project) =>
           assert(project.plugins.size == 1)
-          assert(project.plugins.contains("apexlink"))
-          assert(project.projectOptions.nonEmpty)
+          assert(project.plugins.contains("dependencies"))
+          assert(project.dependencies.isEmpty)
       }
     }
   }
 
+  test("Dependencies missing namespace") {
+    FileSystemHelper.run(Map(
+      "sfdx-project.json" -> "{\"plugins\": {\"dependencies\": [{}]}, \"packageDirectories\": []}"
+    )) { root: PathLike =>
+      Project(root) match {
+        case Left(err) => assert(err == "Failed to parse '/sfdx-project.json', error: 'namespace' is required for each entry in 'dependencies'")
+        case Right(_) => assert(false)
+      }
+    }
+  }
+
+  test("Dependencies namespace without uri") {
+    FileSystemHelper.run(Map(
+      "sfdx-project.json" -> "{\"plugins\": {\"dependencies\": [{\"namespace\": \"foo\"}] }, \"packageDirectories\": []}"
+    )) { root: PathLike =>
+      Project(root) match {
+        case Left(ex) => assert(false, ex)
+        case Right(project) =>
+          assert(project.dependencies.nonEmpty)
+          assert(project.dependencies.size == 1)
+          assert(project.dependencies.exists(_.namespace == Name("foo")))
+      }
+    }
+  }
+
+  test("Dependencies namespace with path") {
+    FileSystemHelper.run(Map(
+      "sfdx-project.json" -> "{\"plugins\": {\"dependencies\": [{\"namespace\": \"foo\", \"path\": \"bar\"}] }, \"packageDirectories\": []}"
+    )) { root: PathLike =>
+      Project(root) match {
+        case Left(ex) => assert(false, ex)
+        case Right(project) =>
+          assert(project.dependencies.nonEmpty)
+          assert(project.dependencies.size == 1)
+          assert(project.dependencies.exists(_.namespace == Name("foo")))
+          assert(project.dependencies.exists(_.path.contains(root.join("bar"))))
+      }
+    }
+  }
+
+  test("Dependencies multiple entries") {
+    FileSystemHelper.run(Map(
+      "sfdx-project.json" ->
+        """{
+          | "packageDirectories": [],
+          | "plugins": {
+          |   "dependencies": [
+          |     {"namespace": "foo", "path": "patha"},
+          |     {"namespace": "bar"},
+          |     {"namespace": "baz", "path": "pathc"}
+          |   ]
+          | }
+          |}""".stripMargin
+    )) { root: PathLike =>
+      Project(root) match {
+        case Left(ex) => assert(false, ex)
+        case Right(project) =>
+          assert(project.dependencies.nonEmpty)
+          assert(project.dependencies.size == 3)
+          assert(project.dependencies.head.path.contains(root.join("patha")))
+          assert(project.dependencies(1).path.isEmpty)
+          assert(project.dependencies(2).path.contains(root.join("pathc")))
+      }
+    }
+  }
 }

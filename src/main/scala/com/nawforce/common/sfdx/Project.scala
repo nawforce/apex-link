@@ -73,8 +73,11 @@ class Project(projectPath: PathLike, config: Value.Value) {
       case _: NoSuchElementException => Map()
     }
 
-  val projectOptions: Option[ProjectOptions] =
-    plugins.get("apexlink").map(v => new ProjectOptions(projectPath, v))
+  val dependencies: Seq[DependentPackage] =
+    plugins.getOrElse("dependencies", ujson.Arr()) match {
+      case ujson.Arr(value) => value.map(dp => new DependentPackage(projectPath, dp))
+      case _ => throw new ProjectError("'dependencies' should be an array")
+    }
 }
 
 object Project {

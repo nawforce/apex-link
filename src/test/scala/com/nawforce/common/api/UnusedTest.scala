@@ -50,7 +50,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy {public void foo() {}}"
     ), setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
       assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
         "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
@@ -62,7 +62,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy {public void foo() {foo();}}"
     ), setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
       assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString).isEmpty)
     }
@@ -73,7 +73,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy {{foo();} public void foo() {}}"
     ), setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
       assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString).isEmpty)
     }
@@ -84,7 +84,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy {Object a;}"
     ), setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
       assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
         "Unused: line 1 at 27-28: Unused Field or Property 'a'\n")
@@ -96,7 +96,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy {Object a; void foo(){foo(); a = null;}}"
     ), setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
       assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString).isEmpty)
     }
@@ -107,7 +107,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy {{a = null;} Object a;}"
     ), setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
       assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString).isEmpty)
     }
@@ -128,14 +128,14 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
     ), setupCache = true) { root: PathLike =>
       // Setup as cached
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assertIsFullDeclaration(pkg, "Dummy")
       assert(!org.issues.hasMessages)
       assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString).isEmpty)
       org.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg2 = org2.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg2 = org2.newMDAPIPackageInternal(None, Array(root), Array())
       assertIsSummaryDeclaration(pkg2, "Dummy")
       OrgImpl.current.withValue(org2) {
         pkg2.propagateAllDependencies()
@@ -150,7 +150,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
     ), setupCache = true) { root: PathLike =>
       // Setup as cached
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assertIsFullDeclaration(pkg, "Dummy")
       assert(!org.issues.hasMessages)
       assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
@@ -158,7 +158,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
       org.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg2 = org2.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg2 = org2.newMDAPIPackageInternal(None, Array(root), Array())
       assertIsSummaryDeclaration(pkg2, "Dummy")
       OrgImpl.current.withValue(org2) {
         assert(pkg2.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +

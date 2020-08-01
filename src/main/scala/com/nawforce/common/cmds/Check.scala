@@ -99,8 +99,7 @@ object Check {
         if (!nsLoaded.contains(nsDirPair._1)) {
           val path = PathFactory(nsDirPair._2)
           if (path.join("sfdx-project.json").exists) {
-            val pkg = org.newSFDXPackage(path.toString, loaded.toArray)
-            loaded = pkg :: loaded
+            loaded = org.newSFDXPackage(path.toString) :: loaded
           } else {
             val paths = nsSplit.filter(_._1 == nsDirPair._1).map(_._2).filterNot(_.isEmpty).toArray
             val nonSfdxPaths = paths.map(PathFactory(_)).filterNot(_.join("sfdx-project.json").exists)

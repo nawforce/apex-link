@@ -41,7 +41,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), None)
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
@@ -54,7 +54,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "foo.scala" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       val view = pkg.getViewOfType(root.join("foo.scala"), None)
       assert(!view.hasType)
       assert(view.error == "Metadata type is not supported for '/foo.scala'")
@@ -67,7 +67,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "force-app/pkg/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       val view = pkg.getViewOfType(root.join("force-app/pkg/Foo.cls"), None)
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
@@ -83,7 +83,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "force-app/pkg/Foo.cls" -> ""
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addSFDXTestPackage(root, Array[PackageImpl]())
+      val pkg = org.newSFDXPackageInternal(root)
       val path = root.join("force-app").join("pkg").join("Foo.cls")
       val view = pkg.getViewOfType(path, None)
       assert(!view.hasType)
@@ -95,7 +95,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       val view = pkg.getViewOfType(root.join("Foo.cls"), Some(SourceBlob("")))
       assert(!view.hasType)
       assert(view.diagnostics.length == 1)
@@ -110,7 +110,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("")))
       assert(!view.hasType)
       assert(view.diagnostics.length == 1)
@@ -125,7 +125,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {}")))
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
@@ -137,7 +137,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Bar b;}")))
       assert(view.hasType)
       assert(view.diagnostics.length == 1)
@@ -153,7 +153,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.cls" -> "public class Foo {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Bar b;}")))
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
@@ -168,7 +168,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), None)
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
@@ -180,7 +180,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       val view = pkg.getViewOfType(root.join("Foo.trigger"), Some(SourceBlob("")))
       assert(!view.hasType)
       assert(view.diagnostics.length == 1)
@@ -195,7 +195,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), Some(SourceBlob("")))
       assert(!view.hasType)
       assert(view.diagnostics.length == 1)
@@ -210,7 +210,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {}")))
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
@@ -222,7 +222,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"),
         Some(SourceBlob("trigger Foo on Account (before insert) {Bar b;}")))
       assert(view.hasType)
@@ -238,7 +238,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("CustomLabels.labels"), None)
@@ -253,7 +253,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("CustomLabels.labels"), Some(SourceBlob("")))
@@ -278,7 +278,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "AltLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("AltLabels.labels"), Some(SourceBlob(
@@ -303,7 +303,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "Test.flow-meta.xml" -> "",
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("Test.flow-meta.xml"), None).asInstanceOf[ViewInfoImpl]
@@ -319,7 +319,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "Test.flow-meta.xml" -> "",
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("Test2.flow-meta.xml"), Some(SourceBlob(""))).asInstanceOf[ViewInfoImpl]
@@ -335,7 +335,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "TestPage.page" -> "",
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("TestPage.page"), None).asInstanceOf[ViewInfoImpl]
@@ -351,7 +351,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "TestPage.page" -> "",
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("TestPage2.page"), Some(SourceBlob(""))).asInstanceOf[ViewInfoImpl]
@@ -367,7 +367,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "Test.component" -> "",
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("Test.component"), None).asInstanceOf[ViewInfoImpl]
@@ -383,7 +383,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       "Test.component" -> "",
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.addMDAPITestPackage(None, Seq(root), Seq())
+      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
 
       val view = pkg.getViewOfType(root.join("Test2.component"), Some(SourceBlob(""))).asInstanceOf[ViewInfoImpl]

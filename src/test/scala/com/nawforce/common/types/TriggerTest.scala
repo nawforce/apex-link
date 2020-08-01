@@ -40,7 +40,7 @@ class TriggerTest extends AnyFunSuite {
       "Dummy.trigger" -> "trigger Dummy on Account (before insert) { }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addMDAPITestPackage(None, Seq(root), Seq())
+      org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
     }
   }
@@ -50,7 +50,7 @@ class TriggerTest extends AnyFunSuite {
       "Dummy.trigger" -> "trigger Dummy on Stupid (before insert) { }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addMDAPITestPackage(None, Seq(root), Seq())
+      org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(org.issues.getMessages("/Dummy.trigger") ==
         "Missing: line 1 at 17-23: No type declaration found for 'Schema.Stupid'\n")
     }
@@ -62,7 +62,7 @@ class TriggerTest extends AnyFunSuite {
       "Dummy.trigger" -> "trigger Dummy on Stupid__c (before insert) { }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addMDAPITestPackage(None, Seq(root), Seq())
+      org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
     }
   }
@@ -72,7 +72,7 @@ class TriggerTest extends AnyFunSuite {
       "Dummy.trigger" -> "trigger Dummy on Account (before insert, before insert) { }"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addMDAPITestPackage(None, Seq(root), Seq())
+      org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(org.issues.getMessages("/Dummy.trigger") ==
         "Error: line 1 at 17-24: Duplicate trigger case for 'before insert'\n")
     }
@@ -83,7 +83,7 @@ class TriggerTest extends AnyFunSuite {
       "Dummy.trigger" -> "trigger Dummy on Account (before insert) {Object a = this;}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addMDAPITestPackage(None, Seq(root), Seq())
+      org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
     }
   }
@@ -97,7 +97,7 @@ class TriggerTest extends AnyFunSuite {
           |}""".stripMargin
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.addMDAPITestPackage(None, Seq(root), Seq())
+      org.newMDAPIPackageInternal(None, Array(root), Array())
       assert(!org.issues.hasMessages)
     }
   }
