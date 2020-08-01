@@ -372,6 +372,9 @@ trait PackageAPI extends Package {
     refreshQueue.foreach(r => requests.put(r.path, r))
     refreshQueue.clear()
 
+    if (requests.isEmpty)
+      return false
+
     val splitRequests = requests
       .filter(r => workspace.isVisibleFile(r._1))
       .groupBy(r => r._2.source.isEmpty && !r._1.exists)
