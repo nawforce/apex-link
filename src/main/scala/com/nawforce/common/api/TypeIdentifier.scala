@@ -51,7 +51,11 @@ object TypeIdentifier {
 
   /** Helper for construction from a package relative TypeName */
   def fromPackage(pkg: Package, typeName: TypeName): TypeIdentifier = {
-    TypeIdentifier(if (pkg.getNamespace.isEmpty) None else Some(Name(pkg.getNamespace)), typeName)
+    TypeIdentifier(
+      if (pkg.getNamespaces(false).head.isEmpty)
+        None
+      else
+        Some(Name(pkg.getNamespaces(false).head)), typeName)
   }
 }
 

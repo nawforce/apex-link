@@ -45,10 +45,14 @@ import scala.collection.mutable
 trait PackageAPI extends Package {
   this: PackageImpl =>
 
-  private var refreshQueue: mutable.Queue[RefreshRequest] = new mutable.Queue[RefreshRequest]()
+  private val refreshQueue: mutable.Queue[RefreshRequest] = new mutable.Queue[RefreshRequest]()
 
-  override def getNamespace: String = {
-    namespace.map(_.value).getOrElse("")
+  override def getNamespaces(withDependents: Boolean): Array[String] = {
+    val ns = namespace.map(_.value).getOrElse("")
+    if (withDependents)
+      (ns +: basePackages.map(_.namespace.map(_.value).getOrElse(""))).toArray
+    else
+      Array(ns)
   }
 
   override def getTypeOfPath(path: String): TypeIdentifier = {

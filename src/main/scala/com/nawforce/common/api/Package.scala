@@ -55,11 +55,11 @@ import com.nawforce.runtime.SourceBlob
   *
   **/
 trait Package {
-  /** The namespace of the package.
+  /** The namespace of the package or the package and its dependent packages.
     *
-    * Maybe empty for the unmanaged package, otherwise will be unique within an Org
+    * An empty namespace indicates the "unmanaged" package.
     */
-  def getNamespace: String
+  def getNamespaces(withDependents: Boolean): Array[String]
 
   /** Get a Type from the path of a metadata file.
     *
