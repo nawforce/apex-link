@@ -54,7 +54,7 @@ case class CacheKey(version: Int, packageContext: PackageContext, sourceKey: Arr
 }
 
 object CacheKey {
-  val currentVersion = 5
+  val currentVersion = 6
   implicit val rw: RW[CacheKey] = macroRW
 }
 

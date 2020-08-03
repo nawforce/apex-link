@@ -39,6 +39,7 @@ import com.nawforce.common.types.other._
 import com.nawforce.runtime.SourceBlob
 import com.nawforce.runtime.parsers.SourceData
 import com.nawforce.runtime.types.PlatformTypeException
+import upickle.default._
 
 import scala.collection.mutable
 
@@ -92,6 +93,10 @@ trait PackageAPI extends Package {
     } else {
       null
     }
+  }
+
+  override def getSummaryOfTypeAsJSON(typeId: TypeIdentifier): String = {
+    Option(getSummaryOfType(typeId)).map(summary => write(summary)).orNull
   }
 
   override def getDependencies(typeId: TypeIdentifier, inheritanceOnly: Boolean): Array[TypeIdentifier] = {

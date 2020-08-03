@@ -79,6 +79,12 @@ trait Package {
     */
   def getSummaryOfType(typeId: TypeIdentifier): TypeSummary
 
+  /** JSON encoding of summary information for a type.
+    *
+    * Returns a null if the Type is not defined within the current package.
+    */
+  def getSummaryOfTypeAsJSON(typeId: TypeIdentifier): String
+
   /** Returns set of Types that are depended on by the passed Type
     *
     * If inheritanceOnly is true only superClass & inheritance dependencies are reported for Apex defined Types,
