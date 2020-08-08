@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, ServerOps}
 import com.nawforce.common.documents.ApexClassDocument
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathFactory
@@ -41,7 +41,7 @@ class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
 
   private val defaultPath = PathFactory("Dummy.cls").toString
   private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
-  private var defaultOrg: OrgImpl = new OrgImpl
+  private var defaultOrg: OrgImpl = _
 
   def typeDeclaration(clsText: String): TypeDeclaration = {
     OrgImpl.current.withValue(defaultOrg) {
@@ -58,7 +58,12 @@ class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   before {
+    ServerOps.setAutoFlush(false)
     defaultOrg = new OrgImpl
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
   }
 
   test("Global outer") {

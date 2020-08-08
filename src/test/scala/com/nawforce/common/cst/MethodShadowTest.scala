@@ -37,7 +37,14 @@ import org.scalatest.funsuite.AnyFunSuite
 class MethodShadowTest extends AnyFunSuite with BeforeAndAfter {
 
   before {
+    ServerOps.setAutoFlush(false)
     ServerOps.setParsedDataCaching(false)
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
+    ServerOps.setParsedDataCaching(true)
+
   }
 
   test("Override of public non-virtual") {

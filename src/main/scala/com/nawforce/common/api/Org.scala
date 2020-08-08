@@ -41,9 +41,10 @@ import com.nawforce.common.org.OrgImpl
   * are loaded the metadata within them can be mutated using the [[Package]] methods. At any point you can list
   * of current issues with the packages from getIssues.
   *
-  * The disk cache that supports quicker loading is only updated by calling flush(). You should call this after
-  * all packages have been loaded and periodically after that if mutating metadata to ensure the cache is kept
-  * upto date.
+  * When metadata changes are requested (see [[Package.refresh]] they are queued for later processing either
+  * via calling [[Org.flush]] or via automatic flushing (the default). Flushing also updates a disk cache
+  * that helps significantly reduce initial loading times. The flushing model used by an [[Org]] is set on
+  * construction, see [[ServerOps.setAutoFlush]] to change to manual flushing.
   *
   * Orgs and Packages are not thread safe, serialise all calls to them.
   */
@@ -69,12 +70,20 @@ trait Org {
     **/
   def newSFDXPackage(directory: String): Package
 
-  /** Force syncing of org metadata with cache.
+  /** Force syncing of org metadata to the cache when not using automatic flushing (see ServerOps).
     *
-    * This should be called periodically to ensure the cache is kept upto date after metadata changes. If it returns
-    * true then getIssues should be called to retrieved the latest set of issues.
+    * When using manual flushing this should be called periodically to ensure the cache is kept upto date after
+    * metadata changes. If it returns true then getIssues should be called to retrieved the latest set of issues.
     */
   def flush(): Boolean
+
+  /** Test if all metadata changes have been processed.
+    *
+    * The Package refresh function queues changes so that they may be processed in batches either when you call
+    * flush() or via the automatic flushing mechanism. You can use this function to determine if the queue of changes
+    * to be processed is empty.
+    */
+  def isFlushed(): Boolean
 
   /** Get current issue log.
     *

@@ -186,7 +186,19 @@ trait ApexClassDeclaration extends ApexDeclaration {
     }
   }
 
-  lazy val methodMap: MethodMap = {
+  def methodMap: MethodMap = {
+    if (_methodMap.isEmpty)
+      _methodMap = Some(createMethodMap)
+    _methodMap.get
+  }
+
+  protected def clearMethodMap(): Unit = {
+    _methodMap = None
+  }
+
+  private var _methodMap: Option[MethodMap] = None
+
+  def createMethodMap: MethodMap = {
     val allMethods = outerStaticMethods ++ localMethods
     val methods = superClassDeclaration match {
       case Some(at: ApexClassDeclaration) =>
@@ -203,7 +215,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
     methods
   }
 
-  override lazy val methods: Array[MethodDeclaration] = methodMap.allMethods
+  override def methods: Array[MethodDeclaration] = methodMap.allMethods
 
   override def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Array[MethodDeclaration] = {

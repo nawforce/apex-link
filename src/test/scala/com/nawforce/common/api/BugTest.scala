@@ -31,9 +31,18 @@ import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.sfdx.MDAPIWorkspace
 import com.nawforce.runtime.FileSystemHelper
+import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class BugTest extends AnyFunSuite {
+class BugTest extends AnyFunSuite with BeforeAndAfter {
+
+  before {
+    ServerOps.setAutoFlush(false)
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
+  }
 
   private def addPackage(org: OrgImpl, path: PathLike): Package = {
     org.addPackage(new MDAPIWorkspace(None, Seq(path)), Seq())

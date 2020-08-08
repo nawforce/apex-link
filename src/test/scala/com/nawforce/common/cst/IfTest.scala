@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Name, ServerOps}
 import com.nawforce.common.documents.ApexClassDocument
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathFactory
@@ -38,20 +38,24 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class IfTest extends AnyFunSuite with BeforeAndAfter {
-  private val defaultPath = PathFactory("Dummy.cls")
   private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
-  private var defaultOrg: OrgImpl = new OrgImpl
+  private var defaultOrg: OrgImpl = _
 
   def typeDeclaration(clsText: String): Option[TypeDeclaration] = {
     OrgImpl.current.withValue(defaultOrg) {
       val td = FullDeclaration.create(defaultOrg.unmanaged, defaultDoc, SourceData(clsText))
-      td.headOption.foreach(_.validate())
-      td.headOption
+      td.foreach(_.validate())
+      td
     }
   }
 
   before {
+    ServerOps.setAutoFlush(false)
     defaultOrg = new OrgImpl
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
   }
 
   test("Block bug") {

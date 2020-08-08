@@ -39,6 +39,12 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
 
   before {
     ServerOps.setParsedDataCaching(false)
+    ServerOps.setAutoFlush(false)
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
+    ServerOps.setParsedDataCaching(true)
   }
 
   test("Empty labels file") {

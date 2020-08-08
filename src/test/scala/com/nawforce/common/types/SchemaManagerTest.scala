@@ -1,12 +1,21 @@
 package com.nawforce.common.types
 
-import com.nawforce.common.api.{Name, Org}
+import com.nawforce.common.api.{Name, Org, ServerOps}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
+import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class SchemaManagerTest extends AnyFunSuite {
+class SchemaManagerTest extends AnyFunSuite with BeforeAndAfter {
+
+  before {
+    ServerOps.setAutoFlush(false)
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
+  }
 
   def customObject(label: String, fields: Seq[(String, String, Option[String])]): String = {
     val fieldMetadata = fields.map(field => {

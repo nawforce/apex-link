@@ -3,9 +3,18 @@ package com.nawforce.common.api
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
+import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class DependentProjectTest extends AnyFunSuite {
+class DependentProjectTest extends AnyFunSuite with BeforeAndAfter {
+
+  before {
+    ServerOps.setAutoFlush(false)
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
+  }
 
   test("Ghosted dependent") {
     FileSystemHelper.run(Map(

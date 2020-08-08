@@ -37,7 +37,7 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
-  private var defaultOrg: OrgImpl = new OrgImpl
+  private var defaultOrg: OrgImpl = _
   private var root: PathLike = _
 
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
@@ -52,9 +52,15 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   before {
+    ServerOps.setAutoFlush(false)
+    ServerOps.setParsedDataCaching(false)
     defaultOrg = new OrgImpl
     root = null
-    ServerOps.setParsedDataCaching(false)
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
+    ServerOps.setParsedDataCaching(true)
   }
 
   test("Local func does not create dependencies") {

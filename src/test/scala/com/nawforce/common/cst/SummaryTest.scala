@@ -40,7 +40,7 @@ import org.scalatest.funsuite.AnyFunSuite
 class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   private val defaultPath = PathFactory("Dummy.cls")
   private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
-  private var defaultOrg: OrgImpl = new OrgImpl
+  private var defaultOrg: OrgImpl = _
   private val dummyTypeName = DotName("Dummy").asTypeName()
   private val dummyTypeId = TypeIdentifier.fromJava(null, dummyTypeName)
   private val objectTypeName = DotName("Internal.Object$").asTypeName()
@@ -71,9 +71,13 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
-
   before {
+    ServerOps.setAutoFlush(false)
     defaultOrg = new OrgImpl
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
   }
 
   test("Public outer class") {

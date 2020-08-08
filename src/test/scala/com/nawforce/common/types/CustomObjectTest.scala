@@ -38,6 +38,12 @@ class CustomObjectTest extends AnyFunSuite with BeforeAndAfter {
 
   before {
     ServerOps.setParsedDataCaching(false)
+    ServerOps.setAutoFlush(false)
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
+    ServerOps.setParsedDataCaching(true)
   }
 
   def customObject(label: String, fields: Seq[(String, String, Option[String])], fieldSets: Set[String]=Set()): String = {

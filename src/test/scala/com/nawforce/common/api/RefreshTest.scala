@@ -36,6 +36,14 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class RefreshTest extends AnyFunSuite with BeforeAndAfter {
 
+  before {
+    ServerOps.setAutoFlush(false)
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
+  }
+
   test("Valid refresh") {
     FileSystemHelper.run(Map(
       "pkg/Foo.cls" -> "public class Foo {}"

@@ -36,6 +36,14 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class DeleteTest extends AnyFunSuite with BeforeAndAfter {
 
+  before {
+    ServerOps.setAutoFlush(false)
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
+  }
+
   test("Valid delete") {
     FileSystemHelper.run(Map(
       "pkg/Foo.cls" -> "public class Foo {}"

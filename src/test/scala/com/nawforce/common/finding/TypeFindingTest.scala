@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.finding
 
-import com.nawforce.common.api.{Name, Org, TypeName}
+import com.nawforce.common.api.{Name, Org, ServerOps, TypeName}
 import com.nawforce.common.documents.ApexClassDocument
 import com.nawforce.common.names.{DotName, Names, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
@@ -35,9 +35,18 @@ import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types.apex.FullDeclaration
 import com.nawforce.common.types.core.TypeDeclaration
 import com.nawforce.runtime.parsers.SourceData
+import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class TypeFindingTest extends AnyFunSuite {
+class TypeFindingTest extends AnyFunSuite with BeforeAndAfter {
+
+  before {
+    ServerOps.setAutoFlush(false)
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
+  }
 
   private val defaultOrg: OrgImpl = new OrgImpl
   private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))

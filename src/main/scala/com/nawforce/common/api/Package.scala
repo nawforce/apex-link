@@ -100,8 +100,8 @@ trait Package {
 
   /** Refresh a type in the package.
     *
-    * This registers that the metadata in a file may need updating. The refresh is queued until the next Org.flush
-    * is called so that changes are made in batches for efficiency.
+    * This registers that the metadata in a file may need updating. The refresh is queued until the Org metdata is
+    * next flushed so that changes are made in batches for efficiency.
     *
     * Refreshing causes dependent metadata to be re-validated so issues may be reported against other metadata types
     * after the flush has completed.

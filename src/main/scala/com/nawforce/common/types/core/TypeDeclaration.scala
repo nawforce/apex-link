@@ -281,7 +281,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   val blocks: Array[BlockDeclaration]
   val fields: Array[FieldDeclaration]
   val constructors: Array[ConstructorDeclaration]
-  val methods: Array[MethodDeclaration]
+  def methods: Array[MethodDeclaration]
 
   def isComplete: Boolean
   lazy val isExternallyVisible: Boolean = modifiers.contains(GLOBAL_MODIFIER)

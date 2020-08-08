@@ -118,6 +118,7 @@ abstract class FullDeclaration(val source: Source, val pkg: PackageImpl, overrid
       CST.sourceContext.withValue(Some(source)) {
         val context = new TypeVerifyContext(None, this, withPropagation)
         modifierIssues.foreach(context.log)
+        clearMethodMap()
         verify(context)
         if (withPropagation)
           propagateOuterDependencies()

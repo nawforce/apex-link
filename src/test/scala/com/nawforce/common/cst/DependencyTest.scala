@@ -53,9 +53,15 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   before {
+    ServerOps.setAutoFlush(false)
+    ServerOps.setParsedDataCaching(false)
     defaultOrg = new OrgImpl
     root = null
-    ServerOps.setParsedDataCaching(false)
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
+    ServerOps.setParsedDataCaching(true)
   }
 
   test("Empty class has no imports") {

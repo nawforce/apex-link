@@ -32,7 +32,7 @@ import java.util
 import com.nawforce.common.api.{IssueOptions, Name, Org, Package, PathLocation, ServerOps}
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, IssueLog}
 import com.nawforce.common.documents._
-import com.nawforce.common.memory.{Cleanable, IdentityBox, Monitor}
+import com.nawforce.common.memory.IdentityBox
 import com.nawforce.common.names.{DotName, Names, _}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.sfdx.{MDAPIWorkspace, Project, SFDXWorkspace, Workspace}
@@ -45,6 +45,18 @@ import scala.util.DynamicVariable
   * multiple. Problems with the metadata are recorded in the the associated issue log.
   */
 class OrgImpl(val analysis: Boolean=true) extends Org {
+
+  /** Is this Org using auto-flushing */
+  private val autoFlush = ServerOps.getAutoFlush
+
+  /** The Org flusher */
+  private val flusher = new Flusher(this)
+
+  /** Start flushing thread */
+  if (autoFlush)
+    new Thread(flusher).start()
+  ServerOps.debug(ServerOps.Trace, s"Org created with autoFlush = $autoFlush")
+
   /**
     * Map of Package namespace to Package. This contains all known Packages, each Package maintains it's own
     * list of dependent Package so that we can enforce boundaries between unrelated Packages.
@@ -73,7 +85,7 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
   /**
     * Packages in bottom-up ordering.
     */
-  private def orderedPackages: Seq[PackageImpl] = {
+  def orderedPackages: Seq[PackageImpl] = {
     val ordered = new ArrayBuffer[PackageImpl]()
     var unassigned = packagesByNamespace.values.map(new IdentityBox(_)).toList
 
@@ -166,24 +178,27 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
         unmanaged = pkg
       }
       packagesByNamespace = packagesByNamespace + (pkg.namespace -> pkg)
+      if (autoFlush)
+        flusher.refreshAndFlush()
       pkg
     }
   }
 
-  /** Write dirty metadata to the cache */
+  def isFlushed(): Boolean = {
+    flusher.isFlushed
+  }
+
+  /** Write dirty metadata to the cache, only works for manual flush orgs */
   def flush(): Boolean = {
-    OrgImpl.current.withValue(this) {
-      val postMessage = if (Monitor.size > 0) s", ${Monitor.size} full types" else ""
-      val flushed = ServerOps.debugTime("Org flushed", show = true, postMessage) {
-          ParsedCache.create match {
-            case Left(err) => ServerOps.error(err); false
-            case Right(pc) => orderedPackages.map(_.flush(pc)).foldLeft(false) {_ || _}
-          }
-      }
-      Monitor.reportDuplicateTypes
-      Cleanable.clean()
-      flushed
-    }
+    if (!autoFlush)
+      flusher.refreshAndFlush()
+    else
+      false
+  }
+
+  /** Queue a refresh request */
+  def queueRefresh(request: RefreshRequest): Unit = {
+    flusher.queue(request)
   }
 
   /** Collect all issues into a JSON log */

@@ -36,6 +36,14 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class ViewTest extends AnyFunSuite with BeforeAndAfter {
 
+  before {
+    ServerOps.setAutoFlush(false)
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
+  }
+
   test("good path type (mdapi)") {
     FileSystemHelper.run(Map(
       "pkg/Foo.cls" -> "public class Foo {}"

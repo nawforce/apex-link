@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.types
 
-import com.nawforce.common.api.{Name, Org, TypeIdentifier}
+import com.nawforce.common.api.{Name, Org, ServerOps, TypeIdentifier}
 import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
@@ -36,6 +36,16 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class InterviewTest extends AnyFunSuite with BeforeAndAfter {
+
+  before {
+    ServerOps.setParsedDataCaching(false)
+    ServerOps.setAutoFlush(false)
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
+    ServerOps.setParsedDataCaching(true)
+  }
 
   test("Interview createInterview") {
     FileSystemHelper.run(Map(

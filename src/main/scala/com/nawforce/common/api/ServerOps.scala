@@ -48,6 +48,7 @@ object ServerOps  {
   private var parsedCaching: Boolean = true
   private var lazyBlocks: Boolean = true
   private var duplicateObjectMonitor: Boolean = false
+  private var autoFlush: Boolean = true
 
   val Trace: String = "TRACE"
 
@@ -112,9 +113,19 @@ object ServerOps  {
     duplicateObjectMonitor
   }
 
-  /** Update lazy block flag */
+  /** Update duplicate object monitor flag */
   def setDuplicateObjectMonitoring(enable: Boolean): Unit = {
     duplicateObjectMonitor = enable
+  }
+
+  /** Is auto flushing, this is enabled by default */
+  def getAutoFlush: Boolean = {
+    autoFlush
+  }
+
+  /** Update auto flushing flag */
+  def setAutoFlush(enable: Boolean): Unit = {
+    autoFlush = enable
   }
 
 }

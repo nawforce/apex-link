@@ -46,8 +46,6 @@ import scala.collection.mutable
 trait PackageAPI extends Package {
   this: PackageImpl =>
 
-  private val refreshQueue: mutable.Queue[RefreshRequest] = new mutable.Queue[RefreshRequest]()
-
   override def getNamespaces(withDependents: Boolean): Array[String] = {
     val ns = namespace.map(_.value).getOrElse("")
     if (withDependents)
@@ -137,7 +135,7 @@ trait PackageAPI extends Package {
   }
 
   private[nawforce] def refresh(path: PathLike, contents: Option[SourceBlob]): Unit = {
-    refreshQueue.enqueue(RefreshRequest(path, contents))
+    org.queueRefresh(RefreshRequest(this, path, contents))
   }
 
   private def refreshInternal(path: PathLike, contents: Option[SourceBlob]): (TypeId, Set[TypeId]) = {
@@ -366,21 +364,16 @@ trait PackageAPI extends Package {
   }
 
   /** Flush all types to the passed cache */
-  def flush(pc: ParsedCache): Boolean = {
-    val flushed = flushBatched()
+  def flush(pc: ParsedCache): Unit = {
     val context = packageContext
     types.values.foreach({
       case ad: ApexClassDeclaration => ad.flush(pc, context)
       case _ => ()
     })
-    flushed
   }
 
-  def flushBatched(): Boolean = {
-    val requests = new mutable.HashMap[PathLike, RefreshRequest]()
-    refreshQueue.foreach(r => requests.put(r.path, r))
-    refreshQueue.clear()
-
+  def refreshBatched(refreshRequests: Seq[RefreshRequest]): Boolean = {
+    val requests = refreshRequests.map(r => (r.path, r)).toMap
     if (requests.isEmpty)
       return false
 

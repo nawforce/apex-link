@@ -27,13 +27,22 @@
 */
 package com.nawforce.common.types
 
-import com.nawforce.common.api.Org
+import com.nawforce.common.api.{Org, ServerOps}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
+import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class PlatformEventTest extends AnyFunSuite {
+class PlatformEventTest extends AnyFunSuite with BeforeAndAfter{
+
+  before {
+    ServerOps.setAutoFlush(false)
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
+  }
 
   def platformEvent(label: String, fields: Seq[(String, String, Option[String])]): String = {
     val fieldMetadata = fields.map(field => {

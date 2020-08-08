@@ -40,10 +40,12 @@ class SampleViewTest extends AnyFunSuite with BeforeAndAfter {
   before {
     ParsedCache.clear()
     ServerOps.setParsedDataCaching(true)
+    ServerOps.setAutoFlush(false)
   }
 
   after {
     ServerOps.setParsedDataCaching(false)
+    ServerOps.setAutoFlush(true)
   }
 
   private def sample(path: String): Unit = {

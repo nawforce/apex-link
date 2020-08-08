@@ -27,15 +27,24 @@
 */
 package com.nawforce.common.parsers
 
-import com.nawforce.common.api.{Org, Package}
+import com.nawforce.common.api.{Org, Package, ServerOps}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.sfdx.MDAPIWorkspace
 import com.nawforce.runtime.FileSystemHelper
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
+import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class CodeParserTest extends AnyFunSuite {
+class CodeParserTest extends AnyFunSuite with BeforeAndAfter {
+
+  before {
+    ServerOps.setAutoFlush(false)
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
+  }
 
   private def addPackage(org: OrgImpl, path: PathLike): Package = {
     org.addPackage(new MDAPIWorkspace(None, Seq(path)), Seq())

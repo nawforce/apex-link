@@ -28,13 +28,24 @@
 
 package com.nawforce.common.types
 
-import com.nawforce.common.api.Org
+import com.nawforce.common.api.{Org, ServerOps}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
+import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class TriggerTest extends AnyFunSuite {
+class TriggerTest extends AnyFunSuite with BeforeAndAfter {
+
+  before {
+    ServerOps.setAutoFlush(false)
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
+  }
+
+
   test("Empty trigger") {
     FileSystemHelper.run(Map(
       "Dummy.trigger" -> "trigger Dummy on Account (before insert) { }"

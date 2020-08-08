@@ -37,7 +37,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class GhostPackageTest extends AnyFunSuite with BeforeAndAfter {
 
-  private var defaultOrg: OrgImpl = new OrgImpl
+  private var defaultOrg: OrgImpl = _
   private var root: PathLike = _
 
   def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
@@ -52,9 +52,14 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   before {
+    ServerOps.setAutoFlush(false)
     ServerOps.setParsedDataCaching(false)
     defaultOrg = new OrgImpl
     root = null
+  }
+
+  after {
+    ServerOps.setAutoFlush(true)
   }
 
   test("Ghost package suppresses declared type error") {
