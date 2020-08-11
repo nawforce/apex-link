@@ -35,6 +35,7 @@ import upickle.default.{macroRW, ReadWriter => RW}
 
 sealed class IssueCategory(val value: String)
 
+case object SYNTAX_CATEGORY extends IssueCategory("Syntax")
 case object ERROR_CATEGORY extends IssueCategory("Error")
 case object WARNING_CATEGORY extends IssueCategory("Warning")
 case object MISSING_CATEGORY extends IssueCategory("Missing")

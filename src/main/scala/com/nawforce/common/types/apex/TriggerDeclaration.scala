@@ -29,7 +29,8 @@ package com.nawforce.common.types.apex
 
 import com.nawforce.common.api._
 import com.nawforce.common.cst._
-import com.nawforce.common.documents.{LineLocationImpl, LocationImpl}
+import com.nawforce.common.diagnostics.{Issue, SYNTAX_CATEGORY}
+import com.nawforce.common.documents.{LineLocationImpl, LocationImpl, PointLocationImpl, PositionImpl}
 import com.nawforce.common.memory.SkinnySet
 import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
@@ -155,7 +156,8 @@ object TriggerDeclaration {
     val parser = CodeParser(path, data)
     parser.parseTrigger() match {
       case Left(err) =>
-        OrgImpl.logError(LineLocationImpl(path.toString, err.line), err.message)
+        OrgImpl.log(new Issue(SYNTAX_CATEGORY,
+          PointLocationImpl(path.toString, PositionImpl(err.line, err.column)), err.message))
         None
       case Right(cu) =>
         Some(TriggerDeclaration.construct(parser, pkg, path, cu))

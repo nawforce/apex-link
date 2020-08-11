@@ -62,7 +62,7 @@ class SwitchTest extends AnyFunSuite with BeforeAndAfter {
   test("Empty switch") {
     typeDeclaration("public class Dummy {{switch on 'A' {}}}")
     assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1: mismatched input '}' expecting 'when'\n")
+      "Syntax: line 1 at 36: mismatched input '}' expecting 'when'\n")
   }
 
   test("Bad switch type") {

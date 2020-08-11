@@ -107,8 +107,8 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       val view = pkg.getViewOfType(root.join("Foo.cls"), Some(SourceBlob("")))
       assert(!view.hasType)
       assert(view.diagnostics.length == 1)
-      assert(view.diagnostics.head.category == "Error")
-      assert(view.diagnostics.head.location == LineLocation(1))
+      assert(view.diagnostics.head.category == "Syntax")
+      assert(view.diagnostics.head.location == PointLocation(Position(1, 0)))
       assert(view.diagnostics.head.message.nonEmpty)
     }
   }
@@ -122,8 +122,8 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("")))
       assert(!view.hasType)
       assert(view.diagnostics.length == 1)
-      assert(view.diagnostics.head.category == "Error")
-      assert(view.diagnostics.head.location == LineLocation(1))
+      assert(view.diagnostics.head.category == "Syntax")
+      assert(view.diagnostics.head.location == PointLocation(Position(1, 0)))
       assert(view.diagnostics.head.message.nonEmpty)
     }
   }
@@ -192,8 +192,8 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       val view = pkg.getViewOfType(root.join("Foo.trigger"), Some(SourceBlob("")))
       assert(!view.hasType)
       assert(view.diagnostics.length == 1)
-      assert(view.diagnostics.head.category == "Error")
-      assert(view.diagnostics.head.location == LineLocation(1))
+      assert(view.diagnostics.head.category == "Syntax")
+      assert(view.diagnostics.head.location == PointLocation(Position(1, 0)))
       assert(view.diagnostics.head.message.nonEmpty)
     }
   }
@@ -207,8 +207,8 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), Some(SourceBlob("")))
       assert(!view.hasType)
       assert(view.diagnostics.length == 1)
-      assert(view.diagnostics.head.category == "Error")
-      assert(view.diagnostics.head.location == LineLocation(1))
+      assert(view.diagnostics.head.category == "Syntax")
+      assert(view.diagnostics.head.location == PointLocation(Position(1, 0)))
       assert(view.diagnostics.head.message.nonEmpty)
     }
   }

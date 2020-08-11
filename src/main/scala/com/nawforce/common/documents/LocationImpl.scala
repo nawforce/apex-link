@@ -141,7 +141,7 @@ case class PointLocationImpl(_path: String, start: PositionImpl) extends Locatio
   override def startPosition: (Int, Int) = start.getPosition
   override def endPosition: (Int, Int) = (startPosition._1+1, 0)
   override def displayPosition: String = start.displayPosition
-  override def asJSON: String = start.asJSON
+  override def asJSON: String = s""""start": ${start.asJSON}"""
   override def toLocation: PointLocation = PointLocation(start.toPosition)
 }
 

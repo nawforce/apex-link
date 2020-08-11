@@ -72,7 +72,7 @@ class BatchingTest extends AnyFunSuite with BeforeAndAfter {
 
       assert(org.flush())
       assert(org.issues.getMessages("/Dummy.cls")
-        .startsWith("Error: line 1: mismatched input '<EOF>' expecting {"))
+        .startsWith("Syntax: line 1 at 20: mismatched input '<EOF>' expecting {"))
     }
   }
 }
