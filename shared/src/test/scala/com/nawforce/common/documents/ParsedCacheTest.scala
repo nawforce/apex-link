@@ -28,7 +28,7 @@
 
 package com.nawforce.common.documents
 
-import com.nawforce.common.api.ServerOps
+import com.nawforce.common.api.LoggerOps
 import com.nawforce.runtime.platform.Environment
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
@@ -38,12 +38,11 @@ class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
   private val emptyPackageContext = PackageContext(None, Array(), Array())
 
   before {
-    ServerOps.setParsedDataCaching(true)
+    ParsedCache.clear()
   }
 
   after {
     ParsedCache.clear()
-    ServerOps.setParsedDataCaching(false)
   }
 
   test("homedir is available") {

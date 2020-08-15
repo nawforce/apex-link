@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.documents
 
-import com.nawforce.common.api.{Name, ServerOps, TypeName}
+import com.nawforce.common.api.{Name, LoggerOps, TypeName}
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, IssueLogger}
 import com.nawforce.common.names.TypeNames
 import com.nawforce.common.path.PathLike
@@ -139,11 +139,11 @@ class DocumentIndex(namespace: Option[Name], paths: Seq[PathLike], logger: Issue
     if (path.isDirectory) {
       if (forceIgnore.forall(_.includeDirectory(path))) {
         path.directoryList() match {
-          case Left(err) => ServerOps.error(err)
+          case Left(err) => LoggerOps.error(err)
           case Right(parts) => parts.foreach(part => indexPath(path.join(part), forceIgnore))
         }
       } else {
-        ServerOps.debug(ServerOps.Trace, s"Ignoring directory $path")
+        LoggerOps.debug(LoggerOps.Trace, s"Ignoring directory $path")
       }
     } else {
       // Not testing if this is a regular file to improve scan performance, will fail later on read
@@ -151,7 +151,7 @@ class DocumentIndex(namespace: Option[Name], paths: Seq[PathLike], logger: Issue
         val dt = MetadataDocument(path)
         dt.foreach(insertDocument)
       } else {
-        ServerOps.debug(ServerOps.Trace, s"Ignoring file $path")
+        LoggerOps.debug(LoggerOps.Trace, s"Ignoring file $path")
       }
     }
   }

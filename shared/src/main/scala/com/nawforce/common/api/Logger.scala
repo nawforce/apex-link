@@ -42,13 +42,9 @@ class DefaultLogger extends Logger {
 }
 
 /** Collection of Ops functions for changing global behaviours */
-object ServerOps  {
+object LoggerOps  {
   private var logging: Boolean = false
   private var logger: Logger = new DefaultLogger
-  private var parsedCaching: Boolean = true
-  private var lazyBlocks: Boolean = true
-  private var duplicateObjectMonitor: Boolean = false
-  private var autoFlush: Boolean = true
 
   val Trace: String = "TRACE"
 
@@ -84,48 +80,7 @@ object ServerOps  {
     } finally {
       val end = System.currentTimeMillis()
       if (show)
-        ServerOps.debug(ServerOps.Trace, s"$msg in ${end - start}ms$postMsg")
+        LoggerOps.debug(LoggerOps.Trace, s"$msg in ${end - start}ms$postMsg")
     }
   }
-
-  /** Are we caching parsed data, this is enabled by default */
-  def getParsedDataCaching: Boolean = {
-    parsedCaching
-  }
-
-  /** Update parsed data caching flag */
-  def setParsedDataCaching(enable: Boolean): Unit = {
-    parsedCaching = enable
-  }
-
-  /** Are we using lazy blocks, this is enabled by default */
-  def getLazyBlocks: Boolean = {
-    lazyBlocks
-  }
-
-  /** Update lazy block flag */
-  def setLazyBlocks(enable: Boolean): Unit = {
-    lazyBlocks = enable
-  }
-
-  /** Is duplicate object monitor enabled, this is disabled by default */
-  def getDuplicateObjectMonitoring: Boolean = {
-    duplicateObjectMonitor
-  }
-
-  /** Update duplicate object monitor flag */
-  def setDuplicateObjectMonitoring(enable: Boolean): Unit = {
-    duplicateObjectMonitor = enable
-  }
-
-  /** Is auto flushing, this is enabled by default */
-  def getAutoFlush: Boolean = {
-    autoFlush
-  }
-
-  /** Update auto flushing flag */
-  def setAutoFlush(enable: Boolean): Unit = {
-    autoFlush = enable
-  }
-
 }
