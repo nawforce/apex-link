@@ -24,7 +24,44 @@ lazy val pkgforce = crossProject(JSPlatform, JVMPlatform).in(file(".")).
     libraryDependencies += "com.google.jimfs" % "jimfs" % "1.1" % Test,
   ).
   jsSettings(
+    publish := {},
     libraryDependencies += "io.scalajs" %%% "nodejs" % "0.4.2",
     scalaJSModuleKind := CommonJSModule,
     scalacOptions += "-P:scalajs:sjsDefinedByDefault"
   )
+
+
+// To publish use: pkgforceJVM / publishSigned
+
+ThisBuild / organization := "com.github.nawforce"
+ThisBuild / organizationHomepage := Some(url("https://github.com/nawforce/pkgforce"))
+ThisBuild / scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/nawforce/pkgforce"),
+    "git@github.com:nawforce/pkgforce.git"
+  )
+)
+
+ThisBuild / developers := List(
+  Developer(
+    id = "nawforce",
+    name = "Kevin Jones",
+    email = "nawforce@gmail.com",
+    url = url("https://github.com/nawforce"
+    )
+  )
+)
+
+ThisBuild / description := "Salesforce Metadata Management Utility Library"
+ThisBuild / licenses := List("BSD-3-Clause" -> new URL("https://opensource.org/licenses/BSD-3-Clause"))
+ThisBuild / homepage := Some(url("https://github.com/nawforce/pkgforce"))
+
+ThisBuild / credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credentials")
+
+ThisBuild / pomIncludeRepository := { _ => false }
+ThisBuild / publishTo := {
+  val nexus = "https://oss.sonatype.org/"
+  if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
+  else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+}
+ThisBuild / publishMavenStyle := true
