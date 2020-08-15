@@ -5,7 +5,7 @@ import java.nio.file.Files
 import com.google.common.jimfs.{Configuration, Jimfs}
 import com.nawforce.common.documents.ParsedCache
 import com.nawforce.common.path.PathLike
-import com.nawforce.runtime.os.Path
+import com.nawforce.runtime.platform.Path
 
 object FileSystemHelper {
 
@@ -41,7 +41,7 @@ object FileSystemHelper {
     // Make sure cache is empty if we are going to use it
     if (setupCache)
       ParsedCache.clear()
-    
+
     try {
       verify(Path(tempDir))
     } finally {

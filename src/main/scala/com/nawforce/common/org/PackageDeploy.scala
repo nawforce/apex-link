@@ -34,7 +34,7 @@ import com.nawforce.common.names._
 import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.types.apex.{ApexClassDeclaration, FullDeclaration, SummaryApex, TriggerDeclaration}
 import com.nawforce.common.types.schema.SObjectDeclaration
-import com.nawforce.runtime.os.Environment
+import com.nawforce.runtime.platform.Environment
 import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.mutable

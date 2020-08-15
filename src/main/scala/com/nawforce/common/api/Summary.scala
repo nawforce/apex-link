@@ -187,37 +187,6 @@ case class MethodDependentSummary(typeId: TypeIdentifier, name: String, paramete
   }
 }
 
-/** A diagnostic message, category tells us what type of diagnostic this is while location and messages provide details */
-@upickle.implicits.key("Diagnostic")
-case class Diagnostic(category: String, location: Location, message: String)
-
-/** Location interface for identify a sub-part of a file */
-sealed trait Location
-
-/** Single line location */
-@upickle.implicits.key("LineLocation")
-case class LineLocation(line: Int) extends Location
-
-/** Range of lines location */
-@upickle.implicits.key("LineRangeLocation")
-case class LineRangeLocation(start: Int, end: Int) extends Location
-
-/** Position in a file */
-@upickle.implicits.key("Position")
-case class Position(line: Int, offset: Int)
-
-/** Single position location */
-@upickle.implicits.key("PointLocation")
-case class PointLocation(position: Position) extends Location
-
-/** Range between to positions */
-@upickle.implicits.key("RangeLocation")
-case class RangeLocation(start: Position, end: Position) extends Location
-
-/** Combined path and location within the path */
-@upickle.implicits.key("PathLocation")
-case class PathLocation(path: String, location: Location)
-
 object ApexSummary {
   implicit val rw: RW[ApexSummary] = macroRW
 }
@@ -260,36 +229,4 @@ object FieldDependentSummary {
 
 object MethodDependentSummary {
   implicit val rw: RW[MethodDependentSummary] = macroRW
-}
-
-object Diagnostic {
-  implicit val rw: RW[Diagnostic] = macroRW
-}
-
-object Location {
-  implicit val rw: RW[Location] = RW.merge(LineLocation.rw, LineRangeLocation.rw, PointLocation.rw, RangeLocation.rw)
-}
-
-object LineLocation {
-  implicit val rw: RW[LineLocation] = macroRW
-}
-
-object LineRangeLocation {
-  implicit val rw: RW[LineRangeLocation] = macroRW
-}
-
-object PointLocation {
-  implicit val rw: RW[PointLocation] = macroRW
-}
-
-object RangeLocation {
-  implicit val rw: RW[RangeLocation] = macroRW
-}
-
-object Position {
-  implicit val rw: RW[Position] = macroRW
-}
-
-object PathLocation {
-  implicit val rw: RW[PathLocation] = macroRW
 }

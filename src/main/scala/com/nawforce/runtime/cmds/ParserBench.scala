@@ -33,7 +33,7 @@ import com.nawforce.common.api.{Name, ServerOps}
 import com.nawforce.common.diagnostics.CatchingLogger
 import com.nawforce.common.documents.DocumentIndex
 import com.nawforce.common.path.PathLike
-import com.nawforce.runtime.os.Path
+import com.nawforce.runtime.platform.Path
 import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.mutable.ArrayBuffer

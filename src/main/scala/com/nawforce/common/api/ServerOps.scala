@@ -27,24 +27,8 @@
 */
 package com.nawforce.common.api
 
-/** Logging interface */
-trait Logger {
-  def info(message: String): Unit
-  def error(message: String): Unit
-  def debug(message: String): Unit
-}
-
-/** Default logging support, info goes to stdout, error & debug to stderr */
-class DefaultLogger extends Logger {
-  def info(message: String): Unit = {System.out.println(message)}
-  def error(message: String): Unit = {System.err.println("[error] " + message)}
-  def debug(message: String): Unit = {System.err.println("[debug] " + message)}
-}
-
 /** Collection of Ops functions for changing global behaviours */
-object ServerOps  {
-  private var logging: Boolean = false
-  private var logger: Logger = new DefaultLogger
+object ServerOps {
   private var parsedCaching: Boolean = true
   private var lazyBlocks: Boolean = true
   private var duplicateObjectMonitor: Boolean = false
@@ -54,39 +38,26 @@ object ServerOps  {
 
   /** Set debug logging categories, only currently supported option is 'ALL', debug logging is disabled by default. */
   def setDebugLogging(flags: Array[String]): Unit = {
-    logging = flags.contains("ALL")
+    LoggerOps.setDebugLogging(flags)
   }
 
   /** Override the default logger */
   def setLogger(newLogger: Logger): Logger = {
-    val old = logger
-    logger = newLogger
-    old
+    LoggerOps.setLogger(newLogger)
   }
 
   /** Log an information message */
-  def info(message: String): Unit = logger.info(message)
+  def info(message: String): Unit = LoggerOps.info(message)
 
   /** Log an error */
-  def error(message: String): Unit = logger.error(message)
+  def error(message: String): Unit = LoggerOps.error(message)
 
   /** Log a debug message against a category */
-  def debug(category: String, message: String): Unit = {
-    if (logging)
-      logger.debug(message)
-  }
+  def debug(category: String, message: String): Unit = LoggerOps.debug(category, message)
 
   /** Time an operation and debug log how long it took */
-  def debugTime[T](msg: String, show: Boolean=true, postMsg: String = "")(op: => T): T = {
-    val start = System.currentTimeMillis()
-    try {
-      op
-    } finally {
-      val end = System.currentTimeMillis()
-      if (show)
-        ServerOps.debug(ServerOps.Trace, s"$msg in ${end - start}ms$postMsg")
-    }
-  }
+  def debugTime[T](msg: String, show: Boolean=true, postMsg: String = "")(op: => T): T =
+    LoggerOps.debugTime(msg, show, postMsg)(op)
 
   /** Are we caching parsed data, this is enabled by default */
   def getParsedDataCaching: Boolean = {

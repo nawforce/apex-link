@@ -20,6 +20,14 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="scala-sdk-2.12.6" level="application" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.12.6" level="project" />
+    <orderEntry type="library" name="Maven: com.github.nawforce:pkgforce_2.12:1.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.lihaoyi:upickle_2.12:1.2.0" level="project" />
+    <orderEntry type="library" name="Maven: com.lihaoyi:ujson_2.12:1.2.0" level="project" />
+    <orderEntry type="library" name="Maven: com.lihaoyi:upickle-core_2.12:1.2.0" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-collection-compat_2.12:2.1.4" level="project" />
+    <orderEntry type="library" name="Maven: com.lihaoyi:geny_2.12:0.6.2" level="project" />
+    <orderEntry type="library" name="Maven: com.lihaoyi:upack_2.12:1.2.0" level="project" />
+    <orderEntry type="library" name="Maven: com.lihaoyi:upickle-implicits_2.12:1.2.0" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-xml_2.12:1.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.antlr:antlr4-runtime:4.8-1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.scalatest:scalatest_2.12:3.1.0" level="project" />
@@ -28,13 +36,6 @@
     <orderEntry type="library" name="Maven: org.scala-lang:scala-reflect:2.12.10" level="project" />
     <orderEntry type="library" name="Maven: org.scalamock:scalamock-core_2.12:3.6.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.scalamock:scalamock-scalatest-support_2.12:3.6.0" level="project" />
-    <orderEntry type="library" name="Maven: com.lihaoyi:upickle_2.12:0.9.0" level="project" />
-    <orderEntry type="library" name="Maven: com.lihaoyi:ujson_2.12:0.9.0" level="project" />
-    <orderEntry type="library" name="Maven: com.lihaoyi:upickle-core_2.12:0.9.0" level="project" />
-    <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-collection-compat_2.12:2.0.0" level="project" />
-    <orderEntry type="library" name="Maven: com.lihaoyi:geny_2.12:0.2.0" level="project" />
-    <orderEntry type="library" name="Maven: com.lihaoyi:upack_2.12:0.9.0" level="project" />
-    <orderEntry type="library" name="Maven: com.lihaoyi:upickle-implicits_2.12:0.9.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.scala-js:scalajs-stubs_2.12:1.0.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.google.jimfs:jimfs:1.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.google.guava:guava:18.0" level="project" />
