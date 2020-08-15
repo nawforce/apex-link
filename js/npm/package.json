@@ -1,0 +1,25 @@
+{
+  "name": "pkgforce",
+  "version": "1.0.0",
+  "description": "Salesforce Metadata Management Utility Library",
+  "publisher": "KevinJones",
+  "main": "dist/boot.js",
+  "repository": "nawforce/apexlink",
+  "author": "Kevin Jones <nawforce@gmail.com> (https://github.com/nawforce)",
+  "license": "BSD-3-Clause",
+  "bugs": "https://github.com/nawforce/apexlink/issues",
+  "icon": "logo.png",
+  "dependencies": {
+    "xmldom": "0.1.27",
+    "antlr4ts": "0.5.0-alpha.3",
+    "apex-parser": "2.4.0"
+  },
+  "devDependencies": {
+    "fs-monkey": "0.3.3",
+    "memfs": "3.0.5"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "scripts": {}
+}
