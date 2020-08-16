@@ -2,16 +2,48 @@ import org.scalajs.core.tools.linker.backend.ModuleKind.CommonJSModule
 import sbt.Keys.libraryDependencies
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
+lazy val build = taskKey[Unit]("Build artifacts")
+
 ThisBuild / scalaVersion := "2.12.11"
 
-lazy val all = project.in(file(".")).
-  aggregate(pkgforce.js, pkgforce.jvm).
+lazy val pkgforce = project.in(file(".")).
+  aggregate(cross.js, cross.jvm).
   settings(
     publish := {},
     publishLocal := {},
   )
 
-lazy val pkgforce = crossProject(JSPlatform, JVMPlatform).in(file(".")).
+lazy val buildNPM = Def.task {
+
+  // Update NPM module with latest compile
+  import java.nio.file.StandardCopyOption.REPLACE_EXISTING
+  import java.nio.file.Files.copy
+
+  (Compile / fastOptJS).value
+  (Compile / fullOptJS).value
+
+  val targetDir = file("js/target/scala-2.12").toPath
+  val npmDir = file("js/npm").toPath
+  val outputFiles = Seq("pkgforce-fastopt.js", "pkgforce-opt.js", "pkgforce-fastopt.js.map", "pkgforce-opt.js.map")
+
+  outputFiles.foreach(name => copy(targetDir.resolve(name), npmDir.resolve(name), REPLACE_EXISTING))
+
+  // Install modules in NPM
+  import scala.language.postfixOps
+  import scala.sys.process._
+
+  Process("npm i --production", npmDir.toFile) !
+
+  // Update target with NPM modules (for testing)
+  copy(npmDir.resolve("package.json"), targetDir.resolve("package.json"), REPLACE_EXISTING)
+  Process("npm i", targetDir.toFile) !
+}
+
+lazy val buildJVM = Def.task {
+  (Compile / compile).value
+}
+
+lazy val cross = crossProject(JSPlatform, JVMPlatform).in(file(".")).
   settings(
     name := "pkgforce",
     version := "1.0-SNAPSHOT",
@@ -19,17 +51,18 @@ lazy val pkgforce = crossProject(JSPlatform, JVMPlatform).in(file(".")).
     libraryDependencies += "org.scalatest" %%% "scalatest" % "3.1.0" % Test
   ).
   jvmSettings(
+    build := buildJVM.value,
     libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.1.1",
     libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.8-1",
     libraryDependencies += "com.google.jimfs" % "jimfs" % "1.1" % Test,
   ).
   jsSettings(
+    build := buildNPM.value,
     publish := {},
     libraryDependencies += "io.scalajs" %%% "nodejs" % "0.4.2",
     scalaJSModuleKind := CommonJSModule,
     scalacOptions += "-P:scalajs:sjsDefinedByDefault"
   )
-
 
 // To publish use: pkgforceJVM / publishSigned
 

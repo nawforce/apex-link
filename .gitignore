@@ -1,3 +1,11 @@
-.idea
-**/target
+.idea/
+.bloop/
+**/target/
+**/node_modules/
 **/metals.sbt
+js/npm/package-lock.json
+js/npm/pkgforce-fastopt.js
+js/npm/pkgforce-fastopt.js.map
+js/npm/pkgforce-opt.js
+js/npm/pkgforce-opt.js.map
+
