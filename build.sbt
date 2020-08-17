@@ -46,7 +46,7 @@ lazy val buildJVM = Def.task {
 lazy val cross = crossProject(JSPlatform, JVMPlatform).in(file(".")).
   settings(
     name := "pkgforce",
-    version := "1.0-SNAPSHOT",
+    version := "1.0.0",
     libraryDependencies += "com.lihaoyi" %%% "upickle" % "1.2.0",
     libraryDependencies += "org.scalatest" %%% "scalatest" % "3.1.0" % Test
   ).
@@ -58,7 +58,6 @@ lazy val cross = crossProject(JSPlatform, JVMPlatform).in(file(".")).
   ).
   jsSettings(
     build := buildNPM.value,
-    publish := {},
     libraryDependencies += "io.scalajs" %%% "nodejs" % "0.4.2",
     scalaJSModuleKind := CommonJSModule,
     scalacOptions += "-P:scalajs:sjsDefinedByDefault"
