@@ -20,7 +20,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="scala-sdk-2.12.6" level="application" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.12.6" level="project" />
-    <orderEntry type="library" name="Maven: com.github.nawforce:pkgforce_2.12:1.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.github.nawforce:pkgforce_2.12:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: com.lihaoyi:upickle_2.12:1.2.0" level="project" />
     <orderEntry type="library" name="Maven: com.lihaoyi:ujson_2.12:1.2.0" level="project" />
     <orderEntry type="library" name="Maven: com.lihaoyi:upickle-core_2.12:1.2.0" level="project" />
