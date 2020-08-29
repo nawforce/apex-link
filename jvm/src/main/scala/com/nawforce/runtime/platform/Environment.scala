@@ -29,7 +29,7 @@
 package com.nawforce.runtime.platform
 
 object Environment {
-  def gc: Unit = {
+  def gc(): Unit = {
     System.gc()
   }
 

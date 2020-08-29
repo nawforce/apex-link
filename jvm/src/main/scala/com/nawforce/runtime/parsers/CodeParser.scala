@@ -34,7 +34,7 @@ import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import org.antlr.v4.runtime.CommonTokenStream
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /** Apex class parser helper */
 class CodeParser(val source: Source) {
@@ -121,7 +121,7 @@ object CodeParser {
 
   // Helper for JS Portability
   def toScala[T](collection: java.util.List[T]): Seq[T] = {
-    collection.asScala
+    collection.asScala.toSeq
   }
 
   // Helper for JS Portability

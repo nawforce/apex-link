@@ -28,13 +28,13 @@
 
 package com.nawforce.runtime.platform
 
-import io.scalajs.nodejs.process
+import io.scalajs.nodejs.process.Process
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
 object Environment {
-  def gc: Unit = {
+  def gc(): Unit = {
     // Not implemented
   }
 
@@ -43,15 +43,12 @@ object Environment {
   }
 
   def variable(name: String): Option[String] = {
-    process.env.get(name)
+    Process.env(name).toOption
   }
 
   def setVariable(name: String, value: String): Boolean = {
     try {
-      if (value == null)
-        process.env -= name
-      else
-        process.env.update(name, value)
+      Process.env.update(name, value)
       true
     } catch {
       case _: SecurityException => false

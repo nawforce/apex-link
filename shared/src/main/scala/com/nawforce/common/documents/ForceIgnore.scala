@@ -80,7 +80,7 @@ case class IgnoreRule(dirOnly: Boolean, negation: Boolean, pattern: String) {
   // Convert a pattern to a regex
   // See https://github.com/snark/ignorance/blob/master/ignorance/utils.py for reference
   lazy val regex: String = {
-    val builder = StringBuilder.newBuilder
+    val builder = new StringBuilder()
     var i = 0
     val n = pattern.length
     while (i < n) {

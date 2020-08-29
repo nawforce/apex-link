@@ -72,7 +72,7 @@ class ProjectTest extends AnyFunSuite {
     )) { root: PathLike =>
       Project(root) match {
         case Left(err) => assert(err == "Failed to parse '/sfdx-project.json', error: 'packageDirectories' is required")
-        case Right(project) => assert(false)
+        case Right(_) => assert(false)
       }
     }
   }

@@ -44,7 +44,7 @@ class XMLElement(element: Element) extends XMLElementLike {
   override lazy val text: String = {
     val nl = element.childNodes
 
-    val sb = StringBuilder.newBuilder
+    val sb = new StringBuilder()
     for (i <- 0 until nl.length) {
       val n = nl.item(i)
       if (n.nodeType == Node.TEXT_NODE) {

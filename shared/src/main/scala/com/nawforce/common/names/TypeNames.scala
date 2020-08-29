@@ -28,7 +28,7 @@ object TypeNames extends InternCache[TypeName] {
   lazy val Location: TypeName = TypeName(Names.Location, Nil, Some(TypeNames.System)).intern
   lazy val Address: TypeName = TypeName(Names.Address, Nil, Some(TypeNames.System)).intern
 
-  lazy val Id: TypeName = TypeName(Names.Id, Nil, Some(TypeNames.System)).intern
+  lazy val IdType: TypeName = TypeName(Names.Id, Nil, Some(TypeNames.System)).intern
   lazy val TypeType: TypeName = TypeName(Names.Type, Nil, Some(TypeNames.System)).intern
   lazy val PageReference: TypeName = TypeName(Names.PageReference, Nil, Some(TypeNames.System)).intern
   lazy val SObject: TypeName = TypeName(Names.SObject, Nil, Some(TypeNames.System)).intern

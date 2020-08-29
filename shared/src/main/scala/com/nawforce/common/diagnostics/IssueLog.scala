@@ -93,7 +93,7 @@ class IssueLog {
     })
     possibleMissing.clear()
     missing.foreach(possibleMissing.add)
-    missing
+    missing.toSeq
   }
 
   private trait MessageWriter {

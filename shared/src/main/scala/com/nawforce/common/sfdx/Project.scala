@@ -38,7 +38,7 @@ class Project(projectPath: PathLike, config: Value.Value) {
   val packageDirectories: Seq[PackageDirectory] =
     try {
       config("packageDirectories") match {
-        case ujson.Arr(value) => value.map(pd => new PackageDirectory(projectPath, pd))
+        case ujson.Arr(value) => value.toSeq.map(pd => new PackageDirectory(projectPath, pd))
         case _ => throw new ProjectError("'packageDirectories' should be an array")
       }
     } catch {
@@ -75,7 +75,7 @@ class Project(projectPath: PathLike, config: Value.Value) {
 
   val dependencies: Seq[DependentPackage] =
     plugins.getOrElse("dependencies", ujson.Arr()) match {
-      case ujson.Arr(value) => value.map(dp => new DependentPackage(projectPath, dp))
+      case ujson.Arr(value) => value.toSeq.map(dp => new DependentPackage(projectPath, dp))
       case _ => throw new ProjectError("'dependencies' should be an array")
     }
 }

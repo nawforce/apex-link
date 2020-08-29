@@ -1,10 +1,9 @@
-import org.scalajs.core.tools.linker.backend.ModuleKind.CommonJSModule
 import sbt.Keys.libraryDependencies
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 lazy val build = taskKey[Unit]("Build artifacts")
 
-ThisBuild / scalaVersion := "2.12.11"
+ThisBuild / scalaVersion := "2.13.3"
 
 lazy val pkgforce = project.in(file(".")).
   aggregate(cross.js, cross.jvm).
@@ -22,7 +21,7 @@ lazy val buildNPM = Def.task {
   (Compile / fastOptJS).value
   (Compile / fullOptJS).value
 
-  val targetDir = file("js/target/scala-2.12").toPath
+  val targetDir = file("js/target/scala-2.13").toPath
   val npmDir = file("js/npm").toPath
   val outputFiles = Seq("pkgforce-fastopt.js", "pkgforce-opt.js", "pkgforce-fastopt.js.map", "pkgforce-opt.js.map")
 
@@ -45,22 +44,23 @@ lazy val buildJVM = Def.task {
 
 lazy val cross = crossProject(JSPlatform, JVMPlatform).in(file(".")).
   settings(
-    name := "pkgforce",
-    version := "1.0.0",
     libraryDependencies += "com.lihaoyi" %%% "upickle" % "1.2.0",
-    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.1.0" % Test
+    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.2.0" % Test
   ).
   jvmSettings(
+    name := "pkgforce",
+    version := "1.0.0",
     build := buildJVM.value,
-    libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.1.1",
+    libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
     libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.8-1",
-    libraryDependencies += "com.google.jimfs" % "jimfs" % "1.1" % Test,
+    libraryDependencies += "com.google.jimfs" % "jimfs" % "1.1" % Test
   ).
   jsSettings(
+    name := "pkgforce",
+    version := "1.0.0",
     build := buildNPM.value,
-    libraryDependencies += "io.scalajs" %%% "nodejs" % "0.4.2",
-    scalaJSModuleKind := CommonJSModule,
-    scalacOptions += "-P:scalajs:sjsDefinedByDefault"
+    libraryDependencies += "net.exoego" %%% "scala-js-nodejs-v14" % "0.12.0",
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
   )
 
 // To publish use: pkgforceJVM / publishSigned
@@ -91,6 +91,7 @@ ThisBuild / homepage := Some(url("https://github.com/nawforce/pkgforce"))
 ThisBuild / credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credentials")
 
 ThisBuild / pomIncludeRepository := { _ => false }
+ThisBuild / isSnapshot := false
 ThisBuild / publishTo := {
   val nexus = "https://oss.sonatype.org/"
   if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")

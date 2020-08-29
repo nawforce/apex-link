@@ -31,12 +31,12 @@ import com.nawforce.common.path._
 import com.nawforce.runtime.parsers.SourceData
 import io.scalajs.nodejs.buffer.Buffer
 import io.scalajs.nodejs.fs.Fs
-import io.scalajs.nodejs.process
+import io.scalajs.nodejs.process.Process
 
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
 
-case class Path private (val path: String) extends PathLike {
+case class Path private (path: String) extends PathLike {
 
   private lazy val pathObject = io.scalajs.nodejs.path.Path.parse(path)
   private lazy val stat = {
@@ -81,7 +81,8 @@ case class Path private (val path: String) extends PathLike {
 
   override def readBytes(): Either[String, Array[Byte]] = {
     try {
-      val data = Fs.readFileSync(path).values()
+      // TODO Simplify
+      val data = Fs.readFileSync(path).values().toIterator.toJSArray
       Right(data.map(_.toByte).toArray)
     } catch {
       case ex: js.JavaScriptException => Left(ex.getMessage())
@@ -142,7 +143,7 @@ case class Path private (val path: String) extends PathLike {
   override def directoryList(): Either[String, Seq[String]] = {
     if (isDirectory) {
       try {
-        Right(Fs.readdirSync(path))
+        Right(Fs.readdirSync(path).toSeq)
       } catch {
         case ex: js.JavaScriptException => Left(ex.getMessage())
       }
@@ -174,7 +175,7 @@ object Path {
   val separator: String = io.scalajs.nodejs.path.Path.sep
 
   def apply(path: String): Path = {
-    val safePath = Option(path).getOrElse(process.cwd())
+    val safePath = Option(path).getOrElse(Process.cwd())
     new Path(io.scalajs.nodejs.path.Path.resolve(safePath))
   }
 }

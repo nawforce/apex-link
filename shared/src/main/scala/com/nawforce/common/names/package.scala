@@ -169,7 +169,7 @@ package object names {
       }
     }
 
-    def isStringOrId: Boolean = typeName == TypeNames.String || typeName == TypeNames.Id
+    def isStringOrId: Boolean = typeName == TypeNames.String || typeName == TypeNames.IdType
 
     def isList: Boolean = typeName.name == Names.List$ && typeName.outer.contains(TypeNames.System) && typeName.params.size == 1
 

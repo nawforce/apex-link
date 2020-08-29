@@ -27,19 +27,17 @@
 */
 package com.nawforce.runtime.parsers
 
-import com.nawforce.common.documents.{PositionImpl, RangeLocationImpl}
+import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import com.nawforce.runtime.parsers.antlr.CommonTokenStream
-import io.scalajs.nodejs.console
 
 import scala.scalajs.js
 import scala.scalajs.js.JavaScriptException
-import scala.util.hashing.MurmurHash3
 
 class CodeParser (val source: Source) {
   // We would like to extend this but it angers the JavaScript gods
-  val cis = source.asStream
+  val cis: CaseInsensitiveInputStream = source.asStream
 
   def parseClass(): Either[SyntaxException, ApexParser.CompilationUnitContext] = {
     try {
@@ -121,7 +119,7 @@ object CodeParser {
 
   // Helper for JS Portability
   def toScala[T](collection: js.Array[T]): Seq[T] = {
-    collection
+    collection.toSeq
   }
 
   // Helper for JS Portability

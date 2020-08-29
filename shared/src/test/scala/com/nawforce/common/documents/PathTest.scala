@@ -136,7 +136,7 @@ class PathTest extends AnyFunSuite {
   test("create directory") {
     FileSystemHelper.run(Map[String, String] (
     )) { root: PathLike =>
-      val dir = root.createDirectory("Bar").right.get
+      val dir = root.createDirectory("Bar").getOrElse(throw new NoSuchElementException())
       assert(dir.isDirectory)
     }
   }
@@ -144,8 +144,8 @@ class PathTest extends AnyFunSuite {
   test("create directory duplicate directory succeeds") {
     FileSystemHelper.run(Map[String, String] (
     )) { root: PathLike =>
-      val dir1 = root.createDirectory("Bar").right.get
-      val dir2 = root.createDirectory("Bar").right.get
+      val dir1 = root.createDirectory("Bar").getOrElse(throw new NoSuchElementException())
+      val dir2 = root.createDirectory("Bar").getOrElse(throw new NoSuchElementException())
       assert(dir1.isDirectory)
       assert(dir1 == dir2)
     }
@@ -155,14 +155,15 @@ class PathTest extends AnyFunSuite {
     FileSystemHelper.run(Map[String, String] (
       "Bar" -> "Hello"
     )) { root: PathLike =>
-      assert(root.createDirectory("Bar").left.get == "Can not create directory '/Bar', file already exists")
+      assert(root.createDirectory("Bar").swap.getOrElse(throw new NoSuchElementException()) ==
+        "Can not create directory '/Bar', file already exists")
     }
   }
 
   test("delete directory") {
     FileSystemHelper.run(Map[String, String] (
     )) { root: PathLike =>
-      val file = root.createDirectory("Bar").right.get
+      val file = root.createDirectory("Bar").getOrElse(throw new NoSuchElementException())
       assert(file.delete().isEmpty)
       assert(!root.join("Bar").exists)
     }
@@ -171,7 +172,7 @@ class PathTest extends AnyFunSuite {
   test("create empty file") {
     FileSystemHelper.run(Map[String, String] (
     )) { root: PathLike =>
-      val file = root.createFile("Bar", "").right.get
+      val file = root.createFile("Bar", "").getOrElse(throw new NoSuchElementException())
       assert(file.size == 0)
       assert(root.join("Bar").size == 0)
     }
@@ -180,7 +181,7 @@ class PathTest extends AnyFunSuite {
   test("create non-empty file") {
     FileSystemHelper.run(Map[String, String] (
     )) { root: PathLike =>
-      val file = root.createFile("Bar", "Hello").right.get
+      val file = root.createFile("Bar", "Hello").getOrElse(throw new NoSuchElementException())
       assert(file.size == 5)
       assert(root.join("Bar").size == 5)
     }
@@ -191,7 +192,7 @@ class PathTest extends AnyFunSuite {
     )) { root: PathLike =>
       val file = root.join("Bar.txt")
       assert(file.write("Hello").isEmpty)
-      assert(file.read().right.get == "Hello")
+      assert(file.read().getOrElse(throw new NoSuchElementException()) == "Hello")
     }
   }
 
@@ -200,9 +201,9 @@ class PathTest extends AnyFunSuite {
       "Bar.txt" -> "Something"
     )) { root: PathLike =>
       val file = root.join("Bar.txt")
-      assert(file.read().right.get == "Something")
+      assert(file.read().getOrElse(throw new NoSuchElementException()) == "Something")
       assert(file.write("Hello").isEmpty)
-      assert(file.read().right.get == "Hello")
+      assert(file.read().getOrElse(throw new NoSuchElementException()) == "Hello")
     }
   }
 }
