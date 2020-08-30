@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2020 Kevin Jones
+ Copyright (c) 2019 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -25,58 +25,37 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.memory
 
-import scala.collection.mutable
+package com.nawforce.common.modifiers
 
-/** Low memory set.
+import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.memory.InternCache
+
+/** Results from modifier analysis.
   *
-  * Uses a an array for small size before using a set.
-  */
-class SkinnySet[T <: AnyRef] {
-  private var arrayOf = new mutable.ArrayBuffer[T](4)
-  private var setOf: mutable.Set[T] = _
+  * Modifiers are examined before the CST is constructed to make things a bit simpler. The results of the analysis
+  * are returned via this type. Interning is supported to reduce memory use.
+  **/
+case class ModifierResults(modifiers: Array[Modifier], issues: Array[Issue]) {
 
-  def isEmpty: Boolean = {
-    if (setOf != null)
-      setOf.isEmpty
-    else
-      arrayOf.isEmpty
-  }
+  override val hashCode: Int = modifiers.toSeq.hashCode()
 
-  def nonEmpty: Boolean = !isEmpty
+  def intern: ModifierResults = ModifierResults.intern(this)
 
-  def size: Int = {
-    if (setOf != null)
-      setOf.size
-    else
-      arrayOf.size
-  }
-
-  def add(t: T): Unit = {
-    if (setOf != null)
-      setOf.add(t)
-    else
-      arrayOf.append(t)
-
-    if (arrayOf != null && arrayOf.length>64) {
-      setOf = new mutable.HashSet[T]()
-      arrayOf.foreach(setOf.add)
-      arrayOf = null
+  override def equals(that: Any): Boolean = {
+    that match {
+      case other: ModifierResults =>
+        other.canEqual(this) && doesEqual(other)
+      case _ => false
     }
   }
 
-  def toSet: Set[T] = {
-    if (setOf != null)
-      setOf.toSet
-    else
-      arrayOf.toSet
-  }
+  override def canEqual(that: Any): Boolean = that.isInstanceOf[ModifierResults]
 
-  def toIterable: mutable.Iterable[T] = {
-    if (setOf != null)
-      setOf
-    else
-      arrayOf.distinct
+  private def doesEqual(other: ModifierResults): Boolean = {
+    this.modifiers.sameElements(other.modifiers) &&
+      this.issues.sameElements(other.issues)
   }
 }
+
+object ModifierResults extends InternCache[ModifierResults]
