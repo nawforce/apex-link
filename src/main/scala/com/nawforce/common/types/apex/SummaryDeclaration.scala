@@ -47,7 +47,7 @@ import scala.collection.mutable
 object DependentValidation {
 
   /* Test if all Type dependencies are valid. Ignore other types of dependency since these can't be checked */
-  def areTypeDependenciesValid(dependents: Seq[DependentSummary], pkg: PackageImpl) : Boolean = {
+  def areTypeDependenciesValid(dependents: Array[DependentSummary], pkg: PackageImpl) : Boolean = {
     // Horrible iteration, could this be @tailrec
     for (dependent <- dependents) {
       dependent match {
@@ -89,7 +89,7 @@ object DependentValidation {
   /* Collect actual dependents from DependentSummary entries. This must run against full package metadata since the
    * dependents may be inherited elements coming from other types in the package.
    */
-  def getDependents(dependents: Seq[DependentSummary], pkg: PackageImpl): Seq[Dependent] = {
+  def getDependents(dependents: Array[DependentSummary], pkg: PackageImpl): Array[Dependent] = {
     dependents.flatMap(dependent => {
       val dep = findDependent(dependent, pkg)
       if (dep.isEmpty) {
@@ -177,7 +177,7 @@ trait SummaryDependencyHandler extends DependencyHolder {
   def areTypeDependenciesValid: Boolean = DependentValidation.areTypeDependenciesValid(dependents, pkg)
 
   // Get all dependents, this list is only valid if areTypeDependenciesValid returns true
-  override lazy val dependencies: Seq[Dependent] = DependentValidation.getDependents(dependents, pkg)
+  override lazy val dependencies: Seq[Dependent] = DependentValidation.getDependents(dependents, pkg).toIndexedSeq
 
   // For summary types we defer propagation of internal dependencies as they are only needed for
   // unused analysis currently but we don't want to re-execute them every time.

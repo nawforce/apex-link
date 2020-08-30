@@ -39,9 +39,8 @@ import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexDeclaration}
 import com.nawforce.common.types.core.{TypeDeclaration, TypeId}
 import com.nawforce.common.types.other.{InterviewDeclaration, _}
-import com.nawforce.common.types.platform.PlatformTypes
+import com.nawforce.common.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.common.types.schema.SchemaManager
-import com.nawforce.runtime.types.PlatformTypeDeclaration
 
 import scala.collection.mutable
 

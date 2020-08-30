@@ -30,7 +30,7 @@ package com.nawforce.common.types.apex
 import com.nawforce.common.api._
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.{Issue, SYNTAX_CATEGORY}
-import com.nawforce.common.documents.{LineLocationImpl, LocationImpl, PointLocationImpl, PositionImpl}
+import com.nawforce.common.documents.{LocationImpl, PointLocationImpl, PositionImpl}
 import com.nawforce.common.memory.SkinnySet
 import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
@@ -95,7 +95,8 @@ final case class TriggerDeclaration(source: Source, pkg: PackageImpl, nameId: Id
           if (!pkg.isGhostedType(objectTypeName))
             OrgImpl.log(error.asIssue(objectNameId.location))
         case Right(_) =>
-          val triggerContext = context.getTypeFor(TypeNames.trigger(objectTypeName), Some(this)).right.get
+          val triggerContext = context.getTypeFor(TypeNames.trigger(objectTypeName), Some(this))
+            .getOrElse(throw new NoSuchElementException)
           val tc = TriggerContext(pkg, triggerContext)
           pkg.upsertMetadata(tc)
 

@@ -4,7 +4,7 @@
 
     <groupId>com.github.nawforce</groupId>
     <artifactId>apexlink</artifactId>
-    <version>1.0.1</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
 
     <name>apexlink</name>
@@ -51,38 +51,43 @@
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>2.12.6</version>
+            <version>2.13.3</version>
         </dependency>
 
         <dependency>
           <groupId>com.github.nawforce</groupId>
-          <artifactId>pkgforce_2.12</artifactId>
+          <artifactId>pkgforce_2.13</artifactId>
+          <version>1.1.0</version>
+        </dependency>
+
+        <dependency>
+          <groupId>com.github.nawforce</groupId>
+          <artifactId>scala-json-rpc_2.13</artifactId>
           <version>1.0.0</version>
         </dependency>
 
         <dependency>
+          <groupId>com.github.nawforce</groupId>
+          <artifactId>scala-json-rpc-upickle-json-serializer_2.13</artifactId>
+          <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+          <groupId>com.lihaoyi</groupId>
+          <artifactId>upickle_2.13</artifactId>
+          <version>1.2.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.12</artifactId>
+            <artifactId>scalatest_2.13</artifactId>
             <version>3.1.0</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.scalamock</groupId>
-            <artifactId>scalamock-core_2.12</artifactId>
-            <version>3.6.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.scalamock</groupId>
-            <artifactId>scalamock-scalatest-support_2.12</artifactId>
-            <version>3.6.0</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.scala-js</groupId>
-            <artifactId>scalajs-stubs_2.12</artifactId>
+            <artifactId>scalajs-stubs_2.13</artifactId>
             <version>1.0.0</version>
             <scope>provided</scope>
         </dependency>

@@ -83,6 +83,6 @@ final case class RelativeTypeName(pkg: PackageImpl, outerTypeName: TypeName, rel
   lazy val outerNature: Nature = outerTypeDeclaration.nature
 
   private def outerTypeDeclaration: TypeDeclaration = {
-    TypeResolver(outerTypeName, pkg, excludeSObjects = false).right.get
+    TypeResolver(outerTypeName, pkg, excludeSObjects = false).getOrElse(throw new NoSuchElementException)
   }
 }

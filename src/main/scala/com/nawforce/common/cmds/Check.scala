@@ -31,7 +31,7 @@ import com.nawforce.common.api.{IssueOptions, Org, Package, ServerOps}
 import com.nawforce.common.path.PathFactory
 import com.nawforce.runtime.json.JSON
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object Check {
   final val STATUS_OK: Int = 0
@@ -54,7 +54,7 @@ object Check {
       return STATUS_ARGS
     }
 
-    var paths: Seq[String] = validArgs.filterNot(options.contains)
+    var paths: Seq[String] = validArgs.filterNot(options.contains).toIndexedSeq
     if (paths.isEmpty)
       paths = Seq(PathFactory("").toString)
     val nsSplit = paths.map(path => {

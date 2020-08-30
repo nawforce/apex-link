@@ -82,10 +82,11 @@ object SObjectDetails {
 
     val parseResult = XMLFactory.parse(path)
     if (parseResult.isLeft) {
-      OrgImpl.logError(parseResult.left.get._1, parseResult.left.get._2)
+      OrgImpl.logError(parseResult.swap.getOrElse(throw new NoSuchElementException)._1,
+        parseResult.swap.getOrElse(throw new NoSuchElementException)._2)
       return None
     }
-    val rootElement = parseResult.right.get.rootElement
+    val rootElement = parseResult.getOrElse(throw new NoSuchElementException).rootElement
 
     try {
       rootElement.assertIs("CustomObject")
@@ -144,10 +145,11 @@ object SObjectDetails {
             try {
               val parseResult = XMLFactory.parse(fieldPath)
               if (parseResult.isLeft) {
-                OrgImpl.logError(parseResult.left.get._1, parseResult.left.get._2)
+                OrgImpl.logError(parseResult.swap.getOrElse(throw new NoSuchElementException)._1,
+                  parseResult.swap.getOrElse(throw new NoSuchElementException)._2)
                 None
               } else {
-                val rootElement = parseResult.right.get.rootElement
+                val rootElement = parseResult.getOrElse(throw new NoSuchElementException).rootElement
                 rootElement.assertIs("CustomField")
                 CustomFieldDeclaration.parseField(rootElement, fieldPath, pkg, sObjectType, sObjectNature)
               }
@@ -174,10 +176,11 @@ object SObjectDetails {
             try {
               val parseResult = XMLFactory.parse(fieldSetsPaths)
               if (parseResult.isLeft) {
-                OrgImpl.logError(parseResult.left.get._1, parseResult.left.get._2)
+                OrgImpl.logError(parseResult.swap.getOrElse(throw new NoSuchElementException)._1,
+                  parseResult.swap.getOrElse(throw new NoSuchElementException)._2)
                 None
               } else {
-                val rootElement = parseResult.right.get.rootElement
+                val rootElement = parseResult.getOrElse(throw new NoSuchElementException).rootElement
                 rootElement.assertIs("FieldSet")
                 Some(parseFieldSet(rootElement, fieldSetsPaths, pkg))
               }

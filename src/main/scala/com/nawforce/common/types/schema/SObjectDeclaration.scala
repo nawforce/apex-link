@@ -104,9 +104,9 @@ final case class SObjectDeclaration(_paths: Array[PathLike], pkg: PackageImpl, _
   private lazy val hierarchyCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
     Seq(
       CustomMethodDeclaration(None, Name("getInstance"), typeName, Array()),
-      CustomMethodDeclaration(None, Name("getInstance"), typeName, Array(CustomParameterDeclaration(Name("Id"), TypeNames.Id))),
+      CustomMethodDeclaration(None, Name("getInstance"), typeName, Array(CustomParameterDeclaration(Name("Id"), TypeNames.IdType))),
       CustomMethodDeclaration(None, Name("getOrgDefaults"), typeName, Array()),
-      CustomMethodDeclaration(None, Name("getValues"), typeName, Array(CustomParameterDeclaration(Name("Id"), TypeNames.Id))),
+      CustomMethodDeclaration(None, Name("getValues"), typeName, Array(CustomParameterDeclaration(Name("Id"), TypeNames.IdType))),
     ).map(m => ((m.name, m.parameters.length),m)).toMap
 
   private lazy val listCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
@@ -193,12 +193,12 @@ object SObjectDeclaration {
   private lazy val standardCustomObjectFields: Seq[FieldDeclaration] = {
     Seq(
       CustomFieldDeclaration(Names.NameName, TypeNames.String, None),
-      CustomFieldDeclaration(Names.RecordTypeId, TypeNames.Id, None),
+      CustomFieldDeclaration(Names.RecordTypeId, TypeNames.IdType, None),
       CustomFieldDeclaration(Name("CreatedBy"), TypeNames.User, None),
-      CustomFieldDeclaration(Name("CreatedById"), TypeNames.Id, None),
+      CustomFieldDeclaration(Name("CreatedById"), TypeNames.IdType, None),
       CustomFieldDeclaration(Name("CreatedDate"), TypeNames.Datetime, None),
       CustomFieldDeclaration(Name("LastModifiedBy"), TypeNames.User, None),
-      CustomFieldDeclaration(Name("LastModifiedById"), TypeNames.Id, None),
+      CustomFieldDeclaration(Name("LastModifiedById"), TypeNames.IdType, None),
       CustomFieldDeclaration(Name("LastModifiedDate"), TypeNames.Datetime, None),
       CustomFieldDeclaration(Name("IsDeleted"), TypeNames.Boolean, None),
       CustomFieldDeclaration(Name("SystemModstamp"), TypeNames.Datetime, None)
@@ -210,7 +210,7 @@ object SObjectDeclaration {
     Array(
       CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(sobjectDetails.typeName), None, asStatic = true),
       CustomFieldDeclaration(Names.Fields, TypeNames.sObjectFields$(sobjectDetails.typeName), None, asStatic = true),
-      CustomFieldDeclaration(Names.Id, TypeNames.Id, Some(sobjectDetails.typeName))
+      CustomFieldDeclaration(Names.Id, TypeNames.IdType, Some(sobjectDetails.typeName))
     ) ++
       standardCustomObjectFields ++
       sobjectDetails.fields ++
@@ -234,7 +234,7 @@ object SObjectDeclaration {
 
   private def customMetadataFields(sobjectDetails: SObjectDetails): Array[FieldDeclaration] = {
     Array(
-      CustomFieldDeclaration(Names.Id, TypeNames.Id, Some(sobjectDetails.typeName)),
+      CustomFieldDeclaration(Names.Id, TypeNames.IdType, Some(sobjectDetails.typeName)),
       CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(sobjectDetails.typeName), None, asStatic = true)
     ) ++
       standardCustomMetadataFields ++

@@ -52,10 +52,11 @@ object LabelGenerator extends Generator {
     val source = metadata.source.asString
     val parseResult = XMLDocument(path, source)
     if (parseResult.isLeft) {
-      logger.logError(parseResult.left.get._1, parseResult.left.get._2)
+      logger.logError(parseResult.swap.getOrElse(throw new NoSuchElementException)._1,
+        parseResult.swap.getOrElse(throw new NoSuchElementException)._2)
       return Seq.empty
     }
-    val rootElement = parseResult.right.get.rootElement
+    val rootElement = parseResult.getOrElse(throw new NoSuchElementException).rootElement
 
     try {
       rootElement.assertIs("CustomLabels")

@@ -27,12 +27,12 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.FileSystemHelper
 import com.nawforce.common.api.{Name, ServerOps, TypeName}
 import com.nawforce.common.documents.{ApexClassDocument, MetadataDocument}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.TypeDeclaration
-import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 

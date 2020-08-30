@@ -27,9 +27,10 @@
 */
 package com.nawforce.common.api
 
+import com.nawforce.common.FileSystemHelper
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
-import com.nawforce.runtime.{FileSystemHelper, SourceBlob}
+import com.nawforce.runtime.SourceBlob
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -50,7 +51,7 @@ class BatchingTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy {}",
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
+      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("Dummy.cls"), None)
@@ -64,7 +65,7 @@ class BatchingTest extends AnyFunSuite with BeforeAndAfter {
       "Dummy.cls" -> "public class Dummy {}",
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Array(root), Array())
+      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("Dummy.cls"), Some(SourceBlob("public class Dummy {")))

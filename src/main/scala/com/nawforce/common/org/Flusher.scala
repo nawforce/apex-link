@@ -79,7 +79,7 @@ class Flusher(org: OrgImpl) extends Runnable {
               ServerOps.error(err); false
             case Right(pc) =>
               org.orderedPackages.map(pkg => {
-                val refreshed = pkg.refreshBatched(refreshQueue.filter(_.pkg == pkg))
+                val refreshed = pkg.refreshBatched(refreshQueue.filter(_.pkg == pkg).toSeq)
                 pkg.flush(pc)
                 refreshed
               }).foldLeft(false) {
@@ -87,7 +87,7 @@ class Flusher(org: OrgImpl) extends Runnable {
               }
           }
         }
-        Monitor.reportDuplicateTypes
+        Monitor.reportDuplicateTypes()
         Cleanable.clean()
         refreshQueue.clear()
         refreshed

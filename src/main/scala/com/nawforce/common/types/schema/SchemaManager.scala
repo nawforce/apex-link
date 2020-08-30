@@ -35,10 +35,9 @@ import com.nawforce.common.names.{EncodedName, Names, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
-import com.nawforce.common.types.platform.PlatformTypes
+import com.nawforce.common.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.common.types.schema
 import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration}
-import com.nawforce.runtime.types._
 
 import scala.collection.mutable
 
@@ -229,7 +228,7 @@ final case class SObjectTypeFields(sobjectName: Name, pkg: PackageImpl)
   override def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Array[MethodDeclaration] = {
     if (staticContext.contains(false)) {
-      val method = methodMap.get((name, params.size))
+      val method = methodMap.get((name, params.length))
       if (method.nonEmpty)
         return method.toArray
     }
@@ -239,7 +238,7 @@ final case class SObjectTypeFields(sobjectName: Name, pkg: PackageImpl)
   lazy val methodMap: Map[(Name, Int), MethodDeclaration] =
     Seq(
       CustomMethodDeclaration(None, Name("getMap"), TypeNames.mapOf(TypeNames.String, TypeNames.SObjectField), Array()),
-    ).map(m => ((m.name, m.parameters.size),m)).toMap
+    ).map(m => ((m.name, m.parameters.length),m)).toMap
 }
 
 // TODO: Provide paths

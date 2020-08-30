@@ -222,7 +222,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
     methodMap.findMethod(name, params, staticContext, verifyContext)
   }
 
-  def unused(): Seq[Issue] = {
+  def unused(): Array[Issue] = {
     // Hack: Unused calculation requires a methodMap for shadow support
     methodMap
     localFields.filterNot(_.hasHolders)

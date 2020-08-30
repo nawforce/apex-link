@@ -125,7 +125,7 @@ object CustomFieldDeclaration {
   /* TypeNames that may be used in SObjects (see above for when */
   def isSObjectPrimitive(typeName: TypeName): Boolean = {
     typeName match {
-      case TypeNames.Id | TypeNames.String | TypeNames.Boolean | TypeNames.Decimal | TypeNames.Integer |
+      case TypeNames.IdType | TypeNames.String | TypeNames.Boolean | TypeNames.Decimal | TypeNames.Integer |
            TypeNames.Date | TypeNames.Datetime | TypeNames.Time | TypeNames.Blob | TypeNames.Location | TypeNames.Address
               => true
       case _ => false

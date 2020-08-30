@@ -32,7 +32,7 @@ import com.nawforce.common.cst.{PUBLIC_MODIFIER, STATIC_MODIFIER, VIRTUAL_MODIFI
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
 import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE}
-import com.nawforce.runtime.types.PlatformTypeDeclaration
+import com.nawforce.common.types.platform.PlatformTypeDeclaration
 import org.scalatest.funsuite.AnyFunSuite
 
 class PlatformTypeDeclarationTest extends AnyFunSuite  {
@@ -299,6 +299,6 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   test("Relative type in param") {
     val td = PlatformTypeDeclaration.get(TypeName(Name("List"), Seq(TypeName(Names.String)), Some(TypeNames.System)), None)
     assert(td.isRight)
-    assert(td.right.get.typeName == TypeName(Name("List"), Seq(TypeNames.String), Some(TypeNames.System)))
+    assert(td.getOrElse(throw new NoSuchElementException).typeName == TypeName(Name("List"), Seq(TypeNames.String), Some(TypeNames.System)))
   }
 }

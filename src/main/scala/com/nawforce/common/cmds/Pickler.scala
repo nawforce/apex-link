@@ -25,22 +25,18 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.cmds
+package com.nawforce.common.cmds
 
-import java.nio.file.{Files, Paths}
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Path, Paths}
 
-import com.nawforce.common.api.{Name, ServerOps}
-import com.nawforce.common.diagnostics.CatchingLogger
-import com.nawforce.common.documents.DocumentIndex
-import com.nawforce.common.path.PathLike
-import com.nawforce.runtime.platform.Path
-import com.nawforce.runtime.parsers.CodeParser
+import com.nawforce.common.names._
+import com.nawforce.common.types.platform.PlatformTypeDeclaration
+import upickle.default._
 
-import scala.collection.mutable.ArrayBuffer
-
-object ParserBench {
-
+object Pickler {
   def main(args: Array[String]): Unit = {
+
     if (args.length != 1) {
       println("Use: <directory>")
       return
@@ -51,43 +47,27 @@ object ParserBench {
       return
     }
 
-    //Thread.sleep(10000)
-
-    // Indexing
-    val logger = new CatchingLogger()
-    ServerOps.setDebugLogging(Array("ALL"))
-    val index = ServerOps.debugTime("Index") {
-      new DocumentIndex(None, Seq(new Path(dir)), logger)
-    }
-
-    // Parsing
-    val parseTimes = ArrayBuffer[(Double, PathLike)]()
-    ServerOps.debugTime("Parsed") {
-      index.getByExtension(Name("cls")).foreach(doc => {
-        val start = System.currentTimeMillis()
-        var size = 0
-        try {
-          doc.path.readSourceData() match {
-            case Left(err) => println(err)
-            case Right(data) =>
-              size = data.length
-              val parser = CodeParser(doc.path, data)
-              parser.parseClass() match {
-                case Left(err) => println(s"${doc.path}:${err.line} ${err.message}")
-                case Right(_) => ()
-              }
-          }
-        } finally {
-          if (size > 1024) {
-            val end = System.currentTimeMillis()
-            parseTimes.append(((end - start) / (size.toDouble / 1024), doc.path))
-          }
-        }
-      })
-    }
-
-    parseTimes.toArray.sortBy(_._1)(Ordering.Double.reverse).take(10).foreach(pair => {
-      println(s"${pair._1} ${pair._2}")
+    PlatformTypeDeclaration.classNames.toSeq.foreach(className => {
+      PlatformTypeDeclaration.getDeclaration(className) match {
+        case Some(td: PlatformTypeDeclaration) => writeDeclaration(dir, td)
+        case None => assert(false)
+      }
     })
   }
+
+  def writeDeclaration(dir: Path, td: PlatformTypeDeclaration): Unit = {
+    val ns =
+      if (td.isSObject)
+        "SObjects"
+      else
+        td.typeName.outerName.value
+    val nsDir = dir.resolve(ns)
+    if (!Files.isDirectory(nsDir))
+      Files.createDirectory(nsDir)
+
+    val file = nsDir.resolve(td.typeName.name.value+".json")
+    Files.write(file, write(td.serialise).getBytes(StandardCharsets.UTF_8))
+  }
 }
+
+

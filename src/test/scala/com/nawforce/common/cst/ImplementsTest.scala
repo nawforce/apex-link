@@ -27,12 +27,12 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.FileSystemHelper
 import com.nawforce.common.api.{Name, ServerOps, TypeName}
 import com.nawforce.common.documents.{ApexClassDocument, MetadataDocument}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.TypeDeclaration
-import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -71,7 +71,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Missing class second interface") {
-    val tds = typeDeclarations(Map(
+    typeDeclarations(Map(
       "Dummy.cls" -> "global class Dummy implements A, B {}",
       "A.cls" -> "public interface A {}"
     ))
@@ -80,7 +80,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Class implements class") {
-    val tds = typeDeclarations(Map(
+    typeDeclarations(Map(
       "Dummy.cls" -> "global class Dummy implements A {}",
       "A.cls" -> "public class A {}"
     ))
@@ -89,7 +89,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Class implements enum") {
-    val tds = typeDeclarations(Map(
+    typeDeclarations(Map(
       "Dummy.cls" -> "global class Dummy implements A {}",
       "A.cls" -> "public enum A {}"
     ))
@@ -98,7 +98,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Interface extends class") {
-    val tds = typeDeclarations(Map(
+    typeDeclarations(Map(
       "Dummy.cls" -> "global interface Dummy extends A {}",
       "A.cls" -> "public class A {}"
     ))
@@ -107,7 +107,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Interface extends enum") {
-    val tds = typeDeclarations(Map(
+    typeDeclarations(Map(
       "Dummy.cls" -> "global interface Dummy extends A {}",
       "A.cls" -> "public enum A {}"
     ))
@@ -116,7 +116,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Class implements Database.Batchable<sObject>") {
-    val tds = typeDeclarations(Map(
+    typeDeclarations(Map(
       "Dummy.cls" ->
         """
           | global class Dummy implements Database.Batchable<sObject> {

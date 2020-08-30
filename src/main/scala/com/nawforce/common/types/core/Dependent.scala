@@ -86,7 +86,7 @@ trait DependencyHolder extends Dependent {
       case fd: ApexFieldLike =>
         Some(FieldDependentSummary(fd.outerTypeId.asTypeIdentifier, fd.name.value))
       case md: ApexMethodLike =>
-        Some(MethodDependentSummary(md.outerTypeId.asTypeIdentifier, md.name.value, md.parameters.map(_.typeName).toArray))
+        Some(MethodDependentSummary(md.outerTypeId.asTypeIdentifier, md.name.value, md.parameters.map(_.typeName)))
       // Don't need these yet
       case _: ApexConstructorLike => None
       case _: ApexBlockLike => None

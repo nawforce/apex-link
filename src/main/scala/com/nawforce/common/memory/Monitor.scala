@@ -14,7 +14,7 @@ object Monitor {
 
   def size: Int = map.size
 
-  def reportDuplicateTypes: Unit = {
+  def reportDuplicateTypes(): Unit = {
     if (ServerOps.getDuplicateObjectMonitoring) {
       val tdsByName = map.toSet.toArray.collect { case td: TypeDeclaration => (td.typeName, td) }
       val typeNames = tdsByName.map(_._1)
@@ -23,7 +23,7 @@ object Monitor {
         duplicates.foreach(typeName => {
           ServerOps.debug(ServerOps.Trace, s"Duplicate types found for $typeName")
         })
-        duplicateTypes = new SkinnyWeakSet[TypeDeclaration]();
+        duplicateTypes = new SkinnyWeakSet[TypeDeclaration]()
         duplicates.foreach(dup => tdsByName.filter(_._1 == dup).foreach(x => duplicateTypes.add(x._2)))
       }
     }

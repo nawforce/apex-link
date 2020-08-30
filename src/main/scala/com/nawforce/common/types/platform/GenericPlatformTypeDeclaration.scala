@@ -34,7 +34,6 @@ import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.finding.{MissingType, TypeError, TypeResolver}
 import com.nawforce.common.names._
 import com.nawforce.common.types.core.{FieldDeclaration, MethodDeclaration, ParameterDeclaration, TypeDeclaration}
-import com.nawforce.runtime.types.{PlatformField, PlatformMethod, PlatformParameter, PlatformTypeDeclaration}
 
 /* Wrapper for the few generic types we support, this specialises the methods of the type so that
  * List<T> presents as say a List<Foo>.

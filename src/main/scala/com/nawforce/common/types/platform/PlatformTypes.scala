@@ -34,7 +34,6 @@ import com.nawforce.common.finding.MissingType
 import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.types.core.TypeDeclaration
-import com.nawforce.runtime.types.PlatformTypeDeclaration
 
 object PlatformTypes {
   lazy val nullType: TypeDeclaration = loadType(TypeNames.Null)
@@ -46,7 +45,7 @@ object PlatformTypes {
   lazy val sObjectFieldType: TypeDeclaration = loadType(TypeNames.SObjectField)
   lazy val typeType: TypeDeclaration = loadType(TypeNames.TypeType)
   lazy val stringType: TypeDeclaration = loadType(TypeNames.String)
-  lazy val idType: TypeDeclaration = loadType(TypeNames.Id)
+  lazy val idType: TypeDeclaration = loadType(TypeNames.IdType)
   lazy val integerType: TypeDeclaration = loadType(TypeNames.Integer)
   lazy val longType: TypeDeclaration = loadType(TypeNames.Long)
   lazy val doubleType: TypeDeclaration = loadType(TypeNames.Double)
@@ -63,11 +62,11 @@ object PlatformTypes {
   lazy val chatterComponent: TypeDeclaration = loadType(TypeNames.ChatterComponent)
 
   private def loadType(typeName: TypeName): TypeDeclaration = {
-    PlatformTypeDeclaration.get(typeName, None).right.get
+    PlatformTypeDeclaration.get(typeName, None).getOrElse(throw new NoSuchElementException)
   }
 
   trait PlatformTypeObserver {
-    def loaded(td: PlatformTypeDeclaration)
+    def loaded(td: PlatformTypeDeclaration): Unit
   }
 
   private var loadingObservers: Seq[WeakReference[PlatformTypeObserver]] = Seq()
@@ -102,21 +101,21 @@ object PlatformTypes {
     // TODO: Tidy up with Either orElse
     val firstResult = findOuterOrNestedPlatformType(alias)
     if (firstResult.isRight) {
-      fireLoadingEvents(firstResult.right.get)
+      fireLoadingEvents(firstResult.getOrElse(throw new NoSuchElementException))
       return firstResult
     }
 
     if (!excludeSObjects) {
       val schemaResult = findOuterOrNestedPlatformType(alias.wrap(TypeNames.Schema))
       if (schemaResult.isRight) {
-        fireLoadingEvents(schemaResult.right.get)
+        fireLoadingEvents(schemaResult.getOrElse(throw new NoSuchElementException))
         return schemaResult
       }
     }
 
     val systemResult = findOuterOrNestedPlatformType(alias.wrap(TypeNames.System))
     if (systemResult.isRight) {
-      fireLoadingEvents(systemResult.right.get)
+      fireLoadingEvents(systemResult.getOrElse(throw new NoSuchElementException))
       return systemResult
     }
 

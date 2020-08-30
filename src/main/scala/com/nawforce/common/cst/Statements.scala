@@ -255,7 +255,7 @@ final case class LocalVariableForInit(variable: LocalVariableDeclaration) extend
   }
 }
 
-final case class ExpressionListForInit(expressions: Seq[Expression]) extends ForInit {
+final case class ExpressionListForInit(expressions: Array[Expression]) extends ForInit {
   override def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
   }
@@ -277,7 +277,7 @@ object ForInit {
   }
 }
 
-final case class ForUpdate(expressions: Seq[Expression]) extends CST {
+final case class ForUpdate(expressions: Array[Expression]) extends CST {
   def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
   }

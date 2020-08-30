@@ -105,10 +105,10 @@ trait TypeFinder {
     } else {
       val outerType = this.getType(from.outerTypeName.get, Some(from))
       if (outerType.isRight) {
-        if (dotName.names.head == outerType.right.get.name)
+        if (dotName.names.head == outerType.getOrElse(throw new NoSuchElementException).name)
           outerType.toOption
         else
-          findLocalTypeFor(dotName, outerType.right.get)
+          findLocalTypeFor(dotName, outerType.getOrElse(throw new NoSuchElementException))
       } else {
         None
       }

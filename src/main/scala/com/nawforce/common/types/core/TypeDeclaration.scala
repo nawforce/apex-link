@@ -35,9 +35,8 @@ import com.nawforce.common.names.{Names, TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.other.Component
-import com.nawforce.common.types.platform.PlatformTypes
+import com.nawforce.common.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.common.types.synthetic.CustomFieldDeclaration
-import com.nawforce.runtime.types._
 
 import scala.collection.mutable
 
@@ -102,7 +101,7 @@ trait FieldDeclaration extends DependencyHolder {
   // Create an SObjectField version of this field
   def getSObjectField: CustomFieldDeclaration = {
     // Some messy special cases
-    if (typeName == TypeNames.Id && idTarget.nonEmpty) {
+    if (typeName == TypeNames.IdType && idTarget.nonEmpty) {
       // Id field that carries a target SObjectType returns 'fields'
       PlatformTypes.get(idTarget.get, None)
       CustomFieldDeclaration(name, TypeNames.sObjectFields$(idTarget.get), None, asStatic = true)
@@ -327,7 +326,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
 
   private lazy val fieldsByName: mutable.Map[Name, FieldDeclaration] = {
     val outerType = outerTypeName.flatMap(typeName => TypeResolver(typeName, this, excludeSObjects = false).toOption)
-    val fieldsByName = mutable.Map(fields.map(f => (f.name, f)) : _*)
+    val fieldsByName = mutable.Map(fields.map(f => (f.name, f)).toIndexedSeq : _*)
     outerType.foreach(td => td.fields.filter(_.isStatic).foreach(f => {
       if (!fieldsByName.contains(f.name))
         fieldsByName.put(f.name, f)

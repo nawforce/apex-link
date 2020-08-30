@@ -83,7 +83,7 @@ final class LabelDeclaration(sources: Array[SourceInfo], override val pkg: Packa
   }
 
   /** Report on unused labels */
-  def unused(): Seq[Issue] = {
+  def unused(): Array[Issue] = {
     labels.filterNot(_.hasHolders).filterNot(_.location.isEmpty)
       .map(label => new Issue(UNUSED_CATEGORY, label.location.get, s"Label '$typeName.${label.name}'"))
   }

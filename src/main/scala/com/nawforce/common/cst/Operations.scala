@@ -115,8 +115,8 @@ object AssignableSupport {
     (TypeNames.Double, TypeNames.Long),
     (TypeNames.Double, TypeNames.Decimal),
     (TypeNames.Decimal, TypeNames.Double),
-    (TypeNames.Id, TypeNames.String),
-    (TypeNames.String, TypeNames.Id),
+    (TypeNames.IdType, TypeNames.String),
+    (TypeNames.String, TypeNames.IdType),
     (TypeNames.Datetime, TypeNames.Date)
   )
 }
@@ -141,7 +141,7 @@ abstract class Operation extends AssignableSupport {
 
   def isStringKind(typeName: TypeName): Boolean = {
     typeName == TypeNames.String ||
-    typeName == TypeNames.Id
+    typeName == TypeNames.IdType
   }
 
   def isDateKind(typeName: TypeName): Boolean = {
@@ -185,7 +185,7 @@ object Operation {
     TypeNames.Datetime,
     TypeNames.Time,
     TypeNames.Blob,
-    TypeNames.Id
+    TypeNames.IdType
   )
 
   private lazy val arithmeticOps: Map[(TypeName, TypeName), TypeDeclaration] = Map(

@@ -36,9 +36,9 @@ import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.common.types.other._
+import com.nawforce.common.types.platform.PlatformTypeException
 import com.nawforce.runtime.SourceBlob
 import com.nawforce.runtime.parsers.SourceData
-import com.nawforce.runtime.types.PlatformTypeException
 import upickle.default._
 
 import scala.collection.mutable
@@ -268,7 +268,7 @@ trait PackageAPI extends Package {
       val updated = documents.flatMap(doc => {
         val data = doc.path.readSourceData()
         val d = ServerOps.debugTime(s"Parsed ${doc.path}") {
-          FullDeclaration.create(this, doc, data.right.get).toSeq
+          FullDeclaration.create(this, doc, data.getOrElse(throw new NoSuchElementException)).toSeq
         }
         d.foreach(upsertMetadata(_))
         d

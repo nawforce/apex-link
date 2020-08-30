@@ -129,8 +129,8 @@ final case class IdPrimary(id: Id) extends Primary {
 
     val absTd = TypeResolver(TypeName(id.name), context.pkg, excludeSObjects = false)
     if (absTd.isRight) {
-      context.addDependency(absTd.right.get)
-      return ExprContext(isStatic =  Some(true), absTd.right.get)
+      context.addDependency(absTd.getOrElse(throw new NoSuchElementException))
+      return ExprContext(isStatic =  Some(true), absTd.getOrElse(throw new NoSuchElementException))
     }
 
     context.missingIdentifier(location, input.typeName, id.name)

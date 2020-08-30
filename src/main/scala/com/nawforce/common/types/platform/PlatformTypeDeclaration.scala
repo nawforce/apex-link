@@ -26,7 +26,7 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package com.nawforce.runtime.types
+package com.nawforce.common.types.platform
 
 import java.nio.file.{FileSystemNotFoundException, FileSystems, Files, Paths}
 import java.util
@@ -39,12 +39,11 @@ import com.nawforce.common.names.{DotName, Names, TypeNames, _}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
-import com.nawforce.common.types.platform.{GenericPlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration, CustomParameterDeclaration}
 
-import scala.collection.JavaConverters._
-import scala.collection.immutable.HashMap
+import scala.collection.immutable.{ArraySeq, HashMap}
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 class PlatformTypeException(msg: String) extends Exception(msg)
 
@@ -354,7 +353,7 @@ object PlatformTypeDeclaration {
         assert(cname.startsWith(platformPackage), s"Reference to non-platform type $cname in ${contextCls.getCanonicalName}")
         val names = cname.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse
         val params = pt.getActualTypeArguments.map(ta => typeNameFromType(ta, contextCls))
-        TypeName(names).withParams(params)
+        TypeName(ArraySeq.unsafeWrapArray(names)).withParams(ArraySeq.unsafeWrapArray(params))
     }
   }
 
@@ -369,12 +368,12 @@ object PlatformTypeDeclaration {
       } else if (cname.startsWith(platformPackage+".SObjects")) {
         val names = cname.drop(platformPackage.length + 10).split('.').map(n => Name(n)).reverse
         val params = cls.getTypeParameters.map(tp => Name(tp.getName))
-        TypeName(names :+ Names.Schema).withParams(params.toSeq.map(TypeName(_)))
+        TypeName(ArraySeq.unsafeWrapArray(names :+ Names.Schema)).withParams(params.toSeq.map(TypeName(_)))
       } else {
         assert(cname.startsWith(platformPackage), s"Reference to non-platform type $cname in ${contextCls.getCanonicalName}")
         val names = cname.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse
         val params = cls.getTypeParameters.map(tp => Name(tp.getName))
-        TypeName(names).withParams(params.toSeq.map(TypeName(_)))
+        TypeName(ArraySeq.unsafeWrapArray(names)).withParams(params.toSeq.map(TypeName(_)))
       }
     if (cls.isArray)
       TypeNames.listOf(typeName)

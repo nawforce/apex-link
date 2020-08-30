@@ -63,7 +63,7 @@ trait DependentType extends TypeDeclaration {
   }
 
   /** Collect set of TypeNames that this declaration is dependent on */
-  def collectDependenciesByTypeName(dependents: mutable.Set[TypeId])
+  def collectDependenciesByTypeName(dependents: mutable.Set[TypeId]): Unit
 
   def addTypeDependencyHolder(typeId: TypeId): Unit = {
     if (typeId != this.typeId) {

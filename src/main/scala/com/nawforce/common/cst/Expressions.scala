@@ -35,10 +35,9 @@ import com.nawforce.common.names.{EncodedName, TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.common.types.other.AnyDeclaration
-import com.nawforce.common.types.platform.PlatformTypes
+import com.nawforce.common.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
-import com.nawforce.runtime.types.PlatformTypeDeclaration
 
 trait ExprContext {
   def isStatic: Option[Boolean]
@@ -88,7 +87,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
     if (target.isLeft) {
       expression match {
         case PrimaryExpression(primary: IdPrimary) if isNamespace(primary.id.name, td) =>
-          val typeName = TypeName(target.left.get.name, Nil, Some(TypeName(primary.id.name))).intern
+          val typeName = TypeName(target.swap.getOrElse(throw new NoSuchElementException).name, Nil, Some(TypeName(primary.id.name))).intern
           val td = context.getTypeAndAddDependency(typeName, None).toOption
           if (td.nonEmpty)
             return ExprContext(isStatic = Some(true), td.get)
@@ -134,7 +133,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
 
     input.typeDeclarationOpt.get match {
       case inputType: TypeDeclaration =>
-        val name = target.left.get.name
+        val name = target.swap.getOrElse(throw new NoSuchElementException).name
         val field: Option[FieldDeclaration] = findField(name, inputType, context.pkg, input.isStatic)
         if (field.nonEmpty) {
           context.addDependency(field.get)
@@ -148,18 +147,18 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
 
         // TODO: Private/protected types?
         if (input.isStatic.contains(true)) {
-          val nt = input.typeDeclarationOpt.get.findLocalType(TypeName(target.left.get.name))
+          val nt = input.typeDeclarationOpt.get.findLocalType(TypeName(target.swap.getOrElse(throw new NoSuchElementException).name))
           if (nt.nonEmpty) {
             return ExprContext(isStatic = Some(true), nt.get)
           }
         }
 
         if (inputType.isComplete)
-          context.log(Issue.unknownFieldOrType(location, target.left.get.name, inputType.typeName))
+          context.log(Issue.unknownFieldOrType(location, target.swap.getOrElse(throw new NoSuchElementException).name, inputType.typeName))
         ExprContext.empty
 
       case _ =>
-        context.missingIdentifier(location, input.typeName, target.left.get.name)
+        context.missingIdentifier(location, input.typeName, target.swap.getOrElse(throw new NoSuchElementException).name)
         ExprContext.empty
     }
   }
@@ -167,7 +166,7 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
   def verifyWithMethod(callee: ExprContext, input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.typeDeclarationOpt.nonEmpty)
 
-    val method = target.right.get
+    val method = target.getOrElse(throw new NoSuchElementException)
     method.verify(location, callee.typeDeclaration, callee.isStatic, input, context)
   }
 

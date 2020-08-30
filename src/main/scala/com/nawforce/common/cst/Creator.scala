@@ -61,9 +61,9 @@ final case class IdCreatedNamePair(id: Id, types: Array[TypeName]) extends CST {
   val typeName: TypeName = {
     val encName = EncodedName(id.name)
     if (encName.ext.nonEmpty)
-      TypeName(encName.fullName, types, Some(TypeNames.Schema)).intern
+      TypeName(encName.fullName, types.toIndexedSeq, Some(TypeNames.Schema)).intern
     else
-      TypeName(encName.fullName, types, None).intern
+      TypeName(encName.fullName, types.toIndexedSeq, None).intern
   }
 }
 
@@ -193,14 +193,14 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends Creator
 
     val keyType = context.getTypeAndAddDependency(enclosedTypes.get._1, context.thisType)
     if (keyType.isLeft) {
-      OrgImpl.log(keyType.left.get.asIssue(location))
+      OrgImpl.log(keyType.swap.getOrElse(throw new NoSuchElementException).asIssue(location))
       return
     }
 
     val valueType = context.getTypeAndAddDependency(enclosedTypes.get._2, context.thisType)
     if (valueType.isLeft) {
       if (!context.pkg.isGhostedType(enclosedTypes.get._2))
-        OrgImpl.log(valueType.left.get.asIssue(location))
+        OrgImpl.log(valueType.swap.getOrElse(throw new NoSuchElementException).asIssue(location))
       return
     }
 
@@ -238,7 +238,7 @@ object MapCreatorRestPair {
 }
 
 /* This is really Set & List creator, where TYPE{expr, expr, ...} form is allowed, it's different from array */
-final case class SetCreatorRest(parts: Seq[Expression]) extends CreatorRest {
+final case class SetCreatorRest(parts: Array[Expression]) extends CreatorRest {
   override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {
      assert(creating.typeDeclarationOpt.nonEmpty)
      val td = creating.typeDeclarationOpt.get

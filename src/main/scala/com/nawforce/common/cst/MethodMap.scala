@@ -116,7 +116,7 @@ object MethodMap {
     new MethodMap(workingMap.toMap, errors.toList)
   }
 
-  private def mergeInterfaces(workingMap: WorkingMap, interfaces: Seq[TypeDeclaration]): Unit = {
+  private def mergeInterfaces(workingMap: WorkingMap, interfaces: Array[TypeDeclaration]): Unit = {
     interfaces.foreach({
       case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
         mergeInterface(workingMap, i)
@@ -145,7 +145,7 @@ object MethodMap {
   }
 
   private def checkInterfaces(pkg: Option[PackageImpl], location: Option[LocationImpl], isAbstract: Boolean,
-                              workingMap: WorkingMap, interfaces: Seq[TypeDeclaration], errors: mutable.Buffer[Issue]): Unit = {
+                              workingMap: WorkingMap, interfaces: Array[TypeDeclaration], errors: mutable.Buffer[Issue]): Unit = {
     interfaces.foreach({
       case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
         checkInterface(pkg, location, isAbstract, workingMap, i, errors)

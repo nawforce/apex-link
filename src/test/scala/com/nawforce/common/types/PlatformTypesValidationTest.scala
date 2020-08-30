@@ -31,8 +31,7 @@ import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.{PUBLIC_MODIFIER, VIRTUAL_MODIFIER}
 import com.nawforce.common.names.{DotName, TypeNames}
 import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, TRIGGER_NATURE}
-import com.nawforce.common.types.platform.PlatformTypes
-import com.nawforce.runtime.types.PlatformTypeDeclaration
+import com.nawforce.common.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import org.scalatest.funsuite.AnyFunSuite
 
 class PlatformTypesValidationTest extends AnyFunSuite {
@@ -60,7 +59,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
   test("SObject type is visible") {
     val td = PlatformTypes.get(TypeName(Name("User")), None)
     assert(td.isRight)
-    assert(td.right.get.typeName == TypeName(Name("User"), Nil, Some(TypeNames.Schema)))
+    assert(td.getOrElse(throw new NoSuchElementException).typeName == TypeName(Name("User"), Nil, Some(TypeNames.Schema)))
   }
 
   test("All outer types are valid") {
@@ -68,7 +67,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
       if (!generics.contains(className.toString)) {
         val typeDeclaration = PlatformTypeDeclaration.get(className.asTypeName(), None)
         assert(typeDeclaration.isRight)
-        validateTypeDeclaration(className, typeDeclaration.right.get.asInstanceOf[PlatformTypeDeclaration])
+        validateTypeDeclaration(className, typeDeclaration.getOrElse(throw new NoSuchElementException).asInstanceOf[PlatformTypeDeclaration])
       }
     })
   }
@@ -145,7 +144,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
     PlatformTypeDeclaration.classNames.filter(_.lastName.toString.endsWith("Exception")).foreach(className => {
       val typeDeclaration = PlatformTypeDeclaration.get(className.asTypeName(), None)
       assert(typeDeclaration.isRight)
-      val td = typeDeclaration.right.get.asInstanceOf[PlatformTypeDeclaration]
+      val td = typeDeclaration.getOrElse(throw new NoSuchElementException).asInstanceOf[PlatformTypeDeclaration]
 
       if (td.name.toString() != "Exception")
         assert(td.superClass.get.toString == "System.Exception")
@@ -156,7 +155,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
       assert(td.nestedTypes.isEmpty)
 
       val methods = td.methods.sortBy(_.name.toString)
-      assert(methods.size >= 7)
+      assert(methods.length >= 7)
     })
   }
 }

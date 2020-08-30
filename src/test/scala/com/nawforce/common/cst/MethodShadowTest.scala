@@ -27,10 +27,10 @@
 */
 package com.nawforce.common.cst
 
+import com.nawforce.common.FileSystemHelper
 import com.nawforce.common.api.{Org, ServerOps}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
-import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -53,7 +53,7 @@ class MethodShadowTest extends AnyFunSuite with BeforeAndAfter {
       "SuperClass.cls" -> "public virtual class SuperClass { public void func() {}}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Array(root), Array())
+      org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(org.issues.getMessages("/Dummy.cls") ==
         "Error: line 1 at 52-56: Method 'func' can not override non-virtual method\n")
     }
@@ -65,7 +65,7 @@ class MethodShadowTest extends AnyFunSuite with BeforeAndAfter {
       "SuperClass.cls" -> "public virtual class SuperClass { public virtual void func() {}}"
     )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Array(root), Array())
+      org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(org.issues.getMessages("/Dummy.cls") ==
         "Error: line 1 at 52-56: Method 'func' must use override or virtual keyword\n")
     }

@@ -28,12 +28,12 @@
 
 package com.nawforce.common.api
 
+import com.nawforce.common.FileSystemHelper
 import com.nawforce.common.names._
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.sfdx.MDAPIWorkspace
 import com.nawforce.common.types.apex.{FullDeclaration, SummaryDeclaration}
-import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 

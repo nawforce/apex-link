@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
+ Copyright (c) 2020 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -25,40 +25,55 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.cmds
+package com.nawforce.common.memory
 
-import com.nawforce.common.api.{Org, ServerOps}
-import com.nawforce.common.cmds.Check
-import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.types.apex.SummaryDeclaration
+import java.lang.ref.WeakReference
 
-object ViewBench {
+import scala.collection.mutable
 
-  def main(args: Array[String]): Unit = {
-    // Double run check to get cached org
-    runCheck(args)
-    val org = runCheck(args).asInstanceOf[OrgImpl]
+/** Low memory weak reference set.
+  *
+  * The natural representation for a WeakHasMap but the hashing can create a lot of memory overhead. To avoid this
+  * we use an ArrayBuffer for small sets and convert to a WeakHashMap as the WeakSet grows. For small sets contained
+  * in the array there is some overhead for accessing the values as the array is converted to a set.
+  */
+class SkinnyWeakSet[T <: AnyRef] {
+  private var arrayOf = new mutable.ArrayBuffer[WeakReference[T]](4)
+  private var setOf: mutable.WeakHashMap[T, Boolean] = _
 
-    org.packagesByNamespace.foreach(pkgPair => {
-      ServerOps.debugTime(s"Checking namespace ${pkgPair._1.getOrElse("unmanaged")}") {
-        pkgPair._2.getTypes.foreach {
-          case sd: SummaryDeclaration =>
-            val viewInfo = pkgPair._2.getViewOfType(sd.path, None)
-            if (!viewInfo.hasType || !viewInfo.diagnostics.forall(_.category=="Warning")) {
-              println(s"Problem found for ${sd.typeName}")
-              System.exit(-1)
-            }
-          case _ => ()
-        }
-      }
-    })
+  def isEmpty: Boolean = {
+    if (setOf != null)
+      setOf.isEmpty
+    else
+      arrayOf.forall(_.get == null)
   }
 
-  private def runCheck(args: Array[String]): Org = {
-    val org = Org.newOrg()
-    val status = Check.main("ViewBench", args, org)
-    if (status != 0)
-      System.exit(status)
-    org
+  def nonEmpty: Boolean = !isEmpty
+
+  def size: Int = {
+    if (setOf != null)
+      setOf.size
+    else
+      arrayOf.count(_.get != null)
+  }
+
+  def add(t: T): Unit = {
+    if (setOf != null)
+      setOf.put(t, true)
+    else
+      arrayOf.append(new WeakReference(t))
+
+    if (arrayOf != null && arrayOf.length>64) {
+      setOf = new mutable.WeakHashMap[T, Boolean]()
+      arrayOf.filter(_.get != null).foreach(wr => setOf.put(wr.get, true))
+      arrayOf = null
+    }
+  }
+
+  def toSet: Set[T] = {
+    if (setOf != null)
+      setOf.keys.toSet
+    else
+      arrayOf.filter(_.get != null).map(_.get).toSet
   }
 }

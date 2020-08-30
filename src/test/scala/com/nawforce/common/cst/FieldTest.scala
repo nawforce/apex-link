@@ -83,7 +83,7 @@ class FieldTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Duplicate field reports error on duplicate") {
     val fields = typeDeclaration("public class Dummy {String foo; String foo;}", hasMessages = true).fields
-    assert(fields.size == 1)
+    assert(fields.length == 1)
     assert(fields.head.name == Name("foo"))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "Error: line 1 at 39-42: Duplicate field/property: 'foo'\n")
@@ -92,7 +92,7 @@ class FieldTest extends AnyFunSuite with BeforeAndAfter {
   test("More than one duplicate field reports error on duplicates") {
     val fields = typeDeclaration("public class Dummy {String foo; Integer foo; String foo;}",
       hasMessages = true).fields
-    assert(fields.size == 1)
+    assert(fields.length == 1)
     assert(fields.head.name == Name("foo"))
     assert(defaultOrg.issues.getMessages(defaultPath) ==
       "Error: line 1 at 40-43: Duplicate field/property: 'foo'\nError: line 1 at 52-55: Duplicate field/property: 'foo'\n")

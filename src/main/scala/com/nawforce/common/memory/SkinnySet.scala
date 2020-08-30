@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
+ Copyright (c) 2020 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -25,13 +25,58 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime
+package com.nawforce.common.memory
 
-import com.nawforce.common.api.Org
-import com.nawforce.common.cmds.Check
+import scala.collection.mutable
 
-object ApexLink {
-  def main(args: Array[String]): Unit = {
-    System.exit(Check.main("ApexLink", args, Org.newOrg()))
+/** Low memory set.
+  *
+  * Uses a an array for small size before using a set.
+  */
+class SkinnySet[T <: AnyRef] {
+  private var arrayOf = new mutable.ArrayBuffer[T](4)
+  private var setOf: mutable.Set[T] = _
+
+  def isEmpty: Boolean = {
+    if (setOf != null)
+      setOf.isEmpty
+    else
+      arrayOf.isEmpty
+  }
+
+  def nonEmpty: Boolean = !isEmpty
+
+  def size: Int = {
+    if (setOf != null)
+      setOf.size
+    else
+      arrayOf.size
+  }
+
+  def add(t: T): Unit = {
+    if (setOf != null)
+      setOf.add(t)
+    else
+      arrayOf.append(t)
+
+    if (arrayOf != null && arrayOf.length>64) {
+      setOf = new mutable.HashSet[T]()
+      arrayOf.foreach(setOf.add)
+      arrayOf = null
+    }
+  }
+
+  def toSet: Set[T] = {
+    if (setOf != null)
+      setOf.toSet
+    else
+      arrayOf.toSet
+  }
+
+  def toIterable: mutable.Iterable[T] = {
+    if (setOf != null)
+      setOf
+    else
+      arrayOf.distinct
   }
 }

@@ -25,49 +25,13 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.runtime.cmds
+package com.nawforce.common
 
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, Paths}
+import com.nawforce.common.api.Org
+import com.nawforce.common.cmds.Check
 
-import com.nawforce.common.names._
-import com.nawforce.runtime.types.PlatformTypeDeclaration
-import upickle.default._
-
-object Pickler {
+object ApexLink {
   def main(args: Array[String]): Unit = {
-
-    if (args.length != 1) {
-      println("Use: <directory>")
-      return
-    }
-    val dir = Paths.get(args(0))
-    if (!Files.isDirectory(dir)) {
-      println(s"'$dir' is not a directory")
-      return
-    }
-
-    PlatformTypeDeclaration.classNames.toSeq.foreach(className => {
-      PlatformTypeDeclaration.getDeclaration(className) match {
-        case Some(td: PlatformTypeDeclaration) => writeDeclaration(dir, td)
-        case None => assert(false)
-      }
-    })
-  }
-
-  def writeDeclaration(dir: Path, td: PlatformTypeDeclaration): Unit = {
-    val ns =
-      if (td.isSObject)
-        "SObjects"
-      else
-        td.typeName.outerName.value
-    val nsDir = dir.resolve(ns)
-    if (!Files.isDirectory(nsDir))
-      Files.createDirectory(nsDir)
-
-    val file = nsDir.resolve(td.typeName.name.value+".json")
-    Files.write(file, write(td.serialise).getBytes(StandardCharsets.UTF_8))
+    System.exit(Check.main("ApexLink", args, Org.newOrg()))
   }
 }
-
-

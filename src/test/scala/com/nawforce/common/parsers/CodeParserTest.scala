@@ -27,11 +27,11 @@
 */
 package com.nawforce.common.parsers
 
+import com.nawforce.common.FileSystemHelper
 import com.nawforce.common.api.{Org, Package, ServerOps}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.sfdx.MDAPIWorkspace
-import com.nawforce.runtime.FileSystemHelper
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
@@ -61,7 +61,7 @@ class CodeParserTest extends AnyFunSuite with BeforeAndAfter {
   test("Broken class") {
     val parser = CodeParser(PathFactory("Hello.cls"), SourceData("public class Hello {"))
     parser.parseClass() match {
-      case Left(ex) => ()
+      case Left(_) => ()
       case Right(_) => assert(false)
     }
   }

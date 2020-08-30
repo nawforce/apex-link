@@ -60,7 +60,7 @@ $ npm install -g apexlink
 $ sfdx COMMAND
 running command...
 $ sfdx (-v|--version|version)
-apexlink/1.0.1 darwin-x64 node-v12.16.2
+apexlink/1.1.0 darwin-x64 node-v12.16.2
 $ sfdx --help [COMMAND]
 USAGE
   $ sfdx COMMAND
@@ -107,7 +107,7 @@ EXAMPLES
   $ sfdx apexlink:check --zombie --namespaces ns1,ns2 $HOME/myproject
 ```
 
-_See code: [src/commands/apexlink/check.ts](https://github.com/nawforce/apexlink/blob/v1.0.1/src/commands/apexlink/check.ts)_
+_See code: [src/commands/apexlink/check.ts](https://github.com/nawforce/apexlink/blob/v1.1.0/src/commands/apexlink/check.ts)_
 <!-- commandsstop -->
 
 [![Version](https://img.shields.io/npm/v/apexlink.svg)](https://npmjs.org/package/apexlink)

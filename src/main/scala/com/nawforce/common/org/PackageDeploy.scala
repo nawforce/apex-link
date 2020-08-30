@@ -66,7 +66,7 @@ trait PackageDeploy {
     loadTriggers(documents)
 
     CodeParser.clearCaches()
-    Environment.gc
+    Environment.gc()
 
     if (types.size > startingTypes) {
       val total = System.currentTimeMillis() - epoch
@@ -136,11 +136,11 @@ trait PackageDeploy {
         .flatMap(doc => {
           val data = doc.path.readSourceData()
           val tdOpt = ServerOps.debugTime(s"Parsed ${doc.path}") {
-            FullDeclaration.create(this, doc, data.right.get)
+            FullDeclaration.create(this, doc, data.getOrElse(throw new NoSuchElementException))
           }
           tdOpt.map(td => {
             upsertMetadata(td)
-            (td, data.right.get)
+            (td, data.getOrElse(throw new NoSuchElementException))
           })
         })
 
@@ -154,7 +154,7 @@ trait PackageDeploy {
     val pkgContext = packageContext
     docs.foreach(doc => {
       val data = doc.path.readBytes()
-      val value = pc.get(data.right.get, pkgContext)
+      val value = pc.get(data.getOrElse(throw new NoSuchElementException), pkgContext)
       val ad = value.map(v => SummaryApex(doc.path, this, v))
       if (ad.nonEmpty && !ad.get.diagnostics.exists(_.category == MISSING_CATEGORY.value)) {
         accum.put(ad.get.declaration.typeName, ad.get)
@@ -179,7 +179,7 @@ trait PackageDeploy {
       val tds = docs.flatMap {
         case docType: ApexTriggerDocument =>
           val data = docType.path.readSourceData()
-          TriggerDeclaration.create(this, docType.path, data.right.get)
+          TriggerDeclaration.create(this, docType.path, data.getOrElse(throw new NoSuchElementException))
         case _ => assert(false); Seq()
       }
       tds.foreach(upsertMetadata(_))

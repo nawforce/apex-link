@@ -39,15 +39,15 @@ class TypeStoreTest extends AnyFunSuite {
   }
 
   test("Scoped system class found") {
-    assert(PlatformTypes.get(TypeNames.String, None).right.get.typeName == TypeNames.String)
+    assert(PlatformTypes.get(TypeNames.String, None).getOrElse(throw new NoSuchElementException).typeName == TypeNames.String)
   }
 
   test("Unscoped system class found") {
-    assert(PlatformTypes.get(TypeName(Names.String), None).right.get.typeName == TypeNames.String)
+    assert(PlatformTypes.get(TypeName(Names.String), None).getOrElse(throw new NoSuchElementException).typeName == TypeNames.String)
   }
 
   test("Unscoped schema class found") {
-    assert(PlatformTypes.get(TypeName(Names.SObjectType), None).right.get.typeName == TypeNames.SObjectType)
+    assert(PlatformTypes.get(TypeName(Names.SObjectType), None).getOrElse(throw new NoSuchElementException).typeName == TypeNames.SObjectType)
   }
 
   test("Unscoped database class not found") {
@@ -56,7 +56,7 @@ class TypeStoreTest extends AnyFunSuite {
 
   test("Inner class found") {
     val typeName = TypeName(Name("Header"), Nil, Some(TypeName(Name("InboundEmail"), Nil, Some(TypeName(Name("Messaging"))))))
-    assert(PlatformTypes.get(typeName, None).right.get.typeName == typeName)
+    assert(PlatformTypes.get(typeName, None).getOrElse(throw new NoSuchElementException).typeName == typeName)
   }
 
   test("Bad inner class not found") {
