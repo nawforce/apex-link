@@ -33,7 +33,8 @@ class SyntaxException(val line: Int, val column: Int, val message: String) exten
 }
 
 class ThrowingErrorListener extends BaseErrorListener {
-  override def syntaxError(recognizer: Recognizer[_, _], offendingSymbol: Any, line: Int, charPositionInLine: Int, msg: String, e: RecognitionException) {
+  override def syntaxError(recognizer: Recognizer[_, _], offendingSymbol: Any, line: Int, charPositionInLine: Int,
+                           msg: String, e: RecognitionException): Unit = {
     throw new SyntaxException(line, charPositionInLine, msg)
   }
 }

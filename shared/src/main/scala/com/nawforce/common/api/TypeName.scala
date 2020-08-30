@@ -30,6 +30,8 @@ package com.nawforce.common.api
 import com.nawforce.common.names._
 import upickle.default.{macroRW, ReadWriter => RW}
 
+import scala.collection.immutable.ArraySeq.ofRef
+
 /** Representation of a type name with optional type arguments.
   *
   * The outer value provides an optional enclosing type name to allow for qualifying inner types. The outer may also
@@ -54,7 +56,7 @@ object TypeName {
 
   /** Helper for construction from Java, outer may be null */
   def fromJava(name: Name, params: Array[TypeName], outer: TypeName): TypeName = {
-    new TypeName(name, params, Option(outer))
+    new TypeName(name, new ofRef(params), Option(outer))
   }
 
   /** Create a type name from a sequence of names, these should be provided in inner->outer order */

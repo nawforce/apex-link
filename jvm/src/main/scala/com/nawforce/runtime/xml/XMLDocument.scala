@@ -73,19 +73,21 @@ trait WithLocation extends NoBindingFactoryAdapter {
   private val startLines = mutable.Stack[Int]()
 
   // Get location
-  abstract override def setDocumentLocator(locator: Locator) {
+  abstract override def setDocumentLocator(locator: Locator): Unit = {
     this.locator = locator
     super.setDocumentLocator(locator)
   }
 
-  abstract override def createNode(pre: String, label: String, attrs: MetaData, scope: NamespaceBinding, children: List[Node]): Elem = (
+  abstract override def createNode(pre: String, label: String, attrs: MetaData, scope: NamespaceBinding,
+                                   children: List[Node]): Elem = (
     super.createNode(pre, label, attrs, scope, children)
-      % Attribute("line", Text(startLines.pop.toString), Null)
+      % Attribute("line", Text(startLines.pop().toString), Null)
     )
 
-  abstract override def startElement(uri: scala.Predef.String, _localName: scala.Predef.String, qname: scala.Predef.String, attributes: org.xml.sax.Attributes): scala.Unit = {
+  abstract override def startElement(uri: scala.Predef.String, _localName: scala.Predef.String,
+                                     name: scala.Predef.String, attributes: org.xml.sax.Attributes): scala.Unit = {
     startLines.push(locator.getLineNumber)
-    super.startElement(uri, _localName, qname, attributes)
+    super.startElement(uri, _localName, name, attributes)
   }
 }
 

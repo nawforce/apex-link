@@ -48,6 +48,6 @@ object Cleanable {
 
   def clean(): Unit = {
     cleanable.foreach(_.value.clean())
-    Environment.gc
+    Environment.gc()
   }
 }

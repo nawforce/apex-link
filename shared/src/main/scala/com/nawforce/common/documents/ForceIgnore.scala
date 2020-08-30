@@ -116,9 +116,9 @@ case class IgnoreRule(dirOnly: Boolean, negation: Boolean, pattern: String) {
           var stuff = pattern.substring(i, j).replace("\\", "\\\\")
           i = j + 1
           if (stuff(0) == '!')
-            stuff = "^" + stuff.substring(1)
+            stuff = s"^ ${stuff.substring(1)}"
           else if (stuff(0) == '^')
-            stuff = '\\' + stuff.substring(1)
+            stuff = s"\\ ${stuff.substring(1)}"
           builder.append(s"[$stuff]")
         }
       } else {
@@ -163,7 +163,7 @@ object IgnoreRule {
         if (pattern.endsWith("/"))
           pattern = pattern.substring(0, pattern.length-1)
         IgnoreRule(dirOnly, negation, pattern)
-      })
+      }).toIndexedSeq
   }
 
   def escape(s: String): String = {

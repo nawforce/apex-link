@@ -97,11 +97,11 @@ class IssueLog {
   }
 
   private trait MessageWriter {
-    def startOutput()
-    def startDocument(path: String)
-    def writeMessage(category: IssueCategory, location: LocationImpl, message: String)
-    def writeSummary(notShown: Int, total: Int)
-    def endDocument()
+    def startOutput(): Unit
+    def startDocument(path: String): Unit
+    def writeMessage(category: IssueCategory, location: LocationImpl, message: String): Unit
+    def writeSummary(notShown: Int, total: Int): Unit
+    def endDocument(): Unit
     def output: String
   }
 
@@ -113,7 +113,7 @@ class IssueLog {
     override def writeMessage(category: IssueCategory, location: LocationImpl, message: String): Unit =
       buffer ++= s"${category.value}: ${location.displayPosition}: $message\n"
     override def writeSummary(notShown: Int, total: Int): Unit =
-      buffer ++= notShown + " of " + total + " errors not shown" + "\n"
+      buffer ++= s"$notShown of $total errors not shown" + "\n"
     override def endDocument(): Unit = {}
     override def output: String = buffer.toString()
   }

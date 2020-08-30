@@ -31,6 +31,8 @@ import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.path.PathLike
 
+import scala.collection.immutable.ArraySeq.ofRef
+
 /** A piece of Metadata described in a file */
 abstract class MetadataDocument(val path: PathLike, val name: Name) {
   /* MDAPI extension for this metadata, may not match actual extension for SFDX */
@@ -233,7 +235,7 @@ object MetadataDocument {
     } else if (parts.length == 2) {
       parts = List(parts(0), parts(1).toLowerCase).toArray
     }
-    parts.map(Name(_))
+    new ofRef(parts.map(Name(_)))
   }
 }
 

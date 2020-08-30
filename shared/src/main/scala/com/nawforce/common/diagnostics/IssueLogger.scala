@@ -37,7 +37,7 @@ import scala.collection.mutable.ArrayBuffer
 /** Trait to assist with logging in a context specific way */
 trait IssueLogger {
   // Simply log an issue
-  def log(issue: Issue)
+  def log(issue: Issue): Unit
 
   def logError(location: LocationImpl, message: String): Unit = {
     log(Issue(ERROR_CATEGORY, location, message))
