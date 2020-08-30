@@ -31,6 +31,7 @@ import com.nawforce.common.api._
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.finding.TypeResolver
+import com.nawforce.common.modifiers._
 import com.nawforce.common.names.{Names, TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike

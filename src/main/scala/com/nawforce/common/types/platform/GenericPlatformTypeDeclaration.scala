@@ -29,9 +29,9 @@
 package com.nawforce.common.types.platform
 
 import com.nawforce.common.api.{Name, TypeName}
-import com.nawforce.common.cst.Modifier
 import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.finding.{MissingType, TypeError, TypeResolver}
+import com.nawforce.common.modifiers.Modifier
 import com.nawforce.common.names._
 import com.nawforce.common.types.core.{FieldDeclaration, MethodDeclaration, ParameterDeclaration, TypeDeclaration}
 

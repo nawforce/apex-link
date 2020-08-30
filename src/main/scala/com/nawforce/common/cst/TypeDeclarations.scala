@@ -28,6 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, TypeName}
+import com.nawforce.common.modifiers._
 import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types.apex.{ApexVisibleMethodLike, FullDeclaration}

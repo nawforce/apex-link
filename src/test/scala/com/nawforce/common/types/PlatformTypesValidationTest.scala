@@ -28,7 +28,7 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.api.{Name, TypeName}
-import com.nawforce.common.cst.{PUBLIC_MODIFIER, VIRTUAL_MODIFIER}
+import com.nawforce.common.modifiers._
 import com.nawforce.common.names.{DotName, TypeNames}
 import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, TRIGGER_NATURE}
 import com.nawforce.common.types.platform.{PlatformTypeDeclaration, PlatformTypes}

@@ -28,8 +28,8 @@
 package com.nawforce.common.types.synthetic
 
 import com.nawforce.common.api._
-import com.nawforce.common.cst.{Modifier, PUBLIC_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.documents.LocationImpl
+import com.nawforce.common.modifiers._
 import com.nawforce.common.types.apex.ApexVisibleMethodLike
 import com.nawforce.common.types.core.ParameterDeclaration
 

@@ -28,9 +28,9 @@
 package com.nawforce.common.types.apex
 
 import com.nawforce.common.api.{TypeName, _}
-import com.nawforce.common.cst.{Modifier, ModifierOps}
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
+import com.nawforce.common.modifiers.{Modifier, ModifierOps}
 import com.nawforce.common.names.Names
 import com.nawforce.common.names.TypeNames._
 import com.nawforce.common.org.PackageImpl

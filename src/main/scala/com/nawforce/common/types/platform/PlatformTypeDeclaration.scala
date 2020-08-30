@@ -32,9 +32,9 @@ import java.nio.file.{FileSystemNotFoundException, FileSystems, Files, Paths}
 import java.util
 
 import com.nawforce.common.api.{Name, TypeName}
-import com.nawforce.common.cst.{Modifier, PUBLIC_MODIFIER}
 import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
+import com.nawforce.common.modifiers.{Modifier, PUBLIC_MODIFIER}
 import com.nawforce.common.names.{DotName, Names, TypeNames, _}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike

@@ -29,9 +29,10 @@ package com.nawforce.common.types.apex
 
 import com.nawforce.common.api._
 import com.nawforce.common.cst._
-import com.nawforce.common.diagnostics.{Issue, IssueCategory, SYNTAX_CATEGORY}
+import com.nawforce.common.diagnostics.{Issue, SYNTAX_CATEGORY}
 import com.nawforce.common.documents._
 import com.nawforce.common.memory.Monitor
+import com.nawforce.common.modifiers.{ABSTRACT_MODIFIER, ApexModifiers, ModifierResults, VIRTUAL_MODIFIER}
 import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike

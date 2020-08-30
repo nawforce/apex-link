@@ -29,7 +29,7 @@ package com.nawforce.common.types.platform
 
 import java.lang.reflect.{Modifier => JavaModifier}
 
-import com.nawforce.common.cst._
+import com.nawforce.common.modifiers._
 import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, Nature}
 
 object PlatformModifiers {

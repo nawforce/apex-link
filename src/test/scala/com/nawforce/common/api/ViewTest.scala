@@ -29,7 +29,7 @@ package com.nawforce.common.api
 
 import com.nawforce.common.FileSystemHelper
 import com.nawforce.common.names.{Names, TypeNames}
-import com.nawforce.common.org.{OrgImpl, PackageImpl, ViewInfoImpl}
+import com.nawforce.common.org.{OrgImpl, ViewInfoImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.SourceBlob
 import org.scalatest.BeforeAndAfter

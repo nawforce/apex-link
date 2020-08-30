@@ -28,8 +28,8 @@
 package com.nawforce.common.types.other
 
 import com.nawforce.common.api.{Name, TypeName}
-import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.documents._
+import com.nawforce.common.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.org.stream.PackageStream

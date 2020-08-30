@@ -29,11 +29,12 @@
 package com.nawforce.common.org
 
 import com.nawforce.common.api.{LineLocation, Name, PathLocation, TypeName}
-import com.nawforce.common.cst.{GLOBAL_MODIFIER, UnusedLog}
+import com.nawforce.common.cst.UnusedLog
 import com.nawforce.common.diagnostics.{IssueLog, LocalLogger}
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeResolver.TypeResponse
+import com.nawforce.common.modifiers.GLOBAL_MODIFIER
 import com.nawforce.common.names.{EncodedName, TypeNames, _}
 import com.nawforce.common.sfdx.Workspace
 import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexDeclaration}

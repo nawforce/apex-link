@@ -28,9 +28,10 @@
 package com.nawforce.common.types.schema
 
 import com.nawforce.common.api.{Name, TypeName}
-import com.nawforce.common.cst.{GLOBAL_MODIFIER, Modifier, VerifyContext}
+import com.nawforce.common.cst.VerifyContext
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
+import com.nawforce.common.modifiers._
 import com.nawforce.common.names.{DotName, Names, TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike

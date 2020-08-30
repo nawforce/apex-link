@@ -32,6 +32,7 @@ import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.finding.{TypeError, TypeResolver}
 import com.nawforce.common.memory.SkinnySet
+import com.nawforce.common.modifiers.SUPPRESS_WARNINGS_ANNOTATION
 import com.nawforce.common.names.EncodedName
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.apex._

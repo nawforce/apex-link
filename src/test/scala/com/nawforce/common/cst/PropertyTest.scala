@@ -29,6 +29,7 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, ServerOps}
 import com.nawforce.common.documents.ApexClassDocument
+import com.nawforce.common.modifiers._
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types.apex.FullDeclaration

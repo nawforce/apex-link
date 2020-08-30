@@ -32,6 +32,7 @@ import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.{Issue, SYNTAX_CATEGORY}
 import com.nawforce.common.documents.{LocationImpl, PointLocationImpl, PositionImpl}
 import com.nawforce.common.memory.SkinnySet
+import com.nawforce.common.modifiers.{Modifier, ModifierOps}
 import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
