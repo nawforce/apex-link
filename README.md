@@ -1,5 +1,7 @@
 ## pkgforce
 
+master: [![Master Build Status](https://travis-ci.org/nawforce/pkgforce.svg?branch=master)](https://travis-ci.org/nawforce/pkgforce)
+
 Provides utility functions for the handling collections of Salesforce metadata. The library is implemented in Scala
 in a style that allows it to be compiled for either use on both JVM or node. This library was originally part of  
 [ApexLink](https://github.com/nawforce/ApexLink) which can perform static analysis of Apex code and support 
