@@ -25,49 +25,40 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.cmds
+package com.nawforce.common.cmds.benchmarks
 
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, Paths}
+import com.nawforce.common.api.{Org, ServerOps}
+import com.nawforce.common.cmds.Check
+import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.types.apex.SummaryDeclaration
 
-import com.nawforce.common.names._
-import com.nawforce.common.types.platform.PlatformTypeDeclaration
-import upickle.default._
+object ViewBench {
 
-object Pickler {
   def main(args: Array[String]): Unit = {
+    // Double run check to get cached org
+    runCheck(args)
+    val org = runCheck(args).asInstanceOf[OrgImpl]
 
-    if (args.length != 1) {
-      println("Use: <directory>")
-      return
-    }
-    val dir = Paths.get(args(0))
-    if (!Files.isDirectory(dir)) {
-      println(s"'$dir' is not a directory")
-      return
-    }
-
-    PlatformTypeDeclaration.classNames.toSeq.foreach(className => {
-      PlatformTypeDeclaration.getDeclaration(className) match {
-        case Some(td: PlatformTypeDeclaration) => writeDeclaration(dir, td)
-        case None => assert(false)
+    org.packagesByNamespace.foreach(pkgPair => {
+      ServerOps.debugTime(s"Checking namespace ${pkgPair._1.getOrElse("unmanaged")}") {
+        pkgPair._2.getTypes.foreach {
+          case sd: SummaryDeclaration =>
+            val viewInfo = pkgPair._2.getViewOfType(sd.path, None)
+            if (!viewInfo.hasType || !viewInfo.diagnostics.forall(_.category=="Warning")) {
+              println(s"Problem found for ${sd.typeName}")
+              System.exit(-1)
+            }
+          case _ => ()
+        }
       }
     })
   }
 
-  def writeDeclaration(dir: Path, td: PlatformTypeDeclaration): Unit = {
-    val ns =
-      if (td.isSObject)
-        "SObjects"
-      else
-        td.typeName.outerName.value
-    val nsDir = dir.resolve(ns)
-    if (!Files.isDirectory(nsDir))
-      Files.createDirectory(nsDir)
-
-    val file = nsDir.resolve(td.typeName.name.value+".json")
-    Files.write(file, write(td.serialise).getBytes(StandardCharsets.UTF_8))
+  private def runCheck(args: Array[String]): Org = {
+    val org = Org.newOrg()
+    val status = Check.main("ViewBench", args, org)
+    if (status != 0)
+      System.exit(status)
+    org
   }
 }
-
-

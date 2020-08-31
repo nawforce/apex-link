@@ -47,11 +47,13 @@ trait PackageAPI extends Package {
   this: PackageImpl =>
 
   override def getNamespaces(withDependents: Boolean): Array[String] = {
-    val ns = namespace.map(_.value).getOrElse("")
-    if (withDependents)
-      (ns +: basePackages.map(_.namespace.map(_.value).getOrElse(""))).toArray
-    else
-      Array(ns)
+    OrgImpl.current.withValue(org) {
+      val ns = namespace.map(_.value).getOrElse("")
+      if (withDependents)
+        (ns +: basePackages.map(_.namespace.map(_.value).getOrElse(""))).toArray
+      else
+        Array(ns)
+    }
   }
 
   override def getTypeOfPath(path: String): TypeIdentifier = {

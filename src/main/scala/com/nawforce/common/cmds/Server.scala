@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
+ Copyright (c) 2020 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -27,37 +27,12 @@
 */
 package com.nawforce.common.cmds
 
-import com.nawforce.common.api.{Org, ServerOps}
-import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.types.apex.SummaryDeclaration
+import com.nawforce.common.rpc.RPCServer
 
-object ViewBench {
+object Server {
 
   def main(args: Array[String]): Unit = {
-    // Double run check to get cached org
-    runCheck(args)
-    val org = runCheck(args).asInstanceOf[OrgImpl]
-
-    org.packagesByNamespace.foreach(pkgPair => {
-      ServerOps.debugTime(s"Checking namespace ${pkgPair._1.getOrElse("unmanaged")}") {
-        pkgPair._2.getTypes.foreach {
-          case sd: SummaryDeclaration =>
-            val viewInfo = pkgPair._2.getViewOfType(sd.path, None)
-            if (!viewInfo.hasType || !viewInfo.diagnostics.forall(_.category=="Warning")) {
-              println(s"Problem found for ${sd.typeName}")
-              System.exit(-1)
-            }
-          case _ => ()
-        }
-      }
-    })
+    new RPCServer().run()
   }
 
-  private def runCheck(args: Array[String]): Org = {
-    val org = Org.newOrg()
-    val status = Check.main("ViewBench", args, org)
-    if (status != 0)
-      System.exit(status)
-    org
-  }
 }

@@ -25,51 +25,25 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.nawforce.common.cmds
+package com.nawforce.common.rpc
 
-import java.io.{BufferedReader, InputStreamReader}
+import java.io.{BufferedReader, InputStreamReader, PrintStream}
 
-import io.github.shogowada.scala.jsonrpc.Models.JSONRPCRequest
-import io.github.shogowada.scala.jsonrpc.api
 import io.github.shogowada.scala.jsonrpc.serializers.UpickleJSONSerializer
 import io.github.shogowada.scala.jsonrpc.serializers.UpickleJSONSerializer._
 import io.github.shogowada.scala.jsonrpc.server.JSONRPCServer
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import scala.util.{Failure, Success}
-
-trait TestAPI {
-  @api.JSONRPCMethod(name = "foo")
-  def something(msg: String): Future[String]
-}
-
-class Test extends TestAPI {
-  override def something(msg: String): Future[String] = {
-    Future(msg)
-  }
-}
 
 class RPCTerminatedException(msg: String) extends Exception(msg)
 
-object RPCServer {
+class RPCServer {
+  private val serializer = new UpickleJSONSerializer()
+  private val server = JSONRPCServer(serializer)
+  server.bindAPI[OrgAPI](new OrgAPIImpl)
 
-  def main(args: Array[String]): Unit = {
-    val serializer = new UpickleJSONSerializer()
-    val server = JSONRPCServer(serializer)
-    val testRPC = new Test
-    server.bindAPI[TestAPI](testRPC)
-
-    val request: JSONRPCRequest[Tuple1[String]] = JSONRPCRequest(
-      jsonrpc = "2.0",
-      id = Left("id"),
-      method = "foo",
-      params = Tuple1("bar")
-    )
-    val requestJSON: String = serializer.serialize(request).get
-    println(requestJSON)
-    handleMessage(server, requestJSON)
-
+  def run(): Unit = {
     val input = new BufferedReader(new InputStreamReader(System.in))
     var message = new StringBuilder
     val block = new Array[Char](1024)
@@ -81,21 +55,27 @@ object RPCServer {
       message.append(new String(block.slice(0, read)))
       val terminator = message.indexOf("\n\n")
       if (terminator != -1) {
-        handleMessage(server, message.slice(0, terminator+1).mkString)
+        handleMessage(message.slice(0, terminator+1).mkString, System.out)
         message = message.slice(terminator+2, message.length)
       }
     }
   }
 
-  private def handleMessage(server: JSONRPCServer[UpickleJSONSerializer], message: String): Unit = {
+  def handleMessage(message: String, stream: PrintStream): Unit = {
     server.receive(message).onComplete {
-      case Success(Some(response: String)) =>
-        println(response)
-      case Success(None) =>
-        System.err.println(s"No response for msg")
-      case Failure(ex: Throwable) =>
-        ex.printStackTrace(System.err)
+      case Success(Some(response: String)) => stream.println(response)
+      case Success(None) => throw new RPCTerminatedException(s"Not response: $message")
+      case Failure(ex: Throwable) => throw ex
     }
   }
-
 }
+
+/*
+val request: JSONRPCRequest[Tuple1[String]] = JSONRPCRequest(
+  jsonrpc = "2.0",
+  id = Left("id"),
+  method = "foo",
+  params = Tuple1("bar")
+)
+val requestJSON: String = serializer.serialize(request).get
+ */
