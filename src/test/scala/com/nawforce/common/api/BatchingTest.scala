@@ -37,12 +37,10 @@ import org.scalatest.funsuite.AnyFunSuite
 class BatchingTest extends AnyFunSuite with BeforeAndAfter {
 
   before {
-    ServerOps.setParsedDataCaching(false)
     ServerOps.setAutoFlush(false)
   }
 
   after {
-    ServerOps.setParsedDataCaching(false)
     ServerOps.setAutoFlush(true)
   }
 

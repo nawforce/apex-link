@@ -59,16 +59,6 @@ object ServerOps {
   def debugTime[T](msg: String, show: Boolean=true, postMsg: String = "")(op: => T): T =
     LoggerOps.debugTime(msg, show, postMsg)(op)
 
-  /** Are we caching parsed data, this is enabled by default */
-  def getParsedDataCaching: Boolean = {
-    parsedCaching
-  }
-
-  /** Update parsed data caching flag */
-  def setParsedDataCaching(enable: Boolean): Unit = {
-    parsedCaching = enable
-  }
-
   /** Are we using lazy blocks, this is enabled by default */
   def getLazyBlocks: Boolean = {
     lazyBlocks

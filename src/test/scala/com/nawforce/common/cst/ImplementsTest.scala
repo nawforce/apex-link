@@ -54,14 +54,12 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
 
   before {
     ServerOps.setAutoFlush(false)
-    ServerOps.setParsedDataCaching(false)
     defaultOrg = new OrgImpl
     root = null
   }
 
   after {
     ServerOps.setAutoFlush(true)
-    ServerOps.setParsedDataCaching(true)
   }
 
   test("Missing class interface") {

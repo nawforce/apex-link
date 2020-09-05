@@ -53,7 +53,6 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter {
 
   before {
     ServerOps.setAutoFlush(false)
-    ServerOps.setParsedDataCaching(false)
     defaultOrg = new OrgImpl
     root = null
   }

@@ -39,9 +39,13 @@ import scala.collection.mutable
 
 case class RefreshRequest(pkg: PackageImpl, path: PathLike, source: Option[SourceBlob])
 
-class Flusher(org: OrgImpl) extends Runnable {
-  private val lock = new ReentrantLock(true)
-  private val refreshQueue = new mutable.Queue[RefreshRequest]()
+class Flusher(org: OrgImpl, parsedCache: Option[ParsedCache]) {
+  protected val lock = new ReentrantLock(true)
+  protected val refreshQueue = new mutable.Queue[RefreshRequest]()
+
+  def isFlushed: Boolean = {
+    lock.synchronized {refreshQueue.isEmpty}
+  }
 
   def queue(request: RefreshRequest): Unit = {
     lock.synchronized {
@@ -49,7 +53,36 @@ class Flusher(org: OrgImpl) extends Runnable {
     }
   }
 
-  def isFlushed: Boolean = lock.synchronized {refreshQueue.isEmpty}
+  def refreshAndFlush(): Boolean = {
+    OrgImpl.current.withValue(org) {
+      lock.synchronized {
+        val packages = org.orderedPackages
+
+        val refreshed = packages.map(pkg => {
+          pkg.refreshBatched(refreshQueue.filter(_.pkg == pkg).toSeq)
+        }).foldLeft(false) {
+          _ || _
+        }
+
+        parsedCache.foreach(pc => {
+          packages.foreach(pkg => {
+            pkg.flush(pc)
+          })
+        })
+
+        Monitor.reportDuplicateTypes()
+        Cleanable.clean()
+        refreshQueue.clear()
+        refreshed
+      }
+    }
+  }
+
+}
+
+class CacheFlusher(org: OrgImpl, parsedCache: Option[ParsedCache]) extends Flusher(org, parsedCache) with Runnable {
+
+  new Thread(this).start()
 
   override def run(): Unit = {
       def queueSize: Int = lock.synchronized {refreshQueue.size}
@@ -59,7 +92,7 @@ class Flusher(org: OrgImpl) extends Runnable {
         var stable = false
         while (!stable) {
           val start = queueSize
-          Thread.sleep(500)
+          Thread.sleep(250)
           val end = queueSize
           stable = start > 0 && start == end
         }
@@ -67,32 +100,6 @@ class Flusher(org: OrgImpl) extends Runnable {
         // Process refresh requests & flush
         refreshAndFlush()
       }
-  }
-
-  def refreshAndFlush(): Boolean = {
-    OrgImpl.current.withValue(org) {
-      lock.synchronized {
-        val postMessage = if (Monitor.size > 0) s", ${Monitor.size} full types" else ""
-        val refreshed = ServerOps.debugTime("Org flushed", show = true, postMessage) {
-          ParsedCache.create match {
-            case Left(err) =>
-              ServerOps.error(err); false
-            case Right(pc) =>
-              org.orderedPackages.map(pkg => {
-                val refreshed = pkg.refreshBatched(refreshQueue.filter(_.pkg == pkg).toSeq)
-                pkg.flush(pc)
-                refreshed
-              }).foldLeft(false) {
-                _ || _
-              }
-          }
-        }
-        Monitor.reportDuplicateTypes()
-        Cleanable.clean()
-        refreshQueue.clear()
-        refreshed
-      }
-    }
   }
 }
 

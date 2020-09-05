@@ -45,12 +45,10 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   before {
-    ServerOps.setParsedDataCaching(true)
     ServerOps.setAutoFlush(false)
   }
 
   after {
-    ServerOps.setParsedDataCaching(false)
     ServerOps.setAutoFlush(true)
   }
 

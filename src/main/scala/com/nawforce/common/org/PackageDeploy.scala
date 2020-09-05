@@ -95,7 +95,7 @@ trait PackageDeploy {
   }
 
   private def loadClasses(documents: DocumentIndex): Unit = {
-    val pcOpt = getParsedCache
+    val pcOpt = org.parsedCache
     val docs = documents.getByExtensionIterable(Name("cls")).collect{case ad: ApexClassDocument => ad}
 
     ServerOps.debugTime(s"Loaded summary classes", docs.nonEmpty) {
@@ -161,16 +161,6 @@ trait PackageDeploy {
         upsertMetadata(ad.get.declaration)
       }
     })
-  }
-
-  private def getParsedCache: Option[ParsedCache] = {
-    if (ServerOps.getParsedDataCaching)
-      ParsedCache.create match {
-        case Left(err) => ServerOps.error(err); None
-        case Right(cache) => Some(cache)
-      }
-    else
-      None
   }
 
   private def loadTriggers(documents: DocumentIndex): Unit = {

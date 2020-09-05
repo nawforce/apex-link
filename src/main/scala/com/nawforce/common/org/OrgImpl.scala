@@ -29,7 +29,7 @@ package com.nawforce.common.org
 
 import java.util
 
-import com.nawforce.common.api.{IssueOptions, Name, Org, Package, PathLocation, ServerOps}
+import com.nawforce.common.api.{IssueOptions, LoggerOps, Name, Org, Package, PathLocation, ServerOps}
 import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, IssueLog}
 import com.nawforce.common.documents._
 import com.nawforce.common.memory.IdentityBox
@@ -47,16 +47,18 @@ import scala.util.DynamicVariable
   */
 class OrgImpl(val analysis: Boolean=true) extends Org {
 
+  /** Parsed data cache */
+  private[nawforce] val parsedCache = ParsedCache.create match {
+    case Right(pc) => Some(pc)
+    case Left(err) => LoggerOps.error(err); None
+  }
+
   /** Is this Org using auto-flushing */
   private val autoFlush = ServerOps.getAutoFlush
+  ServerOps.debug(ServerOps.Trace, s"Org created with autoFlush = $autoFlush")
 
   /** The Org flusher */
-  private val flusher = new Flusher(this)
-
-  /** Start flushing thread */
-  if (autoFlush)
-    new Thread(flusher).start()
-  ServerOps.debug(ServerOps.Trace, s"Org created with autoFlush = $autoFlush")
+  private val flusher = if (autoFlush) new CacheFlusher(this, parsedCache) else new Flusher(this, parsedCache)
 
   /**
     * Map of Package namespace to Package. This contains all known Packages, each Package maintains it's own

@@ -38,12 +38,10 @@ import org.scalatest.funsuite.AnyFunSuite
 class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
   before {
-    ServerOps.setParsedDataCaching(false)
     ServerOps.setAutoFlush(false)
   }
 
   after {
-    ServerOps.setParsedDataCaching(true)
     ServerOps.setAutoFlush(true)
   }
 
@@ -213,7 +211,6 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
   test("summary of type with namespace (cached)") {
     ParsedCache.clear()
-    ServerOps.setParsedDataCaching(true)
 
     FileSystemHelper.run(Map(
       "classes/Dummy.cls" -> "@isTest puBlic class Dummy {}"
@@ -236,8 +233,6 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(summary.idRange.contains(RangeLocation(Position(1,21), Position(1,26))))
       assert(summary.modifiers sameElements Array("@IsTest", "public"))
     }
-
-    ServerOps.setParsedDataCaching(false)
   }
 
   test("summary of trigger") {
@@ -292,7 +287,6 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
   def fooHoldsBarCached(files: Map[String, String], inheritanceOnly: Boolean = false): Unit = {
     ParsedCache.clear()
-    ServerOps.setParsedDataCaching(true)
     FileSystemHelper.run(files, setupCache = true) { root: PathLike =>
       // Basic non-cached test
       {
@@ -340,7 +334,6 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
         assert(pkg.getDependencies(fooTypeLike, inheritanceOnly = false).isEmpty)
       }
     }
-    ServerOps.setParsedDataCaching(false)
   }
 
   test("Superclass dependency") {
@@ -573,7 +566,6 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
   test("Unmanaged to Managed Dependency (cached)") {
     ParsedCache.clear()
-    ServerOps.setParsedDataCaching(true)
 
     FileSystemHelper.run(Map(
       "pkg1/Foo.cls" -> "global virtual class Foo {}",
@@ -599,8 +591,6 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(pkg21.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
       assert(pkg22.getDependencyHolders(barTypeLike).isEmpty)
     }
-
-    ServerOps.setParsedDataCaching(false)
   }
 
   test("Managed to Managed Dependency") {
@@ -623,7 +613,6 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
   test("Managed to Managed Dependency (cached)") {
     ParsedCache.clear()
-    ServerOps.setParsedDataCaching(true)
 
     FileSystemHelper.run(Map(
       "pkg1/Foo.cls" -> "global virtual class Foo {}",
@@ -649,8 +638,6 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(pkg21.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
       assert(pkg22.getDependencyHolders(barTypeLike).isEmpty)
     }
-
-    ServerOps.setParsedDataCaching(false)
   }
 
   test("Trigger with no block") {

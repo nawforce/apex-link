@@ -42,12 +42,10 @@ class SampleTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   before {
-    ServerOps.setParsedDataCaching(false)
     ServerOps.setAutoFlush(false)
   }
 
   after {
-    ServerOps.setParsedDataCaching(true)
     ServerOps.setAutoFlush(true)
   }
 
