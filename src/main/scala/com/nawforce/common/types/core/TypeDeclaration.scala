@@ -127,7 +127,7 @@ object FieldDeclaration {
 
 trait ParameterDeclaration {
   val name: Name
-  val typeName: TypeName
+  def typeName: TypeName
 
   def serialise: ParameterSummary = {
     ParameterSummary(name.toString, typeName)

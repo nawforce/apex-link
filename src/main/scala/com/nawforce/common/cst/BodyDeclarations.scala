@@ -273,7 +273,7 @@ final case class FormalParameter(pkg: PackageImpl, outerTypeName: TypeName, modi
 
   override val name: Name = id.name
 
-  override lazy val typeName: TypeName = relativeTypeName.typeName
+  override def typeName: TypeName = relativeTypeName.typeName
 
   def addVar(context: BlockVerifyContext): Unit = {
     relativeTypeName.addVar(location, id.name, context: BlockVerifyContext)
