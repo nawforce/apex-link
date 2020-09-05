@@ -32,6 +32,13 @@ import org.scalatest.funsuite.AsyncFunSuite
 
 class OrgAPITest extends AsyncFunSuite {
 
+  test("Identifier not empty") {
+    val orgAPI = OrgAPI()
+    orgAPI.identifier() map {
+      result => assert(result.nonEmpty)
+    }
+  }
+
   test("Add package not bad directory") {
     val workspace = PathFactory("silly")
     val orgAPI = OrgAPI()

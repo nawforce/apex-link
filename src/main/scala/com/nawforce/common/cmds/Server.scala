@@ -32,7 +32,13 @@ import com.nawforce.common.rpc.RPCServer
 object Server {
 
   def main(args: Array[String]): Unit = {
-    new RPCServer().run()
+    try {
+      new RPCServer().run()
+    } catch {
+      case ex: Throwable =>
+        ex.printStackTrace()
+        System.exit(-1)
+    }
   }
 
 }

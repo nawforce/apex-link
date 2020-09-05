@@ -29,6 +29,7 @@ package com.nawforce.common.rpc
 
 import java.io.{BufferedReader, InputStreamReader, PrintStream}
 
+import com.nawforce.common.api.LoggerOps
 import io.github.shogowada.scala.jsonrpc.serializers.UpickleJSONSerializer
 import io.github.shogowada.scala.jsonrpc.serializers.UpickleJSONSerializer._
 import io.github.shogowada.scala.jsonrpc.server.JSONRPCServer
@@ -52,30 +53,35 @@ class RPCServer {
       if (read == -1)
         throw new RPCTerminatedException("Read -1 from stdin")
 
+      val existingLength = message.length()
       message.append(new String(block.slice(0, read)))
-      val terminator = message.indexOf("\n\n")
-      if (terminator != -1) {
-        handleMessage(message.slice(0, terminator+1).mkString, System.out)
+      var terminator = message.indexOf("\n\n", existingLength)
+      while (terminator != -1) {
+        val msg = message.slice(0, terminator+1).mkString
+        handleMessage(msg, System.out)
         message = message.slice(terminator+2, message.length)
+        terminator = message.indexOf("\n\n")
       }
     }
   }
 
   def handleMessage(message: String, stream: PrintStream): Unit = {
     server.receive(message).onComplete {
-      case Success(Some(response: String)) => stream.println(response)
-      case Success(None) => throw new RPCTerminatedException(s"Not response: $message")
-      case Failure(ex: Throwable) => throw ex
+      case Success(Some(response: String)) =>
+        stream.print(encodeJSON(response))
+        stream.print("\n\n")
+      case Success(None) =>
+        throw new RPCTerminatedException(s"No response: $message")
+      case Failure(ex: Throwable) =>
+        throw ex
     }
   }
-}
 
-/*
-val request: JSONRPCRequest[Tuple1[String]] = JSONRPCRequest(
-  jsonrpc = "2.0",
-  id = Left("id"),
-  method = "foo",
-  params = Tuple1("bar")
-)
-val requestJSON: String = serializer.serialize(request).get
- */
+  private def encodeJSON(json: String): String = {
+    // New lines are used as message terminator so we best remove any used in formatting
+    if (json.indexOf('\n') == 1)
+      json
+    else
+      json.replace("\\n", "")
+  }
+}

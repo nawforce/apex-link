@@ -53,11 +53,14 @@ object AddPackageResult {
 }
 
 trait OrgAPI {
-  @api.JSONRPCMethod(name = "die")
-  def die(reason: String): Future[Unit]
+  @api.JSONRPCMethod(name = "identifier")
+  def identifier(): Future[String]
 
   @api.JSONRPCMethod(name = "addPackage")
   def addPackage(directory: String): Future[AddPackageResult]
+
+  @api.JSONRPCMethod(name = "refresh")
+  def refresh(path: String, contents: Option[String]): Future[Unit]
 }
 
 object OrgAPI {
