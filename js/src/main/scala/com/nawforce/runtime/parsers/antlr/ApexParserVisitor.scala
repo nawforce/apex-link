@@ -25,39 +25,25 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+package com.nawforce.runtime.parsers.antlr
 
-package com.nawforce.common.modifiers
+import com.nawforce.runtime.parsers.ApexParser._
 
-import com.nawforce.common.diagnostics.Issue
-import com.nawforce.common.memory.InternCache
+import scala.scalajs.js
 
-/** Results from modifier analysis.
-  *
-  * Modifiers are examined before the CST is constructed to make things a bit simpler. The results of the analysis
-  * are returned via this type. Interning is supported to reduce memory use.
-  **/
-case class ModifierResults(modifiers: Array[Modifier], issues: Array[Issue]) {
+trait ApexParserVisitor[Result] extends js.Object {
+  val visitCompilationUnit: js.UndefOr[js.Function1[CompilationUnitContext, Result]] = js.undefined
 
-  override val hashCode: Int = modifiers.toSeq.hashCode()
+  val visitTypeDeclaration: js.UndefOr[js.Function1[TypeDeclarationContext, Result]] = js.undefined
 
-  def intern: ModifierResults = ModifierResults.intern(this)
+  val visitClassDeclaration: js.UndefOr[js.Function1[ClassDeclarationContext, Result]] = js.undefined
+  val visitInterfaceDeclaration: js.UndefOr[js.Function1[InterfaceDeclarationContext, Result]] = js.undefined
+  val visitEnumDeclaration: js.UndefOr[js.Function1[EnumDeclarationContext, Result]] = js.undefined
 
-  override def equals(that: Any): Boolean = {
-    that match {
-      case other: ModifierResults =>
-        other.canEqual(this) && doesEqual(other)
-      case _ => false
-    }
-  }
-
-  override def canEqual(that: Any): Boolean = that.isInstanceOf[ModifierResults]
-
-  private def doesEqual(other: ModifierResults): Boolean = {
-    this.modifiers.sameElements(other.modifiers) &&
-      this.issues.sameElements(other.issues)
-  }
-}
-
-object ModifierResults extends InternCache[ModifierResults] {
-  val empty: ModifierResults = ModifierResults(Array.empty, Array.empty)
+  val visitFieldDeclaration: js.UndefOr[js.Function1[FieldDeclarationContext, Result]] = js.undefined
+  val visitPropertyDeclaration: js.UndefOr[js.Function1[PropertyDeclarationContext, Result]] = js.undefined
+  val visitConstructorDeclaration: js.UndefOr[js.Function1[ConstructorDeclarationContext, Result]] = js.undefined
+  val visitMethodDeclaration: js.UndefOr[js.Function1[MethodDeclarationContext, Result]] = js.undefined
+  val visitInterfaceMethodDeclaration: js.UndefOr[js.Function1[InterfaceMethodDeclarationContext, Result]] = js.undefined
+  val visitEnumConstants: js.UndefOr[js.Function1[EnumConstantsContext, Result]] = js.undefined
 }

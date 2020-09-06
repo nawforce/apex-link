@@ -32,10 +32,11 @@ import scala.scalajs.js.annotation.JSImport
 
 @js.native
 @JSImport("antlr4ts", "ParserRuleContext")
-class ParserRuleContext extends js.Object {
+class ParserRuleContext extends RuleContext {
   val start: Token = js.native
   val stop: Token = js.native
 
+  def parent: ParserRuleContext = js.native
   val childCount: Int = js.native
   def getChild(i: Int): ParseTree = js.native
 }

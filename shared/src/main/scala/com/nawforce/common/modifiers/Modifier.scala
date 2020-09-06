@@ -377,6 +377,12 @@ object ApexModifiers {
     ModifierResults(results.toArray, logger.issues).intern
   }
 
+  def interfaceMethodModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], context: ParserRuleContext)
+  : ModifierResults = {
+    // TODO: Replace with more specific handling
+    methodModifiers(parser, modifierContexts, context)
+  }
+
   def parameterModifiers(parser: CodeParser, modifierContexts: Seq[ModifierContext], context: ParserRuleContext)
   : ModifierResults = {
 

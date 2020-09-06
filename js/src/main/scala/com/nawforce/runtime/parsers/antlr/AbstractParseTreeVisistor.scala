@@ -25,39 +25,21 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+package com.nawforce.runtime.parsers.antlr
 
-package com.nawforce.common.modifiers
+import scala.scalajs.js
+import scala.scalajs.js.annotation.JSImport
 
-import com.nawforce.common.diagnostics.Issue
-import com.nawforce.common.memory.InternCache
+@js.native
+@JSImport("antlr4ts/tree/AbstractParseTreeVisitor", "AbstractParseTreeVisitor")
+class AbstractParseTreeVisitor[Result] extends js.Object {
+  def visit(tree: ParseTree): Result = js.native
 
-/** Results from modifier analysis.
-  *
-  * Modifiers are examined before the CST is constructed to make things a bit simpler. The results of the analysis
-  * are returned via this type. Interning is supported to reduce memory use.
-  **/
-case class ModifierResults(modifiers: Array[Modifier], issues: Array[Issue]) {
-
-  override val hashCode: Int = modifiers.toSeq.hashCode()
-
-  def intern: ModifierResults = ModifierResults.intern(this)
-
-  override def equals(that: Any): Boolean = {
-    that match {
-      case other: ModifierResults =>
-        other.canEqual(this) && doesEqual(other)
-      case _ => false
-    }
-  }
-
-  override def canEqual(that: Any): Boolean = that.isInstanceOf[ModifierResults]
-
-  private def doesEqual(other: ModifierResults): Boolean = {
-    this.modifiers.sameElements(other.modifiers) &&
-      this.issues.sameElements(other.issues)
-  }
+  def visitChildren(node: RuleNode): Result = js.native
+  def visitTerminal(node: TerminalNode): Result = js.native
+  def visitErrorNode(node: ErrorNode): Result = js.native
+  protected def defaultResult(): Result = js.native
+  protected def aggregateResult(aggregate: Result, nextResult: Result): Result = js.native
+  protected def shouldVisitNextChild(node: RuleNode, currentResult: Result): Boolean = js.native
 }
 
-object ModifierResults extends InternCache[ModifierResults] {
-  val empty: ModifierResults = ModifierResults(Array.empty, Array.empty)
-}
