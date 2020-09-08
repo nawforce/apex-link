@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cmds.benchmarks
 
 import java.nio.file.{Files, Paths}
@@ -63,31 +63,38 @@ object ParserBench {
     // Parsing
     val parseTimes = ArrayBuffer[(Double, PathLike)]()
     ServerOps.debugTime("Parsed") {
-      index.getByExtension(Name("cls")).foreach(doc => {
-        val start = System.currentTimeMillis()
-        var size = 0
-        try {
-          doc.path.readSourceData() match {
-            case Left(err) => println(err)
-            case Right(data) =>
-              size = data.length
-              val parser = CodeParser(doc.path, data)
-              parser.parseClass() match {
-                case Left(err) => println(s"${doc.path}:${err.line} ${err.message}")
-                case Right(_) => ()
-              }
+      index
+        .getByExtension(Name("cls"))
+        .foreach(doc => {
+          val start = System.currentTimeMillis()
+          var size = 0
+          try {
+            doc.path.readSourceData() match {
+              case Left(err) => println(err)
+              case Right(data) =>
+                size = data.length
+                val parser = CodeParser(doc.path, data)
+                parser.parseClass() match {
+                  case Left(issues) =>
+                    issues.foreach(issue =>
+                      println(s"${doc.path}:${issue.location.line} ${issue.message}"))
+                  case Right(_) => ()
+                }
+            }
+          } finally {
+            if (size > 1024) {
+              val end = System.currentTimeMillis()
+              parseTimes.append(((end - start) / (size.toDouble / 1024), doc.path))
+            }
           }
-        } finally {
-          if (size > 1024) {
-            val end = System.currentTimeMillis()
-            parseTimes.append(((end - start) / (size.toDouble / 1024), doc.path))
-          }
-        }
-      })
+        })
     }
 
-    parseTimes.toArray.sortBy(_._1)(Ordering[Double].reverse).take(10).foreach(pair => {
-      println(s"${pair._1} ${pair._2}")
-    })
+    parseTimes.toArray
+      .sortBy(_._1)(Ordering[Double].reverse)
+      .take(10)
+      .foreach(pair => {
+        println(s"${pair._1} ${pair._2}")
+      })
   }
 }
