@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
+ Copyright (c) 2020 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -24,20 +24,27 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.runtime.parsers
 
+import com.nawforce.common.diagnostics.{Issue, SYNTAX_CATEGORY}
+import com.nawforce.common.documents.{PointLocationImpl, PositionImpl}
+
+import scala.collection.mutable
 import scala.scalajs.js
-import scala.scalajs.js.annotation.JSImport
 
-@js.native
-trait SyntaxException extends js.Object {
-  val line: Int = js.native
-  val column: Int = js.native
-  val message: String = js.native
-}
+class CollectingErrorListener(path: String) extends js.Object {
+  val issues = new mutable.ArrayBuffer[Issue]()
 
-@js.native
-@JSImport("apex-parser", "ThrowingErrorListener")
-class ThrowingErrorListener extends js.Object {
+  def syntaxError(recognizer: Any,
+                           offendingSymbol: Any,
+                           line: Int,
+                           charPositionInLine: Int,
+                           msg: String,
+                           e: Any): Unit = {
+    issues.addOne(
+      new Issue(SYNTAX_CATEGORY,
+                PointLocationImpl(path, PositionImpl(line, charPositionInLine)),
+                msg))
+  }
 }

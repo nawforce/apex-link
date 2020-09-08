@@ -38,7 +38,7 @@ import scala.scalajs.js.annotation.JSImport
 class ApexParser(tokens: CommonTokenStream) extends js.Object {
 
   def removeErrorListeners(): Unit = js.native
-  def addErrorListener(listener: ThrowingErrorListener): Unit = js.native
+  def addErrorListener(listener: CollectingErrorListener): Unit = js.native
 
   def compilationUnit(): CompilationUnitContext = js.native
   def triggerUnit(): TriggerUnitContext = js.native

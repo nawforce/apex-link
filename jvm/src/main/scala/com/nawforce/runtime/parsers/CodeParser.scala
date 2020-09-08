@@ -24,11 +24,12 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.runtime.parsers
 
 import java.io.ByteArrayInputStream
 
+import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
@@ -40,36 +41,21 @@ import scala.jdk.CollectionConverters._
 class CodeParser(val source: Source) {
   private val cis = source.asStream
 
-  /** Parse source as an Apex class */
-  def parseClass(): Either[SyntaxException, ApexParser.CompilationUnitContext] = {
-    try {
-      Right(getParser.compilationUnit())
-    } catch {
-      case ex: SyntaxException => Left(ex)
-    }
+  def parseClass(): Either[Array[Issue], ApexParser.CompilationUnitContext] = {
+    parse(parser => parser.compilationUnit())
   }
 
-  /** Parse source as an Apex trigger */
-  def parseTrigger(): Either[SyntaxException, ApexParser.TriggerUnitContext] = {
-    try {
-      Right(getParser.triggerUnit())
-    } catch {
-      case ex: SyntaxException => Left(ex)
-    }
+  def parseTrigger(): Either[Array[Issue], ApexParser.TriggerUnitContext] = {
+    parse(parser => parser.triggerUnit())
   }
 
-  /** Parse source as an Apex code block */
-  def parseBlock(): Either[SyntaxException, ApexParser.BlockContext] = {
-    try {
-      Right(getParser.block())
-    } catch {
-      case ex: SyntaxException => Left(ex)
-    }
+  def parseBlock(): Either[Array[Issue], ApexParser.BlockContext] = {
+    parse(parser => parser.block())
   }
 
   // Test use only
   def parseLiteral(): ApexParser.LiteralContext = {
-      getParser.literal()
+    parse(parser => parser.literal()).getOrElse(null)
   }
 
   /** Find a location for a rule, adapts based on source offsets to give absolute position in file */
@@ -82,14 +68,20 @@ class CodeParser(val source: Source) {
     source.extractSource(context)
   }
 
-  private def getParser: ApexParser = {
+  def parse[T](parse: ApexParser => T): Either[Array[Issue], T] = {
     val tokenStream = new CommonTokenStream(new ApexLexer(cis))
     tokenStream.fill()
 
+    val listener = new CollectingErrorListener(source.path.toString)
     val parser = new ApexParser(tokenStream)
     parser.removeErrorListeners()
-    parser.addErrorListener(new ThrowingErrorListener())
-    parser
+    parser.addErrorListener(listener)
+
+    val result = parse(parser)
+    if (listener.issues.nonEmpty)
+      Left(listener.issues.toArray)
+    else
+      Right(result)
   }
 }
 
@@ -102,12 +94,12 @@ object CodeParser {
   }
 
   def clearCaches(): Unit = {
-    val lexer = new ApexLexer(new CaseInsensitiveInputStream(new ByteArrayInputStream(Array[Byte]())))
+    val lexer = new ApexLexer(
+      new CaseInsensitiveInputStream(new ByteArrayInputStream(Array[Byte]())))
     val parser = new ApexParser(new CommonTokenStream(lexer))
     lexer.clearCache()
     parser.clearCache()
   }
-
 
   // Helper for JS Portability
   def getText(context: ParserRuleContext): String = {

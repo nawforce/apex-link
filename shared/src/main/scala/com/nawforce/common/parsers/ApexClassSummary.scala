@@ -24,16 +24,18 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.parsers
 
 import com.nawforce.common.api.Name
+import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.modifiers.ModifierResults
-
-import scala.collection.compat.immutable.ArraySeq
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
+
+import scala.collection.compat.immutable.ArraySeq
+import scala.collection.mutable.ArrayBuffer
 
 sealed trait ApexNodeNature
 case object ApexClassType extends ApexNodeNature
@@ -53,12 +55,29 @@ object IdAndRange {
   }
 
   def apply(codeParser: CodeParser, qnameContext: QualifiedNameContext): IdAndRange = {
-    new IdAndRange(Name(CodeParser.getText(qnameContext)), codeParser.getRangeLocation(qnameContext))
+    new IdAndRange(Name(CodeParser.getText(qnameContext)),
+                   codeParser.getRangeLocation(qnameContext))
   }
 }
 
-case class ApexNode(range: RangeLocationImpl, nature: ApexNodeNature, id: IdAndRange, children: ArraySeq[ApexNode],
-                    modifiers: ModifierResults, description: String)
+case class ApexNode(range: RangeLocationImpl,
+                    nature: ApexNodeNature,
+                    id: IdAndRange,
+                    children: ArraySeq[ApexNode],
+                    modifiers: ModifierResults,
+                    description: String) {
+
+  def collectIssues(): ArraySeq[Issue] = {
+    val issues = new ArrayBuffer[Issue]()
+    collectIssues(issues)
+    ArraySeq.unsafeWrapArray(issues.toArray)
+  }
+
+  private def collectIssues(issues: ArrayBuffer[Issue]): Unit = {
+    issues.addAll(modifiers.issues)
+    children.foreach(_.collectIssues(issues))
+  }
+}
 
 object ApexNode {
   def apply(parser: CodeParser, ctx: CompilationUnitContext): ApexNode = {
@@ -66,4 +85,3 @@ object ApexNode {
     visitor.visit(ctx).head
   }
 }
-

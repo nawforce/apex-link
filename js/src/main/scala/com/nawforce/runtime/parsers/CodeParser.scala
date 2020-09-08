@@ -24,48 +24,36 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.runtime.parsers
 
+import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import com.nawforce.runtime.parsers.antlr.CommonTokenStream
 
 import scala.scalajs.js
-import scala.scalajs.js.JavaScriptException
 
-class CodeParser (val source: Source) {
+class CodeParser(val source: Source) {
   // We would like to extend this but it angers the JavaScript gods
   val cis: CaseInsensitiveInputStream = source.asStream
 
-  def parseClass(): Either[SyntaxException, ApexParser.CompilationUnitContext] = {
-    try {
-      Right(getParser.compilationUnit())
-    } catch {
-      case ex: JavaScriptException => Left(ex.exception.asInstanceOf[SyntaxException])
-    }
+  def parseClass(): Either[Array[Issue], ApexParser.CompilationUnitContext] = {
+    parse(parser => parser.compilationUnit())
   }
 
-  def parseTrigger(): Either[SyntaxException, ApexParser.TriggerUnitContext] = {
-    try {
-      Right(getParser.triggerUnit())
-    } catch {
-      case ex: JavaScriptException => Left(ex.exception.asInstanceOf[SyntaxException])
-    }
+  def parseTrigger(): Either[Array[Issue], ApexParser.TriggerUnitContext] = {
+    parse(parser => parser.triggerUnit())
   }
 
-  def parseBlock(): Either[SyntaxException, ApexParser.BlockContext] = {
-    try {
-      Right(getParser.block())
-    } catch {
-      case ex: JavaScriptException => Left(ex.exception.asInstanceOf[SyntaxException])
-    }
+  def parseBlock(): Either[Array[Issue], ApexParser.BlockContext] = {
+    parse(parser => parser.block())
   }
 
   // Test use only
   def parseLiteral(): ApexParser.LiteralContext = {
-    getParser.literal()
+    parse(parser => parser.literal()).getOrElse(null)
   }
 
   /** Find a location for a rule, adapts based on source offsets to give absolute position in file */
@@ -78,14 +66,20 @@ class CodeParser (val source: Source) {
     source.extractSource(context)
   }
 
-  private def getParser: ApexParser = {
+  def parse[T](parse: ApexParser => T): Either[Array[Issue], T] = {
     val tokenStream = new CommonTokenStream(new ApexLexer(cis))
     tokenStream.fill()
 
+    val listener = new CollectingErrorListener(source.path.toString)
     val parser = new ApexParser(tokenStream)
     parser.removeErrorListeners()
-    parser.addErrorListener(new ThrowingErrorListener())
-    parser
+    parser.addErrorListener(listener)
+
+    val result = parse(parser)
+    if (listener.issues.nonEmpty)
+      Left(listener.issues.toArray)
+    else
+      Right(result)
   }
 }
 
