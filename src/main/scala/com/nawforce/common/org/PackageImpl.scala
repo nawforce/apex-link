@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package com.nawforce.common.org
 
@@ -46,7 +46,9 @@ import com.nawforce.common.types.schema.SchemaManager
 import scala.collection.mutable
 
 class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[PackageImpl])
-  extends PackageDeploy with PackageAPI with TypeFinder {
+    extends PackageDeploy
+    with PackageAPI
+    with TypeFinder {
 
   val namespace: Option[Name] = workspace.namespace
 
@@ -55,8 +57,12 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   var interviews: InterviewDeclaration = InterviewDeclaration(this)
   var components: ComponentDeclaration = ComponentDeclaration(this)
 
-  protected val types: mutable.Map[TypeName, TypeDeclaration] = mutable.Map[TypeName, TypeDeclaration]()
-  protected val documents = new DocumentIndex(namespace, workspace.paths, new LocalLogger(org.issues), workspace.forceIgnore)
+  protected val types: mutable.Map[TypeName, TypeDeclaration] =
+    mutable.Map[TypeName, TypeDeclaration]()
+  protected val documents = new DocumentIndex(namespace,
+                                              workspace.paths,
+                                              new LocalLogger(org.issues),
+                                              workspace.forceIgnore)
 
   private val schemaManager = new SchemaManager(this)
   private val anyDeclaration = AnyDeclaration(this)
@@ -92,17 +98,25 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
 
   /* Transitive Bases (dependent packages for this package & its dependents) */
   def transitiveBasePackages: Set[PackageImpl] = {
-    namespace.map(_ => bases.toSet ++ bases.flatMap(_.transitiveBasePackages))
+    namespace
+      .map(_ => bases.toSet ++ bases.flatMap(_.transitiveBasePackages))
       .getOrElse(basePackages.toSet)
   }
 
   /* Summary of package context containing namespace & base package namespace information */
   def packageContext: PackageContext = {
     val basePackages = transitiveBasePackages
-    PackageContext(
-      namespace.map(_.value),
-      basePackages.filter(_.isGhosted).map(_.namespace.map(_.value).getOrElse("")).toArray.sorted,
-      basePackages.filterNot(_.isGhosted).map(_.namespace.map(_.value).getOrElse("")).toArray.sorted,
+    PackageContext(namespace.map(_.value),
+                   basePackages
+                     .filter(_.isGhosted)
+                     .map(_.namespace.map(_.value).getOrElse(""))
+                     .toArray
+                     .sorted,
+                   basePackages
+                     .filterNot(_.isGhosted)
+                     .map(_.namespace.map(_.value).getOrElse(""))
+                     .toArray
+                     .sorted,
     )
   }
 
@@ -120,23 +134,30 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
 
   /* Search for a specific outer or inner type */
   def packageType(typeName: TypeName): Option[TypeDeclaration] = {
-    types.get(typeName).orElse(
-      typeName.outer.flatMap(types.get)
-        .flatMap(_.nestedTypes.find(_.typeName == typeName))
-    )
+    types
+      .get(typeName)
+      .orElse(
+        typeName.outer
+          .flatMap(types.get)
+          .flatMap(_.nestedTypes.find(_.typeName == typeName)))
   }
 
   def replaceType(typeName: TypeName, typeDeclaration: Option[TypeDeclaration]): Unit = {
     if (typeDeclaration.nonEmpty) {
       val td = typeDeclaration.get
+      types.put(typeName, td)
+
+      // Handle special cases
       typeName match {
-        case TypeNames.Label => labels = td.asInstanceOf[LabelDeclaration]
-        case TypeNames.Page => pages = td.asInstanceOf[PageDeclaration]
+        case TypeNames.Label =>
+          labels = td.asInstanceOf[LabelDeclaration]
+          types.put(TypeName(labels.name), labels)
+        case TypeNames.Page      => pages = td.asInstanceOf[PageDeclaration]
         case TypeNames.Interview => interviews = td.asInstanceOf[InterviewDeclaration]
         case TypeNames.Component => components = td.asInstanceOf[ComponentDeclaration]
-        case _ => ()
+        case _                   => ()
       }
-      types.put(typeName, td)
+
     } else {
       types.remove(typeName)
     }
@@ -157,18 +178,19 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   def getTypeLocation(typeName: TypeName): Option[PathLocation] = {
     if (org.analysis) {
       packageType(typeName) match {
-        case Some(ad: ApexDeclaration) => Some(PathLocation(ad.path.toString, ad.nameLocation.toLocation))
+        case Some(ad: ApexDeclaration) =>
+          Some(PathLocation(ad.path.toString, ad.nameLocation.toLocation))
         case _ => None
       }
     } else {
-      val docType = documents.getByType(typeName).orElse(
-        typeName.outer.flatMap(documents.getByType))
+      val docType =
+        documents.getByType(typeName).orElse(typeName.outer.flatMap(documents.getByType))
       docType.map(d => PathLocation(d.path.toString, LineLocation(0)))
     }
   }
 
   // Upsert some metadata to the package
-  def upsertMetadata(td: TypeDeclaration, altTypeName: Option[TypeName]=None): Unit = {
+  def upsertMetadata(td: TypeDeclaration, altTypeName: Option[TypeName] = None): Unit = {
     types.put(altTypeName.getOrElse(td.typeName), td)
   }
 
@@ -187,7 +209,9 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
    * if needed. This is the fallback handling for the TypeFinder which performs local searching for types, so this is
    * only useful if *you* know local searching is not required.
    */
-  def getType(typeName: TypeName, from: Option[TypeDeclaration], excludeSObjects: Boolean = false): TypeResponse = {
+  def getType(typeName: TypeName,
+              from: Option[TypeDeclaration],
+              excludeSObjects: Boolean = false): TypeResponse = {
 
     if (!excludeSObjects) {
       var td = getPackageType(typeName).map(Right(_))
@@ -218,7 +242,8 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     }
   }
 
-  private def getPackageType(typeName: TypeName, inPackage: Boolean=true): Option[TypeDeclaration] = {
+  private def getPackageType(typeName: TypeName,
+                             inPackage: Boolean = true): Option[TypeDeclaration] = {
     var declaration = findType(typeName)
     if (declaration.nonEmpty) {
       if (inPackage || declaration.get.modifiers.contains(GLOBAL_MODIFIER))
@@ -228,8 +253,8 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     }
 
     if (typeName.outer.nonEmpty) {
-      declaration = getPackageType(typeName.outer.get, inPackage = inPackage).flatMap(
-        _.findNestedType(typeName.name).filter(td => td.isExternallyVisible || inPackage))
+      declaration = getPackageType(typeName.outer.get, inPackage = inPackage)
+        .flatMap(_.findNestedType(typeName.name).filter(td => td.isExternallyVisible || inPackage))
       if (declaration.nonEmpty)
         return declaration
     }
@@ -250,7 +275,8 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     if (declaration.nonEmpty)
       return declaration
 
-    if (typeName.params.isEmpty && (typeName.outer.isEmpty || typeName.outer.contains(TypeNames.Schema))) {
+    if (typeName.params.isEmpty && (typeName.outer.isEmpty || typeName.outer.contains(
+          TypeNames.Schema))) {
       val encName = EncodedName(typeName.name).defaultNamespace(namespace)
       if (encName.ext.nonEmpty) {
         return types.get(TypeName(encName.fullName, Nil, Some(TypeNames.Schema)))

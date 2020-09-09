@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.api
 
 import com.nawforce.common.FileSystemHelper
@@ -46,9 +46,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid refresh") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.cls" -> "public class Foo {}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("pkg/Foo.cls" -> "public class Foo {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       pkg.refresh(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {}")))
@@ -58,8 +56,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid refresh (new)") {
-    FileSystemHelper.run(Map(
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map()) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       pkg.refresh(root.join("pkg").join("Foo.cls"), Some(SourceBlob("public class Foo {}")))
@@ -70,9 +67,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid refresh with changes") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.cls" -> "public class Foo {}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("pkg/Foo.cls" -> "public class Foo {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       pkg.refresh(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Object a;}")))
@@ -82,9 +77,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid refresh with non-significant changes") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.cls" -> "public class Foo {}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("pkg/Foo.cls" -> "public class Foo {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       pkg.refresh(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {/* A change */}")))
@@ -94,100 +87,105 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Refresh creates missing") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.cls" -> "public class Foo {Bar.Inner b;}",
-      "pkg/Bar.cls" -> "public class Bar {public class Inner {}}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(
+      Map("pkg/Foo.cls" -> "public class Foo {Bar.Inner b;}",
+          "pkg/Bar.cls" -> "public class Bar {public class Inner {}}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {}")))
       assert(org.flush())
-      assert(org.issues.getMessages("/pkg/Foo.cls")
-        == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
+      assert(
+        org.issues.getMessages("/pkg/Foo.cls")
+          == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
     }
   }
 
   test("Refresh resolves missing") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.cls" -> "public class Foo {Bar.Inner b;}",
-      "pkg/Bar.cls" -> "public class Bar {}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(
+      Map("pkg/Foo.cls" -> "public class Foo {Bar.Inner b;}",
+          "pkg/Bar.cls" -> "public class Bar {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(org.issues.getMessages("/pkg/Foo.cls")
-        == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
+      assert(
+        org.issues.getMessages("/pkg/Foo.cls")
+          == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
 
-      pkg.refresh(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {public class Inner {}}")))
+      pkg.refresh(root.join("pkg/Bar.cls"),
+                  Some(SourceBlob("public class Bar {public class Inner {}}")))
       assert(org.flush())
       assert(!org.issues.hasMessages)
     }
   }
 
   test("Dependencies created") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.cls" -> "public class Foo {}",
-      "pkg/Bar.cls" -> "public class Bar {}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      pkg.refresh(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Bar b;}")))
-      assert(org.flush())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("pkg/Foo.cls" -> "public class Foo {}", "pkg/Bar.cls" -> "public class Bar {}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        pkg.refresh(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Bar b;}")))
+        assert(org.flush())
+        assert(!org.issues.hasMessages)
 
-      val fooTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.cls")).get.asTypeIdentifier
-      val barTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
+        val fooTypeId =
+          pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.cls")).get.asTypeIdentifier
+        val barTypeId =
+          pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
 
-      assert(pkg.getDependencyHolders(fooTypeId).isEmpty)
-      assert(pkg.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
+        assert(pkg.getDependencyHolders(fooTypeId).isEmpty)
+        assert(
+          pkg.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
 
-      assert(pkg.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
-      assert(pkg.getDependencies(barTypeId, inheritanceOnly = false).isEmpty)
+        assert(pkg.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
+        assert(pkg.getDependencies(barTypeId, inheritanceOnly = false).isEmpty)
     }
   }
 
   test("Dependencies created cross package") {
-    FileSystemHelper.run(Map(
-      "pkg1/Bar.cls" -> "global class Bar {}",
-      "pkg2/Foo.cls" -> "public class Foo {}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.newMDAPIPackageInternal(Some(Name("p1")), Seq(root.join("pkg1")), Seq())
-      val pkg2 = org.newMDAPIPackageInternal(Some(Name("p2")), Seq(root.join("pkg2")), Seq(pkg1))
-      pkg2.refresh(root.join("pkg2/Foo.cls"), Some(SourceBlob("public class Foo {p1.Bar b;}")))
-      assert(org.flush())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("pkg1/Bar.cls" -> "global class Bar {}", "pkg2/Foo.cls" -> "public class Foo {}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg1 = org.newMDAPIPackageInternal(Some(Name("p1")), Seq(root.join("pkg1")), Seq())
+        val pkg2 = org.newMDAPIPackageInternal(Some(Name("p2")), Seq(root.join("pkg2")), Seq(pkg1))
+        pkg2.refresh(root.join("pkg2/Foo.cls"), Some(SourceBlob("public class Foo {p1.Bar b;}")))
+        assert(org.flush())
+        assert(!org.issues.hasMessages)
 
-      val barTypeId = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls")).get.asTypeIdentifier
-      val fooTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Foo.cls")).get.asTypeIdentifier
+        val barTypeId =
+          pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls")).get.asTypeIdentifier
+        val fooTypeId =
+          pkg2.getTypeOfPathInternal(root.join("pkg2").join("Foo.cls")).get.asTypeIdentifier
 
-      assert(pkg2.getDependencyHolders(fooTypeId).isEmpty)
-      assert(pkg2.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
+        assert(pkg2.getDependencyHolders(fooTypeId).isEmpty)
+        assert(
+          pkg2.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
 
-      assert(pkg1.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
-      assert(pkg1.getDependencies(barTypeId, inheritanceOnly = false).isEmpty)
+        assert(pkg1.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
+        assert(pkg1.getDependencies(barTypeId, inheritanceOnly = false).isEmpty)
     }
   }
 
   test("Valid trigger refresh") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      pkg.refresh(root.join("pkg/Foo.trigger"), Some(SourceBlob("trigger Foo on Account (before insert) {}")))
-      assert(org.flush())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        pkg.refresh(root.join("pkg/Foo.trigger"),
+                    Some(SourceBlob("trigger Foo on Account (before insert) {}")))
+        assert(org.flush())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Valid trigger refresh (new)") {
-    FileSystemHelper.run(Map(
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map()) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      pkg.refresh(root.join("pkg/Foo.trigger"), Some(SourceBlob("trigger Foo on Account (before insert) {}")))
+      pkg.refresh(root.join("pkg/Foo.trigger"),
+                  Some(SourceBlob("trigger Foo on Account (before insert) {}")))
       assert(org.flush())
       assert(!org.issues.hasMessages)
       assert(pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.trigger")) != null)
@@ -195,61 +193,64 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid trigger refresh with changes") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      pkg.refresh(root.join("pkg/Foo.trigger"), Some(SourceBlob("trigger Foo on Account (before insert) {Object a;}")))
-      assert(org.flush())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        pkg.refresh(root.join("pkg/Foo.trigger"),
+                    Some(SourceBlob("trigger Foo on Account (before insert) {Object a;}")))
+        assert(org.flush())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Refresh creates trigger missing") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar.Inner b;}",
-      "pkg/Bar.cls" -> "public class Bar {public class Inner {}}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(
+      Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar.Inner b;}",
+          "pkg/Bar.cls" -> "public class Bar {public class Inner {}}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {}")))
       assert(org.flush())
-      assert(org.issues.getMessages("/pkg/Foo.trigger")
-        == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n")
+      assert(
+        org.issues.getMessages("/pkg/Foo.trigger")
+          == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n")
     }
   }
 
   test("Refresh resolves trigger missing") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar.Inner b;}",
-      "pkg/Bar.cls" -> "public class Bar {}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(
+      Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar.Inner b;}",
+          "pkg/Bar.cls" -> "public class Bar {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(org.issues.getMessages("/pkg/Foo.trigger")
-        == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n")
+      assert(
+        org.issues.getMessages("/pkg/Foo.trigger")
+          == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n")
 
-      pkg.refresh(root.join("pkg/Bar.cls"), Some(SourceBlob("public class Bar {public class Inner {}}")))
+      pkg.refresh(root.join("pkg/Bar.cls"),
+                  Some(SourceBlob("public class Bar {public class Inner {}}")))
       assert(org.flush())
       assert(!org.issues.hasMessages)
     }
   }
 
   test("Trigger dependencies created") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}",
-      "pkg/Bar.cls" -> "public class Bar {}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(
+      Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}",
+          "pkg/Bar.cls" -> "public class Bar {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      pkg.refresh(root.join("pkg/Foo.trigger"), Some(SourceBlob("trigger Foo on Account (before insert) {Bar b;}")))
+      pkg.refresh(root.join("pkg/Foo.trigger"),
+                  Some(SourceBlob("trigger Foo on Account (before insert) {Bar b;}")))
       assert(org.flush())
 
-      val fooTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.trigger")).get.asTypeIdentifier
-      val barTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
+      val fooTypeId =
+        pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.trigger")).get.asTypeIdentifier
+      val barTypeId =
+        pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
 
       assert(pkg.getDependencyHolders(fooTypeId).isEmpty)
       assert(pkg.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
@@ -260,22 +261,24 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Trigger dependencies created cross package") {
-    FileSystemHelper.run(Map(
-      "pkg1/Bar.cls" -> "global class Bar {}",
-      "pkg2/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(
+      Map("pkg1/Bar.cls" -> "global class Bar {}",
+          "pkg2/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg1 = org.newMDAPIPackageInternal(Some(Name("p1")), Seq(root.join("pkg1")), Seq())
       val pkg2 = org.newMDAPIPackageInternal(Some(Name("p2")), Seq(root.join("pkg2")), Seq(pkg1))
       pkg2.refresh(root.join("pkg2/Foo.trigger"),
-        Some(SourceBlob("trigger Foo on Account (before insert) {p1.Bar b;}")))
+                   Some(SourceBlob("trigger Foo on Account (before insert) {p1.Bar b;}")))
       assert(org.flush())
 
-      val fooTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Foo.trigger")).get.asTypeIdentifier
-      val barTypeId = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls")).get.asTypeIdentifier
+      val fooTypeId =
+        pkg2.getTypeOfPathInternal(root.join("pkg2").join("Foo.trigger")).get.asTypeIdentifier
+      val barTypeId =
+        pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls")).get.asTypeIdentifier
 
       assert(pkg2.getDependencyHolders(fooTypeId).isEmpty)
-      assert(pkg2.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
+      assert(
+        pkg2.getDependencies(fooTypeId, inheritanceOnly = false).sameElements(Array(barTypeId)))
 
       assert(pkg1.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
       assert(pkg1.getDependencies(barTypeId, inheritanceOnly = false).isEmpty)
@@ -284,36 +287,37 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Valid label upsert") {
     FileSystemHelper.run(Map(
-      "CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+      "CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
 
-      pkg.refresh(root.join("CustomLabels.labels"), Some(SourceBlob(
-        "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")))
-      assert(org.flush())
-      assert(!org.issues.hasMessages)
+        pkg.refresh(
+          root.join("CustomLabels.labels"),
+          Some(SourceBlob("<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")))
+        assert(org.flush())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Valid label upsert (new)") {
-    FileSystemHelper.run(Map(
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map()) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      pkg.refresh(root.join("CustomLabels.labels"), Some(SourceBlob(
-        "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")))
+      pkg.refresh(
+        root.join("CustomLabels.labels"),
+        Some(SourceBlob("<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")))
       assert(org.flush())
       assert(!org.issues.hasMessages)
     }
   }
 
   test("Valid label upsert (changed)") {
-    FileSystemHelper.run(Map(
-      "CustomLabels.labels" ->
+    FileSystemHelper.run(
+      Map("CustomLabels.labels" ->
         """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
@@ -321,22 +325,20 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
           |        <protected>false</protected>
           |    </labels>
           |</CustomLabels>
-          |""".stripMargin,
-    )) { root: PathLike =>
+          |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      pkg.refresh(root.join("CustomLabels.labels"), Some(SourceBlob(
-        """<?xml version="1.0" encoding="UTF-8"?>
+      pkg.refresh(root.join("CustomLabels.labels"),
+                  Some(SourceBlob("""<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel2</fullName>
           |        <protected>false</protected>
           |    </labels>
           |</CustomLabels>
-          |""".stripMargin,
-      )))
+          |""".stripMargin)))
       assert(org.flush())
       val labels = pkg.packageType(TypeNames.Label).get
       assert(labels.fields.length == 1)
@@ -345,8 +347,8 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid label upsert (alt file)") {
-    FileSystemHelper.run(Map(
-      "CustomLabels.labels" ->
+    FileSystemHelper.run(
+      Map("CustomLabels.labels" ->
         """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
@@ -354,22 +356,20 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
           |        <protected>false</protected>
           |    </labels>
           |</CustomLabels>
-          |""".stripMargin,
-    )) { root: PathLike =>
+          |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      pkg.refresh(root.join("Alt.labels"), Some(SourceBlob(
-        """<?xml version="1.0" encoding="UTF-8"?>
+      pkg.refresh(root.join("Alt.labels"),
+                  Some(SourceBlob("""<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel2</fullName>
           |        <protected>false</protected>
           |    </labels>
           |</CustomLabels>
-          |""".stripMargin,
-      )))
+          |""".stripMargin)))
       org.flush()
       val labels = pkg.packageType(TypeNames.Label).get
       assert(labels.fields.length == 2)
@@ -378,10 +378,58 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+  test("Valid label class dependent") {
+    FileSystemHelper.run(
+      Map(
+        "CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
+          |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+          |    <labels>
+          |        <fullName>TestLabel</fullName>
+          |        <protected>false</protected>
+          |    </labels>
+          |</CustomLabels>
+          |""".stripMargin,
+        "Dummy.cls" -> "public class Dummy { {String a = Label.TestLabel;}}")) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      pkg.refresh(
+        root.join("CustomLabels.labels"),
+        Some(SourceBlob("<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")))
+      assert(org.flush())
+      assert(
+        org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 33-48: Unknown field or type 'TestLabel' on 'System.Label'\n")
+    }
+  }
+
+  test("Valid label class dependent (reversed)") {
+    FileSystemHelper.run(
+      Map(
+        "CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
+        "Dummy.cls" -> "public class Dummy { {String a = Label.TestLabel;}}")) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      assert(
+        org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 33-48: Unknown field or type 'TestLabel' on 'System.Label'\n")
+
+      pkg.refresh(root.join("CustomLabels.labels"),
+                  Some(SourceBlob("""<?xml version="1.0" encoding="UTF-8"?>
+                            |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+                            |    <labels>
+                            |        <fullName>TestLabel</fullName>
+                            |        <protected>false</protected>
+                            |    </labels>
+                            |</CustomLabels>
+                            |""".stripMargin)))
+      assert(org.flush())
+      assert(!org.issues.hasMessages)
+    }
+  }
+
   test("Valid flow upsert") {
-    FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.flow-meta.xml" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -394,8 +442,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid flow upsert (new)") {
-    FileSystemHelper.run(Map(
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map()) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -408,9 +455,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid flow upsert (changed)") {
-    FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.flow-meta.xml" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -422,9 +467,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid flow upsert (new flow)") {
-    FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.flow-meta.xml" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -436,9 +479,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid page upsert") {
-    FileSystemHelper.run(Map(
-      "TestPage.page" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("TestPage.page" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -450,8 +491,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid page upsert (new)") {
-    FileSystemHelper.run(Map(
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map()) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -463,9 +503,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid page upsert (changed)") {
-    FileSystemHelper.run(Map(
-      "TestPage.page" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("TestPage.page" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -477,9 +515,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid page upsert (new page)") {
-    FileSystemHelper.run(Map(
-      "TestPage.page" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("TestPage.page" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -491,9 +527,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid component upsert") {
-    FileSystemHelper.run(Map(
-      "Test.component" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.component" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -505,8 +539,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid component upsert (new)") {
-    FileSystemHelper.run(Map(
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map()) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -518,9 +551,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid component upsert (changed)") {
-    FileSystemHelper.run(Map(
-      "Test.component" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.component" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -532,17 +563,16 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid component upsert (new component)") {
-    FileSystemHelper.run(Map(
-      "Test.component" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.component" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       pkg.refresh(root.join("Test2.component"), Some(SourceBlob("")))
       assert(org.flush())
-      assert(pkg.components.nestedTypes.map(_.name).toSet ==
-        Set(Name("Test"), Name("Test2"), Names.c, Names.Apex, Names.Chatter))
+      assert(
+        pkg.components.nestedTypes.map(_.name).toSet ==
+          Set(Name("Test"), Name("Test2"), Names.c, Names.Apex, Names.Chatter))
     }
   }
 }
