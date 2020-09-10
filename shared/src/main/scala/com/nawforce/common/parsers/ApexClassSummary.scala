@@ -27,9 +27,8 @@
  */
 package com.nawforce.common.parsers
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Location, Name}
 import com.nawforce.common.diagnostics.Issue
-import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.modifiers.ModifierResults
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
@@ -47,20 +46,20 @@ case object ApexFieldType extends ApexNodeNature
 case object ApexPropertyType extends ApexNodeNature
 case object ApexEnumConstantType extends ApexNodeNature
 
-case class IdAndRange(name: Name, range: RangeLocationImpl)
+case class IdAndRange(name: Name, range: Location)
 
 object IdAndRange {
   def apply(codeParser: CodeParser, idContext: IdContext): IdAndRange = {
-    new IdAndRange(Name(CodeParser.getText(idContext)), codeParser.getRangeLocation(idContext))
+    new IdAndRange(Name(CodeParser.getText(idContext)), codeParser.getPathAndLocation(idContext)._2)
   }
 
   def apply(codeParser: CodeParser, qnameContext: QualifiedNameContext): IdAndRange = {
     new IdAndRange(Name(CodeParser.getText(qnameContext)),
-                   codeParser.getRangeLocation(qnameContext))
+                   codeParser.getPathAndLocation(qnameContext)._2)
   }
 }
 
-case class ApexNode(range: RangeLocationImpl,
+case class ApexNode(range: Location,
                     nature: ApexNodeNature,
                     id: IdAndRange,
                     children: ArraySeq[ApexNode],

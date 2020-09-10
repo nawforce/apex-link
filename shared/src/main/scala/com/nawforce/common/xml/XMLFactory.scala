@@ -24,17 +24,18 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.xml
 
-import com.nawforce.common.documents.{LineLocationImpl, LocationImpl}
+import com.nawforce.common.api.{Diagnostic, ERROR_CATEGORY, Location}
+import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.xml.XMLDocument
 
 object XMLFactory {
-  def parse(path: PathLike): Either[(LocationImpl, String), XMLDocumentLike] = {
+  def parse(path: PathLike): Either[Issue, XMLDocumentLike] = {
     path.read() match {
-      case Left(err) => Left((LineLocationImpl(path.toString,0), err))
+      case Left(err)   => Left(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location(0), err)))
       case Right(data) => XMLDocument(path, data)
     }
   }

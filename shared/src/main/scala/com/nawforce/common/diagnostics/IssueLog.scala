@@ -24,11 +24,10 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.diagnostics
 
-import com.nawforce.common.api.Diagnostic
-import com.nawforce.common.documents.LocationImpl
+import com.nawforce.common.api._
 import com.nawforce.runtime.json.JSON
 import upickle.default.write
 
@@ -46,14 +45,14 @@ class IssueLog {
 
   // Clear the log
   def clear(): Unit = {
-   log.clear()
+    log.clear()
   }
 
   // Add an issue
   def add(issue: Issue): Unit = {
-    log.put(issue.location.path, issue :: log(issue.location.path))
-    if (issue.category == MISSING_CATEGORY)
-      possibleMissing.add(issue.location.path)
+    log.put(issue.path, issue :: log(issue.path))
+    if (issue.diagnostic.category == MISSING_CATEGORY)
+      possibleMissing.add(issue.path)
   }
 
   // Do we have any issues
@@ -79,14 +78,14 @@ class IssueLog {
 
   // Get issues for a specific file in Diagnostic form
   def getDiagnostics(path: String): List[Diagnostic] = {
-    log.getOrElse(path, Nil).map(_.toDiagnostic)
+    log.getOrElse(path, Nil).map(_.diagnostic)
   }
 
   // Get paths that have a MISSING_CATEGORY issue
   def getMissing: Seq[String] = {
     val missing = new mutable.ArrayBuffer[String]()
     possibleMissing.foreach(possible => {
-      val issues = log.getOrElse(possible, Nil).filter(_.category == MISSING_CATEGORY)
+      val issues = log.getOrElse(possible, Nil).filter(_.diagnostic.category == MISSING_CATEGORY)
       if (issues.nonEmpty) {
         missing.append(possible)
       }
@@ -99,18 +98,20 @@ class IssueLog {
   private trait MessageWriter {
     def startOutput(): Unit
     def startDocument(path: String): Unit
-    def writeMessage(category: IssueCategory, location: LocationImpl, message: String): Unit
+    def writeMessage(category: DiagnosticCategory, location: Location, message: String): Unit
     def writeSummary(notShown: Int, total: Int): Unit
     def endDocument(): Unit
     def output: String
   }
 
-  private class TextMessageWriter(showPath: Boolean=true) extends MessageWriter {
+  private class TextMessageWriter(showPath: Boolean = true) extends MessageWriter {
     private val buffer = new StringBuilder()
 
     override def startOutput(): Unit = buffer.clear()
     override def startDocument(path: String): Unit = if (showPath) buffer ++= path + '\n'
-    override def writeMessage(category: IssueCategory, location: LocationImpl, message: String): Unit =
+    override def writeMessage(category: DiagnosticCategory,
+                              location: Location,
+                              message: String): Unit =
       buffer ++= s"${category.value}: ${location.displayPosition}: $message\n"
     override def writeSummary(notShown: Int, total: Int): Unit =
       buffer ++= s"$notShown of $total errors not shown" + "\n"
@@ -134,9 +135,12 @@ class IssueLog {
       firstDocument = false
       firstMessage = true
     }
-    override def writeMessage(category: IssueCategory, location: LocationImpl, message: String): Unit = {
+    override def writeMessage(category: DiagnosticCategory,
+                              location: Location,
+                              message: String): Unit = {
       buffer ++= (if (firstMessage) "" else ",\n")
-      buffer ++= s"""{${location.asJSON}, "category": "${encode(category.value)}", "message": "${encode(message)}"}"""
+      buffer ++= s"""{${location.asJSON}, "category": "${encode(category.value)}", "message": "${encode(
+        message)}"}"""
       firstMessage = false
     }
     override def writeSummary(notShown: Int, total: Int): Unit = ()
@@ -151,16 +155,23 @@ class IssueLog {
     }
   }
 
-  private def writeMessages(writer: MessageWriter, path: String, warnings: Boolean, maxErrors: Int): Unit = {
-    val messages = log.getOrElse(path, List())
-      .filterNot(!warnings && _.category == WARNING_CATEGORY)
+  private def writeMessages(writer: MessageWriter,
+                            path: String,
+                            warnings: Boolean,
+                            maxErrors: Int): Unit = {
+    val messages = log
+      .getOrElse(path, List())
+      .filterNot(!warnings && _.diagnostic.category == WARNING_CATEGORY)
     if (messages.nonEmpty) {
       writer.startDocument(path)
       var count = 0
-      messages.sortBy(_.location.startPosition)
+      messages
+        .sortBy(_.diagnostic.location.startPosition)
         .foreach(message => {
           if (count < maxErrors) {
-            writer.writeMessage(message.category, message.location, message.message)
+            writer.writeMessage(message.diagnostic.category,
+                                message.diagnostic.location,
+                                message.diagnostic.message)
           }
           count += 1
         })
@@ -171,26 +182,28 @@ class IssueLog {
   }
 
   def getMessages(path: String, showPath: Boolean = false, maxErrors: Int = 10): String = {
-    val writer: MessageWriter= new TextMessageWriter(showPath = showPath)
+    val writer: MessageWriter = new TextMessageWriter(showPath = showPath)
     writeMessages(writer, path, warnings = true, maxErrors)
     writer.output
   }
 
   private def writeMessages(writer: MessageWriter, warnings: Boolean, maxErrors: Int): String = {
     writer.startOutput()
-    log.keys.toSeq.sortBy(_.toString).foreach(path => {
-      writeMessages(writer, path, warnings, maxErrors)
-    })
+    log.keys.toSeq
+      .sortBy(_.toString)
+      .foreach(path => {
+        writeMessages(writer, path, warnings, maxErrors)
+      })
     writer.output
 
   }
-  def asString(warnings: Boolean, maxErrors: Int, format: String=""): String = {
+  def asString(warnings: Boolean, maxErrors: Int, format: String = ""): String = {
     if (format == "pickle") {
       write(getIssues)
     } else {
-      writeMessages(
-        if (format == "json") new JSONMessageWriter() else new TextMessageWriter(),
-        warnings, maxErrors)
+      writeMessages(if (format == "json") new JSONMessageWriter() else new TextMessageWriter(),
+                    warnings,
+                    maxErrors)
     }
   }
 

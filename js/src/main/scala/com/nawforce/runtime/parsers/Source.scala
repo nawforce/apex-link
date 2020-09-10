@@ -24,37 +24,41 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.runtime.parsers
 
-import com.nawforce.common.documents.{PositionImpl, RangeLocationImpl}
+import com.nawforce.common.api.Location
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.SourceBlob
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 
 trait Locatable {
-  var locationPath: String
+  var locationPath: PathLike
   var startLine: Int
   var startOffset: Int
   var endLine: Int
   var endOffset: Int
 
-  def location: RangeLocationImpl = {
-    RangeLocationImpl(
-      locationPath,
-      PositionImpl(startLine, startOffset),
-      PositionImpl(endLine, endOffset)
-    )
+  def location: (PathLike, Location) = {
+    (locationPath, Location(startLine, startOffset, endLine, endOffset))
   }
 }
 
 /** Encapsulation of a chunk of Apex code, position tells you where it came from in path */
-case class Source(path: PathLike, code: SourceData, lineOffset: Int, columnOffset: Int, outer: Option[Source]) {
+case class Source(path: PathLike,
+                  code: SourceData,
+                  lineOffset: Int,
+                  columnOffset: Int,
+                  outer: Option[Source]) {
   lazy val hash: Int = code.hash
 
   def extractSource(context: ParserRuleContext): Source = {
-    val subdata = code.subdata(context.start.startIndex, context.stop.stopIndex+1)
-    new Source(path, subdata, context.start.line-1, context.start.charPositionInLine, outer = Some(this))
+    val subdata = code.subdata(context.start.startIndex, context.stop.stopIndex + 1)
+    new Source(path,
+               subdata,
+               context.start.line - 1,
+               context.start.charPositionInLine,
+               outer = Some(this))
   }
 
   def asStream: CaseInsensitiveInputStream = {
@@ -66,18 +70,35 @@ case class Source(path: PathLike, code: SourceData, lineOffset: Int, columnOffse
   }
 
   /** Find a location for a rule, adapts based on source offsets to give absolute position in file */
-  def getRangeLocation(context: ParserRuleContext): RangeLocationImpl = {
-    RangeLocationImpl(
-      path.toString,
-      PositionImpl(context.start.line, context.start.charPositionInLine)
-        .adjust(lineOffset, columnOffset),
-      PositionImpl(context.stop.line, context.stop.charPositionInLine + context.stop.text.length)
-        .adjust(lineOffset, columnOffset)
-    )
+  def getLocation(context: ParserRuleContext): (PathLike, Location) = {
+    (path,
+     adjustLocation(
+       Location(context.start.line,
+                context.start.charPositionInLine,
+                context.stop.line,
+                context.stop.charPositionInLine + context.stop.text.length)))
+  }
+
+  private def adjustLocation(location: Location): Location = {
+    if (lineOffset == 0 && columnOffset == 0) {
+      return location
+    }
+
+    val startLine = location.startLine
+    var startPosition = location.startPosition
+    if (location.startLine == 1)
+      startPosition += columnOffset
+
+    val endLine = location.endLine
+    var endPosition = location.endPosition
+    if (location.endLine == 1)
+      endPosition += columnOffset
+
+    Location(startLine, startPosition, endLine, endPosition)
   }
 
   def stampLocation(locatable: Locatable, context: ParserRuleContext): Unit = {
-    locatable.locationPath = path.toString
+    locatable.locationPath = path
     locatable.startLine = context.start.line + lineOffset
     locatable.startOffset =
       if (context.start.line == 1)

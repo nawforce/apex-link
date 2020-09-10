@@ -27,8 +27,8 @@
  */
 package com.nawforce.runtime.parsers
 
-import com.nawforce.common.diagnostics.{Issue, SYNTAX_CATEGORY}
-import com.nawforce.common.documents.{PointLocationImpl, PositionImpl}
+import com.nawforce.common.api.{Diagnostic, Location, SYNTAX_CATEGORY}
+import com.nawforce.common.diagnostics.Issue
 import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer}
 
 import scala.collection.mutable
@@ -43,8 +43,6 @@ class CollectingErrorListener(path: String) extends BaseErrorListener {
                            msg: String,
                            e: RecognitionException): Unit = {
     issues.addOne(
-      new Issue(SYNTAX_CATEGORY,
-                PointLocationImpl(path, PositionImpl(line, charPositionInLine)),
-                msg))
+      new Issue(path, Diagnostic(SYNTAX_CATEGORY, Location(line, charPositionInLine), msg)))
   }
 }

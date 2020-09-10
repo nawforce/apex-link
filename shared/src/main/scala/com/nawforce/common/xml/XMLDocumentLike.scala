@@ -24,13 +24,13 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.xml
 
-import com.nawforce.common.documents.TextRange
+import com.nawforce.common.api.Location
 import com.nawforce.common.path.PathLike
 
-final case class XMLException(where: TextRange, msg: String) extends Exception
+final case class XMLException(where: Location, msg: String) extends Exception
 
 case class XMLName(namespace: String, label: String)
 
@@ -47,12 +47,13 @@ trait XMLElementLike {
   // Assert name of an element, throws XMLException on error
   def assertIs(value: String): Unit = {
     if (name.namespace != XMLDocumentLike.sfNamespace) {
-      throw XMLException(TextRange(line),
+      throw XMLException(
+        Location(line),
         s"Expected element in Salesforce namespace, but has namespace '${name.namespace}' ")
     }
     if (name.label != value) {
-      throw XMLException(TextRange(line),
-        s"Expected element named '$name', but found '${name.label}'")
+      throw XMLException(Location(line),
+                         s"Expected element named '$name', but found '${name.label}'")
     }
   }
 
@@ -73,8 +74,7 @@ trait XMLElementLike {
   def getSingleChildAsString(name: String): String = {
     val text = getOptionalSingleChildAsString(name)
     if (text.isEmpty)
-      throw XMLException(TextRange(line),
-        s"Expecting element to have single '$name' child")
+      throw XMLException(Location(line), s"Expecting element to have single '$name' child")
     text.get
   }
 
@@ -87,8 +87,7 @@ trait XMLElementLike {
   def getSingleChildAsBoolean(name: String): Boolean = {
     val value = getOptionalSingleChildAsBoolean(name)
     if (value.isEmpty)
-      throw XMLException(TextRange(line),
-        s"Expecting element to have single '$name' child")
+      throw XMLException(Location(line), s"Expecting element to have single '$name' child")
     value.get
   }
 
@@ -98,7 +97,8 @@ trait XMLElementLike {
     if (matched.isDefined) {
       val isBoolean = matched.get.text.matches("true|false")
       if (!isBoolean)
-        throw XMLException(TextRange(line),
+        throw XMLException(
+          Location(line),
           s"Expecting value to be either 'true' or 'false', found '${matched.get.text}'")
       Some(matched.get.text == "true")
     } else {

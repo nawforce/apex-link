@@ -27,8 +27,8 @@
  */
 package com.nawforce.runtime.parsers
 
+import com.nawforce.common.api.Location
 import com.nawforce.common.diagnostics.Issue
-import com.nawforce.common.documents.RangeLocationImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import com.nawforce.runtime.parsers.antlr.CommonTokenStream
@@ -57,8 +57,8 @@ class CodeParser(val source: Source) {
   }
 
   /** Find a location for a rule, adapts based on source offsets to give absolute position in file */
-  def getRangeLocation(context: ParserRuleContext): RangeLocationImpl = {
-    source.getRangeLocation(context)
+  def getPathAndLocation(context: ParserRuleContext): (PathLike, Location) = {
+    source.getLocation(context)
   }
 
   /** Extract the source used for a parser rule */

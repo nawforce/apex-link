@@ -24,10 +24,11 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.runtime.xml
 
-import com.nawforce.common.documents.{LocationImpl, PointLocationImpl, PositionImpl}
+import com.nawforce.common.api.{Diagnostic, ERROR_CATEGORY, Location}
+import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.xml.{XMLDocumentLike, XMLElementLike, XMLName}
 import javax.xml.parsers.SAXParserFactory
@@ -58,12 +59,16 @@ class XMLDocument(path: PathLike, elem: Elem) extends XMLDocumentLike(path) {
 object XMLDocument {
   val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
 
-  def apply(path: PathLike, data: String): Either[(LocationImpl, String), XMLDocument] = {
+  def apply(path: PathLike, data: String): Either[Issue, XMLDocument] = {
     try {
       Right(new XMLDocument(path, XMLLineLoader.loadString(data)))
     } catch {
-      case e: SAXParseException => Left(
-        (PointLocationImpl(path.toString, PositionImpl(e.getLineNumber, e.getColumnNumber)), e.getLocalizedMessage))
+      case e: SAXParseException =>
+        Left(
+          Issue(path.toString,
+                Diagnostic(ERROR_CATEGORY,
+                           Location(e.getLineNumber, e.getColumnNumber-1),
+                           e.getLocalizedMessage)))
     }
   }
 }
@@ -78,14 +83,19 @@ trait WithLocation extends NoBindingFactoryAdapter {
     super.setDocumentLocator(locator)
   }
 
-  abstract override def createNode(pre: String, label: String, attrs: MetaData, scope: NamespaceBinding,
+  abstract override def createNode(pre: String,
+                                   label: String,
+                                   attrs: MetaData,
+                                   scope: NamespaceBinding,
                                    children: List[Node]): Elem = (
     super.createNode(pre, label, attrs, scope, children)
       % Attribute("line", Text(startLines.pop().toString), Null)
-    )
+  )
 
-  abstract override def startElement(uri: scala.Predef.String, _localName: scala.Predef.String,
-                                     name: scala.Predef.String, attributes: org.xml.sax.Attributes): scala.Unit = {
+  abstract override def startElement(uri: scala.Predef.String,
+                                     _localName: scala.Predef.String,
+                                     name: scala.Predef.String,
+                                     attributes: org.xml.sax.Attributes): scala.Unit = {
     startLines.push(locator.getLineNumber)
     super.startElement(uri, _localName, name, attributes)
   }
@@ -105,4 +115,3 @@ object XMLLineLoader extends factory.XMLLoader[Elem] {
     cachedParser
   }
 }
-

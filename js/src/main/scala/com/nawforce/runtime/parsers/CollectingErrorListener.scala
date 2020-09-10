@@ -27,8 +27,8 @@
  */
 package com.nawforce.runtime.parsers
 
-import com.nawforce.common.diagnostics.{Issue, SYNTAX_CATEGORY}
-import com.nawforce.common.documents.{PointLocationImpl, PositionImpl}
+import com.nawforce.common.api.{Diagnostic, Location, SYNTAX_CATEGORY}
+import com.nawforce.common.diagnostics.Issue
 
 import scala.collection.mutable
 import scala.scalajs.js
@@ -37,14 +37,12 @@ class CollectingErrorListener(path: String) extends js.Object {
   val issues = new mutable.ArrayBuffer[Issue]()
 
   def syntaxError(recognizer: Any,
-                           offendingSymbol: Any,
-                           line: Int,
-                           charPositionInLine: Int,
-                           msg: String,
-                           e: Any): Unit = {
+                  offendingSymbol: Any,
+                  line: Int,
+                  charPositionInLine: Int,
+                  msg: String,
+                  e: Any): Unit = {
     issues.addOne(
-      new Issue(SYNTAX_CATEGORY,
-                PointLocationImpl(path, PositionImpl(line, charPositionInLine)),
-                msg))
+      new Issue(path, Diagnostic(SYNTAX_CATEGORY, Location(line, charPositionInLine), msg)))
   }
 }

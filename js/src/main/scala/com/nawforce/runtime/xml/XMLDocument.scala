@@ -24,10 +24,11 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.runtime.xml
 
-import com.nawforce.common.documents.{LocationImpl, PointLocationImpl, PositionImpl}
+import com.nawforce.common.api._
+import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.xml.{XMLDocumentLike, XMLElementLike, XMLName}
 
@@ -73,9 +74,9 @@ class XMLDocument(path: PathLike, doc: Document) extends XMLDocumentLike(path) {
 
 object XMLDocument {
   val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
-  var errors: List[(LocationImpl, String)] = Nil
+  var errors: List[Issue] = Nil
 
-  def apply(path: PathLike, data: String): Either[(LocationImpl, String), XMLDocument] = {
+  def apply(path: PathLike, data: String): Either[Issue, XMLDocument] = {
     errors = Nil
     val parser = new DOMParser(getOptions(path))
     val doc = parser.parseFromString(data, "text/xml")
@@ -87,40 +88,42 @@ object XMLDocument {
   }
 
   private def getOptions(path: PathLike): Object with Dynamic = {
-    js.Dynamic.literal(
-      "locator" -> js.Dynamic.literal(),
-      "errorHandler" ->
-        js.Dynamic.literal(
-          "warning" -> { msg: String => captureErrors(path, msg)},
-          "error" -> { msg: String => captureErrors(path, msg)},
-          "fatalError" -> { msg: String => captureErrors(path, msg)}
-        )
-    )
+    js.Dynamic.literal("locator" -> js.Dynamic.literal(),
+                       "errorHandler" ->
+                         js.Dynamic.literal("warning" -> { msg: String =>
+                           captureErrors(path, ERROR_CATEGORY, msg)
+                         }, "error" -> { msg: String =>
+                           captureErrors(path, ERROR_CATEGORY, msg)
+                         }, "fatalError" -> { msg: String =>
+                           captureErrors(path, ERROR_CATEGORY, msg)
+                         }))
   }
 
-  private def captureErrors(path: PathLike, msg: String): Unit = {
-    errors = toError(path, msg) :: errors
+  private def captureErrors(path: PathLike, category: DiagnosticCategory, msg: String): Unit = {
+    errors = toError(path, category, msg) :: errors
   }
 
   private val lineMatch: Regex = "line:[0-9]*".r
   private val columnMatch: Regex = "col:[0-9]*".r
 
-  private def toError(path: PathLike, msg: String): (LocationImpl, String) = {
+  private def toError(path: PathLike, category: DiagnosticCategory, msg: String): Issue = {
     val line = lineMatch.findFirstIn(msg) match {
-      case Some(l) => try {
-        l.replaceFirst("line:","").toInt
-      } catch {
-        case _: NumberFormatException => 0
-      }
+      case Some(l) =>
+        try {
+          l.replaceFirst("line:", "").toInt
+        } catch {
+          case _: NumberFormatException => 0
+        }
       case None => 0
     }
 
     val column = columnMatch.findFirstIn(msg) match {
-      case Some(l) => try {
-        l.replaceFirst("col:","").toInt
-      } catch {
-        case _: NumberFormatException => 0
-      }
+      case Some(l) =>
+        try {
+          l.replaceFirst("col:", "").toInt
+        } catch {
+          case _: NumberFormatException => 0
+        }
       case None => 0
     }
 
@@ -130,6 +133,6 @@ object XMLDocument {
       else
         msg
 
-    (PointLocationImpl(path.toString, PositionImpl(line, column)), trimmedMsg)
+    Issue(path.toString, Diagnostic(category, Location(Math.max(1,line), column), trimmedMsg))
   }
 }

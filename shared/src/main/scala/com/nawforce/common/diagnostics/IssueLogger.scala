@@ -24,11 +24,12 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package com.nawforce.common.diagnostics
 
-import com.nawforce.common.documents.LocationImpl
+import com.nawforce.common.api.{Diagnostic, ERROR_CATEGORY, Location, WARNING_CATEGORY}
+import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 
@@ -39,12 +40,12 @@ trait IssueLogger {
   // Simply log an issue
   def log(issue: Issue): Unit
 
-  def logError(location: LocationImpl, message: String): Unit = {
-    log(Issue(ERROR_CATEGORY, location, message))
+  def logError(path: PathLike, location: Location, message: String): Unit = {
+    log(Issue(path.toString, Diagnostic(ERROR_CATEGORY, location, message)))
   }
 
-  def logWarning(location: LocationImpl,  message: String): Unit = {
-    log(Issue(WARNING_CATEGORY, location, message))
+  def logWarning(path: PathLike, location: Location, message: String): Unit = {
+    log(Issue(path.toString, Diagnostic(WARNING_CATEGORY, location, message)))
   }
 }
 
@@ -64,14 +65,16 @@ class CatchingLogger extends IssueLogger {
 
 trait ParserIssueLogger extends IssueLogger {
   // Get location for an AST context
-  def location(context: ParserRuleContext): LocationImpl
+  def location(context: ParserRuleContext): (PathLike, Location)
 
   def logError(context: ParserRuleContext, message: String): Unit = {
-    log(Issue(ERROR_CATEGORY, location(context), message))
+    val l = location(context)
+    log(Issue(l._1.toString, Diagnostic(ERROR_CATEGORY, l._2, message)))
   }
 
   def logWarning(context: ParserRuleContext, message: String): Unit = {
-    log(Issue(WARNING_CATEGORY, location(context), message))
+    val l = location(context)
+    log(Issue(l._1.toString, Diagnostic(WARNING_CATEGORY, l._2, message)))
   }
 }
 
@@ -85,8 +88,8 @@ class CodeParserLogger(parser: CodeParser) extends ParserIssueLogger {
     issueLog.append(issue)
   }
 
-  override def location(context: ParserRuleContext): LocationImpl = {
-    parser.getRangeLocation(context)
+  override def location(context: ParserRuleContext): (PathLike, Location) = {
+    parser.getPathAndLocation(context)
   }
 
   def issues: Array[Issue] = issueLog.toArray

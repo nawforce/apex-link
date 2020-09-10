@@ -24,15 +24,43 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.api
 
 import upickle.default.{macroRW, ReadWriter => RW}
 
+@upickle.implicits.key("DiagnosticCategory")
+sealed class DiagnosticCategory(val value: String)
+
+case object SYNTAX_CATEGORY extends DiagnosticCategory("Syntax")
+case object ERROR_CATEGORY extends DiagnosticCategory("Error")
+case object WARNING_CATEGORY extends DiagnosticCategory("Warning")
+case object MISSING_CATEGORY extends DiagnosticCategory("Missing")
+case object UNUSED_CATEGORY extends DiagnosticCategory("Unused")
+case class UNKNOWN_CATEGORY(_value: String) extends DiagnosticCategory(_value)
+
+object DiagnosticCategory {
+  def apply(value: String): DiagnosticCategory = {
+    value match {
+      case ERROR_CATEGORY.value   => ERROR_CATEGORY
+      case WARNING_CATEGORY.value => WARNING_CATEGORY
+      case MISSING_CATEGORY.value => MISSING_CATEGORY
+      case UNUSED_CATEGORY.value  => UNUSED_CATEGORY
+      case _                      => UNKNOWN_CATEGORY(value)
+    }
+  }
+
+  implicit val rw: RW[DiagnosticCategory] = macroRW
+}
+
 /** A diagnostic message, category tells us what type of diagnostic this is while location and messages provide details */
 @upickle.implicits.key("Diagnostic")
-case class Diagnostic(category: String, location: Location, message: String)
+case class Diagnostic(category: DiagnosticCategory, location: Location, message: String)
 
 object Diagnostic {
   implicit val rw: RW[Diagnostic] = macroRW
+
+  def apply(category: String, location: Location, message: String) = {
+    new Diagnostic(DiagnosticCategory(category), location, message)
+  }
 }

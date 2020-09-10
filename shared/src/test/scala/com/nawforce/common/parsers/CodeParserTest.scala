@@ -49,8 +49,8 @@ class CodeParserTest extends AnyFunSuite {
       case Right(cu) => assert(false, cu)
       case Left(issues) =>
         assert(issues.length == 1)
-        assert(issues.head.location.displayPosition == "line 1 at 20")
-        assert(issues.head.message.startsWith("mismatched input '<EOF>' expecting {"))
+        assert(issues.head.diagnostic.location.displayPosition == "line 1 at 20")
+        assert(issues.head.diagnostic.message.startsWith("mismatched input '<EOF>' expecting {"))
     }
   }
 
@@ -62,10 +62,10 @@ class CodeParserTest extends AnyFunSuite {
       case Right(cu) => assert(false, cu)
       case Left(issues) =>
         assert(issues.length == 2)
-        assert(issues.head.location.displayPosition == "line 1 at 36")
-        assert(issues.head.message == "missing ';' at '}'")
-        assert(issues(1).location.displayPosition == "line 1 at 54")
-        assert(issues(1).message == "missing ';' at '}'")
+        assert(issues.head.diagnostic.location.displayPosition == "line 1 at 36")
+        assert(issues.head.diagnostic.message == "missing ';' at '}'")
+        assert(issues(1).diagnostic.location.displayPosition == "line 1 at 54")
+        assert(issues(1).diagnostic.message == "missing ';' at '}'")
     }
   }
 
