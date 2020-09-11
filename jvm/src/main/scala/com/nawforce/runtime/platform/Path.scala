@@ -44,7 +44,7 @@ case class Path(native: java.nio.file.Path) extends PathLike {
   override lazy val isFile: Boolean = Files.isRegularFile(native)
   override lazy val size: Long = if (isFile) Files.size(native) else 0
 
-  override def toString: String = native.toString
+  override lazy val toString: String = native.toString
 
   override def join(arg: String): Path = {
     Path(native.resolve(arg).normalize())

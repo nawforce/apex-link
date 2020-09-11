@@ -161,7 +161,7 @@ case class Path private (path: String) extends PathLike {
     }
   }
 
-  override def toString: String = {
+  override lazy val toString: String = {
     val value = io.scalajs.nodejs.path.Path.format(pathObject)
     if (Path.separator == "\\") {
       value.replace('\\', '/')

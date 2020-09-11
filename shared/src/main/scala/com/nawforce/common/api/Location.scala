@@ -57,8 +57,19 @@ case class Location(startLine: Int, startPosition: Int, endLine: Int, endPositio
 object Location {
   implicit val rw: RW[Location] = macroRW
 
+  val empty: Location = Location(0)
+
   def apply(line: Int) = new Location(line, 0, line, 0)
   def apply(line: Int, position: Int) = new Location(line, position, line, position)
-  def apply(startLine: Int, startPosition: Int, endLine: Int, endPosition: Int) =
+  def apply(startLine: Int, startPosition: Int, endLine: Int, endPosition: Int): Location = {
     new Location(startLine, startPosition, endLine, endPosition)
+  }
+}
+
+/** Location within a specific file. */
+@upickle.implicits.key("PathLocation")
+case class PathLocation(path: String, location: Location)
+
+object PathLocation {
+  implicit val rw: RW[Location] = macroRW
 }

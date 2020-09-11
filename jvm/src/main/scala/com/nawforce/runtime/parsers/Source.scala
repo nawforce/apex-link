@@ -27,7 +27,7 @@
 */
 package com.nawforce.runtime.parsers
 
-import com.nawforce.common.api.Location
+import com.nawforce.common.api.{Location, PathLocation}
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.SourceBlob
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
@@ -39,8 +39,8 @@ trait Locatable {
   var endLine: Int
   var endOffset: Int
 
-  def location: (PathLike, Location) = {
-    (locationPath, Location(startLine, startOffset, endLine, endOffset))
+  def location: PathLocation = {
+    PathLocation(locationPath.toString, Location(startLine, startOffset, endLine, endOffset))
   }
 }
 
