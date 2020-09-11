@@ -289,7 +289,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
           |        <protected>false</protected>
           |    </labels>
           |</CustomLabels>
-          |""".stripMargin, )))
+          |""".stripMargin)))
         .asInstanceOf[ViewInfoImpl]
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
@@ -299,7 +299,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Flow") {
-    FileSystemHelper.run(Map("Test.flow-meta.xml" -> "", )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.flow-meta.xml" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -313,7 +313,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Additional Flow") {
-    FileSystemHelper.run(Map("Test.flow-meta.xml" -> "", )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.flow-meta.xml" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -329,7 +329,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Page") {
-    FileSystemHelper.run(Map("TestPage.page" -> "", )) { root: PathLike =>
+    FileSystemHelper.run(Map("TestPage.page" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -343,7 +343,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Additional Page") {
-    FileSystemHelper.run(Map("TestPage.page" -> "", )) { root: PathLike =>
+    FileSystemHelper.run(Map("TestPage.page" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -359,7 +359,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Component") {
-    FileSystemHelper.run(Map("Test.component" -> "", )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.component" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -377,7 +377,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Additional Component") {
-    FileSystemHelper.run(Map("Test.component" -> "", )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.component" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)

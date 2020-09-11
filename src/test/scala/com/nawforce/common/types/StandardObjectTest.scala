@@ -63,7 +63,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Not a standard object") {
     FileSystemHelper.run(
-      Map("Foo.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))), )) {
+      Map("Foo.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]
         org.newMDAPIPackageInternal(None, Seq(root), Seq())
@@ -75,7 +75,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Not a sObject") {
     FileSystemHelper.run(
-      Map("String.object" -> customObject("String", Seq(("Bar__c", Some("Text"), None))), )) {
+      Map("String.object" -> customObject("String", Seq(("Bar__c", Some("Text"), None))))) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]
         org.newMDAPIPackageInternal(None, Seq(root), Seq())
@@ -147,7 +147,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
 
   test("RecordTypeId field") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { {Account a; a.RecordTypeId = '';} }", )) {
+      Map("Dummy.cls" -> "public class Dummy { {Account a; a.RecordTypeId = '';} }")) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]
         org.newMDAPIPackageInternal(None, Seq(root), Seq())
@@ -199,7 +199,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
   test("Standard field reference (ambiguous)") {
     FileSystemHelper.run(
       Map("Dummy.cls" ->
-        "public class Dummy { {SObjectField a = BusinessHours.FridayEndTime;} }", )) {
+        "public class Dummy { {SObjectField a = BusinessHours.FridayEndTime;} }")) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]
         org.newMDAPIPackageInternal(None, Seq(root), Seq())
@@ -210,7 +210,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
   test("Lookup SObjectField (via relationship field)") {
     FileSystemHelper.run(
       Map("Dummy.cls" ->
-        "public class Dummy { {SObjectField a = Opportunity.Account.Name;} }", )) {
+        "public class Dummy { {SObjectField a = Opportunity.Account.Name;} }")) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]
         org.newMDAPIPackageInternal(None, Seq(root), Seq())
@@ -221,7 +221,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
   test("Lookup SObjectField (via id field)") {
     FileSystemHelper.run(
       Map("Dummy.cls" ->
-        "public class Dummy { {SObjectField a = Opportunity.AccountId.Name;} }", )) {
+        "public class Dummy { {SObjectField a = Opportunity.AccountId.Name;} }")) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]
         org.newMDAPIPackageInternal(None, Seq(root), Seq())
@@ -232,7 +232,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
   test("Lookup SObjectField (passed to method)") {
     FileSystemHelper.run(
       Map("Dummy.cls" ->
-        "public class Dummy { {func(Opportunity.Account);} void func(SObjectField a) {}}", )) {
+        "public class Dummy { {func(Opportunity.Account);} void func(SObjectField a) {}}")) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]
         org.newMDAPIPackageInternal(None, Seq(root), Seq())
@@ -302,7 +302,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Unknown Object describe error") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo;} }", )) {
+      Map("Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo;} }")) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]
         org.newMDAPIPackageInternal(None, Seq(root), Seq())

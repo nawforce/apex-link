@@ -162,7 +162,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Class reference for component") {
     typeDeclarations(
-      Map("Dummy.cls" -> "public class Dummy { Type t = Component.Apex.OutputText.class; }", ))
+      Map("Dummy.cls" -> "public class Dummy { Type t = Component.Apex.OutputText.class; }"))
     assert(!defaultOrg.issues.hasMessages)
   }
 

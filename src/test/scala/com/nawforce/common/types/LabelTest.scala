@@ -46,7 +46,7 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Empty labels file") {
-    FileSystemHelper.run(Map("CustomLabels.labels" -> "", )) { root: PathLike =>
+    FileSystemHelper.run(Map("CustomLabels.labels" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(org.issues.getMessages(root.join("CustomLabels.labels").toString).nonEmpty)

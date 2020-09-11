@@ -30,6 +30,7 @@ package com.nawforce.common.rpc
 import java.io.{BufferedReader, InputStreamReader, PrintStream}
 
 import io.github.shogowada.scala.jsonrpc.serializers.UpickleJSONSerializer
+import io.github.shogowada.scala.jsonrpc.serializers.UpickleJSONSerializer._
 import io.github.shogowada.scala.jsonrpc.server.JSONRPCServer
 
 import scala.concurrent.ExecutionContext.Implicits.global

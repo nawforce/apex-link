@@ -46,7 +46,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Duplicate unmanaged (MDAPI)") {
-    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}", )) { root: PathLike =>
+    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.newMDAPIPackageInternal(None, Seq(), Seq())
       org.newMDAPIPackageInternal(None, Seq(root), Seq())
@@ -722,7 +722,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("location of type") {
-    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}", )) { root: PathLike =>
+    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -734,7 +734,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("location of type (packaged)") {
-    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}", )) { root: PathLike =>
+    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -747,7 +747,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("location of type (packaged & nested)") {
-    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {class Inner {}}", )) {
+    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {class Inner {}}")) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]
         org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
@@ -791,7 +791,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("location of type (no analysis)") {
-    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}", )) { root: PathLike =>
+    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
       val org = Org.newOrg(analysis = false).asInstanceOf[OrgImpl]
       org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -803,7 +803,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("location of type (packaged) (no analysis)") {
-    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}", )) { root: PathLike =>
+    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
       val org = Org.newOrg(analysis = false).asInstanceOf[OrgImpl]
       org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -816,7 +816,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("location of type (packaged & nested) (no analysis)") {
-    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {class Inner {}}", )) {
+    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {class Inner {}}")) {
       root: PathLike =>
         val org = Org.newOrg(analysis = false).asInstanceOf[OrgImpl]
         org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())

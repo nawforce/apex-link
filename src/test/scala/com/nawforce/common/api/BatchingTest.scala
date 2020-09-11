@@ -45,7 +45,7 @@ class BatchingTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Simple refresh") {
-    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {}", )) { root: PathLike =>
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -57,7 +57,7 @@ class BatchingTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Deferred issue reporting") {
-    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {}", )) { root: PathLike =>
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)

@@ -339,7 +339,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite {
 
     assert(
       td.get.methods.map(_.toString).sorted.mkString("\n") == Seq(
-        "public System.Iterator<System.List<System.String>> iterator()", ).sorted.mkString("\n"))
+        "public System.Iterator<System.List<System.String>> iterator()").sorted.mkString("\n"))
   }
 
   test("Non-generic type") {

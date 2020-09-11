@@ -123,7 +123,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
           |        <protected>false</protected>
           |    </labels>
           |</CustomLabels>
-          |""".stripMargin, )) { root: PathLike =>
+          |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)

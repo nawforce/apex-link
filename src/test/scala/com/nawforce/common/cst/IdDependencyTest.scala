@@ -127,7 +127,7 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Hidden outer class field reference creates error") {
     val tds = typeDeclarations(
-      Map("Dummy.cls" -> "public class Dummy {Object a; class B {void func() {a = null;} } }", ))
+      Map("Dummy.cls" -> "public class Dummy {Object a; class B {void func() {a = null;} } }"))
     assert(
       defaultOrg.issues.getMessages("/Dummy.cls") ==
         "Missing: line 1 at 52-53: No variable or type found for 'a' on 'Dummy.B'\n")
@@ -138,7 +138,7 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Outer class static field creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy.cls" -> "public class Dummy {static Object a; class B {void func() {a = null;} } }", ))
+      "Dummy.cls" -> "public class Dummy {static Object a; class B {void func() {a = null;} } }"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
     assert(tds.head.nestedTypes.head.dependencies().isEmpty)

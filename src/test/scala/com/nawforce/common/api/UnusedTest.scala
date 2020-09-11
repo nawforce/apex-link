@@ -154,7 +154,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Unused method on summary type") {
-    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {public void foo() {}}", ),
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {public void foo() {}}"),
                          setupCache = true) { root: PathLike =>
       // Setup as cached
       val org = Org.newOrg().asInstanceOf[OrgImpl]
