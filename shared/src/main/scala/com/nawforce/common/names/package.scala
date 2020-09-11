@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common
 
 import com.nawforce.common.api.{Name, TypeName}
@@ -53,7 +53,8 @@ package object names {
 
     def contains(seq: CharSequence): Boolean = name.value.contains(seq)
 
-    def replaceAll(regex: String, replace: String): Name = Name(name.value.replaceAll(regex, replace))
+    def replaceAll(regex: String, replace: String): Name =
+      Name(name.value.replaceAll(regex, replace))
   }
 
   /** TypeName extensions */
@@ -102,7 +103,9 @@ package object names {
     }
 
     def withNameReplace(regex: String, replacement: String): TypeName = {
-      TypeName(Name(typeName.name.value.replaceAll(regex, replacement)), typeName.params, typeName.outer)
+      TypeName(Name(typeName.name.value.replaceAll(regex, replacement)),
+               typeName.params,
+               typeName.outer)
     }
 
     def maybeNamespace: Option[Name] = {
@@ -122,21 +125,21 @@ package object names {
 
     def asDotName: DotName = {
       typeName.outer match {
-        case None => DotName(Seq(typeName.name))
+        case None    => DotName(Seq(typeName.name))
         case Some(x) => x.asDotName.append(typeName.name)
       }
     }
 
     def wrap(wrapType: TypeName): TypeName = {
       typeName.outer match {
-        case None => TypeName(typeName.name, typeName.params, Some(wrapType))
+        case None    => TypeName(typeName.name, typeName.params, Some(wrapType))
         case Some(o) => TypeName(typeName.name, typeName.params, Some(o.wrap(wrapType)))
       }
     }
 
     def unwrap: Option[TypeName] = {
       typeName.outer match {
-        case None => None
+        case None    => None
         case Some(o) => Some(TypeName(typeName.name, typeName.params, o.unwrap))
       }
     }
@@ -145,7 +148,7 @@ package object names {
       if (typeName.name == Names.List$ && typeName.outer.contains(TypeNames.System) && typeName.params.size == 1) {
         typeName.params.headOption
       } else if (typeName.name == Names.RecordSet$ && typeName.outer.contains(TypeNames.Internal) &&
-        typeName.params.size == 1) {
+                 typeName.params.size == 1) {
         typeName.params.headOption
       } else {
         None
@@ -153,8 +156,9 @@ package object names {
     }
 
     def getSetOrListType: Option[TypeName] = {
-      if ((typeName.name == Names.Set$ || typeName.name == Names.List$) && typeName.outer.contains(TypeNames.System) &&
-        typeName.params.size == 1) {
+      if ((typeName.name == Names.Set$ || typeName.name == Names.List$) && typeName.outer.contains(
+            TypeNames.System) &&
+          typeName.params.size == 1) {
         typeName.params.headOption
       } else {
         None
@@ -171,41 +175,54 @@ package object names {
 
     def isStringOrId: Boolean = typeName == TypeNames.String || typeName == TypeNames.IdType
 
-    def isList: Boolean = typeName.name == Names.List$ && typeName.outer.contains(TypeNames.System) && typeName.params.size == 1
+    def isList: Boolean =
+      typeName.name == Names.List$ && typeName.outer.contains(TypeNames.System) && typeName.params.size == 1
 
     def asListOf: TypeName = new TypeName(Names.List$, Seq(typeName), Some(TypeNames.System))
 
-    def isRecordSet: Boolean = typeName.name == Names.RecordSet$ && typeName.outer.contains(TypeNames.Internal) && typeName.params.size == 1
+    def isRecordSet: Boolean =
+      typeName.name == Names.RecordSet$ && typeName.outer.contains(TypeNames.Internal) && typeName.params.size == 1
 
     def isSObjectList: Boolean = isList && typeName.params.head == TypeNames.SObject
 
     def isObjectList: Boolean = isList && typeName.params.head == TypeNames.InternalObject
 
-    def isBatchable: Boolean = typeName.name == Names.Batchable && typeName.outer.contains(TypeNames.Database)
+    def isBatchable: Boolean =
+      typeName.name == Names.Batchable && typeName.outer.contains(TypeNames.Database)
 
     def equalsIgnoreParams(other: TypeName): Boolean = {
       typeName.name == other.name &&
-        typeName.params.size == other.params.size &&
-        typeName.outer.nonEmpty == other.outer.nonEmpty &&
-        typeName.outer.forall(_.equalsIgnoreParams(other.outer.get))
+      typeName.params.size == other.params.size &&
+      typeName.outer.nonEmpty == other.outer.nonEmpty &&
+      typeName.outer.forall(_.equalsIgnoreParams(other.outer.get))
     }
 
     def asString: String = {
       typeName match {
-        case TypeNames.Null => "null"
-        case TypeNames.Any => "any"
-        case TypeNames.InternalObject => "Object"
-        case TypeNames.RecordSet => "[SOQL Results]"
+        case TypeNames.Null                  => "null"
+        case TypeNames.Any                   => "any"
+        case TypeNames.InternalObject        => "Object"
+        case TypeNames.RecordSet             => "[SOQL Results]"
         case TypeNames.SObjectFieldRowCause$ => "SObjectField"
-        case TypeName(Names.DescribeSObjectResult$, Seq(TypeName(name, Nil, None)), Some(TypeNames.Internal)) =>
+        case TypeName(Names.DescribeSObjectResult$,
+                      Seq(TypeName(name, Nil, None)),
+                      Some(TypeNames.Internal)) =>
           s"Schema.SObjectType.$name"
-        case TypeName(Names.SObjectType$, Seq(TypeName(name, Nil, Some(TypeNames.Schema))), Some(TypeNames.Internal)) =>
+        case TypeName(Names.SObjectType$,
+                      Seq(TypeName(name, Nil, Some(TypeNames.Schema))),
+                      Some(TypeNames.Internal)) =>
           s"$name.SObjectType"
-        case TypeName(Names.SObjectTypeFields$, Seq(TypeName(name, Nil, Some(TypeNames.Schema))), Some(TypeNames.Internal)) =>
+        case TypeName(Names.SObjectTypeFields$,
+                      Seq(TypeName(name, Nil, Some(TypeNames.Schema))),
+                      Some(TypeNames.Internal)) =>
           s"Schema.SObjectType.$name.Fields"
-        case TypeName(Names.SObjectTypeFieldSets$, Seq(TypeName(name, Nil, Some(TypeNames.Schema))), Some(TypeNames.Internal)) =>
+        case TypeName(Names.SObjectTypeFieldSets$,
+                      Seq(TypeName(name, Nil, Some(TypeNames.Schema))),
+                      Some(TypeNames.Internal)) =>
           s"Schema.SObjectType.$name.FieldSets"
-        case TypeName(Names.SObjectFields$, Seq(TypeName(name, Nil, Some(TypeNames.Schema))), Some(TypeNames.Internal)) =>
+        case TypeName(Names.SObjectFields$,
+                      Seq(TypeName(name, Nil, Some(TypeNames.Schema))),
+                      Some(TypeNames.Internal)) =>
           s"Schema.$name.Fields"
         case _ => basicString
       }
@@ -214,7 +231,8 @@ package object names {
     def basicString: String = {
       (if (typeName.outer.isEmpty) "" else typeName.outer.get.asString + ".") +
         typeName.name.toString +
-        (if (typeName.params.isEmpty) "" else s"<${typeName.params.map(_.toString).mkString(", ")}>")
+        (if (typeName.params.isEmpty) ""
+         else s"<${typeName.params.map(_.toString).mkString(", ")}>")
     }
   }
 }

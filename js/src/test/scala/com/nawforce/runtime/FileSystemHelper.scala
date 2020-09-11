@@ -24,19 +24,17 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.runtime
 
 import com.nawforce.common.documents.ParsedCache
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.runtime.imports.{FSMonkey, Memfs}
-import com.nawforce.runtime.platform.{Environment, Path}
+import com.nawforce.runtime.platform.Environment
+import io.scalajs.nodejs.os.OS
 
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
-import io.scalajs.nodejs.{fs, os}
-import io.scalajs.nodejs.fs.Fs
-import io.scalajs.nodejs.os.OS
 
 object FileSystemHelper {
 
@@ -44,7 +42,8 @@ object FileSystemHelper {
   def run[T](files: Map[String, String], setupCache: Boolean = false)(verify: PathLike => T): T = {
 
     // Load files into memfs
-    Memfs.vol.fromJSON(files.map(kv => ("/" + kv._1, kv._2)).toJSDictionary.asInstanceOf[js.Dynamic])
+    Memfs.vol.fromJSON(
+      files.map(kv => ("/" + kv._1, kv._2)).toJSDictionary.asInstanceOf[js.Dynamic])
 
     // Make a cache directory so don't need home access
     if (setupCache) {
@@ -72,7 +71,8 @@ object FileSystemHelper {
   }
 
   // Temp directory based model
-  def runTempDir[T](files: Map[String, String], setupCache: Boolean = false)(verify: PathLike => T): T = {
+  def runTempDir[T](files: Map[String, String], setupCache: Boolean = false)(
+    verify: PathLike => T): T = {
     val tempDir = PathFactory(OS.tmpdir()).join("apexlinktest")
     files.foreach(kv => {
       val path = tempDir.join(kv._1)

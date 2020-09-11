@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.documents
 
 import com.nawforce.common.path.PathLike
@@ -34,20 +34,18 @@ import org.scalatest.funsuite.AnyFunSuite
 class ForceIgnoreTests extends AnyFunSuite {
 
   test("Empty ignore") {
-    FileSystemHelper.run(Map[String, String](
-      ".forceignore" -> ""
-    )) { root: PathLike =>
-      val ignore = ForceIgnore(root.join(".forceignore")).getOrElse(throw new NoSuchElementException())
+    FileSystemHelper.run(Map[String, String](".forceignore" -> "")) { root: PathLike =>
+      val ignore =
+        ForceIgnore(root.join(".forceignore")).getOrElse(throw new NoSuchElementException())
       assert(ignore.includeDirectory(root.join("foo")))
       assert(ignore.includeFile(root.join("foo")))
     }
   }
 
   test("Simple ignore") {
-    FileSystemHelper.run(Map[String, String](
-      ".forceignore" -> "foo"
-    )) { root: PathLike =>
-      val ignore = ForceIgnore(root.join(".forceignore")).getOrElse(throw new NoSuchElementException())
+    FileSystemHelper.run(Map[String, String](".forceignore" -> "foo")) { root: PathLike =>
+      val ignore =
+        ForceIgnore(root.join(".forceignore")).getOrElse(throw new NoSuchElementException())
       assert(!ignore.includeDirectory(root.join("foo")))
       assert(!ignore.includeFile(root.join("foo")))
       assert(ignore.includeDirectory(root.join("foo2")))
@@ -56,10 +54,9 @@ class ForceIgnoreTests extends AnyFunSuite {
   }
 
   test("Directory ignore") {
-    FileSystemHelper.run(Map[String, String](
-      ".forceignore" -> "foo/"
-    )) { root: PathLike =>
-      val ignore = ForceIgnore(root.join(".forceignore")).getOrElse(throw new NoSuchElementException())
+    FileSystemHelper.run(Map[String, String](".forceignore" -> "foo/")) { root: PathLike =>
+      val ignore =
+        ForceIgnore(root.join(".forceignore")).getOrElse(throw new NoSuchElementException())
       assert(!ignore.includeDirectory(root.join("foo")))
       assert(ignore.includeFile(root.join("foo")))
       assert(ignore.includeDirectory(root.join("foo2")))
@@ -68,10 +65,9 @@ class ForceIgnoreTests extends AnyFunSuite {
   }
 
   test("Simple negate") {
-    FileSystemHelper.run(Map[String, String](
-      ".forceignore" -> "f*\n!foo"
-    )) { root: PathLike =>
-      val ignore = ForceIgnore(root.join(".forceignore")).getOrElse(throw new NoSuchElementException())
+    FileSystemHelper.run(Map[String, String](".forceignore" -> "f*\n!foo")) { root: PathLike =>
+      val ignore =
+        ForceIgnore(root.join(".forceignore")).getOrElse(throw new NoSuchElementException())
       assert(ignore.includeDirectory(root.join("foo")))
       assert(ignore.includeFile(root.join("foo")))
       assert(!ignore.includeDirectory(root.join("foo2")))
@@ -80,10 +76,9 @@ class ForceIgnoreTests extends AnyFunSuite {
   }
 
   test("Directory negate") {
-    FileSystemHelper.run(Map[String, String](
-      ".forceignore" -> "f*\n!foo/"
-    )) { root: PathLike =>
-      val ignore = ForceIgnore(root.join(".forceignore")).getOrElse(throw new NoSuchElementException())
+    FileSystemHelper.run(Map[String, String](".forceignore" -> "f*\n!foo/")) { root: PathLike =>
+      val ignore =
+        ForceIgnore(root.join(".forceignore")).getOrElse(throw new NoSuchElementException())
       assert(ignore.includeDirectory(root.join("foo")))
       assert(!ignore.includeFile(root.join("foo")))
       assert(!ignore.includeDirectory(root.join("foo2")))
@@ -91,4 +86,3 @@ class ForceIgnoreTests extends AnyFunSuite {
     }
   }
 }
-

@@ -24,11 +24,10 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package com.nawforce.common.documents
 
-import com.nawforce.common.api.LoggerOps
 import com.nawforce.runtime.platform.Environment
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
@@ -57,7 +56,9 @@ class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
   test("default uses homedir") {
     val cache = ParsedCache.create
     assert(cache.isRight)
-    assert(cache.getOrElse(throw new NoSuchElementException()).path == Environment.homedir.get.join(ParsedCache.CACHE_DIR))
+    assert(
+      cache.getOrElse(throw new NoSuchElementException()).path == Environment.homedir.get
+        .join(ParsedCache.CACHE_DIR))
   }
 
   test("custom path used") {
@@ -113,19 +114,35 @@ class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("key insert/recover with bad packageContext") {
-    val packageContext = PackageContext(Some("test"), Array("ghosted1", "ghosted2"), Array("analysed1", "analysed2"))
+    val packageContext =
+      PackageContext(Some("test"), Array("ghosted1", "ghosted2"), Array("analysed1", "analysed2"))
     val cache = ParsedCache.create.getOrElse(throw new NoSuchElementException())
     cache.upsert("Foo".getBytes, "Hello".getBytes(), packageContext)
     assert(cache.get("Foo".getBytes, packageContext).get.sameElements("Hello".getBytes()))
-    assert(cache.get("Foo".getBytes,
-      PackageContext(Some("test"), Array("ghosted1"), Array("analysed1", "analysed2"))).isEmpty)
-    assert(cache.get("Foo".getBytes,
-      PackageContext(Some("test"), Array("ghosted2","ghosted1"), Array("analysed1", "analysed2"))).isEmpty)
-    assert(cache.get("Foo".getBytes,
-      PackageContext(Some("test"), Array("ghosted2","ghosted1"), Array("analysed2"))).isEmpty)
-    assert(cache.get("Foo".getBytes,
-      PackageContext(Some("test"), Array("ghosted1","analysed1"), Array("ghosted1", "analysed2"))).isEmpty)
-    assert(cache.get("Foo".getBytes,
-      PackageContext(Some("test"), Array(), Array())).isEmpty)
+    assert(
+      cache
+        .get("Foo".getBytes,
+             PackageContext(Some("test"), Array("ghosted1"), Array("analysed1", "analysed2")))
+        .isEmpty)
+    assert(
+      cache
+        .get("Foo".getBytes,
+             PackageContext(Some("test"),
+                            Array("ghosted2", "ghosted1"),
+                            Array("analysed1", "analysed2")))
+        .isEmpty)
+    assert(
+      cache
+        .get("Foo".getBytes,
+             PackageContext(Some("test"), Array("ghosted2", "ghosted1"), Array("analysed2")))
+        .isEmpty)
+    assert(
+      cache
+        .get("Foo".getBytes,
+             PackageContext(Some("test"),
+                            Array("ghosted1", "analysed1"),
+                            Array("ghosted1", "analysed2")))
+        .isEmpty)
+    assert(cache.get("Foo".getBytes, PackageContext(Some("test"), Array(), Array())).isEmpty)
   }
 }

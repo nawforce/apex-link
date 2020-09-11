@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.runtime.parsers
 
 import com.nawforce.common.api.{Location, PathLocation}
@@ -45,12 +45,20 @@ trait Locatable {
 }
 
 /** Encapsulation of a chunk of Apex code, position tells you where it came from in path */
-case class Source(path: PathLike, code: SourceData, lineOffset: Int, columnOffset: Int, outer: Option[Source]) {
+case class Source(path: PathLike,
+                  code: SourceData,
+                  lineOffset: Int,
+                  columnOffset: Int,
+                  outer: Option[Source]) {
   lazy val hash: Int = code.hash
 
   def extractSource(context: ParserRuleContext): Source = {
-    val subdata = code.subdata(context.start.getStartIndex, context.stop.getStopIndex+1)
-    new Source(path, subdata, context.start.getLine-1, context.start.getCharPositionInLine, outer = Some(this))
+    val subdata = code.subdata(context.start.getStartIndex, context.stop.getStopIndex + 1)
+    new Source(path,
+               subdata,
+               context.start.getLine - 1,
+               context.start.getCharPositionInLine,
+               outer = Some(this))
   }
 
   def asStream: CaseInsensitiveInputStream = {
@@ -64,11 +72,11 @@ case class Source(path: PathLike, code: SourceData, lineOffset: Int, columnOffse
   /** Find a location for a rule, adapts based on source offsets to give absolute position in file */
   def getLocation(context: ParserRuleContext): (PathLike, Location) = {
     (path,
-      adjustLocation(
-        Location(context.start.getLine,
-          context.start.getCharPositionInLine,
-          context.stop.getLine,
-          context.stop.getCharPositionInLine + context.stop.getText.length)))
+     adjustLocation(
+       Location(context.start.getLine,
+                context.start.getCharPositionInLine,
+                context.stop.getLine,
+                context.stop.getCharPositionInLine + context.stop.getText.length)))
   }
 
   private def adjustLocation(location: Location): Location = {
@@ -88,7 +96,6 @@ case class Source(path: PathLike, code: SourceData, lineOffset: Int, columnOffse
 
     Location(startLine, startPosition, endLine, endPosition)
   }
-
 
   def stampLocation(locatable: Locatable, context: ParserRuleContext): Unit = {
     locatable.locationPath = path

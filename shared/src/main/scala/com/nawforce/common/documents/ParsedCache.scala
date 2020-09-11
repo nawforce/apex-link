@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.documents
 
 import com.nawforce.common.path._
@@ -38,7 +38,7 @@ case class CacheKey(version: Int, packageContext: PackageContext, sourceKey: Arr
   lazy val hashParts: Array[String] = {
     val hash = MurmurHash3.bytesHash(writeBinary(this))
     val asHex = hash.toHexString
-    val keyString = "0" * (8-asHex.length) + asHex
+    val keyString = "0" * (8 - asHex.length) + asHex
     Array(keyString.substring(0, 4), keyString.substring(4, 8))
   }
 
@@ -59,13 +59,15 @@ object CacheKey {
 }
 
 // Package details used in key to ensure error messages will be accurate
-case class PackageContext(namespace: Option[String], ghostedPackages: Array[String], analysedPackages: Array[String]) {
+case class PackageContext(namespace: Option[String],
+                          ghostedPackages: Array[String],
+                          analysedPackages: Array[String]) {
   override def equals(that: Any): Boolean = {
     that match {
       case other: PackageContext =>
         other.namespace == namespace &&
-        other.ghostedPackages.sameElements(ghostedPackages) &&
-        other.analysedPackages.sameElements(analysedPackages)
+          other.ghostedPackages.sameElements(ghostedPackages) &&
+          other.analysedPackages.sameElements(analysedPackages)
       case _ => false
     }
   }
@@ -124,18 +126,19 @@ class ParsedCache(val path: PathLike) {
   private def expire(path: PathLike, minTimeStamp: Long): Unit = {
     path.directoryList() match {
       case Left(_) => ()
-      case Right(names) => names.foreach(name => {
-        val pathEntry = path.join(name)
-        if (pathEntry.isDirectory) {
-          expire(pathEntry, minTimeStamp)
-        } else {
-          pathEntry.lastModified() match {
-            case Some(ts) if ts < minTimeStamp =>
-              pathEntry.delete()
-            case _ => ()
+      case Right(names) =>
+        names.foreach(name => {
+          val pathEntry = path.join(name)
+          if (pathEntry.isDirectory) {
+            expire(pathEntry, minTimeStamp)
+          } else {
+            pathEntry.lastModified() match {
+              case Some(ts) if ts < minTimeStamp =>
+                pathEntry.delete()
+              case _ => ()
+            }
           }
-        }
-      })
+        })
     }
   }
 
@@ -147,13 +150,14 @@ class ParsedCache(val path: PathLike) {
   private def clearContents(path: PathLike): Unit = {
     path.directoryList() match {
       case Left(_) => ()
-      case Right(names) => names.foreach(name => {
-        val pathEntry = path.join(name)
-        if (pathEntry.isDirectory) {
-          clearContents(pathEntry)
-        }
-        pathEntry.delete()
-      })
+      case Right(names) =>
+        names.foreach(name => {
+          val pathEntry = path.join(name)
+          if (pathEntry.isDirectory) {
+            clearContents(pathEntry)
+          }
+          pathEntry.delete()
+        })
     }
     path.delete()
   }
@@ -166,11 +170,14 @@ object ParsedCache {
 
   def create: Either[String, ParsedCache] = {
     val cacheDirOpt =
-      Environment.variable("APEXLINK_CACHE_DIR").map(d => PathFactory(d))
+      Environment
+        .variable("APEXLINK_CACHE_DIR")
+        .map(d => PathFactory(d))
         .orElse(Environment.homedir.map(_.join(CACHE_DIR)))
 
     if (cacheDirOpt.isEmpty) {
-      return Left(s"Cache directory could not be determined from APEXLINK_CACHE_DIR or home directory")
+      return Left(
+        s"Cache directory could not be determined from APEXLINK_CACHE_DIR or home directory")
     }
 
     val cacheDir = cacheDirOpt.get
@@ -180,14 +187,16 @@ object ParsedCache {
       }
 
       cacheDir.createFile(TEST_FILE, "") match {
-        case Left(err) => Left(s"Cache directory '$cacheDir' exists but is not writable, error '$err'")
+        case Left(err) =>
+          Left(s"Cache directory '$cacheDir' exists but is not writable, error '$err'")
         case Right(created) =>
           created.delete()
           Right(new ParsedCache(cacheDir))
       }
     } else {
       cacheDir.parent.createDirectory(cacheDir.basename) match {
-        case Left(err) => Left(s"Cache directory '$cacheDir' does not exist and can not be created, error '$err'")
+        case Left(err) =>
+          Left(s"Cache directory '$cacheDir' does not exist and can not be created, error '$err'")
         case Right(created) => Right(new ParsedCache(created))
       }
     }

@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.names
 
 import com.nawforce.common.api.{Name, TypeName}
@@ -33,8 +33,8 @@ import com.nawforce.common.api.{Name, TypeName}
   * A name with optional namespace prefixing & type suffix such as foo__field__c
   */
 case class EncodedName(name: Name, ext: Option[Name], namespace: Option[Name]) {
-  lazy val localName: Name = Name(name.value + ext.map("__"+ _.value).getOrElse(""))
-  lazy val fullName: Name = Name(namespace.map(_.value+"__").getOrElse("") + localName.value)
+  lazy val localName: Name = Name(name.value + ext.map("__" + _.value).getOrElse(""))
+  lazy val fullName: Name = Name(namespace.map(_.value + "__").getOrElse("") + localName.value)
 
   def defaultNamespace(ns: Option[Name]): EncodedName = {
     if (ext.nonEmpty && namespace.isEmpty)
@@ -56,10 +56,10 @@ object EncodedName {
   def apply(name: String): EncodedName = {
     val parts = threeSplit(name)
     parts.size match {
-      case 3 if parts.head.isEmpty => EncodedName(Name("__"+parts(1)), Some(Name(parts(2))), None)
-      case 3 => EncodedName(Name(parts(1)), Some(Name(parts(2))), Some(Name(parts.head)))
-      case 2 => EncodedName(Name(parts.head), Some(Name(parts(1))), None)
-      case 1 => EncodedName(Name(parts.head), None, None)
+      case 3 if parts.head.isEmpty => EncodedName(Name("__" + parts(1)), Some(Name(parts(2))), None)
+      case 3                       => EncodedName(Name(parts(1)), Some(Name(parts(2))), Some(Name(parts.head)))
+      case 2                       => EncodedName(Name(parts.head), Some(Name(parts(1))), None)
+      case 1                       => EncodedName(Name(parts.head), None, None)
     }
   }
 
@@ -68,10 +68,10 @@ object EncodedName {
 
     // Fold subfields to avoid field name looking like a namespace
     if (parts.length > 1 && parts.last == "s")
-      parts = parts.take(parts.length-2) :+ parts.takeRight(2).mkString("__")
+      parts = parts.take(parts.length - 2) :+ parts.takeRight(2).mkString("__")
 
     if (parts.length > 2)
-      Seq(parts.head, parts.tail.take(parts.length-2).mkString("__"), parts.last)
+      Seq(parts.head, parts.tail.take(parts.length - 2).mkString("__"), parts.last)
     else if (parts.length == 2)
       Seq(parts.head, parts.last)
     else

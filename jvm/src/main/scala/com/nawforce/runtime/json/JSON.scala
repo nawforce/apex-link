@@ -24,22 +24,22 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.runtime.json
 
 object JSON {
   def encode(value: String): String = {
     val buf = new StringBuilder()
     value.foreach {
-      case '"' => buf.append("\\\"")
-      case '\\' => buf.append("\\\\")
-      case '\b' => buf.append("\\b")
-      case '\f' => buf.append("\\f")
-      case '\n' => buf.append("\\n")
-      case '\r' => buf.append("\\r")
-      case '\t' => buf.append("\\t")
+      case '"'                 => buf.append("\\\"")
+      case '\\'                => buf.append("\\\\")
+      case '\b'                => buf.append("\\b")
+      case '\f'                => buf.append("\\f")
+      case '\n'                => buf.append("\\n")
+      case '\r'                => buf.append("\\r")
+      case '\t'                => buf.append("\\t")
       case char if char < 0x20 => buf.append("\\u%04x".format(char: Int))
-      case char => buf.append(char)
+      case char                => buf.append(char)
     }
     buf.mkString
   }

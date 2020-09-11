@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.runtime.imports
 
 import io.scalajs.nodejs.fs.Fs
@@ -34,7 +34,7 @@ import scala.scalajs.js.annotation.JSImport
 
 @js.native
 trait Volume extends Fs {
-  def fromJSON(json: js.Dynamic, cwd: String=""): Unit = js.native
+  def fromJSON(json: js.Dynamic, cwd: String = ""): Unit = js.native
   def toJSON(): js.Object = js.native
   def reset(): Unit = js.native
 }

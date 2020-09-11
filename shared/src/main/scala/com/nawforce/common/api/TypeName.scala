@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.api
 
 import com.nawforce.common.names._
@@ -63,7 +63,7 @@ object TypeName {
   def apply(names: Seq[Name]): TypeName = {
     names match {
       case hd +: Nil => new TypeName(hd, Nil, None)
-      case hd +: tl => new TypeName(hd, Nil, Some(TypeName(tl)))
+      case hd +: tl  => new TypeName(hd, Nil, Some(TypeName(tl)))
     }
   }
 
@@ -72,4 +72,3 @@ object TypeName {
     new TypeName(name, Nil, None)
   }
 }
-

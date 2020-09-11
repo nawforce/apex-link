@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.documents
 
 import com.nawforce.common.api.{Name, TypeName}
@@ -48,9 +48,11 @@ abstract class MetadataDocument(val path: PathLike, val name: Name) {
   def typeName(namespace: Option[Name]): TypeName
 }
 
-abstract class UpdatableMetadata(_path: PathLike, _name: Name) extends MetadataDocument(_path, _name)
+abstract class UpdatableMetadata(_path: PathLike, _name: Name)
+    extends MetadataDocument(_path, _name)
 
-final case class LabelsDocument(_path: PathLike, _name: Name) extends UpdatableMetadata(_path, _name) {
+final case class LabelsDocument(_path: PathLike, _name: Name)
+    extends UpdatableMetadata(_path, _name) {
   override val extension: Name = MetadataDocument.labelsExt
   override val duplicatesAllowed: Boolean = true
   override def typeName(namespace: Option[Name]): TypeName = TypeNames.Label
@@ -59,7 +61,7 @@ final case class LabelsDocument(_path: PathLike, _name: Name) extends UpdatableM
 abstract class ApexDocument(_path: PathLike, _name: Name) extends UpdatableMetadata(_path, _name)
 
 final case class ApexClassDocument(_path: PathLike, _name: Name)
-  extends ApexDocument(_path, _name) {
+    extends ApexDocument(_path, _name) {
   override val extension: Name = MetadataDocument.clsExt
   override def typeName(namespace: Option[Name]): TypeName = {
     TypeName(name).withNamespace(namespace)
@@ -67,7 +69,7 @@ final case class ApexClassDocument(_path: PathLike, _name: Name)
 }
 
 final case class ApexTriggerDocument(_path: PathLike, _name: Name)
-  extends ApexDocument(_path, _name) {
+    extends ApexDocument(_path, _name) {
   override val extension: Name = MetadataDocument.triggerExt
   override def typeName(namespace: Option[Name]): TypeName = {
     val qname: String = namespace
@@ -78,7 +80,7 @@ final case class ApexTriggerDocument(_path: PathLike, _name: Name)
 }
 
 final case class ComponentDocument(_path: PathLike, _name: Name)
-  extends UpdatableMetadata(_path, _name) {
+    extends UpdatableMetadata(_path, _name) {
   override val extension: Name = MetadataDocument.componentExt
   override def typeName(namespace: Option[Name]): TypeName = {
     namespace
@@ -89,8 +91,7 @@ final case class ComponentDocument(_path: PathLike, _name: Name)
 
 abstract class SObjectLike(_path: PathLike, _name: Name) extends MetadataDocument(_path, _name)
 
-final case class SObjectDocument(_path: PathLike, _name: Name)
-  extends SObjectLike(_path, _name) {
+final case class SObjectDocument(_path: PathLike, _name: Name) extends SObjectLike(_path, _name) {
 
   private val isCustom = name.value.endsWith("__c")
   override val extension: Name = MetadataDocument.objectExt
@@ -101,61 +102,63 @@ final case class SObjectDocument(_path: PathLike, _name: Name)
         namespace.map(ns => s"${ns}__").getOrElse("")
       else
         ""
-    TypeName(Name(prefix+name), Nil, Some(TypeNames.Schema))
+    TypeName(Name(prefix + name), Nil, Some(TypeNames.Schema))
   }
 }
 
 final case class SObjectFieldDocument(_path: PathLike, _name: Name)
-  extends MetadataDocument(_path, _name) {
+    extends MetadataDocument(_path, _name) {
   override val extension: Name = MetadataDocument.fieldExt
   override def typeName(namespace: Option[Name]): TypeName = {
     val sobjectName = path.parent.parent.basename
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    val fieldsType = TypeNames.sObjectTypeFields$(TypeName(Name(prefix+sobjectName), Nil, Some(TypeNames.Schema)))
+    val fieldsType = TypeNames.sObjectTypeFields$(
+      TypeName(Name(prefix + sobjectName), Nil, Some(TypeNames.Schema)))
     TypeName(name, Nil, Some(fieldsType))
   }
 }
 
 final case class SObjectFieldSetDocument(_path: PathLike, _name: Name)
-  extends MetadataDocument(_path, _name) {
+    extends MetadataDocument(_path, _name) {
   override val extension: Name = MetadataDocument.fieldSetExt
   override def typeName(namespace: Option[Name]): TypeName = {
     val sobjectName = path.parent.parent.basename
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    val fieldSetType = TypeNames.sObjectTypeFieldSets$(TypeName(Name(prefix+sobjectName), Nil, Some(TypeNames.Schema)))
+    val fieldSetType = TypeNames.sObjectTypeFieldSets$(
+      TypeName(Name(prefix + sobjectName), Nil, Some(TypeNames.Schema)))
     TypeName(name, Nil, Some(fieldSetType))
   }
 }
 
 final case class CustomMetadataDocument(_path: PathLike, _name: Name)
-  extends SObjectLike(_path, _name) {
+    extends SObjectLike(_path, _name) {
   override val extension: Name = MetadataDocument.objectExt
   override def typeName(namespace: Option[Name]): TypeName = {
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix+name+"__mdt"), Nil, Some(TypeNames.Schema))
+    TypeName(Name(prefix + name + "__mdt"), Nil, Some(TypeNames.Schema))
   }
 }
 
 final case class PlatformEventDocument(_path: PathLike, _name: Name)
-  extends SObjectLike(_path, _name) {
+    extends SObjectLike(_path, _name) {
   override val extension: Name = MetadataDocument.objectExt
   override def typeName(namespace: Option[Name]): TypeName = {
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix+name+"__e"), Nil, Some(TypeNames.Schema))
+    TypeName(Name(prefix + name + "__e"), Nil, Some(TypeNames.Schema))
   }
 }
 
 final case class PageDocument(_path: PathLike, _name: Name)
-  extends UpdatableMetadata(_path, _name) {
+    extends UpdatableMetadata(_path, _name) {
   override val extension: Name = MetadataDocument.pageExt
   override def typeName(namespace: Option[Name]): TypeName = {
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix+name), Nil, Some(TypeNames.Page))
+    TypeName(Name(prefix + name), Nil, Some(TypeNames.Page))
   }
 }
 
 final case class FlowDocument(_path: PathLike, _name: Name)
-  extends UpdatableMetadata(_path, _name){
+    extends UpdatableMetadata(_path, _name) {
   override lazy val extension: Name = MetadataDocument.flowExt
   override def typeName(namespace: Option[Name]): TypeName = {
     namespace
@@ -202,12 +205,12 @@ object MetadataDocument {
         Some(SObjectDocument(path, name))
 
       case Seq(name, Name("field-meta"), Name("xml"))
-        if path.parent.basename.equalsIgnoreCase("fields") && !path.parent.parent.isRoot =>
-          Some(SObjectFieldDocument(path, name))
+          if path.parent.basename.equalsIgnoreCase("fields") && !path.parent.parent.isRoot =>
+        Some(SObjectFieldDocument(path, name))
 
       case Seq(name, Name("fieldset-meta"), Name("xml"))
-        if path.parent.basename.equalsIgnoreCase("fieldSets") && !path.parent.parent.isRoot =>
-          Some(SObjectFieldSetDocument(path, name))
+          if path.parent.basename.equalsIgnoreCase("fieldSets") && !path.parent.parent.isRoot =>
+        Some(SObjectFieldSetDocument(path, name))
 
       case Seq(name, Name("flow")) =>
         Some(FlowDocument(path, name))
@@ -228,8 +231,9 @@ object MetadataDocument {
   private def splitFilename(path: PathLike): Seq[Name] = {
     var parts = path.basename.split('.')
     if (parts.length > 3) {
-      parts = List(parts.slice(0, parts.length-2).mkString("."),
-        parts(parts.length-2).toLowerCase(), parts(parts.length-1).toLowerCase).toArray
+      parts = List(parts.slice(0, parts.length - 2).mkString("."),
+                   parts(parts.length - 2).toLowerCase(),
+                   parts(parts.length - 1).toLowerCase).toArray
     } else if (parts.length == 3) {
       parts = List(parts(0), parts(1).toLowerCase, parts(2).toLowerCase).toArray
     } else if (parts.length == 2) {
@@ -238,4 +242,3 @@ object MetadataDocument {
     new ofRef(parts.map(Name(_)))
   }
 }
-

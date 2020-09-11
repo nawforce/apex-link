@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.names
 
 import com.nawforce.common.api.Name
@@ -40,7 +40,7 @@ object Names extends CleanableCache {
   def safeApply(name: String): Option[Name] = Option(name).filterNot(_.isEmpty).map(n => Name(n))
 
   private def cache(value: String): Name = {
-    nameCache.getOrElseUpdate(value, {new Name(value)})
+    nameCache.getOrElseUpdate(value, { new Name(value) })
   }
 
   override def clean(): Unit = {
@@ -54,15 +54,15 @@ object Names extends CleanableCache {
   lazy val Batchable: Name = cache("Batchable")
   lazy val Void: Name = cache("void")
   lazy val Class: Name = cache("Class")
-  lazy val List$: Name = cache("List")
-  lazy val Set$: Name = cache("Set")
-  lazy val Map$: Name = cache("Map")
+  lazy val List$ : Name = cache("List")
+  lazy val Set$ : Name = cache("Set")
+  lazy val Map$ : Name = cache("Map")
   lazy val Type: Name = cache("Type")
   lazy val Object: Name = cache("Object")
-  lazy val Object$: Name = cache("Object$")
-  lazy val Null$: Name = cache("Null$")
-  lazy val Any$: Name = cache("Any$")
-  lazy val RecordSet$: Name = cache("RecordSet$")
+  lazy val Object$ : Name = cache("Object$")
+  lazy val Null$ : Name = cache("Null$")
+  lazy val Any$ : Name = cache("Any$")
+  lazy val RecordSet$ : Name = cache("RecordSet$")
   lazy val SObject: Name = cache("SObject")
   lazy val SObjects: Name = cache("SObjects")
   lazy val Internal: Name = cache("Internal")
@@ -116,14 +116,14 @@ object Names extends CleanableCache {
   lazy val FieldSet: Name = cache("FieldSet")
   lazy val DescribeSObjectResult: Name = cache("DescribeSObjectResult")
   lazy val DescribeFieldResult: Name = cache("DescribeFieldResult")
-  lazy val SObjectTypeFieldSets: Name =cache("SObjectTypeFieldSets")
-  lazy val DescribeSObjectResult$: Name = cache("DescribeSObjectResult$")
-  lazy val SObjectType$: Name = cache("SObjectType$")
-  lazy val SObjectTypeFields$: Name = cache("SObjectTypeFields$")
-  lazy val SObjectTypeFieldSets$: Name = cache("SObjectTypeFieldSets$")
-  lazy val SObjectFields$: Name = cache("SObjectFields$")
-  lazy val SObjectFieldRowCause$: Name = cache("SObjectFieldRowCause$")
-  lazy val Trigger$: Name = cache("Trigger$")
+  lazy val SObjectTypeFieldSets: Name = cache("SObjectTypeFieldSets")
+  lazy val DescribeSObjectResult$ : Name = cache("DescribeSObjectResult$")
+  lazy val SObjectType$ : Name = cache("SObjectType$")
+  lazy val SObjectTypeFields$ : Name = cache("SObjectTypeFields$")
+  lazy val SObjectTypeFieldSets$ : Name = cache("SObjectTypeFieldSets$")
+  lazy val SObjectFields$ : Name = cache("SObjectFields$")
+  lazy val SObjectFieldRowCause$ : Name = cache("SObjectFieldRowCause$")
+  lazy val Trigger$ : Name = cache("Trigger$")
   lazy val Activity: Name = cache("Activity")
   lazy val Task: Name = cache("Task")
   lazy val Event: Name = cache("Event")

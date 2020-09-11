@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.documents
 
 import com.nawforce.common.api.Name
@@ -33,88 +33,103 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class DocumentTest extends AnyFunSuite {
 
-  private val root :PathLike = PathFactory("pkg")
+  private val root: PathLike = PathFactory("pkg")
 
   test("cls file") {
     MetadataDocument(root.join("Foo.cls")) match {
-      case Some(ApexClassDocument(path, Name("Foo"))) if path == root.join("Foo.cls")=> ()
-      case x => assert(false, x)
+      case Some(ApexClassDocument(path, Name("Foo"))) if path == root.join("Foo.cls") => ()
+      case x                                                                          => assert(false, x)
     }
   }
 
   test("component file") {
     MetadataDocument(root.join("Foo.component")) match {
       case Some(ComponentDocument(path, Name("Foo"))) if path == root.join("Foo.component") => ()
-      case x => assert(false, x)
+      case x                                                                                => assert(false, x)
     }
   }
 
   test("object file") {
     MetadataDocument(root.join("Foo.object")) match {
-      case Some(SObjectDocument(path, Name("Foo"))) if path == root.join("Foo.object")=> ()
-      case x => assert(false, x)
+      case Some(SObjectDocument(path, Name("Foo"))) if path == root.join("Foo.object") => ()
+      case x                                                                           => assert(false, x)
     }
   }
 
   test("object file (sfdx)") {
     MetadataDocument(root.join("Foo.object-meta.xml")) match {
-      case Some(SObjectDocument(path, Name("Foo"))) if path == root.join("Foo.object-meta.xml")=> ()
+      case Some(SObjectDocument(path, Name("Foo"))) if path == root.join("Foo.object-meta.xml") =>
+        ()
       case x => assert(false, x)
     }
   }
 
   test("custom object file") {
     MetadataDocument(root.join("Foo__c.object")) match {
-      case Some(SObjectDocument(path, Name("Foo__c"))) if path == root.join("Foo__c.object")=> ()
-      case x => assert(false, x)
+      case Some(SObjectDocument(path, Name("Foo__c"))) if path == root.join("Foo__c.object") => ()
+      case x                                                                                 => assert(false, x)
     }
   }
 
   test("custom object file (sfdx)") {
     MetadataDocument(root.join("Foo__c.object-meta.xml")) match {
-      case Some(SObjectDocument(path, Name("Foo__c"))) if path == root.join("Foo__c.object-meta.xml")=> ()
+      case Some(SObjectDocument(path, Name("Foo__c")))
+          if path == root.join("Foo__c.object-meta.xml") =>
+        ()
       case x => assert(false, x)
     }
   }
 
   test("custom metadata file") {
     MetadataDocument(root.join("Foo__mdt.object")) match {
-      case Some(CustomMetadataDocument(path, Name("Foo__mdt"))) if path == root.join("Foo__mdt.object")=> ()
+      case Some(CustomMetadataDocument(path, Name("Foo__mdt")))
+          if path == root.join("Foo__mdt.object") =>
+        ()
       case x => assert(false, x)
     }
   }
 
   test("custom metadata file (sfdx)") {
     MetadataDocument(root.join("Foo__mdt.object-meta.xml")) match {
-      case Some(CustomMetadataDocument(path, Name("Foo__mdt"))) if path == root.join("Foo__mdt.object-meta.xml")=> ()
+      case Some(CustomMetadataDocument(path, Name("Foo__mdt")))
+          if path == root.join("Foo__mdt.object-meta.xml") =>
+        ()
       case x => assert(false, x)
     }
   }
 
   test("platform event file") {
     MetadataDocument(root.join("Foo__e.object")) match {
-      case Some(PlatformEventDocument(path, Name("Foo__e"))) if path == root.join("Foo__e.object") => ()
+      case Some(PlatformEventDocument(path, Name("Foo__e")))
+          if path == root.join("Foo__e.object") =>
+        ()
       case x => assert(false, x)
     }
   }
 
   test("platform event file (sfdx)") {
     MetadataDocument(root.join("Foo__e.object-meta.xml")) match {
-      case Some(PlatformEventDocument(path, Name("Foo__e"))) if path == root.join("Foo__e.object-meta.xml") => ()
+      case Some(PlatformEventDocument(path, Name("Foo__e")))
+          if path == root.join("Foo__e.object-meta.xml") =>
+        ()
       case x => assert(false, x)
     }
   }
 
   test("field file (sfdx)") {
     MetadataDocument(root.join("object/fields/Foo.field-meta.xml")) match {
-      case Some(SObjectFieldDocument(path, Name("Foo"))) if path == root.join("object/fields/Foo.field-meta.xml") => ()
+      case Some(SObjectFieldDocument(path, Name("Foo")))
+          if path == root.join("object/fields/Foo.field-meta.xml") =>
+        ()
       case x => assert(false, x)
     }
   }
 
   test("fieldset file (sfdx)") {
     MetadataDocument(root.join("object/fieldSets/Foo.fieldset-meta.xml")) match {
-      case Some(SObjectFieldSetDocument(path, Name("Foo"))) if path == root.join("object/fieldSets/Foo.fieldset-meta.xml")=> ()
+      case Some(SObjectFieldSetDocument(path, Name("Foo")))
+          if path == root.join("object/fieldSets/Foo.fieldset-meta.xml") =>
+        ()
       case x => assert(false, x)
     }
   }
@@ -122,21 +137,21 @@ class DocumentTest extends AnyFunSuite {
   test("labels file") {
     MetadataDocument(root.join("Foo.labels")) match {
       case Some(LabelsDocument(path, Name("Foo"))) if path == root.join("Foo.labels") => ()
-      case x => assert(false, x)
+      case x                                                                          => assert(false, x)
     }
   }
 
   test("labels file (sfdx)") {
     MetadataDocument(root.join("Foo.labels-meta.xml")) match {
       case Some(LabelsDocument(path, Name("Foo"))) if path == root.join("Foo.labels-meta.xml") => ()
-      case x => assert(false, x)
+      case x                                                                                   => assert(false, x)
     }
   }
 
   test("page file") {
     MetadataDocument(root.join("Foo.page")) match {
       case Some(PageDocument(path, Name("Foo"))) if path == root.join("Foo.page") => ()
-      case x => assert(false, x)
+      case x                                                                      => assert(false, x)
     }
   }
 }

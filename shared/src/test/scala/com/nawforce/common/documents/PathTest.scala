@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.documents
 
 import com.nawforce.common.path._
@@ -34,17 +34,14 @@ import org.scalatest.funsuite.AnyFunSuite
 class PathTest extends AnyFunSuite {
 
   test("join absolute path") {
-    FileSystemHelper.run(Map[String, String](
-      "foo" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map[String, String]("foo" -> "")) { root: PathLike =>
       val abs = root.join("foo")
       assert(root.join("bar").join(abs.toString).toString == abs.toString)
     }
   }
 
   test("root node is a root node") {
-    FileSystemHelper.run(Map[String, String] (
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map[String, String]()) { root: PathLike =>
       assert(root.basename == "")
       assert(root.parent == root)
       assert(root.exists)
@@ -57,9 +54,7 @@ class PathTest extends AnyFunSuite {
   }
 
   test("empty file") {
-    FileSystemHelper.run(Map[String, String] (
-      "Empty.txt" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map[String, String]("Empty.txt" -> "")) { root: PathLike =>
       val file = root.join("Empty.txt")
       assert(file.basename == "Empty.txt")
       assert(file.parent == root)
@@ -73,9 +68,7 @@ class PathTest extends AnyFunSuite {
   }
 
   test("non-empty file") {
-    FileSystemHelper.run(Map[String, String] (
-      "Something.txt" -> "Hello"
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map[String, String]("Something.txt" -> "Hello")) { root: PathLike =>
       val file = root.join("Something.txt")
       assert(file.basename == "Something.txt")
       assert(file.parent == root)
@@ -89,9 +82,7 @@ class PathTest extends AnyFunSuite {
   }
 
   test("directory with file") {
-    FileSystemHelper.run(Map[String, String] (
-      "Bar/Something.txt" -> "Hello"
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map[String, String]("Bar/Something.txt" -> "Hello")) { root: PathLike =>
       val file = root.join("Bar/Something.txt")
       val dir = file.parent
       assert(dir.basename == "Bar")
@@ -115,9 +106,7 @@ class PathTest extends AnyFunSuite {
   }
 
   test("delete file") {
-    FileSystemHelper.run(Map[String, String] (
-      "Something.txt" -> "Hello"
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map[String, String]("Something.txt" -> "Hello")) { root: PathLike =>
       val file = root.join("Something.txt")
       assert(file.delete().isEmpty)
       assert(!root.join("Something.txt").exists)
@@ -125,25 +114,21 @@ class PathTest extends AnyFunSuite {
   }
 
   test("delete directory fails if contains files") {
-    FileSystemHelper.run(Map[String, String] (
-      "Bar/Something.txt" -> "Hello"
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map[String, String]("Bar/Something.txt" -> "Hello")) { root: PathLike =>
       val file = root.join("Bar")
       assert(file.delete().nonEmpty)
     }
   }
 
   test("create directory") {
-    FileSystemHelper.run(Map[String, String] (
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map[String, String]()) { root: PathLike =>
       val dir = root.createDirectory("Bar").getOrElse(throw new NoSuchElementException())
       assert(dir.isDirectory)
     }
   }
 
   test("create directory duplicate directory succeeds") {
-    FileSystemHelper.run(Map[String, String] (
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map[String, String]()) { root: PathLike =>
       val dir1 = root.createDirectory("Bar").getOrElse(throw new NoSuchElementException())
       val dir2 = root.createDirectory("Bar").getOrElse(throw new NoSuchElementException())
       assert(dir1.isDirectory)
@@ -152,17 +137,15 @@ class PathTest extends AnyFunSuite {
   }
 
   test("create directory over file fails") {
-    FileSystemHelper.run(Map[String, String] (
-      "Bar" -> "Hello"
-    )) { root: PathLike =>
-      assert(root.createDirectory("Bar").swap.getOrElse(throw new NoSuchElementException()) ==
-        "Can not create directory '/Bar', file already exists")
+    FileSystemHelper.run(Map[String, String]("Bar" -> "Hello")) { root: PathLike =>
+      assert(
+        root.createDirectory("Bar").swap.getOrElse(throw new NoSuchElementException()) ==
+          "Can not create directory '/Bar', file already exists")
     }
   }
 
   test("delete directory") {
-    FileSystemHelper.run(Map[String, String] (
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map[String, String]()) { root: PathLike =>
       val file = root.createDirectory("Bar").getOrElse(throw new NoSuchElementException())
       assert(file.delete().isEmpty)
       assert(!root.join("Bar").exists)
@@ -170,8 +153,7 @@ class PathTest extends AnyFunSuite {
   }
 
   test("create empty file") {
-    FileSystemHelper.run(Map[String, String] (
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map[String, String]()) { root: PathLike =>
       val file = root.createFile("Bar", "").getOrElse(throw new NoSuchElementException())
       assert(file.size == 0)
       assert(root.join("Bar").size == 0)
@@ -179,8 +161,7 @@ class PathTest extends AnyFunSuite {
   }
 
   test("create non-empty file") {
-    FileSystemHelper.run(Map[String, String] (
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map[String, String]()) { root: PathLike =>
       val file = root.createFile("Bar", "Hello").getOrElse(throw new NoSuchElementException())
       assert(file.size == 5)
       assert(root.join("Bar").size == 5)
@@ -188,8 +169,7 @@ class PathTest extends AnyFunSuite {
   }
 
   test("write/read new file") {
-    FileSystemHelper.run(Map[String, String] (
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map[String, String]()) { root: PathLike =>
       val file = root.join("Bar.txt")
       assert(file.write("Hello").isEmpty)
       assert(file.read().getOrElse(throw new NoSuchElementException()) == "Hello")
@@ -197,9 +177,7 @@ class PathTest extends AnyFunSuite {
   }
 
   test("write/read existing file") {
-    FileSystemHelper.run(Map[String, String] (
-      "Bar.txt" -> "Something"
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map[String, String]("Bar.txt" -> "Something")) { root: PathLike =>
       val file = root.join("Bar.txt")
       assert(file.read().getOrElse(throw new NoSuchElementException()) == "Something")
       assert(file.write("Hello").isEmpty)

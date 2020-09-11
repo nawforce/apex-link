@@ -67,7 +67,7 @@ object XMLDocument {
         Left(
           Issue(path.toString,
                 Diagnostic(ERROR_CATEGORY,
-                           Location(e.getLineNumber, e.getColumnNumber-1),
+                           Location(e.getLineNumber, e.getColumnNumber - 1),
                            e.getLocalizedMessage)))
     }
   }

@@ -133,6 +133,6 @@ object XMLDocument {
       else
         msg
 
-    Issue(path.toString, Diagnostic(category, Location(Math.max(1,line), column), trimmedMsg))
+    Issue(path.toString, Diagnostic(category, Location(Math.max(1, line), column), trimmedMsg))
   }
 }

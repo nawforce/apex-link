@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.sfdx
 
 import com.nawforce.common.api.Name
@@ -39,7 +39,7 @@ class Project(projectPath: PathLike, config: Value.Value) {
     try {
       config("packageDirectories") match {
         case ujson.Arr(value) => value.toSeq.map(pd => new PackageDirectory(projectPath, pd))
-        case _ => throw new ProjectError("'packageDirectories' should be an array")
+        case _                => throw new ProjectError("'packageDirectories' should be an array")
       }
     } catch {
       case _: NoSuchElementException => throw new ProjectError("'packageDirectories' is required")
@@ -49,13 +49,13 @@ class Project(projectPath: PathLike, config: Value.Value) {
     try {
       val ns = config("namespace") match {
         case ujson.Str(value) => Name(value)
-        case _ => throw new ProjectError("'namespace' should be a string")
+        case _                => throw new ProjectError("'namespace' should be a string")
       }
       if (ns.isEmpty)
         None
       else {
         ns.isLegalIdentifier match {
-          case None => Some(ns)
+          case None        => Some(ns)
           case Some(error) => throw new ProjectError(s"namespace '$ns' is not valid, $error")
         }
       }
@@ -67,7 +67,7 @@ class Project(projectPath: PathLike, config: Value.Value) {
     try {
       config("plugins") match {
         case ujson.Obj(value) => value.toMap
-        case _ => throw new ProjectError("'plugins' should be an object")
+        case _                => throw new ProjectError("'plugins' should be an object")
       }
     } catch {
       case _: NoSuchElementException => Map()
@@ -76,7 +76,7 @@ class Project(projectPath: PathLike, config: Value.Value) {
   val dependencies: Seq[DependentPackage] =
     plugins.getOrElse("dependencies", ujson.Arr()) match {
       case ujson.Arr(value) => value.toSeq.map(dp => new DependentPackage(projectPath, dp))
-      case _ => throw new ProjectError("'dependencies' should be an array")
+      case _                => throw new ProjectError("'dependencies' should be an array")
     }
 }
 

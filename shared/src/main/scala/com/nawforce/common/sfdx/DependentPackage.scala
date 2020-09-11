@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.sfdx
 
 import com.nawforce.common.api.Name
@@ -37,18 +37,19 @@ class DependentPackage(projectPath: PathLike, config: Value.Value) {
     try {
       val ns = config("namespace") match {
         case ujson.Str(value) => Name(value)
-        case _ => throw new ProjectError("'namespace' should be a string")
+        case _                => throw new ProjectError("'namespace' should be a string")
       }
       if (ns.value.isEmpty)
         throw new ProjectError("'namespace' can not be empty")
       else {
         ns.isLegalIdentifier match {
-          case None => ns
+          case None        => ns
           case Some(error) => throw new ProjectError(s"namespace '$ns' is not valid, $error")
         }
       }
     } catch {
-      case _: NoSuchElementException => throw new ProjectError("'namespace' is required for each entry in 'dependencies'")
+      case _: NoSuchElementException =>
+        throw new ProjectError("'namespace' is required for each entry in 'dependencies'")
     }
 
   val path: Option[PathLike] = {

@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.documents
 
 import com.nawforce.common.path.PathLike
@@ -87,12 +87,12 @@ case class IgnoreRule(dirOnly: Boolean, negation: Boolean, pattern: String) {
       val c = pattern(i)
       i = i + 1
       if (c == '*') {
-        if (i<n && pattern(i) == '*') {
+        if (i < n && pattern(i) == '*') {
           i = i + 1
           builder.append(".*")
-          if (i<n && pattern(i) == '/') {
+          if (i < n && pattern(i) == '/') {
             i = i + 1
-            builder.append(IgnoreRule.escape(Path.separator)+"?")
+            builder.append(IgnoreRule.escape(Path.separator) + "?")
           }
         } else {
           builder.append(IgnoreRule.nonSep + '*')
@@ -103,9 +103,9 @@ case class IgnoreRule(dirOnly: Boolean, negation: Boolean, pattern: String) {
         builder.append(IgnoreRule.escape(Path.separator))
       } else if (c == '[') {
         var j = i
-        if (j<n && pattern(j) == '!')
+        if (j < n && pattern(j) == '!')
           j = j + 1
-        if (j<n && pattern(j) == ']')
+        if (j < n && pattern(j) == ']')
           j = j + 1
         while (j <= n && pattern(j) != ']') {
           j = j + 1
@@ -161,9 +161,10 @@ object IgnoreRule {
         if (pattern.startsWith("/"))
           pattern = pattern.substring(1)
         if (pattern.endsWith("/"))
-          pattern = pattern.substring(0, pattern.length-1)
+          pattern = pattern.substring(0, pattern.length - 1)
         IgnoreRule(dirOnly, negation, pattern)
-      }).toIndexedSeq
+      })
+      .toIndexedSeq
   }
 
   def escape(s: String): String = {
@@ -172,24 +173,23 @@ object IgnoreRule {
 
   def escape(c: Char): String = {
     c match {
-      case '-' => "\\-"
-      case '/' => "\\/"
+      case '-'  => "\\-"
+      case '/'  => "\\/"
       case '\\' => "\\\\"
-      case '{' => "\\{"
-      case '}' => "\\}"
-      case '(' => "\\("
-      case ')' => "\\)"
-      case '*' => "\\*"
-      case '+' => "\\+"
-      case '?' => "\\?"
-      case '.' => "\\."
-      case ',' => "\\,"
-      case '^' => "\\^"
-      case '$' => "\\$"
-      case '|' => "\\|"
-      case '#' => "\\#"
-      case _ => c.toString
+      case '{'  => "\\{"
+      case '}'  => "\\}"
+      case '('  => "\\("
+      case ')'  => "\\)"
+      case '*'  => "\\*"
+      case '+'  => "\\+"
+      case '?'  => "\\?"
+      case '.'  => "\\."
+      case ','  => "\\,"
+      case '^'  => "\\^"
+      case '$'  => "\\$"
+      case '|'  => "\\|"
+      case '#'  => "\\#"
+      case _    => c.toString
     }
   }
 }
-

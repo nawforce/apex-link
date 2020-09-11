@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.sfdx
 
 import com.nawforce.common.api.Name
@@ -40,7 +40,7 @@ trait Workspace {
   lazy val forceIgnore: Option[ForceIgnore] = {
     if (ignorePath.nonEmpty && ignorePath.get.isFile) {
       ForceIgnore(ignorePath.get) match {
-        case Left(_) => None
+        case Left(_)            => None
         case Right(forceIgnore) => Some(forceIgnore)
       }
     } else {
@@ -82,7 +82,7 @@ class SFDXWorkspace(val rootPath: PathLike, project: Project) extends Workspace 
 
   override lazy val rootPaths: Seq[PathLike] = Seq(rootPath)
 
-  override lazy val paths: Seq[PathLike] =  project.packageDirectories.map(_.path)
+  override lazy val paths: Seq[PathLike] = project.packageDirectories.map(_.path)
 
   override val ignorePath: Option[PathLike] = Some(rootPath.join(".forceignore"))
 

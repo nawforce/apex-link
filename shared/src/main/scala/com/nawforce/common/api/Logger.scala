@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.api
 
 /** Logging interface */
@@ -36,13 +36,13 @@ trait Logger {
 
 /** Default logging support, info goes to stdout, error & debug to stderr */
 class DefaultLogger extends Logger {
-  def info(message: String): Unit = {System.out.println(message)}
-  def error(message: String): Unit = {System.err.println("[error] " + message)}
-  def debug(message: String): Unit = {System.err.println("[debug] " + message)}
+  def info(message: String): Unit = { System.out.println(message) }
+  def error(message: String): Unit = { System.err.println("[error] " + message) }
+  def debug(message: String): Unit = { System.err.println("[debug] " + message) }
 }
 
 /** Collection of Ops functions for changing global behaviours */
-object LoggerOps  {
+object LoggerOps {
   private var logging: Boolean = false
   private var logger: Logger = new DefaultLogger
 
@@ -73,7 +73,7 @@ object LoggerOps  {
   }
 
   /** Time an operation and debug log how long it took */
-  def debugTime[T](msg: String, show: Boolean=true, postMsg: String = "")(op: => T): T = {
+  def debugTime[T](msg: String, show: Boolean = true, postMsg: String = "")(op: => T): T = {
     val start = System.currentTimeMillis()
     try {
       op

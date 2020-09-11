@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.names
 
 import com.nawforce.common.api.{Name, TypeName}
@@ -93,7 +93,8 @@ class EncodedNameTest extends AnyFunSuite {
     assert(testName == EncodedName(Name("Custom__Name"), Some(Name("mdt")), Some(Name("ns"))))
     assert(testName.localName == Name("Custom__Name__mdt"))
     assert(testName.fullName == Name("ns__Custom__Name__mdt"))
-    assert(testName.asTypeName == TypeName(Name("Custom__Name__mdt"), Nil, Some(TypeName(Name("ns")))))
+    assert(
+      testName.asTypeName == TypeName(Name("Custom__Name__mdt"), Nil, Some(TypeName(Name("ns")))))
   }
 
   test("Subfield without namespace") {
@@ -109,7 +110,8 @@ class EncodedNameTest extends AnyFunSuite {
     assert(testName == EncodedName(Name("Field"), Some(Name("Subfield__s")), Some(Name("ns"))))
     assert(testName.localName == Name("Field__Subfield__s"))
     assert(testName.fullName == Name("ns__Field__Subfield__s"))
-    assert(testName.asTypeName == TypeName(Name("Field__Subfield__s"), Nil, Some(TypeName(Name("ns")))))
+    assert(
+      testName.asTypeName == TypeName(Name("Field__Subfield__s"), Nil, Some(TypeName(Name("ns")))))
   }
 
   test("Subfield with missing field") {

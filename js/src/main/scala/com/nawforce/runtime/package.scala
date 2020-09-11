@@ -24,16 +24,16 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce
 
 import java.nio.charset.StandardCharsets
 
 /** Platform specific handling for Node execution.
- *
- * Contains a number of abstractions for handling the differences between JVM & Node execution. This is just the JVM
- * implementation, the node version of the same abstraction is not in this project. See [[com.nawforce.common]] for
- * the analysis code.
+  *
+  * Contains a number of abstractions for handling the differences between JVM & Node execution. This is just the JVM
+  * implementation, the node version of the same abstraction is not in this project. See [[com.nawforce.common]] for
+  * the analysis code.
  **/
 package object runtime {
   type SourceBlob = Array[Byte]

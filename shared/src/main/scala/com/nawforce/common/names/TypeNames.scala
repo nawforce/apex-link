@@ -11,7 +11,8 @@ object TypeNames extends InternCache[TypeName] {
   lazy val Internal: TypeName = TypeName(Names.Internal).intern
   lazy val Null: TypeName = TypeName(Names.Null$, Nil, Some(TypeNames.Internal)).intern
   lazy val Any: TypeName = TypeName(Names.Any$, Nil, Some(TypeNames.Internal)).intern
-  lazy val RecordSet: TypeName = TypeName(Names.RecordSet$, Seq(TypeNames.SObject), Some(TypeNames.Internal)).intern
+  lazy val RecordSet: TypeName =
+    TypeName(Names.RecordSet$, Seq(TypeNames.SObject), Some(TypeNames.Internal)).intern
   lazy val InternalObject: TypeName = TypeName(Names.Object$, Nil, Some(TypeNames.Internal)).intern
 
   lazy val System: TypeName = TypeName(Names.System).intern
@@ -30,33 +31,47 @@ object TypeNames extends InternCache[TypeName] {
 
   lazy val IdType: TypeName = TypeName(Names.Id, Nil, Some(TypeNames.System)).intern
   lazy val TypeType: TypeName = TypeName(Names.Type, Nil, Some(TypeNames.System)).intern
-  lazy val PageReference: TypeName = TypeName(Names.PageReference, Nil, Some(TypeNames.System)).intern
+  lazy val PageReference: TypeName =
+    TypeName(Names.PageReference, Nil, Some(TypeNames.System)).intern
   lazy val SObject: TypeName = TypeName(Names.SObject, Nil, Some(TypeNames.System)).intern
 
   lazy val ApexPages: TypeName = TypeName(Names.ApexPages).intern
-  lazy val ApexPagesPageReference: TypeName = TypeName(Names.PageReference, Nil, Some(TypeNames.ApexPages)).intern
-  lazy val ApexPagesComponent: TypeName = TypeName(Names.Component, Nil, Some(TypeNames.ApexPages)).intern
+  lazy val ApexPagesPageReference: TypeName =
+    TypeName(Names.PageReference, Nil, Some(TypeNames.ApexPages)).intern
+  lazy val ApexPagesComponent: TypeName =
+    TypeName(Names.Component, Nil, Some(TypeNames.ApexPages)).intern
   lazy val ApexComponent: TypeName = TypeName(Names.Apex, Nil, Some(TypeNames.Component)).intern
-  lazy val ChatterComponent: TypeName = TypeName(Names.Chatter, Nil, Some(TypeNames.Component)).intern
+  lazy val ChatterComponent: TypeName =
+    TypeName(Names.Chatter, Nil, Some(TypeNames.Component)).intern
 
   lazy val Schema: TypeName = TypeName(Names.Schema).intern
   lazy val SObjectType: TypeName = TypeName(Names.SObjectType, Nil, Some(TypeNames.Schema)).intern
   lazy val SObjectField: TypeName = TypeName(Names.SObjectField, Nil, Some(TypeNames.Schema)).intern
   lazy val FieldSet: TypeName = TypeName(Names.FieldSet, Nil, Some(TypeNames.Schema)).intern
-  lazy val DescribeSObjectResult: TypeName = TypeName(Names.DescribeSObjectResult, Nil, Some(TypeNames.Schema)).intern
-  lazy val DescribeFieldResult: TypeName = TypeName(Names.DescribeFieldResult, Nil, Some(TypeNames.Schema)).intern
-  lazy val SObjectTypeFieldSets: TypeName = TypeName(Names.SObjectTypeFieldSets, Nil, Some(TypeNames.Schema)).intern
+  lazy val DescribeSObjectResult: TypeName =
+    TypeName(Names.DescribeSObjectResult, Nil, Some(TypeNames.Schema)).intern
+  lazy val DescribeFieldResult: TypeName =
+    TypeName(Names.DescribeFieldResult, Nil, Some(TypeNames.Schema)).intern
+  lazy val SObjectTypeFieldSets: TypeName =
+    TypeName(Names.SObjectTypeFieldSets, Nil, Some(TypeNames.Schema)).intern
 
-  lazy val DescribeSObjectResult$: TypeName = TypeName(Names.DescribeSObjectResult$, Nil, Some(TypeNames.Internal)).intern
-  lazy val SObjectType$: TypeName = TypeName(Names.SObjectType$, Nil, Some(TypeNames.Internal)).intern
-  lazy val SObjectTypeFields$: TypeName = TypeName(Names.SObjectTypeFields$, Nil, Some(TypeNames.Internal)).intern
-  lazy val SObjectTypeFieldSets$: TypeName = TypeName(Names.SObjectTypeFieldSets$, Nil, Some(TypeNames.Internal)).intern
-  lazy val SObjectFields$: TypeName = TypeName(Names.SObjectFields$, Nil, Some(TypeNames.Internal)).intern
-  lazy val SObjectFieldRowCause$: TypeName = TypeName(Names.SObjectFieldRowCause$, Nil, Some(TypeNames.Internal)).intern
-  lazy val Trigger$: TypeName = TypeName(Names.Trigger$, Nil, Some(TypeNames.Internal)).intern
+  lazy val DescribeSObjectResult$ : TypeName =
+    TypeName(Names.DescribeSObjectResult$, Nil, Some(TypeNames.Internal)).intern
+  lazy val SObjectType$ : TypeName =
+    TypeName(Names.SObjectType$, Nil, Some(TypeNames.Internal)).intern
+  lazy val SObjectTypeFields$ : TypeName =
+    TypeName(Names.SObjectTypeFields$, Nil, Some(TypeNames.Internal)).intern
+  lazy val SObjectTypeFieldSets$ : TypeName =
+    TypeName(Names.SObjectTypeFieldSets$, Nil, Some(TypeNames.Internal)).intern
+  lazy val SObjectFields$ : TypeName =
+    TypeName(Names.SObjectFields$, Nil, Some(TypeNames.Internal)).intern
+  lazy val SObjectFieldRowCause$ : TypeName =
+    TypeName(Names.SObjectFieldRowCause$, Nil, Some(TypeNames.Internal)).intern
+  lazy val Trigger$ : TypeName = TypeName(Names.Trigger$, Nil, Some(TypeNames.Internal)).intern
 
   lazy val Database: TypeName = TypeName(Names.Database).intern
-  lazy val BatchableContext: TypeName = TypeName(Names.BatchableContext, Nil, Some(TypeNames.Database)).intern
+  lazy val BatchableContext: TypeName =
+    TypeName(Names.BatchableContext, Nil, Some(TypeNames.Database)).intern
 
   lazy val User: TypeName = TypeName(Names.User).intern
   lazy val UserRecordAccess: TypeName = TypeName(Names.UserRecordAccess).intern
@@ -67,23 +82,30 @@ object TypeNames extends InternCache[TypeName] {
   lazy val Component: TypeName = TypeName(Names.Component, Nil, None).intern
   lazy val Page: TypeName = TypeName(Names.Page, Nil, None).intern
 
-  def describeSObjectResultOf(typeName: TypeName): TypeName = DescribeSObjectResult$.withParams(Seq(typeName)).intern
+  def describeSObjectResultOf(typeName: TypeName): TypeName =
+    DescribeSObjectResult$.withParams(Seq(typeName)).intern
   def sObjectType$(typeName: TypeName): TypeName = SObjectType$.withParams(Seq(typeName)).intern
-  def sObjectTypeFields$(typeName: TypeName): TypeName = SObjectTypeFields$.withParams(Seq(typeName)).intern
-  def sObjectTypeFieldSets$(typeName: TypeName): TypeName = SObjectTypeFieldSets$.withParams(Seq(typeName)).intern
+  def sObjectTypeFields$(typeName: TypeName): TypeName =
+    SObjectTypeFields$.withParams(Seq(typeName)).intern
+  def sObjectTypeFieldSets$(typeName: TypeName): TypeName =
+    SObjectTypeFieldSets$.withParams(Seq(typeName)).intern
   def sObjectFields$(typeName: TypeName): TypeName = SObjectFields$.withParams(Seq(typeName)).intern
   def trigger(typeName: TypeName): TypeName = Trigger$.withParams(Seq(typeName)).intern
 
-  def listOf(typeName: TypeName): TypeName = TypeName(Names.List$, Seq(typeName), Some(TypeNames.System)).intern
-  def mapOf(keyType: TypeName, valueType: TypeName): TypeName = TypeName(Names.Map$, Seq(keyType, valueType), Some(TypeNames.System)).intern
-  def recordSetOf(typeName: TypeName): TypeName = TypeName(Names.RecordSet$, Seq(typeName), Some(TypeNames.Internal)).intern
+  def listOf(typeName: TypeName): TypeName =
+    TypeName(Names.List$, Seq(typeName), Some(TypeNames.System)).intern
+  def mapOf(keyType: TypeName, valueType: TypeName): TypeName =
+    TypeName(Names.Map$, Seq(keyType, valueType), Some(TypeNames.System)).intern
+  def recordSetOf(typeName: TypeName): TypeName =
+    TypeName(Names.RecordSet$, Seq(typeName), Some(TypeNames.Internal)).intern
 
   /** Interning support for TypeName, used to reduce memory load, mainly from cached data. */
   implicit class TypeNameOps(typeName: TypeName) {
     def intern: TypeName = {
       TypeNames.intern(
-        TypeName(Names(typeName.name.value), typeName.params.map(_.intern), typeName.outer.map(_.intern))
-      )
+        TypeName(Names(typeName.name.value),
+                 typeName.params.map(_.intern),
+                 typeName.outer.map(_.intern)))
     }
   }
 }

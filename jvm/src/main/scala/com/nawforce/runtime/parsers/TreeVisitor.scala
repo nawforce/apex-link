@@ -24,11 +24,11 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package com.nawforce.runtime.parsers
 
-import com.nawforce.runtime.parsers.ApexParser.{ClassDeclarationContext, ConstructorDeclarationContext, EnumConstantsContext, EnumDeclarationContext, FieldDeclarationContext, InterfaceDeclarationContext, InterfaceMethodDeclarationContext, MethodDeclarationContext, PropertyDeclarationContext}
+import com.nawforce.runtime.parsers.ApexParser._
 import org.antlr.v4.runtime.tree.RuleNode
 
 import scala.collection.compat.immutable.ArraySeq
@@ -39,7 +39,8 @@ abstract class TreeVisitor[T: ClassTag] extends ApexParserBaseVisitor[ArraySeq[T
 
   override def defaultResult(): ArraySeq[T] = ArraySeq[T]()
 
-  override protected def aggregateResult(aggregate: ArraySeq[T], nextResult: ArraySeq[T]): ArraySeq[T] = {
+  override protected def aggregateResult(aggregate: ArraySeq[T],
+                                         nextResult: ArraySeq[T]): ArraySeq[T] = {
     aggregate ++ nextResult
   }
 
@@ -52,13 +53,15 @@ abstract class TreeVisitor[T: ClassTag] extends ApexParserBaseVisitor[ArraySeq[T
   override def visitEnumDeclaration(ctx: ApexParser.EnumDeclarationContext): ArraySeq[T] =
     enumDeclaration(ctx, super.visitChildren)
 
-  override def visitConstructorDeclaration(ctx: ApexParser.ConstructorDeclarationContext): ArraySeq[T] =
+  override def visitConstructorDeclaration(
+    ctx: ApexParser.ConstructorDeclarationContext): ArraySeq[T] =
     constructorDeclaration(ctx, super.visitChildren)
 
   override def visitMethodDeclaration(ctx: ApexParser.MethodDeclarationContext): ArraySeq[T] =
     methodDeclaration(ctx, super.visitChildren)
 
-  override def visitInterfaceMethodDeclaration(ctx: ApexParser.InterfaceMethodDeclarationContext): ArraySeq[T] =
+  override def visitInterfaceMethodDeclaration(
+    ctx: ApexParser.InterfaceMethodDeclarationContext): ArraySeq[T] =
     interfaceMethodDeclaration(ctx, super.visitChildren)
 
   override def visitFieldDeclaration(ctx: ApexParser.FieldDeclarationContext): ArraySeq[T] =
@@ -71,12 +74,16 @@ abstract class TreeVisitor[T: ClassTag] extends ApexParserBaseVisitor[ArraySeq[T
     enumConstants(ctx, super.visitChildren)
 
   def classDeclaration(ctx: ClassDeclarationContext, visitChildren: VisitChildren): ArraySeq[T]
-  def interfaceDeclaration(ctx: InterfaceDeclarationContext, visitChildren: VisitChildren): ArraySeq[T]
+  def interfaceDeclaration(ctx: InterfaceDeclarationContext,
+                           visitChildren: VisitChildren): ArraySeq[T]
   def enumDeclaration(ctx: EnumDeclarationContext, visitChildren: VisitChildren): ArraySeq[T]
-  def constructorDeclaration(ctx: ConstructorDeclarationContext, visitChildren: VisitChildren): ArraySeq[T]
+  def constructorDeclaration(ctx: ConstructorDeclarationContext,
+                             visitChildren: VisitChildren): ArraySeq[T]
   def methodDeclaration(ctx: MethodDeclarationContext, visitChildren: VisitChildren): ArraySeq[T]
-  def interfaceMethodDeclaration(ctx: InterfaceMethodDeclarationContext, visitChildren: VisitChildren): ArraySeq[T]
+  def interfaceMethodDeclaration(ctx: InterfaceMethodDeclarationContext,
+                                 visitChildren: VisitChildren): ArraySeq[T]
   def fieldDeclaration(ctx: FieldDeclarationContext, visitChildren: VisitChildren): ArraySeq[T]
-  def propertyDeclaration(ctx: PropertyDeclarationContext, visitChildren: VisitChildren): ArraySeq[T]
+  def propertyDeclaration(ctx: PropertyDeclarationContext,
+                          visitChildren: VisitChildren): ArraySeq[T]
   def enumConstants(ctx: EnumConstantsContext, visitChildren: VisitChildren): ArraySeq[T]
 }

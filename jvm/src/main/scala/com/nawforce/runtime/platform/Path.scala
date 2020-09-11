@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.runtime.platform
 
 import java.io.File
@@ -53,7 +53,7 @@ case class Path(native: java.nio.file.Path) extends PathLike {
   override def createFile(name: String, data: String): Either[String, Path] = {
     val created = join(name)
     created.write(data) match {
-      case None => Right(created)
+      case None      => Right(created)
       case Some(err) => Left(err)
     }
   }
@@ -133,8 +133,8 @@ case class Path(native: java.nio.file.Path) extends PathLike {
     try {
       Some(native.toFile.lastModified())
     } catch {
-      case _:SecurityException => None
-      case _:UnsupportedOperationException => None
+      case _: SecurityException             => None
+      case _: UnsupportedOperationException => None
     }
   }
 
@@ -155,5 +155,6 @@ case class Path(native: java.nio.file.Path) extends PathLike {
 object Path {
   val separator: String = File.separator
 
-  def apply(path: String): Path = Path(java.nio.file.Paths.get(Option(path).getOrElse("")).toAbsolutePath)
+  def apply(path: String): Path =
+    Path(java.nio.file.Paths.get(Option(path).getOrElse("")).toAbsolutePath)
 }

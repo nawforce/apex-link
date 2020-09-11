@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.sfdx
 
 import com.nawforce.common.path.PathLike
@@ -35,10 +35,11 @@ class PackageDirectory(projectPath: PathLike, config: Value.Value) {
     try {
       config("path") match {
         case ujson.Str(value) => projectPath.join(value)
-        case _ => throw new ProjectError("'path' should be a string")
+        case _                => throw new ProjectError("'path' should be a string")
       }
     } catch {
-      case _: NoSuchElementException => throw new ProjectError("'path' is required for all 'packageDirectories' elements")
+      case _: NoSuchElementException =>
+        throw new ProjectError("'path' is required for all 'packageDirectories' elements")
     }
   }
 

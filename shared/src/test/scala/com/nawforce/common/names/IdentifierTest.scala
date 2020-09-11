@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.names
 
 import com.nawforce.common.api.Name
@@ -32,9 +32,9 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class IdentifierTest extends AnyFunSuite {
   private val illegalUnderscore = "can not start or end with '_'"
-  private val illegalDigit="can not start with a digit"
+  private val illegalDigit = "can not start with a digit"
   private val illegalChar = "can only use characters A-Z, a-z, 0-9 or _"
-  private val illegalDoubleUnderscore="can not use '__'"
+  private val illegalDoubleUnderscore = "can not use '__'"
 
   test("Illegal identifiers") {
     assert(Name("a").isLegalIdentifier.isEmpty)

@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.documents
 
 import org.scalatest.funsuite.AnyFunSuite
@@ -89,15 +89,20 @@ class IgnoreRuleTest extends AnyFunSuite {
   }
 
   test("A sub-path") {
-    assert(IgnoreRule.read("foo/bar") == Seq(IgnoreRule(dirOnly = false, negation = false, "foo/bar")))
+    assert(
+      IgnoreRule.read("foo/bar") == Seq(IgnoreRule(dirOnly = false, negation = false, "foo/bar")))
   }
 
   test("A sub-path with wildcard") {
-    assert(IgnoreRule.read("foo/*/bar") == Seq(IgnoreRule(dirOnly = false, negation = false, "foo/*/bar")))
+    assert(
+      IgnoreRule.read("foo/*/bar") == Seq(
+        IgnoreRule(dirOnly = false, negation = false, "foo/*/bar")))
   }
 
   test("A sub-path with double wildcard") {
-    assert(IgnoreRule.read("foo/**/bar") == Seq(IgnoreRule(dirOnly = false, negation = false, "foo/**/bar")))
+    assert(
+      IgnoreRule.read("foo/**/bar") == Seq(
+        IgnoreRule(dirOnly = false, negation = false, "foo/**/bar")))
   }
 
   test("Leading /") {
@@ -119,7 +124,7 @@ class IgnoreRuleTest extends AnyFunSuite {
 
   test("A name with wildcard regex") {
     val re = IgnoreRule.read("f*o").head.regex
-    assert(re == "f[^\\/]*o$" || re == "f[^\\\\]*o$" )
+    assert(re == "f[^\\/]*o$" || re == "f[^\\\\]*o$")
   }
 
   test("A name with range regex") {

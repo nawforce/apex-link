@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package com.nawforce.runtime.parsers
 
@@ -60,7 +60,7 @@ case class ByteArraySourceData(value: Array[Byte], offset: Int, length: Int) ext
 
   override def subdata(startChar: Int, stopChar: Int): ByteArraySourceData = {
     val startOffset = getCharOffsetFrom(offset, startChar)
-    val endOffset = getCharOffsetFrom(startOffset, stopChar-startChar)
+    val endOffset = getCharOffsetFrom(startOffset, stopChar - startChar)
     val subLength = endOffset - startOffset
     ByteArraySourceData(value, startOffset, subLength)
   }
@@ -70,7 +70,7 @@ case class ByteArraySourceData(value: Array[Byte], offset: Int, length: Int) ext
   }
 
   def asUTF8: Array[Byte] = {
-    value.slice(offset, offset+length)
+    value.slice(offset, offset + length)
   }
 
   def asString: String = {
@@ -88,7 +88,7 @@ case class ByteArraySourceData(value: Array[Byte], offset: Int, length: Int) ext
   }
 
   private def sequenceLength(data: Byte): Int = {
-    val unsigned:Int = 0xFF & data.asInstanceOf[Int]
+    val unsigned: Int = 0xFF & data.asInstanceOf[Int]
     if (unsigned < 0x80) 1
     else if ((unsigned >> 5) == 0x6) 2
     else if ((unsigned >> 4) == 0xe) 3

@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.runtime.parsers.antlr
 
 import com.nawforce.runtime.parsers.ApexParser._
@@ -36,14 +36,21 @@ trait ApexParserVisitor[Result] extends js.Object {
 
   val visitTypeDeclaration: js.UndefOr[js.Function1[TypeDeclarationContext, Result]] = js.undefined
 
-  val visitClassDeclaration: js.UndefOr[js.Function1[ClassDeclarationContext, Result]] = js.undefined
-  val visitInterfaceDeclaration: js.UndefOr[js.Function1[InterfaceDeclarationContext, Result]] = js.undefined
+  val visitClassDeclaration: js.UndefOr[js.Function1[ClassDeclarationContext, Result]] =
+    js.undefined
+  val visitInterfaceDeclaration: js.UndefOr[js.Function1[InterfaceDeclarationContext, Result]] =
+    js.undefined
   val visitEnumDeclaration: js.UndefOr[js.Function1[EnumDeclarationContext, Result]] = js.undefined
 
-  val visitFieldDeclaration: js.UndefOr[js.Function1[FieldDeclarationContext, Result]] = js.undefined
-  val visitPropertyDeclaration: js.UndefOr[js.Function1[PropertyDeclarationContext, Result]] = js.undefined
-  val visitConstructorDeclaration: js.UndefOr[js.Function1[ConstructorDeclarationContext, Result]] = js.undefined
-  val visitMethodDeclaration: js.UndefOr[js.Function1[MethodDeclarationContext, Result]] = js.undefined
-  val visitInterfaceMethodDeclaration: js.UndefOr[js.Function1[InterfaceMethodDeclarationContext, Result]] = js.undefined
+  val visitFieldDeclaration: js.UndefOr[js.Function1[FieldDeclarationContext, Result]] =
+    js.undefined
+  val visitPropertyDeclaration: js.UndefOr[js.Function1[PropertyDeclarationContext, Result]] =
+    js.undefined
+  val visitConstructorDeclaration: js.UndefOr[js.Function1[ConstructorDeclarationContext, Result]] =
+    js.undefined
+  val visitMethodDeclaration: js.UndefOr[js.Function1[MethodDeclarationContext, Result]] =
+    js.undefined
+  val visitInterfaceMethodDeclaration
+    : js.UndefOr[js.Function1[InterfaceMethodDeclarationContext, Result]] = js.undefined
   val visitEnumConstants: js.UndefOr[js.Function1[EnumConstantsContext, Result]] = js.undefined
 }

@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.runtime.platform
 
 import com.nawforce.common.path._
@@ -66,7 +66,7 @@ case class Path private (path: String) extends PathLike {
   override def createFile(name: String, data: String): Either[String, Path] = {
     val created = join(name)
     created.write(data) match {
-      case None => Right(created)
+      case None      => Right(created)
       case Some(err) => Left(err)
     }
   }
@@ -179,6 +179,3 @@ object Path {
     new Path(io.scalajs.nodejs.path.Path.resolve(safePath))
   }
 }
-
-
-
