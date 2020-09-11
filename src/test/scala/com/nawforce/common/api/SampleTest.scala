@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.api
 
 import com.nawforce.common.org.OrgImpl
@@ -35,9 +35,12 @@ class SampleTest extends AnyFunSuite with BeforeAndAfter {
 
   private val npExternalNamespaces = Set("npe01", "npo02", "npe03", "npe4", "npe5")
 
-  private def sample(path: String, namespace: String = "", externalNamespaces: Set[String] = Set()): Unit = {
+  private def sample(path: String,
+                     namespace: String = "",
+                     externalNamespaces: Set[String] = Set()): Unit = {
     val org = Org.newOrg().asInstanceOf[OrgImpl]
-    val externalPackages = externalNamespaces.map(ens => org.newMDAPIPackage(ens, Array(), Array())).toArray
+    val externalPackages =
+      externalNamespaces.map(ens => org.newMDAPIPackage(ens, Array(), Array())).toArray
     org.newMDAPIPackage(namespace, Array[String](path), externalPackages)
   }
 

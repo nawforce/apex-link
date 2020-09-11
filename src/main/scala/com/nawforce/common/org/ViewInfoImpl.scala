@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.org
 
 import com.nawforce.common.api.{Diagnostic, TypeName, ViewInfo}
@@ -37,8 +37,12 @@ case object IN_ERROR extends ViewStatus
 case object EXISTING_TYPE extends ViewStatus
 case object NEW_TYPE extends ViewStatus
 
-case class ViewInfoImpl(status: ViewStatus, path: PathLike, td: Option[DependentType],
-                        override val diagnostics: Array[Diagnostic], error: String=null) extends ViewInfo {
+case class ViewInfoImpl(status: ViewStatus,
+                        path: PathLike,
+                        td: Option[DependentType],
+                        override val diagnostics: Array[Diagnostic],
+                        error: String = null)
+    extends ViewInfo {
   override val hasType: Boolean = td.nonEmpty
   override val typeName: TypeName = td.map(_.typeName).orNull
 }

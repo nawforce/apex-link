@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.finding
 
 import com.nawforce.common.api.TypeName
@@ -64,9 +64,9 @@ trait TypeFinder {
       return matched
 
     getNestedType(dotName, from)
-      .orElse(getFromOuterType(dotName, from)
-        .orElse(getFromSuperType(dotName, from))
-      )
+      .orElse(
+        getFromOuterType(dotName, from)
+          .orElse(getFromSuperType(dotName, from)))
   }
 
   private def getNestedType(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {
@@ -94,7 +94,7 @@ trait TypeFinder {
 
     // Ignore if a classes super type is an inner of that class to avoid recursion
     if (superType.nonEmpty && !superType.get.outerTypeName.contains(from.typeName)) {
-        return superType.flatMap(st => findLocalTypeFor(dotName, st))
+      return superType.flatMap(st => findLocalTypeFor(dotName, st))
     }
     None
   }

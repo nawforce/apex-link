@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package com.nawforce.common.types.core
 
@@ -45,7 +45,8 @@ object TypeId {
     if (typeIdentifier.namespace == pkg.namespace)
       return Some(new TypeId(pkg, typeName))
 
-    pkg.org.getPackage(typeIdentifier.namespace)
+    pkg.org
+      .getPackage(typeIdentifier.namespace)
       .map(pkg => TypeId(pkg, typeName))
       .orElse({
         assert(false)

@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
 import com.nawforce.common.FileSystemHelper
@@ -45,26 +45,28 @@ class MethodShadowTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Override of public non-virtual") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy extends SuperClass { public void func() {} }",
-      "SuperClass.cls" -> "public virtual class SuperClass { public void func() {}}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(org.issues.getMessages("/Dummy.cls") ==
-        "Error: line 1 at 52-56: Method 'func' can not override non-virtual method\n")
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy extends SuperClass { public void func() {} }",
+          "SuperClass.cls" -> "public virtual class SuperClass { public void func() {}}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(
+          org.issues.getMessages("/Dummy.cls") ==
+            "Error: line 1 at 52-56: Method 'func' can not override non-virtual method\n")
     }
   }
 
   test("Override of public virtual without override") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy extends SuperClass { public void func() {} }",
-      "SuperClass.cls" -> "public virtual class SuperClass { public virtual void func() {}}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(org.issues.getMessages("/Dummy.cls") ==
-        "Error: line 1 at 52-56: Method 'func' must use override or virtual keyword\n")
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy extends SuperClass { public void func() {} }",
+          "SuperClass.cls" -> "public virtual class SuperClass { public virtual void func() {}}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(
+          org.issues.getMessages("/Dummy.cls") ==
+            "Error: line 1 at 52-56: Method 'func' must use override or virtual keyword\n")
     }
   }
 }

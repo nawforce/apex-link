@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package com.nawforce.common.org.stream
 
@@ -37,28 +37,36 @@ import scala.collection.immutable.Queue
 /** Package stream generator, assists queuing package stream events. */
 trait Generator {
 
-  protected def queue(metadataType: Name, logger: IssueLogger, provider: MetadataProvider, queue: Queue[PackageEvent])
-  : Queue[PackageEvent] = {
-    provider.retrieve(metadataType).foldRight(queue)((d, q) => {
-      queueFromDocument(logger, q, d)
-    })
+  protected def queue(metadataType: Name,
+                      logger: IssueLogger,
+                      provider: MetadataProvider,
+                      queue: Queue[PackageEvent]): Queue[PackageEvent] = {
+    provider
+      .retrieve(metadataType)
+      .foldRight(queue)((d, q) => {
+        queueFromDocument(logger, q, d)
+      })
   }
 
-  private def queueFromDocument(logger: IssueLogger, queue: Queue[PackageEvent],
+  private def queueFromDocument(logger: IssueLogger,
+                                queue: Queue[PackageEvent],
                                 metadata: MetadataDocumentWithData): Queue[PackageEvent] = {
     queue ++ getMetadata(logger, metadata)
   }
 
-  protected def getMetadata(logger: IssueLogger, metadata: MetadataDocumentWithData): Seq[PackageEvent]
+  protected def getMetadata(logger: IssueLogger,
+                            metadata: MetadataDocumentWithData): Seq[PackageEvent]
 }
 
 object Generator {
-  def queue(dt: UpdatableMetadata, logger: IssueLogger, provider: MetadataProvider): Queue[PackageEvent] = {
+  def queue(dt: UpdatableMetadata,
+            logger: IssueLogger,
+            provider: MetadataProvider): Queue[PackageEvent] = {
     dt match {
-      case _: LabelsDocument => LabelGenerator.queue(logger, provider, Queue[PackageEvent]())
-      case _: PageDocument => PageGenerator.queue(logger, provider, Queue[PackageEvent]())
+      case _: LabelsDocument    => LabelGenerator.queue(logger, provider, Queue[PackageEvent]())
+      case _: PageDocument      => PageGenerator.queue(logger, provider, Queue[PackageEvent]())
       case _: ComponentDocument => ComponentGenerator.queue(logger, provider, Queue[PackageEvent]())
-      case _: FlowDocument => FlowGenerator.queue(logger, provider, Queue[PackageEvent]())
+      case _: FlowDocument      => FlowGenerator.queue(logger, provider, Queue[PackageEvent]())
     }
   }
 }

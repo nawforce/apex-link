@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types
 
 import com.nawforce.common.ParserHelper
@@ -36,8 +36,7 @@ import com.nawforce.common.types.core.{DependencyHolder, TypeDeclaration}
 import com.nawforce.runtime.parsers.{Source, SourceData}
 import org.scalatest.funsuite.AnyFunSuite
 
-class LiteralTypeTest extends AnyFunSuite
-{
+class LiteralTypeTest extends AnyFunSuite {
   def typeLiteral(data: String): DependencyHolder = {
     val source = Source(PathFactory("Dummy.cls"), SourceData(""), 0, 0, None)
     CST.sourceContext.withValue(Some(source)) {
@@ -57,7 +56,7 @@ class LiteralTypeTest extends AnyFunSuite
     }
   }
 
-  def literal(value: String, r: TypeName = null) : Unit =
+  def literal(value: String, r: TypeName = null): Unit =
     compareLiteral(value, r)
 
   test("Primary literal") {

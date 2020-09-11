@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types.other
 
 import com.nawforce.common.names.TypeNames
@@ -35,4 +35,5 @@ import com.nawforce.common.types.core.BasicTypeDeclaration
 /** An any type declaration, there are deliberately very few uses of this, hopefully at some point it
   * can be removed.
   */
-final case class AnyDeclaration(pkg: PackageImpl) extends BasicTypeDeclaration(PathLike.emptyPaths, pkg, TypeNames.Any)
+final case class AnyDeclaration(pkg: PackageImpl)
+    extends BasicTypeDeclaration(PathLike.emptyPaths, pkg, TypeNames.Any)

@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types.core
 
 import com.nawforce.common.api.{DependentSummary, FieldDependentSummary, MethodDependentSummary, TypeDependentSummary}
@@ -45,7 +45,8 @@ trait Dependent {
   def hasHolders: Boolean = Option(dependencyHolders).exists(_.nonEmpty)
 
   // The set of current holders
-  def getDependencyHolders: Set[DependencyHolder] = Option(dependencyHolders).map(_.toSet).getOrElse(Set().empty)
+  def getDependencyHolders: Set[DependencyHolder] =
+    Option(dependencyHolders).map(_.toSet).getOrElse(Set().empty)
 
   // Add a new holder
   def addDependencyHolder(dependencyHolder: DependencyHolder): Unit = {
@@ -57,7 +58,7 @@ trait Dependent {
   override def equals(that: Any): Boolean = {
     that match {
       case other: Dependent => other.eq(this)
-      case _ => false
+      case _                => false
     }
   }
 
@@ -80,37 +81,43 @@ trait DependencyHolder extends Dependent {
 
   // Convert dependencies into a summary format
   def dependencySummary(): Array[DependentSummary] = {
-    dependencies().flatMap {
-      case td: ApexClassDeclaration =>
-        Some(TypeDependentSummary(td.typeId.asTypeIdentifier, td.sourceHash))
-      case fd: ApexFieldLike =>
-        Some(FieldDependentSummary(fd.outerTypeId.asTypeIdentifier, fd.name.value))
-      case md: ApexMethodLike =>
-        Some(MethodDependentSummary(md.outerTypeId.asTypeIdentifier, md.name.value, md.parameters.map(_.typeName)))
-      // Don't need these yet
-      case _: ApexConstructorLike => None
-      case _: ApexBlockLike => None
+    dependencies()
+      .flatMap {
+        case td: ApexClassDeclaration =>
+          Some(TypeDependentSummary(td.typeId.asTypeIdentifier, td.sourceHash))
+        case fd: ApexFieldLike =>
+          Some(FieldDependentSummary(fd.outerTypeId.asTypeIdentifier, fd.name.value))
+        case md: ApexMethodLike =>
+          Some(
+            MethodDependentSummary(md.outerTypeId.asTypeIdentifier,
+                                   md.name.value,
+                                   md.parameters.map(_.typeName)))
+        // Don't need these yet
+        case _: ApexConstructorLike => None
+        case _: ApexBlockLike       => None
 
-      case ld: LabelDeclaration =>
-        Some(TypeDependentSummary(ld.typeId.asTypeIdentifier, ld.sourceHash))
-      case label: Label if label.outerTypeId.nonEmpty =>
-        Some(FieldDependentSummary(label.outerTypeId.get.asTypeIdentifier, label.name.value))
-      case _: Label => None
+        case ld: LabelDeclaration =>
+          Some(TypeDependentSummary(ld.typeId.asTypeIdentifier, ld.sourceHash))
+        case label: Label if label.outerTypeId.nonEmpty =>
+          Some(FieldDependentSummary(label.outerTypeId.get.asTypeIdentifier, label.name.value))
+        case _: Label => None
 
-      case i: Interview =>
-        val id = i.pkg.interviews
-        Some(TypeDependentSummary(id.typeId.asTypeIdentifier, id.sourceHash))
+        case i: Interview =>
+          val id = i.pkg.interviews
+          Some(TypeDependentSummary(id.typeId.asTypeIdentifier, id.sourceHash))
 
-      case pd: PageDeclaration =>
-        Some(TypeDependentSummary(pd.typeId.asTypeIdentifier, pd.sourceHash))
-      case page: Page =>
-        val id = page.pkg.pages
-        Some(FieldDependentSummary(id.typeId.asTypeIdentifier, page.name.value))
+        case pd: PageDeclaration =>
+          Some(TypeDependentSummary(pd.typeId.asTypeIdentifier, pd.sourceHash))
+        case page: Page =>
+          val id = page.pkg.pages
+          Some(FieldDependentSummary(id.typeId.asTypeIdentifier, page.name.value))
 
-      case c: Component =>
-        val id = c.pkg.components
-        Some(TypeDependentSummary(id.typeId.asTypeIdentifier, id.sourceHash))
+        case c: Component =>
+          val id = c.pkg.components
+          Some(TypeDependentSummary(id.typeId.asTypeIdentifier, id.sourceHash))
 
-    }.toSet.toArray
+      }
+      .toSet
+      .toArray
   }
 }

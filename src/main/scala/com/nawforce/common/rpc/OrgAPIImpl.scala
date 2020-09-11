@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.rpc
 
 import java.util.concurrent.LinkedBlockingQueue
@@ -38,23 +38,24 @@ trait APIRequest {
   def process(): Unit
 }
 
-case class AddPackageRequest(org: Org, directory: String, promise: Promise[AddPackageResult]) extends APIRequest {
+case class AddPackageRequest(org: Org, directory: String, promise: Promise[AddPackageResult])
+    extends APIRequest {
   override def process(): Unit = {
-    promise.success(
-      try {
-        LoggerOps.debug(LoggerOps.Trace, "Adding package")
-        val pkg = org.newSFDXPackage(directory)
-        AddPackageResult(None, pkg.getNamespaces(withDependents = true))
-      } catch {
-        case ex: IllegalArgumentException => AddPackageResult(Some(APIError(ex.getMessage)), Array())
-        case ex: Throwable => AddPackageResult(Some(APIError(ex)), Array())
-      }
-    )
+    promise.success(try {
+      LoggerOps.debug(LoggerOps.Trace, "Adding package")
+      val pkg = org.newSFDXPackage(directory)
+      AddPackageResult(None, pkg.getNamespaces(withDependents = true))
+    } catch {
+      case ex: IllegalArgumentException => AddPackageResult(Some(APIError(ex.getMessage)), Array())
+      case ex: Throwable                => AddPackageResult(Some(APIError(ex)), Array())
+    })
   }
 }
 
 object AddPackageRequest {
-  def apply(queue: LinkedBlockingQueue[APIRequest], org: Org, directory: String): Future[AddPackageResult] = {
+  def apply(queue: LinkedBlockingQueue[APIRequest],
+            org: Org,
+            directory: String): Future[AddPackageResult] = {
     val promise = Promise[AddPackageResult]()
     queue.add(new AddPackageRequest(org, directory, promise))
     promise.future
@@ -75,8 +76,7 @@ class OrgAPIImpl extends OrgAPI {
       while (true) {
         val request = queue.take()
 
-        while (!org.isFlushed())
-          Thread.sleep(50)
+        while (!org.isFlushed()) Thread.sleep(50)
 
         request.process()
       }
@@ -93,7 +93,7 @@ class OrgAPIImpl extends OrgAPI {
 
   def refresh(path: String, contents: Option[String]): Future[Unit] = {
     synchronized {
-      Future( () )
+      Future(())
     }
   }
 }

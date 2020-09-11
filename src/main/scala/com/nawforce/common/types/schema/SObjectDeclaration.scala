@@ -34,18 +34,9 @@ import com.nawforce.common.modifiers._
 import com.nawforce.common.names.{DotName, Names, TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types.core.{
-  BasicTypeDeclaration,
-  FieldDeclaration,
-  MethodDeclaration,
-  TypeDeclaration
-}
+import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
 import com.nawforce.common.types.platform.PlatformTypes
-import com.nawforce.common.types.synthetic.{
-  CustomFieldDeclaration,
-  CustomMethodDeclaration,
-  CustomParameterDeclaration
-}
+import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration, CustomParameterDeclaration}
 
 import scala.collection.mutable
 

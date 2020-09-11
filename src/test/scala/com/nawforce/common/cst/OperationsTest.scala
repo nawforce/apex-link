@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, ServerOps}
@@ -142,8 +142,9 @@ class OperationsTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Bitwise Assigment Long to Integer") {
     typeDeclaration("public class Dummy {{Integer a; a |= 22l; }}")
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 32-40: Bitwise operation only allowed between Integer, Long & Boolean types, not 'System.Integer' and 'System.Long'\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 32-40: Bitwise operation only allowed between Integer, Long & Boolean types, not 'System.Integer' and 'System.Long'\n")
   }
 
   test("Bitwise Shift in Array Index") {
@@ -167,12 +168,14 @@ class OperationsTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Ternary common base") {
-    typeDeclaration("public virtual class Dummy {class A extends Dummy {} class B extends Dummy {} { A a; B b; Object a = 2>0 ? a : b;}}")
+    typeDeclaration(
+      "public virtual class Dummy {class A extends Dummy {} class B extends Dummy {} { A a; B b; Object a = 2>0 ? a : b;}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Ternary SObjectType") {
-    typeDeclaration("public virtual class Dummy {{ SObjectType a = 2>0 ? Account.SObjectType : Contact.SObjectType;}}")
+    typeDeclaration(
+      "public virtual class Dummy {{ SObjectType a = 2>0 ? Account.SObjectType : Contact.SObjectType;}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 }

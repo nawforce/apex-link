@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package com.nawforce.common.types.core
 
@@ -84,9 +84,11 @@ trait DependentType extends TypeDeclaration {
   private def getOutermostDeclaration(typeId: TypeId): Option[DependentType] = {
     TypeResolver(typeId.typeName, typeId.pkg, excludeSObjects = false) match {
       case Right(td: DependentType) =>
-        td.outerTypeName.map(ot => getOutermostDeclaration(TypeId(typeId.pkg, ot))).getOrElse(Some(td))
+        td.outerTypeName
+          .map(ot => getOutermostDeclaration(TypeId(typeId.pkg, ot)))
+          .getOrElse(Some(td))
       case Right(_) => None
-      case Left(_) => None
+      case Left(_)  => None
     }
   }
 }

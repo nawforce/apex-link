@@ -179,7 +179,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     if (org.analysis) {
       packageType(typeName) match {
         case Some(ad: ApexDeclaration) => Some(ad.nameLocation)
-        case _ => None
+        case _                         => None
       }
     } else {
       val docType =

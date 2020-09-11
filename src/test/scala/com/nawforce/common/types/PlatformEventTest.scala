@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types
 
 import com.nawforce.common.FileSystemHelper
@@ -34,7 +34,7 @@ import com.nawforce.common.path.PathLike
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class PlatformEventTest extends AnyFunSuite with BeforeAndAfter{
+class PlatformEventTest extends AnyFunSuite with BeforeAndAfter {
 
   before {
     ServerOps.setAutoFlush(false)
@@ -51,7 +51,9 @@ class PlatformEventTest extends AnyFunSuite with BeforeAndAfter{
          |        <fullName>${field._1}</fullName>
          |        <type>${field._2}</type>
          |        ${if (field._3.nonEmpty) s"<referenceTo>${field._3.get}</referenceTo>" else ""}
-         |        ${if (field._3.nonEmpty) s"<relationshipName>${field._1.replaceAll("__c$", "")}</relationshipName>" else ""}
+         |        ${if (field._3.nonEmpty)
+           s"<relationshipName>${field._1.replaceAll("__c$", "")}</relationshipName>"
+         else ""}
          |    </fields>
          |""".stripMargin
     })
@@ -65,36 +67,37 @@ class PlatformEventTest extends AnyFunSuite with BeforeAndAfter{
   }
 
   test("Standard field reference") {
-    FileSystemHelper.run(Map(
-      "Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
-      "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.ReplayId;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
+          "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.ReplayId;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Custom field reference") {
-    FileSystemHelper.run(Map(
-      "Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
-      "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.Bar__c;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
+          "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.Bar__c;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Invalid field reference") {
-    FileSystemHelper.run(Map(
-      "Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
-      "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.Baz__c;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(org.issues.getMessages("/Dummy.cls") ==
-        "Missing: line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__e'\n")
+    FileSystemHelper.run(
+      Map("Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
+          "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.Baz__c;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(
+          org.issues.getMessages("/Dummy.cls") ==
+            "Missing: line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__e'\n")
     }
   }
 }

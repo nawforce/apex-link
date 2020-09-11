@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cmds
 
 import com.nawforce.common.api.{IssueOptions, Org, Package, ServerOps}
@@ -39,14 +39,14 @@ object Check {
   final val STATUS_EXCEPTION: Int = 3
   final val STATUS_ISSUES: Int = 4
 
-  def usage(name:String) = s"Usage: $name [-json] [-verbose] <[namespace=]directory>..."
+  def usage(name: String) = s"Usage: $name [-json] [-verbose] <[namespace=]directory>..."
 
   def main(name: String, args: Array[String], org: Org): Int = {
     val options = Set("-verbose", "-json", "-pickle", "-zombie", "-depends")
 
     val validArgs = args.flatMap {
       case option if options.contains(option) => Some(option)
-      case arg => Some(arg)
+      case arg                                => Some(arg)
     }
 
     if (validArgs.length != args.length) {
@@ -59,10 +59,10 @@ object Check {
       paths = Seq(PathFactory("").toString)
     val nsSplit = paths.map(path => {
       if (path.endsWith("="))
-        (path.take(path.length-1), "")
+        (path.take(path.length - 1), "")
       else
         path.split("=") match {
-          case Array(d) => ("", d)
+          case Array(d)     => ("", d)
           case Array(ns, d) => (ns, d)
           case _ =>
             System.err.println(usage(name))
@@ -88,7 +88,8 @@ object Check {
       .map(nsDirPair => PathFactory(nsDirPair._2))
       .filter(_.join("sfdx-project.json").exists)
     if (namespacedSFDX.nonEmpty) {
-      System.err.println(s"Namespaces should not be provided for SFDX directories such as '${namespacedSFDX.head}''")
+      System.err.println(
+        s"Namespaces should not be provided for SFDX directories such as '${namespacedSFDX.head}''")
       return STATUS_ARGS
     }
 
@@ -102,8 +103,10 @@ object Check {
             loaded = org.newSFDXPackage(path.toString) :: loaded
           } else {
             val paths = nsSplit.filter(_._1 == nsDirPair._1).map(_._2).filterNot(_.isEmpty).toArray
-            val nonSfdxPaths = paths.map(PathFactory(_)).filterNot(_.join("sfdx-project.json").exists)
-            val pkg = org.newMDAPIPackage(nsDirPair._1, nonSfdxPaths.map(_.toString), loaded.toArray)
+            val nonSfdxPaths =
+              paths.map(PathFactory(_)).filterNot(_.join("sfdx-project.json").exists)
+            val pkg =
+              org.newMDAPIPackage(nsDirPair._1, nonSfdxPaths.map(_.toString), loaded.toArray)
             loaded = pkg :: loaded
             nsLoaded = nsDirPair._1 :: nsLoaded
           }
@@ -153,7 +156,10 @@ object Check {
     })
   }
 
-  private def writeIssues(org: Org, format: String, includeWarnings: Boolean, includeZombies: Boolean): Int = {
+  private def writeIssues(org: Org,
+                          format: String,
+                          includeWarnings: Boolean,
+                          includeZombies: Boolean): Int = {
     val issueOptions = new IssueOptions()
     issueOptions.format = format
     issueOptions.includeWarnings = includeWarnings

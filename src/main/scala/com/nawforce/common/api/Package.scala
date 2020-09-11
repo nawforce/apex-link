@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.api
 
 import com.nawforce.runtime.SourceBlob
@@ -55,6 +55,7 @@ import com.nawforce.runtime.SourceBlob
   *
   **/
 trait Package {
+
   /** The namespace of the package or the package and its dependent packages.
     *
     * An empty namespace indicates the "unmanaged" package.

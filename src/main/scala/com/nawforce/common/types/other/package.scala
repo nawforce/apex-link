@@ -14,10 +14,10 @@ package object other {
   object Other {
     def apply(dt: UpdatableMetadata, pkg: PackageImpl): OtherTypeDeclaration = {
       dt match {
-        case _: LabelsDocument => LabelDeclaration(pkg)
-        case _: PageDocument => PageDeclaration(pkg)
+        case _: LabelsDocument    => LabelDeclaration(pkg)
+        case _: PageDocument      => PageDeclaration(pkg)
         case _: ComponentDocument => ComponentDeclaration(pkg)
-        case _: FlowDocument => InterviewDeclaration(pkg)
+        case _: FlowDocument      => InterviewDeclaration(pkg)
       }
     }
   }

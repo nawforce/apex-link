@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package com.nawforce.common.types
 
@@ -46,9 +46,7 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Empty labels file") {
-    FileSystemHelper.run(Map(
-      "CustomLabels.labels" -> "",
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("CustomLabels.labels" -> "", )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(org.issues.getMessages(root.join("CustomLabels.labels").toString).nonEmpty)
@@ -73,28 +71,35 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Dual labels file") {
-    FileSystemHelper.run(Map(
-      "CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
-      "CustomLabels2.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
-    )) { root: PathLike =>
+    FileSystemHelper.run(
+      Map(
+        "CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
+        "CustomLabels2.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
+      )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val typeId1 = pkg.getTypeOfPathInternal(root.join("CustomLabels.labels")).get.asTypeIdentifier
-      val typeId2 = pkg.getTypeOfPathInternal(root.join("CustomLabels2.labels")).get.asTypeIdentifier
+      val typeId2 =
+        pkg.getTypeOfPathInternal(root.join("CustomLabels2.labels")).get.asTypeIdentifier
       assert(typeId1.toString == "System.Label")
       assert(typeId2.toString == "System.Label")
-      assert(pkg.getPathsOfType(typeId1).sorted.sameElements(Array("/CustomLabels.labels", "/CustomLabels2.labels")))
+      assert(
+        pkg
+          .getPathsOfType(typeId1)
+          .sorted
+          .sameElements(Array("/CustomLabels.labels", "/CustomLabels2.labels")))
       assert(pkg.getDependencies(typeId1, inheritanceOnly = false).isEmpty)
       assert(pkg.getDependencyHolders(typeId1).isEmpty)
     }
   }
 
   test("Valid label") {
-    FileSystemHelper.run(Map(
-      "CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+    FileSystemHelper.run(
+      Map(
+        "CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
@@ -105,27 +110,29 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-      "Dummy.cls" -> "public class Dummy { {String a = label.TestLabel;} }"
-    )) { root: PathLike =>
+        "Dummy.cls" -> "public class Dummy { {String a = label.TestLabel;} }")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val labelsTypeId = pkg.getTypeOfPathInternal(root.join("CustomLabels.labels")).get.asTypeIdentifier
+      val labelsTypeId =
+        pkg.getTypeOfPathInternal(root.join("CustomLabels.labels")).get.asTypeIdentifier
       assert(labelsTypeId.toString == "System.Label")
       assert(pkg.getPathsOfType(labelsTypeId).sameElements(Array("/CustomLabels.labels")))
       assert(pkg.getDependencies(labelsTypeId, inheritanceOnly = false).isEmpty)
 
       val dummyTypeId = pkg.getTypeOfPathInternal(root.join("Dummy.cls")).get.asTypeIdentifier
-      assert(pkg.getDependencies(dummyTypeId, inheritanceOnly = false).sameElements(Array(labelsTypeId)))
+      assert(
+        pkg.getDependencies(dummyTypeId, inheritanceOnly = false).sameElements(Array(labelsTypeId)))
       assert(pkg.getDependencyHolders(labelsTypeId).sameElements(Array(dummyTypeId)))
     }
   }
 
   test("Valid label (case insensitive)") {
-    FileSystemHelper.run(Map(
-      "CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+    FileSystemHelper.run(
+      Map(
+        "CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
@@ -136,8 +143,7 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-      "Dummy.cls" -> "public class Dummy { {String a = laBel.TeStLaBel;} }"
-    )) { root: PathLike =>
+        "Dummy.cls" -> "public class Dummy { {String a = laBel.TeStLaBel;} }")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -145,9 +151,10 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Missing label") {
-    FileSystemHelper.run(Map(
-      "CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+    FileSystemHelper.run(
+      Map(
+        "CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
@@ -158,19 +165,20 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-      "Dummy.cls" -> "public class Dummy { {String a = Label.TestLabel2;} }"
-    )) { root: PathLike =>
+        "Dummy.cls" -> "public class Dummy { {String a = Label.TestLabel2;} }")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(org.issues.getMessages("/Dummy.cls") ==
-        "Missing: line 1 at 33-49: Unknown field or type 'TestLabel2' on 'System.Label'\n")
+      assert(
+        org.issues.getMessages("/Dummy.cls") ==
+          "Missing: line 1 at 33-49: Unknown field or type 'TestLabel2' on 'System.Label'\n")
     }
   }
 
   test("Missing label (case insensitive)") {
-    FileSystemHelper.run(Map(
-      "CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+    FileSystemHelper.run(
+      Map(
+        "CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
@@ -181,19 +189,20 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-      "Dummy.cls" -> "public class Dummy { {String a = laBel.TestLaBel2;} }"
-    )) { root: PathLike =>
+        "Dummy.cls" -> "public class Dummy { {String a = laBel.TestLaBel2;} }")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(org.issues.getMessages("/Dummy.cls") ==
-        "Missing: line 1 at 33-49: Unknown field or type 'TestLaBel2' on 'System.Label'\n")
+      assert(
+        org.issues.getMessages("/Dummy.cls") ==
+          "Missing: line 1 at 33-49: Unknown field or type 'TestLaBel2' on 'System.Label'\n")
     }
   }
 
   test("Base package label") {
-    FileSystemHelper.run(Map(
-      "pkg1/CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+    FileSystemHelper.run(
+      Map(
+        "pkg1/CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
@@ -204,32 +213,44 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-      "pkg2/Dummy.cls" -> "public class Dummy { {String a = label.pkg1.TestLabel;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-      val pkg2 = org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
-      assert(!org.issues.hasMessages)
+        "pkg2/Dummy.cls" -> "public class Dummy { {String a = label.pkg1.TestLabel;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+        val pkg2 =
+          org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+        assert(!org.issues.hasMessages)
 
-      val labels1TypeId = pkg1.getTypeOfPathInternal(root.join("pkg1/CustomLabels.labels")).get.asTypeIdentifier
-      assert(labels1TypeId.toString == "System.Label (pkg1)")
-      assert(pkg1.getPathsOfType(labels1TypeId).sameElements(Array("/pkg1/CustomLabels.labels")))
-      assert(pkg1.getDependencies(labels1TypeId, inheritanceOnly = false).isEmpty)
+        val labels1TypeId =
+          pkg1.getTypeOfPathInternal(root.join("pkg1/CustomLabels.labels")).get.asTypeIdentifier
+        assert(labels1TypeId.toString == "System.Label (pkg1)")
+        assert(pkg1.getPathsOfType(labels1TypeId).sameElements(Array("/pkg1/CustomLabels.labels")))
+        assert(pkg1.getDependencies(labels1TypeId, inheritanceOnly = false).isEmpty)
 
-      val dummyTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2/Dummy.cls")).get.asTypeIdentifier
-      assert(pkg2.getDependencies(dummyTypeId, inheritanceOnly = false).map(_.toString)
-        .sameElements(Array("System.Label (pkg2)")))
+        val dummyTypeId =
+          pkg2.getTypeOfPathInternal(root.join("pkg2/Dummy.cls")).get.asTypeIdentifier
+        assert(
+          pkg2
+            .getDependencies(dummyTypeId, inheritanceOnly = false)
+            .map(_.toString)
+            .sameElements(Array("System.Label (pkg2)")))
 
-      val label2TypeId = TypeIdentifier.fromJava(Name("pkg2"), TypeName(Name("Label"), Seq(), Some(TypeName(Name("System")))))
-      assert(pkg2.getDependencyHolders(label2TypeId).sameElements(Array(dummyTypeId)))
-      assert(pkg2.getDependencies(label2TypeId, inheritanceOnly = false).sameElements(Array(labels1TypeId)))
+        val label2TypeId =
+          TypeIdentifier.fromJava(Name("pkg2"),
+                                  TypeName(Name("Label"), Seq(), Some(TypeName(Name("System")))))
+        assert(pkg2.getDependencyHolders(label2TypeId).sameElements(Array(dummyTypeId)))
+        assert(
+          pkg2
+            .getDependencies(label2TypeId, inheritanceOnly = false)
+            .sameElements(Array(labels1TypeId)))
     }
   }
 
   test("Base package label protected") {
-    FileSystemHelper.run(Map(
-      "pkg1/CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+    FileSystemHelper.run(
+      Map(
+        "pkg1/CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
@@ -240,32 +261,47 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-      "pkg2/Dummy.cls" -> "public class Dummy { {String a = label.pkg1.TestLabel;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-      val pkg2 = org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
-      assert(org.issues.getMessages("/pkg2/Dummy.cls") ==
-        "Missing: line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label.pkg1'\n")
+        "pkg2/Dummy.cls" -> "public class Dummy { {String a = label.pkg1.TestLabel;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+        val pkg2 =
+          org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+        assert(
+          org.issues.getMessages("/pkg2/Dummy.cls") ==
+            "Missing: line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label.pkg1'\n")
 
-      val labels1TypeId = pkg1.getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels")).get.asTypeIdentifier
-      assert(labels1TypeId.toString == "System.Label (pkg1)")
-      assert(pkg1.getPathsOfType(labels1TypeId).sameElements(Array("/pkg1/CustomLabels.labels")))
-      assert(pkg2.getTypeOfPathInternal(root.join("CustomLabels.labels")).isEmpty)
+        val labels1TypeId = pkg1
+          .getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels"))
+          .get
+          .asTypeIdentifier
+        assert(labels1TypeId.toString == "System.Label (pkg1)")
+        assert(pkg1.getPathsOfType(labels1TypeId).sameElements(Array("/pkg1/CustomLabels.labels")))
+        assert(pkg2.getTypeOfPathInternal(root.join("CustomLabels.labels")).isEmpty)
 
-      val dummyTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2/Dummy.cls")).get.asTypeIdentifier
-      assert(pkg2.getDependencies(dummyTypeId, inheritanceOnly = false).sameElements(Array[TypeName]()))
+        val dummyTypeId =
+          pkg2.getTypeOfPathInternal(root.join("pkg2/Dummy.cls")).get.asTypeIdentifier
+        assert(
+          pkg2
+            .getDependencies(dummyTypeId, inheritanceOnly = false)
+            .sameElements(Array[TypeName]()))
 
-      val label2TypeId = TypeIdentifier.fromJava(Name("pkg2"), TypeName(Name("Label"), Seq(), Some(TypeName(Name("System")))))
-      assert(pkg2.getDependencyHolders(label2TypeId).isEmpty)
-      assert(pkg2.getDependencies(label2TypeId, inheritanceOnly = false).sameElements(Array(labels1TypeId)))
+        val label2TypeId =
+          TypeIdentifier.fromJava(Name("pkg2"),
+                                  TypeName(Name("Label"), Seq(), Some(TypeName(Name("System")))))
+        assert(pkg2.getDependencyHolders(label2TypeId).isEmpty)
+        assert(
+          pkg2
+            .getDependencies(label2TypeId, inheritanceOnly = false)
+            .sameElements(Array(labels1TypeId)))
     }
   }
 
   test("System reference to label") {
-    FileSystemHelper.run(Map(
-      "CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+    FileSystemHelper.run(
+      Map(
+        "CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
@@ -276,18 +312,19 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-      "Dummy.cls" -> "public class Dummy { {String a = System.Label.TestLabel;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+        "Dummy.cls" -> "public class Dummy { {String a = System.Label.TestLabel;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("System reference to base package label") {
-    FileSystemHelper.run(Map(
-      "pkg1/CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+    FileSystemHelper.run(
+      Map(
+        "pkg1/CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
@@ -298,19 +335,20 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-      "pkg2/Dummy.cls" -> "public class Dummy { {String a = System.label.pkg1.TestLabel;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-      org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
-      assert(!org.issues.hasMessages)
+        "pkg2/Dummy.cls" -> "public class Dummy { {String a = System.label.pkg1.TestLabel;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+        org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Label dependencies") {
-    FileSystemHelper.run(Map(
-      "pkg1/CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+    FileSystemHelper.run(
+      Map(
+        "pkg1/CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
@@ -321,33 +359,41 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-      "pkg2/CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+        "pkg2/CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata"/>
           |""".stripMargin,
-    )) { root: PathLike =>
+      )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
       val pkg2 = org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(!org.issues.hasMessages)
 
-      val label1Type = pkg1.getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels")).get.asTypeIdentifier
+      val label1Type = pkg1
+        .getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels"))
+        .get
+        .asTypeIdentifier
       assert(label1Type.toString == "System.Label (pkg1)")
-      val label2Type = pkg2.getTypeOfPathInternal(root.join("pkg2").join("CustomLabels.labels")).get.asTypeIdentifier
+      val label2Type = pkg2
+        .getTypeOfPathInternal(root.join("pkg2").join("CustomLabels.labels"))
+        .get
+        .asTypeIdentifier
       assert(label2Type.toString == "System.Label (pkg2)")
 
       assert(pkg1.getDependencies(label1Type, inheritanceOnly = false).isEmpty)
       assert(pkg2.getDependencyHolders(label2Type).isEmpty)
 
-      assert(pkg2.getDependencies(label2Type, inheritanceOnly = false).sameElements(Array(label1Type)))
+      assert(
+        pkg2.getDependencies(label2Type, inheritanceOnly = false).sameElements(Array(label1Type)))
       assert(pkg1.getDependencyHolders(label1Type).sameElements(Array(label2Type)))
     }
   }
 
   test("Label dependencies (multi file)") {
-    FileSystemHelper.run(Map(
-      "pkg1/CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+    FileSystemHelper.run(
+      Map(
+        "pkg1/CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
@@ -358,12 +404,12 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-      "pkg2/CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+        "pkg2/CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata"/>
           |""".stripMargin,
-      "pkg2/Secondary.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+        "pkg2/Secondary.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel2</fullName>
@@ -374,34 +420,47 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-      "pkg2/Dummy.cls" -> "public class Dummy { {String a = System.label.pkg1.TestLabel;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-      val pkg2 = org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
-      assert(!org.issues.hasMessages)
+        "pkg2/Dummy.cls" -> "public class Dummy { {String a = System.label.pkg1.TestLabel;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+        val pkg2 =
+          org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+        assert(!org.issues.hasMessages)
 
-      val label1Type = pkg1.getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels")).get.asTypeIdentifier
-      assert(label1Type.toString == "System.Label (pkg1)")
-      val label2Type = pkg2.getTypeOfPathInternal(root.join("pkg2").join("CustomLabels.labels")).get.asTypeIdentifier
-      assert(label2Type.toString == "System.Label (pkg2)")
-      val secondaryType = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Secondary.labels")).get.asTypeIdentifier
-      assert(secondaryType == label2Type)
+        val label1Type = pkg1
+          .getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels"))
+          .get
+          .asTypeIdentifier
+        assert(label1Type.toString == "System.Label (pkg1)")
+        val label2Type = pkg2
+          .getTypeOfPathInternal(root.join("pkg2").join("CustomLabels.labels"))
+          .get
+          .asTypeIdentifier
+        assert(label2Type.toString == "System.Label (pkg2)")
+        val secondaryType = pkg2
+          .getTypeOfPathInternal(root.join("pkg2").join("Secondary.labels"))
+          .get
+          .asTypeIdentifier
+        assert(secondaryType == label2Type)
 
-      val dummyTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2/Dummy.cls")).get.asTypeIdentifier
+        val dummyTypeId =
+          pkg2.getTypeOfPathInternal(root.join("pkg2/Dummy.cls")).get.asTypeIdentifier
 
-      assert(pkg1.getDependencies(label1Type, inheritanceOnly = false).isEmpty)
-      assert(pkg2.getDependencyHolders(label2Type).sameElements(Array(dummyTypeId)))
+        assert(pkg1.getDependencies(label1Type, inheritanceOnly = false).isEmpty)
+        assert(pkg2.getDependencyHolders(label2Type).sameElements(Array(dummyTypeId)))
 
-      assert(pkg2.getDependencies(label2Type, inheritanceOnly = false).sameElements(Array(label1Type)))
-      assert(pkg1.getDependencyHolders(label1Type).sameElements(Array(label2Type)))
+        assert(
+          pkg2.getDependencies(label2Type, inheritanceOnly = false).sameElements(Array(label1Type)))
+        assert(pkg1.getDependencyHolders(label1Type).sameElements(Array(label2Type)))
     }
   }
 
   test("Label dependencies (multi file reversed)") {
-    FileSystemHelper.run(Map(
-      "pkg1/CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+    FileSystemHelper.run(
+      Map(
+        "pkg1/CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
@@ -412,8 +471,8 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-      "pkg1/Secondary.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+        "pkg1/Secondary.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel2</fullName>
@@ -424,31 +483,43 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-      "pkg2/CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+        "pkg2/CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata"/>
           |""".stripMargin,
-      "pkg2/Dummy.cls" -> "public class Dummy { {String a = System.label.pkg1.TestLabel2;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-      val pkg2 = org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
-      assert(!org.issues.hasMessages)
+        "pkg2/Dummy.cls" -> "public class Dummy { {String a = System.label.pkg1.TestLabel2;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+        val pkg2 =
+          org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+        assert(!org.issues.hasMessages)
 
-      val label1Type = pkg1.getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels")).get.asTypeIdentifier
-      assert(label1Type.toString == "System.Label (pkg1)")
-      val secondaryType = pkg1.getTypeOfPathInternal(root.join("pkg1").join("Secondary.labels")).get.asTypeIdentifier
-      assert(secondaryType == label1Type)
+        val label1Type = pkg1
+          .getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels"))
+          .get
+          .asTypeIdentifier
+        assert(label1Type.toString == "System.Label (pkg1)")
+        val secondaryType = pkg1
+          .getTypeOfPathInternal(root.join("pkg1").join("Secondary.labels"))
+          .get
+          .asTypeIdentifier
+        assert(secondaryType == label1Type)
 
-      val label2Type = pkg2.getTypeOfPathInternal(root.join("pkg2").join("CustomLabels.labels")).get.asTypeIdentifier
-      assert(label2Type.toString == "System.Label (pkg2)")
-      val dummyTypeId = pkg2.getTypeOfPathInternal(root.join("pkg2/Dummy.cls")).get.asTypeIdentifier
+        val label2Type = pkg2
+          .getTypeOfPathInternal(root.join("pkg2").join("CustomLabels.labels"))
+          .get
+          .asTypeIdentifier
+        assert(label2Type.toString == "System.Label (pkg2)")
+        val dummyTypeId =
+          pkg2.getTypeOfPathInternal(root.join("pkg2/Dummy.cls")).get.asTypeIdentifier
 
-      assert(pkg1.getDependencies(label1Type, inheritanceOnly = false).isEmpty)
-      assert(pkg2.getDependencyHolders(label2Type).sameElements(Array(dummyTypeId)))
+        assert(pkg1.getDependencies(label1Type, inheritanceOnly = false).isEmpty)
+        assert(pkg2.getDependencyHolders(label2Type).sameElements(Array(dummyTypeId)))
 
-      assert(pkg2.getDependencies(label2Type, inheritanceOnly = false).sameElements(Array(label1Type)))
-      assert(pkg1.getDependencyHolders(label1Type).sameElements(Array(label2Type)))
+        assert(
+          pkg2.getDependencies(label2Type, inheritanceOnly = false).sameElements(Array(label1Type)))
+        assert(pkg1.getDependencyHolders(label1Type).sameElements(Array(label2Type)))
     }
   }
 }

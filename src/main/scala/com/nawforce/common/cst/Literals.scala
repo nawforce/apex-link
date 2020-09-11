@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
 import com.nawforce.common.types.core.TypeDeclaration
@@ -67,10 +67,15 @@ final case class NullLiteral() extends Literal {
 object Literal {
   def construct(from: LiteralContext): Literal = {
     val cst: Option[Literal] =
-      CodeParser.toScala(from.IntegerLiteral()).map(x => IntegerLiteral(CodeParser.getText(x)))
-        .orElse(CodeParser.toScala(from.NumberLiteral()).map(x => NumberLiteral(CodeParser.getText(x))))
-        .orElse(CodeParser.toScala(from.StringLiteral()).map(x => StringLiteral(CodeParser.getText(x))))
-        .orElse(CodeParser.toScala(from.BooleanLiteral()).map(x => BooleanLiteral(CodeParser.getText(x))))
+      CodeParser
+        .toScala(from.IntegerLiteral())
+        .map(x => IntegerLiteral(CodeParser.getText(x)))
+        .orElse(
+          CodeParser.toScala(from.NumberLiteral()).map(x => NumberLiteral(CodeParser.getText(x))))
+        .orElse(
+          CodeParser.toScala(from.StringLiteral()).map(x => StringLiteral(CodeParser.getText(x))))
+        .orElse(
+          CodeParser.toScala(from.BooleanLiteral()).map(x => BooleanLiteral(CodeParser.getText(x))))
         .orElse(Some(NullLiteral()))
     cst.get.withContext(from)
   }

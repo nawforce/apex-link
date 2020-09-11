@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.TypeName
@@ -35,9 +35,9 @@ import com.nawforce.common.types.platform.PlatformTypes
 trait AssignableSupport {
   def isAssignable(toType: TypeName, fromType: TypeDeclaration, context: VerifyContext): Boolean = {
     if (fromType.typeName == TypeNames.Null ||
-      (fromType.typeName == toType) ||
-      (toType == TypeNames.InternalObject) ||
-      context.pkg.isGhostedType(toType)) {
+        (fromType.typeName == toType) ||
+        (toType == TypeNames.InternalObject) ||
+        context.pkg.isGhostedType(toType)) {
       true
     } else if (fromType.typeName.isRecordSet) {
       isRecordSetAssignable(toType, context)
@@ -45,18 +45,20 @@ trait AssignableSupport {
       isAssignableGeneric(toType, fromType, context)
     } else {
       AssignableSupport.baseAssignable.contains(toType, fromType.typeName) ||
-        fromType.extendsOrImplements(toType)
+      fromType.extendsOrImplements(toType)
     }
   }
 
   def isAssignable(toType: TypeName, fromType: TypeName, context: VerifyContext): Boolean = {
     context.getTypeFor(fromType, context.thisType) match {
-      case Left(_) => false
+      case Left(_)                => false
       case Right(fromDeclaration) => isAssignable(toType, fromDeclaration, context)
     }
   }
 
-  private def isAssignableGeneric(toType: TypeName, fromType: TypeDeclaration, context: VerifyContext): Boolean = {
+  private def isAssignableGeneric(toType: TypeName,
+                                  fromType: TypeDeclaration,
+                                  context: VerifyContext): Boolean = {
     if (toType == fromType.typeName) {
       true
     } else if (toType.params.size == fromType.typeName.params.size) {
@@ -64,7 +66,10 @@ trait AssignableSupport {
         // Future: This is over general, not supported on Set & Map, doh
         val sameParams = toType.withParams(fromType.typeName.params)
         (fromType.typeName == sameParams || fromType.extendsOrImplements(sameParams)) &&
-          toType.params.zip(fromType.typeName.params).map(p => isAssignable(p._1, p._2, context)).forall(b =>b)
+        toType.params
+          .zip(fromType.typeName.params)
+          .map(p => isAssignable(p._1, p._2, context))
+          .forall(b => b)
       }
     } else if (toType.params.isEmpty || fromType.typeName.params.isEmpty) {
       fromType.extendsOrImplements(toType)
@@ -73,12 +78,14 @@ trait AssignableSupport {
     }
   }
 
-  private def isSObjectListAssignment(toType: TypeName, fromType: TypeDeclaration, context: VerifyContext): Boolean = {
+  private def isSObjectListAssignment(toType: TypeName,
+                                      fromType: TypeDeclaration,
+                                      context: VerifyContext): Boolean = {
     if (toType.isList && fromType.typeName.isList &&
-      fromType.typeName.params.head == TypeNames.SObject &&
-      toType.params.head != TypeNames.SObject) {
+        fromType.typeName.params.head == TypeNames.SObject &&
+        toType.params.head != TypeNames.SObject) {
       context.getTypeFor(toType.params.head, context.thisType) match {
-        case Left(_) => false
+        case Left(_)              => false
         case Right(toDeclaration) => toDeclaration.isSObject
       }
     } else {
@@ -94,15 +101,18 @@ trait AssignableSupport {
       isRecordSetAssignable(toType.params.head, context)
     } else {
       context.getTypeFor(toType, context.thisType) match {
-        case Left(_) => false
+        case Left(_)              => false
         case Right(toDeclaration) => toDeclaration.isSObject
       }
     }
   }
 
-
-  def couldBeEqual(toType: TypeDeclaration, fromType: TypeDeclaration, context: VerifyContext): Boolean = {
-    isAssignable(toType.typeName, fromType, context) || isAssignable(fromType.typeName, toType, context)
+  def couldBeEqual(toType: TypeDeclaration,
+                   fromType: TypeDeclaration,
+                   context: VerifyContext): Boolean = {
+    isAssignable(toType.typeName, fromType, context) || isAssignable(fromType.typeName,
+                                                                     toType,
+                                                                     context)
   }
 }
 
@@ -117,15 +127,18 @@ object AssignableSupport {
     (TypeNames.Decimal, TypeNames.Double),
     (TypeNames.IdType, TypeNames.String),
     (TypeNames.String, TypeNames.IdType),
-    (TypeNames.Datetime, TypeNames.Date)
-  )
+    (TypeNames.Datetime, TypeNames.Date))
 }
 
 abstract class Operation extends AssignableSupport {
-  def verify(leftType: ExprContext, rightContext: ExprContext, op: String,
+  def verify(leftType: ExprContext,
+             rightContext: ExprContext,
+             op: String,
              context: VerifyContext): Either[String, ExprContext]
 
-  def getCommonBase(toType: TypeDeclaration, fromType: TypeDeclaration, context: VerifyContext): Option[TypeDeclaration] = {
+  def getCommonBase(toType: TypeDeclaration,
+                    fromType: TypeDeclaration,
+                    context: VerifyContext): Option[TypeDeclaration] = {
     val toSupertypes = toType.superTypes()
     val fromSupertypes = fromType.superTypes()
     val common = toSupertypes.intersect(fromSupertypes)
@@ -157,11 +170,13 @@ abstract class Operation extends AssignableSupport {
     Operation.arithmeticOps.get((leftType, rightType))
   }
 
-  def getArithmeticAddSubtractAssigmentResult(leftType: TypeName, rightType: TypeName): Option[TypeDeclaration] = {
+  def getArithmeticAddSubtractAssigmentResult(leftType: TypeName,
+                                              rightType: TypeName): Option[TypeDeclaration] = {
     Operation.arithmeticAddSubtractAssigmentOps.get((leftType, rightType))
   }
 
-  def getArithmeticMultiplyDivideAssigmentResult(leftType: TypeName, rightType: TypeName): Option[TypeDeclaration] = {
+  def getArithmeticMultiplyDivideAssigmentResult(leftType: TypeName,
+                                                 rightType: TypeName): Option[TypeDeclaration] = {
     Operation.arithmeticMultiplyDivideAssigmentOps.get((leftType, rightType))
   }
 
@@ -169,24 +184,23 @@ abstract class Operation extends AssignableSupport {
     Operation.bitwiseOps.get((leftType, rightType))
   }
 
-  def getBitwiseAssignmentResult(leftType: TypeName, rightType: TypeName): Option[TypeDeclaration] = {
+  def getBitwiseAssignmentResult(leftType: TypeName,
+                                 rightType: TypeName): Option[TypeDeclaration] = {
     Operation.bitwiseAssignmentOps.get((leftType, rightType))
   }
 }
 
 object Operation {
-  private lazy val nonReferenceTypes: Set[TypeName] = Set (
-    TypeNames.Integer,
-    TypeNames.Long,
-    TypeNames.Decimal,
-    TypeNames.Double,
-    TypeNames.String,
-    TypeNames.Date,
-    TypeNames.Datetime,
-    TypeNames.Time,
-    TypeNames.Blob,
-    TypeNames.IdType
-  )
+  private lazy val nonReferenceTypes: Set[TypeName] = Set(TypeNames.Integer,
+                                                          TypeNames.Long,
+                                                          TypeNames.Decimal,
+                                                          TypeNames.Double,
+                                                          TypeNames.String,
+                                                          TypeNames.Date,
+                                                          TypeNames.Datetime,
+                                                          TypeNames.Time,
+                                                          TypeNames.Blob,
+                                                          TypeNames.IdType)
 
   private lazy val arithmeticOps: Map[(TypeName, TypeName), TypeDeclaration] = Map(
     (TypeNames.Integer, TypeNames.Integer) -> PlatformTypes.integerType,
@@ -215,27 +229,28 @@ object Operation {
     (TypeNames.Time, TypeNames.Long) -> PlatformTypes.timeType,
   )
 
-  private lazy val arithmeticAddSubtractAssigmentOps: Map[(TypeName, TypeName), TypeDeclaration] = Map(
-    (TypeNames.Integer, TypeNames.Integer) -> PlatformTypes.integerType,
-    (TypeNames.Long, TypeNames.Integer) -> PlatformTypes.longType,
-    (TypeNames.Long, TypeNames.Long) -> PlatformTypes.longType,
-    (TypeNames.Decimal, TypeNames.Integer) -> PlatformTypes.decimalType,
-    (TypeNames.Decimal, TypeNames.Long) -> PlatformTypes.decimalType,
-    (TypeNames.Decimal, TypeNames.Double) -> PlatformTypes.decimalType,
-    (TypeNames.Decimal, TypeNames.Decimal) -> PlatformTypes.decimalType,
-    (TypeNames.Double, TypeNames.Integer) -> PlatformTypes.doubleType,
-    (TypeNames.Double, TypeNames.Long) -> PlatformTypes.doubleType,
-    (TypeNames.Double, TypeNames.Decimal) -> PlatformTypes.decimalType,
-    (TypeNames.Double, TypeNames.Double) -> PlatformTypes.doubleType,
-    (TypeNames.Date, TypeNames.Integer) -> PlatformTypes.dateType,
-    (TypeNames.Date, TypeNames.Long) -> PlatformTypes.dateType,
-    (TypeNames.Datetime, TypeNames.Integer) -> PlatformTypes.datetimeType,
-    (TypeNames.Datetime, TypeNames.Long) -> PlatformTypes.datetimeType,
-    (TypeNames.Time, TypeNames.Integer) -> PlatformTypes.timeType,
-    (TypeNames.Time, TypeNames.Long) -> PlatformTypes.timeType,
-  )
+  private lazy val arithmeticAddSubtractAssigmentOps: Map[(TypeName, TypeName), TypeDeclaration] =
+    Map((TypeNames.Integer, TypeNames.Integer) -> PlatformTypes.integerType,
+        (TypeNames.Long, TypeNames.Integer) -> PlatformTypes.longType,
+        (TypeNames.Long, TypeNames.Long) -> PlatformTypes.longType,
+        (TypeNames.Decimal, TypeNames.Integer) -> PlatformTypes.decimalType,
+        (TypeNames.Decimal, TypeNames.Long) -> PlatformTypes.decimalType,
+        (TypeNames.Decimal, TypeNames.Double) -> PlatformTypes.decimalType,
+        (TypeNames.Decimal, TypeNames.Decimal) -> PlatformTypes.decimalType,
+        (TypeNames.Double, TypeNames.Integer) -> PlatformTypes.doubleType,
+        (TypeNames.Double, TypeNames.Long) -> PlatformTypes.doubleType,
+        (TypeNames.Double, TypeNames.Decimal) -> PlatformTypes.decimalType,
+        (TypeNames.Double, TypeNames.Double) -> PlatformTypes.doubleType,
+        (TypeNames.Date, TypeNames.Integer) -> PlatformTypes.dateType,
+        (TypeNames.Date, TypeNames.Long) -> PlatformTypes.dateType,
+        (TypeNames.Datetime, TypeNames.Integer) -> PlatformTypes.datetimeType,
+        (TypeNames.Datetime, TypeNames.Long) -> PlatformTypes.datetimeType,
+        (TypeNames.Time, TypeNames.Integer) -> PlatformTypes.timeType,
+        (TypeNames.Time, TypeNames.Long) -> PlatformTypes.timeType,
+    )
 
-  private lazy val arithmeticMultiplyDivideAssigmentOps: Map[(TypeName, TypeName), TypeDeclaration] = Map(
+  private lazy val arithmeticMultiplyDivideAssigmentOps
+    : Map[(TypeName, TypeName), TypeDeclaration] = Map(
     (TypeNames.Integer, TypeNames.Integer) -> PlatformTypes.integerType,
     (TypeNames.Long, TypeNames.Integer) -> PlatformTypes.longType,
     (TypeNames.Long, TypeNames.Long) -> PlatformTypes.longType,
@@ -266,21 +281,26 @@ object Operation {
 }
 
 case object AssignmentOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: VerifyContext): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext,
+                      rightContext: ExprContext,
+                      op: String,
+                      context: VerifyContext): Either[String, ExprContext] = {
     if (rightContext.typeName == TypeNames.Null) {
       Right(leftContext)
     } else if (isAssignable(leftContext.typeName, rightContext.typeDeclaration, context)) {
       Right(leftContext)
     } else {
-      Left(s"Incompatible types in assignment, from '${rightContext.typeName}' to '${leftContext.typeName}'")
+      Left(
+        s"Incompatible types in assignment, from '${rightContext.typeName}' to '${leftContext.typeName}'")
     }
   }
 }
 
 case object LogicalOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: VerifyContext): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext,
+                      rightContext: ExprContext,
+                      op: String,
+                      context: VerifyContext): Either[String, ExprContext] = {
     if (!isAssignable(TypeNames.Boolean, rightContext.typeDeclaration, context)) {
       Left(s"Right expression of logical $op must a boolean, not '${rightContext.typeName}'")
     } else if (!isAssignable(TypeNames.Boolean, leftContext.typeDeclaration, context)) {
@@ -292,42 +312,50 @@ case object LogicalOperation extends Operation {
 }
 
 case object CompareOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: VerifyContext): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext,
+                      rightContext: ExprContext,
+                      op: String,
+                      context: VerifyContext): Either[String, ExprContext] = {
 
     if (isNumericKind(leftContext.typeName)) {
       if (!isNumericKind(rightContext.typeName)) {
-        return Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
+        return Left(
+          s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
       }
     } else if (isStringKind(leftContext.typeName)) {
       if (!isStringKind(rightContext.typeName))
-        return Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
+        return Left(
+          s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
     } else if (isDateKind(leftContext.typeName)) {
       if (!isDateKind(rightContext.typeName)) {
-        return Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
+        return Left(
+          s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
       }
     } else {
-      return Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
+      return Left(
+        s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
     }
     Right(ExprContext(isStatic = Some(false), PlatformTypes.booleanType))
   }
 }
 
 case object ExactEqualityOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: VerifyContext): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext,
+                      rightContext: ExprContext,
+                      op: String,
+                      context: VerifyContext): Either[String, ExprContext] = {
 
     if (isNonReferenceKind(leftContext.typeName)) {
-      Left(s"Exact equality/inequality requires is not supported on non-reference types '${leftContext.typeName}'")
+      Left(
+        s"Exact equality/inequality requires is not supported on non-reference types '${leftContext.typeName}'")
     } else if (isNonReferenceKind(rightContext.typeName)) {
-      Left(s"Exact equality/inequality requires is not supported on non-reference types '${rightContext.typeName}'")
-    } else if (
-      leftContext.typeName == rightContext.typeName ||
-      leftContext.typeName == TypeNames.InternalObject ||
-      rightContext.typeName == TypeNames.InternalObject ||
-      leftContext.typeDeclaration.extendsOrImplements(rightContext.typeName) ||
-      rightContext.typeDeclaration.extendsOrImplements(leftContext.typeName)
-    )
+      Left(
+        s"Exact equality/inequality requires is not supported on non-reference types '${rightContext.typeName}'")
+    } else if (leftContext.typeName == rightContext.typeName ||
+               leftContext.typeName == TypeNames.InternalObject ||
+               rightContext.typeName == TypeNames.InternalObject ||
+               leftContext.typeDeclaration.extendsOrImplements(rightContext.typeName) ||
+               rightContext.typeDeclaration.extendsOrImplements(leftContext.typeName))
       Right(ExprContext(isStatic = Some(false), PlatformTypes.booleanType))
     else
       Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
@@ -335,8 +363,10 @@ case object ExactEqualityOperation extends Operation {
 }
 
 case object EqualityOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: VerifyContext): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext,
+                      rightContext: ExprContext,
+                      op: String,
+                      context: VerifyContext): Either[String, ExprContext] = {
     if (couldBeEqual(leftContext.typeDeclaration, rightContext.typeDeclaration, context))
       Right(ExprContext(isStatic = Some(false), PlatformTypes.booleanType))
     else
@@ -345,15 +375,17 @@ case object EqualityOperation extends Operation {
 }
 
 case object PlusOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: VerifyContext): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext,
+                      rightContext: ExprContext,
+                      op: String,
+                      context: VerifyContext): Either[String, ExprContext] = {
     if (leftContext.typeName == TypeNames.String || rightContext.typeName == TypeNames.String) {
       Right(ExprContext(isStatic = Some(false), PlatformTypes.stringType))
-    }
-    else {
+    } else {
       val td = getArithmeticResult(leftContext.typeName, rightContext.typeName)
       if (td.isEmpty) {
-        return Left(s"Addition operation not allowed between types '${leftContext.typeName}' and '${rightContext.typeName}'")
+        return Left(
+          s"Addition operation not allowed between types '${leftContext.typeName}' and '${rightContext.typeName}'")
       }
       Right(ExprContext(isStatic = Some(false), td.get))
     }
@@ -361,25 +393,31 @@ case object PlusOperation extends Operation {
 }
 
 case object ArithmeticOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: VerifyContext): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext,
+                      rightContext: ExprContext,
+                      op: String,
+                      context: VerifyContext): Either[String, ExprContext] = {
     val td = getArithmeticResult(leftContext.typeName, rightContext.typeName)
     if (td.isEmpty) {
-      return Left(s"Arithmetic operation not allowed between types '${leftContext.typeName}' and '${rightContext.typeName}'")
+      return Left(
+        s"Arithmetic operation not allowed between types '${leftContext.typeName}' and '${rightContext.typeName}'")
     }
     Right(ExprContext(isStatic = Some(false), td.get))
   }
 }
 
 case object ArithmeticAddSubtractAssignmentOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: VerifyContext): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext,
+                      rightContext: ExprContext,
+                      op: String,
+                      context: VerifyContext): Either[String, ExprContext] = {
     if (leftContext.typeName == TypeNames.String && op == "+=") {
       Right(ExprContext(isStatic = Some(false), PlatformTypes.stringType))
     } else {
       val td = getArithmeticAddSubtractAssigmentResult(leftContext.typeName, rightContext.typeName)
       if (td.isEmpty) {
-        return Left(s"Arithmetic operation not allowed between types '${leftContext.typeName}' and '${rightContext.typeName}'")
+        return Left(
+          s"Arithmetic operation not allowed between types '${leftContext.typeName}' and '${rightContext.typeName}'")
       }
       Right(ExprContext(isStatic = Some(false), td.get))
     }
@@ -387,41 +425,52 @@ case object ArithmeticAddSubtractAssignmentOperation extends Operation {
 }
 
 case object ArithmeticMultiplyDivideAssignmentOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: VerifyContext): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext,
+                      rightContext: ExprContext,
+                      op: String,
+                      context: VerifyContext): Either[String, ExprContext] = {
     val td = getArithmeticMultiplyDivideAssigmentResult(leftContext.typeName, rightContext.typeName)
     if (td.isEmpty) {
-      return Left(s"Arithmetic operation not allowed between types '${leftContext.typeName}' and '${rightContext.typeName}'")
+      return Left(
+        s"Arithmetic operation not allowed between types '${leftContext.typeName}' and '${rightContext.typeName}'")
     }
     Right(ExprContext(isStatic = Some(false), td.get))
   }
 }
 
 case object BitwiseOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: VerifyContext): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext,
+                      rightContext: ExprContext,
+                      op: String,
+                      context: VerifyContext): Either[String, ExprContext] = {
     val td = getBitwiseResult(leftContext.typeName, rightContext.typeName)
     if (td.isEmpty) {
-      return Left(s"Bitwise operation only allowed between Integer, Long & Boolean types, not '${leftContext.typeName}' and '${rightContext.typeName}'")
+      return Left(
+        s"Bitwise operation only allowed between Integer, Long & Boolean types, not '${leftContext.typeName}' and '${rightContext.typeName}'")
     }
     Right(ExprContext(isStatic = Some(false), td.get))
   }
 }
 
 case object BitwiseAssignmentOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: VerifyContext): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext,
+                      rightContext: ExprContext,
+                      op: String,
+                      context: VerifyContext): Either[String, ExprContext] = {
     val td = getBitwiseAssignmentResult(leftContext.typeName, rightContext.typeName)
     if (td.isEmpty) {
-      return Left(s"Bitwise operation only allowed between Integer, Long & Boolean types, not '${leftContext.typeName}' and '${rightContext.typeName}'")
+      return Left(
+        s"Bitwise operation only allowed between Integer, Long & Boolean types, not '${leftContext.typeName}' and '${rightContext.typeName}'")
     }
     Right(ExprContext(isStatic = Some(false), td.get))
   }
 }
 
 case object ConditionalOperation extends Operation {
-  override def verify(leftContext: ExprContext, rightContext: ExprContext,
-                      op: String, context: VerifyContext): Either[String, ExprContext] = {
+  override def verify(leftContext: ExprContext,
+                      rightContext: ExprContext,
+                      op: String,
+                      context: VerifyContext): Either[String, ExprContext] = {
 
     // Future: How does this really function, Java mechanics are very complex
     if (isAssignable(leftContext.typeName, rightContext.typeDeclaration, context)) {
@@ -430,10 +479,11 @@ case object ConditionalOperation extends Operation {
       Right(rightContext)
     } else {
       getCommonBase(leftContext.typeDeclaration, rightContext.typeDeclaration, context)
-          .map(td => Right(ExprContext(isStatic = Some(false), td)))
-          .getOrElse({
-            Left(s"Incompatible types in ternary operation '${leftContext.typeName}' and '${rightContext.typeName}'")
-          })
+        .map(td => Right(ExprContext(isStatic = Some(false), td)))
+        .getOrElse({
+          Left(
+            s"Incompatible types in ternary operation '${leftContext.typeName}' and '${rightContext.typeName}'")
+        })
     }
   }
 }

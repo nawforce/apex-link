@@ -24,14 +24,12 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.rpc
 
 import java.io.{BufferedReader, InputStreamReader, PrintStream}
 
-import com.nawforce.common.api.LoggerOps
 import io.github.shogowada.scala.jsonrpc.serializers.UpickleJSONSerializer
-import io.github.shogowada.scala.jsonrpc.serializers.UpickleJSONSerializer._
 import io.github.shogowada.scala.jsonrpc.server.JSONRPCServer
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -57,9 +55,9 @@ class RPCServer {
       message.append(new String(block.slice(0, read)))
       var terminator = message.indexOf("\n\n", existingLength)
       while (terminator != -1) {
-        val msg = message.slice(0, terminator+1).mkString
+        val msg = message.slice(0, terminator + 1).mkString
         handleMessage(msg, System.out)
-        message = message.slice(terminator+2, message.length)
+        message = message.slice(terminator + 2, message.length)
         terminator = message.indexOf("\n\n")
       }
     }

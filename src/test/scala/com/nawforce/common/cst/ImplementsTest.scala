@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
 import com.nawforce.common.FileSystemHelper
@@ -46,8 +46,11 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
       this.root = root
       OrgImpl.current.withValue(defaultOrg) {
         defaultOrg.unmanaged.deployClasses(
-          classes.map(p => MetadataDocument(root.join(p._1)).get.asInstanceOf[ApexClassDocument]).toSeq)
-        defaultOrg.unmanaged.findTypes(classes.keys.map(k => TypeName(Name(k.replaceAll("\\.cls$", "")))).toSeq)
+          classes
+            .map(p => MetadataDocument(root.join(p._1)).get.asInstanceOf[ApexClassDocument])
+            .toSeq)
+        defaultOrg.unmanaged.findTypes(
+          classes.keys.map(k => TypeName(Name(k.replaceAll("\\.cls$", "")))).toSeq)
       }
     }
   }
@@ -64,66 +67,62 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Missing class interface") {
     assert(typeDeclarations(Map("Dummy.cls" -> "global class Dummy implements A {}")).nonEmpty)
-    assert(defaultOrg.issues.getMessages("/Dummy.cls") ==
-      "Missing: line 1 at 13-18: No type declaration found for 'A'\n")
+    assert(
+      defaultOrg.issues.getMessages("/Dummy.cls") ==
+        "Missing: line 1 at 13-18: No type declaration found for 'A'\n")
   }
 
   test("Missing class second interface") {
-    typeDeclarations(Map(
-      "Dummy.cls" -> "global class Dummy implements A, B {}",
-      "A.cls" -> "public interface A {}"
-    ))
-    assert(defaultOrg.issues.getMessages("/Dummy.cls") ==
-      "Missing: line 1 at 13-18: No type declaration found for 'B'\n")
+    typeDeclarations(
+      Map("Dummy.cls" -> "global class Dummy implements A, B {}",
+          "A.cls" -> "public interface A {}"))
+    assert(
+      defaultOrg.issues.getMessages("/Dummy.cls") ==
+        "Missing: line 1 at 13-18: No type declaration found for 'B'\n")
   }
 
   test("Class implements class") {
-    typeDeclarations(Map(
-      "Dummy.cls" -> "global class Dummy implements A {}",
-      "A.cls" -> "public class A {}"
-    ))
-    assert(defaultOrg.issues.getMessages("/Dummy.cls") ==
-      "Error: line 1 at 13-18: Type 'A' must be an interface\n")
+    typeDeclarations(
+      Map("Dummy.cls" -> "global class Dummy implements A {}", "A.cls" -> "public class A {}"))
+    assert(
+      defaultOrg.issues.getMessages("/Dummy.cls") ==
+        "Error: line 1 at 13-18: Type 'A' must be an interface\n")
   }
 
   test("Class implements enum") {
-    typeDeclarations(Map(
-      "Dummy.cls" -> "global class Dummy implements A {}",
-      "A.cls" -> "public enum A {}"
-    ))
-    assert(defaultOrg.issues.getMessages("/Dummy.cls") ==
-      "Error: line 1 at 13-18: Type 'A' must be an interface\n")
+    typeDeclarations(
+      Map("Dummy.cls" -> "global class Dummy implements A {}", "A.cls" -> "public enum A {}"))
+    assert(
+      defaultOrg.issues.getMessages("/Dummy.cls") ==
+        "Error: line 1 at 13-18: Type 'A' must be an interface\n")
   }
 
   test("Interface extends class") {
-    typeDeclarations(Map(
-      "Dummy.cls" -> "global interface Dummy extends A {}",
-      "A.cls" -> "public class A {}"
-    ))
-    assert(defaultOrg.issues.getMessages("/Dummy.cls") ==
-      "Error: line 1 at 17-22: Type 'A' must be an interface\n")
+    typeDeclarations(
+      Map("Dummy.cls" -> "global interface Dummy extends A {}", "A.cls" -> "public class A {}"))
+    assert(
+      defaultOrg.issues.getMessages("/Dummy.cls") ==
+        "Error: line 1 at 17-22: Type 'A' must be an interface\n")
   }
 
   test("Interface extends enum") {
-    typeDeclarations(Map(
-      "Dummy.cls" -> "global interface Dummy extends A {}",
-      "A.cls" -> "public enum A {}"
-    ))
-    assert(defaultOrg.issues.getMessages("/Dummy.cls") ==
-      "Error: line 1 at 17-22: Type 'A' must be an interface\n")
+    typeDeclarations(
+      Map("Dummy.cls" -> "global interface Dummy extends A {}", "A.cls" -> "public enum A {}"))
+    assert(
+      defaultOrg.issues.getMessages("/Dummy.cls") ==
+        "Error: line 1 at 17-22: Type 'A' must be an interface\n")
   }
 
   test("Class implements Database.Batchable<sObject>") {
-    typeDeclarations(Map(
-      "Dummy.cls" ->
+    typeDeclarations(
+      Map("Dummy.cls" ->
         """
           | global class Dummy implements Database.Batchable<sObject> {
           |   Iterable<sObject> start(Database.BatchableContext param1) {}
           |   void execute(Database.BatchableContext param1, List<SObject> param2) {}
           |   void finish(Database.BatchableContext param1) {}
           | }
-          |""".stripMargin
-    ))
+          |""".stripMargin))
     assert(defaultOrg.issues.getMessages(root.join("Dummy.cls").toString) == "")
   }
 }

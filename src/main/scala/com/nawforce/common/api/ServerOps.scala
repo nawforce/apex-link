@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.api
 
 /** Collection of Ops functions for changing global behaviours */
@@ -56,7 +56,7 @@ object ServerOps {
   def debug(category: String, message: String): Unit = LoggerOps.debug(category, message)
 
   /** Time an operation and debug log how long it took */
-  def debugTime[T](msg: String, show: Boolean=true, postMsg: String = "")(op: => T): T =
+  def debugTime[T](msg: String, show: Boolean = true, postMsg: String = "")(op: => T): T =
     LoggerOps.debugTime(msg, show, postMsg)(op)
 
   /** Are we using lazy blocks, this is enabled by default */

@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.TypeName
@@ -36,8 +36,9 @@ import com.nawforce.runtime.parsers.CodeParser
 
 final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
   def verify(context: ExpressionVerifyContext): ExprContext = {
-    val typeName = idPairs.tail.map(_.typeName).foldLeft(idPairs.head.typeName){
-      (acc: TypeName, typeName: TypeName) => typeName.withTail(acc)
+    val typeName = idPairs.tail.map(_.typeName).foldLeft(idPairs.head.typeName) {
+      (acc: TypeName, typeName: TypeName) =>
+        typeName.withTail(acc)
     }
 
     val newType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
@@ -74,9 +75,10 @@ object IdCreatedNamePair {
 
   def construct(from: IdCreatedNamePairContext): IdCreatedNamePair = {
     IdCreatedNamePair(Id.constructAny(from.anyId()),
-      CodeParser.toScala(from.typeList())
-        .map(tl => TypeList.construct(tl)).getOrElse(TypeName.emptyTypeNames)
-    ).withContext(from)
+                      CodeParser
+                        .toScala(from.typeList())
+                        .map(tl => TypeList.construct(tl))
+                        .getOrElse(TypeName.emptyTypeNames)).withContext(from)
   }
 }
 
@@ -103,7 +105,9 @@ final case class Creator(createdName: CreatedName, creatorRest: CreatorRest) ext
 object Creator {
   def construct(from: CreatorContext): Creator = {
     val rest: Option[CreatorRest] =
-      CodeParser.toScala(from.noRest()).map(NoRest.construct)
+      CodeParser
+        .toScala(from.noRest())
+        .map(NoRest.construct)
         .orElse(CodeParser.toScala(from.classCreatorRest()).map(ClassCreatorRest.construct))
         .orElse(CodeParser.toScala(from.arrayCreatorRest()).map(ArrayCreatorRest.construct))
         .orElse(CodeParser.toScala(from.mapCreatorRest()).map(MapCreatorRest.construct))
@@ -117,7 +121,9 @@ sealed abstract class CreatorRest extends CST {
 }
 
 final class NoRest extends CreatorRest {
-  override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {}
+  override def verify(creating: ExprContext,
+                      input: ExprContext,
+                      context: ExpressionVerifyContext): Unit = {}
 }
 
 object NoRest {
@@ -127,7 +133,9 @@ object NoRest {
 }
 
 final case class ClassCreatorRest(arguments: Array[Expression]) extends CreatorRest {
-  override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {
+  override def verify(creating: ExprContext,
+                      input: ExprContext,
+                      context: ExpressionVerifyContext): Unit = {
     assert(creating.typeDeclarationOpt.nonEmpty)
     val td = creating.typeDeclarationOpt.get
 
@@ -145,9 +153,12 @@ object ClassCreatorRest {
   }
 }
 
-final case class ArrayCreatorRest(expressions: Option[Expression], arrayInitializer: Option[ArrayInitializer])
-  extends CreatorRest {
-  override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {
+final case class ArrayCreatorRest(expressions: Option[Expression],
+                                  arrayInitializer: Option[ArrayInitializer])
+    extends CreatorRest {
+  override def verify(creating: ExprContext,
+                      input: ExprContext,
+                      context: ExpressionVerifyContext): Unit = {
     assert(creating.typeDeclarationOpt.nonEmpty)
 
     // FUTURE: Expression type should be number
@@ -160,10 +171,8 @@ final case class ArrayCreatorRest(expressions: Option[Expression], arrayInitiali
 
 object ArrayCreatorRest {
   def construct(from: ArrayCreatorRestContext): ArrayCreatorRest = {
-    ArrayCreatorRest(
-      CodeParser.toScala(from.expression()).map(Expression.construct),
-      CodeParser.toScala(from.arrayInitializer()).map(ArrayInitializer.construct)
-    )
+    ArrayCreatorRest(CodeParser.toScala(from.expression()).map(Expression.construct),
+                     CodeParser.toScala(from.arrayInitializer()).map(ArrayInitializer.construct))
   }
 }
 
@@ -181,13 +190,17 @@ object ArrayInitializer {
 }
 
 final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends CreatorRest {
-  override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {
+  override def verify(creating: ExprContext,
+                      input: ExprContext,
+                      context: ExpressionVerifyContext): Unit = {
     assert(creating.typeDeclarationOpt.nonEmpty)
     val td = creating.typeDeclarationOpt.get
     val enclosedTypes = td.typeName.getMapType
 
     if (enclosedTypes.isEmpty) {
-      OrgImpl.logError(location, s"Expression pair list construction is only supported for Map types, not '${td.typeName}'")
+      OrgImpl.logError(
+        location,
+        s"Expression pair list construction is only supported for Map types, not '${td.typeName}'")
       return
     }
 
@@ -230,33 +243,35 @@ object MapCreatorRestPair {
 
   def construct(from: MapCreatorRestPairContext): MapCreatorRestPair = {
     val expressions = CodeParser.toScala(from.expression())
-    MapCreatorRestPair(
-      Expression.construct(expressions.head),
-      Expression.construct(expressions(1))
-    ).withContext(from)
+    MapCreatorRestPair(Expression.construct(expressions.head), Expression.construct(expressions(1)))
+      .withContext(from)
   }
 }
 
 /* This is really Set & List creator, where TYPE{expr, expr, ...} form is allowed, it's different from array */
 final case class SetCreatorRest(parts: Array[Expression]) extends CreatorRest {
-  override def verify(creating: ExprContext, input: ExprContext, context: ExpressionVerifyContext): Unit = {
-     assert(creating.typeDeclarationOpt.nonEmpty)
-     val td = creating.typeDeclarationOpt.get
-     val enclosedType = td.typeName.getSetOrListType
+  override def verify(creating: ExprContext,
+                      input: ExprContext,
+                      context: ExpressionVerifyContext): Unit = {
+    assert(creating.typeDeclarationOpt.nonEmpty)
+    val td = creating.typeDeclarationOpt.get
+    val enclosedType = td.typeName.getSetOrListType
 
-     if (enclosedType.isEmpty) {
-       OrgImpl.logError(location, s"Expression list construction is only supported for Set or List types, not '${td.typeName}'")
-       return
-     }
+    if (enclosedType.isEmpty) {
+      OrgImpl.logError(
+        location,
+        s"Expression list construction is only supported for Set or List types, not '${td.typeName}'")
+      return
+    }
 
-     context.getTypeAndAddDependency(enclosedType.get, context.thisType) match {
-       case Left(error) =>
-         if (!context.pkg.isGhostedType(enclosedType.get))
-           OrgImpl.log(error.asIssue(location))
-       case Right(_) =>
-         // FUTURE: Validate the expressions are assignable to 'creating'
-         parts.foreach(_.verify(input, context))
-     }
+    context.getTypeAndAddDependency(enclosedType.get, context.thisType) match {
+      case Left(error) =>
+        if (!context.pkg.isGhostedType(enclosedType.get))
+          OrgImpl.log(error.asIssue(location))
+      case Right(_) =>
+        // FUTURE: Validate the expressions are assignable to 'creating'
+        parts.foreach(_.verify(input, context))
+    }
   }
 }
 
@@ -266,6 +281,3 @@ object SetCreatorRest {
     SetCreatorRest(Expression.construct(parts)).withContext(from)
   }
 }
-
-
-

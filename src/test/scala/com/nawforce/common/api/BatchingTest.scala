@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.api
 
 import com.nawforce.common.FileSystemHelper
@@ -45,9 +45,7 @@ class BatchingTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Simple refresh") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {}",
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {}", )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -59,9 +57,7 @@ class BatchingTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Deferred issue reporting") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {}",
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {}", )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -70,8 +66,10 @@ class BatchingTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       assert(org.flush())
-      assert(org.issues.getMessages("/Dummy.cls")
-        .startsWith("Syntax: line 1 at 20: mismatched input '<EOF>' expecting {"))
+      assert(
+        org.issues
+          .getMessages("/Dummy.cls")
+          .startsWith("Syntax: line 1 at 20: mismatched input '<EOF>' expecting {"))
     }
   }
 }

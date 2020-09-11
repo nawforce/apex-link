@@ -11,7 +11,9 @@ object FileSystemHelper {
 
   // Abstract virtual filesystem for testing
   def run[T](files: Map[String, String], setupCache: Boolean = false)(verify: PathLike => T): T = {
-    val config = Configuration.unix().toBuilder
+    val config = Configuration
+      .unix()
+      .toBuilder
       .setWorkingDirectory("/")
       .build()
     val fs = Jimfs.newFileSystem(config)
@@ -30,7 +32,8 @@ object FileSystemHelper {
   }
 
   // Temp directory based model
-  def runTempDir[T](files: Map[String, String], setupCache: Boolean = false)(verify: PathLike => T): T = {
+  def runTempDir[T](files: Map[String, String], setupCache: Boolean = false)(
+    verify: PathLike => T): T = {
     val tempDir = Files.createTempDirectory("apexlinktest")
     files.foreach(kv => {
       val path = tempDir.resolve(kv._1)

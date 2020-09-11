@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types.other
 
 import com.nawforce.common.api.{Name, PathLocation, TypeName}
@@ -51,17 +51,22 @@ case class Page(pkg: PackageImpl, location: PathLocation, name: Name) extends Fi
 /** Page 'namespace' implementation. Provides access to pages in the package as well as pages that are accessible in
   * base packages via the `namespace__name` format.
   */
-final case class PageDeclaration(sources: Array[SourceInfo], override val pkg: PackageImpl, pages: Array[Page])
-  extends BasicTypeDeclaration(pages.map(p => PathFactory(p.location.path)).distinct, pkg, TypeNames.Page)
-    with DependentType with OtherTypeDeclaration {
+final case class PageDeclaration(sources: Array[SourceInfo],
+                                 override val pkg: PackageImpl,
+                                 pages: Array[Page])
+    extends BasicTypeDeclaration(pages.map(p => PathFactory(p.location.path)).distinct,
+                                 pkg,
+                                 TypeNames.Page)
+    with DependentType
+    with OtherTypeDeclaration {
 
   // Propagate dependencies to base packages
   pkg.basePackages.foreach(_.pages.addTypeDependencyHolder(typeId))
 
-  val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash),0)
+  val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
 
   override val isComplete: Boolean = !pkg.hasGhosted
-  override val fields: Array[FieldDeclaration]= pages.asInstanceOf[Array[FieldDeclaration]]
+  override val fields: Array[FieldDeclaration] = pages.asInstanceOf[Array[FieldDeclaration]]
 
   /** Create new pages from merging those in the provided stream */
   def merge(stream: PackageStream): PageDeclaration = {
@@ -92,5 +97,3 @@ object PageDeclaration {
     })
   }
 }
-
-

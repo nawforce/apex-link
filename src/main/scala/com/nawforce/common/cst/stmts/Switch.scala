@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package com.nawforce.common.cst.stmts
 
@@ -51,13 +51,19 @@ final case class WhenIntegerLiteral(negate: Boolean, value: String) extends When
 
 object WhenLiteral {
   def construct(literal: WhenLiteralContext): WhenLiteral = {
-    val whenLiteral = CodeParser.toScala(literal.NULL())
+    val whenLiteral = CodeParser
+      .toScala(literal.NULL())
       .map(_ => new WhenNullLiteral())
-      .orElse(CodeParser.toScala(literal.IntegerLiteral())
-        .map(l => WhenIntegerLiteral(CodeParser.toScala(literal.SUB()).nonEmpty, CodeParser.getText(l))))
-      .orElse(CodeParser.toScala(literal.StringLiteral())
+      .orElse(
+        CodeParser
+          .toScala(literal.IntegerLiteral())
+          .map(l =>
+            WhenIntegerLiteral(CodeParser.toScala(literal.SUB()).nonEmpty, CodeParser.getText(l))))
+      .orElse(CodeParser
+        .toScala(literal.StringLiteral())
         .map(l => WhenStringLiteral(CodeParser.getText(l))))
-      .orElse(CodeParser.toScala(literal.id())
+      .orElse(CodeParser
+        .toScala(literal.id())
         .map(l => WhenIdLiteral(Id.construct(l))))
 
     if (whenLiteral.isEmpty)
@@ -83,7 +89,9 @@ final class WhenElseValue extends WhenValue {
 final case class WhenLiteralsValue(literals: Seq[WhenLiteral]) extends WhenValue {
   override def checkMatchableTo(typeName: TypeName): Seq[String] = {
 
-    def processErrors(invalid: Seq[WhenLiteral], all: Seq[WhenLiteral], typeName: TypeName): Seq[String] = {
+    def processErrors(invalid: Seq[WhenLiteral],
+                      all: Seq[WhenLiteral],
+                      typeName: TypeName): Seq[String] = {
       if (invalid.nonEmpty) {
         OrgImpl.logError(invalid.head.location, s"A $typeName literal is required for this value")
         Seq()
@@ -105,7 +113,8 @@ final case class WhenLiteralsValue(literals: Seq[WhenLiteral]) extends WhenValue
   override def checkIsSObject(context: BlockVerifyContext): Seq[String] = {
     val nonNull = literals.filterNot(_.isInstanceOf[WhenNullLiteral])
     if (nonNull.nonEmpty)
-      OrgImpl.logError(nonNull.head.location, "An SObject name and variable name are required for this value")
+      OrgImpl.logError(nonNull.head.location,
+                       "An SObject name and variable name are required for this value")
     Seq()
   }
 
@@ -159,8 +168,10 @@ object WhenValue {
       if (literals.nonEmpty)
         WhenLiteralsValue(literals)
       else
-        WhenIdsValue(CodeParser.toScala(value.id())
-          .map(id => Id.construct(id).withContext(id)))
+        WhenIdsValue(
+          CodeParser
+            .toScala(value.id())
+            .map(id => Id.construct(id).withContext(id)))
     }
   }
 }
@@ -175,13 +186,13 @@ final case class WhenControl(whenValue: WhenValue, block: Block) extends CST {
 
 object WhenControl {
   def construct(parser: CodeParser, whenControl: WhenControlContext): WhenControl = {
-    WhenControl(
-      CodeParser.toScala(whenControl.whenValue()).map(v => WhenValue.construct(v)).get,
-      Block.construct(parser, whenControl.block()))
+    WhenControl(CodeParser.toScala(whenControl.whenValue()).map(v => WhenValue.construct(v)).get,
+                Block.construct(parser, whenControl.block()))
   }
 }
 
-final case class SwitchStatement(expression: Expression, whenControls: List[WhenControl]) extends Statement {
+final case class SwitchStatement(expression: Expression, whenControls: List[WhenControl])
+    extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
     val result = expression.verify(context)
     if (result.isDefined) {
@@ -193,14 +204,16 @@ final case class SwitchStatement(expression: Expression, whenControls: List[When
         case _ if result.typeDeclaration.nature == ENUM_NATURE =>
           checkEnumValue(result.typeDeclaration)
         case _ =>
-          OrgImpl.logError(expression.location,
+          OrgImpl.logError(
+            expression.location,
             s"Switch expression must be a Integer, Long, String, SObject record or enum value, not '${result.typeName}'")
           return;
       }
       checkWhenElseIsLast()
       checkForDoubleNull()
       val duplicates = values.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
-      duplicates.headOption.foreach(dup => OrgImpl.logError(expression.location, s"Duplicate when case for $dup"))
+      duplicates.headOption.foreach(dup =>
+        OrgImpl.logError(expression.location, s"Duplicate when case for $dup"))
 
       whenControls.foreach(_.verify(context))
     }
@@ -221,7 +234,7 @@ final case class SwitchStatement(expression: Expression, whenControls: List[When
   private def checkWhenElseIsLast(): Unit = {
     val notLastElse = whenControls.zipWithIndex
       .filter(_._1.whenValue.isInstanceOf[WhenElseValue])
-      .find(_._2 != whenControls.length-1)
+      .find(_._2 != whenControls.length - 1)
     if (notLastElse.nonEmpty)
       OrgImpl.logError(notLastElse.get._1.location, "'when else' must be the last when block")
   }
@@ -230,20 +243,22 @@ final case class SwitchStatement(expression: Expression, whenControls: List[When
     val literals = whenControls.flatMap(wc => {
       wc.whenValue match {
         case l: WhenLiteralsValue => l.literals
-        case _ => Seq()
+        case _                    => Seq()
       }
     })
-    if (literals.count(_.isInstanceOf[WhenNullLiteral]) > 1 )
-      OrgImpl.logError(literals.last.location, "There should only be one 'when null' block in a switch")
+    if (literals.count(_.isInstanceOf[WhenNullLiteral]) > 1)
+      OrgImpl.logError(literals.last.location,
+                       "There should only be one 'when null' block in a switch")
   }
 }
 
 object SwitchStatement {
   def construct(parser: CodeParser, switchStatement: SwitchStatementContext): SwitchStatement = {
-    SwitchStatement(
-      Expression.construct(switchStatement.expression()),
-      CodeParser.toScala(switchStatement.whenControl())
-        .map(wc => WhenControl.construct(parser, wc).withContext(wc)).toList,
+    SwitchStatement(Expression.construct(switchStatement.expression()),
+                    CodeParser
+                      .toScala(switchStatement.whenControl())
+                      .map(wc => WhenControl.construct(parser, wc).withContext(wc))
+                      .toList,
     )
   }
 }

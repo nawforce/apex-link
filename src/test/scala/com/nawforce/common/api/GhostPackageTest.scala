@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.api
 
 import com.nawforce.common.FileSystemHelper
@@ -45,8 +45,11 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter {
       this.root = root
       OrgImpl.current.withValue(defaultOrg) {
         defaultOrg.unmanaged.deployClasses(
-          classes.map(p => MetadataDocument(root.join(p._1)).get.asInstanceOf[ApexClassDocument]).toSeq)
-        defaultOrg.unmanaged.findTypes(classes.keys.map(k => TypeName(Name(k.replaceAll("\\.cls$", "")))).toSeq)
+          classes
+            .map(p => MetadataDocument(root.join(p._1)).get.asInstanceOf[ApexClassDocument])
+            .toSeq)
+        defaultOrg.unmanaged.findTypes(
+          classes.keys.map(k => TypeName(Name(k.replaceAll("\\.cls$", "")))).toSeq)
       }
     }
   }
@@ -64,7 +67,8 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter {
   test("Ghost package suppresses declared type error") {
     defaultOrg.newMDAPIPackage("package", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy extends package.SuperClass {}"))
+    val tds =
+      typeDeclarations(Map("Dummy.cls" -> "public class Dummy extends package.SuperClass {}"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
   }
@@ -72,16 +76,19 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter {
   test("Ghost package with wrong namespace has declared type error") {
     defaultOrg.newMDAPIPackage("silly", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy extends package.SuperClass {}"))
-    assert(defaultOrg.issues.getMessages("/Dummy.cls")
-      == "Missing: line 1 at 13-18: No type declaration found for 'package.SuperClass'\n")
+    val tds =
+      typeDeclarations(Map("Dummy.cls" -> "public class Dummy extends package.SuperClass {}"))
+    assert(
+      defaultOrg.issues.getMessages("/Dummy.cls")
+        == "Missing: line 1 at 13-18: No type declaration found for 'package.SuperClass'\n")
     assert(tds.head.dependencies().isEmpty)
   }
 
   test("Ghost package suppresses declared interface type error") {
     defaultOrg.newMDAPIPackage("package", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy implements package.MyThing {}"))
+    val tds =
+      typeDeclarations(Map("Dummy.cls" -> "public class Dummy implements package.MyThing {}"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
   }
@@ -89,16 +96,19 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter {
   test("Ghost package with wrong namespace has declared interface type error") {
     defaultOrg.newMDAPIPackage("silly", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy implements package.MyThing {}"))
-    assert(defaultOrg.issues.getMessages("/Dummy.cls")
-      == "Missing: line 1 at 13-18: No type declaration found for 'package.MyThing'\n")
+    val tds =
+      typeDeclarations(Map("Dummy.cls" -> "public class Dummy implements package.MyThing {}"))
+    assert(
+      defaultOrg.issues.getMessages("/Dummy.cls")
+        == "Missing: line 1 at 13-18: No type declaration found for 'package.MyThing'\n")
     assert(tds.head.dependencies().isEmpty)
   }
 
   test("Ghost package suppresses implicit type error") {
     defaultOrg.newMDAPIPackage("package", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = package.A.class;} }"))
+    val tds =
+      typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = package.A.class;} }"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
   }
@@ -106,16 +116,19 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter {
   test("Ghost package with wrong namespace has implicit type error") {
     defaultOrg.newMDAPIPackage("silly", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = package.A.class;} }"))
-    assert(defaultOrg.issues.getMessages("/Dummy.cls")
-      == "Missing: line 1 at 33-48: No type declaration found for 'package.A'\n")
+    val tds =
+      typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = package.A.class;} }"))
+    assert(
+      defaultOrg.issues.getMessages("/Dummy.cls")
+        == "Missing: line 1 at 33-48: No type declaration found for 'package.A'\n")
     assert(tds.head.dependencies().isEmpty)
   }
 
   test("Ghost package suppresses custom object error") {
     defaultOrg.newMDAPIPackage("package", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__c();} }"))
+    val tds = typeDeclarations(
+      Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__c();} }"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
   }
@@ -123,16 +136,19 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter {
   test("Ghost package with wrong namespace has custom object error") {
     defaultOrg.newMDAPIPackage("silly", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__c();} }"))
-    assert(defaultOrg.issues.getMessages("/Dummy.cls")
-      == "Missing: line 1 at 37-52: No type declaration found for 'Schema.package__Foo__c'\n")
+    val tds = typeDeclarations(
+      Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__c();} }"))
+    assert(
+      defaultOrg.issues.getMessages("/Dummy.cls")
+        == "Missing: line 1 at 37-52: No type declaration found for 'Schema.package__Foo__c'\n")
     assert(tds.head.dependencies().isEmpty)
   }
 
   test("Ghost package suppresses custom metadata error") {
     defaultOrg.newMDAPIPackage("package", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__mdt();} }"))
+    val tds = typeDeclarations(
+      Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__mdt();} }"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
   }
@@ -140,16 +156,19 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter {
   test("Ghost package with wrong namespace has custom metadata error") {
     defaultOrg.newMDAPIPackage("silly", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__mdt();} }"))
-    assert(defaultOrg.issues.getMessages("/Dummy.cls") ==
-      "Missing: line 1 at 37-54: No type declaration found for 'Schema.package__Foo__mdt'\n")
+    val tds = typeDeclarations(
+      Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__mdt();} }"))
+    assert(
+      defaultOrg.issues.getMessages("/Dummy.cls") ==
+        "Missing: line 1 at 37-54: No type declaration found for 'Schema.package__Foo__mdt'\n")
     assert(tds.head.dependencies().isEmpty)
   }
 
   test("Ghost package suppresses platform event error") {
     defaultOrg.newMDAPIPackage("package", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__e();} }"))
+    val tds = typeDeclarations(
+      Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__e();} }"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
   }
@@ -157,16 +176,19 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter {
   test("Ghost package with wrong namespace has platform event error") {
     defaultOrg.newMDAPIPackage("silly", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__e();} }"))
-    assert(defaultOrg.issues.getMessages("/Dummy.cls") ==
-      "Missing: line 1 at 37-52: No type declaration found for 'Schema.package__Foo__e'\n")
+    val tds = typeDeclarations(
+      Map("Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__e();} }"))
+    assert(
+      defaultOrg.issues.getMessages("/Dummy.cls") ==
+        "Missing: line 1 at 37-52: No type declaration found for 'Schema.package__Foo__e'\n")
     assert(tds.head.dependencies().isEmpty)
   }
 
   test("Ghost package suppresses possible field reference error") {
     defaultOrg.newMDAPIPackage("package", Array(), Array())
 
-    val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy extends package.SuperClass { {Object a = b.foo();} }"))
+    val tds = typeDeclarations(
+      Map("Dummy.cls" -> "public class Dummy extends package.SuperClass { {Object a = b.foo();} }"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
   }

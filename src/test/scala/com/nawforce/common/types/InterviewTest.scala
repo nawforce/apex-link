@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types
 
 import com.nawforce.common.FileSystemHelper
@@ -47,30 +47,28 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Interview createInterview") {
     FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = Flow.Interview.createInterview('', new Map<String, Object>());} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = Flow.Interview.createInterview('', new Map<String, Object>());} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Custom flow (MDAPI)") {
-    FileSystemHelper.run(Map(
-      "Test.flow" -> "",
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("Test.flow" -> "", "Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Custom flow (SFDX)") {
-    FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> "",
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }"
-    )) { root: PathLike =>
+    FileSystemHelper.run(
+      Map("Test.flow-meta.xml" -> "",
+          "Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -78,101 +76,114 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Missing flow") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      // TODO: This should be a missing issue
-      assert(org.issues.getMessages("/Dummy.cls") ==
-        "Missing: line 1 at 22-41: Unknown field or type 'Test' on 'Flow.Interview'\n")
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        // TODO: This should be a missing issue
+        assert(
+          org.issues.getMessages("/Dummy.cls") ==
+            "Missing: line 1 at 22-41: Unknown field or type 'Test' on 'Flow.Interview'\n")
     }
   }
 
   test("Create flow") {
-    FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> "",
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map(
+        "Test.flow-meta.xml" -> "",
+        "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Create flow (namespaced)") {
-    FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> "",
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg.Test(new Map<String, Object>());} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map(
+        "Test.flow-meta.xml" -> "",
+        "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg.Test(new Map<String, Object>());} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Create flow (namespaced but without namespace)") {
-    FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> "",
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map(
+        "Test.flow-meta.xml" -> "",
+        "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Create flow (ghosted)") {
     FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.ghosted.Test(new Map<String, Object>());} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.newMDAPIPackageInternal(Some(Name("ghosted")), Seq(), Seq())
-      org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq(pkg1))
-      assert(!org.issues.hasMessages)
+      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.ghosted.Test(new Map<String, Object>());} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg1 = org.newMDAPIPackageInternal(Some(Name("ghosted")), Seq(), Seq())
+        org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq(pkg1))
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Create flow (packaged)") {
-    FileSystemHelper.run(Map(
-      "pkg1/Test.flow-meta.xml" -> "",
-      "pkg2/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg1.Test(new Map<String, Object>());} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-      val pkg2 = org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("pkg1/Test.flow-meta.xml" -> "",
+          "pkg2/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg1.Test(new Map<String, Object>());} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+        val pkg2 =
+          org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+        assert(!org.issues.hasMessages)
 
-      val interviewType1 = TypeIdentifier.fromJava(Name("pkg1"), TypeNames.Interview)
-      val interviewType2 = TypeIdentifier.fromJava(Name("pkg2"), TypeNames.Interview)
-      assert(pkg2.getDependencies(interviewType2, inheritanceOnly = false).sameElements(Array(interviewType1)))
-      assert(pkg1.getDependencyHolders(interviewType1).sameElements(Array(interviewType2)))
+        val interviewType1 = TypeIdentifier.fromJava(Name("pkg1"), TypeNames.Interview)
+        val interviewType2 = TypeIdentifier.fromJava(Name("pkg2"), TypeNames.Interview)
+        assert(
+          pkg2
+            .getDependencies(interviewType2, inheritanceOnly = false)
+            .sameElements(Array(interviewType1)))
+        assert(pkg1.getDependencyHolders(interviewType1).sameElements(Array(interviewType2)))
 
-      val dummyType = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Dummy.cls")).get.asTypeIdentifier
-      assert(pkg2.getDependencies(dummyType, inheritanceOnly = false).sameElements(Array(interviewType2)))
-      assert(pkg2.getDependencyHolders(interviewType2).sameElements(Array(dummyType)))
+        val dummyType =
+          pkg2.getTypeOfPathInternal(root.join("pkg2").join("Dummy.cls")).get.asTypeIdentifier
+        assert(
+          pkg2
+            .getDependencies(dummyType, inheritanceOnly = false)
+            .sameElements(Array(interviewType2)))
+        assert(pkg2.getDependencyHolders(interviewType2).sameElements(Array(dummyType)))
     }
   }
 
   test("Create flow (missing flow)") {
     FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq())
-      assert(org.issues.getMessages("/Dummy.cls") ==
-        "Missing: line 1 at 45-64: No type declaration found for 'Flow.Interview.Test'\n")
+      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq())
+        assert(
+          org.issues.getMessages("/Dummy.cls") ==
+            "Missing: line 1 at 45-64: No type declaration found for 'Flow.Interview.Test'\n")
     }
   }
 
   test("Start flow") {
-    FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> "",
-      "Dummy.cls" -> "public class Dummy { {new Flow.Interview.Test(new Map<String, Object>()).start();} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map(
+        "Test.flow-meta.xml" -> "",
+        "Dummy.cls" -> "public class Dummy { {new Flow.Interview.Test(new Map<String, Object>()).start();} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
     }
   }
 }

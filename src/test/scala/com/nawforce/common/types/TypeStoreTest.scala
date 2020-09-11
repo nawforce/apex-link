@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types
 
 import com.nawforce.common.api.{Name, TypeName}
@@ -39,15 +39,27 @@ class TypeStoreTest extends AnyFunSuite {
   }
 
   test("Scoped system class found") {
-    assert(PlatformTypes.get(TypeNames.String, None).getOrElse(throw new NoSuchElementException).typeName == TypeNames.String)
+    assert(
+      PlatformTypes
+        .get(TypeNames.String, None)
+        .getOrElse(throw new NoSuchElementException)
+        .typeName == TypeNames.String)
   }
 
   test("Unscoped system class found") {
-    assert(PlatformTypes.get(TypeName(Names.String), None).getOrElse(throw new NoSuchElementException).typeName == TypeNames.String)
+    assert(
+      PlatformTypes
+        .get(TypeName(Names.String), None)
+        .getOrElse(throw new NoSuchElementException)
+        .typeName == TypeNames.String)
   }
 
   test("Unscoped schema class found") {
-    assert(PlatformTypes.get(TypeName(Names.SObjectType), None).getOrElse(throw new NoSuchElementException).typeName == TypeNames.SObjectType)
+    assert(
+      PlatformTypes
+        .get(TypeName(Names.SObjectType), None)
+        .getOrElse(throw new NoSuchElementException)
+        .typeName == TypeNames.SObjectType)
   }
 
   test("Unscoped database class not found") {
@@ -55,12 +67,22 @@ class TypeStoreTest extends AnyFunSuite {
   }
 
   test("Inner class found") {
-    val typeName = TypeName(Name("Header"), Nil, Some(TypeName(Name("InboundEmail"), Nil, Some(TypeName(Name("Messaging"))))))
-    assert(PlatformTypes.get(typeName, None).getOrElse(throw new NoSuchElementException).typeName == typeName)
+    val typeName =
+      TypeName(Name("Header"),
+               Nil,
+               Some(TypeName(Name("InboundEmail"), Nil, Some(TypeName(Name("Messaging"))))))
+    assert(
+      PlatformTypes
+        .get(typeName, None)
+        .getOrElse(throw new NoSuchElementException)
+        .typeName == typeName)
   }
 
   test("Bad inner class not found") {
-    val typeName = TypeName(Name("BadHeader"), Nil, Some(TypeName(Name("InboundEmail"), Nil, Some(TypeName(Name("Messaging"))))))
+    val typeName =
+      TypeName(Name("BadHeader"),
+               Nil,
+               Some(TypeName(Name("InboundEmail"), Nil, Some(TypeName(Name("Messaging"))))))
     assert(PlatformTypes.get(typeName, None).isLeft)
   }
 }

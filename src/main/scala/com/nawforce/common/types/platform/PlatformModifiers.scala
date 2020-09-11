@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types.platform
 
 import java.lang.reflect.{Modifier => JavaModifier}
@@ -36,9 +36,11 @@ object PlatformModifiers {
   private val modPublic: Array[Modifier] = Array(PUBLIC_MODIFIER)
   private val modPublicVirtual: Array[Modifier] = Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER)
   private val modPublicStatic: Array[Modifier] = Array(PUBLIC_MODIFIER, STATIC_MODIFIER)
-  private val modPublicVirtualStatic: Array[Modifier] = Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER, STATIC_MODIFIER)
+  private val modPublicVirtualStatic: Array[Modifier] =
+    Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER, STATIC_MODIFIER)
   private val modPublicFinal: Array[Modifier] = Array(PUBLIC_MODIFIER, FINAL_MODIFIER)
-  private val modPublicFinalStatic: Array[Modifier] = Array(PUBLIC_MODIFIER, FINAL_MODIFIER, STATIC_MODIFIER)
+  private val modPublicFinalStatic: Array[Modifier] =
+    Array(PUBLIC_MODIFIER, FINAL_MODIFIER, STATIC_MODIFIER)
 
   def typeModifiers(javaBits: Int, nature: Nature): Array[Modifier] = {
     assert(JavaModifier.isPublic(javaBits))
@@ -53,12 +55,12 @@ object PlatformModifiers {
     getTypeModifier(nature == CLASS_NATURE, JavaModifier.isStatic(javaBits))
   }
 
-  private def getTypeModifier(isVirtual: Boolean, isStatic:Boolean): Array[Modifier] = {
+  private def getTypeModifier(isVirtual: Boolean, isStatic: Boolean): Array[Modifier] = {
     (isVirtual, isStatic) match {
       case (false, false) => modPublic
-      case (false, true) => modPublicStatic
-      case (true, false) => modPublicVirtual
-      case (true, true) => modPublicVirtualStatic
+      case (false, true)  => modPublicStatic
+      case (true, false)  => modPublicVirtual
+      case (true, true)   => modPublicVirtualStatic
     }
   }
 
@@ -74,12 +76,12 @@ object PlatformModifiers {
     getFieldOrMethodModifier(JavaModifier.isFinal(javaBits), JavaModifier.isStatic(javaBits))
   }
 
-  private def getFieldOrMethodModifier(isFinal: Boolean, isStatic:Boolean): Array[Modifier] = {
+  private def getFieldOrMethodModifier(isFinal: Boolean, isStatic: Boolean): Array[Modifier] = {
     (isFinal, isStatic) match {
       case (false, false) => modPublic
-      case (false, true) => modPublicStatic
-      case (true, false) => modPublicFinal
-      case (true, true) => modPublicFinalStatic
+      case (false, true)  => modPublicStatic
+      case (true, false)  => modPublicFinal
+      case (true, true)   => modPublicFinalStatic
     }
   }
 
@@ -98,7 +100,7 @@ object PlatformModifiers {
     getMethodModifier(JavaModifier.isStatic(javaBits))
   }
 
-  private def getMethodModifier(isStatic:Boolean): Array[Modifier] = {
+  private def getMethodModifier(isStatic: Boolean): Array[Modifier] = {
     if (isStatic) {
       modPublicStatic
     } else {

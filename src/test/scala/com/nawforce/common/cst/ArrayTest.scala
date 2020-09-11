@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, ServerOps}
@@ -63,7 +63,9 @@ class ArrayTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Non-Integer index") {
     typeDeclaration("public class Dummy {Integer b; {List<Dummy> a;  Integer b = a[null].b;}}")
-    assert(defaultOrg.issues.getMessages(defaultPath.toString) == "Error: line 1 at 62-66: Array indexes must be Integers, found 'null'\n")
+    assert(
+      defaultOrg.issues
+        .getMessages(defaultPath.toString) == "Error: line 1 at 62-66: Array indexes must be Integers, found 'null'\n")
   }
 
   test("Integer index") {

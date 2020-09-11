@@ -17,9 +17,10 @@ class DependentProjectTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Ghosted dependent") {
-    FileSystemHelper.run(Map(
-      "sfdx-project.json" ->
-        """{
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
           | "packageDirectories": [{"path": "metadata"}],
           | "plugins": {
           |   "dependencies": [
@@ -27,18 +28,19 @@ class DependentProjectTest extends AnyFunSuite with BeforeAndAfter {
           |   ]
           | }
           |}""".stripMargin,
-      "metadata/Dummy.cls" -> "public class Dummy {public void foo() {baz.MyClass.MyMethod();}}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newSFDXPackageInternal(root)
-      assert(!org.issues.hasMessages)
+        "metadata/Dummy.cls" -> "public class Dummy {public void foo() {baz.MyClass.MyMethod();}}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newSFDXPackageInternal(root)
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("MDAPI dependent") {
-    FileSystemHelper.run(Map(
-      "sfdx-project.json" ->
-        """{
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
           | "packageDirectories": [{"path": "metadata"}],
           | "plugins": {
           |   "dependencies": [
@@ -46,19 +48,20 @@ class DependentProjectTest extends AnyFunSuite with BeforeAndAfter {
           |   ]
           | }
           |}""".stripMargin,
-      "metadata/Dummy.cls" -> "public class Dummy {public void foo() {baz.MyClass.MyMethod();}}",
-      "pkg1/MyClass.cls" -> "global class MyClass {global static void MyMethod() {}}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newSFDXPackageInternal(root)
-      assert(!org.issues.hasMessages)
+        "metadata/Dummy.cls" -> "public class Dummy {public void foo() {baz.MyClass.MyMethod();}}",
+        "pkg1/MyClass.cls" -> "global class MyClass {global static void MyMethod() {}}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newSFDXPackageInternal(root)
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("SFDX dependent") {
-    FileSystemHelper.run(Map(
-      "sfdx-project.json" ->
-        """{
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
           | "packageDirectories": [{"path": "metadata"}],
           | "plugins": {
           |   "dependencies": [
@@ -66,17 +69,17 @@ class DependentProjectTest extends AnyFunSuite with BeforeAndAfter {
           |   ]
           | }
           |}""".stripMargin,
-      "metadata/Dummy.cls" -> "public class Dummy {public void foo() {baz.MyClass.MyMethod();}}",
-      "pkg1/sfdx-project.json" ->
-        """{
+        "metadata/Dummy.cls" -> "public class Dummy {public void foo() {baz.MyClass.MyMethod();}}",
+        "pkg1/sfdx-project.json" ->
+          """{
           | "namespace": "baz",
           | "packageDirectories": [{"path": "metadata"}]
           |}""".stripMargin,
-      "pkg1/metadata/MyClass.cls" -> "global class MyClass {global static void MyMethod() {}}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newSFDXPackageInternal(root)
-      assert(!org.issues.hasMessages)
+        "pkg1/metadata/MyClass.cls" -> "global class MyClass {global static void MyMethod() {}}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newSFDXPackageInternal(root)
+        assert(!org.issues.hasMessages)
     }
   }
 }

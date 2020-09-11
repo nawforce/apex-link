@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, TypeName}
@@ -51,7 +51,6 @@ final case class ThisPrimary() extends Primary {
     if (input.typeDeclarationOpt.isEmpty) {
       context.logError(location, "")
     }
-
 
     assert(input.typeDeclarationOpt.nonEmpty)
     if (input.isStatic.contains(true)) {
@@ -130,20 +129,24 @@ final case class IdPrimary(id: Id) extends Primary {
     val absTd = TypeResolver(TypeName(id.name), context.pkg, excludeSObjects = false)
     if (absTd.isRight) {
       context.addDependency(absTd.getOrElse(throw new NoSuchElementException))
-      return ExprContext(isStatic =  Some(true), absTd.getOrElse(throw new NoSuchElementException))
+      return ExprContext(isStatic = Some(true), absTd.getOrElse(throw new NoSuchElementException))
     }
 
     context.missingIdentifier(location, input.typeName, id.name)
     ExprContext.empty
   }
 
-  private def findField(name: Name, td: TypeDeclaration, staticContext: Option[Boolean]) : Option[FieldDeclaration] = {
+  private def findField(name: Name,
+                        td: TypeDeclaration,
+                        staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     val encodedName = EncodedName(name)
     val namespaceName = encodedName.defaultNamespace(td.packageDeclaration.flatMap(_.namespace))
-    td.findField(namespaceName.fullName, staticContext).orElse({
-      if (encodedName != namespaceName)
-        td.findField(encodedName.fullName, staticContext) else None
-    })
+    td.findField(namespaceName.fullName, staticContext)
+      .orElse({
+        if (encodedName != namespaceName)
+          td.findField(encodedName.fullName, staticContext)
+        else None
+      })
   }
 }
 

@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
 import com.nawforce.common.FileSystemHelper
@@ -45,8 +45,11 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
       this.root = root
       OrgImpl.current.withValue(defaultOrg) {
         defaultOrg.unmanaged.deployClasses(
-          classes.map(p => MetadataDocument(root.join(p._1)).get.asInstanceOf[ApexClassDocument]).toSeq)
-        defaultOrg.unmanaged.findTypes(classes.keys.map(k => TypeName(Name(k.replaceAll("\\.cls$", "")))).toSeq)
+          classes
+            .map(p => MetadataDocument(root.join(p._1)).get.asInstanceOf[ApexClassDocument])
+            .toSeq)
+        defaultOrg.unmanaged.findTypes(
+          classes.keys.map(k => TypeName(Name(k.replaceAll("\\.cls$", "")))).toSeq)
       }
     }
   }
@@ -70,35 +73,38 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Missing Static func creates error") {
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy {void func() {A.func();} }"))
-    assert(defaultOrg.issues.getMessages("/Dummy.cls") ==
-      "Missing: line 1 at 33-34: No variable or type found for 'A' on 'Dummy'\n")
+    assert(
+      defaultOrg.issues.getMessages("/Dummy.cls") ==
+        "Missing: line 1 at 33-34: No variable or type found for 'A' on 'Dummy'\n")
     assert(tds.head.dependencies().isEmpty)
   }
 
   test("Static func creates method dependency") {
-    val tds = typeDeclarations(Map(
-      "Dummy.cls" -> "public class Dummy {static void func() {A.func();} }",
-      "A.cls" -> "public class A {public static void func() {}}"
-    ))
+    val tds = typeDeclarations(
+      Map("Dummy.cls" -> "public class Dummy {static void func() {A.func();} }",
+          "A.cls" -> "public class A {public static void func() {}}"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
-    assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().toSet
-      .contains(tds.tail.head.methods.find(_.name == Name("func")).get))
+    assert(
+      tds.head.methods
+        .find(_.name == Name("func"))
+        .get
+        .dependencies()
+        .toSet
+        .contains(tds.tail.head.methods.find(_.name == Name("func")).get))
   }
 
   test("Platform func does not create dependency") {
-    val tds = typeDeclarations(Map(
-      "Dummy.cls" -> "public class Dummy {static void func() {System.debug('Hello');} }"
-    ))
+    val tds = typeDeclarations(
+      Map("Dummy.cls" -> "public class Dummy {static void func() {System.debug('Hello');} }"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
 
   test("Field reference creates method dependency") {
-    val tds = typeDeclarations(Map(
-      "Dummy.cls" -> "public class Dummy {Object a; void func() {a = null;} }"
-    ))
+    val tds = typeDeclarations(
+      Map("Dummy.cls" -> "public class Dummy {Object a; void func() {a = null;} }"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
 
@@ -108,10 +114,9 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Superclass field reference creates method dependent") {
-    val tds = typeDeclarations(Map(
-      "Dummy.cls" -> "public class Dummy extends A {void func() {a = null;} }",
-      "A.cls" -> "public virtual class A {Object a;}"
-    ))
+    val tds = typeDeclarations(
+      Map("Dummy.cls" -> "public class Dummy extends A {void func() {a = null;} }",
+          "A.cls" -> "public virtual class A {Object a;}"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().toSet == tds.tail.toSet)
 
@@ -121,11 +126,11 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Hidden outer class field reference creates error") {
-    val tds = typeDeclarations(Map(
-      "Dummy.cls" -> "public class Dummy {Object a; class B {void func() {a = null;} } }",
-    ))
-    assert(defaultOrg.issues.getMessages("/Dummy.cls") ==
-      "Missing: line 1 at 52-53: No variable or type found for 'a' on 'Dummy.B'\n")
+    val tds = typeDeclarations(
+      Map("Dummy.cls" -> "public class Dummy {Object a; class B {void func() {a = null;} } }", ))
+    assert(
+      defaultOrg.issues.getMessages("/Dummy.cls") ==
+        "Missing: line 1 at 52-53: No variable or type found for 'a' on 'Dummy.B'\n")
     assert(tds.head.dependencies().isEmpty)
     assert(tds.head.nestedTypes.head.dependencies().isEmpty)
     assert(tds.head.nestedTypes.head.methods.head.dependencies().isEmpty)
@@ -133,8 +138,7 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Outer class static field creates dependency") {
     val tds = typeDeclarations(Map(
-      "Dummy.cls" -> "public class Dummy {static Object a; class B {void func() {a = null;} } }",
-    ))
+      "Dummy.cls" -> "public class Dummy {static Object a; class B {void func() {a = null;} } }", ))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
     assert(tds.head.nestedTypes.head.dependencies().isEmpty)
@@ -145,9 +149,8 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Property reference creates dependency") {
-    val tds = typeDeclarations(Map(
-      "Dummy.cls" -> "public class Dummy {Object a {get;} void func() {a = null;} }"
-    ))
+    val tds = typeDeclarations(
+      Map("Dummy.cls" -> "public class Dummy {Object a {get;} void func() {a = null;} }"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
 
@@ -157,10 +160,9 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Superclass property creates dependency") {
-    val tds = typeDeclarations(Map(
-      "Dummy.cls" -> "public class Dummy extends A {void func() {a = null;} }",
-      "A.cls" -> "public virtual class A {Object a {get;}}"
-    ))
+    val tds = typeDeclarations(
+      Map("Dummy.cls" -> "public class Dummy extends A {void func() {a = null;} }",
+          "A.cls" -> "public virtual class A {Object a {get;}}"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().toSet == tds.tail.toSet)
 
@@ -170,9 +172,8 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Local var not dependent") {
-    val tds = typeDeclarations(Map(
-      "Dummy.cls" -> "public class Dummy {void func() {Object a; a = null;} }"
-    ))
+    val tds = typeDeclarations(
+      Map("Dummy.cls" -> "public class Dummy {void func() {Object a; a = null;} }"))
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }

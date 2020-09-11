@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.api
 
 import com.nawforce.common.FileSystemHelper
@@ -46,21 +46,20 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Unused method") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {public void foo() {}}"
-    ), setupCache = true) { root: PathLike =>
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {public void foo() {}}"),
+                         setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
-      assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
-        "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
+      assert(
+        pkg.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
+          "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
     }
   }
 
   test("Method used from method") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {public void foo() {foo();}}"
-    ), setupCache = true) { root: PathLike =>
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {public void foo() {foo();}}"),
+                         setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -69,9 +68,8 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Method used from block") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {{foo();} public void foo() {}}"
-    ), setupCache = true) { root: PathLike =>
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {{foo();} public void foo() {}}"),
+                         setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -80,21 +78,21 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Unused field") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {Object a;}"
-    ), setupCache = true) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-      assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
-        "Unused: line 1 at 27-28: Unused Field or Property 'a'\n")
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {Object a;}"), setupCache = true) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
+        assert(
+          pkg.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
+            "Unused: line 1 at 27-28: Unused Field or Property 'a'\n")
     }
   }
 
   test("Field used from method") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {Object a; void foo(){foo(); a = null;}}"
-    ), setupCache = true) { root: PathLike =>
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {Object a; void foo(){foo(); a = null;}}"),
+      setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -103,9 +101,8 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Field used from block") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {{a = null;} Object a;}"
-    ), setupCache = true) { root: PathLike =>
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {{a = null;} Object a;}"),
+                         setupCache = true) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -113,19 +110,31 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
-  def assertIsFullDeclaration(pkg: PackageImpl, name: String, namespace: Option[Name]=None): Unit = {
-    assert(pkg.findTypes(Seq(TypeName(Name(name)).withNamespace(namespace))).head.isInstanceOf[FullDeclaration])
+  def assertIsFullDeclaration(pkg: PackageImpl,
+                              name: String,
+                              namespace: Option[Name] = None): Unit = {
+    assert(
+      pkg
+        .findTypes(Seq(TypeName(Name(name)).withNamespace(namespace)))
+        .head
+        .isInstanceOf[FullDeclaration])
   }
 
-  def assertIsSummaryDeclaration(pkg: PackageImpl, name: String, namespace: Option[Name]=None): Unit = {
-    assert(pkg.findTypes(Seq(TypeName(Name(name)).withNamespace(namespace))).head.isInstanceOf[SummaryDeclaration])
+  def assertIsSummaryDeclaration(pkg: PackageImpl,
+                                 name: String,
+                                 namespace: Option[Name] = None): Unit = {
+    assert(
+      pkg
+        .findTypes(Seq(TypeName(Name(name)).withNamespace(namespace)))
+        .head
+        .isInstanceOf[SummaryDeclaration])
   }
 
   test("Used method on summary type") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {public static void foo() {}}",
-      "Caller.cls" -> "public class Caller {{Dummy.Foo();}}",
-    ), setupCache = true) { root: PathLike =>
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {public static void foo() {}}",
+                             "Caller.cls" -> "public class Caller {{Dummy.Foo();}}",
+                         ),
+                         setupCache = true) { root: PathLike =>
       // Setup as cached
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
@@ -145,24 +154,25 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Unused method on summary type") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {public void foo() {}}",
-    ), setupCache = true) { root: PathLike =>
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {public void foo() {}}", ),
+                         setupCache = true) { root: PathLike =>
       // Setup as cached
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assertIsFullDeclaration(pkg, "Dummy")
       assert(!org.issues.hasMessages)
-      assert(pkg.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
-        "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
+      assert(
+        pkg.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
+          "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
       org.flush()
 
       val org2 = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg2 = org2.newMDAPIPackageInternal(None, Seq(root), Seq())
       assertIsSummaryDeclaration(pkg2, "Dummy")
       OrgImpl.current.withValue(org2) {
-        assert(pkg2.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
-          "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
+        assert(
+          pkg2.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
+            "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
       }
     }
   }

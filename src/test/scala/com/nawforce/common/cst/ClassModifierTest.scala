@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, ServerOps}
@@ -54,8 +54,11 @@ class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   def typeDeclarationInner(clsText: String): TypeDeclaration = {
-    typeDeclaration(clsText).asInstanceOf[ClassDeclaration]
-      .bodyDeclarations.head.asInstanceOf[TypeDeclaration]
+    typeDeclaration(clsText)
+      .asInstanceOf[ClassDeclaration]
+      .bodyDeclarations
+      .head
+      .asInstanceOf[TypeDeclaration]
   }
 
   before {
@@ -84,26 +87,31 @@ class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Protected outer") {
     assert(typeDeclaration("protected class Dummy {}").modifiers.isEmpty)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 0-9: Modifier 'protected' is not supported on classes\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 0-9: Modifier 'protected' is not supported on classes\n")
   }
 
   test("Private outer") {
     assert(typeDeclaration("private class Dummy {}").modifiers.isEmpty)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Warning: line 1 at 14-19: Private modifier is not allowed on outer classes\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Warning: line 1 at 14-19: Private modifier is not allowed on outer classes\n")
   }
 
   test("No modifier class") {
     assert(typeDeclaration("class Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 6-11: Outer classes must be declared either 'global' or 'public'\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 6-11: Outer classes must be declared either 'global' or 'public'\n")
   }
 
   test("Illegal modifier class") {
-    assert(typeDeclaration("global static class Dummy {}").modifiers sameElements  Array(GLOBAL_MODIFIER))
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 7-13: Modifier 'static' is not supported on classes\n")
+    assert(
+      typeDeclaration("global static class Dummy {}").modifiers sameElements Array(GLOBAL_MODIFIER))
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 7-13: Modifier 'static' is not supported on classes\n")
   }
 
   test("With sharing class") {
@@ -169,8 +177,9 @@ class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
   test("HttpGet annotation class") {
     val modifiers = typeDeclaration("@HttpGet public class Dummy {}").modifiers
     assert(modifiers.toSet == Set(PUBLIC_MODIFIER))
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 0-8: Annotation '@HttpGet' is not supported on classes\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 0-8: Annotation '@HttpGet' is not supported on classes\n")
   }
 
   test("SuppressWarnings & isTest annotation class") {
@@ -180,29 +189,39 @@ class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Global inner") {
-    assert(typeDeclarationInner("global class Dummy {global class Inner{}}").modifiers sameElements  Array(GLOBAL_MODIFIER))
+    assert(
+      typeDeclarationInner("global class Dummy {global class Inner{}}").modifiers sameElements Array(
+        GLOBAL_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Global inner of public outer") {
-    assert(typeDeclarationInner("public class Dummy {global class Inner{}}").modifiers sameElements Array(GLOBAL_MODIFIER))
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
+    assert(
+      typeDeclarationInner("public class Dummy {global class Inner{}}").modifiers sameElements Array(
+        GLOBAL_MODIFIER))
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
   test("Public inner") {
-    assert(typeDeclarationInner("public class Dummy {public class Inner{}}").modifiers sameElements Array(PUBLIC_MODIFIER))
+    assert(
+      typeDeclarationInner("public class Dummy {public class Inner{}}").modifiers sameElements Array(
+        PUBLIC_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Protected inner") {
     assert(typeDeclarationInner("public class Dummy {protected class Inner{}}").modifiers.isEmpty)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 20-29: Modifier 'protected' is not supported on classes\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 20-29: Modifier 'protected' is not supported on classes\n")
   }
 
   test("Private inner") {
-    assert(typeDeclarationInner("public class Dummy {private class Inner{}}").modifiers sameElements Array(PRIVATE_MODIFIER))
+    assert(
+      typeDeclarationInner("public class Dummy {private class Inner{}}").modifiers sameElements Array(
+        PRIVATE_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
@@ -213,55 +232,64 @@ class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Illegal modifier inner class") {
     assert(typeDeclarationInner("global class Dummy {static class Inner{}}").modifiers.isEmpty)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 20-26: Modifier 'static' is not supported on classes\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 20-26: Modifier 'static' is not supported on classes\n")
   }
 
   test("With sharing inner class") {
-    val modifiers = typeDeclarationInner("public class Dummy {with sharing class Inner {}}").modifiers
+    val modifiers =
+      typeDeclarationInner("public class Dummy {with sharing class Inner {}}").modifiers
     assert(modifiers.toSet == Set(WITH_SHARING_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Without sharing inner class") {
-    val modifiers = typeDeclarationInner("public without sharing class Dummy {without sharing class Inner {}}").modifiers
+    val modifiers = typeDeclarationInner(
+      "public without sharing class Dummy {without sharing class Inner {}}").modifiers
     assert(modifiers.toSet == Set(WITHOUT_SHARING_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Inherited sharing inner class") {
-    val modifiers = typeDeclarationInner("public inherited sharing class Dummy {inherited sharing class Inner {}}").modifiers
+    val modifiers = typeDeclarationInner(
+      "public inherited sharing class Dummy {inherited sharing class Inner {}}").modifiers
     assert(modifiers.toSet == Set(INHERITED_SHARING_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Abstract methods must be in abstract class") {
     typeDeclaration("public class Dummy {abstract void func();}")
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 13-18: Classes with abstract methods must be abstract\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 13-18: Classes with abstract methods must be abstract\n")
   }
 
   test("Virtual no needed on abstract class") {
     typeDeclaration("public virtual abstract class Dummy {}")
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 30-35: Abstract classes do not need virtual keyword\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 30-35: Abstract classes do not need virtual keyword\n")
   }
 
   test("Non abstract methods must have a body") {
     typeDeclaration("public class Dummy {void func();}")
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 25-29: Method must have an implementations or be marked abstract\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 25-29: Method must have an implementations or be marked abstract\n")
   }
 
   test("Abstract methods must not have a body") {
     typeDeclaration("public abstract class Dummy {abstract void func() {}}")
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 43-47: Abstract methods can not have an implementation\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 43-47: Abstract methods can not have an implementation\n")
   }
 
   test("Virtual not needed on abstract method") {
     typeDeclaration("public abstract class Dummy {abstract virtual void func();}")
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 51-55: Abstract methods do not need virtual keyword\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 51-55: Abstract methods do not need virtual keyword\n")
   }
 }

@@ -24,12 +24,11 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.org
 
 import java.util.concurrent.locks.ReentrantLock
 
-import com.nawforce.common.api.ServerOps
 import com.nawforce.common.documents.ParsedCache
 import com.nawforce.common.memory.{Cleanable, Monitor}
 import com.nawforce.common.path.PathLike
@@ -44,7 +43,7 @@ class Flusher(org: OrgImpl, parsedCache: Option[ParsedCache]) {
   protected val refreshQueue = new mutable.Queue[RefreshRequest]()
 
   def isFlushed: Boolean = {
-    lock.synchronized {refreshQueue.isEmpty}
+    lock.synchronized { refreshQueue.isEmpty }
   }
 
   def queue(request: RefreshRequest): Unit = {
@@ -58,11 +57,13 @@ class Flusher(org: OrgImpl, parsedCache: Option[ParsedCache]) {
       lock.synchronized {
         val packages = org.orderedPackages
 
-        val refreshed = packages.map(pkg => {
-          pkg.refreshBatched(refreshQueue.filter(_.pkg == pkg).toSeq)
-        }).foldLeft(false) {
-          _ || _
-        }
+        val refreshed = packages
+          .map(pkg => {
+            pkg.refreshBatched(refreshQueue.filter(_.pkg == pkg).toSeq)
+          })
+          .foldLeft(false) {
+            _ || _
+          }
 
         parsedCache.foreach(pc => {
           packages.foreach(pkg => {
@@ -80,28 +81,27 @@ class Flusher(org: OrgImpl, parsedCache: Option[ParsedCache]) {
 
 }
 
-class CacheFlusher(org: OrgImpl, parsedCache: Option[ParsedCache]) extends Flusher(org, parsedCache) with Runnable {
+class CacheFlusher(org: OrgImpl, parsedCache: Option[ParsedCache])
+    extends Flusher(org, parsedCache)
+    with Runnable {
 
   new Thread(this).start()
 
   override def run(): Unit = {
-      def queueSize: Int = lock.synchronized {refreshQueue.size}
+    def queueSize: Int = lock.synchronized { refreshQueue.size }
 
-      while (true) {
-        // Wait for non-zero queue to be stable
-        var stable = false
-        while (!stable) {
-          val start = queueSize
-          Thread.sleep(250)
-          val end = queueSize
-          stable = start > 0 && start == end
-        }
-
-        // Process refresh requests & flush
-        refreshAndFlush()
+    while (true) {
+      // Wait for non-zero queue to be stable
+      var stable = false
+      while (!stable) {
+        val start = queueSize
+        Thread.sleep(250)
+        val end = queueSize
+        stable = start > 0 && start == end
       }
+
+      // Process refresh requests & flush
+      refreshAndFlush()
+    }
   }
 }
-
-
-

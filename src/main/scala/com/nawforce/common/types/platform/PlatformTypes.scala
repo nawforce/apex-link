@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types.platform
 
 import java.lang.ref.WeakReference
@@ -79,19 +79,22 @@ object PlatformTypes {
    * needed. The builds over PlatformTypeDeclaration by adding support for typeName aliases, nested
    * types and namespace defaulting.
    */
-  def get(typeName: TypeName, from: Option[TypeDeclaration], excludeSObjects: Boolean=false): TypeResponse = {
+  def get(typeName: TypeName,
+          from: Option[TypeDeclaration],
+          excludeSObjects: Boolean = false): TypeResponse = {
 
     def findOuterOrNestedPlatformType(localTypeName: TypeName): TypeResponse = {
       PlatformTypeDeclaration.get(localTypeName, from) match {
         case Left(_) if localTypeName.outer.nonEmpty =>
           findOuterOrNestedPlatformType(localTypeName.outer.get) match {
             case Left(error) => Left(error)
-            case Right(outerTd) => outerTd.nestedTypes.find(_.name == localTypeName.name) match {
-              case Some(td) => Right(td)
-              case _ => Left(MissingType(localTypeName))
-            }
+            case Right(outerTd) =>
+              outerTd.nestedTypes.find(_.name == localTypeName.name) match {
+                case Some(td) => Right(td)
+                case _        => Left(MissingType(localTypeName))
+              }
           }
-        case Left(_) => Left(MissingType(localTypeName))
+        case Left(_)   => Left(MissingType(localTypeName))
         case Right(td) => Right(td)
       }
     }
@@ -122,7 +125,7 @@ object PlatformTypes {
     firstResult
   }
 
-  private def fireLoadingEvents(td: TypeDeclaration): Unit= {
+  private def fireLoadingEvents(td: TypeDeclaration): Unit = {
     val ptd = td.asInstanceOf[PlatformTypeDeclaration]
     loadingObservers = loadingObservers.filter(_.get != null)
     loadingObservers.foreach(wr => wr.get.loaded(ptd))
@@ -130,7 +133,5 @@ object PlatformTypes {
 
   private val typeAliasMap: Map[TypeName, TypeName] = Map(
     TypeNames.Object -> TypeNames.InternalObject,
-    TypeNames.ApexPagesPageReference -> TypeNames.PageReference
-  )
+    TypeNames.ApexPagesPageReference -> TypeNames.PageReference)
 }
-

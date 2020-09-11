@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package com.nawforce.common.types
 
@@ -40,8 +40,8 @@ package object apex {
 
     def intern: DependentSummary = {
       dependency match {
-        case d: TypeDependentSummary => intern(d)
-        case d: FieldDependentSummary => intern(d)
+        case d: TypeDependentSummary   => intern(d)
+        case d: FieldDependentSummary  => intern(d)
         case d: MethodDependentSummary => intern(d)
       }
     }
@@ -55,8 +55,9 @@ package object apex {
     }
 
     private def intern(dependency: MethodDependentSummary): MethodDependentSummary = {
-      MethodDependentSummary(dependency.typeId.intern, Names(dependency.name).value,
-        dependency.parameterTypes.map(_.intern))
+      MethodDependentSummary(dependency.typeId.intern,
+                             Names(dependency.name).value,
+                             dependency.parameterTypes.map(_.intern))
     }
   }
 
@@ -64,8 +65,8 @@ package object apex {
   implicit class TypeIdentifierOps(typeIdentifier: TypeIdentifier) {
     def intern: TypeIdentifier = {
       TypeIdentifierOps.intern(
-        TypeIdentifier(typeIdentifier.namespace.map(n => Names(n.value)), typeIdentifier.typeName.intern)
-      )
+        TypeIdentifier(typeIdentifier.namespace.map(n => Names(n.value)),
+                       typeIdentifier.typeName.intern))
     }
   }
 

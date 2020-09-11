@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package com.nawforce.common.cst
 
@@ -40,7 +40,7 @@ class UnusedLog(types: Iterable[TypeDeclaration]) extends IssueLog {
     types.foreach {
       //case labels: LabelDeclaration => labels.unused().foreach(add)
       case apexType: ApexClassDeclaration => apexType.unused().foreach(add)
-      case _ => ()
+      case _                              => ()
     }
   }
 }

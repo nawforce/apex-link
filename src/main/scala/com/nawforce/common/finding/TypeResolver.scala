@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.finding
 
 import com.nawforce.common.api.TypeName
@@ -57,7 +57,7 @@ class TypeResolver {
     if (pkg.nonEmpty) {
       getPackageTypeFor(pkg.get, typeName, from) match {
         case Some(td) => Right(td)
-        case None => Left(MissingType(typeName))
+        case None     => Left(MissingType(typeName))
       }
     } else {
       PlatformTypes.get(typeName, Some(from), excludeSObjects)
@@ -65,8 +65,10 @@ class TypeResolver {
   }
 
   /** Search is selected based on what information is provided */
-  def find(typeName: TypeName, from: Option[TypeDeclaration], pkg: Option[PackageImpl],
-            excludeSObjects: Boolean): TypeResponse = {
+  def find(typeName: TypeName,
+           from: Option[TypeDeclaration],
+           pkg: Option[PackageImpl],
+           excludeSObjects: Boolean): TypeResponse = {
     if (from.nonEmpty) {
       // Allow override of platform types in packages to support Schema.SObjectType handling
       if (from.get.packageDeclaration.isEmpty && pkg.nonEmpty) {
@@ -81,7 +83,9 @@ class TypeResolver {
       PlatformTypes.get(typeName, None, excludeSObjects)
   }
 
-  private def getPackageTypeFor(pkg: PackageImpl, typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {
+  private def getPackageTypeFor(pkg: PackageImpl,
+                                typeName: TypeName,
+                                from: TypeDeclaration): Option[TypeDeclaration] = {
     typeCache.getOrElseUpdate((typeName, from), {
       val td = pkg.getTypeFor(typeName, from)
       typeCache.put((typeName, from), td)
@@ -101,7 +105,9 @@ object TypeResolver {
     new TypeResolver().find(typeName, from, excludeSObjects)
   }
 
-  def apply(typeName: TypeName, from: Option[TypeDeclaration], pkg: Option[PackageImpl],
+  def apply(typeName: TypeName,
+            from: Option[TypeDeclaration],
+            pkg: Option[PackageImpl],
             excludeSObjects: Boolean): TypeResponse = {
     new TypeResolver().find(typeName, from, pkg, excludeSObjects)
   }

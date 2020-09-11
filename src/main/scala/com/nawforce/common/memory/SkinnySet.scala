@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.memory
 
 import scala.collection.mutable
@@ -59,7 +59,7 @@ class SkinnySet[T <: AnyRef] {
     else
       arrayOf.append(t)
 
-    if (arrayOf != null && arrayOf.length>64) {
+    if (arrayOf != null && arrayOf.length > 64) {
       setOf = new mutable.HashSet[T]()
       arrayOf.foreach(setOf.add)
       arrayOf = null

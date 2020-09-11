@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, ServerOps}
@@ -55,8 +55,11 @@ class EnumModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   def typeDeclarationInner(clsText: String): TypeDeclaration = {
-    typeDeclaration(clsText).asInstanceOf[ClassDeclaration]
-      .bodyDeclarations.head.asInstanceOf[TypeDeclaration]
+    typeDeclaration(clsText)
+      .asInstanceOf[ClassDeclaration]
+      .bodyDeclarations
+      .head
+      .asInstanceOf[TypeDeclaration]
   }
 
   before {
@@ -85,26 +88,31 @@ class EnumModifierTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Protected outer") {
     assert(typeDeclaration("protected enum Dummy {}").modifiers.isEmpty)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 0-9: Modifier 'protected' is not supported on enums\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 0-9: Modifier 'protected' is not supported on enums\n")
   }
 
   test("Private outer") {
     assert(typeDeclaration("private enum Dummy {}").modifiers.isEmpty)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 13-18: Private modifier is not allowed on outer enums\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 13-18: Private modifier is not allowed on outer enums\n")
   }
 
   test("No modifier class") {
     assert(typeDeclaration("enum Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 5-10: Outer enums must be declared either 'global' or 'public'\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 5-10: Outer enums must be declared either 'global' or 'public'\n")
   }
 
   test("Illegal modifier") {
-    assert(typeDeclaration("global static enum Dummy {}").modifiers sameElements Array(GLOBAL_MODIFIER))
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 7-13: Modifier 'static' is not supported on enums\n")
+    assert(
+      typeDeclaration("global static enum Dummy {}").modifiers sameElements Array(GLOBAL_MODIFIER))
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 7-13: Modifier 'static' is not supported on enums\n")
   }
 
   test("Deprecated annotation") {
@@ -132,35 +140,49 @@ class EnumModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("SuppressWarnings & TestVisible annotation class") {
-    val modifiers = typeDeclaration("@SuppressWarnings public @TestVisible class Dummy {}").modifiers
-    assert(modifiers.toSet == Set(PUBLIC_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION, TEST_VISIBLE_ANNOTATION))
+    val modifiers =
+      typeDeclaration("@SuppressWarnings public @TestVisible class Dummy {}").modifiers
+    assert(
+      modifiers.toSet == Set(PUBLIC_MODIFIER,
+                             SUPPRESS_WARNINGS_ANNOTATION,
+                             TEST_VISIBLE_ANNOTATION))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Global inner") {
-    assert(typeDeclarationInner("global class Dummy {global enum Inner{}}").modifiers sameElements Array(GLOBAL_MODIFIER))
+    assert(
+      typeDeclarationInner("global class Dummy {global enum Inner{}}").modifiers sameElements Array(
+        GLOBAL_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Global inner of public outer") {
-    assert(typeDeclarationInner("public class Dummy {global enum Inner{}}").modifiers sameElements Array(GLOBAL_MODIFIER))
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
+    assert(
+      typeDeclarationInner("public class Dummy {global enum Inner{}}").modifiers sameElements Array(
+        GLOBAL_MODIFIER))
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
   test("Public inner") {
-    assert(typeDeclarationInner("public class Dummy {public enum Inner{}}").modifiers sameElements Array(PUBLIC_MODIFIER))
+    assert(
+      typeDeclarationInner("public class Dummy {public enum Inner{}}").modifiers sameElements Array(
+        PUBLIC_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Protected inner") {
     assert(typeDeclarationInner("public class Dummy {protected enum Inner{}}").modifiers.isEmpty)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 20-29: Modifier 'protected' is not supported on enums\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 20-29: Modifier 'protected' is not supported on enums\n")
   }
 
   test("Private inner") {
-    assert(typeDeclarationInner("public class Dummy {private enum Inner{}}").modifiers sameElements Array(PRIVATE_MODIFIER))
+    assert(
+      typeDeclarationInner("public class Dummy {private enum Inner{}}").modifiers sameElements Array(
+        PRIVATE_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
@@ -171,7 +193,8 @@ class EnumModifierTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Illegal modifier inner") {
     assert(typeDeclarationInner("global class Dummy {static enum Inner{}}").modifiers.isEmpty)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 20-26: Modifier 'static' is not supported on enums\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 20-26: Modifier 'static' is not supported on enums\n")
   }
 }

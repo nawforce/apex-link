@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.parsers
 
 import com.nawforce.common.FileSystemHelper
@@ -53,7 +53,7 @@ class CodeParserTest extends AnyFunSuite with BeforeAndAfter {
   test("Good class") {
     val parser = CodeParser(PathFactory("Hello.cls"), SourceData("public class Hello {}"))
     parser.parseClass() match {
-      case Left(_) => assert(false)
+      case Left(_)   => assert(false)
       case Right(cu) => assert(cu != null)
     }
   }
@@ -61,18 +61,17 @@ class CodeParserTest extends AnyFunSuite with BeforeAndAfter {
   test("Broken class") {
     val parser = CodeParser(PathFactory("Hello.cls"), SourceData("public class Hello {"))
     parser.parseClass() match {
-      case Left(_) => ()
+      case Left(_)  => ()
       case Right(_) => assert(false)
     }
   }
 
   test("UTF-8 class") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {{String a = 'Kimi Räikkönen';}}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org, root)
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {{String a = 'Kimi Räikkönen';}}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org, root)
+        assert(!org.issues.hasMessages)
     }
   }
 }

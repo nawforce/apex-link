@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, ServerOps}
@@ -71,20 +71,23 @@ class CreationTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Inner class") {
-    typeDeclaration("public class Dummy {{Object a = new Messaging.InboundEmail.BinaryAttachment();}}")
+    typeDeclaration(
+      "public class Dummy {{Object a = new Messaging.InboundEmail.BinaryAttachment();}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Basic with list constructor") {
     typeDeclaration("public class Dummy {{Object a = new Address{1};}}")
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 43-46: Expression list construction is only supported for Set or List types, not 'System.Address'\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 43-46: Expression list construction is only supported for Set or List types, not 'System.Address'\n")
   }
 
   test("Basic with map constructor") {
     typeDeclaration("public class Dummy {{Object a = new Address{1 => 2};}}")
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 43-51: Expression pair list construction is only supported for Map types, not 'System.Address'\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 43-51: Expression pair list construction is only supported for Map types, not 'System.Address'\n")
   }
 
   test("Basic SObject") {
@@ -99,14 +102,16 @@ class CreationTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Basic SObject with list constructor") {
     typeDeclaration("public class Dummy {{Object a = new Account{1};}}")
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 43-46: Expression list construction is only supported for Set or List types, not 'Schema.Account'\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 43-46: Expression list construction is only supported for Set or List types, not 'Schema.Account'\n")
   }
 
   test("Basic SObject with map constructor") {
     typeDeclaration("public class Dummy {{Object a = new Account{1 => 2};}}")
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 43-51: Expression pair list construction is only supported for Map types, not 'Schema.Account'\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 43-51: Expression pair list construction is only supported for Map types, not 'Schema.Account'\n")
   }
 
   test("Empty Map") {
@@ -115,14 +120,16 @@ class CreationTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Map with argument") {
-    typeDeclaration("public class Dummy {{Object a = new Map<String, Address>{'1' => new Address()};}}")
+    typeDeclaration(
+      "public class Dummy {{Object a = new Map<String, Address>{'1' => new Address()};}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Map with list constructor") {
     typeDeclaration("public class Dummy {{Object a = new Map<String, Address>{1, 2};}}")
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 56-62: Expression list construction is only supported for Set or List types, not 'System.Map<System.String, System.Address>'\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 56-62: Expression list construction is only supported for Set or List types, not 'System.Map<System.String, System.Address>'\n")
   }
 
   test("Empty List") {
@@ -137,8 +144,9 @@ class CreationTest extends AnyFunSuite with BeforeAndAfter {
 
   test("List with map constructor") {
     typeDeclaration("public class Dummy {{Object a = new List<Address>{1 => 2};}}")
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 49-57: Expression pair list construction is only supported for Map types, not 'System.List<System.Address>'\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 49-57: Expression pair list construction is only supported for Map types, not 'System.List<System.Address>'\n")
   }
 
   test("Empty Set") {
@@ -153,8 +161,9 @@ class CreationTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Set with map constructor") {
     typeDeclaration("public class Dummy {{Object a = new Set<Address>{1 => 2};}}")
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 48-56: Expression pair list construction is only supported for Map types, not 'System.Set<System.Address>'\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 48-56: Expression pair list construction is only supported for Map types, not 'System.Set<System.Address>'\n")
   }
 
   test("Array with Index") {

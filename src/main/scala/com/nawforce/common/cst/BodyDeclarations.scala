@@ -34,12 +34,7 @@ import com.nawforce.common.memory.SkinnySet
 import com.nawforce.common.modifiers._
 import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
-import com.nawforce.common.types.apex.{
-  ApexBlockLike,
-  ApexConstructorLike,
-  ApexFieldLike,
-  ApexMethodLike
-}
+import com.nawforce.common.types.apex.{ApexBlockLike, ApexConstructorLike, ApexFieldLike, ApexMethodLike}
 import com.nawforce.common.types.core._
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser

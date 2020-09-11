@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.api
 
 import com.nawforce.common.FileSystemHelper
@@ -45,9 +45,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid delete") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.cls" -> "public class Foo {}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("pkg/Foo.cls" -> "public class Foo {}")) { root: PathLike =>
       val path = root.join("pkg/Foo.cls")
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
@@ -62,47 +60,45 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Delete creates missing") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.cls" -> "public class Foo {Bar b;}",
-      "pkg/Bar.cls" -> "public class Bar {}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("pkg/Foo.cls" -> "public class Foo {Bar b;}", "pkg/Bar.cls" -> "public class Bar {}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
 
-      val path = root.join("pkg/Bar.cls")
-      path.delete()
-      pkg.refresh(path, None)
-      assert(org.flush())
+        val path = root.join("pkg/Bar.cls")
+        path.delete()
+        pkg.refresh(path, None)
+        assert(org.flush())
 
-      assert(org.issues.getMessages("/pkg/Foo.cls")
-        == "Missing: line 1 at 22-23: No type declaration found for 'Bar'\n")
+        assert(
+          org.issues.getMessages("/pkg/Foo.cls")
+            == "Missing: line 1 at 22-23: No type declaration found for 'Bar'\n")
     }
   }
 
   test("Trigger valid delete") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+    FileSystemHelper.run(Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
 
-      val path = root.join("pkg/Foo.trigger")
-      path.delete()
-      pkg.refresh(path, None)
-      assert(org.flush())
+        val path = root.join("pkg/Foo.trigger")
+        path.delete()
+        pkg.refresh(path, None)
+        assert(org.flush())
 
-      val fooTypeId = pkg.getTypeOfPath(root.join("pkg/Foo.trigger").toString)
-      assert(pkg.getPathsOfType(fooTypeId).isEmpty)
-      assert(!org.issues.hasMessages)
+        val fooTypeId = pkg.getTypeOfPath(root.join("pkg/Foo.trigger").toString)
+        assert(pkg.getPathsOfType(fooTypeId).isEmpty)
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Delete creates trigger missing") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar b;}",
-      "pkg/Bar.cls" -> "public class Bar {}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(
+      Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar b;}",
+          "pkg/Bar.cls" -> "public class Bar {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -111,14 +107,15 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
       path.delete()
       pkg.refresh(path, None)
       assert(org.flush())
-      assert(org.issues.getMessages("/pkg/Foo.trigger")
-        == "Missing: line 1 at 44-45: No type declaration found for 'Bar'\n")
+      assert(
+        org.issues.getMessages("/pkg/Foo.trigger")
+          == "Missing: line 1 at 44-45: No type declaration found for 'Bar'\n")
     }
   }
 
   test("Delete label file") {
-    FileSystemHelper.run(Map(
-      "CustomLabels.labels" ->
+    FileSystemHelper.run(
+      Map("CustomLabels.labels" ->
         """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
@@ -126,8 +123,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
           |        <protected>false</protected>
           |    </labels>
           |</CustomLabels>
-          |""".stripMargin,
-    )) { root: PathLike =>
+          |""".stripMargin, )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -143,9 +139,10 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Delete label file (multiple files)") {
-    FileSystemHelper.run(Map(
-      "CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+    FileSystemHelper.run(
+      Map(
+        "CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
@@ -153,8 +150,8 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-      "Alt.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+        "Alt.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel2</fullName>
@@ -162,7 +159,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-    )) { root: PathLike =>
+      )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -179,9 +176,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Delete flow file") {
-    FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.flow-meta.xml" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -195,26 +190,22 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Delete flow file (multiple)") {
-    FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> "",
-      "Test2.flow-meta.xml" -> ""
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(Map("Test.flow-meta.xml" -> "", "Test2.flow-meta.xml" -> "")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
 
-      val path = root.join("Test.flow-meta.xml")
-      path.delete()
-      pkg.refresh(path, None)
-      assert(org.flush())
-      assert(pkg.interviews.nestedTypes.map(_.name).toSet == Set(Name("Test2")))
+        val path = root.join("Test.flow-meta.xml")
+        path.delete()
+        pkg.refresh(path, None)
+        assert(org.flush())
+        assert(pkg.interviews.nestedTypes.map(_.name).toSet == Set(Name("Test2")))
     }
   }
 
   test("Delete page file") {
-    FileSystemHelper.run(Map(
-      "TestPage.page" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("TestPage.page" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -228,10 +219,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Delete page file (multiple)") {
-    FileSystemHelper.run(Map(
-      "Test.page" -> "",
-      "Test2.page" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.page" -> "", "Test2.page" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -245,9 +233,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Delete component file") {
-    FileSystemHelper.run(Map(
-      "Test.component" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.component" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -256,15 +242,13 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
       path.delete()
       pkg.refresh(path, None)
       assert(org.flush())
-      assert(pkg.components.nestedTypes.map(_.name).toSet == Set(Names.c, Names.Apex, Names.Chatter))
+      assert(
+        pkg.components.nestedTypes.map(_.name).toSet == Set(Names.c, Names.Apex, Names.Chatter))
     }
   }
 
   test("Delete component file (multiple)") {
-    FileSystemHelper.run(Map(
-      "Test.component" -> "",
-      "Test2.component" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.component" -> "", "Test2.component" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -273,7 +257,11 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
       path.delete()
       pkg.refresh(path, None)
       assert(org.flush())
-      assert(pkg.components.nestedTypes.map(_.name).toSet == Set(Name("Test2"), Names.c, Names.Apex, Names.Chatter))
+      assert(
+        pkg.components.nestedTypes.map(_.name).toSet == Set(Name("Test2"),
+                                                            Names.c,
+                                                            Names.Apex,
+                                                            Names.Chatter))
     }
   }
 }

@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, ServerOps}
@@ -62,47 +62,59 @@ class InterfaceModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   def typeDeclarationInner(clsText: String): TypeDeclaration = {
-    typeDeclaration(clsText).asInstanceOf[ClassDeclaration]
-        .bodyDeclarations.head.asInstanceOf[TypeDeclaration]
+    typeDeclaration(clsText)
+      .asInstanceOf[ClassDeclaration]
+      .bodyDeclarations
+      .head
+      .asInstanceOf[TypeDeclaration]
   }
 
   test("Global outer") {
-    assert(typeDeclaration("global interface Dummy {}").modifiers sameElements Array(GLOBAL_MODIFIER))
+    assert(
+      typeDeclaration("global interface Dummy {}").modifiers sameElements Array(GLOBAL_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Public outer") {
-    assert(typeDeclaration("public interface Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
+    assert(
+      typeDeclaration("public interface Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Public outer (mixed case)") {
-    assert(typeDeclaration("puBlIc interface Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
+    assert(
+      typeDeclaration("puBlIc interface Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Protected outer") {
     assert(typeDeclaration("protected interface Dummy {}").modifiers.isEmpty)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 0-9: Modifier 'protected' is not supported on interfaces\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 0-9: Modifier 'protected' is not supported on interfaces\n")
   }
 
   test("Private outer") {
     assert(typeDeclaration("private interface Dummy {}").modifiers.isEmpty)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 18-23: Private modifier is not allowed on outer interfaces\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 18-23: Private modifier is not allowed on outer interfaces\n")
   }
 
   test("No modifier class") {
     assert(typeDeclaration("interface Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 10-15: Outer interfaces must be declared either 'global' or 'public'\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 10-15: Outer interfaces must be declared either 'global' or 'public'\n")
   }
 
   test("Illegal modifier") {
-    assert(typeDeclaration("global static interface Dummy {}").modifiers sameElements Array(GLOBAL_MODIFIER))
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 7-13: Modifier 'static' is not supported on interfaces\n")
+    assert(
+      typeDeclaration("global static interface Dummy {}").modifiers sameElements Array(
+        GLOBAL_MODIFIER))
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 7-13: Modifier 'static' is not supported on interfaces\n")
   }
 
   test("Deprecated annotation") {
@@ -130,35 +142,50 @@ class InterfaceModifierTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("SuppressWarnings & TestVisible annotation class") {
-    val modifiers = typeDeclaration("@SuppressWarnings public @TestVisible class Dummy {}").modifiers
-    assert(modifiers.toSet == Set(PUBLIC_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION, TEST_VISIBLE_ANNOTATION))
+    val modifiers =
+      typeDeclaration("@SuppressWarnings public @TestVisible class Dummy {}").modifiers
+    assert(
+      modifiers.toSet == Set(PUBLIC_MODIFIER,
+                             SUPPRESS_WARNINGS_ANNOTATION,
+                             TEST_VISIBLE_ANNOTATION))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Global inner") {
-    assert(typeDeclarationInner("global class Dummy {global interface Inner{}}").modifiers sameElements Array(GLOBAL_MODIFIER))
+    assert(
+      typeDeclarationInner("global class Dummy {global interface Inner{}}").modifiers sameElements Array(
+        GLOBAL_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Global inner of public outer") {
-    assert(typeDeclarationInner("public class Dummy {global interface Inner{}}").modifiers sameElements Array(GLOBAL_MODIFIER))
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
+    assert(
+      typeDeclarationInner("public class Dummy {global interface Inner{}}").modifiers sameElements Array(
+        GLOBAL_MODIFIER))
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
   }
 
   test("Public inner") {
-    assert(typeDeclarationInner("public class Dummy {public interface Inner{}}").modifiers sameElements Array(PUBLIC_MODIFIER))
+    assert(
+      typeDeclarationInner("public class Dummy {public interface Inner{}}").modifiers sameElements Array(
+        PUBLIC_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Protected inner") {
-    assert(typeDeclarationInner("public class Dummy {protected interface Inner{}}").modifiers.isEmpty)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 20-29: Modifier 'protected' is not supported on interfaces\n")
+    assert(
+      typeDeclarationInner("public class Dummy {protected interface Inner{}}").modifiers.isEmpty)
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 20-29: Modifier 'protected' is not supported on interfaces\n")
   }
 
   test("Private inner") {
-    assert(typeDeclarationInner("public class Dummy {private interface Inner{}}").modifiers sameElements Array(PRIVATE_MODIFIER))
+    assert(
+      typeDeclarationInner("public class Dummy {private interface Inner{}}").modifiers sameElements Array(
+        PRIVATE_MODIFIER))
     assert(!defaultOrg.issues.hasMessages)
   }
 
@@ -169,19 +196,22 @@ class InterfaceModifierTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Illegal modifier inner") {
     assert(typeDeclarationInner("global class Dummy {static interface Inner{}}").modifiers.isEmpty)
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 20-26: Modifier 'static' is not supported on interfaces\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 20-26: Modifier 'static' is not supported on interfaces\n")
   }
 
   test("Illegal method modifier") {
     typeDeclaration("global interface Dummy {public void foo();}")
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 36-39: Modifier 'public' is not supported on interface methods\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 36-39: Modifier 'public' is not supported on interface methods\n")
   }
 
   test("Illegal method annotation") {
     typeDeclaration("global interface Dummy {@isTest void foo();}")
-    assert(defaultOrg.issues.getMessages(defaultPath) ==
-      "Error: line 1 at 37-40: Modifier '@IsTest' is not supported on interface methods\n")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 37-40: Modifier '@IsTest' is not supported on interface methods\n")
   }
 }

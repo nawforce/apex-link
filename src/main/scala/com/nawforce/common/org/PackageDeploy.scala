@@ -32,12 +32,7 @@ import com.nawforce.common.diagnostics.{Issue, LocalLogger}
 import com.nawforce.common.documents._
 import com.nawforce.common.names._
 import com.nawforce.common.org.stream.PackageStream
-import com.nawforce.common.types.apex.{
-  ApexClassDeclaration,
-  FullDeclaration,
-  SummaryApex,
-  TriggerDeclaration
-}
+import com.nawforce.common.types.apex.{ApexClassDeclaration, FullDeclaration, SummaryApex, TriggerDeclaration}
 import com.nawforce.common.types.schema.SObjectDeclaration
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.platform.Environment

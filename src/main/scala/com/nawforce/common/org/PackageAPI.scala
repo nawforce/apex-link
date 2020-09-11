@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.org
 
 import com.nawforce.common.api.{Package, ServerOps, TypeIdentifier, TypeName, TypeSummary, ViewInfo}
@@ -64,11 +64,12 @@ trait PackageAPI extends Package {
     MetadataDocument(path) match {
       // Page handling is weird, they are modeled as static fields
       case Some(pd: PageDocument) =>
-          val typeName = pd.typeName(namespace)
-          pages.fields.find(_.name == pd.name).map(_ => {TypeId(this, typeName)}).orElse(None)
+        val typeName = pd.typeName(namespace)
+        pages.fields.find(_.name == pd.name).map(_ => { TypeId(this, typeName) }).orElse(None)
       case Some(md: MetadataDocument) =>
         types.get(md.typeName(namespace)) match {
-          case Some(td: TypeDeclaration) if td.paths.contains(path) => Some(TypeId(this, td.typeName))
+          case Some(td: TypeDeclaration) if td.paths.contains(path) =>
+            Some(TypeId(this, td.typeName))
           case _ => None
         }
       case _ => None
@@ -77,7 +78,8 @@ trait PackageAPI extends Package {
 
   override def getPathsOfType(typeId: TypeIdentifier): Array[String] = {
     if (typeId != null && typeId.namespace == namespace) {
-      types.get(typeId.typeName)
+      types
+        .get(typeId.typeName)
         .map(td => td.paths.map(_.toString))
         .getOrElse(Array())
     } else {
@@ -99,16 +101,18 @@ trait PackageAPI extends Package {
     Option(getSummaryOfType(typeId)).map(summary => write(summary)).orNull
   }
 
-  override def getDependencies(typeId: TypeIdentifier, inheritanceOnly: Boolean): Array[TypeIdentifier] = {
+  override def getDependencies(typeId: TypeIdentifier,
+                               inheritanceOnly: Boolean): Array[TypeIdentifier] = {
     if (typeId != null && typeId.namespace == namespace) {
       getDependentType(typeId.typeName)
         .map(ad => {
           if (inheritanceOnly) {
             (ad +: ad.nestedTypes).flatMap(td => {
-              td.dependencies().flatMap({
-                case dt: ApexClassDeclaration => Some(dt.outerTypeId.asTypeIdentifier)
-                case _ => None
-              })
+              td.dependencies()
+                .flatMap({
+                  case dt: ApexClassDeclaration => Some(dt.outerTypeId.asTypeIdentifier)
+                  case _                        => None
+                })
             })
           } else {
             val dependencies = mutable.Set[TypeId]()
@@ -140,14 +144,16 @@ trait PackageAPI extends Package {
     org.queueRefresh(RefreshRequest(this, path, contents))
   }
 
-  private def refreshInternal(path: PathLike, contents: Option[SourceBlob]): (TypeId, Set[TypeId]) = {
+  private def refreshInternal(path: PathLike,
+                              contents: Option[SourceBlob]): (TypeId, Set[TypeId]) = {
     checkPathInPackageOrThrow(path)
     val dt = getUpdateableDocumentTypeOrThrow(path)
     val sourceOpt = resolveSource(path, contents)
     val typeId = TypeId(this, dt.typeName(namespace))
 
     // If we have source & it's not changed then ignore
-    if (sourceOpt.exists(s => getFullDeclaration(dt).exists(fd => fd.path == path && fd.sourceHash == s.hash)))
+    if (sourceOpt.exists(
+          s => getFullDeclaration(dt).exists(fd => fd.path == path && fd.sourceHash == s.hash)))
       return (typeId, Set.empty)
 
     // Update internal document tracking
@@ -162,7 +168,9 @@ trait PackageAPI extends Package {
     val newType = createType(dt, sourceOpt)
     val typeName = newType.map(_.typeName).getOrElse(dt.typeName(namespace))
     val existingType = getDependentType(typeName)
-    val holders = existingType.map(_.getTypeDependencyHolders).getOrElse(DependentType.emptyTypeDependencyHolders)
+    val holders = existingType
+      .map(_.getTypeDependencyHolders)
+      .getOrElse(DependentType.emptyTypeDependencyHolders)
     newType.foreach(_.updateTypeDependencyHolders(holders))
 
     // Update and validate
@@ -209,7 +217,8 @@ trait PackageAPI extends Package {
         getViewOfTypeInternal(path, contents)
       }
     } catch {
-      case ex: IllegalArgumentException => ViewInfoImpl(IN_ERROR, path, None, Array(), ex.getMessage)
+      case ex: IllegalArgumentException =>
+        ViewInfoImpl(IN_ERROR, path, None, Array(), ex.getMessage)
     }
   }
 
@@ -239,10 +248,11 @@ trait PackageAPI extends Package {
 
   private def getApexDeclaration(typeName: TypeName): Option[ApexDeclaration] = {
     try {
-      types.get(typeName)
+      types
+        .get(typeName)
         .flatMap {
           case ad: ApexDeclaration => Some(ad)
-          case _ => None
+          case _                   => None
         }
     } catch {
       case ex: PlatformTypeException =>
@@ -253,10 +263,11 @@ trait PackageAPI extends Package {
 
   private def getDependentType(typeName: TypeName): Option[DependentType] = {
     try {
-      types.get(typeName)
+      types
+        .get(typeName)
         .flatMap {
           case dt: DependentType => Some(dt)
-          case _ => None
+          case _                 => None
         }
     } catch {
       case ex: PlatformTypeException =>
@@ -293,7 +304,7 @@ trait PackageAPI extends Package {
       val td = createType(dt, Some(source))
       td match {
         case Some(td: ApexFullDeclaration) => validateInIsolation(td)
-        case _ => ()
+        case _                             => ()
       }
       ViewInfoImpl(NEW_TYPE, path, td, org.issues.getDiagnostics(path.toString).toArray)
     } finally {
@@ -301,7 +312,8 @@ trait PackageAPI extends Package {
     }
   }
 
-  private def createType(dt: UpdatableMetadata, source: Option[SourceData]): Option[DependentType] = {
+  private def createType(dt: UpdatableMetadata,
+                         source: Option[SourceData]): Option[DependentType] = {
     dt match {
       case ad: ApexClassDocument =>
         source.flatMap(s => FullDeclaration.create(this, ad, s))
@@ -314,30 +326,34 @@ trait PackageAPI extends Package {
 
   private def createOtherType(dt: UpdatableMetadata, source: Option[SourceData]): DependentType = {
     val metadata = source.map(s => MetadataDocumentWithData(dt, s))
-    val provider = new OverrideMetadataProvider(metadata.toSeq, new DocumentIndexMetadataProvider(documents))
+    val provider =
+      new OverrideMetadataProvider(metadata.toSeq, new DocumentIndexMetadataProvider(documents))
     val queue = Generator.queue(dt, new LocalLogger(org.issues), provider)
     Other(dt, this).merge(new PackageStream(namespace, queue))
   }
 
   private def getFullDeclaration(dt: MetadataDocument): Option[ApexFullDeclaration] = {
-    types.get(dt.typeName(namespace))
+    types
+      .get(dt.typeName(namespace))
       .flatMap {
-        case fd: FullDeclaration => Some(fd)
+        case fd: FullDeclaration    => Some(fd)
         case td: TriggerDeclaration => Some(td)
-        case _ => None
+        case _                      => None
       }
   }
 
   private def getUpdateableDocumentTypeOrThrow(path: PathLike): UpdatableMetadata = {
-    (MetadataDocument (path) collect {
+    (MetadataDocument(path) collect {
       case dt: UpdatableMetadata => dt
-    })
-    .getOrElse (throw new IllegalArgumentException (s"Metadata type is not supported for '$path'") )
+    }).getOrElse(throw new IllegalArgumentException(s"Metadata type is not supported for '$path'"))
   }
 
   private def checkPathInPackageOrThrow(path: PathLike): Unit = {
-    Some(workspace.isVisibleFile(path)).filterNot(v => v)
-      .foreach{_ => throw new IllegalArgumentException(s"Metadata is not part of this package for '$path'")}
+    Some(workspace.isVisibleFile(path))
+      .filterNot(v => v)
+      .foreach { _ =>
+        throw new IllegalArgumentException(s"Metadata is not part of this package for '$path'")
+      }
   }
 
   private def getPathSourceOrThrow(path: PathLike, contents: Option[SourceBlob]): SourceData = {
@@ -346,12 +362,14 @@ trait PackageAPI extends Package {
   }
 
   private def resolveSource(path: PathLike, contents: Option[SourceBlob]): Option[SourceData] = {
-    contents.map(blob => SourceData(blob)).orElse({
-      path.readSourceData() match {
-        case Left(_) => None
-        case Right(data) => Some(data)
-      }
-    })
+    contents
+      .map(blob => SourceData(blob))
+      .orElse({
+        path.readSourceData() match {
+          case Left(_)     => None
+          case Right(data) => Some(data)
+        }
+      })
   }
 
   private def getTypesWithMissingIssues: Seq[TypeId] = {
@@ -370,7 +388,7 @@ trait PackageAPI extends Package {
     val context = packageContext
     types.values.foreach({
       case ad: ApexClassDeclaration => ad.flush(pc, context)
-      case _ => ()
+      case _                        => ()
     })
   }
 
@@ -386,29 +404,33 @@ trait PackageAPI extends Package {
     // Do removals first to avoid duplicate type issues if source is being moved
     val references = mutable.Set[TypeId](getTypesWithMissingIssues: _*)
     val removed = mutable.Set[TypeId]()
-    splitRequests.getOrElse(true, Seq()).foreach(r => {
-      ServerOps.debug(ServerOps.Trace, s"Removing ${r._1}")
-      try {
-        val refreshResult = refreshInternal(r._1, r._2.source)
-        removed += refreshResult._1
-        references ++= refreshResult._2
-      } catch {
-        case ex: IllegalArgumentException => ServerOps.debug(ServerOps.Trace, ex.getMessage)
-      }
-    })
+    splitRequests
+      .getOrElse(true, Seq())
+      .foreach(r => {
+        ServerOps.debug(ServerOps.Trace, s"Removing ${r._1}")
+        try {
+          val refreshResult = refreshInternal(r._1, r._2.source)
+          removed += refreshResult._1
+          references ++= refreshResult._2
+        } catch {
+          case ex: IllegalArgumentException => ServerOps.debug(ServerOps.Trace, ex.getMessage)
+        }
+      })
     removed.foreach(references.remove)
 
     // Then additions or modifications
-    splitRequests.getOrElse(false, Seq()).foreach(r => {
-      ServerOps.debug(ServerOps.Trace, s"Refreshing ${r._1}")
-      try {
-        val refreshResult = refreshInternal(r._1, r._2.source)
-        references ++= refreshResult._2
-        references.remove(refreshResult._1)
-      } catch {
-        case ex: IllegalArgumentException => ServerOps.debug(ServerOps.Trace, ex.getMessage)
-      }
-    })
+    splitRequests
+      .getOrElse(false, Seq())
+      .foreach(r => {
+        ServerOps.debug(ServerOps.Trace, s"Refreshing ${r._1}")
+        try {
+          val refreshResult = refreshInternal(r._1, r._2.source)
+          references ++= refreshResult._2
+          references.remove(refreshResult._1)
+        } catch {
+          case ex: IllegalArgumentException => ServerOps.debug(ServerOps.Trace, ex.getMessage)
+        }
+      })
 
     // Finally batched invalidation
     reValidate(references.toSet)

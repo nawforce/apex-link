@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package com.nawforce.common.org.stream
 
@@ -36,6 +36,7 @@ case class MetadataDocumentWithData(docType: MetadataDocument, source: SourceDat
 
 /** Provider for metadata files */
 trait MetadataProvider {
+
   /** Retrieves files of a specific type, if file is not readable an issue is logged. */
   def retrieve(metadataExt: Name): Set[MetadataDocumentWithData]
 }
@@ -45,22 +46,25 @@ class DocumentIndexMetadataProvider(index: DocumentIndex) extends MetadataProvid
 
   /** Retrieve from the provided DocumentIndex with error handling */
   override def retrieve(metadataExt: Name): Set[MetadataDocumentWithData] = {
-    index.getByExtension(metadataExt).flatMap(documentType => {
-      documentType.path.readSourceData() match {
-        case Left(_) =>
-          None
-        case Right(data) =>
-          Some(MetadataDocumentWithData(documentType, data))
-      }
-    })
+    index
+      .getByExtension(metadataExt)
+      .flatMap(documentType => {
+        documentType.path.readSourceData() match {
+          case Left(_) =>
+            None
+          case Right(data) =>
+            Some(MetadataDocumentWithData(documentType, data))
+        }
+      })
   }
 }
 
 /** Override MetadataProvider for injecting new metadata not stored in a file. */
 class OverrideMetadataProvider(overrides: Seq[MetadataDocumentWithData], base: MetadataProvider)
-  extends MetadataProvider {
+    extends MetadataProvider {
 
-  private lazy val overrideByExt: Map[Name, Seq[MetadataDocumentWithData]] = overrides.groupBy(_.docType.extension)
+  private lazy val overrideByExt: Map[Name, Seq[MetadataDocumentWithData]] =
+    overrides.groupBy(_.docType.extension)
 
   override def retrieve(metadataExt: Name): Set[MetadataDocumentWithData] = {
     val metadata = base.retrieve(metadataExt)

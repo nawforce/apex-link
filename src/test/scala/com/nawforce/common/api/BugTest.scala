@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.api
 
 import com.nawforce.common.FileSystemHelper
@@ -49,10 +49,10 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Enum scoping") {
-    FileSystemHelper.run(Map(
-      "Wrapper.cls" -> "public virtual class Wrapper {public enum MyEnum {A, B, C}}",
-      "Dummy.cls" ->
-        s"""
+    FileSystemHelper.run(
+      Map("Wrapper.cls" -> "public virtual class Wrapper {public enum MyEnum {A, B, C}}",
+          "Dummy.cls" ->
+            s"""
            |public class Dummy {
            |  private enum MyEnum {
            |    D
@@ -61,8 +61,7 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
            |    Object e = MyEnum.D;
            |  }
            |}
-           |""".stripMargin
-    )) { root: PathLike =>
+           |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       addPackage(org, root)
       assert(!org.issues.hasMessages)
@@ -70,31 +69,29 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Bad generics") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" ->
-        "public class Dummy {{ DescribeFieldResult a; List<Schema.PicklistEntry> b = a.getPicklistValues();}}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org, root)
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(Map("Dummy.cls" ->
+      "public class Dummy {{ DescribeFieldResult a; List<Schema.PicklistEntry> b = a.getPicklistValues();}}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org, root)
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Bad generics (without generic)") {
     FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {{ DescribeFieldResult a; Integer b = a.getByteLength();}}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org, root)
-      assert(!org.issues.hasMessages)
+      "Dummy.cls" -> "public class Dummy {{ DescribeFieldResult a; Integer b = a.getByteLength();}}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org, root)
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Duplicate SObject/Type name resolves as Type") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" ->
-        "public class Dummy {{String b = Site.getName();}}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(
+      Map("Dummy.cls" ->
+        "public class Dummy {{String b = Site.getName();}}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       addPackage(org, root)
       assert(!org.issues.hasMessages)
@@ -102,67 +99,66 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Duplicate SObject/Type name resolves as SObject") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {{Site a; SObjectType b = a.getSObjectType();}}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org, root)
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {{Site a; SObjectType b = a.getSObjectType();}}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org, root)
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("SObject static use of getSobjectType") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {{SObjectType b = Account.getSobjectType();}}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org, root)
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {{SObjectType b = Account.getSobjectType();}}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org, root)
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Clone apex type") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {{Dummy a,b; b = a.clone();}}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org, root)
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {{Dummy a,b; b = a.clone();}}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org, root)
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("System type name clash with field") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {String Matcher; {Matcher.capitalize();}}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org, root)
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {String Matcher; {Matcher.capitalize();}}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org, root)
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Static method of super class of outer") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy extends SuperClass {class Inner {public void func(){ func(); } }}",
-      "SuperClass.cls" -> "public virtual class SuperClass {public static void func() {}}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org, root)
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map(
+        "Dummy.cls" -> "public class Dummy extends SuperClass {class Inner {public void func(){ func(); } }}",
+        "SuperClass.cls" -> "public virtual class SuperClass {public static void func() {}}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org, root)
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Static name clash") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" ->
+    FileSystemHelper.run(
+      Map("Dummy.cls" ->
         s"""
            |public class Dummy {
            |  public static void pop() {}
            |  public interface API { void pop(); }
            |  private class Impl implements API { public void pop() {}}
            |}
-           |""".stripMargin
-    )) { root: PathLike =>
+           |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       addPackage(org, root)
       assert(!org.issues.hasMessages)
@@ -170,18 +166,17 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Type name clash") {
-    FileSystemHelper.run(Map(
-      "Other.cls" -> "public class Other {public class Inner{ public String a; } }",
-      "Dummy.cls" ->
-        s"""
+    FileSystemHelper.run(
+      Map("Other.cls" -> "public class Other {public class Inner{ public String a; } }",
+          "Dummy.cls" ->
+            s"""
            |public class Dummy {
            |  public class Inner{}
            |  public class Other {
            |    void something(Other.Inner x) { x.a = 'Hello';}
            |  }
            |}
-           |""".stripMargin
-    )) {root: PathLike =>
+           |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       addPackage(org, root)
       assert(!org.issues.hasMessages)
@@ -189,14 +184,13 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Platform enum equals") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" ->
+    FileSystemHelper.run(
+      Map("Dummy.cls" ->
         s"""
            |public class Dummy {
            |  {DisplayType a,b; Boolean c = a.equals(b);}
            |}
-           |""".stripMargin
-    )) { root: PathLike =>
+           |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       addPackage(org, root)
 
@@ -205,14 +199,13 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("CreateBy.Id access") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" ->
+    FileSystemHelper.run(
+      Map("Dummy.cls" ->
         s"""
            |public class Dummy {
            |  {SObjectField f = Account.CreatedBy.Id;}
            |}
-           |""".stripMargin
-    )) { root: PathLike =>
+           |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       addPackage(org, root)
       assert(!org.issues.hasMessages)
@@ -220,15 +213,15 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Static call via an interface") {
-    FileSystemHelper.run(Map(
-      "Other.cls" -> "public class Other {public static void func() {} public interface MyInterface{ } }",
-      "Dummy.cls" ->
-        s"""
+    FileSystemHelper.run(
+      Map(
+        "Other.cls" -> "public class Other {public static void func() {} public interface MyInterface{ } }",
+        "Dummy.cls" ->
+          s"""
            |public class Dummy {
            |  {Other.MyInterface.func();}
            |}
-           |""".stripMargin
-    )) { root: PathLike =>
+           |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       addPackage(org, root)
       assert(!org.issues.hasMessages)
@@ -236,28 +229,27 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Add Double onto Decimal") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {Decimal a; Double b; a+=b; } }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org, root)
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Decimal a; Double b; a+=b; } }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org, root)
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("max(decimal, double) is a Decimal") {
     FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {Decimal a; Double b; Math.max(a * b, b).round(System.RoundingMode.DOWN); } }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org, root)
-      assert(!org.issues.hasMessages)
+      "Dummy.cls" -> "public class Dummy { {Decimal a; Double b; Math.max(a * b, b).round(System.RoundingMode.DOWN); } }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org, root)
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("SObject erasure via an interface") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" ->
+    FileSystemHelper.run(
+      Map("Dummy.cls" ->
         s"""
            | public class Dummy implements MyInterface{
            |  public void func(List<Account> a) {}
@@ -265,8 +257,7 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
            |    void func(List<SObject> a);
            |  }
            |}
-           |""".stripMargin
-    )) { root: PathLike =>
+           |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       addPackage(org, root)
       assert(!org.issues.hasMessages)
@@ -274,14 +265,13 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Contact AccountId describe") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" ->
+    FileSystemHelper.run(
+      Map("Dummy.cls" ->
         s"""
            | public class Dummy {
            |  public void func(List<Account> a) {Object o = Contact.SObjectType.AccountId.getDescribe();}
            |}
-           |""".stripMargin
-    )) { root: PathLike =>
+           |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       addPackage(org, root)
       assert(!org.issues.hasMessages)
@@ -289,15 +279,14 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Opportunity SObjectType with shadowing field") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" ->
+    FileSystemHelper.run(
+      Map("Dummy.cls" ->
         s"""
            | public class Dummy {
            |  public static Schema.SObjectType OPP_SOBJECT_TYPE = Opportunity.SObjectType;
            |  public Opportunity opportunity {get; set;}
            |}
-           |""".stripMargin
-    )) { root: PathLike =>
+           |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       addPackage(org, root)
       assert(!org.issues.hasMessages)
@@ -305,14 +294,13 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Double SObjectType reference") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" ->
+    FileSystemHelper.run(
+      Map("Dummy.cls" ->
         s"""
            | public class Dummy {
            |  public static Object a = Account.SObjectType.SObjectType.newSObject();
            |}
-           |""".stripMargin
-    )) { root: PathLike =>
+           |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       addPackage(org, root)
       assert(!org.issues.hasMessages)
@@ -320,14 +308,13 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Ternary decimal type") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" ->
+    FileSystemHelper.run(
+      Map("Dummy.cls" ->
         s"""
            | public class Dummy {
            |  public static Decimal a =  (true ? 0 : 0.1).setScale(2);
            |}
-           |""".stripMargin
-    )) { root: PathLike =>
+           |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       addPackage(org, root)
       assert(!org.issues.hasMessages)
@@ -335,14 +322,13 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Schema RowClause") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" ->
+    FileSystemHelper.run(
+      Map("Dummy.cls" ->
         """
           | public class Dummy {
           |  public static String a = AccountShare.RowCause.Manual;
           |}
-          |""".stripMargin
-    )) { root: PathLike =>
+          |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       addPackage(org, root)
       assert(!org.issues.hasMessages)
@@ -350,13 +336,12 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Database RaisesPlatformEvents") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" ->
+    FileSystemHelper.run(
+      Map("Dummy.cls" ->
         """
           | public class Dummy implements Database.RaisesPlatformEvents {
           |}
-          |""".stripMargin
-    )) { root: PathLike =>
+          |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       addPackage(org, root)
       assert(!org.issues.hasMessages)
@@ -364,8 +349,8 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("@testSetup is entry") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" ->
+    FileSystemHelper.run(
+      Map("Dummy.cls" ->
         s"""
            |public class Dummy {
            |@testSetup
@@ -374,8 +359,7 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
            |  insert a;
            |}
            |}
-           |""".stripMargin
-    )) { root: PathLike =>
+           |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = addPackage(org, root).asInstanceOf[PackageImpl]
 
@@ -385,12 +369,12 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Interface missing formal argument") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public interface Dummy {void foo(Bar a);}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org, root).asInstanceOf[PackageImpl]
-      assert(org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 33-38: No type declaration found for 'Bar'\n")
+    FileSystemHelper.run(Map("Dummy.cls" -> "public interface Dummy {void foo(Bar a);}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org, root).asInstanceOf[PackageImpl]
+        assert(
+          org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 33-38: No type declaration found for 'Bar'\n")
     }
   }
 

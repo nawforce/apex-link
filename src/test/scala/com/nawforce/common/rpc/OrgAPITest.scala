@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.rpc
 
 import com.nawforce.common.path.PathFactory
@@ -34,54 +34,55 @@ class OrgAPITest extends AsyncFunSuite {
 
   test("Identifier not empty") {
     val orgAPI = OrgAPI()
-    orgAPI.identifier() map {
-      result => assert(result.nonEmpty)
+    orgAPI.identifier() map { result =>
+      assert(result.nonEmpty)
     }
   }
 
   test("Add package not bad directory") {
     val workspace = PathFactory("silly")
     val orgAPI = OrgAPI()
-    orgAPI.addPackage("silly") map {
-      result => assert(result.error.exists(_.message == s"Workspace '$workspace' is not a directory"))
+    orgAPI.addPackage("silly") map { result =>
+      assert(result.error.exists(_.message == s"Workspace '$workspace' is not a directory"))
     }
   }
 
   test("Add package not sfdx directory") {
     val workspace = PathFactory("")
     val orgAPI = OrgAPI()
-    orgAPI.addPackage("") map {
-      result => assert(result.error.exists(_.message == s"Missing project file at $workspace/sfdx-project.json"))
+    orgAPI.addPackage("") map { result =>
+      assert(
+        result.error.exists(_.message == s"Missing project file at $workspace/sfdx-project.json"))
     }
   }
 
   test("Add package sfdx directory (relative)") {
     val orgAPI = OrgAPI()
-    orgAPI.addPackage("samples/synthetic/sfdx-test") map {
-      result => assert(result.error.isEmpty && result.namespaces.sameElements(Array("")))
+    orgAPI.addPackage("samples/synthetic/sfdx-test") map { result =>
+      assert(result.error.isEmpty && result.namespaces.sameElements(Array("")))
     }
   }
 
   test("Add package sfdx directory (absolute)") {
     val workspace = PathFactory("samples/synthetic/sfdx-test")
     val orgAPI = OrgAPI()
-    orgAPI.addPackage(workspace.toString) map {
-      result => assert(result.error.isEmpty && result.namespaces.sameElements(Array("")))
+    orgAPI.addPackage(workspace.toString) map { result =>
+      assert(result.error.isEmpty && result.namespaces.sameElements(Array("")))
     }
   }
 
   test("Add package sfdx directory with ns (relative)") {
     val orgAPI = OrgAPI()
-    orgAPI.addPackage("samples/synthetic/sfdx-ns-test") map {
-      result => assert(result.error.isEmpty && result.namespaces.sameElements(Array("sfdx_test")))
+    orgAPI.addPackage("samples/synthetic/sfdx-ns-test") map { result =>
+      assert(result.error.isEmpty && result.namespaces.sameElements(Array("sfdx_test")))
     }
   }
 
   test("Add package sfdx directory with ns (absolute)") {
     val workspace = PathFactory("samples/synthetic/sfdx-ns-test")
     val orgAPI = OrgAPI()
-    orgAPI.addPackage(workspace.toString) map {
-      result => assert(result.error.isEmpty && result.namespaces.sameElements(Array("sfdx_test")))
+    orgAPI.addPackage(workspace.toString) map { result =>
+      assert(result.error.isEmpty && result.namespaces.sameElements(Array("sfdx_test")))
     }
   }
 

@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.memory
 
 import java.lang.ref.WeakReference
@@ -63,7 +63,7 @@ class SkinnyWeakSet[T <: AnyRef] {
     else
       arrayOf.append(new WeakReference(t))
 
-    if (arrayOf != null && arrayOf.length>64) {
+    if (arrayOf != null && arrayOf.length > 64) {
       setOf = new mutable.WeakHashMap[T, Boolean]()
       arrayOf.filter(_.get != null).foreach(wr => setOf.put(wr.get, true))
       arrayOf = null

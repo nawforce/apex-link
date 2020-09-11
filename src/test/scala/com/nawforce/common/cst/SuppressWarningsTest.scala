@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, ServerOps}
@@ -37,7 +37,7 @@ import com.nawforce.runtime.parsers.SourceData
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class SuppressWarningsTest extends AnyFunSuite with BeforeAndAfter{
+class SuppressWarningsTest extends AnyFunSuite with BeforeAndAfter {
   private val defaultPath = PathFactory("Dummy.cls").toString
   private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
   private var defaultOrg: OrgImpl = _
@@ -61,17 +61,22 @@ class SuppressWarningsTest extends AnyFunSuite with BeforeAndAfter{
   }
 
   test("Suppress disabled") {
-    typeDeclaration("public class Dummy {class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
-    assert(defaultOrg.issues.getMessages(defaultPath) == "Error: line 1 at 74-78: Array indexes must be Integers, found 'null'\n")
+    typeDeclaration(
+      "public class Dummy {class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
+    assert(
+      defaultOrg.issues
+        .getMessages(defaultPath) == "Error: line 1 at 74-78: Array indexes must be Integers, found 'null'\n")
   }
 
   test("Outer Suppress") {
-    typeDeclaration("@SuppressWarnings public class Dummy {class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
+    typeDeclaration(
+      "@SuppressWarnings public class Dummy {class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Inner Suppress") {
-    typeDeclaration("public class Dummy {@SuppressWarnings class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
+    typeDeclaration(
+      "public class Dummy {@SuppressWarnings class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 

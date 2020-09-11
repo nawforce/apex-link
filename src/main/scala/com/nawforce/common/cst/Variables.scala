@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.TypeName
@@ -32,7 +32,8 @@ import com.nawforce.common.modifiers.{ApexModifiers, ModifierResults}
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
-final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Expression]) extends CST {
+final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Expression])
+    extends CST {
   def verify(input: ExprContext, context: BlockVerifyContext): Unit = {
     id.validate()
 
@@ -50,7 +51,8 @@ final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Exp
 }
 
 object VariableDeclarator {
-  def construct(typeName: TypeName, variableDeclarator: VariableDeclaratorContext): VariableDeclarator = {
+  def construct(typeName: TypeName,
+                variableDeclarator: VariableDeclaratorContext): VariableDeclarator = {
     val init = CodeParser.toScala(variableDeclarator.expression()).map(Expression.construct)
     VariableDeclarator(typeName, Id.construct(variableDeclarator.id()), init)
       .withContext(variableDeclarator)
@@ -68,16 +70,21 @@ final case class VariableDeclarators(declarators: List[VariableDeclarator]) exte
 }
 
 object VariableDeclarators {
-  def construct(typeName: TypeName, variableDeclaratorsContext: VariableDeclaratorsContext): VariableDeclarators = {
+  def construct(typeName: TypeName,
+                variableDeclaratorsContext: VariableDeclaratorsContext): VariableDeclarators = {
     val variableDeclarators: Seq[VariableDeclaratorContext] =
       CodeParser.toScala(variableDeclaratorsContext.variableDeclarator())
-    VariableDeclarators(variableDeclarators.toList
-      .map(x => VariableDeclarator.construct(typeName, x))).withContext(variableDeclaratorsContext)
+    VariableDeclarators(
+      variableDeclarators.toList
+        .map(x => VariableDeclarator.construct(typeName, x)))
+      .withContext(variableDeclaratorsContext)
   }
 }
 
-final case class LocalVariableDeclaration(modifiers: ModifierResults, typeName: TypeName, variableDeclarators: VariableDeclarators)
-  extends CST {
+final case class LocalVariableDeclaration(modifiers: ModifierResults,
+                                          typeName: TypeName,
+                                          variableDeclarators: VariableDeclarators)
+    extends CST {
   def verify(context: BlockVerifyContext): Unit = {
     modifiers.issues.foreach(context.log)
     val staticContext = if (context.isStatic) Some(true) else None
@@ -90,12 +97,13 @@ final case class LocalVariableDeclaration(modifiers: ModifierResults, typeName: 
 }
 
 object LocalVariableDeclaration {
-  def construct(parser: CodeParser, from: LocalVariableDeclarationContext): LocalVariableDeclaration = {
+  def construct(parser: CodeParser,
+                from: LocalVariableDeclarationContext): LocalVariableDeclaration = {
     val typeName = TypeReference.construct(from.typeRef())
     LocalVariableDeclaration(
       ApexModifiers.localVariableModifiers(parser, CodeParser.toScala(from.modifier()), from),
       typeName,
       VariableDeclarators.construct(typeName, from.variableDeclarators()))
-        .withContext(from)
+      .withContext(from)
   }
 }

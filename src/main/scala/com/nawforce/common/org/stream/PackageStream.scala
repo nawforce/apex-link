@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.org.stream
 
 import com.nawforce.common.api.Name
@@ -36,11 +36,11 @@ import scala.collection.immutable.Queue
 trait PackageEvent
 
 class PackageStream(val namespace: Option[Name], val events: Seq[PackageEvent]) {
-  def labelsFiles: Seq[LabelFileEvent] = events.collect{case e: LabelFileEvent => e}
-  def labels: Seq[LabelEvent] = events.collect{case e: LabelEvent => e}
-  def pages: Seq[PageEvent] = events.collect{case e: PageEvent => e}
-  def flows: Seq[FlowEvent] = events.collect{case e: FlowEvent => e}
-  def components: Seq[ComponentEvent] = events.collect{case e: ComponentEvent => e}
+  def labelsFiles: Seq[LabelFileEvent] = events.collect { case e: LabelFileEvent => e }
+  def labels: Seq[LabelEvent] = events.collect { case e: LabelEvent              => e }
+  def pages: Seq[PageEvent] = events.collect { case e: PageEvent                 => e }
+  def flows: Seq[FlowEvent] = events.collect { case e: FlowEvent                 => e }
+  def components: Seq[ComponentEvent] = events.collect { case e: ComponentEvent  => e }
 }
 
 object PackageStream {

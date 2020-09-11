@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types
 
 import com.nawforce.common.api.{Name, TypeName}
@@ -35,43 +35,55 @@ import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATU
 import com.nawforce.common.types.platform.PlatformTypeDeclaration
 import org.scalatest.funsuite.AnyFunSuite
 
-class PlatformTypeDeclarationTest extends AnyFunSuite  {
+class PlatformTypeDeclarationTest extends AnyFunSuite {
 
   test("Bad class not found") {
-    assert(PlatformTypeDeclaration.get(TypeName(Name("Hello")), None) == Left(MissingType(TypeName(Name("Hello")))))
+    assert(
+      PlatformTypeDeclaration.get(TypeName(Name("Hello")), None) == Left(
+        MissingType(TypeName(Name("Hello")))))
   }
 
   test("Unscoped class not found") {
-    assert(PlatformTypeDeclaration.get(TypeName(Name("String")), None) == Left(MissingType(TypeName(Name("String")))))
+    assert(
+      PlatformTypeDeclaration.get(TypeName(Name("String")), None) == Left(
+        MissingType(TypeName(Name("String")))))
   }
 
   test("Scoped class") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("String"), Nil, Some(TypeNames.System)), None).toOption
+    val td = PlatformTypeDeclaration
+      .get(TypeName(Name("String"), Nil, Some(TypeNames.System)), None)
+      .toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "String")
     assert(td.get.typeName.toString == "System.String")
     assert(td.get.superClass.isEmpty)
     assert(td.get.interfaces.isEmpty)
     assert(td.get.nature == CLASS_NATURE)
-    assert(td.get.modifiers sameElements  Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
+    assert(td.get.modifiers sameElements Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
     assert(td.get.outerTypeName.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
   }
 
   test("Case insensitive class name") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("StrIng"), Nil, Some(TypeNames.System)), None).toOption
+    val td = PlatformTypeDeclaration
+      .get(TypeName(Name("StrIng"), Nil, Some(TypeNames.System)), None)
+      .toOption
     assert(td.nonEmpty)
     assert(td.get eq PlatformTypeDeclaration.get(TypeNames.String, None).toOption.get)
   }
 
   test("Case insensitive namespace") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("String"), Nil, Some(TypeName(Name("SyStem")))), None).toOption
+    val td = PlatformTypeDeclaration
+      .get(TypeName(Name("String"), Nil, Some(TypeName(Name("SyStem")))), None)
+      .toOption
     assert(td.nonEmpty)
     assert(td.get eq PlatformTypeDeclaration.get(TypeNames.String, None).toOption.get)
   }
 
   test("Extending class") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("FeedItem"), Nil, Some(TypeName(Name("ConnectApi")))), None).toOption
+    val td = PlatformTypeDeclaration
+      .get(TypeName(Name("FeedItem"), Nil, Some(TypeName(Name("ConnectApi")))), None)
+      .toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "FeedItem")
     assert(td.get.typeName.toString == "ConnectApi.FeedItem")
@@ -84,7 +96,9 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Interface nature") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("Callable"), Nil, Some(TypeNames.System)), None).toOption
+    val td = PlatformTypeDeclaration
+      .get(TypeName(Name("Callable"), Nil, Some(TypeNames.System)), None)
+      .toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "Callable")
     assert(td.get.typeName.toString == "System.Callable")
@@ -97,7 +111,9 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Enum nature") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("RoundingMode"), Nil, Some(TypeNames.System)), None).toOption
+    val td = PlatformTypeDeclaration
+      .get(TypeName(Name("RoundingMode"), Nil, Some(TypeNames.System)), None)
+      .toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "RoundingMode")
     assert(td.get.typeName.toString == "System.RoundingMode")
@@ -110,7 +126,9 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
   }
 
   test("Nested class") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("InboundEmail"), Nil, Some(TypeName(Name("Messaging")))), None).toOption
+    val td = PlatformTypeDeclaration
+      .get(TypeName(Name("InboundEmail"), Nil, Some(TypeName(Name("Messaging")))), None)
+      .toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "InboundEmail")
     assert(td.get.typeName.toString == "Messaging.InboundEmail")
@@ -122,13 +140,19 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
 
     val nested = td.get.nestedTypes.sortBy(_.name.toString)
     assert(nested.length == 3)
-    assert(nested.map(_.name.toString) sameElements Array("BinaryAttachment", "Header", "TextAttachment"))
-    assert(nested.filter(_.modifiers.toSet == Set(PUBLIC_MODIFIER, VIRTUAL_MODIFIER, STATIC_MODIFIER)) sameElements nested)
+    assert(
+      nested
+        .map(_.name.toString) sameElements Array("BinaryAttachment", "Header", "TextAttachment"))
+    assert(nested.filter(_.modifiers.toSet == Set(PUBLIC_MODIFIER,
+                                                  VIRTUAL_MODIFIER,
+                                                  STATIC_MODIFIER)) sameElements nested)
     assert(nested.filter(_.outerTypeName.get == td.get.typeName) sameElements nested)
   }
 
   test("Field access") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("Address"), Nil, Some(TypeNames.System)), None).toOption
+    val td = PlatformTypeDeclaration
+      .get(TypeName(Name("Address"), Nil, Some(TypeNames.System)), None)
+      .toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "Address")
     assert(td.get.typeName.toString == "System.Address")
@@ -141,14 +165,24 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
 
     val fields = td.get.fields.sortBy(_.name.toString)
     assert(fields.length == 8)
-    assert(fields.map(_.name.toString) sameElements
-      Array("city", "country", "countryCode", "geocodeAccuracy", "postalCode", "state", "stateCode", "street"))
-    assert(fields.filter(_.modifiers sameElements Array(PUBLIC_MODIFIER)) sameElements  fields)
+    assert(
+      fields.map(_.name.toString) sameElements
+        Array("city",
+              "country",
+              "countryCode",
+              "geocodeAccuracy",
+              "postalCode",
+              "state",
+              "stateCode",
+              "street"))
+    assert(fields.filter(_.modifiers sameElements Array(PUBLIC_MODIFIER)) sameElements fields)
     assert(fields.filter(_.typeName.toString == "System.String") sameElements fields)
   }
 
   test("Constructor access") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("DmlException"), Nil, Some(TypeNames.System)), None).toOption
+    val td = PlatformTypeDeclaration
+      .get(TypeName(Name("DmlException"), Nil, Some(TypeNames.System)), None)
+      .toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "DmlException")
     assert(td.get.typeName.toString == "System.DmlException")
@@ -161,15 +195,20 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
 
     val constructors = td.get.constructors.sortBy(_.toString)
     assert(constructors.length == 4)
-    assert(constructors.filter(_.modifiers sameElements Array(PUBLIC_MODIFIER)) sameElements  constructors)
+    assert(
+      constructors
+        .filter(_.modifiers sameElements Array(PUBLIC_MODIFIER)) sameElements constructors)
     assert(constructors.head.toString == "public System.DmlException()")
     assert(constructors(1).toString == "public System.DmlException(System.Exception param1)")
     assert(constructors(2).toString == "public System.DmlException(System.String param1)")
-    assert(constructors(3).toString == "public System.DmlException(System.String param1, System.Exception param2)")
+    assert(
+      constructors(3).toString == "public System.DmlException(System.String param1, System.Exception param2)")
   }
 
   test("Method access") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("Address"), Nil, Some(TypeNames.System)), None).toOption
+    val td = PlatformTypeDeclaration
+      .get(TypeName(Name("Address"), Nil, Some(TypeNames.System)), None)
+      .toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "Address")
     assert(td.get.typeName.toString == "System.Address")
@@ -182,17 +221,34 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
 
     val methods = td.get.methods.sortBy(_.name.toString)
     assert(methods.length == 11)
-    assert(methods.map(_.name.toString) sameElements
-      Array("getCity", "getCountry", "getCountryCode", "getDistance", "getGeocodeAccuracy", "getLatitude",
-        "getLongitude", "getPostalCode", "getState", "getStateCode", "getStreet"))
+    assert(
+      methods.map(_.name.toString) sameElements
+        Array("getCity",
+              "getCountry",
+              "getCountryCode",
+              "getDistance",
+              "getGeocodeAccuracy",
+              "getLatitude",
+              "getLongitude",
+              "getPostalCode",
+              "getState",
+              "getStateCode",
+              "getStreet"))
     assert(methods.filter(_.modifiers sameElements Array(PUBLIC_MODIFIER)) sameElements methods)
-    assert(methods.filter(_.name.toString == "getCity").head.toString == "public System.String getCity()")
-    assert(methods.filter(_.name.toString == "getDistance").head.toString ==
-      "public System.Double getDistance(System.Location other, System.String unit)")
+    assert(
+      methods
+        .filter(_.name.toString == "getCity")
+        .head
+        .toString == "public System.String getCity()")
+    assert(
+      methods.filter(_.name.toString == "getDistance").head.toString ==
+        "public System.Double getDistance(System.Location other, System.String unit)")
   }
 
   test("Exception") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("RetryableException"), Nil, Some(TypeName(Name("eventbus")))), None).toOption
+    val td = PlatformTypeDeclaration
+      .get(TypeName(Name("RetryableException"), Nil, Some(TypeName(Name("eventbus")))), None)
+      .toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "RetryableException")
     assert(td.get.typeName.toString == "eventbus.RetryableException")
@@ -205,14 +261,29 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
 
     val methods = td.get.methods.sortBy(_.name.toString)
     assert(methods.length == 15)
-    assert(methods.map(_.name.toString) sameElements Array("getCause", "getDmlFieldNames", "getDmlFields", "getDmlId",
-      "getDmlIndex", "getDmlMessage", "getDmlStatusCode", "getDmlType", "getLineNumber", "getMessage", "getNumDml",
-      "getStackTraceString", "getTypeName", "initCause", "setMessage"))
+    assert(
+      methods.map(_.name.toString) sameElements Array("getCause",
+                                                      "getDmlFieldNames",
+                                                      "getDmlFields",
+                                                      "getDmlId",
+                                                      "getDmlIndex",
+                                                      "getDmlMessage",
+                                                      "getDmlStatusCode",
+                                                      "getDmlType",
+                                                      "getLineNumber",
+                                                      "getMessage",
+                                                      "getNumDml",
+                                                      "getStackTraceString",
+                                                      "getTypeName",
+                                                      "initCause",
+                                                      "setMessage"))
     assert(methods.filter(_.modifiers sameElements Array(PUBLIC_MODIFIER)) sameElements methods)
   }
 
   test("Generic class") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("List"), Seq(TypeNames.String), Some(TypeNames.System)), None).toOption
+    val td = PlatformTypeDeclaration
+      .get(TypeName(Name("List"), Seq(TypeNames.String), Some(TypeNames.System)), None)
+      .toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "List")
     assert(td.get.typeName.toString == "System.List<System.String>")
@@ -224,36 +295,38 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     assert(td.get.outerTypeName.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
 
-    assert (td.get.methods.map(_.toString).sorted.mkString("\n") == Seq(
-      "public System.List<System.String> clone()",
-      "public void add(System.String listElement)",
-      "public void add(System.Integer index, System.String listElement)",
-      "public void addAll(System.List<System.String> fromList)",
-      "public void addAll(System.Set<System.String> fromSet)",
-      "public void clear()",
-      "public System.Boolean contains(System.String listElement)",
-      "public System.List<System.String> deepClone()",
-      "public System.List<System.String> deepClone(System.Boolean preserveId)",
-      "public System.List<System.String> deepClone(System.Boolean preserveId, System.Boolean preserveReadonlyTimestamps)",
-      "public System.List<System.String> deepClone(System.Boolean preserveId, System.Boolean preserveReadonlyTimestamps, System.Boolean preserveAutonumber)",
-      "public System.String get(System.Integer index)",
-      "public Schema.SObjectType getSObjectType()",
-      "public System.Integer indexOf(System.String listElement)",
-      "public System.Iterator<System.String> iterator()",
-      "public System.Boolean isEmpty()",
-      "public System.String remove(System.Integer index)",
-      "public void set(System.Integer index, System.String listElement)",
-      "public System.Integer size()",
-      "public void sort()",
-      "public System.String toString()",
-      "public System.Boolean equals(System.List<System.String> other)",
-      "public System.Integer hashCode()"
-    ).sorted.mkString("\n"))
+    assert(
+      td.get.methods.map(_.toString).sorted.mkString("\n") == Seq(
+        "public System.List<System.String> clone()",
+        "public void add(System.String listElement)",
+        "public void add(System.Integer index, System.String listElement)",
+        "public void addAll(System.List<System.String> fromList)",
+        "public void addAll(System.Set<System.String> fromSet)",
+        "public void clear()",
+        "public System.Boolean contains(System.String listElement)",
+        "public System.List<System.String> deepClone()",
+        "public System.List<System.String> deepClone(System.Boolean preserveId)",
+        "public System.List<System.String> deepClone(System.Boolean preserveId, System.Boolean preserveReadonlyTimestamps)",
+        "public System.List<System.String> deepClone(System.Boolean preserveId, System.Boolean preserveReadonlyTimestamps, System.Boolean preserveAutonumber)",
+        "public System.String get(System.Integer index)",
+        "public Schema.SObjectType getSObjectType()",
+        "public System.Integer indexOf(System.String listElement)",
+        "public System.Iterator<System.String> iterator()",
+        "public System.Boolean isEmpty()",
+        "public System.String remove(System.Integer index)",
+        "public void set(System.Integer index, System.String listElement)",
+        "public System.Integer size()",
+        "public void sort()",
+        "public System.String toString()",
+        "public System.Boolean equals(System.List<System.String> other)",
+        "public System.Integer hashCode()").sorted.mkString("\n"))
   }
 
   test("Nested Generic class") {
     val inner = TypeName(Name("List"), Seq(TypeNames.String), Some(TypeNames.System))
-    val td = PlatformTypeDeclaration.get(TypeName(Name("Iterable"), Seq(inner), Some(TypeNames.System)), None).toOption
+    val td = PlatformTypeDeclaration
+      .get(TypeName(Name("Iterable"), Seq(inner), Some(TypeNames.System)), None)
+      .toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "Iterable")
     assert(td.get.typeName.toString == "System.Iterable<System.List<System.String>>")
@@ -264,9 +337,9 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     assert(td.get.outerTypeName.isEmpty)
     assert(td.get.nestedTypes.isEmpty)
 
-    assert (td.get.methods.map(_.toString).sorted.mkString("\n") == Seq(
-      "public System.Iterator<System.List<System.String>> iterator()",
-    ).sorted.mkString("\n"))
+    assert(
+      td.get.methods.map(_.toString).sorted.mkString("\n") == Seq(
+        "public System.Iterator<System.List<System.String>> iterator()", ).sorted.mkString("\n"))
   }
 
   test("Non-generic type") {
@@ -274,16 +347,18 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     val td = PlatformTypeDeclaration.get(typeName, None)
     td match {
       case Left(e: WrongTypeArguments) => assert(e.typeName == typeName)
-      case _ => assert(true)
+      case _                           => assert(true)
     }
   }
 
   test("Too many type params") {
-    val typeName = TypeName(Name("List"), Seq(TypeName(Names.String), TypeName(Names.String)), Some(TypeNames.System))
+    val typeName = TypeName(Name("List"),
+                            Seq(TypeName(Names.String), TypeName(Names.String)),
+                            Some(TypeNames.System))
     val td = PlatformTypeDeclaration.get(typeName, None)
     td match {
       case Left(e: WrongTypeArguments) => assert(e.typeName == typeName)
-      case _ => assert(false)
+      case _                           => assert(false)
     }
   }
 
@@ -292,13 +367,18 @@ class PlatformTypeDeclarationTest extends AnyFunSuite  {
     val td = PlatformTypeDeclaration.get(typeName, None)
     td match {
       case Left(e: WrongTypeArguments) => assert(e.typeName == typeName)
-      case _ => assert(false)
+      case _                           => assert(false)
     }
   }
 
   test("Relative type in param") {
-    val td = PlatformTypeDeclaration.get(TypeName(Name("List"), Seq(TypeName(Names.String)), Some(TypeNames.System)), None)
+    val td = PlatformTypeDeclaration.get(
+      TypeName(Name("List"), Seq(TypeName(Names.String)), Some(TypeNames.System)),
+      None)
     assert(td.isRight)
-    assert(td.getOrElse(throw new NoSuchElementException).typeName == TypeName(Name("List"), Seq(TypeNames.String), Some(TypeNames.System)))
+    assert(
+      td.getOrElse(throw new NoSuchElementException).typeName == TypeName(Name("List"),
+                                                                          Seq(TypeNames.String),
+                                                                          Some(TypeNames.System)))
   }
 }

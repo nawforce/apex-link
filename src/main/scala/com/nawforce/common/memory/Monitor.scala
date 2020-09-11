@@ -24,7 +24,8 @@ object Monitor {
           ServerOps.debug(ServerOps.Trace, s"Duplicate types found for $typeName")
         })
         duplicateTypes = new SkinnyWeakSet[TypeDeclaration]()
-        duplicates.foreach(dup => tdsByName.filter(_._1 == dup).foreach(x => duplicateTypes.add(x._2)))
+        duplicates.foreach(dup =>
+          tdsByName.filter(_._1 == dup).foreach(x => duplicateTypes.add(x._2)))
       }
     }
   }

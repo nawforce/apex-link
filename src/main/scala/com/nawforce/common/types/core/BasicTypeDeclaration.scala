@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package com.nawforce.common.types.core
 
@@ -34,7 +34,7 @@ import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 
 class BasicTypeDeclaration(val paths: Array[PathLike], pkg: PackageImpl, val typeName: TypeName)
-  extends TypeDeclaration {
+    extends TypeDeclaration {
 
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override val name: Name = typeName.name
@@ -49,13 +49,14 @@ class BasicTypeDeclaration(val paths: Array[PathLike], pkg: PackageImpl, val typ
 
   override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
   override val fields: Array[FieldDeclaration] = FieldDeclaration.emptyFieldDeclarations
-  override val constructors: Array[ConstructorDeclaration] = ConstructorDeclaration.emptyConstructorDeclarations
+  override val constructors: Array[ConstructorDeclaration] =
+    ConstructorDeclaration.emptyConstructorDeclarations
   override val methods: Array[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
 
   override def validate(): Unit = {}
 }
 
 class InnerBasicTypeDeclaration(_paths: Array[PathLike], _pkg: PackageImpl, _typeName: TypeName)
-  extends BasicTypeDeclaration(_paths, _pkg, _typeName) {
+    extends BasicTypeDeclaration(_paths, _pkg, _typeName) {
   override val outerTypeName: Option[TypeName] = typeName.outer
 }

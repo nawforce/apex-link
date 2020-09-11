@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package com.nawforce.common.types.platform
 
@@ -39,13 +39,15 @@ import com.nawforce.common.types.core.{FieldDeclaration, MethodDeclaration, Para
  * List<T> presents as say a List<Foo>.
  */
 class GenericPlatformTypeDeclaration(_typeName: TypeName, genericDecl: PlatformTypeDeclaration)
-  extends PlatformTypeDeclaration(genericDecl.native, genericDecl.outer) {
+    extends PlatformTypeDeclaration(genericDecl.native, genericDecl.outer) {
 
   override lazy val typeName: TypeName = _typeName
 
   private val paramsMap: Map[Name, TypeName] = {
-    genericDecl.typeName.params.zip(typeName.params)
-      .map(p => (p._1.name, p._2)).toMap
+    genericDecl.typeName.params
+      .zip(typeName.params)
+      .map(p => (p._1.name, p._2))
+      .toMap
   }
 
   override lazy val superClass: Option[TypeName] = getSuperClass.map(replaceParams)
@@ -81,8 +83,9 @@ class GenericPlatformTypeDeclaration(_typeName: TypeName, genericDecl: PlatformT
   }
 }
 
-class GenericPlatformField(platformField: PlatformField, _typeDeclaration: GenericPlatformTypeDeclaration)
-  extends FieldDeclaration {
+class GenericPlatformField(platformField: PlatformField,
+                           _typeDeclaration: GenericPlatformTypeDeclaration)
+    extends FieldDeclaration {
 
   override val name: Name = platformField.name
   override val modifiers: Array[Modifier] = platformField.modifiers
@@ -96,8 +99,9 @@ class GenericPlatformField(platformField: PlatformField, _typeDeclaration: Gener
   }
 }
 
-class GenericPlatformMethod(platformMethod: PlatformMethod, _typeDeclaration: GenericPlatformTypeDeclaration)
-  extends MethodDeclaration {
+class GenericPlatformMethod(platformMethod: PlatformMethod,
+                            _typeDeclaration: GenericPlatformTypeDeclaration)
+    extends MethodDeclaration {
 
   override lazy val name: Name = platformMethod.name
   override lazy val modifiers: Array[Modifier] = platformMethod.modifiers
@@ -109,7 +113,7 @@ class GenericPlatformMethod(platformMethod: PlatformMethod, _typeDeclaration: Ge
 
   override lazy val parameters: Array[ParameterDeclaration] =
     platformMethod.getParameters
-      .collect {case p: PlatformParameter => p}
+      .collect { case p: PlatformParameter => p }
       .map(p => new GenericPlatformParameter(p, _typeDeclaration))
 
   override def toString: String =
@@ -117,8 +121,9 @@ class GenericPlatformMethod(platformMethod: PlatformMethod, _typeDeclaration: Ge
       parameters.map(_.toString).mkString(", ") + ")"
 }
 
-class GenericPlatformParameter(platformParameter: PlatformParameter, _typeDeclaration: GenericPlatformTypeDeclaration)
-  extends ParameterDeclaration {
+class GenericPlatformParameter(platformParameter: PlatformParameter,
+                               _typeDeclaration: GenericPlatformTypeDeclaration)
+    extends ParameterDeclaration {
 
   override lazy val name: Name = platformParameter.name
   override lazy val typeName: TypeName = {
@@ -139,7 +144,8 @@ object GenericPlatformTypeDeclaration {
    */
   def get(typeName: TypeName, from: Option[TypeDeclaration]): TypeResponse = {
     // Make sure params are resolvable first
-    val params = typeName.params.map(pt => (pt, TypeResolver(pt, from, None, excludeSObjects = false)))
+    val params =
+      typeName.params.map(pt => (pt, TypeResolver(pt, from, None, excludeSObjects = false)))
     val pkg = from.flatMap(_.packageDeclaration)
     val failedParams = params.find(_._2.isLeft).filterNot(p => pkg.exists(_.isGhostedType(p._1)))
     if (failedParams.nonEmpty) {
@@ -149,11 +155,14 @@ object GenericPlatformTypeDeclaration {
     // And then create off base type
     val genericDecl = PlatformTypeDeclaration.getDeclaration(typeName.asDotName)
     if (genericDecl.nonEmpty) {
-      val absoluteParamTypes = params.map(p => p._2 match {
-        case Left(error: TypeError) => error.typeName
-        case Right(paramType: TypeDeclaration) => paramType.typeName
+      val absoluteParamTypes = params.map(p =>
+        p._2 match {
+          case Left(error: TypeError)            => error.typeName
+          case Right(paramType: TypeDeclaration) => paramType.typeName
       })
-      Right(new GenericPlatformTypeDeclaration(typeName.withParams(absoluteParamTypes), genericDecl.get))
+      Right(
+        new GenericPlatformTypeDeclaration(typeName.withParams(absoluteParamTypes),
+                                           genericDecl.get))
     } else {
       Left(MissingType(typeName))
     }

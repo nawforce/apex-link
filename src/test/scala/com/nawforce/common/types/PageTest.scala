@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types
 
 import com.nawforce.common.FileSystemHelper
@@ -45,59 +45,60 @@ class PageTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid page") {
-    FileSystemHelper.run(Map(
-      "TestPage.page" -> "",
-      "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("TestPage.page" -> "",
+          "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Valid page (case insensitive)") {
-    FileSystemHelper.run(Map(
-      "TestPage.page" -> "",
-      "Dummy.cls" -> "public class Dummy { {PageReference a = Page.tesTPage;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("TestPage.page" -> "",
+          "Dummy.cls" -> "public class Dummy { {PageReference a = Page.tesTPage;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Missing page") {
-    FileSystemHelper.run(Map(
-      "TestPage.page" -> "",
-      "Dummy.cls" -> "public class Dummy { {PageReference a = Page.AnotherPage;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(org.issues.getMessages("/Dummy.cls") ==
-        "Missing: line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n")
+    FileSystemHelper.run(
+      Map("TestPage.page" -> "",
+          "Dummy.cls" -> "public class Dummy { {PageReference a = Page.AnotherPage;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(
+          org.issues.getMessages("/Dummy.cls") ==
+            "Missing: line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n")
     }
   }
 
   test("Base package page") {
-    FileSystemHelper.run(Map(
-      "pkg1/TestPage.page" -> "",
-      "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-      org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("pkg1/TestPage.page" -> "",
+          "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+        org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Ghost package page") {
-    FileSystemHelper.run(Map(
-      "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(), Seq())
-      org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(), Seq())
+        org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+        assert(!org.issues.hasMessages)
     }
   }
 }

@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, TypeName}
@@ -43,8 +43,7 @@ object TypeReference {
     val names = CodeParser.toScala(typeRef.typeName())
 
     // Only decode head as rest can't legally be in EncodedName format
-    createTypeName(
-      decodeName(names.head), names.tail).withArraySubscripts(arraySubs)
+    createTypeName(decodeName(names.head), names.tail).withArraySubscripts(arraySubs)
   }
 
   private def getName(name: TypeNameContext): Name = {
@@ -65,16 +64,14 @@ object TypeReference {
   }
 
   @scala.annotation.tailrec
-  private def createTypeName(outer: TypeName, names: Seq[TypeNameContext])
-  : TypeName = {
+  private def createTypeName(outer: TypeName, names: Seq[TypeNameContext]): TypeName = {
     names match {
       case Nil => outer
       case hd +: tl =>
-        createTypeName(
-          TypeName(getName(hd),
-            createTypeParams(CodeParser.toScala(hd.typeArguments())), Some(outer)).intern,
-          tl
-        )
+        createTypeName(TypeName(getName(hd),
+                                createTypeParams(CodeParser.toScala(hd.typeArguments())),
+                                Some(outer)).intern,
+                       tl)
     }
   }
 
@@ -92,4 +89,3 @@ object TypeList {
     types.map(t => TypeReference.construct(t))
   }
 }
-

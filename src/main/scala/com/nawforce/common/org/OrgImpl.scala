@@ -29,17 +29,7 @@ package com.nawforce.common.org
 
 import java.util
 
-import com.nawforce.common.api.{
-  Diagnostic,
-  ERROR_CATEGORY,
-  IssueOptions,
-  LoggerOps,
-  Name,
-  Org,
-  Package,
-  PathLocation,
-  ServerOps
-}
+import com.nawforce.common.api.{Diagnostic, ERROR_CATEGORY, IssueOptions, LoggerOps, Name, Org, Package, PathLocation, ServerOps}
 import com.nawforce.common.diagnostics.{Issue, IssueLog}
 import com.nawforce.common.documents._
 import com.nawforce.common.memory.IdentityBox

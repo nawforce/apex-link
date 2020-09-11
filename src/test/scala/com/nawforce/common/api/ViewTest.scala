@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.api
 
 import com.nawforce.common.FileSystemHelper
@@ -46,9 +46,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("good path type (mdapi)") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.cls" -> "public class Foo {}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("pkg/Foo.cls" -> "public class Foo {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), None)
@@ -59,9 +57,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("bad path type (mdapi)") {
-    FileSystemHelper.run(Map(
-      "foo.scala" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("foo.scala" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("foo.scala"), None)
@@ -71,10 +67,9 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("good path (sfdx)") {
-    FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{\"packageDirectories\" : [{ \"path\": \"force-app\", \"default\": true}]}",
-      "force-app/pkg/Foo.cls" -> "public class Foo {}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(
+      Map("sfdx-project.json" -> "{\"packageDirectories\" : [{ \"path\": \"force-app\", \"default\": true}]}",
+          "force-app/pkg/Foo.cls" -> "public class Foo {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("force-app/pkg/Foo.cls"), None)
@@ -86,11 +81,11 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
 
   test("ignored path (sfdx)") {
     // Use tmp dir as .forceIgnore needs native paths
-    FileSystemHelper.runTempDir(Map(
-      "sfdx-project.json" -> "{\"packageDirectories\" : [{ \"path\": \"force-app\", \"default\": true}]}",
-      ".forceignore" -> "force-app/pkg/",
-      "force-app/pkg/Foo.cls" -> ""
-    )) { root: PathLike =>
+    FileSystemHelper.runTempDir(
+      Map(
+        "sfdx-project.json" -> "{\"packageDirectories\" : [{ \"path\": \"force-app\", \"default\": true}]}",
+        ".forceignore" -> "force-app/pkg/",
+        "force-app/pkg/Foo.cls" -> "")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newSFDXPackageInternal(root)
       val path = root.join("force-app").join("pkg").join("Foo.cls")
@@ -101,144 +96,137 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("new parse error") {
-    FileSystemHelper.run(Map(
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map()) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("Foo.cls"), Some(SourceBlob("")))
       assert(!view.hasType)
       assert(view.diagnostics.length == 1)
       assert(view.diagnostics.head.category == SYNTAX_CATEGORY)
-      assert(view.diagnostics.head.location == Location(1,0))
+      assert(view.diagnostics.head.location == Location(1, 0))
       assert(view.diagnostics.head.message.nonEmpty)
     }
   }
 
   test("replacement parse error") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.cls" -> "public class Foo {}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("pkg/Foo.cls" -> "public class Foo {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("")))
       assert(!view.hasType)
       assert(view.diagnostics.length == 1)
       assert(view.diagnostics.head.category == SYNTAX_CATEGORY)
-      assert(view.diagnostics.head.location == Location(1,0))
+      assert(view.diagnostics.head.location == Location(1, 0))
       assert(view.diagnostics.head.message.nonEmpty)
     }
   }
 
   test("good replacement") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.cls" -> "public class Foo {}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("pkg/Foo.cls" -> "public class Foo {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {}")))
+      val view =
+        pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {}")))
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
     }
   }
 
   test("validate error") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.cls" -> "public class Foo {}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("pkg/Foo.cls" -> "public class Foo {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Bar b;}")))
+      val view =
+        pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Bar b;}")))
       assert(view.hasType)
       assert(view.diagnostics.length == 1)
       assert(view.diagnostics.head.category == MISSING_CATEGORY)
-      assert(view.diagnostics.head.location == Location(1,22, 1,23))
+      assert(view.diagnostics.head.location == Location(1, 22, 1, 23))
       assert(view.diagnostics.head.message.nonEmpty)
     }
   }
 
   test("Replacement does not create dependency holder") {
-    FileSystemHelper.run(Map(
-      "pkg/Bar.cls" -> "public class Bar {}",
-      "pkg/Foo.cls" -> "public class Foo {}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Bar b;}")))
-      assert(view.hasType)
-      assert(view.diagnostics.isEmpty)
+    FileSystemHelper.run(
+      Map("pkg/Bar.cls" -> "public class Bar {}", "pkg/Foo.cls" -> "public class Foo {}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val view =
+          pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Bar b;}")))
+        assert(view.hasType)
+        assert(view.diagnostics.isEmpty)
 
-      val barTypeId = pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
-      assert(pkg.getDependencyHolders(barTypeId).sameElements(Array[TypeName]()))
+        val barTypeId =
+          pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
+        assert(pkg.getDependencyHolders(barTypeId).sameElements(Array[TypeName]()))
     }
   }
 
   test("Good path trigger (mdapi)") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), None)
-      assert(view.hasType)
-      assert(view.diagnostics.isEmpty)
-      assert(view.asInstanceOf[ViewInfoImpl].td.get.name == Name("__sfdc_trigger/Foo"))
+    FileSystemHelper.run(Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), None)
+        assert(view.hasType)
+        assert(view.diagnostics.isEmpty)
+        assert(view.asInstanceOf[ViewInfoImpl].td.get.name == Name("__sfdc_trigger/Foo"))
     }
   }
 
   test("New trigger parse error") {
-    FileSystemHelper.run(Map(
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map()) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       val view = pkg.getViewOfType(root.join("Foo.trigger"), Some(SourceBlob("")))
       assert(!view.hasType)
       assert(view.diagnostics.length == 1)
       assert(view.diagnostics.head.category == SYNTAX_CATEGORY)
-      assert(view.diagnostics.head.location == Location(1,0))
+      assert(view.diagnostics.head.location == Location(1, 0))
       assert(view.diagnostics.head.message.nonEmpty)
     }
   }
 
   test("Replacement trigger parse error") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), Some(SourceBlob("")))
-      assert(!view.hasType)
-      assert(view.diagnostics.length == 1)
-      assert(view.diagnostics.head.category == SYNTAX_CATEGORY)
-      assert(view.diagnostics.head.location == Location(1,0))
-      assert(view.diagnostics.head.message.nonEmpty)
+    FileSystemHelper.run(Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), Some(SourceBlob("")))
+        assert(!view.hasType)
+        assert(view.diagnostics.length == 1)
+        assert(view.diagnostics.head.category == SYNTAX_CATEGORY)
+        assert(view.diagnostics.head.location == Location(1, 0))
+        assert(view.diagnostics.head.message.nonEmpty)
     }
   }
 
   test("Good replacement trigger") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {}")))
-      assert(view.hasType)
-      assert(view.diagnostics.isEmpty)
+    FileSystemHelper.run(Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val view =
+          pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {}")))
+        assert(view.hasType)
+        assert(view.diagnostics.isEmpty)
     }
   }
 
   test("Validate trigger error") {
-    FileSystemHelper.run(Map(
-      "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"),
-        Some(SourceBlob("trigger Foo on Account (before insert) {Bar b;}")))
-      assert(view.hasType)
-      assert(view.diagnostics.length == 1)
-      assert(view.diagnostics.head.category == MISSING_CATEGORY)
-      assert(view.diagnostics.head.location == Location(1,44,1,45))
-      assert(view.diagnostics.head.message.nonEmpty)
+    FileSystemHelper.run(Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val view =
+          pkg.getViewOfType(root.join("pkg/Foo.trigger"),
+                            Some(SourceBlob("trigger Foo on Account (before insert) {Bar b;}")))
+        assert(view.hasType)
+        assert(view.diagnostics.length == 1)
+        assert(view.diagnostics.head.category == MISSING_CATEGORY)
+        assert(view.diagnostics.head.location == Location(1, 44, 1, 45))
+        assert(view.diagnostics.head.message.nonEmpty)
     }
   }
 
@@ -274,9 +262,10 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Multiple label files ") {
-    FileSystemHelper.run(Map(
-      "CustomLabels.labels" ->
-        """<?xml version="1.0" encoding="UTF-8"?>
+    FileSystemHelper.run(
+      Map(
+        "CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
@@ -284,22 +273,24 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-      "AltLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
-    )) { root: PathLike =>
+        "AltLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
+      )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("AltLabels.labels"), Some(SourceBlob(
-        """<?xml version="1.0" encoding="UTF-8"?>
+      val view = pkg
+        .getViewOfType(root.join("AltLabels.labels"),
+                       Some(
+                         SourceBlob("""<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel2</fullName>
           |        <protected>false</protected>
           |    </labels>
           |</CustomLabels>
-          |""".stripMargin,
-      ))).asInstanceOf[ViewInfoImpl]
+          |""".stripMargin, )))
+        .asInstanceOf[ViewInfoImpl]
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
       assert(view.typeName == TypeNames.Label)
@@ -308,9 +299,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Flow") {
-    FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> "",
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.flow-meta.xml" -> "", )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -324,14 +313,14 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Additional Flow") {
-    FileSystemHelper.run(Map(
-      "Test.flow-meta.xml" -> "",
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.flow-meta.xml" -> "", )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("Test2.flow-meta.xml"), Some(SourceBlob(""))).asInstanceOf[ViewInfoImpl]
+      val view = pkg
+        .getViewOfType(root.join("Test2.flow-meta.xml"), Some(SourceBlob("")))
+        .asInstanceOf[ViewInfoImpl]
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
       assert(view.typeName == TypeNames.Interview)
@@ -340,9 +329,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Page") {
-    FileSystemHelper.run(Map(
-      "TestPage.page" -> "",
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("TestPage.page" -> "", )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -356,14 +343,14 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Additional Page") {
-    FileSystemHelper.run(Map(
-      "TestPage.page" -> "",
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("TestPage.page" -> "", )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("TestPage2.page"), Some(SourceBlob(""))).asInstanceOf[ViewInfoImpl]
+      val view = pkg
+        .getViewOfType(root.join("TestPage2.page"), Some(SourceBlob("")))
+        .asInstanceOf[ViewInfoImpl]
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
       assert(view.typeName == TypeNames.Page)
@@ -372,9 +359,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Component") {
-    FileSystemHelper.run(Map(
-      "Test.component" -> "",
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.component" -> "", )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -383,23 +368,30 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
       assert(view.typeName == TypeNames.Component)
-      assert(view.td.get.nestedTypes.map(_.name).toSet == Set(Name("Test"), Names.c, Names.Apex, Names.Chatter))
+      assert(
+        view.td.get.nestedTypes.map(_.name).toSet == Set(Name("Test"),
+                                                         Names.c,
+                                                         Names.Apex,
+                                                         Names.Chatter))
     }
   }
 
   test("Additional Component") {
-    FileSystemHelper.run(Map(
-      "Test.component" -> "",
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.component" -> "", )) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
-      val view = pkg.getViewOfType(root.join("Test2.component"), Some(SourceBlob(""))).asInstanceOf[ViewInfoImpl]
+      val view = pkg
+        .getViewOfType(root.join("Test2.component"), Some(SourceBlob("")))
+        .asInstanceOf[ViewInfoImpl]
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)
       assert(view.typeName == TypeNames.Component)
-      assert(view.td.get.nestedTypes.map(_.name).toSet == Set(Name("Test"), Name("Test2"), Names.c, Names.Apex, Names.Chatter))
+      assert(
+        view.td.get.nestedTypes
+          .map(_.name)
+          .toSet == Set(Name("Test"), Name("Test2"), Names.c, Names.Apex, Names.Chatter))
     }
   }
 }

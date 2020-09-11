@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types
 
 import com.nawforce.common.api.{Name, TypeName}
@@ -36,21 +36,19 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class PlatformTypesValidationTest extends AnyFunSuite {
 
-  private val generics = Map[String, String] (
-    "System.List" -> "System.List<T>",
-    "System.Iterator" -> "System.Iterator<T>",
-    "System.Map" -> "System.Map<K, V>",
-    "System.Set" -> "System.Set<T>",
-    "System.Iterable" -> "System.Iterable<T>",
-    "Database.Batchable" -> "Database.Batchable<T>",
-    "Internal.RecordSet$" -> "Internal.RecordSet$<T>",
-    "Internal.DescribeSObjectResult$" -> "Internal.DescribeSObjectResult$<T>",
-    "Internal.SObjectType$" -> "Internal.SObjectType$<T>",
-    "Internal.SObjectTypeFields$" -> "Internal.SObjectTypeFields$<T>",
-    "Internal.SObjectTypeFieldSets$" -> "Internal.SObjectTypeFieldSets$<T>",
-    "Internal.SObjectFields$" -> "Internal.SObjectFields$<T>",
-    "Internal.Trigger$" -> "Internal.Trigger$<T>"
-  )
+  private val generics = Map[String, String]("System.List" -> "System.List<T>",
+                                             "System.Iterator" -> "System.Iterator<T>",
+                                             "System.Map" -> "System.Map<K, V>",
+                                             "System.Set" -> "System.Set<T>",
+                                             "System.Iterable" -> "System.Iterable<T>",
+                                             "Database.Batchable" -> "Database.Batchable<T>",
+                                             "Internal.RecordSet$" -> "Internal.RecordSet$<T>",
+                                             "Internal.DescribeSObjectResult$" -> "Internal.DescribeSObjectResult$<T>",
+                                             "Internal.SObjectType$" -> "Internal.SObjectType$<T>",
+                                             "Internal.SObjectTypeFields$" -> "Internal.SObjectTypeFields$<T>",
+                                             "Internal.SObjectTypeFieldSets$" -> "Internal.SObjectTypeFieldSets$<T>",
+                                             "Internal.SObjectFields$" -> "Internal.SObjectFields$<T>",
+                                             "Internal.Trigger$" -> "Internal.Trigger$<T>")
 
   test("Right number of types (should exclude inners)") {
     assert(PlatformTypeDeclaration.classNames.size == 1404)
@@ -59,27 +57,37 @@ class PlatformTypesValidationTest extends AnyFunSuite {
   test("SObject type is visible") {
     val td = PlatformTypes.get(TypeName(Name("User")), None)
     assert(td.isRight)
-    assert(td.getOrElse(throw new NoSuchElementException).typeName == TypeName(Name("User"), Nil, Some(TypeNames.Schema)))
+    assert(
+      td.getOrElse(throw new NoSuchElementException).typeName == TypeName(Name("User"),
+                                                                          Nil,
+                                                                          Some(TypeNames.Schema)))
   }
 
   test("All outer types are valid") {
-    PlatformTypeDeclaration.classNames.toSeq.sortBy(_.toString).foreach(className => {
-      if (!generics.contains(className.toString)) {
-        val typeDeclaration = PlatformTypeDeclaration.get(className.asTypeName(), None)
-        assert(typeDeclaration.isRight)
-        validateTypeDeclaration(className, typeDeclaration.getOrElse(throw new NoSuchElementException).asInstanceOf[PlatformTypeDeclaration])
-      }
-    })
+    PlatformTypeDeclaration.classNames.toSeq
+      .sortBy(_.toString)
+      .foreach(className => {
+        if (!generics.contains(className.toString)) {
+          val typeDeclaration = PlatformTypeDeclaration.get(className.asTypeName(), None)
+          assert(typeDeclaration.isRight)
+          validateTypeDeclaration(className,
+                                  typeDeclaration
+                                    .getOrElse(throw new NoSuchElementException)
+                                    .asInstanceOf[PlatformTypeDeclaration])
+        }
+      })
   }
 
-  def validateTypeDeclaration(className: DotName, typeDeclaration: PlatformTypeDeclaration): Unit = {
+  def validateTypeDeclaration(className: DotName,
+                              typeDeclaration: PlatformTypeDeclaration): Unit = {
     // name & typeName are valid
     assert(typeDeclaration.name.toString == className.lastName.toString)
     className.toString match {
       case "Internal.Object$" => assert(typeDeclaration.typeName.toString == "Object")
-      case "Internal.Null$" => assert(typeDeclaration.typeName.toString == "null")
-      case "Internal.Any$" => assert(typeDeclaration.typeName.toString == "any")
-      case "Internal.SObjectFieldRowCause$" => assert(typeDeclaration.typeName.toString == "SObjectField")
+      case "Internal.Null$"   => assert(typeDeclaration.typeName.toString == "null")
+      case "Internal.Any$"    => assert(typeDeclaration.typeName.toString == "any")
+      case "Internal.SObjectFieldRowCause$" =>
+        assert(typeDeclaration.typeName.toString == "SObjectField")
       case _ => assert(typeDeclaration.typeName.toString == className.toString)
     }
 
@@ -95,8 +103,8 @@ class PlatformTypesValidationTest extends AnyFunSuite {
       case ENUM_NATURE =>
         assert(typeDeclaration.superClass.isEmpty)
         assert(typeDeclaration.interfaces.isEmpty)
-      case CLASS_NATURE => ()
-      case TRIGGER_NATURE =>  assert(false)
+      case CLASS_NATURE   => ()
+      case TRIGGER_NATURE => assert(false)
     }
 
     // PlatformModifiers, always public for outer platform classes
@@ -114,8 +122,10 @@ class PlatformTypesValidationTest extends AnyFunSuite {
         assert(typeDeclaration.nestedTypes.isEmpty)
       case CLASS_NATURE =>
         typeDeclaration.nestedTypes.foreach(
-          nested => validateTypeDeclaration(className.append(nested.name), nested.asInstanceOf[PlatformTypeDeclaration]))
-      case TRIGGER_NATURE =>  assert(false)
+          nested =>
+            validateTypeDeclaration(className.append(nested.name),
+                                    nested.asInstanceOf[PlatformTypeDeclaration]))
+      case TRIGGER_NATURE => assert(false)
     }
 
     // Fields
@@ -124,13 +134,14 @@ class PlatformTypesValidationTest extends AnyFunSuite {
         assert(typeDeclaration.fields.isEmpty)
       case ENUM_NATURE =>
         assert(typeDeclaration.fields.nonEmpty)
-        assert(typeDeclaration.fields.filter(_.typeName.toString == typeDeclaration.typeName.toString)
-          sameElements typeDeclaration.fields)
+        assert(
+          typeDeclaration.fields.filter(_.typeName.toString == typeDeclaration.typeName.toString)
+            sameElements typeDeclaration.fields)
       case CLASS_NATURE =>
-        typeDeclaration.fields.foreach(f =>{
+        typeDeclaration.fields.foreach(f => {
           assert(PlatformTypes.get(f.typeName, Some(typeDeclaration)).isRight)
         })
-      case TRIGGER_NATURE =>  assert(false)
+      case TRIGGER_NATURE => assert(false)
     }
 
     // Constructors (make sure we can decompose them via toString)
@@ -141,21 +152,25 @@ class PlatformTypesValidationTest extends AnyFunSuite {
   }
 
   test("Exceptions are valid") {
-    PlatformTypeDeclaration.classNames.filter(_.lastName.toString.endsWith("Exception")).foreach(className => {
-      val typeDeclaration = PlatformTypeDeclaration.get(className.asTypeName(), None)
-      assert(typeDeclaration.isRight)
-      val td = typeDeclaration.getOrElse(throw new NoSuchElementException).asInstanceOf[PlatformTypeDeclaration]
+    PlatformTypeDeclaration.classNames
+      .filter(_.lastName.toString.endsWith("Exception"))
+      .foreach(className => {
+        val typeDeclaration = PlatformTypeDeclaration.get(className.asTypeName(), None)
+        assert(typeDeclaration.isRight)
+        val td = typeDeclaration
+          .getOrElse(throw new NoSuchElementException)
+          .asInstanceOf[PlatformTypeDeclaration]
 
-      if (td.name.toString() != "Exception")
-        assert(td.superClass.get.toString == "System.Exception")
-      assert(td.interfaces.isEmpty)
-      assert(td.nature == CLASS_NATURE)
-      assert(td.modifiers sameElements Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
-      assert(td.outer.isEmpty)
-      assert(td.nestedTypes.isEmpty)
+        if (td.name.toString() != "Exception")
+          assert(td.superClass.get.toString == "System.Exception")
+        assert(td.interfaces.isEmpty)
+        assert(td.nature == CLASS_NATURE)
+        assert(td.modifiers sameElements Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER))
+        assert(td.outer.isEmpty)
+        assert(td.nestedTypes.isEmpty)
 
-      val methods = td.methods.sortBy(_.name.toString)
-      assert(methods.length >= 7)
-    })
+        val methods = td.methods.sortBy(_.name.toString)
+        assert(methods.length >= 7)
+      })
   }
 }

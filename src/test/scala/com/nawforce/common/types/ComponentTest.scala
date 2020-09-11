@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types
 
 import com.nawforce.common.FileSystemHelper
@@ -46,101 +46,109 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Custom component (MDAPI)") {
-    FileSystemHelper.run(Map(
-      "Test.component" -> "",
-      "Dummy.cls" -> "public class Dummy { {Component.Test;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("Test.component" -> "", "Dummy.cls" -> "public class Dummy { {Component.Test;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Missing component") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {Component.Test;} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      // TODO: This should be a missing issue
-      assert(org.issues.getMessages("/Dummy.cls") ==
-        "Missing: line 1 at 22-36: Unknown field or type 'Test' on 'Component'\n")
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Component.Test;} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        // TODO: This should be a missing issue
+        assert(
+          org.issues.getMessages("/Dummy.cls") ==
+            "Missing: line 1 at 22-36: Unknown field or type 'Test' on 'Component'\n")
     }
   }
 
   test("Create component") {
-    FileSystemHelper.run(Map(
-      "Test.component" -> "",
-      "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("Test.component" -> "",
+          "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Create component (c namespace)") {
-    FileSystemHelper.run(Map(
-      "Test.component" -> "",
-      "Dummy.cls" -> "public class Dummy { {Component c = new Component.c.Test();} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("Test.component" -> "",
+          "Dummy.cls" -> "public class Dummy { {Component c = new Component.c.Test();} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Create component (namespaced)") {
-    FileSystemHelper.run(Map(
-      "Test.component" -> "",
-      "Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg.Test();} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("Test.component" -> "",
+          "Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg.Test();} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Create component (namespaced but without namespace)") {
-    FileSystemHelper.run(Map(
-      "Test.component" -> "",
-      "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("Test.component" -> "",
+          "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq())
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Create component (ghosted)") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {Component c = new Component.ghosted.Test();} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.newMDAPIPackageInternal(Some(Name("ghosted")), Seq(), Seq())
-      org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq(pkg1))
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy { {Component c = new Component.ghosted.Test();} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg1 = org.newMDAPIPackageInternal(Some(Name("ghosted")), Seq(), Seq())
+        org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq(pkg1))
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Create component (packaged)") {
-    FileSystemHelper.run(Map(
-      "pkg1/Test.component" -> "",
-      "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }"
-    )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-      val pkg2 = org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map(
+        "pkg1/Test.component" -> "",
+        "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
+        val pkg2 =
+          org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+        assert(!org.issues.hasMessages)
 
-      val componentType1 = TypeIdentifier.fromJava(Name("pkg1"), TypeNames.Component)
-      val componentType2 = TypeIdentifier.fromJava(Name("pkg2"), TypeNames.Component)
-      assert(pkg2.getDependencies(componentType2, inheritanceOnly = false).sameElements(Array(componentType1)))
-      assert(pkg1.getDependencyHolders(componentType1).sameElements(Array(componentType2)))
+        val componentType1 = TypeIdentifier.fromJava(Name("pkg1"), TypeNames.Component)
+        val componentType2 = TypeIdentifier.fromJava(Name("pkg2"), TypeNames.Component)
+        assert(
+          pkg2
+            .getDependencies(componentType2, inheritanceOnly = false)
+            .sameElements(Array(componentType1)))
+        assert(pkg1.getDependencyHolders(componentType1).sameElements(Array(componentType2)))
 
-      val dummyType = pkg2.getTypeOfPathInternal(root.join("pkg2").join("Dummy.cls")).get.asTypeIdentifier
-      assert(pkg2.getDependencies(dummyType, inheritanceOnly = false).sameElements(Array(componentType2)))
-      assert(pkg2.getDependencyHolders(componentType2).sameElements(Array(dummyType)))
+        val dummyType =
+          pkg2.getTypeOfPathInternal(root.join("pkg2").join("Dummy.cls")).get.asTypeIdentifier
+        assert(
+          pkg2
+            .getDependencies(dummyType, inheritanceOnly = false)
+            .sameElements(Array(componentType2)))
+        assert(pkg2.getDependencyHolders(componentType2).sameElements(Array(dummyType)))
     }
   }
 }
