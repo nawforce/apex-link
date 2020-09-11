@@ -24,42 +24,49 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{Name, TypeName}
-import com.nawforce.common.documents.RangeLocationImpl
+import com.nawforce.common.api.{Name, PathLocation, TypeName}
 import com.nawforce.common.modifiers.{ApexModifiers, Modifier, ModifierResults, PRIVATE_MODIFIER}
 import com.nawforce.common.types.apex.ApexFieldLike
 import com.nawforce.common.types.core.TypeId
 import com.nawforce.runtime.parsers.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
 import com.nawforce.runtime.parsers.CodeParser
 
-final case class ApexPropertyDeclaration(outerTypeId: TypeId, _modifiers: ModifierResults, typeName: TypeName, id: Id,
+final case class ApexPropertyDeclaration(outerTypeId: TypeId,
+                                         _modifiers: ModifierResults,
+                                         typeName: TypeName,
+                                         id: Id,
                                          propertyBlocks: Seq[PropertyBlock])
-  extends ClassBodyDeclaration(_modifiers) with ApexFieldLike {
+    extends ClassBodyDeclaration(_modifiers)
+    with ApexFieldLike {
 
   override val name: Name = id.name
-  override val nameRange: RangeLocationImpl = id.location
+  override val nameRange: PathLocation = id.location
 
   val setter: Option[SetterPropertyBlock] =
     propertyBlocks.flatMap {
       case x: SetterPropertyBlock => Some(x)
-      case _ => None
+      case _                      => None
     }.headOption
 
   val getter: Option[GetterPropertyBlock] =
     propertyBlocks.flatMap {
       case x: GetterPropertyBlock => Some(x)
-      case _ => None
+      case _                      => None
     }.headOption
 
   private val visibility: Option[Modifier] =
     _modifiers.modifiers.find(m => ApexModifiers.visibilityModifiers.contains(m))
   override val readAccess: Modifier =
-    getter.flatMap(_.modifiers.modifiers.headOption).getOrElse(visibility.getOrElse(PRIVATE_MODIFIER))
+    getter
+      .flatMap(_.modifiers.modifiers.headOption)
+      .getOrElse(visibility.getOrElse(PRIVATE_MODIFIER))
   override val writeAccess: Modifier =
-    setter.flatMap(_.modifiers.modifiers.headOption).getOrElse(visibility.getOrElse(PRIVATE_MODIFIER))
+    setter
+      .flatMap(_.modifiers.modifiers.headOption)
+      .getOrElse(visibility.getOrElse(PRIVATE_MODIFIER))
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     val propType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
@@ -72,7 +79,8 @@ final case class ApexPropertyDeclaration(outerTypeId: TypeId, _modifiers: Modifi
     getters.foreach(_.verify(context, isStatic))
 
     if (setters.size > 1 || getters.size > 1 || propertyBlocks.isEmpty) {
-      context.logError(location, "Properties must have either a single 'get' and/or a single 'set' block")
+      context.logError(location,
+                       "Properties must have either a single 'get' and/or a single 'set' block")
     }
 
     if (visibility.nonEmpty && writeAccess.order > visibility.get.order) {
@@ -89,13 +97,18 @@ final case class ApexPropertyDeclaration(outerTypeId: TypeId, _modifiers: Modifi
 }
 
 object ApexPropertyDeclaration {
-  def construct(parser: CodeParser, outerTypeId: TypeId, modifiers: ModifierResults,
-                propertyDeclaration: PropertyDeclarationContext) : ApexPropertyDeclaration = {
+  def construct(parser: CodeParser,
+                outerTypeId: TypeId,
+                modifiers: ModifierResults,
+                propertyDeclaration: PropertyDeclarationContext): ApexPropertyDeclaration = {
     val typeName = TypeReference.construct(propertyDeclaration.typeRef())
-    ApexPropertyDeclaration(outerTypeId, modifiers, typeName,
-      Id.construct(propertyDeclaration.id()),
-      CodeParser.toScala(propertyDeclaration.propertyBlock())
-        .map(pb => PropertyBlock.construct(parser, pb, typeName)),
+    ApexPropertyDeclaration(outerTypeId,
+                            modifiers,
+                            typeName,
+                            Id.construct(propertyDeclaration.id()),
+                            CodeParser
+                              .toScala(propertyDeclaration.propertyBlock())
+                              .map(pb => PropertyBlock.construct(parser, pb, typeName)),
     ).withContext(propertyDeclaration)
   }
 }
@@ -104,13 +117,17 @@ sealed abstract class PropertyBlock extends CST {
   def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean): Unit
 }
 
-final case class GetterPropertyBlock(modifiers: ModifierResults, block: Option[Block]) extends PropertyBlock {
+final case class GetterPropertyBlock(modifiers: ModifierResults, block: Option[Block])
+    extends PropertyBlock {
   override def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean): Unit = {
     block.foreach(_.verify(new OuterBlockVerifyContext(context, isStatic)))
   }
 }
 
-final case class SetterPropertyBlock(modifiers: ModifierResults, typeName: TypeName, block: Option[Block]) extends PropertyBlock {
+final case class SetterPropertyBlock(modifiers: ModifierResults,
+                                     typeName: TypeName,
+                                     block: Option[Block])
+    extends PropertyBlock {
   override def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean): Unit = {
     val bc = new OuterBlockVerifyContext(context, isStatic)
     bc.addVar(Name("value"), location, typeName)
@@ -119,19 +136,24 @@ final case class SetterPropertyBlock(modifiers: ModifierResults, typeName: TypeN
 }
 
 object PropertyBlock {
-  def construct(parser: CodeParser, propertyBlockContext: PropertyBlockContext, typeName: TypeName): PropertyBlock = {
-    val modifiers: ModifierResults = ApexModifiers.propertyBlockModifiers(parser,
-      CodeParser.toScala(propertyBlockContext.modifier()), propertyBlockContext)
+  def construct(parser: CodeParser,
+                propertyBlockContext: PropertyBlockContext,
+                typeName: TypeName): PropertyBlock = {
+    val modifiers: ModifierResults = ApexModifiers.propertyBlockModifiers(
+      parser,
+      CodeParser.toScala(propertyBlockContext.modifier()),
+      propertyBlockContext)
     val cst = {
       val getter = CodeParser.toScala(propertyBlockContext.getter())
       val setter = CodeParser.toScala(propertyBlockContext.setter())
 
       if (getter.nonEmpty) {
         GetterPropertyBlock(modifiers,
-          Block.constructOption(parser, CodeParser.toScala(getter.get.block())))
+                            Block.constructOption(parser, CodeParser.toScala(getter.get.block())))
       } else if (setter.nonEmpty) {
-        SetterPropertyBlock(modifiers, typeName,
-          Block.constructOption(parser, CodeParser.toScala(setter.get.block())))
+        SetterPropertyBlock(modifiers,
+                            typeName,
+                            Block.constructOption(parser, CodeParser.toScala(setter.get.block())))
       } else {
         throw new CSTException()
       }

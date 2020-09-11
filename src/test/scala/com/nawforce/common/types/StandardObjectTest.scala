@@ -403,7 +403,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(org.issues.getMessages(root.join("Account.object").toString) ==
-        "Error: line 5 to 6: Expecting custom field 'AccountNumber__c' to have 'type' child element\n")
+        "Error: line 5: Expecting custom field 'AccountNumber__c' to have 'type' child element\n")
     }
   }
 }

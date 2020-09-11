@@ -24,11 +24,11 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package com.nawforce.common.org.stream
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Location, Name, PathLocation}
 import com.nawforce.common.diagnostics.IssueLogger
 import com.nawforce.common.documents._
 import com.nawforce.common.xml.XMLException
@@ -37,23 +37,24 @@ import com.nawforce.runtime.xml.XMLDocument
 import scala.collection.immutable.Queue
 
 case class LabelFileEvent(sourceInfo: SourceInfo) extends PackageEvent
-case class LabelEvent(location: LocationImpl, name: Name, isProtected: Boolean) extends PackageEvent
+case class LabelEvent(location: PathLocation, name: Name, isProtected: Boolean) extends PackageEvent
 
 object LabelGenerator extends Generator {
 
-  def queue(logger: IssueLogger, provider: MetadataProvider, queue: Queue[PackageEvent])
-    : Queue[PackageEvent] = {
+  def queue(logger: IssueLogger,
+            provider: MetadataProvider,
+            queue: Queue[PackageEvent]): Queue[PackageEvent] = {
     super.queue(MetadataDocument.labelsExt, logger, provider, queue)
   }
 
-  protected override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
+  protected override def getMetadata(logger: IssueLogger,
+                                     metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
 
     val path = metadata.docType.path
     val source = metadata.source.asString
     val parseResult = XMLDocument(path, source)
     if (parseResult.isLeft) {
-      logger.logError(parseResult.swap.getOrElse(throw new NoSuchElementException)._1,
-        parseResult.swap.getOrElse(throw new NoSuchElementException)._2)
+      logger.log(parseResult.swap.getOrElse(throw new NoSuchElementException))
       return Seq.empty
     }
     val rootElement = parseResult.getOrElse(throw new NoSuchElementException).rootElement
@@ -62,19 +63,20 @@ object LabelGenerator extends Generator {
       rootElement.assertIs("CustomLabels")
     } catch {
       case e: XMLException =>
-        logger.logError(RangeLocationImpl(path, e.where), e.msg)
+        logger.logError(path, e.where, e.msg)
         return Seq.empty
     }
 
-    val labels = rootElement.getChildren("labels")
+    val labels = rootElement
+      .getChildren("labels")
       .flatMap(c => {
         try {
           val fullName: String = c.getSingleChildAsString("fullName")
           val protect: Boolean = c.getSingleChildAsBoolean("protected")
-          Some(LabelEvent(RangeLocationImpl(path, TextRange(c.line)), Name(fullName), protect))
+          Some(LabelEvent(PathLocation(path.toString, Location(c.line)), Name(fullName), protect))
         } catch {
           case e: XMLException =>
-            logger.logError(RangeLocationImpl(path, e.where), e.msg)
+            logger.logError(path, e.where, e.msg)
             None
         }
       })

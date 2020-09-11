@@ -29,7 +29,6 @@ package com.nawforce.common.types.apex
 
 import com.nawforce.common.api._
 import com.nawforce.common.cst._
-import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.memory.SkinnySet
 import com.nawforce.common.modifiers.{Modifier, ModifierOps}
 import com.nawforce.common.names.{Names, TypeNames}
@@ -62,7 +61,7 @@ final case class TriggerDeclaration(source: Source,
     with ApexFullDeclaration {
 
   override val path: PathLike = source.path
-  override val nameLocation: LocationImpl = nameId.location
+  override val nameLocation: PathLocation = nameId.location
   override lazy val sourceHash: Int = source.hash
   override val paths: Array[PathLike] = Array(path)
 
@@ -144,9 +143,7 @@ final case class TriggerDeclaration(source: Source,
   // Override to provide location information
   override def summary(shapeOnly: Boolean): TypeSummary = {
     TypeSummary(0,
-                Some(
-                  new RangeLocation(nameId.location.start.toPosition,
-                                    nameId.location.end.toPosition)),
+                Some(nameId.location.location),
                 name.toString,
                 typeName,
                 nature.value,

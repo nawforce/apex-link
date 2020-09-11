@@ -24,15 +24,20 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.org
 
-import com.nawforce.common.api.{Name, ServerOps, TypeName}
-import com.nawforce.common.diagnostics.{Issue, LocalLogger, MISSING_CATEGORY}
+import com.nawforce.common.api.{MISSING_CATEGORY, Name, ServerOps, TypeName}
+import com.nawforce.common.diagnostics.{Issue, LocalLogger}
 import com.nawforce.common.documents._
 import com.nawforce.common.names._
 import com.nawforce.common.org.stream.PackageStream
-import com.nawforce.common.types.apex.{ApexClassDeclaration, FullDeclaration, SummaryApex, TriggerDeclaration}
+import com.nawforce.common.types.apex.{
+  ApexClassDeclaration,
+  FullDeclaration,
+  SummaryApex,
+  TriggerDeclaration
+}
 import com.nawforce.common.types.schema.SObjectDeclaration
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.platform.Environment
@@ -71,8 +76,9 @@ trait PackageDeploy {
     if (types.size > startingTypes) {
       val total = System.currentTimeMillis() - epoch
       val avg = total / types.size
-      ServerOps.debug(ServerOps.Trace, s"Package(${namespace.map(_.value).getOrElse("")}) loaded ${types.size}" +
-        s" types in ${total / 1000} seconds, average $avg ms/type")
+      ServerOps.debug(ServerOps.Trace,
+                      s"Package(${namespace.map(_.value).getOrElse("")}) loaded ${types.size}" +
+                        s" types in ${total / 1000} seconds, average $avg ms/type")
     }
   }
 
@@ -96,7 +102,8 @@ trait PackageDeploy {
 
   private def loadClasses(documents: DocumentIndex): Unit = {
     val pcOpt = org.parsedCache
-    val docs = documents.getByExtensionIterable(Name("cls")).collect{case ad: ApexClassDocument => ad}
+    val docs =
+      documents.getByExtensionIterable(Name("cls")).collect { case ad: ApexClassDocument => ad }
 
     ServerOps.debugTime(s"Loaded summary classes", docs.nonEmpty) {
 
@@ -122,13 +129,14 @@ trait PackageDeploy {
         validSummaryDocs.foreach(pair => {
           val summary: SummaryApex = pair._2
           val path = summary.declaration.path.toString
-          summary.diagnostics.foreach(diagnostic => org.issues.add(Issue.fromDiagnostic(path, diagnostic)))
+          summary.diagnostics.foreach(diagnostic => org.issues.add(Issue(path, diagnostic)))
         })
 
       }
     }
 
-    val missingTypes = docs.filterNot(doc => types.contains(TypeName(doc.name).withNamespace(namespace)))
+    val missingTypes =
+      docs.filterNot(doc => types.contains(TypeName(doc.name).withNamespace(namespace)))
     ServerOps.debugTime(s"Parsed ${missingTypes.size} classes", docs.nonEmpty) {
 
       // Load full docs for rest of set
@@ -149,14 +157,15 @@ trait PackageDeploy {
     }
   }
 
-  private def loadClassesFromCache(docs: Iterable[MetadataDocument], pc: ParsedCache,
-                                   accum: mutable.Map[TypeName, SummaryApex]): Unit  = {
+  private def loadClassesFromCache(docs: Iterable[MetadataDocument],
+                                   pc: ParsedCache,
+                                   accum: mutable.Map[TypeName, SummaryApex]): Unit = {
     val pkgContext = packageContext
     docs.foreach(doc => {
       val data = doc.path.readBytes()
       val value = pc.get(data.getOrElse(throw new NoSuchElementException), pkgContext)
       val ad = value.map(v => SummaryApex(doc.path, this, v))
-      if (ad.nonEmpty && !ad.get.diagnostics.exists(_.category == MISSING_CATEGORY.value)) {
+      if (ad.nonEmpty && !ad.get.diagnostics.exists(_.category == MISSING_CATEGORY)) {
         accum.put(ad.get.declaration.typeName, ad.get)
         upsertMetadata(ad.get.declaration)
       }
@@ -169,7 +178,9 @@ trait PackageDeploy {
       val tds = docs.flatMap {
         case docType: ApexTriggerDocument =>
           val data = docType.path.readSourceData()
-          TriggerDeclaration.create(this, docType.path, data.getOrElse(throw new NoSuchElementException))
+          TriggerDeclaration.create(this,
+                                    docType.path,
+                                    data.getOrElse(throw new NoSuchElementException))
         case _ => assert(false); Seq()
       }
       tds.foreach(upsertMetadata(_))
@@ -181,7 +192,7 @@ trait PackageDeploy {
   def propagateAllDependencies(): Unit = {
     types.values.foreach({
       case ad: ApexClassDeclaration => ad.propagateAllDependencies()
-      case _ => ()
+      case _                        => ()
     })
   }
 }

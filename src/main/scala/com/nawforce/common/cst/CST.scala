@@ -24,11 +24,11 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, TypeName}
-import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.diagnostics.IssueOps
 import com.nawforce.common.names._
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
@@ -41,7 +41,7 @@ import scala.util.DynamicVariable
 class CSTException extends Exception
 
 // Information about current parsing context
-case class CSTParsingContext(path: PathLike, lineAdjust: Int=0, columnAdjust: Int=0)
+case class CSTParsingContext(path: PathLike, lineAdjust: Int = 0, columnAdjust: Int = 0)
 
 /** Base for all CST nodes, provides some basic location handling.
   *
@@ -51,7 +51,7 @@ case class CSTParsingContext(path: PathLike, lineAdjust: Int=0, columnAdjust: In
   */
 class CST extends Locatable {
   // We store the location unwrapped to reduce object count, use location() to access
-  override var locationPath: String = _
+  override var locationPath: PathLike = _
   override var startLine: Int = _
   override var startOffset: Int = _
   override var endLine: Int = _
@@ -72,9 +72,9 @@ final case class Id(name: Name) extends CST {
   def validate(): Unit = {
     val illegalError = name.isLegalIdentifier
     if (illegalError.nonEmpty)
-      OrgImpl.log(Issue.illegalIdentifier(location, name, illegalError.get))
+      OrgImpl.log(IssueOps.illegalIdentifier(location, name, illegalError.get))
     else if (name.isReservedIdentifier)
-      OrgImpl.log(Issue.reservedIdentifier(location, name))
+      OrgImpl.log(IssueOps.reservedIdentifier(location, name))
   }
 }
 
@@ -103,19 +103,25 @@ object QualifiedName {
   }
 }
 
-final case class Annotation(name: QualifiedName, elementValuePairs: List[ElementValuePair], elementValue: Option[ElementValue]) extends CST
+final case class Annotation(name: QualifiedName,
+                            elementValuePairs: List[ElementValuePair],
+                            elementValue: Option[ElementValue])
+    extends CST
 
 object Annotation {
   def construct(annotation: AnnotationContext): Annotation = {
     val elementValue =
-      CodeParser.toScala(annotation.elementValue())
+      CodeParser
+        .toScala(annotation.elementValue())
         .map(ElementValue.construct)
     val elementValuePairs =
-      CodeParser.toScala(annotation.elementValuePairs())
-        .map(ElementValuePairs.construct).getOrElse(Nil)
+      CodeParser
+        .toScala(annotation.elementValuePairs())
+        .map(ElementValuePairs.construct)
+        .getOrElse(Nil)
 
-    Annotation(QualifiedName.construct(annotation.qualifiedName()),
-      elementValuePairs, elementValue).withContext(annotation)
+    Annotation(QualifiedName.construct(annotation.qualifiedName()), elementValuePairs, elementValue)
+      .withContext(annotation)
   }
 }
 
@@ -125,7 +131,8 @@ final case class ExpressionElementValue(expression: Expression) extends ElementV
 
 final case class AnnotationElementValue(annotation: Annotation) extends ElementValue
 
-final case class ArrayInitializerElementValue(arrayInitializer: ElementValueArrayInitializer) extends ElementValue
+final case class ArrayInitializerElementValue(arrayInitializer: ElementValueArrayInitializer)
+    extends ElementValue
 
 object ElementValue {
   def construct(aList: List[ElementValueContext]): List[ElementValue] = {
@@ -142,8 +149,8 @@ object ElementValue {
     } else if (annotation.nonEmpty) {
       AnnotationElementValue(Annotation.construct(annotation.get)).withContext(elementValue)
     } else if (arrayInitializer.nonEmpty) {
-      ArrayInitializerElementValue(ElementValueArrayInitializer.construct(
-        arrayInitializer.get)).withContext(elementValue)
+      ArrayInitializerElementValue(ElementValueArrayInitializer.construct(arrayInitializer.get))
+        .withContext(elementValue)
     } else {
       throw new CSTException()
     }
@@ -155,7 +162,8 @@ final case class ElementValueArrayInitializer(elementValues: List[ElementValue])
 object ElementValueArrayInitializer {
   def construct(from: ElementValueArrayInitializerContext): ElementValueArrayInitializer = {
     val elements: Seq[ElementValueContext] = CodeParser.toScala(from.elementValue())
-    ElementValueArrayInitializer(elements.toList.map(x => ElementValue.construct(x))).withContext(from)
+    ElementValueArrayInitializer(elements.toList.map(x => ElementValue.construct(x)))
+      .withContext(from)
   }
 }
 
@@ -167,8 +175,8 @@ object ElementValuePair {
   }
 
   def construct(from: ElementValuePairContext): ElementValuePair = {
-    ElementValuePair(CodeParser.getText(from.id()),
-      ElementValue.construct(from.elementValue())).withContext(from)
+    ElementValuePair(CodeParser.getText(from.id()), ElementValue.construct(from.elementValue()))
+      .withContext(from)
   }
 }
 
@@ -182,5 +190,3 @@ object ElementValuePairs {
     }
   }
 }
-
-

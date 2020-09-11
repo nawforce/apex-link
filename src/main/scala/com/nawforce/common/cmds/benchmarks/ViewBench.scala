@@ -24,10 +24,10 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.cmds.benchmarks
 
-import com.nawforce.common.api.{Org, ServerOps}
+import com.nawforce.common.api.{Org, ServerOps, WARNING_CATEGORY}
 import com.nawforce.common.cmds.Check
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.types.apex.SummaryDeclaration
@@ -44,7 +44,7 @@ object ViewBench {
         pkgPair._2.getTypes.foreach {
           case sd: SummaryDeclaration =>
             val viewInfo = pkgPair._2.getViewOfType(sd.path, None)
-            if (!viewInfo.hasType || !viewInfo.diagnostics.forall(_.category=="Warning")) {
+            if (!viewInfo.hasType || !viewInfo.diagnostics.forall(_.category == WARNING_CATEGORY)) {
               println(s"Problem found for ${sd.typeName}")
               System.exit(-1)
             }

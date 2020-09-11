@@ -24,11 +24,10 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types.synthetic
 
 import com.nawforce.common.api._
-import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.modifiers._
 import com.nawforce.common.types.apex.ApexVisibleMethodLike
 import com.nawforce.common.types.core.ParameterDeclaration
@@ -37,19 +36,18 @@ import com.nawforce.common.types.core.ParameterDeclaration
   * ApexVisibleMethodLike so they can be referenced within Apex code and be included in type summary information
   * but otherwise have little in common with the usual ApexMethodLike handling.
   */
-final case class CustomMethodDeclaration(nameRange: Option[LocationImpl], name: Name, typeName: TypeName,
-                                         parameters: Array[ParameterDeclaration], asStatic: Boolean = false)
-  extends ApexVisibleMethodLike {
+final case class CustomMethodDeclaration(nameRange: Option[PathLocation],
+                                         name: Name,
+                                         typeName: TypeName,
+                                         parameters: Array[ParameterDeclaration],
+                                         asStatic: Boolean = false)
+    extends ApexVisibleMethodLike {
 
   override val modifiers: Array[Modifier] = CustomMethodDeclaration.getModifiers(asStatic)
   override lazy val isStatic: Boolean = asStatic
 
   def summary(shapeOnly: Boolean): MethodSummary = {
-    serialise(shapeOnly, nameRange.map(nr =>
-      RangeLocation(
-        Position(nr.startPosition._1, nr.startPosition._2),
-        Position(nr.endPosition._1, nr.endPosition._2))
-    ))
+    serialise(shapeOnly, nameRange.map(_.location))
   }
 }
 
@@ -62,4 +60,5 @@ object CustomMethodDeclaration {
   }
 }
 
-final case class CustomParameterDeclaration(name: Name, typeName: TypeName) extends ParameterDeclaration
+final case class CustomParameterDeclaration(name: Name, typeName: TypeName)
+    extends ParameterDeclaration

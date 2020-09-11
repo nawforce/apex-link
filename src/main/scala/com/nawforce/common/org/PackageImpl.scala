@@ -28,7 +28,7 @@
 
 package com.nawforce.common.org
 
-import com.nawforce.common.api.{LineLocation, Name, PathLocation, TypeName}
+import com.nawforce.common.api.{Location, Name, PathLocation, TypeName}
 import com.nawforce.common.cst.UnusedLog
 import com.nawforce.common.diagnostics.{IssueLog, LocalLogger}
 import com.nawforce.common.documents._
@@ -178,14 +178,13 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
   def getTypeLocation(typeName: TypeName): Option[PathLocation] = {
     if (org.analysis) {
       packageType(typeName) match {
-        case Some(ad: ApexDeclaration) =>
-          Some(PathLocation(ad.path.toString, ad.nameLocation.toLocation))
+        case Some(ad: ApexDeclaration) => Some(ad.nameLocation)
         case _ => None
       }
     } else {
       val docType =
         documents.getByType(typeName).orElse(typeName.outer.flatMap(documents.getByType))
-      docType.map(d => PathLocation(d.path.toString, LineLocation(0)))
+      docType.map(d => PathLocation(d.path.toString, Location.empty))
     }
   }
 

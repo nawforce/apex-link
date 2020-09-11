@@ -24,12 +24,12 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types.core
 
 import com.nawforce.common.api._
 import com.nawforce.common.cst._
-import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.diagnostics.IssueOps
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.modifiers._
 import com.nawforce.common.names.{Names, TypeNames, _}
@@ -50,10 +50,10 @@ case object TRIGGER_NATURE extends Nature(value = "trigger")
 object Nature {
   def apply(value: String): Nature = {
     value match {
-      case CLASS_NATURE.value => CLASS_NATURE
+      case CLASS_NATURE.value     => CLASS_NATURE
       case INTERFACE_NATURE.value => INTERFACE_NATURE
-      case ENUM_NATURE.value => ENUM_NATURE
-      case TRIGGER_NATURE.value => TRIGGER_NATURE
+      case ENUM_NATURE.value      => ENUM_NATURE
+      case TRIGGER_NATURE.value   => TRIGGER_NATURE
     }
   }
 }
@@ -88,15 +88,14 @@ trait FieldDeclaration extends DependencyHolder {
     serialise(shapeOnly = false, None)
   }
 
-  protected def serialise(shapeOnly: Boolean, range: Option[RangeLocation]): FieldSummary = {
-    FieldSummary(
-      if (shapeOnly) None else range,
-      name.toString,
-      modifiers.map(_.toString).sorted,
-      typeName,
-      readAccess.toString, writeAccess.toString,
-      if (shapeOnly) Array() else dependencySummary()
-    )
+  protected def serialise(shapeOnly: Boolean, range: Option[Location]): FieldSummary = {
+    FieldSummary(if (shapeOnly) None else range,
+                 name.toString,
+                 modifiers.map(_.toString).sorted,
+                 typeName,
+                 readAccess.toString,
+                 writeAccess.toString,
+                 if (shapeOnly) Array() else dependencySummary())
   }
 
   // Create an SObjectField version of this field
@@ -144,13 +143,11 @@ trait ConstructorDeclaration extends DependencyHolder {
     serialise(shapeOnly = false, None)
   }
 
-  protected def serialise(shapeOnly: Boolean, range: Option[RangeLocation]): ConstructorSummary = {
-    ConstructorSummary(
-      if (shapeOnly) None else range,
-      modifiers.map(_.toString).sorted,
-      parameters.map(_.serialise).sortBy(_.name),
-      if (shapeOnly) Array.empty else dependencySummary()
-    )
+  protected def serialise(shapeOnly: Boolean, range: Option[Location]): ConstructorSummary = {
+    ConstructorSummary(if (shapeOnly) None else range,
+                       modifiers.map(_.toString).sorted,
+                       parameters.map(_.serialise).sortBy(_.name),
+                       if (shapeOnly) Array.empty else dependencySummary())
   }
 }
 
@@ -171,7 +168,8 @@ trait MethodDeclaration extends DependencyHolder {
   def isAbstract: Boolean = modifiers.contains(ABSTRACT_MODIFIER)
   def isVirtual: Boolean = modifiers.contains(VIRTUAL_MODIFIER)
   def isVirtualOrOverride: Boolean = isVirtual || modifiers.contains(OVERRIDE_MODIFIER)
-  def isGlobalOrPublic: Boolean = modifiers.exists(m => m == GLOBAL_MODIFIER || m == PUBLIC_MODIFIER)
+  def isGlobalOrPublic: Boolean =
+    modifiers.exists(m => m == GLOBAL_MODIFIER || m == PUBLIC_MODIFIER)
 
   def hasSameSignature(other: MethodDeclaration): Boolean = {
     name == other.name &&
@@ -197,15 +195,17 @@ trait MethodDeclaration extends DependencyHolder {
 
   def hasErasedParameters(pkg: Option[PackageImpl], params: Array[TypeName]): Boolean = {
     if (parameters.length == params.length) {
-      parameters.zip(params).forall(z =>
-        (z._1.typeName == z._2) ||
-          (z._1.typeName.isStringOrId && z._2.isStringOrId) ||
-          (z._2.isSObjectList && z._1.typeName.isList &&
-            (TypeResolver(z._1.typeName.params.head, None, pkg, excludeSObjects = false) match {
-              case Right(td) => td.isSObject
-              case Left(_) => false
-            }))
-      )
+      parameters
+        .zip(params)
+        .forall(
+          z =>
+            (z._1.typeName == z._2) ||
+              (z._1.typeName.isStringOrId && z._2.isStringOrId) ||
+              (z._2.isSObjectList && z._1.typeName.isList &&
+                (TypeResolver(z._1.typeName.params.head, None, pkg, excludeSObjects = false) match {
+                  case Right(td) => td.isSObject
+                  case Left(_)   => false
+                })))
     } else {
       false
     }
@@ -213,18 +213,20 @@ trait MethodDeclaration extends DependencyHolder {
 
   def hasCallErasedParameters(pkg: PackageImpl, params: Array[TypeName]): Boolean = {
     if (parameters.length == params.length) {
-      parameters.zip(params).forall(z =>
-        z._1.typeName == z._2 ||
-          (z._1.typeName.equalsIgnoreParams(z._2) &&
-            (TypeResolver(z._1.typeName, None, Some(pkg), excludeSObjects = false) match {
-              case Right(x: PlatformTypeDeclaration) if x.nature == INTERFACE_NATURE =>
-                TypeResolver(z._2, None, Some(pkg), excludeSObjects = false) match {
-                  case Right(y: PlatformTypeDeclaration) if y.nature == INTERFACE_NATURE => true
+      parameters
+        .zip(params)
+        .forall(
+          z =>
+            z._1.typeName == z._2 ||
+              (z._1.typeName.equalsIgnoreParams(z._2) &&
+                (TypeResolver(z._1.typeName, None, Some(pkg), excludeSObjects = false) match {
+                  case Right(x: PlatformTypeDeclaration) if x.nature == INTERFACE_NATURE =>
+                    TypeResolver(z._2, None, Some(pkg), excludeSObjects = false) match {
+                      case Right(y: PlatformTypeDeclaration) if y.nature == INTERFACE_NATURE => true
+                      case _                                                                 => false
+                    }
                   case _ => false
-                }
-              case _ => false
-            })
-            ))
+                })))
     } else {
       false
     }
@@ -234,14 +236,13 @@ trait MethodDeclaration extends DependencyHolder {
     serialise(shapeOnly = false, None)
   }
 
-  protected def serialise(shapeOnly: Boolean, range: Option[RangeLocation]): MethodSummary = {
-    MethodSummary(
-      if (shapeOnly) None else range,
-      name.toString, modifiers.map(_.toString).sorted,
-      typeName,
-      parameters.map(_.serialise),
-      if (shapeOnly) Array.empty else dependencySummary()
-    )
+  protected def serialise(shapeOnly: Boolean, range: Option[Location]): MethodSummary = {
+    MethodSummary(if (shapeOnly) None else range,
+                  name.toString,
+                  modifiers.map(_.toString).sorted,
+                  typeName,
+                  parameters.map(_.serialise),
+                  if (shapeOnly) Array.empty else dependencySummary())
   }
 }
 
@@ -251,7 +252,10 @@ object MethodDeclaration {
 
 trait AbstractTypeDeclaration {
   def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration]
-  def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean], verifyContext: VerifyContext): Array[MethodDeclaration]
+  def findMethod(name: Name,
+                 params: Array[TypeName],
+                 staticContext: Option[Boolean],
+                 verifyContext: VerifyContext): Array[MethodDeclaration]
   def findNestedType(name: Name): Option[AbstractTypeDeclaration]
 }
 
@@ -300,17 +304,19 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
     val matches = fieldsByName.get(name)
     staticContext match {
       case Some(x) => matches.find(f => f.isStatic == x)
-      case None => matches
+      case None    => matches
     }
   }
 
-  protected def findFieldSObject(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
+  protected def findFieldSObject(name: Name,
+                                 staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     val fieldOption = fieldsByName.get(name)
 
     // Handle the synthetic static SObjectField or abort
     if (fieldOption.isEmpty) {
       if (name == Names.SObjectField && staticContext.contains(true))
-        return Some(CustomFieldDeclaration(Names.SObjectField, TypeNames.sObjectFields$(typeName), None))
+        return Some(
+          CustomFieldDeclaration(Names.SObjectField, TypeNames.sObjectFields$(typeName), None))
       else
         return None
     }
@@ -326,23 +332,31 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   }
 
   private lazy val fieldsByName: mutable.Map[Name, FieldDeclaration] = {
-    val outerType = outerTypeName.flatMap(typeName => TypeResolver(typeName, this, excludeSObjects = false).toOption)
-    val fieldsByName = mutable.Map(fields.map(f => (f.name, f)).toIndexedSeq : _*)
-    outerType.foreach(td => td.fields.filter(_.isStatic).foreach(f => {
-      if (!fieldsByName.contains(f.name))
-        fieldsByName.put(f.name, f)
-    }))
+    val outerType = outerTypeName.flatMap(typeName =>
+      TypeResolver(typeName, this, excludeSObjects = false).toOption)
+    val fieldsByName = mutable.Map(fields.map(f => (f.name, f)).toIndexedSeq: _*)
+    outerType.foreach(
+      td =>
+        td.fields
+          .filter(_.isStatic)
+          .foreach(f => {
+            if (!fieldsByName.contains(f.name))
+              fieldsByName.put(f.name, f)
+          }))
     fieldsByName
   }
 
   private lazy val methodMap: MethodMap = MethodMap(this, None, MethodMap.empty(), methods, Array())
 
-  override def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
-                 verifyContext: VerifyContext): Array[MethodDeclaration] = {
+  override def findMethod(name: Name,
+                          params: Array[TypeName],
+                          staticContext: Option[Boolean],
+                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
     val found = methodMap.findMethod(name, params, staticContext, verifyContext)
 
     // Horrible skulduggery to support SObject.GetSObjectType()
-    if (found.isEmpty && name == Names.GetSObjectType && params.isEmpty && staticContext.contains(true)) {
+    if (found.isEmpty && name == Names.GetSObjectType && params.isEmpty && staticContext.contains(
+          true)) {
       findMethod(name, params, Some(false), verifyContext)
     } else {
       found
@@ -353,7 +367,9 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
     packageDeclaration.flatMap(pkg => pkg.getLocalTypeFor(typeName, this))
   }
 
-  def validateFieldConstructorArguments(input: ExprContext, arguments: Array[Expression], context: ExpressionVerifyContext): Unit = {
+  def validateFieldConstructorArguments(input: ExprContext,
+                                        arguments: Array[Expression],
+                                        context: ExpressionVerifyContext): Unit = {
     assert(isFieldConstructed)
 
     // FUTURE: Disable this bypass once VF parsing supported
@@ -376,21 +392,24 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
 
         if (field.isEmpty) {
           if (isComplete)
-            context.log(Issue.unknownFieldOnSObject(id.location, id.name, typeName))
+            context.log(IssueOps.unknownFieldOnSObject(id.location, id.name, typeName))
           None
         } else {
           context.addDependency(field.get)
           Some(id)
         }
       case argument =>
-        OrgImpl.logError(argument.location, s"SObject type '$typeName' construction needs '<field name> = <value>' arguments")
+        OrgImpl.logError(
+          argument.location,
+          s"SObject type '$typeName' construction needs '<field name> = <value>' arguments")
         None
     }
 
     if (validArgs.length == arguments.length) {
       val duplicates = validArgs.groupBy(_.name).collect { case (_, Array(_, y, _*)) => y }
       if (duplicates.nonEmpty) {
-        OrgImpl.logError(duplicates.head.location,
+        OrgImpl.logError(
+          duplicates.head.location,
           s"Duplicate assignment to field '${duplicates.head.name}' on SObject type '$typeName'")
       }
     }
@@ -400,9 +419,9 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
     lazy val superclasses = superClassDeclaration
     lazy val interfaces = interfaceDeclarations
     superClassDeclaration.exists(_.typeName == typeName) ||
-      interfaces.exists(_.typeName == typeName) ||
-      superclasses.exists(_.extendsOrImplements(typeName)) ||
-      interfaces.exists(_.extendsOrImplements(typeName))
+    interfaces.exists(_.typeName == typeName) ||
+    superclasses.exists(_.extendsOrImplements(typeName)) ||
+    interfaces.exists(_.extendsOrImplements(typeName))
   }
 
   def superTypes(): List[TypeName] = {
@@ -419,21 +438,20 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
     * reflection for use with the scala.js version of the library.
     */
   def serialise: TypeSummary = {
-    TypeSummary (
-      0,
-      None,
-      name.toString,
-      typeName,
-      nature.value, modifiers.map(_.toString).sorted,
-      superClass,
-      interfaces,
-      blocks.map(_.serialise),
-      fields.map(_.serialise).sortBy(_.name),
-      constructors.map(_.serialise).sortBy(_.parameters.length),
-      methods.map(_.serialise).sortBy(_.name),
-      nestedTypes.map(_.serialise).sortBy(_.name),
-      dependencySummary()
-    )
+    TypeSummary(0,
+                None,
+                name.toString,
+                typeName,
+                nature.value,
+                modifiers.map(_.toString).sorted,
+                superClass,
+                interfaces,
+                blocks.map(_.serialise),
+                fields.map(_.serialise).sortBy(_.name),
+                constructors.map(_.serialise).sortBy(_.parameters.length),
+                methods.map(_.serialise).sortBy(_.name),
+                nestedTypes.map(_.serialise).sortBy(_.name),
+                dependencySummary())
   }
 }
 

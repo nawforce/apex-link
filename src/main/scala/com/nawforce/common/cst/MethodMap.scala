@@ -27,9 +27,8 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{Name, TypeName}
-import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue}
-import com.nawforce.common.documents.LocationImpl
+import com.nawforce.common.api._
+import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.names.Names
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexMethodLike}
@@ -82,7 +81,7 @@ object MethodMap {
     new MethodMap(Map(), Nil)
   }
 
-  def apply(td: TypeDeclaration, location: Option[LocationImpl],
+  def apply(td: TypeDeclaration, location: Option[PathLocation],
             superClassMap: MethodMap, localMethods: Array[MethodDeclaration], interfaces: Array[TypeDeclaration]): MethodMap = {
 
     val workingMap = collection.mutable.Map[(Name, Int), Array[MethodDeclaration]]() ++= superClassMap.methodsByName
@@ -144,7 +143,7 @@ object MethodMap {
     })
   }
 
-  private def checkInterfaces(pkg: Option[PackageImpl], location: Option[LocationImpl], isAbstract: Boolean,
+  private def checkInterfaces(pkg: Option[PackageImpl], location: Option[PathLocation], isAbstract: Boolean,
                               workingMap: WorkingMap, interfaces: Array[TypeDeclaration], errors: mutable.Buffer[Issue]): Unit = {
     interfaces.foreach({
       case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
@@ -153,7 +152,7 @@ object MethodMap {
     })
   }
 
-  private def checkInterface(pkg: Option[PackageImpl], location: Option[LocationImpl], isAbstract: Boolean,
+  private def checkInterface(pkg: Option[PackageImpl], location: Option[PathLocation], isAbstract: Boolean,
                              workingMap: WorkingMap, interface: TypeDeclaration, errors: mutable.Buffer[Issue]): Unit = {
     if (interface.isInstanceOf[ApexClassDeclaration] && interface.nature == INTERFACE_NATURE)
       checkInterfaces(pkg, location, isAbstract, workingMap, interface.interfaceDeclarations, errors)
@@ -174,8 +173,8 @@ object MethodMap {
           methods.exists(method => pkg.exists(p => method.parameters.map(_.typeName).exists(p.isGhostedType))))
 
         if (!isAbstract && !hasGhostedMethods)
-          location.foreach(l => errors.append(new Issue(ERROR_CATEGORY, l,
-            s"Method '${method.signature}' from interface '${interface.typeName}' must be implemented")))
+          location.foreach(l => errors.append(new Issue(l.path, Diagnostic(ERROR_CATEGORY, l.location,
+            s"Method '${method.signature}' from interface '${interface.typeName}' must be implemented"))))
       } else {
         matched.get match {
           case am: ApexMethodLike => am.addShadow(method)
@@ -224,8 +223,8 @@ object MethodMap {
 
   private def setMethodError(method: MethodDeclaration, error: String, errors: mutable.Buffer[Issue], isWarning: Boolean=false): Unit = {
     method match {
-      case am: ApexMethodLike if !isWarning => errors.append(new Issue(ERROR_CATEGORY, am.nameRange, error))
-      case am: ApexMethodLike => errors.append(new Issue(ERROR_CATEGORY, am.nameRange, error))
+      case am: ApexMethodLike if !isWarning => errors.append(new Issue(am.nameRange.path, Diagnostic(ERROR_CATEGORY, am.nameRange.location, error)))
+      case am: ApexMethodLike => errors.append(new Issue(am.nameRange.path, Diagnostic(ERROR_CATEGORY, am.nameRange.location, error)))
       case _ => ()
     }
   }

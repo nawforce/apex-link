@@ -186,7 +186,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
       assert(summary.name == "Dummy")
       assert(summary.typeName.toString == "Dummy")
-      assert(summary.idRange.contains(RangeLocation(Position(1,13), Position(1,18))))
+      assert(summary.idRange.contains(Location(1,13,1,18)))
       assert(summary.modifiers sameElements Seq("public"))
     }
   }
@@ -204,7 +204,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
       assert(summary.name == "Dummy")
       assert(summary.typeName.toString == "test.Dummy")
-      assert(summary.idRange.contains(RangeLocation(Position(1,21), Position(1,26))))
+      assert(summary.idRange.contains(Location(1,21,1,26)))
       assert(summary.modifiers sameElements Array("@IsTest", "public"))
     }
   }
@@ -230,7 +230,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(pkg2.getType(typeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
       assert(summary.name == "Dummy")
       assert(summary.typeName.toString == "test.Dummy")
-      assert(summary.idRange.contains(RangeLocation(Position(1,21), Position(1,26))))
+      assert(summary.idRange.contains(Location(1,21,1,26)))
       assert(summary.modifiers sameElements Array("@IsTest", "public"))
     }
   }
@@ -248,7 +248,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
       assert(summary.name == "__sfdc_trigger/test/Dummy")
       assert(summary.typeName.toString == "__sfdc_trigger/test/Dummy")
-      assert(summary.idRange.contains(RangeLocation(Position(1,8), Position(1,13))))
+      assert(summary.idRange.contains(Location(1,8,1,13)))
       assert(summary.modifiers.isEmpty)
     }
   }
@@ -266,7 +266,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
       assert(summary.name == "__sfdc_trigger/Dummy")
       assert(summary.typeName.toString == "__sfdc_trigger/Dummy")
-      assert(summary.idRange.contains(RangeLocation(Position(1,8), Position(1,13))))
+      assert(summary.idRange.contains(Location(1,8,1,13)))
       assert(summary.modifiers.isEmpty)
     }
   }
@@ -695,7 +695,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       assert(org.getIdentifierLocation("Dummy") ==
-        PathLocation("/classes/Dummy.cls", RangeLocation(Position(1,13), Position(1,18))))
+        PathLocation("/classes/Dummy.cls", Location(1,13,1,18)))
     }
   }
 
@@ -709,7 +709,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
       assert(org.getIdentifierLocation("Dummy") == null)
       assert(org.getIdentifierLocation("test.Dummy") ==
-        PathLocation("/classes/Dummy.cls", RangeLocation(Position(1,13), Position(1,18))))
+        PathLocation("/classes/Dummy.cls", Location(1,13,1,18)))
     }
   }
 
@@ -724,7 +724,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(org.getIdentifierLocation("Dummy") == null)
       assert(org.getIdentifierLocation("Dummy.Inner") == null)
       assert(org.getIdentifierLocation("test.Dummy.Inner") ==
-        PathLocation("/classes/Dummy.cls", RangeLocation(Position(1,26), Position(1,31))))
+        PathLocation("/classes/Dummy.cls", Location(1,26,1,31)))
     }
   }
 
@@ -738,7 +738,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
       assert(org.getIdentifierLocation("Foo") == null)
       assert(org.getIdentifierLocation("__sfdc_trigger/Foo") ==
-        PathLocation("/triggers/Foo.trigger", RangeLocation(Position(1,8), Position(1,11))))
+        PathLocation("/triggers/Foo.trigger", Location(1,8,1,11)))
     }
   }
 
@@ -753,7 +753,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(org.getIdentifierLocation("Foo") == null)
       assert(org.getIdentifierLocation("__sfdc_trigger/Foo") == null)
       assert(org.getIdentifierLocation("__sfdc_trigger/test/Foo") ==
-        PathLocation("/triggers/Foo.trigger", RangeLocation(Position(1,8), Position(1,11))))
+        PathLocation("/triggers/Foo.trigger", Location(1,8,1,11)))
     }
   }
 
@@ -766,7 +766,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
 
       assert(org.getIdentifierLocation("Dummy") ==
-        PathLocation("/classes/Dummy.cls", LineLocation(0)))
+        PathLocation("/classes/Dummy.cls", Location.empty))
     }
   }
 
@@ -780,7 +780,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
       assert(org.getIdentifierLocation("Dummy") == null)
       assert(org.getIdentifierLocation("test.Dummy") ==
-        PathLocation("/classes/Dummy.cls", LineLocation(0)))
+        PathLocation("/classes/Dummy.cls", Location.empty))
     }
   }
 
@@ -795,7 +795,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(org.getIdentifierLocation("Dummy") == null)
       assert(org.getIdentifierLocation("Dummy.Inner") == null)
       assert(org.getIdentifierLocation("test.Dummy.Inner") ==
-        PathLocation("/classes/Dummy.cls", LineLocation(0)))
+        PathLocation("/classes/Dummy.cls", Location.empty))
     }
   }
 
@@ -809,7 +809,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
       assert(org.getIdentifierLocation("Foo") == null)
       assert(org.getIdentifierLocation("__sfdc_trigger/Foo") ==
-        PathLocation("/triggers/Foo.trigger", LineLocation(0)))
+        PathLocation("/triggers/Foo.trigger", Location.empty))
     }
   }
 
@@ -824,7 +824,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(org.getIdentifierLocation("Foo") == null)
       assert(org.getIdentifierLocation("__sfdc_trigger/Foo") == null)
       assert(org.getIdentifierLocation("__sfdc_trigger/test/Foo") ==
-        PathLocation("/triggers/Foo.trigger", LineLocation(0)))
+        PathLocation("/triggers/Foo.trigger", Location.empty))
     }
   }
 

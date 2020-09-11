@@ -77,7 +77,8 @@ object ParserBench {
                 parser.parseClass() match {
                   case Left(issues) =>
                     issues.foreach(issue =>
-                      println(s"${doc.path}:${issue.location.line} ${issue.message}"))
+                      println(
+                        s"${doc.path}:${issue.diagnostic.location.startLine} ${issue.diagnostic.message}"))
                   case Right(_) => ()
                 }
             }

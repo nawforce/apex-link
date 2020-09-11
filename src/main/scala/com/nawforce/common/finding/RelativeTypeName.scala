@@ -24,12 +24,11 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.finding
 
-import com.nawforce.common.api.{Name, TypeName}
+import com.nawforce.common.api.{Name, PathLocation, TypeName}
 import com.nawforce.common.cst.BlockVerifyContext
-import com.nawforce.common.documents.LocationImpl
 import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.PackageImpl
@@ -39,9 +38,11 @@ import com.nawforce.common.types.core.{Nature, TypeDeclaration}
  * the relative TypeName to be converted to an absolute form. Assumes outerTypeName can always be resolved
  * against the package!
  */
-final case class RelativeTypeName(pkg: PackageImpl, outerTypeName: TypeName, relativeTypeName: TypeName) {
+final case class RelativeTypeName(pkg: PackageImpl,
+                                  outerTypeName: TypeName,
+                                  relativeTypeName: TypeName) {
 
-  def addVar(location: LocationImpl, name: Name, context: BlockVerifyContext): Unit = {
+  def addVar(location: PathLocation, name: Name, context: BlockVerifyContext): Unit = {
     typeRequest match {
       case Some(Right(td)) =>
         context.addVar(name, td)
@@ -57,7 +58,7 @@ final case class RelativeTypeName(pkg: PackageImpl, outerTypeName: TypeName, rel
     // We need the absolute type if we can get it
     typeRequest.map(_.map(_.typeName)) match {
       case Some(Right(tn)) => tn
-      case _ => relativeTypeName
+      case _               => relativeTypeName
     }
   }
 
@@ -69,7 +70,8 @@ final case class RelativeTypeName(pkg: PackageImpl, outerTypeName: TypeName, rel
       if (relativeTypeName.outer.nonEmpty) {
         TypeResolver(relativeTypeName, pkg, excludeSObjects = false) match {
           case Right(td) => Some(Right(td))
-          case Left(_) => Some(TypeResolver(relativeTypeName, outerTypeDeclaration, excludeSObjects = false))
+          case Left(_) =>
+            Some(TypeResolver(relativeTypeName, outerTypeDeclaration, excludeSObjects = false))
         }
       } else {
         Some(TypeResolver(relativeTypeName, outerTypeDeclaration, excludeSObjects = false))
@@ -83,6 +85,7 @@ final case class RelativeTypeName(pkg: PackageImpl, outerTypeName: TypeName, rel
   lazy val outerNature: Nature = outerTypeDeclaration.nature
 
   private def outerTypeDeclaration: TypeDeclaration = {
-    TypeResolver(outerTypeName, pkg, excludeSObjects = false).getOrElse(throw new NoSuchElementException)
+    TypeResolver(outerTypeName, pkg, excludeSObjects = false)
+      .getOrElse(throw new NoSuchElementException)
   }
 }

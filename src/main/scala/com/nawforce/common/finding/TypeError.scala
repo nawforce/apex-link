@@ -24,33 +24,38 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.finding
 
-import com.nawforce.common.api.TypeName
-import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, MISSING_CATEGORY}
-import com.nawforce.common.documents.LocationImpl
+import com.nawforce.common.api.{Diagnostic, MISSING_CATEGORY, PathLocation, TypeName}
+import com.nawforce.common.diagnostics.Issue
 
 /** Collection of error types returned from type requests */
 sealed abstract class TypeError(val typeName: TypeName) {
-  def asIssue(location: LocationImpl) : Issue
+  def asIssue(location: PathLocation): Issue
 
   // Protect against old way of using this
   override def toString: String = throw new IllegalArgumentException
 }
 
 final case class MissingType(_typeName: TypeName) extends TypeError(_typeName) {
-  def asIssue(location: LocationImpl) : Issue = {
-    new Issue(MISSING_CATEGORY, location, s"No type declaration found for '$typeName'")
+  def asIssue(location: PathLocation): Issue = {
+    new Issue(
+      location.path,
+      Diagnostic(MISSING_CATEGORY, location.location, s"No type declaration found for '$typeName'"))
   }
 
   // Protect against old way of using this
   override def toString: String = throw new IllegalArgumentException
 }
 
-final case class WrongTypeArguments(_typeName: TypeName, expected: Integer) extends TypeError(_typeName) {
-  def asIssue(location: LocationImpl) : Issue = {
-    new Issue(ERROR_CATEGORY, location, s"Wrong number of type arguments for '$typeName', expected $expected")
+final case class WrongTypeArguments(_typeName: TypeName, expected: Integer)
+    extends TypeError(_typeName) {
+  def asIssue(location: PathLocation): Issue = {
+    new Issue(location.path,
+              Diagnostic(MISSING_CATEGORY,
+                         location.location,
+                         s"Wrong number of type arguments for '$typeName', expected $expected"))
   }
 
   // Protect against old way of using this

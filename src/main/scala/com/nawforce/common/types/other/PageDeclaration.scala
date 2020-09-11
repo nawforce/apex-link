@@ -27,7 +27,7 @@
 */
 package com.nawforce.common.types.other
 
-import com.nawforce.common.api.{Name, TypeName}
+import com.nawforce.common.api.{Name, PathLocation, TypeName}
 import com.nawforce.common.documents._
 import com.nawforce.common.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.names.{TypeNames, _}
@@ -40,7 +40,7 @@ import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
 /** A individual Page being represented as a static field. */
-case class Page(pkg: PackageImpl, location: LocationImpl, name: Name) extends FieldDeclaration {
+case class Page(pkg: PackageImpl, location: PathLocation, name: Name) extends FieldDeclaration {
   override lazy val modifiers: Array[Modifier] = Array(STATIC_MODIFIER, GLOBAL_MODIFIER)
   override lazy val typeName: TypeName = TypeNames.PageReference
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER

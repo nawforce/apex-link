@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.api
 
 import upickle.default.{macroRW, ReadWriter => RW}
@@ -33,15 +33,24 @@ import upickle.default.{macroRW, ReadWriter => RW}
   * Summary types are used both by the disk cache and to provide a quick & cheap way to examine what is available
   * in a type. See [[Package.getViewOfType()]] for more access to more detailed information.
   */
-
 /** Summary of an Apex class with diagnostic information */
 case class ApexSummary(typeSummary: TypeSummary, diagnostics: Array[Diagnostic])
 
 /** Summary of a type */
-case class TypeSummary(sourceHash: Int, idRange: Option[RangeLocation], name: String, typeName: TypeName,
-                       nature: String, modifiers: Array[String], superClass: Option[TypeName], interfaces: Array[TypeName],
-                       blocks: Array[BlockSummary], fields: Array[FieldSummary], constructors: Array[ConstructorSummary],
-                       methods: Array[MethodSummary], nestedTypes: Array[TypeSummary], dependents: Array[DependentSummary]) {
+case class TypeSummary(sourceHash: Int,
+                       idRange: Option[Location],
+                       name: String,
+                       typeName: TypeName,
+                       nature: String,
+                       modifiers: Array[String],
+                       superClass: Option[TypeName],
+                       interfaces: Array[TypeName],
+                       blocks: Array[BlockSummary],
+                       fields: Array[FieldSummary],
+                       constructors: Array[ConstructorSummary],
+                       methods: Array[MethodSummary],
+                       nestedTypes: Array[TypeSummary],
+                       dependents: Array[DependentSummary]) {
 
   override def equals(that: Any): Boolean = {
     that match {
@@ -77,7 +86,7 @@ case class BlockSummary(isStatic: Boolean, dependents: Array[DependentSummary]) 
   override def equals(that: Any): Boolean = {
     that match {
       case other: BlockSummary => other.canEqual(this) && doesEqual(other)
-      case _ => false
+      case _                   => false
     }
   }
 
@@ -85,17 +94,22 @@ case class BlockSummary(isStatic: Boolean, dependents: Array[DependentSummary]) 
 
   private def doesEqual(other: BlockSummary): Boolean = {
     this.isStatic == other.isStatic &&
-      this.dependents.sameElements(other.dependents)
+    this.dependents.sameElements(other.dependents)
   }
 }
 
 /** Summary of a type field (or property)*/
-case class FieldSummary(idRange: Option[RangeLocation], name: String, modifiers: Array[String],
-                        typeName: TypeName, readAccess: String, writeAccess: String, dependents: Array[DependentSummary]) {
+case class FieldSummary(idRange: Option[Location],
+                        name: String,
+                        modifiers: Array[String],
+                        typeName: TypeName,
+                        readAccess: String,
+                        writeAccess: String,
+                        dependents: Array[DependentSummary]) {
   override def equals(that: Any): Boolean = {
     that match {
       case other: FieldSummary => other.canEqual(this) && doesEqual(other)
-      case _ => false
+      case _                   => false
     }
   }
 
@@ -103,22 +117,24 @@ case class FieldSummary(idRange: Option[RangeLocation], name: String, modifiers:
 
   private def doesEqual(other: FieldSummary): Boolean = {
     this.idRange == other.idRange &&
-      this.name == other.name &&
-      this.modifiers.sameElements(other.modifiers) &&
-      this.typeName == other.typeName &&
-      this.readAccess == other.readAccess &&
-      this.writeAccess == other.writeAccess &&
-      this.dependents.sameElements(other.dependents)
+    this.name == other.name &&
+    this.modifiers.sameElements(other.modifiers) &&
+    this.typeName == other.typeName &&
+    this.readAccess == other.readAccess &&
+    this.writeAccess == other.writeAccess &&
+    this.dependents.sameElements(other.dependents)
   }
 }
 
 /** Summary of a type constructor*/
-case class ConstructorSummary(idRange: Option[RangeLocation], modifiers: Array[String], parameters: Array[ParameterSummary],
+case class ConstructorSummary(idRange: Option[Location],
+                              modifiers: Array[String],
+                              parameters: Array[ParameterSummary],
                               dependents: Array[DependentSummary]) {
   override def equals(that: Any): Boolean = {
     that match {
       case other: ConstructorSummary => other.canEqual(this) && doesEqual(other)
-      case _ => false
+      case _                         => false
     }
   }
 
@@ -126,19 +142,23 @@ case class ConstructorSummary(idRange: Option[RangeLocation], modifiers: Array[S
 
   private def doesEqual(other: ConstructorSummary): Boolean = {
     this.idRange == other.idRange &&
-      this.modifiers.sameElements(other.modifiers) &&
-      this.parameters.sameElements(other.parameters) &&
-      this.dependents.sameElements(other.dependents)
+    this.modifiers.sameElements(other.modifiers) &&
+    this.parameters.sameElements(other.parameters) &&
+    this.dependents.sameElements(other.dependents)
   }
 }
 
 /** Summary of a type method*/
-case class MethodSummary(idRange: Option[RangeLocation], name: String, modifiers: Array[String], typeName: TypeName,
-                         parameters: Array[ParameterSummary], dependents: Array[DependentSummary]) {
+case class MethodSummary(idRange: Option[Location],
+                         name: String,
+                         modifiers: Array[String],
+                         typeName: TypeName,
+                         parameters: Array[ParameterSummary],
+                         dependents: Array[DependentSummary]) {
   override def equals(that: Any): Boolean = {
     that match {
       case other: MethodSummary => other.canEqual(this) && doesEqual(other)
-      case _ => false
+      case _                    => false
     }
   }
 
@@ -146,11 +166,11 @@ case class MethodSummary(idRange: Option[RangeLocation], name: String, modifiers
 
   private def doesEqual(other: MethodSummary): Boolean = {
     this.idRange == other.idRange &&
-      this.name == other.name &&
-      this.modifiers.sameElements(other.modifiers) &&
-      this.typeName == other.typeName &&
-      this.parameters.sameElements(other.parameters) &&
-      this.dependents.sameElements(other.dependents)
+    this.name == other.name &&
+    this.modifiers.sameElements(other.modifiers) &&
+    this.typeName == other.typeName &&
+    this.parameters.sameElements(other.parameters) &&
+    this.dependents.sameElements(other.dependents)
   }
 }
 
@@ -170,11 +190,14 @@ case class FieldDependentSummary(typeId: TypeIdentifier, name: String) extends D
 
 /** Dependency information for a method */
 @upickle.implicits.key("Method")
-case class MethodDependentSummary(typeId: TypeIdentifier, name: String, parameterTypes: Array[TypeName]) extends DependentSummary {
+case class MethodDependentSummary(typeId: TypeIdentifier,
+                                  name: String,
+                                  parameterTypes: Array[TypeName])
+    extends DependentSummary {
   override def equals(that: Any): Boolean = {
     that match {
       case other: MethodDependentSummary => other.canEqual(this) && doesEqual(other)
-      case _ => false
+      case _                             => false
     }
   }
 
@@ -182,8 +205,8 @@ case class MethodDependentSummary(typeId: TypeIdentifier, name: String, paramete
 
   private def doesEqual(other: MethodDependentSummary): Boolean = {
     this.typeId == other.typeId &&
-      this.name == other.name &&
-      this.parameterTypes.sameElements(other.parameterTypes)
+    this.name == other.name &&
+    this.parameterTypes.sameElements(other.parameterTypes)
   }
 }
 

@@ -24,13 +24,23 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.org
 
 import java.util
 
-import com.nawforce.common.api.{IssueOptions, LoggerOps, Name, Org, Package, PathLocation, ServerOps}
-import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, IssueLog}
+import com.nawforce.common.api.{
+  Diagnostic,
+  ERROR_CATEGORY,
+  IssueOptions,
+  LoggerOps,
+  Name,
+  Org,
+  Package,
+  PathLocation,
+  ServerOps
+}
+import com.nawforce.common.diagnostics.{Issue, IssueLog}
 import com.nawforce.common.documents._
 import com.nawforce.common.memory.IdentityBox
 import com.nawforce.common.names.{DotName, Names, _}
@@ -45,7 +55,7 @@ import scala.util.DynamicVariable
   * the org being currently worked on. Typically only one org will be being used but some use cases might require
   * multiple. Problems with the metadata are recorded in the the associated issue log.
   */
-class OrgImpl(val analysis: Boolean=true) extends Org {
+class OrgImpl(val analysis: Boolean = true) extends Org {
 
   /** Parsed data cache */
   private[nawforce] val parsedCache = ParsedCache.create match {
@@ -58,7 +68,8 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
   ServerOps.debug(ServerOps.Trace, s"Org created with autoFlush = $autoFlush")
 
   /** The Org flusher */
-  private val flusher = if (autoFlush) new CacheFlusher(this, parsedCache) else new Flusher(this, parsedCache)
+  private val flusher =
+    if (autoFlush) new CacheFlusher(this, parsedCache) else new Flusher(this, parsedCache)
 
   /**
     * Map of Package namespace to Package. This contains all known Packages, each Package maintains it's own
@@ -109,13 +120,19 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
   }
 
   /** Create a MDAPI format package */
-  override def newMDAPIPackage(namespace: String, directories: Array[String], basePackages: Array[Package]): Package = {
-    newMDAPIPackageInternal(Names.safeApply(namespace), new ofRef(directories).map(PathFactory(_)), new ofRef(basePackages))
+  override def newMDAPIPackage(namespace: String,
+                               directories: Array[String],
+                               basePackages: Array[Package]): Package = {
+    newMDAPIPackageInternal(Names.safeApply(namespace),
+                            new ofRef(directories).map(PathFactory(_)),
+                            new ofRef(basePackages))
   }
 
-  private[nawforce] def newMDAPIPackageInternal(namespace: Option[Name], directories: Seq[PathLike],
+  private[nawforce] def newMDAPIPackageInternal(namespace: Option[Name],
+                                                directories: Seq[PathLike],
                                                 basePackages: Seq[Package]): PackageImpl = {
-    addPackage(new MDAPIWorkspace(namespace, getDirectoryPaths(directories)), collectPackages(basePackages))
+    addPackage(new MDAPIWorkspace(namespace, getDirectoryPaths(directories)),
+               collectPackages(basePackages))
   }
 
   /** Create a SFDX format package */
@@ -159,20 +176,23 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
     basePackages.map(pkg => {
       val pkgImpl = pkg.asInstanceOf[PackageImpl]
       if (pkgImpl.org != this)
-        throw new IllegalArgumentException(s"Base package '${pkgImpl.namespace.getOrElse("")}' was created for use in a different org")
+        throw new IllegalArgumentException(
+          s"Base package '${pkgImpl.namespace.getOrElse("")}' was created for use in a different org")
       pkgImpl
     })
   }
 
   /** Create a Package over a Workspace */
-  private[nawforce] def addPackage(workspace: Workspace, basePackages: Seq[PackageImpl]): PackageImpl = {
+  private[nawforce] def addPackage(workspace: Workspace,
+                                   basePackages: Seq[PackageImpl]): PackageImpl = {
 
     val ns = workspace.namespace
     if (ns.nonEmpty) {
       if (packagesByNamespace.contains(ns))
         throw new IllegalArgumentException(s"A package using namespace '$ns' already exists")
     } else if (!unmanaged.isGhosted) {
-      throw new IllegalArgumentException("An \"unmanaged\" package using an empty namespace already exists")
+      throw new IllegalArgumentException(
+        "An \"unmanaged\" package using an empty namespace already exists")
     }
 
     OrgImpl.current.withValue(this) {
@@ -222,6 +242,19 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
     }
   }
 
+  def reportableIssues(options: IssueOptions): IssueLog = {
+    if (options.includeZombies) {
+      val allIssues = IssueLog(issues)
+      packagesByNamespace.values.foreach(pkg => {
+        pkg.propagateAllDependencies()
+        allIssues.merge(pkg.reportUnused())
+      })
+      allIssues
+    } else {
+      issues
+    }
+  }
+
   /** Extract all dependencies */
   override def getDependencies: java.util.Map[String, Array[String]] = {
     OrgImpl.current.withValue(this) {
@@ -238,19 +271,19 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
 
     // Extract namespace
     val namespace =
-      typeName.outer.map(_ => typeName.outerName)
-      .orElse({
-        val triggerPattern = """__sfdc_trigger/(.*)/.*""".r
-        typeName.name.value match {
-          case triggerPattern(ns) => Some(Name(ns))
-          case _ => None
-        }
-      })
+      typeName.outer
+        .map(_ => typeName.outerName)
+        .orElse({
+          val triggerPattern = """__sfdc_trigger/(.*)/.*""".r
+          typeName.name.value match {
+            case triggerPattern(ns) => Some(Name(ns))
+            case _                  => None
+          }
+        })
 
     // Package lookup
     namespace.foreach(n =>
-      loc = packagesByNamespace.get(Some(n)).flatMap(_.getTypeLocation(typeName))
-    )
+      loc = packagesByNamespace.get(Some(n)).flatMap(_.getTypeLocation(typeName)))
 
     // Otherwise try unmanaged
     if (loc.isEmpty) {
@@ -265,6 +298,7 @@ class OrgImpl(val analysis: Boolean=true) extends Org {
 }
 
 object OrgImpl {
+
   /** Access the in-scope Org */
   private[nawforce] val current: DynamicVariable[OrgImpl] = new DynamicVariable[OrgImpl](null)
 
@@ -275,7 +309,8 @@ object OrgImpl {
 
   /** Log a general error against the in-scope org */
   // TODO: Remove this in favour of passing issues around
-  private[nawforce] def logError(location: LocationImpl, message: String): Unit = {
-    OrgImpl.current.value.issues.add(new Issue(ERROR_CATEGORY, location, message))
+  private[nawforce] def logError(pathLocation: PathLocation, message: String): Unit = {
+    OrgImpl.current.value.issues
+      .add(new Issue(pathLocation.path, Diagnostic(ERROR_CATEGORY, pathLocation.location, message)))
   }
 }

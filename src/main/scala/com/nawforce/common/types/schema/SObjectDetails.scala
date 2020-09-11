@@ -24,10 +24,10 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types.schema
 
-import com.nawforce.common.api.{Name, TypeName}
+import com.nawforce.common.api.{Location, Name, PathLocation, TypeName}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{EncodedName, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
@@ -46,13 +46,15 @@ case object CustomMetadataNature extends SObjectNature("CustomMetadata")
 case object PlatformObjectNature extends SObjectNature("PlatformObject")
 case object PlatformEventNature extends SObjectNature("PlatformEvent")
 
-final case class SObjectDetails(sobjectNature: SObjectNature, typeName: TypeName,
-                                fields: Seq[CustomFieldDeclaration], fieldSets: Set[Name]) {
+final case class SObjectDetails(sobjectNature: SObjectNature,
+                                typeName: TypeName,
+                                fields: Seq[CustomFieldDeclaration],
+                                fieldSets: Set[Name]) {
 
   def isIntroducing(pkg: PackageImpl): Boolean = {
     if (sobjectNature.isInstanceOf[IntroducingNature]) {
       EncodedName(typeName.name).namespace == pkg.namespace
-    } else{
+    } else {
       sobjectNature == CustomMetadataNature || sobjectNature == PlatformEventNature
     }
   }
@@ -66,13 +68,15 @@ object SObjectDetails {
   def parseSObject(path: PathLike, pkg: PackageImpl): Option[SObjectDetails] = {
     val dt = MetadataDocument(path)
     assert(dt.exists(_.isInstanceOf[SObjectLike]))
-    val typeName = TypeName(EncodedName(dt.get.name).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeNames.Schema))
+    val typeName = TypeName(EncodedName(dt.get.name).defaultNamespace(pkg.namespace).fullName,
+                            Nil,
+                            Some(TypeNames.Schema))
 
     // TODO: Improve handling of ghosted SObject types
     if (!path.exists) {
       val sobjectNature: SObjectNature = dt match {
         case Some(x: SObjectDocument) if x.name.value.endsWith("__c") => CustomObjectNature
-        case Some(_: SObjectDocument) => PlatformObjectNature
+        case Some(_: SObjectDocument)                                 => PlatformObjectNature
       }
 
       val sfdxFields = parseSfdxFields(path, pkg, typeName, sobjectNature)
@@ -82,8 +86,7 @@ object SObjectDetails {
 
     val parseResult = XMLFactory.parse(path)
     if (parseResult.isLeft) {
-      OrgImpl.logError(parseResult.swap.getOrElse(throw new NoSuchElementException)._1,
-        parseResult.swap.getOrElse(throw new NoSuchElementException)._2)
+      OrgImpl.log(parseResult.swap.getOrElse(throw new NoSuchElementException))
       return None
     }
     val rootElement = parseResult.getOrElse(throw new NoSuchElementException).rootElement
@@ -93,13 +96,14 @@ object SObjectDetails {
 
       val sobjectNature: SObjectNature = dt match {
         case Some(_: CustomMetadataDocument) => CustomMetadataNature
-        case Some(_: PlatformEventDocument) => PlatformEventNature
+        case Some(_: PlatformEventDocument)  => PlatformEventNature
         case Some(x: SObjectDocument) if x.name.value.endsWith("__c") =>
           rootElement.getOptionalSingleChildAsString("customSettingsType") match {
-            case Some("List") => ListCustomSettingNature
+            case Some("List")      => ListCustomSettingNature
             case Some("Hierarchy") => HierarchyCustomSettingsNature
             case Some(x) =>
-              OrgImpl.logError(RangeLocationImpl(path, TextRange(rootElement.line)),
+              OrgImpl.logError(
+                PathLocation(path.toString, Location(rootElement.line)),
                 s"Unexpected customSettingsType value '$x', should be 'List' or 'Hierarchy'")
               CustomObjectNature
             case _ => CustomObjectNature
@@ -107,29 +111,38 @@ object SObjectDetails {
         case Some(_: SObjectDocument) => PlatformObjectNature
       }
 
-      val fields = rootElement.getChildren("fields")
+      val fields = rootElement
+        .getChildren("fields")
         .flatMap(f => CustomFieldDeclaration.parseField(f, path, pkg, typeName, sobjectNature))
       val sfdxFields = parseSfdxFields(path, pkg, typeName, sobjectNature)
 
-      val fieldSets = rootElement.getChildren("fieldSets")
+      val fieldSets = rootElement
+        .getChildren("fieldSets")
         .map(f => parseFieldSet(f, path, pkg))
       val sfdxFieldSets = parseSfdxFieldSets(path, pkg)
 
-      Some(SObjectDetails(sobjectNature, typeName, fields ++ sfdxFields, (fieldSets ++ sfdxFieldSets).toSet))
+      Some(
+        SObjectDetails(sobjectNature,
+                       typeName,
+                       fields ++ sfdxFields,
+                       (fieldSets ++ sfdxFieldSets).toSet))
 
     } catch {
       case e: XMLException =>
-        OrgImpl.logError(RangeLocationImpl(path, e.where), e.msg)
+        OrgImpl.logError(PathLocation(path.toString, e.where), e.msg)
         None
     }
   }
 
   private def parseFieldSet(elem: XMLElementLike, path: PathLike, pkg: PackageImpl): Name = {
     EncodedName(elem.getSingleChildAsString("fullName"))
-      .defaultNamespace(pkg.namespace).fullName
+      .defaultNamespace(pkg.namespace)
+      .fullName
   }
 
-  private def parseSfdxFields(path: PathLike, pkg: PackageImpl, sObjectType: TypeName,
+  private def parseSfdxFields(path: PathLike,
+                              pkg: PackageImpl,
+                              sObjectType: TypeName,
                               sObjectNature: SObjectNature): Seq[CustomFieldDeclaration] = {
 
     val fieldsDir = path.parent.join("fields")
@@ -139,23 +152,25 @@ object SObjectDetails {
     fieldsDir.directoryList() match {
       case Left(_) => Seq()
       case Right(entries) =>
-        entries.filter(_.endsWith(".field-meta.xml"))
+        entries
+          .filter(_.endsWith(".field-meta.xml"))
           .flatMap(entry => {
             val fieldPath = fieldsDir.join(entry)
             try {
               val parseResult = XMLFactory.parse(fieldPath)
               if (parseResult.isLeft) {
-                OrgImpl.logError(parseResult.swap.getOrElse(throw new NoSuchElementException)._1,
-                  parseResult.swap.getOrElse(throw new NoSuchElementException)._2)
+                OrgImpl.log(parseResult.swap.getOrElse(throw new NoSuchElementException))
                 None
               } else {
-                val rootElement = parseResult.getOrElse(throw new NoSuchElementException).rootElement
+                val rootElement =
+                  parseResult.getOrElse(throw new NoSuchElementException).rootElement
                 rootElement.assertIs("CustomField")
-                CustomFieldDeclaration.parseField(rootElement, fieldPath, pkg, sObjectType, sObjectNature)
+                CustomFieldDeclaration
+                  .parseField(rootElement, fieldPath, pkg, sObjectType, sObjectNature)
               }
             } catch {
               case e: XMLException =>
-                OrgImpl.logError(RangeLocationImpl(fieldPath, e.where), e.msg)
+                OrgImpl.logError(PathLocation(fieldPath.toString, e.where), e.msg)
                 None
             }
           })
@@ -170,23 +185,24 @@ object SObjectDetails {
     fieldSetDir.directoryList() match {
       case Left(_) => Seq()
       case Right(entries) =>
-        entries.filter(_.endsWith(".fieldSet-meta.xml"))
+        entries
+          .filter(_.endsWith(".fieldSet-meta.xml"))
           .flatMap(entry => {
             val fieldSetsPaths = fieldSetDir.join(entry)
             try {
               val parseResult = XMLFactory.parse(fieldSetsPaths)
               if (parseResult.isLeft) {
-                OrgImpl.logError(parseResult.swap.getOrElse(throw new NoSuchElementException)._1,
-                  parseResult.swap.getOrElse(throw new NoSuchElementException)._2)
+                OrgImpl.log(parseResult.swap.getOrElse(throw new NoSuchElementException))
                 None
               } else {
-                val rootElement = parseResult.getOrElse(throw new NoSuchElementException).rootElement
+                val rootElement =
+                  parseResult.getOrElse(throw new NoSuchElementException).rootElement
                 rootElement.assertIs("FieldSet")
                 Some(parseFieldSet(rootElement, fieldSetsPaths, pkg))
               }
             } catch {
               case e: XMLException =>
-                OrgImpl.logError(RangeLocationImpl(fieldSetsPaths, e.where), e.msg)
+                OrgImpl.logError(PathLocation(fieldSetsPaths.toString, e.where), e.msg)
                 None
             }
           })

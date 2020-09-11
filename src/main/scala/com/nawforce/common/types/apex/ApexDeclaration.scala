@@ -24,15 +24,20 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types.apex
 
 import com.nawforce.common.api.{TypeName, _}
 import com.nawforce.common.cst._
-import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
+import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
-import com.nawforce.common.modifiers.{GLOBAL_MODIFIER, ISTEST_ANNOTATION, TEST_METHOD_MODIFIER, TEST_SETUP_ANNOTATION}
+import com.nawforce.common.modifiers.{
+  GLOBAL_MODIFIER,
+  ISTEST_ANNOTATION,
+  TEST_METHOD_MODIFIER,
+  TEST_SETUP_ANNOTATION
+}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
@@ -44,10 +49,10 @@ trait ApexBlockLike extends BlockDeclaration {
 
 /** Apex defined constructor core features, be they full or summary style */
 trait ApexConstructorLike extends ConstructorDeclaration {
-  val nameRange: RangeLocationImpl
+  val nameRange: PathLocation
 
   def summary(shapeOnly: Boolean): ConstructorSummary = {
-    serialise(shapeOnly, Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
+    serialise(shapeOnly, Some(nameRange.location))
   }
 }
 
@@ -60,7 +65,7 @@ trait ApexVisibleMethodLike extends MethodDeclaration {
 /** Apex defined method core features, be they full or summary style */
 trait ApexMethodLike extends ApexVisibleMethodLike {
   val outerTypeId: TypeId
-  def nameRange: RangeLocationImpl
+  def nameRange: PathLocation
 
   // Populated by type MethodMap construction
   private var shadows: List[MethodDeclaration] = Nil
@@ -71,34 +76,34 @@ trait ApexMethodLike extends ApexVisibleMethodLike {
 
   def isEntry: Boolean = {
     modifiers.contains(ISTEST_ANNOTATION) ||
-      modifiers.contains(TEST_SETUP_ANNOTATION) ||
-      modifiers.contains(TEST_METHOD_MODIFIER) ||
-      modifiers.contains(GLOBAL_MODIFIER)
+    modifiers.contains(TEST_SETUP_ANNOTATION) ||
+    modifiers.contains(TEST_METHOD_MODIFIER) ||
+    modifiers.contains(GLOBAL_MODIFIER)
   }
 
   /* Is the method in use, NOTE: requires a MethodMap is constructed for shadow support first! */
   def isUsed: Boolean = {
     isEntry || hasHolders ||
-      shadows.exists({
-        case am: ApexMethodLike => am.isUsed
-        case _: MethodDeclaration => true
-        case _ => false
-      })
+    shadows.exists({
+      case am: ApexMethodLike   => am.isUsed
+      case _: MethodDeclaration => true
+      case _                    => false
+    })
   }
 
   def summary(shapeOnly: Boolean): MethodSummary = {
-    serialise(shapeOnly, Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
+    serialise(shapeOnly, Some(nameRange.location))
   }
 }
 
 /** Apex defined fields core features, be they full or summary style */
 trait ApexFieldLike extends FieldDeclaration {
   val outerTypeId: TypeId
-  val nameRange: RangeLocationImpl
+  val nameRange: PathLocation
   val idTarget: Option[TypeName] = None
 
   def summary(shapeOnly: Boolean): FieldSummary = {
-    serialise(shapeOnly, Some(new RangeLocation(nameRange.start.toPosition, nameRange.end.toPosition)))
+    serialise(shapeOnly, Some(nameRange.location))
   }
 }
 
@@ -107,7 +112,7 @@ trait ApexDeclaration extends TypeDeclaration with DependentType {
   val path: PathLike
   val sourceHash: Int
   val pkg: PackageImpl
-  val nameLocation: LocationImpl
+  val nameLocation: PathLocation
 
   // Get summary of this type
   def summary: TypeSummary
@@ -130,7 +135,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
   val path: PathLike
   val sourceHash: Int
   val pkg: PackageImpl
-  val nameLocation: LocationImpl
+  val nameLocation: PathLocation
   val localFields: Array[ApexFieldLike]
   val localMethods: Array[MethodDeclaration]
 
@@ -153,7 +158,8 @@ trait ApexClassDeclaration extends ApexDeclaration {
   }
 
   override lazy val fields: Array[FieldDeclaration] = {
-    val uniqueLocalFields: Iterable[FieldDeclaration] = localFields.groupBy(f => f.name)
+    val uniqueLocalFields: Iterable[FieldDeclaration] = localFields
+      .groupBy(f => f.name)
       .collect {
         case (_, single) if single.length == 1 => single.head
         case (_, duplicates) =>
@@ -166,7 +172,9 @@ trait ApexClassDeclaration extends ApexDeclaration {
       }
 
     val allFields: Array[FieldDeclaration] =
-      superClassDeclaration.map(_.fields).getOrElse(FieldDeclaration.emptyFieldDeclarations) ++ uniqueLocalFields
+      superClassDeclaration
+        .map(_.fields)
+        .getOrElse(FieldDeclaration.emptyFieldDeclarations) ++ uniqueLocalFields
     allFields.map(f => (f.name, f)).toMap.values.toArray
   }
 
@@ -183,7 +191,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
   lazy val outerStaticMethods: Array[MethodDeclaration] = {
     outerTypeName.flatMap(ot => TypeResolver(ot, this, excludeSObjects = false).toOption) match {
       case Some(td: ApexClassDeclaration) => td.staticMethods
-      case _ => MethodDeclaration.emptyMethodDeclarations
+      case _                              => MethodDeclaration.emptyMethodDeclarations
     }
   }
 
@@ -205,9 +213,12 @@ trait ApexClassDeclaration extends ApexDeclaration {
       case Some(at: ApexClassDeclaration) =>
         MethodMap(this, Some(nameLocation), at.methodMap, allMethods, interfaceDeclarations)
       case Some(td: TypeDeclaration) =>
-        MethodMap(this, Some(nameLocation),
+        MethodMap(
+          this,
+          Some(nameLocation),
           MethodMap(td, None, MethodMap.empty(), td.methods, TypeDeclaration.emptyTypeDeclarations),
-          allMethods, interfaceDeclarations)
+          allMethods,
+          interfaceDeclarations)
       case _ =>
         MethodMap(this, Some(nameLocation), MethodMap.empty(), allMethods, interfaceDeclarations)
     }
@@ -218,7 +229,9 @@ trait ApexClassDeclaration extends ApexDeclaration {
 
   override def methods: Array[MethodDeclaration] = methodMap.allMethods
 
-  override def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
+  override def findMethod(name: Name,
+                          params: Array[TypeName],
+                          staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Array[MethodDeclaration] = {
     methodMap.findMethod(name, params, staticContext, verifyContext)
   }
@@ -226,13 +239,24 @@ trait ApexClassDeclaration extends ApexDeclaration {
   def unused(): Array[Issue] = {
     // Hack: Unused calculation requires a methodMap for shadow support
     methodMap
-    localFields.filterNot(_.hasHolders)
-      .map(field => new Issue(UNUSED_CATEGORY, field.nameRange, s"Unused Field or Property '${field.name}'")) ++
+    localFields
+      .filterNot(_.hasHolders)
+      .map(
+        field =>
+          new Issue(field.nameRange.path,
+                    Diagnostic(UNUSED_CATEGORY,
+                               field.nameRange.location,
+                               s"Unused Field or Property '${field.name}'"))) ++
       localMethods
         .flatMap {
           case am: ApexMethodLike if !am.isUsed => Some(am)
-          case _ => None
+          case _                                => None
         }
-        .map(method => new Issue(UNUSED_CATEGORY, method.nameRange, s"Unused Method '${method.signature}'"))
+        .map(
+          method =>
+            new Issue(method.nameRange.path,
+                      Diagnostic(UNUSED_CATEGORY,
+                                 method.nameRange.location,
+                                 s"Unused Method '${method.signature}'")))
   }
 }

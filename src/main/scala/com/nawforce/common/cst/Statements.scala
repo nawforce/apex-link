@@ -31,7 +31,6 @@ import java.lang.ref.WeakReference
 
 import com.nawforce.common.api.{Name, ServerOps, TypeName}
 import com.nawforce.common.cst.stmts.SwitchStatement
-import com.nawforce.common.documents.LineLocationImpl
 import com.nawforce.common.modifiers.{ApexModifiers, ModifierResults}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.runtime.parsers.ApexParser._

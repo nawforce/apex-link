@@ -24,11 +24,10 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types.synthetic
 
-import com.nawforce.common.api.{Name, TypeName}
-import com.nawforce.common.documents.{RangeLocationImpl, TextRange}
+import com.nawforce.common.api.{Location, Name, PathLocation, TypeName}
 import com.nawforce.common.modifiers._
 import com.nawforce.common.names.{EncodedName, _}
 import com.nawforce.common.org.PackageImpl
@@ -38,8 +37,11 @@ import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.schema.{PlatformObjectNature, SObjectNature}
 import com.nawforce.common.xml.{XMLElementLike, XMLException}
 
-final case class CustomFieldDeclaration(name: Name, typeName: TypeName, idTarget: Option[TypeName], asStatic: Boolean = false)
-  extends FieldDeclaration {
+final case class CustomFieldDeclaration(name: Name,
+                                        typeName: TypeName,
+                                        idTarget: Option[TypeName],
+                                        asStatic: Boolean = false)
+    extends FieldDeclaration {
 
   override val modifiers: Array[Modifier] = CustomFieldDeclaration.getModifiers(asStatic)
   override val readAccess: Modifier = PUBLIC_MODIFIER
@@ -56,7 +58,10 @@ object CustomFieldDeclaration {
     if (isStatic) standardModifiers else standardModifiers
   }
 
-  def parseField(elem: XMLElementLike, path: PathLike, pkg: PackageImpl, sObjectType: TypeName,
+  def parseField(elem: XMLElementLike,
+                 path: PathLike,
+                 pkg: PackageImpl,
+                 sObjectType: TypeName,
                  sObjectNature: SObjectNature): Seq[CustomFieldDeclaration] = {
 
     val rawName: String = elem.getSingleChildAsString("fullName").trim
@@ -67,36 +72,38 @@ object CustomFieldDeclaration {
       // Allow missing type on standard fields of standard objects
       return Seq()
     } else if (rawTypeOption.isEmpty) {
-      throw XMLException(TextRange(elem.line), s"Expecting custom field '$name' to have 'type' child element")
+      throw XMLException(Location(elem.line),
+                         s"Expecting custom field '$name' to have 'type' child element")
     }
 
     val rawType = rawTypeOption.get
     val dataType = rawType match {
-      case "MasterDetail" => PlatformTypes.idType
-      case "Lookup" => PlatformTypes.idType
+      case "MasterDetail"         => PlatformTypes.idType
+      case "Lookup"               => PlatformTypes.idType
       case "MetadataRelationship" => PlatformTypes.idType
-      case "AutoNumber" => PlatformTypes.stringType
-      case "Checkbox" => PlatformTypes.booleanType
-      case "Currency" => PlatformTypes.decimalType
-      case "Date" => PlatformTypes.dateType
-      case "DateTime" => PlatformTypes.datetimeType
-      case "Email" => PlatformTypes.stringType
-      case "EncryptedText" => PlatformTypes.stringType
-      case "Number" => PlatformTypes.decimalType
-      case "Percent" => PlatformTypes.decimalType
-      case "Phone" => PlatformTypes.stringType
-      case "Picklist" => PlatformTypes.stringType
-      case "MultiselectPicklist" => PlatformTypes.stringType
-      case "Summary" => PlatformTypes.decimalType
-      case "Text" => PlatformTypes.stringType
-      case "TextArea" => PlatformTypes.stringType
-      case "LongTextArea" => PlatformTypes.stringType
-      case "Url" => PlatformTypes.stringType
-      case "File" => PlatformTypes.stringType
-      case "Location" => PlatformTypes.locationType
-      case "Time" => PlatformTypes.timeType
-      case "Html" => PlatformTypes.stringType
-      case _ => throw XMLException(TextRange(elem.line), s"Unexpected type '$rawType' on custom field")
+      case "AutoNumber"           => PlatformTypes.stringType
+      case "Checkbox"             => PlatformTypes.booleanType
+      case "Currency"             => PlatformTypes.decimalType
+      case "Date"                 => PlatformTypes.dateType
+      case "DateTime"             => PlatformTypes.datetimeType
+      case "Email"                => PlatformTypes.stringType
+      case "EncryptedText"        => PlatformTypes.stringType
+      case "Number"               => PlatformTypes.decimalType
+      case "Percent"              => PlatformTypes.decimalType
+      case "Phone"                => PlatformTypes.stringType
+      case "Picklist"             => PlatformTypes.stringType
+      case "MultiselectPicklist"  => PlatformTypes.stringType
+      case "Summary"              => PlatformTypes.decimalType
+      case "Text"                 => PlatformTypes.stringType
+      case "TextArea"             => PlatformTypes.stringType
+      case "LongTextArea"         => PlatformTypes.stringType
+      case "Url"                  => PlatformTypes.stringType
+      case "File"                 => PlatformTypes.stringType
+      case "Location"             => PlatformTypes.locationType
+      case "Time"                 => PlatformTypes.timeType
+      case "Html"                 => PlatformTypes.stringType
+      case _ =>
+        throw XMLException(Location(elem.line), s"Unexpected type '$rawType' on custom field")
     }
 
     // Create additional fields & lookup relationships for special fields
@@ -104,19 +111,27 @@ object CustomFieldDeclaration {
     var referenceFields = Seq[CustomFieldDeclaration]()
     if (rawType == "Lookup" || rawType == "MasterDetail" || rawType == "MetadataRelationship") {
       val referenceTo = Name(elem.getSingleChildAsString("referenceTo").trim)
-      val relName = Name(elem.getSingleChildAsString("relationshipName").trim+"__r")
-      val refTypeName = TypeName(EncodedName(referenceTo).defaultNamespace(pkg.namespace).fullName, Nil, Some(TypeNames.Schema))
+      val relName = Name(elem.getSingleChildAsString("relationshipName").trim + "__r")
+      val refTypeName = TypeName(EncodedName(referenceTo).defaultNamespace(pkg.namespace).fullName,
+                                 Nil,
+                                 Some(TypeNames.Schema))
       idTarget = Some(refTypeName)
 
-      pkg.schema().relatedLists.add(refTypeName, relName, name, sObjectType,
-        RangeLocationImpl(path, TextRange(elem.line)))
+      pkg
+        .schema()
+        .relatedLists
+        .add(refTypeName,
+             relName,
+             name,
+             sObjectType,
+             PathLocation(path.toString, Location(elem.line)))
 
-      referenceFields = Seq(CustomFieldDeclaration(name.replaceAll("__c$", "__r"), refTypeName, None))
+      referenceFields = Seq(
+        CustomFieldDeclaration(name.replaceAll("__c$", "__r"), refTypeName, None))
     } else if (rawType == "Location") {
       referenceFields = Seq(
         CustomFieldDeclaration(name.replaceAll("__c$", "__latitude__s"), TypeNames.Double, None),
-        CustomFieldDeclaration(name.replaceAll("__c$", "__longitude__s"), TypeNames.Double, None)
-      )
+        CustomFieldDeclaration(name.replaceAll("__c$", "__longitude__s"), TypeNames.Double, None))
     }
 
     Seq(CustomFieldDeclaration(name, dataType.typeName, idTarget)) ++ referenceFields
@@ -125,11 +140,11 @@ object CustomFieldDeclaration {
   /* TypeNames that may be used in SObjects (see above for when */
   def isSObjectPrimitive(typeName: TypeName): Boolean = {
     typeName match {
-      case TypeNames.IdType | TypeNames.String | TypeNames.Boolean | TypeNames.Decimal | TypeNames.Integer |
-           TypeNames.Date | TypeNames.Datetime | TypeNames.Time | TypeNames.Blob | TypeNames.Location | TypeNames.Address
-              => true
+      case TypeNames.IdType | TypeNames.String | TypeNames.Boolean | TypeNames.Decimal |
+          TypeNames.Integer | TypeNames.Date | TypeNames.Datetime | TypeNames.Time |
+          TypeNames.Blob | TypeNames.Location | TypeNames.Address =>
+        true
       case _ => false
     }
   }
 }
-

@@ -102,7 +102,7 @@ class CustomObjectTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(org.issues.getMessages(root.join("Foo__c.object").toString) ==
-        "Error: line 5 to 6: Unexpected type 'Silly' on custom field\n")
+        "Error: line 5: Unexpected type 'Silly' on custom field\n")
     }
   }
 

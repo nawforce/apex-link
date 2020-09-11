@@ -28,13 +28,13 @@
 
 package com.nawforce.common.org.stream
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Location, Name, PathLocation}
 import com.nawforce.common.diagnostics.IssueLogger
 import com.nawforce.common.documents._
 
 import scala.collection.immutable.Queue
 
-case class FlowEvent(sourceInfo: SourceInfo, location: LocationImpl, name: Name) extends PackageEvent
+case class FlowEvent(sourceInfo: SourceInfo, location: PathLocation, name: Name) extends PackageEvent
 
 object FlowGenerator extends Generator {
 
@@ -47,7 +47,7 @@ object FlowGenerator extends Generator {
     docType match {
       case _: FlowDocument => Seq(FlowEvent(
         SourceInfo(docType.path, metadata.source.asString),
-        LineLocationImpl(docType.path.toString, 0), docType.name))
+        PathLocation(docType.path.toString, Location.empty), docType.name))
       case _ => Seq.empty
     }
   }

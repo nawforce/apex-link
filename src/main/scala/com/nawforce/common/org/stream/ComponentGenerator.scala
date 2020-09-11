@@ -24,31 +24,37 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package com.nawforce.common.org.stream
 
-import com.nawforce.common.api.Name
+import com.nawforce.common.api.{Location, Name, PathLocation}
 import com.nawforce.common.diagnostics.IssueLogger
 import com.nawforce.common.documents._
 
 import scala.collection.immutable.Queue
 
-case class ComponentEvent(sourceInfo: SourceInfo, location: LocationImpl, name: Name) extends PackageEvent
+case class ComponentEvent(sourceInfo: SourceInfo, location: PathLocation, name: Name)
+    extends PackageEvent
 
 /** Convert component documents into PackageEvents */
 object ComponentGenerator extends Generator {
 
-  def queue(logger: IssueLogger, provider: MetadataProvider, queue: Queue[PackageEvent]): Queue[PackageEvent] = {
+  def queue(logger: IssueLogger,
+            provider: MetadataProvider,
+            queue: Queue[PackageEvent]): Queue[PackageEvent] = {
     super.queue(MetadataDocument.componentExt, logger, provider, queue)
   }
 
-  override def getMetadata(logger: IssueLogger, metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
+  override def getMetadata(logger: IssueLogger,
+                           metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
     val docType = metadata.docType
     docType match {
-      case _: ComponentDocument => Seq(ComponentEvent(
-        SourceInfo(docType.path, metadata.source.asString),
-        LineLocationImpl(docType.path.toString, 0), docType.name))
+      case _: ComponentDocument =>
+        Seq(
+          ComponentEvent(SourceInfo(docType.path, metadata.source.asString),
+                         PathLocation(docType.path.toString, Location.empty),
+                         docType.name))
       case _ => Seq.empty
     }
   }

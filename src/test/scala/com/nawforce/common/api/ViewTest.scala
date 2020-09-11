@@ -108,8 +108,8 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       val view = pkg.getViewOfType(root.join("Foo.cls"), Some(SourceBlob("")))
       assert(!view.hasType)
       assert(view.diagnostics.length == 1)
-      assert(view.diagnostics.head.category == "Syntax")
-      assert(view.diagnostics.head.location == PointLocation(Position(1, 0)))
+      assert(view.diagnostics.head.category == SYNTAX_CATEGORY)
+      assert(view.diagnostics.head.location == Location(1,0))
       assert(view.diagnostics.head.message.nonEmpty)
     }
   }
@@ -123,8 +123,8 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("")))
       assert(!view.hasType)
       assert(view.diagnostics.length == 1)
-      assert(view.diagnostics.head.category == "Syntax")
-      assert(view.diagnostics.head.location == PointLocation(Position(1, 0)))
+      assert(view.diagnostics.head.category == SYNTAX_CATEGORY)
+      assert(view.diagnostics.head.location == Location(1,0))
       assert(view.diagnostics.head.message.nonEmpty)
     }
   }
@@ -150,8 +150,8 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       val view = pkg.getViewOfType(root.join("pkg/Foo.cls"), Some(SourceBlob("public class Foo {Bar b;}")))
       assert(view.hasType)
       assert(view.diagnostics.length == 1)
-      assert(view.diagnostics.head.category == "Missing")
-      assert(view.diagnostics.head.location == RangeLocation(Position(1,22),Position(1,23)))
+      assert(view.diagnostics.head.category == MISSING_CATEGORY)
+      assert(view.diagnostics.head.location == Location(1,22, 1,23))
       assert(view.diagnostics.head.message.nonEmpty)
     }
   }
@@ -193,8 +193,8 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       val view = pkg.getViewOfType(root.join("Foo.trigger"), Some(SourceBlob("")))
       assert(!view.hasType)
       assert(view.diagnostics.length == 1)
-      assert(view.diagnostics.head.category == "Syntax")
-      assert(view.diagnostics.head.location == PointLocation(Position(1, 0)))
+      assert(view.diagnostics.head.category == SYNTAX_CATEGORY)
+      assert(view.diagnostics.head.location == Location(1,0))
       assert(view.diagnostics.head.message.nonEmpty)
     }
   }
@@ -208,8 +208,8 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       val view = pkg.getViewOfType(root.join("pkg/Foo.trigger"), Some(SourceBlob("")))
       assert(!view.hasType)
       assert(view.diagnostics.length == 1)
-      assert(view.diagnostics.head.category == "Syntax")
-      assert(view.diagnostics.head.location == PointLocation(Position(1, 0)))
+      assert(view.diagnostics.head.category == SYNTAX_CATEGORY)
+      assert(view.diagnostics.head.location == Location(1,0))
       assert(view.diagnostics.head.message.nonEmpty)
     }
   }
@@ -236,8 +236,8 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
         Some(SourceBlob("trigger Foo on Account (before insert) {Bar b;}")))
       assert(view.hasType)
       assert(view.diagnostics.length == 1)
-      assert(view.diagnostics.head.category == "Missing")
-      assert(view.diagnostics.head.location == RangeLocation(Position(1,44),Position(1,45)))
+      assert(view.diagnostics.head.category == MISSING_CATEGORY)
+      assert(view.diagnostics.head.location == Location(1,44,1,45))
       assert(view.diagnostics.head.message.nonEmpty)
     }
   }
@@ -268,7 +268,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
       val view = pkg.getViewOfType(root.join("CustomLabels.labels"), Some(SourceBlob("")))
       assert(view.hasType)
       assert(view.diagnostics.length == 1)
-      assert(view.diagnostics.head.category == "Error")
+      assert(view.diagnostics.head.category == ERROR_CATEGORY)
       assert(view.typeName == TypeNames.Label)
     }
   }

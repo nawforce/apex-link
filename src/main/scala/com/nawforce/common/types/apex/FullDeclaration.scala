@@ -69,7 +69,7 @@ abstract class FullDeclaration(val source: Source,
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override val name: Name = typeName.name
 
-  override val nameLocation: LocationImpl = id.location
+  override val nameLocation: PathLocation = id.location
   override val nature: Nature
   var flushedToCache = false
 
@@ -228,7 +228,7 @@ abstract class FullDeclaration(val source: Source,
     TypeSummary(if (shapeOnly) 0 else sourceHash,
                 if (shapeOnly) None
                 else
-                  Some(new RangeLocation(id.location.start.toPosition, id.location.end.toPosition)),
+                  Some(id.location.location),
                 name.toString,
                 typeName,
                 nature.value,

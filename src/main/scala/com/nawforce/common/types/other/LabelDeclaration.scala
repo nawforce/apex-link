@@ -24,11 +24,11 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.types.other
 
-import com.nawforce.common.api.{Name, TypeName}
-import com.nawforce.common.diagnostics.{Issue, UNUSED_CATEGORY}
+import com.nawforce.common.api._
+import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents._
 import com.nawforce.common.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.names.TypeNames
@@ -41,8 +41,11 @@ import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
 /** A individual Label being represented as a static field. */
-case class Label(outerTypeId: Option[TypeId], location: Option[LocationImpl], name: Name, isProtected: Boolean)
-  extends FieldDeclaration {
+case class Label(outerTypeId: Option[TypeId],
+                 location: Option[PathLocation],
+                 name: Name,
+                 isProtected: Boolean)
+    extends FieldDeclaration {
   override lazy val modifiers: Array[Modifier] = Label.modifiers
   override lazy val typeName: TypeName = TypeNames.String
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER
@@ -56,23 +59,28 @@ object Label {
 
 /** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
   * base packages via the Label.namespace.name format. */
-final class LabelDeclaration(sources: Array[SourceInfo], override val pkg: PackageImpl, labels: Array[Label],
+final class LabelDeclaration(sources: Array[SourceInfo],
+                             override val pkg: PackageImpl,
+                             labels: Array[Label],
                              nestedLabels: Array[NestedLabels])
-  extends BasicTypeDeclaration(sources.map(_.path), pkg, TypeNames.Label)
-    with DependentType with OtherTypeDeclaration {
+    extends BasicTypeDeclaration(sources.map(_.path), pkg, TypeNames.Label)
+    with DependentType
+    with OtherTypeDeclaration {
 
-  val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash),0)
+  val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
 
   // Propagate dependencies to nested
   nestedLabels.foreach(_.addTypeDependencyHolder(typeId))
 
-  override val nestedTypes: Array[TypeDeclaration] = nestedLabels.asInstanceOf[Array[TypeDeclaration]]
+  override val nestedTypes: Array[TypeDeclaration] =
+    nestedLabels.asInstanceOf[Array[TypeDeclaration]]
   override val fields: Array[FieldDeclaration] = labels.asInstanceOf[Array[FieldDeclaration]]
 
   /** Create new labels from merging those in the provided stream */
   def merge(stream: PackageStream): LabelDeclaration = {
     val outerTypeId = TypeId(pkg, typeName)
-    val newLabels = labels ++ stream.labels.map(le => Label(Some(outerTypeId), Some(le.location), le.name, le.isProtected))
+    val newLabels = labels ++ stream.labels.map(le =>
+      Label(Some(outerTypeId), Some(le.location), le.name, le.isProtected))
     val sourceInfo = stream.labelsFiles.map(_.sourceInfo).distinct.toArray
     new LabelDeclaration(sourceInfo, pkg, newLabels, nestedLabels)
   }
@@ -84,8 +92,15 @@ final class LabelDeclaration(sources: Array[SourceInfo], override val pkg: Packa
 
   /** Report on unused labels */
   def unused(): Array[Issue] = {
-    labels.filterNot(_.hasHolders).filterNot(_.location.isEmpty)
-      .map(label => new Issue(UNUSED_CATEGORY, label.location.get, s"Label '$typeName.${label.name}'"))
+    labels
+      .filterNot(_.hasHolders)
+      .filterNot(_.location.isEmpty)
+      .map(
+        label =>
+          new Issue(label.location.get.path,
+                    Diagnostic(UNUSED_CATEGORY,
+                               label.location.get.location,
+                               s"Label '$typeName.${label.name}'")))
   }
 }
 
@@ -101,8 +116,11 @@ trait NestedLabels extends TypeDeclaration {
   * controller here.
   */
 private final class PackageLabels(pkg: PackageImpl, labelDeclaration: LabelDeclaration)
-  extends InnerBasicTypeDeclaration(PathLike.emptyPaths, pkg,
-    TypeName(labelDeclaration.packageDeclaration.get.namespace.get, Nil, Some(TypeNames.Label))) with NestedLabels {
+    extends InnerBasicTypeDeclaration(
+      PathLike.emptyPaths,
+      pkg,
+      TypeName(labelDeclaration.packageDeclaration.get.namespace.get, Nil, Some(TypeNames.Label)))
+    with NestedLabels {
 
   override val labelTypeId: Option[TypeId] = Some(labelDeclaration.typeId)
 
@@ -113,14 +131,17 @@ private final class PackageLabels(pkg: PackageImpl, labelDeclaration: LabelDecla
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     labelDeclaration.findField(name, staticContext) match {
       case Some(label: Label) if !label.isProtected => Some(label)
-      case _ => None
+      case _                                        => None
     }
   }
 }
 
 /** System.Label.ns implementation for ghosted packages. This simulates the existence of any label you ask for. */
 final class GhostedLabels(pkg: PackageImpl, ghostedNamespace: Name)
-  extends InnerBasicTypeDeclaration(PathLike.emptyPaths, pkg, TypeName(ghostedNamespace, Nil, Some(TypeNames.Label))) with NestedLabels {
+    extends InnerBasicTypeDeclaration(PathLike.emptyPaths,
+                                      pkg,
+                                      TypeName(ghostedNamespace, Nil, Some(TypeNames.Label)))
+    with NestedLabels {
 
   override val labelTypeId: Option[TypeId] = None
 
@@ -136,6 +157,7 @@ final class GhostedLabels(pkg: PackageImpl, ghostedNamespace: Name)
 }
 
 object LabelDeclaration {
+
   /** Construct System.Label for a package. */
   def apply(pkg: PackageImpl): LabelDeclaration = {
     new LabelDeclaration(Array(), pkg, Array(), createPackageLabels(pkg))
@@ -143,12 +165,14 @@ object LabelDeclaration {
 
   // Create labels declarations for each base package
   private def createPackageLabels(pkg: PackageImpl): Array[NestedLabels] = {
-    pkg.transitiveBasePackages.map(basePkg => {
-      if (basePkg.isGhosted) {
-        new GhostedLabels(pkg, basePkg.namespace.get)
-      } else {
-        new PackageLabels(pkg, basePkg.labels)
-      }
-    }).toArray
+    pkg.transitiveBasePackages
+      .map(basePkg => {
+        if (basePkg.isGhosted) {
+          new GhostedLabels(pkg, basePkg.namespace.get)
+        } else {
+          new PackageLabels(pkg, basePkg.labels)
+        }
+      })
+      .toArray
   }
 }

@@ -24,7 +24,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 package com.nawforce.common.api
 
 import com.nawforce.common.org.OrgImpl
@@ -49,6 +49,7 @@ import com.nawforce.common.org.OrgImpl
   * Orgs and Packages are not thread safe, serialise all calls to them.
   */
 trait Org {
+
   /** Get array of current packages. */
   def getPackages: Array[Package]
 
@@ -59,7 +60,9 @@ trait Org {
     * basePackages array should contain any packages that this package depends on. References to metadata not
     * included in basePackage is not possible.
     **/
-  def newMDAPIPackage(namespace: String, directories: Array[String], basePackages: Array[Package]): Package
+  def newMDAPIPackage(namespace: String,
+                      directories: Array[String],
+                      basePackages: Array[Package]): Package
 
   /** Create a new package in the org from SFDX format metadata.
     *
@@ -107,8 +110,21 @@ trait Org {
 
 }
 
+object Org {
+
+  /** Create a new empty Org to which you can add packages for code analysis.
+    *
+    * You can use an Org without code analysis enabled but many of the API methods will not function. This mode is
+    * supported to allow the available metadata to be examined specifically via getIdentifierLocation().
+    */
+  def newOrg(analysis: Boolean = true): Org = {
+    new OrgImpl(analysis)
+  }
+}
+
 /** Options available when retrieving Org issues. */
 class IssueOptions {
+
   /** Include warning messages, these may be ignored when checking for correctness. */
   var includeWarnings: Boolean = true
 
@@ -120,15 +136,4 @@ class IssueOptions {
 
   /** Maximum errors to include for each file, errors are ordered so this is the first 'n' errors. */
   var maxErrorsPerFile: Integer = 10
-}
-
-object Org {
-  /** Create a new empty Org to which you can add packages for code analysis.
-    *
-    * You can use an Org without code analysis enabled but many of the API methods will not function. This mode is
-    * supported to allow the available metadata to be examined specifically via getIdentifierLocation().
-    */
-  def newOrg(analysis: Boolean=true): Org = {
-    new OrgImpl(analysis)
-  }
 }
