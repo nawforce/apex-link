@@ -81,42 +81,41 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   def cacheTest(bar: String, foo: String, newBar: String): Unit = {
-    FileSystemHelper.run(Map("Bar.cls" -> bar, "Foo.cls" -> foo), setupCache = true) {
-      root: PathLike =>
-        // Cache classes
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg = addPackage(org, root)
-        assert(!org.issues.hasMessages)
-        assertIsFullDeclaration(pkg, "Bar")
-        assertIsFullDeclaration(pkg, "Foo")
-        org.flush()
+    FileSystemHelper.run(Map("Bar.cls" -> bar, "Foo.cls" -> foo)) { root: PathLike =>
+      // Cache classes
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = addPackage(org, root)
+      assert(!org.issues.hasMessages)
+      assertIsFullDeclaration(pkg, "Bar")
+      assertIsFullDeclaration(pkg, "Foo")
+      org.flush()
 
-        // Reload from cache
-        val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg2 = addPackage(org2, root)
-        assert(!org2.issues.hasMessages)
-        assertIsSummaryDeclaration(pkg2, "Bar")
-        assertIsSummaryDeclaration(pkg2, "Foo")
-        org2.flush()
+      // Reload from cache
+      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg2 = addPackage(org2, root)
+      assert(!org2.issues.hasMessages)
+      assertIsSummaryDeclaration(pkg2, "Bar")
+      assertIsSummaryDeclaration(pkg2, "Foo")
+      org2.flush()
 
-        // Change super class
-        root.createFile("Bar.cls", newBar)
-        root.join("Foo.cls").delete()
-        val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg3 = addPackage(org3, root)
-        assert(!org3.issues.hasMessages)
-        assertIsFullDeclaration(pkg3, "Bar")
-        assertIsNotDeclaration(pkg3, "Foo")
-        org3.flush()
+      // Change super class
+      root.createFile("Bar.cls", newBar)
+      root.join("Foo.cls").delete()
+      val org3 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg3 = addPackage(org3, root)
+      assert(!org3.issues.hasMessages)
+      assertIsFullDeclaration(pkg3, "Bar")
+      assertIsNotDeclaration(pkg3, "Foo")
+      org3.flush()
 
-        // Test if we notice change, i.e. Foo should not be cached
-        root.createFile("Foo.cls", foo)
-        val org4 = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg4 = addPackage(org4, root)
-        assert(!org4.issues.hasMessages)
-        assertIsSummaryDeclaration(pkg4, "Bar")
-        assertIsFullDeclaration(pkg4, "Foo")
-        org4.flush()
+      // Test if we notice change, i.e. Foo should not be cached
+      root.createFile("Foo.cls", foo)
+      val org4 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg4 = addPackage(org4, root)
+      assert(!org4.issues.hasMessages)
+      assertIsSummaryDeclaration(pkg4, "Bar")
+      assertIsFullDeclaration(pkg4, "Foo")
+      org4.flush()
     }
   }
 
@@ -187,9 +186,9 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Missing error is not cached") {
-    FileSystemHelper.run(Map("pkg1/Foo.cls" -> "public class Foo extends Bar {}",
-                             "pkg2/Foo.cls" -> "public class Foo extends Bar {}"),
-                         setupCache = true) { root: PathLike =>
+    FileSystemHelper.run(
+      Map("pkg1/Foo.cls" -> "public class Foo extends Bar {}",
+          "pkg2/Foo.cls" -> "public class Foo extends Bar {}")) { root: PathLike =>
       // Setup as cached
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = addPackage(org, root.join("pkg1"))
@@ -206,9 +205,9 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("General error is cached") {
-    FileSystemHelper.run(Map("pkg1/Foo.cls" -> "public class Foo {{bar();}}",
-                             "pkg2/Foo.cls" -> "public class Foo {{bar();}}"),
-                         setupCache = true) { root: PathLike =>
+    FileSystemHelper.run(
+      Map("pkg1/Foo.cls" -> "public class Foo {{bar();}}",
+          "pkg2/Foo.cls" -> "public class Foo {{bar();}}")) { root: PathLike =>
       // Setup as cached
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = addPackage(org, root.join("pkg1"))
@@ -226,8 +225,10 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Label dependency is cached") {
-    FileSystemHelper.run(Map("CustomLabels.labels" ->
-                               """<?xml version="1.0" encoding="UTF-8"?>
+    FileSystemHelper.run(
+      Map(
+        "CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
@@ -238,37 +239,39 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-                             "Dummy.cls" -> "public class Dummy { {String a = System.label.TestLabel;} }"),
-                         setupCache = true) { root: PathLike =>
-      val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org1, root)
-      assert(!org1.issues.hasMessages)
-      org1.flush()
+        "Dummy.cls" -> "public class Dummy { {String a = System.label.TestLabel;} }")) {
+      root: PathLike =>
+        val org1 = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org1, root)
+        assert(!org1.issues.hasMessages)
+        org1.flush()
 
-      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg2 = addPackage(org2, root)
-      assert(!org2.issues.hasMessages)
+        val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg2 = addPackage(org2, root)
+        assert(!org2.issues.hasMessages)
 
-      assertIsSummaryDeclaration(pkg2, "Dummy")
-      assert(
-        pkg2
-          .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), inheritanceOnly = false)
-          .sameElements(Array(TypeIdentifier(None, TypeNames.Label))))
+        assertIsSummaryDeclaration(pkg2, "Dummy")
+        assert(
+          pkg2
+            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), inheritanceOnly = false)
+            .sameElements(Array(TypeIdentifier(None, TypeNames.Label))))
 
-      root.createFile("CustomLabels.labels",
-                      "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
+        root.createFile("CustomLabels.labels",
+                        "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
 
-      val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg3 = addPackage(org3, root)
-      assertIsFullDeclaration(pkg3, "Dummy")
-      assert(org3.getIssues(new IssueOptions()) ==
-        "/Dummy.cls\nMissing: line 1 at 33-55: Unknown field or type 'TestLabel' on 'System.Label'\n")
+        val org3 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg3 = addPackage(org3, root)
+        assertIsFullDeclaration(pkg3, "Dummy")
+        assert(org3.getIssues(new IssueOptions()) ==
+          "/Dummy.cls\nMissing: line 1 at 33-55: Unknown field or type 'TestLabel' on 'System.Label'\n")
     }
   }
 
   test("Packaged label dependency is cached") {
-    FileSystemHelper.run(Map("pkg1/CustomLabels.labels" ->
-                               """<?xml version="1.0" encoding="UTF-8"?>
+    FileSystemHelper.run(
+      Map(
+        "pkg1/CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
@@ -279,44 +282,46 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-                             "pkg2/Dummy.cls" -> "public class Dummy { {String a = System.label.pkg1.TestLabel;} }"),
-                         setupCache = true) { root: PathLike =>
-      val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg11 = addPackage(org1, root.join("pkg1"), Some(Name("pkg1")))
-      addPackage(org1, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg11))
-      assert(!org1.issues.hasMessages)
-      org1.flush()
+        "pkg2/Dummy.cls" -> "public class Dummy { {String a = System.label.pkg1.TestLabel;} }")) {
+      root: PathLike =>
+        val org1 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg11 = addPackage(org1, root.join("pkg1"), Some(Name("pkg1")))
+        addPackage(org1, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg11))
+        assert(!org1.issues.hasMessages)
+        org1.flush()
 
-      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg21 = addPackage(org2, root.join("pkg1"), Some(Name("pkg1")))
-      val pkg22 = addPackage(org2, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg21))
-      assert(!org2.issues.hasMessages)
+        val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg21 = addPackage(org2, root.join("pkg1"), Some(Name("pkg1")))
+        val pkg22 = addPackage(org2, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg21))
+        assert(!org2.issues.hasMessages)
 
-      assertIsSummaryDeclaration(pkg22, "Dummy")
-      assert(
-        pkg22
-          .getDependencies(
-            TypeIdentifier(Some(Name("pkg2")),
-                           TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
-            inheritanceOnly = false)
-          .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Label))))
+        assertIsSummaryDeclaration(pkg22, "Dummy")
+        assert(
+          pkg22
+            .getDependencies(
+              TypeIdentifier(Some(Name("pkg2")),
+                             TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
+              inheritanceOnly = false)
+            .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Label))))
 
-      root.createFile("pkg1/CustomLabels.labels",
-                      "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
+        root.createFile("pkg1/CustomLabels.labels",
+                        "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
 
-      val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg31 = addPackage(org3, root.join("pkg1"), Some(Name("pkg1")))
-      val pkg32 = addPackage(org3, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg31))
+        val org3 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg31 = addPackage(org3, root.join("pkg1"), Some(Name("pkg1")))
+        val pkg32 = addPackage(org3, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg31))
 
-      // Still summary as Dummy does not *directly* depend on pkg1 labels
-      assertIsSummaryDeclaration(pkg32, "Dummy")
-      assert(!org3.issues.hasMessages)
+        // Still summary as Dummy does not *directly* depend on pkg1 labels
+        assertIsSummaryDeclaration(pkg32, "Dummy")
+        assert(!org3.issues.hasMessages)
     }
   }
 
   test("Multi-file label dependency is cached") {
-    FileSystemHelper.run(Map("CustomLabels.labels" ->
-                               """<?xml version="1.0" encoding="UTF-8"?>
+    FileSystemHelper.run(
+      Map(
+        "CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
@@ -324,8 +329,8 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-                             "AltLabels.labels" ->
-                               """<?xml version="1.0" encoding="UTF-8"?>
+        "AltLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel2</fullName>
@@ -333,31 +338,31 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-                             "Dummy.cls" -> "public class Dummy { {String a = System.label.TestLabel2;} }"),
-                         setupCache = true) { root: PathLike =>
-      val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org1, root)
-      assert(!org1.issues.hasMessages)
-      org1.flush()
+        "Dummy.cls" -> "public class Dummy { {String a = System.label.TestLabel2;} }")) {
+      root: PathLike =>
+        val org1 = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org1, root)
+        assert(!org1.issues.hasMessages)
+        org1.flush()
 
-      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg2 = addPackage(org2, root)
-      assert(!org2.issues.hasMessages)
+        val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg2 = addPackage(org2, root)
+        assert(!org2.issues.hasMessages)
 
-      assertIsSummaryDeclaration(pkg2, "Dummy")
-      assert(
-        pkg2
-          .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), inheritanceOnly = false)
-          .sameElements(Array(TypeIdentifier(None, TypeNames.Label))))
+        assertIsSummaryDeclaration(pkg2, "Dummy")
+        assert(
+          pkg2
+            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), inheritanceOnly = false)
+            .sameElements(Array(TypeIdentifier(None, TypeNames.Label))))
 
-      root.createFile("AltLabels.labels",
-                      "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
+        root.createFile("AltLabels.labels",
+                        "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
 
-      val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg3 = addPackage(org3, root)
-      assertIsFullDeclaration(pkg3, "Dummy")
-      assert(org3.getIssues(new IssueOptions()) ==
-        "/Dummy.cls\nMissing: line 1 at 33-56: Unknown field or type 'TestLabel2' on 'System.Label'\n")
+        val org3 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg3 = addPackage(org3, root)
+        assertIsFullDeclaration(pkg3, "Dummy")
+        assert(org3.getIssues(new IssueOptions()) ==
+          "/Dummy.cls\nMissing: line 1 at 33-56: Unknown field or type 'TestLabel2' on 'System.Label'\n")
     }
   }
 
@@ -365,202 +370,203 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(
       Map(
         "Test.flow-meta.xml" -> "",
-        "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }"),
-      setupCache = true) { root: PathLike =>
-      val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org1, root)
-      assert(!org1.issues.hasMessages)
-      org1.flush()
+        "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }")) {
+      root: PathLike =>
+        val org1 = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org1, root)
+        assert(!org1.issues.hasMessages)
+        org1.flush()
 
-      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg2 = addPackage(org2, root)
-      assert(!org2.issues.hasMessages)
+        val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg2 = addPackage(org2, root)
+        assert(!org2.issues.hasMessages)
 
-      assertIsSummaryDeclaration(pkg2, "Dummy")
-      assert(
-        pkg2
-          .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), inheritanceOnly = false)
-          .sameElements(Array(TypeIdentifier(None, TypeNames.Interview))))
+        assertIsSummaryDeclaration(pkg2, "Dummy")
+        assert(
+          pkg2
+            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), inheritanceOnly = false)
+            .sameElements(Array(TypeIdentifier(None, TypeNames.Interview))))
 
-      root.join("Test.flow-meta.xml").delete()
+        root.join("Test.flow-meta.xml").delete()
 
-      val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg3 = addPackage(org3, root)
-      assertIsFullDeclaration(pkg3, "Dummy")
-      assert(org3.getIssues(new IssueOptions()) ==
-        "/Dummy.cls\nMissing: line 1 at 45-64: No type declaration found for 'Flow.Interview.Test'\n")
+        val org3 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg3 = addPackage(org3, root)
+        assertIsFullDeclaration(pkg3, "Dummy")
+        assert(org3.getIssues(new IssueOptions()) ==
+          "/Dummy.cls\nMissing: line 1 at 45-64: No type declaration found for 'Flow.Interview.Test'\n")
     }
   }
 
   test("Packaged flow dependency is cached") {
-    FileSystemHelper.run(Map("pkg1/Test.flow-meta.xml" -> "",
-                             "pkg2/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg1.Test(new Map<String, Object>());} }"),
-                         setupCache = true) { root: PathLike =>
-      val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg11 = addPackage(org1, root.join("pkg1"), Some(Name("pkg1")))
-      addPackage(org1, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg11))
-      assert(!org1.issues.hasMessages)
-      org1.flush()
+    FileSystemHelper.run(
+      Map("pkg1/Test.flow-meta.xml" -> "",
+          "pkg2/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg1.Test(new Map<String, Object>());} }")) {
+      root: PathLike =>
+        val org1 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg11 = addPackage(org1, root.join("pkg1"), Some(Name("pkg1")))
+        addPackage(org1, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg11))
+        assert(!org1.issues.hasMessages)
+        org1.flush()
 
-      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg21 = addPackage(org2, root.join("pkg1"), Some(Name("pkg1")))
-      val pkg22 = addPackage(org2, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg21))
-      assert(!org2.issues.hasMessages)
+        val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg21 = addPackage(org2, root.join("pkg1"), Some(Name("pkg1")))
+        val pkg22 = addPackage(org2, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg21))
+        assert(!org2.issues.hasMessages)
 
-      assertIsSummaryDeclaration(pkg22, "Dummy")
-      assert(
-        pkg22
-          .getDependencies(
-            TypeIdentifier(Some(Name("pkg2")),
-                           TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
-            inheritanceOnly = false)
-          .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Interview))))
+        assertIsSummaryDeclaration(pkg22, "Dummy")
+        assert(
+          pkg22
+            .getDependencies(
+              TypeIdentifier(Some(Name("pkg2")),
+                             TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
+              inheritanceOnly = false)
+            .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Interview))))
 
-      root.join("pkg1/Test.flow-meta.xml").delete()
+        root.join("pkg1/Test.flow-meta.xml").delete()
 
-      val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg31 = addPackage(org3, root.join("pkg1"), Some(Name("pkg1")))
-      val pkg32 = addPackage(org3, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg31))
+        val org3 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg31 = addPackage(org3, root.join("pkg1"), Some(Name("pkg1")))
+        val pkg32 = addPackage(org3, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg31))
 
-      assertIsFullDeclaration(pkg32, "Dummy")
-      assert(org3.getIssues(new IssueOptions()) ==
-        "/pkg2/Dummy.cls\nMissing: line 1 at 45-69: No type declaration found for 'Flow.Interview.pkg1.Test'\n")
+        assertIsFullDeclaration(pkg32, "Dummy")
+        assert(org3.getIssues(new IssueOptions()) ==
+          "/pkg2/Dummy.cls\nMissing: line 1 at 45-69: No type declaration found for 'Flow.Interview.pkg1.Test'\n")
     }
   }
 
   test("Page dependency is cached") {
     FileSystemHelper.run(
       Map("TestPage.page" -> "",
-          "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }"),
-      setupCache = true) { root: PathLike =>
-      val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org1, root)
-      assert(!org1.issues.hasMessages)
-      org1.flush()
+          "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }")) {
+      root: PathLike =>
+        val org1 = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org1, root)
+        assert(!org1.issues.hasMessages)
+        org1.flush()
 
-      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg2 = addPackage(org2, root)
-      assert(!org2.issues.hasMessages)
+        val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg2 = addPackage(org2, root)
+        assert(!org2.issues.hasMessages)
 
-      assertIsSummaryDeclaration(pkg2, "Dummy")
-      assert(
-        pkg2
-          .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), inheritanceOnly = false)
-          .sameElements(Array(TypeIdentifier(None, TypeNames.Page))))
+        assertIsSummaryDeclaration(pkg2, "Dummy")
+        assert(
+          pkg2
+            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), inheritanceOnly = false)
+            .sameElements(Array(TypeIdentifier(None, TypeNames.Page))))
 
-      root.join("TestPage.page").delete()
+        root.join("TestPage.page").delete()
 
-      val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg3 = addPackage(org3, root)
-      assertIsFullDeclaration(pkg3, "Dummy")
-      assert(
-        org3.getIssues(new IssueOptions()) ==
-          "/Dummy.cls\nMissing: line 1 at 40-53: Unknown field or type 'TestPage' on 'Page'\n")
+        val org3 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg3 = addPackage(org3, root)
+        assertIsFullDeclaration(pkg3, "Dummy")
+        assert(
+          org3.getIssues(new IssueOptions()) ==
+            "/Dummy.cls\nMissing: line 1 at 40-53: Unknown field or type 'TestPage' on 'Page'\n")
     }
   }
 
   test("Packaged page dependency is cached") {
     FileSystemHelper.run(
       Map("pkg1/TestPage.page" -> "",
-          "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }"),
-      setupCache = true) { root: PathLike =>
-      val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg11 = addPackage(org1, root.join("pkg1"), Some(Name("pkg1")))
-      addPackage(org1, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg11))
-      assert(!org1.issues.hasMessages)
-      org1.flush()
+          "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) {
+      root: PathLike =>
+        val org1 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg11 = addPackage(org1, root.join("pkg1"), Some(Name("pkg1")))
+        addPackage(org1, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg11))
+        assert(!org1.issues.hasMessages)
+        org1.flush()
 
-      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg21 = addPackage(org2, root.join("pkg1"), Some(Name("pkg1")), Seq())
-      val pkg22 = addPackage(org2, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg21))
-      assert(!org2.issues.hasMessages)
+        val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg21 = addPackage(org2, root.join("pkg1"), Some(Name("pkg1")), Seq())
+        val pkg22 = addPackage(org2, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg21))
+        assert(!org2.issues.hasMessages)
 
-      assertIsSummaryDeclaration(pkg22, "Dummy")
-      assert(
-        pkg22
-          .getDependencies(
-            TypeIdentifier(Some(Name("pkg2")),
-                           TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
-            inheritanceOnly = false)
-          .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Page))))
+        assertIsSummaryDeclaration(pkg22, "Dummy")
+        assert(
+          pkg22
+            .getDependencies(
+              TypeIdentifier(Some(Name("pkg2")),
+                             TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
+              inheritanceOnly = false)
+            .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Page))))
 
-      root.join("pkg1/TestPage.page").delete()
+        root.join("pkg1/TestPage.page").delete()
 
-      val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg31 = addPackage(org3, root.join("pkg1"), Some(Name("pkg1")))
-      val pkg32 = addPackage(org3, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg31))
+        val org3 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg31 = addPackage(org3, root.join("pkg1"), Some(Name("pkg1")))
+        val pkg32 = addPackage(org3, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg31))
 
-      // Still summary as Dummy does not *directly* depend on pkg1 pages
-      assertIsSummaryDeclaration(pkg32, "Dummy")
-      assert(!org3.issues.hasMessages)
+        // Still summary as Dummy does not *directly* depend on pkg1 pages
+        assertIsSummaryDeclaration(pkg32, "Dummy")
+        assert(!org3.issues.hasMessages)
     }
   }
 
   test("Component dependency is cached") {
     FileSystemHelper.run(
       Map("Test.component" -> "",
-          "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }"),
-      setupCache = true) { root: PathLike =>
-      val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org1, root)
-      assert(!org1.issues.hasMessages)
-      org1.flush()
+          "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }")) {
+      root: PathLike =>
+        val org1 = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org1, root)
+        assert(!org1.issues.hasMessages)
+        org1.flush()
 
-      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg2 = addPackage(org2, root)
-      assert(!org2.issues.hasMessages)
+        val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg2 = addPackage(org2, root)
+        assert(!org2.issues.hasMessages)
 
-      assertIsSummaryDeclaration(pkg2, "Dummy")
-      assert(
-        pkg2
-          .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), inheritanceOnly = false)
-          .sameElements(Array(TypeIdentifier(None, TypeNames.Component))))
+        assertIsSummaryDeclaration(pkg2, "Dummy")
+        assert(
+          pkg2
+            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), inheritanceOnly = false)
+            .sameElements(Array(TypeIdentifier(None, TypeNames.Component))))
 
-      root.join("Test.component").delete()
+        root.join("Test.component").delete()
 
-      val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg3 = addPackage(org3, root)
-      assertIsFullDeclaration(pkg3, "Dummy")
-      assert(
-        org3.getIssues(new IssueOptions()) ==
+        val org3 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg3 = addPackage(org3, root)
+        assertIsFullDeclaration(pkg3, "Dummy")
+        assert(org3.getIssues(new IssueOptions()) ==
           "/Dummy.cls\nMissing: line 1 at 40-54: No type declaration found for 'Component.Test'\n")
     }
   }
 
   test("Packaged component dependency is cached") {
     FileSystemHelper.run(
-      Map("pkg1/Test.component" -> "",
-          "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }"),
-      setupCache = true) { root: PathLike =>
-      val org1 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg11 = addPackage(org1, root.join("pkg1"), Some(Name("pkg1")))
-      addPackage(org1, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg11))
-      assert(!org1.issues.hasMessages)
-      org1.flush()
+      Map(
+        "pkg1/Test.component" -> "",
+        "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }")) {
+      root: PathLike =>
+        val org1 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg11 = addPackage(org1, root.join("pkg1"), Some(Name("pkg1")))
+        addPackage(org1, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg11))
+        assert(!org1.issues.hasMessages)
+        org1.flush()
 
-      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg21 = addPackage(org2, root.join("pkg1"), Some(Name("pkg1")))
-      val pkg22 = addPackage(org2, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg21))
-      assert(!org2.issues.hasMessages)
+        val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg21 = addPackage(org2, root.join("pkg1"), Some(Name("pkg1")))
+        val pkg22 = addPackage(org2, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg21))
+        assert(!org2.issues.hasMessages)
 
-      assertIsSummaryDeclaration(pkg22, "Dummy")
-      assert(
-        pkg22
-          .getDependencies(
-            TypeIdentifier(Some(Name("pkg2")),
-                           TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
-            inheritanceOnly = false)
-          .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Component))))
+        assertIsSummaryDeclaration(pkg22, "Dummy")
+        assert(
+          pkg22
+            .getDependencies(
+              TypeIdentifier(Some(Name("pkg2")),
+                             TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
+              inheritanceOnly = false)
+            .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Component))))
 
-      root.join("pkg1/Test.component").delete()
+        root.join("pkg1/Test.component").delete()
 
-      val org3 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg31 = addPackage(org3, root.join("pkg1"), Some(Name("pkg1")))
-      val pkg32 = addPackage(org3, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg31))
+        val org3 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg31 = addPackage(org3, root.join("pkg1"), Some(Name("pkg1")))
+        val pkg32 = addPackage(org3, root.join("pkg2"), Some(Name("pkg2")), Seq(pkg31))
 
-      assertIsFullDeclaration(pkg32, "Dummy")
-      assert(org3.getIssues(new IssueOptions()) ==
-        "/pkg2/Dummy.cls\nMissing: line 1 at 40-59: No type declaration found for 'Component.pkg1.Test'\n")
+        assertIsFullDeclaration(pkg32, "Dummy")
+        assert(org3.getIssues(new IssueOptions()) ==
+          "/pkg2/Dummy.cls\nMissing: line 1 at 40-59: No type declaration found for 'Component.pkg1.Test'\n")
     }
   }
 }

@@ -27,6 +27,8 @@
  */
 package com.nawforce.common.rpc
 
+import com.nawforce.common.api.{Diagnostic, DiagnosticCategory, Location}
+import com.nawforce.common.diagnostics.Issue
 import io.github.shogowada.scala.jsonrpc.api
 import io.github.shogowada.scala.jsonrpc.serializers.JSONRPCPickler.{macroRW, ReadWriter => RW}
 
@@ -52,17 +54,33 @@ object AddPackageResult {
   implicit val rw: RW[AddPackageResult] = macroRW
 }
 
+case class GetIssuesResult(issues: Array[Issue])
+
+object GetIssuesResult {
+  implicit val rw: RW[GetIssuesResult] = macroRW
+  implicit val rwIssue: RW[Issue] = macroRW
+  implicit val rwDiagnostic: RW[Diagnostic] = macroRW
+  implicit val rwDiagnosticCategory: RW[DiagnosticCategory] = macroRW
+  implicit val rwLocation: RW[Location] = macroRW
+}
+
 trait OrgAPI {
   @api.JSONRPCMethod(name = "identifier")
   def identifier(): Future[String]
 
+  @api.JSONRPCMethod(name = "reset")
+  def reset(): Future[Unit]
+
   @api.JSONRPCMethod(name = "addPackage")
   def addPackage(directory: String): Future[AddPackageResult]
+
+  @api.JSONRPCMethod(name = "getIssues")
+  def getIssues(): Future[GetIssuesResult]
 
   @api.JSONRPCMethod(name = "refresh")
   def refresh(path: String, contents: Option[String]): Future[Unit]
 }
 
 object OrgAPI {
-  def apply(): OrgAPI = new OrgAPIImpl
+  def apply(quiet: Boolean): OrgAPI = new OrgAPIImpl(quiet)
 }

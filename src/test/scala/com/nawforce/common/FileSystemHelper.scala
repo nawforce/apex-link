@@ -10,7 +10,7 @@ import com.nawforce.runtime.platform.Path
 object FileSystemHelper {
 
   // Abstract virtual filesystem for testing
-  def run[T](files: Map[String, String], setupCache: Boolean = false)(verify: PathLike => T): T = {
+  def run[T](files: Map[String, String])(verify: PathLike => T): T = {
     val config = Configuration
       .unix()
       .toBuilder
@@ -24,10 +24,7 @@ object FileSystemHelper {
       Files.write(path, kv._2.getBytes())
     })
 
-    // Make sure cache is empty if we are going to use it
-    if (setupCache)
-      ParsedCache.clear()
-
+    ParsedCache.clear()
     verify(Path(rootDir))
   }
 

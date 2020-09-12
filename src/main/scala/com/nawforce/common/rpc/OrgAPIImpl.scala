@@ -29,21 +29,61 @@ package com.nawforce.common.rpc
 
 import java.util.concurrent.LinkedBlockingQueue
 
-import com.nawforce.common.api.{LoggerOps, Org, ServerOps}
+import com.nawforce.common.api.{IssueOptions, LoggerOps, Org, Package, ServerOps}
+import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.org.OrgImpl
+import com.nawforce.runtime.SourceBlob
 
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, Promise}
 
 trait APIRequest {
-  def process(): Unit
+  def process(org: OrgQueue): Unit
 }
 
-case class AddPackageRequest(org: Org, directory: String, promise: Promise[AddPackageResult])
+class OrgQueue(quiet: Boolean) { self =>
+  val org: Org = Org.newOrg()
+  var packages: List[Package] = Nil
+
+  private val queue = new LinkedBlockingQueue[APIRequest]()
+  private val dispatcher = new APIRequestDispatcher()
+
+  class APIRequestDispatcher() extends Runnable {
+
+    override def run(): Unit = {
+      while (true) {
+        val request = queue.take()
+
+        while (!org.isFlushed()) Thread.sleep(50)
+
+        request.process(self)
+      }
+    }
+  }
+
+  if (!quiet)
+    ServerOps.setDebugLogging(Array("ALL"))
+  new Thread(dispatcher).start()
+
+  def add(request: APIRequest): Unit = {
+    queue.add(request)
+  }
+
+  def refresh(path: String, contents: Option[String]): Unit = {
+    packages.headOption.foreach(pkg => pkg.refresh(path, contents.map(c => SourceBlob(c)).orNull))
+  }
+
+}
+
+
+case class AddPackageRequest(directory: String, promise: Promise[AddPackageResult])
     extends APIRequest {
-  override def process(): Unit = {
+  override def process(queue: OrgQueue): Unit = {
     promise.success(try {
       LoggerOps.debug(LoggerOps.Trace, "Adding package")
-      val pkg = org.newSFDXPackage(directory)
+      val pkg = queue.org.newSFDXPackage(directory)
+      queue.packages = pkg :: queue.packages
       AddPackageResult(None, pkg.getNamespaces(withDependents = true))
     } catch {
       case ex: IllegalArgumentException => AddPackageResult(Some(APIError(ex.getMessage)), Array())
@@ -53,47 +93,73 @@ case class AddPackageRequest(org: Org, directory: String, promise: Promise[AddPa
 }
 
 object AddPackageRequest {
-  def apply(queue: LinkedBlockingQueue[APIRequest],
-            org: Org,
-            directory: String): Future[AddPackageResult] = {
+  def apply(queue: OrgQueue, directory: String): Future[AddPackageResult] = {
     val promise = Promise[AddPackageResult]()
-    queue.add(new AddPackageRequest(org, directory, promise))
+    queue.add(new AddPackageRequest(directory, promise))
     promise.future
   }
 }
 
-class OrgAPIImpl extends OrgAPI {
-  private val org = Org.newOrg()
-  private val queue = new LinkedBlockingQueue[APIRequest]()
-  private val dispatcher = new APIRequestDispatcher()
+case class GetIssues(promise: Promise[GetIssuesResult]) extends APIRequest {
+  override def process(queue: OrgQueue): Unit = {
+    LoggerOps.debug(LoggerOps.Trace, "Getting issues")
 
-  ServerOps.setDebugLogging(Array("ALL"))
-  new Thread(dispatcher).start()
+    val buffer = new ArrayBuffer[Issue]()
+    val issues = queue.org
+      .asInstanceOf[OrgImpl]
+      .reportableIssues(new IssueOptions { includeWarnings = true })
+      .getIssues
+    issues.keys.foreach(key => {
+      buffer.addAll(issues(key).take(10))
+    })
+    promise.success(GetIssuesResult(buffer.toArray))
+  }
+}
 
-  class APIRequestDispatcher extends Runnable {
+object GetIssues {
+  def apply(queue: OrgQueue): Future[GetIssuesResult] = {
+    val promise = Promise[GetIssuesResult]()
+    queue.add(new GetIssues(promise))
+    promise.future
+  }
+}
 
-    override def run(): Unit = {
-      while (true) {
-        val request = queue.take()
+object OrgQueue {
+  private var _instance: OrgQueue = _
 
-        while (!org.isFlushed()) Thread.sleep(50)
-
-        request.process()
-      }
+  def instance(quiet: Boolean): OrgQueue = {
+    synchronized {
+      if (_instance == null)
+        _instance = new OrgQueue(quiet)
+      _instance
     }
   }
 
+  def reset(): Unit = {
+    synchronized {
+      _instance = null
+    }
+  }
+}
+
+class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
   override def identifier(): Future[String] = {
     Future(classOf[OrgAPIImpl].getProtectionDomain.getCodeSource.getLocation.getPath)
   }
 
-  override def addPackage(directory: String): Future[AddPackageResult] = {
-    AddPackageRequest(queue, org, directory)
+  override def reset(): Future[Unit] = {
+    Future(OrgQueue.reset())
   }
 
-  def refresh(path: String, contents: Option[String]): Future[Unit] = {
-    synchronized {
-      Future(())
-    }
+  override def addPackage(directory: String): Future[AddPackageResult] = {
+    AddPackageRequest(OrgQueue.instance(quiet), directory)
+  }
+
+  override def getIssues(): Future[GetIssuesResult] = {
+    GetIssues(OrgQueue.instance(quiet))
+  }
+
+  override def refresh(path: String, contents: Option[String]): Future[Unit] = {
+    Future(OrgQueue.instance(quiet).refresh(path, contents))
   }
 }

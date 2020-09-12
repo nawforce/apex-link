@@ -29,7 +29,6 @@ package com.nawforce.common.api
 
 /** Collection of Ops functions for changing global behaviours */
 object ServerOps {
-  private var parsedCaching: Boolean = true
   private var lazyBlocks: Boolean = true
   private var duplicateObjectMonitor: Boolean = false
   private var autoFlush: Boolean = true

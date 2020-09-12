@@ -217,18 +217,7 @@ class OrgImpl(val analysis: Boolean = true) extends Org {
   /** Collect all issues into a JSON log */
   override def getIssues(options: IssueOptions): String = {
     OrgImpl.current.withValue(this) {
-      val reportableIssues =
-        if (options.includeZombies) {
-          val allIssues = IssueLog(issues)
-          packagesByNamespace.values.foreach(pkg => {
-            pkg.propagateAllDependencies()
-            allIssues.merge(pkg.reportUnused())
-          })
-          allIssues
-        } else {
-          issues
-        }
-      reportableIssues.asString(options.includeWarnings, options.maxErrorsPerFile, options.format)
+      reportableIssues(options).asString(options.includeWarnings, options.maxErrorsPerFile, options.format)
     }
   }
 

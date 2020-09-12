@@ -46,8 +46,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Unused method") {
-    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {public void foo() {}}"),
-                         setupCache = true) { root: PathLike =>
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {public void foo() {}}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -58,8 +57,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Method used from method") {
-    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {public void foo() {foo();}}"),
-                         setupCache = true) { root: PathLike =>
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {public void foo() {foo();}}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -68,8 +66,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Method used from block") {
-    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {{foo();} public void foo() {}}"),
-                         setupCache = true) { root: PathLike =>
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {{foo();} public void foo() {}}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -78,7 +75,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Unused field") {
-    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {Object a;}"), setupCache = true) {
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {Object a;}")) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]
         val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
@@ -91,8 +88,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Field used from method") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy {Object a; void foo(){foo(); a = null;}}"),
-      setupCache = true) { root: PathLike =>
+      Map("Dummy.cls" -> "public class Dummy {Object a; void foo(){foo(); a = null;}}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -101,8 +97,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Field used from block") {
-    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {{a = null;} Object a;}"),
-                         setupCache = true) { root: PathLike =>
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {{a = null;} Object a;}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -133,8 +128,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
   test("Used method on summary type") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {public static void foo() {}}",
                              "Caller.cls" -> "public class Caller {{Dummy.Foo();}}",
-                         ),
-                         setupCache = true) { root: PathLike =>
+                         )) { root: PathLike =>
       // Setup as cached
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
@@ -154,8 +148,7 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Unused method on summary type") {
-    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {public void foo() {}}"),
-                         setupCache = true) { root: PathLike =>
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {public void foo() {}}")) { root: PathLike =>
       // Setup as cached
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())

@@ -228,27 +228,27 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
   test("summary of type with namespace (cached)") {
     ParsedCache.clear()
 
-    FileSystemHelper.run(Map("classes/Dummy.cls" -> "@isTest puBlic class Dummy {}"),
-                         setupCache = true) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-      org.flush()
+    FileSystemHelper.run(Map("classes/Dummy.cls" -> "@isTest puBlic class Dummy {}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
+        assert(!org.issues.hasMessages)
+        org.flush()
 
-      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg2 = org2.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
-      assert(!org2.issues.hasMessages)
+        val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg2 = org2.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
+        assert(!org2.issues.hasMessages)
 
-      val typeLike =
-        pkg2.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.asTypeIdentifier
-      val summary = pkg2.getSummaryOfType(typeLike)
+        val typeLike =
+          pkg2.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.asTypeIdentifier
+        val summary = pkg2.getSummaryOfType(typeLike)
 
-      assert(
-        pkg2.getType(typeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
-      assert(summary.name == "Dummy")
-      assert(summary.typeName.toString == "test.Dummy")
-      assert(summary.idRange.contains(Location(1, 21, 1, 26)))
-      assert(summary.modifiers sameElements Array("@IsTest", "public"))
+        assert(
+          pkg2.getType(typeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+        assert(summary.name == "Dummy")
+        assert(summary.typeName.toString == "test.Dummy")
+        assert(summary.idRange.contains(Location(1, 21, 1, 26)))
+        assert(summary.modifiers sameElements Array("@IsTest", "public"))
     }
   }
 
@@ -309,7 +309,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
   def fooHoldsBarCached(files: Map[String, String], inheritanceOnly: Boolean = false): Unit = {
     ParsedCache.clear()
-    FileSystemHelper.run(files, setupCache = true) { root: PathLike => // Basic non-cached test
+    FileSystemHelper.run(files) { root: PathLike => // Basic non-cached test
     {
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
@@ -572,9 +572,9 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
   test("Unmanaged to Managed Dependency (cached)") {
     ParsedCache.clear()
 
-    FileSystemHelper.run(Map("pkg1/Foo.cls" -> "global virtual class Foo {}",
-                             "pkg2/Bar.cls" -> "public class Bar extends test.Foo {}"),
-                         setupCache = true) { root: PathLike =>
+    FileSystemHelper.run(
+      Map("pkg1/Foo.cls" -> "global virtual class Foo {}",
+          "pkg2/Bar.cls" -> "public class Bar extends test.Foo {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg1 = org.newMDAPIPackageInternal(Some(Name("test")), Seq(root.join("pkg1")), Seq())
       org.newMDAPIPackageInternal(None, Seq(root.join("pkg2")), Seq(pkg1))
@@ -629,9 +629,9 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
   test("Managed to Managed Dependency (cached)") {
     ParsedCache.clear()
 
-    FileSystemHelper.run(Map("pkg1/Foo.cls" -> "global virtual class Foo {}",
-                             "pkg2/Bar.cls" -> "public class Bar extends test1.Foo {}"),
-                         setupCache = true) { root: PathLike =>
+    FileSystemHelper.run(
+      Map("pkg1/Foo.cls" -> "global virtual class Foo {}",
+          "pkg2/Bar.cls" -> "public class Bar extends test1.Foo {}")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg1 = org.newMDAPIPackageInternal(Some(Name("test1")), Seq(root.join("pkg1")), Seq())
       org.newMDAPIPackageInternal(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg1))

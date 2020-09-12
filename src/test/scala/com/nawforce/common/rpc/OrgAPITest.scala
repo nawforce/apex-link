@@ -28,62 +28,92 @@
 package com.nawforce.common.rpc
 
 import com.nawforce.common.path.PathFactory
+import org.scalatest.Assertion
 import org.scalatest.funsuite.AsyncFunSuite
+
+import scala.concurrent.Future
 
 class OrgAPITest extends AsyncFunSuite {
 
   test("Identifier not empty") {
-    val orgAPI = OrgAPI()
+    val orgAPI = OrgAPI(quiet = true)
     orgAPI.identifier() map { result =>
+      OrgAPI(quiet = true).reset()
       assert(result.nonEmpty)
     }
   }
 
   test("Add package not bad directory") {
     val workspace = PathFactory("silly")
-    val orgAPI = OrgAPI()
+    val orgAPI = OrgAPI(quiet = true)
     orgAPI.addPackage("silly") map { result =>
+      OrgAPI(quiet = true).reset()
       assert(result.error.exists(_.message == s"Workspace '$workspace' is not a directory"))
     }
   }
 
   test("Add package not sfdx directory") {
     val workspace = PathFactory("")
-    val orgAPI = OrgAPI()
+    val orgAPI = OrgAPI(quiet = true)
     orgAPI.addPackage("") map { result =>
+      OrgAPI(quiet = true).reset()
       assert(
         result.error.exists(_.message == s"Missing project file at $workspace/sfdx-project.json"))
     }
   }
 
   test("Add package sfdx directory (relative)") {
-    val orgAPI = OrgAPI()
+    val orgAPI = OrgAPI(quiet = true)
     orgAPI.addPackage("samples/synthetic/sfdx-test") map { result =>
+      OrgAPI(quiet = true).reset()
       assert(result.error.isEmpty && result.namespaces.sameElements(Array("")))
     }
   }
 
   test("Add package sfdx directory (absolute)") {
     val workspace = PathFactory("samples/synthetic/sfdx-test")
-    val orgAPI = OrgAPI()
+    val orgAPI = OrgAPI(quiet = true)
     orgAPI.addPackage(workspace.toString) map { result =>
+      OrgAPI(quiet = true).reset()
       assert(result.error.isEmpty && result.namespaces.sameElements(Array("")))
     }
   }
 
   test("Add package sfdx directory with ns (relative)") {
-    val orgAPI = OrgAPI()
+    val orgAPI = OrgAPI(quiet = true)
     orgAPI.addPackage("samples/synthetic/sfdx-ns-test") map { result =>
+      OrgAPI(quiet = true).reset()
       assert(result.error.isEmpty && result.namespaces.sameElements(Array("sfdx_test")))
     }
   }
 
   test("Add package sfdx directory with ns (absolute)") {
     val workspace = PathFactory("samples/synthetic/sfdx-ns-test")
-    val orgAPI = OrgAPI()
+    val orgAPI = OrgAPI(quiet = true)
     orgAPI.addPackage(workspace.toString) map { result =>
+      OrgAPI(quiet = true).reset()
       assert(result.error.isEmpty && result.namespaces.sameElements(Array("sfdx_test")))
     }
+  }
+
+  test("Get Issues") {
+    val workspace = PathFactory("samples/synthetic/sfdx-ns-test")
+    val orgAPI = OrgAPI(quiet = true)
+
+    val pkg: Future[Assertion] = orgAPI.addPackage(workspace.toString) map { result =>
+      assert(result.error.isEmpty && result.namespaces.sameElements(Array("sfdx_test")))
+    }
+
+    val issues: Future[Assertion] = pkg flatMap { _ =>
+      orgAPI.getIssues() map { issuesResult =>
+        OrgAPI(quiet = true).reset()
+        assert(issuesResult.issues.length == 3)
+        assert(issuesResult.issues.count(_.path.contains("SingleError")) == 1)
+        assert(issuesResult.issues.count(_.path.contains("DoubleError")) == 2)
+      }
+    }
+
+    issues
   }
 
 }
