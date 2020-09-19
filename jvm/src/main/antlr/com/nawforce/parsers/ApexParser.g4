@@ -421,7 +421,7 @@ expressionList
 
 expression
     : primary                                                                                         # primaryExpression
-    | expression DOT
+    | expression (DOT | QUESTIONDOT)
         ( dotMethodCall
         | anyId
         )                                                                                             # dotExpression

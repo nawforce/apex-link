@@ -189,6 +189,7 @@ GT              : '>';
 LT              : '<';
 BANG            : '!';
 TILDE           : '~';
+QUESTIONDOT     : '?.';
 QUESTION        : '?';
 COLON           : ':';
 EQUAL           : '==';
