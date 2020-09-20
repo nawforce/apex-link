@@ -4,7 +4,7 @@
 
     <groupId>com.github.nawforce</groupId>
     <artifactId>apexlink</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
 
     <name>apexlink</name>
@@ -59,19 +59,19 @@
         <dependency>
           <groupId>com.github.nawforce</groupId>
           <artifactId>pkgforce_2.13</artifactId>
-          <version>1.1.0-SNAPSHOT</version>
+          <version>1.1.0</version>
         </dependency>
 
         <dependency>
           <groupId>com.github.nawforce</groupId>
           <artifactId>scala-json-rpc_2.13</artifactId>
-          <version>1.0.0</version>
+          <version>1.0.1</version>
         </dependency>
 
         <dependency>
           <groupId>com.github.nawforce</groupId>
           <artifactId>scala-json-rpc-upickle-json-serializer_2.13</artifactId>
-          <version>1.0.0</version>
+          <version>1.0.1</version>
         </dependency>
 
         <dependency>
