@@ -34,7 +34,7 @@ import upickle.default.{macroRW, ReadWriter => RW}
 @upickle.implicits.key("Location")
 case class Location(startLine: Int, startPosition: Int, endLine: Int, endPosition: Int) {
   def asJSON: String =
-    s""""start": {"line": $startLine, "offset": $startPosition, "end": {"line": $endLine, "offset": $endPosition}"""
+    s""""start": {"line": $startLine, "offset": $startPosition}, "end": {"line": $endLine, "offset": $endPosition}"""
 
   def displayPosition: String = {
     if (startLine == endLine) {
