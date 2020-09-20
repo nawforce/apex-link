@@ -28,7 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, PathLocation, TypeName}
-import com.nawforce.common.diagnostics.IssueOps
+import com.nawforce.common.diagnostics.{Issue, IssueOps}
 import com.nawforce.common.names.TypeNames._
 import com.nawforce.common.names.{EncodedName, TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
@@ -80,7 +80,9 @@ sealed abstract class Expression extends CST {
   }
 }
 
-final case class DotExpression(expression: Expression, target: Either[Id, MethodCall])
+final case class DotExpression(expression: Expression,
+                               safeNavigation: Boolean,
+                               target: Either[Id, MethodCall])
     extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.typeDeclarationOpt.nonEmpty)
@@ -119,7 +121,10 @@ final case class DotExpression(expression: Expression, target: Either[Id, Method
 
     val inter = expression.verify(input, context)
     if (inter.isDefined) {
-      if (target.isLeft)
+      if (inter.isStatic.contains(true) && safeNavigation) {
+        context.logError(location, "Safe navigation operator (?.) can not be used on static references")
+        ExprContext.empty
+      } else if (target.isLeft)
         verifyWithId(inter, context)
       else
         verifyWithMethod(inter, input, context)
@@ -498,6 +503,7 @@ object Expression {
       from match {
         case expr: DotExpressionContext =>
           DotExpression(Expression.construct(expr.expression()),
+                        CodeParser.toScala(expr.DOT()).isEmpty,
                         CodeParser
                           .toScala(expr.anyId())
                           .map(id => Left(Id.constructAny(id)))
