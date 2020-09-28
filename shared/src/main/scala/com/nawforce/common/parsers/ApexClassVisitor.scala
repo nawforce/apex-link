@@ -8,53 +8,75 @@ import com.nawforce.runtime.parsers.{CodeParser, TreeVisitor}
 import scala.collection.compat.immutable.ArraySeq
 
 class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
-  private var isOuter = true
+  private var typeDepth = 0
+
+  def typeWrap[T]()(op: => T): T = {
+    typeDepth += 1
+    try {
+      op
+    } finally {
+      typeDepth -= 1
+    }
+  }
 
   override def classDeclaration(ctx: ClassDeclarationContext,
                                 visitChildren: VisitChildren): ArraySeq[ApexNode] = {
-    val modifierContext = getModifierContext(parentContext(ctx), isOuter)
-    val modifiers =
-      ApexModifiers.classModifiers(parser, modifierContext.get.modifiers, isOuter, ctx.id())
-    val description = s"${modifiers.modifiers.mkString(" ")} class ${CodeParser.getText(ctx.id())}"
-    isOuter = false
-    ArraySeq(
-      ApexNode(parser.getPathAndLocation(modifierContext.get.enclosing)._2,
-               ApexClassType,
-               IdAndRange(parser, ctx.id()),
-               visitChildren(ctx),
-               modifiers,
-               description))
+    typeWrap() {
+      val modifierContext = getModifierContext(parentContext(ctx), typeDepth == 1)
+      val modifiers =
+        ApexModifiers.classModifiers(parser,
+                                     modifierContext.get.modifiers,
+                                     typeDepth == 1,
+                                     ctx.id())
+      val description =
+        s"${modifiers.modifiers.mkString(" ")} class ${CodeParser.getText(ctx.id())}"
+
+      ArraySeq(
+        ApexNode(parser.getPathAndLocation(modifierContext.get.enclosing)._2,
+                 ApexClassType,
+                 IdAndRange(parser, ctx.id()),
+                 visitChildren(ctx),
+                 modifiers,
+                 description))
+    }
   }
 
   override def interfaceDeclaration(ctx: InterfaceDeclarationContext,
                                     visitChildren: VisitChildren): ArraySeq[ApexNode] = {
-    val modifierContext = getModifierContext(parentContext(ctx), isOuter)
-    val modifiers =
-      ApexModifiers.interfaceModifiers(parser, modifierContext.get.modifiers, isOuter, ctx.id())
-    val description =
-      s"${modifiers.modifiers.mkString(" ")} interface ${CodeParser.getText(ctx.id())}"
-    ArraySeq(
-      ApexNode(parser.getPathAndLocation(modifierContext.get.enclosing)._2,
-               ApexInterfaceType,
-               IdAndRange(parser, ctx.id()),
-               visitChildren(ctx),
-               modifiers,
-               description))
+    typeWrap() {
+      val modifierContext = getModifierContext(parentContext(ctx), typeDepth == 1)
+      val modifiers =
+        ApexModifiers.interfaceModifiers(parser,
+                                         modifierContext.get.modifiers,
+                                         typeDepth == 1,
+                                         ctx.id())
+      val description =
+        s"${modifiers.modifiers.mkString(" ")} interface ${CodeParser.getText(ctx.id())}"
+      ArraySeq(
+        ApexNode(parser.getPathAndLocation(modifierContext.get.enclosing)._2,
+                 ApexInterfaceType,
+                 IdAndRange(parser, ctx.id()),
+                 visitChildren(ctx),
+                 modifiers,
+                 description))
+    }
   }
 
   override def enumDeclaration(ctx: EnumDeclarationContext,
                                visitChildren: VisitChildren): ArraySeq[ApexNode] = {
-    val modifierContext = getModifierContext(parentContext(ctx), isOuter)
-    val modifiers =
-      ApexModifiers.enumModifiers(parser, modifierContext.get.modifiers, isOuter, ctx.id())
-    val description = s"${modifiers.modifiers.mkString(" ")} enum ${CodeParser.getText(ctx.id())}"
-    ArraySeq(
-      ApexNode(parser.getPathAndLocation(modifierContext.get.enclosing)._2,
-               ApexEnumType,
-               IdAndRange(parser, ctx.id()),
-               visitChildren(ctx),
-               modifiers,
-               description))
+    typeWrap() {
+      val modifierContext = getModifierContext(parentContext(ctx), typeDepth == 1)
+      val modifiers =
+        ApexModifiers.enumModifiers(parser, modifierContext.get.modifiers, typeDepth == 1, ctx.id())
+      val description = s"${modifiers.modifiers.mkString(" ")} enum ${CodeParser.getText(ctx.id())}"
+      ArraySeq(
+        ApexNode(parser.getPathAndLocation(modifierContext.get.enclosing)._2,
+                 ApexEnumType,
+                 IdAndRange(parser, ctx.id()),
+                 visitChildren(ctx),
+                 modifiers,
+                 description))
+    }
   }
 
   override def constructorDeclaration(ctx: ConstructorDeclarationContext,
@@ -130,6 +152,7 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
     val variableDeclarators = CodeParser.toScala(ctx.variableDeclarators().variableDeclarator())
     val modifiers = ApexModifiers.fieldModifiers(parser,
                                                  modifierContext.get.modifiers,
+                                                 typeDepth == 1,
                                                  variableDeclarators.head.id())
     if (variableDeclarators.size == 1) {
       val vd = variableDeclarators.head
@@ -159,7 +182,8 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
   override def propertyDeclaration(ctx: PropertyDeclarationContext,
                                    visitChildren: VisitChildren): ArraySeq[ApexNode] = {
     val modifierContext = classBodyModifierContext(parentContext(parentContext(ctx)))
-    val modifiers = ApexModifiers.fieldModifiers(parser, modifierContext.get.modifiers, ctx.id())
+    val modifiers =
+      ApexModifiers.fieldModifiers(parser, modifierContext.get.modifiers, typeDepth == 1, ctx.id())
     val fieldType = CodeParser.getText(ctx.typeRef())
     val description =
       s"${appendSpace(modifiers.modifiers.mkString(" "))}$fieldType ${CodeParser.getText(ctx.id())}"

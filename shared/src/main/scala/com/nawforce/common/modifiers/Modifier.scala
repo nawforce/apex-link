@@ -178,6 +178,9 @@ object ApexModifiers {
   private val legalFieldModifiersAndAnnotations
     : Set[Modifier] = legalFieldAnnotations ++ legalFieldModifiers
 
+  private val legalInnerFieldModifiersAndAnnotations
+    : Set[Modifier] = legalFieldModifiersAndAnnotations - STATIC_MODIFIER
+
   private val legalConstructorModifiersAndAnnotations
     : Set[Modifier] = visibilityModifiers.toSet ++ legalTypeAnnotations
 
@@ -399,11 +402,17 @@ object ApexModifiers {
 
   def fieldModifiers(parser: CodeParser,
                      modifierContexts: Seq[ModifierContext],
+                     outer: Boolean,
                      idContext: IdContext): ModifierResults = {
 
     val logger = new CodeParserLogger(parser)
     val mods = deduplicateVisibility(
-      asModifiers(modifierContexts, legalFieldModifiersAndAnnotations, "fields", logger, idContext),
+      asModifiers(modifierContexts,
+                  if (outer) legalFieldModifiersAndAnnotations
+                  else legalInnerFieldModifiersAndAnnotations,
+                  if (outer) "fields" else "inner class fields",
+                  logger,
+                  idContext),
       "fields",
       logger,
       idContext)
@@ -413,7 +422,7 @@ object ApexModifiers {
         GLOBAL_MODIFIER +: mods
       } else if (!mods.intersect(visibilityModifiers).contains(GLOBAL_MODIFIER) && mods.contains(
                    WEBSERVICE_MODIFIER)) {
-        logger.logError(idContext, s"webservice methods must be global")
+        logger.logError(idContext, s"webservice fields must be global")
         GLOBAL_MODIFIER +: mods.diff(visibilityModifiers)
       } else if (mods.intersect(visibilityModifiers).isEmpty) {
         PRIVATE_MODIFIER +: mods
