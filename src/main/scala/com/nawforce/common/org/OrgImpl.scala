@@ -29,7 +29,8 @@ package com.nawforce.common.org
 
 import java.util
 
-import com.nawforce.common.api.{Diagnostic, ERROR_CATEGORY, IssueOptions, LoggerOps, Name, Org, Package, PathLocation, ServerOps}
+import com.nawforce.common.api.{Diagnostic, ERROR_CATEGORY, FileIssueOptions, IssueOptions, LoggerOps, Name, Org, Package, PathLocation, ServerOps}
+import com.nawforce.common.cst.UnusedLog
 import com.nawforce.common.diagnostics.{Issue, IssueLog}
 import com.nawforce.common.documents._
 import com.nawforce.common.memory.IdentityBox
@@ -214,24 +215,50 @@ class OrgImpl(val analysis: Boolean = true) extends Org {
     flusher.queue(request)
   }
 
-  /** Collect all issues into a JSON log */
+  /** Collect all issues into a String log */
   override def getIssues(options: IssueOptions): String = {
     OrgImpl.current.withValue(this) {
       reportableIssues(options).asString(options.includeWarnings, options.maxErrorsPerFile, options.format)
     }
   }
 
+  /** Collect file specific issues */
+  def getFileIssues(fileName: String, options: FileIssueOptions): Array[Issue] = {
+    val path = PathFactory(fileName).toString
+    OrgImpl.current.withValue(this) {
+      val fileIssues = new IssueLog()
+      fileIssues.push(path, issues.getIssues.getOrElse(path, Nil))
+
+      if (options.includeZombies) {
+        propagateAllDependencies()
+        packagesByNamespace.values.foreach(pkg => {
+          Option(pkg.getTypeOfPath(path))
+            .flatMap(typeId => pkg.packageType(typeId.typeName))
+            .foreach(typeDecl => fileIssues.merge(new UnusedLog(Iterable(typeDecl))))
+        })
+      }
+      fileIssues.getIssues.getOrElse(path, Nil).toArray
+    }
+  }
+
   def reportableIssues(options: IssueOptions): IssueLog = {
     if (options.includeZombies) {
+      propagateAllDependencies()
       val allIssues = IssueLog(issues)
       packagesByNamespace.values.foreach(pkg => {
-        pkg.propagateAllDependencies()
         allIssues.merge(pkg.reportUnused())
       })
       allIssues
     } else {
       issues
     }
+  }
+
+  private def propagateAllDependencies(): Unit = {
+    // This is lazy evaluated in classes so safe to call again
+    packagesByNamespace.values.foreach(pkg => {
+      pkg.propagateAllDependencies()
+    })
   }
 
   /** Extract all dependencies */

@@ -27,6 +27,7 @@
  */
 package com.nawforce.common.api
 
+import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.org.OrgImpl
 
 /** A virtual Org used to present the analysis functionality in a familiar way.
@@ -94,6 +95,12 @@ trait Org {
     */
   def getIssues(options: IssueOptions): String
 
+  /** Get file specific issues.
+    *
+    * See file issues.
+    */
+  def getFileIssues(fileName: String, options: FileIssueOptions): Array[Issue]
+
   /** Get Apex type dependency map for all types in the Org.
     *
     * This is intended to be used to support exporting of the map for secondary analysis.
@@ -122,8 +129,8 @@ object Org {
   }
 }
 
-/** Options available when retrieving Org issues. */
-class IssueOptions {
+/** Options available when retrieving File specific issues. */
+class FileIssueOptions {
 
   /** Include warning messages, these may be ignored when checking for correctness. */
   var includeWarnings: Boolean = true
@@ -131,9 +138,13 @@ class IssueOptions {
   /** Include warnings for dead fields, properties & methods, these may be ignored when checking for correctness. */
   var includeZombies: Boolean = false
 
-  /** Override output default text format for issues, valid options are "json" & "pickle" */
-  var format: String = ""
-
   /** Maximum errors to include for each file, errors are ordered so this is the first 'n' errors. */
   var maxErrorsPerFile: Integer = 10
+}
+
+/** Options available when retrieving Org issues. */
+class IssueOptions extends FileIssueOptions {
+
+  /** Override output default text format for issues, valid options are "json" & "pickle" */
+  var format: String = ""
 }
