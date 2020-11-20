@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
+ Copyright (c) 2020 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -30,27 +30,16 @@ package com.nawforce.platform.SObjects;
 import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Datetime;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
-public class PermissionSetAssignment extends SObject {
-	public static SObjectType$<PermissionSetAssignment> SObjectType;
-	public static SObjectFields$<PermissionSetAssignment> Fields;
+public class PermissionSetGroupComponent extends SObject {
+    public static SObjectType$<PermissionSet> SObjectType;
+    public static SObjectFields$<PermissionSet> Fields;
 
-	public Id AssigneeId;
-	public User Assignee;
-	public Id Id;
-	public Id PermissionSetId;
-	public PermissionSet PermissionSet;
-	public Id PermissionSetGroupId;
-	public PermissionSetGroup PermissionSetGroup;
-	public Datetime SystemModstamp;
-
-	public PermissionSetAssignment clone$() {throw new java.lang.UnsupportedOperationException();}
-	public PermissionSetAssignment clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
-	public PermissionSetAssignment clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
-	public PermissionSetAssignment clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
-	public PermissionSetAssignment clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
+    public Id PermissionSetId;
+    public PermissionSet PermissionSet;
+    public Id PermissionSetGroupId;
+    public PermissionSetGroup PermissionSetGroup;
 }
