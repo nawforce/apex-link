@@ -62,6 +62,12 @@ trait Package {
     */
   def getNamespaces(withDependents: Boolean): Array[String]
 
+  /** Get a TypeIdentifier for a TypeName resolved against this package.
+    *
+    * Returns null if the TypeName is not visible in this package.
+    */
+  def getTypeIdentifier(typeName: TypeName): TypeIdentifier
+
   /** Get a Type from the path of a metadata file.
     *
     * Returns a null if the path does not identify metadata that creates a Type within the current package.
@@ -101,7 +107,7 @@ trait Package {
 
   /** Refresh a type in the package.
     *
-    * This registers that the metadata in a file may need updating. The refresh is queued until the Org metdata is
+    * This registers that the metadata in a file may need updating. The refresh is queued until the Org metadata is
     * next flushed so that changes are made in batches for efficiency.
     *
     * Refreshing causes dependent metadata to be re-validated so issues may be reported against other metadata types
@@ -109,7 +115,7 @@ trait Package {
     *
     * You can either pass in a path and contents or a path and null contents. If contents are not provided they will
     * be read from the path if possible. Where contents are provided the path is only used for error identification
-    * purposes. If no contents are provided and there is no file to read the content from the contribution of
+    * purposes. If no contents are provided and there is no file to read the content from, the contribution of
     * this metadata to a type will be removed.
     */
   def refresh(path: String, contents: SourceBlob): Unit

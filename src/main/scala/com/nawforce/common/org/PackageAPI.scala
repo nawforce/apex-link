@@ -56,6 +56,13 @@ trait PackageAPI extends Package {
     }
   }
 
+  override def getTypeIdentifier(typeName: TypeName): TypeIdentifier = {
+    (TypeResolver(typeName, this, excludeSObjects = false) match {
+      case Right(td: TypeDeclaration) => Some(TypeIdentifier(this.namespace, td.typeName))
+      case _                         => None
+    }).orNull
+  }
+
   override def getTypeOfPath(path: String): TypeIdentifier = {
     getTypeOfPathInternal(PathFactory(path)).map(_.asTypeIdentifier).orNull
   }
