@@ -110,7 +110,7 @@ object ClassDeclaration {
             .map(x => Seq(ApexInitialiserBlock.construct(parser,
                 ModifierResults(getModifiers(CodeParser.toScala(cbd.STATIC())), Array()), x)))
           .orElse(CodeParser.toScala(cbd.memberDeclaration())
-            .map(x => ClassBodyDeclaration.construct(parser, pkg, thisType, CodeParser.toScala(cbd.modifier()), x))
+            .map(x => ClassBodyDeclaration.construct(parser, pkg, outerTypeName.isEmpty, thisType, CodeParser.toScala(cbd.modifier()), x))
           )
           .orElse(throw new CSTException())
         ).flatten.toArray
@@ -152,7 +152,7 @@ object InterfaceDeclaration {
     val implementsType =
       CodeParser.toScala(interfaceDeclaration.typeList())
         .map(x => TypeList.construct(x))
-        .getOrElse(TypeName.emptyTypeNames)
+        .getOrElse(Array(TypeNames.InternalInterface))
 
     val methods: Array[ClassBodyDeclaration]
         = CodeParser.toScala(interfaceDeclaration.interfaceBody().interfaceMethodDeclaration()).map(m =>

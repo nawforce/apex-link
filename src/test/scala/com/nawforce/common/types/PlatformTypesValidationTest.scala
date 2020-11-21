@@ -51,7 +51,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
                                              "Internal.Trigger$" -> "Internal.Trigger$<T>")
 
   test("Right number of types (should exclude inners)") {
-    assert(PlatformTypeDeclaration.classNames.size == 1406)
+    assert(PlatformTypeDeclaration.classNames.size == 1407)
   }
 
   test("SObject type is visible") {
@@ -84,6 +84,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
     assert(typeDeclaration.name.toString == className.lastName.toString)
     className.toString match {
       case "Internal.Object$" => assert(typeDeclaration.typeName.toString == "Object")
+      case "Internal.Interface$" => assert(typeDeclaration.typeName.toString == "Object")
       case "Internal.Null$"   => assert(typeDeclaration.typeName.toString == "null")
       case "Internal.Any$"    => assert(typeDeclaration.typeName.toString == "any")
       case "Internal.SObjectFieldRowCause$" =>

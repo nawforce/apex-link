@@ -44,6 +44,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   private val dummyTypeName = DotName("Dummy").asTypeName()
   private val dummyTypeId = TypeIdentifier.fromJava(null, dummyTypeName)
   private val objectTypeName = DotName("Internal.Object$").asTypeName()
+  private val interfaceTypeName = DotName("Internal.Interface$").asTypeName()
   private val rawIntegerTypeName = DotName("Integer").asTypeName()
   private val rawStringTypeName = DotName("String").asTypeName()
 
@@ -147,7 +148,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
                     "interface",
                     Array("public"),
                     None,
-                    Array(),
+                    Array(interfaceTypeName),
                     Array(),
                     Array(),
                     Array(),
@@ -402,7 +403,7 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
                     "interface",
                     Array("public"),
                     None,
-                    Array(),
+                    Array(interfaceTypeName),
                     Array(),
                     Array(),
                     Array(),

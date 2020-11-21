@@ -34,7 +34,12 @@ import com.nawforce.common.memory.SkinnySet
 import com.nawforce.common.modifiers._
 import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
-import com.nawforce.common.types.apex.{ApexBlockLike, ApexConstructorLike, ApexFieldLike, ApexMethodLike}
+import com.nawforce.common.types.apex.{
+  ApexBlockLike,
+  ApexConstructorLike,
+  ApexFieldLike,
+  ApexMethodLike
+}
 import com.nawforce.common.types.core._
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
@@ -77,11 +82,12 @@ abstract class ClassBodyDeclaration(modifierResults: ModifierResults)
 object ClassBodyDeclaration {
   def construct(parser: CodeParser,
                 pkg: PackageImpl,
-                outerTypeName: TypeName,
+                isOuter: Boolean,
+                typeName: TypeName,
                 modifiers: Seq[ModifierContext],
                 memberDeclarationContext: MemberDeclarationContext): Seq[ClassBodyDeclaration] = {
 
-    val outerTypeId = TypeId(pkg, outerTypeName)
+    val outerTypeId = TypeId(pkg, typeName)
     val declarations: Option[Seq[ClassBodyDeclaration]] =
       CodeParser
         .toScala(memberDeclarationContext.methodDeclaration())
@@ -104,6 +110,7 @@ object ClassBodyDeclaration {
                   ApexModifiers.fieldModifiers(
                     parser,
                     modifiers,
+                    isOuter,
                     CodeParser.toScala(x.variableDeclarators().variableDeclarator()).head.id()),
                   x)))
         .orElse(
@@ -115,7 +122,7 @@ object ClassBodyDeclaration {
                   ApexConstructorDeclaration.construct(
                     parser,
                     pkg,
-                    outerTypeName,
+                    typeName,
                     ApexModifiers.constructorModifiers(parser, modifiers, x),
                     x))))
         .orElse(
@@ -127,7 +134,7 @@ object ClassBodyDeclaration {
                   InterfaceDeclaration.constructInner(
                     parser,
                     pkg,
-                    outerTypeName,
+                    typeName,
                     ApexModifiers.interfaceModifiers(parser, modifiers, outer = false, x.id()),
                     x))))
         .orElse(
@@ -139,7 +146,7 @@ object ClassBodyDeclaration {
                   EnumDeclaration.constructInner(
                     parser,
                     pkg,
-                    outerTypeName,
+                    typeName,
                     ApexModifiers.enumModifiers(parser, modifiers, outer = false, x.id()),
                     x))))
         .orElse(
@@ -151,7 +158,7 @@ object ClassBodyDeclaration {
                   ApexPropertyDeclaration.construct(
                     parser,
                     outerTypeId,
-                    ApexModifiers.fieldModifiers(parser, modifiers, x.id()),
+                    ApexModifiers.fieldModifiers(parser, modifiers, isOuter, x.id()),
                     x))))
         .orElse(
           CodeParser
@@ -162,7 +169,7 @@ object ClassBodyDeclaration {
                   ClassDeclaration.constructInner(
                     parser,
                     pkg,
-                    outerTypeName,
+                    typeName,
                     ApexModifiers.classModifiers(parser, modifiers, outer = false, x.id()),
                     x))))
 
