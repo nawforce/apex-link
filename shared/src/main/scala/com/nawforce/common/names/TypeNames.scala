@@ -14,6 +14,7 @@ object TypeNames extends InternCache[TypeName] {
   lazy val RecordSet: TypeName =
     TypeName(Names.RecordSet$, Seq(TypeNames.SObject), Some(TypeNames.Internal)).intern
   lazy val InternalObject: TypeName = TypeName(Names.Object$, Nil, Some(TypeNames.Internal)).intern
+  lazy val InternalInterface: TypeName = TypeName(Names.Interface$, Nil, Some(TypeNames.Internal)).intern
 
   lazy val System: TypeName = TypeName(Names.System).intern
   lazy val Long: TypeName = TypeName(Names.Long, Nil, Some(TypeNames.System)).intern

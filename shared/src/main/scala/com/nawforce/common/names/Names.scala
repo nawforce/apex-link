@@ -60,6 +60,7 @@ object Names extends CleanableCache {
   lazy val Type: Name = cache("Type")
   lazy val Object: Name = cache("Object")
   lazy val Object$ : Name = cache("Object$")
+  lazy val Interface$ : Name = cache("Interface$")
   lazy val Null$ : Name = cache("Null$")
   lazy val Any$ : Name = cache("Any$")
   lazy val RecordSet$ : Name = cache("RecordSet$")

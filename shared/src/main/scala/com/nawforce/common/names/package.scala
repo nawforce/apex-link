@@ -202,6 +202,7 @@ package object names {
         case TypeNames.Null                  => "null"
         case TypeNames.Any                   => "any"
         case TypeNames.InternalObject        => "Object"
+        case TypeNames.InternalInterface     => "Object"
         case TypeNames.RecordSet             => "[SOQL Results]"
         case TypeNames.SObjectFieldRowCause$ => "SObjectField"
         case TypeName(Names.DescribeSObjectResult$,
