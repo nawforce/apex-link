@@ -57,6 +57,12 @@
         </dependency>
 
         <dependency>
+          <groupId>org.scala-lang.modules</groupId>
+          <artifactId>scala-parallel-collections_2.13</artifactId>
+          <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
           <groupId>com.github.nawforce</groupId>
           <artifactId>pkgforce_2.13</artifactId>
           <version>1.1.1</version>
