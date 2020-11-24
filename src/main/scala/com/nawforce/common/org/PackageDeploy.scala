@@ -27,6 +27,8 @@
  */
 package com.nawforce.common.org
 
+import java.util.concurrent.ConcurrentHashMap
+
 import com.nawforce.common.api.{MISSING_CATEGORY, Name, ServerOps, TypeName}
 import com.nawforce.common.diagnostics.{Issue, LocalLogger}
 import com.nawforce.common.documents._
@@ -38,6 +40,8 @@ import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.platform.Environment
 
 import scala.collection.mutable
+import scala.collection.parallel.CollectionConverters._
+import scala.jdk.CollectionConverters._
 
 trait PackageDeploy {
   this: PackageImpl =>
@@ -105,7 +109,7 @@ trait PackageDeploy {
       // Load summary docs that have valid dependents
       if (pcOpt.nonEmpty) {
         val validSummaryDocs = new mutable.HashMap[TypeName, SummaryApex]()
-        docs.grouped(500).foreach(grp => loadClassesFromCache(grp, pcOpt.get, validSummaryDocs))
+        docs.grouped(500).foreach(grp => loadClassesFromCache(grp.toArray, pcOpt.get, validSummaryDocs))
 
         // Multi-pass removal of those with invalid dependencies to counter resolving cyclic links
         var invalidDocs = validSummaryDocs.filterNot(_._2.declaration.hasValidDependencies)
@@ -152,19 +156,25 @@ trait PackageDeploy {
     }
   }
 
-  private def loadClassesFromCache(docs: Iterable[MetadataDocument],
+  private def loadClassesFromCache(docs: Array[MetadataDocument],
                                    pc: ParsedCache,
                                    accum: mutable.Map[TypeName, SummaryApex]): Unit = {
     val pkgContext = packageContext
-    docs.foreach(doc => {
+    val localAccum = new ConcurrentHashMap[TypeName, SummaryApex]()
+    docs.par.foreach(doc => {
       val data = doc.path.readBytes()
       val value = pc.get(data.getOrElse(throw new NoSuchElementException), pkgContext)
       val ad = value.map(v => SummaryApex(doc.path, this, v))
       if (ad.nonEmpty && !ad.get.diagnostics.exists(_.category == MISSING_CATEGORY)) {
-        accum.put(ad.get.declaration.typeName, ad.get)
-        upsertMetadata(ad.get.declaration)
+        localAccum.put(ad.get.declaration.typeName, ad.get)
       }
     })
+
+    localAccum.entrySet().asScala.foreach(kv => {
+      accum.put(kv.getKey, kv.getValue)
+      upsertMetadata(kv.getValue.declaration)
+    })
+
   }
 
   private def loadTriggers(documents: DocumentIndex): Unit = {
