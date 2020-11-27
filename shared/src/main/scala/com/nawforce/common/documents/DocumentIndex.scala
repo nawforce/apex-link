@@ -143,9 +143,11 @@ class DocumentIndex(namespace: Option[Name],
   }
 
   private def index(): Unit = {
-    paths.reverse.filter(_.isDirectory).foreach(p => indexPath(p, forceIgnore))
-    createGhostSObjectFiles(Name("field"), forceIgnore)
-    createGhostSObjectFiles(Name("fieldSet"), forceIgnore)
+    LoggerOps.debugTime("Indexed Project") {
+      paths.reverse.filter(_.isDirectory).foreach(p => indexPath(p, forceIgnore))
+      createGhostSObjectFiles(Name("field"), forceIgnore)
+      createGhostSObjectFiles(Name("fieldSet"), forceIgnore)
+    }
   }
 
   private def indexPath(path: PathLike, forceIgnore: Option[ForceIgnore]): Unit = {

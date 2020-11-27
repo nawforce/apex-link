@@ -27,6 +27,8 @@
  */
 package com.nawforce.common.documents
 
+import java.util.regex.Pattern
+
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.platform.Path
 
@@ -55,7 +57,8 @@ class ForceIgnore(rootPath: PathLike, ignoreRules: Seq[IgnoreRule]) {
     ignoreRules.foreach(rule => {
       if (directory || !rule.dirOnly) {
         if (include != rule.negation) {
-          if (relativePath.matches(rule.regex)) {
+          rule.matcher.reset(relativePath)
+          if (rule.matcher.matches()) {
             include = !include
           }
         }
@@ -76,6 +79,8 @@ object ForceIgnore {
 }
 
 case class IgnoreRule(dirOnly: Boolean, negation: Boolean, pattern: String) {
+
+  lazy val matcher = Pattern.compile(regex).matcher("")
 
   // Convert a pattern to a regex
   // See https://github.com/snark/ignorance/blob/master/ignorance/utils.py for reference
