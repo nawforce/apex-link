@@ -27,9 +27,10 @@
  */
 package com.nawforce.common.parsers
 
-import com.nawforce.common.api.{Location, Name}
+import com.nawforce.common.api.{Diagnostic, ERROR_CATEGORY, Location, Name}
 import com.nawforce.common.diagnostics.Issue
-import com.nawforce.common.modifiers.ModifierResults
+import com.nawforce.common.modifiers.{GLOBAL_MODIFIER, ModifierResults, WEBSERVICE_MODIFIER}
+import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -59,12 +60,14 @@ object IdAndRange {
   }
 }
 
-case class ApexNode(range: Location,
-                    nature: ApexNodeNature,
-                    id: IdAndRange,
-                    children: ArraySeq[ApexNode],
-                    modifiers: ModifierResults,
-                    description: String) {
+trait ApexNode {
+  val path: PathLike
+  val range: Location
+  val nature: ApexNodeNature
+  val id: IdAndRange
+  val children: ArraySeq[ApexNode]
+  val modifiers: ModifierResults
+  val description: String
 
   def collectIssues(): ArraySeq[Issue] = {
     val issues = new ArrayBuffer[Issue]()
@@ -72,15 +75,53 @@ case class ApexNode(range: Location,
     ArraySeq.unsafeWrapArray(issues.toArray)
   }
 
-  private def collectIssues(issues: ArrayBuffer[Issue]): Unit = {
+  def collectIssues(issues: ArrayBuffer[Issue]): Unit = {
     issues.addAll(modifiers.issues)
     children.foreach(_.collectIssues(issues))
   }
+
 }
 
 object ApexNode {
   def apply(parser: CodeParser, ctx: CompilationUnitContext): ApexNode = {
     val visitor = new ApexClassVisitor(parser)
     visitor.visit(ctx).head
+  }
+}
+
+case class ApexGenericNode(path: PathLike,
+                           range: Location,
+                           nature: ApexNodeNature,
+                           id: IdAndRange,
+                           children: ArraySeq[ApexNode],
+                           modifiers: ModifierResults,
+                           description: String)
+    extends ApexNode {}
+
+case class ApexClassNode(path: PathLike,
+                         range: Location,
+                         id: IdAndRange,
+                         children: ArraySeq[ApexNode],
+                         modifiers: ModifierResults,
+                         description: String)
+    extends ApexNode {
+
+  override val nature: ApexNodeNature = ApexClassType
+
+  override def collectIssues(issues: ArrayBuffer[Issue]): Unit = {
+    super.collectIssues(issues)
+
+    if (!modifiers.modifiers.contains(GLOBAL_MODIFIER)) {
+      children
+        .filter(_.modifiers.modifiers.intersect(Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER)).nonEmpty)
+        .foreach(
+          child =>
+            issues.addOne(
+              new Issue(
+                path.toString,
+                Diagnostic(ERROR_CATEGORY,
+                           child.id.range,
+                           "Enclosing class must be declared global to use global or webservice modifiers"))))
+    }
   }
 }

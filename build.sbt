@@ -45,11 +45,11 @@ lazy val buildJVM = Def.task {
 lazy val cross = crossProject(JSPlatform, JVMPlatform).in(file(".")).
   settings(
     libraryDependencies += "com.lihaoyi" %%% "upickle" % "1.2.0",
-    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.2.0" % Test
+    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.2.0" % Test,
   ).
   jvmSettings(
     name := "pkgforce",
-    version := "1.1.1",
+    version := "1.2.0-SNAPSHOT",
     build := buildJVM.value,
     scalacOptions += "-deprecation",
     libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
@@ -58,7 +58,7 @@ lazy val cross = crossProject(JSPlatform, JVMPlatform).in(file(".")).
   ).
   jsSettings(
     name := "pkgforce",
-    version := "1.1.1",
+    version := "1.2.0-SNAPSHOT",
     build := buildNPM.value,
     scalacOptions += "-deprecation",
     libraryDependencies += "net.exoego" %%% "scala-js-nodejs-v14" % "0.12.0",
@@ -93,7 +93,7 @@ ThisBuild / homepage := Some(url("https://github.com/nawforce/pkgforce"))
 ThisBuild / credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credentials")
 
 ThisBuild / pomIncludeRepository := { _ => false }
-ThisBuild / isSnapshot := false
+ThisBuild / isSnapshot := true
 ThisBuild / publishTo := {
   val nexus = "https://oss.sonatype.org/"
   if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")

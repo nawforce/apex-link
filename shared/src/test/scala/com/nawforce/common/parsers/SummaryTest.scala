@@ -288,4 +288,37 @@ class SummaryTest extends AnyFunSuite {
     }
   }
 
+  test("Global field in public class") {
+    val path = PathFactory("Dummy.cls")
+    val cp =
+      CodeParser(path, SourceData("public class Dummy {global String a;}"))
+    cp.parseClass() match {
+      case Left(err) => assert(false, err)
+      case Right(cu) =>
+        val root = ApexNode(cp, cu)
+        val issues = root.collectIssues()
+
+        assert(issues.length == 1)
+        assert(issues.head.diagnostic.location.displayPosition == "line 1 at 34-35")
+        assert(issues.head.diagnostic.message == "Enclosing class must be declared global to use global or webservice modifiers")
+    }
+  }
+
+  test("Global inner interface in public class") {
+    val path = PathFactory("Dummy.cls")
+    val cp =
+      CodeParser(path, SourceData("public class Dummy {global interface Inside {}}"))
+    cp.parseClass() match {
+      case Left(err) => assert(false, err)
+      case Right(cu) =>
+        val root = ApexNode(cp, cu)
+        val issues = root.collectIssues()
+
+        assert(issues.length == 1)
+        assert(issues.head.diagnostic.location.displayPosition == "line 1 at 37-43")
+        assert(issues.head.diagnostic.message == "Enclosing class must be declared global to use global or webservice modifiers")
+    }
+  }
+
+
 }
