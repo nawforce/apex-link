@@ -27,7 +27,8 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{Name, TypeName}
+import com.nawforce.common.api.{Diagnostic, ERROR_CATEGORY, Name, TypeName}
+import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.modifiers._
 import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.org.PackageImpl
@@ -70,9 +71,18 @@ final case class ClassDeclaration(_source: Source, _pkg: PackageImpl, _typeName:
   }
 
   private def verifyCommon(context: VerifyContext): Unit = {
-    if (bodyDeclarations.exists(_.isGlobal) && !modifiers.contains(GLOBAL_MODIFIER)) {
-      context.logError(id.location, "Classes enclosing globals or webservices must also be declared global")
-    } else if (!modifiers.contains(ABSTRACT_MODIFIER) && methods.exists(_.isAbstract)) {
+    if (!modifiers.contains(GLOBAL_MODIFIER)) {
+      bodyDeclarations
+          .filter(_.modifiers.intersect(Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER)).nonEmpty)
+          .foreach(
+            child =>
+              child.idLocation.foreach(l => {
+                context.logError(l, "Enclosing class must be declared global to use global or webservice modifiers")
+              })
+          )
+    }
+
+    if (!modifiers.contains(ABSTRACT_MODIFIER) && methods.exists(_.isAbstract)) {
       context.logError(id.location, "Classes with abstract methods must be abstract")
     } else if(modifiers.contains(ABSTRACT_MODIFIER) && modifiers.contains(VIRTUAL_MODIFIER)) {
       context.logError(id.location, "Abstract classes do not need virtual keyword")

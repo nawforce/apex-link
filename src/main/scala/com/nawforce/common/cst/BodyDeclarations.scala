@@ -49,6 +49,8 @@ import scala.collection.mutable
 abstract class ClassBodyDeclaration(modifierResults: ModifierResults)
     extends CST
     with DependencyHolder {
+
+  def idLocation: Option[PathLocation]
   val modifiers: Array[Modifier] = modifierResults.modifiers
   def modifierIssues: Array[Issue] = modifierResults.issues
   lazy val isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER) || modifiers.contains(
@@ -184,6 +186,7 @@ final case class ApexInitialiserBlock(_modifiers: ModifierResults, block: Block)
     extends ClassBodyDeclaration(_modifiers)
     with ApexBlockLike {
 
+  override val idLocation: Option[PathLocation] = None
   override val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
@@ -211,6 +214,7 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId,
     extends ClassBodyDeclaration(_modifiers)
     with ApexMethodLike {
 
+  override val idLocation: Option[PathLocation] = Some(id.location)
   override def nameRange: PathLocation = id.location
   override val name: Name = id.name
 
@@ -305,6 +309,7 @@ final case class ApexFieldDeclaration(outerTypeId: TypeId,
     with ApexFieldLike {
 
   val id: Id = variableDeclarator.id
+  override val idLocation: Option[PathLocation] = Some(id.location)
   override val nameRange: PathLocation = id.location
   override val name: Name = id.name
   private val visibility: Option[Modifier] =
@@ -343,6 +348,7 @@ final case class ApexConstructorDeclaration(_modifiers: ModifierResults,
     extends ClassBodyDeclaration(_modifiers)
     with ApexConstructorLike {
 
+  override val idLocation: Option[PathLocation] = Some(qualifiedName.location)
   override val nameRange: PathLocation = qualifiedName.location
 
   /* All parameters are FormalParameters but we need to bypass Array being invariant */

@@ -162,7 +162,7 @@ class EnumModifierTest extends AnyFunSuite with BeforeAndAfter {
         GLOBAL_MODIFIER))
     assert(
       defaultOrg.issues.getMessages(defaultPath) ==
-        "Error: line 1 at 13-18: Classes enclosing globals or webservices must also be declared global\n")
+        "Error: line 1 at 32-37: Enclosing class must be declared global to use global or webservice modifiers\n")
   }
 
   test("Public inner") {

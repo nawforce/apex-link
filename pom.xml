@@ -4,7 +4,7 @@
 
     <groupId>com.github.nawforce</groupId>
     <artifactId>apexlink</artifactId>
-    <version>1.1.1</version>
+    <version>1.2.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>apexlink</name>
@@ -65,7 +65,7 @@
         <dependency>
           <groupId>com.github.nawforce</groupId>
           <artifactId>pkgforce_2.13</artifactId>
-          <version>1.1.1</version>
+          <version>1.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -264,6 +264,7 @@
                 </executions>
             </plugin>
 
+<!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
@@ -278,6 +279,7 @@
                     </execution>
                 </executions>
             </plugin>
+-->
 
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>

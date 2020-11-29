@@ -64,6 +64,7 @@ abstract class FullDeclaration(val source: Source,
   override val packageDeclaration: Option[PackageImpl] = Some(pkg)
   override val name: Name = typeName.name
 
+  override val idLocation: Option[PathLocation] = Some(id.location)
   override val nameLocation: PathLocation = id.location
   override val nature: Nature
   var flushedToCache = false
