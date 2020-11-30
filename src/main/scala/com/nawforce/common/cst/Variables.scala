@@ -27,7 +27,8 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.TypeName
+import com.nawforce.common.api.{Diagnostic, TypeName, WARNING_CATEGORY}
+import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.modifiers.{ApexModifiers, ModifierResults}
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
@@ -86,6 +87,22 @@ final case class LocalVariableDeclaration(modifiers: ModifierResults,
                                           variableDeclarators: VariableDeclarators)
     extends CST {
   def verify(context: BlockVerifyContext): Unit = {
+
+    variableDeclarators.declarators.foreach(vd => {
+      context.thisType.foreach(td => {
+        td.findField(vd.id.name, None).foreach {
+          case field: ApexFieldDeclaration =>
+            context.log(new Issue(location.path,
+                                  new Diagnostic(
+                                    WARNING_CATEGORY,
+                                    location.location,
+                                    s"Local variable is hiding class field '${vd.id.name}', see " +
+                                      s"${field.location.toString}")))
+          case _ => ()
+        }
+      })
+    })
+
     modifiers.issues.foreach(context.log)
     val staticContext = if (context.isStatic) Some(true) else None
     variableDeclarators.verify(ExprContext(isStatic = staticContext, context.thisType), context)

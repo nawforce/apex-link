@@ -27,7 +27,7 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{Name, PathLocation, TypeName}
+import com.nawforce.common.api.{Diagnostic, Name, PathLocation, TypeName, WARNING_CATEGORY}
 import com.nawforce.common.diagnostics.{Issue, IssueOps}
 import com.nawforce.common.finding.{TypeError, TypeResolver}
 import com.nawforce.common.memory.SkinnySet
@@ -230,7 +230,7 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
     parentContext.getTypeAndAddDependency(typeName, from, excludeSObjects)
   }
 
-  def isVar(name: Name): Option[TypeDeclaration] = {
+  def getVar(name: Name): Option[TypeDeclaration] = {
     vars.get(name)
   }
 
@@ -239,6 +239,10 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
   }
 
   def addVar(name: Name, location: PathLocation, typeName: TypeName): Unit = {
+    if (getVar(name).nonEmpty) {
+      logError(location, s"Duplicate variable '$name'")
+    }
+
     val td = getTypeAndAddDependency(typeName, thisType).toOption
     if (td.isEmpty)
       missingType(location, typeName)
@@ -262,8 +266,8 @@ class InnerBlockVerifyContext(parentContext: BlockVerifyContext)
 
   override def isStatic: Boolean = parentContext.isStatic
 
-  override def isVar(name: Name): Option[TypeDeclaration] = {
-    super.isVar(name).orElse(parentContext.isVar(name))
+  override def getVar(name: Name): Option[TypeDeclaration] = {
+    super.getVar(name).orElse(parentContext.getVar(name))
   }
 }
 
@@ -292,7 +296,7 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext) extends VerifyC
     parentContext.getTypeAndAddDependency(typeName, from, excludeSObjects)
   }
 
-  def isVar(name: Name): Option[TypeDeclaration] = parentContext.isVar(name)
+  def isVar(name: Name): Option[TypeDeclaration] = parentContext.getVar(name)
 
   def defaultNamespace(name: Name): Name = {
     EncodedName(name).defaultNamespace(pkg.namespace).fullName

@@ -62,14 +62,14 @@ class ArrayTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Non-Integer index") {
-    typeDeclaration("public class Dummy {Integer b; {List<Dummy> a;  Integer b = a[null].b;}}")
+    typeDeclaration("public class Dummy {Integer b; {List<Dummy> a;  b = a[null].b;}}")
     assert(
       defaultOrg.issues
-        .getMessages(defaultPath.toString) == "Error: line 1 at 62-66: Array indexes must be Integers, found 'null'\n")
+        .getMessages(defaultPath.toString) == "Error: line 1 at 54-58: Array indexes must be Integers, found 'null'\n")
   }
 
   test("Integer index") {
-    typeDeclaration("public class Dummy {Integer b; {List<Dummy> a;  Integer b = a[0].b;}}")
+    typeDeclaration("public class Dummy {Integer b; {List<Dummy> a; b = a[0].b;}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 

@@ -163,9 +163,10 @@ object IfStatement {
 
 final case class ForStatement(control: ForControl, statement: Statement) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
-    control.verify(context)
+    val forContext = new InnerBlockVerifyContext(context)
+    control.verify(forContext)
 
-    val loopContext = new InnerBlockVerifyContext(context)
+    val loopContext = new InnerBlockVerifyContext(forContext)
     control.addVars(loopContext)
     statement.verify(loopContext)
   }

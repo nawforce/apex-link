@@ -37,16 +37,18 @@ import com.nawforce.runtime.parsers.SourceData
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class SuppressWarningsTest extends AnyFunSuite with BeforeAndAfter {
+class VarTest extends AnyFunSuite with BeforeAndAfter {
   private val defaultPath = PathFactory("Dummy.cls").toString
   private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
   private var defaultOrg: OrgImpl = _
 
-  def typeDeclaration(clsText: String): TypeDeclaration = {
+  def typeDeclaration(clsText: String): Option[TypeDeclaration] = {
     OrgImpl.current.withValue(defaultOrg) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultDoc, SourceData(clsText)).head
-      defaultOrg.unmanaged.upsertMetadata(td)
-      td.validate()
+      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultDoc, SourceData(clsText))
+      td.foreach(td => {
+        defaultOrg.unmanaged.upsertMetadata(td)
+        td.validate()
+      })
       td
     }
   }
@@ -60,31 +62,55 @@ class SuppressWarningsTest extends AnyFunSuite with BeforeAndAfter {
     ServerOps.setAutoFlush(true)
   }
 
-  test("Suppress disabled") {
-    typeDeclaration(
-      "public class Dummy {class Inner {Integer b; List<Inner> a; {b = a[null].b;}}}")
+  test("Duplicate local var") {
+    typeDeclaration("public class Dummy { void func() {String a; String a;}}")
     assert(
-      defaultOrg.issues
-        .getMessages(defaultPath) == "Error: line 1 at 66-70: Array indexes must be Integers, found 'null'\n")
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 51-52: Duplicate variable 'a'\n")
   }
 
-  test("Outer Suppress") {
-    typeDeclaration(
-      "@SuppressWarnings public class Dummy {class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
+  test("Duplicate local var, same declaration") {
+    typeDeclaration("public class Dummy { void func() {String a, a;}}")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 44-45: Duplicate variable 'a'\n")
+  }
+
+  test("Duplicate local var, nested") {
+    typeDeclaration("public class Dummy { void func() {String a; while (true) {String a;}}}")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath) ==
+        "Error: line 1 at 65-66: Duplicate variable 'a'\n")
+  }
+
+  test("Duplicate for vars") {
+    typeDeclaration("public class Dummy { void func() {for (Integer i=0; i<0; i++){} for(Integer i=0; i<0; i++){} }}")
     assert(!defaultOrg.issues.hasMessages)
   }
 
-  test("Inner Suppress") {
-    typeDeclaration(
-      "public class Dummy {@SuppressWarnings class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
+  test("Shadow local var") {
+    typeDeclaration("public class Dummy { String a; void func() {String a;}}")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath).startsWith(
+        "Warning: line 1 at 44-52: Local variable is hiding class field 'a', see"))
+  }
+
+  test("Shadow local var, inner class") {
+    typeDeclaration("public class Dummy { class Dummy2 {String a; void func() {String a;}}}")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath).startsWith(
+        "Warning: line 1 at 58-66: Local variable is hiding class field 'a', see"))
+  }
+
+  test("Shadow local var, not extending") {
+    typeDeclaration("public class Dummy {String a; class Dummy2 { void func() {String a;}}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 
-  // TODO: This should work
-  /*
-  test("Method Suppress") {
-    typeDeclaration("public class Dummy {class Inner {Integer b; List<Inner> a; @SuppressWarnings void foo(){ Integer b = a[null].b;}}}")
-    defaultOrg.issues.dumpMessages(false)
-    assert(!defaultOrg.issues.hasMessages)
-  }*/
+  test("Shadow local var, extending") {
+    typeDeclaration("public virtual class Dummy {String a; class Dummy2 extends Dummy { void func() {String a;}}}")
+    assert(
+      defaultOrg.issues.getMessages(defaultPath).startsWith(
+        "Warning: line 1 at 80-88: Local variable is hiding class field 'a', see "))
+  }
 }

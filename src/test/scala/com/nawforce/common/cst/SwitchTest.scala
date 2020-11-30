@@ -45,7 +45,10 @@ class SwitchTest extends AnyFunSuite with BeforeAndAfter {
   def typeDeclaration(clsText: String): Option[TypeDeclaration] = {
     OrgImpl.current.withValue(defaultOrg) {
       val td = FullDeclaration.create(defaultOrg.unmanaged, defaultDoc, SourceData(clsText))
-      td.foreach(_.validate())
+      td.foreach(td => {
+        defaultOrg.unmanaged.upsertMetadata(td)
+        td.validate()
+      })
       td
     }
   }

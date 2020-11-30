@@ -158,7 +158,7 @@ class OperationsTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Enum value assignment") {
-    typeDeclaration("public class Dummy {enum MyEnum{A} String A; {MyEnum a; a = Dummy.MyEnum.A;}}")
+    typeDeclaration("public class Dummy {enum MyEnum{A} {MyEnum a; a = Dummy.MyEnum.A;}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 
@@ -169,7 +169,7 @@ class OperationsTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Ternary common base") {
     typeDeclaration(
-      "public virtual class Dummy {class A extends Dummy {} class B extends Dummy {} { A a; B b; Object a = 2>0 ? a : b;}}")
+      "public virtual class Dummy {class A extends Dummy {} class B extends Dummy {} { A a; B b; Object c = 2>0 ? a : b;}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 

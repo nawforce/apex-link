@@ -63,7 +63,7 @@ class SampleViewTest extends AnyFunSuite with BeforeAndAfter {
       pkgPair._2.getTypes.foreach {
         case sd: SummaryDeclaration =>
           val viewInfo = pkgPair._2.getViewOfType(sd.path, None)
-          if (!viewInfo.hasType || viewInfo.diagnostics.nonEmpty) {
+          if (!viewInfo.hasType || !viewInfo.diagnostics.forall(_.category == WARNING_CATEGORY)) {
             assert(false, s"Problem found for ${sd.typeName}")
           }
         case fd: FullDeclaration =>
