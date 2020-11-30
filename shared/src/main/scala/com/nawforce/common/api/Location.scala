@@ -68,7 +68,11 @@ object Location {
 
 /** Location within a specific file. */
 @upickle.implicits.key("PathLocation")
-case class PathLocation(path: String, location: Location)
+case class PathLocation(path: String, location: Location) {
+  override def toString: String = {
+    s"$path: ${location.displayPosition}"
+  }
+}
 
 object PathLocation {
   implicit val rw: RW[Location] = macroRW
