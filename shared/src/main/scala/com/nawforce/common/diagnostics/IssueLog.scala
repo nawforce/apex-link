@@ -195,8 +195,8 @@ class IssueLog {
         writeMessages(writer, path, warnings, maxErrors)
       })
     writer.output
-
   }
+
   def asString(warnings: Boolean, maxErrors: Int, format: String = ""): String = {
     if (format == "pickle") {
       write(getIssues)
@@ -216,6 +216,6 @@ object IssueLog {
   def apply(issueLog: IssueLog): IssueLog = {
     val newLog = new IssueLog
     newLog.merge(issueLog)
-    issueLog
+    newLog
   }
 }
