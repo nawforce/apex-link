@@ -46,12 +46,16 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Unused method") {
-    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {public void foo() {}}")) { root: PathLike =>
+    FileSystemHelper.run(
+      Map(
+        "Dummy.cls" -> "public class Dummy {public void foo() {}}"
+      )
+    ) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
       assert(
-        pkg.reportUnused().getMessages(root.join("Dummy.cls").toString) == "" +
+        pkg.reportUnused().getMessages(root.join("Dummy.cls").toString) ==
           "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
     }
   }

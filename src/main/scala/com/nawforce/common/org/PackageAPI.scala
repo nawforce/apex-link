@@ -151,6 +151,8 @@ trait PackageAPI extends Package {
     org.queueRefresh(RefreshRequest(this, path, contents))
   }
 
+  /* Replace a path, returns the TypeId of the type that was updated and a Set of TypeIds for the dependency
+   * holders of that type. */
   private def refreshInternal(path: PathLike,
                               contents: Option[SourceBlob]): (TypeId, Set[TypeId]) = {
     checkPathInPackageOrThrow(path)
@@ -184,24 +186,12 @@ trait PackageAPI extends Package {
     replaceType(typeName, newType)
     newType.foreach(_.validate())
 
-    // If has references and shape has changed, return refs for invalidation handling
-    val references = holders.toSet
-    if (references.nonEmpty) {
-      // Check for a shape change
-      val sameShape = (existingType, newType) match {
-        case (Some(ed: FullDeclaration), Some(nd: FullDeclaration)) =>
-          ed.summary(shapeOnly = true) == nd.summary(shapeOnly = true)
-        case _ =>
-          false
-      }
-
-      if (!sameShape) {
-        return (typeId, references)
-      }
-    }
-    (typeId, Set.empty)
+    (typeId, holders.toSet)
   }
 
+  /* Revalidate a set of types. A side effect of re-validation is that summary types are replaced by full types as
+   * they are needed to re-establish the dependency graph. This is not done recursively as the full type should
+   * be of the exact same shape as the summary it replaces. */
   private def reValidate(references: Set[TypeId]): Unit = {
     references.foreach(typeId => {
       typeId.pkg.packageType(typeId.typeName).foreach {
