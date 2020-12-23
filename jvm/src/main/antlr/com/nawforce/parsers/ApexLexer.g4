@@ -111,6 +111,30 @@ WITHOUT       : 'without';
 LIST          : 'list';
 MAP           : 'map';
 
+// Soql specific keywords
+SELECT          : 'select';
+COUNT           : 'count';
+FROM            : 'from';
+AS              : 'as';
+USING           : 'using';
+SCOPE           : 'scope';
+WHERE           : 'where';
+ORDER           : 'order';
+BY              : 'by';
+LIMIT           : 'limit';
+SOQLAND         : 'and';
+SOQLOF          : 'or';
+NOT             : 'not';
+AVG             : 'avg';
+COUNT_DISTINCT  : 'count_distinct';
+MIN             : 'min';
+MAX             : 'max';
+SUM             : 'sum';
+TYPEOF          : 'typeof';
+END             : 'end';
+THEN            : 'then';
+
+
 // §3.10.1 Integer Literals
 
 IntegerLiteral

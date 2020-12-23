@@ -1206,6 +1206,146 @@ public interface ApexParserListener extends ParseTreeListener {
 	 */
 	void exitSoqlLiteral(ApexParser.SoqlLiteralContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ApexParser#query}.
+	 * @param ctx the parse tree
+	 */
+	void enterQuery(ApexParser.QueryContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#query}.
+	 * @param ctx the parse tree
+	 */
+	void exitQuery(ApexParser.QueryContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#subQuery}.
+	 * @param ctx the parse tree
+	 */
+	void enterSubQuery(ApexParser.SubQueryContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#subQuery}.
+	 * @param ctx the parse tree
+	 */
+	void exitSubQuery(ApexParser.SubQueryContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#fieldList}.
+	 * @param ctx the parse tree
+	 */
+	void enterFieldList(ApexParser.FieldListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#fieldList}.
+	 * @param ctx the parse tree
+	 */
+	void exitFieldList(ApexParser.FieldListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#fieldEntry}.
+	 * @param ctx the parse tree
+	 */
+	void enterFieldEntry(ApexParser.FieldEntryContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#fieldEntry}.
+	 * @param ctx the parse tree
+	 */
+	void exitFieldEntry(ApexParser.FieldEntryContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#nameList}.
+	 * @param ctx the parse tree
+	 */
+	void enterNameList(ApexParser.NameListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#nameList}.
+	 * @param ctx the parse tree
+	 */
+	void exitNameList(ApexParser.NameListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#subFieldList}.
+	 * @param ctx the parse tree
+	 */
+	void enterSubFieldList(ApexParser.SubFieldListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#subFieldList}.
+	 * @param ctx the parse tree
+	 */
+	void exitSubFieldList(ApexParser.SubFieldListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#subFieldEntry}.
+	 * @param ctx the parse tree
+	 */
+	void enterSubFieldEntry(ApexParser.SubFieldEntryContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#subFieldEntry}.
+	 * @param ctx the parse tree
+	 */
+	void exitSubFieldEntry(ApexParser.SubFieldEntryContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#aggregateFunction}.
+	 * @param ctx the parse tree
+	 */
+	void enterAggregateFunction(ApexParser.AggregateFunctionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#aggregateFunction}.
+	 * @param ctx the parse tree
+	 */
+	void exitAggregateFunction(ApexParser.AggregateFunctionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#typeOf}.
+	 * @param ctx the parse tree
+	 */
+	void enterTypeOf(ApexParser.TypeOfContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#typeOf}.
+	 * @param ctx the parse tree
+	 */
+	void exitTypeOf(ApexParser.TypeOfContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#whenClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterWhenClause(ApexParser.WhenClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#whenClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitWhenClause(ApexParser.WhenClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#elseClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterElseClause(ApexParser.ElseClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#elseClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitElseClause(ApexParser.ElseClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#simpleFieldList}.
+	 * @param ctx the parse tree
+	 */
+	void enterSimpleFieldList(ApexParser.SimpleFieldListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#simpleFieldList}.
+	 * @param ctx the parse tree
+	 */
+	void exitSimpleFieldList(ApexParser.SimpleFieldListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#usingScope}.
+	 * @param ctx the parse tree
+	 */
+	void enterUsingScope(ApexParser.UsingScopeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#usingScope}.
+	 * @param ctx the parse tree
+	 */
+	void exitUsingScope(ApexParser.UsingScopeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#soqlId}.
+	 * @param ctx the parse tree
+	 */
+	void enterSoqlId(ApexParser.SoqlIdContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#soqlId}.
+	 * @param ctx the parse tree
+	 */
+	void exitSoqlId(ApexParser.SoqlIdContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ApexParser#id}.
 	 * @param ctx the parse tree
 	 */

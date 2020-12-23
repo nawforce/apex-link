@@ -523,8 +523,65 @@ arguments
     ;
 
 soqlLiteral
-    : LBRACK (soqlLiteral|~RBRACK)*? RBRACK
+    : LBRACK query RBRACK
     ;
+
+query
+    : SELECT fieldList
+        FROM nameList
+        usingScope?;
+
+subQuery
+    : SELECT subFieldList
+        FROM nameList;
+
+fieldList
+    : fieldEntry (COMMA fieldEntry)*;
+
+fieldEntry
+    : soqlId
+    | aggregateFunction
+    | LPAREN subQuery RPAREN
+    | typeOf
+    ;
+
+nameList
+    : soqlId (COMMA soqlId)*;
+
+subFieldList
+    : subFieldEntry (COMMA subFieldEntry)*;
+
+subFieldEntry
+    : soqlId
+    | aggregateFunction;
+
+aggregateFunction
+    : AVG LPAREN soqlId RPAREN
+    | COUNT LPAREN RPAREN
+    | COUNT LPAREN soqlId RPAREN
+    | COUNT_DISTINCT LPAREN soqlId RPAREN
+    | MIN LPAREN soqlId RPAREN
+    | MAX LPAREN soqlId RPAREN
+    | SUM LPAREN soqlId RPAREN
+    ;
+
+typeOf
+    : TYPEOF soqlId whenClause+ elseClause? END;
+
+whenClause
+    : WHEN soqlId THEN simpleFieldList;
+
+elseClause
+    : ELSE simpleFieldList;
+
+simpleFieldList
+    : soqlId (COMMA soqlId)*;
+
+usingScope
+    : USING SCOPE soqlId;
+
+soqlId
+    : id;
 
 // Some keywords can be used as general identifiers, this is likley an over simplification of the actual
 // rules but devining them from playing with Apex is very difficult. We could let any be used but that

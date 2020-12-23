@@ -724,6 +724,90 @@ public interface ApexParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSoqlLiteral(ApexParser.SoqlLiteralContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ApexParser#query}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitQuery(ApexParser.QueryContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#subQuery}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSubQuery(ApexParser.SubQueryContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#fieldList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFieldList(ApexParser.FieldListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#fieldEntry}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFieldEntry(ApexParser.FieldEntryContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#nameList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNameList(ApexParser.NameListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#subFieldList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSubFieldList(ApexParser.SubFieldListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#subFieldEntry}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSubFieldEntry(ApexParser.SubFieldEntryContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#aggregateFunction}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAggregateFunction(ApexParser.AggregateFunctionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#typeOf}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTypeOf(ApexParser.TypeOfContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#whenClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWhenClause(ApexParser.WhenClauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#elseClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitElseClause(ApexParser.ElseClauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#simpleFieldList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSimpleFieldList(ApexParser.SimpleFieldListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#usingScope}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUsingScope(ApexParser.UsingScopeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#soqlId}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSoqlId(ApexParser.SoqlIdContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ApexParser#id}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
