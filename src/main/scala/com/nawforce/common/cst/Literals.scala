@@ -71,6 +71,8 @@ object Literal {
         .toScala(from.IntegerLiteral())
         .map(x => IntegerLiteral(CodeParser.getText(x)))
         .orElse(
+          CodeParser.toScala(from.LongLiteral()).map(x => IntegerLiteral(CodeParser.getText(x))))
+        .orElse(
           CodeParser.toScala(from.NumberLiteral()).map(x => NumberLiteral(CodeParser.getText(x))))
         .orElse(
           CodeParser.toScala(from.StringLiteral()).map(x => StringLiteral(CodeParser.getText(x))))

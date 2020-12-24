@@ -51,12 +51,18 @@ class SampleViewTest extends AnyFunSuite with BeforeAndAfter {
       val org = Org.newOrg()
       npExternalNamespaces.map(ens => org.newMDAPIPackage(ens, Array(), Array())).toArray
       org.newMDAPIPackage(namespace = "", Array[String](path), Array())
+      val options = new IssueOptions
+      options.includeWarnings = false
+      assert(org.getIssues(options).isEmpty)
       org.flush()
     }
 
     val testOrg = Org.newOrg().asInstanceOf[OrgImpl]
     npExternalNamespaces.map(ens => testOrg.newMDAPIPackage(ens, Array(), Array())).toArray
     testOrg.newMDAPIPackage(namespace = "", Array[String](path), Array())
+    val options = new IssueOptions
+    options.includeWarnings = false
+    assert(testOrg.getIssues(options).isEmpty)
     testOrg.flush()
 
     testOrg.packagesByNamespace.foreach(pkgPair => {

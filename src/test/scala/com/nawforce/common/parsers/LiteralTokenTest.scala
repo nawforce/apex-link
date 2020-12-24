@@ -76,24 +76,24 @@ class LiteralTokenTest extends AnyFunSuite {
     assert(ParserHelper.literal("0").IntegerLiteral() != null)
   }
 
-  test("integer literal zero long") {
-    assert(ParserHelper.literal("0l").IntegerLiteral() != null)
+  test("long integer literal zero long") {
+    assert(ParserHelper.literal("0l").LongLiteral() != null)
   }
 
   test("integer literal one") {
     assert(ParserHelper.literal("1").IntegerLiteral() != null)
   }
 
-  test("integer literal one long") {
-    assert(ParserHelper.literal("1l").IntegerLiteral() != null)
+  test("long integer literal one long") {
+    assert(ParserHelper.literal("1l").LongLiteral() != null)
   }
 
   test("integer literal ten") {
     assert(ParserHelper.literal("10").IntegerLiteral() != null)
   }
 
-  test("integer literal ten long") {
-    assert(ParserHelper.literal("10l").IntegerLiteral() != null)
+  test("long integer literal ten long") {
+    assert(ParserHelper.literal("10l").LongLiteral() != null)
   }
 
   test("number literal zero") {

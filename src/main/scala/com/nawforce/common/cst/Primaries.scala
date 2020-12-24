@@ -150,7 +150,7 @@ final case class IdPrimary(id: Id) extends Primary {
   }
 }
 
-final case class SOQL(soql: String) extends Primary {
+final case class SOQL(query: QueryContext) extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.typeDeclarationOpt.nonEmpty)
 
@@ -175,7 +175,7 @@ object Primary {
         case id: IdPrimaryContext =>
           IdPrimary(Id.construct(id.id()))
         case ctx: SoqlPrimaryContext =>
-          SOQL(CodeParser.getText(ctx))
+          SOQL(ctx.soqlLiteral().query())
       }
     cst.withContext(from)
   }

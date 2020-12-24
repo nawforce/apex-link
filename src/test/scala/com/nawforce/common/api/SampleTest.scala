@@ -42,6 +42,14 @@ class SampleTest extends AnyFunSuite with BeforeAndAfter {
     val externalPackages =
       externalNamespaces.map(ens => org.newMDAPIPackage(ens, Array(), Array())).toArray
     org.newMDAPIPackage(namespace, Array[String](path), externalPackages)
+    val options = new IssueOptions
+    options.includeWarnings = false
+    val issues = org.getIssues(options)
+    if (issues.nonEmpty) {
+      println(issues)
+      assert(false)
+    }
+
   }
 
   before {
