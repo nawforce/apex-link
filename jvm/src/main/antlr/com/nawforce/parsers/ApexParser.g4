@@ -214,6 +214,7 @@ qualifiedName
 
 literal
     : IntegerLiteral
+    | LongLiteral
     | NumberLiteral
     | StringLiteral
     | BooleanLiteral
@@ -302,6 +303,7 @@ whenValue
 
 whenLiteral
     : (SUB)? IntegerLiteral
+    | LongLiteral
     | StringLiteral
     | NULL
     | id
@@ -528,57 +530,179 @@ soqlLiteral
 
 query
     : SELECT fieldList
-        FROM nameList
-        usingScope?;
+        FROM fromNameList
+        usingScope?
+        whereClause?
+        groupByClause?
+        orderByClause?
+        limitClause?
+        allRowsClause?
+        forClause?;
 
 subQuery
     : SELECT subFieldList
-        FROM nameList;
+        FROM fromNameList
+        whereClause?
+        orderByClause?
+        limitClause?;
 
 fieldList
     : fieldEntry (COMMA fieldEntry)*;
 
 fieldEntry
-    : soqlId
-    | aggregateFunction
+    : fieldName soqlId?
+    | aggregateFunction soqlId?
     | LPAREN subQuery RPAREN
     | typeOf
     ;
 
-nameList
-    : soqlId (COMMA soqlId)*;
+fieldName
+    : soqlId (DOT soqlId)*;
+
+fromNameList
+    : fieldName soqlId? (COMMA fieldName soqlId?)*;
 
 subFieldList
     : subFieldEntry (COMMA subFieldEntry)*;
 
 subFieldEntry
-    : soqlId
-    | aggregateFunction;
+    : fieldName soqlId?
+    | aggregateFunction soqlId?;
 
 aggregateFunction
-    : AVG LPAREN soqlId RPAREN
+    : AVG LPAREN fieldName RPAREN
     | COUNT LPAREN RPAREN
-    | COUNT LPAREN soqlId RPAREN
-    | COUNT_DISTINCT LPAREN soqlId RPAREN
-    | MIN LPAREN soqlId RPAREN
-    | MAX LPAREN soqlId RPAREN
-    | SUM LPAREN soqlId RPAREN
+    | COUNT LPAREN fieldName RPAREN
+    | COUNT_DISTINCT LPAREN fieldName RPAREN
+    | MIN LPAREN fieldName RPAREN
+    | MAX LPAREN fieldName RPAREN
+    | SUM LPAREN fieldName RPAREN
+    | TOLABEL LPAREN fieldName RPAREN
     ;
 
 typeOf
-    : TYPEOF soqlId whenClause+ elseClause? END;
+    : TYPEOF fieldName whenClause+ elseClause? END;
 
 whenClause
-    : WHEN soqlId THEN simpleFieldList;
+    : WHEN fieldName THEN simpleFieldList;
 
 elseClause
     : ELSE simpleFieldList;
 
 simpleFieldList
-    : soqlId (COMMA soqlId)*;
+    : fieldName (COMMA fieldName)*;
 
 usingScope
     : USING SCOPE soqlId;
+
+whereClause
+    : WHERE logicalExpression;
+
+logicalExpression
+    : conditionalExpression (SOQLAND conditionalExpression)*
+    | conditionalExpression (SOQLOR conditionalExpression)*
+    | NOT conditionalExpression;
+
+conditionalExpression
+    : LPAREN logicalExpression RPAREN
+    | fieldExpression;
+
+fieldExpression
+    : fieldName comparisonOperator value
+    | aggregateFunction comparisonOperator value;
+
+comparisonOperator
+    : ASSIGN | NOTEQUAL | LT | GT | LT ASSIGN | GT ASSIGN | LESSANDGREATER | LIKE | IN | NOT IN | INCLUDES | EXCLUDES;
+
+value
+    : NULL
+    | BooleanLiteral
+    | IntegerLiteral
+    | LongLiteral
+    | NumberLiteral
+    | StringLiteral
+    | DateLiteral
+    | DateTimeLiteral
+    | dateFormula
+    | LPAREN subQuery RPAREN
+    | valueList
+    | boundExpression
+    ;
+
+valueList
+    : LPAREN value (COMMA value)* RPAREN;
+
+groupByClause
+    : GROUP BY fieldList (HAVING logicalExpression)?
+    | GROUP BY ROLLUP LPAREN fieldName (COMMA fieldName)* RPAREN;
+     // Cube
+
+orderByClause
+    : ORDER BY fieldOrderList;
+
+fieldOrderList
+    : fieldOrder (COMMA fieldOrder)*;
+
+fieldOrder
+    : fieldName (ASC | DESC)? (NULLS (FIRST|LAST))?
+    | aggregateFunction;
+
+limitClause
+    : LIMIT IntegerLiteral
+    | LIMIT boundExpression;
+
+allRowsClause
+    : ALL ROWS;
+
+forClause
+    : FOR UPDATE
+    | FOR VIEW;
+
+boundExpression
+    : COLON expression;
+
+dateFormula
+    : YESTERDAY
+    | TODAY
+    | TOMORROW
+    | LAST_WEEK
+    | THIS_WEEK
+    | NEXT_WEEK
+    | LAST_MONTH
+    | THIS_MONTH
+    | NEXT_MONTH
+    | LAST_90_DAYS
+    | NEXT_90_DAYS
+    | LAST_N_DAYS_N COLON dateInteger
+    | NEXT_N_DAYS_N COLON dateInteger
+    | NEXT_N_WEEKS_N COLON dateInteger
+    | LAST_N_WEEKS_N COLON dateInteger
+    | NEXT_N_MONTHS_N COLON dateInteger
+    | LAST_N_MONTHS_N COLON dateInteger
+    | THIS_QUARTER
+    | LAST_QUARTER
+    | NEXT_QUARTER
+    | NEXT_N_QUARTERS_N COLON dateInteger
+    | LAST_N_QUARTERS_N COLON dateInteger
+    | THIS_YEAR
+    | LAST_YEAR
+    | NEXT_YEAR
+    | NEXT_N_YEARS_N COLON dateInteger
+    | LAST_N_YEARS_N COLON dateInteger
+    | THIS_FISCAL_QUARTER
+    | LAST_FISCAL_QUARTER
+    | NEXT_FISCAL_QUARTER
+    | NEXT_N_FISCAL_QUARTERS_N COLON dateInteger
+    | LAST_N_FISCAL_QUARTERS_N COLON dateInteger
+    | THIS_FISCAL_YEAR
+    | LAST_FISCAL_YEAR
+    | NEXT_FISCAL_YEAR
+    | NEXT_N_FISCAL_YEARS_N COLON dateInteger
+    | LAST_N_FISCAL_YEARS_N COLON dateInteger
+    ;
+
+dateInteger
+    : (ADD | SUB)? IntegerLiteral;
 
 soqlId
     : id;
@@ -601,12 +725,89 @@ id
     | WHEN
     | WITH
     | WITHOUT
+    // SOQL Specific Keywords
+    | SELECT
+    | COUNT
+    | FROM
+    | AS
+    | USING
+    | SCOPE
+    | WHERE
+    | ORDER
+    | BY
+    | LIMIT
+    | SOQLAND
+    | SOQLOR
+    | NOT
+    | AVG
+    | COUNT_DISTINCT
+    | MIN
+    | MAX
+    | SUM
+    | TYPEOF
+    | END
+    | THEN
+    | LIKE
+    | IN
+    | INCLUDES
+    | EXCLUDES
+    | ASC
+    | DESC
+    | NULLS
+    | FIRST
+    | LAST
+    | GROUP
+    | ALL
+    | ROWS
+    | VIEW
+    | HAVING
+    | ROLLUP
+    | TOLABEL
+    // SOQL date formulas
+    | YESTERDAY
+    | TODAY
+    | TOMORROW
+    | LAST_WEEK
+    | THIS_WEEK
+    | NEXT_WEEK
+    | LAST_MONTH
+    | THIS_MONTH
+    | NEXT_MONTH
+    | LAST_90_DAYS
+    | NEXT_90_DAYS
+    | LAST_N_DAYS_N
+    | NEXT_N_DAYS_N
+    | NEXT_N_WEEKS_N
+    | LAST_N_WEEKS_N
+    | NEXT_N_MONTHS_N
+    | LAST_N_MONTHS_N
+    | THIS_QUARTER
+    | LAST_QUARTER
+    | NEXT_QUARTER
+    | NEXT_N_QUARTERS_N
+    | LAST_N_QUARTERS_N
+    | THIS_YEAR
+    | LAST_YEAR
+    | NEXT_YEAR
+    | NEXT_N_YEARS_N
+    | LAST_N_YEARS_N
+    | THIS_FISCAL_QUARTER
+    | LAST_FISCAL_QUARTER
+    | NEXT_FISCAL_QUARTER
+    | NEXT_N_FISCAL_QUARTERS_N
+    | LAST_N_FISCAL_QUARTERS_N
+    | THIS_FISCAL_YEAR
+    | LAST_FISCAL_YEAR
+    | NEXT_FISCAL_YEAR
+    | NEXT_N_FISCAL_YEARS_N
+    | LAST_N_FISCAL_YEARS_N
     ;
 
 // In dot expressions we, can use a wider set of of identifiers, apparently any of them althogh I have excluding VOID
 // in the interests of reducing ambiguity
 anyId
     : Identifier
+    // Apex Keywords
     | ABSTRACT
     | AFTER
     | BEFORE
@@ -661,4 +862,80 @@ anyId
     | WHILE
     | WITH
     | WITHOUT
+    // SOQL Specific Keywords
+    | SELECT
+    | COUNT
+    | FROM
+    | AS
+    | USING
+    | SCOPE
+    | WHERE
+    | ORDER
+    | BY
+    | LIMIT
+    | SOQLAND
+    | SOQLOR
+    | NOT
+    | AVG
+    | COUNT_DISTINCT
+    | MIN
+    | MAX
+    | SUM
+    | TYPEOF
+    | END
+    | THEN
+    | LIKE
+    | IN
+    | INCLUDES
+    | EXCLUDES
+    | ASC
+    | DESC
+    | NULLS
+    | FIRST
+    | LAST
+    | GROUP
+    | ALL
+    | ROWS
+    | VIEW
+    | HAVING
+    | ROLLUP
+    | TOLABEL
+    // SOQL date formulas
+    | YESTERDAY
+    | TODAY
+    | TOMORROW
+    | LAST_WEEK
+    | THIS_WEEK
+    | NEXT_WEEK
+    | LAST_MONTH
+    | THIS_MONTH
+    | NEXT_MONTH
+    | LAST_90_DAYS
+    | NEXT_90_DAYS
+    | LAST_N_DAYS_N
+    | NEXT_N_DAYS_N
+    | NEXT_N_WEEKS_N
+    | LAST_N_WEEKS_N
+    | NEXT_N_MONTHS_N
+    | LAST_N_MONTHS_N
+    | THIS_QUARTER
+    | LAST_QUARTER
+    | NEXT_QUARTER
+    | NEXT_N_QUARTERS_N
+    | LAST_N_QUARTERS_N
+    | THIS_YEAR
+    | LAST_YEAR
+    | NEXT_YEAR
+    | NEXT_N_YEARS_N
+    | LAST_N_YEARS_N
+    | THIS_FISCAL_QUARTER
+    | LAST_FISCAL_QUARTER
+    | NEXT_FISCAL_QUARTER
+    | NEXT_N_FISCAL_QUARTERS_N
+    | LAST_N_FISCAL_QUARTERS_N
+    | THIS_FISCAL_YEAR
+    | LAST_FISCAL_YEAR
+    | NEXT_FISCAL_YEAR
+    | NEXT_N_FISCAL_YEARS_N
+    | LAST_N_FISCAL_YEARS_N
     ;

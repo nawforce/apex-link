@@ -748,11 +748,17 @@ public interface ApexParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFieldEntry(ApexParser.FieldEntryContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ApexParser#nameList}.
+	 * Visit a parse tree produced by {@link ApexParser#fieldName}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitNameList(ApexParser.NameListContext ctx);
+	T visitFieldName(ApexParser.FieldNameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#fromNameList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFromNameList(ApexParser.FromNameListContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ApexParser#subFieldList}.
 	 * @param ctx the parse tree
@@ -801,6 +807,108 @@ public interface ApexParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitUsingScope(ApexParser.UsingScopeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#whereClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWhereClause(ApexParser.WhereClauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#logicalExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLogicalExpression(ApexParser.LogicalExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#conditionalExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConditionalExpression(ApexParser.ConditionalExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#fieldExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFieldExpression(ApexParser.FieldExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#comparisonOperator}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitComparisonOperator(ApexParser.ComparisonOperatorContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#value}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitValue(ApexParser.ValueContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#valueList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitValueList(ApexParser.ValueListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#groupByClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGroupByClause(ApexParser.GroupByClauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#orderByClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOrderByClause(ApexParser.OrderByClauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#fieldOrderList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFieldOrderList(ApexParser.FieldOrderListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#fieldOrder}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFieldOrder(ApexParser.FieldOrderContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#limitClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLimitClause(ApexParser.LimitClauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#allRowsClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAllRowsClause(ApexParser.AllRowsClauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#forClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitForClause(ApexParser.ForClauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#boundExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBoundExpression(ApexParser.BoundExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#dateFormula}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDateFormula(ApexParser.DateFormulaContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#dateInteger}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDateInteger(ApexParser.DateIntegerContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ApexParser#soqlId}.
 	 * @param ctx the parse tree

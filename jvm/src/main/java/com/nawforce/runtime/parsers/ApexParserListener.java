@@ -1246,15 +1246,25 @@ public interface ApexParserListener extends ParseTreeListener {
 	 */
 	void exitFieldEntry(ApexParser.FieldEntryContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ApexParser#nameList}.
+	 * Enter a parse tree produced by {@link ApexParser#fieldName}.
 	 * @param ctx the parse tree
 	 */
-	void enterNameList(ApexParser.NameListContext ctx);
+	void enterFieldName(ApexParser.FieldNameContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ApexParser#nameList}.
+	 * Exit a parse tree produced by {@link ApexParser#fieldName}.
 	 * @param ctx the parse tree
 	 */
-	void exitNameList(ApexParser.NameListContext ctx);
+	void exitFieldName(ApexParser.FieldNameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#fromNameList}.
+	 * @param ctx the parse tree
+	 */
+	void enterFromNameList(ApexParser.FromNameListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#fromNameList}.
+	 * @param ctx the parse tree
+	 */
+	void exitFromNameList(ApexParser.FromNameListContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ApexParser#subFieldList}.
 	 * @param ctx the parse tree
@@ -1335,6 +1345,176 @@ public interface ApexParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitUsingScope(ApexParser.UsingScopeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#whereClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterWhereClause(ApexParser.WhereClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#whereClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitWhereClause(ApexParser.WhereClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#logicalExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterLogicalExpression(ApexParser.LogicalExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#logicalExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitLogicalExpression(ApexParser.LogicalExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#conditionalExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterConditionalExpression(ApexParser.ConditionalExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#conditionalExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitConditionalExpression(ApexParser.ConditionalExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#fieldExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterFieldExpression(ApexParser.FieldExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#fieldExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitFieldExpression(ApexParser.FieldExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#comparisonOperator}.
+	 * @param ctx the parse tree
+	 */
+	void enterComparisonOperator(ApexParser.ComparisonOperatorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#comparisonOperator}.
+	 * @param ctx the parse tree
+	 */
+	void exitComparisonOperator(ApexParser.ComparisonOperatorContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#value}.
+	 * @param ctx the parse tree
+	 */
+	void enterValue(ApexParser.ValueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#value}.
+	 * @param ctx the parse tree
+	 */
+	void exitValue(ApexParser.ValueContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#valueList}.
+	 * @param ctx the parse tree
+	 */
+	void enterValueList(ApexParser.ValueListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#valueList}.
+	 * @param ctx the parse tree
+	 */
+	void exitValueList(ApexParser.ValueListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#groupByClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterGroupByClause(ApexParser.GroupByClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#groupByClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitGroupByClause(ApexParser.GroupByClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#orderByClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterOrderByClause(ApexParser.OrderByClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#orderByClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitOrderByClause(ApexParser.OrderByClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#fieldOrderList}.
+	 * @param ctx the parse tree
+	 */
+	void enterFieldOrderList(ApexParser.FieldOrderListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#fieldOrderList}.
+	 * @param ctx the parse tree
+	 */
+	void exitFieldOrderList(ApexParser.FieldOrderListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#fieldOrder}.
+	 * @param ctx the parse tree
+	 */
+	void enterFieldOrder(ApexParser.FieldOrderContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#fieldOrder}.
+	 * @param ctx the parse tree
+	 */
+	void exitFieldOrder(ApexParser.FieldOrderContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#limitClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterLimitClause(ApexParser.LimitClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#limitClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitLimitClause(ApexParser.LimitClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#allRowsClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterAllRowsClause(ApexParser.AllRowsClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#allRowsClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitAllRowsClause(ApexParser.AllRowsClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#forClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterForClause(ApexParser.ForClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#forClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitForClause(ApexParser.ForClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#boundExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterBoundExpression(ApexParser.BoundExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#boundExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitBoundExpression(ApexParser.BoundExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#dateFormula}.
+	 * @param ctx the parse tree
+	 */
+	void enterDateFormula(ApexParser.DateFormulaContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#dateFormula}.
+	 * @param ctx the parse tree
+	 */
+	void exitDateFormula(ApexParser.DateFormulaContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#dateInteger}.
+	 * @param ctx the parse tree
+	 */
+	void enterDateInteger(ApexParser.DateIntegerContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#dateInteger}.
+	 * @param ctx the parse tree
+	 */
+	void exitDateInteger(ApexParser.DateIntegerContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ApexParser#soqlId}.
 	 * @param ctx the parse tree

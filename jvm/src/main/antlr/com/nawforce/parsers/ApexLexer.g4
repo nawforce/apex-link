@@ -123,7 +123,7 @@ ORDER           : 'order';
 BY              : 'by';
 LIMIT           : 'limit';
 SOQLAND         : 'and';
-SOQLOF          : 'or';
+SOQLOR          : 'or';
 NOT             : 'not';
 AVG             : 'avg';
 COUNT_DISTINCT  : 'count_distinct';
@@ -133,12 +133,74 @@ SUM             : 'sum';
 TYPEOF          : 'typeof';
 END             : 'end';
 THEN            : 'then';
+LIKE            : 'like';
+IN              : 'in';
+INCLUDES        : 'includes';
+EXCLUDES        : 'excludes';
+ASC             : 'asc';
+DESC            : 'desc';
+NULLS           : 'nulls';
+FIRST           : 'first';
+LAST            : 'last';
+GROUP           : 'group';
+ALL             : 'all';
+ROWS            : 'rows';
+VIEW            : 'view';
+HAVING          : 'having';
+ROLLUP          : 'rollup';
+TOLABEL         : 'tolabel';
 
+// SOQL Date formulas
+YESTERDAY                 : 'yesterday';
+TODAY                     : 'today';
+TOMORROW                  : 'tomorrow';
+LAST_WEEK                 : 'last_week';
+THIS_WEEK                 : 'this_week';
+NEXT_WEEK                 : 'next_week';
+LAST_MONTH                : 'last_month';
+THIS_MONTH                : 'this_month';
+NEXT_MONTH                : 'next_month';
+LAST_90_DAYS              : 'last_90_days';
+NEXT_90_DAYS              : 'next_90_days';
+LAST_N_DAYS_N             : 'last_n_days';
+NEXT_N_DAYS_N             : 'next_n_days';
+NEXT_N_WEEKS_N            : 'next_n_weeks';
+LAST_N_WEEKS_N            : 'last_n_weeks';
+NEXT_N_MONTHS_N           : 'next_n_months';
+LAST_N_MONTHS_N           : 'last_n_months';
+THIS_QUARTER              : 'this_quarter';
+LAST_QUARTER              : 'last_quarted';
+NEXT_QUARTER              : 'next_quarter';
+NEXT_N_QUARTERS_N         : 'next_n_quarters';
+LAST_N_QUARTERS_N         : 'last_n_quarters';
+THIS_YEAR                 : 'this_year';
+LAST_YEAR                 : 'last_year';
+NEXT_YEAR                 : 'next_year';
+NEXT_N_YEARS_N            : 'next_n_years';
+LAST_N_YEARS_N            : 'last_n_years';
+THIS_FISCAL_QUARTER       : 'this_fiscal_quarter';
+LAST_FISCAL_QUARTER       : 'last_fiscal_quarter';
+NEXT_FISCAL_QUARTER       : 'next_fiscal_quarter';
+NEXT_N_FISCAL_QUARTERS_N  : 'next_n_fiscal_quarters';
+LAST_N_FISCAL_QUARTERS_N  : 'last_n_fiscal_quarters';
+THIS_FISCAL_YEAR          : 'this_fiscal_year';
+LAST_FISCAL_YEAR          : 'last_fiscal_year';
+NEXT_FISCAL_YEAR          : 'next_fiscal_year';
+NEXT_N_FISCAL_YEARS_N     : 'next_n_fiscal_years';
+LAST_N_FISCAL_YEARS_N     : 'last_n_fiscal_years';
+
+// SOQL Date literal
+DateLiteral: Digit Digit Digit Digit '-' Digit Digit '-' Digit Digit;
+DateTimeLiteral: DateLiteral 'T' Digit Digit ':' Digit Digit ':' Digit Digit ('Z' | (('+' | '-') Digit+ ( ':' Digit+)? ));
 
 // §3.10.1 Integer Literals
 
 IntegerLiteral
-    :   Digit Digit* [lL]?
+    :   Digit Digit*
+    ;
+
+LongLiteral
+    : Digit Digit* [lL]
     ;
 
 NumberLiteral
