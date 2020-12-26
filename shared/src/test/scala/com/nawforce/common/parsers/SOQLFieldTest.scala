@@ -58,7 +58,7 @@ class SOQLFieldTest extends AnyFunSuite with Matchers {
 
   test("Missing table") {
     SOQLParser.parse("select A from ") should matchPattern {
-      case Left(Seq(ParserIssue(1, 14, err))) if err.startsWith("missing {") =>
+      case Left(Seq(ParserIssue(1, 14, err))) if err.startsWith("mismatched input '<EOF>' expecting {") =>
     }
   }
 
@@ -83,9 +83,9 @@ class SOQLFieldTest extends AnyFunSuite with Matchers {
   }
 
   test("Unknown aggregate") {
-    assert(
-      SOQLParser.parse("Select UNKNOWN(A), B, C from Table") ==
-        Left(Seq(ParserIssue(1, 14, "mismatched input '(' expecting {'from', ','}"))))
+    SOQLParser.parse("Select UNKNOWN(A), B, C from Table") should matchPattern {
+      case Left(Seq(ParserIssue(1, 14, err))) if err.startsWith("mismatched input '(' expecting {") =>
+    }
   }
 
   test("Simple sub-query") {
@@ -105,7 +105,7 @@ class SOQLFieldTest extends AnyFunSuite with Matchers {
 
   test("Nested sub-query") {
     SOQLParser.parse("Select A, (Select (Select C from Table3) from Table2) from Table1") should matchPattern {
-      case Left(Seq(ParserIssue(1, 18, err))) if err.startsWith("mismatched input '(' expecting {") =>
+      case Left(Seq(ParserIssue(1, 18, err))) if err.startsWith("extraneous input '(' expecting {") =>
     }
   }
 

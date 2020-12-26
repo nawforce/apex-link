@@ -224,7 +224,7 @@ literal
 // ANNOTATIONS
 
 annotation
-    : AT qualifiedName ( LPAREN ( elementValuePairs | elementValue )? RPAREN )?
+    : ATSIGN qualifiedName ( LPAREN ( elementValuePairs | elementValue )? RPAREN )?
     ;
 
 elementValuePairs
@@ -524,20 +524,24 @@ arguments
     : LPAREN expressionList? RPAREN
     ;
 
+// SOQL
+
 soqlLiteral
     : LBRACK query RBRACK
     ;
 
 query
-    : SELECT fieldList
+    : SELECT selectList
         FROM fromNameList
         usingScope?
         whereClause?
+        withClause?
         groupByClause?
         orderByClause?
         limitClause?
+        offsetClause?
         allRowsClause?
-        forClause?;
+        forClauses;
 
 subQuery
     : SELECT subFieldList
@@ -546,10 +550,10 @@ subQuery
         orderByClause?
         limitClause?;
 
-fieldList
-    : fieldEntry (COMMA fieldEntry)*;
+selectList
+    : selectEntry (COMMA selectEntry)*;
 
-fieldEntry
+selectEntry
     : fieldName soqlId?
     | aggregateFunction soqlId?
     | LPAREN subQuery RPAREN
@@ -584,12 +588,12 @@ typeOf
     : TYPEOF fieldName whenClause+ elseClause? END;
 
 whenClause
-    : WHEN fieldName THEN simpleFieldList;
+    : WHEN fieldName THEN fieldNameList;
 
 elseClause
-    : ELSE simpleFieldList;
+    : ELSE fieldNameList;
 
-simpleFieldList
+fieldNameList
     : fieldName (COMMA fieldName)*;
 
 usingScope
@@ -624,6 +628,7 @@ value
     | DateLiteral
     | DateTimeLiteral
     | dateFormula
+    | currencyValue
     | LPAREN subQuery RPAREN
     | valueList
     | boundExpression
@@ -632,10 +637,30 @@ value
 valueList
     : LPAREN value (COMMA value)* RPAREN;
 
+currencyValue: soqlId signedInteger;
+
+withClause
+    : WITH DATA CATEGORY filteringExpression
+    | WITH SECURITY_ENFORCED
+    | WITH logicalExpression;
+
+filteringExpression
+    : dataCategorySelection (AND dataCategorySelection)*;
+
+dataCategorySelection
+    : soqlId filteringSelector dataCategoryName;
+
+dataCategoryName
+    : soqlId
+    | LPAREN soqlId (COMMA soqlId)* LPAREN;
+
+filteringSelector
+    : AT | ABOVE | BELOW | ABOVE_OR_BELOW;
+
 groupByClause
-    : GROUP BY fieldList (HAVING logicalExpression)?
-    | GROUP BY ROLLUP LPAREN fieldName (COMMA fieldName)* RPAREN;
-     // Cube
+    : GROUP BY selectList (HAVING logicalExpression)?
+    | GROUP BY ROLLUP LPAREN fieldName (COMMA fieldName)* RPAREN
+    | GROUP BY CUBE LPAREN fieldName (COMMA fieldName)* RPAREN;
 
 orderByClause
     : ORDER BY fieldOrderList;
@@ -651,12 +676,15 @@ limitClause
     : LIMIT IntegerLiteral
     | LIMIT boundExpression;
 
+offsetClause
+    : OFFSET IntegerLiteral
+    | OFFSET boundExpression;
+
 allRowsClause
     : ALL ROWS;
 
-forClause
-    : FOR UPDATE
-    | FOR VIEW;
+forClauses
+    : (FOR (VIEW | UPDATE | REFERENCE))*;
 
 boundExpression
     : COLON expression;
@@ -673,39 +701,41 @@ dateFormula
     | NEXT_MONTH
     | LAST_90_DAYS
     | NEXT_90_DAYS
-    | LAST_N_DAYS_N COLON dateInteger
-    | NEXT_N_DAYS_N COLON dateInteger
-    | NEXT_N_WEEKS_N COLON dateInteger
-    | LAST_N_WEEKS_N COLON dateInteger
-    | NEXT_N_MONTHS_N COLON dateInteger
-    | LAST_N_MONTHS_N COLON dateInteger
+    | LAST_N_DAYS_N COLON signedInteger
+    | NEXT_N_DAYS_N COLON signedInteger
+    | NEXT_N_WEEKS_N COLON signedInteger
+    | LAST_N_WEEKS_N COLON signedInteger
+    | NEXT_N_MONTHS_N COLON signedInteger
+    | LAST_N_MONTHS_N COLON signedInteger
     | THIS_QUARTER
     | LAST_QUARTER
     | NEXT_QUARTER
-    | NEXT_N_QUARTERS_N COLON dateInteger
-    | LAST_N_QUARTERS_N COLON dateInteger
+    | NEXT_N_QUARTERS_N COLON signedInteger
+    | LAST_N_QUARTERS_N COLON signedInteger
     | THIS_YEAR
     | LAST_YEAR
     | NEXT_YEAR
-    | NEXT_N_YEARS_N COLON dateInteger
-    | LAST_N_YEARS_N COLON dateInteger
+    | NEXT_N_YEARS_N COLON signedInteger
+    | LAST_N_YEARS_N COLON signedInteger
     | THIS_FISCAL_QUARTER
     | LAST_FISCAL_QUARTER
     | NEXT_FISCAL_QUARTER
-    | NEXT_N_FISCAL_QUARTERS_N COLON dateInteger
-    | LAST_N_FISCAL_QUARTERS_N COLON dateInteger
+    | NEXT_N_FISCAL_QUARTERS_N COLON signedInteger
+    | LAST_N_FISCAL_QUARTERS_N COLON signedInteger
     | THIS_FISCAL_YEAR
     | LAST_FISCAL_YEAR
     | NEXT_FISCAL_YEAR
-    | NEXT_N_FISCAL_YEARS_N COLON dateInteger
-    | LAST_N_FISCAL_YEARS_N COLON dateInteger
+    | NEXT_N_FISCAL_YEARS_N COLON signedInteger
+    | LAST_N_FISCAL_YEARS_N COLON signedInteger
     ;
 
-dateInteger
+signedInteger
     : (ADD | SUB)? IntegerLiteral;
 
 soqlId
     : id;
+
+// Identifiers
 
 // Some keywords can be used as general identifiers, this is likley an over simplification of the actual
 // rules but devining them from playing with Apex is very difficult. We could let any be used but that
@@ -763,6 +793,16 @@ id
     | HAVING
     | ROLLUP
     | TOLABEL
+    | OFFSET
+    | DATA
+    | CATEGORY
+    | AT
+    | ABOVE
+    | BELOW
+    | ABOVE_OR_BELOW
+    | SECURITY_ENFORCED
+    | REFERENCE
+    | CUBE
     // SOQL date formulas
     | YESTERDAY
     | TODAY
@@ -900,6 +940,16 @@ anyId
     | HAVING
     | ROLLUP
     | TOLABEL
+    | OFFSET
+    | DATA
+    | CATEGORY
+    | AT
+    | ABOVE
+    | BELOW
+    | ABOVE_OR_BELOW
+    | SECURITY_ENFORCED
+    | REFERENCE
+    | CUBE
     // SOQL date formulas
     | YESTERDAY
     | TODAY

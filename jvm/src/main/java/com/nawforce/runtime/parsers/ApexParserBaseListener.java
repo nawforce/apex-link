@@ -1408,25 +1408,25 @@ public class ApexParserBaseListener implements ApexParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFieldList(ApexParser.FieldListContext ctx) { }
+	@Override public void enterSelectList(ApexParser.SelectListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFieldList(ApexParser.FieldListContext ctx) { }
+	@Override public void exitSelectList(ApexParser.SelectListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFieldEntry(ApexParser.FieldEntryContext ctx) { }
+	@Override public void enterSelectEntry(ApexParser.SelectEntryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFieldEntry(ApexParser.FieldEntryContext ctx) { }
+	@Override public void exitSelectEntry(ApexParser.SelectEntryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1528,13 +1528,13 @@ public class ApexParserBaseListener implements ApexParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSimpleFieldList(ApexParser.SimpleFieldListContext ctx) { }
+	@Override public void enterFieldNameList(ApexParser.FieldNameListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSimpleFieldList(ApexParser.SimpleFieldListContext ctx) { }
+	@Override public void exitFieldNameList(ApexParser.FieldNameListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1636,6 +1636,78 @@ public class ApexParserBaseListener implements ApexParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCurrencyValue(ApexParser.CurrencyValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCurrencyValue(ApexParser.CurrencyValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterWithClause(ApexParser.WithClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitWithClause(ApexParser.WithClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFilteringExpression(ApexParser.FilteringExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFilteringExpression(ApexParser.FilteringExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDataCategorySelection(ApexParser.DataCategorySelectionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDataCategorySelection(ApexParser.DataCategorySelectionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDataCategoryName(ApexParser.DataCategoryNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDataCategoryName(ApexParser.DataCategoryNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFilteringSelector(ApexParser.FilteringSelectorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFilteringSelector(ApexParser.FilteringSelectorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterGroupByClause(ApexParser.GroupByClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1696,6 +1768,18 @@ public class ApexParserBaseListener implements ApexParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterOffsetClause(ApexParser.OffsetClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOffsetClause(ApexParser.OffsetClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAllRowsClause(ApexParser.AllRowsClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1708,13 +1792,13 @@ public class ApexParserBaseListener implements ApexParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterForClause(ApexParser.ForClauseContext ctx) { }
+	@Override public void enterForClauses(ApexParser.ForClausesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitForClause(ApexParser.ForClauseContext ctx) { }
+	@Override public void exitForClauses(ApexParser.ForClausesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1744,13 +1828,13 @@ public class ApexParserBaseListener implements ApexParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDateInteger(ApexParser.DateIntegerContext ctx) { }
+	@Override public void enterSignedInteger(ApexParser.SignedIntegerContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDateInteger(ApexParser.DateIntegerContext ctx) { }
+	@Override public void exitSignedInteger(ApexParser.SignedIntegerContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

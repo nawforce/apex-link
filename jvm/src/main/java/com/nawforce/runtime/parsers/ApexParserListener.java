@@ -1226,25 +1226,25 @@ public interface ApexParserListener extends ParseTreeListener {
 	 */
 	void exitSubQuery(ApexParser.SubQueryContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ApexParser#fieldList}.
+	 * Enter a parse tree produced by {@link ApexParser#selectList}.
 	 * @param ctx the parse tree
 	 */
-	void enterFieldList(ApexParser.FieldListContext ctx);
+	void enterSelectList(ApexParser.SelectListContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ApexParser#fieldList}.
+	 * Exit a parse tree produced by {@link ApexParser#selectList}.
 	 * @param ctx the parse tree
 	 */
-	void exitFieldList(ApexParser.FieldListContext ctx);
+	void exitSelectList(ApexParser.SelectListContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ApexParser#fieldEntry}.
+	 * Enter a parse tree produced by {@link ApexParser#selectEntry}.
 	 * @param ctx the parse tree
 	 */
-	void enterFieldEntry(ApexParser.FieldEntryContext ctx);
+	void enterSelectEntry(ApexParser.SelectEntryContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ApexParser#fieldEntry}.
+	 * Exit a parse tree produced by {@link ApexParser#selectEntry}.
 	 * @param ctx the parse tree
 	 */
-	void exitFieldEntry(ApexParser.FieldEntryContext ctx);
+	void exitSelectEntry(ApexParser.SelectEntryContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ApexParser#fieldName}.
 	 * @param ctx the parse tree
@@ -1326,15 +1326,15 @@ public interface ApexParserListener extends ParseTreeListener {
 	 */
 	void exitElseClause(ApexParser.ElseClauseContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ApexParser#simpleFieldList}.
+	 * Enter a parse tree produced by {@link ApexParser#fieldNameList}.
 	 * @param ctx the parse tree
 	 */
-	void enterSimpleFieldList(ApexParser.SimpleFieldListContext ctx);
+	void enterFieldNameList(ApexParser.FieldNameListContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ApexParser#simpleFieldList}.
+	 * Exit a parse tree produced by {@link ApexParser#fieldNameList}.
 	 * @param ctx the parse tree
 	 */
-	void exitSimpleFieldList(ApexParser.SimpleFieldListContext ctx);
+	void exitFieldNameList(ApexParser.FieldNameListContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ApexParser#usingScope}.
 	 * @param ctx the parse tree
@@ -1416,6 +1416,66 @@ public interface ApexParserListener extends ParseTreeListener {
 	 */
 	void exitValueList(ApexParser.ValueListContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ApexParser#currencyValue}.
+	 * @param ctx the parse tree
+	 */
+	void enterCurrencyValue(ApexParser.CurrencyValueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#currencyValue}.
+	 * @param ctx the parse tree
+	 */
+	void exitCurrencyValue(ApexParser.CurrencyValueContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#withClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterWithClause(ApexParser.WithClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#withClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitWithClause(ApexParser.WithClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#filteringExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterFilteringExpression(ApexParser.FilteringExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#filteringExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitFilteringExpression(ApexParser.FilteringExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#dataCategorySelection}.
+	 * @param ctx the parse tree
+	 */
+	void enterDataCategorySelection(ApexParser.DataCategorySelectionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#dataCategorySelection}.
+	 * @param ctx the parse tree
+	 */
+	void exitDataCategorySelection(ApexParser.DataCategorySelectionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#dataCategoryName}.
+	 * @param ctx the parse tree
+	 */
+	void enterDataCategoryName(ApexParser.DataCategoryNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#dataCategoryName}.
+	 * @param ctx the parse tree
+	 */
+	void exitDataCategoryName(ApexParser.DataCategoryNameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#filteringSelector}.
+	 * @param ctx the parse tree
+	 */
+	void enterFilteringSelector(ApexParser.FilteringSelectorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#filteringSelector}.
+	 * @param ctx the parse tree
+	 */
+	void exitFilteringSelector(ApexParser.FilteringSelectorContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ApexParser#groupByClause}.
 	 * @param ctx the parse tree
 	 */
@@ -1466,6 +1526,16 @@ public interface ApexParserListener extends ParseTreeListener {
 	 */
 	void exitLimitClause(ApexParser.LimitClauseContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ApexParser#offsetClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterOffsetClause(ApexParser.OffsetClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#offsetClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitOffsetClause(ApexParser.OffsetClauseContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ApexParser#allRowsClause}.
 	 * @param ctx the parse tree
 	 */
@@ -1476,15 +1546,15 @@ public interface ApexParserListener extends ParseTreeListener {
 	 */
 	void exitAllRowsClause(ApexParser.AllRowsClauseContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ApexParser#forClause}.
+	 * Enter a parse tree produced by {@link ApexParser#forClauses}.
 	 * @param ctx the parse tree
 	 */
-	void enterForClause(ApexParser.ForClauseContext ctx);
+	void enterForClauses(ApexParser.ForClausesContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ApexParser#forClause}.
+	 * Exit a parse tree produced by {@link ApexParser#forClauses}.
 	 * @param ctx the parse tree
 	 */
-	void exitForClause(ApexParser.ForClauseContext ctx);
+	void exitForClauses(ApexParser.ForClausesContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ApexParser#boundExpression}.
 	 * @param ctx the parse tree
@@ -1506,15 +1576,15 @@ public interface ApexParserListener extends ParseTreeListener {
 	 */
 	void exitDateFormula(ApexParser.DateFormulaContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ApexParser#dateInteger}.
+	 * Enter a parse tree produced by {@link ApexParser#signedInteger}.
 	 * @param ctx the parse tree
 	 */
-	void enterDateInteger(ApexParser.DateIntegerContext ctx);
+	void enterSignedInteger(ApexParser.SignedIntegerContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ApexParser#dateInteger}.
+	 * Exit a parse tree produced by {@link ApexParser#signedInteger}.
 	 * @param ctx the parse tree
 	 */
-	void exitDateInteger(ApexParser.DateIntegerContext ctx);
+	void exitSignedInteger(ApexParser.SignedIntegerContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ApexParser#soqlId}.
 	 * @param ctx the parse tree

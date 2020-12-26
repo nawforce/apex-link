@@ -736,17 +736,17 @@ public interface ApexParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSubQuery(ApexParser.SubQueryContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ApexParser#fieldList}.
+	 * Visit a parse tree produced by {@link ApexParser#selectList}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitFieldList(ApexParser.FieldListContext ctx);
+	T visitSelectList(ApexParser.SelectListContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ApexParser#fieldEntry}.
+	 * Visit a parse tree produced by {@link ApexParser#selectEntry}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitFieldEntry(ApexParser.FieldEntryContext ctx);
+	T visitSelectEntry(ApexParser.SelectEntryContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ApexParser#fieldName}.
 	 * @param ctx the parse tree
@@ -796,11 +796,11 @@ public interface ApexParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitElseClause(ApexParser.ElseClauseContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ApexParser#simpleFieldList}.
+	 * Visit a parse tree produced by {@link ApexParser#fieldNameList}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitSimpleFieldList(ApexParser.SimpleFieldListContext ctx);
+	T visitFieldNameList(ApexParser.FieldNameListContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ApexParser#usingScope}.
 	 * @param ctx the parse tree
@@ -850,6 +850,42 @@ public interface ApexParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitValueList(ApexParser.ValueListContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ApexParser#currencyValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCurrencyValue(ApexParser.CurrencyValueContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#withClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWithClause(ApexParser.WithClauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#filteringExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFilteringExpression(ApexParser.FilteringExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#dataCategorySelection}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDataCategorySelection(ApexParser.DataCategorySelectionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#dataCategoryName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDataCategoryName(ApexParser.DataCategoryNameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#filteringSelector}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFilteringSelector(ApexParser.FilteringSelectorContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ApexParser#groupByClause}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -880,17 +916,23 @@ public interface ApexParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitLimitClause(ApexParser.LimitClauseContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ApexParser#offsetClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOffsetClause(ApexParser.OffsetClauseContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ApexParser#allRowsClause}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitAllRowsClause(ApexParser.AllRowsClauseContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ApexParser#forClause}.
+	 * Visit a parse tree produced by {@link ApexParser#forClauses}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitForClause(ApexParser.ForClauseContext ctx);
+	T visitForClauses(ApexParser.ForClausesContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ApexParser#boundExpression}.
 	 * @param ctx the parse tree
@@ -904,11 +946,11 @@ public interface ApexParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDateFormula(ApexParser.DateFormulaContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ApexParser#dateInteger}.
+	 * Visit a parse tree produced by {@link ApexParser#signedInteger}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitDateInteger(ApexParser.DateIntegerContext ctx);
+	T visitSignedInteger(ApexParser.SignedIntegerContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ApexParser#soqlId}.
 	 * @param ctx the parse tree

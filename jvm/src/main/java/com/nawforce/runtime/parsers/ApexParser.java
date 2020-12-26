@@ -29,27 +29,29 @@ public class ApexParser extends Parser {
 		BY=65, LIMIT=66, SOQLAND=67, SOQLOR=68, NOT=69, AVG=70, COUNT_DISTINCT=71, 
 		MIN=72, MAX=73, SUM=74, TYPEOF=75, END=76, THEN=77, LIKE=78, IN=79, INCLUDES=80, 
 		EXCLUDES=81, ASC=82, DESC=83, NULLS=84, FIRST=85, LAST=86, GROUP=87, ALL=88, 
-		ROWS=89, VIEW=90, HAVING=91, ROLLUP=92, TOLABEL=93, YESTERDAY=94, TODAY=95, 
-		TOMORROW=96, LAST_WEEK=97, THIS_WEEK=98, NEXT_WEEK=99, LAST_MONTH=100, 
-		THIS_MONTH=101, NEXT_MONTH=102, LAST_90_DAYS=103, NEXT_90_DAYS=104, LAST_N_DAYS_N=105, 
-		NEXT_N_DAYS_N=106, NEXT_N_WEEKS_N=107, LAST_N_WEEKS_N=108, NEXT_N_MONTHS_N=109, 
-		LAST_N_MONTHS_N=110, THIS_QUARTER=111, LAST_QUARTER=112, NEXT_QUARTER=113, 
-		NEXT_N_QUARTERS_N=114, LAST_N_QUARTERS_N=115, THIS_YEAR=116, LAST_YEAR=117, 
-		NEXT_YEAR=118, NEXT_N_YEARS_N=119, LAST_N_YEARS_N=120, THIS_FISCAL_QUARTER=121, 
-		LAST_FISCAL_QUARTER=122, NEXT_FISCAL_QUARTER=123, NEXT_N_FISCAL_QUARTERS_N=124, 
-		LAST_N_FISCAL_QUARTERS_N=125, THIS_FISCAL_YEAR=126, LAST_FISCAL_YEAR=127, 
-		NEXT_FISCAL_YEAR=128, NEXT_N_FISCAL_YEARS_N=129, LAST_N_FISCAL_YEARS_N=130, 
-		DateLiteral=131, DateTimeLiteral=132, IntegerLiteral=133, LongLiteral=134, 
-		NumberLiteral=135, BooleanLiteral=136, StringLiteral=137, NullLiteral=138, 
-		LPAREN=139, RPAREN=140, LBRACE=141, RBRACE=142, LBRACK=143, RBRACK=144, 
-		SEMI=145, COMMA=146, DOT=147, ASSIGN=148, GT=149, LT=150, BANG=151, TILDE=152, 
-		QUESTIONDOT=153, QUESTION=154, COLON=155, EQUAL=156, TRIPLEEQUAL=157, 
-		NOTEQUAL=158, LESSANDGREATER=159, TRIPLENOTEQUAL=160, AND=161, OR=162, 
-		INC=163, DEC=164, ADD=165, SUB=166, MUL=167, DIV=168, BITAND=169, BITOR=170, 
-		CARET=171, MOD=172, MAPTO=173, ADD_ASSIGN=174, SUB_ASSIGN=175, MUL_ASSIGN=176, 
-		DIV_ASSIGN=177, AND_ASSIGN=178, OR_ASSIGN=179, XOR_ASSIGN=180, MOD_ASSIGN=181, 
-		LSHIFT_ASSIGN=182, RSHIFT_ASSIGN=183, URSHIFT_ASSIGN=184, AT=185, Identifier=186, 
-		WS=187, DOC_COMMENT=188, COMMENT=189, LINE_COMMENT=190;
+		ROWS=89, VIEW=90, HAVING=91, ROLLUP=92, TOLABEL=93, OFFSET=94, DATA=95, 
+		CATEGORY=96, AT=97, ABOVE=98, BELOW=99, ABOVE_OR_BELOW=100, SECURITY_ENFORCED=101, 
+		REFERENCE=102, CUBE=103, YESTERDAY=104, TODAY=105, TOMORROW=106, LAST_WEEK=107, 
+		THIS_WEEK=108, NEXT_WEEK=109, LAST_MONTH=110, THIS_MONTH=111, NEXT_MONTH=112, 
+		LAST_90_DAYS=113, NEXT_90_DAYS=114, LAST_N_DAYS_N=115, NEXT_N_DAYS_N=116, 
+		NEXT_N_WEEKS_N=117, LAST_N_WEEKS_N=118, NEXT_N_MONTHS_N=119, LAST_N_MONTHS_N=120, 
+		THIS_QUARTER=121, LAST_QUARTER=122, NEXT_QUARTER=123, NEXT_N_QUARTERS_N=124, 
+		LAST_N_QUARTERS_N=125, THIS_YEAR=126, LAST_YEAR=127, NEXT_YEAR=128, NEXT_N_YEARS_N=129, 
+		LAST_N_YEARS_N=130, THIS_FISCAL_QUARTER=131, LAST_FISCAL_QUARTER=132, 
+		NEXT_FISCAL_QUARTER=133, NEXT_N_FISCAL_QUARTERS_N=134, LAST_N_FISCAL_QUARTERS_N=135, 
+		THIS_FISCAL_YEAR=136, LAST_FISCAL_YEAR=137, NEXT_FISCAL_YEAR=138, NEXT_N_FISCAL_YEARS_N=139, 
+		LAST_N_FISCAL_YEARS_N=140, DateLiteral=141, DateTimeLiteral=142, IntegerLiteral=143, 
+		LongLiteral=144, NumberLiteral=145, BooleanLiteral=146, StringLiteral=147, 
+		NullLiteral=148, LPAREN=149, RPAREN=150, LBRACE=151, RBRACE=152, LBRACK=153, 
+		RBRACK=154, SEMI=155, COMMA=156, DOT=157, ASSIGN=158, GT=159, LT=160, 
+		BANG=161, TILDE=162, QUESTIONDOT=163, QUESTION=164, COLON=165, EQUAL=166, 
+		TRIPLEEQUAL=167, NOTEQUAL=168, LESSANDGREATER=169, TRIPLENOTEQUAL=170, 
+		AND=171, OR=172, INC=173, DEC=174, ADD=175, SUB=176, MUL=177, DIV=178, 
+		BITAND=179, BITOR=180, CARET=181, MOD=182, MAPTO=183, ADD_ASSIGN=184, 
+		SUB_ASSIGN=185, MUL_ASSIGN=186, DIV_ASSIGN=187, AND_ASSIGN=188, OR_ASSIGN=189, 
+		XOR_ASSIGN=190, MOD_ASSIGN=191, LSHIFT_ASSIGN=192, RSHIFT_ASSIGN=193, 
+		URSHIFT_ASSIGN=194, ATSIGN=195, Identifier=196, WS=197, DOC_COMMENT=198, 
+		COMMENT=199, LINE_COMMENT=200;
 	public static final int
 		RULE_triggerUnit = 0, RULE_triggerCase = 1, RULE_compilationUnit = 2, 
 		RULE_typeDeclaration = 3, RULE_classDeclaration = 4, RULE_enumDeclaration = 5, 
@@ -79,16 +81,18 @@ public class ApexParser extends Parser {
 		RULE_noRest = 79, RULE_classCreatorRest = 80, RULE_arrayCreatorRest = 81, 
 		RULE_mapCreatorRest = 82, RULE_mapCreatorRestPair = 83, RULE_setCreatorRest = 84, 
 		RULE_arguments = 85, RULE_soqlLiteral = 86, RULE_query = 87, RULE_subQuery = 88, 
-		RULE_fieldList = 89, RULE_fieldEntry = 90, RULE_fieldName = 91, RULE_fromNameList = 92, 
+		RULE_selectList = 89, RULE_selectEntry = 90, RULE_fieldName = 91, RULE_fromNameList = 92, 
 		RULE_subFieldList = 93, RULE_subFieldEntry = 94, RULE_aggregateFunction = 95, 
-		RULE_typeOf = 96, RULE_whenClause = 97, RULE_elseClause = 98, RULE_simpleFieldList = 99, 
+		RULE_typeOf = 96, RULE_whenClause = 97, RULE_elseClause = 98, RULE_fieldNameList = 99, 
 		RULE_usingScope = 100, RULE_whereClause = 101, RULE_logicalExpression = 102, 
 		RULE_conditionalExpression = 103, RULE_fieldExpression = 104, RULE_comparisonOperator = 105, 
-		RULE_value = 106, RULE_valueList = 107, RULE_groupByClause = 108, RULE_orderByClause = 109, 
-		RULE_fieldOrderList = 110, RULE_fieldOrder = 111, RULE_limitClause = 112, 
-		RULE_allRowsClause = 113, RULE_forClause = 114, RULE_boundExpression = 115, 
-		RULE_dateFormula = 116, RULE_dateInteger = 117, RULE_soqlId = 118, RULE_id = 119, 
-		RULE_anyId = 120;
+		RULE_value = 106, RULE_valueList = 107, RULE_currencyValue = 108, RULE_withClause = 109, 
+		RULE_filteringExpression = 110, RULE_dataCategorySelection = 111, RULE_dataCategoryName = 112, 
+		RULE_filteringSelector = 113, RULE_groupByClause = 114, RULE_orderByClause = 115, 
+		RULE_fieldOrderList = 116, RULE_fieldOrder = 117, RULE_limitClause = 118, 
+		RULE_offsetClause = 119, RULE_allRowsClause = 120, RULE_forClauses = 121, 
+		RULE_boundExpression = 122, RULE_dateFormula = 123, RULE_signedInteger = 124, 
+		RULE_soqlId = 125, RULE_id = 126, RULE_anyId = 127;
 	private static String[] makeRuleNames() {
 		return new String[] {
 			"triggerUnit", "triggerCase", "compilationUnit", "typeDeclaration", "classDeclaration", 
@@ -110,14 +114,15 @@ public class ApexParser extends Parser {
 			"forUpdate", "parExpression", "expressionList", "expression", "primary", 
 			"methodCall", "dotMethodCall", "creator", "createdName", "idCreatedNamePair", 
 			"noRest", "classCreatorRest", "arrayCreatorRest", "mapCreatorRest", "mapCreatorRestPair", 
-			"setCreatorRest", "arguments", "soqlLiteral", "query", "subQuery", "fieldList", 
-			"fieldEntry", "fieldName", "fromNameList", "subFieldList", "subFieldEntry", 
-			"aggregateFunction", "typeOf", "whenClause", "elseClause", "simpleFieldList", 
+			"setCreatorRest", "arguments", "soqlLiteral", "query", "subQuery", "selectList", 
+			"selectEntry", "fieldName", "fromNameList", "subFieldList", "subFieldEntry", 
+			"aggregateFunction", "typeOf", "whenClause", "elseClause", "fieldNameList", 
 			"usingScope", "whereClause", "logicalExpression", "conditionalExpression", 
-			"fieldExpression", "comparisonOperator", "value", "valueList", "groupByClause", 
-			"orderByClause", "fieldOrderList", "fieldOrder", "limitClause", "allRowsClause", 
-			"forClause", "boundExpression", "dateFormula", "dateInteger", "soqlId", 
-			"id", "anyId"
+			"fieldExpression", "comparisonOperator", "value", "valueList", "currencyValue", 
+			"withClause", "filteringExpression", "dataCategorySelection", "dataCategoryName", 
+			"filteringSelector", "groupByClause", "orderByClause", "fieldOrderList", 
+			"fieldOrder", "limitClause", "offsetClause", "allRowsClause", "forClauses", 
+			"boundExpression", "dateFormula", "signedInteger", "soqlId", "id", "anyId"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
@@ -138,21 +143,23 @@ public class ApexParser extends Parser {
 			"'min'", "'max'", "'sum'", "'typeof'", "'end'", "'then'", "'like'", "'in'", 
 			"'includes'", "'excludes'", "'asc'", "'desc'", "'nulls'", "'first'", 
 			"'last'", "'group'", "'all'", "'rows'", "'view'", "'having'", "'rollup'", 
-			"'tolabel'", "'yesterday'", "'today'", "'tomorrow'", "'last_week'", "'this_week'", 
-			"'next_week'", "'last_month'", "'this_month'", "'next_month'", "'last_90_days'", 
-			"'next_90_days'", "'last_n_days'", "'next_n_days'", "'next_n_weeks'", 
-			"'last_n_weeks'", "'next_n_months'", "'last_n_months'", "'this_quarter'", 
-			"'last_quarted'", "'next_quarter'", "'next_n_quarters'", "'last_n_quarters'", 
-			"'this_year'", "'last_year'", "'next_year'", "'next_n_years'", "'last_n_years'", 
-			"'this_fiscal_quarter'", "'last_fiscal_quarter'", "'next_fiscal_quarter'", 
-			"'next_n_fiscal_quarters'", "'last_n_fiscal_quarters'", "'this_fiscal_year'", 
-			"'last_fiscal_year'", "'next_fiscal_year'", "'next_n_fiscal_years'", 
-			"'last_n_fiscal_years'", null, null, null, null, null, null, null, null, 
-			"'('", "')'", "'{'", "'}'", "'['", "']'", "';'", "','", "'.'", "'='", 
-			"'>'", "'<'", "'!'", "'~'", "'?.'", "'?'", "':'", "'=='", "'==='", "'!='", 
-			"'<>'", "'!=='", "'&&'", "'||'", "'++'", "'--'", "'+'", "'-'", "'*'", 
-			"'/'", "'&'", "'|'", "'^'", "'%'", "'=>'", "'+='", "'-='", "'*='", "'/='", 
-			"'&='", "'|='", "'^='", "'%='", "'<<='", "'>>='", "'>>>='", "'@'"
+			"'tolabel'", "'offset'", "'data'", "'category'", "'at'", "'above'", "'below'", 
+			"'above_or_below'", "'security_enforced'", "'reference'", "'cube'", "'yesterday'", 
+			"'today'", "'tomorrow'", "'last_week'", "'this_week'", "'next_week'", 
+			"'last_month'", "'this_month'", "'next_month'", "'last_90_days'", "'next_90_days'", 
+			"'last_n_days'", "'next_n_days'", "'next_n_weeks'", "'last_n_weeks'", 
+			"'next_n_months'", "'last_n_months'", "'this_quarter'", "'last_quarted'", 
+			"'next_quarter'", "'next_n_quarters'", "'last_n_quarters'", "'this_year'", 
+			"'last_year'", "'next_year'", "'next_n_years'", "'last_n_years'", "'this_fiscal_quarter'", 
+			"'last_fiscal_quarter'", "'next_fiscal_quarter'", "'next_n_fiscal_quarters'", 
+			"'last_n_fiscal_quarters'", "'this_fiscal_year'", "'last_fiscal_year'", 
+			"'next_fiscal_year'", "'next_n_fiscal_years'", "'last_n_fiscal_years'", 
+			null, null, null, null, null, null, null, null, "'('", "')'", "'{'", 
+			"'}'", "'['", "']'", "';'", "','", "'.'", "'='", "'>'", "'<'", "'!'", 
+			"'~'", "'?.'", "'?'", "':'", "'=='", "'==='", "'!='", "'<>'", "'!=='", 
+			"'&&'", "'||'", "'++'", "'--'", "'+'", "'-'", "'*'", "'/'", "'&'", "'|'", 
+			"'^'", "'%'", "'=>'", "'+='", "'-='", "'*='", "'/='", "'&='", "'|='", 
+			"'^='", "'%='", "'<<='", "'>>='", "'>>>='", "'@'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -170,24 +177,26 @@ public class ApexParser extends Parser {
 			"NOT", "AVG", "COUNT_DISTINCT", "MIN", "MAX", "SUM", "TYPEOF", "END", 
 			"THEN", "LIKE", "IN", "INCLUDES", "EXCLUDES", "ASC", "DESC", "NULLS", 
 			"FIRST", "LAST", "GROUP", "ALL", "ROWS", "VIEW", "HAVING", "ROLLUP", 
-			"TOLABEL", "YESTERDAY", "TODAY", "TOMORROW", "LAST_WEEK", "THIS_WEEK", 
-			"NEXT_WEEK", "LAST_MONTH", "THIS_MONTH", "NEXT_MONTH", "LAST_90_DAYS", 
-			"NEXT_90_DAYS", "LAST_N_DAYS_N", "NEXT_N_DAYS_N", "NEXT_N_WEEKS_N", "LAST_N_WEEKS_N", 
-			"NEXT_N_MONTHS_N", "LAST_N_MONTHS_N", "THIS_QUARTER", "LAST_QUARTER", 
-			"NEXT_QUARTER", "NEXT_N_QUARTERS_N", "LAST_N_QUARTERS_N", "THIS_YEAR", 
-			"LAST_YEAR", "NEXT_YEAR", "NEXT_N_YEARS_N", "LAST_N_YEARS_N", "THIS_FISCAL_QUARTER", 
-			"LAST_FISCAL_QUARTER", "NEXT_FISCAL_QUARTER", "NEXT_N_FISCAL_QUARTERS_N", 
-			"LAST_N_FISCAL_QUARTERS_N", "THIS_FISCAL_YEAR", "LAST_FISCAL_YEAR", "NEXT_FISCAL_YEAR", 
-			"NEXT_N_FISCAL_YEARS_N", "LAST_N_FISCAL_YEARS_N", "DateLiteral", "DateTimeLiteral", 
-			"IntegerLiteral", "LongLiteral", "NumberLiteral", "BooleanLiteral", "StringLiteral", 
-			"NullLiteral", "LPAREN", "RPAREN", "LBRACE", "RBRACE", "LBRACK", "RBRACK", 
-			"SEMI", "COMMA", "DOT", "ASSIGN", "GT", "LT", "BANG", "TILDE", "QUESTIONDOT", 
-			"QUESTION", "COLON", "EQUAL", "TRIPLEEQUAL", "NOTEQUAL", "LESSANDGREATER", 
-			"TRIPLENOTEQUAL", "AND", "OR", "INC", "DEC", "ADD", "SUB", "MUL", "DIV", 
-			"BITAND", "BITOR", "CARET", "MOD", "MAPTO", "ADD_ASSIGN", "SUB_ASSIGN", 
-			"MUL_ASSIGN", "DIV_ASSIGN", "AND_ASSIGN", "OR_ASSIGN", "XOR_ASSIGN", 
-			"MOD_ASSIGN", "LSHIFT_ASSIGN", "RSHIFT_ASSIGN", "URSHIFT_ASSIGN", "AT", 
-			"Identifier", "WS", "DOC_COMMENT", "COMMENT", "LINE_COMMENT"
+			"TOLABEL", "OFFSET", "DATA", "CATEGORY", "AT", "ABOVE", "BELOW", "ABOVE_OR_BELOW", 
+			"SECURITY_ENFORCED", "REFERENCE", "CUBE", "YESTERDAY", "TODAY", "TOMORROW", 
+			"LAST_WEEK", "THIS_WEEK", "NEXT_WEEK", "LAST_MONTH", "THIS_MONTH", "NEXT_MONTH", 
+			"LAST_90_DAYS", "NEXT_90_DAYS", "LAST_N_DAYS_N", "NEXT_N_DAYS_N", "NEXT_N_WEEKS_N", 
+			"LAST_N_WEEKS_N", "NEXT_N_MONTHS_N", "LAST_N_MONTHS_N", "THIS_QUARTER", 
+			"LAST_QUARTER", "NEXT_QUARTER", "NEXT_N_QUARTERS_N", "LAST_N_QUARTERS_N", 
+			"THIS_YEAR", "LAST_YEAR", "NEXT_YEAR", "NEXT_N_YEARS_N", "LAST_N_YEARS_N", 
+			"THIS_FISCAL_QUARTER", "LAST_FISCAL_QUARTER", "NEXT_FISCAL_QUARTER", 
+			"NEXT_N_FISCAL_QUARTERS_N", "LAST_N_FISCAL_QUARTERS_N", "THIS_FISCAL_YEAR", 
+			"LAST_FISCAL_YEAR", "NEXT_FISCAL_YEAR", "NEXT_N_FISCAL_YEARS_N", "LAST_N_FISCAL_YEARS_N", 
+			"DateLiteral", "DateTimeLiteral", "IntegerLiteral", "LongLiteral", "NumberLiteral", 
+			"BooleanLiteral", "StringLiteral", "NullLiteral", "LPAREN", "RPAREN", 
+			"LBRACE", "RBRACE", "LBRACK", "RBRACK", "SEMI", "COMMA", "DOT", "ASSIGN", 
+			"GT", "LT", "BANG", "TILDE", "QUESTIONDOT", "QUESTION", "COLON", "EQUAL", 
+			"TRIPLEEQUAL", "NOTEQUAL", "LESSANDGREATER", "TRIPLENOTEQUAL", "AND", 
+			"OR", "INC", "DEC", "ADD", "SUB", "MUL", "DIV", "BITAND", "BITOR", "CARET", 
+			"MOD", "MAPTO", "ADD_ASSIGN", "SUB_ASSIGN", "MUL_ASSIGN", "DIV_ASSIGN", 
+			"AND_ASSIGN", "OR_ASSIGN", "XOR_ASSIGN", "MOD_ASSIGN", "LSHIFT_ASSIGN", 
+			"RSHIFT_ASSIGN", "URSHIFT_ASSIGN", "ATSIGN", "Identifier", "WS", "DOC_COMMENT", 
+			"COMMENT", "LINE_COMMENT"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -297,39 +306,39 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(242);
+			setState(256);
 			match(TRIGGER);
-			setState(243);
+			setState(257);
 			id();
-			setState(244);
+			setState(258);
 			match(ON);
-			setState(245);
+			setState(259);
 			id();
-			setState(246);
+			setState(260);
 			match(LPAREN);
-			setState(247);
+			setState(261);
 			triggerCase();
-			setState(252);
+			setState(266);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(248);
+				setState(262);
 				match(COMMA);
-				setState(249);
+				setState(263);
 				triggerCase();
 				}
 				}
-				setState(254);
+				setState(268);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(255);
+			setState(269);
 			match(RPAREN);
-			setState(256);
+			setState(270);
 			block();
-			setState(257);
+			setState(271);
 			match(EOF);
 			}
 		}
@@ -377,7 +386,7 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(259);
+			setState(273);
 			_la = _input.LA(1);
 			if ( !(_la==AFTER || _la==BEFORE) ) {
 			_errHandler.recoverInline(this);
@@ -387,7 +396,7 @@ public class ApexParser extends Parser {
 				_errHandler.reportMatch(this);
 				consume();
 			}
-			setState(260);
+			setState(274);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << DELETE) | (1L << INSERT) | (1L << UNDELETE) | (1L << UPDATE))) != 0)) ) {
 			_errHandler.recoverInline(this);
@@ -440,9 +449,9 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(262);
+			setState(276);
 			typeDeclaration();
-			setState(263);
+			setState(277);
 			match(EOF);
 			}
 		}
@@ -497,58 +506,16 @@ public class ApexParser extends Parser {
 		enterRule(_localctx, 6, RULE_typeDeclaration);
 		int _la;
 		try {
-			setState(286);
+			setState(300);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,4,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(268);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << FINAL) | (1L << GLOBAL) | (1L << INHERITED) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << TESTMETHOD) | (1L << TRANSIENT) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WITH) | (1L << WITHOUT))) != 0) || _la==AT) {
-					{
-					{
-					setState(265);
-					modifier();
-					}
-					}
-					setState(270);
-					_errHandler.sync(this);
-					_la = _input.LA(1);
-				}
-				setState(271);
-				classDeclaration();
-				}
-				break;
-			case 2:
-				enterOuterAlt(_localctx, 2);
-				{
-				setState(275);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << FINAL) | (1L << GLOBAL) | (1L << INHERITED) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << TESTMETHOD) | (1L << TRANSIENT) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WITH) | (1L << WITHOUT))) != 0) || _la==AT) {
-					{
-					{
-					setState(272);
-					modifier();
-					}
-					}
-					setState(277);
-					_errHandler.sync(this);
-					_la = _input.LA(1);
-				}
-				setState(278);
-				enumDeclaration();
-				}
-				break;
-			case 3:
-				enterOuterAlt(_localctx, 3);
-				{
 				setState(282);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << FINAL) | (1L << GLOBAL) | (1L << INHERITED) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << TESTMETHOD) | (1L << TRANSIENT) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WITH) | (1L << WITHOUT))) != 0) || _la==AT) {
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << FINAL) | (1L << GLOBAL) | (1L << INHERITED) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << TESTMETHOD) | (1L << TRANSIENT) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WITH) | (1L << WITHOUT))) != 0) || _la==ATSIGN) {
 					{
 					{
 					setState(279);
@@ -560,6 +527,48 @@ public class ApexParser extends Parser {
 					_la = _input.LA(1);
 				}
 				setState(285);
+				classDeclaration();
+				}
+				break;
+			case 2:
+				enterOuterAlt(_localctx, 2);
+				{
+				setState(289);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << FINAL) | (1L << GLOBAL) | (1L << INHERITED) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << TESTMETHOD) | (1L << TRANSIENT) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WITH) | (1L << WITHOUT))) != 0) || _la==ATSIGN) {
+					{
+					{
+					setState(286);
+					modifier();
+					}
+					}
+					setState(291);
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+				}
+				setState(292);
+				enumDeclaration();
+				}
+				break;
+			case 3:
+				enterOuterAlt(_localctx, 3);
+				{
+				setState(296);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << FINAL) | (1L << GLOBAL) | (1L << INHERITED) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << TESTMETHOD) | (1L << TRANSIENT) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WITH) | (1L << WITHOUT))) != 0) || _la==ATSIGN) {
+					{
+					{
+					setState(293);
+					modifier();
+					}
+					}
+					setState(298);
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+				}
+				setState(299);
 				interfaceDeclaration();
 				}
 				break;
@@ -618,35 +627,35 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(288);
+			setState(302);
 			match(CLASS);
-			setState(289);
+			setState(303);
 			id();
-			setState(292);
+			setState(306);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==EXTENDS) {
 				{
-				setState(290);
+				setState(304);
 				match(EXTENDS);
-				setState(291);
+				setState(305);
 				typeRef();
 				}
 			}
 
-			setState(296);
+			setState(310);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==IMPLEMENTS) {
 				{
-				setState(294);
+				setState(308);
 				match(IMPLEMENTS);
-				setState(295);
+				setState(309);
 				typeList();
 				}
 			}
 
-			setState(298);
+			setState(312);
 			classBody();
 			}
 		}
@@ -697,23 +706,23 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(300);
+			setState(314);
 			match(ENUM);
-			setState(301);
+			setState(315);
 			id();
-			setState(302);
+			setState(316);
 			match(LBRACE);
-			setState(304);
+			setState(318);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << SET) | (1L << SHARING) | (1L << SWITCH) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (Identifier - 128)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << SET) | (1L << SHARING) | (1L << SWITCH) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)))) != 0) || _la==Identifier) {
 				{
-				setState(303);
+				setState(317);
 				enumConstants();
 				}
 			}
 
-			setState(306);
+			setState(320);
 			match(RBRACE);
 			}
 		}
@@ -765,21 +774,21 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(308);
+			setState(322);
 			id();
-			setState(313);
+			setState(327);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(309);
+				setState(323);
 				match(COMMA);
-				setState(310);
+				setState(324);
 				id();
 				}
 				}
-				setState(315);
+				setState(329);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -834,23 +843,23 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(316);
+			setState(330);
 			match(INTERFACE);
-			setState(317);
+			setState(331);
 			id();
-			setState(320);
+			setState(334);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==EXTENDS) {
 				{
-				setState(318);
+				setState(332);
 				match(EXTENDS);
-				setState(319);
+				setState(333);
 				typeList();
 				}
 			}
 
-			setState(322);
+			setState(336);
 			interfaceBody();
 			}
 		}
@@ -902,21 +911,21 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(324);
+			setState(338);
 			typeRef();
-			setState(329);
+			setState(343);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(325);
+				setState(339);
 				match(COMMA);
-				setState(326);
+				setState(340);
 				typeRef();
 				}
 				}
-				setState(331);
+				setState(345);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -968,23 +977,23 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(332);
+			setState(346);
 			match(LBRACE);
-			setState(336);
+			setState(350);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << AFTER) | (1L << BEFORE) | (1L << CLASS) | (1L << ENUM) | (1L << FINAL) | (1L << GET) | (1L << GLOBAL) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << SET) | (1L << SHARING) | (1L << STATIC) | (1L << SWITCH) | (1L << TESTMETHOD) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << VIRTUAL) | (1L << VOID) | (1L << WEBSERVICE) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (LBRACE - 128)) | (1L << (SEMI - 128)) | (1L << (AT - 128)) | (1L << (Identifier - 128)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << AFTER) | (1L << BEFORE) | (1L << CLASS) | (1L << ENUM) | (1L << FINAL) | (1L << GET) | (1L << GLOBAL) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << SET) | (1L << SHARING) | (1L << STATIC) | (1L << SWITCH) | (1L << TESTMETHOD) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << VIRTUAL) | (1L << VOID) | (1L << WEBSERVICE) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (LBRACE - 128)) | (1L << (SEMI - 128)))) != 0) || _la==ATSIGN || _la==Identifier) {
 				{
 				{
-				setState(333);
+				setState(347);
 				classBodyDeclaration();
 				}
 				}
-				setState(338);
+				setState(352);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(339);
+			setState(353);
 			match(RBRACE);
 			}
 		}
@@ -1034,23 +1043,23 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(341);
+			setState(355);
 			match(LBRACE);
-			setState(345);
+			setState(359);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << AFTER) | (1L << BEFORE) | (1L << FINAL) | (1L << GET) | (1L << GLOBAL) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << SET) | (1L << SHARING) | (1L << STATIC) | (1L << SWITCH) | (1L << TESTMETHOD) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << VIRTUAL) | (1L << VOID) | (1L << WEBSERVICE) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (AT - 128)) | (1L << (Identifier - 128)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << AFTER) | (1L << BEFORE) | (1L << FINAL) | (1L << GET) | (1L << GLOBAL) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << SET) | (1L << SHARING) | (1L << STATIC) | (1L << SWITCH) | (1L << TESTMETHOD) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << VIRTUAL) | (1L << VOID) | (1L << WEBSERVICE) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)))) != 0) || _la==ATSIGN || _la==Identifier) {
 				{
 				{
-				setState(342);
+				setState(356);
 				interfaceMethodDeclaration();
 				}
 				}
-				setState(347);
+				setState(361);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(348);
+			setState(362);
 			match(RBRACE);
 			}
 		}
@@ -1105,53 +1114,53 @@ public class ApexParser extends Parser {
 		int _la;
 		try {
 			int _alt;
-			setState(362);
+			setState(376);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,15,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(350);
+				setState(364);
 				match(SEMI);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(352);
+				setState(366);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==STATIC) {
 					{
-					setState(351);
+					setState(365);
 					match(STATIC);
 					}
 				}
 
-				setState(354);
+				setState(368);
 				block();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(358);
+				setState(372);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,14,_ctx);
 				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
-						setState(355);
+						setState(369);
 						modifier();
 						}
 						} 
 					}
-					setState(360);
+					setState(374);
 					_errHandler.sync(this);
 					_alt = getInterpreter().adaptivePredict(_input,14,_ctx);
 				}
-				setState(361);
+				setState(375);
 				memberDeclaration();
 				}
 				break;
@@ -1211,124 +1220,124 @@ public class ApexParser extends Parser {
 		ModifierContext _localctx = new ModifierContext(_ctx, getState());
 		enterRule(_localctx, 24, RULE_modifier);
 		try {
-			setState(383);
+			setState(397);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
-			case AT:
+			case ATSIGN:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(364);
+				setState(378);
 				annotation();
 				}
 				break;
 			case GLOBAL:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(365);
+				setState(379);
 				match(GLOBAL);
 				}
 				break;
 			case PUBLIC:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(366);
+				setState(380);
 				match(PUBLIC);
 				}
 				break;
 			case PROTECTED:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(367);
+				setState(381);
 				match(PROTECTED);
 				}
 				break;
 			case PRIVATE:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(368);
+				setState(382);
 				match(PRIVATE);
 				}
 				break;
 			case TRANSIENT:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(369);
+				setState(383);
 				match(TRANSIENT);
 				}
 				break;
 			case STATIC:
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(370);
+				setState(384);
 				match(STATIC);
 				}
 				break;
 			case ABSTRACT:
 				enterOuterAlt(_localctx, 8);
 				{
-				setState(371);
+				setState(385);
 				match(ABSTRACT);
 				}
 				break;
 			case FINAL:
 				enterOuterAlt(_localctx, 9);
 				{
-				setState(372);
+				setState(386);
 				match(FINAL);
 				}
 				break;
 			case WEBSERVICE:
 				enterOuterAlt(_localctx, 10);
 				{
-				setState(373);
+				setState(387);
 				match(WEBSERVICE);
 				}
 				break;
 			case OVERRIDE:
 				enterOuterAlt(_localctx, 11);
 				{
-				setState(374);
+				setState(388);
 				match(OVERRIDE);
 				}
 				break;
 			case VIRTUAL:
 				enterOuterAlt(_localctx, 12);
 				{
-				setState(375);
+				setState(389);
 				match(VIRTUAL);
 				}
 				break;
 			case TESTMETHOD:
 				enterOuterAlt(_localctx, 13);
 				{
-				setState(376);
+				setState(390);
 				match(TESTMETHOD);
 				}
 				break;
 			case WITH:
 				enterOuterAlt(_localctx, 14);
 				{
-				setState(377);
+				setState(391);
 				match(WITH);
-				setState(378);
+				setState(392);
 				match(SHARING);
 				}
 				break;
 			case WITHOUT:
 				enterOuterAlt(_localctx, 15);
 				{
-				setState(379);
+				setState(393);
 				match(WITHOUT);
-				setState(380);
+				setState(394);
 				match(SHARING);
 				}
 				break;
 			case INHERITED:
 				enterOuterAlt(_localctx, 16);
 				{
-				setState(381);
+				setState(395);
 				match(INHERITED);
-				setState(382);
+				setState(396);
 				match(SHARING);
 				}
 				break;
@@ -1392,55 +1401,55 @@ public class ApexParser extends Parser {
 		MemberDeclarationContext _localctx = new MemberDeclarationContext(_ctx, getState());
 		enterRule(_localctx, 26, RULE_memberDeclaration);
 		try {
-			setState(392);
+			setState(406);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,17,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(385);
+				setState(399);
 				methodDeclaration();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(386);
+				setState(400);
 				fieldDeclaration();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(387);
+				setState(401);
 				constructorDeclaration();
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(388);
+				setState(402);
 				interfaceDeclaration();
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(389);
+				setState(403);
 				classDeclaration();
 				}
 				break;
 			case 6:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(390);
+				setState(404);
 				enumDeclaration();
 				}
 				break;
 			case 7:
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(391);
+				setState(405);
 				propertyDeclaration();
 				}
 				break;
@@ -1497,7 +1506,7 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(396);
+			setState(410);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case AFTER:
@@ -1552,6 +1561,16 @@ public class ApexParser extends Parser {
 			case HAVING:
 			case ROLLUP:
 			case TOLABEL:
+			case OFFSET:
+			case DATA:
+			case CATEGORY:
+			case AT:
+			case ABOVE:
+			case BELOW:
+			case ABOVE_OR_BELOW:
+			case SECURITY_ENFORCED:
+			case REFERENCE:
+			case CUBE:
 			case YESTERDAY:
 			case TODAY:
 			case TOMORROW:
@@ -1591,35 +1610,35 @@ public class ApexParser extends Parser {
 			case LAST_N_FISCAL_YEARS_N:
 			case Identifier:
 				{
-				setState(394);
+				setState(408);
 				typeRef();
 				}
 				break;
 			case VOID:
 				{
-				setState(395);
+				setState(409);
 				match(VOID);
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(398);
+			setState(412);
 			id();
-			setState(399);
+			setState(413);
 			formalParameters();
-			setState(402);
+			setState(416);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case LBRACE:
 				{
-				setState(400);
+				setState(414);
 				block();
 				}
 				break;
 			case SEMI:
 				{
-				setState(401);
+				setState(415);
 				match(SEMI);
 				}
 				break;
@@ -1674,11 +1693,11 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(404);
+			setState(418);
 			qualifiedName();
-			setState(405);
+			setState(419);
 			formalParameters();
-			setState(406);
+			setState(420);
 			block();
 			}
 		}
@@ -1726,11 +1745,11 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(408);
+			setState(422);
 			typeRef();
-			setState(409);
+			setState(423);
 			variableDeclarators();
-			setState(410);
+			setState(424);
 			match(SEMI);
 			}
 		}
@@ -1786,27 +1805,27 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(412);
+			setState(426);
 			typeRef();
-			setState(413);
+			setState(427);
 			id();
-			setState(414);
+			setState(428);
 			match(LBRACE);
-			setState(418);
+			setState(432);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << FINAL) | (1L << GET) | (1L << GLOBAL) | (1L << INHERITED) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << SET) | (1L << STATIC) | (1L << TESTMETHOD) | (1L << TRANSIENT) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WITH) | (1L << WITHOUT))) != 0) || _la==AT) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << FINAL) | (1L << GET) | (1L << GLOBAL) | (1L << INHERITED) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << SET) | (1L << STATIC) | (1L << TESTMETHOD) | (1L << TRANSIENT) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WITH) | (1L << WITHOUT))) != 0) || _la==ATSIGN) {
 				{
 				{
-				setState(415);
+				setState(429);
 				propertyBlock();
 				}
 				}
-				setState(420);
+				setState(434);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(421);
+			setState(435);
 			match(RBRACE);
 			}
 		}
@@ -1865,23 +1884,23 @@ public class ApexParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(426);
+			setState(440);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,21,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(423);
+					setState(437);
 					modifier();
 					}
 					} 
 				}
-				setState(428);
+				setState(442);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,21,_ctx);
 			}
-			setState(431);
+			setState(445);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case AFTER:
@@ -1936,6 +1955,16 @@ public class ApexParser extends Parser {
 			case HAVING:
 			case ROLLUP:
 			case TOLABEL:
+			case OFFSET:
+			case DATA:
+			case CATEGORY:
+			case AT:
+			case ABOVE:
+			case BELOW:
+			case ABOVE_OR_BELOW:
+			case SECURITY_ENFORCED:
+			case REFERENCE:
+			case CUBE:
 			case YESTERDAY:
 			case TODAY:
 			case TOMORROW:
@@ -1975,24 +2004,24 @@ public class ApexParser extends Parser {
 			case LAST_N_FISCAL_YEARS_N:
 			case Identifier:
 				{
-				setState(429);
+				setState(443);
 				typeRef();
 				}
 				break;
 			case VOID:
 				{
-				setState(430);
+				setState(444);
 				match(VOID);
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(433);
+			setState(447);
 			id();
-			setState(434);
+			setState(448);
 			formalParameters();
-			setState(435);
+			setState(449);
 			match(SEMI);
 			}
 		}
@@ -2044,21 +2073,21 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(437);
+			setState(451);
 			variableDeclarator();
-			setState(442);
+			setState(456);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(438);
+				setState(452);
 				match(COMMA);
-				setState(439);
+				setState(453);
 				variableDeclarator();
 				}
 				}
-				setState(444);
+				setState(458);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -2109,16 +2138,16 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(445);
+			setState(459);
 			id();
-			setState(448);
+			setState(462);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ASSIGN) {
 				{
-				setState(446);
+				setState(460);
 				match(ASSIGN);
-				setState(447);
+				setState(461);
 				expression(0);
 				}
 			}
@@ -2176,39 +2205,39 @@ public class ApexParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(450);
+			setState(464);
 			match(LBRACE);
-			setState(462);
+			setState(476);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)) | (1L << (Identifier - 128)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)))) != 0) || _la==Identifier) {
 				{
-				setState(451);
+				setState(465);
 				expression(0);
-				setState(456);
+				setState(470);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,25,_ctx);
 				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
-						setState(452);
+						setState(466);
 						match(COMMA);
-						setState(453);
+						setState(467);
 						expression(0);
 						}
 						} 
 					}
-					setState(458);
+					setState(472);
 					_errHandler.sync(this);
 					_alt = getInterpreter().adaptivePredict(_input,25,_ctx);
 				}
-				setState(460);
+				setState(474);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==COMMA) {
 					{
-					setState(459);
+					setState(473);
 					match(COMMA);
 					}
 				}
@@ -2216,7 +2245,7 @@ public class ApexParser extends Parser {
 				}
 			}
 
-			setState(464);
+			setState(478);
 			match(RBRACE);
 			}
 		}
@@ -2271,27 +2300,27 @@ public class ApexParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(466);
+			setState(480);
 			typeName();
-			setState(471);
+			setState(485);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,28,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(467);
+					setState(481);
 					match(DOT);
-					setState(468);
+					setState(482);
 					typeName();
 					}
 					} 
 				}
-				setState(473);
+				setState(487);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,28,_ctx);
 			}
-			setState(474);
+			setState(488);
 			arraySubscripts();
 			}
 		}
@@ -2341,21 +2370,21 @@ public class ApexParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(480);
+			setState(494);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,29,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(476);
+					setState(490);
 					match(LBRACK);
-					setState(477);
+					setState(491);
 					match(RBRACK);
 					}
 					} 
 				}
-				setState(482);
+				setState(496);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,29,_ctx);
 			}
@@ -2405,20 +2434,20 @@ public class ApexParser extends Parser {
 		TypeNameContext _localctx = new TypeNameContext(_ctx, getState());
 		enterRule(_localctx, 48, RULE_typeName);
 		try {
-			setState(499);
+			setState(513);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,34,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(483);
+				setState(497);
 				match(LIST);
-				setState(485);
+				setState(499);
 				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,30,_ctx) ) {
 				case 1:
 					{
-					setState(484);
+					setState(498);
 					typeArguments();
 					}
 					break;
@@ -2428,14 +2457,14 @@ public class ApexParser extends Parser {
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(487);
+				setState(501);
 				match(SET);
-				setState(489);
+				setState(503);
 				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,31,_ctx) ) {
 				case 1:
 					{
-					setState(488);
+					setState(502);
 					typeArguments();
 					}
 					break;
@@ -2445,14 +2474,14 @@ public class ApexParser extends Parser {
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(491);
+				setState(505);
 				match(MAP);
-				setState(493);
+				setState(507);
 				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,32,_ctx) ) {
 				case 1:
 					{
-					setState(492);
+					setState(506);
 					typeArguments();
 					}
 					break;
@@ -2462,14 +2491,14 @@ public class ApexParser extends Parser {
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(495);
+				setState(509);
 				id();
-				setState(497);
+				setState(511);
 				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,33,_ctx) ) {
 				case 1:
 					{
-					setState(496);
+					setState(510);
 					typeArguments();
 					}
 					break;
@@ -2520,11 +2549,11 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(501);
+			setState(515);
 			match(LT);
-			setState(502);
+			setState(516);
 			typeList();
-			setState(503);
+			setState(517);
 			match(GT);
 			}
 		}
@@ -2571,19 +2600,19 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(505);
+			setState(519);
 			match(LPAREN);
-			setState(507);
+			setState(521);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << AFTER) | (1L << BEFORE) | (1L << FINAL) | (1L << GET) | (1L << GLOBAL) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << SET) | (1L << SHARING) | (1L << STATIC) | (1L << SWITCH) | (1L << TESTMETHOD) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (AT - 128)) | (1L << (Identifier - 128)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << AFTER) | (1L << BEFORE) | (1L << FINAL) | (1L << GET) | (1L << GLOBAL) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << SET) | (1L << SHARING) | (1L << STATIC) | (1L << SWITCH) | (1L << TESTMETHOD) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)))) != 0) || _la==ATSIGN || _la==Identifier) {
 				{
-				setState(506);
+				setState(520);
 				formalParameterList();
 				}
 			}
 
-			setState(509);
+			setState(523);
 			match(RPAREN);
 			}
 		}
@@ -2635,21 +2664,21 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(511);
+			setState(525);
 			formalParameter();
-			setState(516);
+			setState(530);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(512);
+				setState(526);
 				match(COMMA);
-				setState(513);
+				setState(527);
 				formalParameter();
 				}
 				}
-				setState(518);
+				setState(532);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -2705,25 +2734,25 @@ public class ApexParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(522);
+			setState(536);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,37,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(519);
+					setState(533);
 					modifier();
 					}
 					} 
 				}
-				setState(524);
+				setState(538);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,37,_ctx);
 			}
-			setState(525);
+			setState(539);
 			typeRef();
-			setState(526);
+			setState(540);
 			id();
 			}
 		}
@@ -2775,21 +2804,21 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(528);
+			setState(542);
 			id();
-			setState(533);
+			setState(547);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==DOT) {
 				{
 				{
-				setState(529);
+				setState(543);
 				match(DOT);
-				setState(530);
+				setState(544);
 				id();
 				}
 				}
-				setState(535);
+				setState(549);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -2839,9 +2868,9 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(536);
+			setState(550);
 			_la = _input.LA(1);
-			if ( !(_la==NULL || ((((_la - 133)) & ~0x3f) == 0 && ((1L << (_la - 133)) & ((1L << (IntegerLiteral - 133)) | (1L << (LongLiteral - 133)) | (1L << (NumberLiteral - 133)) | (1L << (BooleanLiteral - 133)) | (1L << (StringLiteral - 133)))) != 0)) ) {
+			if ( !(_la==NULL || ((((_la - 143)) & ~0x3f) == 0 && ((1L << (_la - 143)) & ((1L << (IntegerLiteral - 143)) | (1L << (LongLiteral - 143)) | (1L << (NumberLiteral - 143)) | (1L << (BooleanLiteral - 143)) | (1L << (StringLiteral - 143)))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -2863,7 +2892,7 @@ public class ApexParser extends Parser {
 	}
 
 	public static class AnnotationContext extends ParserRuleContext {
-		public TerminalNode AT() { return getToken(ApexParser.AT, 0); }
+		public TerminalNode ATSIGN() { return getToken(ApexParser.ATSIGN, 0); }
 		public QualifiedNameContext qualifiedName() {
 			return getRuleContext(QualifiedNameContext.class,0);
 		}
@@ -2901,34 +2930,34 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(538);
-			match(AT);
-			setState(539);
+			setState(552);
+			match(ATSIGN);
+			setState(553);
 			qualifiedName();
-			setState(546);
+			setState(560);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
-				setState(540);
+				setState(554);
 				match(LPAREN);
-				setState(543);
+				setState(557);
 				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,39,_ctx) ) {
 				case 1:
 					{
-					setState(541);
+					setState(555);
 					elementValuePairs();
 					}
 					break;
 				case 2:
 					{
-					setState(542);
+					setState(556);
 					elementValue();
 					}
 					break;
 				}
-				setState(545);
+				setState(559);
 				match(RPAREN);
 				}
 			}
@@ -2983,29 +3012,29 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(548);
+			setState(562);
 			elementValuePair();
-			setState(555);
+			setState(569);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << SET) | (1L << SHARING) | (1L << SWITCH) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (COMMA - 128)) | (1L << (Identifier - 128)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << SET) | (1L << SHARING) | (1L << SWITCH) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (COMMA - 128)))) != 0) || _la==Identifier) {
 				{
 				{
-				setState(550);
+				setState(564);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==COMMA) {
 					{
-					setState(549);
+					setState(563);
 					match(COMMA);
 					}
 				}
 
-				setState(552);
+				setState(566);
 				elementValuePair();
 				}
 				}
-				setState(557);
+				setState(571);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -3055,11 +3084,11 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(558);
+			setState(572);
 			id();
-			setState(559);
+			setState(573);
 			match(ASSIGN);
-			setState(560);
+			setState(574);
 			elementValue();
 			}
 		}
@@ -3107,7 +3136,7 @@ public class ApexParser extends Parser {
 		ElementValueContext _localctx = new ElementValueContext(_ctx, getState());
 		enterRule(_localctx, 68, RULE_elementValue);
 		try {
-			setState(565);
+			setState(579);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case AFTER:
@@ -3166,6 +3195,16 @@ public class ApexParser extends Parser {
 			case HAVING:
 			case ROLLUP:
 			case TOLABEL:
+			case OFFSET:
+			case DATA:
+			case CATEGORY:
+			case AT:
+			case ABOVE:
+			case BELOW:
+			case ABOVE_OR_BELOW:
+			case SECURITY_ENFORCED:
+			case REFERENCE:
+			case CUBE:
 			case YESTERDAY:
 			case TODAY:
 			case TOMORROW:
@@ -3219,21 +3258,21 @@ public class ApexParser extends Parser {
 			case Identifier:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(562);
+				setState(576);
 				expression(0);
 				}
 				break;
-			case AT:
+			case ATSIGN:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(563);
+				setState(577);
 				annotation();
 				}
 				break;
 			case LBRACE:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(564);
+				setState(578);
 				elementValueArrayInitializer();
 				}
 				break;
@@ -3292,47 +3331,47 @@ public class ApexParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(567);
+			setState(581);
 			match(LBRACE);
-			setState(576);
+			setState(590);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACE - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)) | (1L << (AT - 128)) | (1L << (Identifier - 128)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACE - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)))) != 0) || _la==ATSIGN || _la==Identifier) {
 				{
-				setState(568);
+				setState(582);
 				elementValue();
-				setState(573);
+				setState(587);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,44,_ctx);
 				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
-						setState(569);
+						setState(583);
 						match(COMMA);
-						setState(570);
+						setState(584);
 						elementValue();
 						}
 						} 
 					}
-					setState(575);
+					setState(589);
 					_errHandler.sync(this);
 					_alt = getInterpreter().adaptivePredict(_input,44,_ctx);
 				}
 				}
 			}
 
-			setState(579);
+			setState(593);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==COMMA) {
 				{
-				setState(578);
+				setState(592);
 				match(COMMA);
 				}
 			}
 
-			setState(581);
+			setState(595);
 			match(RBRACE);
 			}
 		}
@@ -3382,23 +3421,23 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(583);
+			setState(597);
 			match(LBRACE);
-			setState(587);
+			setState(601);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << AFTER) | (1L << BEFORE) | (1L << BREAK) | (1L << CONTINUE) | (1L << DELETE) | (1L << DO) | (1L << FINAL) | (1L << FOR) | (1L << GET) | (1L << GLOBAL) | (1L << IF) | (1L << INHERITED) | (1L << INSERT) | (1L << INSTANCEOF) | (1L << MERGE) | (1L << NEW) | (1L << NULL) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SYSTEMRUNAS) | (1L << SET) | (1L << SHARING) | (1L << STATIC) | (1L << SUPER) | (1L << SWITCH) | (1L << TESTMETHOD) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << TRY) | (1L << UNDELETE) | (1L << UPDATE) | (1L << UPSERT) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WHEN) | (1L << WHILE) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACE - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)) | (1L << (AT - 128)) | (1L << (Identifier - 128)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << AFTER) | (1L << BEFORE) | (1L << BREAK) | (1L << CONTINUE) | (1L << DELETE) | (1L << DO) | (1L << FINAL) | (1L << FOR) | (1L << GET) | (1L << GLOBAL) | (1L << IF) | (1L << INHERITED) | (1L << INSERT) | (1L << INSTANCEOF) | (1L << MERGE) | (1L << NEW) | (1L << NULL) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SYSTEMRUNAS) | (1L << SET) | (1L << SHARING) | (1L << STATIC) | (1L << SUPER) | (1L << SWITCH) | (1L << TESTMETHOD) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << TRY) | (1L << UNDELETE) | (1L << UPDATE) | (1L << UPSERT) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WHEN) | (1L << WHILE) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACE - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)))) != 0) || _la==ATSIGN || _la==Identifier) {
 				{
 				{
-				setState(584);
+				setState(598);
 				statement();
 				}
 				}
-				setState(589);
+				setState(603);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(590);
+			setState(604);
 			match(RBRACE);
 			}
 		}
@@ -3443,9 +3482,9 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(592);
+			setState(606);
 			localVariableDeclaration();
-			setState(593);
+			setState(607);
 			match(SEMI);
 			}
 		}
@@ -3499,25 +3538,25 @@ public class ApexParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(598);
+			setState(612);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,48,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(595);
+					setState(609);
 					modifier();
 					}
 					} 
 				}
-				setState(600);
+				setState(614);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,48,_ctx);
 			}
-			setState(601);
+			setState(615);
 			typeRef();
-			setState(602);
+			setState(616);
 			variableDeclarators();
 			}
 		}
@@ -3616,146 +3655,146 @@ public class ApexParser extends Parser {
 		StatementContext _localctx = new StatementContext(_ctx, getState());
 		enterRule(_localctx, 78, RULE_statement);
 		try {
-			setState(624);
+			setState(638);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,49,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(604);
+				setState(618);
 				block();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(605);
+				setState(619);
 				ifStatement();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(606);
+				setState(620);
 				switchStatement();
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(607);
+				setState(621);
 				forStatement();
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(608);
+				setState(622);
 				whileStatement();
 				}
 				break;
 			case 6:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(609);
+				setState(623);
 				doWhileStatement();
 				}
 				break;
 			case 7:
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(610);
+				setState(624);
 				tryStatement();
 				}
 				break;
 			case 8:
 				enterOuterAlt(_localctx, 8);
 				{
-				setState(611);
+				setState(625);
 				returnStatement();
 				}
 				break;
 			case 9:
 				enterOuterAlt(_localctx, 9);
 				{
-				setState(612);
+				setState(626);
 				throwStatement();
 				}
 				break;
 			case 10:
 				enterOuterAlt(_localctx, 10);
 				{
-				setState(613);
+				setState(627);
 				breakStatement();
 				}
 				break;
 			case 11:
 				enterOuterAlt(_localctx, 11);
 				{
-				setState(614);
+				setState(628);
 				continueStatement();
 				}
 				break;
 			case 12:
 				enterOuterAlt(_localctx, 12);
 				{
-				setState(615);
+				setState(629);
 				insertStatement();
 				}
 				break;
 			case 13:
 				enterOuterAlt(_localctx, 13);
 				{
-				setState(616);
+				setState(630);
 				updateStatement();
 				}
 				break;
 			case 14:
 				enterOuterAlt(_localctx, 14);
 				{
-				setState(617);
+				setState(631);
 				deleteStatement();
 				}
 				break;
 			case 15:
 				enterOuterAlt(_localctx, 15);
 				{
-				setState(618);
+				setState(632);
 				undeleteStatement();
 				}
 				break;
 			case 16:
 				enterOuterAlt(_localctx, 16);
 				{
-				setState(619);
+				setState(633);
 				upsertStatement();
 				}
 				break;
 			case 17:
 				enterOuterAlt(_localctx, 17);
 				{
-				setState(620);
+				setState(634);
 				mergeStatement();
 				}
 				break;
 			case 18:
 				enterOuterAlt(_localctx, 18);
 				{
-				setState(621);
+				setState(635);
 				runAsStatement();
 				}
 				break;
 			case 19:
 				enterOuterAlt(_localctx, 19);
 				{
-				setState(622);
+				setState(636);
 				localVariableDeclarationStatement();
 				}
 				break;
 			case 20:
 				enterOuterAlt(_localctx, 20);
 				{
-				setState(623);
+				setState(637);
 				expressionStatement();
 				}
 				break;
@@ -3809,20 +3848,20 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(626);
+			setState(640);
 			match(IF);
-			setState(627);
+			setState(641);
 			parExpression();
-			setState(628);
+			setState(642);
 			statement();
-			setState(631);
+			setState(645);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,50,_ctx) ) {
 			case 1:
 				{
-				setState(629);
+				setState(643);
 				match(ELSE);
-				setState(630);
+				setState(644);
 				statement();
 				}
 				break;
@@ -3880,29 +3919,29 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(633);
+			setState(647);
 			match(SWITCH);
-			setState(634);
+			setState(648);
 			match(ON);
-			setState(635);
+			setState(649);
 			expression(0);
-			setState(636);
+			setState(650);
 			match(LBRACE);
-			setState(638); 
+			setState(652); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
 				{
 				{
-				setState(637);
+				setState(651);
 				whenControl();
 				}
 				}
-				setState(640); 
+				setState(654); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==WHEN );
-			setState(642);
+			setState(656);
 			match(RBRACE);
 			}
 		}
@@ -3950,11 +3989,11 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(644);
+			setState(658);
 			match(WHEN);
-			setState(645);
+			setState(659);
 			whenValue();
-			setState(646);
+			setState(660);
 			block();
 			}
 		}
@@ -4011,34 +4050,34 @@ public class ApexParser extends Parser {
 		enterRule(_localctx, 86, RULE_whenValue);
 		int _la;
 		try {
-			setState(660);
+			setState(674);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,53,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(648);
+				setState(662);
 				match(ELSE);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(649);
+				setState(663);
 				whenLiteral();
-				setState(654);
+				setState(668);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==COMMA) {
 					{
 					{
-					setState(650);
+					setState(664);
 					match(COMMA);
-					setState(651);
+					setState(665);
 					whenLiteral();
 					}
 					}
-					setState(656);
+					setState(670);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
@@ -4047,9 +4086,9 @@ public class ApexParser extends Parser {
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(657);
+				setState(671);
 				id();
-				setState(658);
+				setState(672);
 				id();
 				}
 				break;
@@ -4099,45 +4138,45 @@ public class ApexParser extends Parser {
 		enterRule(_localctx, 88, RULE_whenLiteral);
 		int _la;
 		try {
-			setState(670);
+			setState(684);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IntegerLiteral:
 			case SUB:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(663);
+				setState(677);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==SUB) {
 					{
-					setState(662);
+					setState(676);
 					match(SUB);
 					}
 				}
 
-				setState(665);
+				setState(679);
 				match(IntegerLiteral);
 				}
 				break;
 			case LongLiteral:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(666);
+				setState(680);
 				match(LongLiteral);
 				}
 				break;
 			case StringLiteral:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(667);
+				setState(681);
 				match(StringLiteral);
 				}
 				break;
 			case NULL:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(668);
+				setState(682);
 				match(NULL);
 				}
 				break;
@@ -4191,6 +4230,16 @@ public class ApexParser extends Parser {
 			case HAVING:
 			case ROLLUP:
 			case TOLABEL:
+			case OFFSET:
+			case DATA:
+			case CATEGORY:
+			case AT:
+			case ABOVE:
+			case BELOW:
+			case ABOVE_OR_BELOW:
+			case SECURITY_ENFORCED:
+			case REFERENCE:
+			case CUBE:
 			case YESTERDAY:
 			case TODAY:
 			case TOMORROW:
@@ -4231,7 +4280,7 @@ public class ApexParser extends Parser {
 			case Identifier:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(669);
+				setState(683);
 				id();
 				}
 				break;
@@ -4285,15 +4334,15 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(672);
+			setState(686);
 			match(FOR);
-			setState(673);
+			setState(687);
 			match(LPAREN);
-			setState(674);
+			setState(688);
 			forControl();
-			setState(675);
+			setState(689);
 			match(RPAREN);
-			setState(676);
+			setState(690);
 			statement();
 			}
 		}
@@ -4341,11 +4390,11 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(678);
+			setState(692);
 			match(WHILE);
-			setState(679);
+			setState(693);
 			parExpression();
-			setState(680);
+			setState(694);
 			statement();
 			}
 		}
@@ -4395,15 +4444,15 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(682);
+			setState(696);
 			match(DO);
-			setState(683);
+			setState(697);
 			statement();
-			setState(684);
+			setState(698);
 			match(WHILE);
-			setState(685);
+			setState(699);
 			parExpression();
-			setState(686);
+			setState(700);
 			match(SEMI);
 			}
 		}
@@ -4458,35 +4507,35 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(688);
+			setState(702);
 			match(TRY);
-			setState(689);
+			setState(703);
 			block();
-			setState(699);
+			setState(713);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case CATCH:
 				{
-				setState(691); 
+				setState(705); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
 					{
 					{
-					setState(690);
+					setState(704);
 					catchClause();
 					}
 					}
-					setState(693); 
+					setState(707); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				} while ( _la==CATCH );
-				setState(696);
+				setState(710);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==FINALLY) {
 					{
-					setState(695);
+					setState(709);
 					finallyBlock();
 					}
 				}
@@ -4495,7 +4544,7 @@ public class ApexParser extends Parser {
 				break;
 			case FINALLY:
 				{
-				setState(698);
+				setState(712);
 				finallyBlock();
 				}
 				break;
@@ -4547,19 +4596,19 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(701);
+			setState(715);
 			match(RETURN);
-			setState(703);
+			setState(717);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)) | (1L << (Identifier - 128)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)))) != 0) || _la==Identifier) {
 				{
-				setState(702);
+				setState(716);
 				expression(0);
 				}
 			}
 
-			setState(705);
+			setState(719);
 			match(SEMI);
 			}
 		}
@@ -4605,11 +4654,11 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(707);
+			setState(721);
 			match(THROW);
-			setState(708);
+			setState(722);
 			expression(0);
-			setState(709);
+			setState(723);
 			match(SEMI);
 			}
 		}
@@ -4652,9 +4701,9 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(711);
+			setState(725);
 			match(BREAK);
-			setState(712);
+			setState(726);
 			match(SEMI);
 			}
 		}
@@ -4697,9 +4746,9 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(714);
+			setState(728);
 			match(CONTINUE);
-			setState(715);
+			setState(729);
 			match(SEMI);
 			}
 		}
@@ -4745,11 +4794,11 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(717);
+			setState(731);
 			match(INSERT);
-			setState(718);
+			setState(732);
 			expression(0);
-			setState(719);
+			setState(733);
 			match(SEMI);
 			}
 		}
@@ -4795,11 +4844,11 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(721);
+			setState(735);
 			match(UPDATE);
-			setState(722);
+			setState(736);
 			expression(0);
-			setState(723);
+			setState(737);
 			match(SEMI);
 			}
 		}
@@ -4845,11 +4894,11 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(725);
+			setState(739);
 			match(DELETE);
-			setState(726);
+			setState(740);
 			expression(0);
-			setState(727);
+			setState(741);
 			match(SEMI);
 			}
 		}
@@ -4895,11 +4944,11 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(729);
+			setState(743);
 			match(UNDELETE);
-			setState(730);
+			setState(744);
 			expression(0);
-			setState(731);
+			setState(745);
 			match(SEMI);
 			}
 		}
@@ -4949,21 +4998,21 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(733);
+			setState(747);
 			match(UPSERT);
-			setState(734);
+			setState(748);
 			expression(0);
-			setState(736);
+			setState(750);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << SET) | (1L << SHARING) | (1L << SWITCH) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (Identifier - 128)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << SET) | (1L << SHARING) | (1L << SWITCH) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)))) != 0) || _la==Identifier) {
 				{
-				setState(735);
+				setState(749);
 				qualifiedName();
 				}
 			}
 
-			setState(738);
+			setState(752);
 			match(SEMI);
 			}
 		}
@@ -5012,13 +5061,13 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(740);
+			setState(754);
 			match(MERGE);
-			setState(741);
+			setState(755);
 			expression(0);
-			setState(742);
+			setState(756);
 			expression(0);
-			setState(743);
+			setState(757);
 			match(SEMI);
 			}
 		}
@@ -5069,23 +5118,23 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(745);
+			setState(759);
 			match(SYSTEMRUNAS);
-			setState(746);
+			setState(760);
 			match(LPAREN);
-			setState(748);
+			setState(762);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)) | (1L << (Identifier - 128)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)))) != 0) || _la==Identifier) {
 				{
-				setState(747);
+				setState(761);
 				expressionList();
 				}
 			}
 
-			setState(750);
+			setState(764);
 			match(RPAREN);
-			setState(751);
+			setState(765);
 			block();
 			}
 		}
@@ -5130,9 +5179,9 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(753);
+			setState(767);
 			expression(0);
-			setState(754);
+			setState(768);
 			match(SEMI);
 			}
 		}
@@ -5186,32 +5235,32 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(759);
+			setState(773);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << FINAL) | (1L << GLOBAL) | (1L << INHERITED) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << TESTMETHOD) | (1L << TRANSIENT) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WITH) | (1L << WITHOUT))) != 0) || _la==AT) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << FINAL) | (1L << GLOBAL) | (1L << INHERITED) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << STATIC) | (1L << TESTMETHOD) | (1L << TRANSIENT) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WITH) | (1L << WITHOUT))) != 0) || _la==ATSIGN) {
 				{
 				{
-				setState(756);
+				setState(770);
 				modifier();
 				}
 				}
-				setState(761);
+				setState(775);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(764);
+			setState(778);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case GET:
 				{
-				setState(762);
+				setState(776);
 				getter();
 				}
 				break;
 			case SET:
 				{
-				setState(763);
+				setState(777);
 				setter();
 				}
 				break;
@@ -5262,20 +5311,20 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(766);
+			setState(780);
 			match(GET);
-			setState(769);
+			setState(783);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case SEMI:
 				{
-				setState(767);
+				setState(781);
 				match(SEMI);
 				}
 				break;
 			case LBRACE:
 				{
-				setState(768);
+				setState(782);
 				block();
 				}
 				break;
@@ -5326,20 +5375,20 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(771);
+			setState(785);
 			match(SET);
-			setState(774);
+			setState(788);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case SEMI:
 				{
-				setState(772);
+				setState(786);
 				match(SEMI);
 				}
 				break;
 			case LBRACE:
 				{
-				setState(773);
+				setState(787);
 				block();
 				}
 				break;
@@ -5404,33 +5453,33 @@ public class ApexParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(776);
+			setState(790);
 			match(CATCH);
-			setState(777);
+			setState(791);
 			match(LPAREN);
-			setState(781);
+			setState(795);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,66,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(778);
+					setState(792);
 					modifier();
 					}
 					} 
 				}
-				setState(783);
+				setState(797);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,66,_ctx);
 			}
-			setState(784);
+			setState(798);
 			qualifiedName();
-			setState(785);
+			setState(799);
 			id();
-			setState(786);
+			setState(800);
 			match(RPAREN);
-			setState(787);
+			setState(801);
 			block();
 			}
 		}
@@ -5475,9 +5524,9 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(789);
+			setState(803);
 			match(FINALLY);
-			setState(790);
+			setState(804);
 			block();
 			}
 		}
@@ -5533,49 +5582,49 @@ public class ApexParser extends Parser {
 		enterRule(_localctx, 132, RULE_forControl);
 		int _la;
 		try {
-			setState(804);
+			setState(818);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,70,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(792);
+				setState(806);
 				enhancedForControl();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(794);
+				setState(808);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << AFTER) | (1L << BEFORE) | (1L << FINAL) | (1L << GET) | (1L << GLOBAL) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << SET) | (1L << SHARING) | (1L << STATIC) | (1L << SUPER) | (1L << SWITCH) | (1L << TESTMETHOD) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)) | (1L << (AT - 128)) | (1L << (Identifier - 128)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << AFTER) | (1L << BEFORE) | (1L << FINAL) | (1L << GET) | (1L << GLOBAL) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << SET) | (1L << SHARING) | (1L << STATIC) | (1L << SUPER) | (1L << SWITCH) | (1L << TESTMETHOD) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)))) != 0) || _la==ATSIGN || _la==Identifier) {
 					{
-					setState(793);
+					setState(807);
 					forInit();
 					}
 				}
 
-				setState(796);
+				setState(810);
 				match(SEMI);
-				setState(798);
+				setState(812);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)) | (1L << (Identifier - 128)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)))) != 0) || _la==Identifier) {
 					{
-					setState(797);
+					setState(811);
 					expression(0);
 					}
 				}
 
-				setState(800);
+				setState(814);
 				match(SEMI);
-				setState(802);
+				setState(816);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)) | (1L << (Identifier - 128)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)))) != 0) || _la==Identifier) {
 					{
-					setState(801);
+					setState(815);
 					forUpdate();
 					}
 				}
@@ -5625,20 +5674,20 @@ public class ApexParser extends Parser {
 		ForInitContext _localctx = new ForInitContext(_ctx, getState());
 		enterRule(_localctx, 134, RULE_forInit);
 		try {
-			setState(808);
+			setState(822);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,71,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(806);
+				setState(820);
 				localVariableDeclaration();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(807);
+				setState(821);
 				expressionList();
 				}
 				break;
@@ -5691,13 +5740,13 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(810);
+			setState(824);
 			typeRef();
-			setState(811);
+			setState(825);
 			id();
-			setState(812);
+			setState(826);
 			match(COLON);
-			setState(813);
+			setState(827);
 			expression(0);
 			}
 		}
@@ -5741,7 +5790,7 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(815);
+			setState(829);
 			expressionList();
 			}
 		}
@@ -5787,11 +5836,11 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(817);
+			setState(831);
 			match(LPAREN);
-			setState(818);
+			setState(832);
 			expression(0);
-			setState(819);
+			setState(833);
 			match(RPAREN);
 			}
 		}
@@ -5843,21 +5892,21 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(821);
+			setState(835);
 			expression(0);
-			setState(826);
+			setState(840);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(822);
+				setState(836);
 				match(COMMA);
-				setState(823);
+				setState(837);
 				expression(0);
 				}
 				}
-				setState(828);
+				setState(842);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -6427,7 +6476,7 @@ public class ApexParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(843);
+			setState(857);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,73,_ctx) ) {
 			case 1:
@@ -6436,7 +6485,7 @@ public class ApexParser extends Parser {
 				_ctx = _localctx;
 				_prevctx = _localctx;
 
-				setState(830);
+				setState(844);
 				primary();
 				}
 				break;
@@ -6445,7 +6494,7 @@ public class ApexParser extends Parser {
 				_localctx = new MethodCallExpressionContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(831);
+				setState(845);
 				methodCall();
 				}
 				break;
@@ -6454,9 +6503,9 @@ public class ApexParser extends Parser {
 				_localctx = new NewExpressionContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(832);
+				setState(846);
 				match(NEW);
-				setState(833);
+				setState(847);
 				creator();
 				}
 				break;
@@ -6465,13 +6514,13 @@ public class ApexParser extends Parser {
 				_localctx = new CastExpressionContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(834);
+				setState(848);
 				match(LPAREN);
-				setState(835);
+				setState(849);
 				typeRef();
-				setState(836);
+				setState(850);
 				match(RPAREN);
-				setState(837);
+				setState(851);
 				expression(17);
 				}
 				break;
@@ -6480,9 +6529,9 @@ public class ApexParser extends Parser {
 				_localctx = new PreOpExpressionContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(839);
+				setState(853);
 				_la = _input.LA(1);
-				if ( !(((((_la - 163)) & ~0x3f) == 0 && ((1L << (_la - 163)) & ((1L << (INC - 163)) | (1L << (DEC - 163)) | (1L << (ADD - 163)) | (1L << (SUB - 163)))) != 0)) ) {
+				if ( !(((((_la - 173)) & ~0x3f) == 0 && ((1L << (_la - 173)) & ((1L << (INC - 173)) | (1L << (DEC - 173)) | (1L << (ADD - 173)) | (1L << (SUB - 173)))) != 0)) ) {
 				_errHandler.recoverInline(this);
 				}
 				else {
@@ -6490,7 +6539,7 @@ public class ApexParser extends Parser {
 					_errHandler.reportMatch(this);
 					consume();
 				}
-				setState(840);
+				setState(854);
 				expression(15);
 				}
 				break;
@@ -6499,7 +6548,7 @@ public class ApexParser extends Parser {
 				_localctx = new NegExpressionContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(841);
+				setState(855);
 				_la = _input.LA(1);
 				if ( !(_la==BANG || _la==TILDE) ) {
 				_errHandler.recoverInline(this);
@@ -6509,13 +6558,13 @@ public class ApexParser extends Parser {
 					_errHandler.reportMatch(this);
 					consume();
 				}
-				setState(842);
+				setState(856);
 				expression(14);
 				}
 				break;
 			}
 			_ctx.stop = _input.LT(-1);
-			setState(913);
+			setState(927);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,78,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
@@ -6523,18 +6572,18 @@ public class ApexParser extends Parser {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
 					{
-					setState(911);
+					setState(925);
 					_errHandler.sync(this);
 					switch ( getInterpreter().adaptivePredict(_input,77,_ctx) ) {
 					case 1:
 						{
 						_localctx = new Arth1ExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(845);
+						setState(859);
 						if (!(precpred(_ctx, 13))) throw new FailedPredicateException(this, "precpred(_ctx, 13)");
-						setState(846);
+						setState(860);
 						_la = _input.LA(1);
-						if ( !(((((_la - 167)) & ~0x3f) == 0 && ((1L << (_la - 167)) & ((1L << (MUL - 167)) | (1L << (DIV - 167)) | (1L << (MOD - 167)))) != 0)) ) {
+						if ( !(((((_la - 177)) & ~0x3f) == 0 && ((1L << (_la - 177)) & ((1L << (MUL - 177)) | (1L << (DIV - 177)) | (1L << (MOD - 177)))) != 0)) ) {
 						_errHandler.recoverInline(this);
 						}
 						else {
@@ -6542,7 +6591,7 @@ public class ApexParser extends Parser {
 							_errHandler.reportMatch(this);
 							consume();
 						}
-						setState(847);
+						setState(861);
 						expression(14);
 						}
 						break;
@@ -6550,9 +6599,9 @@ public class ApexParser extends Parser {
 						{
 						_localctx = new Arth2ExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(848);
+						setState(862);
 						if (!(precpred(_ctx, 12))) throw new FailedPredicateException(this, "precpred(_ctx, 12)");
-						setState(849);
+						setState(863);
 						_la = _input.LA(1);
 						if ( !(_la==ADD || _la==SUB) ) {
 						_errHandler.recoverInline(this);
@@ -6562,7 +6611,7 @@ public class ApexParser extends Parser {
 							_errHandler.reportMatch(this);
 							consume();
 						}
-						setState(850);
+						setState(864);
 						expression(13);
 						}
 						break;
@@ -6570,39 +6619,39 @@ public class ApexParser extends Parser {
 						{
 						_localctx = new BitExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(851);
+						setState(865);
 						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
-						setState(859);
+						setState(873);
 						_errHandler.sync(this);
 						switch ( getInterpreter().adaptivePredict(_input,74,_ctx) ) {
 						case 1:
 							{
-							setState(852);
+							setState(866);
 							match(LT);
-							setState(853);
+							setState(867);
 							match(LT);
 							}
 							break;
 						case 2:
 							{
-							setState(854);
+							setState(868);
 							match(GT);
-							setState(855);
+							setState(869);
 							match(GT);
-							setState(856);
+							setState(870);
 							match(GT);
 							}
 							break;
 						case 3:
 							{
-							setState(857);
+							setState(871);
 							match(GT);
-							setState(858);
+							setState(872);
 							match(GT);
 							}
 							break;
 						}
-						setState(861);
+						setState(875);
 						expression(12);
 						}
 						break;
@@ -6610,9 +6659,9 @@ public class ApexParser extends Parser {
 						{
 						_localctx = new CmpExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(862);
+						setState(876);
 						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
-						setState(863);
+						setState(877);
 						_la = _input.LA(1);
 						if ( !(_la==GT || _la==LT) ) {
 						_errHandler.recoverInline(this);
@@ -6622,17 +6671,17 @@ public class ApexParser extends Parser {
 							_errHandler.reportMatch(this);
 							consume();
 						}
-						setState(865);
+						setState(879);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
 						if (_la==ASSIGN) {
 							{
-							setState(864);
+							setState(878);
 							match(ASSIGN);
 							}
 						}
 
-						setState(867);
+						setState(881);
 						expression(11);
 						}
 						break;
@@ -6640,11 +6689,11 @@ public class ApexParser extends Parser {
 						{
 						_localctx = new EqualityExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(868);
+						setState(882);
 						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
-						setState(869);
+						setState(883);
 						_la = _input.LA(1);
-						if ( !(((((_la - 156)) & ~0x3f) == 0 && ((1L << (_la - 156)) & ((1L << (EQUAL - 156)) | (1L << (TRIPLEEQUAL - 156)) | (1L << (NOTEQUAL - 156)) | (1L << (LESSANDGREATER - 156)) | (1L << (TRIPLENOTEQUAL - 156)))) != 0)) ) {
+						if ( !(((((_la - 166)) & ~0x3f) == 0 && ((1L << (_la - 166)) & ((1L << (EQUAL - 166)) | (1L << (TRIPLEEQUAL - 166)) | (1L << (NOTEQUAL - 166)) | (1L << (LESSANDGREATER - 166)) | (1L << (TRIPLENOTEQUAL - 166)))) != 0)) ) {
 						_errHandler.recoverInline(this);
 						}
 						else {
@@ -6652,7 +6701,7 @@ public class ApexParser extends Parser {
 							_errHandler.reportMatch(this);
 							consume();
 						}
-						setState(870);
+						setState(884);
 						expression(9);
 						}
 						break;
@@ -6660,11 +6709,11 @@ public class ApexParser extends Parser {
 						{
 						_localctx = new BitAndExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(871);
+						setState(885);
 						if (!(precpred(_ctx, 7))) throw new FailedPredicateException(this, "precpred(_ctx, 7)");
-						setState(872);
+						setState(886);
 						match(BITAND);
-						setState(873);
+						setState(887);
 						expression(8);
 						}
 						break;
@@ -6672,11 +6721,11 @@ public class ApexParser extends Parser {
 						{
 						_localctx = new BitNotExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(874);
+						setState(888);
 						if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
-						setState(875);
+						setState(889);
 						match(CARET);
-						setState(876);
+						setState(890);
 						expression(7);
 						}
 						break;
@@ -6684,11 +6733,11 @@ public class ApexParser extends Parser {
 						{
 						_localctx = new BitOrExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(877);
+						setState(891);
 						if (!(precpred(_ctx, 5))) throw new FailedPredicateException(this, "precpred(_ctx, 5)");
-						setState(878);
+						setState(892);
 						match(BITOR);
-						setState(879);
+						setState(893);
 						expression(6);
 						}
 						break;
@@ -6696,11 +6745,11 @@ public class ApexParser extends Parser {
 						{
 						_localctx = new LogAndExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(880);
+						setState(894);
 						if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
-						setState(881);
+						setState(895);
 						match(AND);
-						setState(882);
+						setState(896);
 						expression(5);
 						}
 						break;
@@ -6708,11 +6757,11 @@ public class ApexParser extends Parser {
 						{
 						_localctx = new LogOrExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(883);
+						setState(897);
 						if (!(precpred(_ctx, 3))) throw new FailedPredicateException(this, "precpred(_ctx, 3)");
-						setState(884);
+						setState(898);
 						match(OR);
-						setState(885);
+						setState(899);
 						expression(4);
 						}
 						break;
@@ -6720,15 +6769,15 @@ public class ApexParser extends Parser {
 						{
 						_localctx = new CondExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(886);
+						setState(900);
 						if (!(precpred(_ctx, 2))) throw new FailedPredicateException(this, "precpred(_ctx, 2)");
-						setState(887);
+						setState(901);
 						match(QUESTION);
-						setState(888);
+						setState(902);
 						expression(0);
-						setState(889);
+						setState(903);
 						match(COLON);
-						setState(890);
+						setState(904);
 						expression(2);
 						}
 						break;
@@ -6736,11 +6785,11 @@ public class ApexParser extends Parser {
 						{
 						_localctx = new AssignExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(892);
+						setState(906);
 						if (!(precpred(_ctx, 1))) throw new FailedPredicateException(this, "precpred(_ctx, 1)");
-						setState(893);
+						setState(907);
 						_la = _input.LA(1);
-						if ( !(((((_la - 148)) & ~0x3f) == 0 && ((1L << (_la - 148)) & ((1L << (ASSIGN - 148)) | (1L << (ADD_ASSIGN - 148)) | (1L << (SUB_ASSIGN - 148)) | (1L << (MUL_ASSIGN - 148)) | (1L << (DIV_ASSIGN - 148)) | (1L << (AND_ASSIGN - 148)) | (1L << (OR_ASSIGN - 148)) | (1L << (XOR_ASSIGN - 148)) | (1L << (MOD_ASSIGN - 148)) | (1L << (LSHIFT_ASSIGN - 148)) | (1L << (RSHIFT_ASSIGN - 148)) | (1L << (URSHIFT_ASSIGN - 148)))) != 0)) ) {
+						if ( !(((((_la - 158)) & ~0x3f) == 0 && ((1L << (_la - 158)) & ((1L << (ASSIGN - 158)) | (1L << (ADD_ASSIGN - 158)) | (1L << (SUB_ASSIGN - 158)) | (1L << (MUL_ASSIGN - 158)) | (1L << (DIV_ASSIGN - 158)) | (1L << (AND_ASSIGN - 158)) | (1L << (OR_ASSIGN - 158)) | (1L << (XOR_ASSIGN - 158)) | (1L << (MOD_ASSIGN - 158)) | (1L << (LSHIFT_ASSIGN - 158)) | (1L << (RSHIFT_ASSIGN - 158)) | (1L << (URSHIFT_ASSIGN - 158)))) != 0)) ) {
 						_errHandler.recoverInline(this);
 						}
 						else {
@@ -6748,7 +6797,7 @@ public class ApexParser extends Parser {
 							_errHandler.reportMatch(this);
 							consume();
 						}
-						setState(894);
+						setState(908);
 						expression(1);
 						}
 						break;
@@ -6756,9 +6805,9 @@ public class ApexParser extends Parser {
 						{
 						_localctx = new DotExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(895);
+						setState(909);
 						if (!(precpred(_ctx, 21))) throw new FailedPredicateException(this, "precpred(_ctx, 21)");
-						setState(896);
+						setState(910);
 						_la = _input.LA(1);
 						if ( !(_la==DOT || _la==QUESTIONDOT) ) {
 						_errHandler.recoverInline(this);
@@ -6768,18 +6817,18 @@ public class ApexParser extends Parser {
 							_errHandler.reportMatch(this);
 							consume();
 						}
-						setState(899);
+						setState(913);
 						_errHandler.sync(this);
 						switch ( getInterpreter().adaptivePredict(_input,76,_ctx) ) {
 						case 1:
 							{
-							setState(897);
+							setState(911);
 							dotMethodCall();
 							}
 							break;
 						case 2:
 							{
-							setState(898);
+							setState(912);
 							anyId();
 							}
 							break;
@@ -6790,13 +6839,13 @@ public class ApexParser extends Parser {
 						{
 						_localctx = new ArrayExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(901);
+						setState(915);
 						if (!(precpred(_ctx, 20))) throw new FailedPredicateException(this, "precpred(_ctx, 20)");
-						setState(902);
+						setState(916);
 						match(LBRACK);
-						setState(903);
+						setState(917);
 						expression(0);
-						setState(904);
+						setState(918);
 						match(RBRACK);
 						}
 						break;
@@ -6804,9 +6853,9 @@ public class ApexParser extends Parser {
 						{
 						_localctx = new PostOpExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(906);
+						setState(920);
 						if (!(precpred(_ctx, 16))) throw new FailedPredicateException(this, "precpred(_ctx, 16)");
-						setState(907);
+						setState(921);
 						_la = _input.LA(1);
 						if ( !(_la==INC || _la==DEC) ) {
 						_errHandler.recoverInline(this);
@@ -6822,18 +6871,18 @@ public class ApexParser extends Parser {
 						{
 						_localctx = new InstanceOfExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(908);
+						setState(922);
 						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
-						setState(909);
+						setState(923);
 						match(INSTANCEOF);
-						setState(910);
+						setState(924);
 						typeRef();
 						}
 						break;
 					}
 					} 
 				}
-				setState(915);
+				setState(929);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,78,_ctx);
 			}
@@ -6999,18 +7048,18 @@ public class ApexParser extends Parser {
 		PrimaryContext _localctx = new PrimaryContext(_ctx, getState());
 		enterRule(_localctx, 146, RULE_primary);
 		try {
-			setState(929);
+			setState(943);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,79,_ctx) ) {
 			case 1:
 				_localctx = new SubPrimaryContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(916);
+				setState(930);
 				match(LPAREN);
-				setState(917);
+				setState(931);
 				expression(0);
-				setState(918);
+				setState(932);
 				match(RPAREN);
 				}
 				break;
@@ -7018,7 +7067,7 @@ public class ApexParser extends Parser {
 				_localctx = new ThisPrimaryContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(920);
+				setState(934);
 				match(THIS);
 				}
 				break;
@@ -7026,7 +7075,7 @@ public class ApexParser extends Parser {
 				_localctx = new SuperPrimaryContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(921);
+				setState(935);
 				match(SUPER);
 				}
 				break;
@@ -7034,7 +7083,7 @@ public class ApexParser extends Parser {
 				_localctx = new LiteralPrimaryContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(922);
+				setState(936);
 				literal();
 				}
 				break;
@@ -7042,11 +7091,11 @@ public class ApexParser extends Parser {
 				_localctx = new TypeRefPrimaryContext(_localctx);
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(923);
+				setState(937);
 				typeRef();
-				setState(924);
+				setState(938);
 				match(DOT);
-				setState(925);
+				setState(939);
 				match(CLASS);
 				}
 				break;
@@ -7054,7 +7103,7 @@ public class ApexParser extends Parser {
 				_localctx = new IdPrimaryContext(_localctx);
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(927);
+				setState(941);
 				id();
 				}
 				break;
@@ -7062,7 +7111,7 @@ public class ApexParser extends Parser {
 				_localctx = new SoqlPrimaryContext(_localctx);
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(928);
+				setState(942);
 				soqlLiteral();
 				}
 				break;
@@ -7114,7 +7163,7 @@ public class ApexParser extends Parser {
 		enterRule(_localctx, 148, RULE_methodCall);
 		int _la;
 		try {
-			setState(950);
+			setState(964);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case AFTER:
@@ -7167,6 +7216,16 @@ public class ApexParser extends Parser {
 			case HAVING:
 			case ROLLUP:
 			case TOLABEL:
+			case OFFSET:
+			case DATA:
+			case CATEGORY:
+			case AT:
+			case ABOVE:
+			case BELOW:
+			case ABOVE_OR_BELOW:
+			case SECURITY_ENFORCED:
+			case REFERENCE:
+			case CUBE:
 			case YESTERDAY:
 			case TODAY:
 			case TOMORROW:
@@ -7207,63 +7266,63 @@ public class ApexParser extends Parser {
 			case Identifier:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(931);
+				setState(945);
 				id();
-				setState(932);
+				setState(946);
 				match(LPAREN);
-				setState(934);
+				setState(948);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)) | (1L << (Identifier - 128)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)))) != 0) || _la==Identifier) {
 					{
-					setState(933);
+					setState(947);
 					expressionList();
 					}
 				}
 
-				setState(936);
+				setState(950);
 				match(RPAREN);
 				}
 				break;
 			case THIS:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(938);
+				setState(952);
 				match(THIS);
-				setState(939);
+				setState(953);
 				match(LPAREN);
-				setState(941);
+				setState(955);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)) | (1L << (Identifier - 128)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)))) != 0) || _la==Identifier) {
 					{
-					setState(940);
+					setState(954);
 					expressionList();
 					}
 				}
 
-				setState(943);
+				setState(957);
 				match(RPAREN);
 				}
 				break;
 			case SUPER:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(944);
+				setState(958);
 				match(SUPER);
-				setState(945);
+				setState(959);
 				match(LPAREN);
-				setState(947);
+				setState(961);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)) | (1L << (Identifier - 128)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)))) != 0) || _la==Identifier) {
 					{
-					setState(946);
+					setState(960);
 					expressionList();
 					}
 				}
 
-				setState(949);
+				setState(963);
 				match(RPAREN);
 				}
 				break;
@@ -7317,21 +7376,21 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(952);
+			setState(966);
 			anyId();
-			setState(953);
+			setState(967);
 			match(LPAREN);
-			setState(955);
+			setState(969);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)) | (1L << (Identifier - 128)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)))) != 0) || _la==Identifier) {
 				{
-				setState(954);
+				setState(968);
 				expressionList();
 				}
 			}
 
-			setState(957);
+			setState(971);
 			match(RPAREN);
 			}
 		}
@@ -7390,38 +7449,38 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(959);
+			setState(973);
 			createdName();
-			setState(965);
+			setState(979);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,85,_ctx) ) {
 			case 1:
 				{
-				setState(960);
+				setState(974);
 				noRest();
 				}
 				break;
 			case 2:
 				{
-				setState(961);
+				setState(975);
 				classCreatorRest();
 				}
 				break;
 			case 3:
 				{
-				setState(962);
+				setState(976);
 				arrayCreatorRest();
 				}
 				break;
 			case 4:
 				{
-				setState(963);
+				setState(977);
 				mapCreatorRest();
 				}
 				break;
 			case 5:
 				{
-				setState(964);
+				setState(978);
 				setCreatorRest();
 				}
 				break;
@@ -7476,21 +7535,21 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(967);
+			setState(981);
 			idCreatedNamePair();
-			setState(972);
+			setState(986);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==DOT) {
 				{
 				{
-				setState(968);
+				setState(982);
 				match(DOT);
-				setState(969);
+				setState(983);
 				idCreatedNamePair();
 				}
 				}
-				setState(974);
+				setState(988);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -7542,18 +7601,18 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(975);
+			setState(989);
 			anyId();
-			setState(980);
+			setState(994);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LT) {
 				{
-				setState(976);
+				setState(990);
 				match(LT);
-				setState(977);
+				setState(991);
 				typeList();
-				setState(978);
+				setState(992);
 				match(GT);
 				}
 			}
@@ -7599,9 +7658,9 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(982);
+			setState(996);
 			match(LBRACE);
-			setState(983);
+			setState(997);
 			match(RBRACE);
 			}
 		}
@@ -7645,7 +7704,7 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(985);
+			setState(999);
 			arguments();
 			}
 		}
@@ -7692,33 +7751,33 @@ public class ApexParser extends Parser {
 		ArrayCreatorRestContext _localctx = new ArrayCreatorRestContext(_ctx, getState());
 		enterRule(_localctx, 162, RULE_arrayCreatorRest);
 		try {
-			setState(996);
+			setState(1010);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,89,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(987);
+				setState(1001);
 				match(LBRACK);
-				setState(988);
+				setState(1002);
 				expression(0);
-				setState(989);
+				setState(1003);
 				match(RBRACK);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(991);
+				setState(1005);
 				match(LBRACK);
-				setState(992);
+				setState(1006);
 				match(RBRACK);
-				setState(994);
+				setState(1008);
 				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,88,_ctx) ) {
 				case 1:
 					{
-					setState(993);
+					setState(1007);
 					arrayInitializer();
 					}
 					break;
@@ -7777,27 +7836,27 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(998);
+			setState(1012);
 			match(LBRACE);
-			setState(999);
+			setState(1013);
 			mapCreatorRestPair();
-			setState(1004);
+			setState(1018);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1000);
+				setState(1014);
 				match(COMMA);
-				setState(1001);
+				setState(1015);
 				mapCreatorRestPair();
 				}
 				}
-				setState(1006);
+				setState(1020);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(1007);
+			setState(1021);
 			match(RBRACE);
 			}
 		}
@@ -7845,11 +7904,11 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1009);
+			setState(1023);
 			expression(0);
-			setState(1010);
+			setState(1024);
 			match(MAPTO);
-			setState(1011);
+			setState(1025);
 			expression(0);
 			}
 		}
@@ -7903,29 +7962,29 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1013);
+			setState(1027);
 			match(LBRACE);
-			setState(1014);
+			setState(1028);
 			expression(0);
-			setState(1019);
+			setState(1033);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1015);
+				setState(1029);
 				match(COMMA);
 				{
-				setState(1016);
+				setState(1030);
 				expression(0);
 				}
 				}
 				}
-				setState(1021);
+				setState(1035);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(1022);
+			setState(1036);
 			match(RBRACE);
 			}
 		}
@@ -7972,19 +8031,19 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1024);
+			setState(1038);
 			match(LPAREN);
-			setState(1026);
+			setState(1040);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)) | (1L << (Identifier - 128)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << NEW) | (1L << NULL) | (1L << SET) | (1L << SHARING) | (1L << SUPER) | (1L << SWITCH) | (1L << THIS) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (IntegerLiteral - 128)) | (1L << (LongLiteral - 128)) | (1L << (NumberLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (StringLiteral - 128)) | (1L << (LPAREN - 128)) | (1L << (LBRACK - 128)) | (1L << (BANG - 128)) | (1L << (TILDE - 128)) | (1L << (INC - 128)) | (1L << (DEC - 128)) | (1L << (ADD - 128)) | (1L << (SUB - 128)))) != 0) || _la==Identifier) {
 				{
-				setState(1025);
+				setState(1039);
 				expressionList();
 				}
 			}
 
-			setState(1028);
+			setState(1042);
 			match(RPAREN);
 			}
 		}
@@ -8030,11 +8089,11 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1030);
+			setState(1044);
 			match(LBRACK);
-			setState(1031);
+			setState(1045);
 			query();
-			setState(1032);
+			setState(1046);
 			match(RBRACK);
 			}
 		}
@@ -8051,18 +8110,24 @@ public class ApexParser extends Parser {
 
 	public static class QueryContext extends ParserRuleContext {
 		public TerminalNode SELECT() { return getToken(ApexParser.SELECT, 0); }
-		public FieldListContext fieldList() {
-			return getRuleContext(FieldListContext.class,0);
+		public SelectListContext selectList() {
+			return getRuleContext(SelectListContext.class,0);
 		}
 		public TerminalNode FROM() { return getToken(ApexParser.FROM, 0); }
 		public FromNameListContext fromNameList() {
 			return getRuleContext(FromNameListContext.class,0);
+		}
+		public ForClausesContext forClauses() {
+			return getRuleContext(ForClausesContext.class,0);
 		}
 		public UsingScopeContext usingScope() {
 			return getRuleContext(UsingScopeContext.class,0);
 		}
 		public WhereClauseContext whereClause() {
 			return getRuleContext(WhereClauseContext.class,0);
+		}
+		public WithClauseContext withClause() {
+			return getRuleContext(WithClauseContext.class,0);
 		}
 		public GroupByClauseContext groupByClause() {
 			return getRuleContext(GroupByClauseContext.class,0);
@@ -8073,11 +8138,11 @@ public class ApexParser extends Parser {
 		public LimitClauseContext limitClause() {
 			return getRuleContext(LimitClauseContext.class,0);
 		}
+		public OffsetClauseContext offsetClause() {
+			return getRuleContext(OffsetClauseContext.class,0);
+		}
 		public AllRowsClauseContext allRowsClause() {
 			return getRuleContext(AllRowsClauseContext.class,0);
-		}
-		public ForClauseContext forClause() {
-			return getRuleContext(ForClauseContext.class,0);
 		}
 		public QueryContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -8105,84 +8170,96 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1034);
+			setState(1048);
 			match(SELECT);
-			setState(1035);
-			fieldList();
-			setState(1036);
+			setState(1049);
+			selectList();
+			setState(1050);
 			match(FROM);
-			setState(1037);
+			setState(1051);
 			fromNameList();
-			setState(1039);
+			setState(1053);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==USING) {
 				{
-				setState(1038);
+				setState(1052);
 				usingScope();
 				}
 			}
 
-			setState(1042);
+			setState(1056);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
-				setState(1041);
+				setState(1055);
 				whereClause();
 				}
 			}
 
-			setState(1045);
+			setState(1059);
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			if (_la==WITH) {
+				{
+				setState(1058);
+				withClause();
+				}
+			}
+
+			setState(1062);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==GROUP) {
 				{
-				setState(1044);
+				setState(1061);
 				groupByClause();
 				}
 			}
 
-			setState(1048);
+			setState(1065);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ORDER) {
 				{
-				setState(1047);
+				setState(1064);
 				orderByClause();
 				}
 			}
 
-			setState(1051);
+			setState(1068);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LIMIT) {
 				{
-				setState(1050);
+				setState(1067);
 				limitClause();
 				}
 			}
 
-			setState(1054);
+			setState(1071);
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			if (_la==OFFSET) {
+				{
+				setState(1070);
+				offsetClause();
+				}
+			}
+
+			setState(1074);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ALL) {
 				{
-				setState(1053);
+				setState(1073);
 				allRowsClause();
 				}
 			}
 
-			setState(1057);
-			_errHandler.sync(this);
-			_la = _input.LA(1);
-			if (_la==FOR) {
-				{
-				setState(1056);
-				forClause();
-				}
-			}
-
+			setState(1076);
+			forClauses();
 			}
 		}
 		catch (RecognitionException re) {
@@ -8240,40 +8317,40 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1059);
+			setState(1078);
 			match(SELECT);
-			setState(1060);
+			setState(1079);
 			subFieldList();
-			setState(1061);
+			setState(1080);
 			match(FROM);
-			setState(1062);
+			setState(1081);
 			fromNameList();
-			setState(1064);
+			setState(1083);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
-				setState(1063);
+				setState(1082);
 				whereClause();
 				}
 			}
 
-			setState(1067);
+			setState(1086);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ORDER) {
 				{
-				setState(1066);
+				setState(1085);
 				orderByClause();
 				}
 			}
 
-			setState(1070);
+			setState(1089);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LIMIT) {
 				{
-				setState(1069);
+				setState(1088);
 				limitClause();
 				}
 			}
@@ -8291,58 +8368,58 @@ public class ApexParser extends Parser {
 		return _localctx;
 	}
 
-	public static class FieldListContext extends ParserRuleContext {
-		public List<FieldEntryContext> fieldEntry() {
-			return getRuleContexts(FieldEntryContext.class);
+	public static class SelectListContext extends ParserRuleContext {
+		public List<SelectEntryContext> selectEntry() {
+			return getRuleContexts(SelectEntryContext.class);
 		}
-		public FieldEntryContext fieldEntry(int i) {
-			return getRuleContext(FieldEntryContext.class,i);
+		public SelectEntryContext selectEntry(int i) {
+			return getRuleContext(SelectEntryContext.class,i);
 		}
 		public List<TerminalNode> COMMA() { return getTokens(ApexParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(ApexParser.COMMA, i);
 		}
-		public FieldListContext(ParserRuleContext parent, int invokingState) {
+		public SelectListContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_fieldList; }
+		@Override public int getRuleIndex() { return RULE_selectList; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).enterFieldList(this);
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).enterSelectList(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).exitFieldList(this);
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).exitSelectList(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ApexParserVisitor ) return ((ApexParserVisitor<? extends T>)visitor).visitFieldList(this);
+			if ( visitor instanceof ApexParserVisitor ) return ((ApexParserVisitor<? extends T>)visitor).visitSelectList(this);
 			else return visitor.visitChildren(this);
 		}
 	}
 
-	public final FieldListContext fieldList() throws RecognitionException {
-		FieldListContext _localctx = new FieldListContext(_ctx, getState());
-		enterRule(_localctx, 178, RULE_fieldList);
+	public final SelectListContext selectList() throws RecognitionException {
+		SelectListContext _localctx = new SelectListContext(_ctx, getState());
+		enterRule(_localctx, 178, RULE_selectList);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1072);
-			fieldEntry();
-			setState(1077);
+			setState(1091);
+			selectEntry();
+			setState(1096);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1073);
+				setState(1092);
 				match(COMMA);
-				setState(1074);
-				fieldEntry();
+				setState(1093);
+				selectEntry();
 				}
 				}
-				setState(1079);
+				setState(1098);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -8359,7 +8436,7 @@ public class ApexParser extends Parser {
 		return _localctx;
 	}
 
-	public static class FieldEntryContext extends ParserRuleContext {
+	public static class SelectEntryContext extends ParserRuleContext {
 		public FieldNameContext fieldName() {
 			return getRuleContext(FieldNameContext.class,0);
 		}
@@ -8377,43 +8454,43 @@ public class ApexParser extends Parser {
 		public TypeOfContext typeOf() {
 			return getRuleContext(TypeOfContext.class,0);
 		}
-		public FieldEntryContext(ParserRuleContext parent, int invokingState) {
+		public SelectEntryContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_fieldEntry; }
+		@Override public int getRuleIndex() { return RULE_selectEntry; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).enterFieldEntry(this);
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).enterSelectEntry(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).exitFieldEntry(this);
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).exitSelectEntry(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ApexParserVisitor ) return ((ApexParserVisitor<? extends T>)visitor).visitFieldEntry(this);
+			if ( visitor instanceof ApexParserVisitor ) return ((ApexParserVisitor<? extends T>)visitor).visitSelectEntry(this);
 			else return visitor.visitChildren(this);
 		}
 	}
 
-	public final FieldEntryContext fieldEntry() throws RecognitionException {
-		FieldEntryContext _localctx = new FieldEntryContext(_ctx, getState());
-		enterRule(_localctx, 180, RULE_fieldEntry);
+	public final SelectEntryContext selectEntry() throws RecognitionException {
+		SelectEntryContext _localctx = new SelectEntryContext(_ctx, getState());
+		enterRule(_localctx, 180, RULE_selectEntry);
 		try {
-			setState(1093);
+			setState(1112);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,106,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,107,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1080);
+				setState(1099);
 				fieldName();
-				setState(1082);
+				setState(1101);
 				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,104,_ctx) ) {
+				switch ( getInterpreter().adaptivePredict(_input,105,_ctx) ) {
 				case 1:
 					{
-					setState(1081);
+					setState(1100);
 					soqlId();
 					}
 					break;
@@ -8423,14 +8500,14 @@ public class ApexParser extends Parser {
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1084);
+				setState(1103);
 				aggregateFunction();
-				setState(1086);
+				setState(1105);
 				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,105,_ctx) ) {
+				switch ( getInterpreter().adaptivePredict(_input,106,_ctx) ) {
 				case 1:
 					{
-					setState(1085);
+					setState(1104);
 					soqlId();
 					}
 					break;
@@ -8440,18 +8517,18 @@ public class ApexParser extends Parser {
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(1088);
+				setState(1107);
 				match(LPAREN);
-				setState(1089);
+				setState(1108);
 				subQuery();
-				setState(1090);
+				setState(1109);
 				match(RPAREN);
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(1092);
+				setState(1111);
 				typeOf();
 				}
 				break;
@@ -8505,21 +8582,21 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1095);
+			setState(1114);
 			soqlId();
-			setState(1100);
+			setState(1119);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==DOT) {
 				{
 				{
-				setState(1096);
+				setState(1115);
 				match(DOT);
-				setState(1097);
+				setState(1116);
 				soqlId();
 				}
 				}
-				setState(1102);
+				setState(1121);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -8579,41 +8656,41 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1103);
+			setState(1122);
 			fieldName();
-			setState(1105);
+			setState(1124);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,108,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,109,_ctx) ) {
 			case 1:
 				{
-				setState(1104);
+				setState(1123);
 				soqlId();
 				}
 				break;
 			}
-			setState(1114);
+			setState(1133);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1107);
+				setState(1126);
 				match(COMMA);
-				setState(1108);
+				setState(1127);
 				fieldName();
-				setState(1110);
+				setState(1129);
 				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,109,_ctx) ) {
+				switch ( getInterpreter().adaptivePredict(_input,110,_ctx) ) {
 				case 1:
 					{
-					setState(1109);
+					setState(1128);
 					soqlId();
 					}
 					break;
 				}
 				}
 				}
-				setState(1116);
+				setState(1135);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -8667,21 +8744,21 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1117);
+			setState(1136);
 			subFieldEntry();
-			setState(1122);
+			setState(1141);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1118);
+				setState(1137);
 				match(COMMA);
-				setState(1119);
+				setState(1138);
 				subFieldEntry();
 				}
 				}
-				setState(1124);
+				setState(1143);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -8731,20 +8808,20 @@ public class ApexParser extends Parser {
 		SubFieldEntryContext _localctx = new SubFieldEntryContext(_ctx, getState());
 		enterRule(_localctx, 188, RULE_subFieldEntry);
 		try {
-			setState(1133);
+			setState(1152);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,114,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,115,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1125);
+				setState(1144);
 				fieldName();
-				setState(1127);
+				setState(1146);
 				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,112,_ctx) ) {
+				switch ( getInterpreter().adaptivePredict(_input,113,_ctx) ) {
 				case 1:
 					{
-					setState(1126);
+					setState(1145);
 					soqlId();
 					}
 					break;
@@ -8754,14 +8831,14 @@ public class ApexParser extends Parser {
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1129);
+				setState(1148);
 				aggregateFunction();
-				setState(1131);
+				setState(1150);
 				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,113,_ctx) ) {
+				switch ( getInterpreter().adaptivePredict(_input,114,_ctx) ) {
 				case 1:
 					{
-					setState(1130);
+					setState(1149);
 					soqlId();
 					}
 					break;
@@ -8817,108 +8894,108 @@ public class ApexParser extends Parser {
 		AggregateFunctionContext _localctx = new AggregateFunctionContext(_ctx, getState());
 		enterRule(_localctx, 190, RULE_aggregateFunction);
 		try {
-			setState(1173);
+			setState(1192);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,115,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,116,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1135);
+				setState(1154);
 				match(AVG);
-				setState(1136);
+				setState(1155);
 				match(LPAREN);
-				setState(1137);
+				setState(1156);
 				fieldName();
-				setState(1138);
+				setState(1157);
 				match(RPAREN);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1140);
+				setState(1159);
 				match(COUNT);
-				setState(1141);
+				setState(1160);
 				match(LPAREN);
-				setState(1142);
+				setState(1161);
 				match(RPAREN);
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(1143);
+				setState(1162);
 				match(COUNT);
-				setState(1144);
+				setState(1163);
 				match(LPAREN);
-				setState(1145);
+				setState(1164);
 				fieldName();
-				setState(1146);
+				setState(1165);
 				match(RPAREN);
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(1148);
+				setState(1167);
 				match(COUNT_DISTINCT);
-				setState(1149);
+				setState(1168);
 				match(LPAREN);
-				setState(1150);
+				setState(1169);
 				fieldName();
-				setState(1151);
+				setState(1170);
 				match(RPAREN);
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(1153);
+				setState(1172);
 				match(MIN);
-				setState(1154);
+				setState(1173);
 				match(LPAREN);
-				setState(1155);
+				setState(1174);
 				fieldName();
-				setState(1156);
+				setState(1175);
 				match(RPAREN);
 				}
 				break;
 			case 6:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(1158);
+				setState(1177);
 				match(MAX);
-				setState(1159);
+				setState(1178);
 				match(LPAREN);
-				setState(1160);
+				setState(1179);
 				fieldName();
-				setState(1161);
+				setState(1180);
 				match(RPAREN);
 				}
 				break;
 			case 7:
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(1163);
+				setState(1182);
 				match(SUM);
-				setState(1164);
+				setState(1183);
 				match(LPAREN);
-				setState(1165);
+				setState(1184);
 				fieldName();
-				setState(1166);
+				setState(1185);
 				match(RPAREN);
 				}
 				break;
 			case 8:
 				enterOuterAlt(_localctx, 8);
 				{
-				setState(1168);
+				setState(1187);
 				match(TOLABEL);
-				setState(1169);
+				setState(1188);
 				match(LPAREN);
-				setState(1170);
+				setState(1189);
 				fieldName();
-				setState(1171);
+				setState(1190);
 				match(RPAREN);
 				}
 				break;
@@ -8976,35 +9053,35 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1175);
+			setState(1194);
 			match(TYPEOF);
-			setState(1176);
+			setState(1195);
 			fieldName();
-			setState(1178); 
+			setState(1197); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
 				{
 				{
-				setState(1177);
+				setState(1196);
 				whenClause();
 				}
 				}
-				setState(1180); 
+				setState(1199); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==WHEN );
-			setState(1183);
+			setState(1202);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ELSE) {
 				{
-				setState(1182);
+				setState(1201);
 				elseClause();
 				}
 			}
 
-			setState(1185);
+			setState(1204);
 			match(END);
 			}
 		}
@@ -9025,8 +9102,8 @@ public class ApexParser extends Parser {
 			return getRuleContext(FieldNameContext.class,0);
 		}
 		public TerminalNode THEN() { return getToken(ApexParser.THEN, 0); }
-		public SimpleFieldListContext simpleFieldList() {
-			return getRuleContext(SimpleFieldListContext.class,0);
+		public FieldNameListContext fieldNameList() {
+			return getRuleContext(FieldNameListContext.class,0);
 		}
 		public WhenClauseContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -9053,14 +9130,14 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1187);
+			setState(1206);
 			match(WHEN);
-			setState(1188);
+			setState(1207);
 			fieldName();
-			setState(1189);
+			setState(1208);
 			match(THEN);
-			setState(1190);
-			simpleFieldList();
+			setState(1209);
+			fieldNameList();
 			}
 		}
 		catch (RecognitionException re) {
@@ -9076,8 +9153,8 @@ public class ApexParser extends Parser {
 
 	public static class ElseClauseContext extends ParserRuleContext {
 		public TerminalNode ELSE() { return getToken(ApexParser.ELSE, 0); }
-		public SimpleFieldListContext simpleFieldList() {
-			return getRuleContext(SimpleFieldListContext.class,0);
+		public FieldNameListContext fieldNameList() {
+			return getRuleContext(FieldNameListContext.class,0);
 		}
 		public ElseClauseContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -9104,10 +9181,10 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1192);
+			setState(1211);
 			match(ELSE);
-			setState(1193);
-			simpleFieldList();
+			setState(1212);
+			fieldNameList();
 			}
 		}
 		catch (RecognitionException re) {
@@ -9121,7 +9198,7 @@ public class ApexParser extends Parser {
 		return _localctx;
 	}
 
-	public static class SimpleFieldListContext extends ParserRuleContext {
+	public static class FieldNameListContext extends ParserRuleContext {
 		public List<FieldNameContext> fieldName() {
 			return getRuleContexts(FieldNameContext.class);
 		}
@@ -9132,47 +9209,47 @@ public class ApexParser extends Parser {
 		public TerminalNode COMMA(int i) {
 			return getToken(ApexParser.COMMA, i);
 		}
-		public SimpleFieldListContext(ParserRuleContext parent, int invokingState) {
+		public FieldNameListContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_simpleFieldList; }
+		@Override public int getRuleIndex() { return RULE_fieldNameList; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).enterSimpleFieldList(this);
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).enterFieldNameList(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).exitSimpleFieldList(this);
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).exitFieldNameList(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ApexParserVisitor ) return ((ApexParserVisitor<? extends T>)visitor).visitSimpleFieldList(this);
+			if ( visitor instanceof ApexParserVisitor ) return ((ApexParserVisitor<? extends T>)visitor).visitFieldNameList(this);
 			else return visitor.visitChildren(this);
 		}
 	}
 
-	public final SimpleFieldListContext simpleFieldList() throws RecognitionException {
-		SimpleFieldListContext _localctx = new SimpleFieldListContext(_ctx, getState());
-		enterRule(_localctx, 198, RULE_simpleFieldList);
+	public final FieldNameListContext fieldNameList() throws RecognitionException {
+		FieldNameListContext _localctx = new FieldNameListContext(_ctx, getState());
+		enterRule(_localctx, 198, RULE_fieldNameList);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1195);
+			setState(1214);
 			fieldName();
-			setState(1200);
+			setState(1219);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1196);
+				setState(1215);
 				match(COMMA);
-				setState(1197);
+				setState(1216);
 				fieldName();
 				}
 				}
-				setState(1202);
+				setState(1221);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -9220,11 +9297,11 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1203);
+			setState(1222);
 			match(USING);
-			setState(1204);
+			setState(1223);
 			match(SCOPE);
-			setState(1205);
+			setState(1224);
 			soqlId();
 			}
 		}
@@ -9269,9 +9346,9 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1207);
+			setState(1226);
 			match(WHERE);
-			setState(1208);
+			setState(1227);
 			logicalExpression();
 			}
 		}
@@ -9326,27 +9403,27 @@ public class ApexParser extends Parser {
 		enterRule(_localctx, 204, RULE_logicalExpression);
 		int _la;
 		try {
-			setState(1228);
+			setState(1247);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,121,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,122,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1210);
+				setState(1229);
 				conditionalExpression();
-				setState(1215);
+				setState(1234);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==SOQLAND) {
 					{
 					{
-					setState(1211);
+					setState(1230);
 					match(SOQLAND);
-					setState(1212);
+					setState(1231);
 					conditionalExpression();
 					}
 					}
-					setState(1217);
+					setState(1236);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
@@ -9355,21 +9432,21 @@ public class ApexParser extends Parser {
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1218);
+				setState(1237);
 				conditionalExpression();
-				setState(1223);
+				setState(1242);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==SOQLOR) {
 					{
 					{
-					setState(1219);
+					setState(1238);
 					match(SOQLOR);
-					setState(1220);
+					setState(1239);
 					conditionalExpression();
 					}
 					}
-					setState(1225);
+					setState(1244);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
@@ -9378,9 +9455,9 @@ public class ApexParser extends Parser {
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(1226);
+				setState(1245);
 				match(NOT);
-				setState(1227);
+				setState(1246);
 				conditionalExpression();
 				}
 				break;
@@ -9429,17 +9506,17 @@ public class ApexParser extends Parser {
 		ConditionalExpressionContext _localctx = new ConditionalExpressionContext(_ctx, getState());
 		enterRule(_localctx, 206, RULE_conditionalExpression);
 		try {
-			setState(1235);
+			setState(1254);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case LPAREN:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1230);
+				setState(1249);
 				match(LPAREN);
-				setState(1231);
+				setState(1250);
 				logicalExpression();
-				setState(1232);
+				setState(1251);
 				match(RPAREN);
 				}
 				break;
@@ -9493,6 +9570,16 @@ public class ApexParser extends Parser {
 			case HAVING:
 			case ROLLUP:
 			case TOLABEL:
+			case OFFSET:
+			case DATA:
+			case CATEGORY:
+			case AT:
+			case ABOVE:
+			case BELOW:
+			case ABOVE_OR_BELOW:
+			case SECURITY_ENFORCED:
+			case REFERENCE:
+			case CUBE:
 			case YESTERDAY:
 			case TODAY:
 			case TOMORROW:
@@ -9533,7 +9620,7 @@ public class ApexParser extends Parser {
 			case Identifier:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1234);
+				setState(1253);
 				fieldExpression();
 				}
 				break;
@@ -9588,28 +9675,28 @@ public class ApexParser extends Parser {
 		FieldExpressionContext _localctx = new FieldExpressionContext(_ctx, getState());
 		enterRule(_localctx, 208, RULE_fieldExpression);
 		try {
-			setState(1245);
+			setState(1264);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,123,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,124,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1237);
+				setState(1256);
 				fieldName();
-				setState(1238);
+				setState(1257);
 				comparisonOperator();
-				setState(1239);
+				setState(1258);
 				value();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1241);
+				setState(1260);
 				aggregateFunction();
-				setState(1242);
+				setState(1261);
 				comparisonOperator();
-				setState(1243);
+				setState(1262);
 				value();
 				}
 				break;
@@ -9660,96 +9747,96 @@ public class ApexParser extends Parser {
 		ComparisonOperatorContext _localctx = new ComparisonOperatorContext(_ctx, getState());
 		enterRule(_localctx, 210, RULE_comparisonOperator);
 		try {
-			setState(1262);
+			setState(1281);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,124,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,125,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1247);
+				setState(1266);
 				match(ASSIGN);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1248);
+				setState(1267);
 				match(NOTEQUAL);
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(1249);
+				setState(1268);
 				match(LT);
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(1250);
+				setState(1269);
 				match(GT);
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(1251);
+				setState(1270);
 				match(LT);
-				setState(1252);
+				setState(1271);
 				match(ASSIGN);
 				}
 				break;
 			case 6:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(1253);
+				setState(1272);
 				match(GT);
-				setState(1254);
+				setState(1273);
 				match(ASSIGN);
 				}
 				break;
 			case 7:
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(1255);
+				setState(1274);
 				match(LESSANDGREATER);
 				}
 				break;
 			case 8:
 				enterOuterAlt(_localctx, 8);
 				{
-				setState(1256);
+				setState(1275);
 				match(LIKE);
 				}
 				break;
 			case 9:
 				enterOuterAlt(_localctx, 9);
 				{
-				setState(1257);
+				setState(1276);
 				match(IN);
 				}
 				break;
 			case 10:
 				enterOuterAlt(_localctx, 10);
 				{
-				setState(1258);
+				setState(1277);
 				match(NOT);
-				setState(1259);
+				setState(1278);
 				match(IN);
 				}
 				break;
 			case 11:
 				enterOuterAlt(_localctx, 11);
 				{
-				setState(1260);
+				setState(1279);
 				match(INCLUDES);
 				}
 				break;
 			case 12:
 				enterOuterAlt(_localctx, 12);
 				{
-				setState(1261);
+				setState(1280);
 				match(EXCLUDES);
 				}
 				break;
@@ -9777,6 +9864,9 @@ public class ApexParser extends Parser {
 		public TerminalNode DateTimeLiteral() { return getToken(ApexParser.DateTimeLiteral, 0); }
 		public DateFormulaContext dateFormula() {
 			return getRuleContext(DateFormulaContext.class,0);
+		}
+		public CurrencyValueContext currencyValue() {
+			return getRuleContext(CurrencyValueContext.class,0);
 		}
 		public TerminalNode LPAREN() { return getToken(ApexParser.LPAREN, 0); }
 		public SubQueryContext subQuery() {
@@ -9812,94 +9902,101 @@ public class ApexParser extends Parser {
 		ValueContext _localctx = new ValueContext(_ctx, getState());
 		enterRule(_localctx, 212, RULE_value);
 		try {
-			setState(1279);
+			setState(1299);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,125,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,126,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1264);
+				setState(1283);
 				match(NULL);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1265);
+				setState(1284);
 				match(BooleanLiteral);
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(1266);
+				setState(1285);
 				match(IntegerLiteral);
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(1267);
+				setState(1286);
 				match(LongLiteral);
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(1268);
+				setState(1287);
 				match(NumberLiteral);
 				}
 				break;
 			case 6:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(1269);
+				setState(1288);
 				match(StringLiteral);
 				}
 				break;
 			case 7:
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(1270);
+				setState(1289);
 				match(DateLiteral);
 				}
 				break;
 			case 8:
 				enterOuterAlt(_localctx, 8);
 				{
-				setState(1271);
+				setState(1290);
 				match(DateTimeLiteral);
 				}
 				break;
 			case 9:
 				enterOuterAlt(_localctx, 9);
 				{
-				setState(1272);
+				setState(1291);
 				dateFormula();
 				}
 				break;
 			case 10:
 				enterOuterAlt(_localctx, 10);
 				{
-				setState(1273);
-				match(LPAREN);
-				setState(1274);
-				subQuery();
-				setState(1275);
-				match(RPAREN);
+				setState(1292);
+				currencyValue();
 				}
 				break;
 			case 11:
 				enterOuterAlt(_localctx, 11);
 				{
-				setState(1277);
-				valueList();
+				setState(1293);
+				match(LPAREN);
+				setState(1294);
+				subQuery();
+				setState(1295);
+				match(RPAREN);
 				}
 				break;
 			case 12:
 				enterOuterAlt(_localctx, 12);
 				{
-				setState(1278);
+				setState(1297);
+				valueList();
+				}
+				break;
+			case 13:
+				enterOuterAlt(_localctx, 13);
+				{
+				setState(1298);
 				boundExpression();
 				}
 				break;
@@ -9955,28 +10052,522 @@ public class ApexParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1281);
+			setState(1301);
 			match(LPAREN);
-			setState(1282);
+			setState(1302);
 			value();
-			setState(1287);
+			setState(1307);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1283);
+				setState(1303);
 				match(COMMA);
-				setState(1284);
+				setState(1304);
 				value();
 				}
 				}
-				setState(1289);
+				setState(1309);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(1290);
+			setState(1310);
 			match(RPAREN);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class CurrencyValueContext extends ParserRuleContext {
+		public SoqlIdContext soqlId() {
+			return getRuleContext(SoqlIdContext.class,0);
+		}
+		public SignedIntegerContext signedInteger() {
+			return getRuleContext(SignedIntegerContext.class,0);
+		}
+		public CurrencyValueContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_currencyValue; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).enterCurrencyValue(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).exitCurrencyValue(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof ApexParserVisitor ) return ((ApexParserVisitor<? extends T>)visitor).visitCurrencyValue(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final CurrencyValueContext currencyValue() throws RecognitionException {
+		CurrencyValueContext _localctx = new CurrencyValueContext(_ctx, getState());
+		enterRule(_localctx, 216, RULE_currencyValue);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(1312);
+			soqlId();
+			setState(1313);
+			signedInteger();
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class WithClauseContext extends ParserRuleContext {
+		public TerminalNode WITH() { return getToken(ApexParser.WITH, 0); }
+		public TerminalNode DATA() { return getToken(ApexParser.DATA, 0); }
+		public TerminalNode CATEGORY() { return getToken(ApexParser.CATEGORY, 0); }
+		public FilteringExpressionContext filteringExpression() {
+			return getRuleContext(FilteringExpressionContext.class,0);
+		}
+		public TerminalNode SECURITY_ENFORCED() { return getToken(ApexParser.SECURITY_ENFORCED, 0); }
+		public LogicalExpressionContext logicalExpression() {
+			return getRuleContext(LogicalExpressionContext.class,0);
+		}
+		public WithClauseContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_withClause; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).enterWithClause(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).exitWithClause(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof ApexParserVisitor ) return ((ApexParserVisitor<? extends T>)visitor).visitWithClause(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final WithClauseContext withClause() throws RecognitionException {
+		WithClauseContext _localctx = new WithClauseContext(_ctx, getState());
+		enterRule(_localctx, 218, RULE_withClause);
+		try {
+			setState(1323);
+			_errHandler.sync(this);
+			switch ( getInterpreter().adaptivePredict(_input,128,_ctx) ) {
+			case 1:
+				enterOuterAlt(_localctx, 1);
+				{
+				setState(1315);
+				match(WITH);
+				setState(1316);
+				match(DATA);
+				setState(1317);
+				match(CATEGORY);
+				setState(1318);
+				filteringExpression();
+				}
+				break;
+			case 2:
+				enterOuterAlt(_localctx, 2);
+				{
+				setState(1319);
+				match(WITH);
+				setState(1320);
+				match(SECURITY_ENFORCED);
+				}
+				break;
+			case 3:
+				enterOuterAlt(_localctx, 3);
+				{
+				setState(1321);
+				match(WITH);
+				setState(1322);
+				logicalExpression();
+				}
+				break;
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class FilteringExpressionContext extends ParserRuleContext {
+		public List<DataCategorySelectionContext> dataCategorySelection() {
+			return getRuleContexts(DataCategorySelectionContext.class);
+		}
+		public DataCategorySelectionContext dataCategorySelection(int i) {
+			return getRuleContext(DataCategorySelectionContext.class,i);
+		}
+		public List<TerminalNode> AND() { return getTokens(ApexParser.AND); }
+		public TerminalNode AND(int i) {
+			return getToken(ApexParser.AND, i);
+		}
+		public FilteringExpressionContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_filteringExpression; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).enterFilteringExpression(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).exitFilteringExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof ApexParserVisitor ) return ((ApexParserVisitor<? extends T>)visitor).visitFilteringExpression(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final FilteringExpressionContext filteringExpression() throws RecognitionException {
+		FilteringExpressionContext _localctx = new FilteringExpressionContext(_ctx, getState());
+		enterRule(_localctx, 220, RULE_filteringExpression);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(1325);
+			dataCategorySelection();
+			setState(1330);
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			while (_la==AND) {
+				{
+				{
+				setState(1326);
+				match(AND);
+				setState(1327);
+				dataCategorySelection();
+				}
+				}
+				setState(1332);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class DataCategorySelectionContext extends ParserRuleContext {
+		public SoqlIdContext soqlId() {
+			return getRuleContext(SoqlIdContext.class,0);
+		}
+		public FilteringSelectorContext filteringSelector() {
+			return getRuleContext(FilteringSelectorContext.class,0);
+		}
+		public DataCategoryNameContext dataCategoryName() {
+			return getRuleContext(DataCategoryNameContext.class,0);
+		}
+		public DataCategorySelectionContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_dataCategorySelection; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).enterDataCategorySelection(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).exitDataCategorySelection(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof ApexParserVisitor ) return ((ApexParserVisitor<? extends T>)visitor).visitDataCategorySelection(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final DataCategorySelectionContext dataCategorySelection() throws RecognitionException {
+		DataCategorySelectionContext _localctx = new DataCategorySelectionContext(_ctx, getState());
+		enterRule(_localctx, 222, RULE_dataCategorySelection);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(1333);
+			soqlId();
+			setState(1334);
+			filteringSelector();
+			setState(1335);
+			dataCategoryName();
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class DataCategoryNameContext extends ParserRuleContext {
+		public List<SoqlIdContext> soqlId() {
+			return getRuleContexts(SoqlIdContext.class);
+		}
+		public SoqlIdContext soqlId(int i) {
+			return getRuleContext(SoqlIdContext.class,i);
+		}
+		public List<TerminalNode> LPAREN() { return getTokens(ApexParser.LPAREN); }
+		public TerminalNode LPAREN(int i) {
+			return getToken(ApexParser.LPAREN, i);
+		}
+		public List<TerminalNode> COMMA() { return getTokens(ApexParser.COMMA); }
+		public TerminalNode COMMA(int i) {
+			return getToken(ApexParser.COMMA, i);
+		}
+		public DataCategoryNameContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_dataCategoryName; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).enterDataCategoryName(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).exitDataCategoryName(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof ApexParserVisitor ) return ((ApexParserVisitor<? extends T>)visitor).visitDataCategoryName(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final DataCategoryNameContext dataCategoryName() throws RecognitionException {
+		DataCategoryNameContext _localctx = new DataCategoryNameContext(_ctx, getState());
+		enterRule(_localctx, 224, RULE_dataCategoryName);
+		int _la;
+		try {
+			setState(1349);
+			_errHandler.sync(this);
+			switch (_input.LA(1)) {
+			case AFTER:
+			case BEFORE:
+			case GET:
+			case INHERITED:
+			case INSTANCEOF:
+			case SET:
+			case SHARING:
+			case SWITCH:
+			case TRANSIENT:
+			case TRIGGER:
+			case WHEN:
+			case WITH:
+			case WITHOUT:
+			case SELECT:
+			case COUNT:
+			case FROM:
+			case AS:
+			case USING:
+			case SCOPE:
+			case WHERE:
+			case ORDER:
+			case BY:
+			case LIMIT:
+			case SOQLAND:
+			case SOQLOR:
+			case NOT:
+			case AVG:
+			case COUNT_DISTINCT:
+			case MIN:
+			case MAX:
+			case SUM:
+			case TYPEOF:
+			case END:
+			case THEN:
+			case LIKE:
+			case IN:
+			case INCLUDES:
+			case EXCLUDES:
+			case ASC:
+			case DESC:
+			case NULLS:
+			case FIRST:
+			case LAST:
+			case GROUP:
+			case ALL:
+			case ROWS:
+			case VIEW:
+			case HAVING:
+			case ROLLUP:
+			case TOLABEL:
+			case OFFSET:
+			case DATA:
+			case CATEGORY:
+			case AT:
+			case ABOVE:
+			case BELOW:
+			case ABOVE_OR_BELOW:
+			case SECURITY_ENFORCED:
+			case REFERENCE:
+			case CUBE:
+			case YESTERDAY:
+			case TODAY:
+			case TOMORROW:
+			case LAST_WEEK:
+			case THIS_WEEK:
+			case NEXT_WEEK:
+			case LAST_MONTH:
+			case THIS_MONTH:
+			case NEXT_MONTH:
+			case LAST_90_DAYS:
+			case NEXT_90_DAYS:
+			case LAST_N_DAYS_N:
+			case NEXT_N_DAYS_N:
+			case NEXT_N_WEEKS_N:
+			case LAST_N_WEEKS_N:
+			case NEXT_N_MONTHS_N:
+			case LAST_N_MONTHS_N:
+			case THIS_QUARTER:
+			case LAST_QUARTER:
+			case NEXT_QUARTER:
+			case NEXT_N_QUARTERS_N:
+			case LAST_N_QUARTERS_N:
+			case THIS_YEAR:
+			case LAST_YEAR:
+			case NEXT_YEAR:
+			case NEXT_N_YEARS_N:
+			case LAST_N_YEARS_N:
+			case THIS_FISCAL_QUARTER:
+			case LAST_FISCAL_QUARTER:
+			case NEXT_FISCAL_QUARTER:
+			case NEXT_N_FISCAL_QUARTERS_N:
+			case LAST_N_FISCAL_QUARTERS_N:
+			case THIS_FISCAL_YEAR:
+			case LAST_FISCAL_YEAR:
+			case NEXT_FISCAL_YEAR:
+			case NEXT_N_FISCAL_YEARS_N:
+			case LAST_N_FISCAL_YEARS_N:
+			case Identifier:
+				enterOuterAlt(_localctx, 1);
+				{
+				setState(1337);
+				soqlId();
+				}
+				break;
+			case LPAREN:
+				enterOuterAlt(_localctx, 2);
+				{
+				setState(1338);
+				match(LPAREN);
+				setState(1339);
+				soqlId();
+				setState(1344);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				while (_la==COMMA) {
+					{
+					{
+					setState(1340);
+					match(COMMA);
+					setState(1341);
+					soqlId();
+					}
+					}
+					setState(1346);
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+				}
+				setState(1347);
+				match(LPAREN);
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class FilteringSelectorContext extends ParserRuleContext {
+		public TerminalNode AT() { return getToken(ApexParser.AT, 0); }
+		public TerminalNode ABOVE() { return getToken(ApexParser.ABOVE, 0); }
+		public TerminalNode BELOW() { return getToken(ApexParser.BELOW, 0); }
+		public TerminalNode ABOVE_OR_BELOW() { return getToken(ApexParser.ABOVE_OR_BELOW, 0); }
+		public FilteringSelectorContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_filteringSelector; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).enterFilteringSelector(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).exitFilteringSelector(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof ApexParserVisitor ) return ((ApexParserVisitor<? extends T>)visitor).visitFilteringSelector(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final FilteringSelectorContext filteringSelector() throws RecognitionException {
+		FilteringSelectorContext _localctx = new FilteringSelectorContext(_ctx, getState());
+		enterRule(_localctx, 226, RULE_filteringSelector);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(1351);
+			_la = _input.LA(1);
+			if ( !(((((_la - 97)) & ~0x3f) == 0 && ((1L << (_la - 97)) & ((1L << (AT - 97)) | (1L << (ABOVE - 97)) | (1L << (BELOW - 97)) | (1L << (ABOVE_OR_BELOW - 97)))) != 0)) ) {
+			_errHandler.recoverInline(this);
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
+				consume();
+			}
 			}
 		}
 		catch (RecognitionException re) {
@@ -9993,8 +10584,8 @@ public class ApexParser extends Parser {
 	public static class GroupByClauseContext extends ParserRuleContext {
 		public TerminalNode GROUP() { return getToken(ApexParser.GROUP, 0); }
 		public TerminalNode BY() { return getToken(ApexParser.BY, 0); }
-		public FieldListContext fieldList() {
-			return getRuleContext(FieldListContext.class,0);
+		public SelectListContext selectList() {
+			return getRuleContext(SelectListContext.class,0);
 		}
 		public TerminalNode HAVING() { return getToken(ApexParser.HAVING, 0); }
 		public LogicalExpressionContext logicalExpression() {
@@ -10013,6 +10604,7 @@ public class ApexParser extends Parser {
 		public TerminalNode COMMA(int i) {
 			return getToken(ApexParser.COMMA, i);
 		}
+		public TerminalNode CUBE() { return getToken(ApexParser.CUBE, 0); }
 		public GroupByClauseContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -10034,29 +10626,29 @@ public class ApexParser extends Parser {
 
 	public final GroupByClauseContext groupByClause() throws RecognitionException {
 		GroupByClauseContext _localctx = new GroupByClauseContext(_ctx, getState());
-		enterRule(_localctx, 216, RULE_groupByClause);
+		enterRule(_localctx, 228, RULE_groupByClause);
 		int _la;
 		try {
-			setState(1313);
+			setState(1388);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,129,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,135,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1292);
+				setState(1353);
 				match(GROUP);
-				setState(1293);
+				setState(1354);
 				match(BY);
-				setState(1294);
-				fieldList();
-				setState(1297);
+				setState(1355);
+				selectList();
+				setState(1358);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==HAVING) {
 					{
-					setState(1295);
+					setState(1356);
 					match(HAVING);
-					setState(1296);
+					setState(1357);
 					logicalExpression();
 					}
 				}
@@ -10066,33 +10658,66 @@ public class ApexParser extends Parser {
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1299);
+				setState(1360);
 				match(GROUP);
-				setState(1300);
+				setState(1361);
 				match(BY);
-				setState(1301);
+				setState(1362);
 				match(ROLLUP);
-				setState(1302);
+				setState(1363);
 				match(LPAREN);
-				setState(1303);
+				setState(1364);
 				fieldName();
-				setState(1308);
+				setState(1369);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==COMMA) {
 					{
 					{
-					setState(1304);
+					setState(1365);
 					match(COMMA);
-					setState(1305);
+					setState(1366);
 					fieldName();
 					}
 					}
-					setState(1310);
+					setState(1371);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
-				setState(1311);
+				setState(1372);
+				match(RPAREN);
+				}
+				break;
+			case 3:
+				enterOuterAlt(_localctx, 3);
+				{
+				setState(1374);
+				match(GROUP);
+				setState(1375);
+				match(BY);
+				setState(1376);
+				match(CUBE);
+				setState(1377);
+				match(LPAREN);
+				setState(1378);
+				fieldName();
+				setState(1383);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				while (_la==COMMA) {
+					{
+					{
+					setState(1379);
+					match(COMMA);
+					setState(1380);
+					fieldName();
+					}
+					}
+					setState(1385);
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+				}
+				setState(1386);
 				match(RPAREN);
 				}
 				break;
@@ -10136,15 +10761,15 @@ public class ApexParser extends Parser {
 
 	public final OrderByClauseContext orderByClause() throws RecognitionException {
 		OrderByClauseContext _localctx = new OrderByClauseContext(_ctx, getState());
-		enterRule(_localctx, 218, RULE_orderByClause);
+		enterRule(_localctx, 230, RULE_orderByClause);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1315);
+			setState(1390);
 			match(ORDER);
-			setState(1316);
+			setState(1391);
 			match(BY);
-			setState(1317);
+			setState(1392);
 			fieldOrderList();
 			}
 		}
@@ -10191,26 +10816,26 @@ public class ApexParser extends Parser {
 
 	public final FieldOrderListContext fieldOrderList() throws RecognitionException {
 		FieldOrderListContext _localctx = new FieldOrderListContext(_ctx, getState());
-		enterRule(_localctx, 220, RULE_fieldOrderList);
+		enterRule(_localctx, 232, RULE_fieldOrderList);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1319);
+			setState(1394);
 			fieldOrder();
-			setState(1324);
+			setState(1399);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1320);
+				setState(1395);
 				match(COMMA);
-				setState(1321);
+				setState(1396);
 				fieldOrder();
 				}
 				}
-				setState(1326);
+				setState(1401);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -10260,23 +10885,23 @@ public class ApexParser extends Parser {
 
 	public final FieldOrderContext fieldOrder() throws RecognitionException {
 		FieldOrderContext _localctx = new FieldOrderContext(_ctx, getState());
-		enterRule(_localctx, 222, RULE_fieldOrder);
+		enterRule(_localctx, 234, RULE_fieldOrder);
 		int _la;
 		try {
-			setState(1336);
+			setState(1411);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,133,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,139,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1327);
+				setState(1402);
 				fieldName();
-				setState(1329);
+				setState(1404);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==ASC || _la==DESC) {
 					{
-					setState(1328);
+					setState(1403);
 					_la = _input.LA(1);
 					if ( !(_la==ASC || _la==DESC) ) {
 					_errHandler.recoverInline(this);
@@ -10289,14 +10914,14 @@ public class ApexParser extends Parser {
 					}
 				}
 
-				setState(1333);
+				setState(1408);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==NULLS) {
 					{
-					setState(1331);
+					setState(1406);
 					match(NULLS);
-					setState(1332);
+					setState(1407);
 					_la = _input.LA(1);
 					if ( !(_la==FIRST || _la==LAST) ) {
 					_errHandler.recoverInline(this);
@@ -10314,7 +10939,7 @@ public class ApexParser extends Parser {
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1335);
+				setState(1410);
 				aggregateFunction();
 				}
 				break;
@@ -10358,26 +10983,89 @@ public class ApexParser extends Parser {
 
 	public final LimitClauseContext limitClause() throws RecognitionException {
 		LimitClauseContext _localctx = new LimitClauseContext(_ctx, getState());
-		enterRule(_localctx, 224, RULE_limitClause);
+		enterRule(_localctx, 236, RULE_limitClause);
 		try {
-			setState(1342);
+			setState(1417);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,134,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,140,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1338);
+				setState(1413);
 				match(LIMIT);
-				setState(1339);
+				setState(1414);
 				match(IntegerLiteral);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1340);
+				setState(1415);
 				match(LIMIT);
-				setState(1341);
+				setState(1416);
+				boundExpression();
+				}
+				break;
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class OffsetClauseContext extends ParserRuleContext {
+		public TerminalNode OFFSET() { return getToken(ApexParser.OFFSET, 0); }
+		public TerminalNode IntegerLiteral() { return getToken(ApexParser.IntegerLiteral, 0); }
+		public BoundExpressionContext boundExpression() {
+			return getRuleContext(BoundExpressionContext.class,0);
+		}
+		public OffsetClauseContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_offsetClause; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).enterOffsetClause(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).exitOffsetClause(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof ApexParserVisitor ) return ((ApexParserVisitor<? extends T>)visitor).visitOffsetClause(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final OffsetClauseContext offsetClause() throws RecognitionException {
+		OffsetClauseContext _localctx = new OffsetClauseContext(_ctx, getState());
+		enterRule(_localctx, 238, RULE_offsetClause);
+		try {
+			setState(1423);
+			_errHandler.sync(this);
+			switch ( getInterpreter().adaptivePredict(_input,141,_ctx) ) {
+			case 1:
+				enterOuterAlt(_localctx, 1);
+				{
+				setState(1419);
+				match(OFFSET);
+				setState(1420);
+				match(IntegerLiteral);
+				}
+				break;
+			case 2:
+				enterOuterAlt(_localctx, 2);
+				{
+				setState(1421);
+				match(OFFSET);
+				setState(1422);
 				boundExpression();
 				}
 				break;
@@ -10418,13 +11106,13 @@ public class ApexParser extends Parser {
 
 	public final AllRowsClauseContext allRowsClause() throws RecognitionException {
 		AllRowsClauseContext _localctx = new AllRowsClauseContext(_ctx, getState());
-		enterRule(_localctx, 226, RULE_allRowsClause);
+		enterRule(_localctx, 240, RULE_allRowsClause);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1344);
+			setState(1425);
 			match(ALL);
-			setState(1345);
+			setState(1426);
 			match(ROWS);
 			}
 		}
@@ -10439,54 +11127,73 @@ public class ApexParser extends Parser {
 		return _localctx;
 	}
 
-	public static class ForClauseContext extends ParserRuleContext {
-		public TerminalNode FOR() { return getToken(ApexParser.FOR, 0); }
-		public TerminalNode UPDATE() { return getToken(ApexParser.UPDATE, 0); }
-		public TerminalNode VIEW() { return getToken(ApexParser.VIEW, 0); }
-		public ForClauseContext(ParserRuleContext parent, int invokingState) {
+	public static class ForClausesContext extends ParserRuleContext {
+		public List<TerminalNode> FOR() { return getTokens(ApexParser.FOR); }
+		public TerminalNode FOR(int i) {
+			return getToken(ApexParser.FOR, i);
+		}
+		public List<TerminalNode> VIEW() { return getTokens(ApexParser.VIEW); }
+		public TerminalNode VIEW(int i) {
+			return getToken(ApexParser.VIEW, i);
+		}
+		public List<TerminalNode> UPDATE() { return getTokens(ApexParser.UPDATE); }
+		public TerminalNode UPDATE(int i) {
+			return getToken(ApexParser.UPDATE, i);
+		}
+		public List<TerminalNode> REFERENCE() { return getTokens(ApexParser.REFERENCE); }
+		public TerminalNode REFERENCE(int i) {
+			return getToken(ApexParser.REFERENCE, i);
+		}
+		public ForClausesContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_forClause; }
+		@Override public int getRuleIndex() { return RULE_forClauses; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).enterForClause(this);
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).enterForClauses(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).exitForClause(this);
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).exitForClauses(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ApexParserVisitor ) return ((ApexParserVisitor<? extends T>)visitor).visitForClause(this);
+			if ( visitor instanceof ApexParserVisitor ) return ((ApexParserVisitor<? extends T>)visitor).visitForClauses(this);
 			else return visitor.visitChildren(this);
 		}
 	}
 
-	public final ForClauseContext forClause() throws RecognitionException {
-		ForClauseContext _localctx = new ForClauseContext(_ctx, getState());
-		enterRule(_localctx, 228, RULE_forClause);
+	public final ForClausesContext forClauses() throws RecognitionException {
+		ForClausesContext _localctx = new ForClausesContext(_ctx, getState());
+		enterRule(_localctx, 242, RULE_forClauses);
+		int _la;
 		try {
-			setState(1351);
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(1432);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,135,_ctx) ) {
-			case 1:
-				enterOuterAlt(_localctx, 1);
+			_la = _input.LA(1);
+			while (_la==FOR) {
 				{
-				setState(1347);
-				match(FOR);
-				setState(1348);
-				match(UPDATE);
-				}
-				break;
-			case 2:
-				enterOuterAlt(_localctx, 2);
 				{
-				setState(1349);
+				setState(1428);
 				match(FOR);
-				setState(1350);
-				match(VIEW);
+				setState(1429);
+				_la = _input.LA(1);
+				if ( !(((((_la - 46)) & ~0x3f) == 0 && ((1L << (_la - 46)) & ((1L << (UPDATE - 46)) | (1L << (VIEW - 46)) | (1L << (REFERENCE - 46)))) != 0)) ) {
+				_errHandler.recoverInline(this);
 				}
-				break;
+				else {
+					if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+					_errHandler.reportMatch(this);
+					consume();
+				}
+				}
+				}
+				setState(1434);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+			}
 			}
 		}
 		catch (RecognitionException re) {
@@ -10526,13 +11233,13 @@ public class ApexParser extends Parser {
 
 	public final BoundExpressionContext boundExpression() throws RecognitionException {
 		BoundExpressionContext _localctx = new BoundExpressionContext(_ctx, getState());
-		enterRule(_localctx, 230, RULE_boundExpression);
+		enterRule(_localctx, 244, RULE_boundExpression);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1353);
+			setState(1435);
 			match(COLON);
-			setState(1354);
+			setState(1436);
 			expression(0);
 			}
 		}
@@ -10561,8 +11268,8 @@ public class ApexParser extends Parser {
 		public TerminalNode NEXT_90_DAYS() { return getToken(ApexParser.NEXT_90_DAYS, 0); }
 		public TerminalNode LAST_N_DAYS_N() { return getToken(ApexParser.LAST_N_DAYS_N, 0); }
 		public TerminalNode COLON() { return getToken(ApexParser.COLON, 0); }
-		public DateIntegerContext dateInteger() {
-			return getRuleContext(DateIntegerContext.class,0);
+		public SignedIntegerContext signedInteger() {
+			return getRuleContext(SignedIntegerContext.class,0);
 		}
 		public TerminalNode NEXT_N_DAYS_N() { return getToken(ApexParser.NEXT_N_DAYS_N, 0); }
 		public TerminalNode NEXT_N_WEEKS_N() { return getToken(ApexParser.NEXT_N_WEEKS_N, 0); }
@@ -10610,324 +11317,324 @@ public class ApexParser extends Parser {
 
 	public final DateFormulaContext dateFormula() throws RecognitionException {
 		DateFormulaContext _localctx = new DateFormulaContext(_ctx, getState());
-		enterRule(_localctx, 232, RULE_dateFormula);
+		enterRule(_localctx, 246, RULE_dateFormula);
 		try {
-			setState(1421);
+			setState(1503);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case YESTERDAY:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1356);
+				setState(1438);
 				match(YESTERDAY);
 				}
 				break;
 			case TODAY:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1357);
+				setState(1439);
 				match(TODAY);
 				}
 				break;
 			case TOMORROW:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(1358);
+				setState(1440);
 				match(TOMORROW);
 				}
 				break;
 			case LAST_WEEK:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(1359);
+				setState(1441);
 				match(LAST_WEEK);
 				}
 				break;
 			case THIS_WEEK:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(1360);
+				setState(1442);
 				match(THIS_WEEK);
 				}
 				break;
 			case NEXT_WEEK:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(1361);
+				setState(1443);
 				match(NEXT_WEEK);
 				}
 				break;
 			case LAST_MONTH:
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(1362);
+				setState(1444);
 				match(LAST_MONTH);
 				}
 				break;
 			case THIS_MONTH:
 				enterOuterAlt(_localctx, 8);
 				{
-				setState(1363);
+				setState(1445);
 				match(THIS_MONTH);
 				}
 				break;
 			case NEXT_MONTH:
 				enterOuterAlt(_localctx, 9);
 				{
-				setState(1364);
+				setState(1446);
 				match(NEXT_MONTH);
 				}
 				break;
 			case LAST_90_DAYS:
 				enterOuterAlt(_localctx, 10);
 				{
-				setState(1365);
+				setState(1447);
 				match(LAST_90_DAYS);
 				}
 				break;
 			case NEXT_90_DAYS:
 				enterOuterAlt(_localctx, 11);
 				{
-				setState(1366);
+				setState(1448);
 				match(NEXT_90_DAYS);
 				}
 				break;
 			case LAST_N_DAYS_N:
 				enterOuterAlt(_localctx, 12);
 				{
-				setState(1367);
+				setState(1449);
 				match(LAST_N_DAYS_N);
-				setState(1368);
+				setState(1450);
 				match(COLON);
-				setState(1369);
-				dateInteger();
+				setState(1451);
+				signedInteger();
 				}
 				break;
 			case NEXT_N_DAYS_N:
 				enterOuterAlt(_localctx, 13);
 				{
-				setState(1370);
+				setState(1452);
 				match(NEXT_N_DAYS_N);
-				setState(1371);
+				setState(1453);
 				match(COLON);
-				setState(1372);
-				dateInteger();
+				setState(1454);
+				signedInteger();
 				}
 				break;
 			case NEXT_N_WEEKS_N:
 				enterOuterAlt(_localctx, 14);
 				{
-				setState(1373);
+				setState(1455);
 				match(NEXT_N_WEEKS_N);
-				setState(1374);
+				setState(1456);
 				match(COLON);
-				setState(1375);
-				dateInteger();
+				setState(1457);
+				signedInteger();
 				}
 				break;
 			case LAST_N_WEEKS_N:
 				enterOuterAlt(_localctx, 15);
 				{
-				setState(1376);
+				setState(1458);
 				match(LAST_N_WEEKS_N);
-				setState(1377);
+				setState(1459);
 				match(COLON);
-				setState(1378);
-				dateInteger();
+				setState(1460);
+				signedInteger();
 				}
 				break;
 			case NEXT_N_MONTHS_N:
 				enterOuterAlt(_localctx, 16);
 				{
-				setState(1379);
+				setState(1461);
 				match(NEXT_N_MONTHS_N);
-				setState(1380);
+				setState(1462);
 				match(COLON);
-				setState(1381);
-				dateInteger();
+				setState(1463);
+				signedInteger();
 				}
 				break;
 			case LAST_N_MONTHS_N:
 				enterOuterAlt(_localctx, 17);
 				{
-				setState(1382);
+				setState(1464);
 				match(LAST_N_MONTHS_N);
-				setState(1383);
+				setState(1465);
 				match(COLON);
-				setState(1384);
-				dateInteger();
+				setState(1466);
+				signedInteger();
 				}
 				break;
 			case THIS_QUARTER:
 				enterOuterAlt(_localctx, 18);
 				{
-				setState(1385);
+				setState(1467);
 				match(THIS_QUARTER);
 				}
 				break;
 			case LAST_QUARTER:
 				enterOuterAlt(_localctx, 19);
 				{
-				setState(1386);
+				setState(1468);
 				match(LAST_QUARTER);
 				}
 				break;
 			case NEXT_QUARTER:
 				enterOuterAlt(_localctx, 20);
 				{
-				setState(1387);
+				setState(1469);
 				match(NEXT_QUARTER);
 				}
 				break;
 			case NEXT_N_QUARTERS_N:
 				enterOuterAlt(_localctx, 21);
 				{
-				setState(1388);
+				setState(1470);
 				match(NEXT_N_QUARTERS_N);
-				setState(1389);
+				setState(1471);
 				match(COLON);
-				setState(1390);
-				dateInteger();
+				setState(1472);
+				signedInteger();
 				}
 				break;
 			case LAST_N_QUARTERS_N:
 				enterOuterAlt(_localctx, 22);
 				{
-				setState(1391);
+				setState(1473);
 				match(LAST_N_QUARTERS_N);
-				setState(1392);
+				setState(1474);
 				match(COLON);
-				setState(1393);
-				dateInteger();
+				setState(1475);
+				signedInteger();
 				}
 				break;
 			case THIS_YEAR:
 				enterOuterAlt(_localctx, 23);
 				{
-				setState(1394);
+				setState(1476);
 				match(THIS_YEAR);
 				}
 				break;
 			case LAST_YEAR:
 				enterOuterAlt(_localctx, 24);
 				{
-				setState(1395);
+				setState(1477);
 				match(LAST_YEAR);
 				}
 				break;
 			case NEXT_YEAR:
 				enterOuterAlt(_localctx, 25);
 				{
-				setState(1396);
+				setState(1478);
 				match(NEXT_YEAR);
 				}
 				break;
 			case NEXT_N_YEARS_N:
 				enterOuterAlt(_localctx, 26);
 				{
-				setState(1397);
+				setState(1479);
 				match(NEXT_N_YEARS_N);
-				setState(1398);
+				setState(1480);
 				match(COLON);
-				setState(1399);
-				dateInteger();
+				setState(1481);
+				signedInteger();
 				}
 				break;
 			case LAST_N_YEARS_N:
 				enterOuterAlt(_localctx, 27);
 				{
-				setState(1400);
+				setState(1482);
 				match(LAST_N_YEARS_N);
-				setState(1401);
+				setState(1483);
 				match(COLON);
-				setState(1402);
-				dateInteger();
+				setState(1484);
+				signedInteger();
 				}
 				break;
 			case THIS_FISCAL_QUARTER:
 				enterOuterAlt(_localctx, 28);
 				{
-				setState(1403);
+				setState(1485);
 				match(THIS_FISCAL_QUARTER);
 				}
 				break;
 			case LAST_FISCAL_QUARTER:
 				enterOuterAlt(_localctx, 29);
 				{
-				setState(1404);
+				setState(1486);
 				match(LAST_FISCAL_QUARTER);
 				}
 				break;
 			case NEXT_FISCAL_QUARTER:
 				enterOuterAlt(_localctx, 30);
 				{
-				setState(1405);
+				setState(1487);
 				match(NEXT_FISCAL_QUARTER);
 				}
 				break;
 			case NEXT_N_FISCAL_QUARTERS_N:
 				enterOuterAlt(_localctx, 31);
 				{
-				setState(1406);
+				setState(1488);
 				match(NEXT_N_FISCAL_QUARTERS_N);
-				setState(1407);
+				setState(1489);
 				match(COLON);
-				setState(1408);
-				dateInteger();
+				setState(1490);
+				signedInteger();
 				}
 				break;
 			case LAST_N_FISCAL_QUARTERS_N:
 				enterOuterAlt(_localctx, 32);
 				{
-				setState(1409);
+				setState(1491);
 				match(LAST_N_FISCAL_QUARTERS_N);
-				setState(1410);
+				setState(1492);
 				match(COLON);
-				setState(1411);
-				dateInteger();
+				setState(1493);
+				signedInteger();
 				}
 				break;
 			case THIS_FISCAL_YEAR:
 				enterOuterAlt(_localctx, 33);
 				{
-				setState(1412);
+				setState(1494);
 				match(THIS_FISCAL_YEAR);
 				}
 				break;
 			case LAST_FISCAL_YEAR:
 				enterOuterAlt(_localctx, 34);
 				{
-				setState(1413);
+				setState(1495);
 				match(LAST_FISCAL_YEAR);
 				}
 				break;
 			case NEXT_FISCAL_YEAR:
 				enterOuterAlt(_localctx, 35);
 				{
-				setState(1414);
+				setState(1496);
 				match(NEXT_FISCAL_YEAR);
 				}
 				break;
 			case NEXT_N_FISCAL_YEARS_N:
 				enterOuterAlt(_localctx, 36);
 				{
-				setState(1415);
+				setState(1497);
 				match(NEXT_N_FISCAL_YEARS_N);
-				setState(1416);
+				setState(1498);
 				match(COLON);
-				setState(1417);
-				dateInteger();
+				setState(1499);
+				signedInteger();
 				}
 				break;
 			case LAST_N_FISCAL_YEARS_N:
 				enterOuterAlt(_localctx, 37);
 				{
-				setState(1418);
+				setState(1500);
 				match(LAST_N_FISCAL_YEARS_N);
-				setState(1419);
+				setState(1501);
 				match(COLON);
-				setState(1420);
-				dateInteger();
+				setState(1502);
+				signedInteger();
 				}
 				break;
 			default:
@@ -10945,42 +11652,42 @@ public class ApexParser extends Parser {
 		return _localctx;
 	}
 
-	public static class DateIntegerContext extends ParserRuleContext {
+	public static class SignedIntegerContext extends ParserRuleContext {
 		public TerminalNode IntegerLiteral() { return getToken(ApexParser.IntegerLiteral, 0); }
 		public TerminalNode ADD() { return getToken(ApexParser.ADD, 0); }
 		public TerminalNode SUB() { return getToken(ApexParser.SUB, 0); }
-		public DateIntegerContext(ParserRuleContext parent, int invokingState) {
+		public SignedIntegerContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_dateInteger; }
+		@Override public int getRuleIndex() { return RULE_signedInteger; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).enterDateInteger(this);
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).enterSignedInteger(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).exitDateInteger(this);
+			if ( listener instanceof ApexParserListener ) ((ApexParserListener)listener).exitSignedInteger(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ApexParserVisitor ) return ((ApexParserVisitor<? extends T>)visitor).visitDateInteger(this);
+			if ( visitor instanceof ApexParserVisitor ) return ((ApexParserVisitor<? extends T>)visitor).visitSignedInteger(this);
 			else return visitor.visitChildren(this);
 		}
 	}
 
-	public final DateIntegerContext dateInteger() throws RecognitionException {
-		DateIntegerContext _localctx = new DateIntegerContext(_ctx, getState());
-		enterRule(_localctx, 234, RULE_dateInteger);
+	public final SignedIntegerContext signedInteger() throws RecognitionException {
+		SignedIntegerContext _localctx = new SignedIntegerContext(_ctx, getState());
+		enterRule(_localctx, 248, RULE_signedInteger);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1424);
+			setState(1506);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ADD || _la==SUB) {
 				{
-				setState(1423);
+				setState(1505);
 				_la = _input.LA(1);
 				if ( !(_la==ADD || _la==SUB) ) {
 				_errHandler.recoverInline(this);
@@ -10993,7 +11700,7 @@ public class ApexParser extends Parser {
 				}
 			}
 
-			setState(1426);
+			setState(1508);
 			match(IntegerLiteral);
 			}
 		}
@@ -11033,11 +11740,11 @@ public class ApexParser extends Parser {
 
 	public final SoqlIdContext soqlId() throws RecognitionException {
 		SoqlIdContext _localctx = new SoqlIdContext(_ctx, getState());
-		enterRule(_localctx, 236, RULE_soqlId);
+		enterRule(_localctx, 250, RULE_soqlId);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1428);
+			setState(1510);
 			id();
 			}
 		}
@@ -11104,6 +11811,16 @@ public class ApexParser extends Parser {
 		public TerminalNode HAVING() { return getToken(ApexParser.HAVING, 0); }
 		public TerminalNode ROLLUP() { return getToken(ApexParser.ROLLUP, 0); }
 		public TerminalNode TOLABEL() { return getToken(ApexParser.TOLABEL, 0); }
+		public TerminalNode OFFSET() { return getToken(ApexParser.OFFSET, 0); }
+		public TerminalNode DATA() { return getToken(ApexParser.DATA, 0); }
+		public TerminalNode CATEGORY() { return getToken(ApexParser.CATEGORY, 0); }
+		public TerminalNode AT() { return getToken(ApexParser.AT, 0); }
+		public TerminalNode ABOVE() { return getToken(ApexParser.ABOVE, 0); }
+		public TerminalNode BELOW() { return getToken(ApexParser.BELOW, 0); }
+		public TerminalNode ABOVE_OR_BELOW() { return getToken(ApexParser.ABOVE_OR_BELOW, 0); }
+		public TerminalNode SECURITY_ENFORCED() { return getToken(ApexParser.SECURITY_ENFORCED, 0); }
+		public TerminalNode REFERENCE() { return getToken(ApexParser.REFERENCE, 0); }
+		public TerminalNode CUBE() { return getToken(ApexParser.CUBE, 0); }
 		public TerminalNode YESTERDAY() { return getToken(ApexParser.YESTERDAY, 0); }
 		public TerminalNode TODAY() { return getToken(ApexParser.TODAY, 0); }
 		public TerminalNode TOMORROW() { return getToken(ApexParser.TOMORROW, 0); }
@@ -11162,14 +11879,14 @@ public class ApexParser extends Parser {
 
 	public final IdContext id() throws RecognitionException {
 		IdContext _localctx = new IdContext(_ctx, getState());
-		enterRule(_localctx, 238, RULE_id);
+		enterRule(_localctx, 252, RULE_id);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1430);
+			setState(1512);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << SET) | (1L << SHARING) | (1L << SWITCH) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (Identifier - 128)))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AFTER) | (1L << BEFORE) | (1L << GET) | (1L << INHERITED) | (1L << INSTANCEOF) | (1L << SET) | (1L << SHARING) | (1L << SWITCH) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << WHEN) | (1L << WITH) | (1L << WITHOUT) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)))) != 0) || _la==Identifier) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -11283,6 +12000,16 @@ public class ApexParser extends Parser {
 		public TerminalNode HAVING() { return getToken(ApexParser.HAVING, 0); }
 		public TerminalNode ROLLUP() { return getToken(ApexParser.ROLLUP, 0); }
 		public TerminalNode TOLABEL() { return getToken(ApexParser.TOLABEL, 0); }
+		public TerminalNode OFFSET() { return getToken(ApexParser.OFFSET, 0); }
+		public TerminalNode DATA() { return getToken(ApexParser.DATA, 0); }
+		public TerminalNode CATEGORY() { return getToken(ApexParser.CATEGORY, 0); }
+		public TerminalNode AT() { return getToken(ApexParser.AT, 0); }
+		public TerminalNode ABOVE() { return getToken(ApexParser.ABOVE, 0); }
+		public TerminalNode BELOW() { return getToken(ApexParser.BELOW, 0); }
+		public TerminalNode ABOVE_OR_BELOW() { return getToken(ApexParser.ABOVE_OR_BELOW, 0); }
+		public TerminalNode SECURITY_ENFORCED() { return getToken(ApexParser.SECURITY_ENFORCED, 0); }
+		public TerminalNode REFERENCE() { return getToken(ApexParser.REFERENCE, 0); }
+		public TerminalNode CUBE() { return getToken(ApexParser.CUBE, 0); }
 		public TerminalNode YESTERDAY() { return getToken(ApexParser.YESTERDAY, 0); }
 		public TerminalNode TODAY() { return getToken(ApexParser.TODAY, 0); }
 		public TerminalNode TOMORROW() { return getToken(ApexParser.TOMORROW, 0); }
@@ -11341,14 +12068,14 @@ public class ApexParser extends Parser {
 
 	public final AnyIdContext anyId() throws RecognitionException {
 		AnyIdContext _localctx = new AnyIdContext(_ctx, getState());
-		enterRule(_localctx, 240, RULE_anyId);
+		enterRule(_localctx, 254, RULE_anyId);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1432);
+			setState(1514);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << AFTER) | (1L << BEFORE) | (1L << BREAK) | (1L << CATCH) | (1L << CLASS) | (1L << CONTINUE) | (1L << DELETE) | (1L << DO) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FOR) | (1L << GET) | (1L << GLOBAL) | (1L << IF) | (1L << IMPLEMENTS) | (1L << INHERITED) | (1L << INSERT) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << MERGE) | (1L << NEW) | (1L << NULL) | (1L << ON) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SET) | (1L << SHARING) | (1L << STATIC) | (1L << SUPER) | (1L << SWITCH) | (1L << TESTMETHOD) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << TRY) | (1L << UNDELETE) | (1L << UPDATE) | (1L << UPSERT) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WHEN) | (1L << WHILE) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)) | (1L << (NEXT_YEAR - 64)) | (1L << (NEXT_N_YEARS_N - 64)) | (1L << (LAST_N_YEARS_N - 64)) | (1L << (THIS_FISCAL_QUARTER - 64)) | (1L << (LAST_FISCAL_QUARTER - 64)) | (1L << (NEXT_FISCAL_QUARTER - 64)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 64)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 64)) | (1L << (THIS_FISCAL_YEAR - 64)) | (1L << (LAST_FISCAL_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)) | (1L << (Identifier - 128)))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ABSTRACT) | (1L << AFTER) | (1L << BEFORE) | (1L << BREAK) | (1L << CATCH) | (1L << CLASS) | (1L << CONTINUE) | (1L << DELETE) | (1L << DO) | (1L << ELSE) | (1L << ENUM) | (1L << EXTENDS) | (1L << FINAL) | (1L << FINALLY) | (1L << FOR) | (1L << GET) | (1L << GLOBAL) | (1L << IF) | (1L << IMPLEMENTS) | (1L << INHERITED) | (1L << INSERT) | (1L << INSTANCEOF) | (1L << INTERFACE) | (1L << MERGE) | (1L << NEW) | (1L << NULL) | (1L << ON) | (1L << OVERRIDE) | (1L << PRIVATE) | (1L << PROTECTED) | (1L << PUBLIC) | (1L << RETURN) | (1L << SET) | (1L << SHARING) | (1L << STATIC) | (1L << SUPER) | (1L << SWITCH) | (1L << TESTMETHOD) | (1L << THIS) | (1L << THROW) | (1L << TRANSIENT) | (1L << TRIGGER) | (1L << TRY) | (1L << UNDELETE) | (1L << UPDATE) | (1L << UPSERT) | (1L << VIRTUAL) | (1L << WEBSERVICE) | (1L << WHEN) | (1L << WHILE) | (1L << WITH) | (1L << WITHOUT) | (1L << LIST) | (1L << MAP) | (1L << SELECT) | (1L << COUNT) | (1L << FROM) | (1L << AS) | (1L << USING) | (1L << SCOPE) | (1L << WHERE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ORDER - 64)) | (1L << (BY - 64)) | (1L << (LIMIT - 64)) | (1L << (SOQLAND - 64)) | (1L << (SOQLOR - 64)) | (1L << (NOT - 64)) | (1L << (AVG - 64)) | (1L << (COUNT_DISTINCT - 64)) | (1L << (MIN - 64)) | (1L << (MAX - 64)) | (1L << (SUM - 64)) | (1L << (TYPEOF - 64)) | (1L << (END - 64)) | (1L << (THEN - 64)) | (1L << (LIKE - 64)) | (1L << (IN - 64)) | (1L << (INCLUDES - 64)) | (1L << (EXCLUDES - 64)) | (1L << (ASC - 64)) | (1L << (DESC - 64)) | (1L << (NULLS - 64)) | (1L << (FIRST - 64)) | (1L << (LAST - 64)) | (1L << (GROUP - 64)) | (1L << (ALL - 64)) | (1L << (ROWS - 64)) | (1L << (VIEW - 64)) | (1L << (HAVING - 64)) | (1L << (ROLLUP - 64)) | (1L << (TOLABEL - 64)) | (1L << (OFFSET - 64)) | (1L << (DATA - 64)) | (1L << (CATEGORY - 64)) | (1L << (AT - 64)) | (1L << (ABOVE - 64)) | (1L << (BELOW - 64)) | (1L << (ABOVE_OR_BELOW - 64)) | (1L << (SECURITY_ENFORCED - 64)) | (1L << (REFERENCE - 64)) | (1L << (CUBE - 64)) | (1L << (YESTERDAY - 64)) | (1L << (TODAY - 64)) | (1L << (TOMORROW - 64)) | (1L << (LAST_WEEK - 64)) | (1L << (THIS_WEEK - 64)) | (1L << (NEXT_WEEK - 64)) | (1L << (LAST_MONTH - 64)) | (1L << (THIS_MONTH - 64)) | (1L << (NEXT_MONTH - 64)) | (1L << (LAST_90_DAYS - 64)) | (1L << (NEXT_90_DAYS - 64)) | (1L << (LAST_N_DAYS_N - 64)) | (1L << (NEXT_N_DAYS_N - 64)) | (1L << (NEXT_N_WEEKS_N - 64)) | (1L << (LAST_N_WEEKS_N - 64)) | (1L << (NEXT_N_MONTHS_N - 64)) | (1L << (LAST_N_MONTHS_N - 64)) | (1L << (THIS_QUARTER - 64)) | (1L << (LAST_QUARTER - 64)) | (1L << (NEXT_QUARTER - 64)) | (1L << (NEXT_N_QUARTERS_N - 64)) | (1L << (LAST_N_QUARTERS_N - 64)) | (1L << (THIS_YEAR - 64)) | (1L << (LAST_YEAR - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (NEXT_YEAR - 128)) | (1L << (NEXT_N_YEARS_N - 128)) | (1L << (LAST_N_YEARS_N - 128)) | (1L << (THIS_FISCAL_QUARTER - 128)) | (1L << (LAST_FISCAL_QUARTER - 128)) | (1L << (NEXT_FISCAL_QUARTER - 128)) | (1L << (NEXT_N_FISCAL_QUARTERS_N - 128)) | (1L << (LAST_N_FISCAL_QUARTERS_N - 128)) | (1L << (THIS_FISCAL_YEAR - 128)) | (1L << (LAST_FISCAL_YEAR - 128)) | (1L << (NEXT_FISCAL_YEAR - 128)) | (1L << (NEXT_N_FISCAL_YEARS_N - 128)) | (1L << (LAST_N_FISCAL_YEARS_N - 128)))) != 0) || _la==Identifier) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -11415,7 +12142,7 @@ public class ApexParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\u00c0\u059d\4\2\t"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\u00ca\u05ef\4\2\t"+
 		"\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13"+
 		"\t\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -11428,567 +12155,601 @@ public class ApexParser extends Parser {
 		"\4U\tU\4V\tV\4W\tW\4X\tX\4Y\tY\4Z\tZ\4[\t[\4\\\t\\\4]\t]\4^\t^\4_\t_\4"+
 		"`\t`\4a\ta\4b\tb\4c\tc\4d\td\4e\te\4f\tf\4g\tg\4h\th\4i\ti\4j\tj\4k\t"+
 		"k\4l\tl\4m\tm\4n\tn\4o\to\4p\tp\4q\tq\4r\tr\4s\ts\4t\tt\4u\tu\4v\tv\4"+
-		"w\tw\4x\tx\4y\ty\4z\tz\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\7\2\u00fd\n\2\f"+
-		"\2\16\2\u0100\13\2\3\2\3\2\3\2\3\2\3\3\3\3\3\3\3\4\3\4\3\4\3\5\7\5\u010d"+
-		"\n\5\f\5\16\5\u0110\13\5\3\5\3\5\7\5\u0114\n\5\f\5\16\5\u0117\13\5\3\5"+
-		"\3\5\7\5\u011b\n\5\f\5\16\5\u011e\13\5\3\5\5\5\u0121\n\5\3\6\3\6\3\6\3"+
-		"\6\5\6\u0127\n\6\3\6\3\6\5\6\u012b\n\6\3\6\3\6\3\7\3\7\3\7\3\7\5\7\u0133"+
-		"\n\7\3\7\3\7\3\b\3\b\3\b\7\b\u013a\n\b\f\b\16\b\u013d\13\b\3\t\3\t\3\t"+
-		"\3\t\5\t\u0143\n\t\3\t\3\t\3\n\3\n\3\n\7\n\u014a\n\n\f\n\16\n\u014d\13"+
-		"\n\3\13\3\13\7\13\u0151\n\13\f\13\16\13\u0154\13\13\3\13\3\13\3\f\3\f"+
-		"\7\f\u015a\n\f\f\f\16\f\u015d\13\f\3\f\3\f\3\r\3\r\5\r\u0163\n\r\3\r\3"+
-		"\r\7\r\u0167\n\r\f\r\16\r\u016a\13\r\3\r\5\r\u016d\n\r\3\16\3\16\3\16"+
+		"w\tw\4x\tx\4y\ty\4z\tz\4{\t{\4|\t|\4}\t}\4~\t~\4\177\t\177\4\u0080\t\u0080"+
+		"\4\u0081\t\u0081\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\7\2\u010b\n\2\f\2\16"+
+		"\2\u010e\13\2\3\2\3\2\3\2\3\2\3\3\3\3\3\3\3\4\3\4\3\4\3\5\7\5\u011b\n"+
+		"\5\f\5\16\5\u011e\13\5\3\5\3\5\7\5\u0122\n\5\f\5\16\5\u0125\13\5\3\5\3"+
+		"\5\7\5\u0129\n\5\f\5\16\5\u012c\13\5\3\5\5\5\u012f\n\5\3\6\3\6\3\6\3\6"+
+		"\5\6\u0135\n\6\3\6\3\6\5\6\u0139\n\6\3\6\3\6\3\7\3\7\3\7\3\7\5\7\u0141"+
+		"\n\7\3\7\3\7\3\b\3\b\3\b\7\b\u0148\n\b\f\b\16\b\u014b\13\b\3\t\3\t\3\t"+
+		"\3\t\5\t\u0151\n\t\3\t\3\t\3\n\3\n\3\n\7\n\u0158\n\n\f\n\16\n\u015b\13"+
+		"\n\3\13\3\13\7\13\u015f\n\13\f\13\16\13\u0162\13\13\3\13\3\13\3\f\3\f"+
+		"\7\f\u0168\n\f\f\f\16\f\u016b\13\f\3\f\3\f\3\r\3\r\5\r\u0171\n\r\3\r\3"+
+		"\r\7\r\u0175\n\r\f\r\16\r\u0178\13\r\3\r\5\r\u017b\n\r\3\16\3\16\3\16"+
 		"\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16"+
-		"\3\16\3\16\5\16\u0182\n\16\3\17\3\17\3\17\3\17\3\17\3\17\3\17\5\17\u018b"+
-		"\n\17\3\20\3\20\5\20\u018f\n\20\3\20\3\20\3\20\3\20\5\20\u0195\n\20\3"+
-		"\21\3\21\3\21\3\21\3\22\3\22\3\22\3\22\3\23\3\23\3\23\3\23\7\23\u01a3"+
-		"\n\23\f\23\16\23\u01a6\13\23\3\23\3\23\3\24\7\24\u01ab\n\24\f\24\16\24"+
-		"\u01ae\13\24\3\24\3\24\5\24\u01b2\n\24\3\24\3\24\3\24\3\24\3\25\3\25\3"+
-		"\25\7\25\u01bb\n\25\f\25\16\25\u01be\13\25\3\26\3\26\3\26\5\26\u01c3\n"+
-		"\26\3\27\3\27\3\27\3\27\7\27\u01c9\n\27\f\27\16\27\u01cc\13\27\3\27\5"+
-		"\27\u01cf\n\27\5\27\u01d1\n\27\3\27\3\27\3\30\3\30\3\30\7\30\u01d8\n\30"+
-		"\f\30\16\30\u01db\13\30\3\30\3\30\3\31\3\31\7\31\u01e1\n\31\f\31\16\31"+
-		"\u01e4\13\31\3\32\3\32\5\32\u01e8\n\32\3\32\3\32\5\32\u01ec\n\32\3\32"+
-		"\3\32\5\32\u01f0\n\32\3\32\3\32\5\32\u01f4\n\32\5\32\u01f6\n\32\3\33\3"+
-		"\33\3\33\3\33\3\34\3\34\5\34\u01fe\n\34\3\34\3\34\3\35\3\35\3\35\7\35"+
-		"\u0205\n\35\f\35\16\35\u0208\13\35\3\36\7\36\u020b\n\36\f\36\16\36\u020e"+
-		"\13\36\3\36\3\36\3\36\3\37\3\37\3\37\7\37\u0216\n\37\f\37\16\37\u0219"+
-		"\13\37\3 \3 \3!\3!\3!\3!\3!\5!\u0222\n!\3!\5!\u0225\n!\3\"\3\"\5\"\u0229"+
-		"\n\"\3\"\7\"\u022c\n\"\f\"\16\"\u022f\13\"\3#\3#\3#\3#\3$\3$\3$\5$\u0238"+
-		"\n$\3%\3%\3%\3%\7%\u023e\n%\f%\16%\u0241\13%\5%\u0243\n%\3%\5%\u0246\n"+
-		"%\3%\3%\3&\3&\7&\u024c\n&\f&\16&\u024f\13&\3&\3&\3\'\3\'\3\'\3(\7(\u0257"+
-		"\n(\f(\16(\u025a\13(\3(\3(\3(\3)\3)\3)\3)\3)\3)\3)\3)\3)\3)\3)\3)\3)\3"+
-		")\3)\3)\3)\3)\3)\3)\5)\u0273\n)\3*\3*\3*\3*\3*\5*\u027a\n*\3+\3+\3+\3"+
-		"+\3+\6+\u0281\n+\r+\16+\u0282\3+\3+\3,\3,\3,\3,\3-\3-\3-\3-\7-\u028f\n"+
-		"-\f-\16-\u0292\13-\3-\3-\3-\5-\u0297\n-\3.\5.\u029a\n.\3.\3.\3.\3.\3."+
-		"\5.\u02a1\n.\3/\3/\3/\3/\3/\3/\3\60\3\60\3\60\3\60\3\61\3\61\3\61\3\61"+
-		"\3\61\3\61\3\62\3\62\3\62\6\62\u02b6\n\62\r\62\16\62\u02b7\3\62\5\62\u02bb"+
-		"\n\62\3\62\5\62\u02be\n\62\3\63\3\63\5\63\u02c2\n\63\3\63\3\63\3\64\3"+
+		"\3\16\3\16\5\16\u0190\n\16\3\17\3\17\3\17\3\17\3\17\3\17\3\17\5\17\u0199"+
+		"\n\17\3\20\3\20\5\20\u019d\n\20\3\20\3\20\3\20\3\20\5\20\u01a3\n\20\3"+
+		"\21\3\21\3\21\3\21\3\22\3\22\3\22\3\22\3\23\3\23\3\23\3\23\7\23\u01b1"+
+		"\n\23\f\23\16\23\u01b4\13\23\3\23\3\23\3\24\7\24\u01b9\n\24\f\24\16\24"+
+		"\u01bc\13\24\3\24\3\24\5\24\u01c0\n\24\3\24\3\24\3\24\3\24\3\25\3\25\3"+
+		"\25\7\25\u01c9\n\25\f\25\16\25\u01cc\13\25\3\26\3\26\3\26\5\26\u01d1\n"+
+		"\26\3\27\3\27\3\27\3\27\7\27\u01d7\n\27\f\27\16\27\u01da\13\27\3\27\5"+
+		"\27\u01dd\n\27\5\27\u01df\n\27\3\27\3\27\3\30\3\30\3\30\7\30\u01e6\n\30"+
+		"\f\30\16\30\u01e9\13\30\3\30\3\30\3\31\3\31\7\31\u01ef\n\31\f\31\16\31"+
+		"\u01f2\13\31\3\32\3\32\5\32\u01f6\n\32\3\32\3\32\5\32\u01fa\n\32\3\32"+
+		"\3\32\5\32\u01fe\n\32\3\32\3\32\5\32\u0202\n\32\5\32\u0204\n\32\3\33\3"+
+		"\33\3\33\3\33\3\34\3\34\5\34\u020c\n\34\3\34\3\34\3\35\3\35\3\35\7\35"+
+		"\u0213\n\35\f\35\16\35\u0216\13\35\3\36\7\36\u0219\n\36\f\36\16\36\u021c"+
+		"\13\36\3\36\3\36\3\36\3\37\3\37\3\37\7\37\u0224\n\37\f\37\16\37\u0227"+
+		"\13\37\3 \3 \3!\3!\3!\3!\3!\5!\u0230\n!\3!\5!\u0233\n!\3\"\3\"\5\"\u0237"+
+		"\n\"\3\"\7\"\u023a\n\"\f\"\16\"\u023d\13\"\3#\3#\3#\3#\3$\3$\3$\5$\u0246"+
+		"\n$\3%\3%\3%\3%\7%\u024c\n%\f%\16%\u024f\13%\5%\u0251\n%\3%\5%\u0254\n"+
+		"%\3%\3%\3&\3&\7&\u025a\n&\f&\16&\u025d\13&\3&\3&\3\'\3\'\3\'\3(\7(\u0265"+
+		"\n(\f(\16(\u0268\13(\3(\3(\3(\3)\3)\3)\3)\3)\3)\3)\3)\3)\3)\3)\3)\3)\3"+
+		")\3)\3)\3)\3)\3)\3)\5)\u0281\n)\3*\3*\3*\3*\3*\5*\u0288\n*\3+\3+\3+\3"+
+		"+\3+\6+\u028f\n+\r+\16+\u0290\3+\3+\3,\3,\3,\3,\3-\3-\3-\3-\7-\u029d\n"+
+		"-\f-\16-\u02a0\13-\3-\3-\3-\5-\u02a5\n-\3.\5.\u02a8\n.\3.\3.\3.\3.\3."+
+		"\5.\u02af\n.\3/\3/\3/\3/\3/\3/\3\60\3\60\3\60\3\60\3\61\3\61\3\61\3\61"+
+		"\3\61\3\61\3\62\3\62\3\62\6\62\u02c4\n\62\r\62\16\62\u02c5\3\62\5\62\u02c9"+
+		"\n\62\3\62\5\62\u02cc\n\62\3\63\3\63\5\63\u02d0\n\63\3\63\3\63\3\64\3"+
 		"\64\3\64\3\64\3\65\3\65\3\65\3\66\3\66\3\66\3\67\3\67\3\67\3\67\38\38"+
-		"\38\38\39\39\39\39\3:\3:\3:\3:\3;\3;\3;\5;\u02e3\n;\3;\3;\3<\3<\3<\3<"+
-		"\3<\3=\3=\3=\5=\u02ef\n=\3=\3=\3=\3>\3>\3>\3?\7?\u02f8\n?\f?\16?\u02fb"+
-		"\13?\3?\3?\5?\u02ff\n?\3@\3@\3@\5@\u0304\n@\3A\3A\3A\5A\u0309\nA\3B\3"+
-		"B\3B\7B\u030e\nB\fB\16B\u0311\13B\3B\3B\3B\3B\3B\3C\3C\3C\3D\3D\5D\u031d"+
-		"\nD\3D\3D\5D\u0321\nD\3D\3D\5D\u0325\nD\5D\u0327\nD\3E\3E\5E\u032b\nE"+
-		"\3F\3F\3F\3F\3F\3G\3G\3H\3H\3H\3H\3I\3I\3I\7I\u033b\nI\fI\16I\u033e\13"+
-		"I\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\5J\u034e\nJ\3J\3J\3J\3J\3"+
-		"J\3J\3J\3J\3J\3J\3J\3J\3J\3J\5J\u035e\nJ\3J\3J\3J\3J\5J\u0364\nJ\3J\3"+
+		"\38\38\39\39\39\39\3:\3:\3:\3:\3;\3;\3;\5;\u02f1\n;\3;\3;\3<\3<\3<\3<"+
+		"\3<\3=\3=\3=\5=\u02fd\n=\3=\3=\3=\3>\3>\3>\3?\7?\u0306\n?\f?\16?\u0309"+
+		"\13?\3?\3?\5?\u030d\n?\3@\3@\3@\5@\u0312\n@\3A\3A\3A\5A\u0317\nA\3B\3"+
+		"B\3B\7B\u031c\nB\fB\16B\u031f\13B\3B\3B\3B\3B\3B\3C\3C\3C\3D\3D\5D\u032b"+
+		"\nD\3D\3D\5D\u032f\nD\3D\3D\5D\u0333\nD\5D\u0335\nD\3E\3E\5E\u0339\nE"+
+		"\3F\3F\3F\3F\3F\3G\3G\3H\3H\3H\3H\3I\3I\3I\7I\u0349\nI\fI\16I\u034c\13"+
+		"I\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\5J\u035c\nJ\3J\3J\3J\3J\3"+
+		"J\3J\3J\3J\3J\3J\3J\3J\3J\3J\5J\u036c\nJ\3J\3J\3J\3J\5J\u0372\nJ\3J\3"+
 		"J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\3"+
-		"J\3J\3J\3J\3J\3J\3J\3J\5J\u0386\nJ\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\7J\u0392"+
-		"\nJ\fJ\16J\u0395\13J\3K\3K\3K\3K\3K\3K\3K\3K\3K\3K\3K\3K\3K\5K\u03a4\n"+
-		"K\3L\3L\3L\5L\u03a9\nL\3L\3L\3L\3L\3L\5L\u03b0\nL\3L\3L\3L\3L\5L\u03b6"+
-		"\nL\3L\5L\u03b9\nL\3M\3M\3M\5M\u03be\nM\3M\3M\3N\3N\3N\3N\3N\3N\5N\u03c8"+
-		"\nN\3O\3O\3O\7O\u03cd\nO\fO\16O\u03d0\13O\3P\3P\3P\3P\3P\5P\u03d7\nP\3"+
-		"Q\3Q\3Q\3R\3R\3S\3S\3S\3S\3S\3S\3S\5S\u03e5\nS\5S\u03e7\nS\3T\3T\3T\3"+
-		"T\7T\u03ed\nT\fT\16T\u03f0\13T\3T\3T\3U\3U\3U\3U\3V\3V\3V\3V\7V\u03fc"+
-		"\nV\fV\16V\u03ff\13V\3V\3V\3W\3W\5W\u0405\nW\3W\3W\3X\3X\3X\3X\3Y\3Y\3"+
-		"Y\3Y\3Y\5Y\u0412\nY\3Y\5Y\u0415\nY\3Y\5Y\u0418\nY\3Y\5Y\u041b\nY\3Y\5"+
-		"Y\u041e\nY\3Y\5Y\u0421\nY\3Y\5Y\u0424\nY\3Z\3Z\3Z\3Z\3Z\5Z\u042b\nZ\3"+
-		"Z\5Z\u042e\nZ\3Z\5Z\u0431\nZ\3[\3[\3[\7[\u0436\n[\f[\16[\u0439\13[\3\\"+
-		"\3\\\5\\\u043d\n\\\3\\\3\\\5\\\u0441\n\\\3\\\3\\\3\\\3\\\3\\\5\\\u0448"+
-		"\n\\\3]\3]\3]\7]\u044d\n]\f]\16]\u0450\13]\3^\3^\5^\u0454\n^\3^\3^\3^"+
-		"\5^\u0459\n^\7^\u045b\n^\f^\16^\u045e\13^\3_\3_\3_\7_\u0463\n_\f_\16_"+
-		"\u0466\13_\3`\3`\5`\u046a\n`\3`\3`\5`\u046e\n`\5`\u0470\n`\3a\3a\3a\3"+
-		"a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3"+
-		"a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\5a\u0498\na\3b\3b\3b\6b\u049d\nb\r"+
-		"b\16b\u049e\3b\5b\u04a2\nb\3b\3b\3c\3c\3c\3c\3c\3d\3d\3d\3e\3e\3e\7e\u04b1"+
-		"\ne\fe\16e\u04b4\13e\3f\3f\3f\3f\3g\3g\3g\3h\3h\3h\7h\u04c0\nh\fh\16h"+
-		"\u04c3\13h\3h\3h\3h\7h\u04c8\nh\fh\16h\u04cb\13h\3h\3h\5h\u04cf\nh\3i"+
-		"\3i\3i\3i\3i\5i\u04d6\ni\3j\3j\3j\3j\3j\3j\3j\3j\5j\u04e0\nj\3k\3k\3k"+
-		"\3k\3k\3k\3k\3k\3k\3k\3k\3k\3k\3k\3k\5k\u04f1\nk\3l\3l\3l\3l\3l\3l\3l"+
-		"\3l\3l\3l\3l\3l\3l\3l\3l\5l\u0502\nl\3m\3m\3m\3m\7m\u0508\nm\fm\16m\u050b"+
-		"\13m\3m\3m\3n\3n\3n\3n\3n\5n\u0514\nn\3n\3n\3n\3n\3n\3n\3n\7n\u051d\n"+
-		"n\fn\16n\u0520\13n\3n\3n\5n\u0524\nn\3o\3o\3o\3o\3p\3p\3p\7p\u052d\np"+
-		"\fp\16p\u0530\13p\3q\3q\5q\u0534\nq\3q\3q\5q\u0538\nq\3q\5q\u053b\nq\3"+
-		"r\3r\3r\3r\5r\u0541\nr\3s\3s\3s\3t\3t\3t\3t\5t\u054a\nt\3u\3u\3u\3v\3"+
-		"v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3"+
-		"v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3"+
-		"v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\3v\5v\u0590\nv\3w\5"+
-		"w\u0593\nw\3w\3w\3x\3x\3y\3y\3z\3z\3z\2\3\u0092{\2\4\6\b\n\f\16\20\22"+
-		"\24\26\30\32\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJLNPRTVXZ\\^`bdfhjlnp"+
-		"rtvxz|~\u0080\u0082\u0084\u0086\u0088\u008a\u008c\u008e\u0090\u0092\u0094"+
-		"\u0096\u0098\u009a\u009c\u009e\u00a0\u00a2\u00a4\u00a6\u00a8\u00aa\u00ac"+
-		"\u00ae\u00b0\u00b2\u00b4\u00b6\u00b8\u00ba\u00bc\u00be\u00c0\u00c2\u00c4"+
-		"\u00c6\u00c8\u00ca\u00cc\u00ce\u00d0\u00d2\u00d4\u00d6\u00d8\u00da\u00dc"+
-		"\u00de\u00e0\u00e2\u00e4\u00e6\u00e8\u00ea\u00ec\u00ee\u00f0\u00f2\2\22"+
-		"\3\2\4\5\5\2\n\n\27\27/\60\4\2\34\34\u0087\u008b\3\2\u00a5\u00a8\3\2\u0099"+
-		"\u009a\4\2\u00a9\u00aa\u00ae\u00ae\3\2\u00a7\u00a8\3\2\u0097\u0098\3\2"+
-		"\u009e\u00a2\4\2\u0096\u0096\u00b0\u00ba\4\2\u0095\u0095\u009b\u009b\3"+
-		"\2\u00a5\u00a6\3\2TU\3\2WX\r\2\4\5\22\22\26\26\30\30$%((,-\65\65\678;"+
-		"\u0084\u00bc\u00bc\6\2\3\"$\62\64\u0084\u00bc\u00bc\2\u0638\2\u00f4\3"+
-		"\2\2\2\4\u0105\3\2\2\2\6\u0108\3\2\2\2\b\u0120\3\2\2\2\n\u0122\3\2\2\2"+
-		"\f\u012e\3\2\2\2\16\u0136\3\2\2\2\20\u013e\3\2\2\2\22\u0146\3\2\2\2\24"+
-		"\u014e\3\2\2\2\26\u0157\3\2\2\2\30\u016c\3\2\2\2\32\u0181\3\2\2\2\34\u018a"+
-		"\3\2\2\2\36\u018e\3\2\2\2 \u0196\3\2\2\2\"\u019a\3\2\2\2$\u019e\3\2\2"+
-		"\2&\u01ac\3\2\2\2(\u01b7\3\2\2\2*\u01bf\3\2\2\2,\u01c4\3\2\2\2.\u01d4"+
-		"\3\2\2\2\60\u01e2\3\2\2\2\62\u01f5\3\2\2\2\64\u01f7\3\2\2\2\66\u01fb\3"+
-		"\2\2\28\u0201\3\2\2\2:\u020c\3\2\2\2<\u0212\3\2\2\2>\u021a\3\2\2\2@\u021c"+
-		"\3\2\2\2B\u0226\3\2\2\2D\u0230\3\2\2\2F\u0237\3\2\2\2H\u0239\3\2\2\2J"+
-		"\u0249\3\2\2\2L\u0252\3\2\2\2N\u0258\3\2\2\2P\u0272\3\2\2\2R\u0274\3\2"+
-		"\2\2T\u027b\3\2\2\2V\u0286\3\2\2\2X\u0296\3\2\2\2Z\u02a0\3\2\2\2\\\u02a2"+
-		"\3\2\2\2^\u02a8\3\2\2\2`\u02ac\3\2\2\2b\u02b2\3\2\2\2d\u02bf\3\2\2\2f"+
-		"\u02c5\3\2\2\2h\u02c9\3\2\2\2j\u02cc\3\2\2\2l\u02cf\3\2\2\2n\u02d3\3\2"+
-		"\2\2p\u02d7\3\2\2\2r\u02db\3\2\2\2t\u02df\3\2\2\2v\u02e6\3\2\2\2x\u02eb"+
-		"\3\2\2\2z\u02f3\3\2\2\2|\u02f9\3\2\2\2~\u0300\3\2\2\2\u0080\u0305\3\2"+
-		"\2\2\u0082\u030a\3\2\2\2\u0084\u0317\3\2\2\2\u0086\u0326\3\2\2\2\u0088"+
-		"\u032a\3\2\2\2\u008a\u032c\3\2\2\2\u008c\u0331\3\2\2\2\u008e\u0333\3\2"+
-		"\2\2\u0090\u0337\3\2\2\2\u0092\u034d\3\2\2\2\u0094\u03a3\3\2\2\2\u0096"+
-		"\u03b8\3\2\2\2\u0098\u03ba\3\2\2\2\u009a\u03c1\3\2\2\2\u009c\u03c9\3\2"+
-		"\2\2\u009e\u03d1\3\2\2\2\u00a0\u03d8\3\2\2\2\u00a2\u03db\3\2\2\2\u00a4"+
-		"\u03e6\3\2\2\2\u00a6\u03e8\3\2\2\2\u00a8\u03f3\3\2\2\2\u00aa\u03f7\3\2"+
-		"\2\2\u00ac\u0402\3\2\2\2\u00ae\u0408\3\2\2\2\u00b0\u040c\3\2\2\2\u00b2"+
-		"\u0425\3\2\2\2\u00b4\u0432\3\2\2\2\u00b6\u0447\3\2\2\2\u00b8\u0449\3\2"+
-		"\2\2\u00ba\u0451\3\2\2\2\u00bc\u045f\3\2\2\2\u00be\u046f\3\2\2\2\u00c0"+
-		"\u0497\3\2\2\2\u00c2\u0499\3\2\2\2\u00c4\u04a5\3\2\2\2\u00c6\u04aa\3\2"+
-		"\2\2\u00c8\u04ad\3\2\2\2\u00ca\u04b5\3\2\2\2\u00cc\u04b9\3\2\2\2\u00ce"+
-		"\u04ce\3\2\2\2\u00d0\u04d5\3\2\2\2\u00d2\u04df\3\2\2\2\u00d4\u04f0\3\2"+
-		"\2\2\u00d6\u0501\3\2\2\2\u00d8\u0503\3\2\2\2\u00da\u0523\3\2\2\2\u00dc"+
-		"\u0525\3\2\2\2\u00de\u0529\3\2\2\2\u00e0\u053a\3\2\2\2\u00e2\u0540\3\2"+
-		"\2\2\u00e4\u0542\3\2\2\2\u00e6\u0549\3\2\2\2\u00e8\u054b\3\2\2\2\u00ea"+
-		"\u058f\3\2\2\2\u00ec\u0592\3\2\2\2\u00ee\u0596\3\2\2\2\u00f0\u0598\3\2"+
-		"\2\2\u00f2\u059a\3\2\2\2\u00f4\u00f5\7-\2\2\u00f5\u00f6\5\u00f0y\2\u00f6"+
-		"\u00f7\7\35\2\2\u00f7\u00f8\5\u00f0y\2\u00f8\u00f9\7\u008d\2\2\u00f9\u00fe"+
-		"\5\4\3\2\u00fa\u00fb\7\u0094\2\2\u00fb\u00fd\5\4\3\2\u00fc\u00fa\3\2\2"+
-		"\2\u00fd\u0100\3\2\2\2\u00fe\u00fc\3\2\2\2\u00fe\u00ff\3\2\2\2\u00ff\u0101"+
-		"\3\2\2\2\u0100\u00fe\3\2\2\2\u0101\u0102\7\u008e\2\2\u0102\u0103\5J&\2"+
-		"\u0103\u0104\7\2\2\3\u0104\3\3\2\2\2\u0105\u0106\t\2\2\2\u0106\u0107\t"+
-		"\3\2\2\u0107\5\3\2\2\2\u0108\u0109\5\b\5\2\u0109\u010a\7\2\2\3\u010a\7"+
-		"\3\2\2\2\u010b\u010d\5\32\16\2\u010c\u010b\3\2\2\2\u010d\u0110\3\2\2\2"+
-		"\u010e\u010c\3\2\2\2\u010e\u010f\3\2\2\2\u010f\u0111\3\2\2\2\u0110\u010e"+
-		"\3\2\2\2\u0111\u0121\5\n\6\2\u0112\u0114\5\32\16\2\u0113\u0112\3\2\2\2"+
-		"\u0114\u0117\3\2\2\2\u0115\u0113\3\2\2\2\u0115\u0116\3\2\2\2\u0116\u0118"+
-		"\3\2\2\2\u0117\u0115\3\2\2\2\u0118\u0121\5\f\7\2\u0119\u011b\5\32\16\2"+
-		"\u011a\u0119\3\2\2\2\u011b\u011e\3\2\2\2\u011c\u011a\3\2\2\2\u011c\u011d"+
-		"\3\2\2\2\u011d\u011f\3\2\2\2\u011e\u011c\3\2\2\2\u011f\u0121\5\20\t\2"+
-		"\u0120\u010e\3\2\2\2\u0120\u0115\3\2\2\2\u0120\u011c\3\2\2\2\u0121\t\3"+
-		"\2\2\2\u0122\u0123\7\b\2\2\u0123\u0126\5\u00f0y\2\u0124\u0125\7\16\2\2"+
-		"\u0125\u0127\5.\30\2\u0126\u0124\3\2\2\2\u0126\u0127\3\2\2\2\u0127\u012a"+
-		"\3\2\2\2\u0128\u0129\7\25\2\2\u0129\u012b\5\22\n\2\u012a\u0128\3\2\2\2"+
-		"\u012a\u012b\3\2\2\2\u012b\u012c\3\2\2\2\u012c\u012d\5\24\13\2\u012d\13"+
-		"\3\2\2\2\u012e\u012f\7\r\2\2\u012f\u0130\5\u00f0y\2\u0130\u0132\7\u008f"+
-		"\2\2\u0131\u0133\5\16\b\2\u0132\u0131\3\2\2\2\u0132\u0133\3\2\2\2\u0133"+
-		"\u0134\3\2\2\2\u0134\u0135\7\u0090\2\2\u0135\r\3\2\2\2\u0136\u013b\5\u00f0"+
-		"y\2\u0137\u0138\7\u0094\2\2\u0138\u013a\5\u00f0y\2\u0139\u0137\3\2\2\2"+
-		"\u013a\u013d\3\2\2\2\u013b\u0139\3\2\2\2\u013b\u013c\3\2\2\2\u013c\17"+
-		"\3\2\2\2\u013d\u013b\3\2\2\2\u013e\u013f\7\31\2\2\u013f\u0142\5\u00f0"+
-		"y\2\u0140\u0141\7\16\2\2\u0141\u0143\5\22\n\2\u0142\u0140\3\2\2\2\u0142"+
-		"\u0143\3\2\2\2\u0143\u0144\3\2\2\2\u0144\u0145\5\26\f\2\u0145\21\3\2\2"+
-		"\2\u0146\u014b\5.\30\2\u0147\u0148\7\u0094\2\2\u0148\u014a\5.\30\2\u0149"+
-		"\u0147\3\2\2\2\u014a\u014d\3\2\2\2\u014b\u0149\3\2\2\2\u014b\u014c\3\2"+
-		"\2\2\u014c\23\3\2\2\2\u014d\u014b\3\2\2\2\u014e\u0152\7\u008f\2\2\u014f"+
-		"\u0151\5\30\r\2\u0150\u014f\3\2\2\2\u0151\u0154\3\2\2\2\u0152\u0150\3"+
-		"\2\2\2\u0152\u0153\3\2\2\2\u0153\u0155\3\2\2\2\u0154\u0152\3\2\2\2\u0155"+
-		"\u0156\7\u0090\2\2\u0156\25\3\2\2\2\u0157\u015b\7\u008f\2\2\u0158\u015a"+
-		"\5&\24\2\u0159\u0158\3\2\2\2\u015a\u015d\3\2\2\2\u015b\u0159\3\2\2\2\u015b"+
-		"\u015c\3\2\2\2\u015c\u015e\3\2\2\2\u015d\u015b\3\2\2\2\u015e\u015f\7\u0090"+
-		"\2\2\u015f\27\3\2\2\2\u0160\u016d\7\u0093\2\2\u0161\u0163\7&\2\2\u0162"+
-		"\u0161\3\2\2\2\u0162\u0163\3\2\2\2\u0163\u0164\3\2\2\2\u0164\u016d\5J"+
-		"&\2\u0165\u0167\5\32\16\2\u0166\u0165\3\2\2\2\u0167\u016a\3\2\2\2\u0168"+
-		"\u0166\3\2\2\2\u0168\u0169\3\2\2\2\u0169\u016b\3\2\2\2\u016a\u0168\3\2"+
-		"\2\2\u016b\u016d\5\34\17\2\u016c\u0160\3\2\2\2\u016c\u0162\3\2\2\2\u016c"+
-		"\u0168\3\2\2\2\u016d\31\3\2\2\2\u016e\u0182\5@!\2\u016f\u0182\7\23\2\2"+
-		"\u0170\u0182\7!\2\2\u0171\u0182\7 \2\2\u0172\u0182\7\37\2\2\u0173\u0182"+
-		"\7,\2\2\u0174\u0182\7&\2\2\u0175\u0182\7\3\2\2\u0176\u0182\7\17\2\2\u0177"+
-		"\u0182\7\64\2\2\u0178\u0182\7\36\2\2\u0179\u0182\7\62\2\2\u017a\u0182"+
-		"\7)\2\2\u017b\u017c\7\67\2\2\u017c\u0182\7%\2\2\u017d\u017e\78\2\2\u017e"+
-		"\u0182\7%\2\2\u017f\u0180\7\26\2\2\u0180\u0182\7%\2\2\u0181\u016e\3\2"+
-		"\2\2\u0181\u016f\3\2\2\2\u0181\u0170\3\2\2\2\u0181\u0171\3\2\2\2\u0181"+
-		"\u0172\3\2\2\2\u0181\u0173\3\2\2\2\u0181\u0174\3\2\2\2\u0181\u0175\3\2"+
-		"\2\2\u0181\u0176\3\2\2\2\u0181\u0177\3\2\2\2\u0181\u0178\3\2\2\2\u0181"+
-		"\u0179\3\2\2\2\u0181\u017a\3\2\2\2\u0181\u017b\3\2\2\2\u0181\u017d\3\2"+
-		"\2\2\u0181\u017f\3\2\2\2\u0182\33\3\2\2\2\u0183\u018b\5\36\20\2\u0184"+
-		"\u018b\5\"\22\2\u0185\u018b\5 \21\2\u0186\u018b\5\20\t\2\u0187\u018b\5"+
-		"\n\6\2\u0188\u018b\5\f\7\2\u0189\u018b\5$\23\2\u018a\u0183\3\2\2\2\u018a"+
-		"\u0184\3\2\2\2\u018a\u0185\3\2\2\2\u018a\u0186\3\2\2\2\u018a\u0187\3\2"+
-		"\2\2\u018a\u0188\3\2\2\2\u018a\u0189\3\2\2\2\u018b\35\3\2\2\2\u018c\u018f"+
-		"\5.\30\2\u018d\u018f\7\63\2\2\u018e\u018c\3\2\2\2\u018e\u018d\3\2\2\2"+
-		"\u018f\u0190\3\2\2\2\u0190\u0191\5\u00f0y\2\u0191\u0194\5\66\34\2\u0192"+
-		"\u0195\5J&\2\u0193\u0195\7\u0093\2\2\u0194\u0192\3\2\2\2\u0194\u0193\3"+
-		"\2\2\2\u0195\37\3\2\2\2\u0196\u0197\5<\37\2\u0197\u0198\5\66\34\2\u0198"+
-		"\u0199\5J&\2\u0199!\3\2\2\2\u019a\u019b\5.\30\2\u019b\u019c\5(\25\2\u019c"+
-		"\u019d\7\u0093\2\2\u019d#\3\2\2\2\u019e\u019f\5.\30\2\u019f\u01a0\5\u00f0"+
-		"y\2\u01a0\u01a4\7\u008f\2\2\u01a1\u01a3\5|?\2\u01a2\u01a1\3\2\2\2\u01a3"+
-		"\u01a6\3\2\2\2\u01a4\u01a2\3\2\2\2\u01a4\u01a5\3\2\2\2\u01a5\u01a7\3\2"+
-		"\2\2\u01a6\u01a4\3\2\2\2\u01a7\u01a8\7\u0090\2\2\u01a8%\3\2\2\2\u01a9"+
-		"\u01ab\5\32\16\2\u01aa\u01a9\3\2\2\2\u01ab\u01ae\3\2\2\2\u01ac\u01aa\3"+
-		"\2\2\2\u01ac\u01ad\3\2\2\2\u01ad\u01b1\3\2\2\2\u01ae\u01ac\3\2\2\2\u01af"+
-		"\u01b2\5.\30\2\u01b0\u01b2\7\63\2\2\u01b1\u01af\3\2\2\2\u01b1\u01b0\3"+
-		"\2\2\2\u01b2\u01b3\3\2\2\2\u01b3\u01b4\5\u00f0y\2\u01b4\u01b5\5\66\34"+
-		"\2\u01b5\u01b6\7\u0093\2\2\u01b6\'\3\2\2\2\u01b7\u01bc\5*\26\2\u01b8\u01b9"+
-		"\7\u0094\2\2\u01b9\u01bb\5*\26\2\u01ba\u01b8\3\2\2\2\u01bb\u01be\3\2\2"+
-		"\2\u01bc\u01ba\3\2\2\2\u01bc\u01bd\3\2\2\2\u01bd)\3\2\2\2\u01be\u01bc"+
-		"\3\2\2\2\u01bf\u01c2\5\u00f0y\2\u01c0\u01c1\7\u0096\2\2\u01c1\u01c3\5"+
-		"\u0092J\2\u01c2\u01c0\3\2\2\2\u01c2\u01c3\3\2\2\2\u01c3+\3\2\2\2\u01c4"+
-		"\u01d0\7\u008f\2\2\u01c5\u01ca\5\u0092J\2\u01c6\u01c7\7\u0094\2\2\u01c7"+
-		"\u01c9\5\u0092J\2\u01c8\u01c6\3\2\2\2\u01c9\u01cc\3\2\2\2\u01ca\u01c8"+
-		"\3\2\2\2\u01ca\u01cb\3\2\2\2\u01cb\u01ce\3\2\2\2\u01cc\u01ca\3\2\2\2\u01cd"+
-		"\u01cf\7\u0094\2\2\u01ce\u01cd\3\2\2\2\u01ce\u01cf\3\2\2\2\u01cf\u01d1"+
-		"\3\2\2\2\u01d0\u01c5\3\2\2\2\u01d0\u01d1\3\2\2\2\u01d1\u01d2\3\2\2\2\u01d2"+
-		"\u01d3\7\u0090\2\2\u01d3-\3\2\2\2\u01d4\u01d9\5\62\32\2\u01d5\u01d6\7"+
-		"\u0095\2\2\u01d6\u01d8\5\62\32\2\u01d7\u01d5\3\2\2\2\u01d8\u01db\3\2\2"+
-		"\2\u01d9\u01d7\3\2\2\2\u01d9\u01da\3\2\2\2\u01da\u01dc\3\2\2\2\u01db\u01d9"+
-		"\3\2\2\2\u01dc\u01dd\5\60\31\2\u01dd/\3\2\2\2\u01de\u01df\7\u0091\2\2"+
-		"\u01df\u01e1\7\u0092\2\2\u01e0\u01de\3\2\2\2\u01e1\u01e4\3\2\2\2\u01e2"+
-		"\u01e0\3\2\2\2\u01e2\u01e3\3\2\2\2\u01e3\61\3\2\2\2\u01e4\u01e2\3\2\2"+
-		"\2\u01e5\u01e7\79\2\2\u01e6\u01e8\5\64\33\2\u01e7\u01e6\3\2\2\2\u01e7"+
-		"\u01e8\3\2\2\2\u01e8\u01f6\3\2\2\2\u01e9\u01eb\7$\2\2\u01ea\u01ec\5\64"+
-		"\33\2\u01eb\u01ea\3\2\2\2\u01eb\u01ec\3\2\2\2\u01ec\u01f6\3\2\2\2\u01ed"+
-		"\u01ef\7:\2\2\u01ee\u01f0\5\64\33\2\u01ef\u01ee\3\2\2\2\u01ef\u01f0\3"+
-		"\2\2\2\u01f0\u01f6\3\2\2\2\u01f1\u01f3\5\u00f0y\2\u01f2\u01f4\5\64\33"+
-		"\2\u01f3\u01f2\3\2\2\2\u01f3\u01f4\3\2\2\2\u01f4\u01f6\3\2\2\2\u01f5\u01e5"+
-		"\3\2\2\2\u01f5\u01e9\3\2\2\2\u01f5\u01ed\3\2\2\2\u01f5\u01f1\3\2\2\2\u01f6"+
-		"\63\3\2\2\2\u01f7\u01f8\7\u0098\2\2\u01f8\u01f9\5\22\n\2\u01f9\u01fa\7"+
-		"\u0097\2\2\u01fa\65\3\2\2\2\u01fb\u01fd\7\u008d\2\2\u01fc\u01fe\58\35"+
-		"\2\u01fd\u01fc\3\2\2\2\u01fd\u01fe\3\2\2\2\u01fe\u01ff\3\2\2\2\u01ff\u0200"+
-		"\7\u008e\2\2\u0200\67\3\2\2\2\u0201\u0206\5:\36\2\u0202\u0203\7\u0094"+
-		"\2\2\u0203\u0205\5:\36\2\u0204\u0202\3\2\2\2\u0205\u0208\3\2\2\2\u0206"+
-		"\u0204\3\2\2\2\u0206\u0207\3\2\2\2\u02079\3\2\2\2\u0208\u0206\3\2\2\2"+
-		"\u0209\u020b\5\32\16\2\u020a\u0209\3\2\2\2\u020b\u020e\3\2\2\2\u020c\u020a"+
-		"\3\2\2\2\u020c\u020d\3\2\2\2\u020d\u020f\3\2\2\2\u020e\u020c\3\2\2\2\u020f"+
-		"\u0210\5.\30\2\u0210\u0211\5\u00f0y\2\u0211;\3\2\2\2\u0212\u0217\5\u00f0"+
-		"y\2\u0213\u0214\7\u0095\2\2\u0214\u0216\5\u00f0y\2\u0215\u0213\3\2\2\2"+
-		"\u0216\u0219\3\2\2\2\u0217\u0215\3\2\2\2\u0217\u0218\3\2\2\2\u0218=\3"+
-		"\2\2\2\u0219\u0217\3\2\2\2\u021a\u021b\t\4\2\2\u021b?\3\2\2\2\u021c\u021d"+
-		"\7\u00bb\2\2\u021d\u0224\5<\37\2\u021e\u0221\7\u008d\2\2\u021f\u0222\5"+
-		"B\"\2\u0220\u0222\5F$\2\u0221\u021f\3\2\2\2\u0221\u0220\3\2\2\2\u0221"+
-		"\u0222\3\2\2\2\u0222\u0223\3\2\2\2\u0223\u0225\7\u008e\2\2\u0224\u021e"+
-		"\3\2\2\2\u0224\u0225\3\2\2\2\u0225A\3\2\2\2\u0226\u022d\5D#\2\u0227\u0229"+
-		"\7\u0094\2\2\u0228\u0227\3\2\2\2\u0228\u0229\3\2\2\2\u0229\u022a\3\2\2"+
-		"\2\u022a\u022c\5D#\2\u022b\u0228\3\2\2\2\u022c\u022f\3\2\2\2\u022d\u022b"+
-		"\3\2\2\2\u022d\u022e\3\2\2\2\u022eC\3\2\2\2\u022f\u022d\3\2\2\2\u0230"+
-		"\u0231\5\u00f0y\2\u0231\u0232\7\u0096\2\2\u0232\u0233\5F$\2\u0233E\3\2"+
-		"\2\2\u0234\u0238\5\u0092J\2\u0235\u0238\5@!\2\u0236\u0238\5H%\2\u0237"+
-		"\u0234\3\2\2\2\u0237\u0235\3\2\2\2\u0237\u0236\3\2\2\2\u0238G\3\2\2\2"+
-		"\u0239\u0242\7\u008f\2\2\u023a\u023f\5F$\2\u023b\u023c\7\u0094\2\2\u023c"+
-		"\u023e\5F$\2\u023d\u023b\3\2\2\2\u023e\u0241\3\2\2\2\u023f\u023d\3\2\2"+
-		"\2\u023f\u0240\3\2\2\2\u0240\u0243\3\2\2\2\u0241\u023f\3\2\2\2\u0242\u023a"+
-		"\3\2\2\2\u0242\u0243\3\2\2\2\u0243\u0245\3\2\2\2\u0244\u0246\7\u0094\2"+
-		"\2\u0245\u0244\3\2\2\2\u0245\u0246\3\2\2\2\u0246\u0247\3\2\2\2\u0247\u0248"+
-		"\7\u0090\2\2\u0248I\3\2\2\2\u0249\u024d\7\u008f\2\2\u024a\u024c\5P)\2"+
-		"\u024b\u024a\3\2\2\2\u024c\u024f\3\2\2\2\u024d\u024b\3\2\2\2\u024d\u024e"+
-		"\3\2\2\2\u024e\u0250\3\2\2\2\u024f\u024d\3\2\2\2\u0250\u0251\7\u0090\2"+
-		"\2\u0251K\3\2\2\2\u0252\u0253\5N(\2\u0253\u0254\7\u0093\2\2\u0254M\3\2"+
-		"\2\2\u0255\u0257\5\32\16\2\u0256\u0255\3\2\2\2\u0257\u025a\3\2\2\2\u0258"+
-		"\u0256\3\2\2\2\u0258\u0259\3\2\2\2\u0259\u025b\3\2\2\2\u025a\u0258\3\2"+
-		"\2\2\u025b\u025c\5.\30\2\u025c\u025d\5(\25\2\u025dO\3\2\2\2\u025e\u0273"+
-		"\5J&\2\u025f\u0273\5R*\2\u0260\u0273\5T+\2\u0261\u0273\5\\/\2\u0262\u0273"+
-		"\5^\60\2\u0263\u0273\5`\61\2\u0264\u0273\5b\62\2\u0265\u0273\5d\63\2\u0266"+
-		"\u0273\5f\64\2\u0267\u0273\5h\65\2\u0268\u0273\5j\66\2\u0269\u0273\5l"+
-		"\67\2\u026a\u0273\5n8\2\u026b\u0273\5p9\2\u026c\u0273\5r:\2\u026d\u0273"+
-		"\5t;\2\u026e\u0273\5v<\2\u026f\u0273\5x=\2\u0270\u0273\5L\'\2\u0271\u0273"+
-		"\5z>\2\u0272\u025e\3\2\2\2\u0272\u025f\3\2\2\2\u0272\u0260\3\2\2\2\u0272"+
-		"\u0261\3\2\2\2\u0272\u0262\3\2\2\2\u0272\u0263\3\2\2\2\u0272\u0264\3\2"+
-		"\2\2\u0272\u0265\3\2\2\2\u0272\u0266\3\2\2\2\u0272\u0267\3\2\2\2\u0272"+
-		"\u0268\3\2\2\2\u0272\u0269\3\2\2\2\u0272\u026a\3\2\2\2\u0272\u026b\3\2"+
-		"\2\2\u0272\u026c\3\2\2\2\u0272\u026d\3\2\2\2\u0272\u026e\3\2\2\2\u0272"+
-		"\u026f\3\2\2\2\u0272\u0270\3\2\2\2\u0272\u0271\3\2\2\2\u0273Q\3\2\2\2"+
-		"\u0274\u0275\7\24\2\2\u0275\u0276\5\u008eH\2\u0276\u0279\5P)\2\u0277\u0278"+
-		"\7\f\2\2\u0278\u027a\5P)\2\u0279\u0277\3\2\2\2\u0279\u027a\3\2\2\2\u027a"+
-		"S\3\2\2\2\u027b\u027c\7(\2\2\u027c\u027d\7\35\2\2\u027d\u027e\5\u0092"+
-		"J\2\u027e\u0280\7\u008f\2\2\u027f\u0281\5V,\2\u0280\u027f\3\2\2\2\u0281"+
-		"\u0282\3\2\2\2\u0282\u0280\3\2\2\2\u0282\u0283\3\2\2\2\u0283\u0284\3\2"+
-		"\2\2\u0284\u0285\7\u0090\2\2\u0285U\3\2\2\2\u0286\u0287\7\65\2\2\u0287"+
-		"\u0288\5X-\2\u0288\u0289\5J&\2\u0289W\3\2\2\2\u028a\u0297\7\f\2\2\u028b"+
-		"\u0290\5Z.\2\u028c\u028d\7\u0094\2\2\u028d\u028f\5Z.\2\u028e\u028c\3\2"+
-		"\2\2\u028f\u0292\3\2\2\2\u0290\u028e\3\2\2\2\u0290\u0291\3\2\2\2\u0291"+
-		"\u0297\3\2\2\2\u0292\u0290\3\2\2\2\u0293\u0294\5\u00f0y\2\u0294\u0295"+
-		"\5\u00f0y\2\u0295\u0297\3\2\2\2\u0296\u028a\3\2\2\2\u0296\u028b\3\2\2"+
-		"\2\u0296\u0293\3\2\2\2\u0297Y\3\2\2\2\u0298\u029a\7\u00a8\2\2\u0299\u0298"+
-		"\3\2\2\2\u0299\u029a\3\2\2\2\u029a\u029b\3\2\2\2\u029b\u02a1\7\u0087\2"+
-		"\2\u029c\u02a1\7\u0088\2\2\u029d\u02a1\7\u008b\2\2\u029e\u02a1\7\34\2"+
-		"\2\u029f\u02a1\5\u00f0y\2\u02a0\u0299\3\2\2\2\u02a0\u029c\3\2\2\2\u02a0"+
-		"\u029d\3\2\2\2\u02a0\u029e\3\2\2\2\u02a0\u029f\3\2\2\2\u02a1[\3\2\2\2"+
-		"\u02a2\u02a3\7\21\2\2\u02a3\u02a4\7\u008d\2\2\u02a4\u02a5\5\u0086D\2\u02a5"+
-		"\u02a6\7\u008e\2\2\u02a6\u02a7\5P)\2\u02a7]\3\2\2\2\u02a8\u02a9\7\66\2"+
-		"\2\u02a9\u02aa\5\u008eH\2\u02aa\u02ab\5P)\2\u02ab_\3\2\2\2\u02ac\u02ad"+
-		"\7\13\2\2\u02ad\u02ae\5P)\2\u02ae\u02af\7\66\2\2\u02af\u02b0\5\u008eH"+
-		"\2\u02b0\u02b1\7\u0093\2\2\u02b1a\3\2\2\2\u02b2\u02b3\7.\2\2\u02b3\u02bd"+
-		"\5J&\2\u02b4\u02b6\5\u0082B\2\u02b5\u02b4\3\2\2\2\u02b6\u02b7\3\2\2\2"+
-		"\u02b7\u02b5\3\2\2\2\u02b7\u02b8\3\2\2\2\u02b8\u02ba\3\2\2\2\u02b9\u02bb"+
-		"\5\u0084C\2\u02ba\u02b9\3\2\2\2\u02ba\u02bb\3\2\2\2\u02bb\u02be\3\2\2"+
-		"\2\u02bc\u02be\5\u0084C\2\u02bd\u02b5\3\2\2\2\u02bd\u02bc\3\2\2\2\u02be"+
-		"c\3\2\2\2\u02bf\u02c1\7\"\2\2\u02c0\u02c2\5\u0092J\2\u02c1\u02c0\3\2\2"+
-		"\2\u02c1\u02c2\3\2\2\2\u02c2\u02c3\3\2\2\2\u02c3\u02c4\7\u0093\2\2\u02c4"+
-		"e\3\2\2\2\u02c5\u02c6\7+\2\2\u02c6\u02c7\5\u0092J\2\u02c7\u02c8\7\u0093"+
-		"\2\2\u02c8g\3\2\2\2\u02c9\u02ca\7\6\2\2\u02ca\u02cb\7\u0093\2\2\u02cb"+
-		"i\3\2\2\2\u02cc\u02cd\7\t\2\2\u02cd\u02ce\7\u0093\2\2\u02cek\3\2\2\2\u02cf"+
-		"\u02d0\7\27\2\2\u02d0\u02d1\5\u0092J\2\u02d1\u02d2\7\u0093\2\2\u02d2m"+
-		"\3\2\2\2\u02d3\u02d4\7\60\2\2\u02d4\u02d5\5\u0092J\2\u02d5\u02d6\7\u0093"+
-		"\2\2\u02d6o\3\2\2\2\u02d7\u02d8\7\n\2\2\u02d8\u02d9\5\u0092J\2\u02d9\u02da"+
-		"\7\u0093\2\2\u02daq\3\2\2\2\u02db\u02dc\7/\2\2\u02dc\u02dd\5\u0092J\2"+
-		"\u02dd\u02de\7\u0093\2\2\u02des\3\2\2\2\u02df\u02e0\7\61\2\2\u02e0\u02e2"+
-		"\5\u0092J\2\u02e1\u02e3\5<\37\2\u02e2\u02e1\3\2\2\2\u02e2\u02e3\3\2\2"+
-		"\2\u02e3\u02e4\3\2\2\2\u02e4\u02e5\7\u0093\2\2\u02e5u\3\2\2\2\u02e6\u02e7"+
-		"\7\32\2\2\u02e7\u02e8\5\u0092J\2\u02e8\u02e9\5\u0092J\2\u02e9\u02ea\7"+
-		"\u0093\2\2\u02eaw\3\2\2\2\u02eb\u02ec\7#\2\2\u02ec\u02ee\7\u008d\2\2\u02ed"+
-		"\u02ef\5\u0090I\2\u02ee\u02ed\3\2\2\2\u02ee\u02ef\3\2\2\2\u02ef\u02f0"+
-		"\3\2\2\2\u02f0\u02f1\7\u008e\2\2\u02f1\u02f2\5J&\2\u02f2y\3\2\2\2\u02f3"+
-		"\u02f4\5\u0092J\2\u02f4\u02f5\7\u0093\2\2\u02f5{\3\2\2\2\u02f6\u02f8\5"+
-		"\32\16\2\u02f7\u02f6\3\2\2\2\u02f8\u02fb\3\2\2\2\u02f9\u02f7\3\2\2\2\u02f9"+
-		"\u02fa\3\2\2\2\u02fa\u02fe\3\2\2\2\u02fb\u02f9\3\2\2\2\u02fc\u02ff\5~"+
-		"@\2\u02fd\u02ff\5\u0080A\2\u02fe\u02fc\3\2\2\2\u02fe\u02fd\3\2\2\2\u02ff"+
-		"}\3\2\2\2\u0300\u0303\7\22\2\2\u0301\u0304\7\u0093\2\2\u0302\u0304\5J"+
-		"&\2\u0303\u0301\3\2\2\2\u0303\u0302\3\2\2\2\u0304\177\3\2\2\2\u0305\u0308"+
-		"\7$\2\2\u0306\u0309\7\u0093\2\2\u0307\u0309\5J&\2\u0308\u0306\3\2\2\2"+
-		"\u0308\u0307\3\2\2\2\u0309\u0081\3\2\2\2\u030a\u030b\7\7\2\2\u030b\u030f"+
-		"\7\u008d\2\2\u030c\u030e\5\32\16\2\u030d\u030c\3\2\2\2\u030e\u0311\3\2"+
-		"\2\2\u030f\u030d\3\2\2\2\u030f\u0310\3\2\2\2\u0310\u0312\3\2\2\2\u0311"+
-		"\u030f\3\2\2\2\u0312\u0313\5<\37\2\u0313\u0314\5\u00f0y\2\u0314\u0315"+
-		"\7\u008e\2\2\u0315\u0316\5J&\2\u0316\u0083\3\2\2\2\u0317\u0318\7\20\2"+
-		"\2\u0318\u0319\5J&\2\u0319\u0085\3\2\2\2\u031a\u0327\5\u008aF\2\u031b"+
-		"\u031d\5\u0088E\2\u031c\u031b\3\2\2\2\u031c\u031d\3\2\2\2\u031d\u031e"+
-		"\3\2\2\2\u031e\u0320\7\u0093\2\2\u031f\u0321\5\u0092J\2\u0320\u031f\3"+
-		"\2\2\2\u0320\u0321\3\2\2\2\u0321\u0322\3\2\2\2\u0322\u0324\7\u0093\2\2"+
-		"\u0323\u0325\5\u008cG\2\u0324\u0323\3\2\2\2\u0324\u0325\3\2\2\2\u0325"+
-		"\u0327\3\2\2\2\u0326\u031a\3\2\2\2\u0326\u031c\3\2\2\2\u0327\u0087\3\2"+
-		"\2\2\u0328\u032b\5N(\2\u0329\u032b\5\u0090I\2\u032a\u0328\3\2\2\2\u032a"+
-		"\u0329\3\2\2\2\u032b\u0089\3\2\2\2\u032c\u032d\5.\30\2\u032d\u032e\5\u00f0"+
-		"y\2\u032e\u032f\7\u009d\2\2\u032f\u0330\5\u0092J\2\u0330\u008b\3\2\2\2"+
-		"\u0331\u0332\5\u0090I\2\u0332\u008d\3\2\2\2\u0333\u0334\7\u008d\2\2\u0334"+
-		"\u0335\5\u0092J\2\u0335\u0336\7\u008e\2\2\u0336\u008f\3\2\2\2\u0337\u033c"+
-		"\5\u0092J\2\u0338\u0339\7\u0094\2\2\u0339\u033b\5\u0092J\2\u033a\u0338"+
-		"\3\2\2\2\u033b\u033e\3\2\2\2\u033c\u033a\3\2\2\2\u033c\u033d\3\2\2\2\u033d"+
-		"\u0091\3\2\2\2\u033e\u033c\3\2\2\2\u033f\u0340\bJ\1\2\u0340\u034e\5\u0094"+
-		"K\2\u0341\u034e\5\u0096L\2\u0342\u0343\7\33\2\2\u0343\u034e\5\u009aN\2"+
-		"\u0344\u0345\7\u008d\2\2\u0345\u0346\5.\30\2\u0346\u0347\7\u008e\2\2\u0347"+
-		"\u0348\5\u0092J\23\u0348\u034e\3\2\2\2\u0349\u034a\t\5\2\2\u034a\u034e"+
-		"\5\u0092J\21\u034b\u034c\t\6\2\2\u034c\u034e\5\u0092J\20\u034d\u033f\3"+
-		"\2\2\2\u034d\u0341\3\2\2\2\u034d\u0342\3\2\2\2\u034d\u0344\3\2\2\2\u034d"+
-		"\u0349\3\2\2\2\u034d\u034b\3\2\2\2\u034e\u0393\3\2\2\2\u034f\u0350\f\17"+
-		"\2\2\u0350\u0351\t\7\2\2\u0351\u0392\5\u0092J\20\u0352\u0353\f\16\2\2"+
-		"\u0353\u0354\t\b\2\2\u0354\u0392\5\u0092J\17\u0355\u035d\f\r\2\2\u0356"+
-		"\u0357\7\u0098\2\2\u0357\u035e\7\u0098\2\2\u0358\u0359\7\u0097\2\2\u0359"+
-		"\u035a\7\u0097\2\2\u035a\u035e\7\u0097\2\2\u035b\u035c\7\u0097\2\2\u035c"+
-		"\u035e\7\u0097\2\2\u035d\u0356\3\2\2\2\u035d\u0358\3\2\2\2\u035d\u035b"+
-		"\3\2\2\2\u035e\u035f\3\2\2\2\u035f\u0392\5\u0092J\16\u0360\u0361\f\f\2"+
-		"\2\u0361\u0363\t\t\2\2\u0362\u0364\7\u0096\2\2\u0363\u0362\3\2\2\2\u0363"+
-		"\u0364\3\2\2\2\u0364\u0365\3\2\2\2\u0365\u0392\5\u0092J\r\u0366\u0367"+
-		"\f\n\2\2\u0367\u0368\t\n\2\2\u0368\u0392\5\u0092J\13\u0369\u036a\f\t\2"+
-		"\2\u036a\u036b\7\u00ab\2\2\u036b\u0392\5\u0092J\n\u036c\u036d\f\b\2\2"+
-		"\u036d\u036e\7\u00ad\2\2\u036e\u0392\5\u0092J\t\u036f\u0370\f\7\2\2\u0370"+
-		"\u0371\7\u00ac\2\2\u0371\u0392\5\u0092J\b\u0372\u0373\f\6\2\2\u0373\u0374"+
-		"\7\u00a3\2\2\u0374\u0392\5\u0092J\7\u0375\u0376\f\5\2\2\u0376\u0377\7"+
-		"\u00a4\2\2\u0377\u0392\5\u0092J\6\u0378\u0379\f\4\2\2\u0379\u037a\7\u009c"+
-		"\2\2\u037a\u037b\5\u0092J\2\u037b\u037c\7\u009d\2\2\u037c\u037d\5\u0092"+
-		"J\4\u037d\u0392\3\2\2\2\u037e\u037f\f\3\2\2\u037f\u0380\t\13\2\2\u0380"+
-		"\u0392\5\u0092J\3\u0381\u0382\f\27\2\2\u0382\u0385\t\f\2\2\u0383\u0386"+
-		"\5\u0098M\2\u0384\u0386\5\u00f2z\2\u0385\u0383\3\2\2\2\u0385\u0384\3\2"+
-		"\2\2\u0386\u0392\3\2\2\2\u0387\u0388\f\26\2\2\u0388\u0389\7\u0091\2\2"+
-		"\u0389\u038a\5\u0092J\2\u038a\u038b\7\u0092\2\2\u038b\u0392\3\2\2\2\u038c"+
-		"\u038d\f\22\2\2\u038d\u0392\t\r\2\2\u038e\u038f\f\13\2\2\u038f\u0390\7"+
-		"\30\2\2\u0390\u0392\5.\30\2\u0391\u034f\3\2\2\2\u0391\u0352\3\2\2\2\u0391"+
-		"\u0355\3\2\2\2\u0391\u0360\3\2\2\2\u0391\u0366\3\2\2\2\u0391\u0369\3\2"+
-		"\2\2\u0391\u036c\3\2\2\2\u0391\u036f\3\2\2\2\u0391\u0372\3\2\2\2\u0391"+
-		"\u0375\3\2\2\2\u0391\u0378\3\2\2\2\u0391\u037e\3\2\2\2\u0391\u0381\3\2"+
-		"\2\2\u0391\u0387\3\2\2\2\u0391\u038c\3\2\2\2\u0391\u038e\3\2\2\2\u0392"+
-		"\u0395\3\2\2\2\u0393\u0391\3\2\2\2\u0393\u0394\3\2\2\2\u0394\u0093\3\2"+
-		"\2\2\u0395\u0393\3\2\2\2\u0396\u0397\7\u008d\2\2\u0397\u0398\5\u0092J"+
-		"\2\u0398\u0399\7\u008e\2\2\u0399\u03a4\3\2\2\2\u039a\u03a4\7*\2\2\u039b"+
-		"\u03a4\7\'\2\2\u039c\u03a4\5> \2\u039d\u039e\5.\30\2\u039e\u039f\7\u0095"+
-		"\2\2\u039f\u03a0\7\b\2\2\u03a0\u03a4\3\2\2\2\u03a1\u03a4\5\u00f0y\2\u03a2"+
-		"\u03a4\5\u00aeX\2\u03a3\u0396\3\2\2\2\u03a3\u039a\3\2\2\2\u03a3\u039b"+
-		"\3\2\2\2\u03a3\u039c\3\2\2\2\u03a3\u039d\3\2\2\2\u03a3\u03a1\3\2\2\2\u03a3"+
-		"\u03a2\3\2\2\2\u03a4\u0095\3\2\2\2\u03a5\u03a6\5\u00f0y\2\u03a6\u03a8"+
-		"\7\u008d\2\2\u03a7\u03a9\5\u0090I\2\u03a8\u03a7\3\2\2\2\u03a8\u03a9\3"+
-		"\2\2\2\u03a9\u03aa\3\2\2\2\u03aa\u03ab\7\u008e\2\2\u03ab\u03b9\3\2\2\2"+
-		"\u03ac\u03ad\7*\2\2\u03ad\u03af\7\u008d\2\2\u03ae\u03b0\5\u0090I\2\u03af"+
-		"\u03ae\3\2\2\2\u03af\u03b0\3\2\2\2\u03b0\u03b1\3\2\2\2\u03b1\u03b9\7\u008e"+
-		"\2\2\u03b2\u03b3\7\'\2\2\u03b3\u03b5\7\u008d\2\2\u03b4\u03b6\5\u0090I"+
-		"\2\u03b5\u03b4\3\2\2\2\u03b5\u03b6\3\2\2\2\u03b6\u03b7\3\2\2\2\u03b7\u03b9"+
-		"\7\u008e\2\2\u03b8\u03a5\3\2\2\2\u03b8\u03ac\3\2\2\2\u03b8\u03b2\3\2\2"+
-		"\2\u03b9\u0097\3\2\2\2\u03ba\u03bb\5\u00f2z\2\u03bb\u03bd\7\u008d\2\2"+
-		"\u03bc\u03be\5\u0090I\2\u03bd\u03bc\3\2\2\2\u03bd\u03be\3\2\2\2\u03be"+
-		"\u03bf\3\2\2\2\u03bf\u03c0\7\u008e\2\2\u03c0\u0099\3\2\2\2\u03c1\u03c7"+
-		"\5\u009cO\2\u03c2\u03c8\5\u00a0Q\2\u03c3\u03c8\5\u00a2R\2\u03c4\u03c8"+
-		"\5\u00a4S\2\u03c5\u03c8\5\u00a6T\2\u03c6\u03c8\5\u00aaV\2\u03c7\u03c2"+
-		"\3\2\2\2\u03c7\u03c3\3\2\2\2\u03c7\u03c4\3\2\2\2\u03c7\u03c5\3\2\2\2\u03c7"+
-		"\u03c6\3\2\2\2\u03c8\u009b\3\2\2\2\u03c9\u03ce\5\u009eP\2\u03ca\u03cb"+
-		"\7\u0095\2\2\u03cb\u03cd\5\u009eP\2\u03cc\u03ca\3\2\2\2\u03cd\u03d0\3"+
-		"\2\2\2\u03ce\u03cc\3\2\2\2\u03ce\u03cf\3\2\2\2\u03cf\u009d\3\2\2\2\u03d0"+
-		"\u03ce\3\2\2\2\u03d1\u03d6\5\u00f2z\2\u03d2\u03d3\7\u0098\2\2\u03d3\u03d4"+
-		"\5\22\n\2\u03d4\u03d5\7\u0097\2\2\u03d5\u03d7\3\2\2\2\u03d6\u03d2\3\2"+
-		"\2\2\u03d6\u03d7\3\2\2\2\u03d7\u009f\3\2\2\2\u03d8\u03d9\7\u008f\2\2\u03d9"+
-		"\u03da\7\u0090\2\2\u03da\u00a1\3\2\2\2\u03db\u03dc\5\u00acW\2\u03dc\u00a3"+
-		"\3\2\2\2\u03dd\u03de\7\u0091\2\2\u03de\u03df\5\u0092J\2\u03df\u03e0\7"+
-		"\u0092\2\2\u03e0\u03e7\3\2\2\2\u03e1\u03e2\7\u0091\2\2\u03e2\u03e4\7\u0092"+
-		"\2\2\u03e3\u03e5\5,\27\2\u03e4\u03e3\3\2\2\2\u03e4\u03e5\3\2\2\2\u03e5"+
-		"\u03e7\3\2\2\2\u03e6\u03dd\3\2\2\2\u03e6\u03e1\3\2\2\2\u03e7\u00a5\3\2"+
-		"\2\2\u03e8\u03e9\7\u008f\2\2\u03e9\u03ee\5\u00a8U\2\u03ea\u03eb\7\u0094"+
-		"\2\2\u03eb\u03ed\5\u00a8U\2\u03ec\u03ea\3\2\2\2\u03ed\u03f0\3\2\2\2\u03ee"+
-		"\u03ec\3\2\2\2\u03ee\u03ef\3\2\2\2\u03ef\u03f1\3\2\2\2\u03f0\u03ee\3\2"+
-		"\2\2\u03f1\u03f2\7\u0090\2\2\u03f2\u00a7\3\2\2\2\u03f3\u03f4\5\u0092J"+
-		"\2\u03f4\u03f5\7\u00af\2\2\u03f5\u03f6\5\u0092J\2\u03f6\u00a9\3\2\2\2"+
-		"\u03f7\u03f8\7\u008f\2\2\u03f8\u03fd\5\u0092J\2\u03f9\u03fa\7\u0094\2"+
-		"\2\u03fa\u03fc\5\u0092J\2\u03fb\u03f9\3\2\2\2\u03fc\u03ff\3\2\2\2\u03fd"+
-		"\u03fb\3\2\2\2\u03fd\u03fe\3\2\2\2\u03fe\u0400\3\2\2\2\u03ff\u03fd\3\2"+
-		"\2\2\u0400\u0401\7\u0090\2\2\u0401\u00ab\3\2\2\2\u0402\u0404\7\u008d\2"+
-		"\2\u0403\u0405\5\u0090I\2\u0404\u0403\3\2\2\2\u0404\u0405\3\2\2\2\u0405"+
-		"\u0406\3\2\2\2\u0406\u0407\7\u008e\2\2\u0407\u00ad\3\2\2\2\u0408\u0409"+
-		"\7\u0091\2\2\u0409\u040a\5\u00b0Y\2\u040a\u040b\7\u0092\2\2\u040b\u00af"+
-		"\3\2\2\2\u040c\u040d\7;\2\2\u040d\u040e\5\u00b4[\2\u040e\u040f\7=\2\2"+
-		"\u040f\u0411\5\u00ba^\2\u0410\u0412\5\u00caf\2\u0411\u0410\3\2\2\2\u0411"+
-		"\u0412\3\2\2\2\u0412\u0414\3\2\2\2\u0413\u0415\5\u00ccg\2\u0414\u0413"+
-		"\3\2\2\2\u0414\u0415\3\2\2\2\u0415\u0417\3\2\2\2\u0416\u0418\5\u00dan"+
-		"\2\u0417\u0416\3\2\2\2\u0417\u0418\3\2\2\2\u0418\u041a\3\2\2\2\u0419\u041b"+
-		"\5\u00dco\2\u041a\u0419\3\2\2\2\u041a\u041b\3\2\2\2\u041b\u041d\3\2\2"+
-		"\2\u041c\u041e\5\u00e2r\2\u041d\u041c\3\2\2\2\u041d\u041e\3\2\2\2\u041e"+
-		"\u0420\3\2\2\2\u041f\u0421\5\u00e4s\2\u0420\u041f\3\2\2\2\u0420\u0421"+
-		"\3\2\2\2\u0421\u0423\3\2\2\2\u0422\u0424\5\u00e6t\2\u0423\u0422\3\2\2"+
-		"\2\u0423\u0424\3\2\2\2\u0424\u00b1\3\2\2\2\u0425\u0426\7;\2\2\u0426\u0427"+
-		"\5\u00bc_\2\u0427\u0428\7=\2\2\u0428\u042a\5\u00ba^\2\u0429\u042b\5\u00cc"+
-		"g\2\u042a\u0429\3\2\2\2\u042a\u042b\3\2\2\2\u042b\u042d\3\2\2\2\u042c"+
-		"\u042e\5\u00dco\2\u042d\u042c\3\2\2\2\u042d\u042e\3\2\2\2\u042e\u0430"+
-		"\3\2\2\2\u042f\u0431\5\u00e2r\2\u0430\u042f\3\2\2\2\u0430\u0431\3\2\2"+
-		"\2\u0431\u00b3\3\2\2\2\u0432\u0437\5\u00b6\\\2\u0433\u0434\7\u0094\2\2"+
-		"\u0434\u0436\5\u00b6\\\2\u0435\u0433\3\2\2\2\u0436\u0439\3\2\2\2\u0437"+
-		"\u0435\3\2\2\2\u0437\u0438\3\2\2\2\u0438\u00b5\3\2\2\2\u0439\u0437\3\2"+
-		"\2\2\u043a\u043c\5\u00b8]\2\u043b\u043d\5\u00eex\2\u043c\u043b\3\2\2\2"+
-		"\u043c\u043d\3\2\2\2\u043d\u0448\3\2\2\2\u043e\u0440\5\u00c0a\2\u043f"+
-		"\u0441\5\u00eex\2\u0440\u043f\3\2\2\2\u0440\u0441\3\2\2\2\u0441\u0448"+
-		"\3\2\2\2\u0442\u0443\7\u008d\2\2\u0443\u0444\5\u00b2Z\2\u0444\u0445\7"+
-		"\u008e\2\2\u0445\u0448\3\2\2\2\u0446\u0448\5\u00c2b\2\u0447\u043a\3\2"+
-		"\2\2\u0447\u043e\3\2\2\2\u0447\u0442\3\2\2\2\u0447\u0446\3\2\2\2\u0448"+
-		"\u00b7\3\2\2\2\u0449\u044e\5\u00eex\2\u044a\u044b\7\u0095\2\2\u044b\u044d"+
-		"\5\u00eex\2\u044c\u044a\3\2\2\2\u044d\u0450\3\2\2\2\u044e\u044c\3\2\2"+
-		"\2\u044e\u044f\3\2\2\2\u044f\u00b9\3\2\2\2\u0450\u044e\3\2\2\2\u0451\u0453"+
-		"\5\u00b8]\2\u0452\u0454\5\u00eex\2\u0453\u0452\3\2\2\2\u0453\u0454\3\2"+
-		"\2\2\u0454\u045c\3\2\2\2\u0455\u0456\7\u0094\2\2\u0456\u0458\5\u00b8]"+
-		"\2\u0457\u0459\5\u00eex\2\u0458\u0457\3\2\2\2\u0458\u0459\3\2\2\2\u0459"+
-		"\u045b\3\2\2\2\u045a\u0455\3\2\2\2\u045b\u045e\3\2\2\2\u045c\u045a\3\2"+
-		"\2\2\u045c\u045d\3\2\2\2\u045d\u00bb\3\2\2\2\u045e\u045c\3\2\2\2\u045f"+
-		"\u0464\5\u00be`\2\u0460\u0461\7\u0094\2\2\u0461\u0463\5\u00be`\2\u0462"+
-		"\u0460\3\2\2\2\u0463\u0466\3\2\2\2\u0464\u0462\3\2\2\2\u0464\u0465\3\2"+
-		"\2\2\u0465\u00bd\3\2\2\2\u0466\u0464\3\2\2\2\u0467\u0469\5\u00b8]\2\u0468"+
-		"\u046a\5\u00eex\2\u0469\u0468\3\2\2\2\u0469\u046a\3\2\2\2\u046a\u0470"+
-		"\3\2\2\2\u046b\u046d\5\u00c0a\2\u046c\u046e\5\u00eex\2\u046d\u046c\3\2"+
-		"\2\2\u046d\u046e\3\2\2\2\u046e\u0470\3\2\2\2\u046f\u0467\3\2\2\2\u046f"+
-		"\u046b\3\2\2\2\u0470\u00bf\3\2\2\2\u0471\u0472\7H\2\2\u0472\u0473\7\u008d"+
-		"\2\2\u0473\u0474\5\u00b8]\2\u0474\u0475\7\u008e\2\2\u0475\u0498\3\2\2"+
-		"\2\u0476\u0477\7<\2\2\u0477\u0478\7\u008d\2\2\u0478\u0498\7\u008e\2\2"+
-		"\u0479\u047a\7<\2\2\u047a\u047b\7\u008d\2\2\u047b\u047c\5\u00b8]\2\u047c"+
-		"\u047d\7\u008e\2\2\u047d\u0498\3\2\2\2\u047e\u047f\7I\2\2\u047f\u0480"+
-		"\7\u008d\2\2\u0480\u0481\5\u00b8]\2\u0481\u0482\7\u008e\2\2\u0482\u0498"+
-		"\3\2\2\2\u0483\u0484\7J\2\2\u0484\u0485\7\u008d\2\2\u0485\u0486\5\u00b8"+
-		"]\2\u0486\u0487\7\u008e\2\2\u0487\u0498\3\2\2\2\u0488\u0489\7K\2\2\u0489"+
-		"\u048a\7\u008d\2\2\u048a\u048b\5\u00b8]\2\u048b\u048c\7\u008e\2\2\u048c"+
-		"\u0498\3\2\2\2\u048d\u048e\7L\2\2\u048e\u048f\7\u008d\2\2\u048f\u0490"+
-		"\5\u00b8]\2\u0490\u0491\7\u008e\2\2\u0491\u0498\3\2\2\2\u0492\u0493\7"+
-		"_\2\2\u0493\u0494\7\u008d\2\2\u0494\u0495\5\u00b8]\2\u0495\u0496\7\u008e"+
-		"\2\2\u0496\u0498\3\2\2\2\u0497\u0471\3\2\2\2\u0497\u0476\3\2\2\2\u0497"+
-		"\u0479\3\2\2\2\u0497\u047e\3\2\2\2\u0497\u0483\3\2\2\2\u0497\u0488\3\2"+
-		"\2\2\u0497\u048d\3\2\2\2\u0497\u0492\3\2\2\2\u0498\u00c1\3\2\2\2\u0499"+
-		"\u049a\7M\2\2\u049a\u049c\5\u00b8]\2\u049b\u049d\5\u00c4c\2\u049c\u049b"+
-		"\3\2\2\2\u049d\u049e\3\2\2\2\u049e\u049c\3\2\2\2\u049e\u049f\3\2\2\2\u049f"+
-		"\u04a1\3\2\2\2\u04a0\u04a2\5\u00c6d\2\u04a1\u04a0\3\2\2\2\u04a1\u04a2"+
-		"\3\2\2\2\u04a2\u04a3\3\2\2\2\u04a3\u04a4\7N\2\2\u04a4\u00c3\3\2\2\2\u04a5"+
-		"\u04a6\7\65\2\2\u04a6\u04a7\5\u00b8]\2\u04a7\u04a8\7O\2\2\u04a8\u04a9"+
-		"\5\u00c8e\2\u04a9\u00c5\3\2\2\2\u04aa\u04ab\7\f\2\2\u04ab\u04ac\5\u00c8"+
-		"e\2\u04ac\u00c7\3\2\2\2\u04ad\u04b2\5\u00b8]\2\u04ae\u04af\7\u0094\2\2"+
-		"\u04af\u04b1\5\u00b8]\2\u04b0\u04ae\3\2\2\2\u04b1\u04b4\3\2\2\2\u04b2"+
-		"\u04b0\3\2\2\2\u04b2\u04b3\3\2\2\2\u04b3\u00c9\3\2\2\2\u04b4\u04b2\3\2"+
-		"\2\2\u04b5\u04b6\7?\2\2\u04b6\u04b7\7@\2\2\u04b7\u04b8\5\u00eex\2\u04b8"+
-		"\u00cb\3\2\2\2\u04b9\u04ba\7A\2\2\u04ba\u04bb\5\u00ceh\2\u04bb\u00cd\3"+
-		"\2\2\2\u04bc\u04c1\5\u00d0i\2\u04bd\u04be\7E\2\2\u04be\u04c0\5\u00d0i"+
-		"\2\u04bf\u04bd\3\2\2\2\u04c0\u04c3\3\2\2\2\u04c1\u04bf\3\2\2\2\u04c1\u04c2"+
-		"\3\2\2\2\u04c2\u04cf\3\2\2\2\u04c3\u04c1\3\2\2\2\u04c4\u04c9\5\u00d0i"+
-		"\2\u04c5\u04c6\7F\2\2\u04c6\u04c8\5\u00d0i\2\u04c7\u04c5\3\2\2\2\u04c8"+
-		"\u04cb\3\2\2\2\u04c9\u04c7\3\2\2\2\u04c9\u04ca\3\2\2\2\u04ca\u04cf\3\2"+
-		"\2\2\u04cb\u04c9\3\2\2\2\u04cc\u04cd\7G\2\2\u04cd\u04cf\5\u00d0i\2\u04ce"+
-		"\u04bc\3\2\2\2\u04ce\u04c4\3\2\2\2\u04ce\u04cc\3\2\2\2\u04cf\u00cf\3\2"+
-		"\2\2\u04d0\u04d1\7\u008d\2\2\u04d1\u04d2\5\u00ceh\2\u04d2\u04d3\7\u008e"+
-		"\2\2\u04d3\u04d6\3\2\2\2\u04d4\u04d6\5\u00d2j\2\u04d5\u04d0\3\2\2\2\u04d5"+
-		"\u04d4\3\2\2\2\u04d6\u00d1\3\2\2\2\u04d7\u04d8\5\u00b8]\2\u04d8\u04d9"+
-		"\5\u00d4k\2\u04d9\u04da\5\u00d6l\2\u04da\u04e0\3\2\2\2\u04db\u04dc\5\u00c0"+
-		"a\2\u04dc\u04dd\5\u00d4k\2\u04dd\u04de\5\u00d6l\2\u04de\u04e0\3\2\2\2"+
-		"\u04df\u04d7\3\2\2\2\u04df\u04db\3\2\2\2\u04e0\u00d3\3\2\2\2\u04e1\u04f1"+
-		"\7\u0096\2\2\u04e2\u04f1\7\u00a0\2\2\u04e3\u04f1\7\u0098\2\2\u04e4\u04f1"+
-		"\7\u0097\2\2\u04e5\u04e6\7\u0098\2\2\u04e6\u04f1\7\u0096\2\2\u04e7\u04e8"+
-		"\7\u0097\2\2\u04e8\u04f1\7\u0096\2\2\u04e9\u04f1\7\u00a1\2\2\u04ea\u04f1"+
-		"\7P\2\2\u04eb\u04f1\7Q\2\2\u04ec\u04ed\7G\2\2\u04ed\u04f1\7Q\2\2\u04ee"+
-		"\u04f1\7R\2\2\u04ef\u04f1\7S\2\2\u04f0\u04e1\3\2\2\2\u04f0\u04e2\3\2\2"+
-		"\2\u04f0\u04e3\3\2\2\2\u04f0\u04e4\3\2\2\2\u04f0\u04e5\3\2\2\2\u04f0\u04e7"+
-		"\3\2\2\2\u04f0\u04e9\3\2\2\2\u04f0\u04ea\3\2\2\2\u04f0\u04eb\3\2\2\2\u04f0"+
-		"\u04ec\3\2\2\2\u04f0\u04ee\3\2\2\2\u04f0\u04ef\3\2\2\2\u04f1\u00d5\3\2"+
-		"\2\2\u04f2\u0502\7\34\2\2\u04f3\u0502\7\u008a\2\2\u04f4\u0502\7\u0087"+
-		"\2\2\u04f5\u0502\7\u0088\2\2\u04f6\u0502\7\u0089\2\2\u04f7\u0502\7\u008b"+
-		"\2\2\u04f8\u0502\7\u0085\2\2\u04f9\u0502\7\u0086\2\2\u04fa\u0502\5\u00ea"+
-		"v\2\u04fb\u04fc\7\u008d\2\2\u04fc\u04fd\5\u00b2Z\2\u04fd\u04fe\7\u008e"+
-		"\2\2\u04fe\u0502\3\2\2\2\u04ff\u0502\5\u00d8m\2\u0500\u0502\5\u00e8u\2"+
-		"\u0501\u04f2\3\2\2\2\u0501\u04f3\3\2\2\2\u0501\u04f4\3\2\2\2\u0501\u04f5"+
-		"\3\2\2\2\u0501\u04f6\3\2\2\2\u0501\u04f7\3\2\2\2\u0501\u04f8\3\2\2\2\u0501"+
-		"\u04f9\3\2\2\2\u0501\u04fa\3\2\2\2\u0501\u04fb\3\2\2\2\u0501\u04ff\3\2"+
-		"\2\2\u0501\u0500\3\2\2\2\u0502\u00d7\3\2\2\2\u0503\u0504\7\u008d\2\2\u0504"+
-		"\u0509\5\u00d6l\2\u0505\u0506\7\u0094\2\2\u0506\u0508\5\u00d6l\2\u0507"+
-		"\u0505\3\2\2\2\u0508\u050b\3\2\2\2\u0509\u0507\3\2\2\2\u0509\u050a\3\2"+
-		"\2\2\u050a\u050c\3\2\2\2\u050b\u0509\3\2\2\2\u050c\u050d\7\u008e\2\2\u050d"+
-		"\u00d9\3\2\2\2\u050e\u050f\7Y\2\2\u050f\u0510\7C\2\2\u0510\u0513\5\u00b4"+
-		"[\2\u0511\u0512\7]\2\2\u0512\u0514\5\u00ceh\2\u0513\u0511\3\2\2\2\u0513"+
-		"\u0514\3\2\2\2\u0514\u0524\3\2\2\2\u0515\u0516\7Y\2\2\u0516\u0517\7C\2"+
-		"\2\u0517\u0518\7^\2\2\u0518\u0519\7\u008d\2\2\u0519\u051e\5\u00b8]\2\u051a"+
-		"\u051b\7\u0094\2\2\u051b\u051d\5\u00b8]\2\u051c\u051a\3\2\2\2\u051d\u0520"+
-		"\3\2\2\2\u051e\u051c\3\2\2\2\u051e\u051f\3\2\2\2\u051f\u0521\3\2\2\2\u0520"+
-		"\u051e\3\2\2\2\u0521\u0522\7\u008e\2\2\u0522\u0524\3\2\2\2\u0523\u050e"+
-		"\3\2\2\2\u0523\u0515\3\2\2\2\u0524\u00db\3\2\2\2\u0525\u0526\7B\2\2\u0526"+
-		"\u0527\7C\2\2\u0527\u0528\5\u00dep\2\u0528\u00dd\3\2\2\2\u0529\u052e\5"+
-		"\u00e0q\2\u052a\u052b\7\u0094\2\2\u052b\u052d\5\u00e0q\2\u052c\u052a\3"+
-		"\2\2\2\u052d\u0530\3\2\2\2\u052e\u052c\3\2\2\2\u052e\u052f\3\2\2\2\u052f"+
-		"\u00df\3\2\2\2\u0530\u052e\3\2\2\2\u0531\u0533\5\u00b8]\2\u0532\u0534"+
-		"\t\16\2\2\u0533\u0532\3\2\2\2\u0533\u0534\3\2\2\2\u0534\u0537\3\2\2\2"+
-		"\u0535\u0536\7V\2\2\u0536\u0538\t\17\2\2\u0537\u0535\3\2\2\2\u0537\u0538"+
-		"\3\2\2\2\u0538\u053b\3\2\2\2\u0539\u053b\5\u00c0a\2\u053a\u0531\3\2\2"+
-		"\2\u053a\u0539\3\2\2\2\u053b\u00e1\3\2\2\2\u053c\u053d\7D\2\2\u053d\u0541"+
-		"\7\u0087\2\2\u053e\u053f\7D\2\2\u053f\u0541\5\u00e8u\2\u0540\u053c\3\2"+
-		"\2\2\u0540\u053e\3\2\2\2\u0541\u00e3\3\2\2\2\u0542\u0543\7Z\2\2\u0543"+
-		"\u0544\7[\2\2\u0544\u00e5\3\2\2\2\u0545\u0546\7\21\2\2\u0546\u054a\7\60"+
-		"\2\2\u0547\u0548\7\21\2\2\u0548\u054a\7\\\2\2\u0549\u0545\3\2\2\2\u0549"+
-		"\u0547\3\2\2\2\u054a\u00e7\3\2\2\2\u054b\u054c\7\u009d\2\2\u054c\u054d"+
-		"\5\u0092J\2\u054d\u00e9\3\2\2\2\u054e\u0590\7`\2\2\u054f\u0590\7a\2\2"+
-		"\u0550\u0590\7b\2\2\u0551\u0590\7c\2\2\u0552\u0590\7d\2\2\u0553\u0590"+
-		"\7e\2\2\u0554\u0590\7f\2\2\u0555\u0590\7g\2\2\u0556\u0590\7h\2\2\u0557"+
-		"\u0590\7i\2\2\u0558\u0590\7j\2\2\u0559\u055a\7k\2\2\u055a\u055b\7\u009d"+
-		"\2\2\u055b\u0590\5\u00ecw\2\u055c\u055d\7l\2\2\u055d\u055e\7\u009d\2\2"+
-		"\u055e\u0590\5\u00ecw\2\u055f\u0560\7m\2\2\u0560\u0561\7\u009d\2\2\u0561"+
-		"\u0590\5\u00ecw\2\u0562\u0563\7n\2\2\u0563\u0564\7\u009d\2\2\u0564\u0590"+
-		"\5\u00ecw\2\u0565\u0566\7o\2\2\u0566\u0567\7\u009d\2\2\u0567\u0590\5\u00ec"+
-		"w\2\u0568\u0569\7p\2\2\u0569\u056a\7\u009d\2\2\u056a\u0590\5\u00ecw\2"+
-		"\u056b\u0590\7q\2\2\u056c\u0590\7r\2\2\u056d\u0590\7s\2\2\u056e\u056f"+
-		"\7t\2\2\u056f\u0570\7\u009d\2\2\u0570\u0590\5\u00ecw\2\u0571\u0572\7u"+
-		"\2\2\u0572\u0573\7\u009d\2\2\u0573\u0590\5\u00ecw\2\u0574\u0590\7v\2\2"+
-		"\u0575\u0590\7w\2\2\u0576\u0590\7x\2\2\u0577\u0578\7y\2\2\u0578\u0579"+
-		"\7\u009d\2\2\u0579\u0590\5\u00ecw\2\u057a\u057b\7z\2\2\u057b\u057c\7\u009d"+
-		"\2\2\u057c\u0590\5\u00ecw\2\u057d\u0590\7{\2\2\u057e\u0590\7|\2\2\u057f"+
-		"\u0590\7}\2\2\u0580\u0581\7~\2\2\u0581\u0582\7\u009d\2\2\u0582\u0590\5"+
-		"\u00ecw\2\u0583\u0584\7\177\2\2\u0584\u0585\7\u009d\2\2\u0585\u0590\5"+
-		"\u00ecw\2\u0586\u0590\7\u0080\2\2\u0587\u0590\7\u0081\2\2\u0588\u0590"+
-		"\7\u0082\2\2\u0589\u058a\7\u0083\2\2\u058a\u058b\7\u009d\2\2\u058b\u0590"+
-		"\5\u00ecw\2\u058c\u058d\7\u0084\2\2\u058d\u058e\7\u009d\2\2\u058e\u0590"+
-		"\5\u00ecw\2\u058f\u054e\3\2\2\2\u058f\u054f\3\2\2\2\u058f\u0550\3\2\2"+
-		"\2\u058f\u0551\3\2\2\2\u058f\u0552\3\2\2\2\u058f\u0553\3\2\2\2\u058f\u0554"+
-		"\3\2\2\2\u058f\u0555\3\2\2\2\u058f\u0556\3\2\2\2\u058f\u0557\3\2\2\2\u058f"+
-		"\u0558\3\2\2\2\u058f\u0559\3\2\2\2\u058f\u055c\3\2\2\2\u058f\u055f\3\2"+
-		"\2\2\u058f\u0562\3\2\2\2\u058f\u0565\3\2\2\2\u058f\u0568\3\2\2\2\u058f"+
-		"\u056b\3\2\2\2\u058f\u056c\3\2\2\2\u058f\u056d\3\2\2\2\u058f\u056e\3\2"+
-		"\2\2\u058f\u0571\3\2\2\2\u058f\u0574\3\2\2\2\u058f\u0575\3\2\2\2\u058f"+
-		"\u0576\3\2\2\2\u058f\u0577\3\2\2\2\u058f\u057a\3\2\2\2\u058f\u057d\3\2"+
-		"\2\2\u058f\u057e\3\2\2\2\u058f\u057f\3\2\2\2\u058f\u0580\3\2\2\2\u058f"+
-		"\u0583\3\2\2\2\u058f\u0586\3\2\2\2\u058f\u0587\3\2\2\2\u058f\u0588\3\2"+
-		"\2\2\u058f\u0589\3\2\2\2\u058f\u058c\3\2\2\2\u0590\u00eb\3\2\2\2\u0591"+
-		"\u0593\t\b\2\2\u0592\u0591\3\2\2\2\u0592\u0593\3\2\2\2\u0593\u0594\3\2"+
-		"\2\2\u0594\u0595\7\u0087\2\2\u0595\u00ed\3\2\2\2\u0596\u0597\5\u00f0y"+
-		"\2\u0597\u00ef\3\2\2\2\u0598\u0599\t\20\2\2\u0599\u00f1\3\2\2\2\u059a"+
-		"\u059b\t\21\2\2\u059b\u00f3\3\2\2\2\u008c\u00fe\u010e\u0115\u011c\u0120"+
-		"\u0126\u012a\u0132\u013b\u0142\u014b\u0152\u015b\u0162\u0168\u016c\u0181"+
-		"\u018a\u018e\u0194\u01a4\u01ac\u01b1\u01bc\u01c2\u01ca\u01ce\u01d0\u01d9"+
-		"\u01e2\u01e7\u01eb\u01ef\u01f3\u01f5\u01fd\u0206\u020c\u0217\u0221\u0224"+
-		"\u0228\u022d\u0237\u023f\u0242\u0245\u024d\u0258\u0272\u0279\u0282\u0290"+
-		"\u0296\u0299\u02a0\u02b7\u02ba\u02bd\u02c1\u02e2\u02ee\u02f9\u02fe\u0303"+
-		"\u0308\u030f\u031c\u0320\u0324\u0326\u032a\u033c\u034d\u035d\u0363\u0385"+
-		"\u0391\u0393\u03a3\u03a8\u03af\u03b5\u03b8\u03bd\u03c7\u03ce\u03d6\u03e4"+
-		"\u03e6\u03ee\u03fd\u0404\u0411\u0414\u0417\u041a\u041d\u0420\u0423\u042a"+
-		"\u042d\u0430\u0437\u043c\u0440\u0447\u044e\u0453\u0458\u045c\u0464\u0469"+
-		"\u046d\u046f\u0497\u049e\u04a1\u04b2\u04c1\u04c9\u04ce\u04d5\u04df\u04f0"+
-		"\u0501\u0509\u0513\u051e\u0523\u052e\u0533\u0537\u053a\u0540\u0549\u058f"+
-		"\u0592";
+		"J\3J\3J\3J\3J\3J\3J\3J\5J\u0394\nJ\3J\3J\3J\3J\3J\3J\3J\3J\3J\3J\7J\u03a0"+
+		"\nJ\fJ\16J\u03a3\13J\3K\3K\3K\3K\3K\3K\3K\3K\3K\3K\3K\3K\3K\5K\u03b2\n"+
+		"K\3L\3L\3L\5L\u03b7\nL\3L\3L\3L\3L\3L\5L\u03be\nL\3L\3L\3L\3L\5L\u03c4"+
+		"\nL\3L\5L\u03c7\nL\3M\3M\3M\5M\u03cc\nM\3M\3M\3N\3N\3N\3N\3N\3N\5N\u03d6"+
+		"\nN\3O\3O\3O\7O\u03db\nO\fO\16O\u03de\13O\3P\3P\3P\3P\3P\5P\u03e5\nP\3"+
+		"Q\3Q\3Q\3R\3R\3S\3S\3S\3S\3S\3S\3S\5S\u03f3\nS\5S\u03f5\nS\3T\3T\3T\3"+
+		"T\7T\u03fb\nT\fT\16T\u03fe\13T\3T\3T\3U\3U\3U\3U\3V\3V\3V\3V\7V\u040a"+
+		"\nV\fV\16V\u040d\13V\3V\3V\3W\3W\5W\u0413\nW\3W\3W\3X\3X\3X\3X\3Y\3Y\3"+
+		"Y\3Y\3Y\5Y\u0420\nY\3Y\5Y\u0423\nY\3Y\5Y\u0426\nY\3Y\5Y\u0429\nY\3Y\5"+
+		"Y\u042c\nY\3Y\5Y\u042f\nY\3Y\5Y\u0432\nY\3Y\5Y\u0435\nY\3Y\3Y\3Z\3Z\3"+
+		"Z\3Z\3Z\5Z\u043e\nZ\3Z\5Z\u0441\nZ\3Z\5Z\u0444\nZ\3[\3[\3[\7[\u0449\n"+
+		"[\f[\16[\u044c\13[\3\\\3\\\5\\\u0450\n\\\3\\\3\\\5\\\u0454\n\\\3\\\3\\"+
+		"\3\\\3\\\3\\\5\\\u045b\n\\\3]\3]\3]\7]\u0460\n]\f]\16]\u0463\13]\3^\3"+
+		"^\5^\u0467\n^\3^\3^\3^\5^\u046c\n^\7^\u046e\n^\f^\16^\u0471\13^\3_\3_"+
+		"\3_\7_\u0476\n_\f_\16_\u0479\13_\3`\3`\5`\u047d\n`\3`\3`\5`\u0481\n`\5"+
+		"`\u0483\n`\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3"+
+		"a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\3a\5a\u04ab\na\3"+
+		"b\3b\3b\6b\u04b0\nb\rb\16b\u04b1\3b\5b\u04b5\nb\3b\3b\3c\3c\3c\3c\3c\3"+
+		"d\3d\3d\3e\3e\3e\7e\u04c4\ne\fe\16e\u04c7\13e\3f\3f\3f\3f\3g\3g\3g\3h"+
+		"\3h\3h\7h\u04d3\nh\fh\16h\u04d6\13h\3h\3h\3h\7h\u04db\nh\fh\16h\u04de"+
+		"\13h\3h\3h\5h\u04e2\nh\3i\3i\3i\3i\3i\5i\u04e9\ni\3j\3j\3j\3j\3j\3j\3"+
+		"j\3j\5j\u04f3\nj\3k\3k\3k\3k\3k\3k\3k\3k\3k\3k\3k\3k\3k\3k\3k\5k\u0504"+
+		"\nk\3l\3l\3l\3l\3l\3l\3l\3l\3l\3l\3l\3l\3l\3l\3l\3l\5l\u0516\nl\3m\3m"+
+		"\3m\3m\7m\u051c\nm\fm\16m\u051f\13m\3m\3m\3n\3n\3n\3o\3o\3o\3o\3o\3o\3"+
+		"o\3o\5o\u052e\no\3p\3p\3p\7p\u0533\np\fp\16p\u0536\13p\3q\3q\3q\3q\3r"+
+		"\3r\3r\3r\3r\7r\u0541\nr\fr\16r\u0544\13r\3r\3r\5r\u0548\nr\3s\3s\3t\3"+
+		"t\3t\3t\3t\5t\u0551\nt\3t\3t\3t\3t\3t\3t\3t\7t\u055a\nt\ft\16t\u055d\13"+
+		"t\3t\3t\3t\3t\3t\3t\3t\3t\3t\7t\u0568\nt\ft\16t\u056b\13t\3t\3t\5t\u056f"+
+		"\nt\3u\3u\3u\3u\3v\3v\3v\7v\u0578\nv\fv\16v\u057b\13v\3w\3w\5w\u057f\n"+
+		"w\3w\3w\5w\u0583\nw\3w\5w\u0586\nw\3x\3x\3x\3x\5x\u058c\nx\3y\3y\3y\3"+
+		"y\5y\u0592\ny\3z\3z\3z\3{\3{\7{\u0599\n{\f{\16{\u059c\13{\3|\3|\3|\3}"+
+		"\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}"+
+		"\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}"+
+		"\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\3}\5}\u05e2\n}\3~"+
+		"\5~\u05e5\n~\3~\3~\3\177\3\177\3\u0080\3\u0080\3\u0081\3\u0081\3\u0081"+
+		"\2\3\u0092\u0082\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,.\60\62"+
+		"\64\668:<>@BDFHJLNPRTVXZ\\^`bdfhjlnprtvxz|~\u0080\u0082\u0084\u0086\u0088"+
+		"\u008a\u008c\u008e\u0090\u0092\u0094\u0096\u0098\u009a\u009c\u009e\u00a0"+
+		"\u00a2\u00a4\u00a6\u00a8\u00aa\u00ac\u00ae\u00b0\u00b2\u00b4\u00b6\u00b8"+
+		"\u00ba\u00bc\u00be\u00c0\u00c2\u00c4\u00c6\u00c8\u00ca\u00cc\u00ce\u00d0"+
+		"\u00d2\u00d4\u00d6\u00d8\u00da\u00dc\u00de\u00e0\u00e2\u00e4\u00e6\u00e8"+
+		"\u00ea\u00ec\u00ee\u00f0\u00f2\u00f4\u00f6\u00f8\u00fa\u00fc\u00fe\u0100"+
+		"\2\24\3\2\4\5\5\2\n\n\27\27/\60\4\2\34\34\u0091\u0095\3\2\u00af\u00b2"+
+		"\3\2\u00a3\u00a4\4\2\u00b3\u00b4\u00b8\u00b8\3\2\u00b1\u00b2\3\2\u00a1"+
+		"\u00a2\3\2\u00a8\u00ac\4\2\u00a0\u00a0\u00ba\u00c4\4\2\u009f\u009f\u00a5"+
+		"\u00a5\3\2\u00af\u00b0\3\2cf\3\2TU\3\2WX\5\2\60\60\\\\hh\r\2\4\5\22\22"+
+		"\26\26\30\30$%((,-\65\65\678;\u008e\u00c6\u00c6\6\2\3\"$\62\64\u008e\u00c6"+
+		"\u00c6\2\u068d\2\u0102\3\2\2\2\4\u0113\3\2\2\2\6\u0116\3\2\2\2\b\u012e"+
+		"\3\2\2\2\n\u0130\3\2\2\2\f\u013c\3\2\2\2\16\u0144\3\2\2\2\20\u014c\3\2"+
+		"\2\2\22\u0154\3\2\2\2\24\u015c\3\2\2\2\26\u0165\3\2\2\2\30\u017a\3\2\2"+
+		"\2\32\u018f\3\2\2\2\34\u0198\3\2\2\2\36\u019c\3\2\2\2 \u01a4\3\2\2\2\""+
+		"\u01a8\3\2\2\2$\u01ac\3\2\2\2&\u01ba\3\2\2\2(\u01c5\3\2\2\2*\u01cd\3\2"+
+		"\2\2,\u01d2\3\2\2\2.\u01e2\3\2\2\2\60\u01f0\3\2\2\2\62\u0203\3\2\2\2\64"+
+		"\u0205\3\2\2\2\66\u0209\3\2\2\28\u020f\3\2\2\2:\u021a\3\2\2\2<\u0220\3"+
+		"\2\2\2>\u0228\3\2\2\2@\u022a\3\2\2\2B\u0234\3\2\2\2D\u023e\3\2\2\2F\u0245"+
+		"\3\2\2\2H\u0247\3\2\2\2J\u0257\3\2\2\2L\u0260\3\2\2\2N\u0266\3\2\2\2P"+
+		"\u0280\3\2\2\2R\u0282\3\2\2\2T\u0289\3\2\2\2V\u0294\3\2\2\2X\u02a4\3\2"+
+		"\2\2Z\u02ae\3\2\2\2\\\u02b0\3\2\2\2^\u02b6\3\2\2\2`\u02ba\3\2\2\2b\u02c0"+
+		"\3\2\2\2d\u02cd\3\2\2\2f\u02d3\3\2\2\2h\u02d7\3\2\2\2j\u02da\3\2\2\2l"+
+		"\u02dd\3\2\2\2n\u02e1\3\2\2\2p\u02e5\3\2\2\2r\u02e9\3\2\2\2t\u02ed\3\2"+
+		"\2\2v\u02f4\3\2\2\2x\u02f9\3\2\2\2z\u0301\3\2\2\2|\u0307\3\2\2\2~\u030e"+
+		"\3\2\2\2\u0080\u0313\3\2\2\2\u0082\u0318\3\2\2\2\u0084\u0325\3\2\2\2\u0086"+
+		"\u0334\3\2\2\2\u0088\u0338\3\2\2\2\u008a\u033a\3\2\2\2\u008c\u033f\3\2"+
+		"\2\2\u008e\u0341\3\2\2\2\u0090\u0345\3\2\2\2\u0092\u035b\3\2\2\2\u0094"+
+		"\u03b1\3\2\2\2\u0096\u03c6\3\2\2\2\u0098\u03c8\3\2\2\2\u009a\u03cf\3\2"+
+		"\2\2\u009c\u03d7\3\2\2\2\u009e\u03df\3\2\2\2\u00a0\u03e6\3\2\2\2\u00a2"+
+		"\u03e9\3\2\2\2\u00a4\u03f4\3\2\2\2\u00a6\u03f6\3\2\2\2\u00a8\u0401\3\2"+
+		"\2\2\u00aa\u0405\3\2\2\2\u00ac\u0410\3\2\2\2\u00ae\u0416\3\2\2\2\u00b0"+
+		"\u041a\3\2\2\2\u00b2\u0438\3\2\2\2\u00b4\u0445\3\2\2\2\u00b6\u045a\3\2"+
+		"\2\2\u00b8\u045c\3\2\2\2\u00ba\u0464\3\2\2\2\u00bc\u0472\3\2\2\2\u00be"+
+		"\u0482\3\2\2\2\u00c0\u04aa\3\2\2\2\u00c2\u04ac\3\2\2\2\u00c4\u04b8\3\2"+
+		"\2\2\u00c6\u04bd\3\2\2\2\u00c8\u04c0\3\2\2\2\u00ca\u04c8\3\2\2\2\u00cc"+
+		"\u04cc\3\2\2\2\u00ce\u04e1\3\2\2\2\u00d0\u04e8\3\2\2\2\u00d2\u04f2\3\2"+
+		"\2\2\u00d4\u0503\3\2\2\2\u00d6\u0515\3\2\2\2\u00d8\u0517\3\2\2\2\u00da"+
+		"\u0522\3\2\2\2\u00dc\u052d\3\2\2\2\u00de\u052f\3\2\2\2\u00e0\u0537\3\2"+
+		"\2\2\u00e2\u0547\3\2\2\2\u00e4\u0549\3\2\2\2\u00e6\u056e\3\2\2\2\u00e8"+
+		"\u0570\3\2\2\2\u00ea\u0574\3\2\2\2\u00ec\u0585\3\2\2\2\u00ee\u058b\3\2"+
+		"\2\2\u00f0\u0591\3\2\2\2\u00f2\u0593\3\2\2\2\u00f4\u059a\3\2\2\2\u00f6"+
+		"\u059d\3\2\2\2\u00f8\u05e1\3\2\2\2\u00fa\u05e4\3\2\2\2\u00fc\u05e8\3\2"+
+		"\2\2\u00fe\u05ea\3\2\2\2\u0100\u05ec\3\2\2\2\u0102\u0103\7-\2\2\u0103"+
+		"\u0104\5\u00fe\u0080\2\u0104\u0105\7\35\2\2\u0105\u0106\5\u00fe\u0080"+
+		"\2\u0106\u0107\7\u0097\2\2\u0107\u010c\5\4\3\2\u0108\u0109\7\u009e\2\2"+
+		"\u0109\u010b\5\4\3\2\u010a\u0108\3\2\2\2\u010b\u010e\3\2\2\2\u010c\u010a"+
+		"\3\2\2\2\u010c\u010d\3\2\2\2\u010d\u010f\3\2\2\2\u010e\u010c\3\2\2\2\u010f"+
+		"\u0110\7\u0098\2\2\u0110\u0111\5J&\2\u0111\u0112\7\2\2\3\u0112\3\3\2\2"+
+		"\2\u0113\u0114\t\2\2\2\u0114\u0115\t\3\2\2\u0115\5\3\2\2\2\u0116\u0117"+
+		"\5\b\5\2\u0117\u0118\7\2\2\3\u0118\7\3\2\2\2\u0119\u011b\5\32\16\2\u011a"+
+		"\u0119\3\2\2\2\u011b\u011e\3\2\2\2\u011c\u011a\3\2\2\2\u011c\u011d\3\2"+
+		"\2\2\u011d\u011f\3\2\2\2\u011e\u011c\3\2\2\2\u011f\u012f\5\n\6\2\u0120"+
+		"\u0122\5\32\16\2\u0121\u0120\3\2\2\2\u0122\u0125\3\2\2\2\u0123\u0121\3"+
+		"\2\2\2\u0123\u0124\3\2\2\2\u0124\u0126\3\2\2\2\u0125\u0123\3\2\2\2\u0126"+
+		"\u012f\5\f\7\2\u0127\u0129\5\32\16\2\u0128\u0127\3\2\2\2\u0129\u012c\3"+
+		"\2\2\2\u012a\u0128\3\2\2\2\u012a\u012b\3\2\2\2\u012b\u012d\3\2\2\2\u012c"+
+		"\u012a\3\2\2\2\u012d\u012f\5\20\t\2\u012e\u011c\3\2\2\2\u012e\u0123\3"+
+		"\2\2\2\u012e\u012a\3\2\2\2\u012f\t\3\2\2\2\u0130\u0131\7\b\2\2\u0131\u0134"+
+		"\5\u00fe\u0080\2\u0132\u0133\7\16\2\2\u0133\u0135\5.\30\2\u0134\u0132"+
+		"\3\2\2\2\u0134\u0135\3\2\2\2\u0135\u0138\3\2\2\2\u0136\u0137\7\25\2\2"+
+		"\u0137\u0139\5\22\n\2\u0138\u0136\3\2\2\2\u0138\u0139\3\2\2\2\u0139\u013a"+
+		"\3\2\2\2\u013a\u013b\5\24\13\2\u013b\13\3\2\2\2\u013c\u013d\7\r\2\2\u013d"+
+		"\u013e\5\u00fe\u0080\2\u013e\u0140\7\u0099\2\2\u013f\u0141\5\16\b\2\u0140"+
+		"\u013f\3\2\2\2\u0140\u0141\3\2\2\2\u0141\u0142\3\2\2\2\u0142\u0143\7\u009a"+
+		"\2\2\u0143\r\3\2\2\2\u0144\u0149\5\u00fe\u0080\2\u0145\u0146\7\u009e\2"+
+		"\2\u0146\u0148\5\u00fe\u0080\2\u0147\u0145\3\2\2\2\u0148\u014b\3\2\2\2"+
+		"\u0149\u0147\3\2\2\2\u0149\u014a\3\2\2\2\u014a\17\3\2\2\2\u014b\u0149"+
+		"\3\2\2\2\u014c\u014d\7\31\2\2\u014d\u0150\5\u00fe\u0080\2\u014e\u014f"+
+		"\7\16\2\2\u014f\u0151\5\22\n\2\u0150\u014e\3\2\2\2\u0150\u0151\3\2\2\2"+
+		"\u0151\u0152\3\2\2\2\u0152\u0153\5\26\f\2\u0153\21\3\2\2\2\u0154\u0159"+
+		"\5.\30\2\u0155\u0156\7\u009e\2\2\u0156\u0158\5.\30\2\u0157\u0155\3\2\2"+
+		"\2\u0158\u015b\3\2\2\2\u0159\u0157\3\2\2\2\u0159\u015a\3\2\2\2\u015a\23"+
+		"\3\2\2\2\u015b\u0159\3\2\2\2\u015c\u0160\7\u0099\2\2\u015d\u015f\5\30"+
+		"\r\2\u015e\u015d\3\2\2\2\u015f\u0162\3\2\2\2\u0160\u015e\3\2\2\2\u0160"+
+		"\u0161\3\2\2\2\u0161\u0163\3\2\2\2\u0162\u0160\3\2\2\2\u0163\u0164\7\u009a"+
+		"\2\2\u0164\25\3\2\2\2\u0165\u0169\7\u0099\2\2\u0166\u0168\5&\24\2\u0167"+
+		"\u0166\3\2\2\2\u0168\u016b\3\2\2\2\u0169\u0167\3\2\2\2\u0169\u016a\3\2"+
+		"\2\2\u016a\u016c\3\2\2\2\u016b\u0169\3\2\2\2\u016c\u016d\7\u009a\2\2\u016d"+
+		"\27\3\2\2\2\u016e\u017b\7\u009d\2\2\u016f\u0171\7&\2\2\u0170\u016f\3\2"+
+		"\2\2\u0170\u0171\3\2\2\2\u0171\u0172\3\2\2\2\u0172\u017b\5J&\2\u0173\u0175"+
+		"\5\32\16\2\u0174\u0173\3\2\2\2\u0175\u0178\3\2\2\2\u0176\u0174\3\2\2\2"+
+		"\u0176\u0177\3\2\2\2\u0177\u0179\3\2\2\2\u0178\u0176\3\2\2\2\u0179\u017b"+
+		"\5\34\17\2\u017a\u016e\3\2\2\2\u017a\u0170\3\2\2\2\u017a\u0176\3\2\2\2"+
+		"\u017b\31\3\2\2\2\u017c\u0190\5@!\2\u017d\u0190\7\23\2\2\u017e\u0190\7"+
+		"!\2\2\u017f\u0190\7 \2\2\u0180\u0190\7\37\2\2\u0181\u0190\7,\2\2\u0182"+
+		"\u0190\7&\2\2\u0183\u0190\7\3\2\2\u0184\u0190\7\17\2\2\u0185\u0190\7\64"+
+		"\2\2\u0186\u0190\7\36\2\2\u0187\u0190\7\62\2\2\u0188\u0190\7)\2\2\u0189"+
+		"\u018a\7\67\2\2\u018a\u0190\7%\2\2\u018b\u018c\78\2\2\u018c\u0190\7%\2"+
+		"\2\u018d\u018e\7\26\2\2\u018e\u0190\7%\2\2\u018f\u017c\3\2\2\2\u018f\u017d"+
+		"\3\2\2\2\u018f\u017e\3\2\2\2\u018f\u017f\3\2\2\2\u018f\u0180\3\2\2\2\u018f"+
+		"\u0181\3\2\2\2\u018f\u0182\3\2\2\2\u018f\u0183\3\2\2\2\u018f\u0184\3\2"+
+		"\2\2\u018f\u0185\3\2\2\2\u018f\u0186\3\2\2\2\u018f\u0187\3\2\2\2\u018f"+
+		"\u0188\3\2\2\2\u018f\u0189\3\2\2\2\u018f\u018b\3\2\2\2\u018f\u018d\3\2"+
+		"\2\2\u0190\33\3\2\2\2\u0191\u0199\5\36\20\2\u0192\u0199\5\"\22\2\u0193"+
+		"\u0199\5 \21\2\u0194\u0199\5\20\t\2\u0195\u0199\5\n\6\2\u0196\u0199\5"+
+		"\f\7\2\u0197\u0199\5$\23\2\u0198\u0191\3\2\2\2\u0198\u0192\3\2\2\2\u0198"+
+		"\u0193\3\2\2\2\u0198\u0194\3\2\2\2\u0198\u0195\3\2\2\2\u0198\u0196\3\2"+
+		"\2\2\u0198\u0197\3\2\2\2\u0199\35\3\2\2\2\u019a\u019d\5.\30\2\u019b\u019d"+
+		"\7\63\2\2\u019c\u019a\3\2\2\2\u019c\u019b\3\2\2\2\u019d\u019e\3\2\2\2"+
+		"\u019e\u019f\5\u00fe\u0080\2\u019f\u01a2\5\66\34\2\u01a0\u01a3\5J&\2\u01a1"+
+		"\u01a3\7\u009d\2\2\u01a2\u01a0\3\2\2\2\u01a2\u01a1\3\2\2\2\u01a3\37\3"+
+		"\2\2\2\u01a4\u01a5\5<\37\2\u01a5\u01a6\5\66\34\2\u01a6\u01a7\5J&\2\u01a7"+
+		"!\3\2\2\2\u01a8\u01a9\5.\30\2\u01a9\u01aa\5(\25\2\u01aa\u01ab\7\u009d"+
+		"\2\2\u01ab#\3\2\2\2\u01ac\u01ad\5.\30\2\u01ad\u01ae\5\u00fe\u0080\2\u01ae"+
+		"\u01b2\7\u0099\2\2\u01af\u01b1\5|?\2\u01b0\u01af\3\2\2\2\u01b1\u01b4\3"+
+		"\2\2\2\u01b2\u01b0\3\2\2\2\u01b2\u01b3\3\2\2\2\u01b3\u01b5\3\2\2\2\u01b4"+
+		"\u01b2\3\2\2\2\u01b5\u01b6\7\u009a\2\2\u01b6%\3\2\2\2\u01b7\u01b9\5\32"+
+		"\16\2\u01b8\u01b7\3\2\2\2\u01b9\u01bc\3\2\2\2\u01ba\u01b8\3\2\2\2\u01ba"+
+		"\u01bb\3\2\2\2\u01bb\u01bf\3\2\2\2\u01bc\u01ba\3\2\2\2\u01bd\u01c0\5."+
+		"\30\2\u01be\u01c0\7\63\2\2\u01bf\u01bd\3\2\2\2\u01bf\u01be\3\2\2\2\u01c0"+
+		"\u01c1\3\2\2\2\u01c1\u01c2\5\u00fe\u0080\2\u01c2\u01c3\5\66\34\2\u01c3"+
+		"\u01c4\7\u009d\2\2\u01c4\'\3\2\2\2\u01c5\u01ca\5*\26\2\u01c6\u01c7\7\u009e"+
+		"\2\2\u01c7\u01c9\5*\26\2\u01c8\u01c6\3\2\2\2\u01c9\u01cc\3\2\2\2\u01ca"+
+		"\u01c8\3\2\2\2\u01ca\u01cb\3\2\2\2\u01cb)\3\2\2\2\u01cc\u01ca\3\2\2\2"+
+		"\u01cd\u01d0\5\u00fe\u0080\2\u01ce\u01cf\7\u00a0\2\2\u01cf\u01d1\5\u0092"+
+		"J\2\u01d0\u01ce\3\2\2\2\u01d0\u01d1\3\2\2\2\u01d1+\3\2\2\2\u01d2\u01de"+
+		"\7\u0099\2\2\u01d3\u01d8\5\u0092J\2\u01d4\u01d5\7\u009e\2\2\u01d5\u01d7"+
+		"\5\u0092J\2\u01d6\u01d4\3\2\2\2\u01d7\u01da\3\2\2\2\u01d8\u01d6\3\2\2"+
+		"\2\u01d8\u01d9\3\2\2\2\u01d9\u01dc\3\2\2\2\u01da\u01d8\3\2\2\2\u01db\u01dd"+
+		"\7\u009e\2\2\u01dc\u01db\3\2\2\2\u01dc\u01dd\3\2\2\2\u01dd\u01df\3\2\2"+
+		"\2\u01de\u01d3\3\2\2\2\u01de\u01df\3\2\2\2\u01df\u01e0\3\2\2\2\u01e0\u01e1"+
+		"\7\u009a\2\2\u01e1-\3\2\2\2\u01e2\u01e7\5\62\32\2\u01e3\u01e4\7\u009f"+
+		"\2\2\u01e4\u01e6\5\62\32\2\u01e5\u01e3\3\2\2\2\u01e6\u01e9\3\2\2\2\u01e7"+
+		"\u01e5\3\2\2\2\u01e7\u01e8\3\2\2\2\u01e8\u01ea\3\2\2\2\u01e9\u01e7\3\2"+
+		"\2\2\u01ea\u01eb\5\60\31\2\u01eb/\3\2\2\2\u01ec\u01ed\7\u009b\2\2\u01ed"+
+		"\u01ef\7\u009c\2\2\u01ee\u01ec\3\2\2\2\u01ef\u01f2\3\2\2\2\u01f0\u01ee"+
+		"\3\2\2\2\u01f0\u01f1\3\2\2\2\u01f1\61\3\2\2\2\u01f2\u01f0\3\2\2\2\u01f3"+
+		"\u01f5\79\2\2\u01f4\u01f6\5\64\33\2\u01f5\u01f4\3\2\2\2\u01f5\u01f6\3"+
+		"\2\2\2\u01f6\u0204\3\2\2\2\u01f7\u01f9\7$\2\2\u01f8\u01fa\5\64\33\2\u01f9"+
+		"\u01f8\3\2\2\2\u01f9\u01fa\3\2\2\2\u01fa\u0204\3\2\2\2\u01fb\u01fd\7:"+
+		"\2\2\u01fc\u01fe\5\64\33\2\u01fd\u01fc\3\2\2\2\u01fd\u01fe\3\2\2\2\u01fe"+
+		"\u0204\3\2\2\2\u01ff\u0201\5\u00fe\u0080\2\u0200\u0202\5\64\33\2\u0201"+
+		"\u0200\3\2\2\2\u0201\u0202\3\2\2\2\u0202\u0204\3\2\2\2\u0203\u01f3\3\2"+
+		"\2\2\u0203\u01f7\3\2\2\2\u0203\u01fb\3\2\2\2\u0203\u01ff\3\2\2\2\u0204"+
+		"\63\3\2\2\2\u0205\u0206\7\u00a2\2\2\u0206\u0207\5\22\n\2\u0207\u0208\7"+
+		"\u00a1\2\2\u0208\65\3\2\2\2\u0209\u020b\7\u0097\2\2\u020a\u020c\58\35"+
+		"\2\u020b\u020a\3\2\2\2\u020b\u020c\3\2\2\2\u020c\u020d\3\2\2\2\u020d\u020e"+
+		"\7\u0098\2\2\u020e\67\3\2\2\2\u020f\u0214\5:\36\2\u0210\u0211\7\u009e"+
+		"\2\2\u0211\u0213\5:\36\2\u0212\u0210\3\2\2\2\u0213\u0216\3\2\2\2\u0214"+
+		"\u0212\3\2\2\2\u0214\u0215\3\2\2\2\u02159\3\2\2\2\u0216\u0214\3\2\2\2"+
+		"\u0217\u0219\5\32\16\2\u0218\u0217\3\2\2\2\u0219\u021c\3\2\2\2\u021a\u0218"+
+		"\3\2\2\2\u021a\u021b\3\2\2\2\u021b\u021d\3\2\2\2\u021c\u021a\3\2\2\2\u021d"+
+		"\u021e\5.\30\2\u021e\u021f\5\u00fe\u0080\2\u021f;\3\2\2\2\u0220\u0225"+
+		"\5\u00fe\u0080\2\u0221\u0222\7\u009f\2\2\u0222\u0224\5\u00fe\u0080\2\u0223"+
+		"\u0221\3\2\2\2\u0224\u0227\3\2\2\2\u0225\u0223\3\2\2\2\u0225\u0226\3\2"+
+		"\2\2\u0226=\3\2\2\2\u0227\u0225\3\2\2\2\u0228\u0229\t\4\2\2\u0229?\3\2"+
+		"\2\2\u022a\u022b\7\u00c5\2\2\u022b\u0232\5<\37\2\u022c\u022f\7\u0097\2"+
+		"\2\u022d\u0230\5B\"\2\u022e\u0230\5F$\2\u022f\u022d\3\2\2\2\u022f\u022e"+
+		"\3\2\2\2\u022f\u0230\3\2\2\2\u0230\u0231\3\2\2\2\u0231\u0233\7\u0098\2"+
+		"\2\u0232\u022c\3\2\2\2\u0232\u0233\3\2\2\2\u0233A\3\2\2\2\u0234\u023b"+
+		"\5D#\2\u0235\u0237\7\u009e\2\2\u0236\u0235\3\2\2\2\u0236\u0237\3\2\2\2"+
+		"\u0237\u0238\3\2\2\2\u0238\u023a\5D#\2\u0239\u0236\3\2\2\2\u023a\u023d"+
+		"\3\2\2\2\u023b\u0239\3\2\2\2\u023b\u023c\3\2\2\2\u023cC\3\2\2\2\u023d"+
+		"\u023b\3\2\2\2\u023e\u023f\5\u00fe\u0080\2\u023f\u0240\7\u00a0\2\2\u0240"+
+		"\u0241\5F$\2\u0241E\3\2\2\2\u0242\u0246\5\u0092J\2\u0243\u0246\5@!\2\u0244"+
+		"\u0246\5H%\2\u0245\u0242\3\2\2\2\u0245\u0243\3\2\2\2\u0245\u0244\3\2\2"+
+		"\2\u0246G\3\2\2\2\u0247\u0250\7\u0099\2\2\u0248\u024d\5F$\2\u0249\u024a"+
+		"\7\u009e\2\2\u024a\u024c\5F$\2\u024b\u0249\3\2\2\2\u024c\u024f\3\2\2\2"+
+		"\u024d\u024b\3\2\2\2\u024d\u024e\3\2\2\2\u024e\u0251\3\2\2\2\u024f\u024d"+
+		"\3\2\2\2\u0250\u0248\3\2\2\2\u0250\u0251\3\2\2\2\u0251\u0253\3\2\2\2\u0252"+
+		"\u0254\7\u009e\2\2\u0253\u0252\3\2\2\2\u0253\u0254\3\2\2\2\u0254\u0255"+
+		"\3\2\2\2\u0255\u0256\7\u009a\2\2\u0256I\3\2\2\2\u0257\u025b\7\u0099\2"+
+		"\2\u0258\u025a\5P)\2\u0259\u0258\3\2\2\2\u025a\u025d\3\2\2\2\u025b\u0259"+
+		"\3\2\2\2\u025b\u025c\3\2\2\2\u025c\u025e\3\2\2\2\u025d\u025b\3\2\2\2\u025e"+
+		"\u025f\7\u009a\2\2\u025fK\3\2\2\2\u0260\u0261\5N(\2\u0261\u0262\7\u009d"+
+		"\2\2\u0262M\3\2\2\2\u0263\u0265\5\32\16\2\u0264\u0263\3\2\2\2\u0265\u0268"+
+		"\3\2\2\2\u0266\u0264\3\2\2\2\u0266\u0267\3\2\2\2\u0267\u0269\3\2\2\2\u0268"+
+		"\u0266\3\2\2\2\u0269\u026a\5.\30\2\u026a\u026b\5(\25\2\u026bO\3\2\2\2"+
+		"\u026c\u0281\5J&\2\u026d\u0281\5R*\2\u026e\u0281\5T+\2\u026f\u0281\5\\"+
+		"/\2\u0270\u0281\5^\60\2\u0271\u0281\5`\61\2\u0272\u0281\5b\62\2\u0273"+
+		"\u0281\5d\63\2\u0274\u0281\5f\64\2\u0275\u0281\5h\65\2\u0276\u0281\5j"+
+		"\66\2\u0277\u0281\5l\67\2\u0278\u0281\5n8\2\u0279\u0281\5p9\2\u027a\u0281"+
+		"\5r:\2\u027b\u0281\5t;\2\u027c\u0281\5v<\2\u027d\u0281\5x=\2\u027e\u0281"+
+		"\5L\'\2\u027f\u0281\5z>\2\u0280\u026c\3\2\2\2\u0280\u026d\3\2\2\2\u0280"+
+		"\u026e\3\2\2\2\u0280\u026f\3\2\2\2\u0280\u0270\3\2\2\2\u0280\u0271\3\2"+
+		"\2\2\u0280\u0272\3\2\2\2\u0280\u0273\3\2\2\2\u0280\u0274\3\2\2\2\u0280"+
+		"\u0275\3\2\2\2\u0280\u0276\3\2\2\2\u0280\u0277\3\2\2\2\u0280\u0278\3\2"+
+		"\2\2\u0280\u0279\3\2\2\2\u0280\u027a\3\2\2\2\u0280\u027b\3\2\2\2\u0280"+
+		"\u027c\3\2\2\2\u0280\u027d\3\2\2\2\u0280\u027e\3\2\2\2\u0280\u027f\3\2"+
+		"\2\2\u0281Q\3\2\2\2\u0282\u0283\7\24\2\2\u0283\u0284\5\u008eH\2\u0284"+
+		"\u0287\5P)\2\u0285\u0286\7\f\2\2\u0286\u0288\5P)\2\u0287\u0285\3\2\2\2"+
+		"\u0287\u0288\3\2\2\2\u0288S\3\2\2\2\u0289\u028a\7(\2\2\u028a\u028b\7\35"+
+		"\2\2\u028b\u028c\5\u0092J\2\u028c\u028e\7\u0099\2\2\u028d\u028f\5V,\2"+
+		"\u028e\u028d\3\2\2\2\u028f\u0290\3\2\2\2\u0290\u028e\3\2\2\2\u0290\u0291"+
+		"\3\2\2\2\u0291\u0292\3\2\2\2\u0292\u0293\7\u009a\2\2\u0293U\3\2\2\2\u0294"+
+		"\u0295\7\65\2\2\u0295\u0296\5X-\2\u0296\u0297\5J&\2\u0297W\3\2\2\2\u0298"+
+		"\u02a5\7\f\2\2\u0299\u029e\5Z.\2\u029a\u029b\7\u009e\2\2\u029b\u029d\5"+
+		"Z.\2\u029c\u029a\3\2\2\2\u029d\u02a0\3\2\2\2\u029e\u029c\3\2\2\2\u029e"+
+		"\u029f\3\2\2\2\u029f\u02a5\3\2\2\2\u02a0\u029e\3\2\2\2\u02a1\u02a2\5\u00fe"+
+		"\u0080\2\u02a2\u02a3\5\u00fe\u0080\2\u02a3\u02a5\3\2\2\2\u02a4\u0298\3"+
+		"\2\2\2\u02a4\u0299\3\2\2\2\u02a4\u02a1\3\2\2\2\u02a5Y\3\2\2\2\u02a6\u02a8"+
+		"\7\u00b2\2\2\u02a7\u02a6\3\2\2\2\u02a7\u02a8\3\2\2\2\u02a8\u02a9\3\2\2"+
+		"\2\u02a9\u02af\7\u0091\2\2\u02aa\u02af\7\u0092\2\2\u02ab\u02af\7\u0095"+
+		"\2\2\u02ac\u02af\7\34\2\2\u02ad\u02af\5\u00fe\u0080\2\u02ae\u02a7\3\2"+
+		"\2\2\u02ae\u02aa\3\2\2\2\u02ae\u02ab\3\2\2\2\u02ae\u02ac\3\2\2\2\u02ae"+
+		"\u02ad\3\2\2\2\u02af[\3\2\2\2\u02b0\u02b1\7\21\2\2\u02b1\u02b2\7\u0097"+
+		"\2\2\u02b2\u02b3\5\u0086D\2\u02b3\u02b4\7\u0098\2\2\u02b4\u02b5\5P)\2"+
+		"\u02b5]\3\2\2\2\u02b6\u02b7\7\66\2\2\u02b7\u02b8\5\u008eH\2\u02b8\u02b9"+
+		"\5P)\2\u02b9_\3\2\2\2\u02ba\u02bb\7\13\2\2\u02bb\u02bc\5P)\2\u02bc\u02bd"+
+		"\7\66\2\2\u02bd\u02be\5\u008eH\2\u02be\u02bf\7\u009d\2\2\u02bfa\3\2\2"+
+		"\2\u02c0\u02c1\7.\2\2\u02c1\u02cb\5J&\2\u02c2\u02c4\5\u0082B\2\u02c3\u02c2"+
+		"\3\2\2\2\u02c4\u02c5\3\2\2\2\u02c5\u02c3\3\2\2\2\u02c5\u02c6\3\2\2\2\u02c6"+
+		"\u02c8\3\2\2\2\u02c7\u02c9\5\u0084C\2\u02c8\u02c7\3\2\2\2\u02c8\u02c9"+
+		"\3\2\2\2\u02c9\u02cc\3\2\2\2\u02ca\u02cc\5\u0084C\2\u02cb\u02c3\3\2\2"+
+		"\2\u02cb\u02ca\3\2\2\2\u02ccc\3\2\2\2\u02cd\u02cf\7\"\2\2\u02ce\u02d0"+
+		"\5\u0092J\2\u02cf\u02ce\3\2\2\2\u02cf\u02d0\3\2\2\2\u02d0\u02d1\3\2\2"+
+		"\2\u02d1\u02d2\7\u009d\2\2\u02d2e\3\2\2\2\u02d3\u02d4\7+\2\2\u02d4\u02d5"+
+		"\5\u0092J\2\u02d5\u02d6\7\u009d\2\2\u02d6g\3\2\2\2\u02d7\u02d8\7\6\2\2"+
+		"\u02d8\u02d9\7\u009d\2\2\u02d9i\3\2\2\2\u02da\u02db\7\t\2\2\u02db\u02dc"+
+		"\7\u009d\2\2\u02dck\3\2\2\2\u02dd\u02de\7\27\2\2\u02de\u02df\5\u0092J"+
+		"\2\u02df\u02e0\7\u009d\2\2\u02e0m\3\2\2\2\u02e1\u02e2\7\60\2\2\u02e2\u02e3"+
+		"\5\u0092J\2\u02e3\u02e4\7\u009d\2\2\u02e4o\3\2\2\2\u02e5\u02e6\7\n\2\2"+
+		"\u02e6\u02e7\5\u0092J\2\u02e7\u02e8\7\u009d\2\2\u02e8q\3\2\2\2\u02e9\u02ea"+
+		"\7/\2\2\u02ea\u02eb\5\u0092J\2\u02eb\u02ec\7\u009d\2\2\u02ecs\3\2\2\2"+
+		"\u02ed\u02ee\7\61\2\2\u02ee\u02f0\5\u0092J\2\u02ef\u02f1\5<\37\2\u02f0"+
+		"\u02ef\3\2\2\2\u02f0\u02f1\3\2\2\2\u02f1\u02f2\3\2\2\2\u02f2\u02f3\7\u009d"+
+		"\2\2\u02f3u\3\2\2\2\u02f4\u02f5\7\32\2\2\u02f5\u02f6\5\u0092J\2\u02f6"+
+		"\u02f7\5\u0092J\2\u02f7\u02f8\7\u009d\2\2\u02f8w\3\2\2\2\u02f9\u02fa\7"+
+		"#\2\2\u02fa\u02fc\7\u0097\2\2\u02fb\u02fd\5\u0090I\2\u02fc\u02fb\3\2\2"+
+		"\2\u02fc\u02fd\3\2\2\2\u02fd\u02fe\3\2\2\2\u02fe\u02ff\7\u0098\2\2\u02ff"+
+		"\u0300\5J&\2\u0300y\3\2\2\2\u0301\u0302\5\u0092J\2\u0302\u0303\7\u009d"+
+		"\2\2\u0303{\3\2\2\2\u0304\u0306\5\32\16\2\u0305\u0304\3\2\2\2\u0306\u0309"+
+		"\3\2\2\2\u0307\u0305\3\2\2\2\u0307\u0308\3\2\2\2\u0308\u030c\3\2\2\2\u0309"+
+		"\u0307\3\2\2\2\u030a\u030d\5~@\2\u030b\u030d\5\u0080A\2\u030c\u030a\3"+
+		"\2\2\2\u030c\u030b\3\2\2\2\u030d}\3\2\2\2\u030e\u0311\7\22\2\2\u030f\u0312"+
+		"\7\u009d\2\2\u0310\u0312\5J&\2\u0311\u030f\3\2\2\2\u0311\u0310\3\2\2\2"+
+		"\u0312\177\3\2\2\2\u0313\u0316\7$\2\2\u0314\u0317\7\u009d\2\2\u0315\u0317"+
+		"\5J&\2\u0316\u0314\3\2\2\2\u0316\u0315\3\2\2\2\u0317\u0081\3\2\2\2\u0318"+
+		"\u0319\7\7\2\2\u0319\u031d\7\u0097\2\2\u031a\u031c\5\32\16\2\u031b\u031a"+
+		"\3\2\2\2\u031c\u031f\3\2\2\2\u031d\u031b\3\2\2\2\u031d\u031e\3\2\2\2\u031e"+
+		"\u0320\3\2\2\2\u031f\u031d\3\2\2\2\u0320\u0321\5<\37\2\u0321\u0322\5\u00fe"+
+		"\u0080\2\u0322\u0323\7\u0098\2\2\u0323\u0324\5J&\2\u0324\u0083\3\2\2\2"+
+		"\u0325\u0326\7\20\2\2\u0326\u0327\5J&\2\u0327\u0085\3\2\2\2\u0328\u0335"+
+		"\5\u008aF\2\u0329\u032b\5\u0088E\2\u032a\u0329\3\2\2\2\u032a\u032b\3\2"+
+		"\2\2\u032b\u032c\3\2\2\2\u032c\u032e\7\u009d\2\2\u032d\u032f\5\u0092J"+
+		"\2\u032e\u032d\3\2\2\2\u032e\u032f\3\2\2\2\u032f\u0330\3\2\2\2\u0330\u0332"+
+		"\7\u009d\2\2\u0331\u0333\5\u008cG\2\u0332\u0331\3\2\2\2\u0332\u0333\3"+
+		"\2\2\2\u0333\u0335\3\2\2\2\u0334\u0328\3\2\2\2\u0334\u032a\3\2\2\2\u0335"+
+		"\u0087\3\2\2\2\u0336\u0339\5N(\2\u0337\u0339\5\u0090I\2\u0338\u0336\3"+
+		"\2\2\2\u0338\u0337\3\2\2\2\u0339\u0089\3\2\2\2\u033a\u033b\5.\30\2\u033b"+
+		"\u033c\5\u00fe\u0080\2\u033c\u033d\7\u00a7\2\2\u033d\u033e\5\u0092J\2"+
+		"\u033e\u008b\3\2\2\2\u033f\u0340\5\u0090I\2\u0340\u008d\3\2\2\2\u0341"+
+		"\u0342\7\u0097\2\2\u0342\u0343\5\u0092J\2\u0343\u0344\7\u0098\2\2\u0344"+
+		"\u008f\3\2\2\2\u0345\u034a\5\u0092J\2\u0346\u0347\7\u009e\2\2\u0347\u0349"+
+		"\5\u0092J\2\u0348\u0346\3\2\2\2\u0349\u034c\3\2\2\2\u034a\u0348\3\2\2"+
+		"\2\u034a\u034b\3\2\2\2\u034b\u0091\3\2\2\2\u034c\u034a\3\2\2\2\u034d\u034e"+
+		"\bJ\1\2\u034e\u035c\5\u0094K\2\u034f\u035c\5\u0096L\2\u0350\u0351\7\33"+
+		"\2\2\u0351\u035c\5\u009aN\2\u0352\u0353\7\u0097\2\2\u0353\u0354\5.\30"+
+		"\2\u0354\u0355\7\u0098\2\2\u0355\u0356\5\u0092J\23\u0356\u035c\3\2\2\2"+
+		"\u0357\u0358\t\5\2\2\u0358\u035c\5\u0092J\21\u0359\u035a\t\6\2\2\u035a"+
+		"\u035c\5\u0092J\20\u035b\u034d\3\2\2\2\u035b\u034f\3\2\2\2\u035b\u0350"+
+		"\3\2\2\2\u035b\u0352\3\2\2\2\u035b\u0357\3\2\2\2\u035b\u0359\3\2\2\2\u035c"+
+		"\u03a1\3\2\2\2\u035d\u035e\f\17\2\2\u035e\u035f\t\7\2\2\u035f\u03a0\5"+
+		"\u0092J\20\u0360\u0361\f\16\2\2\u0361\u0362\t\b\2\2\u0362\u03a0\5\u0092"+
+		"J\17\u0363\u036b\f\r\2\2\u0364\u0365\7\u00a2\2\2\u0365\u036c\7\u00a2\2"+
+		"\2\u0366\u0367\7\u00a1\2\2\u0367\u0368\7\u00a1\2\2\u0368\u036c\7\u00a1"+
+		"\2\2\u0369\u036a\7\u00a1\2\2\u036a\u036c\7\u00a1\2\2\u036b\u0364\3\2\2"+
+		"\2\u036b\u0366\3\2\2\2\u036b\u0369\3\2\2\2\u036c\u036d\3\2\2\2\u036d\u03a0"+
+		"\5\u0092J\16\u036e\u036f\f\f\2\2\u036f\u0371\t\t\2\2\u0370\u0372\7\u00a0"+
+		"\2\2\u0371\u0370\3\2\2\2\u0371\u0372\3\2\2\2\u0372\u0373\3\2\2\2\u0373"+
+		"\u03a0\5\u0092J\r\u0374\u0375\f\n\2\2\u0375\u0376\t\n\2\2\u0376\u03a0"+
+		"\5\u0092J\13\u0377\u0378\f\t\2\2\u0378\u0379\7\u00b5\2\2\u0379\u03a0\5"+
+		"\u0092J\n\u037a\u037b\f\b\2\2\u037b\u037c\7\u00b7\2\2\u037c\u03a0\5\u0092"+
+		"J\t\u037d\u037e\f\7\2\2\u037e\u037f\7\u00b6\2\2\u037f\u03a0\5\u0092J\b"+
+		"\u0380\u0381\f\6\2\2\u0381\u0382\7\u00ad\2\2\u0382\u03a0\5\u0092J\7\u0383"+
+		"\u0384\f\5\2\2\u0384\u0385\7\u00ae\2\2\u0385\u03a0\5\u0092J\6\u0386\u0387"+
+		"\f\4\2\2\u0387\u0388\7\u00a6\2\2\u0388\u0389\5\u0092J\2\u0389\u038a\7"+
+		"\u00a7\2\2\u038a\u038b\5\u0092J\4\u038b\u03a0\3\2\2\2\u038c\u038d\f\3"+
+		"\2\2\u038d\u038e\t\13\2\2\u038e\u03a0\5\u0092J\3\u038f\u0390\f\27\2\2"+
+		"\u0390\u0393\t\f\2\2\u0391\u0394\5\u0098M\2\u0392\u0394\5\u0100\u0081"+
+		"\2\u0393\u0391\3\2\2\2\u0393\u0392\3\2\2\2\u0394\u03a0\3\2\2\2\u0395\u0396"+
+		"\f\26\2\2\u0396\u0397\7\u009b\2\2\u0397\u0398\5\u0092J\2\u0398\u0399\7"+
+		"\u009c\2\2\u0399\u03a0\3\2\2\2\u039a\u039b\f\22\2\2\u039b\u03a0\t\r\2"+
+		"\2\u039c\u039d\f\13\2\2\u039d\u039e\7\30\2\2\u039e\u03a0\5.\30\2\u039f"+
+		"\u035d\3\2\2\2\u039f\u0360\3\2\2\2\u039f\u0363\3\2\2\2\u039f\u036e\3\2"+
+		"\2\2\u039f\u0374\3\2\2\2\u039f\u0377\3\2\2\2\u039f\u037a\3\2\2\2\u039f"+
+		"\u037d\3\2\2\2\u039f\u0380\3\2\2\2\u039f\u0383\3\2\2\2\u039f\u0386\3\2"+
+		"\2\2\u039f\u038c\3\2\2\2\u039f\u038f\3\2\2\2\u039f\u0395\3\2\2\2\u039f"+
+		"\u039a\3\2\2\2\u039f\u039c\3\2\2\2\u03a0\u03a3\3\2\2\2\u03a1\u039f\3\2"+
+		"\2\2\u03a1\u03a2\3\2\2\2\u03a2\u0093\3\2\2\2\u03a3\u03a1\3\2\2\2\u03a4"+
+		"\u03a5\7\u0097\2\2\u03a5\u03a6\5\u0092J\2\u03a6\u03a7\7\u0098\2\2\u03a7"+
+		"\u03b2\3\2\2\2\u03a8\u03b2\7*\2\2\u03a9\u03b2\7\'\2\2\u03aa\u03b2\5> "+
+		"\2\u03ab\u03ac\5.\30\2\u03ac\u03ad\7\u009f\2\2\u03ad\u03ae\7\b\2\2\u03ae"+
+		"\u03b2\3\2\2\2\u03af\u03b2\5\u00fe\u0080\2\u03b0\u03b2\5\u00aeX\2\u03b1"+
+		"\u03a4\3\2\2\2\u03b1\u03a8\3\2\2\2\u03b1\u03a9\3\2\2\2\u03b1\u03aa\3\2"+
+		"\2\2\u03b1\u03ab\3\2\2\2\u03b1\u03af\3\2\2\2\u03b1\u03b0\3\2\2\2\u03b2"+
+		"\u0095\3\2\2\2\u03b3\u03b4\5\u00fe\u0080\2\u03b4\u03b6\7\u0097\2\2\u03b5"+
+		"\u03b7\5\u0090I\2\u03b6\u03b5\3\2\2\2\u03b6\u03b7\3\2\2\2\u03b7\u03b8"+
+		"\3\2\2\2\u03b8\u03b9\7\u0098\2\2\u03b9\u03c7\3\2\2\2\u03ba\u03bb\7*\2"+
+		"\2\u03bb\u03bd\7\u0097\2\2\u03bc\u03be\5\u0090I\2\u03bd\u03bc\3\2\2\2"+
+		"\u03bd\u03be\3\2\2\2\u03be\u03bf\3\2\2\2\u03bf\u03c7\7\u0098\2\2\u03c0"+
+		"\u03c1\7\'\2\2\u03c1\u03c3\7\u0097\2\2\u03c2\u03c4\5\u0090I\2\u03c3\u03c2"+
+		"\3\2\2\2\u03c3\u03c4\3\2\2\2\u03c4\u03c5\3\2\2\2\u03c5\u03c7\7\u0098\2"+
+		"\2\u03c6\u03b3\3\2\2\2\u03c6\u03ba\3\2\2\2\u03c6\u03c0\3\2\2\2\u03c7\u0097"+
+		"\3\2\2\2\u03c8\u03c9\5\u0100\u0081\2\u03c9\u03cb\7\u0097\2\2\u03ca\u03cc"+
+		"\5\u0090I\2\u03cb\u03ca\3\2\2\2\u03cb\u03cc\3\2\2\2\u03cc\u03cd\3\2\2"+
+		"\2\u03cd\u03ce\7\u0098\2\2\u03ce\u0099\3\2\2\2\u03cf\u03d5\5\u009cO\2"+
+		"\u03d0\u03d6\5\u00a0Q\2\u03d1\u03d6\5\u00a2R\2\u03d2\u03d6\5\u00a4S\2"+
+		"\u03d3\u03d6\5\u00a6T\2\u03d4\u03d6\5\u00aaV\2\u03d5\u03d0\3\2\2\2\u03d5"+
+		"\u03d1\3\2\2\2\u03d5\u03d2\3\2\2\2\u03d5\u03d3\3\2\2\2\u03d5\u03d4\3\2"+
+		"\2\2\u03d6\u009b\3\2\2\2\u03d7\u03dc\5\u009eP\2\u03d8\u03d9\7\u009f\2"+
+		"\2\u03d9\u03db\5\u009eP\2\u03da\u03d8\3\2\2\2\u03db\u03de\3\2\2\2\u03dc"+
+		"\u03da\3\2\2\2\u03dc\u03dd\3\2\2\2\u03dd\u009d\3\2\2\2\u03de\u03dc\3\2"+
+		"\2\2\u03df\u03e4\5\u0100\u0081\2\u03e0\u03e1\7\u00a2\2\2\u03e1\u03e2\5"+
+		"\22\n\2\u03e2\u03e3\7\u00a1\2\2\u03e3\u03e5\3\2\2\2\u03e4\u03e0\3\2\2"+
+		"\2\u03e4\u03e5\3\2\2\2\u03e5\u009f\3\2\2\2\u03e6\u03e7\7\u0099\2\2\u03e7"+
+		"\u03e8\7\u009a\2\2\u03e8\u00a1\3\2\2\2\u03e9\u03ea\5\u00acW\2\u03ea\u00a3"+
+		"\3\2\2\2\u03eb\u03ec\7\u009b\2\2\u03ec\u03ed\5\u0092J\2\u03ed\u03ee\7"+
+		"\u009c\2\2\u03ee\u03f5\3\2\2\2\u03ef\u03f0\7\u009b\2\2\u03f0\u03f2\7\u009c"+
+		"\2\2\u03f1\u03f3\5,\27\2\u03f2\u03f1\3\2\2\2\u03f2\u03f3\3\2\2\2\u03f3"+
+		"\u03f5\3\2\2\2\u03f4\u03eb\3\2\2\2\u03f4\u03ef\3\2\2\2\u03f5\u00a5\3\2"+
+		"\2\2\u03f6\u03f7\7\u0099\2\2\u03f7\u03fc\5\u00a8U\2\u03f8\u03f9\7\u009e"+
+		"\2\2\u03f9\u03fb\5\u00a8U\2\u03fa\u03f8\3\2\2\2\u03fb\u03fe\3\2\2\2\u03fc"+
+		"\u03fa\3\2\2\2\u03fc\u03fd\3\2\2\2\u03fd\u03ff\3\2\2\2\u03fe\u03fc\3\2"+
+		"\2\2\u03ff\u0400\7\u009a\2\2\u0400\u00a7\3\2\2\2\u0401\u0402\5\u0092J"+
+		"\2\u0402\u0403\7\u00b9\2\2\u0403\u0404\5\u0092J\2\u0404\u00a9\3\2\2\2"+
+		"\u0405\u0406\7\u0099\2\2\u0406\u040b\5\u0092J\2\u0407\u0408\7\u009e\2"+
+		"\2\u0408\u040a\5\u0092J\2\u0409\u0407\3\2\2\2\u040a\u040d\3\2\2\2\u040b"+
+		"\u0409\3\2\2\2\u040b\u040c\3\2\2\2\u040c\u040e\3\2\2\2\u040d\u040b\3\2"+
+		"\2\2\u040e\u040f\7\u009a\2\2\u040f\u00ab\3\2\2\2\u0410\u0412\7\u0097\2"+
+		"\2\u0411\u0413\5\u0090I\2\u0412\u0411\3\2\2\2\u0412\u0413\3\2\2\2\u0413"+
+		"\u0414\3\2\2\2\u0414\u0415\7\u0098\2\2\u0415\u00ad\3\2\2\2\u0416\u0417"+
+		"\7\u009b\2\2\u0417\u0418\5\u00b0Y\2\u0418\u0419\7\u009c\2\2\u0419\u00af"+
+		"\3\2\2\2\u041a\u041b\7;\2\2\u041b\u041c\5\u00b4[\2\u041c\u041d\7=\2\2"+
+		"\u041d\u041f\5\u00ba^\2\u041e\u0420\5\u00caf\2\u041f\u041e\3\2\2\2\u041f"+
+		"\u0420\3\2\2\2\u0420\u0422\3\2\2\2\u0421\u0423\5\u00ccg\2\u0422\u0421"+
+		"\3\2\2\2\u0422\u0423\3\2\2\2\u0423\u0425\3\2\2\2\u0424\u0426\5\u00dco"+
+		"\2\u0425\u0424\3\2\2\2\u0425\u0426\3\2\2\2\u0426\u0428\3\2\2\2\u0427\u0429"+
+		"\5\u00e6t\2\u0428\u0427\3\2\2\2\u0428\u0429\3\2\2\2\u0429\u042b\3\2\2"+
+		"\2\u042a\u042c\5\u00e8u\2\u042b\u042a\3\2\2\2\u042b\u042c\3\2\2\2\u042c"+
+		"\u042e\3\2\2\2\u042d\u042f\5\u00eex\2\u042e\u042d\3\2\2\2\u042e\u042f"+
+		"\3\2\2\2\u042f\u0431\3\2\2\2\u0430\u0432\5\u00f0y\2\u0431\u0430\3\2\2"+
+		"\2\u0431\u0432\3\2\2\2\u0432\u0434\3\2\2\2\u0433\u0435\5\u00f2z\2\u0434"+
+		"\u0433\3\2\2\2\u0434\u0435\3\2\2\2\u0435\u0436\3\2\2\2\u0436\u0437\5\u00f4"+
+		"{\2\u0437\u00b1\3\2\2\2\u0438\u0439\7;\2\2\u0439\u043a\5\u00bc_\2\u043a"+
+		"\u043b\7=\2\2\u043b\u043d\5\u00ba^\2\u043c\u043e\5\u00ccg\2\u043d\u043c"+
+		"\3\2\2\2\u043d\u043e\3\2\2\2\u043e\u0440\3\2\2\2\u043f\u0441\5\u00e8u"+
+		"\2\u0440\u043f\3\2\2\2\u0440\u0441\3\2\2\2\u0441\u0443\3\2\2\2\u0442\u0444"+
+		"\5\u00eex\2\u0443\u0442\3\2\2\2\u0443\u0444\3\2\2\2\u0444\u00b3\3\2\2"+
+		"\2\u0445\u044a\5\u00b6\\\2\u0446\u0447\7\u009e\2\2\u0447\u0449\5\u00b6"+
+		"\\\2\u0448\u0446\3\2\2\2\u0449\u044c\3\2\2\2\u044a\u0448\3\2\2\2\u044a"+
+		"\u044b\3\2\2\2\u044b\u00b5\3\2\2\2\u044c\u044a\3\2\2\2\u044d\u044f\5\u00b8"+
+		"]\2\u044e\u0450\5\u00fc\177\2\u044f\u044e\3\2\2\2\u044f\u0450\3\2\2\2"+
+		"\u0450\u045b\3\2\2\2\u0451\u0453\5\u00c0a\2\u0452\u0454\5\u00fc\177\2"+
+		"\u0453\u0452\3\2\2\2\u0453\u0454\3\2\2\2\u0454\u045b\3\2\2\2\u0455\u0456"+
+		"\7\u0097\2\2\u0456\u0457\5\u00b2Z\2\u0457\u0458\7\u0098\2\2\u0458\u045b"+
+		"\3\2\2\2\u0459\u045b\5\u00c2b\2\u045a\u044d\3\2\2\2\u045a\u0451\3\2\2"+
+		"\2\u045a\u0455\3\2\2\2\u045a\u0459\3\2\2\2\u045b\u00b7\3\2\2\2\u045c\u0461"+
+		"\5\u00fc\177\2\u045d\u045e\7\u009f\2\2\u045e\u0460\5\u00fc\177\2\u045f"+
+		"\u045d\3\2\2\2\u0460\u0463\3\2\2\2\u0461\u045f\3\2\2\2\u0461\u0462\3\2"+
+		"\2\2\u0462\u00b9\3\2\2\2\u0463\u0461\3\2\2\2\u0464\u0466\5\u00b8]\2\u0465"+
+		"\u0467\5\u00fc\177\2\u0466\u0465\3\2\2\2\u0466\u0467\3\2\2\2\u0467\u046f"+
+		"\3\2\2\2\u0468\u0469\7\u009e\2\2\u0469\u046b\5\u00b8]\2\u046a\u046c\5"+
+		"\u00fc\177\2\u046b\u046a\3\2\2\2\u046b\u046c\3\2\2\2\u046c\u046e\3\2\2"+
+		"\2\u046d\u0468\3\2\2\2\u046e\u0471\3\2\2\2\u046f\u046d\3\2\2\2\u046f\u0470"+
+		"\3\2\2\2\u0470\u00bb\3\2\2\2\u0471\u046f\3\2\2\2\u0472\u0477\5\u00be`"+
+		"\2\u0473\u0474\7\u009e\2\2\u0474\u0476\5\u00be`\2\u0475\u0473\3\2\2\2"+
+		"\u0476\u0479\3\2\2\2\u0477\u0475\3\2\2\2\u0477\u0478\3\2\2\2\u0478\u00bd"+
+		"\3\2\2\2\u0479\u0477\3\2\2\2\u047a\u047c\5\u00b8]\2\u047b\u047d\5\u00fc"+
+		"\177\2\u047c\u047b\3\2\2\2\u047c\u047d\3\2\2\2\u047d\u0483\3\2\2\2\u047e"+
+		"\u0480\5\u00c0a\2\u047f\u0481\5\u00fc\177\2\u0480\u047f\3\2\2\2\u0480"+
+		"\u0481\3\2\2\2\u0481\u0483\3\2\2\2\u0482\u047a\3\2\2\2\u0482\u047e\3\2"+
+		"\2\2\u0483\u00bf\3\2\2\2\u0484\u0485\7H\2\2\u0485\u0486\7\u0097\2\2\u0486"+
+		"\u0487\5\u00b8]\2\u0487\u0488\7\u0098\2\2\u0488\u04ab\3\2\2\2\u0489\u048a"+
+		"\7<\2\2\u048a\u048b\7\u0097\2\2\u048b\u04ab\7\u0098\2\2\u048c\u048d\7"+
+		"<\2\2\u048d\u048e\7\u0097\2\2\u048e\u048f\5\u00b8]\2\u048f\u0490\7\u0098"+
+		"\2\2\u0490\u04ab\3\2\2\2\u0491\u0492\7I\2\2\u0492\u0493\7\u0097\2\2\u0493"+
+		"\u0494\5\u00b8]\2\u0494\u0495\7\u0098\2\2\u0495\u04ab\3\2\2\2\u0496\u0497"+
+		"\7J\2\2\u0497\u0498\7\u0097\2\2\u0498\u0499\5\u00b8]\2\u0499\u049a\7\u0098"+
+		"\2\2\u049a\u04ab\3\2\2\2\u049b\u049c\7K\2\2\u049c\u049d\7\u0097\2\2\u049d"+
+		"\u049e\5\u00b8]\2\u049e\u049f\7\u0098\2\2\u049f\u04ab\3\2\2\2\u04a0\u04a1"+
+		"\7L\2\2\u04a1\u04a2\7\u0097\2\2\u04a2\u04a3\5\u00b8]\2\u04a3\u04a4\7\u0098"+
+		"\2\2\u04a4\u04ab\3\2\2\2\u04a5\u04a6\7_\2\2\u04a6\u04a7\7\u0097\2\2\u04a7"+
+		"\u04a8\5\u00b8]\2\u04a8\u04a9\7\u0098\2\2\u04a9\u04ab\3\2\2\2\u04aa\u0484"+
+		"\3\2\2\2\u04aa\u0489\3\2\2\2\u04aa\u048c\3\2\2\2\u04aa\u0491\3\2\2\2\u04aa"+
+		"\u0496\3\2\2\2\u04aa\u049b\3\2\2\2\u04aa\u04a0\3\2\2\2\u04aa\u04a5\3\2"+
+		"\2\2\u04ab\u00c1\3\2\2\2\u04ac\u04ad\7M\2\2\u04ad\u04af\5\u00b8]\2\u04ae"+
+		"\u04b0\5\u00c4c\2\u04af\u04ae\3\2\2\2\u04b0\u04b1\3\2\2\2\u04b1\u04af"+
+		"\3\2\2\2\u04b1\u04b2\3\2\2\2\u04b2\u04b4\3\2\2\2\u04b3\u04b5\5\u00c6d"+
+		"\2\u04b4\u04b3\3\2\2\2\u04b4\u04b5\3\2\2\2\u04b5\u04b6\3\2\2\2\u04b6\u04b7"+
+		"\7N\2\2\u04b7\u00c3\3\2\2\2\u04b8\u04b9\7\65\2\2\u04b9\u04ba\5\u00b8]"+
+		"\2\u04ba\u04bb\7O\2\2\u04bb\u04bc\5\u00c8e\2\u04bc\u00c5\3\2\2\2\u04bd"+
+		"\u04be\7\f\2\2\u04be\u04bf\5\u00c8e\2\u04bf\u00c7\3\2\2\2\u04c0\u04c5"+
+		"\5\u00b8]\2\u04c1\u04c2\7\u009e\2\2\u04c2\u04c4\5\u00b8]\2\u04c3\u04c1"+
+		"\3\2\2\2\u04c4\u04c7\3\2\2\2\u04c5\u04c3\3\2\2\2\u04c5\u04c6\3\2\2\2\u04c6"+
+		"\u00c9\3\2\2\2\u04c7\u04c5\3\2\2\2\u04c8\u04c9\7?\2\2\u04c9\u04ca\7@\2"+
+		"\2\u04ca\u04cb\5\u00fc\177\2\u04cb\u00cb\3\2\2\2\u04cc\u04cd\7A\2\2\u04cd"+
+		"\u04ce\5\u00ceh\2\u04ce\u00cd\3\2\2\2\u04cf\u04d4\5\u00d0i\2\u04d0\u04d1"+
+		"\7E\2\2\u04d1\u04d3\5\u00d0i\2\u04d2\u04d0\3\2\2\2\u04d3\u04d6\3\2\2\2"+
+		"\u04d4\u04d2\3\2\2\2\u04d4\u04d5\3\2\2\2\u04d5\u04e2\3\2\2\2\u04d6\u04d4"+
+		"\3\2\2\2\u04d7\u04dc\5\u00d0i\2\u04d8\u04d9\7F\2\2\u04d9\u04db\5\u00d0"+
+		"i\2\u04da\u04d8\3\2\2\2\u04db\u04de\3\2\2\2\u04dc\u04da\3\2\2\2\u04dc"+
+		"\u04dd\3\2\2\2\u04dd\u04e2\3\2\2\2\u04de\u04dc\3\2\2\2\u04df\u04e0\7G"+
+		"\2\2\u04e0\u04e2\5\u00d0i\2\u04e1\u04cf\3\2\2\2\u04e1\u04d7\3\2\2\2\u04e1"+
+		"\u04df\3\2\2\2\u04e2\u00cf\3\2\2\2\u04e3\u04e4\7\u0097\2\2\u04e4\u04e5"+
+		"\5\u00ceh\2\u04e5\u04e6\7\u0098\2\2\u04e6\u04e9\3\2\2\2\u04e7\u04e9\5"+
+		"\u00d2j\2\u04e8\u04e3\3\2\2\2\u04e8\u04e7\3\2\2\2\u04e9\u00d1\3\2\2\2"+
+		"\u04ea\u04eb\5\u00b8]\2\u04eb\u04ec\5\u00d4k\2\u04ec\u04ed\5\u00d6l\2"+
+		"\u04ed\u04f3\3\2\2\2\u04ee\u04ef\5\u00c0a\2\u04ef\u04f0\5\u00d4k\2\u04f0"+
+		"\u04f1\5\u00d6l\2\u04f1\u04f3\3\2\2\2\u04f2\u04ea\3\2\2\2\u04f2\u04ee"+
+		"\3\2\2\2\u04f3\u00d3\3\2\2\2\u04f4\u0504\7\u00a0\2\2\u04f5\u0504\7\u00aa"+
+		"\2\2\u04f6\u0504\7\u00a2\2\2\u04f7\u0504\7\u00a1\2\2\u04f8\u04f9\7\u00a2"+
+		"\2\2\u04f9\u0504\7\u00a0\2\2\u04fa\u04fb\7\u00a1\2\2\u04fb\u0504\7\u00a0"+
+		"\2\2\u04fc\u0504\7\u00ab\2\2\u04fd\u0504\7P\2\2\u04fe\u0504\7Q\2\2\u04ff"+
+		"\u0500\7G\2\2\u0500\u0504\7Q\2\2\u0501\u0504\7R\2\2\u0502\u0504\7S\2\2"+
+		"\u0503\u04f4\3\2\2\2\u0503\u04f5\3\2\2\2\u0503\u04f6\3\2\2\2\u0503\u04f7"+
+		"\3\2\2\2\u0503\u04f8\3\2\2\2\u0503\u04fa\3\2\2\2\u0503\u04fc\3\2\2\2\u0503"+
+		"\u04fd\3\2\2\2\u0503\u04fe\3\2\2\2\u0503\u04ff\3\2\2\2\u0503\u0501\3\2"+
+		"\2\2\u0503\u0502\3\2\2\2\u0504\u00d5\3\2\2\2\u0505\u0516\7\34\2\2\u0506"+
+		"\u0516\7\u0094\2\2\u0507\u0516\7\u0091\2\2\u0508\u0516\7\u0092\2\2\u0509"+
+		"\u0516\7\u0093\2\2\u050a\u0516\7\u0095\2\2\u050b\u0516\7\u008f\2\2\u050c"+
+		"\u0516\7\u0090\2\2\u050d\u0516\5\u00f8}\2\u050e\u0516\5\u00dan\2\u050f"+
+		"\u0510\7\u0097\2\2\u0510\u0511\5\u00b2Z\2\u0511\u0512\7\u0098\2\2\u0512"+
+		"\u0516\3\2\2\2\u0513\u0516\5\u00d8m\2\u0514\u0516\5\u00f6|\2\u0515\u0505"+
+		"\3\2\2\2\u0515\u0506\3\2\2\2\u0515\u0507\3\2\2\2\u0515\u0508\3\2\2\2\u0515"+
+		"\u0509\3\2\2\2\u0515\u050a\3\2\2\2\u0515\u050b\3\2\2\2\u0515\u050c\3\2"+
+		"\2\2\u0515\u050d\3\2\2\2\u0515\u050e\3\2\2\2\u0515\u050f\3\2\2\2\u0515"+
+		"\u0513\3\2\2\2\u0515\u0514\3\2\2\2\u0516\u00d7\3\2\2\2\u0517\u0518\7\u0097"+
+		"\2\2\u0518\u051d\5\u00d6l\2\u0519\u051a\7\u009e\2\2\u051a\u051c\5\u00d6"+
+		"l\2\u051b\u0519\3\2\2\2\u051c\u051f\3\2\2\2\u051d\u051b\3\2\2\2\u051d"+
+		"\u051e\3\2\2\2\u051e\u0520\3\2\2\2\u051f\u051d\3\2\2\2\u0520\u0521\7\u0098"+
+		"\2\2\u0521\u00d9\3\2\2\2\u0522\u0523\5\u00fc\177\2\u0523\u0524\5\u00fa"+
+		"~\2\u0524\u00db\3\2\2\2\u0525\u0526\7\67\2\2\u0526\u0527\7a\2\2\u0527"+
+		"\u0528\7b\2\2\u0528\u052e\5\u00dep\2\u0529\u052a\7\67\2\2\u052a\u052e"+
+		"\7g\2\2\u052b\u052c\7\67\2\2\u052c\u052e\5\u00ceh\2\u052d\u0525\3\2\2"+
+		"\2\u052d\u0529\3\2\2\2\u052d\u052b\3\2\2\2\u052e\u00dd\3\2\2\2\u052f\u0534"+
+		"\5\u00e0q\2\u0530\u0531\7\u00ad\2\2\u0531\u0533\5\u00e0q\2\u0532\u0530"+
+		"\3\2\2\2\u0533\u0536\3\2\2\2\u0534\u0532\3\2\2\2\u0534\u0535\3\2\2\2\u0535"+
+		"\u00df\3\2\2\2\u0536\u0534\3\2\2\2\u0537\u0538\5\u00fc\177\2\u0538\u0539"+
+		"\5\u00e4s\2\u0539\u053a\5\u00e2r\2\u053a\u00e1\3\2\2\2\u053b\u0548\5\u00fc"+
+		"\177\2\u053c\u053d\7\u0097\2\2\u053d\u0542\5\u00fc\177\2\u053e\u053f\7"+
+		"\u009e\2\2\u053f\u0541\5\u00fc\177\2\u0540\u053e\3\2\2\2\u0541\u0544\3"+
+		"\2\2\2\u0542\u0540\3\2\2\2\u0542\u0543\3\2\2\2\u0543\u0545\3\2\2\2\u0544"+
+		"\u0542\3\2\2\2\u0545\u0546\7\u0097\2\2\u0546\u0548\3\2\2\2\u0547\u053b"+
+		"\3\2\2\2\u0547\u053c\3\2\2\2\u0548\u00e3\3\2\2\2\u0549\u054a\t\16\2\2"+
+		"\u054a\u00e5\3\2\2\2\u054b\u054c\7Y\2\2\u054c\u054d\7C\2\2\u054d\u0550"+
+		"\5\u00b4[\2\u054e\u054f\7]\2\2\u054f\u0551\5\u00ceh\2\u0550\u054e\3\2"+
+		"\2\2\u0550\u0551\3\2\2\2\u0551\u056f\3\2\2\2\u0552\u0553\7Y\2\2\u0553"+
+		"\u0554\7C\2\2\u0554\u0555\7^\2\2\u0555\u0556\7\u0097\2\2\u0556\u055b\5"+
+		"\u00b8]\2\u0557\u0558\7\u009e\2\2\u0558\u055a\5\u00b8]\2\u0559\u0557\3"+
+		"\2\2\2\u055a\u055d\3\2\2\2\u055b\u0559\3\2\2\2\u055b\u055c\3\2\2\2\u055c"+
+		"\u055e\3\2\2\2\u055d\u055b\3\2\2\2\u055e\u055f\7\u0098\2\2\u055f\u056f"+
+		"\3\2\2\2\u0560\u0561\7Y\2\2\u0561\u0562\7C\2\2\u0562\u0563\7i\2\2\u0563"+
+		"\u0564\7\u0097\2\2\u0564\u0569\5\u00b8]\2\u0565\u0566\7\u009e\2\2\u0566"+
+		"\u0568\5\u00b8]\2\u0567\u0565\3\2\2\2\u0568\u056b\3\2\2\2\u0569\u0567"+
+		"\3\2\2\2\u0569\u056a\3\2\2\2\u056a\u056c\3\2\2\2\u056b\u0569\3\2\2\2\u056c"+
+		"\u056d\7\u0098\2\2\u056d\u056f\3\2\2\2\u056e\u054b\3\2\2\2\u056e\u0552"+
+		"\3\2\2\2\u056e\u0560\3\2\2\2\u056f\u00e7\3\2\2\2\u0570\u0571\7B\2\2\u0571"+
+		"\u0572\7C\2\2\u0572\u0573\5\u00eav\2\u0573\u00e9\3\2\2\2\u0574\u0579\5"+
+		"\u00ecw\2\u0575\u0576\7\u009e\2\2\u0576\u0578\5\u00ecw\2\u0577\u0575\3"+
+		"\2\2\2\u0578\u057b\3\2\2\2\u0579\u0577\3\2\2\2\u0579\u057a\3\2\2\2\u057a"+
+		"\u00eb\3\2\2\2\u057b\u0579\3\2\2\2\u057c\u057e\5\u00b8]\2\u057d\u057f"+
+		"\t\17\2\2\u057e\u057d\3\2\2\2\u057e\u057f\3\2\2\2\u057f\u0582\3\2\2\2"+
+		"\u0580\u0581\7V\2\2\u0581\u0583\t\20\2\2\u0582\u0580\3\2\2\2\u0582\u0583"+
+		"\3\2\2\2\u0583\u0586\3\2\2\2\u0584\u0586\5\u00c0a\2\u0585\u057c\3\2\2"+
+		"\2\u0585\u0584\3\2\2\2\u0586\u00ed\3\2\2\2\u0587\u0588\7D\2\2\u0588\u058c"+
+		"\7\u0091\2\2\u0589\u058a\7D\2\2\u058a\u058c\5\u00f6|\2\u058b\u0587\3\2"+
+		"\2\2\u058b\u0589\3\2\2\2\u058c\u00ef\3\2\2\2\u058d\u058e\7`\2\2\u058e"+
+		"\u0592\7\u0091\2\2\u058f\u0590\7`\2\2\u0590\u0592\5\u00f6|\2\u0591\u058d"+
+		"\3\2\2\2\u0591\u058f\3\2\2\2\u0592\u00f1\3\2\2\2\u0593\u0594\7Z\2\2\u0594"+
+		"\u0595\7[\2\2\u0595\u00f3\3\2\2\2\u0596\u0597\7\21\2\2\u0597\u0599\t\21"+
+		"\2\2\u0598\u0596\3\2\2\2\u0599\u059c\3\2\2\2\u059a\u0598\3\2\2\2\u059a"+
+		"\u059b\3\2\2\2\u059b\u00f5\3\2\2\2\u059c\u059a\3\2\2\2\u059d\u059e\7\u00a7"+
+		"\2\2\u059e\u059f\5\u0092J\2\u059f\u00f7\3\2\2\2\u05a0\u05e2\7j\2\2\u05a1"+
+		"\u05e2\7k\2\2\u05a2\u05e2\7l\2\2\u05a3\u05e2\7m\2\2\u05a4\u05e2\7n\2\2"+
+		"\u05a5\u05e2\7o\2\2\u05a6\u05e2\7p\2\2\u05a7\u05e2\7q\2\2\u05a8\u05e2"+
+		"\7r\2\2\u05a9\u05e2\7s\2\2\u05aa\u05e2\7t\2\2\u05ab\u05ac\7u\2\2\u05ac"+
+		"\u05ad\7\u00a7\2\2\u05ad\u05e2\5\u00fa~\2\u05ae\u05af\7v\2\2\u05af\u05b0"+
+		"\7\u00a7\2\2\u05b0\u05e2\5\u00fa~\2\u05b1\u05b2\7w\2\2\u05b2\u05b3\7\u00a7"+
+		"\2\2\u05b3\u05e2\5\u00fa~\2\u05b4\u05b5\7x\2\2\u05b5\u05b6\7\u00a7\2\2"+
+		"\u05b6\u05e2\5\u00fa~\2\u05b7\u05b8\7y\2\2\u05b8\u05b9\7\u00a7\2\2\u05b9"+
+		"\u05e2\5\u00fa~\2\u05ba\u05bb\7z\2\2\u05bb\u05bc\7\u00a7\2\2\u05bc\u05e2"+
+		"\5\u00fa~\2\u05bd\u05e2\7{\2\2\u05be\u05e2\7|\2\2\u05bf\u05e2\7}\2\2\u05c0"+
+		"\u05c1\7~\2\2\u05c1\u05c2\7\u00a7\2\2\u05c2\u05e2\5\u00fa~\2\u05c3\u05c4"+
+		"\7\177\2\2\u05c4\u05c5\7\u00a7\2\2\u05c5\u05e2\5\u00fa~\2\u05c6\u05e2"+
+		"\7\u0080\2\2\u05c7\u05e2\7\u0081\2\2\u05c8\u05e2\7\u0082\2\2\u05c9\u05ca"+
+		"\7\u0083\2\2\u05ca\u05cb\7\u00a7\2\2\u05cb\u05e2\5\u00fa~\2\u05cc\u05cd"+
+		"\7\u0084\2\2\u05cd\u05ce\7\u00a7\2\2\u05ce\u05e2\5\u00fa~\2\u05cf\u05e2"+
+		"\7\u0085\2\2\u05d0\u05e2\7\u0086\2\2\u05d1\u05e2\7\u0087\2\2\u05d2\u05d3"+
+		"\7\u0088\2\2\u05d3\u05d4\7\u00a7\2\2\u05d4\u05e2\5\u00fa~\2\u05d5\u05d6"+
+		"\7\u0089\2\2\u05d6\u05d7\7\u00a7\2\2\u05d7\u05e2\5\u00fa~\2\u05d8\u05e2"+
+		"\7\u008a\2\2\u05d9\u05e2\7\u008b\2\2\u05da\u05e2\7\u008c\2\2\u05db\u05dc"+
+		"\7\u008d\2\2\u05dc\u05dd\7\u00a7\2\2\u05dd\u05e2\5\u00fa~\2\u05de\u05df"+
+		"\7\u008e\2\2\u05df\u05e0\7\u00a7\2\2\u05e0\u05e2\5\u00fa~\2\u05e1\u05a0"+
+		"\3\2\2\2\u05e1\u05a1\3\2\2\2\u05e1\u05a2\3\2\2\2\u05e1\u05a3\3\2\2\2\u05e1"+
+		"\u05a4\3\2\2\2\u05e1\u05a5\3\2\2\2\u05e1\u05a6\3\2\2\2\u05e1\u05a7\3\2"+
+		"\2\2\u05e1\u05a8\3\2\2\2\u05e1\u05a9\3\2\2\2\u05e1\u05aa\3\2\2\2\u05e1"+
+		"\u05ab\3\2\2\2\u05e1\u05ae\3\2\2\2\u05e1\u05b1\3\2\2\2\u05e1\u05b4\3\2"+
+		"\2\2\u05e1\u05b7\3\2\2\2\u05e1\u05ba\3\2\2\2\u05e1\u05bd\3\2\2\2\u05e1"+
+		"\u05be\3\2\2\2\u05e1\u05bf\3\2\2\2\u05e1\u05c0\3\2\2\2\u05e1\u05c3\3\2"+
+		"\2\2\u05e1\u05c6\3\2\2\2\u05e1\u05c7\3\2\2\2\u05e1\u05c8\3\2\2\2\u05e1"+
+		"\u05c9\3\2\2\2\u05e1\u05cc\3\2\2\2\u05e1\u05cf\3\2\2\2\u05e1\u05d0\3\2"+
+		"\2\2\u05e1\u05d1\3\2\2\2\u05e1\u05d2\3\2\2\2\u05e1\u05d5\3\2\2\2\u05e1"+
+		"\u05d8\3\2\2\2\u05e1\u05d9\3\2\2\2\u05e1\u05da\3\2\2\2\u05e1\u05db\3\2"+
+		"\2\2\u05e1\u05de\3\2\2\2\u05e2\u00f9\3\2\2\2\u05e3\u05e5\t\b\2\2\u05e4"+
+		"\u05e3\3\2\2\2\u05e4\u05e5\3\2\2\2\u05e5\u05e6\3\2\2\2\u05e6\u05e7\7\u0091"+
+		"\2\2\u05e7\u00fb\3\2\2\2\u05e8\u05e9\5\u00fe\u0080\2\u05e9\u00fd\3\2\2"+
+		"\2\u05ea\u05eb\t\22\2\2\u05eb\u00ff\3\2\2\2\u05ec\u05ed\t\23\2\2\u05ed"+
+		"\u0101\3\2\2\2\u0093\u010c\u011c\u0123\u012a\u012e\u0134\u0138\u0140\u0149"+
+		"\u0150\u0159\u0160\u0169\u0170\u0176\u017a\u018f\u0198\u019c\u01a2\u01b2"+
+		"\u01ba\u01bf\u01ca\u01d0\u01d8\u01dc\u01de\u01e7\u01f0\u01f5\u01f9\u01fd"+
+		"\u0201\u0203\u020b\u0214\u021a\u0225\u022f\u0232\u0236\u023b\u0245\u024d"+
+		"\u0250\u0253\u025b\u0266\u0280\u0287\u0290\u029e\u02a4\u02a7\u02ae\u02c5"+
+		"\u02c8\u02cb\u02cf\u02f0\u02fc\u0307\u030c\u0311\u0316\u031d\u032a\u032e"+
+		"\u0332\u0334\u0338\u034a\u035b\u036b\u0371\u0393\u039f\u03a1\u03b1\u03b6"+
+		"\u03bd\u03c3\u03c6\u03cb\u03d5\u03dc\u03e4\u03f2\u03f4\u03fc\u040b\u0412"+
+		"\u041f\u0422\u0425\u0428\u042b\u042e\u0431\u0434\u043d\u0440\u0443\u044a"+
+		"\u044f\u0453\u045a\u0461\u0466\u046b\u046f\u0477\u047c\u0480\u0482\u04aa"+
+		"\u04b1\u04b4\u04c5\u04d4\u04dc\u04e1\u04e8\u04f2\u0503\u0515\u051d\u052d"+
+		"\u0534\u0542\u0547\u0550\u055b\u0569\u056e\u0579\u057e\u0582\u0585\u058b"+
+		"\u0591\u059a\u05e1\u05e4";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

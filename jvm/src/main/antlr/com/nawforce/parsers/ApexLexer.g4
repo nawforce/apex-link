@@ -149,6 +149,16 @@ VIEW            : 'view';
 HAVING          : 'having';
 ROLLUP          : 'rollup';
 TOLABEL         : 'tolabel';
+OFFSET          : 'offset';
+DATA            : 'data';
+CATEGORY        : 'category';
+AT              : 'at';
+ABOVE           : 'above';
+BELOW           : 'below';
+ABOVE_OR_BELOW  : 'above_or_below';
+SECURITY_ENFORCED : 'security_enforced';
+REFERENCE       : 'reference';
+CUBE            : 'cube';
 
 // SOQL Date formulas
 YESTERDAY                 : 'yesterday';
@@ -313,7 +323,7 @@ URSHIFT_ASSIGN  : '>>>=';
 // Additional symbols not defined in the lexical specification
 //
 
-AT : '@';
+ATSIGN : '@';
 
 
 // §3.8 Identifiers (must appear after all keywords in the grammar)
