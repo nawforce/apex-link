@@ -1,4 +1,4 @@
-// Generated from /Users/kevin/Projects/pkgforce/jvm/src/main/antlr/com/nawforce/parsers/ApexParser.g4 by ANTLR 4.8
+// Generated from /Users/kjones/Projects/Tooling/pkgforce/jvm/src/main/antlr/com/nawforce/parsers/ApexParser.g4 by ANTLR 4.8
 package com.nawforce.runtime.parsers;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -1480,13 +1480,13 @@ public class ApexParserBaseListener implements ApexParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAggregateFunction(ApexParser.AggregateFunctionContext ctx) { }
+	@Override public void enterSoqlFunction(ApexParser.SoqlFunctionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAggregateFunction(ApexParser.AggregateFunctionContext ctx) { }
+	@Override public void exitSoqlFunction(ApexParser.SoqlFunctionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

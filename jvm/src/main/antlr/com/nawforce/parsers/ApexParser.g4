@@ -556,7 +556,7 @@ selectList
 selectEntry
     : fieldName soqlId?
     | soqlFunction soqlId?
-    | LPAREN subQuery RPAREN
+    | LPAREN subQuery RPAREN soqlId?
     | typeOf
     ;
 
@@ -671,7 +671,7 @@ fieldOrderList
 
 fieldOrder
     : fieldName (ASC | DESC)? (NULLS (FIRST|LAST))?
-    | soqlFunction;
+    | soqlFunction (ASC | DESC)? (NULLS (FIRST|LAST))?;
 
 limitClause
     : LIMIT IntegerLiteral

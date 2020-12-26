@@ -1,4 +1,4 @@
-// Generated from /Users/kevin/Projects/pkgforce/jvm/src/main/antlr/com/nawforce/parsers/ApexParser.g4 by ANTLR 4.8
+// Generated from /Users/kjones/Projects/Tooling/pkgforce/jvm/src/main/antlr/com/nawforce/parsers/ApexParser.g4 by ANTLR 4.8
 package com.nawforce.runtime.parsers;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -1286,15 +1286,15 @@ public interface ApexParserListener extends ParseTreeListener {
 	 */
 	void exitSubFieldEntry(ApexParser.SubFieldEntryContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ApexParser#aggregateFunction}.
+	 * Enter a parse tree produced by {@link ApexParser#soqlFunction}.
 	 * @param ctx the parse tree
 	 */
-	void enterAggregateFunction(ApexParser.AggregateFunctionContext ctx);
+	void enterSoqlFunction(ApexParser.SoqlFunctionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ApexParser#aggregateFunction}.
+	 * Exit a parse tree produced by {@link ApexParser#soqlFunction}.
 	 * @param ctx the parse tree
 	 */
-	void exitAggregateFunction(ApexParser.AggregateFunctionContext ctx);
+	void exitSoqlFunction(ApexParser.SoqlFunctionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ApexParser#typeOf}.
 	 * @param ctx the parse tree
