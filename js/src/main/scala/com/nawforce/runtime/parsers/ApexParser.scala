@@ -46,6 +46,7 @@ class ApexParser(tokens: CommonTokenStream) extends js.Object {
   def typeRef(): TypeRefContext = js.native
 
   def literal(): LiteralContext = js.native
+  def query(): QueryContext = js.native
 }
 
 object ApexParser {
@@ -897,5 +898,10 @@ object ApexParser {
     def modifier(): js.Array[ModifierContext] = js.native
     def enumDeclaration(): js.UndefOr[EnumDeclarationContext] = js.native
     def interfaceDeclaration(): js.UndefOr[InterfaceDeclarationContext] = js.native
+  }
+
+  @js.native
+  @JSImport("apex-parser", "QueryContext")
+  class QueryContext extends ParserRuleContext {
   }
 }

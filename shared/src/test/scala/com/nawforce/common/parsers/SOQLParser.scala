@@ -28,45 +28,27 @@
 
 package com.nawforce.common.parsers
 
-import java.io.ByteArrayInputStream
-import java.nio.charset.StandardCharsets
-
-import com.nawforce.runtime.parsers.{
-  ApexLexer,
-  ApexParser,
-  CaseInsensitiveInputStream,
-  CollectingErrorListener
-}
-import org.antlr.v4.runtime.CommonTokenStream
+import com.nawforce.common.path.PathFactory
+import com.nawforce.runtime.SourceBlob
+import com.nawforce.runtime.parsers.{ApexParser, CodeParser, Source}
 
 case class ParserIssue(line: Int, offset: Int, message: String)
 
 object SOQLParser {
 
   def parse(soql: String): Either[Seq[ParserIssue], ApexParser.QueryContext] = {
-    val bytes = soql.getBytes(StandardCharsets.UTF_8)
-    val cis = new CaseInsensitiveInputStream(new ByteArrayInputStream(bytes, 0, bytes.length))
 
-    val tokenStream = new CommonTokenStream(new ApexLexer(cis))
-    tokenStream.fill()
-
-    val listener = new CollectingErrorListener("")
-    val parser = new ApexParser(tokenStream)
-    parser.removeErrorListeners()
-    parser.addErrorListener(listener)
-
-    val context = parser.query()
-    val issues = listener.issues
-    if (issues.nonEmpty)
-      Left(
-        issues
-          .map(
-            i =>
-              ParserIssue(i.diagnostic.location.startLine,
-                          i.diagnostic.location.startPosition,
-                          i.diagnostic.message))
-          .toSeq)
-    else
-      Right(context)
+    val parser = new CodeParser(Source(PathFactory("test.soql"), SourceBlob(soql)))
+    parser.parseSOQL() match {
+      case Left(issues) =>
+        Left(
+          issues.toIndexedSeq.map(
+            issue =>
+              ParserIssue(issue.diagnostic.location.startLine,
+                          issue.diagnostic.location.startPosition,
+                          issue.diagnostic.message)))
+      case Right(ctx) =>
+        Right(ctx)
+    }
   }
 }

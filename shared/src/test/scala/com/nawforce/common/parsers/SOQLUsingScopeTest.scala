@@ -38,7 +38,7 @@ class SOQLUsingScopeTest extends AnyFunSuite with Matchers {
 
   test("Sub-query scope use") {
     SOQLParser.parse("Select A, (Select B from Table2 Using Scope SomeScope) from Table1") should matchPattern {
-      case Left(Seq(ParserIssue(1, 32, err))) if err.startsWith("mismatched input 'Using' expecting {") =>
+      case Left(Seq(ParserIssue(1, 32, err), _)) if err.startsWith("missing ')' at 'Using'") =>
     }
   }
 

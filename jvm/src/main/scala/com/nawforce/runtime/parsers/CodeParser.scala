@@ -53,6 +53,10 @@ class CodeParser(val source: Source) {
     parse(parser => parser.block())
   }
 
+  def parseSOQL(): Either[Array[Issue], ApexParser.QueryContext] = {
+    parse(parser => parser.query())
+  }
+
   // Test use only
   def parseLiteral(): ApexParser.LiteralContext = {
     parse(parser => parser.literal()).getOrElse(null)
