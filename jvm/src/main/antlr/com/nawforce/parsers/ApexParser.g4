@@ -555,7 +555,7 @@ selectList
 
 selectEntry
     : fieldName soqlId?
-    | aggregateFunction soqlId?
+    | soqlFunction soqlId?
     | LPAREN subQuery RPAREN
     | typeOf
     ;
@@ -571,9 +571,9 @@ subFieldList
 
 subFieldEntry
     : fieldName soqlId?
-    | aggregateFunction soqlId?;
+    | soqlFunction soqlId?;
 
-aggregateFunction
+soqlFunction
     : AVG LPAREN fieldName RPAREN
     | COUNT LPAREN RPAREN
     | COUNT LPAREN fieldName RPAREN
@@ -582,6 +582,7 @@ aggregateFunction
     | MAX LPAREN fieldName RPAREN
     | SUM LPAREN fieldName RPAREN
     | TOLABEL LPAREN fieldName RPAREN
+    | FORMAT LPAREN fieldName RPAREN
     ;
 
 typeOf
@@ -613,7 +614,7 @@ conditionalExpression
 
 fieldExpression
     : fieldName comparisonOperator value
-    | aggregateFunction comparisonOperator value;
+    | soqlFunction comparisonOperator value;
 
 comparisonOperator
     : ASSIGN | NOTEQUAL | LT | GT | LT ASSIGN | GT ASSIGN | LESSANDGREATER | LIKE | IN | NOT IN | INCLUDES | EXCLUDES;
@@ -670,7 +671,7 @@ fieldOrderList
 
 fieldOrder
     : fieldName (ASC | DESC)? (NULLS (FIRST|LAST))?
-    | aggregateFunction;
+    | soqlFunction;
 
 limitClause
     : LIMIT IntegerLiteral
@@ -803,6 +804,7 @@ id
     | SECURITY_ENFORCED
     | REFERENCE
     | CUBE
+    | FORMAT
     // SOQL date formulas
     | YESTERDAY
     | TODAY
@@ -950,6 +952,7 @@ anyId
     | SECURITY_ENFORCED
     | REFERENCE
     | CUBE
+    | FORMAT
     // SOQL date formulas
     | YESTERDAY
     | TODAY

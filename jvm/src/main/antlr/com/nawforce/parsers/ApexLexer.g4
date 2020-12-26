@@ -159,6 +159,7 @@ ABOVE_OR_BELOW  : 'above_or_below';
 SECURITY_ENFORCED : 'security_enforced';
 REFERENCE       : 'reference';
 CUBE            : 'cube';
+FORMAT          : 'format';
 
 // SOQL Date formulas
 YESTERDAY                 : 'yesterday';
