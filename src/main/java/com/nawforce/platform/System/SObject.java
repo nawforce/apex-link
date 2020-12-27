@@ -28,6 +28,7 @@
 package com.nawforce.platform.System;
 
 import com.nawforce.platform.Database.DMLOptions;
+import com.nawforce.platform.Database.Error;
 import com.nawforce.platform.SObjects.*;
 import com.nawforce.platform.Schema.SObjectField;
 import com.nawforce.platform.Schema.SObjectType;
@@ -50,15 +51,20 @@ public class SObject {
 	public Datetime LastViewedDate;
 	public Datetime LastActivityDate;		// Future: Only if Allow Activities is selected
 
-	public void addError(Object msg) {throw new java.lang.UnsupportedOperationException();}
-	public void addError(Object msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
+	public void addError(Exception exceptionError) {throw new java.lang.UnsupportedOperationException();}
+	public void addError(Exception exceptionError, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
 	public void addError(String msg) {throw new java.lang.UnsupportedOperationException();}
 	public void addError(String msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
+	public void addError(String fieldName, String msg) {throw new java.lang.UnsupportedOperationException();}
+	public void addError(String fieldName, String msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
+	public void addError(SObjectField fieldToken, String msg) {throw new java.lang.UnsupportedOperationException();}
+	public void addError(SObjectField fieldToken, String msg, Boolean escape) {throw new java.lang.UnsupportedOperationException();}
 	public void clear() {throw new java.lang.UnsupportedOperationException();}
 	public Object get(SObjectField field) {throw new java.lang.UnsupportedOperationException();}
 	public Object get(String field) {throw new java.lang.UnsupportedOperationException();}
 	public Map<String,SObject> getAll() {throw new java.lang.UnsupportedOperationException();}
 	public Id getCloneSourceId() {throw new java.lang.UnsupportedOperationException();}
+	public List<Error> getErrors() {throw new java.lang.UnsupportedOperationException();}
 	public SObject getInstance() {throw new java.lang.UnsupportedOperationException();}
 	public SObject getInstance(String id) {throw new java.lang.UnsupportedOperationException();}
 	public DMLOptions getOptions() {throw new java.lang.UnsupportedOperationException();}
