@@ -82,7 +82,10 @@ final case class ClassDeclaration(_source: Source, _pkg: PackageImpl, _typeName:
           )
     }
 
-    if (!modifiers.contains(ABSTRACT_MODIFIER) && methods.exists(_.isAbstract)) {
+    // FUTURE: Eval method map for error handling side-effects
+    methods
+
+    if (!modifiers.contains(ABSTRACT_MODIFIER) && localMethods.exists(_.isAbstract)) {
       context.logError(id.location, "Classes with abstract methods must be abstract")
     } else if(modifiers.contains(ABSTRACT_MODIFIER) && modifiers.contains(VIRTUAL_MODIFIER)) {
       context.logError(id.location, "Abstract classes do not need virtual keyword")

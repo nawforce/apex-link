@@ -66,7 +66,9 @@ trait ApexMethodLike extends ApexVisibleMethodLike {
   private var shadows: List[MethodDeclaration] = Nil
 
   def addShadow(method: MethodDeclaration): Unit = {
-    shadows = method :: shadows
+    if (method ne this) {
+      shadows = method :: shadows
+    }
   }
 
   def isEntry: Boolean = {
