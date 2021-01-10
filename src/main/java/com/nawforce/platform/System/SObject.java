@@ -77,6 +77,7 @@ public class SObject {
 	public List<SObject> getSObjects(SObjectField field) {throw new java.lang.UnsupportedOperationException();}
 	public List<SObject> getSObjects(String field) {throw new java.lang.UnsupportedOperationException();}
 	public SObject getValues(String id) {throw new java.lang.UnsupportedOperationException();}
+	public Boolean hasErrors() {throw new java.lang.UnsupportedOperationException();}
 	public Boolean isClone() {throw new java.lang.UnsupportedOperationException();}
 	public Boolean isSet(SObjectField field) {throw new java.lang.UnsupportedOperationException();}
 	public Boolean isSet(String fieldName) {throw new java.lang.UnsupportedOperationException();}
