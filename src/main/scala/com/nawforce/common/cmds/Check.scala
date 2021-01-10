@@ -27,8 +27,7 @@
  */
 package com.nawforce.common.cmds
 
-import com.nawforce.common.api.{IssueOptions, Org, Package, ServerOps}
-import com.nawforce.common.path.PathFactory
+import com.nawforce.common.api.{IssueOptions, Org, ServerOps}
 import com.nawforce.runtime.json.JSON
 
 import scala.jdk.CollectionConverters._
@@ -39,80 +38,29 @@ object Check {
   final val STATUS_EXCEPTION: Int = 3
   final val STATUS_ISSUES: Int = 4
 
-  def usage(name: String) = s"Usage: $name [-json] [-verbose] <[namespace=]directory>..."
+  def usage(name: String) =
+    s"Usage: $name [-json] [-verbose] [-zombie] [-depends] <[namespace=]directory>..."
 
   def main(name: String, args: Array[String], org: Org): Int = {
-    val options = Set("-verbose", "-json", "-pickle", "-zombie", "-depends")
+    val flags = Set("-verbose", "-json", "-pickle", "-zombie", "-depends")
 
-    val validArgs = args.flatMap {
-      case option if options.contains(option) => Some(option)
-      case arg                                => Some(arg)
-    }
+    val json = args.contains("-json")
+    val pickle = args.contains("-pickle")
+    val verbose = !json && args.contains("-verbose")
+    val depends = args.contains("-depends")
+    val zombie = args.contains("-zombie")
 
-    if (validArgs.length != args.length) {
-      System.err.println(usage(name))
-      return STATUS_ARGS
-    }
-
-    var paths: Seq[String] = validArgs.filterNot(options.contains).toIndexedSeq
-    if (paths.isEmpty)
-      paths = Seq(PathFactory("").toString)
-    val nsSplit = paths.map(path => {
-      if (path.endsWith("="))
-        (path.take(path.length - 1), "")
-      else
-        path.split("=") match {
-          case Array(d)     => ("", d)
-          case Array(ns, d) => (ns, d)
-          case _ =>
-            System.err.println(usage(name))
-            return STATUS_ARGS
-        }
-    })
-    val json = validArgs.contains("-json")
-    val pickle = validArgs.contains("-pickle")
-    val verbose = !json && validArgs.contains("-verbose")
-    val depends = validArgs.contains("-depends")
-
+    ServerOps.setAutoFlush(false)
     if (verbose)
       ServerOps.setDebugLogging(Array("ALL"))
-    val zombie = validArgs.contains("-zombie")
+
     if (json && pickle) {
       System.err.println("-json and -pickle can not be used together")
       return STATUS_ARGS
     }
 
-    // Check for bad use of a namespace on SFDX dir
-    val namespacedSFDX = nsSplit
-      .filter(_._1.nonEmpty)
-      .map(nsDirPair => PathFactory(nsDirPair._2))
-      .filter(_.join("sfdx-project.json").exists)
-    if (namespacedSFDX.nonEmpty) {
-      System.err.println(
-        s"Namespaces should not be provided for SFDX directories such as '${namespacedSFDX.head}''")
-      return STATUS_ARGS
-    }
-
     try {
-      var nsLoaded: List[String] = Nil
-      var loaded: List[Package] = Nil
-      nsSplit.foreach(nsDirPair => {
-        if (!nsLoaded.contains(nsDirPair._1)) {
-          val path = PathFactory(nsDirPair._2)
-          if (path.join("sfdx-project.json").exists) {
-            loaded = org.newSFDXPackage(path.toString) :: loaded
-          } else {
-            val paths = nsSplit.filter(_._1 == nsDirPair._1).map(_._2).filterNot(_.isEmpty).toArray
-            val nonSfdxPaths =
-              paths.map(PathFactory(_)).filterNot(_.join("sfdx-project.json").exists)
-            val pkg =
-              org.newMDAPIPackage(nsDirPair._1, nonSfdxPaths.map(_.toString), loaded.toArray)
-            loaded = pkg :: loaded
-            nsLoaded = nsDirPair._1 :: nsLoaded
-          }
-        }
-      })
-      org.flush()
+      OrgLoader.load(args.filterNot(flags.contains), org)
 
       if (depends) {
         if (json) {
