@@ -9,6 +9,9 @@ module/common
 # scratch bin directory
 bin/
 
+# checkstyle junk
+.idea/checkstyle-idea.xml
+
 # Created by https://www.gitignore.io/api/windows,intellij,maven
 
 ### Windows ###

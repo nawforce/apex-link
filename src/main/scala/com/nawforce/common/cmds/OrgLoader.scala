@@ -7,9 +7,9 @@ object OrgLoader {
 
   def load(args: Array[String], org: Org): Unit = {
 
-    var paths: Seq[String] = args
+    var paths: Array[String] = args
     if (paths.isEmpty)
-      paths = Seq(PathFactory("").toString)
+      paths = Array(PathFactory("").toString)
     val nsSplit = paths.map(path => {
       if (path.endsWith("="))
         (path.take(path.length - 1), "")
@@ -41,7 +41,7 @@ object OrgLoader {
         if (path.join("sfdx-project.json").exists) {
           loaded = org.newSFDXPackage(path.toString) :: loaded
         } else {
-          val paths = nsSplit.filter(_._1 == nsDirPair._1).map(_._2).filterNot(_.isEmpty).toArray
+          val paths = nsSplit.filter(_._1 == nsDirPair._1).map(_._2).filterNot(_.isEmpty)
           val nonSfdxPaths =
             paths.map(PathFactory(_)).filterNot(_.join("sfdx-project.json").exists)
           val pkg =

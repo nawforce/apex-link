@@ -74,13 +74,11 @@ object ClassInfo {
         (name, tdeps.size)
       })
       .map(kv => {
-        if (kv._2 != null) {
-          if (!first)
-            buffer ++= ",\n"
-          first = false
+        if (!first)
+          buffer ++= ",\n"
+        first = false
 
-          buffer ++= s"""{ "name": "${JSON.encode(kv._1)}", "count": ${kv._2}}"""
-        }
+        buffer ++= s"""{ "name": "${JSON.encode(kv._1)}", "count": ${kv._2}}"""
       })
     buffer ++= "]}\n"
     print(buffer.mkString)
