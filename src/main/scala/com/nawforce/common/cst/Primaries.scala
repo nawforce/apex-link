@@ -33,7 +33,9 @@ import com.nawforce.common.names.EncodedName
 import com.nawforce.common.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.runtime.parsers.ApexParser._
-import com.nawforce.runtime.parsers.CodeParser
+import com.nawforce.runtime.parsers.ApexParserBaseVisitor
+
+import scala.collection.compat.immutable.ArraySeq
 
 sealed abstract class Primary extends CST {
   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext
@@ -151,10 +153,36 @@ final case class IdPrimary(id: Id) extends Primary {
 }
 
 final case class SOQL(query: QueryContext) extends Primary {
+
+  private val boundExpressions: ArraySeq[Expression] = {
+    val visitor = new BoundExprVisitor()
+    visitor.visit(query).map(ec => Expression.construct(ec))
+  }
+
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.typeDeclarationOpt.nonEmpty)
 
+    boundExpressions.foreach(expr => {
+      expr.verify(input, context)
+    })
+
     ExprContext(isStatic = Some(false), context.pkg.any())
+  }
+}
+
+class BoundExprVisitor extends ApexParserBaseVisitor[ArraySeq[ExpressionContext]] {
+
+  override def defaultResult(): ArraySeq[ExpressionContext] = ArraySeq[ExpressionContext]()
+
+  override protected def aggregateResult(
+    aggregate: ArraySeq[ExpressionContext],
+    nextResult: ArraySeq[ExpressionContext]): ArraySeq[ExpressionContext] = {
+    aggregate ++ nextResult
+  }
+
+  override def visitBoundExpression(
+    boundExpressionContext: BoundExpressionContext): ArraySeq[ExpressionContext] = {
+    ArraySeq(boundExpressionContext.expression())
   }
 }
 
