@@ -76,7 +76,6 @@ class OrgQueue(quiet: Boolean) { self =>
 
 }
 
-
 case class AddPackageRequest(directory: String, promise: Promise[AddPackageResult])
     extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
@@ -105,14 +104,18 @@ case class GetIssues(promise: Promise[GetIssuesResult]) extends APIRequest {
     LoggerOps.debug(LoggerOps.Trace, "Getting issues")
 
     val buffer = new ArrayBuffer[Issue]()
-    val issues = queue.org
-      .asInstanceOf[OrgImpl]
-      .reportableIssues(new IssueOptions { includeWarnings = true })
-      .getIssues
-    issues.keys.foreach(key => {
-      buffer.addAll(issues(key).take(10))
-    })
-    promise.success(GetIssuesResult(buffer.toArray))
+    val orgImpl = queue.org.asInstanceOf[OrgImpl]
+    OrgImpl.current.withValue(orgImpl) {
+      val issues = orgImpl
+        .reportableIssues(new IssueOptions {
+          includeWarnings = true; includeZombies = true
+        })
+        .getIssues
+      issues.keys.foreach(key => {
+        buffer.addAll(issues(key).take(10))
+      })
+      promise.success(GetIssuesResult(buffer.toArray))
+    }
   }
 }
 
