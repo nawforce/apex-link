@@ -27,7 +27,7 @@
  */
 package com.nawforce.common.rpc
 
-import com.nawforce.common.api.{Diagnostic, DiagnosticCategory, Location}
+import com.nawforce.common.api.{Diagnostic, DiagnosticCategory, Location, PathLocation}
 import com.nawforce.common.diagnostics.Issue
 import io.github.shogowada.scala.jsonrpc.api
 import io.github.shogowada.scala.jsonrpc.serializers.JSONRPCPickler.{macroRW, ReadWriter => RW}
@@ -64,6 +64,30 @@ object GetIssuesResult {
   implicit val rwLocation: RW[Location] = macroRW
 }
 
+case class GetTypeIdentifiersResult(identifiers: Array[String])
+
+object GetTypeIdentifiersResult {
+  implicit val rw: RW[GetTypeIdentifiersResult] = macroRW
+}
+
+case class NodeData(id: Int, name: String)
+case class LinkData(source: Int, target: Int)
+case class DependencyGraphResult(nodeData: Array[NodeData], linkData: Array[LinkData])
+
+object DependencyGraphResult {
+  implicit val rw: RW[DependencyGraphResult] = macroRW
+  implicit val rwNodeData: RW[NodeData] = macroRW
+  implicit val rwLinkData: RW[LinkData] = macroRW
+}
+
+case class IdentifierLocationResult(pathLocation: PathLocation)
+
+object IdentifierLocationResult {
+  implicit val rw: RW[IdentifierLocationResult] = macroRW
+  implicit val rwPathLocation: RW[PathLocation] = macroRW
+  implicit val rwLocation: RW[Location] = macroRW
+}
+
 trait OrgAPI {
   @api.JSONRPCMethod(name = "identifier")
   def identifier(): Future[String]
@@ -79,6 +103,18 @@ trait OrgAPI {
 
   @api.JSONRPCMethod(name = "refresh")
   def refresh(path: String, contents: Option[String]): Future[Unit]
+
+  @api.JSONRPCMethod(name = "getTypeIdentifiers")
+  def getTypeIdentifiers(): Future[GetTypeIdentifiersResult]
+
+  @api.JSONRPCMethod(name = "dependencyGraph")
+  def dependencyGraph(path: String, depth: Int): Future[DependencyGraphResult]
+
+  @api.JSONRPCMethod(name = "identifierLocation")
+  def identifierLocation(identifier: String): Future[IdentifierLocationResult]
+
+  @api.JSONRPCMethod(name = "identifierForPath")
+  def identifierForPath(path: String): Future[Option[String]]
 }
 
 object OrgAPI {

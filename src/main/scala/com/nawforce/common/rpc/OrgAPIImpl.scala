@@ -29,11 +29,12 @@ package com.nawforce.common.rpc
 
 import java.util.concurrent.LinkedBlockingQueue
 
-import com.nawforce.common.api.{IssueOptions, LoggerOps, Org, Package, ServerOps}
+import com.nawforce.common.api.{IssueOptions, Org, Package, ServerOps, TypeIdentifier}
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.runtime.SourceBlob
 
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, Promise}
@@ -73,14 +74,12 @@ class OrgQueue(quiet: Boolean) { self =>
   def refresh(path: String, contents: Option[String]): Unit = {
     packages.headOption.foreach(pkg => pkg.refresh(path, contents.map(c => SourceBlob(c)).orNull))
   }
-
 }
 
 case class AddPackageRequest(directory: String, promise: Promise[AddPackageResult])
     extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     promise.success(try {
-      LoggerOps.debug(LoggerOps.Trace, "Adding package")
       val pkg = queue.org.newSFDXPackage(directory)
       queue.packages = pkg :: queue.packages
       AddPackageResult(None, pkg.getNamespaces(withDependents = true))
@@ -101,7 +100,6 @@ object AddPackageRequest {
 
 case class GetIssues(promise: Promise[GetIssuesResult]) extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
-    LoggerOps.debug(LoggerOps.Trace, "Getting issues")
 
     val buffer = new ArrayBuffer[Issue]()
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
@@ -123,6 +121,134 @@ object GetIssues {
   def apply(queue: OrgQueue): Future[GetIssuesResult] = {
     val promise = Promise[GetIssuesResult]()
     queue.add(new GetIssues(promise))
+    promise.future
+  }
+}
+
+case class GetTypeIdentifiers(promise: Promise[GetTypeIdentifiersResult]) extends APIRequest {
+  override def process(queue: OrgQueue): Unit = {
+
+    val buffer = new mutable.HashSet[String]()
+    val orgImpl = queue.org.asInstanceOf[OrgImpl]
+    OrgImpl.current.withValue(orgImpl) {
+      orgImpl.packagesByNamespace.values.foreach(pkg => buffer.addAll(pkg.getApexTypeIdentifiers))
+      promise.success(GetTypeIdentifiersResult(buffer.toArray))
+    }
+  }
+}
+
+object GetTypeIdentifiers {
+  def apply(queue: OrgQueue): Future[GetTypeIdentifiersResult] = {
+    val promise = Promise[GetTypeIdentifiersResult]()
+    queue.add(new GetTypeIdentifiers(promise))
+    promise.future
+  }
+}
+
+case class DependencyGraphRequest(promise: Promise[DependencyGraphResult], id: String, depth: Int)
+    extends APIRequest {
+  override def process(queue: OrgQueue): Unit = {
+
+    val orgImpl = queue.org.asInstanceOf[OrgImpl]
+    OrgImpl.current.withValue(orgImpl) {
+
+      val nodeDataMap = mutable.HashMap[String, Int]()
+      nodeDataMap.put(id, 0)
+      val linkDataArray = ArrayBuffer[LinkData]()
+      collectDependencies(orgImpl, depth, processed = 0, nodeDataMap, linkDataArray)
+
+      val nodeData = nodeDataMap
+        .map(nodeData => {
+          NodeData(nodeData._2, nodeData._1)
+        })
+        .toArray
+      val linkData = linkDataArray.toArray
+
+      promise.success(DependencyGraphResult(nodeData, linkData))
+    }
+  }
+
+  @scala.annotation.tailrec
+  private def collectDependencies(org: OrgImpl,
+                                  depth: Int,
+                                  processed: Int,
+                                  nodeData: mutable.Map[String, Int],
+                                  linkData: ArrayBuffer[LinkData]): Unit = {
+    if (depth == 0) return
+
+    val unhandled = nodeData.filter(kv => kv._2 >= processed)
+    unhandled.foreach(source => {
+
+      val dependencies: Array[TypeIdentifier] = org
+        .getIdentifier(source._1)
+        .map(tid => {
+          org
+            .getPackage(tid.namespace)
+            .map(pkg => {
+              pkg.getDependencies(tid, inheritanceOnly = false)
+            })
+            .getOrElse(Array[TypeIdentifier]())
+        })
+        .getOrElse(Array[TypeIdentifier]())
+
+      dependencies
+        .map(_.typeName.toString())
+        .filterNot(_ == source._1)
+        .foreach(targetName => {
+          val index: Int =
+            if (nodeData.contains(targetName)) {
+              nodeData(targetName)
+            } else {
+              val i = nodeData.size + 1
+              nodeData.put(targetName, i)
+              i
+            }
+          linkData.addOne(LinkData(index, source._2))
+        })
+    })
+
+    collectDependencies(org, depth - 1, processed + unhandled.size, nodeData, linkData)
+  }
+
+}
+
+object DependencyGraphRequest {
+  def apply(queue: OrgQueue, path: String, depth: Int): Future[DependencyGraphResult] = {
+    val promise = Promise[DependencyGraphResult]()
+    queue.add(new DependencyGraphRequest(promise, path, depth))
+    promise.future
+  }
+}
+
+case class IdentifierLocation(promise: Promise[IdentifierLocationResult], identifier: String)
+    extends APIRequest {
+  override def process(queue: OrgQueue): Unit = {
+    promise.success(IdentifierLocationResult(queue.org.getIdentifierLocation(identifier)))
+  }
+}
+
+object IdentifierLocation {
+  def apply(queue: OrgQueue, identifier: String): Future[IdentifierLocationResult] = {
+    val promise = Promise[IdentifierLocationResult]()
+    queue.add(new IdentifierLocation(promise, identifier))
+    promise.future
+  }
+}
+
+case class IdentifierForPath(promise: Promise[Option[String]], path: String) extends APIRequest {
+  override def process(queue: OrgQueue): Unit = {
+    val orgImpl = queue.org.asInstanceOf[OrgImpl]
+    OrgImpl.current.withValue(orgImpl) {
+      val types = orgImpl.packagesByNamespace.values.flatMap(pkg => Option(pkg.getTypeOfPath(path)))
+      promise.success(types.headOption.map(_.typeName.toString()))
+    }
+  }
+}
+
+object IdentifierForPath {
+  def apply(queue: OrgQueue, identifier: String): Future[Option[String]] = {
+    val promise = Promise[Option[String]]()
+    queue.add(new IdentifierForPath(promise, identifier))
     promise.future
   }
 }
@@ -164,5 +290,21 @@ class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
 
   override def refresh(path: String, contents: Option[String]): Future[Unit] = {
     Future(OrgQueue.instance(quiet).refresh(path, contents))
+  }
+
+  override def getTypeIdentifiers(): Future[GetTypeIdentifiersResult] = {
+    GetTypeIdentifiers(OrgQueue.instance(quiet))
+  }
+
+  override def dependencyGraph(path: String, depth: Int): Future[DependencyGraphResult] = {
+    DependencyGraphRequest(OrgQueue.instance(quiet), path, depth)
+  }
+
+  override def identifierLocation(identifier: String): Future[IdentifierLocationResult] = {
+    IdentifierLocation(OrgQueue.instance(quiet), identifier)
+  }
+
+  override def identifierForPath(path: String): Future[Option[String]] = {
+    IdentifierForPath(OrgQueue.instance(quiet), path)
   }
 }

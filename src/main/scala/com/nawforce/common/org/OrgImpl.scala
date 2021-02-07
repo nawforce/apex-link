@@ -29,7 +29,7 @@ package com.nawforce.common.org
 
 import java.util
 
-import com.nawforce.common.api.{Diagnostic, ERROR_CATEGORY, FileIssueOptions, IssueOptions, LoggerOps, Name, Org, Package, PathLocation, ServerOps}
+import com.nawforce.common.api.{Diagnostic, ERROR_CATEGORY, FileIssueOptions, IssueOptions, LoggerOps, Name, Org, Package, PathLocation, ServerOps, TypeIdentifier}
 import com.nawforce.common.cst.UnusedLog
 import com.nawforce.common.diagnostics.{Issue, IssueLog}
 import com.nawforce.common.documents._
@@ -298,6 +298,26 @@ class OrgImpl(val analysis: Boolean = true) extends Org {
 
     loc.orNull
   }
+
+  /** Find a TypeIdentifier */
+  def getIdentifier(identifier: String): Option[TypeIdentifier] = {
+    val typeName = DotName(identifier).asTypeName()
+
+    // Extract namespace
+    val namespace =
+      typeName.outer
+        .map(_ => typeName.outerName)
+        .orElse({
+          val triggerPattern = """__sfdc_trigger/(.*)/.*""".r
+          typeName.name.value match {
+            case triggerPattern(ns) => Some(Name(ns))
+            case _                  => None
+          }
+        })
+
+    packagesByNamespace.get(namespace).map(pkg => TypeIdentifier(pkg.namespace, typeName))
+  }
+
 
   /** Dump current issues to standard out */
   private[nawforce] def dumpIssues(): Unit = issues.dump()

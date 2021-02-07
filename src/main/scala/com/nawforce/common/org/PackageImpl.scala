@@ -132,6 +132,11 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     types.values
   }
 
+  /* All available types */
+  def getApexTypeIdentifiers: Set[String] = {
+    types.values.collect { case ad: ApexDeclaration => ad }.map(_.typeName.toString()).toSet
+  }
+
   /* Search for a specific outer or inner type */
   def packageType(typeName: TypeName): Option[TypeDeclaration] = {
     types

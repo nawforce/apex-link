@@ -103,7 +103,7 @@ trait Org {
 
   /** Get Apex type dependency map for all types in the Org.
     *
-    * This is intended to be used to support exporting of the map for secondary analysis.
+    * This is intended to be only used to support exporting of the map for secondary analysis.
     */
   def getDependencies: java.util.Map[String, Array[String]]
 
