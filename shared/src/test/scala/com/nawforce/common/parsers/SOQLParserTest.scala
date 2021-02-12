@@ -38,33 +38,33 @@ class SOQLParserTest extends AnyFunSuite with Matchers {
 
   test("Empty query") {
     SOQLParser.parse(" ") should matchPattern {
-      case Left(Seq(ParserIssue(1, 1, "mismatched input '<EOF>' expecting 'select'"))) =>
+      case Left(Seq(SOQLParser.ParserIssue(1, 1, "mismatched input '<EOF>' expecting 'select'"))) =>
     }
   }
 
   test("Whitespace query") {
     SOQLParser.parse(" ") should matchPattern {
-      case Left(Seq(ParserIssue(1, 1, "mismatched input '<EOF>' expecting 'select'"))) =>
+      case Left(Seq(SOQLParser.ParserIssue(1, 1, "mismatched input '<EOF>' expecting 'select'"))) =>
     }
   }
 
   test("Missing fields") {
     SOQLParser.parse("select") should matchPattern {
-      case Left(Seq(ParserIssue(1, 6, err)))
+      case Left(Seq(SOQLParser.ParserIssue(1, 6, err)))
           if err.startsWith("mismatched input '<EOF>' expecting {") =>
     }
   }
 
   test("Missing from") {
     SOQLParser.parse("select A") should matchPattern {
-      case Left(Seq(ParserIssue(1, 8, err)))
+      case Left(Seq(SOQLParser.ParserIssue(1, 8, err)))
           if err.startsWith("mismatched input '<EOF>' expecting {") =>
     }
   }
 
   test("Missing table") {
     SOQLParser.parse("select A from ") should matchPattern {
-      case Left(Seq(ParserIssue(1, 14, err)))
+      case Left(Seq(SOQLParser.ParserIssue(1, 14, err)))
           if err.startsWith("mismatched input '<EOF>' expecting {") =>
     }
   }
@@ -91,7 +91,7 @@ class SOQLParserTest extends AnyFunSuite with Matchers {
 
   test("Unknown aggregate") {
     SOQLParser.parse("Select UNKNOWN(A), B, C from Table") should matchPattern {
-      case Left(Seq(ParserIssue(1, 14, err)))
+      case Left(Seq(SOQLParser.ParserIssue(1, 14, err)))
           if err.startsWith("mismatched input '(' expecting {") =>
     }
   }
@@ -113,7 +113,7 @@ class SOQLParserTest extends AnyFunSuite with Matchers {
 
   test("Nested sub-query") {
     SOQLParser.parse("Select A, (Select (Select C from Table3) from Table2) from Table1") should matchPattern {
-      case Left(Seq(ParserIssue(1, 18, err)))
+      case Left(Seq(SOQLParser.ParserIssue(1, 18, err)))
           if err.startsWith("extraneous input '(' expecting {") =>
     }
   }
@@ -154,7 +154,8 @@ class SOQLParserTest extends AnyFunSuite with Matchers {
 
   test("Sub-query scope use") {
     SOQLParser.parse("Select A, (Select B from Table2 Using Scope SomeScope) from Table1") should matchPattern {
-      case Left(Seq(ParserIssue(1, 32, err), _)) if err.startsWith("missing ')' at 'Using'") =>
+      case Left(Seq(SOQLParser.ParserIssue(1, 32, err), _))
+          if err.startsWith("missing ')' at 'Using'") =>
     }
   }
 
@@ -219,9 +220,9 @@ class SOQLParserTest extends AnyFunSuite with Matchers {
   }
 }
 
-case class ParserIssue(line: Int, offset: Int, message: String)
-
 object SOQLParser {
+
+  case class ParserIssue(line: Int, offset: Int, message: String)
 
   def parse(soql: String): Either[Seq[ParserIssue], ApexParser.QueryContext] = {
 
