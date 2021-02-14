@@ -29,11 +29,23 @@ public interface VFParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDeclaration(VFParser.DeclarationContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link VFParser#element}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitElement(VFParser.ElementContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link VFParser#attribute}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitAttribute(VFParser.AttributeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link VFParser#attributeValues}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAttributeValues(VFParser.AttributeValuesContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link VFParser#content}.
 	 * @param ctx the parse tree
@@ -41,15 +53,15 @@ public interface VFParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitContent(VFParser.ContentContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link VFParser#element}.
+	 * Visit a parse tree produced by {@link VFParser#chardata}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitElement(VFParser.ElementContext ctx);
+	T visitChardata(VFParser.ChardataContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link VFParser#elExpression}.
+	 * Visit a parse tree produced by {@link VFParser#misc}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitElExpression(VFParser.ElExpressionContext ctx);
+	T visitMisc(VFParser.MiscContext ctx);
 }

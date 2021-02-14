@@ -34,26 +34,20 @@ lexer grammar VFLexer;
     }
 }
 
-channels {
-    WHITESPACE_CHANNEL,
-    COMMENT_CHANNEL
-}
-
+// Outside markup handling
 COMMENT:  		'<!--' .*? '-->';
 DOCTYPE:      '<!DOCTYPE' .*? '>';
-DECL_START:  	'<?' Name WS? -> pushMode(INSIDE);
-OPEN:         '<' -> pushMode(INSIDE);
-EL_START:     '{!';
-EL_END:       '}';
+DECL_START:  	'<?' Name WS? -> pushMode(INTAG);
+OPEN:         '<' -> pushMode(INTAG);
 
-EntityRef:    '&' Name ';';
-CharRef:      '&#' [0-9]+ ';'
-              | '&#x' [a-fA-F0-9]+ ';';
-
+// Outside markup chardata tokens
+EL_START:     '{!' -> pushMode(EL);
+CHARDATA_REF: Ref;
 WS_NL:        (' '|'\t'|'\r'? '\n')+ ;
-TEXT:         ~[<&]+;
+TEXT:         ~[<&{]+ | '{' ~[<&!{] ~[<&{]* | '{';
 
-mode INSIDE;
+// Inside markup handling(element, PI & xml declaration)
+mode INTAG;
 
 DECL_END:  	  '?>' -> popMode;
 CLOSE:        '>' -> popMode;
@@ -62,13 +56,38 @@ SLASH_CLOSE:  '/>' -> popMode;
 SLASH:        '/';
 
 EQUALS:       '=';
-STRING      :   '"' ~[<"]* '"'
-            |   '\'' ~[<']* '\'';
+STRING      :   '"' ~[<"]* '"';
+
+ATTRS_START:  '=' [ \t]* '\'' -> pushMode(ATTRS);
+ATTRD_START:  '=' [ \t]* '"' -> pushMode(ATTRD);
 
 WS:           [ \t\r\n] -> skip;
 
 Name:         NameStartChar NameChar*;
 
+// Expression language text
+mode EL;
+
+EL_END:       '}' -> popMode;
+EL_BODY:      ~[}]+;
+
+// Single quoted attribute value
+mode ATTRS;
+
+ATTRS_END:        '\'' -> popMode;
+ATTRS_EL_START:   '{!' -> pushMode(EL);
+ATTRS_REF:        Ref;
+ATTRS_TEXT:       ~['&{]+ | '{' ~['&!{] ~['&{]* | '{';
+
+// Double quoted attribute value
+mode ATTRD;
+
+ATTRD_END:        '"' -> popMode;
+ATTRD_EL_START:   '{!' -> pushMode(EL);
+ATTRD_REF:        Ref;
+ATTRD_TEXT:       ~["&{]+ | '{' ~["&!{] ~["&{]* | '{';
+
+// Fragments
 fragment
 NameChar    :   NameStartChar
             |   '-' | '_' | '.' | [0-9]
@@ -87,5 +106,9 @@ NameStartChar
             |   '\uFDF0'..'\uFFFD'
             ;
 
+fragment
+Ref:        '&' Name ';'
+            | '&#' [0-9]+ ';'
+            | '&#x' [a-fA-F0-9]+ ';';
 
 

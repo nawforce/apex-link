@@ -52,6 +52,18 @@ public class VFParserBaseListener implements VFParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterElement(VFParser.ElementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitElement(VFParser.ElementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAttribute(VFParser.AttributeContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -59,6 +71,18 @@ public class VFParserBaseListener implements VFParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitAttribute(VFParser.AttributeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAttributeValues(VFParser.AttributeValuesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAttributeValues(VFParser.AttributeValuesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -76,25 +100,25 @@ public class VFParserBaseListener implements VFParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterElement(VFParser.ElementContext ctx) { }
+	@Override public void enterChardata(VFParser.ChardataContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitElement(VFParser.ElementContext ctx) { }
+	@Override public void exitChardata(VFParser.ChardataContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterElExpression(VFParser.ElExpressionContext ctx) { }
+	@Override public void enterMisc(VFParser.MiscContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitElExpression(VFParser.ElExpressionContext ctx) { }
+	@Override public void exitMisc(VFParser.MiscContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

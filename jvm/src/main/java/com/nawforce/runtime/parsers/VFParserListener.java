@@ -38,6 +38,16 @@ public interface VFParserListener extends ParseTreeListener {
 	 */
 	void exitDeclaration(VFParser.DeclarationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link VFParser#element}.
+	 * @param ctx the parse tree
+	 */
+	void enterElement(VFParser.ElementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link VFParser#element}.
+	 * @param ctx the parse tree
+	 */
+	void exitElement(VFParser.ElementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link VFParser#attribute}.
 	 * @param ctx the parse tree
 	 */
@@ -47,6 +57,16 @@ public interface VFParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAttribute(VFParser.AttributeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link VFParser#attributeValues}.
+	 * @param ctx the parse tree
+	 */
+	void enterAttributeValues(VFParser.AttributeValuesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link VFParser#attributeValues}.
+	 * @param ctx the parse tree
+	 */
+	void exitAttributeValues(VFParser.AttributeValuesContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link VFParser#content}.
 	 * @param ctx the parse tree
@@ -58,23 +78,23 @@ public interface VFParserListener extends ParseTreeListener {
 	 */
 	void exitContent(VFParser.ContentContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link VFParser#element}.
+	 * Enter a parse tree produced by {@link VFParser#chardata}.
 	 * @param ctx the parse tree
 	 */
-	void enterElement(VFParser.ElementContext ctx);
+	void enterChardata(VFParser.ChardataContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link VFParser#element}.
+	 * Exit a parse tree produced by {@link VFParser#chardata}.
 	 * @param ctx the parse tree
 	 */
-	void exitElement(VFParser.ElementContext ctx);
+	void exitChardata(VFParser.ChardataContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link VFParser#elExpression}.
+	 * Enter a parse tree produced by {@link VFParser#misc}.
 	 * @param ctx the parse tree
 	 */
-	void enterElExpression(VFParser.ElExpressionContext ctx);
+	void enterMisc(VFParser.MiscContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link VFParser#elExpression}.
+	 * Exit a parse tree produced by {@link VFParser#misc}.
 	 * @param ctx the parse tree
 	 */
-	void exitElExpression(VFParser.ElExpressionContext ctx);
+	void exitMisc(VFParser.MiscContext ctx);
 }

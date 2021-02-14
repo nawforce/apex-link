@@ -35,7 +35,7 @@ options {tokenVocab=VFLexer;}
     }
 }
 
-vfUnit: prolog? content EOF;
+vfUnit: prolog? misc* element misc* EOF;
 
 prolog:
   (COMMENT | WS_NL)* (declaration | DOCTYPE);
@@ -43,18 +43,32 @@ prolog:
 declaration:
   DECL_START attribute* DECL_END;
 
-attribute:
-  Name EQUALS STRING;
-
-content:
-  (elExpression | TEXT | EntityRef | CharRef | COMMENT | element)*;
-
 element:
   OPEN Name attribute* CLOSE content OPEN SLASH Name CLOSE
   | OPEN Name attribute* SLASH_CLOSE;
 
-elExpression:
-  EL_START EL_END;
+attribute:
+  Name ATTRD_START attributeValues* ATTRD_END
+  | Name ATTRS_START attributeValues* ATTRS_END;
+
+attributeValues:
+    ATTRD_TEXT
+    | ATTRS_TEXT
+    | ATTRD_EL_START EL_BODY? EL_END
+    | ATTRS_EL_START EL_BODY? EL_END
+    | ATTRD_REF
+    | ATTRS_REF;
+
+content:
+  chardata ((COMMENT | element) chardata)*;
+
+chardata:
+  (TEXT
+  | CHARDATA_REF
+  | EL_START EL_BODY? EL_END)*;
+
+ misc:
+  COMMENT;
 
 
 

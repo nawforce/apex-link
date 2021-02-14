@@ -56,7 +56,7 @@ class PageParser(val source: Source) {
   }
 
   def parse[T](parse: VFParser => T): Either[Array[Issue], T] = {
-    val tokenStream = new CommonTokenStream(new ApexLexer(cis))
+    val tokenStream = new CommonTokenStream(new VFLexer(cis))
     tokenStream.fill()
 
     val listener = new CollectingErrorListener(source.path.toString)
