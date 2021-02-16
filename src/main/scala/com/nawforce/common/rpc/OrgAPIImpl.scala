@@ -157,9 +157,9 @@ case class DependencyGraphRequest(promise: Promise[DependencyGraphResult], id: S
       val linkDataArray = ArrayBuffer[LinkData]()
       collectDependencies(orgImpl, depth, processed = 0, nodeDataMap, linkDataArray)
 
-      val nodeData = nodeDataMap
+      val nodeData = nodeDataMap.toSeq.sortBy(_._2)
         .map(nodeData => {
-          NodeData(nodeData._2, nodeData._1)
+          NodeData(nodeData._1)
         })
         .toArray
       val linkData = linkDataArray.toArray
@@ -199,11 +199,11 @@ case class DependencyGraphRequest(promise: Promise[DependencyGraphResult], id: S
             if (nodeData.contains(targetName)) {
               nodeData(targetName)
             } else {
-              val i = nodeData.size + 1
+              val i = nodeData.size
               nodeData.put(targetName, i)
               i
             }
-          linkData.addOne(LinkData(index, source._2))
+          linkData.addOne(LinkData(source._2, index))
         })
     })
 
