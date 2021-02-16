@@ -33,12 +33,12 @@ import com.nawforce.common.api.{Name, ServerOps}
 import com.nawforce.common.diagnostics.CatchingLogger
 import com.nawforce.common.documents.DocumentIndex
 import com.nawforce.common.path.PathLike
-import com.nawforce.runtime.parsers.CodeParser
+import com.nawforce.runtime.parsers.PageParser
 import com.nawforce.runtime.platform.Path
 
 import scala.collection.mutable.ArrayBuffer
 
-object ParserBench {
+object PageBench {
 
   def main(args: Array[String]): Unit = {
     if (args.length != 1) {
@@ -64,7 +64,7 @@ object ParserBench {
     val parseTimes = ArrayBuffer[(Double, PathLike)]()
     ServerOps.debugTime("Parsed") {
       index
-        .getByExtension(Name("cls"))
+        .getByExtension(Name("page"))
         .foreach(doc => {
           val start = System.currentTimeMillis()
           var size = 0
@@ -73,8 +73,8 @@ object ParserBench {
               case Left(err) => println(err)
               case Right(data) =>
                 size = data.length
-                val parser = CodeParser(doc.path, data)
-                parser.parseClass() match {
+                val parser = PageParser(doc.path, data)
+                parser.parsePage() match {
                   case Left(issues) =>
                     issues.foreach(issue =>
                       println(
@@ -83,10 +83,8 @@ object ParserBench {
                 }
             }
           } finally {
-            if (size > 1024) {
-              val end = System.currentTimeMillis()
-              parseTimes.append(((end - start) / (size.toDouble / 1024), doc.path))
-            }
+            val end = System.currentTimeMillis()
+            parseTimes.append((end - start, doc.path))
           }
         })
     }
@@ -95,7 +93,7 @@ object ParserBench {
       .sortBy(_._1)(Ordering[Double].reverse)
       .take(10)
       .foreach(pair => {
-        println(s"${pair._1} ${pair._2}")
+        println(s"${pair._1}ms ${pair._2}")
       })
   }
 }
