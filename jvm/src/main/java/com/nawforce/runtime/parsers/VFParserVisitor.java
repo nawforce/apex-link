@@ -17,18 +17,6 @@ public interface VFParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVfUnit(VFParser.VfUnitContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link VFParser#prolog}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitProlog(VFParser.PrologContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link VFParser#declaration}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDeclaration(VFParser.DeclarationContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link VFParser#element}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -59,9 +47,9 @@ public interface VFParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitChardata(VFParser.ChardataContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link VFParser#misc}.
+	 * Visit a parse tree produced by {@link VFParser#processingInstruction}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitMisc(VFParser.MiscContext ctx);
+	T visitProcessingInstruction(VFParser.ProcessingInstructionContext ctx);
 }

@@ -36,8 +36,7 @@ lexer grammar VFLexer;
 
 // Outside markup handling
 COMMENT:  		'<!--' .*? '-->';
-DOCTYPE:      '<!DOCTYPE' .*? '>';
-DECL_START:  	'<?' Name WS? -> pushMode(INTAG);
+PI_START:  	  '<?' Name WS? -> pushMode(INTAG);
 OPEN:         '<' -> pushMode(INTAG);
 
 // Outside markup chardata tokens
@@ -49,7 +48,7 @@ TEXT:         ~[<&{]+ | '{' ~[<&!{] ~[<&{]* | '{';
 // Inside markup handling(element, PI & xml declaration)
 mode INTAG;
 
-DECL_END:  	  '?>' -> popMode;
+PI_END:  	    '?>' -> popMode;
 CLOSE:        '>' -> popMode;
 SLASH_CLOSE:  '/>' -> popMode;
 

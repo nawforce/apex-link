@@ -28,30 +28,6 @@ public class VFParserBaseListener implements VFParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterProlog(VFParser.PrologContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitProlog(VFParser.PrologContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterDeclaration(VFParser.DeclarationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDeclaration(VFParser.DeclarationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterElement(VFParser.ElementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -112,13 +88,13 @@ public class VFParserBaseListener implements VFParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMisc(VFParser.MiscContext ctx) { }
+	@Override public void enterProcessingInstruction(VFParser.ProcessingInstructionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitMisc(VFParser.MiscContext ctx) { }
+	@Override public void exitProcessingInstruction(VFParser.ProcessingInstructionContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

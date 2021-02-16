@@ -35,13 +35,7 @@ options {tokenVocab=VFLexer;}
     }
 }
 
-vfUnit: prolog? misc* element misc* EOF;
-
-prolog:
-  (COMMENT | WS_NL)* (declaration | DOCTYPE);
-
-declaration:
-  DECL_START attribute* DECL_END;
+vfUnit: (COMMENT | WS_NL | processingInstruction)* element (COMMENT | WS_NL)* EOF;
 
 element:
   OPEN Name attribute* CLOSE content OPEN SLASH Name CLOSE
@@ -60,15 +54,15 @@ attributeValues:
     | ATTRS_REF;
 
 content:
-  chardata ((COMMENT | element) chardata)*;
+  chardata ((COMMENT | processingInstruction | element) chardata)*;
 
 chardata:
   (TEXT
   | CHARDATA_REF
   | EL_START EL_BODY? EL_END)*;
 
- misc:
-  COMMENT;
+processingInstruction:
+  PI_START attribute* PI_END;
 
 
 

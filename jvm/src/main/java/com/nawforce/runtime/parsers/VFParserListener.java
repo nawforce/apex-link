@@ -18,26 +18,6 @@ public interface VFParserListener extends ParseTreeListener {
 	 */
 	void exitVfUnit(VFParser.VfUnitContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link VFParser#prolog}.
-	 * @param ctx the parse tree
-	 */
-	void enterProlog(VFParser.PrologContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link VFParser#prolog}.
-	 * @param ctx the parse tree
-	 */
-	void exitProlog(VFParser.PrologContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link VFParser#declaration}.
-	 * @param ctx the parse tree
-	 */
-	void enterDeclaration(VFParser.DeclarationContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link VFParser#declaration}.
-	 * @param ctx the parse tree
-	 */
-	void exitDeclaration(VFParser.DeclarationContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link VFParser#element}.
 	 * @param ctx the parse tree
 	 */
@@ -88,13 +68,13 @@ public interface VFParserListener extends ParseTreeListener {
 	 */
 	void exitChardata(VFParser.ChardataContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link VFParser#misc}.
+	 * Enter a parse tree produced by {@link VFParser#processingInstruction}.
 	 * @param ctx the parse tree
 	 */
-	void enterMisc(VFParser.MiscContext ctx);
+	void enterProcessingInstruction(VFParser.ProcessingInstructionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link VFParser#misc}.
+	 * Exit a parse tree produced by {@link VFParser#processingInstruction}.
 	 * @param ctx the parse tree
 	 */
-	void exitMisc(VFParser.MiscContext ctx);
+	void exitProcessingInstruction(VFParser.ProcessingInstructionContext ctx);
 }
