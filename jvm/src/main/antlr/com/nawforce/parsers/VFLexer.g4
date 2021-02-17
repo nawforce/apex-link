@@ -38,12 +38,33 @@ lexer grammar VFLexer;
 COMMENT:  		'<!--' .*? '-->';
 PI_START:  	  '<?' Name WS? -> pushMode(INTAG);
 OPEN:         '<' -> pushMode(INTAG);
+OPEN_SCRIPT:  '<script' -> pushMode(IN_SCRIPT_TAG);
 
-// Outside markup chardata tokens
+CDATA_START:  '<![CDATA[' -> pushMode(CDATA);
 EL_START:     '{!' -> pushMode(EL);
 CHARDATA_REF: Ref;
 WS_NL:        (' '|'\t'|'\r'? '\n')+ ;
 TEXT:         ~[<&{]+ | '{' ~[<&!{] ~[<&{]* | '{';
+
+// Horrible special handling for scripts, allow < and &
+mode IN_SCRIPT_TAG;
+
+CLOSE_SCRIPT:         '/>' -> popMode;
+CLOSE_OPEN_SCRIPT:    '>' -> pushMode(IN_SCRIPT);
+
+ScriptName:           NameStartChar NameChar*;
+SCRIPT_ATTRS_START:   '=' [ \t]* '\'' -> pushMode(ATTRS);
+SCRIPT_ATTRD_START:   '=' [ \t]* '"' -> pushMode(ATTRD);
+SCRIPT_WS:            [ \t\r\n] -> skip;
+
+mode IN_SCRIPT;
+
+END_SCRIPT:           '</script>' -> popMode, popMode;
+
+SCRIPT_EL_START:      '{!' -> pushMode(EL);
+SCRIPT_CHARDATA_REF:  Ref;
+SCRIPT_WS_NL:         (' '|'\t'|'\r'? '\n')+ ;
+SCRIPT_TEXT:          ~[{<]+ | '{' ~[!{<] ~[{<]* | '{' | '<' ~[/<]*;
 
 // Inside markup handling(element, PI & xml declaration)
 mode INTAG;
@@ -70,21 +91,26 @@ mode EL;
 EL_END:       '}' -> popMode;
 EL_BODY:      ~[}]+;
 
+// CDATA
+mode CDATA;
+CDATA_END:    ']]>' -> popMode;
+
+CDATA_EL:     '{!' -> pushMode(EL);
+CDATA_TEXT:   ~[{\]]+ | ']' ~[{\]] ~[{\]]* | ']' | '{';
+
 // Single quoted attribute value
 mode ATTRS;
 
 ATTRS_END:        '\'' -> popMode;
 ATTRS_EL_START:   '{!' -> pushMode(EL);
-ATTRS_REF:        Ref;
-ATTRS_TEXT:       ~['&{]+ | '{' ~['&!{] ~['&{]* | '{';
+ATTRS_TEXT:       ~['{]+ | '{' ~['!{] ~['{]* | '{';
 
 // Double quoted attribute value
 mode ATTRD;
 
 ATTRD_END:        '"' -> popMode;
 ATTRD_EL_START:   '{!' -> pushMode(EL);
-ATTRD_REF:        Ref;
-ATTRD_TEXT:       ~["&{]+ | '{' ~["&!{] ~["&{]* | '{';
+ATTRD_TEXT:       ~["{]+ | '{' ~["!{] ~["{]* | '{';
 
 // Fragments
 fragment

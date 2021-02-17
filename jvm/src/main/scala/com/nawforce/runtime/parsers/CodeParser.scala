@@ -39,7 +39,7 @@ import scala.jdk.CollectionConverters._
 
 /** Apex class parser helper */
 class CodeParser(val source: Source) {
-  private val cis = source.asStream
+  private val cis = source.asInsensitiveStream
 
   def parseClass(): Either[Array[Issue], ApexParser.CompilationUnitContext] = {
     parse(parser => parser.compilationUnit())

@@ -52,6 +52,18 @@ public class VFParserBaseListener implements VFParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterAttributeName(VFParser.AttributeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAttributeName(VFParser.AttributeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAttributeValues(VFParser.AttributeValuesContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -95,6 +107,18 @@ public class VFParserBaseListener implements VFParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitProcessingInstruction(VFParser.ProcessingInstructionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterScriptChardata(VFParser.ScriptChardataContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitScriptChardata(VFParser.ScriptChardataContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

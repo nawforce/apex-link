@@ -38,6 +38,16 @@ public interface VFParserListener extends ParseTreeListener {
 	 */
 	void exitAttribute(VFParser.AttributeContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link VFParser#attributeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterAttributeName(VFParser.AttributeNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link VFParser#attributeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitAttributeName(VFParser.AttributeNameContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link VFParser#attributeValues}.
 	 * @param ctx the parse tree
 	 */
@@ -77,4 +87,14 @@ public interface VFParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitProcessingInstruction(VFParser.ProcessingInstructionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link VFParser#scriptChardata}.
+	 * @param ctx the parse tree
+	 */
+	void enterScriptChardata(VFParser.ScriptChardataContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link VFParser#scriptChardata}.
+	 * @param ctx the parse tree
+	 */
+	void exitScriptChardata(VFParser.ScriptChardataContext ctx);
 }

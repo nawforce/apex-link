@@ -39,30 +39,44 @@ vfUnit: (COMMENT | WS_NL | processingInstruction)* element (COMMENT | WS_NL)* EO
 
 element:
   OPEN Name attribute* CLOSE content OPEN SLASH Name CLOSE
-  | OPEN Name attribute* SLASH_CLOSE;
+  | OPEN Name attribute* SLASH_CLOSE
+  | OPEN_SCRIPT attribute* CLOSE_OPEN_SCRIPT scriptChardata END_SCRIPT
+  | OPEN_SCRIPT attribute* CLOSE_SCRIPT;
 
 attribute:
-  Name ATTRD_START attributeValues* ATTRD_END
-  | Name ATTRS_START attributeValues* ATTRS_END;
+  attributeName ATTRD_START attributeValues* ATTRD_END
+  | attributeName ATTRS_START attributeValues* ATTRS_END
+  | attributeName SCRIPT_ATTRD_START attributeValues* ATTRD_END
+  | attributeName SCRIPT_ATTRS_START attributeValues* ATTRS_END;
+
+attributeName:
+  Name | ScriptName;
 
 attributeValues:
     ATTRD_TEXT
     | ATTRS_TEXT
     | ATTRD_EL_START EL_BODY? EL_END
-    | ATTRS_EL_START EL_BODY? EL_END
-    | ATTRD_REF
-    | ATTRS_REF;
+    | ATTRS_EL_START EL_BODY? EL_END;
 
 content:
   chardata ((COMMENT | processingInstruction | element) chardata)*;
 
 chardata:
   (TEXT
+  | WS_NL
   | CHARDATA_REF
-  | EL_START EL_BODY? EL_END)*;
+  | EL_START EL_BODY? EL_END
+  | CDATA_START (CDATA_TEXT | CDATA_EL EL_BODY? EL_END)* CDATA_END)*;
 
 processingInstruction:
   PI_START attribute* PI_END;
+
+scriptChardata:
+  (SCRIPT_TEXT
+  | SCRIPT_WS_NL
+  | SCRIPT_CHARDATA_REF
+  | SCRIPT_EL_START EL_BODY? EL_END)*;
+
 
 
 

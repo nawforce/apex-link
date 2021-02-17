@@ -32,6 +32,7 @@ import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets
 
 import com.nawforce.runtime.SourceBlob
+import org.antlr.v4.runtime.{CharStream, CharStreams}
 
 import scala.util.hashing.MurmurHash3
 
@@ -40,7 +41,8 @@ trait SourceData {
   val length: Int
 
   def subdata(offset: Int, length: Int): SourceData
-  def asStream: CaseInsensitiveInputStream
+  def asStream: CharStream
+  def asInsensitiveStream: CaseInsensitiveInputStream
   def asUTF8: Array[Byte]
   def asString: String
 }
@@ -65,7 +67,11 @@ case class ByteArraySourceData(value: Array[Byte], offset: Int, length: Int) ext
     ByteArraySourceData(value, startOffset, subLength)
   }
 
-  def asStream: CaseInsensitiveInputStream = {
+  def asStream: CharStream = {
+    CharStreams.fromStream(new ByteArrayInputStream(value, offset, length))
+  }
+
+  def asInsensitiveStream: CaseInsensitiveInputStream = {
     new CaseInsensitiveInputStream(new ByteArrayInputStream(value, offset, length))
   }
 

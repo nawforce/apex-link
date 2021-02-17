@@ -39,7 +39,7 @@ import scala.jdk.CollectionConverters._
 
 /** VF Page parser helper */
 class PageParser(val source: Source) {
-  private val cis = source.asStream
+  private val is = source.asStream
 
   def parsePage(): Either[Array[Issue], VFParser.VfUnitContext] = {
     parse(parser => parser.vfUnit())
@@ -56,10 +56,14 @@ class PageParser(val source: Source) {
   }
 
   def parse[T](parse: VFParser => T): Either[Array[Issue], T] = {
-    val tokenStream = new CommonTokenStream(new VFLexer(cis))
+    val listener = new CollectingErrorListener(source.path.toString)
+
+    val lexer = new VFLexer(is)
+    lexer.removeErrorListeners()
+    lexer.addErrorListener(listener)
+    val tokenStream = new CommonTokenStream(lexer)
     tokenStream.fill()
 
-    val listener = new CollectingErrorListener(source.path.toString)
     val parser = new VFParser(tokenStream)
     parser.removeErrorListeners()
     parser.addErrorListener(listener)

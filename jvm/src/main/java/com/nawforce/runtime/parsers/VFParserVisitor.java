@@ -29,6 +29,12 @@ public interface VFParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAttribute(VFParser.AttributeContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link VFParser#attributeName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAttributeName(VFParser.AttributeNameContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link VFParser#attributeValues}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -52,4 +58,10 @@ public interface VFParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitProcessingInstruction(VFParser.ProcessingInstructionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link VFParser#scriptChardata}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitScriptChardata(VFParser.ScriptChardataContext ctx);
 }

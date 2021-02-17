@@ -31,6 +31,7 @@ import com.nawforce.common.api.{Location, PathLocation}
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.SourceBlob
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
+import org.antlr.v4.runtime.CharStream
 
 trait Locatable {
   var locationPath: PathLike
@@ -44,7 +45,7 @@ trait Locatable {
   }
 }
 
-/** Encapsulation of a chunk of Apex code, position tells you where it came from in path */
+/** Encapsulation of a chunk of code, position tells you where it came from in path */
 case class Source(path: PathLike,
                   code: SourceData,
                   lineOffset: Int,
@@ -61,8 +62,12 @@ case class Source(path: PathLike,
                outer = Some(this))
   }
 
-  def asStream: CaseInsensitiveInputStream = {
+  def asStream: CharStream = {
     code.asStream
+  }
+
+  def asInsensitiveStream: CaseInsensitiveInputStream = {
+    code.asInsensitiveStream
   }
 
   def asUTF8: Array[Byte] = {
