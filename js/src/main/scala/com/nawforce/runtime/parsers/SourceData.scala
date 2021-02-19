@@ -39,7 +39,7 @@ trait SourceData {
   val length: Int
 
   def subdata(offset: Int, length: Int): SourceData
-  def asStream: CaseInsensitiveInputStream
+  def asInsensitiveStream: CaseInsensitiveInputStream
   def asUTF8: Array[Byte]
   def asString: String
 }
@@ -64,7 +64,7 @@ case class ByteArraySourceData(value: Array[Byte], offset: Int, length: Int) ext
     ByteArraySourceData(value, startOffset, subLength)
   }
 
-  def asStream: CaseInsensitiveInputStream = {
+  def asInsensitiveStream: CaseInsensitiveInputStream = {
     new CaseInsensitiveInputStream(null, new String(value, offset, length))
   }
 

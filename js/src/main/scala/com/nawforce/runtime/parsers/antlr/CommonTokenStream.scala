@@ -34,6 +34,6 @@ import scala.scalajs.js.annotation.JSImport
 
 @js.native
 @JSImport("antlr4ts", "CommonTokenStream")
-class CommonTokenStream(lexer: ApexLexer) extends js.Object {
+class CommonTokenStream(lexer: js.Any) extends js.Object {
   def fill(): Unit = js.native
 }

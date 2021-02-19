@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
+ Copyright (c) 2021 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -25,12 +25,19 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.nawforce.runtime.parsers
+package com.nawforce.runtime.parsers.antlr
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
 @js.native
-@JSImport("apex-parser", "ApexLexer")
-class ApexLexer(stream: CaseInsensitiveInputStream) extends js.Object {
+@JSImport("antlr4ts/CharStream", "CharStream")
+class CharStream extends js.Object {
+}
+
+@js.native
+@JSImport("antlr4ts/CharStreams", "CharStreams")
+object CharStreams extends js.Object {
+  def fromString(s: String): CharStream = js.native
+  def fromString(s: String, sourceName: String): CharStream = js.native
 }

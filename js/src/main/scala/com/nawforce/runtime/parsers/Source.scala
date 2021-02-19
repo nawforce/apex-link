@@ -61,8 +61,12 @@ case class Source(path: PathLike,
                outer = Some(this))
   }
 
-  def asStream: CaseInsensitiveInputStream = {
-    code.asStream
+  def asInsensitiveStream: CaseInsensitiveInputStream = {
+    code.asInsensitiveStream
+  }
+
+  def asString: String = {
+    code.asString
   }
 
   def asUTF8: Array[Byte] = {

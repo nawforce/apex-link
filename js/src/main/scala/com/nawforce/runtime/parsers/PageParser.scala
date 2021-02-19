@@ -31,33 +31,16 @@ import com.nawforce.common.api.Location
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
-import com.nawforce.runtime.parsers.antlr.CommonTokenStream
+import com.nawforce.runtime.parsers.antlr.{CharStreams, CommonTokenStream, ParseTree}
 
 import scala.scalajs.js
 
-class CodeParser(val source: Source) {
+class PageParser(val source: Source) {
   // We would like to extend this but it angers the JavaScript gods
-  val cis: CaseInsensitiveInputStream = source.asInsensitiveStream
+  private val is = source.asString
 
-  def parseClass(): Either[Array[Issue], ApexParser.CompilationUnitContext] = {
-    parse(parser => parser.compilationUnit())
-  }
-
-  def parseTrigger(): Either[Array[Issue], ApexParser.TriggerUnitContext] = {
-    parse(parser => parser.triggerUnit())
-  }
-
-  def parseBlock(): Either[Array[Issue], ApexParser.BlockContext] = {
-    parse(parser => parser.block())
-  }
-
-  def parseSOQL(): Either[Array[Issue], ApexParser.QueryContext] = {
-    parse(parser => parser.query())
-  }
-
-  // Test use only
-  def parseLiteral(): ApexParser.LiteralContext = {
-    parse(parser => parser.literal()).getOrElse(null)
+  def parsePage(): Either[Array[Issue], VFParser.VfUnitContext] = {
+    parse(parser => parser.vfUnit())
   }
 
   /** Find a location for a rule, adapts based on source offsets to give absolute position in file */
@@ -70,12 +53,16 @@ class CodeParser(val source: Source) {
     source.extractSource(context)
   }
 
-  def parse[T](parse: ApexParser => T): Either[Array[Issue], T] = {
-    val tokenStream = new CommonTokenStream(new ApexLexer(cis))
+  def parse[T](parse: VFParser => T): Either[Array[Issue], T] = {
+    val listener = new CollectingErrorListener(source.path.toString)
+
+    val lexer = new VFLexer(CharStreams.fromString(is))
+    lexer.removeErrorListeners()
+    lexer.addErrorListener(listener)
+    val tokenStream = new CommonTokenStream(lexer)
     tokenStream.fill()
 
-    val listener = new CollectingErrorListener(source.path.toString)
-    val parser = new ApexParser(tokenStream)
+    val parser = new VFParser(tokenStream)
     parser.removeErrorListeners()
     parser.addErrorListener(listener)
 
@@ -87,7 +74,7 @@ class CodeParser(val source: Source) {
   }
 }
 
-object CodeParser {
+object PageParser {
   type ParserRuleContext = com.nawforce.runtime.parsers.antlr.ParserRuleContext
   type TerminalNode = com.nawforce.runtime.parsers.antlr.TerminalNode
 
@@ -97,6 +84,16 @@ object CodeParser {
 
   def clearCaches(): Unit = {
     // Not supported
+  }
+
+  // Helper for JS Portability
+  def childCount(context: ParserRuleContext): Int = {
+    context.childCount
+  }
+
+  // Helper for JS Portability
+  def getText(context: ParseTree): String = {
+    context.text
   }
 
   // Helper for JS Portability
@@ -115,6 +112,8 @@ object CodeParser {
     node.text
   }
 
+
+
   // Helper for JS Portability
   def toScala[T](collection: js.Array[T]): Seq[T] = {
     collection.toSeq
@@ -125,3 +124,6 @@ object CodeParser {
     value.toOption
   }
 }
+
+
+

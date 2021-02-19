@@ -76,128 +76,128 @@ class VFParserTest extends AnyFunSuite with Matchers {
   test("Empty attribute (single quote)") {
     val ctx = parseOrThrow("<apex:page foo=''/>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().attribute().size() == 1)
-    assert(ctx.element().attribute(0).attributeName().getText == "foo")
+    assert(ctx.element().attribute().size == 1)
+    assert(PageParser.getText(ctx.element().attribute(0).attributeName()) == "foo")
     assert(ctx.element().attribute(0).attributeValues().size == 0)
   }
 
   test("Empty attribute (double quote)") {
     val ctx = parseOrThrow("<apex:page foo=\"\"/>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().attribute(0).attributeName().getText == "foo")
+    assert(PageParser.getText(ctx.element().attribute(0).attributeName()) == "foo")
     assert(ctx.element().attribute(0).attributeValues().size == 0)
   }
 
   test("Simple attribute (single quote)") {
     val ctx = parseOrThrow("<apex:page foo='abc'/>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().attribute().size() == 1)
+    assert(ctx.element().attribute().size == 1)
     assert(ctx.element().attribute(0).attributeValues().size == 1)
-    assert(ctx.element().attribute(0).attributeValues(0).getText == "abc")
+    assert(PageParser.getText(ctx.element().attribute(0).attributeValues(0)) == "abc")
   }
 
   test("Simple attribute (double quote)") {
     val ctx = parseOrThrow("<apex:page foo=\"abc\"/>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().attribute().size() == 1)
-    assert(ctx.element().attribute(0).attributeName().getText == "foo")
+    assert(ctx.element().attribute().size == 1)
+    assert(PageParser.getText(ctx.element().attribute(0).attributeName()) == "foo")
     assert(ctx.element().attribute(0).attributeValues().size == 1)
-    assert(ctx.element().attribute(0).attributeValues(0).getText == "abc")
+    assert(PageParser.getText(ctx.element().attribute(0).attributeValues(0)) == "abc")
   }
 
   test("Multiple attributes") {
     val ctx = parseOrThrow("<apex:page foo=\"abc\" bar='xyz'/>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().attribute().size() == 2)
-    assert(ctx.element().attribute(0).attributeName().getText == "foo")
+    assert(ctx.element().attribute().size == 2)
+    assert(PageParser.getText(ctx.element().attribute(0).attributeName()) == "foo")
     assert(ctx.element().attribute(0).attributeValues().size == 1)
-    assert(ctx.element().attribute(0).attributeValues(0).getText == "abc")
-    assert(ctx.element().attribute(1).attributeName().getText == "bar")
+    assert(PageParser.getText(ctx.element().attribute(0).attributeValues(0)) == "abc")
+    assert(PageParser.getText(ctx.element().attribute(1).attributeName()) == "bar")
     assert(ctx.element().attribute(1).attributeValues().size == 1)
-    assert(ctx.element().attribute(1).attributeValues(0).getText == "xyz")
+    assert(PageParser.getText(ctx.element().attribute(1).attributeValues(0)) == "xyz")
   }
 
   test("EL as attribute value text") {
     val ctx = parseOrThrow("<apex:page foo='{!bar}'/>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().attribute().size() == 1)
-    assert(ctx.element().attribute(0).attributeName().getText == "foo")
+    assert(ctx.element().attribute().size == 1)
+    assert(PageParser.getText(ctx.element().attribute(0).attributeName()) == "foo")
     assert(ctx.element().attribute(0).attributeValues().size == 1)
-    assert(ctx.element().attribute(0).attributeValues(0).getText == "{!bar}")
+    assert(PageParser.getText(ctx.element().attribute(0).attributeValues(0)) == "{!bar}")
   }
 
   test("EL in attribute value text") {
     val ctx = parseOrThrow("<apex:page foo='a{!bar}c'/>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().attribute().size() == 1)
-    assert(ctx.element().attribute(0).attributeName().getText == "foo")
+    assert(ctx.element().attribute().size == 1)
+    assert(PageParser.getText(ctx.element().attribute(0).attributeName()) == "foo")
     assert(ctx.element().attribute(0).attributeValues().size == 3)
-    assert(ctx.element().attribute(0).attributeValues(0).getText == "a")
-    assert(ctx.element().attribute(0).attributeValues(1).getText == "{!bar}")
-    assert(ctx.element().attribute(0).attributeValues(2).getText == "c")
+    assert(PageParser.getText(ctx.element().attribute(0).attributeValues(0)) == "a")
+    assert(PageParser.getText(ctx.element().attribute(0).attributeValues(1)) == "{!bar}")
+    assert(PageParser.getText(ctx.element().attribute(0).attributeValues(2)) == "c")
   }
 
   test("Simple chardata") {
     val ctx = parseOrThrow("<apex:page>abc</apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().chardata().size() == 1)
-    assert(ctx.element().content().chardata(0).getText == "abc")
+    assert(ctx.element().content().chardata().size == 1)
+    assert(PageParser.getText(ctx.element().content().chardata(0)) == "abc")
   }
 
   test("Entity as chardata") {
     val ctx = parseOrThrow("<apex:page>&amp;</apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().chardata().size() == 1)
-    assert(ctx.element().content().chardata(0).getText == "&amp;")
+    assert(ctx.element().content().chardata().size == 1)
+    assert(PageParser.getText(ctx.element().content().chardata(0)) == "&amp;")
   }
 
   test("Entity in chardata") {
     val ctx = parseOrThrow("<apex:page>a&amp;b</apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().chardata().size() == 1)
-    assert(ctx.element().content().chardata(0).children.size() == 3)
-    assert(ctx.element().content().chardata(0).children.get(0).getText == "a")
-    assert(ctx.element().content().chardata(0).children.get(1).getText == "&amp;")
-    assert(ctx.element().content().chardata(0).children.get(2).getText == "b")
+    assert(ctx.element().content().chardata().size == 1)
+    assert(PageParser.childCount(ctx.element().content().chardata(0)) == 3)
+    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(0)) == "a")
+    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(1)) == "&amp;")
+    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(2)) == "b")
   }
 
   test("CharRef as chardata") {
     val ctx = parseOrThrow("<apex:page>&#32;</apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().chardata().size() == 1)
-    assert(ctx.element().content().chardata(0).getText == "&#32;")
+    assert(ctx.element().content().chardata().size == 1)
+    assert(PageParser.getText(ctx.element().content().chardata(0)) == "&#32;")
   }
 
   test("CharRef in chardata") {
     val ctx = parseOrThrow("<apex:page>a&#32;b</apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().chardata().size() == 1)
-    assert(ctx.element().content().chardata(0).children.size() == 3)
-    assert(ctx.element().content().chardata(0).children.get(0).getText == "a")
-    assert(ctx.element().content().chardata(0).children.get(1).getText == "&#32;")
-    assert(ctx.element().content().chardata(0).children.get(2).getText == "b")
+    assert(ctx.element().content().chardata().size == 1)
+    assert(PageParser.childCount(ctx.element().content().chardata(0)) == 3)
+    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(0)) == "a")
+    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(1)) == "&#32;")
+    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(2)) == "b")
   }
 
   test("EL as chardata") {
     val ctx = parseOrThrow("<apex:page>{!foo}</apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().chardata().size() == 1)
-    assert(ctx.element().content().chardata(0).children.size() == 3)
-    assert(ctx.element().content().chardata(0).children.get(0).getText == "{!")
-    assert(ctx.element().content().chardata(0).children.get(1).getText == "foo")
-    assert(ctx.element().content().chardata(0).children.get(2).getText == "}")
+    assert(ctx.element().content().chardata().size == 1)
+    assert(PageParser.childCount(ctx.element().content().chardata(0)) == 3)
+    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(0)) == "{!")
+    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(1)) == "foo")
+    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(2)) == "}")
   }
 
   test("EL in chardata") {
     val ctx = parseOrThrow("<apex:page>a{!foo}b</apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().chardata().size() == 1)
-    assert(ctx.element().content().chardata(0).children.size() == 5)
-    assert(ctx.element().content().chardata(0).children.get(0).getText == "a")
-    assert(ctx.element().content().chardata(0).children.get(1).getText == "{!")
-    assert(ctx.element().content().chardata(0).children.get(2).getText == "foo")
-    assert(ctx.element().content().chardata(0).children.get(3).getText == "}")
-    assert(ctx.element().content().chardata(0).children.get(4).getText == "b")
+    assert(ctx.element().content().chardata().size == 1)
+    assert(PageParser.childCount(ctx.element().content().chardata(0)) == 5)
+    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(0)) == "a")
+    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(1)) == "{!")
+    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(2)) == "foo")
+    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(3)) == "}")
+    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(4)) == "b")
   }
 
   test("Whitespace before root") {
@@ -212,77 +212,77 @@ class VFParserTest extends AnyFunSuite with Matchers {
 
   test("Comments before root") {
     val ctx = parseOrThrow("<!-- abc --><!-- xyz --><apex:page/>")
-    assert(ctx.COMMENT().size() == 2)
+    assert(ctx.COMMENT().size == 2)
     assert(Option(ctx.element()).nonEmpty)
   }
 
   test("Comments in root") {
     val ctx = parseOrThrow("<apex:page><!-- abc --><!-- xyz --></apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().COMMENT().size() == 2)
+    assert(ctx.element().content().COMMENT().size == 2)
   }
 
   test("Comments after root") {
     val ctx = parseOrThrow("<apex:page/><!-- abc --><!-- xyz -->")
-    assert(ctx.COMMENT().size() == 2)
+    assert(ctx.COMMENT().size == 2)
     assert(Option(ctx.element()).nonEmpty)
   }
 
   test("PI before root") {
     val ctx = parseOrThrow("<?foo a='b'?><apex:page/>")
-    assert(ctx.processingInstruction().size() == 1)
+    assert(ctx.processingInstruction().size == 1)
     assert(Option(ctx.element()).nonEmpty)
   }
 
   test("PIs in root") {
     val ctx = parseOrThrow("<apex:page><?foo a='b'?><?foo a='b'?></apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().processingInstruction().size() == 2)
+    assert(ctx.element().content().processingInstruction().size == 2)
   }
 
   test("Child element") {
     val ctx = parseOrThrow("<apex:page><a></a></apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().element().size() == 1)
+    assert(ctx.element().content().element().size == 1)
   }
 
   test("Child element with whitespace") {
     val ctx = parseOrThrow("<apex:page> \n <a/> \n </apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().element().size() == 1)
+    assert(ctx.element().content().element().size == 1)
   }
 
   test("Child elements") {
     val ctx = parseOrThrow("<apex:page><a/><b></b></apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().element().size() == 2)
+    assert(ctx.element().content().element().size == 2)
   }
 
   test("Less than in script") {
     val ctx = parseOrThrow("<script> a < b</script>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().scriptChardata().SCRIPT_TEXT().size() == 2)
+    assert(ctx.element().scriptChardata().SCRIPT_TEXT().size == 2)
   }
 
   test("Script with attributes") {
     val ctx = parseOrThrow("<script a='b'> a < b</script>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().attribute().size() == 1)
-    assert(ctx.element().scriptChardata().SCRIPT_TEXT().size() == 2)
+    assert(ctx.element().attribute().size == 1)
+    assert(ctx.element().scriptChardata().SCRIPT_TEXT().size == 2)
   }
 
   test("CDATA") {
     val ctx = parseOrThrow("<apex:page><![CDATA[x < y & z]]></apex:page>")
     assert(Option(ctx.element()).nonEmpty)
     assert(ctx.element().content().chardata().size == 1)
-    assert(ctx.element().content().chardata(0).CDATA_TEXT(0).getText == "x < y & z")
+    assert(PageParser.getText(ctx.element().content().chardata(0).CDATA_TEXT(0)) == "x < y & z")
   }
 
   test("CDATA with EL") {
     val ctx = parseOrThrow("<apex:page><![CDATA[a{!foo}b]]></apex:page>")
     assert(Option(ctx.element()).nonEmpty)
     assert(ctx.element().content().chardata().size == 1)
-    assert(ctx.element().content().chardata(0).EL_BODY(0).getText == "foo")
+    assert(PageParser.getText(ctx.element().content().chardata(0).EL_BODY(0)) == "foo")
   }
 
   class IssueException(val issues: Seq[ParserIssue]) extends Exception

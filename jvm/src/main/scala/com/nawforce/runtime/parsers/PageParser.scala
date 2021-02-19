@@ -34,6 +34,7 @@ import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.tree.ParseTree
 
 import scala.jdk.CollectionConverters._
 
@@ -93,7 +94,17 @@ object PageParser {
   }
 
   // Helper for JS Portability
+  def childCount(context: ParserRuleContext): Int = {
+    context.children.size()
+  }
+
+  // Helper for JS Portability
   def getText(context: ParserRuleContext): String = {
+    context.getText
+  }
+
+  // Helper for JS Portability
+  def getText(context: ParseTree): String = {
     context.getText
   }
 

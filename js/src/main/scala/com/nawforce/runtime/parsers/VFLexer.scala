@@ -27,10 +27,14 @@
  */
 package com.nawforce.runtime.parsers
 
+import com.nawforce.runtime.parsers.antlr.CharStream
+
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
 @js.native
-@JSImport("apex-parser", "ApexLexer")
-class ApexLexer(stream: CaseInsensitiveInputStream) extends js.Object {
+@JSImport("vf-parser", "VFLexer")
+class VFLexer(stream: CharStream) extends js.Object {
+  def removeErrorListeners(): Unit = js.native
+  def addErrorListener(listener: CollectingErrorListener): Unit = js.native
 }
