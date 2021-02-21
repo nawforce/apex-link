@@ -32,31 +32,31 @@ import com.nawforce.common.names._
 import com.nawforce.common.path.PathLike
 import ujson.Value
 
-class ProjectError(message: String) extends Throwable(message)
+class SFDXProjectError(message: String) extends Throwable(message)
 
-class Project(projectPath: PathLike, config: Value.Value) {
+class SFDXProject(projectPath: PathLike, config: Value.Value) {
   val packageDirectories: Seq[PackageDirectory] =
     try {
       config("packageDirectories") match {
         case ujson.Arr(value) => value.toSeq.map(pd => new PackageDirectory(projectPath, pd))
-        case _                => throw new ProjectError("'packageDirectories' should be an array")
+        case _                => throw new SFDXProjectError("'packageDirectories' should be an array")
       }
     } catch {
-      case _: NoSuchElementException => throw new ProjectError("'packageDirectories' is required")
+      case _: NoSuchElementException => throw new SFDXProjectError("'packageDirectories' is required")
     }
 
   val namespace: Option[Name] =
     try {
       val ns = config("namespace") match {
         case ujson.Str(value) => Name(value)
-        case _                => throw new ProjectError("'namespace' should be a string")
+        case _                => throw new SFDXProjectError("'namespace' should be a string")
       }
       if (ns.isEmpty)
         None
       else {
         ns.isLegalIdentifier match {
           case None        => Some(ns)
-          case Some(error) => throw new ProjectError(s"namespace '$ns' is not valid, $error")
+          case Some(error) => throw new SFDXProjectError(s"namespace '$ns' is not valid, $error")
         }
       }
     } catch {
@@ -67,7 +67,7 @@ class Project(projectPath: PathLike, config: Value.Value) {
     try {
       config("plugins") match {
         case ujson.Obj(value) => value.toMap
-        case _                => throw new ProjectError("'plugins' should be an object")
+        case _                => throw new SFDXProjectError("'plugins' should be an object")
       }
     } catch {
       case _: NoSuchElementException => Map()
@@ -76,12 +76,12 @@ class Project(projectPath: PathLike, config: Value.Value) {
   val dependencies: Seq[DependentPackage] =
     plugins.getOrElse("dependencies", ujson.Arr()) match {
       case ujson.Arr(value) => value.toSeq.map(dp => new DependentPackage(projectPath, dp))
-      case _                => throw new ProjectError("'dependencies' should be an array")
+      case _                => throw new SFDXProjectError("'dependencies' should be an array")
     }
 }
 
-object Project {
-  def apply(path: PathLike): Either[String, Project] = {
+object SFDXProject {
+  def apply(path: PathLike): Either[String, SFDXProject] = {
     val projectFile = path.join("sfdx-project.json")
     if (!projectFile.isFile) {
       Left(s"Missing project file at $projectFile")
@@ -90,9 +90,9 @@ object Project {
         case Left(err) => Left(err)
         case Right(data) =>
           try {
-            Right(new Project(path, ujson.read(data)))
+            Right(new SFDXProject(path, ujson.read(data)))
           } catch {
-            case ex: ProjectError =>
+            case ex: SFDXProjectError =>
               Left(s"Failed to parse '$projectFile', error: ${ex.getMessage}")
             case ex: Throwable =>
               Left(s"Failed to parse '$projectFile', error: ${ex.toString}")

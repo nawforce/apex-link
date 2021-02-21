@@ -31,7 +31,7 @@ import com.nawforce.common.api.Name
 import com.nawforce.common.documents.ForceIgnore
 import com.nawforce.common.path.PathLike
 
-trait Workspace {
+trait WorkspaceConfig {
   val rootPaths: Seq[PathLike]
   val namespace: Option[Name]
   val paths: Seq[PathLike]
@@ -67,7 +67,7 @@ trait Workspace {
   }
 }
 
-class MDAPIWorkspace(_namespace: Option[Name], val paths: Seq[PathLike]) extends Workspace {
+class MDAPIWorkspaceConfig(_namespace: Option[Name], val paths: Seq[PathLike]) extends WorkspaceConfig {
   override val namespace: Option[Name] = _namespace
 
   override lazy val rootPaths: Seq[PathLike] = paths
@@ -77,7 +77,7 @@ class MDAPIWorkspace(_namespace: Option[Name], val paths: Seq[PathLike]) extends
   }
 }
 
-class SFDXWorkspace(val rootPath: PathLike, project: Project) extends Workspace {
+class SFDXWorkspaceConfig(val rootPath: PathLike, project: SFDXProject) extends WorkspaceConfig {
   override val namespace: Option[Name] = project.namespace
 
   override lazy val rootPaths: Seq[PathLike] = Seq(rootPath)

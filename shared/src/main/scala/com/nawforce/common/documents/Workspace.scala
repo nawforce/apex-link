@@ -28,15 +28,16 @@
 package com.nawforce.common.documents
 
 import com.nawforce.common.api._
-import com.nawforce.common.diagnostics.{Issue, IssueLogger}
+import com.nawforce.common.diagnostics.{CatchingLogger, Issue}
 import com.nawforce.common.names.TypeNames
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.sfdx.WorkspaceConfig
 
 import scala.collection.mutable
 
-/** Index of an ordered set of Paths with duplicate detection.
+/** Metadata workspace, maintains information on available metadata within a project/package.
   *
-  * The duplicate detection is based on the relevant MetadataDocumentType(s) being able to generate an accurate TypeName
+  * Duplicate detection is based on the relevant MetadataDocumentType(s) being able to generate an accurate TypeName
   * for the metadata. Where multiple metadata items may contribute to a type, e.g. labels, make sure that
   * duplicatesAllowed is set which will bypass the duplicate detection. Duplicates are reported as errors and then
   * ignored.
@@ -44,10 +45,10 @@ import scala.collection.mutable
   * During an upsert/deletion of new types the index will also need to be updated so that it maintains an accurate
   * view of the metadata files being used.
   */
-class DocumentIndex(namespace: Option[Name],
-                    paths: Seq[PathLike],
-                    logger: IssueLogger,
-                    forceIgnore: Option[ForceIgnore] = None) {
+class Workspace(config: WorkspaceConfig) {
+
+  /** Issues detected in workspace, typically duplicate types */
+  private val logger = new CatchingLogger()
 
   /** All documents partitioned by declared extension */
   private val documents =
@@ -58,7 +59,11 @@ class DocumentIndex(namespace: Option[Name],
 
   index()
 
-  val size: Int = documents.values.map(_.size).sum
+  /** Issues found in workspace */
+  val issues: List[Issue] = logger.issues
+
+  /** Number of types found*/
+  val typeCount: Int = documents.values.map(_.size).sum
 
   /** Get index'd metadata by declared extension */
   def getByExtension(ext: Name): Set[MetadataDocument] = {
@@ -90,7 +95,7 @@ class DocumentIndex(namespace: Option[Name],
     }
 
     // Label replacement OK
-    val typeName = metadata.typeName(namespace)
+    val typeName = metadata.typeName(config.namespace)
     if (typeName == TypeNames.Label)
       return true
 
@@ -129,7 +134,7 @@ class DocumentIndex(namespace: Option[Name],
     documents
       .get(metadataDocumentType.extension)
       .foreach(docs => {
-        val typeName = metadataDocumentType.typeName(namespace)
+        val typeName = metadataDocumentType.typeName(config.namespace)
         if (!metadataDocumentType.duplicatesAllowed) {
           docs.remove(typeName)
           typeNames.remove(typeName)
@@ -144,14 +149,14 @@ class DocumentIndex(namespace: Option[Name],
 
   private def index(): Unit = {
     LoggerOps.debugTime("Indexed Project") {
-      paths.reverse.filter(_.isDirectory).foreach(p => indexPath(p, forceIgnore))
-      createGhostSObjectFiles(Name("field"), forceIgnore)
-      createGhostSObjectFiles(Name("fieldSet"), forceIgnore)
+      config.paths.reverse.filter(_.isDirectory).foreach(p => indexPath(p, config.forceIgnore))
+      createGhostSObjectFiles(Name("field"), config.forceIgnore)
+      createGhostSObjectFiles(Name("fieldSet"), config.forceIgnore)
     }
   }
 
   private def indexPath(path: PathLike, forceIgnore: Option[ForceIgnore]): Unit = {
-    if (DocumentIndex.isExcluded(path))
+    if (Workspace.isExcluded(path))
       return
 
     if (path.isDirectory) {
@@ -182,7 +187,7 @@ class DocumentIndex(namespace: Option[Name],
       addDocument(documentType)
     } else {
       // Duplicate detect based on type that will be generated
-      val typeName = documentType.typeName(namespace)
+      val typeName = documentType.typeName(config.namespace)
       if (typeNames.contains(typeName)) {
         val duplicate = documents(documentType.extension).get(typeName)
         logger.log(
@@ -202,7 +207,7 @@ class DocumentIndex(namespace: Option[Name],
     val extMap = documents.getOrElseUpdate(docType.extension, {
       mutable.HashMap[TypeName, List[MetadataDocument]]()
     })
-    val typeName = docType.typeName(namespace)
+    val typeName = docType.typeName(config.namespace)
     extMap.put(typeName, docType :: extMap.getOrElse(typeName, Nil))
   }
 
@@ -216,7 +221,7 @@ class DocumentIndex(namespace: Option[Name],
           val objectExt = MetadataDocument.objectExt
           val docType = SObjectDocument(metaFile, Name(objectDir.basename))
           if (!documents.contains(objectExt) || !documents(objectExt).contains(
-                docType.typeName(namespace))) {
+                docType.typeName(config.namespace))) {
             addDocument(docType)
           }
         }
@@ -225,7 +230,7 @@ class DocumentIndex(namespace: Option[Name],
   }
 }
 
-object DocumentIndex {
+object Workspace {
 
   /** Exclude some paths that we would waste time searching */
   def isExcluded(path: PathLike): Boolean = {

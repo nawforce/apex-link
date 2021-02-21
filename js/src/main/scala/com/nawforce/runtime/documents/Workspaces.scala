@@ -25,43 +25,45 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.nawforce.common.sfdx
+package com.nawforce.runtime.documents
 
-import com.nawforce.common.api.Name
-import com.nawforce.common.names._
-import com.nawforce.common.path.PathLike
-import ujson.Value
+import com.nawforce.common.documents.Workspace
+import com.nawforce.common.path.PathFactory
+import com.nawforce.common.sfdx.{MDAPIWorkspaceConfig, SFDXProject, SFDXWorkspaceConfig}
 
-class DependentPackage(projectPath: PathLike, config: Value.Value) {
-  val namespace: Name =
-    try {
-      val ns = config("namespace") match {
-        case ujson.Str(value) => Name(value)
-        case _                => throw new SFDXProjectError("'namespace' should be a string")
-      }
-      if (ns.value.isEmpty)
-        throw new SFDXProjectError("'namespace' can not be empty")
-      else {
-        ns.isLegalIdentifier match {
-          case None        => ns
-          case Some(error) => throw new SFDXProjectError(s"namespace '$ns' is not valid, $error")
-        }
-      }
-    } catch {
-      case _: NoSuchElementException =>
-        throw new SFDXProjectError("'namespace' is required for each entry in 'dependencies'")
-    }
+import scala.collection.mutable
+import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
-  val path: Option[PathLike] = {
-    try {
-      config("path") match {
-        case ujson.Str(value) =>
-          Some(projectPath.join(value))
-        case _ =>
-          throw new SFDXProjectError("'path' should be a string")
-      }
-    } catch {
-      case _: NoSuchElementException => None
-    }
+@JSExportTopLevel("WorkspaceException")
+class JSWorkspaceException(val message: String) extends Exception(message)
+
+@JSExportTopLevel("Workspace")
+class JSWorkspace(val workspace: Workspace) {}
+
+@JSExportTopLevel("Workspaces")
+object JSWorkspaces {
+  private val workspaces = new mutable.HashMap[String, JSWorkspace]()
+
+  @JSExport
+  def get(wsPath: String): JSWorkspace = {
+    workspaces.getOrElseUpdate(
+      wsPath, {
+        val path = PathFactory(wsPath)
+        if (!path.exists || !path.isDirectory)
+          throw new JSWorkspaceException(s"No directory at $path")
+
+        val config =
+          if (path.join("sfdx-project.json").exists) {
+            SFDXProject(path) match {
+              case Left(err) =>
+                throw new JSWorkspaceException(err)
+              case Right(project) =>
+                new SFDXWorkspaceConfig(path, project)
+            }
+          } else {
+            new MDAPIWorkspaceConfig(None, Seq(path))
+          }
+        new JSWorkspace(new Workspace(config))
+      })
   }
 }

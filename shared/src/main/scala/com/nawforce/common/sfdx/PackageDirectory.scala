@@ -35,11 +35,11 @@ class PackageDirectory(projectPath: PathLike, config: Value.Value) {
     try {
       config("path") match {
         case ujson.Str(value) => projectPath.join(value)
-        case _                => throw new ProjectError("'path' should be a string")
+        case _                => throw new SFDXProjectError("'path' should be a string")
       }
     } catch {
       case _: NoSuchElementException =>
-        throw new ProjectError("'path' is required for all 'packageDirectories' elements")
+        throw new SFDXProjectError("'path' is required for all 'packageDirectories' elements")
     }
   }
 
