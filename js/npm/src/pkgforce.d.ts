@@ -4,6 +4,7 @@ export declare class WorkspaceException {
 }
 
 export declare class Workspace {
+    findType(name: string): string | null;
 }
 
 export declare class Workspaces {
