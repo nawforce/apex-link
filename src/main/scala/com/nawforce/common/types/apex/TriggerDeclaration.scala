@@ -119,9 +119,14 @@ final case class TriggerDeclaration(source: Source,
       }
 
       depends = Some(context.dependencies)
+      context.propagateDependencies()
       if (withPropagation)
         propagateOuterDependencies()
     }
+  }
+
+  override def dependencies(): Iterable[Dependent] = {
+    depends.map(_.toIterable).getOrElse(Array().toIterable)
   }
 
   override def collectDependenciesByTypeName(dependents: mutable.Set[TypeId]): Unit = {

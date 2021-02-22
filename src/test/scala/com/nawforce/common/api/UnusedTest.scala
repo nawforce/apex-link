@@ -173,4 +173,23 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
       }
     }
   }
+
+  test("Trigger referencing class") {
+    FileSystemHelper.run(
+      Map(
+        "Foo.cls" -> "public class Foo {public static String bar;}",
+        "Dummy.trigger" ->
+          """trigger Dummy on Account (before insert) {
+            |  System.debug(Foo.bar);
+            |}""".stripMargin)) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+
+      OrgImpl.current.withValue(org) {
+        assert(
+          pkg.reportUnused().getMessages(root.join("Foo.cls").toString).isEmpty)
+      }
+    }
+  }
 }
