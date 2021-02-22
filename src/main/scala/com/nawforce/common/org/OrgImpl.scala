@@ -29,14 +29,31 @@ package com.nawforce.common.org
 
 import java.util
 
-import com.nawforce.common.api.{Diagnostic, ERROR_CATEGORY, FileIssueOptions, IssueOptions, LoggerOps, Name, Org, Package, PathLocation, ServerOps, TypeIdentifier}
+import com.nawforce.common.api.{
+  Diagnostic,
+  ERROR_CATEGORY,
+  FileIssueOptions,
+  IssueOptions,
+  LoggerOps,
+  Name,
+  Org,
+  Package,
+  PathLocation,
+  ServerOps,
+  TypeIdentifier
+}
 import com.nawforce.common.cst.UnusedLog
 import com.nawforce.common.diagnostics.{Issue, IssueLog}
 import com.nawforce.common.documents._
 import com.nawforce.common.memory.IdentityBox
 import com.nawforce.common.names.{DotName, Names, _}
 import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.sfdx.{MDAPIWorkspace, Project, SFDXWorkspace, Workspace}
+import com.nawforce.common.sfdx.{
+  MDAPIWorkspaceConfig,
+  SFDXProject,
+  SFDXWorkspaceConfig,
+  WorkspaceConfig
+}
 
 import scala.collection.immutable.ArraySeq.ofRef
 import scala.collection.mutable.ArrayBuffer
@@ -81,7 +98,7 @@ class OrgImpl(val analysis: Boolean = true) extends Org {
     */
   var unmanaged: PackageImpl = {
     OrgImpl.current.withValue(this) {
-      val pkg = new PackageImpl(this, new MDAPIWorkspace(None, Seq()), Seq())
+      val pkg = new PackageImpl(this, new MDAPIWorkspaceConfig(None, Seq()), Seq())
       packagesByNamespace = Map(None -> pkg)
       pkg
     }
@@ -122,7 +139,7 @@ class OrgImpl(val analysis: Boolean = true) extends Org {
   private[nawforce] def newMDAPIPackageInternal(namespace: Option[Name],
                                                 directories: Seq[PathLike],
                                                 basePackages: Seq[Package]): PackageImpl = {
-    addPackage(new MDAPIWorkspace(namespace, getDirectoryPaths(directories)),
+    addPackage(new MDAPIWorkspaceConfig(namespace, getDirectoryPaths(directories)),
                collectPackages(basePackages))
   }
 
@@ -134,16 +151,16 @@ class OrgImpl(val analysis: Boolean = true) extends Org {
   /** Create a SFDX format package */
   private[nawforce] def newSFDXPackageInternal(directory: PathLike): PackageImpl = {
     val path = getDirectoryPaths(Seq(directory)).head
-    Project(path) match {
+    SFDXProject(path) match {
       case Left(err) =>
         throw new IllegalArgumentException(err)
       case Right(project) =>
-        addPackage(new SFDXWorkspace(path, project), resolveDependentProjects(project))
+        addPackage(new SFDXWorkspaceConfig(path, project), resolveDependentProjects(project))
     }
   }
 
   /** Find or create dependent packages for a project */
-  private def resolveDependentProjects(project: Project): Seq[PackageImpl] = {
+  private def resolveDependentProjects(project: SFDXProject): Seq[PackageImpl] = {
     project.dependencies.map(pkg => {
       packagesByNamespace.getOrElse(Some(pkg.namespace), {
         if (pkg.path.isEmpty || !pkg.path.get.join("sfdx-project.json").exists)
@@ -174,10 +191,10 @@ class OrgImpl(val analysis: Boolean = true) extends Org {
   }
 
   /** Create a Package over a Workspace */
-  private[nawforce] def addPackage(workspace: Workspace,
+  private[nawforce] def addPackage(config: WorkspaceConfig,
                                    basePackages: Seq[PackageImpl]): PackageImpl = {
 
-    val ns = workspace.namespace
+    val ns = config.namespace
     if (ns.nonEmpty) {
       if (packagesByNamespace.contains(ns))
         throw new IllegalArgumentException(s"A package using namespace '$ns' already exists")
@@ -187,7 +204,7 @@ class OrgImpl(val analysis: Boolean = true) extends Org {
     }
 
     OrgImpl.current.withValue(this) {
-      val pkg = new PackageImpl(this, workspace, basePackages)
+      val pkg = new PackageImpl(this, config, basePackages)
       if (pkg.namespace.isEmpty) {
         unmanaged = pkg
       }
@@ -218,7 +235,9 @@ class OrgImpl(val analysis: Boolean = true) extends Org {
   /** Collect all issues into a String log */
   override def getIssues(options: IssueOptions): String = {
     OrgImpl.current.withValue(this) {
-      reportableIssues(options).asString(options.includeWarnings, options.maxErrorsPerFile, options.format)
+      reportableIssues(options).asString(options.includeWarnings,
+                                         options.maxErrorsPerFile,
+                                         options.format)
     }
   }
 
@@ -317,7 +336,6 @@ class OrgImpl(val analysis: Boolean = true) extends Org {
 
     packagesByNamespace.get(namespace).map(pkg => TypeIdentifier(pkg.namespace, typeName))
   }
-
 
   /** Dump current issues to standard out */
   private[nawforce] def dumpIssues(): Unit = issues.dump()

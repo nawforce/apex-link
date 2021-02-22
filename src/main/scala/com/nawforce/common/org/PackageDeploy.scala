@@ -50,7 +50,7 @@ trait PackageDeploy {
 
   def deployFromWorkspace(): Unit = {
     val startingTypes = types.size
-    val stream = PackageStream(new LocalLogger(org.issues), namespace, documents)
+    val stream = PackageStream(new LocalLogger(org.issues), namespace, workspace)
 
     labels = labels.merge(stream)
     upsertMetadata(labels)
@@ -65,9 +65,9 @@ trait PackageDeploy {
     components = components.merge(stream)
     upsertMetadata(components)
 
-    loadCustomObjects(documents)
-    loadClasses(documents)
-    loadTriggers(documents)
+    loadCustomObjects(workspace)
+    loadClasses(workspace)
+    loadTriggers(workspace)
 
     CodeParser.clearCaches()
     Environment.gc()
@@ -81,8 +81,8 @@ trait PackageDeploy {
     }
   }
 
-  private def loadCustomObjects(documents: DocumentIndex): Unit = {
-    val docs = documents.getByExtension(Name("object"))
+  private def loadCustomObjects(workspace: Workspace): Unit = {
+    val docs = workspace.getByExtension(Name("object"))
     ServerOps.debugTime(s"Parsed ${docs.size} objects", docs.nonEmpty) {
       val tds = docs.flatMap {
         case docType: SObjectDocument =>
@@ -99,10 +99,10 @@ trait PackageDeploy {
     }
   }
 
-  private def loadClasses(documents: DocumentIndex): Unit = {
+  private def loadClasses(workspace: Workspace): Unit = {
     val pcOpt = org.parsedCache
     val docs =
-      documents.getByExtensionIterable(Name("cls")).collect { case ad: ApexClassDocument => ad }
+      workspace.getByExtensionIterable(Name("cls")).collect { case ad: ApexClassDocument => ad }
 
     ServerOps.debugTime(s"Loaded summary classes", docs.nonEmpty) {
 
@@ -177,8 +177,8 @@ trait PackageDeploy {
 
   }
 
-  private def loadTriggers(documents: DocumentIndex): Unit = {
-    val docs = documents.getByExtension(Name("trigger"))
+  private def loadTriggers(workspace: Workspace): Unit = {
+    val docs = workspace.getByExtension(Name("trigger"))
     ServerOps.debugTime(s"Parsed ${docs.size} triggers", docs.nonEmpty) {
       val tds = docs.flatMap {
         case docType: ApexTriggerDocument =>

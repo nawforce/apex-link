@@ -29,7 +29,7 @@
 package com.nawforce.common.org.stream
 
 import com.nawforce.common.api.Name
-import com.nawforce.common.documents.{DocumentIndex, MetadataDocument}
+import com.nawforce.common.documents.{MetadataDocument, Workspace}
 import com.nawforce.runtime.parsers.SourceData
 
 case class MetadataDocumentWithData(docType: MetadataDocument, source: SourceData)
@@ -42,11 +42,11 @@ trait MetadataProvider {
 }
 
 /** MetadataProvider that uses a DocumentIndex as a source */
-class DocumentIndexMetadataProvider(index: DocumentIndex) extends MetadataProvider {
+class DocumentIndexMetadataProvider(workspace: Workspace) extends MetadataProvider {
 
   /** Retrieve from the provided DocumentIndex with error handling */
   override def retrieve(metadataExt: Name): Set[MetadataDocumentWithData] = {
-    index
+    workspace
       .getByExtension(metadataExt)
       .flatMap(documentType => {
         documentType.path.readSourceData() match {

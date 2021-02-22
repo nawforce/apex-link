@@ -30,13 +30,13 @@ package com.nawforce.common.org
 
 import com.nawforce.common.api.{Location, Name, PathLocation, TypeName}
 import com.nawforce.common.cst.UnusedLog
-import com.nawforce.common.diagnostics.{IssueLog, LocalLogger}
+import com.nawforce.common.diagnostics.IssueLog
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.modifiers.GLOBAL_MODIFIER
 import com.nawforce.common.names.{EncodedName, TypeNames, _}
-import com.nawforce.common.sfdx.Workspace
+import com.nawforce.common.sfdx.WorkspaceConfig
 import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexDeclaration}
 import com.nawforce.common.types.core.{TypeDeclaration, TypeId}
 import com.nawforce.common.types.other.{InterviewDeclaration, _}
@@ -45,12 +45,12 @@ import com.nawforce.common.types.schema.SchemaManager
 
 import scala.collection.mutable
 
-class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[PackageImpl])
+class PackageImpl(val org: OrgImpl, val config: WorkspaceConfig, bases: Seq[PackageImpl])
     extends PackageDeploy
     with PackageAPI
     with TypeFinder {
 
-  val namespace: Option[Name] = workspace.namespace
+  val namespace: Option[Name] = config.namespace
 
   var labels: LabelDeclaration = LabelDeclaration(this)
   var pages: PageDeclaration = PageDeclaration(this)
@@ -59,10 +59,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
 
   protected val types: mutable.Map[TypeName, TypeDeclaration] =
     mutable.Map[TypeName, TypeDeclaration]()
-  protected val documents = new DocumentIndex(namespace,
-                                              workspace.paths,
-                                              new LocalLogger(org.issues),
-                                              workspace.forceIgnore)
+  protected val workspace = new Workspace(config)
 
   private val schemaManager = new SchemaManager(this)
   private val anyDeclaration = AnyDeclaration(this)
@@ -82,7 +79,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
     upsertMetadata(components)
   }
 
-  def isGhosted: Boolean = workspace.paths.isEmpty
+  def isGhosted: Boolean = config.paths.isEmpty
   def hasGhosted: Boolean = isGhosted || basePackages.exists(_.hasGhosted)
   def any(): AnyDeclaration = anyDeclaration
   def schema(): SchemaManager = schemaManager
@@ -122,7 +119,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
 
   /* Set of namespaces used by this package and its base packages */
   lazy val namespaces: Set[Name] = {
-    workspace.namespace.toSet ++
+    config.namespace.toSet ++
       basePackages.flatMap(_.namespaces) ++
       PlatformTypeDeclaration.namespaces
   }
@@ -188,7 +185,7 @@ class PackageImpl(val org: OrgImpl, val workspace: Workspace, bases: Seq[Package
       }
     } else {
       val docType =
-        documents.getByType(typeName).orElse(typeName.outer.flatMap(documents.getByType))
+        workspace.getByType(typeName).orElse(typeName.outer.flatMap(workspace.getByType))
       docType.map(d => PathLocation(d.path.toString, Location.empty))
     }
   }

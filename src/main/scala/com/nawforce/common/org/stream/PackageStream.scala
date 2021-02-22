@@ -29,7 +29,7 @@ package com.nawforce.common.org.stream
 
 import com.nawforce.common.api.Name
 import com.nawforce.common.diagnostics.IssueLogger
-import com.nawforce.common.documents.DocumentIndex
+import com.nawforce.common.documents.Workspace
 
 import scala.collection.immutable.Queue
 
@@ -44,8 +44,8 @@ class PackageStream(val namespace: Option[Name], val events: Seq[PackageEvent]) 
 }
 
 object PackageStream {
-  def apply(logger: IssueLogger, namespace: Option[Name], index: DocumentIndex): PackageStream = {
-    val provider = new DocumentIndexMetadataProvider(index)
+  def apply(logger: IssueLogger, namespace: Option[Name], workspace: Workspace): PackageStream = {
+    val provider = new DocumentIndexMetadataProvider(workspace)
     var queue = Queue[PackageEvent]()
     queue = LabelGenerator.queue(logger, provider, queue)
     queue = PageGenerator.queue(logger, provider, queue)

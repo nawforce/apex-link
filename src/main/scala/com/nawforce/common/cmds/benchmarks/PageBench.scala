@@ -30,9 +30,9 @@ package com.nawforce.common.cmds.benchmarks
 import java.nio.file.{Files, Paths}
 
 import com.nawforce.common.api.{Name, ServerOps}
-import com.nawforce.common.diagnostics.CatchingLogger
-import com.nawforce.common.documents.DocumentIndex
+import com.nawforce.common.documents.Workspace
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.sfdx.WorkspaceConfig
 import com.nawforce.runtime.parsers.PageParser
 import com.nawforce.runtime.platform.Path
 
@@ -54,16 +54,18 @@ object PageBench {
     //Thread.sleep(10000)
 
     // Indexing
-    val logger = new CatchingLogger()
     ServerOps.setDebugLogging(Array("ALL"))
-    val index = ServerOps.debugTime("Index") {
-      new DocumentIndex(None, Seq(new Path(dir)), logger)
+    val config = new WorkspaceConfig {
+      override val rootPaths: Seq[PathLike] = Seq(new Path(dir))
+      override val namespace: Option[Name] = None
+      override val paths: Seq[PathLike] = rootPaths
     }
+    val workspace = new Workspace(config)
 
     // Parsing
-    val parseTimes = ArrayBuffer[(Double, PathLike)]()
+    val parseTimes = ArrayBuffer[(Long, PathLike)]()
     ServerOps.debugTime("Parsed") {
-      index
+      workspace
         .getByExtension(Name("page"))
         .foreach(doc => {
           val start = System.currentTimeMillis()
@@ -90,8 +92,7 @@ object PageBench {
     }
 
     parseTimes.toArray
-      .sortBy(_._1)(Ordering[Double].reverse)
-      .take(10)
+      .sortBy(_._1)(Ordering[Long].reverse)
       .foreach(pair => {
         println(s"${pair._1}ms ${pair._2}")
       })

@@ -30,9 +30,9 @@ package com.nawforce.common.cmds.benchmarks
 import java.nio.file.{Files, Paths}
 
 import com.nawforce.common.api.{Name, ServerOps}
-import com.nawforce.common.diagnostics.CatchingLogger
-import com.nawforce.common.documents.DocumentIndex
+import com.nawforce.common.documents.Workspace
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.sfdx.WorkspaceConfig
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.platform.Path
 
@@ -54,16 +54,20 @@ object CodeBench {
     //Thread.sleep(10000)
 
     // Indexing
-    val logger = new CatchingLogger()
     ServerOps.setDebugLogging(Array("ALL"))
-    val index = ServerOps.debugTime("Index") {
-      new DocumentIndex(None, Seq(new Path(dir)), logger)
+    val workspace = ServerOps.debugTime("Index") {
+      val config = new WorkspaceConfig {
+        override val rootPaths: Seq[PathLike] = Seq(new Path(dir))
+        override val namespace: Option[Name] = None
+        override val paths: Seq[PathLike] = rootPaths
+      }
+      new Workspace(config)
     }
 
     // Parsing
     val parseTimes = ArrayBuffer[(Double, PathLike)]()
     ServerOps.debugTime("Parsed") {
-      index
+      workspace
         .getByExtension(Name("cls"))
         .foreach(doc => {
           val start = System.currentTimeMillis()

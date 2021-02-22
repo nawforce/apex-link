@@ -31,7 +31,7 @@ import com.nawforce.common.FileSystemHelper
 import com.nawforce.common.api.{Org, Package, ServerOps}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.sfdx.MDAPIWorkspace
+import com.nawforce.common.sfdx.MDAPIWorkspaceConfig
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
@@ -47,7 +47,7 @@ class CodeParserTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   private def addPackage(org: OrgImpl, path: PathLike): Package = {
-    org.addPackage(new MDAPIWorkspace(None, Seq(path)), Seq())
+    org.addPackage(new MDAPIWorkspaceConfig(None, Seq(path)), Seq())
   }
 
   test("Good class") {

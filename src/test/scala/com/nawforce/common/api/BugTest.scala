@@ -30,7 +30,7 @@ package com.nawforce.common.api
 import com.nawforce.common.FileSystemHelper
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.sfdx.MDAPIWorkspace
+import com.nawforce.common.sfdx.MDAPIWorkspaceConfig
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -45,7 +45,7 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   private def addPackage(org: OrgImpl, path: PathLike): Package = {
-    org.addPackage(new MDAPIWorkspace(None, Seq(path)), Seq())
+    org.addPackage(new MDAPIWorkspaceConfig(None, Seq(path)), Seq())
   }
 
   test("Enum scoping") {

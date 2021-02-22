@@ -166,9 +166,9 @@ trait PackageAPI extends Package {
       return (typeId, Set.empty)
 
     // Update internal document tracking
-    documents.upsert(dt)
+    workspace.upsert(dt)
     if (sourceOpt.isEmpty)
-      documents.remove(dt)
+      workspace.remove(dt)
 
     // Clear errors as might fail to create type
     org.issues.pop(dt.path.toString)
@@ -324,7 +324,7 @@ trait PackageAPI extends Package {
   private def createOtherType(dt: UpdatableMetadata, source: Option[SourceData]): DependentType = {
     val metadata = source.map(s => MetadataDocumentWithData(dt, s))
     val provider =
-      new OverrideMetadataProvider(metadata.toSeq, new DocumentIndexMetadataProvider(documents))
+      new OverrideMetadataProvider(metadata.toSeq, new DocumentIndexMetadataProvider(workspace))
     val queue = Generator.queue(dt, new LocalLogger(org.issues), provider)
     Other(dt, this).merge(new PackageStream(namespace, queue))
   }
@@ -346,7 +346,7 @@ trait PackageAPI extends Package {
   }
 
   private def checkPathInPackageOrThrow(path: PathLike): Unit = {
-    Some(workspace.isVisibleFile(path))
+    Some(config.isVisibleFile(path))
       .filterNot(v => v)
       .foreach { _ =>
         throw new IllegalArgumentException(s"Metadata is not part of this package for '$path'")
@@ -395,7 +395,7 @@ trait PackageAPI extends Package {
       return false
 
     val splitRequests = requests
-      .filter(r => workspace.isVisibleFile(r._1))
+      .filter(r => config.isVisibleFile(r._1))
       .groupBy(r => r._2.source.isEmpty && !r._1.exists)
 
     // Do removals first to avoid duplicate type issues if source is being moved
