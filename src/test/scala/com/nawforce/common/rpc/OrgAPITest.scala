@@ -105,7 +105,7 @@ class OrgAPITest extends AsyncFunSuite {
     }
 
     val issues: Future[Assertion] = pkg flatMap { _ =>
-      orgAPI.getIssues() map { issuesResult =>
+      orgAPI.getIssues(includeWarnings = true, includeZombies = true) map { issuesResult =>
         OrgAPI(quiet = true).reset()
         assert(issuesResult.issues.length == 3)
         assert(issuesResult.issues.count(_.path.contains("SingleError")) == 1)

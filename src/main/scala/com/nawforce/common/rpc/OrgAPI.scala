@@ -99,13 +99,13 @@ trait OrgAPI {
   def addPackage(directory: String): Future[AddPackageResult]
 
   @api.JSONRPCMethod(name = "getIssues")
-  def getIssues(): Future[GetIssuesResult]
+  def getIssues(includeWarnings: Boolean, includeZombies: Boolean): Future[GetIssuesResult]
 
   @api.JSONRPCMethod(name = "refresh")
   def refresh(path: String, contents: Option[String]): Future[Unit]
 
   @api.JSONRPCMethod(name = "getTypeIdentifiers")
-  def getTypeIdentifiers(): Future[GetTypeIdentifiersResult]
+  def typeIdentifiers(): Future[GetTypeIdentifiersResult]
 
   @api.JSONRPCMethod(name = "dependencyGraph")
   def dependencyGraph(path: String, depth: Int): Future[DependencyGraphResult]

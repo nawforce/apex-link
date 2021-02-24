@@ -98,7 +98,10 @@ object AddPackageRequest {
   }
 }
 
-case class GetIssues(promise: Promise[GetIssuesResult]) extends APIRequest {
+case class GetIssues(promise: Promise[GetIssuesResult],
+                     includeWarnings: Boolean,
+                     includeZombies: Boolean)
+    extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
 
     val buffer = new ArrayBuffer[Issue]()
@@ -106,7 +109,7 @@ case class GetIssues(promise: Promise[GetIssuesResult]) extends APIRequest {
     OrgImpl.current.withValue(orgImpl) {
       val issues = orgImpl
         .reportableIssues(new IssueOptions {
-          includeWarnings = true; includeZombies = true
+          includeWarnings = includeWarnings; includeZombies = includeZombies
         })
         .getIssues
       issues.keys.foreach(key => {
@@ -118,14 +121,16 @@ case class GetIssues(promise: Promise[GetIssuesResult]) extends APIRequest {
 }
 
 object GetIssues {
-  def apply(queue: OrgQueue): Future[GetIssuesResult] = {
+  def apply(queue: OrgQueue,
+            includeWarnings: Boolean,
+            includeZombies: Boolean): Future[GetIssuesResult] = {
     val promise = Promise[GetIssuesResult]()
-    queue.add(new GetIssues(promise))
+    queue.add(new GetIssues(promise, includeWarnings, includeZombies))
     promise.future
   }
 }
 
-case class GetTypeIdentifiers(promise: Promise[GetTypeIdentifiersResult]) extends APIRequest {
+case class TypeIdentifiers(promise: Promise[GetTypeIdentifiersResult]) extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
 
     val buffer = new mutable.HashSet[String]()
@@ -137,10 +142,10 @@ case class GetTypeIdentifiers(promise: Promise[GetTypeIdentifiersResult]) extend
   }
 }
 
-object GetTypeIdentifiers {
+object TypeIdentifiers {
   def apply(queue: OrgQueue): Future[GetTypeIdentifiersResult] = {
     val promise = Promise[GetTypeIdentifiersResult]()
-    queue.add(new GetTypeIdentifiers(promise))
+    queue.add(new TypeIdentifiers(promise))
     promise.future
   }
 }
@@ -157,7 +162,8 @@ case class DependencyGraphRequest(promise: Promise[DependencyGraphResult], id: S
       val linkDataArray = ArrayBuffer[LinkData]()
       collectDependencies(orgImpl, depth, processed = 0, nodeDataMap, linkDataArray)
 
-      val nodeData = nodeDataMap.toSeq.sortBy(_._2)
+      val nodeData = nodeDataMap.toSeq
+        .sortBy(_._2)
         .map(nodeData => {
           NodeData(nodeData._1)
         })
@@ -284,16 +290,17 @@ class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
     AddPackageRequest(OrgQueue.instance(quiet), directory)
   }
 
-  override def getIssues(): Future[GetIssuesResult] = {
-    GetIssues(OrgQueue.instance(quiet))
+  override def getIssues(includeWarnings: Boolean,
+                         includeZombies: Boolean): Future[GetIssuesResult] = {
+    GetIssues(OrgQueue.instance(quiet), includeWarnings, includeZombies)
   }
 
   override def refresh(path: String, contents: Option[String]): Future[Unit] = {
     Future(OrgQueue.instance(quiet).refresh(path, contents))
   }
 
-  override def getTypeIdentifiers(): Future[GetTypeIdentifiersResult] = {
-    GetTypeIdentifiers(OrgQueue.instance(quiet))
+  override def typeIdentifiers(): Future[GetTypeIdentifiersResult] = {
+    TypeIdentifiers(OrgQueue.instance(quiet))
   }
 
   override def dependencyGraph(path: String, depth: Int): Future[DependencyGraphResult] = {
