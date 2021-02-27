@@ -7,10 +7,19 @@ in a style that allows it to be compiled for either use on both JVM or node. Thi
 [ApexLink](https://github.com/nawforce/ApexLink) which can perform static analysis of Apex code and support 
 Salesforce IDEs. It has been spun out to allow it to be used for other tasks.
 
-### API Model (TODO)
+### NPM API
 
-The library is mostly written in Scala to support dual building for Java & JS. This model works well when you are also using Scala but it more awkward for JS or Java clients. As I a only consume this from other Scala code I have not yet created a stable API to make this easier. Please feel free to create an Issue for anything you would like to re-use. 
- 
+The library is mostly written in Scala to support dual building for Java & Node. This model works well when you are also using Scala and is usable from Java but is more awkward for Node clients. To overcome this a small part of the library for resolving type names to paths is exposed in a Node friendly NPM module. To use this, first create a workspace:
+
+    const workspace = Workspaces.get("mydirectory")     // Will throw on errors
+
+Call findType on the workspace:
+
+    const fooPath = workspace.findType("ns001.Foo")     // Returns null if type is unknown
+
+A workspace here is simply the directory containing Salesforce metadata, typically it's the directory in which sfdx-project.json resides.
+
+
 ### Java Distribution via Maven
 
 To use in a JVM project
@@ -18,8 +27,18 @@ To use in a JVM project
     <dependency>
         <groupId>com.github.nawforce</groupId>
         <artifactId>pkgforce</artifactId>
-        <version>1.2.0</version>
+        <version>1.3.0</version>
     </dependency>
+
+### Scala/Scala.js 
+
+For scala.js:
+
+    libraryDependencies += "com.github.nawforce" %%% "pkgforce" % "1.3.0"
+
+For scala:
+
+    libraryDependencies += "com.github.nawforce" % "pkgforce" % "1.3.0"
 
 ### Building
 

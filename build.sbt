@@ -32,6 +32,9 @@ lazy val buildNPM = Def.task {
   val npmDir = file("js/npm").toPath
   Process("npm i --production", npmDir.toFile) !
 
+  // Update NPM README.md
+  copy(file("README.md").toPath, file("js/npm/README.md").toPath, REPLACE_EXISTING)
+
   // Update target with NPM modules (for testing)
   copy(npmDir.resolve("package.json"), targetDir.resolve("package.json"), REPLACE_EXISTING)
   Process("npm i", targetDir.toFile) !
@@ -48,7 +51,7 @@ lazy val cross = crossProject(JSPlatform, JVMPlatform).in(file(".")).
   ).
   jvmSettings(
     name := "pkgforce",
-    version := "1.2.0",
+    version := "1.3.0",
     build := buildJVM.value,
     scalacOptions += "-deprecation",
     libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
@@ -58,7 +61,7 @@ lazy val cross = crossProject(JSPlatform, JVMPlatform).in(file(".")).
   ).
   jsSettings(
     name := "pkgforce",
-    version := "1.2.0",
+    version := "1.3.0",
     build := buildNPM.value,
     scalacOptions += "-deprecation",
     libraryDependencies += "net.exoego" %%% "scala-js-nodejs-v14" % "0.12.0",
