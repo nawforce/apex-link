@@ -137,7 +137,7 @@ case class TypeIdentifiers(promise: Promise[GetTypeIdentifiersResult]) extends A
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(orgImpl) {
       orgImpl.packagesByNamespace.values.foreach(pkg => buffer.addAll(pkg.getApexTypeIdentifiers))
-      promise.success(GetTypeIdentifiersResult(buffer.toArray))
+      promise.success(GetTypeIdentifiersResult(buffer.toArray.sorted))
     }
   }
 }
