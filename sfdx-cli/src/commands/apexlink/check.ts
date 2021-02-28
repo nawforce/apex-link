@@ -70,7 +70,7 @@ export default class Check extends SfdxCommand {
 
   public async run(): Promise<AnyJson> {
 
-    const jarFile = path.join(__dirname, '..', '..', '..', 'jars', 'apexlink-1.1.0.jar')
+    const jarFile = path.join(__dirname, '..', '..', '..', 'jars', 'apexlink-1.3.0.jar')
     if (!fs.existsSync(jarFile) || !fs.lstatSync(jarFile).isFile()) {
       throw new SfdxError(messages.getMessage('errorNoJarFile', [jarFile]));
     }
@@ -90,14 +90,16 @@ export default class Check extends SfdxCommand {
       throw new SfdxError(messages.getMessage('errorNotDir', [directory]));
     }
 
-    const namespaces: String[] = (this.flags.namespaces || "").split(",")
-
     let execArgs = ['-Dfile.encoding=UTF-8', '-jar', jarFile]
     if (this.flags.verbose) execArgs.push('-verbose')
     if (this.flags.json) execArgs.push('-json')
     if (this.flags.zombie) execArgs.push('-zombie')
     if (this.flags.depends) execArgs.push('-depends')
-    namespaces.forEach(namespace => {execArgs.push(namespace+"=")})
+    if (this.flags.namespaces) {
+      const namespaces: String[] = this.flags.namespaces.split(",")
+      namespaces.forEach(namespace => {execArgs.push(namespace+"=")})
+    }
+
     execArgs.push(directory)
     return this.execute(javaExecutable, execArgs, this.flags.json)
   }
