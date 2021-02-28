@@ -12,13 +12,9 @@
     "build": "tsc",
     "test": "jest --config jestconfig.json lib"
   },
-  "files": [
-    "pkgforce.js",
-    "pkgforce-fastopt.js",
-    "pkgforce-fastopt.js.map",
-    "pkgforce-opt.js",
-    "pkgforce-opt.js.map"
-  ],
+  "main": "lib/pkgforce.js",
+  "typings": "src/pkgforce.d.ts",
+  "files": ["src/pkgforce.d.ts"],
   "dependencies": {
     "xmldom": "0.1.27",
     "antlr4ts": "0.5.0-alpha.3",
