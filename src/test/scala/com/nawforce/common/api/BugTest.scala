@@ -381,20 +381,36 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
   test("Interface equals") {
     FileSystemHelper.run(
       Map("Dummy.cls" -> "public class Dummy {{MyInterface a; Boolean b = a.equals(a);}} ",
-          "MyInterface.cls" -> "public interface MyInterface {void foo(String a);}")) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org, root).asInstanceOf[PackageImpl]
-      assert(!org.issues.hasMessages)
+          "MyInterface.cls" -> "public interface MyInterface {void foo(String a);}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org, root).asInstanceOf[PackageImpl]
+        assert(!org.issues.hasMessages)
     }
   }
 
   test("Outer static field") {
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {public final static String a;} ")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        addPackage(org, root).asInstanceOf[PackageImpl]
+        assert(!org.issues.hasMessages)
+    }
+  }
+
+  test("Quiddity") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy {public final static String a;} ")) { root: PathLike =>
+      Map("Dummy.cls" ->
+        s"""
+           |public class Dummy {
+           |  public static Quiddity demonstrateGetQuiddity() {
+           |    return Request.getCurrent().getQuiddity();
+           |  }
+           |}
+           |""".stripMargin)) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       addPackage(org, root).asInstanceOf[PackageImpl]
       assert(!org.issues.hasMessages)
     }
   }
-
 }
