@@ -471,6 +471,7 @@ primary
     | typeRef DOT CLASS                                                                              # typeRefPrimary
     | id                                                                                             # idPrimary
     | soqlLiteral                                                                                    # soqlPrimary
+    | soslLiteral                                                                                    # soslPrimary
     ;
 
 methodCall
@@ -736,6 +737,16 @@ signedInteger
 soqlId
     : id;
 
+// SOSL
+soslLiteral
+    : LBRACK findQuery RBRACK
+    ;
+
+findQuery
+    : FIND FindLiteral
+    | FIND boundExpression
+    ;
+
 // Identifiers
 
 // Some keywords can be used as general identifiers, this is likley an over simplification of the actual
@@ -991,4 +1002,6 @@ anyId
     | NEXT_FISCAL_YEAR
     | NEXT_N_FISCAL_YEARS_N
     | LAST_N_FISCAL_YEARS_N
+    // SOQL Keywords
+    | FIND
     ;

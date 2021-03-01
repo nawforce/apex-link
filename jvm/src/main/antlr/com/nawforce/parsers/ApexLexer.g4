@@ -204,6 +204,29 @@ LAST_N_FISCAL_YEARS_N     : 'last_n_fiscal_years';
 DateLiteral: Digit Digit Digit Digit '-' Digit Digit '-' Digit Digit;
 DateTimeLiteral: DateLiteral 'T' Digit Digit ':' Digit Digit ':' Digit Digit ('Z' | (('+' | '-') Digit+ ( ':' Digit+)? ));
 
+// SOSL Keywords
+FIND                      : 'find';
+
+FindLiteral
+    :   '{' FindCharacters? '}'
+    ;
+
+fragment
+FindCharacters
+    :   FindCharacter+
+    ;
+
+fragment
+FindCharacter
+    :   ~['\\]
+    |   FindEscapeSequence
+    ;
+
+fragment
+FindEscapeSequence
+    :   '\\' [+\-&|!(){}^"~*?:'\\]
+    ;
+
 // §3.10.1 Integer Literals
 
 IntegerLiteral
