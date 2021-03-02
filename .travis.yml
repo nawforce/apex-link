@@ -1,3 +1,5 @@
+os: windows
+
 language: scala
 
 scala:
