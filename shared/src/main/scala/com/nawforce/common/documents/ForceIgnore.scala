@@ -27,7 +27,7 @@
  */
 package com.nawforce.common.documents
 
-import java.util.regex.Pattern
+import java.util.regex.{Matcher, Pattern}
 
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.platform.Path
@@ -35,7 +35,7 @@ import com.nawforce.runtime.platform.Path
 class ForceIgnore(rootPath: PathLike, ignoreRules: Seq[IgnoreRule]) {
   private val rootPathPrefix = {
     val path = rootPath.toString
-    if (path.endsWith("/")) path else path + '/'
+    if (path.endsWith(Path.separator)) path else path + Path.separator
   }
   private val rootPathPrefixLength = rootPathPrefix.length
 
@@ -80,7 +80,7 @@ object ForceIgnore {
 
 case class IgnoreRule(dirOnly: Boolean, negation: Boolean, pattern: String) {
 
-  lazy val matcher = Pattern.compile(regex).matcher("")
+  lazy val matcher: Matcher = Pattern.compile(regex).matcher("")
 
   // Convert a pattern to a regex
   // See https://github.com/snark/ignorance/blob/master/ignorance/utils.py for reference
@@ -127,7 +127,7 @@ case class IgnoreRule(dirOnly: Boolean, negation: Boolean, pattern: String) {
           builder.append(s"[$stuff]")
         }
       } else {
-        builder.append(IgnoreRule.escape(c))
+        builder.append(IgnoreRule.escapeChar(c))
       }
     }
     builder.append("$")
@@ -173,28 +173,28 @@ object IgnoreRule {
   }
 
   def escape(s: String): String = {
-    s.map(escape).mkString
+    s.map(escapeChar).mkString
   }
 
-  def escape(c: Char): String = {
+  def escapeChar(c: Char): String = {
     c match {
-      case '-'  => "\\-"
-      case '/'  => "\\/"
+      case '-' => "\\-"
+      case '/' => "\\/"
       case '\\' => "\\\\"
-      case '{'  => "\\{"
-      case '}'  => "\\}"
-      case '('  => "\\("
-      case ')'  => "\\)"
-      case '*'  => "\\*"
-      case '+'  => "\\+"
-      case '?'  => "\\?"
-      case '.'  => "\\."
-      case ','  => "\\,"
-      case '^'  => "\\^"
-      case '$'  => "\\$"
-      case '|'  => "\\|"
-      case '#'  => "\\#"
-      case _    => c.toString
+      case '{' => "\\{"
+      case '}' => "\\}"
+      case '(' => "\\("
+      case ')' => "\\)"
+      case '*' => "\\*"
+      case '+' => "\\+"
+      case '?' => "\\?"
+      case '.' => "\\."
+      case ',' => "\\,"
+      case '^' => "\\^"
+      case '$' => "\\$"
+      case '|' => "\\|"
+      case '#' => "\\#"
+      case _ => c.toString
     }
   }
 }
