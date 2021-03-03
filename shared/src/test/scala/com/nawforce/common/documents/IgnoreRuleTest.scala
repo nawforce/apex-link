@@ -32,12 +32,12 @@ import org.scalatest.funsuite.AnyFunSuite
 class IgnoreRuleTest extends AnyFunSuite {
 
   test("Character escapes") {
-    assert(IgnoreRule.escape('/') == "\\/")
-    assert(IgnoreRule.escape('\\') == "\\\\")
-    assert(IgnoreRule.escape('+') == "\\+")
-    assert(IgnoreRule.escape('#') == "\\#")
-    assert(IgnoreRule.escape('a') == "a")
-    assert(IgnoreRule.escape('0') == "0")
+    assert(IgnoreRule.escapeChar('/') == "\\/")
+    assert(IgnoreRule.escapeChar('\\') == "\\\\")
+    assert(IgnoreRule.escapeChar('+') == "\\+")
+    assert(IgnoreRule.escapeChar('#') == "\\#")
+    assert(IgnoreRule.escapeChar('a') == "a")
+    assert(IgnoreRule.escapeChar('0') == "0")
   }
 
   test("Empty rules") {
