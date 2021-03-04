@@ -739,12 +739,37 @@ soqlId
 
 // SOSL
 soslLiteral
-    : LBRACK findQuery RBRACK
+    : FindLiteral soslClauses RBRACK
+    | LBRACK FIND boundExpression soslClauses RBRACK
     ;
 
-findQuery
-    : FIND FindLiteral
-    | FIND boundExpression
+soslClauses
+    : (IN searchGroup)?
+
+      (WITH DIVISION EQUAL StringLiteral)?
+      (WITH DATA CATEGORY filteringExpression)?
+      (WITH SNIPPET (LPAREN TARGET_LENGTH EQUAL IntegerLiteral)? )?
+      (WITH NETWORK IN LPAREN networkList RPAREN)?
+      (WITH NETWORK EQUAL StringLiteral)?
+      (WITH PRICEBOOKID EQUAL StringLiteral)?
+      (WITH METADATA EQUAL StringLiteral)?
+      limitClause?
+      (UPDATE updateList)?
+    ;
+
+searchGroup
+    : (ALL|EMAIL|NAME|PHONE|SIDEBAR) FIELDS
+    ;
+
+updateList
+    : updateType (COMMA updateList)?
+    ;
+
+updateType
+    : TRACKING | VIEWSTAT;
+
+ networkList
+    : StringLiteral (COMMA networkList)?
     ;
 
 // Identifiers
@@ -816,6 +841,8 @@ id
     | REFERENCE
     | CUBE
     | FORMAT
+    | TRACKING
+    | VIEWSTAT
     // SOQL date formulas
     | YESTERDAY
     | TODAY
@@ -854,6 +881,18 @@ id
     | NEXT_FISCAL_YEAR
     | NEXT_N_FISCAL_YEARS_N
     | LAST_N_FISCAL_YEARS_N
+    // SOQL Keywords
+    | FIND
+    | EMAIL
+    | NAME
+    | PHONE
+    | SIDEBAR
+    | FIELDS
+    | METADATA
+    | PRICEBOOKID
+    | SNIPPET
+    | TARGET_LENGTH
+    | DIVISION
     ;
 
 // In dot expressions we, can use a wider set of of identifiers, apparently any of them althogh I have excluding VOID
@@ -1004,4 +1043,14 @@ anyId
     | LAST_N_FISCAL_YEARS_N
     // SOQL Keywords
     | FIND
+    | EMAIL
+    | NAME
+    | PHONE
+    | SIDEBAR
+    | FIELDS
+    | METADATA
+    | PRICEBOOKID
+    | SNIPPET
+    | TARGET_LENGTH
+    | DIVISION
     ;

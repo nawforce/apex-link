@@ -160,6 +160,8 @@ SECURITY_ENFORCED : 'security_enforced';
 REFERENCE       : 'reference';
 CUBE            : 'cube';
 FORMAT          : 'format';
+TRACKING        : 'tracking';
+VIEWSTAT        : 'viewstat';
 
 // SOQL Date formulas
 YESTERDAY                 : 'yesterday';
@@ -206,9 +208,20 @@ DateTimeLiteral: DateLiteral 'T' Digit Digit ':' Digit Digit ':' Digit Digit ('Z
 
 // SOSL Keywords
 FIND                      : 'find';
+EMAIL                     : 'email';
+NAME                      : 'name';
+PHONE                     : 'phone';
+SIDEBAR                   : 'sidebar';
+FIELDS                    : 'fields';
+METADATA                  : 'metadata';
+PRICEBOOKID               : 'pricebookid';
+NETWORK                   : 'network';
+SNIPPET                   : 'snippet';
+TARGET_LENGTH             : 'target_length';
+DIVISION                  : 'division';
 
 FindLiteral
-    :   '{' FindCharacters? '}'
+    :   '[' WS? 'find' WS '{' FindCharacters? '}'
     ;
 
 fragment
@@ -218,7 +231,7 @@ FindCharacters
 
 fragment
 FindCharacter
-    :   ~['\\]
+    :   ~[}\\]
     |   FindEscapeSequence
     ;
 
