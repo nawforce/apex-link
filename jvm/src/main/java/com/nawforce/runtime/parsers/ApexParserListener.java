@@ -1638,6 +1638,36 @@ public interface ApexParserListener extends ParseTreeListener {
 	 */
 	void exitSearchGroup(ApexParser.SearchGroupContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ApexParser#fieldSpecList}.
+	 * @param ctx the parse tree
+	 */
+	void enterFieldSpecList(ApexParser.FieldSpecListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#fieldSpecList}.
+	 * @param ctx the parse tree
+	 */
+	void exitFieldSpecList(ApexParser.FieldSpecListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#fieldSpec}.
+	 * @param ctx the parse tree
+	 */
+	void enterFieldSpec(ApexParser.FieldSpecContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#fieldSpec}.
+	 * @param ctx the parse tree
+	 */
+	void exitFieldSpec(ApexParser.FieldSpecContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#fieldList}.
+	 * @param ctx the parse tree
+	 */
+	void enterFieldList(ApexParser.FieldListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#fieldList}.
+	 * @param ctx the parse tree
+	 */
+	void exitFieldList(ApexParser.FieldListContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ApexParser#updateList}.
 	 * @param ctx the parse tree
 	 */
@@ -1667,6 +1697,16 @@ public interface ApexParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNetworkList(ApexParser.NetworkListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#soslId}.
+	 * @param ctx the parse tree
+	 */
+	void enterSoslId(ApexParser.SoslIdContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#soslId}.
+	 * @param ctx the parse tree
+	 */
+	void exitSoslId(ApexParser.SoslIdContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ApexParser#id}.
 	 * @param ctx the parse tree

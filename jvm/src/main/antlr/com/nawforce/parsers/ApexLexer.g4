@@ -219,6 +219,8 @@ NETWORK                   : 'network';
 SNIPPET                   : 'snippet';
 TARGET_LENGTH             : 'target_length';
 DIVISION                  : 'division';
+RETURNING                 : 'returning';
+LISTVIEW                  : 'listview';
 
 FindLiteral
     :   '[' WS? 'find' WS '{' FindCharacters? '}'

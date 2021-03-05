@@ -983,6 +983,24 @@ public interface ApexParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSearchGroup(ApexParser.SearchGroupContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ApexParser#fieldSpecList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFieldSpecList(ApexParser.FieldSpecListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#fieldSpec}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFieldSpec(ApexParser.FieldSpecContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#fieldList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFieldList(ApexParser.FieldListContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ApexParser#updateList}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -1000,6 +1018,12 @@ public interface ApexParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitNetworkList(ApexParser.NetworkListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#soslId}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSoslId(ApexParser.SoslIdContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ApexParser#id}.
 	 * @param ctx the parse tree
