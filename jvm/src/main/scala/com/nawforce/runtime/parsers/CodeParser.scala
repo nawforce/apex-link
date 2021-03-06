@@ -61,7 +61,6 @@ class CodeParser(val source: Source) {
     parse(parser => parser.soslLiteral())
   }
 
-
   // Test use only
   def parseLiteral(): ApexParser.LiteralContext = {
     parse(parser => parser.literal()).getOrElse(null)

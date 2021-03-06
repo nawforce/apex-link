@@ -47,6 +47,7 @@ class ApexParser(tokens: CommonTokenStream) extends js.Object {
 
   def literal(): LiteralContext = js.native
   def query(): QueryContext = js.native
+  def soslLiteral(): SoslLiteralContext = js.native
 }
 
 object ApexParser {
@@ -904,4 +905,10 @@ object ApexParser {
   @JSImport("apex-parser", "QueryContext")
   class QueryContext extends ParserRuleContext {
   }
+
+  @js.native
+  @JSImport("apex-parser", "SoslLiteralContext")
+  class SoslLiteralContext extends ParserRuleContext {
+  }
+
 }

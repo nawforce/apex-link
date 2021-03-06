@@ -14,11 +14,13 @@
   },
   "main": "lib/pkgforce.js",
   "typings": "src/pkgforce.d.ts",
-  "files": ["src/pkgforce.d.ts"],
+  "files": [
+    "src/pkgforce.d.ts"
+  ],
   "dependencies": {
     "xmldom": "0.1.27",
     "antlr4ts": "0.5.0-alpha.3",
-    "apex-parser": "2.6.1",
+    "apex-parser": "2.7.0",
     "vf-parser": "1.0.0"
   },
   "devDependencies": {
