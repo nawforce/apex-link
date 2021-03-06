@@ -1,4 +1,4 @@
-// Generated from /Users/kjones/Projects/Tooling/pkgforce/jvm/src/main/antlr/com/nawforce/parsers/ApexParser.g4 by ANTLR 4.8
+// Generated from /Users/kevin/Projects/pkgforce/jvm/src/main/antlr/com/nawforce/parsers/ApexParser.g4 by ANTLR 4.8
 package com.nawforce.runtime.parsers;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -646,6 +646,13 @@ public interface ApexParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSoqlPrimary(ApexParser.SoqlPrimaryContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code soslPrimary}
+	 * labeled alternative in {@link ApexParser#primary}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSoslPrimary(ApexParser.SoslPrimaryContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ApexParser#methodCall}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -957,6 +964,66 @@ public interface ApexParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSoqlId(ApexParser.SoqlIdContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#soslLiteral}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSoslLiteral(ApexParser.SoslLiteralContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#soslClauses}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSoslClauses(ApexParser.SoslClausesContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#searchGroup}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSearchGroup(ApexParser.SearchGroupContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#fieldSpecList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFieldSpecList(ApexParser.FieldSpecListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#fieldSpec}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFieldSpec(ApexParser.FieldSpecContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#fieldList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFieldList(ApexParser.FieldListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#updateList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUpdateList(ApexParser.UpdateListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#updateType}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUpdateType(ApexParser.UpdateTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#networkList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNetworkList(ApexParser.NetworkListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#soslId}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSoslId(ApexParser.SoslIdContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ApexParser#id}.
 	 * @param ctx the parse tree

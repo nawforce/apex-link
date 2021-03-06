@@ -1,4 +1,4 @@
-// Generated from /Users/kjones/Projects/Tooling/pkgforce/jvm/src/main/antlr/com/nawforce/parsers/ApexParser.g4 by ANTLR 4.8
+// Generated from /Users/kevin/Projects/pkgforce/jvm/src/main/antlr/com/nawforce/parsers/ApexParser.g4 by ANTLR 4.8
 package com.nawforce.runtime.parsers;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -1076,6 +1076,18 @@ public interface ApexParserListener extends ParseTreeListener {
 	 */
 	void exitSoqlPrimary(ApexParser.SoqlPrimaryContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code soslPrimary}
+	 * labeled alternative in {@link ApexParser#primary}.
+	 * @param ctx the parse tree
+	 */
+	void enterSoslPrimary(ApexParser.SoslPrimaryContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code soslPrimary}
+	 * labeled alternative in {@link ApexParser#primary}.
+	 * @param ctx the parse tree
+	 */
+	void exitSoslPrimary(ApexParser.SoslPrimaryContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ApexParser#methodCall}.
 	 * @param ctx the parse tree
 	 */
@@ -1595,6 +1607,106 @@ public interface ApexParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSoqlId(ApexParser.SoqlIdContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#soslLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterSoslLiteral(ApexParser.SoslLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#soslLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitSoslLiteral(ApexParser.SoslLiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#soslClauses}.
+	 * @param ctx the parse tree
+	 */
+	void enterSoslClauses(ApexParser.SoslClausesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#soslClauses}.
+	 * @param ctx the parse tree
+	 */
+	void exitSoslClauses(ApexParser.SoslClausesContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#searchGroup}.
+	 * @param ctx the parse tree
+	 */
+	void enterSearchGroup(ApexParser.SearchGroupContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#searchGroup}.
+	 * @param ctx the parse tree
+	 */
+	void exitSearchGroup(ApexParser.SearchGroupContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#fieldSpecList}.
+	 * @param ctx the parse tree
+	 */
+	void enterFieldSpecList(ApexParser.FieldSpecListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#fieldSpecList}.
+	 * @param ctx the parse tree
+	 */
+	void exitFieldSpecList(ApexParser.FieldSpecListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#fieldSpec}.
+	 * @param ctx the parse tree
+	 */
+	void enterFieldSpec(ApexParser.FieldSpecContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#fieldSpec}.
+	 * @param ctx the parse tree
+	 */
+	void exitFieldSpec(ApexParser.FieldSpecContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#fieldList}.
+	 * @param ctx the parse tree
+	 */
+	void enterFieldList(ApexParser.FieldListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#fieldList}.
+	 * @param ctx the parse tree
+	 */
+	void exitFieldList(ApexParser.FieldListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#updateList}.
+	 * @param ctx the parse tree
+	 */
+	void enterUpdateList(ApexParser.UpdateListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#updateList}.
+	 * @param ctx the parse tree
+	 */
+	void exitUpdateList(ApexParser.UpdateListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#updateType}.
+	 * @param ctx the parse tree
+	 */
+	void enterUpdateType(ApexParser.UpdateTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#updateType}.
+	 * @param ctx the parse tree
+	 */
+	void exitUpdateType(ApexParser.UpdateTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#networkList}.
+	 * @param ctx the parse tree
+	 */
+	void enterNetworkList(ApexParser.NetworkListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#networkList}.
+	 * @param ctx the parse tree
+	 */
+	void exitNetworkList(ApexParser.NetworkListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#soslId}.
+	 * @param ctx the parse tree
+	 */
+	void enterSoslId(ApexParser.SoslIdContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#soslId}.
+	 * @param ctx the parse tree
+	 */
+	void exitSoslId(ApexParser.SoslIdContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ApexParser#id}.
 	 * @param ctx the parse tree

@@ -471,6 +471,7 @@ primary
     | typeRef DOT CLASS                                                                              # typeRefPrimary
     | id                                                                                             # idPrimary
     | soqlLiteral                                                                                    # soqlPrimary
+    | soslLiteral                                                                                    # soslPrimary
     ;
 
 methodCall
@@ -736,6 +737,62 @@ signedInteger
 soqlId
     : id;
 
+// SOSL
+soslLiteral
+    : FindLiteral soslClauses RBRACK
+    | LBRACK FIND boundExpression soslClauses RBRACK
+    ;
+
+soslClauses
+    : (IN searchGroup)?
+      (RETURNING fieldSpecList)?
+      (WITH DIVISION ASSIGN StringLiteral)?
+      (WITH DATA CATEGORY filteringExpression)?
+      (WITH SNIPPET (LPAREN TARGET_LENGTH ASSIGN IntegerLiteral RPAREN)? )?
+      (WITH NETWORK IN LPAREN networkList RPAREN)?
+      (WITH NETWORK ASSIGN StringLiteral)?
+      (WITH PRICEBOOKID ASSIGN StringLiteral)?
+      (WITH METADATA ASSIGN StringLiteral)?
+      limitClause?
+      (UPDATE updateList)?
+    ;
+
+searchGroup
+    : (ALL|EMAIL|NAME|PHONE|SIDEBAR) FIELDS
+    ;
+
+fieldSpecList
+    : fieldSpec (COMMA fieldSpecList)*
+    ;
+
+fieldSpec
+    : soslId (LPAREN fieldList
+        (WHERE logicalExpression)?
+        (USING LISTVIEW ASSIGN soslId)?
+        (ORDER BY fieldOrderList)?
+        limitClause?
+        offsetClause?
+        RPAREN)?
+    ;
+
+fieldList
+    : soslId (COMMA fieldList)*
+    ;
+
+updateList
+    : updateType (COMMA updateList)?
+    ;
+
+updateType
+    : TRACKING | VIEWSTAT;
+
+ networkList
+    : StringLiteral (COMMA networkList)?
+    ;
+
+soslId
+    : id;
+
 // Identifiers
 
 // Some keywords can be used as general identifiers, this is likley an over simplification of the actual
@@ -805,6 +862,8 @@ id
     | REFERENCE
     | CUBE
     | FORMAT
+    | TRACKING
+    | VIEWSTAT
     // SOQL date formulas
     | YESTERDAY
     | TODAY
@@ -843,6 +902,20 @@ id
     | NEXT_FISCAL_YEAR
     | NEXT_N_FISCAL_YEARS_N
     | LAST_N_FISCAL_YEARS_N
+    // SOQL Keywords
+    | FIND
+    | EMAIL
+    | NAME
+    | PHONE
+    | SIDEBAR
+    | FIELDS
+    | METADATA
+    | PRICEBOOKID
+    | SNIPPET
+    | TARGET_LENGTH
+    | DIVISION
+    | RETURNING
+    | LISTVIEW
     ;
 
 // In dot expressions we, can use a wider set of of identifiers, apparently any of them althogh I have excluding VOID
@@ -991,4 +1064,18 @@ anyId
     | NEXT_FISCAL_YEAR
     | NEXT_N_FISCAL_YEARS_N
     | LAST_N_FISCAL_YEARS_N
+    // SOQL Keywords
+    | FIND
+    | EMAIL
+    | NAME
+    | PHONE
+    | SIDEBAR
+    | FIELDS
+    | METADATA
+    | PRICEBOOKID
+    | SNIPPET
+    | TARGET_LENGTH
+    | DIVISION
+    | RETURNING
+    | LISTVIEW
     ;
