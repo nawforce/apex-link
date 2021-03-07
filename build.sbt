@@ -51,7 +51,7 @@ lazy val cross = crossProject(JSPlatform, JVMPlatform).in(file(".")).
   ).
   jvmSettings(
     name := "pkgforce",
-    version := "1.3.1",
+    version := "1.3.2",
     build := buildJVM.value,
     scalacOptions += "-deprecation",
     libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
@@ -61,7 +61,7 @@ lazy val cross = crossProject(JSPlatform, JVMPlatform).in(file(".")).
   ).
   jsSettings(
     name := "pkgforce",
-    version := "1.3.1",
+    version := "1.3.2",
     build := buildNPM.value,
     scalacOptions += "-deprecation",
     libraryDependencies += "net.exoego" %%% "scala-js-nodejs-v14" % "0.12.0",
