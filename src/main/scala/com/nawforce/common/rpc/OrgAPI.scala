@@ -70,7 +70,7 @@ object GetTypeIdentifiersResult {
   implicit val rw: RW[GetTypeIdentifiersResult] = macroRW
 }
 
-case class NodeData(name: String)
+case class NodeData(name: String, size: Long)
 case class LinkData(source: Int, target: Int)
 case class DependencyGraphResult(nodeData: Array[NodeData], linkData: Array[LinkData])
 

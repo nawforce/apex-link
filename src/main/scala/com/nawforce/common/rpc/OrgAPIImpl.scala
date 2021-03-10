@@ -32,6 +32,7 @@ import java.util.concurrent.LinkedBlockingQueue
 import com.nawforce.common.api.{IssueOptions, Org, Package, ServerOps, TypeIdentifier}
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.path.PathFactory
 import com.nawforce.runtime.SourceBlob
 
 import scala.collection.mutable
@@ -162,16 +163,19 @@ case class DependencyGraphRequest(promise: Promise[DependencyGraphResult], id: S
       val linkDataArray = ArrayBuffer[LinkData]()
       collectDependencies(orgImpl, depth, processed = 0, nodeDataMap, linkDataArray)
 
-      val nodeData = nodeDataMap.toSeq
-        .sortBy(_._2)
-        .map(nodeData => {
-          NodeData(nodeData._1)
-        })
-        .toArray
+      val nodeData = toNodeData(orgImpl, nodeDataMap.toSeq.sortBy(_._2).map(_._1)).toArray
       val linkData = linkDataArray.toArray
 
       promise.success(DependencyGraphResult(nodeData, linkData))
     }
+  }
+
+  private def toNodeData(org: OrgImpl, nodes: Seq[String]): Seq[NodeData] = {
+    nodes.map(id => {
+      Option(org.getIdentifierLocation(id)).map(location => {
+        NodeData(id, PathFactory(location.path).size)
+      }).getOrElse(NodeData(id, 0))
+    })
   }
 
   @scala.annotation.tailrec
