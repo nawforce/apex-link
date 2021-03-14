@@ -29,7 +29,8 @@ package com.nawforce.common.rpc
 
 import java.util.concurrent.LinkedBlockingQueue
 
-import com.nawforce.common.api.{IssueOptions, Org, Package, ServerOps, TypeIdentifier}
+import com.nawforce.common.api.{IssueOptions, Org, Package, ServerOps}
+import com.nawforce.common.deps.{DependencyNode, DownWalker}
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathFactory
@@ -151,75 +152,55 @@ object TypeIdentifiers {
   }
 }
 
-case class DependencyGraphRequest(promise: Promise[DependencyGraphResult], id: String, depth: Int)
+case class DependencyGraphRequest(promise: Promise[DependencyGraphResult],
+                                  typeName: String,
+                                  depth: Int)
     extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
 
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(orgImpl) {
 
-      val nodeDataMap = mutable.HashMap[String, Int]()
-      nodeDataMap.put(id, 0)
-      val linkDataArray = ArrayBuffer[LinkData]()
-      collectDependencies(orgImpl, depth, processed = 0, nodeDataMap, linkDataArray)
+      orgImpl
+        .getIdentifier(typeName)
+        .foreach(id => {
+          val depWalker = new DownWalker(queue.org)
+          val nodeData = depWalker
+            .walk(id, depth)
+            .map(n => {
+              NodeData(n.id.typeName.toString(),
+                       nodeFileSize(queue.org, n),
+                       n.nature,
+                       n.transitiveCount,
+                       n.extending.map(_.typeName.toString()),
+                       n.implementing.map(_.typeName.toString()),
+                       n.using.map(_.typeName.toString()))
+            })
 
-      val nodeData = toNodeData(orgImpl, nodeDataMap.toSeq.sortBy(_._2).map(_._1)).toArray
-      val linkData = linkDataArray.toArray
+          val nodeIndex = nodeData.map(_.name).zipWithIndex.toMap
 
-      promise.success(DependencyGraphResult(nodeData, linkData))
+          val linkData = new ArrayBuffer[LinkData]()
+          nodeData.foreach(n => {
+            val source = nodeIndex(n.name)
+            def safeLink(name: String): Unit = {
+              nodeIndex.get(name).foreach(target => linkData += LinkData(source, target))
+            }
+
+            n.extending.foreach(safeLink)
+            n.implementing.foreach(safeLink)
+            n.using.foreach(safeLink)
+          })
+
+          promise.success(DependencyGraphResult(nodeData, linkData.toArray))
+        })
     }
   }
 
-  private def toNodeData(org: OrgImpl, nodes: Seq[String]): Seq[NodeData] = {
-    nodes.map(id => {
-      Option(org.getIdentifierLocation(id)).map(location => {
-        NodeData(id, PathFactory(location.path).size)
-      }).getOrElse(NodeData(id, 0))
-    })
+  private def nodeFileSize(org: Org, n: DependencyNode): Int = {
+    Option(org.getIdentifierLocation(n.id.typeName.toString()))
+      .map(location => PathFactory(location.path).size.toInt)
+      .getOrElse(0)
   }
-
-  @scala.annotation.tailrec
-  private def collectDependencies(org: OrgImpl,
-                                  depth: Int,
-                                  processed: Int,
-                                  nodeData: mutable.Map[String, Int],
-                                  linkData: ArrayBuffer[LinkData]): Unit = {
-    if (depth == 0) return
-
-    val unhandled = nodeData.filter(kv => kv._2 >= processed)
-    unhandled.foreach(source => {
-
-      val dependencies: Array[TypeIdentifier] = org
-        .getIdentifier(source._1)
-        .map(tid => {
-          org
-            .getPackage(tid.namespace)
-            .map(pkg => {
-              pkg.getDependencies(tid, inheritanceOnly = false)
-            })
-            .getOrElse(Array[TypeIdentifier]())
-        })
-        .getOrElse(Array[TypeIdentifier]())
-
-      dependencies
-        .map(_.typeName.toString())
-        .filterNot(_ == source._1)
-        .foreach(targetName => {
-          val index: Int =
-            if (nodeData.contains(targetName)) {
-              nodeData(targetName)
-            } else {
-              val i = nodeData.size
-              nodeData.put(targetName, i)
-              i
-            }
-          linkData.addOne(LinkData(source._2, index))
-        })
-    })
-
-    collectDependencies(org, depth - 1, processed + unhandled.size, nodeData, linkData)
-  }
-
 }
 
 object DependencyGraphRequest {
