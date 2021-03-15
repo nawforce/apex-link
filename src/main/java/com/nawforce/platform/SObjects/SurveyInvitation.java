@@ -34,47 +34,49 @@ import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
-public class ContactPointEmail extends SObject {
-	public static SObjectType$<ContactPointEmail> SObjectType;
-	public static SObjectFields$<ContactPointEmail> Fields;
-	public Date ActiveFromDate;
-	public Date ActiveToDate;
-	public Time BestTimeToContactEndTime;
-	public Time BestTimeToContactStartTime;
-	public String BestTimeToContactTimezone;
+public class SurveyInvitation extends SObject {
+	public static SObjectType$<SurveyInvitation> SObjectType;
+	public static SObjectFields$<SurveyInvitation> Fields;
 	public Id CreatedById;
 	public User CreatedBy;
 	public Datetime CreatedDate;
-	public String EmailAddress;
-	public String EmailDomain;
-	public Datetime EmailLatestBounceDateTime;
-	public String EmailLatestBounceReasonText;
-	public String EmailMailBox;
+	public Id EmailBrandingId;
+	public SurveyEmailBranding EmailBranding;
 	public Id Id;
+	public String InvitationLink;
+	public Datetime InviteExpiryDateTime;
+	public Boolean IsDefault;
 	public Boolean IsDeleted;
-	public Boolean IsPrimary;
 	public Id LastModifiedById;
 	public User LastModifiedBy;
 	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public String Name;
+	public Boolean OptionsAllowGuestUserResponse;
+	public Boolean OptionsAllowParticipantAccessTheirResponse;
+	public Boolean OptionsCollectAnonymousResponse;
 	public Id OwnerId;
 	public Group Owner;
-	public Id ParentId;
-	public Account Parent;
+	public Id ParticipantId;
+	public Contact Participant;
+	public String ResponseStatus;
+	public Id SurveyId;
+	public Survey Survey;
 	public Datetime SystemModstamp;
+	public String UUID;
 
-  public CommSubscriptionConsent[] CommSubscriptionConsents;
-  public ContactPointConsent[] ContactPointConsents;
-  public ContactPointEmailHistory[] Histories;
-  public ProcessInstance[] ProcessInstances;
-  public ProcessInstanceHistory[] ProcessSteps;
-  public ContactPointEmailShare[] Shares;
+	public ProcessInstance[] ProcessInstances;
+	public ProcessInstanceHistory[] ProcessSteps;
+	public SurveyInvitationShare[] Shares;
+	public SurveyQuestionScore[] SurveyQuestionScores;
+	public SurveyResponse[] SurveyResponses;
+	public SurveySubject[] SurveySubjectInvitation;
+	public SurveySubject[] SurveySubjects;
 
-	public ContactPointEmail clone$() {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
+	public SurveyInvitation clone$() {throw new java.lang.UnsupportedOperationException();}
+	public SurveyInvitation clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public SurveyInvitation clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public SurveyInvitation clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public SurveyInvitation clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

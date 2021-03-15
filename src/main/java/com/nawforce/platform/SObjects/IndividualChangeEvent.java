@@ -30,51 +30,53 @@ package com.nawforce.platform.SObjects;
 import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
-public class ContactPointEmail extends SObject {
-	public static SObjectType$<ContactPointEmail> SObjectType;
-	public static SObjectFields$<ContactPointEmail> Fields;
-	public Date ActiveFromDate;
-	public Date ActiveToDate;
-	public Time BestTimeToContactEndTime;
-	public Time BestTimeToContactStartTime;
-	public String BestTimeToContactTimezone;
+public class IndividualChangeEvent extends SObject {
+	public static SObjectType$<IndividualChangeEvent> SObjectType;
+	public static SObjectFields$<IndividualChangeEvent> Fields;
+	public Date BirthDate;
+	public Boolean CanStorePiiElsewhere;
+	public Object ChangeEventHeader;
+	public Integer ChildrenCount;
+	public Integer ConsumerCreditScore;
+	public String ConsumerCreditScoreProviderName;
+	public Integer ConvictionsCount;
 	public Id CreatedById;
 	public User CreatedBy;
 	public Datetime CreatedDate;
-	public String EmailAddress;
-	public String EmailDomain;
-	public Datetime EmailLatestBounceDateTime;
-	public String EmailLatestBounceReasonText;
-	public String EmailMailBox;
+	public Date DeathDate;
+	public String FirstName;
+	public Boolean HasOptedOutGeoTracking;
+	public Boolean HasOptedOutProcessing;
+	public Boolean HasOptedOutProfiling;
+	public Boolean HasOptedOutSolicit;
+	public Boolean HasOptedOutTracking;
 	public Id Id;
-	public Boolean IsDeleted;
-	public Boolean IsPrimary;
+	public String IndividualsAge;
+	public Integer InfluencerRating;
+	public Boolean IsHomeOwner;
 	public Id LastModifiedById;
 	public User LastModifiedBy;
 	public Datetime LastModifiedDate;
-	public Datetime LastReferencedDate;
-	public Datetime LastViewedDate;
+	public String LastName;
+	public String MilitaryService;
 	public String Name;
+	public String Occupation;
 	public Id OwnerId;
-	public Group Owner;
-	public Id ParentId;
-	public Account Parent;
-	public Datetime SystemModstamp;
+	public User Owner;
+	public String ReplayId;
+	public String Salutation;
+	public Boolean SendIndividualData;
+	public Boolean ShouldForget;
+	public String Website;
 
-  public CommSubscriptionConsent[] CommSubscriptionConsents;
-  public ContactPointConsent[] ContactPointConsents;
-  public ContactPointEmailHistory[] Histories;
-  public ProcessInstance[] ProcessInstances;
-  public ProcessInstanceHistory[] ProcessSteps;
-  public ContactPointEmailShare[] Shares;
-
-	public ContactPointEmail clone$() {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
+	public IndividualChangeEvent clone$() {throw new java.lang.UnsupportedOperationException();}
+	public IndividualChangeEvent clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public IndividualChangeEvent clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public IndividualChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public IndividualChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }
