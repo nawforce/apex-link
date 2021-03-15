@@ -30,51 +30,60 @@ package com.nawforce.platform.SObjects;
 import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
-public class ContactPointEmail extends SObject {
-	public static SObjectType$<ContactPointEmail> SObjectType;
-	public static SObjectFields$<ContactPointEmail> Fields;
-	public Date ActiveFromDate;
-	public Date ActiveToDate;
-	public Time BestTimeToContactEndTime;
-	public Time BestTimeToContactStartTime;
-	public String BestTimeToContactTimezone;
+public class PromptVersion extends SObject {
+	public static SObjectType$<PromptVersion> SObjectType;
+	public static SObjectFields$<PromptVersion> Fields;
+	public String ActionButtonLabel;
+	public String ActionButtonLink;
+	public String Body;
 	public Id CreatedById;
 	public User CreatedBy;
 	public Datetime CreatedDate;
-	public String EmailAddress;
-	public String EmailDomain;
-	public Datetime EmailLatestBounceDateTime;
-	public String EmailLatestBounceReasonText;
-	public String EmailMailBox;
+	public Integer DelayDays;
+	public String Description;
+	public String DismissButtonLabel;
+	public String DisplayPosition;
+	public String DisplayType;
+	public Date EndDate;
+	public String Header;
 	public Id Id;
+	public String IndexWithIsPublished;
+	public String IndexWithoutIsPublished;
 	public Boolean IsDeleted;
-	public Boolean IsPrimary;
+	public Boolean IsPublished;
 	public Id LastModifiedById;
 	public User LastModifiedBy;
 	public Datetime LastModifiedDate;
-	public Datetime LastReferencedDate;
-	public Datetime LastViewedDate;
-	public String Name;
-	public Id OwnerId;
-	public Group Owner;
+	public String MasterLabel;
 	public Id ParentId;
-	public Account Parent;
+	public Prompt Parent;
+	public Id PublishedByUserId;
+	public User PublishedByUser;
+	public Date PublishedDate;
+	public Boolean ShouldDisplayActionButton;
+	public Boolean ShouldIgnoreGlobalDelay;
+	public Date StartDate;
 	public Datetime SystemModstamp;
+	public String TargetAppDeveloperName;
+	public String TargetAppNamespacePrefix;
+	public String TargetPageKey1;
+	public String TargetPageKey2;
+	public String TargetPageType;
+	public Integer TimesToDisplay;
+	public String Title;
+	public String UserAccess;
+	public String UserProfileAccess;
+	public Integer VersionNumber;
+	public String VideoLink;
 
-  public CommSubscriptionConsent[] CommSubscriptionConsents;
-  public ContactPointConsent[] ContactPointConsents;
-  public ContactPointEmailHistory[] Histories;
-  public ProcessInstance[] ProcessInstances;
-  public ProcessInstanceHistory[] ProcessSteps;
-  public ContactPointEmailShare[] Shares;
-
-	public ContactPointEmail clone$() {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
+	public PromptVersion clone$() {throw new java.lang.UnsupportedOperationException();}
+	public PromptVersion clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public PromptVersion clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public PromptVersion clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public PromptVersion clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -31,10 +31,11 @@ import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.List;
 import com.nawforce.platform.System.Long;
 import com.nawforce.platform.System.String;
-
+import com.nawforce.platform.System.Boolean;
 
 @SuppressWarnings("unused")
 public class ChangeEventHeader {
+  public List<String> ChangedFields;
 	public String ChangeOrigin;
 	public String ChangeType;
 	public Long CommitNumber;
@@ -45,11 +46,12 @@ public class ChangeEventHeader {
 	public List<String> NulledFields;
 	public List<String> RecordIds;
 	public Integer SequenceNumber;
-	public com.nawforce.platform.System.Boolean TransactionEnd;
+	public Boolean TransactionEnd;
 	public String TransactionKey;
 
 	public ChangeEventHeader() {throw new java.lang.UnsupportedOperationException();}
 
+  public List<String> getChangedFields() {throw new java.lang.UnsupportedOperationException();}
 	public String getChangeOrigin() {throw new java.lang.UnsupportedOperationException();}
 	public String getChangeType() {throw new java.lang.UnsupportedOperationException();}
 	public Long getCommitNumber() {throw new java.lang.UnsupportedOperationException();}
@@ -61,7 +63,8 @@ public class ChangeEventHeader {
 	public List<String> getRecordIds() {throw new java.lang.UnsupportedOperationException();}
 	public Integer getSequenceNumber() {throw new java.lang.UnsupportedOperationException();}
 	public String getTransactionKey() {throw new java.lang.UnsupportedOperationException();}
-	public com.nawforce.platform.System.Boolean isTransactionEnd() {throw new java.lang.UnsupportedOperationException();}
+	public Boolean isTransactionEnd() {throw new java.lang.UnsupportedOperationException();}
+  public void setChangedFields(List<String> param1) {throw new java.lang.UnsupportedOperationException();}
 	public void setChangeOrigin(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public void setChangeType(String param1) {throw new java.lang.UnsupportedOperationException();}
 	public void setCommitNumber(Long param1) {throw new java.lang.UnsupportedOperationException();}

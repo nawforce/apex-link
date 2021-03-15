@@ -30,51 +30,46 @@ package com.nawforce.platform.SObjects;
 import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
-public class ContactPointEmail extends SObject {
-	public static SObjectType$<ContactPointEmail> SObjectType;
-	public static SObjectFields$<ContactPointEmail> Fields;
-	public Date ActiveFromDate;
-	public Date ActiveToDate;
-	public Time BestTimeToContactEndTime;
-	public Time BestTimeToContactStartTime;
-	public String BestTimeToContactTimezone;
+public class EngagementChannelTypeFeed extends SObject {
+	public static SObjectType$<EngagementChannelTypeFeed> SObjectType;
+	public static SObjectFields$<EngagementChannelTypeFeed> Fields;
+	public Id BestCommentId;
+	public FeedComment BestComment;
+	public String Body;
+	public Integer CommentCount;
 	public Id CreatedById;
 	public User CreatedBy;
 	public Datetime CreatedDate;
-	public String EmailAddress;
-	public String EmailDomain;
-	public Datetime EmailLatestBounceDateTime;
-	public String EmailLatestBounceReasonText;
-	public String EmailMailBox;
 	public Id Id;
+	public Id InsertedById;
+	public User InsertedBy;
 	public Boolean IsDeleted;
-	public Boolean IsPrimary;
-	public Id LastModifiedById;
-	public User LastModifiedBy;
+	public Boolean IsRichText;
 	public Datetime LastModifiedDate;
-	public Datetime LastReferencedDate;
-	public Datetime LastViewedDate;
-	public String Name;
-	public Id OwnerId;
-	public Group Owner;
+	public Integer LikeCount;
+	public String LinkUrl;
 	public Id ParentId;
-	public Account Parent;
+	public EngagementChannelType Parent;
+	public Id RelatedRecordId;
+	public ContentVersion RelatedRecord;
 	public Datetime SystemModstamp;
+	public String Title;
+	public String Type;
 
-  public CommSubscriptionConsent[] CommSubscriptionConsents;
-  public ContactPointConsent[] ContactPointConsents;
-  public ContactPointEmailHistory[] Histories;
-  public ProcessInstance[] ProcessInstances;
-  public ProcessInstanceHistory[] ProcessSteps;
-  public ContactPointEmailShare[] Shares;
+	public FeedAttachment[] FeedAttachments;
+	public FeedComment[] FeedComments;
+	public FeedLike[] FeedLikes;
+	public FeedSignal[] FeedSignals;
+	public FeedTrackedChange[] FeedTrackedChanges;
 
-	public ContactPointEmail clone$() {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
+	public EngagementChannelTypeFeed clone$() {throw new java.lang.UnsupportedOperationException();}
+	public EngagementChannelTypeFeed clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public EngagementChannelTypeFeed clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public EngagementChannelTypeFeed clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public EngagementChannelTypeFeed clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -34,25 +34,19 @@ import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
-public class ContactPointEmail extends SObject {
-	public static SObjectType$<ContactPointEmail> SObjectType;
-	public static SObjectFields$<ContactPointEmail> Fields;
-	public Date ActiveFromDate;
-	public Date ActiveToDate;
-	public Time BestTimeToContactEndTime;
-	public Time BestTimeToContactStartTime;
-	public String BestTimeToContactTimezone;
+public class Goal extends SObject {
+	public static SObjectType$<Goal> SObjectType;
+	public static SObjectFields$<Goal> Fields;
+	public Datetime CompletionDate;
 	public Id CreatedById;
 	public User CreatedBy;
 	public Datetime CreatedDate;
-	public String EmailAddress;
-	public String EmailDomain;
-	public Datetime EmailLatestBounceDateTime;
-	public String EmailLatestBounceReasonText;
-	public String EmailMailBox;
+	public String Description;
+	public Date DueDate;
 	public Id Id;
+	public String ImageUrl;
 	public Boolean IsDeleted;
-	public Boolean IsPrimary;
+	public Boolean IsKeyCompanyGoal;
 	public Id LastModifiedById;
 	public User LastModifiedBy;
 	public Datetime LastModifiedDate;
@@ -61,20 +55,36 @@ public class ContactPointEmail extends SObject {
 	public String Name;
 	public Id OwnerId;
 	public Group Owner;
-	public Id ParentId;
-	public Account Parent;
+	public Decimal Progress;
+	public Date StartDate;
+	public String Status;
 	public Datetime SystemModstamp;
 
-  public CommSubscriptionConsent[] CommSubscriptionConsents;
-  public ContactPointConsent[] ContactPointConsents;
-  public ContactPointEmailHistory[] Histories;
-  public ProcessInstance[] ProcessInstances;
-  public ProcessInstanceHistory[] ProcessSteps;
-  public ContactPointEmailShare[] Shares;
+	public ActivityHistory[] ActivityHistories;
+	public AttachedContentDocument[] AttachedContentDocuments;
+	public Attachment[] Attachments;
+	public CombinedAttachment[] CombinedAttachments;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public EmailMessage[] Emails;
+	public Event[] Events;
+	public EntitySubscription[] FeedSubscriptionsForEntity;
+	public GoalFeed[] Feeds;
+	public GoalHistory[] Histories;
+	public Metric[] Metrics;
+	public Note[] Notes;
+	public NoteAndAttachment[] NotesAndAttachments;
+	public OpenActivity[] OpenActivities;
+	public GoalLink[] ParentGoals;
+	public ProcessInstance[] ProcessInstances;
+	public ProcessInstanceHistory[] ProcessSteps;
+	public WorkFeedbackRequest[] RelatedObjects;
+	public GoalShare[] Shares;
+	public GoalLink[] Subgoals;
+	public Task[] Tasks;
 
-	public ContactPointEmail clone$() {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
+	public Goal clone$() {throw new java.lang.UnsupportedOperationException();}
+	public Goal clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public Goal clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public Goal clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public Goal clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

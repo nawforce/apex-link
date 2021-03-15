@@ -34,25 +34,18 @@ import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
-public class ContactPointEmail extends SObject {
-	public static SObjectType$<ContactPointEmail> SObjectType;
-	public static SObjectFields$<ContactPointEmail> Fields;
-	public Date ActiveFromDate;
-	public Date ActiveToDate;
-	public Time BestTimeToContactEndTime;
-	public Time BestTimeToContactStartTime;
-	public String BestTimeToContactTimezone;
+public class CommSubscriptionChannelType extends SObject {
+	public static SObjectType$<CommSubscriptionChannelType> SObjectType;
+	public static SObjectFields$<CommSubscriptionChannelType> Fields;
+	public Id CommunicationSubscriptionId;
+	public CommSubscription CommunicationSubscription;
 	public Id CreatedById;
 	public User CreatedBy;
 	public Datetime CreatedDate;
-	public String EmailAddress;
-	public String EmailDomain;
-	public Datetime EmailLatestBounceDateTime;
-	public String EmailLatestBounceReasonText;
-	public String EmailMailBox;
+	public Id EngagementChannelTypeId;
+	public EngagementChannelType EngagementChannelType;
 	public Id Id;
 	public Boolean IsDeleted;
-	public Boolean IsPrimary;
 	public Id LastModifiedById;
 	public User LastModifiedBy;
 	public Datetime LastModifiedDate;
@@ -61,20 +54,25 @@ public class ContactPointEmail extends SObject {
 	public String Name;
 	public Id OwnerId;
 	public Group Owner;
-	public Id ParentId;
-	public Account Parent;
 	public Datetime SystemModstamp;
 
-  public CommSubscriptionConsent[] CommSubscriptionConsents;
-  public ContactPointConsent[] ContactPointConsents;
-  public ContactPointEmailHistory[] Histories;
-  public ProcessInstance[] ProcessInstances;
-  public ProcessInstanceHistory[] ProcessSteps;
-  public ContactPointEmailShare[] Shares;
+	public AttachedContentDocument[] AttachedContentDocuments;
+	public Attachment[] Attachments;
+	public CombinedAttachment[] CombinedAttachments;
+	public CommSubscriptionConsent[] CommSubscriptionConsents;
+	public ContentDocumentLink[] ContentDocumentLinks;
+	public EntitySubscription[] FeedSubscriptionsForEntity;
+	public CommSubscriptionChannelTypeFeed[] Feeds;
+	public CommSubscriptionChannelTypeHistory[] Histories;
+	public Note[] Notes;
+	public NoteAndAttachment[] NotesAndAttachments;
+	public ProcessInstance[] ProcessInstances;
+	public ProcessInstanceHistory[] ProcessSteps;
+	public CommSubscriptionChannelTypeShare[] Shares;
 
-	public ContactPointEmail clone$() {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
+	public CommSubscriptionChannelType clone$() {throw new java.lang.UnsupportedOperationException();}
+	public CommSubscriptionChannelType clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public CommSubscriptionChannelType clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public CommSubscriptionChannelType clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public CommSubscriptionChannelType clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

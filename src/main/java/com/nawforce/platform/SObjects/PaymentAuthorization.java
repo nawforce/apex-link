@@ -34,47 +34,57 @@ import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
-public class ContactPointEmail extends SObject {
-	public static SObjectType$<ContactPointEmail> SObjectType;
-	public static SObjectFields$<ContactPointEmail> Fields;
-	public Date ActiveFromDate;
-	public Date ActiveToDate;
-	public Time BestTimeToContactEndTime;
-	public Time BestTimeToContactStartTime;
-	public String BestTimeToContactTimezone;
+public class PaymentAuthorization extends SObject {
+	public static SObjectType$<PaymentAuthorization> SObjectType;
+	public static SObjectFields$<PaymentAuthorization> Fields;
+	public Id AccountId;
+	public Account Account;
+	public Decimal Amount;
+	public Decimal Balance;
+	public String Comments;
 	public Id CreatedById;
 	public User CreatedBy;
 	public Datetime CreatedDate;
-	public String EmailAddress;
-	public String EmailDomain;
-	public Datetime EmailLatestBounceDateTime;
-	public String EmailLatestBounceReasonText;
-	public String EmailMailBox;
+	public Datetime Date;
+	public Datetime EffectiveDate;
+	public String Email;
+	public Datetime ExpirationDate;
+	public String GatewayAuthCode;
+	public Datetime GatewayDate;
+	public String GatewayRefDetails;
+	public String GatewayRefNumber;
+	public String GatewayResultCode;
+	public String GatewayResultCodeDescription;
 	public Id Id;
+	public String IpAddress;
 	public Boolean IsDeleted;
-	public Boolean IsPrimary;
 	public Id LastModifiedById;
 	public User LastModifiedBy;
 	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
-	public String Name;
-	public Id OwnerId;
-	public Group Owner;
-	public Id ParentId;
-	public Account Parent;
+	public String MacAddress;
+	public String PaymentAuthorizationNumber;
+	public Id PaymentGatewayId;
+	public PaymentGateway PaymentGateway;
+	public Id PaymentGroupId;
+	public PaymentGroup PaymentGroup;
+	public Id PaymentMethodId;
+	public PaymentMethod PaymentMethod;
+	public String Phone;
+	public String ProcessingMode;
+	public String SfResultCode;
+	public String Status;
 	public Datetime SystemModstamp;
+	public Decimal TotalAuthReversalAmount;
+	public Decimal TotalPaymentCaptureAmount;
 
-  public CommSubscriptionConsent[] CommSubscriptionConsents;
-  public ContactPointConsent[] ContactPointConsents;
-  public ContactPointEmailHistory[] Histories;
-  public ProcessInstance[] ProcessInstances;
-  public ProcessInstanceHistory[] ProcessSteps;
-  public ContactPointEmailShare[] Shares;
+	public PaymentGatewayLog[] PaymentGatewayLogs;
+	public Payment[] Payments;
 
-	public ContactPointEmail clone$() {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
+	public PaymentAuthorization clone$() {throw new java.lang.UnsupportedOperationException();}
+	public PaymentAuthorization clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public PaymentAuthorization clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public PaymentAuthorization clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public PaymentAuthorization clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

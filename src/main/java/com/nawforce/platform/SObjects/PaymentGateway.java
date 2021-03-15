@@ -34,47 +34,38 @@ import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
-public class ContactPointEmail extends SObject {
-	public static SObjectType$<ContactPointEmail> SObjectType;
-	public static SObjectFields$<ContactPointEmail> Fields;
-	public Date ActiveFromDate;
-	public Date ActiveToDate;
-	public Time BestTimeToContactEndTime;
-	public Time BestTimeToContactStartTime;
-	public String BestTimeToContactTimezone;
+public class PaymentGateway extends SObject {
+	public static SObjectType$<PaymentGateway> SObjectType;
+	public static SObjectFields$<PaymentGateway> Fields;
+	public String Comments;
 	public Id CreatedById;
 	public User CreatedBy;
 	public Datetime CreatedDate;
-	public String EmailAddress;
-	public String EmailDomain;
-	public Datetime EmailLatestBounceDateTime;
-	public String EmailLatestBounceReasonText;
-	public String EmailMailBox;
 	public Id Id;
 	public Boolean IsDeleted;
-	public Boolean IsPrimary;
 	public Id LastModifiedById;
 	public User LastModifiedBy;
 	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
-	public String Name;
-	public Id OwnerId;
-	public Group Owner;
-	public Id ParentId;
-	public Account Parent;
+	public Id MerchantCredentialId;
+	public NamedCredential MerchantCredential;
+	public String PaymentGatewayName;
+	public Id PaymentGatewayProviderId;
+	public PaymentGatewayProvider PaymentGatewayProvider;
+	public String Status;
 	public Datetime SystemModstamp;
 
-  public CommSubscriptionConsent[] CommSubscriptionConsents;
-  public ContactPointConsent[] ContactPointConsents;
-  public ContactPointEmailHistory[] Histories;
-  public ProcessInstance[] ProcessInstances;
-  public ProcessInstanceHistory[] ProcessSteps;
-  public ContactPointEmailShare[] Shares;
+	public CardPaymentMethod[] CardPaymentMethods;
+	public DigitalWallet[] DigitalWallets;
+	public PaymentAuthorization[] PaymentAuthorizations;
+	public PaymentGatewayLog[] PaymentGatewayLogs;
+	public Payment[] Payments;
+	public Refund[] Refunds;
 
-	public ContactPointEmail clone$() {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
-	public ContactPointEmail clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
+	public PaymentGateway clone$() {throw new java.lang.UnsupportedOperationException();}
+	public PaymentGateway clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public PaymentGateway clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public PaymentGateway clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public PaymentGateway clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }
