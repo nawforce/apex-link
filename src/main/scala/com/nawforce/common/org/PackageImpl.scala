@@ -28,7 +28,7 @@
 
 package com.nawforce.common.org
 
-import com.nawforce.common.api.{Location, Name, PathLocation, TypeName}
+import com.nawforce.common.api.{Name, PathLocation, TypeName}
 import com.nawforce.common.cst.UnusedLog
 import com.nawforce.common.diagnostics.IssueLog
 import com.nawforce.common.documents._
@@ -65,8 +65,7 @@ class PackageImpl(val org: OrgImpl, val config: WorkspaceConfig, bases: Seq[Pack
   private val anyDeclaration = AnyDeclaration(this)
 
   initTypes()
-  if (org.analysis)
-    deployFromWorkspace()
+  deployFromWorkspace()
 
   private def initTypes(): Unit = {
     upsertMetadata(anyDeclaration)
@@ -178,15 +177,9 @@ class PackageImpl(val org: OrgImpl, val config: WorkspaceConfig, bases: Seq[Pack
 
   /* Find a document location for the type */
   def getTypeLocation(typeName: TypeName): Option[PathLocation] = {
-    if (org.analysis) {
-      packageType(typeName) match {
-        case Some(ad: ApexDeclaration) => Some(ad.nameLocation)
-        case _                         => None
-      }
-    } else {
-      val docType =
-        workspace.getByType(typeName).orElse(typeName.outer.flatMap(workspace.getByType))
-      docType.map(d => PathLocation(d.path.toString, Location.empty))
+    packageType(typeName) match {
+      case Some(ad: ApexDeclaration) => Some(ad.nameLocation)
+      case _                         => None
     }
   }
 

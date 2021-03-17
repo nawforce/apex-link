@@ -149,7 +149,7 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
         val interviewType2 = TypeIdentifier.fromJava(Name("pkg2"), TypeNames.Interview)
         assert(
           pkg2
-            .getDependencies(interviewType2, inheritanceOnly = false)
+            .getDependencies(interviewType2, outerInheritanceOnly = false)
             .sameElements(Array(interviewType1)))
         assert(pkg1.getDependencyHolders(interviewType1).sameElements(Array(interviewType2)))
 
@@ -157,7 +157,7 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
           pkg2.getTypeOfPathInternal(root.join("pkg2").join("Dummy.cls")).get.asTypeIdentifier
         assert(
           pkg2
-            .getDependencies(dummyType, inheritanceOnly = false)
+            .getDependencies(dummyType, outerInheritanceOnly = false)
             .sameElements(Array(interviewType2)))
         assert(pkg2.getDependencyHolders(interviewType2).sameElements(Array(dummyType)))
     }

@@ -77,7 +77,7 @@ case class NodeData(name: String,
                     extending: Array[String],
                     implementing: Array[String],
                     using: Array[String])
-case class LinkData(source: Int, target: Int)
+case class LinkData(source: Int, target: Int, nature: String)
 case class DependencyGraphResult(nodeData: Array[NodeData], linkData: Array[LinkData])
 
 object DependencyGraphResult {

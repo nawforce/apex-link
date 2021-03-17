@@ -77,7 +77,7 @@ class DownWalker(org: Org) {
     val inherits =
       pkg
         .map(pkg => {
-          pkg.getDependencies(id, inheritanceOnly = true)
+          pkg.getDependencies(id, outerInheritanceOnly = true)
         })
         .getOrElse(Array[TypeIdentifier]())
         .toSet
@@ -87,7 +87,7 @@ class DownWalker(org: Org) {
     val all =
       pkg
         .map(pkg => {
-          pkg.getDependencies(id, inheritanceOnly = false)
+          pkg.getDependencies(id, outerInheritanceOnly = false)
         })
         .getOrElse(Array[TypeIdentifier]())
     val uses = all.filterNot(inherits.contains)

@@ -307,7 +307,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
-  def fooHoldsBarCached(files: Map[String, String], inheritanceOnly: Boolean = false): Unit = {
+  def fooHoldsBarCached(files: Map[String, String], outerInheritanceOnly: Boolean = false): Unit = {
     ParsedCache.clear()
     FileSystemHelper.run(files) { root: PathLike => // Basic non-cached test
     {
@@ -323,15 +323,19 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(pkg.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
       assert(pkg.getDependencyHolders(barTypeLike).isEmpty)
 
-      if (inheritanceOnly) {
+      if (outerInheritanceOnly) {
         assert(
-          pkg.getDependencies(barTypeLike, inheritanceOnly = true).sameElements(Array(fooTypeLike)))
+          pkg
+            .getDependencies(barTypeLike, outerInheritanceOnly = true)
+            .sameElements(Array(fooTypeLike)))
       } else {
-        assert(pkg.getDependencies(barTypeLike, inheritanceOnly = true).isEmpty)
+        assert(pkg.getDependencies(barTypeLike, outerInheritanceOnly = true).isEmpty)
       }
       assert(
-        pkg.getDependencies(barTypeLike, inheritanceOnly = false).sameElements(Array(fooTypeLike)))
-      assert(pkg.getDependencies(fooTypeLike, inheritanceOnly = false).isEmpty)
+        pkg
+          .getDependencies(barTypeLike, outerInheritanceOnly = false)
+          .sameElements(Array(fooTypeLike)))
+      assert(pkg.getDependencies(fooTypeLike, outerInheritanceOnly = false).isEmpty)
       org.flush()
     }
 
@@ -354,15 +358,19 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       assert(pkg.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
       assert(pkg.getDependencyHolders(barTypeLike).isEmpty)
 
-      if (inheritanceOnly) {
+      if (outerInheritanceOnly) {
         assert(
-          pkg.getDependencies(barTypeLike, inheritanceOnly = true).sameElements(Array(fooTypeLike)))
+          pkg
+            .getDependencies(barTypeLike, outerInheritanceOnly = true)
+            .sameElements(Array(fooTypeLike)))
       } else {
-        assert(pkg.getDependencies(barTypeLike, inheritanceOnly = true).isEmpty)
+        assert(pkg.getDependencies(barTypeLike, outerInheritanceOnly = true).isEmpty)
       }
       assert(
-        pkg.getDependencies(barTypeLike, inheritanceOnly = false).sameElements(Array(fooTypeLike)))
-      assert(pkg.getDependencies(fooTypeLike, inheritanceOnly = false).isEmpty)
+        pkg
+          .getDependencies(barTypeLike, outerInheritanceOnly = false)
+          .sameElements(Array(fooTypeLike)))
+      assert(pkg.getDependencies(fooTypeLike, outerInheritanceOnly = false).isEmpty)
     }
     }
   }
@@ -370,13 +378,13 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
   test("Superclass dependency") {
     fooHoldsBarCached(Map("classes/Foo.cls" -> "public virtual class Foo {}",
                           "classes/Bar.cls" -> "public class Bar extends Foo {}"),
-                      inheritanceOnly = true)
+                      outerInheritanceOnly = true)
   }
 
   test("Interface dependency") {
     fooHoldsBarCached(Map("classes/Foo.cls" -> "public interface Foo {}",
                           "classes/Bar.cls" -> "public class Bar implements Foo {}"),
-                      inheritanceOnly = true)
+                      outerInheritanceOnly = true)
   }
 
   test("Block dependency") {
@@ -431,13 +439,14 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     fooHoldsBarCached(
       Map("classes/Foo.cls" -> "public class Foo {public virtual class Baz {}}",
           "classes/Bar.cls" -> "public class Bar extends Foo.Baz {}"),
-      inheritanceOnly = true)
+      outerInheritanceOnly = true)
   }
 
   test("Interface dependency (nested)") {
-    fooHoldsBarCached(Map("classes/Foo.cls" -> "public class Foo {public interface Baz {}}",
-                          "classes/Bar.cls" -> "public class Bar implements Foo.Baz {}"),
-                      inheritanceOnly = true)
+    fooHoldsBarCached(
+      Map("classes/Foo.cls" -> "public class Foo {public interface Baz {}}",
+          "classes/Bar.cls" -> "public class Bar implements Foo.Baz {}"),
+      outerInheritanceOnly = true)
   }
 
   test("Block dependency (nested)") {
@@ -491,15 +500,13 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
   test("Superclass dependency (from nested)") {
     fooHoldsBarCached(
       Map("classes/Foo.cls" -> "public virtual class Foo {}",
-          "classes/Bar.cls" -> "public class Bar {public class Baz extends Foo {}}"),
-      inheritanceOnly = true)
+          "classes/Bar.cls" -> "public class Bar {public class Baz extends Foo {}}"))
   }
 
   test("Interface dependency (from nested)") {
     fooHoldsBarCached(
       Map("classes/Foo.cls" -> "public interface Foo {}",
-          "classes/Bar.cls" -> "public class Bar {public class Baz implements Foo {}}"),
-      inheritanceOnly = true)
+          "classes/Bar.cls" -> "public class Bar {public class Baz implements Foo {}}"))
   }
 
   test("Block dependency (from nested)") {
@@ -675,7 +682,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
         val fooTypeLike =
           pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.asTypeIdentifier
 
-        assert(pkg.getDependencies(fooTypeLike, inheritanceOnly = false).isEmpty)
+        assert(pkg.getDependencies(fooTypeLike, outerInheritanceOnly = false).isEmpty)
     }
   }
 
@@ -695,7 +702,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
         assert(
           pkg
-            .getDependencies(fooTypeLike, inheritanceOnly = false)
+            .getDependencies(fooTypeLike, outerInheritanceOnly = false)
             .sameElements(Array(barTypeLike)))
     }
   }
@@ -716,7 +723,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
         assert(
           pkg
-            .getDependencies(fooTypeLike, inheritanceOnly = false)
+            .getDependencies(fooTypeLike, outerInheritanceOnly = false)
             .sameElements(Array(barTypeLike)))
     }
   }
@@ -789,74 +796,4 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
             PathLocation("/triggers/Foo.trigger", Location(1, 8, 1, 11)))
     }
   }
-
-  test("location of type (no analysis)") {
-    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
-      val org = Org.newOrg(analysis = false).asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-
-      assert(
-        org.getIdentifierLocation("Dummy") ==
-          PathLocation("/classes/Dummy.cls", Location.empty))
-    }
-  }
-
-  test("location of type (packaged) (no analysis)") {
-    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
-      val org = Org.newOrg(analysis = false).asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-
-      assert(org.getIdentifierLocation("Dummy") == null)
-      assert(
-        org.getIdentifierLocation("test.Dummy") ==
-          PathLocation("/classes/Dummy.cls", Location.empty))
-    }
-  }
-
-  test("location of type (packaged & nested) (no analysis)") {
-    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {class Inner {}}")) {
-      root: PathLike =>
-        val org = Org.newOrg(analysis = false).asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
-        assert(!org.issues.hasMessages)
-
-        assert(org.getIdentifierLocation("Dummy") == null)
-        assert(org.getIdentifierLocation("Dummy.Inner") == null)
-        assert(
-          org.getIdentifierLocation("test.Dummy.Inner") ==
-            PathLocation("/classes/Dummy.cls", Location.empty))
-    }
-  }
-
-  test("location of trigger (no analysis)") {
-    FileSystemHelper.run(Map("triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
-      root: PathLike =>
-        val org = Org.newOrg(analysis = false).asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
-        assert(!org.issues.hasMessages)
-
-        assert(org.getIdentifierLocation("Foo") == null)
-        assert(
-          org.getIdentifierLocation("__sfdc_trigger/Foo") ==
-            PathLocation("/triggers/Foo.trigger", Location.empty))
-    }
-  }
-
-  test("location of trigger (packaged) (no analysis)") {
-    FileSystemHelper.run(Map("triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
-      root: PathLike =>
-        val org = Org.newOrg(analysis = false).asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
-        assert(!org.issues.hasMessages)
-
-        assert(org.getIdentifierLocation("Foo") == null)
-        assert(org.getIdentifierLocation("__sfdc_trigger/Foo") == null)
-        assert(
-          org.getIdentifierLocation("__sfdc_trigger/test/Foo") ==
-            PathLocation("/triggers/Foo.trigger", Location.empty))
-    }
-  }
-
 }
