@@ -63,7 +63,7 @@ import scala.util.DynamicVariable
   * the org being currently worked on. Typically only one org will be being used but some use cases might require
   * multiple. Problems with the metadata are recorded in the the associated issue log.
   */
-class OrgImpl(val analysis: Boolean = true) extends Org {
+class OrgImpl() extends Org {
 
   /** Parsed data cache */
   private[nawforce] val parsedCache = ParsedCache.create match {

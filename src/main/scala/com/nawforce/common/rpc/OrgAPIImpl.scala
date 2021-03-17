@@ -182,13 +182,16 @@ case class DependencyGraphRequest(promise: Promise[DependencyGraphResult],
           val linkData = new ArrayBuffer[LinkData]()
           nodeData.foreach(n => {
             val source = nodeIndex(n.name)
-            def safeLink(name: String): Unit = {
-              nodeIndex.get(name).foreach(target => linkData += LinkData(source, target))
+            def safeLink(nature: String)(name: String): Unit = {
+              nodeIndex
+                .get(name)
+                .foreach(target =>
+                  if (source != target) linkData += LinkData(source, target, nature))
             }
 
-            n.extending.foreach(safeLink)
-            n.implementing.foreach(safeLink)
-            n.using.foreach(safeLink)
+            n.extending.foreach(safeLink("extends"))
+            n.implementing.foreach(safeLink("implements"))
+            n.using.foreach(safeLink("uses"))
           })
 
           promise.success(DependencyGraphResult(nodeData, linkData.toArray))

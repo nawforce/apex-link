@@ -94,10 +94,10 @@ trait Package {
 
   /** Returns set of Types that are depended on by the passed Type
     *
-    * If inheritanceOnly is true only superClass & inheritance dependencies are reported for Apex defined Types,
-    * otherwise all dependencies are included.
+    * If outerInheritanceOnly is true only extending and implementing dependencies are reported for the outer Type
+    * of Apex defined types, otherwise all dependencies are included.
     */
-  def getDependencies(typeId: TypeIdentifier, inheritanceOnly: Boolean): Array[TypeIdentifier]
+  def getDependencies(typeId: TypeIdentifier, outerInheritanceOnly: Boolean): Array[TypeIdentifier]
 
   /** Returns set of Types that depend on the passed Type.
     *

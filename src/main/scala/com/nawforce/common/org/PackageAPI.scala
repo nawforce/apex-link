@@ -59,7 +59,7 @@ trait PackageAPI extends Package {
   override def getTypeIdentifier(typeName: TypeName): TypeIdentifier = {
     (TypeResolver(typeName, this, excludeSObjects = false) match {
       case Right(td: TypeDeclaration) => Some(TypeIdentifier(this.namespace, td.typeName))
-      case _                         => None
+      case _                          => None
     }).orNull
   }
 
@@ -109,18 +109,17 @@ trait PackageAPI extends Package {
   }
 
   override def getDependencies(typeId: TypeIdentifier,
-                               inheritanceOnly: Boolean): Array[TypeIdentifier] = {
+                               outerInheritanceOnly: Boolean): Array[TypeIdentifier] = {
     if (typeId != null && typeId.namespace == namespace) {
       getDependentType(typeId.typeName)
         .map(ad => {
-          if (inheritanceOnly) {
-            (ad +: ad.nestedTypes).flatMap(td => {
-              td.dependencies()
-                .flatMap({
-                  case dt: ApexClassDeclaration => Some(dt.outerTypeId.asTypeIdentifier)
-                  case _                        => None
-                })
-            })
+          if (outerInheritanceOnly) {
+            ad.dependencies()
+              .flatMap({
+                case dt: ApexClassDeclaration => Some(dt.outerTypeId.asTypeIdentifier)
+                case _                        => None
+              })
+              .toArray
           } else {
             val dependencies = mutable.Set[TypeId]()
             ad.collectDependenciesByTypeName(dependencies)

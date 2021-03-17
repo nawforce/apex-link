@@ -65,7 +65,7 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
       val typeId = pkg.getTypeOfPathInternal(root.join("CustomLabels.labels")).get.asTypeIdentifier
       assert(typeId.toString == "System.Label")
       assert(pkg.getPathsOfType(typeId).sameElements(Array("/CustomLabels.labels")))
-      assert(pkg.getDependencies(typeId, inheritanceOnly = false).isEmpty)
+      assert(pkg.getDependencies(typeId, outerInheritanceOnly = false).isEmpty)
       assert(pkg.getDependencyHolders(typeId).isEmpty)
     }
   }
@@ -90,7 +90,7 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
           .getPathsOfType(typeId1)
           .sorted
           .sameElements(Array("/CustomLabels.labels", "/CustomLabels2.labels")))
-      assert(pkg.getDependencies(typeId1, inheritanceOnly = false).isEmpty)
+      assert(pkg.getDependencies(typeId1, outerInheritanceOnly = false).isEmpty)
       assert(pkg.getDependencyHolders(typeId1).isEmpty)
     }
   }
@@ -119,11 +119,11 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
         pkg.getTypeOfPathInternal(root.join("CustomLabels.labels")).get.asTypeIdentifier
       assert(labelsTypeId.toString == "System.Label")
       assert(pkg.getPathsOfType(labelsTypeId).sameElements(Array("/CustomLabels.labels")))
-      assert(pkg.getDependencies(labelsTypeId, inheritanceOnly = false).isEmpty)
+      assert(pkg.getDependencies(labelsTypeId, outerInheritanceOnly = false).isEmpty)
 
       val dummyTypeId = pkg.getTypeOfPathInternal(root.join("Dummy.cls")).get.asTypeIdentifier
       assert(
-        pkg.getDependencies(dummyTypeId, inheritanceOnly = false).sameElements(Array(labelsTypeId)))
+        pkg.getDependencies(dummyTypeId, outerInheritanceOnly = false).sameElements(Array(labelsTypeId)))
       assert(pkg.getDependencyHolders(labelsTypeId).sameElements(Array(dummyTypeId)))
     }
   }
@@ -225,13 +225,13 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
           pkg1.getTypeOfPathInternal(root.join("pkg1/CustomLabels.labels")).get.asTypeIdentifier
         assert(labels1TypeId.toString == "System.Label (pkg1)")
         assert(pkg1.getPathsOfType(labels1TypeId).sameElements(Array("/pkg1/CustomLabels.labels")))
-        assert(pkg1.getDependencies(labels1TypeId, inheritanceOnly = false).isEmpty)
+        assert(pkg1.getDependencies(labels1TypeId, outerInheritanceOnly = false).isEmpty)
 
         val dummyTypeId =
           pkg2.getTypeOfPathInternal(root.join("pkg2/Dummy.cls")).get.asTypeIdentifier
         assert(
           pkg2
-            .getDependencies(dummyTypeId, inheritanceOnly = false)
+            .getDependencies(dummyTypeId, outerInheritanceOnly = false)
             .map(_.toString)
             .sameElements(Array("System.Label (pkg2)")))
 
@@ -241,7 +241,7 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
         assert(pkg2.getDependencyHolders(label2TypeId).sameElements(Array(dummyTypeId)))
         assert(
           pkg2
-            .getDependencies(label2TypeId, inheritanceOnly = false)
+            .getDependencies(label2TypeId, outerInheritanceOnly = false)
             .sameElements(Array(labels1TypeId)))
     }
   }
@@ -283,7 +283,7 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
           pkg2.getTypeOfPathInternal(root.join("pkg2/Dummy.cls")).get.asTypeIdentifier
         assert(
           pkg2
-            .getDependencies(dummyTypeId, inheritanceOnly = false)
+            .getDependencies(dummyTypeId, outerInheritanceOnly = false)
             .sameElements(Array[TypeName]()))
 
         val label2TypeId =
@@ -292,7 +292,7 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
         assert(pkg2.getDependencyHolders(label2TypeId).isEmpty)
         assert(
           pkg2
-            .getDependencies(label2TypeId, inheritanceOnly = false)
+            .getDependencies(label2TypeId, outerInheritanceOnly = false)
             .sameElements(Array(labels1TypeId)))
     }
   }
@@ -380,11 +380,11 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
         .asTypeIdentifier
       assert(label2Type.toString == "System.Label (pkg2)")
 
-      assert(pkg1.getDependencies(label1Type, inheritanceOnly = false).isEmpty)
+      assert(pkg1.getDependencies(label1Type, outerInheritanceOnly = false).isEmpty)
       assert(pkg2.getDependencyHolders(label2Type).isEmpty)
 
       assert(
-        pkg2.getDependencies(label2Type, inheritanceOnly = false).sameElements(Array(label1Type)))
+        pkg2.getDependencies(label2Type, outerInheritanceOnly = false).sameElements(Array(label1Type)))
       assert(pkg1.getDependencyHolders(label1Type).sameElements(Array(label2Type)))
     }
   }
@@ -447,11 +447,11 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
         val dummyTypeId =
           pkg2.getTypeOfPathInternal(root.join("pkg2/Dummy.cls")).get.asTypeIdentifier
 
-        assert(pkg1.getDependencies(label1Type, inheritanceOnly = false).isEmpty)
+        assert(pkg1.getDependencies(label1Type, outerInheritanceOnly = false).isEmpty)
         assert(pkg2.getDependencyHolders(label2Type).sameElements(Array(dummyTypeId)))
 
         assert(
-          pkg2.getDependencies(label2Type, inheritanceOnly = false).sameElements(Array(label1Type)))
+          pkg2.getDependencies(label2Type, outerInheritanceOnly = false).sameElements(Array(label1Type)))
         assert(pkg1.getDependencyHolders(label1Type).sameElements(Array(label2Type)))
     }
   }
@@ -514,11 +514,11 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
         val dummyTypeId =
           pkg2.getTypeOfPathInternal(root.join("pkg2/Dummy.cls")).get.asTypeIdentifier
 
-        assert(pkg1.getDependencies(label1Type, inheritanceOnly = false).isEmpty)
+        assert(pkg1.getDependencies(label1Type, outerInheritanceOnly = false).isEmpty)
         assert(pkg2.getDependencyHolders(label2Type).sameElements(Array(dummyTypeId)))
 
         assert(
-          pkg2.getDependencies(label2Type, inheritanceOnly = false).sameElements(Array(label1Type)))
+          pkg2.getDependencies(label2Type, outerInheritanceOnly = false).sameElements(Array(label1Type)))
         assert(pkg1.getDependencyHolders(label1Type).sameElements(Array(label2Type)))
     }
   }
