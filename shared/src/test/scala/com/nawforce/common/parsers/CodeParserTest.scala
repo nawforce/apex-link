@@ -69,4 +69,13 @@ class CodeParserTest extends AnyFunSuite {
     }
   }
 
+  test("Class with keyword name") {
+    val path = PathFactory("Network.cls")
+    val cp = CodeParser(path, SourceData("public class Network {}"))
+    cp.parseClass() match {
+      case Left(issues) => assert(false, issues)
+      case Right(_)     => ()
+    }
+  }
+
 }
