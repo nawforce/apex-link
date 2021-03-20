@@ -35,4 +35,8 @@ sealed case class Issue(path: String, diagnostic: Diagnostic)
 
 object Issue {
   implicit val rw: RW[Issue] = macroRW
+
+  implicit val ordering: Ordering[Issue] = Ordering
+    .by[Issue, Int](_.diagnostic.location.startLine)
+    .orElseBy(_.diagnostic.location.startPosition)
 }

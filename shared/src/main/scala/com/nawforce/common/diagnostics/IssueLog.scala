@@ -166,7 +166,7 @@ class IssueLog {
       writer.startDocument(path)
       var count = 0
       messages
-        .sortBy(_.diagnostic.location.startLine)
+        .sorted(Issue.ordering)
         .foreach(message => {
           if (count < maxErrors) {
             writer.writeMessage(message.diagnostic.category,
