@@ -253,7 +253,8 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
         assertIsSummaryDeclaration(pkg2, "Dummy")
         assert(
           pkg2
-            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), outerInheritanceOnly = false)
+            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))),
+                             outerInheritanceOnly = false)
             .sameElements(Array(TypeIdentifier(None, TypeNames.Label))))
 
         root.createFile("CustomLabels.labels",
@@ -352,7 +353,8 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
         assertIsSummaryDeclaration(pkg2, "Dummy")
         assert(
           pkg2
-            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), outerInheritanceOnly = false)
+            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))),
+                             outerInheritanceOnly = false)
             .sameElements(Array(TypeIdentifier(None, TypeNames.Label))))
 
         root.createFile("AltLabels.labels",
@@ -384,7 +386,8 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
         assertIsSummaryDeclaration(pkg2, "Dummy")
         assert(
           pkg2
-            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), outerInheritanceOnly = false)
+            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))),
+                             outerInheritanceOnly = false)
             .sameElements(Array(TypeIdentifier(None, TypeNames.Interview))))
 
         root.join("Test.flow-meta.xml").delete()
@@ -451,7 +454,8 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
         assertIsSummaryDeclaration(pkg2, "Dummy")
         assert(
           pkg2
-            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), outerInheritanceOnly = false)
+            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))),
+                             outerInheritanceOnly = false)
             .sameElements(Array(TypeIdentifier(None, TypeNames.Page))))
 
         root.join("TestPage.page").delete()
@@ -504,7 +508,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Component dependency is cached") {
     FileSystemHelper.run(
-      Map("Test.component" -> "",
+      Map("Test.component" -> "<apex:component/>",
           "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }")) {
       root: PathLike =>
         val org1 = Org.newOrg().asInstanceOf[OrgImpl]
@@ -519,7 +523,8 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
         assertIsSummaryDeclaration(pkg2, "Dummy")
         assert(
           pkg2
-            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), outerInheritanceOnly = false)
+            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))),
+                             outerInheritanceOnly = false)
             .sameElements(Array(TypeIdentifier(None, TypeNames.Component))))
 
         root.join("Test.component").delete()
@@ -535,7 +540,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
   test("Packaged component dependency is cached") {
     FileSystemHelper.run(
       Map(
-        "pkg1/Test.component" -> "",
+        "pkg1/Test.component" -> "<apex:component/>",
         "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }")) {
       root: PathLike =>
         val org1 = Org.newOrg().asInstanceOf[OrgImpl]

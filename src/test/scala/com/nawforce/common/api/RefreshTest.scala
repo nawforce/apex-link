@@ -136,7 +136,9 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
 
         assert(pkg.getDependencyHolders(fooTypeId).isEmpty)
         assert(
-          pkg.getDependencies(fooTypeId, outerInheritanceOnly = false).sameElements(Array(barTypeId)))
+          pkg
+            .getDependencies(fooTypeId, outerInheritanceOnly = false)
+            .sameElements(Array(barTypeId)))
 
         assert(pkg.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
         assert(pkg.getDependencies(barTypeId, outerInheritanceOnly = false).isEmpty)
@@ -161,7 +163,9 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
 
         assert(pkg2.getDependencyHolders(fooTypeId).isEmpty)
         assert(
-          pkg2.getDependencies(fooTypeId, outerInheritanceOnly = false).sameElements(Array(barTypeId)))
+          pkg2
+            .getDependencies(fooTypeId, outerInheritanceOnly = false)
+            .sameElements(Array(barTypeId)))
 
         assert(pkg1.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
         assert(pkg1.getDependencies(barTypeId, outerInheritanceOnly = false).isEmpty)
@@ -253,7 +257,8 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
         pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
 
       assert(pkg.getDependencyHolders(fooTypeId).isEmpty)
-      assert(pkg.getDependencies(fooTypeId, outerInheritanceOnly = false).sameElements(Array(barTypeId)))
+      assert(
+        pkg.getDependencies(fooTypeId, outerInheritanceOnly = false).sameElements(Array(barTypeId)))
 
       assert(pkg.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
       assert(pkg.getDependencies(barTypeId, outerInheritanceOnly = false).isEmpty)
@@ -278,7 +283,9 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
 
       assert(pkg2.getDependencyHolders(fooTypeId).isEmpty)
       assert(
-        pkg2.getDependencies(fooTypeId, outerInheritanceOnly = false).sameElements(Array(barTypeId)))
+        pkg2
+          .getDependencies(fooTypeId, outerInheritanceOnly = false)
+          .sameElements(Array(barTypeId)))
 
       assert(pkg1.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
       assert(pkg1.getDependencies(barTypeId, outerInheritanceOnly = false).isEmpty)
@@ -527,7 +534,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid component upsert") {
-    FileSystemHelper.run(Map("Test.component" -> "")) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.component" -> "<apex:component/>")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -551,7 +558,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid component upsert (changed)") {
-    FileSystemHelper.run(Map("Test.component" -> "")) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.component" -> "<apex:component/>")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -563,7 +570,7 @@ class RefreshTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Valid component upsert (new component)") {
-    FileSystemHelper.run(Map("Test.component" -> "")) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.component" -> "<apex:component/>")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)

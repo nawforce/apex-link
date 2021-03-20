@@ -359,7 +359,7 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Component") {
-    FileSystemHelper.run(Map("Test.component" -> "")) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.component" -> "<apex:component/>")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -377,13 +377,13 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Additional Component") {
-    FileSystemHelper.run(Map("Test.component" -> "")) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.component" -> "<apex:component/>")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
 
       val view = pkg
-        .getViewOfType(root.join("Test2.component"), Some(SourceBlob("")))
+        .getViewOfType(root.join("Test2.component"), Some(SourceBlob("<apex:component/>")))
         .asInstanceOf[ViewInfoImpl]
       assert(view.hasType)
       assert(view.diagnostics.isEmpty)

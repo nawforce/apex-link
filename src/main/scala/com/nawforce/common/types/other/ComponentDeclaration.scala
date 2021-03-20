@@ -35,12 +35,16 @@ import com.nawforce.common.org.stream.PackageStream
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.core._
 import com.nawforce.common.types.platform.PlatformTypes
+import com.nawforce.common.types.synthetic.CustomFieldDeclaration
 
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
 /** An individual component being represented as a nested type. */
-final case class Component(pkg: PackageImpl, location: Option[PathLocation], componentName: Name)
+final case class Component(pkg: PackageImpl,
+                           location: Option[PathLocation],
+                           componentName: Name,
+                           attributes: Option[Array[Name]])
     extends InnerBasicTypeDeclaration(
       location.map(l => PathFactory(l.path)).toArray,
       pkg,
@@ -49,7 +53,16 @@ final case class Component(pkg: PackageImpl, location: Option[PathLocation], com
   override val superClass: Option[TypeName] = Some(TypeNames.ApexPagesComponent)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(
     PlatformTypes.componentType)
-  override val fields: Array[FieldDeclaration] = PlatformTypes.componentType.fields
+  override val fields: Array[FieldDeclaration] = attributes
+    .getOrElse(Array())
+    .map(a => CustomFieldDeclaration(a, TypeNames.Any, None)) ++ PlatformTypes.componentType.fields
+
+  override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
+    if (attributes.isEmpty)
+      Some(CustomFieldDeclaration(name, TypeNames.Any, None))
+    else
+      super.findField(name, staticContext)
+  }
 }
 
 object Component {
@@ -92,17 +105,17 @@ final case class ComponentDeclaration(sources: Seq[SourceInfo],
     override def nestedTypes: Array[TypeDeclaration] = nestedComponents
 
     def merge(stream: PackageStream): NamespaceDeclaration = {
-      new NamespaceDeclaration(
-        name,
-        nestedComponents ++
-          stream.components.map(fe => Component(pkg, Some(fe.location), fe.name)))
+      new NamespaceDeclaration(name,
+                               nestedComponents ++
+                                 stream.components.map(ce =>
+                                   Component(pkg, Some(ce.location), ce.name, Some(ce.attributes))))
     }
   }
 
   /** Create new components from merging those in the provided stream */
   def merge(stream: PackageStream): ComponentDeclaration = {
     val components = ComponentDeclaration.standardTypes ++
-      stream.components.map(fe => Component(pkg, Some(fe.location), fe.name))
+      stream.components.map(ce => Component(pkg, Some(ce.location), ce.name, Some(ce.attributes)))
     val sourceInfo = stream.components.map(_.sourceInfo).distinct
     val componentDeclaration =
       new ComponentDeclaration(sourceInfo, pkg, components, nestedComponents)
@@ -152,7 +165,7 @@ final class GhostedComponents(pkg: PackageImpl, ghostedPackage: PackageImpl)
   override def addTypeDependencyHolder(typeId: TypeId): Unit = {}
 
   override def findNestedType(name: Name): Option[TypeDeclaration] = {
-    Some(Component(ghostedPackage, None, name))
+    Some(Component(ghostedPackage, None, name, None))
   }
 }
 

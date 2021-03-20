@@ -31,10 +31,14 @@ package com.nawforce.common.org.stream
 import com.nawforce.common.api.{Location, Name, PathLocation}
 import com.nawforce.common.diagnostics.IssueLogger
 import com.nawforce.common.documents._
+import com.nawforce.runtime.parsers.{PageParser, VFParser}
 
 import scala.collection.immutable.Queue
 
-case class ComponentEvent(sourceInfo: SourceInfo, location: PathLocation, name: Name)
+case class ComponentEvent(sourceInfo: SourceInfo,
+                          location: PathLocation,
+                          name: Name,
+                          attributes: Array[Name])
     extends PackageEvent
 
 /** Convert component documents into PackageEvents */
@@ -48,14 +52,54 @@ object ComponentGenerator extends Generator {
 
   override def getMetadata(logger: IssueLogger,
                            metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
-    val docType = metadata.docType
-    docType match {
-      case _: ComponentDocument =>
-        Seq(
-          ComponentEvent(SourceInfo(docType.path, metadata.source.asString),
-                         PathLocation(docType.path.toString, Location.empty),
-                         docType.name))
-      case _ => Seq.empty
+
+    val path = metadata.docType.path
+    val parser = PageParser(path, metadata.source)
+    val attributes = parser.parsePage() match {
+      case Left(issues)     => issues.foreach(logger.log); Array[Name]()
+      case Right(component) => extractAttributes(parser, logger, component)
     }
+
+    Seq(
+      ComponentEvent(SourceInfo(metadata.docType.path, metadata.source.asString),
+                     PathLocation(metadata.docType.path.toString, Location.empty),
+                     metadata.docType.name,
+                     attributes))
+  }
+
+  private def extractAttributes(parser: PageParser,
+                                logger: IssueLogger,
+                                component: VFParser.VfUnitContext): Array[Name] = {
+    val root = component.element()
+    if (!PageParser.getText(root.Name(0)).equalsIgnoreCase("apex:component")) {
+      val location = parser.getPathAndLocation(component)
+      logger.logError(location._1, location._2, "Root element must be 'apex:component'")
+    }
+
+    Option(root.content())
+      .map(
+        content =>
+          PageParser
+            .toScala(content.element())
+            .filter(el =>
+              Option(el.Name(0)).exists(name =>
+                PageParser.getText(name).equalsIgnoreCase("apex:attribute")))
+            .flatMap(attribute => {
+              val name = PageParser
+                .toScala(attribute.attribute())
+                .find(a => PageParser.getText(a.attributeName()).equalsIgnoreCase("name"))
+              if (name.isEmpty) {
+                val location = parser.getPathAndLocation(component)
+                logger.logError(location._1,
+                                location._2,
+                                "apex:attribute is missing 'name' attribute")
+                None
+              } else {
+                Some(Name(
+                  PageParser.toScala(name.get.attributeValues()).map(PageParser.getText).mkString))
+              }
+            }))
+      .getOrElse(Seq())
+      .toArray
   }
 }

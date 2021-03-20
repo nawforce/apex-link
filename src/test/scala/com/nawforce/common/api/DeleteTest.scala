@@ -233,7 +233,7 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Delete component file") {
-    FileSystemHelper.run(Map("Test.component" -> "")) { root: PathLike =>
+    FileSystemHelper.run(Map("Test.component" -> "<apex:component/>")) { root: PathLike =>
       val org = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(!org.issues.hasMessages)
@@ -248,20 +248,22 @@ class DeleteTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Delete component file (multiple)") {
-    FileSystemHelper.run(Map("Test.component" -> "", "Test2.component" -> "")) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map("Test.component" -> "<apex:component/>", "Test2.component" -> "<apex:component/>")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
 
-      val path = root.join("Test.component")
-      path.delete()
-      pkg.refresh(path, None)
-      assert(org.flush())
-      assert(
-        pkg.components.nestedTypes.map(_.name).toSet == Set(Name("Test2"),
-                                                            Names.c,
-                                                            Names.Apex,
-                                                            Names.Chatter))
+        val path = root.join("Test.component")
+        path.delete()
+        pkg.refresh(path, None)
+        assert(org.flush())
+        assert(
+          pkg.components.nestedTypes.map(_.name).toSet == Set(Name("Test2"),
+                                                              Names.c,
+                                                              Names.Apex,
+                                                              Names.Chatter))
     }
   }
 }

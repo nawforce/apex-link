@@ -613,7 +613,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Component creates dependency") {
     FileSystemHelper.run(
-      Map("Test.component" -> "",
+      Map("Test.component" -> "<apex:component/>",
           "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }")) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]
@@ -632,7 +632,7 @@ class DependencyTest extends AnyFunSuite with BeforeAndAfter {
   test("Packaged component creates dependency") {
     FileSystemHelper.run(
       Map(
-        "pkg1/Test.component" -> "",
+        "pkg1/Test.component" -> "<apex:component/>",
         "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }")) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]

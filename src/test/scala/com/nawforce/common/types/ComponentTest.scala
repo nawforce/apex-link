@@ -45,13 +45,32 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
     ServerOps.setAutoFlush(true)
   }
 
+  test("Missing root element") {
+    FileSystemHelper.run(Map("Test.component" -> "")) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      assert(org.issues.getMessages("/Test.component") ==
+        "Syntax: line 1: mismatched input '<EOF>' expecting {COMMENT, PI_START, '<', '<script', WS_NL}\n")
+    }
+  }
+
+  test("Bad root element") {
+    FileSystemHelper.run(Map("Test.component" -> "<foo/>")) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      assert(
+        org.issues.getMessages("/Test.component") ==
+          "Error: line 1 at 0-11: Root element must be 'apex:component'\n")
+    }
+  }
+
   test("Custom component (MDAPI)") {
     FileSystemHelper.run(
-      Map("Test.component" -> "", "Dummy.cls" -> "public class Dummy { {Component.Test;} }")) {
-      root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
-        assert(!org.issues.hasMessages)
+      Map("Test.component" -> "<apex:component/>",
+          "Dummy.cls" -> "public class Dummy { {Component.Test;} }")) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
     }
   }
 
@@ -69,7 +88,7 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Create component") {
     FileSystemHelper.run(
-      Map("Test.component" -> "",
+      Map("Test.component" -> "<apex:component/>",
           "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }")) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]
@@ -80,7 +99,7 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Create component (c namespace)") {
     FileSystemHelper.run(
-      Map("Test.component" -> "",
+      Map("Test.component" -> "<apex:component/>",
           "Dummy.cls" -> "public class Dummy { {Component c = new Component.c.Test();} }")) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]
@@ -91,7 +110,7 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Create component (namespaced)") {
     FileSystemHelper.run(
-      Map("Test.component" -> "",
+      Map("Test.component" -> "<apex:component/>",
           "Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg.Test();} }")) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]
@@ -102,7 +121,7 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Create component (namespaced but without namespace)") {
     FileSystemHelper.run(
-      Map("Test.component" -> "",
+      Map("Test.component" -> "<apex:component/>",
           "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }")) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]
@@ -125,7 +144,7 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
   test("Create component (packaged)") {
     FileSystemHelper.run(
       Map(
-        "pkg1/Test.component" -> "",
+        "pkg1/Test.component" -> "<apex:component/>",
         "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }")) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]
@@ -151,4 +170,51 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
         assert(pkg2.getDependencyHolders(componentType2).sameElements(Array(dummyType)))
     }
   }
+
+  test("Single attribute") {
+    FileSystemHelper.run(
+      Map(
+        "Test.component" ->
+          """<apex:component>
+          |  <apex:attribute name="test" type="String"/>
+          |</apex:component>
+          |""".stripMargin,
+        "Dummy.cls" ->
+          """public class Dummy {
+          |  {
+          |    Component.Test c = new Component.Test();
+          |    c.test = 'Hello';
+          |  }
+          |}
+          |""".stripMargin)) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+    }
+  }
+
+  test("Multiple attributes") {
+    FileSystemHelper.run(
+      Map(
+        "Test.component" ->
+          """<apex:component>
+            |  <apex:attribute name="test" type="String"/>
+            |  <apex:attribute name="test2" type="String"/>|
+            |</apex:component>
+            |""".stripMargin,
+        "Dummy.cls" ->
+          """public class Dummy {
+            |  {
+            |    Component.Test c = new Component.Test();
+            |    c.test2 = c.test;
+            |  }
+            |}
+            |""".stripMargin)) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+    }
+  }
+
+
 }
