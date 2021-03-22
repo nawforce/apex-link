@@ -55,7 +55,15 @@ case class ModifierResults(modifiers: Array[Modifier], issues: Array[Issue]) {
   private def doesEqual(other: ModifierResults): Boolean = {
     this.modifiers.sameElements(other.modifiers) &&
     this.issues.sameElements(other.issues)
+    this.issues.sameElements(other.issues)
   }
+
+  def methodOwnerNature: MethodOwnerNature = {
+    if (modifiers.contains(ABSTRACT_MODIFIER)) ABSTRACT_METHOD_NATURE
+    else if (modifiers.contains(VIRTUAL_MODIFIER)) VIRTUAL_METHOD_NATURE
+    else FINAL_METHOD_NATURE
+  }
+
 }
 
 object ModifierResults extends InternCache[ModifierResults] {

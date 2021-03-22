@@ -184,36 +184,6 @@ object ApexModifiers {
   private val legalConstructorModifiersAndAnnotations
     : Set[Modifier] = visibilityModifiers.toSet ++ legalTypeAnnotations
 
-  private val legalMethodModifiers: Set[Modifier] = visibilityModifiers.toSet ++ Set(
-    ABSTRACT_MODIFIER,
-    OVERRIDE_MODIFIER,
-    STATIC_MODIFIER,
-    TEST_METHOD_MODIFIER,
-    WEBSERVICE_MODIFIER,
-    VIRTUAL_MODIFIER)
-
-  private val legalMethodAnnotations: Set[Modifier] = Set(AURA_ENABLED_ANNOTATION,
-                                                          DEPRECATED_ANNOTATION,
-                                                          FUTURE_ANNOTATION,
-                                                          INVOCABLE_METHOD_ANNOTATION,
-                                                          ISTEST_ANNOTATION,
-                                                          TEST_VISIBLE_ANNOTATION,
-                                                          NAMESPACE_ACCESSIBLE_ANNOTATION,
-                                                          READ_ONLY_ANNOTATION,
-                                                          SUPPRESS_WARNINGS_ANNOTATION,
-                                                          READ_ONLY_ANNOTATION,
-                                                          SUPPRESS_WARNINGS_ANNOTATION,
-                                                          TEST_SETUP_ANNOTATION,
-                                                          HTTP_DELETE_ANNOTATION,
-                                                          HTTP_GET_ANNOTATION,
-                                                          HTTP_PATCH_ANNOTATION,
-                                                          HTTP_POST_ANNOTATION,
-                                                          HTTP_PUT_ANNOTATION,
-                                                          REMOTE_ACTION_ANNOTATION)
-
-  private val legalMethodModifiersAndAnnotations
-    : Set[Modifier] = legalMethodAnnotations ++ legalMethodModifiers
-
   private val legalParameterModifiersAndAnnotations: Set[Modifier] = Set(FINAL_MODIFIER)
 
   private val legalCatchModifiersAndAnnotations: Set[Modifier] =
@@ -223,11 +193,11 @@ object ApexModifiers {
     Set(FINAL_MODIFIER, TRANSIENT_MODIFIER)
 
   /* Convert parser contexts to Modifiers */
-  private def asModifiers(modifierContexts: Seq[ModifierContext],
-                          allow: Set[Modifier],
-                          pluralName: String,
-                          logger: CodeParserLogger,
-                          idContext: ParserRuleContext): Seq[Modifier] = {
+  def asModifiers(modifierContexts: Seq[ModifierContext],
+                  allow: Set[Modifier],
+                  pluralName: String,
+                  logger: CodeParserLogger,
+                  idContext: ParserRuleContext): Seq[Modifier] = {
 
     val modifiers = toModifiers(modifierContexts, allow, pluralName, logger)
     if (modifiers.size == modifierContexts.size) {
@@ -262,10 +232,10 @@ object ApexModifiers {
     })
   }
 
-  private def deduplicateVisibility(modifiers: Seq[Modifier],
-                                    pluralName: String,
-                                    logger: CodeParserLogger,
-                                    idContext: ParserRuleContext): Seq[Modifier] = {
+  def deduplicateVisibility(modifiers: Seq[Modifier],
+                            pluralName: String,
+                            logger: CodeParserLogger,
+                            idContext: ParserRuleContext): Seq[Modifier] = {
     if (modifiers.intersect(visibilityModifiers).size > 1) {
       if (logger.isEmpty)
         logger.logWarning(
@@ -320,12 +290,18 @@ object ApexModifiers {
     val results =
       if (logger.isEmpty) {
         if (outer && !mods.contains(ISTEST_ANNOTATION) && mods.contains(PRIVATE_MODIFIER)) {
-          logger.logWarning(idContext, s"Private modifier is not allowed on outer classes")
+          logger.logError(idContext, s"Private modifier is not allowed on outer classes")
           mods.filterNot(_ == PRIVATE_MODIFIER)
         } else if (outer && !mods.contains(ISTEST_ANNOTATION) && !(mods.contains(GLOBAL_MODIFIER) || mods
                      .contains(PUBLIC_MODIFIER))) {
           logger.logError(idContext, s"Outer classes must be declared either 'global' or 'public'")
           PUBLIC_MODIFIER +: mods
+        } else if (mods.contains(ABSTRACT_MODIFIER) && mods.contains(VIRTUAL_MODIFIER)) {
+          logger.logError(idContext, s"Abstract classes are virtual classes")
+          mods.filterNot(_ == VIRTUAL_MODIFIER)
+        } else if (!outer && mods.contains(ISTEST_ANNOTATION)) {
+          logger.logError(idContext, s"isTest can only be used on outer classes")
+          mods.filterNot(_ == ISTEST_ANNOTATION)
         } else {
           mods
         }
@@ -471,40 +447,6 @@ object ApexModifiers {
       }
     }
     ModifierResults(results.toArray, logger.issues).intern
-  }
-
-  def methodModifiers(parser: CodeParser,
-                      modifierContexts: Seq[ModifierContext],
-                      context: ParserRuleContext): ModifierResults = {
-
-    val logger = new CodeParserLogger(parser)
-    val mods = deduplicateVisibility(
-      asModifiers(modifierContexts, legalMethodModifiersAndAnnotations, "methods", logger, context),
-      "methods",
-      logger,
-      context)
-
-    // TODO: webservice must be on outer static method
-
-    val results = {
-      if (mods.intersect(visibilityModifiers).isEmpty && mods.contains(WEBSERVICE_MODIFIER)) {
-        GLOBAL_MODIFIER +: mods
-      } else if (!mods.intersect(visibilityModifiers).contains(GLOBAL_MODIFIER) && mods.contains(
-                   WEBSERVICE_MODIFIER)) {
-        logger.logError(context, s"webservice methods must be global")
-        GLOBAL_MODIFIER +: mods.diff(visibilityModifiers)
-      } else {
-        mods
-      }
-    }
-    ModifierResults(results.toArray, logger.issues).intern
-  }
-
-  def interfaceMethodModifiers(parser: CodeParser,
-                               modifierContexts: Seq[ModifierContext],
-                               context: ParserRuleContext): ModifierResults = {
-    // TODO: Replace with more specific handling
-    methodModifiers(parser, modifierContexts, context)
   }
 
   def parameterModifiers(parser: CodeParser,
