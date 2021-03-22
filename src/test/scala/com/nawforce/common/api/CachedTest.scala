@@ -574,4 +574,44 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
           "/pkg2/Dummy.cls\nMissing: line 1 at 40-59: No type declaration found for 'Component.pkg1.Test'\n")
     }
   }
+
+  test("Cached abstract method used (bug)") {
+    FileSystemHelper.run(
+      Map(
+        "MyAbstract.cls" ->
+          """public abstract class MyAbstract {
+            |  {myMethod();}
+            |  public abstract void myMethod();
+            |}""".stripMargin,
+        "MyConcrete.cls" ->
+          """public class MyConcrete extends MyAbstract {
+            |  public void myMethod() {}
+            |}""".stripMargin)) { root: PathLike =>
+      val org1 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg1 = org1.newMDAPIPackageInternal(None, Seq(root), Seq())
+      assert(!org1.issues.hasMessages)
+      assert(pkg1.reportUnused().getMessages(root.join("MyConcrete.cls").toString).isEmpty)
+      org1.flush()
+
+      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
+      val pkg2 = org2.newMDAPIPackageInternal(None, Seq(root), Seq())
+
+      {
+        assert(!org2.issues.hasMessages)
+        val options = new IssueOptions()
+        options.includeZombies = true
+        assert(org2.getIssues(options) == "")
+      }
+
+      pkg2.refresh(root.join("MyConcrete.cls"), None)
+
+      {
+        assert(!org2.issues.hasMessages)
+        val options = new IssueOptions()
+        options.includeZombies = true
+        assert(org2.getIssues(options) == "")
+      }
+    }
+  }
+
 }

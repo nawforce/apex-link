@@ -210,6 +210,7 @@ class SummaryMethod(val pkg: PackageImpl,
   override val typeName: TypeName = methodSummary.typeName.intern
   override val parameters: Array[ParameterDeclaration] =
     methodSummary.parameters.map(new SummaryParameter(_))
+  override def hasBlock: Boolean = methodSummary.hasBlock
 }
 
 class SummaryBlock(val pkg: PackageImpl, blockSummary: BlockSummary)

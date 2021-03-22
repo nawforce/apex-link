@@ -43,6 +43,7 @@ import com.nawforce.common.types.apex.{
 import com.nawforce.common.types.core._
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
+import com.nawforce.common.modifiers.MethodModifiers
 
 import scala.collection.mutable
 
@@ -84,6 +85,7 @@ abstract class ClassBodyDeclaration(modifierResults: ModifierResults)
 object ClassBodyDeclaration {
   def construct(parser: CodeParser,
                 pkg: PackageImpl,
+                methodOwnerNature: MethodOwnerNature,
                 isOuter: Boolean,
                 typeName: TypeName,
                 modifiers: Seq[ModifierContext],
@@ -100,7 +102,7 @@ object ClassBodyDeclaration {
                 parser,
                 pkg,
                 outerTypeId,
-                ApexModifiers.methodModifiers(parser, modifiers, x.id()),
+                MethodModifiers.classMethodModifiers(parser, modifiers, x.id(), methodOwnerNature, isOuter),
                 x)))
         .orElse(
           CodeParser
@@ -217,6 +219,7 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId,
   override val idLocation: Option[PathLocation] = Some(id.location)
   override def nameRange: PathLocation = id.location
   override val name: Name = id.name
+  override def hasBlock: Boolean = block.nonEmpty
 
   override lazy val typeName: TypeName = relativeTypeName.typeName
 

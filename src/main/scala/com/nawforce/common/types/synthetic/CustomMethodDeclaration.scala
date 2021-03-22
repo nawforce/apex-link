@@ -47,7 +47,7 @@ final case class CustomMethodDeclaration(nameRange: Option[PathLocation],
   override lazy val isStatic: Boolean = asStatic
 
   def summary(shapeOnly: Boolean): MethodSummary = {
-    serialise(shapeOnly, nameRange.map(_.location))
+    serialise(shapeOnly, nameRange.map(_.location), hasBlock = true)
   }
 }
 

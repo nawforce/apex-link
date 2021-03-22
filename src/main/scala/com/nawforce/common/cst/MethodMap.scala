@@ -192,8 +192,7 @@ object MethodMap {
 
     // Only consider matches against Apex defined methods, overriding platform methods such a hashCode is different
     val matched = methods.find(_.hasSameParameters(method)) match {
-      // TOOD: THis should be a ApexMethodLike but we can't currently tell if these are abstract
-      case Some(am: ApexMethodDeclaration) => Some(am)
+      case Some(am: ApexMethodLike) => Some(am)
       case _ => None
     }
 
@@ -204,7 +203,7 @@ object MethodMap {
           s"Method '${method.name}' has wrong return type to override, should be '${matched.get.typeName}'",
           errors, isWarning = true)
       } else {
-        if (matchedMethod.block.nonEmpty) {
+        if (matchedMethod.hasBlock) {
           if (!matchedMethod.isVirtualOrOverride) {
             setMethodError(method, s"Method '${method.name}' can not override non-virtual method", errors)
           } else if (!method.isVirtualOrOverride) {

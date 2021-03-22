@@ -27,8 +27,7 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{Diagnostic, ERROR_CATEGORY, Name, TypeName}
-import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.modifiers._
 import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.org.PackageImpl
@@ -84,12 +83,6 @@ final case class ClassDeclaration(_source: Source, _pkg: PackageImpl, _typeName:
 
     // FUTURE: Eval method map for error handling side-effects
     methods
-
-    if (!modifiers.contains(ABSTRACT_MODIFIER) && localMethods.exists(_.isAbstract)) {
-      context.logError(id.location, "Classes with abstract methods must be abstract")
-    } else if(modifiers.contains(ABSTRACT_MODIFIER) && modifiers.contains(VIRTUAL_MODIFIER)) {
-      context.logError(id.location, "Abstract classes do not need virtual keyword")
-    }
   }
 }
 
@@ -123,7 +116,8 @@ object ClassDeclaration {
             .map(x => Seq(ApexInitialiserBlock.construct(parser,
                 ModifierResults(getModifiers(CodeParser.toScala(cbd.STATIC())), Array()), x)))
           .orElse(CodeParser.toScala(cbd.memberDeclaration())
-            .map(x => ClassBodyDeclaration.construct(parser, pkg, outerTypeName.isEmpty, thisType, CodeParser.toScala(cbd.modifier()), x))
+            .map(x => ClassBodyDeclaration.construct(parser, pkg, modifiers.methodOwnerNature,
+              outerTypeName.isEmpty, thisType, CodeParser.toScala(cbd.modifier()), x))
           )
           .orElse(throw new CSTException())
         ).flatten.toArray
@@ -170,7 +164,7 @@ object InterfaceDeclaration {
     val methods: Array[ClassBodyDeclaration]
         = CodeParser.toScala(interfaceDeclaration.interfaceBody().interfaceMethodDeclaration()).map(m =>
             ApexMethodDeclaration.construct(parser, pkg, TypeId(pkg, thisType),
-              ApexModifiers.methodModifiers(parser, CodeParser.toScala(m.modifier()), m.id()), m)
+              MethodModifiers.interfaceMethodModifiers(parser, CodeParser.toScala(m.modifier()), m.id(), outerTypeName.isEmpty), m)
     ).toArray
 
     InterfaceDeclaration(parser.source, pkg, thisType, outerTypeName, Id.construct(interfaceDeclaration.id()), modifiers,

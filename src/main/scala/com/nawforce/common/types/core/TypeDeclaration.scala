@@ -233,15 +233,16 @@ trait MethodDeclaration extends DependencyHolder {
   }
 
   def serialise: MethodSummary = {
-    serialise(shapeOnly = false, None)
+    serialise(shapeOnly = false, None, hasBlock = true)
   }
 
-  protected def serialise(shapeOnly: Boolean, range: Option[Location]): MethodSummary = {
+  protected def serialise(shapeOnly: Boolean, range: Option[Location], hasBlock: Boolean): MethodSummary = {
     MethodSummary(if (shapeOnly) None else range,
                   name.toString,
                   modifiers.map(_.toString).sorted,
                   typeName,
                   parameters.map(_.serialise),
+                  hasBlock,
                   if (shapeOnly) Array.empty else dependencySummary())
   }
 }

@@ -62,6 +62,8 @@ trait ApexMethodLike extends ApexVisibleMethodLike {
   val outerTypeId: TypeId
   def nameRange: PathLocation
 
+  def hasBlock: Boolean
+
   // Populated by type MethodMap construction
   private var shadows: List[MethodDeclaration] = Nil
 
@@ -89,7 +91,7 @@ trait ApexMethodLike extends ApexVisibleMethodLike {
   }
 
   def summary(shapeOnly: Boolean): MethodSummary = {
-    serialise(shapeOnly, Some(nameRange.location))
+    serialise(shapeOnly, Some(nameRange.location), hasBlock)
   }
 }
 

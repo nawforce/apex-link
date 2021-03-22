@@ -154,6 +154,7 @@ case class MethodSummary(idRange: Option[Location],
                          modifiers: Array[String],
                          typeName: TypeName,
                          parameters: Array[ParameterSummary],
+                         hasBlock: Boolean,
                          dependents: Array[DependentSummary]) {
   override def equals(that: Any): Boolean = {
     that match {
@@ -170,6 +171,7 @@ case class MethodSummary(idRange: Option[Location],
     this.modifiers.sameElements(other.modifiers) &&
     this.typeName == other.typeName &&
     this.parameters.sameElements(other.parameters) &&
+    this.hasBlock == other.hasBlock &&
     this.dependents.sameElements(other.dependents)
   }
 }

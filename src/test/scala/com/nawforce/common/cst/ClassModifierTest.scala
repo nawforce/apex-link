@@ -96,7 +96,7 @@ class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
     assert(typeDeclaration("private class Dummy {}").modifiers.isEmpty)
     assert(
       defaultOrg.issues.getMessages(defaultPath) ==
-        "Warning: line 1 at 14-19: Private modifier is not allowed on outer classes\n")
+        "Error: line 1 at 14-19: Private modifier is not allowed on outer classes\n")
   }
 
   test("No modifier class") {
@@ -262,14 +262,14 @@ class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
     typeDeclaration("public class Dummy {abstract void func();}")
     assert(
       defaultOrg.issues.getMessages(defaultPath) ==
-        "Error: line 1 at 13-18: Classes with abstract methods must be abstract\n")
+        "Error: line 1 at 34-38: abstract methods can only be declared on abstract classes\n")
   }
 
   test("Virtual no needed on abstract class") {
     typeDeclaration("public virtual abstract class Dummy {}")
     assert(
       defaultOrg.issues.getMessages(defaultPath) ==
-        "Error: line 1 at 30-35: Abstract classes do not need virtual keyword\n")
+        "Error: line 1 at 30-35: Abstract classes are virtual classes\n")
   }
 
   test("Non abstract methods must have a body") {
@@ -290,6 +290,6 @@ class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
     typeDeclaration("public abstract class Dummy {abstract virtual void func();}")
     assert(
       defaultOrg.issues.getMessages(defaultPath) ==
-        "Error: line 1 at 51-55: Abstract methods do not need virtual keyword\n")
+        "Error: line 1 at 51-55: abstract methods are virtual methods\n")
   }
 }
