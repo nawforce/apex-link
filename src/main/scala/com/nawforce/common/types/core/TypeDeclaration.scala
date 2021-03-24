@@ -161,15 +161,18 @@ trait MethodDeclaration extends DependencyHolder {
   val typeName: TypeName
   val parameters: Array[ParameterDeclaration]
 
+  def visibility: Modifier =
+    modifiers.find(m => ApexModifiers.visibilityModifiers.contains(m)).getOrElse(PRIVATE_MODIFIER)
+
   def signature: String = s"$typeName $name($parameterTypes)"
   def parameterTypes: String = parameters.map(_.typeName).mkString(", ")
 
   def isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
   def isAbstract: Boolean = modifiers.contains(ABSTRACT_MODIFIER)
   def isVirtual: Boolean = modifiers.contains(VIRTUAL_MODIFIER)
-  def isVirtualOrOverride: Boolean = isVirtual || modifiers.contains(OVERRIDE_MODIFIER)
-  def isGlobalOrPublic: Boolean =
-    modifiers.exists(m => m == GLOBAL_MODIFIER || m == PUBLIC_MODIFIER)
+  def isOverride: Boolean = modifiers.contains(OVERRIDE_MODIFIER)
+  def isVirtualOrOverride: Boolean = isVirtual || isOverride
+  def isVirtualOrAbstract: Boolean = isVirtual || isAbstract
 
   def hasSameSignature(other: MethodDeclaration): Boolean = {
     name == other.name &&
@@ -236,7 +239,9 @@ trait MethodDeclaration extends DependencyHolder {
     serialise(shapeOnly = false, None, hasBlock = true)
   }
 
-  protected def serialise(shapeOnly: Boolean, range: Option[Location], hasBlock: Boolean): MethodSummary = {
+  protected def serialise(shapeOnly: Boolean,
+                          range: Option[Location],
+                          hasBlock: Boolean): MethodSummary = {
     MethodSummary(if (shapeOnly) None else range,
                   name.toString,
                   modifiers.map(_.toString).sorted,
@@ -295,6 +300,15 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   lazy val isSObject: Boolean = superClass.contains(TypeNames.SObject)
   lazy val isApexPagesComponent: Boolean = superClass.contains(TypeNames.ApexPagesComponent)
 
+  def outerTypeDeclaration: Option[TypeDeclaration] =
+    outerTypeName.flatMap(typeName =>
+      TypeResolver(typeName, this, excludeSObjects = false).toOption)
+
+  def outermostTypeDeclaration: TypeDeclaration =
+    outerTypeName
+      .flatMap(typeName => TypeResolver(typeName, this, excludeSObjects = false).toOption)
+      .getOrElse(this)
+
   def validate(): Unit
 
   override def findNestedType(name: Name): Option[TypeDeclaration] = {
@@ -333,10 +347,8 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   }
 
   private lazy val fieldsByName: mutable.Map[Name, FieldDeclaration] = {
-    val outerType = outerTypeName.flatMap(typeName =>
-      TypeResolver(typeName, this, excludeSObjects = false).toOption)
     val fieldsByName = mutable.Map(fields.map(f => (f.name, f)).toIndexedSeq: _*)
-    outerType.foreach(
+    outerTypeDeclaration.foreach(
       td =>
         td.fields
           .filter(_.isStatic)

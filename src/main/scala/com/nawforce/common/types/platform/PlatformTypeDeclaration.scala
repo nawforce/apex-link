@@ -34,7 +34,7 @@ import java.util
 import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
-import com.nawforce.common.modifiers.{Modifier, PUBLIC_MODIFIER}
+import com.nawforce.common.modifiers.{Modifier, PUBLIC_MODIFIER, VIRTUAL_MODIFIER}
 import com.nawforce.common.names.{DotName, Names, TypeNames, _}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
@@ -179,7 +179,8 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
                s"Enum $name has locally defined methods which are not supported in platform types")
         Array[PlatformMethod]()
       case _ =>
-        localMethods.map(m => new PlatformMethod(m, this))
+        val forceVirtual = typeName == TypeNames.InternalObject
+        localMethods.map(m => new PlatformMethod(m, this, forceVirtual))
     }
   }
 
@@ -236,12 +237,14 @@ class PlatformConstructor(ctor: java.lang.reflect.Constructor[_],
 }
 
 class PlatformMethod(val method: java.lang.reflect.Method,
-                     val typeDeclaration: PlatformTypeDeclaration)
+                     val typeDeclaration: PlatformTypeDeclaration,
+                     forceVirtual: Boolean)
     extends MethodDeclaration {
   lazy val name: Name = Name(decodeName(method.getName))
   lazy val typeName: TypeName =
     PlatformTypeDeclaration.typeNameFromType(method.getGenericReturnType, method.getDeclaringClass)
   lazy val modifiers: Array[Modifier] =
+    (if (forceVirtual) Array(VIRTUAL_MODIFIER) else Array()) ++
     PlatformModifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
   lazy val parameters: Array[ParameterDeclaration] = getParameters
 

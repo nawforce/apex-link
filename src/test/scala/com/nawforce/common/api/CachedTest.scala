@@ -585,7 +585,7 @@ class CachedTest extends AnyFunSuite with BeforeAndAfter {
             |}""".stripMargin,
         "MyConcrete.cls" ->
           """public class MyConcrete extends MyAbstract {
-            |  public void myMethod() {}
+            |  public override void myMethod() {}
             |}""".stripMargin)) { root: PathLike =>
       val org1 = Org.newOrg().asInstanceOf[OrgImpl]
       val pkg1 = org1.newMDAPIPackageInternal(None, Seq(root), Seq())

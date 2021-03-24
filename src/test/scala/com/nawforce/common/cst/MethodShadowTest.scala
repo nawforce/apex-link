@@ -44,29 +44,96 @@ class MethodShadowTest extends AnyFunSuite with BeforeAndAfter {
     ServerOps.setAutoFlush(true)
   }
 
-  test("Override of public non-virtual") {
-    FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy extends SuperClass { public void func() {} }",
-          "SuperClass.cls" -> "public virtual class SuperClass { public void func() {}}")) {
+  def testMethods(files: Map[String, String], issue: String = ""): Unit = {
+    FileSystemHelper.run(files) {
       root: PathLike =>
         val org = Org.newOrg().asInstanceOf[OrgImpl]
         org.newMDAPIPackageInternal(None, Seq(root), Seq())
-        assert(
-          org.issues.getMessages("/Dummy.cls") ==
-            "Error: line 1 at 52-56: Method 'func' can not override non-virtual method\n")
+        assert(org.issues.getMessages(root.join(files.head._1).toString) == issue)
     }
   }
 
-  test("Override of public virtual without override") {
-    FileSystemHelper.run(
+  test("Override of public non-virtual") {
+    testMethods(
       Map("Dummy.cls" -> "public class Dummy extends SuperClass { public void func() {} }",
-          "SuperClass.cls" -> "public virtual class SuperClass { public virtual void func() {}}")) {
-      root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
-        assert(
-          org.issues.getMessages("/Dummy.cls") ==
-            "Error: line 1 at 52-56: Method 'func' must use override or virtual keyword\n")
-    }
+          "SuperClass.cls" -> "public virtual class SuperClass { public void func() {}}"),
+      "Error: line 1 at 52-56: Method 'func' can not override non-virtual method\n")
+  }
+
+  test("Override of public virtual without override") {
+    testMethods(
+      Map("Dummy.cls" -> "public class Dummy extends SuperClass { public void func() {} }",
+          "SuperClass.cls" -> "public virtual class SuperClass { public virtual void func() {}}"),
+      "Error: line 1 at 52-56: Method 'func' must use override keyword\n")
+  }
+
+  test("Override of missing method") {
+    testMethods(
+      Map("Dummy.cls" -> "public class Dummy extends SuperClass { public override void func2() {} }",
+        "SuperClass.cls" -> "public virtual class SuperClass { private virtual void func() {}}"),
+      "Error: line 1 at 61-66: Method 'func2' does not override a virtual or abstract method\n")
+  }
+
+  test("Override of private virtual") {
+    testMethods(
+      Map("Dummy.cls" -> "public class Dummy extends SuperClass { public override void func() {} }",
+        "SuperClass.cls" -> "public virtual class SuperClass { private virtual void func() {}}"),
+      "Error: line 1 at 61-65: Method 'func' does not override a virtual or abstract method\n")
+  }
+
+  test("Override of protected virtual") {
+    testMethods(
+      Map("Dummy.cls" -> "public class Dummy extends SuperClass { public override void func() {} }",
+        "SuperClass.cls" -> "public virtual class SuperClass { protected virtual void func() {}}"),
+      "")
+  }
+
+  test("Override of public virtual") {
+    testMethods(
+      Map("Dummy.cls" -> "public class Dummy extends SuperClass { public override void func() {} }",
+        "SuperClass.cls" -> "public virtual class SuperClass { public virtual void func() {}}"),
+      "")
+  }
+
+  test("Override of public virtual (with protected)") {
+    testMethods(
+      Map("Dummy.cls" -> "public class Dummy extends SuperClass { protected override void func() {} }",
+        "SuperClass.cls" -> "public virtual class SuperClass { public virtual void func() {}}"),
+      "Error: line 1 at 64-68: Method 'func' can not reduce visibility in override\n")
+  }
+
+  test("Override of private abstract") {
+    testMethods(
+      Map("Dummy.cls" -> "public class Dummy extends SuperClass { public override void func() {} }",
+        "SuperClass.cls" -> "public abstract class SuperClass { private abstract void func();}"),
+      "Error: line 1 at 61-65: Method 'func' does not override a virtual or abstract method\n")
+  }
+
+  test("Override of protected abstract") {
+    testMethods(
+      Map("Dummy.cls" -> "public class Dummy extends SuperClass { public override void func() {} }",
+        "SuperClass.cls" -> "public abstract class SuperClass { protected abstract void func();}"),
+      "")
+  }
+
+  test("Override of protected abstract (with private)") {
+    testMethods(
+      Map("Dummy.cls" -> "public class Dummy extends SuperClass { private override void func() {} }",
+        "SuperClass.cls" -> "public abstract class SuperClass { protected abstract void func();}"),
+      "Error: line 1 at 62-66: Method 'func' can not reduce visibility in override\n")
+  }
+
+  test("Override of public abstract") {
+    testMethods(
+      Map("Dummy.cls" -> "public class Dummy extends SuperClass { public override void func() {} }",
+        "SuperClass.cls" -> "public abstract class SuperClass { public abstract void func();}"),
+      "")
+  }
+
+  test("Override of private virtual (test visible)") {
+    testMethods(
+      Map("Dummy.cls" -> "@IsTest public class Dummy extends SuperClass { public override void func() {} }",
+        "SuperClass.cls" -> "public virtual class SuperClass {@TestVisible private virtual void func() {}}"),
+      "")
   }
 }

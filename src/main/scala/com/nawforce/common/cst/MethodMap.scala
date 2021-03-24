@@ -29,6 +29,7 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.api._
 import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.modifiers.{ISTEST_ANNOTATION, PRIVATE_MODIFIER}
 import com.nawforce.common.names.Names
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexMethodLike}
@@ -77,6 +78,9 @@ final case class MethodMap(methodsByName: Map[(Name, Int), Array[MethodDeclarati
 object MethodMap {
   type WorkingMap = mutable.Map[(Name, Int), Array[MethodDeclaration]]
 
+  private val overrideNotRequired = Set[String] ("System.Boolean equals(Object)",
+    "System.Integer hashCode()","System.String toString()")
+
   def empty(): MethodMap = {
     new MethodMap(Map(), Nil)
   }
@@ -88,7 +92,8 @@ object MethodMap {
     val errors = mutable.Buffer[Issue]()
 
     // Add instance methods first with validation checks
-    localMethods.filterNot(_.isStatic).foreach(method => applyInstanceMethod(workingMap, method, errors))
+    val isTest = td.outermostTypeDeclaration.modifiers.contains(ISTEST_ANNOTATION)
+    localMethods.filterNot(_.isStatic).foreach(method => applyInstanceMethod(workingMap, method, isTest, errors))
 
     // For interfaces make sure we have all methods
     if (td.nature == INTERFACE_NATURE) {
@@ -184,15 +189,17 @@ object MethodMap {
     })
   }
 
-  private def applyInstanceMethod(workingMap: WorkingMap, method: MethodDeclaration, errors: mutable.Buffer[Issue]): Unit = {
+  private def applyInstanceMethod(workingMap: WorkingMap, method: MethodDeclaration, isTest: Boolean, errors: mutable.Buffer[Issue]): Unit = {
     assert(!method.isStatic)
 
     val key = (method.name, method.parameters.length)
     val methods = workingMap.getOrElse(key, Array())
 
-    // Only consider matches against Apex defined methods, overriding platform methods such a hashCode is different
+    // Find a match, FUTURE: the use isTest is over general for allowing private matches but there is a problem with
+    // using @TestVisible instead with Cumulus codebase that I don't yet understand.
     val matched = methods.find(_.hasSameParameters(method)) match {
-      case Some(am: ApexMethodLike) => Some(am)
+      case Some(am: MethodDeclaration)
+        if am.visibility != PRIVATE_MODIFIER || isTest => Some(am)
       case _ => None
     }
 
@@ -203,14 +210,16 @@ object MethodMap {
           s"Method '${method.name}' has wrong return type to override, should be '${matched.get.typeName}'",
           errors, isWarning = true)
       } else {
-        if (matchedMethod.hasBlock) {
-          if (!matchedMethod.isVirtualOrOverride) {
-            setMethodError(method, s"Method '${method.name}' can not override non-virtual method", errors)
-          } else if (!method.isVirtualOrOverride) {
-            setMethodError(method, s"Method '${method.name}' must use override or virtual keyword", errors)
-          }
+        if (!matchedMethod.isVirtualOrAbstract) {
+          setMethodError(method, s"Method '${method.name}' can not override non-virtual method", errors)
+        } else if (!method.isVirtualOrOverride && !overrideNotRequired.contains(method.signature) && !isTest) {
+          setMethodError(method, s"Method '${method.name}' must use override keyword", errors)
+        } else if (method.visibility.methodOrder < matchedMethod.visibility.methodOrder) {
+          setMethodError(method, s"Method '${method.name}' can not reduce visibility in override", errors)
         }
       }
+    } else if (method.isOverride) {
+      setMethodError(method, s"Method '${method.name}' does not override a virtual or abstract method", errors)
     }
     method match {
       case am: ApexMethodLike => matched.foreach(am.addShadow)
