@@ -32,15 +32,15 @@ import com.nawforce.runtime.parsers.ApexParser.{IdContext, ModifierContext, Prop
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 
-sealed abstract class Modifier(final val name: String, val order: Integer = 0) {
+sealed abstract class Modifier(final val name: String, val order: Integer = 0, val methodOrder: Integer = 0) {
   override def toString: String = name
 }
 
 case object WEBSERVICE_MODIFIER extends Modifier("webservice", order = 4)
-case object GLOBAL_MODIFIER extends Modifier("global", order = 3)
-case object PUBLIC_MODIFIER extends Modifier("public", order = 2)
-case object PROTECTED_MODIFIER extends Modifier("protected", order = 1)
-case object PRIVATE_MODIFIER extends Modifier("private", order = 0)
+case object GLOBAL_MODIFIER extends Modifier("global", order = 3, methodOrder = 2)
+case object PUBLIC_MODIFIER extends Modifier("public", order = 2, methodOrder = 2)
+case object PROTECTED_MODIFIER extends Modifier("protected", order = 1, methodOrder = 1)
+case object PRIVATE_MODIFIER extends Modifier("private", order = 0, methodOrder = 0)
 case object TEST_METHOD_MODIFIER extends Modifier("testmethod")
 
 case object WITH_SHARING_MODIFIER extends Modifier("with sharing")
