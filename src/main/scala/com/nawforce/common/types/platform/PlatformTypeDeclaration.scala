@@ -179,8 +179,7 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
                s"Enum $name has locally defined methods which are not supported in platform types")
         Array[PlatformMethod]()
       case _ =>
-        val forceVirtual = typeName == TypeNames.InternalObject
-        localMethods.map(m => new PlatformMethod(m, this, forceVirtual))
+        localMethods.map(m => new PlatformMethod(m, this))
     }
   }
 
@@ -226,7 +225,7 @@ class PlatformConstructor(ctor: java.lang.reflect.Constructor[_],
                           typeDeclaration: PlatformTypeDeclaration)
     extends ConstructorDeclaration {
   lazy val modifiers: Array[Modifier] =
-    PlatformModifiers.methodModifiers(ctor.getModifiers, typeDeclaration.nature)
+    PlatformModifiers.ctorModifiers(ctor.getModifiers)
   lazy val parameters: Array[ParameterDeclaration] =
     ctor.getParameters.map(p => new PlatformParameter(p, ctor.getDeclaringClass))
   def getDeclaringClass: Class[_] = ctor.getDeclaringClass
@@ -237,14 +236,12 @@ class PlatformConstructor(ctor: java.lang.reflect.Constructor[_],
 }
 
 class PlatformMethod(val method: java.lang.reflect.Method,
-                     val typeDeclaration: PlatformTypeDeclaration,
-                     forceVirtual: Boolean)
+                     val typeDeclaration: PlatformTypeDeclaration)
     extends MethodDeclaration {
   lazy val name: Name = Name(decodeName(method.getName))
   lazy val typeName: TypeName =
     PlatformTypeDeclaration.typeNameFromType(method.getGenericReturnType, method.getDeclaringClass)
   lazy val modifiers: Array[Modifier] =
-    (if (forceVirtual) Array(VIRTUAL_MODIFIER) else Array()) ++
     PlatformModifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
   lazy val parameters: Array[ParameterDeclaration] = getParameters
 

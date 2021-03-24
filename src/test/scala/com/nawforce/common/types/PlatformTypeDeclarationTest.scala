@@ -234,15 +234,15 @@ class PlatformTypeDeclarationTest extends AnyFunSuite {
               "getState",
               "getStateCode",
               "getStreet"))
-    assert(methods.filter(_.modifiers sameElements Array(PUBLIC_MODIFIER)) sameElements methods)
+    assert(methods.filter(_.modifiers sameElements Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER)) sameElements methods)
     assert(
       methods
         .filter(_.name.toString == "getCity")
         .head
-        .toString == "public System.String getCity()")
+        .toString == "public virtual System.String getCity()")
     assert(
       methods.filter(_.name.toString == "getDistance").head.toString ==
-        "public System.Double getDistance(System.Location other, System.String unit)")
+        "public virtual System.Double getDistance(System.Location other, System.String unit)")
   }
 
   test("Exception") {
@@ -277,7 +277,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite {
                                                       "getTypeName",
                                                       "initCause",
                                                       "setMessage"))
-    assert(methods.filter(_.modifiers sameElements Array(PUBLIC_MODIFIER)) sameElements methods)
+    assert(methods.filter(_.modifiers sameElements Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER)) sameElements methods)
   }
 
   test("Generic class") {
@@ -297,29 +297,29 @@ class PlatformTypeDeclarationTest extends AnyFunSuite {
 
     assert(
       td.get.methods.map(_.toString).sorted.mkString("\n") == Seq(
-        "public System.List<System.String> clone()",
-        "public void add(System.String listElement)",
-        "public void add(System.Integer index, System.String listElement)",
-        "public void addAll(System.List<System.String> fromList)",
-        "public void addAll(System.Set<System.String> fromSet)",
-        "public void clear()",
-        "public System.Boolean contains(System.String listElement)",
-        "public System.List<System.String> deepClone()",
-        "public System.List<System.String> deepClone(System.Boolean preserveId)",
-        "public System.List<System.String> deepClone(System.Boolean preserveId, System.Boolean preserveReadonlyTimestamps)",
-        "public System.List<System.String> deepClone(System.Boolean preserveId, System.Boolean preserveReadonlyTimestamps, System.Boolean preserveAutonumber)",
-        "public System.String get(System.Integer index)",
-        "public Schema.SObjectType getSObjectType()",
-        "public System.Integer indexOf(System.String listElement)",
-        "public System.Iterator<System.String> iterator()",
-        "public System.Boolean isEmpty()",
-        "public System.String remove(System.Integer index)",
-        "public void set(System.Integer index, System.String listElement)",
-        "public System.Integer size()",
-        "public void sort()",
-        "public System.String toString()",
-        "public System.Boolean equals(System.List<System.String> other)",
-        "public System.Integer hashCode()").sorted.mkString("\n"))
+        "public virtual System.List<System.String> clone()",
+        "public virtual void add(System.String listElement)",
+        "public virtual void add(System.Integer index, System.String listElement)",
+        "public virtual void addAll(System.List<System.String> fromList)",
+        "public virtual void addAll(System.Set<System.String> fromSet)",
+        "public virtual void clear()",
+        "public virtual System.Boolean contains(System.String listElement)",
+        "public virtual System.List<System.String> deepClone()",
+        "public virtual System.List<System.String> deepClone(System.Boolean preserveId)",
+        "public virtual System.List<System.String> deepClone(System.Boolean preserveId, System.Boolean preserveReadonlyTimestamps)",
+        "public virtual System.List<System.String> deepClone(System.Boolean preserveId, System.Boolean preserveReadonlyTimestamps, System.Boolean preserveAutonumber)",
+        "public virtual System.String get(System.Integer index)",
+        "public virtual Schema.SObjectType getSObjectType()",
+        "public virtual System.Integer indexOf(System.String listElement)",
+        "public virtual System.Iterator<System.String> iterator()",
+        "public virtual System.Boolean isEmpty()",
+        "public virtual System.String remove(System.Integer index)",
+        "public virtual void set(System.Integer index, System.String listElement)",
+        "public virtual System.Integer size()",
+        "public virtual void sort()",
+        "public virtual System.String toString()",
+        "public virtual System.Boolean equals(System.List<System.String> other)",
+        "public virtual System.Integer hashCode()").sorted.mkString("\n"))
   }
 
   test("Nested Generic class") {
@@ -339,7 +339,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite {
 
     assert(
       td.get.methods.map(_.toString).sorted.mkString("\n") == Seq(
-        "public System.Iterator<System.List<System.String>> iterator()").sorted.mkString("\n"))
+        "public virtual System.Iterator<System.List<System.String>> iterator()").sorted.mkString("\n"))
   }
 
   test("Non-generic type") {

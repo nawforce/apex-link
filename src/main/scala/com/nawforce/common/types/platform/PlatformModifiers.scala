@@ -104,8 +104,18 @@ object PlatformModifiers {
     if (isStatic) {
       modPublicStatic
     } else {
-      modPublic
+      modPublicVirtual
     }
   }
 
+  def ctorModifiers(javaBits: Int): Array[Modifier] = {
+    assert(JavaModifier.isPublic(javaBits))
+    assert(!JavaModifier.isAbstract(javaBits))
+    assert(!JavaModifier.isFinal(javaBits))
+    assert(!JavaModifier.isTransient(javaBits))
+    assert(!JavaModifier.isSynchronized(javaBits))
+    assert(!JavaModifier.isNative(javaBits))
+    assert(!JavaModifier.isStrict(javaBits))
+    modPublic
+  }
 }

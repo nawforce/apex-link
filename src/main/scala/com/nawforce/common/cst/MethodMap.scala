@@ -78,8 +78,10 @@ final case class MethodMap(methodsByName: Map[(Name, Int), Array[MethodDeclarati
 object MethodMap {
   type WorkingMap = mutable.Map[(Name, Int), Array[MethodDeclaration]]
 
-  private val overrideNotRequired = Set[String] ("System.Boolean equals(Object)",
-    "System.Integer hashCode()","System.String toString()")
+  private val overrideNotRequired = Set[String] (
+    "system.boolean equals(object)",
+    "system.integer hashcode()",
+    "system.string tostring()")
 
   def empty(): MethodMap = {
     new MethodMap(Map(), Nil)
@@ -93,7 +95,9 @@ object MethodMap {
 
     // Add instance methods first with validation checks
     val isTest = td.outermostTypeDeclaration.modifiers.contains(ISTEST_ANNOTATION)
-    localMethods.filterNot(_.isStatic).foreach(method => applyInstanceMethod(workingMap, method, isTest, errors))
+    val isComplete = td.isComplete
+    localMethods.filterNot(_.isStatic)
+      .foreach(method => applyInstanceMethod(workingMap, method, isTest, isComplete, errors))
 
     // For interfaces make sure we have all methods
     if (td.nature == INTERFACE_NATURE) {
@@ -189,7 +193,8 @@ object MethodMap {
     })
   }
 
-  private def applyInstanceMethod(workingMap: WorkingMap, method: MethodDeclaration, isTest: Boolean, errors: mutable.Buffer[Issue]): Unit = {
+  private def applyInstanceMethod(workingMap: WorkingMap, method: MethodDeclaration, isTest: Boolean,
+                                  isComplete: Boolean, errors: mutable.Buffer[Issue]): Unit = {
     assert(!method.isStatic)
 
     val key = (method.name, method.parameters.length)
@@ -199,7 +204,7 @@ object MethodMap {
     // using @TestVisible instead with Cumulus codebase that I don't yet understand.
     val matched = methods.find(_.hasSameParameters(method)) match {
       case Some(am: MethodDeclaration)
-        if am.visibility != PRIVATE_MODIFIER || isTest => Some(am)
+        if am.visibility != PRIVATE_MODIFIER || sameFile(method, am) || isTest => Some(am)
       case _ => None
     }
 
@@ -212,13 +217,13 @@ object MethodMap {
       } else {
         if (!matchedMethod.isVirtualOrAbstract) {
           setMethodError(method, s"Method '${method.name}' can not override non-virtual method", errors)
-        } else if (!method.isVirtualOrOverride && !overrideNotRequired.contains(method.signature) && !isTest) {
+        } else if (!method.isVirtualOrOverride && !overrideNotRequired.contains(method.signature.toLowerCase()) && !isTest) {
           setMethodError(method, s"Method '${method.name}' must use override keyword", errors)
         } else if (method.visibility.methodOrder < matchedMethod.visibility.methodOrder) {
           setMethodError(method, s"Method '${method.name}' can not reduce visibility in override", errors)
         }
       }
-    } else if (method.isOverride) {
+    } else if (method.isOverride && isComplete) {
       setMethodError(method, s"Method '${method.name}' does not override a virtual or abstract method", errors)
     }
     method match {
@@ -234,6 +239,13 @@ object MethodMap {
       case am: ApexMethodLike if !isWarning => errors.append(new Issue(am.nameRange.path, Diagnostic(ERROR_CATEGORY, am.nameRange.location, error)))
       case am: ApexMethodLike => errors.append(new Issue(am.nameRange.path, Diagnostic(ERROR_CATEGORY, am.nameRange.location, error)))
       case _ => ()
+    }
+  }
+
+  private def sameFile(m1: MethodDeclaration, m2: MethodDeclaration): Boolean = {
+    (m1, m2) match {
+      case (am1: ApexMethodLike, am2: ApexMethodLike) => am1.nameRange.path == am2.nameRange.path
+      case _ => false
     }
   }
 }
