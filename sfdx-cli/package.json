@@ -1,6 +1,6 @@
 {
   "name": "apexlink",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "author": "Kevin Jones <nawforce@gmail.com> (https://github.com/nawforce)",
   "bugs": "https://github.com/nawforce/apexlink/issues",
   "description": "SFDX CLI plugin for Apexlink",

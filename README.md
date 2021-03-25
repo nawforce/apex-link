@@ -69,7 +69,7 @@ To use the jar in a maven project add the following to your pom.xml
     <dependency>
         <groupId>com.github.nawforce</groupId>
         <artifactId>apexlink</artifactId>
-        <version>1.3.2</version>
+        <version>1.4.0</version>
     </dependency>
 
 ### Source & Licenses
