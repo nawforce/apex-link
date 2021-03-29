@@ -170,6 +170,13 @@ final case class SOQL(query: QueryContext) extends Primary {
   }
 }
 
+final case class SOSL(query: SoslLiteralContext) extends Primary {
+
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    ExprContext(isStatic = Some(false), context.pkg.any())
+  }
+}
+
 class BoundExprVisitor extends ApexParserBaseVisitor[ArraySeq[ExpressionContext]] {
 
   override def defaultResult(): ArraySeq[ExpressionContext] = ArraySeq[ExpressionContext]()
@@ -204,6 +211,8 @@ object Primary {
           IdPrimary(Id.construct(id.id()))
         case ctx: SoqlPrimaryContext =>
           SOQL(ctx.soqlLiteral().query())
+        case ctx: SoslPrimaryContext =>
+          SOSL(ctx.soslLiteral())
       }
     cst.withContext(from)
   }
