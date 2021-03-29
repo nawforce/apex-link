@@ -110,6 +110,10 @@ object Check {
                           includeZombies: Boolean): Int = {
     val issueOptions = new IssueOptions()
     issueOptions.format = format
+    issueOptions.includeWarnings = false
+    issueOptions.includeZombies = false
+    val hasErrors = org.getIssues(issueOptions).nonEmpty
+
     issueOptions.includeWarnings = includeWarnings
     issueOptions.includeZombies = includeZombies
     val issues = org.getIssues(issueOptions)
@@ -119,6 +123,6 @@ object Check {
     else
       print(issues)
     System.out.flush()
-    if (issues.isEmpty) STATUS_OK else STATUS_ISSUES
+    if (hasErrors) STATUS_ISSUES else STATUS_OK
   }
 }
