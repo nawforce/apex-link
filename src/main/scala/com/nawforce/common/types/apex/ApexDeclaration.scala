@@ -172,7 +172,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
 
     val allFields: Array[FieldDeclaration] =
       superClassDeclaration
-        .map(_.fields)
+        .map(_.fields.filterNot(_.isStatic))
         .getOrElse(FieldDeclaration.emptyFieldDeclarations) ++ uniqueLocalFields
     allFields.map(f => (f.name, f)).toMap.values.toArray
   }
