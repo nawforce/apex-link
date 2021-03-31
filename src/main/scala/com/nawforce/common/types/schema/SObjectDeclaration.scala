@@ -34,9 +34,18 @@ import com.nawforce.common.modifiers._
 import com.nawforce.common.names.{DotName, Names, TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
+import com.nawforce.common.types.core.{
+  BasicTypeDeclaration,
+  FieldDeclaration,
+  MethodDeclaration,
+  TypeDeclaration
+}
 import com.nawforce.common.types.platform.PlatformTypes
-import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration, CustomParameterDeclaration}
+import com.nawforce.common.types.synthetic.{
+  CustomFieldDeclaration,
+  CustomMethodDeclaration,
+  CustomParameterDeclaration
+}
 
 import scala.collection.mutable
 
@@ -289,7 +298,10 @@ object SObjectDeclaration {
   }
 
   private lazy val standardPlatformEventFields: Array[FieldDeclaration] = {
-    Array(CustomFieldDeclaration(Names.ReplayId, TypeNames.String, None))
+    Array(CustomFieldDeclaration(Names.ReplayId, TypeNames.String, None),
+          CustomFieldDeclaration(Name("CreatedBy"), TypeNames.User, None),
+          CustomFieldDeclaration(Name("CreatedById"), TypeNames.IdType, None),
+          CustomFieldDeclaration(Name("CreatedDate"), TypeNames.Datetime, None))
   }
 
   private def platformEventFields(sobjectDetails: SObjectDetails): Array[FieldDeclaration] = {

@@ -174,4 +174,11 @@ class PlatformTypesValidationTest extends AnyFunSuite {
         assert(methods.length >= 7)
       })
   }
+
+  test("Enums should have ordinal method (bug)") {
+    val td = PlatformTypes.get(TypeName(Name("LoggingLevel")), None).getOrElse(null)
+
+    assert(td.fields.exists(_.name == Name("DEBUG")))
+    assert(td.methods.exists(_.name == Name("ordinal")))
+  }
 }
