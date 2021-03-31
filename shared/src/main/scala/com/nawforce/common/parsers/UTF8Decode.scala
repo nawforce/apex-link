@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2020 Kevin Jones
+ Copyright (c) 2021 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -25,55 +25,34 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-package com.nawforce.runtime.parsers
+package com.nawforce.common.parsers
 
 import java.nio.charset.StandardCharsets
 
-import com.nawforce.common.parsers.UTF8Decode
-import com.nawforce.runtime.SourceBlob
+object UTF8Decode {
 
-import scala.util.hashing.MurmurHash3
-
-trait SourceData {
-  val hash: Int
-  val length: Int
-
-  def subdata(offset: Int, length: Int): SourceData
-  def asInsensitiveStream: CaseInsensitiveInputStream
-  def asUTF8: Array[Byte]
-  def asString: String
-}
-
-object SourceData {
-  def apply(value: String): SourceData = {
-    apply(value.getBytes(StandardCharsets.UTF_8))
+  def getCharOffsetFrom(buffer: Array[Byte], offset: Int, charCount: Int): Int = {
+    var remaining = charCount
+    var at = offset
+    while (remaining > 0) {
+      val charLength = sequenceLength(buffer(at))
+      if (charLength == 1) {
+        remaining -= 1
+      } else {
+        remaining -= new String(buffer, at, charLength, StandardCharsets.UTF_8).length
+      }
+      at += charLength
+    }
+    at
   }
 
-  def apply(value: SourceBlob): SourceData = {
-    ByteArraySourceData(value, offset = 0, length = value.length)
-  }
-}
-
-case class ByteArraySourceData(source: Array[Byte], offset: Int, length: Int) extends SourceData {
-  val hash: Int = MurmurHash3.arrayHash(source)
-
-  override def subdata(startChar: Int, stopChar: Int): ByteArraySourceData = {
-    val startOffset = UTF8Decode.getCharOffsetFrom(source, offset, startChar)
-    val endOffset = UTF8Decode.getCharOffsetFrom(source, startOffset, stopChar - startChar)
-    val subLength = endOffset - startOffset
-    ByteArraySourceData(source, startOffset, subLength)
-  }
-
-  def asInsensitiveStream: CaseInsensitiveInputStream = {
-    new CaseInsensitiveInputStream(null, new String(source, offset, length))
-  }
-
-  def asUTF8: Array[Byte] = {
-    source.slice(offset, offset + length)
-  }
-
-  def asString: String = {
-    new String(asUTF8, StandardCharsets.UTF_8)
+  private def sequenceLength(leadingByte: Byte): Int = {
+    val unsigned: Int = 0xFF & leadingByte.asInstanceOf[Int]
+    if (unsigned < 0x80) 1
+    else if ((unsigned >> 5) == 0x6) 2
+    else if ((unsigned >> 4) == 0xe) 3
+    else if ((unsigned >> 3) == 0x1e) 4
+    else
+      throw new IllegalArgumentException(s"Expecting UTF-8 data, found leading byte: $leadingByte")
   }
 }

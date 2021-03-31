@@ -31,6 +31,7 @@ package com.nawforce.runtime.parsers
 import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets
 
+import com.nawforce.common.parsers.UTF8Decode
 import com.nawforce.runtime.SourceBlob
 import org.antlr.v4.runtime.{CharStream, CharStreams}
 
@@ -40,7 +41,7 @@ trait SourceData {
   val hash: Int
   val length: Int
 
-  def subdata(offset: Int, length: Int): SourceData
+  def subdata(startChar: Int, stopBeforeChar: Int): SourceData
   def asStream: CharStream
   def asInsensitiveStream: CaseInsensitiveInputStream
   def asUTF8: Array[Byte]
@@ -57,48 +58,30 @@ object SourceData {
   }
 }
 
-case class ByteArraySourceData(value: Array[Byte], offset: Int, length: Int) extends SourceData {
-  val hash: Int = MurmurHash3.arrayHash(value)
+case class ByteArraySourceData(source: Array[Byte], offset: Int, length: Int) extends SourceData {
+  val hash: Int = MurmurHash3.arrayHash(source)
 
-  override def subdata(startChar: Int, stopChar: Int): ByteArraySourceData = {
-    val startOffset = getCharOffsetFrom(offset, startChar)
-    val endOffset = getCharOffsetFrom(startOffset, stopChar - startChar)
+  override def subdata(startChar: Int, stopBeforeChar: Int): ByteArraySourceData = {
+    val startOffset = UTF8Decode.getCharOffsetFrom(source, offset, startChar)
+    val endOffset = UTF8Decode.getCharOffsetFrom(source, startOffset, stopBeforeChar - startChar)
     val subLength = endOffset - startOffset
-    ByteArraySourceData(value, startOffset, subLength)
+    ByteArraySourceData(source, startOffset, subLength)
   }
 
   def asStream: CharStream = {
-    CharStreams.fromStream(new ByteArrayInputStream(value, offset, length))
+    CharStreams.fromStream(new ByteArrayInputStream(source, offset, length), StandardCharsets.UTF_8)
   }
 
   def asInsensitiveStream: CaseInsensitiveInputStream = {
-    new CaseInsensitiveInputStream(new ByteArrayInputStream(value, offset, length))
+    new CaseInsensitiveInputStream(new ByteArrayInputStream(source, offset, length))
   }
 
   def asUTF8: Array[Byte] = {
-    value.slice(offset, offset + length)
+    source.slice(offset, offset + length)
   }
 
   def asString: String = {
     new String(asUTF8, StandardCharsets.UTF_8)
   }
 
-  private def getCharOffsetFrom(offset: Int, charCount: Int): Int = {
-    var remaining = charCount
-    var at = offset
-    while (remaining > 0) {
-      at += sequenceLength(value(at))
-      remaining -= 1
-    }
-    at
-  }
-
-  private def sequenceLength(data: Byte): Int = {
-    val unsigned: Int = 0xFF & data.asInstanceOf[Int]
-    if (unsigned < 0x80) 1
-    else if ((unsigned >> 5) == 0x6) 2
-    else if ((unsigned >> 4) == 0xe) 3
-    else if ((unsigned >> 3) == 0x1e) 4
-    else throw new IllegalArgumentException(s"Expecting UTf-8 data, found leading byte: $data")
-  }
 }
