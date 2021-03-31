@@ -422,7 +422,7 @@ object PlatformTypeDeclaration {
   /* Standard methods to be exposed on enums */
   private lazy val enumMethods: Array[MethodDeclaration] =
     Array(CustomMethodDeclaration(None, Name("name"), TypeNames.String, Array()),
-          CustomMethodDeclaration(None, Name("original"), TypeNames.Integer, Array()),
+          CustomMethodDeclaration(None, Name("ordinal"), TypeNames.Integer, Array()),
           CustomMethodDeclaration(None,
                                   Name("values"),
                                   TypeNames.listOf(TypeNames.String),
