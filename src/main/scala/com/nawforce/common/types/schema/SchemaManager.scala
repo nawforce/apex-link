@@ -30,10 +30,16 @@ package com.nawforce.common.types.schema
 import com.nawforce.common.api.{Name, PathLocation, TypeName}
 import com.nawforce.common.cst.VerifyContext
 import com.nawforce.common.finding.TypeResolver
+import com.nawforce.common.names.TypeNames._
 import com.nawforce.common.names.{EncodedName, Names, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
+import com.nawforce.common.types.core.{
+  BasicTypeDeclaration,
+  FieldDeclaration,
+  MethodDeclaration,
+  TypeDeclaration
+}
 import com.nawforce.common.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.common.types.schema
 import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration}
@@ -102,6 +108,7 @@ class RelatedLists(pkg: PackageImpl) {
                                   pkg,
                                   td.typeName,
                                   CustomObjectNature,
+                                  Name.emptyNames,
                                   Name.emptyNames,
                                   td.fields,
                                   isComplete = true))
@@ -192,6 +199,7 @@ final case class SchemaSObjectType(pkg: PackageImpl)
       pkg.upsertMetadata(fields)
       pkg.upsertMetadata(SObjectTypeImpl(sobjectName, fields, pkg))
       pkg.upsertMetadata(SObjectTypeFieldSets(sobjectName, pkg))
+      pkg.upsertMetadata(SObjectFieldRowCause(sobjectName, pkg))
     }
   }
 }
@@ -302,9 +310,10 @@ final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
     PlatformTypes.sObjectFieldType)
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
+    val shareTypeName = if (typeName.isShare) Some(typeName) else None
     TypeResolver(TypeName(sobjectName), pkg, excludeSObjects = false).toOption match {
       case Some(sobject: TypeDeclaration) =>
-        sobject.fields.map(field => (field.name, field.getSObjectField)).toMap
+        sobject.fields.map(field => (field.name, field.getSObjectField(shareTypeName))).toMap
       case _ => Map()
     }
   }
@@ -370,5 +379,43 @@ final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageImpl)
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Array[MethodDeclaration] = {
     PlatformTypes.sObjectTypeFieldSets.findMethod(name, params, staticContext, verifyContext)
+  }
+}
+
+final case class SObjectFieldRowCause(sobjectName: Name, pkg: PackageImpl)
+    extends BasicTypeDeclaration(
+      PathLike.emptyPaths,
+      pkg,
+      TypeNames.sObjectFieldRowCause$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
+
+  private lazy val sharingReasonFields: Map[Name, FieldDeclaration] = {
+    // Locate SObject that is holding the sharing reasons
+    val sobjectTarget =
+      if (sobjectName.toString().endsWith("__Share"))
+        sobjectName
+      else
+        Name(sobjectName.toString().replaceFirst("Share$", ""))
+    val typeName = TypeName(sobjectTarget)
+    TypeResolver(typeName, pkg, excludeSObjects = false).toOption match {
+      case Some(sobject: SObjectDeclaration) =>
+        sobject.sharingReason
+          .map(name => (name, CustomFieldDeclaration(name, TypeNames.String, None)))
+          .toMap
+      case _ => Map()
+    }
+  }
+
+  override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
+    if (sharingReasonFields.contains(name))
+      sharingReasonFields.get(name)
+    else
+      PlatformTypes.sObjectFieldRowCause$.findField(name, staticContext)
+  }
+
+  override def findMethod(name: Name,
+                          params: Array[TypeName],
+                          staticContext: Option[Boolean],
+                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
+    PlatformTypes.sObjectFieldRowCause$.findMethod(name, params, staticContext, verifyContext)
   }
 }

@@ -49,7 +49,8 @@ case object PlatformEventNature extends SObjectNature("PlatformEvent")
 final case class SObjectDetails(sobjectNature: SObjectNature,
                                 typeName: TypeName,
                                 fields: Seq[CustomFieldDeclaration],
-                                fieldSets: Set[Name]) {
+                                fieldSets: Set[Name],
+                                sharingReasons: Set[Name]) {
 
   def isIntroducing(pkg: PackageImpl): Boolean = {
     if (sobjectNature.isInstanceOf[IntroducingNature]) {
@@ -60,7 +61,7 @@ final case class SObjectDetails(sobjectNature: SObjectNature,
   }
 
   def withTypeName(newTypeName: TypeName): SObjectDetails = {
-    SObjectDetails(sobjectNature, newTypeName, fields, fieldSets)
+    SObjectDetails(sobjectNature, newTypeName, fields, fieldSets, sharingReasons)
   }
 }
 
@@ -81,7 +82,13 @@ object SObjectDetails {
 
       val sfdxFields = parseSfdxFields(path, pkg, typeName, sobjectNature)
       val sfdxFieldSets = parseSfdxFieldSets(path, pkg)
-      return Some(SObjectDetails(sobjectNature, typeName, sfdxFields, sfdxFieldSets.toSet))
+      val sfdxSharingReasons = parseSfdxSharingReason(path, pkg)
+      return Some(
+        SObjectDetails(sobjectNature,
+                       typeName,
+                       sfdxFields,
+                       sfdxFieldSets.toSet,
+                       sfdxSharingReasons.toSet))
     }
 
     val parseResult = XMLFactory.parse(path)
@@ -121,11 +128,17 @@ object SObjectDetails {
         .map(f => parseFieldSet(f, path, pkg))
       val sfdxFieldSets = parseSfdxFieldSets(path, pkg)
 
+      val sharingReasons = rootElement
+        .getChildren("sharingReasons")
+        .map(f => parseSharingReason(f, path, pkg))
+      val sfdxSharingReasons = parseSfdxSharingReason(path, pkg)
+
       Some(
         SObjectDetails(sobjectNature,
                        typeName,
                        fields ++ sfdxFields,
-                       (fieldSets ++ sfdxFieldSets).toSet))
+                       (fieldSets ++ sfdxFieldSets).toSet,
+                       (sharingReasons ++ sfdxSharingReasons).toSet))
 
     } catch {
       case e: XMLException =>
@@ -135,6 +148,12 @@ object SObjectDetails {
   }
 
   private def parseFieldSet(elem: XMLElementLike, path: PathLike, pkg: PackageImpl): Name = {
+    EncodedName(elem.getSingleChildAsString("fullName"))
+      .defaultNamespace(pkg.namespace)
+      .fullName
+  }
+
+  private def parseSharingReason(elem: XMLElementLike, path: PathLike, pkg: PackageImpl): Name = {
     EncodedName(elem.getSingleChildAsString("fullName"))
       .defaultNamespace(pkg.namespace)
       .fullName
@@ -208,4 +227,37 @@ object SObjectDetails {
           })
     }
   }
+
+  private def parseSfdxSharingReason(path: PathLike, pkg: PackageImpl): Seq[Name] = {
+    val dir = path.parent.join("sharingReasons")
+    if (!dir.isDirectory)
+      return Seq()
+
+    dir.directoryList() match {
+      case Left(_) => Seq()
+      case Right(entries) =>
+        entries
+          .filter(_.endsWith(".sharingReason-meta.xml"))
+          .flatMap(entry => {
+            val path = dir.join(entry)
+            try {
+              val parseResult = XMLFactory.parse(path)
+              if (parseResult.isLeft) {
+                OrgImpl.log(parseResult.swap.getOrElse(throw new NoSuchElementException))
+                None
+              } else {
+                val rootElement =
+                  parseResult.getOrElse(throw new NoSuchElementException).rootElement
+                rootElement.assertIs("SharingReason")
+                Some(parseSharingReason(rootElement, path, pkg))
+              }
+            } catch {
+              case e: XMLException =>
+                OrgImpl.logError(PathLocation(path.toString, e.where), e.msg)
+                None
+            }
+          })
+    }
+  }
+
 }

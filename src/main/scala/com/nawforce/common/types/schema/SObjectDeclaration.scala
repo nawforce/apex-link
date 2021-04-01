@@ -54,6 +54,7 @@ final case class SObjectDeclaration(_paths: Array[PathLike],
                                     _typeName: TypeName,
                                     sobjectNature: SObjectNature,
                                     fieldSets: Array[Name],
+                                    sharingReason: Array[Name],
                                     override val fields: Array[FieldDeclaration],
                                     override val isComplete: Boolean)
     extends BasicTypeDeclaration(_paths, pkg, _typeName) {
@@ -224,7 +225,7 @@ object SObjectDeclaration {
           sobjectDetails.sobjectNature != CustomMetadataNature && sobjectDetails.sobjectNature != PlatformEventNature) {
         Seq(
             // TODO: Check fields & when should be available
-            createShare(pkg, typeName),
+            createShare(pkg, typeName, sobjectDetails.sharingReasons.toArray),
             createFeed(pkg, typeName),
             createHistory(pkg, typeName))
       } else Seq()
@@ -236,6 +237,7 @@ object SObjectDeclaration {
                              typeName,
                              sobjectDetails.sobjectNature,
                              sobjectDetails.fieldSets.toArray,
+                             Name.emptyNames,
                              fields,
                              isComplete = true) +:
         supportObjects
@@ -330,6 +332,7 @@ object SObjectDeclaration {
                                     typeName,
                                     sobjectDetails.sobjectNature,
                                     sobjectDetails.fieldSets.toArray,
+                                    sobjectDetails.sharingReasons.toArray,
                                     fields.values.toArray,
                                     isComplete)
     pkg.schema().sobjectTypes.add(td)
@@ -354,9 +357,11 @@ object SObjectDeclaration {
     collected
   }
 
-  private def createShare(pkg: PackageImpl, typeName: TypeName): SObjectDeclaration = {
+  private def createShare(pkg: PackageImpl,
+                          typeName: TypeName,
+                          sharingReasons: Array[Name]): SObjectDeclaration = {
     val shareName = typeName.withNameReplace("__c$", "__Share")
-    val sobjectDetails = SObjectDetails(CustomObjectNature, shareName, Seq(), Set())
+    val sobjectDetails = SObjectDetails(CustomObjectNature, shareName, Seq(), Set(), Set())
 
     // TODO: Provide paths
     SObjectDeclaration(Array.empty,
@@ -364,6 +369,7 @@ object SObjectDeclaration {
                        shareName,
                        CustomObjectNature,
                        Array(),
+                       sharingReasons,
                        customObjectFields(sobjectDetails) ++ shareFields,
                        isComplete = true)
   }
@@ -376,13 +382,14 @@ object SObjectDeclaration {
 
   private def createFeed(pkg: PackageImpl, typeName: TypeName): SObjectDeclaration = {
     val feedName = typeName.withNameReplace("__c$", "__Feed")
-    val sobjectDetails = SObjectDetails(CustomObjectNature, feedName, Seq(), Set())
+    val sobjectDetails = SObjectDetails(CustomObjectNature, feedName, Seq(), Set(), Set())
 
     // TODO: Provide paths
     SObjectDeclaration(PathLike.emptyPaths,
                        pkg,
                        feedName,
                        CustomObjectNature,
+                       Name.emptyNames,
                        Name.emptyNames,
                        customObjectFields(sobjectDetails) ++ feedFields,
                        isComplete = true)
@@ -407,13 +414,14 @@ object SObjectDeclaration {
 
   private def createHistory(pkg: PackageImpl, typeName: TypeName): SObjectDeclaration = {
     val historyName = typeName.withNameReplace("__c$", "__History")
-    val sobjectDetails = SObjectDetails(CustomObjectNature, historyName, Seq(), Set())
+    val sobjectDetails = SObjectDetails(CustomObjectNature, historyName, Seq(), Set(), Set())
 
     // TODO: Provide paths
     SObjectDeclaration(PathLike.emptyPaths,
                        pkg,
                        historyName,
                        CustomObjectNature,
+                       Name.emptyNames,
                        Name.emptyNames,
                        customObjectFields(sobjectDetails) ++ historyFields,
                        isComplete = true)

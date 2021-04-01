@@ -321,20 +321,6 @@ class BugTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
-  test("Schema RowClause") {
-    FileSystemHelper.run(
-      Map("Dummy.cls" ->
-        """
-          | public class Dummy {
-          |  public static String a = AccountShare.RowCause.Manual;
-          |}
-          |""".stripMargin)) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      addPackage(org, root)
-      assert(!org.issues.hasMessages)
-    }
-  }
-
   test("Database RaisesPlatformEvents") {
     FileSystemHelper.run(
       Map("Dummy.cls" ->

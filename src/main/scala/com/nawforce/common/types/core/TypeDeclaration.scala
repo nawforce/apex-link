@@ -32,6 +32,7 @@ import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.IssueOps
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.modifiers._
+import com.nawforce.common.names.TypeNames._
 import com.nawforce.common.names.{Names, TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
@@ -99,7 +100,7 @@ trait FieldDeclaration extends DependencyHolder {
   }
 
   // Create an SObjectField version of this field
-  def getSObjectField: CustomFieldDeclaration = {
+  def getSObjectField(shareTypeName: Option[TypeName]): CustomFieldDeclaration = {
     // Some messy special cases
     if (typeName == TypeNames.IdType && idTarget.nonEmpty) {
       // Id field that carries a target SObjectType returns 'fields'
@@ -107,9 +108,8 @@ trait FieldDeclaration extends DependencyHolder {
       CustomFieldDeclaration(name, TypeNames.sObjectFields$(idTarget.get), None, asStatic = true)
     } else if (CustomFieldDeclaration.isSObjectPrimitive(typeName)) {
       // Primitives (including other Id types)
-      // TODO: Identify Share
-      if (name == Names.RowCause)
-        CustomFieldDeclaration(name, TypeNames.SObjectFieldRowCause$, None, asStatic = true)
+      if (shareTypeName.nonEmpty && name == Names.RowCause)
+        CustomFieldDeclaration(name, TypeNames.sObjectFieldRowCause$(shareTypeName.get), None, asStatic = true)
       else
         CustomFieldDeclaration(name, TypeNames.SObjectField, None, asStatic = true)
     } else {
@@ -340,7 +340,8 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
     if (staticContext.contains(field.isStatic)) {
       fieldOption
     } else if (staticContext.contains(true)) {
-      Some(field.getSObjectField)
+      val shareTypeName = if (typeName.isShare) Some(typeName) else None
+      Some(field.getSObjectField(shareTypeName))
     } else {
       None
     }

@@ -17,7 +17,9 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
     ServerOps.setAutoFlush(true)
   }
 
-  def customObject(label: String, fields: Seq[(String, Option[String], Option[String])]): String = {
+  def customObject(label: String,
+                   fields: Seq[(String, Option[String], Option[String])],
+                   sharingReason: Set[String] = Set()): String = {
     val fieldMetadata = fields.map(field => {
       s"""
          |    <fields>
@@ -31,10 +33,19 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
          |""".stripMargin
     })
 
+    val sharingReasonMetadata = sharingReason.map(sharingReason => {
+      s"""
+         |    <sharingReasons>
+         |        <fullName>$sharingReason</fullName>
+         |    </sharingReasons>
+         |""".stripMargin
+    })
+
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
        |    <fullName>$label</fullName>
        |    $fieldMetadata
+       |    $sharingReasonMetadata
        |</CustomObject>
        |""".stripMargin
   }
@@ -58,6 +69,14 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
        |<FieldSet xmlns="http://soap.sforce.com/2006/04/metadata">
        |    <fullName>$name</fullName>
        |</FieldSet>
+       |""".stripMargin
+  }
+
+  def customSharingReason(name: String): String = {
+    s"""<?xml version="1.0" encoding="UTF-8"?>
+       |<SharingReason xmlns="http://soap.sforce.com/2006/04/metadata">
+       |    <fullName>$name</fullName>
+       |</SharingReason>
        |""".stripMargin
   }
 
@@ -210,11 +229,10 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
   test("Lookup SObjectField (via relationship field)") {
     FileSystemHelper.run(
       Map("Dummy.cls" ->
-        "public class Dummy { {SObjectField a = Opportunity.Account.Name;} }")) {
-      root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
-        assert(!org.issues.hasMessages)
+        "public class Dummy { {SObjectField a = Opportunity.Account.Name;} }")) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
     }
   }
 
@@ -418,4 +436,51 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
           "Error: line 5: Expecting custom field 'AccountNumber__c' to have 'type' child element\n")
     }
   }
+
+  test("Standard RowClause") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" ->
+        """
+            | public class Dummy {
+            |  public static String a = AccountShare.RowCause.Manual;
+            |}
+            |""".stripMargin)) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+    }
+  }
+
+  test("Custom RowClause") {
+    FileSystemHelper.run(
+      Map("Account.object-meta.xml" -> customObject("Account", Seq(), Set("MyReason__c")),
+          "Dummy.cls" ->
+            """
+            | public class Dummy {
+            |  public static String a = AccountShare.RowCause.MyReason__c;
+            |}
+            |""".stripMargin)) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+    }
+  }
+
+  test("Sfdx Custom RowClause") {
+    FileSystemHelper.run(
+      Map("Account/Account.object-meta.xml" -> customObject("Account", Seq()),
+          "Account/sharingReasons/MyReason__c.sharingReason-meta.xml" -> customSharingReason(
+            "MyReason__c"),
+          "Dummy.cls" ->
+            """
+          | public class Dummy {
+          |  public static String a = AccountShare.RowCause.MyReason__c;
+          |}
+          |""".stripMargin)) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+    }
+  }
+
 }

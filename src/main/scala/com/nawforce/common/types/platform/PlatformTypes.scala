@@ -43,6 +43,7 @@ object PlatformTypes {
   lazy val sObjectTypeType: TypeDeclaration = loadType(TypeNames.SObjectType)
   lazy val sObjectTypeFieldSets: TypeDeclaration = loadType(TypeNames.SObjectTypeFieldSets)
   lazy val sObjectFieldType: TypeDeclaration = loadType(TypeNames.SObjectField)
+  lazy val sObjectFieldRowCause$: TypeDeclaration = loadType(TypeNames.SObjectFieldRowCause$)
   lazy val typeType: TypeDeclaration = loadType(TypeNames.TypeType)
   lazy val stringType: TypeDeclaration = loadType(TypeNames.String)
   lazy val idType: TypeDeclaration = loadType(TypeNames.IdType)

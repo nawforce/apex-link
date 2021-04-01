@@ -48,7 +48,8 @@ class CustomObjectTest extends AnyFunSuite with BeforeAndAfter {
 
   def customObject(label: String,
                    fields: Seq[(String, String, Option[String])],
-                   fieldSets: Set[String] = Set()): String = {
+                   fieldSets: Set[String] = Set(),
+                   sharingReason: Set[String] = Set()): String = {
     val fieldMetadata = fields.map(field => {
       s"""
          |    <fields>
@@ -70,11 +71,20 @@ class CustomObjectTest extends AnyFunSuite with BeforeAndAfter {
          |""".stripMargin
     })
 
+    val sharingReasonMetadata = sharingReason.map(sharingReason => {
+      s"""
+         |    <sharingReasons>
+         |        <fullName>$sharingReason</fullName>
+         |    </sharingReasons>
+         |""".stripMargin
+    })
+
     s"""<?xml version="1.0" encoding="UTF-8"?>
       |<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
       |    <fullName>$label</fullName>
       |    $fieldMetadata
       |    $fieldSetMetadata
+      |    $sharingReasonMetadata
       |</CustomObject>
       |""".stripMargin
   }
@@ -98,6 +108,14 @@ class CustomObjectTest extends AnyFunSuite with BeforeAndAfter {
        |<FieldSet xmlns="http://soap.sforce.com/2006/04/metadata">
        |    <fullName>$name</fullName>
        |</FieldSet>
+       |""".stripMargin
+  }
+
+  def customSharingReason(name: String): String = {
+    s"""<?xml version="1.0" encoding="UTF-8"?>
+       |<SharingReason xmlns="http://soap.sforce.com/2006/04/metadata">
+       |    <fullName>$name</fullName>
+       |</SharingReason>
        |""".stripMargin
   }
 
@@ -602,4 +620,54 @@ class CustomObjectTest extends AnyFunSuite with BeforeAndAfter {
         assert(!org.issues.hasMessages)
     }
   }
+
+  test("Standard RowClause") {
+    FileSystemHelper.run(
+      Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", "Text", None))),
+          "Dummy.cls" ->
+            """
+          | public class Dummy {
+          |  public static String a = Foo__Share.RowCause.Manual;
+          |}
+          |""".stripMargin)) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+    }
+  }
+
+  test("Custom RowClause") {
+    FileSystemHelper.run(
+      Map(
+        "Foo__c.object" -> customObject(
+          "Foo",
+          Seq(("Bar__c", "Text", None)), Set(), Set("MyReason__c")),
+        "Dummy.cls" ->
+          """
+            | public class Dummy {
+            |  public static String a = Foo__Share.RowCause.MyReason__c;
+            |}
+            |""".stripMargin)) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+    }
+  }
+
+  test("Sfdx Custom RowClause") {
+    FileSystemHelper.run(
+      Map("Foo__c/Foo__c.object-meta.xml" -> customObject("Foo", Seq()),
+          "Foo__c/sharingReasons/MyReason__c.sharingReason-meta.xml" -> customSharingReason("MyReason__c"),
+          "Dummy.cls" ->
+            """
+            | public class Dummy {
+            |  public static String a = Foo__Share.RowCause.MyReason__c;
+            |}
+            |""".stripMargin)) { root: PathLike =>
+      val org = Org.newOrg().asInstanceOf[OrgImpl]
+      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      assert(!org.issues.hasMessages)
+    }
+  }
+
 }
