@@ -225,6 +225,11 @@ package object names {
                       Seq(TypeName(name, Nil, Some(TypeNames.Schema))),
                       Some(TypeNames.Internal)) =>
           s"Schema.$name.Fields"
+        case TypeName(Names.SObjectFieldRowCause$,
+                      Seq(TypeName(name, Nil, Some(TypeNames.Schema))),
+                      Some(TypeNames.Internal)) =>
+          s"Schema.$name.RowCause"
+
         case _ => basicString
       }
     }

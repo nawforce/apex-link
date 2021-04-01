@@ -1,3 +1,30 @@
+/*
+ [The "BSD licence"]
+ Copyright (c) 2020 Kevin Jones
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+ 3. The name of the author may not be used to endorse or promote products
+    derived from this software without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.nawforce.common.names
 
 import com.nawforce.common.api.{Name, TypeName}
@@ -14,7 +41,8 @@ object TypeNames extends InternCache[TypeName] {
   lazy val RecordSet: TypeName =
     TypeName(Names.RecordSet$, Seq(TypeNames.SObject), Some(TypeNames.Internal)).intern
   lazy val InternalObject: TypeName = TypeName(Names.Object$, Nil, Some(TypeNames.Internal)).intern
-  lazy val InternalInterface: TypeName = TypeName(Names.Interface$, Nil, Some(TypeNames.Internal)).intern
+  lazy val InternalInterface: TypeName =
+    TypeName(Names.Interface$, Nil, Some(TypeNames.Internal)).intern
 
   lazy val System: TypeName = TypeName(Names.System).intern
   lazy val Long: TypeName = TypeName(Names.Long, Nil, Some(TypeNames.System)).intern
@@ -91,6 +119,7 @@ object TypeNames extends InternCache[TypeName] {
   def sObjectTypeFieldSets$(typeName: TypeName): TypeName =
     SObjectTypeFieldSets$.withParams(Seq(typeName)).intern
   def sObjectFields$(typeName: TypeName): TypeName = SObjectFields$.withParams(Seq(typeName)).intern
+  def sObjectFieldRowCause$(typeName: TypeName): TypeName = SObjectFieldRowCause$.withParams(Seq(typeName)).intern
   def trigger(typeName: TypeName): TypeName = Trigger$.withParams(Seq(typeName)).intern
 
   def listOf(typeName: TypeName): TypeName =
@@ -100,13 +129,89 @@ object TypeNames extends InternCache[TypeName] {
   def recordSetOf(typeName: TypeName): TypeName =
     TypeName(Names.RecordSet$, Seq(typeName), Some(TypeNames.Internal)).intern
 
-  /** Interning support for TypeName, used to reduce memory load, mainly from cached data. */
+  val standardShareNames = Set("AccountShare",
+                               "AssetShare",
+                               "AuthorizationFormConsentShare",
+                               "AuthorizationFormDataUseShare",
+                               "AuthorizationFormShare",
+                               "CalendarViewShare",
+                               "CampaignShare",
+                               "CaseShare",
+                               "CommSubscriptionChannelTypeShare",
+                               "CommSubscriptionConsentShare",
+                               "CommSubscriptionShare",
+                               "ConsumptionScheduleShare",
+                               "ContactPointAddressShare",
+                               "ContactPointConsentShare",
+                               "ContactPointEmailShare",
+                               "ContactPointPhoneShare",
+                               "ContactPointTypeConsentShare",
+                               "ContactRequestShare",
+                               "ContactShare",
+                               "DataUseLegalBasisShare",
+                               "DataUsePurposeShare",
+                               "EngagementChannelTypeShare",
+                               "ExternalEventMappingShare",
+                               "FlowInterviewShare",
+                               "ForecastShare",
+                               "ForecastingShare",
+                               "GoalShare",
+                               "ImageShare",
+                               "IndividualShare",
+                               "LeadShare",
+                               "LegalEntityShare",
+                               "ListEmailShare",
+                               "MacroShare",
+                               "MacroUsageShare",
+                               "MetricShare",
+                               "OpportunityShare",
+                               "OrderShare",
+                               "OrgDeleteRequestShare",
+                               "PartyConsentShare",
+                               "ProfileSkillShare",
+                               "PromptActionShare",
+                               "QuickTextShare",
+                               "QuickTextUsageShare",
+                               "QuoteShare",
+                               "SOSSessionShare",
+                               "StreamingChannelShare",
+                               "SurveyInvitationShare",
+                               "SurveyShare",
+                               "TodayGoalShare",
+                               "UserAppMenuCustomizationShare",
+                               "UserEmailPreferredPersonShare",
+                               "UserProvisioningRequestShare",
+                               "UserShare",
+                               "WorkAccessShare",
+                               "WorkBadgeDefinitionShare",
+                               "WorkCoachingShare",
+                               "WorkFeedbackQuestionSetShare",
+                               "WorkFeedbackQuestionShare",
+                               "WorkFeedbackRequestShare",
+                               "WorkFeedbackShare",
+                               "WorkFeedbackTemplateShare",
+                               "WorkPerformanceCycleShare",
+                               "WorkRewardFundShare",
+                               "WorkRewardFundTypeShare",
+                               "WorkRewardShare",
+                               "WorkThanksShare",
+  )
+
   implicit class TypeNameOps(typeName: TypeName) {
+
+    /** Interning support for TypeName, used to reduce memory load, mainly from cached data. */
     def intern: TypeName = {
       TypeNames.intern(
         TypeName(Names(typeName.name.value),
                  typeName.params.map(_.intern),
                  typeName.outer.map(_.intern)))
+    }
+
+    // Check on if is a Schema Share type
+    def isShare: Boolean = {
+      typeName.outer.contains(TypeNames.Schema) &&
+      (typeName.name.toString.endsWith("_Share") ||
+      standardShareNames.contains(typeName.name.toString))
     }
   }
 }
