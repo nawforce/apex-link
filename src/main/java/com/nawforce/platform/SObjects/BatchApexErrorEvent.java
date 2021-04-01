@@ -46,6 +46,7 @@ public class BatchApexErrorEvent extends SObject {
 	public String ExceptionType;
 	public String JobScope;
 	public String Message;
+	public String Phase;
 	public String ReplayId;
 	public String RequestId;
 	public String StackTrace;
