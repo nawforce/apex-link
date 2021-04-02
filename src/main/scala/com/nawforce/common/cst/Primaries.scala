@@ -30,6 +30,7 @@ package com.nawforce.common.cst
 import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.names.{EncodedName, Names, TypeNames}
+import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexFieldLike}
 import com.nawforce.common.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.runtime.parsers.ApexParser._
@@ -110,7 +111,7 @@ final case class IdPrimary(id: Id) extends Primary {
         val name = id.name
         val staticContext = Some(true).filter(input.isStatic.contains)
         val field = findField(name, td, staticContext)
-        if (field.nonEmpty) {
+        if (field.nonEmpty && isAccessible(td, field.get, staticContext)) {
           context.addDependency(field.get)
           val target = context.getTypeAndAddDependency(field.get.typeName, Some(td)).toOption
           if (target.isEmpty) {
@@ -152,6 +153,15 @@ final case class IdPrimary(id: Id) extends Primary {
           td.findField(encodedName.fullName, staticContext)
         else None
       })
+  }
+
+  private def isAccessible(td: TypeDeclaration, field: FieldDeclaration, staticContext: Option[Boolean]): Boolean = {
+    // From static context, we can only use locally defined static fields, but can only test this with Apex
+    // defined fields & types.
+    (staticContext.contains(true), td, field) match {
+      case (true, ad: ApexClassDeclaration, af: ApexFieldLike) => ad.localFields.contains(af)
+      case _ => true
+    }
   }
 }
 
