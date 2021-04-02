@@ -211,9 +211,11 @@ object MethodMap {
     if (matched.nonEmpty) {
       val matchedMethod = matched.get
       if (matchedMethod.typeName != method.typeName) {
-        setMethodError(method,
-          s"Method '${method.name}' has wrong return type to override, should be '${matched.get.typeName}'",
-          errors, isWarning = true)
+        if (!overrideNotRequired.contains(matchedMethod.signature.toLowerCase())) {
+          setMethodError(method,
+            s"Method '${method.name}' has wrong return type to override, should be '${matched.get.typeName}'",
+            errors, isWarning = true)
+        }
       } else {
         if (!matchedMethod.isVirtualOrAbstract) {
           setMethodError(method, s"Method '${method.name}' can not override non-virtual method", errors)

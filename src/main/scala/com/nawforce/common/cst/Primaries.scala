@@ -29,7 +29,7 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.finding.TypeResolver
-import com.nawforce.common.names.EncodedName
+import com.nawforce.common.names.{EncodedName, Names, TypeNames}
 import com.nawforce.common.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.runtime.parsers.ApexParser._
@@ -81,7 +81,16 @@ final case class LiteralPrimary(literal: Literal) extends Primary {
 final case class TypeReferencePrimary(typeName: TypeName) extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.typeDeclarationOpt.nonEmpty)
-    val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
+
+    // Workaround miss parsing of Foo__c.SObjectType.class as a typeRef
+    val targetTypeName =
+      if (typeName.outer.nonEmpty && typeName.name == Names.SObjectType) {
+        TypeNames.sObjectType$(typeName.outer.get)
+      } else {
+        typeName
+      }
+
+    val td = context.getTypeAndAddDependency(targetTypeName, context.thisType).toOption
     if (td.isEmpty)
       context.missingType(location, typeName)
     ExprContext(isStatic = Some(false), Some(PlatformTypes.typeType))

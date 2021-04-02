@@ -84,6 +84,7 @@ trait FieldDeclaration extends DependencyHolder {
   val writeAccess: Modifier
 
   lazy val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
+  lazy val isPrivate: Boolean = modifiers.contains(PRIVATE_MODIFIER)
 
   def serialise: FieldSummary = {
     serialise(shapeOnly = false, None)
