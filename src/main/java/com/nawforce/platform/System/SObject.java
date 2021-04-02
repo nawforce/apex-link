@@ -35,15 +35,12 @@ import com.nawforce.platform.Schema.SObjectType;
 
 @SuppressWarnings("unused")
 public class SObject {
-	// Future: Slim this set
+	// Future: Slim this set, move custom object specific to CustomSObject$
 	public Id Id;
 	public Id OwnerId;
 	public String Name;
 	public UserGroup Owner;
 	public UserRecordAccess UserRecordAccess;
-	public List<Attachment> Attachments;
-	public List<ContentDocumentLink> ContentDocumentLinks;
-	public List<ProcessInstanceHistory> ProcessSteps;
 	public List<Task> Tasks;					// Future: Only if Allow Activities is selected
 	public RecordType RecordType;
 	public String CurrencyIsoCode;

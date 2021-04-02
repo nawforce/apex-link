@@ -34,18 +34,9 @@ import com.nawforce.common.modifiers._
 import com.nawforce.common.names.{DotName, Names, TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types.core.{
-  BasicTypeDeclaration,
-  FieldDeclaration,
-  MethodDeclaration,
-  TypeDeclaration
-}
+import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
 import com.nawforce.common.types.platform.PlatformTypes
-import com.nawforce.common.types.synthetic.{
-  CustomFieldDeclaration,
-  CustomMethodDeclaration,
-  CustomParameterDeclaration
-}
+import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration, CustomParameterDeclaration}
 
 import scala.collection.mutable
 
@@ -55,15 +46,27 @@ final case class SObjectDeclaration(_paths: Array[PathLike],
                                     sobjectNature: SObjectNature,
                                     fieldSets: Array[Name],
                                     sharingReason: Array[Name],
-                                    override val fields: Array[FieldDeclaration],
-                                    override val isComplete: Boolean)
+                                    baseFields: Array[FieldDeclaration],
+                                    override val isComplete: Boolean
+                                   )
     extends BasicTypeDeclaration(_paths, pkg, _typeName) {
 
   override val modifiers: Array[Modifier] = SObjectDeclaration.globalModifiers
 
-  override val superClass: Option[TypeName] = Some(TypeNames.SObject)
+  override val superClass: Option[TypeName] = {
+    Some(TypeNames.SObject)
+  }
+
   override lazy val superClassDeclaration: Option[TypeDeclaration] = {
-    pkg.getTypeFor(TypeNames.SObject, this)
+      pkg.getTypeFor(superClass.get, this)
+  }
+
+  override val fields: Array[FieldDeclaration] = {
+    if (sobjectNature == CustomObjectNature) {
+      (PlatformTypes.customSObject.fields ++ baseFields).map(f => (f.name, f)).toMap.values.toArray
+    } else {
+      baseFields
+    }
   }
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
