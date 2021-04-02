@@ -342,6 +342,12 @@ final case class CastExpression(typeName: TypeName, expression: Expression) exte
   }
 }
 
+final case class SubExpression(expression: Expression) extends Expression {
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    expression.verify(input, context)
+  }
+}
+
 final case class PostfixExpression(expression: Expression, op: String) extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     val inter = expression.verify(input, context)
@@ -520,6 +526,9 @@ object Expression {
         case expr: CastExpressionContext =>
           CastExpression(TypeReference.construct(expr.typeRef()),
                          Expression.construct(expr.expression()))
+        case expr: SubExpressionContext =>
+          SubExpression(Expression.construct(expr.expression()))
+
         case expr: PostOpExpressionContext =>
           val op = CodeParser
             .toScala(expr.INC())

@@ -41,12 +41,6 @@ sealed abstract class Primary extends CST {
   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext
 }
 
-final case class ExpressionPrimary(expression: Expression) extends Primary {
-  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    expression.verify(input, context)
-  }
-}
-
 final case class ThisPrimary() extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
 
@@ -197,8 +191,6 @@ object Primary {
   def construct(from: PrimaryContext): Primary = {
     val cst =
       from match {
-        case ctx: SubPrimaryContext =>
-          ExpressionPrimary(Expression.construct(ctx.expression()))
         case _: ThisPrimaryContext =>
           ThisPrimary()
         case _: SuperPrimaryContext =>
