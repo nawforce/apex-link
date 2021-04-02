@@ -791,7 +791,7 @@ updateType
     ;
 
 soslId
-    : id;
+    : id (DOT soslId)*;
 
 // Identifiers
 

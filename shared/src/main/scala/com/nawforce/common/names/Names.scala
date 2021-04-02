@@ -65,6 +65,7 @@ object Names extends CleanableCache {
   lazy val Any$ : Name = cache("Any$")
   lazy val RecordSet$ : Name = cache("RecordSet$")
   lazy val SObject: Name = cache("SObject")
+  lazy val CustomSObject$: Name = cache("CustomSObject$")
   lazy val SObjects: Name = cache("SObjects")
   lazy val Internal: Name = cache("Internal")
   lazy val Boolean: Name = cache("Boolean")
