@@ -590,19 +590,19 @@ public interface ApexParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPreOpExpression(ApexParser.PreOpExpressionContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code subExpression}
+	 * labeled alternative in {@link ApexParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSubExpression(ApexParser.SubExpressionContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code instanceOfExpression}
 	 * labeled alternative in {@link ApexParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitInstanceOfExpression(ApexParser.InstanceOfExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code subPrimary}
-	 * labeled alternative in {@link ApexParser#primary}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSubPrimary(ApexParser.SubPrimaryContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code thisPrimary}
 	 * labeled alternative in {@link ApexParser#primary}.

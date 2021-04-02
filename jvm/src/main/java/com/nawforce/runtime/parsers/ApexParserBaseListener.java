@@ -1132,6 +1132,18 @@ public class ApexParserBaseListener implements ApexParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterSubExpression(ApexParser.SubExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSubExpression(ApexParser.SubExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterInstanceOfExpression(ApexParser.InstanceOfExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1139,18 +1151,6 @@ public class ApexParserBaseListener implements ApexParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitInstanceOfExpression(ApexParser.InstanceOfExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSubPrimary(ApexParser.SubPrimaryContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSubPrimary(ApexParser.SubPrimaryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

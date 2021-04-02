@@ -431,6 +431,7 @@ expression
     | methodCall                                                                                      # methodCallExpression
     | NEW creator                                                                                     # newExpression
     | LPAREN typeRef RPAREN expression                                                                # castExpression
+    | LPAREN expression RPAREN                                                                        # subExpression
     | expression (INC | DEC)                                                                          # postOpExpression
     | (ADD|SUB|INC|DEC) expression                                                                    # preOpExpression
     | (TILDE|BANG) expression                                                                         # negExpression
@@ -464,8 +465,7 @@ expression
     ;
 
 primary
-    : LPAREN expression RPAREN                                                                       # subPrimary
-    | THIS                                                                                           # thisPrimary
+    : THIS                                                                                           # thisPrimary
     | SUPER                                                                                          # superPrimary
     | literal                                                                                        # literalPrimary
     | typeRef DOT CLASS                                                                              # typeRefPrimary

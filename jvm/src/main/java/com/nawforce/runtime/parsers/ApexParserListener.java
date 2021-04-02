@@ -980,6 +980,18 @@ public interface ApexParserListener extends ParseTreeListener {
 	 */
 	void exitPreOpExpression(ApexParser.PreOpExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code subExpression}
+	 * labeled alternative in {@link ApexParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterSubExpression(ApexParser.SubExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code subExpression}
+	 * labeled alternative in {@link ApexParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitSubExpression(ApexParser.SubExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code instanceOfExpression}
 	 * labeled alternative in {@link ApexParser#expression}.
 	 * @param ctx the parse tree
@@ -991,18 +1003,6 @@ public interface ApexParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitInstanceOfExpression(ApexParser.InstanceOfExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code subPrimary}
-	 * labeled alternative in {@link ApexParser#primary}.
-	 * @param ctx the parse tree
-	 */
-	void enterSubPrimary(ApexParser.SubPrimaryContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code subPrimary}
-	 * labeled alternative in {@link ApexParser#primary}.
-	 * @param ctx the parse tree
-	 */
-	void exitSubPrimary(ApexParser.SubPrimaryContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code thisPrimary}
 	 * labeled alternative in {@link ApexParser#primary}.

@@ -668,14 +668,14 @@ public class ApexParserBaseVisitor<T> extends AbstractParseTreeVisitor<T> implem
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitInstanceOfExpression(ApexParser.InstanceOfExpressionContext ctx) { return visitChildren(ctx); }
+	@Override public T visitSubExpression(ApexParser.SubExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSubPrimary(ApexParser.SubPrimaryContext ctx) { return visitChildren(ctx); }
+	@Override public T visitInstanceOfExpression(ApexParser.InstanceOfExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
