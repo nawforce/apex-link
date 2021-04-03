@@ -65,6 +65,9 @@ object CustomFieldDeclaration {
                  sObjectNature: SObjectNature): Seq[CustomFieldDeclaration] = {
 
     val rawName: String = elem.getSingleChildAsString("fullName").trim
+    if (!rawName.endsWith("__c"))
+      return Seq()
+
     val name = Name(pkg.namespace.map(ns => s"${ns.value}__$rawName").getOrElse(rawName))
     val rawTypeOption = elem.getOptionalSingleChildAsString("type").map(_.trim)
 
