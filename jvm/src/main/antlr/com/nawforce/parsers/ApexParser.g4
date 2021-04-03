@@ -549,7 +549,8 @@ subQuery
         FROM fromNameList
         whereClause?
         orderByClause?
-        limitClause?;
+        limitClause?
+        forClauses;
 
 selectList
     : selectEntry (COMMA selectEntry)*;
