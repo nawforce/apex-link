@@ -44,7 +44,7 @@ public class DeployResult {
 	public DeployDetails details;
 	public Boolean done;
 	public String errorMessage;
-	public String errorStatusCode;
+	public StatusCode errorStatusCode;
 	public Id id;
 	public Boolean ignoreWarnings;
 	public Datetime lastModifiedDate;

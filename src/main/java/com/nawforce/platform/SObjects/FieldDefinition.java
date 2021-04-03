@@ -49,6 +49,7 @@ public class FieldDefinition extends SObject {
 	public String DeveloperName;
 	public String DurableId;
 	public String EntityDefinitionId;
+	public EntityDefinition EntityDefinition;
 	public String ExtraTypeInfo;
 	public Id Id;
 	public Boolean IsAiPredictionField;

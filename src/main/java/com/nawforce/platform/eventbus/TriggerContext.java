@@ -36,4 +36,7 @@ public class TriggerContext {
 	public Integer retries;
 
 	public static TriggerContext currentContext() {throw new java.lang.UnsupportedOperationException();}
+
+	public String getResumeCheckpoint() {throw new java.lang.UnsupportedOperationException();}
+	public void setResumeCheckpoint(String resumeReplayId) {throw new java.lang.UnsupportedOperationException();}
 }
