@@ -29,6 +29,7 @@ package com.nawforce.platform.cache;
 
 import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.Double;
+import com.nawforce.platform.System.Exception;
 import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.Long;
 import com.nawforce.platform.System.String;
@@ -62,4 +63,12 @@ public class Org {
 	public static List<Boolean> remove(List<String> keys) {throw new java.lang.UnsupportedOperationException();}
 	public static Boolean remove(String key) {throw new java.lang.UnsupportedOperationException();}
 	public static Boolean remove(Type cacheBuilder, String key) {throw new java.lang.UnsupportedOperationException();}
+
+  public static class OrgCacheException extends Exception {
+    public OrgCacheException() {throw new java.lang.UnsupportedOperationException();}
+    public OrgCacheException(Exception param1) {throw new java.lang.UnsupportedOperationException();}
+    public OrgCacheException(String msg) {throw new java.lang.UnsupportedOperationException();}
+    public OrgCacheException(String param1, Exception param2) {throw new java.lang.UnsupportedOperationException();}
+  }
+
 }
