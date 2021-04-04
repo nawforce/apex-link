@@ -51,7 +51,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
                                              "Internal.Trigger$" -> "Internal.Trigger$<T>")
 
   test("Right number of types (should exclude inners)") {
-    assert(PlatformTypeDeclaration.classNames.size == 1621)
+    assert(PlatformTypeDeclaration.classNames.size == 1640)
   }
 
   test("SObject type is visible") {
@@ -112,7 +112,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
     if (typeDeclaration.outer.isEmpty) {
       assert(typeDeclaration.modifiers.contains(PUBLIC_MODIFIER))
       if (typeDeclaration.nature == CLASS_NATURE)
-        assert(typeDeclaration.modifiers.contains(VIRTUAL_MODIFIER))
+        assert(typeDeclaration.modifiers.contains(VIRTUAL_MODIFIER) || typeDeclaration.modifiers.contains(ABSTRACT_MODIFIER))
     }
 
     // Nested classes

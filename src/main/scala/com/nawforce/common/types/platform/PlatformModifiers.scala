@@ -34,8 +34,11 @@ import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATU
 
 object PlatformModifiers {
   private val modPublic: Array[Modifier] = Array(PUBLIC_MODIFIER)
+  private val modPublicAbs: Array[Modifier] = Array(PUBLIC_MODIFIER, ABSTRACT_MODIFIER)
   private val modPublicVirtual: Array[Modifier] = Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER)
   private val modPublicStatic: Array[Modifier] = Array(PUBLIC_MODIFIER, STATIC_MODIFIER)
+  private val modPublicStaticAbs: Array[Modifier] =
+    Array(PUBLIC_MODIFIER, STATIC_MODIFIER, ABSTRACT_MODIFIER)
   private val modPublicVirtualStatic: Array[Modifier] =
     Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER, STATIC_MODIFIER)
   private val modPublicFinal: Array[Modifier] = Array(PUBLIC_MODIFIER, FINAL_MODIFIER)
@@ -44,7 +47,6 @@ object PlatformModifiers {
 
   def typeModifiers(javaBits: Int, nature: Nature): Array[Modifier] = {
     assert(JavaModifier.isPublic(javaBits))
-    if (nature == CLASS_NATURE) assert(!JavaModifier.isAbstract(javaBits))
     if (nature != ENUM_NATURE) assert(!JavaModifier.isFinal(javaBits))
     assert(!JavaModifier.isTransient(javaBits))
     assert(!JavaModifier.isVolatile(javaBits))
@@ -52,15 +54,22 @@ object PlatformModifiers {
     assert(!JavaModifier.isNative(javaBits))
     assert(!JavaModifier.isStrict(javaBits))
 
-    getTypeModifier(nature == CLASS_NATURE, JavaModifier.isStatic(javaBits))
+    getTypeModifier(nature == CLASS_NATURE,
+                    JavaModifier.isStatic(javaBits),
+                    JavaModifier.isAbstract(javaBits))
   }
 
-  private def getTypeModifier(isVirtual: Boolean, isStatic: Boolean): Array[Modifier] = {
-    (isVirtual, isStatic) match {
-      case (false, false) => modPublic
-      case (false, true)  => modPublicStatic
-      case (true, false)  => modPublicVirtual
-      case (true, true)   => modPublicVirtualStatic
+  private def getTypeModifier(isClass: Boolean,
+                              isStatic: Boolean,
+                              isAbstract: Boolean): Array[Modifier] = {
+    (isClass, isStatic, isAbstract) match {
+      case (true, false, false)  => modPublicVirtual
+      case (true, true, false)   => modPublicVirtualStatic
+      case (true, false, true)   => modPublicAbs
+      case (true, true, true)    => modPublicStaticAbs
+
+      case (false, false, _) => modPublic
+      case (false, true, _)  => modPublicStatic
     }
   }
 

@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
+ Copyright (c) 2021 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -33,11 +33,8 @@ import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 
 @SuppressWarnings("unused")
-public class FeedBody extends AbstractMessageBody {
-	public FeedBody() {throw new java.lang.UnsupportedOperationException();}
-
-	public Boolean equals$(Object obj) {throw new java.lang.UnsupportedOperationException();}
-	public Double getBuildVersion() {throw new java.lang.UnsupportedOperationException();}
-	public Integer hashCode$() {throw new java.lang.UnsupportedOperationException();}
-	public String toString$() {throw new java.lang.UnsupportedOperationException();}
+public abstract class AbstractMessageBody {
+  public Boolean isRichText;
+  public MessageSegment[] messageSegments;
+  public String text;
 }
