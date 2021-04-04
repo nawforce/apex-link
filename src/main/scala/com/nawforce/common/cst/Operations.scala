@@ -162,6 +162,10 @@ abstract class Operation extends AssignableSupport {
     typeName == TypeNames.Datetime
   }
 
+  def isTimeKind(typeName: TypeName): Boolean = {
+    typeName == TypeNames.Time
+  }
+
   def isNonReferenceKind(typeName: TypeName): Boolean = {
     Operation.nonReferenceTypes.contains(typeName)
   }
@@ -328,6 +332,11 @@ case object CompareOperation extends Operation {
           s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
     } else if (isDateKind(leftContext.typeName)) {
       if (!isDateKind(rightContext.typeName)) {
+        return Left(
+          s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
+      }
+    } else if (isTimeKind(leftContext.typeName)) {
+      if (!isTimeKind(rightContext.typeName)) {
         return Left(
           s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
       }
