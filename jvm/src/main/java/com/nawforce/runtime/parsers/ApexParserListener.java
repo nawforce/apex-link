@@ -1308,6 +1308,16 @@ public interface ApexParserListener extends ParseTreeListener {
 	 */
 	void exitSoqlFunction(ApexParser.SoqlFunctionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ApexParser#dateFieldName}.
+	 * @param ctx the parse tree
+	 */
+	void enterDateFieldName(ApexParser.DateFieldNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#dateFieldName}.
+	 * @param ctx the parse tree
+	 */
+	void exitDateFieldName(ApexParser.DateFieldNameContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ApexParser#typeOf}.
 	 * @param ctx the parse tree
 	 */

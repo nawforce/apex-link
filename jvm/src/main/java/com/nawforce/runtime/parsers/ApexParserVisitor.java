@@ -785,6 +785,12 @@ public interface ApexParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSoqlFunction(ApexParser.SoqlFunctionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ApexParser#dateFieldName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDateFieldName(ApexParser.DateFieldNameContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ApexParser#typeOf}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

@@ -1504,6 +1504,18 @@ public class ApexParserBaseListener implements ApexParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDateFieldName(ApexParser.DateFieldNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDateFieldName(ApexParser.DateFieldNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterTypeOf(ApexParser.TypeOfContext ctx) { }
 	/**
 	 * {@inheritDoc}
