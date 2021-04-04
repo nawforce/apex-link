@@ -192,4 +192,19 @@ class UnusedTest extends AnyFunSuite with BeforeAndAfter {
       }
     }
   }
+
+  test("Method referenced from external function call ") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy {public static void foo() {}}",
+      "Other.cls" -> "public class Other {public void bar() {ext.func(Dummy.foo());}}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(Some(Name("ext")), Seq(), Seq())
+        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
+        assert(
+          pkg.reportUnused().getMessages(root.join("Dummy.cls").toString).isEmpty)
+    }
+  }
+
 }

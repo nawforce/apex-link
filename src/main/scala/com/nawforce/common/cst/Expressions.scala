@@ -129,6 +129,10 @@ final case class DotExpression(expression: Expression,
       else
         verifyWithMethod(inter, input, context)
     } else {
+      if (target.isRight) {
+        // When we can't find method we should verify args for dependency side-effects
+        target.getOrElse(null).arguments.map(_.verify(input, context))
+      }
       ExprContext.empty
     }
   }
