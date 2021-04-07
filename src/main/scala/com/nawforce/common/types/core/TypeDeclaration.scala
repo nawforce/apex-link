@@ -110,7 +110,10 @@ trait FieldDeclaration extends DependencyHolder {
     } else if (CustomFieldDeclaration.isSObjectPrimitive(typeName)) {
       // Primitives (including other Id types)
       if (shareTypeName.nonEmpty && name == Names.RowCause)
-        CustomFieldDeclaration(name, TypeNames.sObjectFieldRowCause$(shareTypeName.get), None, asStatic = true)
+        CustomFieldDeclaration(name,
+                               TypeNames.sObjectFieldRowCause$(shareTypeName.get),
+                               None,
+                               asStatic = true)
       else
         CustomFieldDeclaration(name, TypeNames.SObjectField, None, asStatic = true)
     } else {
@@ -205,13 +208,19 @@ trait MethodDeclaration extends DependencyHolder {
           z =>
             (z._1.typeName == z._2) ||
               (z._1.typeName.isStringOrId && z._2.isStringOrId) ||
-              (z._2.isSObjectList && z._1.typeName.isList &&
-                (TypeResolver(z._1.typeName.params.head, None, pkg, excludeSObjects = false) match {
-                  case Right(td) => td.isSObject
-                  case Left(_)   => false
-                })))
+              (z._2.isSObjectList && z._1.typeName.isList && isSObject(
+                pkg,
+                z._1.typeName.params.head)) ||
+              (z._1.typeName == TypeNames.SObject && isSObject(pkg, z._2)))
     } else {
       false
+    }
+  }
+
+  private def isSObject(pkg: Option[PackageImpl], typeName: TypeName): Boolean = {
+    TypeResolver(typeName, None, pkg, excludeSObjects = false) match {
+      case Right(td) => td.isSObject
+      case Left(_)   => false
     }
   }
 
