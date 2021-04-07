@@ -27,6 +27,7 @@
 */
 package com.nawforce.platform.Process;
 
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.List;
 import com.nawforce.platform.System.String;
 
@@ -45,6 +46,25 @@ public class PluginDescribeResult {
 		LONG,
 		STRING
 	}
+
+  public static class InputParameter {
+    public String description;
+    public String name;
+    public PluginDescribeResult.ParameterType parameterType;
+    public Boolean required;
+
+    public InputParameter(String name, PluginDescribeResult.ParameterType parameterType, Boolean required) {throw new java.lang.UnsupportedOperationException();}
+    public InputParameter(String name, String description, PluginDescribeResult.ParameterType parameterType, Boolean required) {throw new java.lang.UnsupportedOperationException();}
+  }
+
+  public static class OutputParameter {
+    public String description;
+    public String name;
+    public PluginDescribeResult.ParameterType parameterType;
+
+    public OutputParameter(String name, PluginDescribeResult.ParameterType parameterType) {throw new java.lang.UnsupportedOperationException();}
+    public OutputParameter(String name, String description, PluginDescribeResult.ParameterType parameterType) {throw new java.lang.UnsupportedOperationException();}
+  }
 
 	public String description;
 	public List<InputParameter> inputParameters;

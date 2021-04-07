@@ -378,8 +378,11 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
     }
   }
 
-  def findLocalType(typeName: TypeName): Option[TypeDeclaration] = {
-    packageDeclaration.flatMap(pkg => pkg.getLocalTypeFor(typeName, this))
+  def findLocalType(localName: TypeName): Option[TypeDeclaration] = {
+    if (packageDeclaration.isEmpty)
+      PlatformTypes.get(localName.withTail(typeName), Some(this)).toOption
+    else
+      packageDeclaration.get.getLocalTypeFor(localName, this)
   }
 
   def validateFieldConstructorArguments(input: ExprContext,
