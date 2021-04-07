@@ -34,9 +34,18 @@ import com.nawforce.common.modifiers._
 import com.nawforce.common.names.{DotName, Names, TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
+import com.nawforce.common.types.core.{
+  BasicTypeDeclaration,
+  FieldDeclaration,
+  MethodDeclaration,
+  TypeDeclaration
+}
 import com.nawforce.common.types.platform.PlatformTypes
-import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration, CustomParameterDeclaration}
+import com.nawforce.common.types.synthetic.{
+  CustomFieldDeclaration,
+  CustomMethodDeclaration,
+  CustomParameterDeclaration
+}
 
 import scala.collection.mutable
 
@@ -47,8 +56,7 @@ final case class SObjectDeclaration(_paths: Array[PathLike],
                                     fieldSets: Array[Name],
                                     sharingReason: Array[Name],
                                     baseFields: Array[FieldDeclaration],
-                                    override val isComplete: Boolean
-                                   )
+                                    override val isComplete: Boolean)
     extends BasicTypeDeclaration(_paths, pkg, _typeName) {
 
   override val modifiers: Array[Modifier] = SObjectDeclaration.globalModifiers
@@ -58,7 +66,7 @@ final case class SObjectDeclaration(_paths: Array[PathLike],
   }
 
   override lazy val superClassDeclaration: Option[TypeDeclaration] = {
-      pkg.getTypeFor(superClass.get, this)
+    pkg.getTypeFor(superClass.get, this)
   }
 
   override val fields: Array[FieldDeclaration] = {
@@ -218,6 +226,8 @@ object SObjectDeclaration {
     val fields =
       if (sobjectDetails.sobjectNature == CustomMetadataNature)
         customMetadataFields(sobjectDetails)
+      else if (sobjectDetails.sobjectNature == BigObjectNature)
+        bigObjectFields(sobjectDetails)
       else if (sobjectDetails.sobjectNature == PlatformEventNature)
         platformEventFields(sobjectDetails)
       else
@@ -225,7 +235,9 @@ object SObjectDeclaration {
 
     val supportObjects: Seq[SObjectDeclaration] =
       if (sobjectDetails.isIntroducing(pkg) &&
-          sobjectDetails.sobjectNature != CustomMetadataNature && sobjectDetails.sobjectNature != PlatformEventNature) {
+          sobjectDetails.sobjectNature != CustomMetadataNature &&
+          sobjectDetails.sobjectNature != BigObjectNature &&
+          sobjectDetails.sobjectNature != PlatformEventNature) {
         Seq(
             // TODO: Check fields & when should be available
             createShare(pkg, typeName, sobjectDetails.sharingReasons.toArray),
@@ -300,6 +312,10 @@ object SObjectDeclaration {
                                  asStatic = true)) ++
       standardCustomMetadataFields ++
       sobjectDetails.fields
+  }
+
+  private def bigObjectFields(sobjectDetails: SObjectDetails): Array[FieldDeclaration] = {
+      sobjectDetails.fields.toArray
   }
 
   private lazy val standardPlatformEventFields: Array[FieldDeclaration] = {

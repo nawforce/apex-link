@@ -43,6 +43,7 @@ case object ListCustomSettingNature extends IntroducingNature("List")
 case object HierarchyCustomSettingsNature extends IntroducingNature("Hierarchy")
 case object CustomObjectNature extends IntroducingNature("CustomObject")
 case object CustomMetadataNature extends SObjectNature("CustomMetadata")
+case object BigObjectNature extends SObjectNature("BigObject")
 case object PlatformObjectNature extends SObjectNature("PlatformObject")
 case object PlatformEventNature extends SObjectNature("PlatformEvent")
 
@@ -56,7 +57,7 @@ final case class SObjectDetails(sobjectNature: SObjectNature,
     if (sobjectNature.isInstanceOf[IntroducingNature]) {
       EncodedName(typeName.name).namespace == pkg.namespace
     } else {
-      sobjectNature == CustomMetadataNature || sobjectNature == PlatformEventNature
+      sobjectNature == CustomMetadataNature || sobjectNature == BigObjectNature || sobjectNature == PlatformEventNature
     }
   }
 
@@ -103,6 +104,7 @@ object SObjectDetails {
 
       val sobjectNature: SObjectNature = dt match {
         case Some(_: CustomMetadataDocument) => CustomMetadataNature
+        case Some(_: BigObjectDocument)      => BigObjectNature
         case Some(_: PlatformEventDocument)  => PlatformEventNature
         case Some(x: SObjectDocument) if x.name.value.endsWith("__c") =>
           rootElement.getOptionalSingleChildAsString("customSettingsType") match {

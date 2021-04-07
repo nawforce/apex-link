@@ -183,7 +183,7 @@ final case class ClassCreatorRest(arguments: Array[Expression]) extends CreatorR
 }
 
 object ClassCreatorRest {
-  private val fieldConstructedExt = Set(Name("c"), Name("e"), Name("mdt"))
+  private val fieldConstructedExt = Set(Name("c"), Name("e"), Name("b"), Name("mdt"))
 
   def construct(from: ClassCreatorRestContext): ClassCreatorRest = {
     ClassCreatorRest(Arguments.construct(from.arguments())).withContext(from)

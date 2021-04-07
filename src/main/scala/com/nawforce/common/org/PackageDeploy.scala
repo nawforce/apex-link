@@ -91,6 +91,8 @@ trait PackageDeploy {
           SObjectDeclaration.create(this, docType.path)
         case docType: CustomMetadataDocument =>
           SObjectDeclaration.create(this, docType.path)
+        case docType: BigObjectDocument =>
+          SObjectDeclaration.create(this, docType.path)
         case _ => assert(false); Seq()
       }
       tds.foreach(upsertMetadata(_))
