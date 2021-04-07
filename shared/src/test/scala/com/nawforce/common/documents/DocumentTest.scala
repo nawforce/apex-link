@@ -98,6 +98,24 @@ class DocumentTest extends AnyFunSuite {
     }
   }
 
+  test("big object file") {
+    MetadataDocument(root.join("Foo__b.object")) match {
+      case Some(BigObjectDocument(path, Name("Foo__b")))
+        if path == root.join("Foo__b.object") =>
+        ()
+      case x => assert(false, x)
+    }
+  }
+
+  test("big object file (sfdx)") {
+    MetadataDocument(root.join("Foo__b.object-meta.xml")) match {
+      case Some(BigObjectDocument(path, Name("Foo__b")))
+        if path == root.join("Foo__b.object-meta.xml") =>
+        ()
+      case x => assert(false, x)
+    }
+  }
+
   test("platform event file") {
     MetadataDocument(root.join("Foo__e.object")) match {
       case Some(PlatformEventDocument(path, Name("Foo__e")))

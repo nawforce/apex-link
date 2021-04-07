@@ -148,11 +148,15 @@ class Workspace(config: WorkspaceConfig) {
   }
 
   private def index(): Unit = {
-    LoggerOps.debugTime("Indexed Project") {
-      config.paths.reverse.filter(_.isDirectory).foreach(p => indexPath(p, config.forceIgnore))
-      createGhostSObjectFiles(Name("field"), config.forceIgnore)
-      createGhostSObjectFiles(Name("fieldSet"), config.forceIgnore)
-    }
+    config.paths.reverse
+      .filter(_.isDirectory)
+      .foreach(p => {
+        LoggerOps.debugTime(s"Indexed ${p.toString}") {
+          indexPath(p, config.forceIgnore)
+        }
+      })
+    createGhostSObjectFiles(Name("field"), config.forceIgnore)
+    createGhostSObjectFiles(Name("fieldSet"), config.forceIgnore)
   }
 
   private def indexPath(path: PathLike, forceIgnore: Option[ForceIgnore]): Unit = {

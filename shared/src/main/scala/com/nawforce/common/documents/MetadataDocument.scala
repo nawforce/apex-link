@@ -139,6 +139,15 @@ final case class CustomMetadataDocument(_path: PathLike, _name: Name)
   }
 }
 
+final case class BigObjectDocument(_path: PathLike, _name: Name)
+  extends SObjectLike(_path, _name) {
+  override val extension: Name = MetadataDocument.objectExt
+  override def typeName(namespace: Option[Name]): TypeName = {
+    val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
+    TypeName(Name(prefix + name + "__b"), Nil, Some(TypeNames.Schema))
+  }
+}
+
 final case class PlatformEventDocument(_path: PathLike, _name: Name)
     extends SObjectLike(_path, _name) {
   override val extension: Name = MetadataDocument.objectExt
@@ -193,6 +202,11 @@ object MetadataDocument {
         Some(CustomMetadataDocument(path, name))
       case Seq(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__mdt") =>
         Some(CustomMetadataDocument(path, name))
+
+      case Seq(name, Name("object")) if name.value.endsWith("__b") =>
+        Some(BigObjectDocument(path, name))
+      case Seq(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__b") =>
+        Some(BigObjectDocument(path, name))
 
       case Seq(name, Name("object")) if name.value.endsWith("__e") =>
         Some(PlatformEventDocument(path, name))
