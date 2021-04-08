@@ -200,8 +200,9 @@ trait MethodDeclaration extends DependencyHolder {
     hasErasedParameters(pkg, other.parameters.map(_.typeName))
   }
 
-  def hasErasedParameters(pkg: Option[PackageImpl], params: Array[TypeName]): Boolean = {
+  private def hasErasedParameters(pkg: Option[PackageImpl], params: Array[TypeName]): Boolean = {
     if (parameters.length == params.length) {
+      // Future: This is very messy, we need to know the general rules
       parameters
         .zip(params)
         .forall(
@@ -211,7 +212,9 @@ trait MethodDeclaration extends DependencyHolder {
               (z._2.isSObjectList && z._1.typeName.isList && isSObject(
                 pkg,
                 z._1.typeName.params.head)) ||
-              (z._1.typeName == TypeNames.SObject && isSObject(pkg, z._2)))
+              (z._1.typeName == TypeNames.SObject && isSObject(pkg, z._2)) ||
+              (z._1.typeName.isList && z._1.typeName.params.head == TypeNames.String &&
+                z._2.isList && z._2.params.head == TypeNames.IdType))
     } else {
       false
     }
