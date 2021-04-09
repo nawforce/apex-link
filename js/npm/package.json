@@ -1,6 +1,6 @@
 {
   "name": "pkgforce",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Salesforce Metadata Management Utility Library",
   "publisher": "KevinJones",
   "repository": "nawforce/pkgforce",
