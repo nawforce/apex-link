@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
+ Copyright (c) 2021 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -27,25 +27,17 @@
 */
 package com.nawforce.platform.Auth;
 
-import com.nawforce.platform.System.Integer;
+import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Map;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.dom.XmlNode;
 
 @SuppressWarnings("unused")
-public class JWT
-{
-    public Object clone() {throw new java.lang.UnsupportedOperationException();}
-    public Map<String, Object> getAdditionalClaims() {throw new java.lang.UnsupportedOperationException();}
-    public String getAud() {throw new java.lang.UnsupportedOperationException();}
-    public String getIss() {throw new java.lang.UnsupportedOperationException();}
-    public Integer getNbfClockSkew() {throw new java.lang.UnsupportedOperationException();}
-    public String getSub() {throw new java.lang.UnsupportedOperationException();}
-    public Integer getValidityLength() {throw new java.lang.UnsupportedOperationException();}
-    public void setAdditionalClaims(Map<String, Object> additionalClaims) {throw new java.lang.UnsupportedOperationException();}
-    public void setAud(String aud) {throw new java.lang.UnsupportedOperationException();}
-    public void setIss(String iss) {throw new java.lang.UnsupportedOperationException();}
-    public void setNbfClockSkew(Integer nbfClockSkew) {throw new java.lang.UnsupportedOperationException();}
-    public void setSub(String sub) {throw new java.lang.UnsupportedOperationException();}
-    public void setValidityLength(Integer validityLength) {throw new java.lang.UnsupportedOperationException();}
-    public String toJSONString() {throw new java.lang.UnsupportedOperationException();}
+public class ConnectedAppPlugin {
+  public Boolean authorize(Id userId, Id connectedAppId, Boolean isAdminApproved, InvocationContext context) {throw new java.lang.UnsupportedOperationException();}
+  public Map<String,String> customAttributes(Id userId, Id connectedAppId, Map<String,String> formulaDefinedAttributes) {throw new java.lang.UnsupportedOperationException();}
+  public Map<String,String> customAttributes(Id userId, Id connectedAppId, Map<String,String> formulaDefinedAttributes, InvocationContext context) {throw new java.lang.UnsupportedOperationException();}
+  public XmlNode modifySAMLResponse(Map<String,String> authSession, Id connectedAppId, XmlNode samlResponse) {throw new java.lang.UnsupportedOperationException();}
+  public void refresh(Id userId, Id connectedAppId, InvocationContext context) {throw new java.lang.UnsupportedOperationException();}
 }
