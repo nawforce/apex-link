@@ -366,10 +366,11 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
       td =>
         td.fields
           .filter(_.isStatic)
-          .foreach(f => {
-            if (!fieldsByName.contains(f.name))
-              fieldsByName.put(f.name, f)
-          }))
+          .foreach(f => fieldsByName.getOrElseUpdate(f.name, f)))
+    superClassDeclaration.foreach(
+      td =>
+        td.fieldsByName
+          .foreach(f => fieldsByName.getOrElseUpdate(f._1, f._2)))
     fieldsByName
   }
 

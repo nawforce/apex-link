@@ -32,7 +32,12 @@ import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
-import com.nawforce.common.modifiers.{GLOBAL_MODIFIER, ISTEST_ANNOTATION, PRIVATE_MODIFIER, TEST_METHOD_MODIFIER, TEST_SETUP_ANNOTATION}
+import com.nawforce.common.modifiers.{
+  GLOBAL_MODIFIER,
+  ISTEST_ANNOTATION,
+  TEST_METHOD_MODIFIER,
+  TEST_SETUP_ANNOTATION
+}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
@@ -157,7 +162,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
   }
 
   override lazy val fields: Array[FieldDeclaration] = {
-    val uniqueLocalFields: Iterable[FieldDeclaration] = localFields
+    localFields
       .groupBy(f => f.name)
       .collect {
         case (_, single) if single.length == 1 => single.head
@@ -169,12 +174,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
           }
           duplicates.head
       }
-
-    val allFields: Array[FieldDeclaration] =
-      superClassDeclaration
-        .map(_.fields.filterNot(f => f.isStatic && f.isPrivate))
-        .getOrElse(FieldDeclaration.emptyFieldDeclarations) ++ uniqueLocalFields
-    allFields.map(f => (f.name, f)).toMap.values.toArray
+      .toArray
   }
 
   lazy val staticMethods: Array[MethodDeclaration] = {
