@@ -32,7 +32,9 @@ import com.nawforce.runtime.parsers.ApexParser.{IdContext, ModifierContext, Prop
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 
-sealed abstract class Modifier(final val name: String, val order: Integer = 0, val methodOrder: Integer = 0) {
+sealed abstract class Modifier(final val name: String,
+                               val order: Integer = 0,
+                               val methodOrder: Integer = 0) {
   override def toString: String = name
 }
 
@@ -191,6 +193,9 @@ object ApexModifiers {
 
   private val legalLocalVarsModifiersAndAnnotations: Set[Modifier] =
     Set(FINAL_MODIFIER, TRANSIENT_MODIFIER)
+
+  private val legalTriggerLocalVarsModifiersAndAnnotations: Set[Modifier] =
+    Set(PUBLIC_MODIFIER, PRIVATE_MODIFIER, STATIC_MODIFIER, FINAL_MODIFIER, TRANSIENT_MODIFIER, TEST_VISIBLE_ANNOTATION)
 
   /* Convert parser contexts to Modifiers */
   def asModifiers(modifierContexts: Seq[ModifierContext],
@@ -473,10 +478,10 @@ object ApexModifiers {
     val logger = new CodeParserLogger(parser)
     val mods = deduplicateVisibility(asModifiers(modifierContexts,
                                                  legalCatchModifiersAndAnnotations,
-                                                 "local variables",
+                                                 "catch variables",
                                                  logger,
                                                  context),
-                                     "local variables",
+                                     "catch variables",
                                      logger,
                                      context)
 
@@ -485,17 +490,20 @@ object ApexModifiers {
 
   def localVariableModifiers(parser: CodeParser,
                              modifierContexts: Seq[ModifierContext],
-                             context: ParserRuleContext): ModifierResults = {
+                             context: ParserRuleContext,
+                             isTrigger: Boolean): ModifierResults = {
 
     val logger = new CodeParserLogger(parser)
-    val mods = deduplicateVisibility(asModifiers(modifierContexts,
-                                                 legalLocalVarsModifiersAndAnnotations,
-                                                 "parameters",
-                                                 logger,
-                                                 context),
-                                     "parameters",
-                                     logger,
-                                     context)
+    val mods = deduplicateVisibility(
+      asModifiers(modifierContexts,
+                  if (isTrigger) legalTriggerLocalVarsModifiersAndAnnotations
+                  else legalLocalVarsModifiersAndAnnotations,
+                  "local variables",
+                  logger,
+                  context),
+      "local variables",
+      logger,
+      context)
 
     ModifierResults(mods.toArray, logger.issues).intern
   }
