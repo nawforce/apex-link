@@ -34,12 +34,16 @@ import java.util
 import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
-import com.nawforce.common.modifiers.{Modifier, PUBLIC_MODIFIER, VIRTUAL_MODIFIER}
+import com.nawforce.common.modifiers.{Modifier, PUBLIC_MODIFIER}
 import com.nawforce.common.names.{DotName, Names, TypeNames, _}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
-import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration, CustomParameterDeclaration}
+import com.nawforce.common.types.synthetic.{
+  CustomFieldDeclaration,
+  CustomMethodDeclaration,
+  CustomParameterDeclaration
+}
 
 import scala.collection.immutable.{ArraySeq, HashMap}
 import scala.collection.mutable
@@ -165,7 +169,7 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
 
   override lazy val methods: Array[MethodDeclaration] = {
     nature match {
-      case ENUM_NATURE => PlatformTypeDeclaration.enumMethods
+      case ENUM_NATURE => PlatformTypeDeclaration.enumMethods(typeName)
       case _           => getMethods.asInstanceOf[Array[MethodDeclaration]]
     }
   }
@@ -420,12 +424,12 @@ object PlatformTypeDeclaration {
   }
 
   /* Standard methods to be exposed on enums */
-  private lazy val enumMethods: Array[MethodDeclaration] =
+  private def enumMethods(typeName: TypeName): Array[MethodDeclaration] =
     Array(CustomMethodDeclaration(None, Name("name"), TypeNames.String, Array()),
           CustomMethodDeclaration(None, Name("ordinal"), TypeNames.Integer, Array()),
           CustomMethodDeclaration(None,
                                   Name("values"),
-                                  TypeNames.listOf(TypeNames.String),
+                                  TypeNames.listOf(typeName),
                                   Array(),
                                   asStatic = true),
           CustomMethodDeclaration(
