@@ -155,12 +155,14 @@ final case class IdPrimary(id: Id) extends Primary {
       })
   }
 
-  private def isAccessible(td: TypeDeclaration, field: FieldDeclaration, staticContext: Option[Boolean]): Boolean = {
+  private def isAccessible(td: TypeDeclaration,
+                           field: FieldDeclaration,
+                           staticContext: Option[Boolean]): Boolean = {
     // From static context, we can only use locally defined static fields, but can only test this with Apex
     // defined fields & types.
     (staticContext.contains(true), td, field) match {
       case (true, ad: ApexClassDeclaration, af: ApexFieldLike) => ad.localFields.contains(af)
-      case _ => true
+      case _                                                   => true
     }
   }
 }

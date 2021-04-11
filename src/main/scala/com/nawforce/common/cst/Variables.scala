@@ -115,10 +115,14 @@ final case class LocalVariableDeclaration(modifiers: ModifierResults,
 
 object LocalVariableDeclaration {
   def construct(parser: CodeParser,
-                from: LocalVariableDeclarationContext): LocalVariableDeclaration = {
+                from: LocalVariableDeclarationContext,
+                isTrigger: Boolean): LocalVariableDeclaration = {
     val typeName = TypeReference.construct(from.typeRef())
     LocalVariableDeclaration(
-      ApexModifiers.localVariableModifiers(parser, CodeParser.toScala(from.modifier()), from),
+      ApexModifiers.localVariableModifiers(parser,
+                                           CodeParser.toScala(from.modifier()),
+                                           from,
+                                           isTrigger),
       typeName,
       VariableDeclarators.construct(typeName, from.variableDeclarators()))
       .withContext(from)

@@ -31,7 +31,7 @@ import com.nawforce.common.api.{Name, PathLocation, TypeName}
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.finding.RelativeTypeName
 import com.nawforce.common.memory.SkinnySet
-import com.nawforce.common.modifiers._
+import com.nawforce.common.modifiers.{MethodModifiers, _}
 import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.apex.{
@@ -43,7 +43,6 @@ import com.nawforce.common.types.apex.{
 import com.nawforce.common.types.core._
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
-import com.nawforce.common.modifiers.MethodModifiers
 
 import scala.collection.mutable
 
@@ -102,7 +101,8 @@ object ClassBodyDeclaration {
                 parser,
                 pkg,
                 outerTypeId,
-                MethodModifiers.classMethodModifiers(parser, modifiers, x.id(), methodOwnerNature, isOuter),
+                MethodModifiers
+                  .classMethodModifiers(parser, modifiers, x.id(), methodOwnerNature, isOuter),
                 x)))
         .orElse(
           CodeParser

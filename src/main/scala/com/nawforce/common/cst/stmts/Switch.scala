@@ -33,7 +33,12 @@ import com.nawforce.common.cst._
 import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.types.core.{ENUM_NATURE, TypeDeclaration}
-import com.nawforce.runtime.parsers.ApexParser.{SwitchStatementContext, WhenControlContext, WhenLiteralContext, WhenValueContext}
+import com.nawforce.runtime.parsers.ApexParser.{
+  SwitchStatementContext,
+  WhenControlContext,
+  WhenLiteralContext,
+  WhenValueContext
+}
 import com.nawforce.runtime.parsers.CodeParser
 
 sealed abstract class WhenLiteral extends CST
@@ -187,7 +192,7 @@ final case class WhenControl(whenValue: WhenValue, block: Block) extends CST {
 object WhenControl {
   def construct(parser: CodeParser, whenControl: WhenControlContext): WhenControl = {
     WhenControl(CodeParser.toScala(whenControl.whenValue()).map(v => WhenValue.construct(v)).get,
-                Block.construct(parser, whenControl.block()))
+                Block.construct(parser, whenControl.block(), isTrigger = false))
   }
 }
 

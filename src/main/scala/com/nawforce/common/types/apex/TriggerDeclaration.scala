@@ -191,7 +191,7 @@ object TriggerDeclaration {
                              ids(1),
                              constructTypeName(pkg.namespace, ids.head.name),
                              cases,
-                             Block.constructLazy(parser, trigger.block()))
+                             Block.constructLazy(parser, trigger.block(), isTrigger = true))
     }
   }
 

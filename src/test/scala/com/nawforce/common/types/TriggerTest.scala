@@ -110,4 +110,14 @@ class TriggerTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
     }
   }
+
+  test("Static var in trigger") {
+    FileSystemHelper.run(Map("Dummy.trigger" -> "trigger Dummy on Account (before insert) {public static String a='';}")) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        assert(!org.issues.hasMessages)
+    }
+  }
+
 }
