@@ -212,7 +212,7 @@ class PackageImpl(val org: OrgImpl, val config: WorkspaceConfig, bases: Seq[Pack
       if (td.nonEmpty)
         return td.get
 
-      if (namespace.nonEmpty && typeName.outerName != namespace.get) {
+      if (namespace.nonEmpty) {
         td = getPackageType(typeName.withTail(TypeName(namespace.get))).map(Right(_))
         if (td.nonEmpty)
           return td.get
