@@ -64,4 +64,5 @@ public class System {
 	public static void setPassword(Id userId, String password) {throw new java.lang.UnsupportedOperationException();}
 	public static List<Id> submit(List<Id> ids, String commments, String nextApprover) {throw new java.lang.UnsupportedOperationException();}
 	public static Date today() {throw new java.lang.UnsupportedOperationException();}
+	public static void attachFinalizer(Finalizer finalizer) {throw new java.lang.UnsupportedOperationException();}
 }
