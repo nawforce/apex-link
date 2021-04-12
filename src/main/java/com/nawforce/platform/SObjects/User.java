@@ -84,6 +84,7 @@ public class User extends SObject {
 	public Individual Individual;
 	public Boolean IsActive;
 	public Boolean IsExtIndicatorVisible;
+	public Boolean IsPortalEnabled;           // TODO: Only if communities?
 	public Boolean IsProfilePhotoActive;
 	public Integer JigsawImportLimitOverride;
 	public String LanguageLocaleKey;
