@@ -259,7 +259,8 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends Creator
 
     val keyType = context.getTypeAndAddDependency(enclosedTypes.get._1, context.thisType)
     if (keyType.isLeft) {
-      OrgImpl.log(keyType.swap.getOrElse(throw new NoSuchElementException).asIssue(location))
+      if (!context.pkg.isGhostedType(enclosedTypes.get._1))
+        OrgImpl.log(keyType.swap.getOrElse(throw new NoSuchElementException).asIssue(location))
       return ExprContext.empty
     }
 
