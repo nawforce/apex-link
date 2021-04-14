@@ -134,7 +134,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(
         org.issues.getMessages("/Dummy.cls") ==
-          "Missing: line 1 at 33-41: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
+          "Missing: line 1 at 33-41: Unknown field 'Baz__c' on SObject 'Schema.Account'\n")
     }
   }
 
@@ -160,7 +160,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
       assert(
         org.issues.getMessages("/pkg2/Dummy.cls") ==
-          "Missing: line 1 at 33-41: Unknown field or type 'Bar__c' on 'Schema.Account'\n")
+          "Missing: line 1 at 33-41: Unknown field 'Bar__c' on SObject 'Schema.Account'\n")
     }
   }
 
@@ -278,7 +278,7 @@ class StandardObjectTest extends AnyFunSuite with BeforeAndAfter {
       org.newMDAPIPackageInternal(None, Seq(root), Seq())
       assert(
         org.issues.getMessages("/Dummy.cls") ==
-          "Missing: line 1 at 39-53: Unknown field or type 'Baz__c' on 'Schema.Account'\n")
+          "Missing: line 1 at 39-53: Unknown field 'Baz__c' on SObject 'Schema.Account'\n")
     }
   }
 

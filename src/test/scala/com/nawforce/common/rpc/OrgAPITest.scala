@@ -37,8 +37,10 @@ class OrgAPITest extends AsyncFunSuite {
 
   test("Identifier not empty") {
     val orgAPI = OrgAPI(quiet = true)
-    orgAPI.identifier() map { result =>
-      OrgAPI(quiet = true).reset()
+    for {
+      result <- orgAPI.identifier()
+      _ <- OrgAPI(quiet = true).reset()
+    } yield {
       assert(result.nonEmpty)
     }
   }
@@ -46,8 +48,10 @@ class OrgAPITest extends AsyncFunSuite {
   test("Add package not bad directory") {
     val workspace = PathFactory("silly")
     val orgAPI = OrgAPI(quiet = true)
-    orgAPI.addPackage("silly") map { result =>
-      OrgAPI(quiet = true).reset()
+    for {
+      result <- orgAPI.addPackage("silly")
+      _ <- OrgAPI(quiet = true).reset()
+    } yield {
       assert(result.error.exists(_.message == s"Workspace '$workspace' is not a directory"))
     }
   }
@@ -55,17 +59,20 @@ class OrgAPITest extends AsyncFunSuite {
   test("Add package not sfdx directory") {
     val workspace = PathFactory("")
     val orgAPI = OrgAPI(quiet = true)
-    orgAPI.addPackage("") map { result =>
-      OrgAPI(quiet = true).reset()
-      assert(
-        result.error.exists(_.message == s"Missing project file at $workspace/sfdx-project.json"))
+    for {
+      result <- orgAPI.addPackage("")
+      _ <- OrgAPI(quiet = true).reset()
+    } yield {
+        assert(result.error.exists(_.message == s"Missing project file at $workspace/sfdx-project.json"))
     }
   }
 
   test("Add package sfdx directory (relative)") {
     val orgAPI = OrgAPI(quiet = true)
-    orgAPI.addPackage("samples/synthetic/sfdx-test") map { result =>
-      OrgAPI(quiet = true).reset()
+    for {
+      result <- orgAPI.addPackage("samples/synthetic/sfdx-test")
+      _ <- OrgAPI(quiet = true).reset()
+    } yield {
       assert(result.error.isEmpty && result.namespaces.sameElements(Array("")))
     }
   }
@@ -73,16 +80,20 @@ class OrgAPITest extends AsyncFunSuite {
   test("Add package sfdx directory (absolute)") {
     val workspace = PathFactory("samples/synthetic/sfdx-test")
     val orgAPI = OrgAPI(quiet = true)
-    orgAPI.addPackage(workspace.toString) map { result =>
-      OrgAPI(quiet = true).reset()
+    for {
+      result <- orgAPI.addPackage(workspace.toString)
+      _ <- OrgAPI(quiet = true).reset()
+    } yield {
       assert(result.error.isEmpty && result.namespaces.sameElements(Array("")))
     }
   }
 
   test("Add package sfdx directory with ns (relative)") {
     val orgAPI = OrgAPI(quiet = true)
-    orgAPI.addPackage("samples/synthetic/sfdx-ns-test") map { result =>
-      OrgAPI(quiet = true).reset()
+    for {
+      result <- orgAPI.addPackage("samples/synthetic/sfdx-ns-test")
+      _ <- OrgAPI(quiet = true).reset()
+    } yield {
       assert(result.error.isEmpty && result.namespaces.sameElements(Array("sfdx_test")))
     }
   }
@@ -90,8 +101,10 @@ class OrgAPITest extends AsyncFunSuite {
   test("Add package sfdx directory with ns (absolute)") {
     val workspace = PathFactory("samples/synthetic/sfdx-ns-test")
     val orgAPI = OrgAPI(quiet = true)
-    orgAPI.addPackage(workspace.toString) map { result =>
-      OrgAPI(quiet = true).reset()
+    for {
+      result <- orgAPI.addPackage(workspace.toString)
+      _ <- OrgAPI(quiet = true).reset()
+    } yield {
       assert(result.error.isEmpty && result.namespaces.sameElements(Array("sfdx_test")))
     }
   }

@@ -335,7 +335,7 @@ class CustomObjectTest extends AnyFunSuite with BeforeAndAfter {
         org.newMDAPIPackageInternal(None, Seq(root), Seq())
         assert(
           org.issues.getMessages("/Dummy.cls") ==
-            "Missing: line 1 at 39-52: Unknown field or type 'Baz__c' on 'Schema.Foo__c'\n")
+            "Missing: line 1 at 39-52: Unknown field 'Baz__c' on SObject 'Schema.Foo__c'\n")
     }
   }
 
