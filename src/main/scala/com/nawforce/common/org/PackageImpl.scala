@@ -175,6 +175,14 @@ class PackageImpl(val org: OrgImpl, val config: WorkspaceConfig, bases: Seq[Pack
     }
   }
 
+  /* Check if a file name is ghosted in this package */
+  def isGhostedFieldName(name: Name): Boolean = {
+    EncodedName(name).namespace match {
+      case None => false
+      case Some(ns) => basePackages.filter(_.isGhosted).exists(_.namespace.contains(ns))
+    }
+  }
+
   /* Find a document location for the type */
   def getTypeLocation(typeName: TypeName): Option[PathLocation] = {
     packageType(typeName) match {

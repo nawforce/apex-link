@@ -422,7 +422,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
           field = findField(id.name, staticContext = Some(false))
 
         if (field.isEmpty) {
-          if (isComplete)
+          if (!context.pkg.isGhostedFieldName(id.name))
             context.log(IssueOps.unknownFieldOnSObject(id.location, id.name, typeName))
           None
         } else {

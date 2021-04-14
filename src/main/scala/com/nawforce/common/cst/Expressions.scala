@@ -165,18 +165,29 @@ final case class DotExpression(expression: Expression,
         // TODO: Private/protected types?
         if (input.isStatic.contains(true)) {
           val nt = input.typeDeclarationOpt.get
-            .findLocalType(TypeName(target.swap.getOrElse(throw new NoSuchElementException).name))
+            .findLocalType(TypeName(name))
           if (nt.nonEmpty) {
             return ExprContext(isStatic = Some(true), nt.get)
           }
         }
 
-        if (inputType.isComplete)
+        if (inputType.isComplete) {
+          if (inputType.isSObject) {
+            if (!context.pkg.isGhostedFieldName(name)) {
+              context.log(
+                IssueOps.unknownFieldOnSObject(
+                  location,
+                  name,
+                  inputType.typeName))
+            }
+          } else {
           context.log(
             IssueOps.unknownFieldOrType(
               location,
-              target.swap.getOrElse(throw new NoSuchElementException).name,
+              name,
               inputType.typeName))
+          }
+        }
         ExprContext.empty
 
       case _ =>
