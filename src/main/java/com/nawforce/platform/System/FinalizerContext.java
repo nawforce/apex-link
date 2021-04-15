@@ -29,11 +29,8 @@ package com.nawforce.platform.System;
 
 @SuppressWarnings("unused")
 public interface FinalizerContext {
-  // TODO: These need checking against final spec
   Id getAsyncApexJobId();
   String getRequestId();
   ParentJobResult getResult();
-  ParentJobResult getAsyncApexJobResult();
   Exception getException();
-  Exception getAsyncApexJobException();
 }
