@@ -30,5 +30,5 @@ public class Set<T> {
 
     public Set<T> clone$() {throw new java.lang.UnsupportedOperationException();}
     public Integer hashCode$() {throw new java.lang.UnsupportedOperationException();}
-    public Boolean equals(Set<T> other) {throw new java.lang.UnsupportedOperationException();}
+    public Boolean equals(Set<Object> other) {throw new java.lang.UnsupportedOperationException();}
 }

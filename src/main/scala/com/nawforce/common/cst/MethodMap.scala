@@ -78,7 +78,7 @@ final case class MethodMap(methodsByName: Map[(Name, Int), Array[MethodDeclarati
 object MethodMap {
   type WorkingMap = mutable.Map[(Name, Int), Array[MethodDeclaration]]
 
-  private val overrideNotRequired = Set[String] (
+  private val specialMethodSignature = Set[String] (
     "system.boolean equals(object)",
     "system.integer hashcode()",
     "system.string tostring()")
@@ -210,20 +210,17 @@ object MethodMap {
 
     if (matched.nonEmpty) {
       val matchedMethod = matched.get
-      if (matchedMethod.typeName != method.typeName) {
-        if (!overrideNotRequired.contains(matchedMethod.signature.toLowerCase())) {
+      lazy val isSpecial = specialMethodSignature.contains(matchedMethod.signature.toLowerCase())
+      if (matchedMethod.typeName != method.typeName && !isSpecial) {
           setMethodError(method,
             s"Method '${method.name}' has wrong return type to override, should be '${matched.get.typeName}'",
             errors, isWarning = true)
-        }
-      } else {
-        if (!matchedMethod.isVirtualOrAbstract) {
-          setMethodError(method, s"Method '${method.name}' can not override non-virtual method", errors)
-        } else if (!method.isVirtualOrOverride && !overrideNotRequired.contains(method.signature.toLowerCase()) && !isTest) {
-          setMethodError(method, s"Method '${method.name}' must use override keyword", errors)
-        } else if (method.visibility.methodOrder < matchedMethod.visibility.methodOrder) {
-          setMethodError(method, s"Method '${method.name}' can not reduce visibility in override", errors)
-        }
+      } else if (!matchedMethod.isVirtualOrAbstract) {
+        setMethodError(method, s"Method '${method.name}' can not override non-virtual method", errors)
+      } else if (!method.isVirtualOrOverride && !isSpecial && !isTest) {
+        setMethodError(method, s"Method '${method.name}' must use override keyword", errors)
+      } else if (method.visibility.methodOrder < matchedMethod.visibility.methodOrder && !isSpecial) {
+        setMethodError(method, s"Method '${method.name}' can not reduce visibility in override", errors)
       }
     } else if (method.isOverride && isComplete) {
       setMethodError(method, s"Method '${method.name}' does not override a virtual or abstract method", errors)
