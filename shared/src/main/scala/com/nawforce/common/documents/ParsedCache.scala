@@ -54,7 +54,6 @@ case class CacheKey(version: Int, packageContext: PackageContext, sourceKey: Arr
 }
 
 object CacheKey {
-  val currentVersion = 8
   implicit val rw: RW[CacheKey] = macroRW
 }
 
@@ -85,14 +84,14 @@ object CacheEntry {
 }
 
 /* Parsed class cache */
-class ParsedCache(val path: PathLike) {
+class ParsedCache(val path: PathLike, version: Int) {
 
   /** Auto expire before use */
   expire()
 
   /** Upsert a key -> value pair, ignores storage errors */
   def upsert(key: Array[Byte], value: Array[Byte], packageContext: PackageContext): Unit = {
-    val cacheKey = CacheKey(CacheKey.currentVersion, packageContext, key)
+    val cacheKey = CacheKey(version, packageContext, key)
     val hashParts = cacheKey.hashParts
     path.createDirectory(hashParts.head) match {
       case Left(_) => ()
@@ -104,7 +103,7 @@ class ParsedCache(val path: PathLike) {
 
   /** Recover a value from a key */
   def get(key: Array[Byte], packageContext: PackageContext): Option[Array[Byte]] = {
-    val cacheKey = CacheKey(CacheKey.currentVersion, packageContext, key)
+    val cacheKey = CacheKey(version, packageContext, key)
     val hashParts = cacheKey.hashParts
     val outer = path.join(hashParts.head)
     if (outer.isDirectory) {
@@ -168,7 +167,7 @@ object ParsedCache {
   val TEST_FILE: String = "test_file"
   val EXPIRE_WINDOW: Long = 7 * 24 * 60 * 60 * 1000
 
-  def create: Either[String, ParsedCache] = {
+  def create(version: Int): Either[String, ParsedCache] = {
     val cacheDirOpt =
       Environment
         .variable("APEXLINK_CACHE_DIR")
@@ -191,18 +190,18 @@ object ParsedCache {
           Left(s"Cache directory '$cacheDir' exists but is not writable, error '$err'")
         case Right(created) =>
           created.delete()
-          Right(new ParsedCache(cacheDir))
+          Right(new ParsedCache(cacheDir, version))
       }
     } else {
       cacheDir.parent.createDirectory(cacheDir.basename) match {
         case Left(err) =>
           Left(s"Cache directory '$cacheDir' does not exist and can not be created, error '$err'")
-        case Right(created) => Right(new ParsedCache(created))
+        case Right(created) => Right(new ParsedCache(created,version))
       }
     }
   }
 
   def clear(): Unit = {
-    create.map(_.clear())
+    create(0).map(_.clear())
   }
 }
