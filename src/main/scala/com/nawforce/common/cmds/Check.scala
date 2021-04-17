@@ -41,7 +41,7 @@ object Check {
   def usage(name: String) =
     s"Usage: $name [-json] [-verbose] [-zombie] [-depends] <[namespace=]directory>..."
 
-  def main(name: String, args: Array[String], org: Org): Int = {
+  def main(name: String, args: Array[String], inputOrg: Org): Int = {
     val flags = Set("-verbose", "-json", "-pickle", "-zombie", "-depends")
 
     val json = args.contains("-json")
@@ -60,6 +60,7 @@ object Check {
     }
 
     try {
+      val org = if (inputOrg != null) inputOrg else Org.newOrg()
       OrgLoader.load(args.filterNot(flags.contains), org)
 
       if (depends) {

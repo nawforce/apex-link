@@ -27,7 +27,9 @@
  */
 package com.nawforce.common.org
 
+import java.io.File
 import java.util
+import java.util.jar.JarFile
 
 import com.nawforce.common.api.{
   Diagnostic,
@@ -58,6 +60,7 @@ import com.nawforce.common.sfdx.{
 import scala.collection.immutable.ArraySeq.ofRef
 import scala.collection.mutable.ArrayBuffer
 import scala.util.DynamicVariable
+import scala.util.hashing.MurmurHash3
 
 /** Org abstraction, a simulation of the metadata installed on an org. Use the 'current' dynamic variable to access
   * the org being currently worked on. Typically only one org will be being used but some use cases might require
@@ -66,14 +69,17 @@ import scala.util.DynamicVariable
 class OrgImpl() extends Org {
 
   /** Parsed data cache */
-  private[nawforce] val parsedCache = ParsedCache.create match {
-    case Right(pc) => Some(pc)
-    case Left(err) => LoggerOps.error(err); None
-  }
+  private[nawforce] val parsedCache =
+    ParsedCache.create(MurmurHash3.stringHash(OrgImpl.implementationBuild)) match {
+      case Right(pc) => Some(pc)
+      case Left(err) => LoggerOps.error(err); None
+    }
 
   /** Is this Org using auto-flushing */
   private val autoFlush = ServerOps.getAutoFlush
-  ServerOps.debug(ServerOps.Trace, s"Org created with autoFlush = $autoFlush")
+  ServerOps.debug(
+    ServerOps.Trace,
+    s"Org created with autoFlush = $autoFlush, build = ${OrgImpl.implementationBuild}")
 
   /** The Org flusher */
   private val flusher =
@@ -342,6 +348,16 @@ class OrgImpl() extends Org {
 }
 
 object OrgImpl {
+
+  lazy val implementationBuild: String = {
+    val sourceURI = classOf[OrgImpl].getProtectionDomain.getCodeSource.getLocation.toURI
+    if (!sourceURI.toString.endsWith(".jar"))
+      ""
+    else {
+      val manifest = new JarFile(new File(sourceURI)).getManifest
+      Option(manifest.getMainAttributes.getValue("Implementation-Build")).getOrElse("")
+    }
+  }
 
   /** Access the in-scope Org */
   private[nawforce] val current: DynamicVariable[OrgImpl] = new DynamicVariable[OrgImpl](null)
