@@ -23,7 +23,7 @@ lazy val buildNPM = Def.task {
 
   val targetDir = file("js/target/scala-2.13").toPath
   val srcDir = file("js/npm/src").toPath
-  copy(targetDir.resolve("pkgforce-fastopt.js"), srcDir.resolve("pkgforce.js"), REPLACE_EXISTING)
+  copy(targetDir.resolve("pkgforce-opt.js"), srcDir.resolve("pkgforce.js"), REPLACE_EXISTING)
 
   // Install modules in NPM
   import scala.language.postfixOps
