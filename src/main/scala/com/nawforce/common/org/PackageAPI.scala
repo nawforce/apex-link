@@ -31,8 +31,8 @@ import com.nawforce.common.api.{Package, ServerOps, TypeIdentifier, TypeName, Ty
 import com.nawforce.common.diagnostics.LocalLogger
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
-import com.nawforce.common.org.stream._
 import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.common.stream._
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.common.types.other._

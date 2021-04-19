@@ -2,7 +2,7 @@ package com.nawforce.common.types
 
 import com.nawforce.common.documents._
 import com.nawforce.common.org.PackageImpl
-import com.nawforce.common.org.stream.PackageStream
+import com.nawforce.common.stream.PackageStream
 import com.nawforce.common.types.core.DependentType
 
 package object other {

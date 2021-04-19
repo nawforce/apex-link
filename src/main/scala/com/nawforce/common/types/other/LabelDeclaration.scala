@@ -33,7 +33,7 @@ import com.nawforce.common.documents._
 import com.nawforce.common.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.PackageImpl
-import com.nawforce.common.org.stream.PackageStream
+import com.nawforce.common.stream.PackageStream
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
 
