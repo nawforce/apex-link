@@ -35,9 +35,15 @@ import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import scala.collection.mutable.ArrayBuffer
 
 /** Trait to assist with logging in a context specific way */
-trait IssueLogger {
-  // Simply log an issue
+sealed trait IssueLogger {
   def log(issue: Issue): Unit
+
+  def logAll(issues: Seq[Issue]): Unit = issues.foreach(log)
+
+  def logAndGet[T](andIssues: IssuesAnd[T]): T = {
+    logAll(andIssues.issues)
+    andIssues.value
+  }
 
   def logError(path: PathLike, location: Location, message: String): Unit = {
     log(Issue(path.toString, Diagnostic(ERROR_CATEGORY, location, message)))
@@ -62,7 +68,7 @@ class CatchingLogger extends IssueLogger {
   override def log(issue: Issue): Unit = issues = issue :: issues
 }
 
-trait ParserIssueLogger extends IssueLogger {
+sealed trait ParserIssueLogger extends IssueLogger {
   // Get location for an AST context
   def location(context: ParserRuleContext): (PathLike, Location)
 

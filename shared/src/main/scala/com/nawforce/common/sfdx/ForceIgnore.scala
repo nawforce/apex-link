@@ -29,6 +29,7 @@ package com.nawforce.common.sfdx
 
 import java.util.regex.{Matcher, Pattern}
 
+import com.nawforce.common.diagnostics._
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.platform.Path
 
@@ -69,11 +70,15 @@ class ForceIgnore(rootPath: PathLike, ignoreRules: Seq[IgnoreRule]) {
 }
 
 object ForceIgnore {
-  def apply(path: PathLike): Either[String, ForceIgnore] = {
-    path.read() match {
-      case Left(err) => Left(err)
-      case Right(data) =>
-        Right(new ForceIgnore(path.parent, IgnoreRule.read(data)))
+  def apply(path: PathLike): IssuesAnd[Option[ForceIgnore]] = {
+    if (path.isFile) {
+      path.read() match {
+        case Left(err) =>
+          IssuesAnd(Seq(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location.empty, err))), None)
+        case Right(data) => IssuesAnd(Seq(), Some(new ForceIgnore(path.parent, IgnoreRule.read(data))))
+      }
+    } else {
+      IssuesAnd(None)
     }
   }
 }
@@ -178,23 +183,23 @@ object IgnoreRule {
 
   def escapeChar(c: Char): String = {
     c match {
-      case '-' => "\\-"
-      case '/' => "\\/"
+      case '-'  => "\\-"
+      case '/'  => "\\/"
       case '\\' => "\\\\"
-      case '{' => "\\{"
-      case '}' => "\\}"
-      case '(' => "\\("
-      case ')' => "\\)"
-      case '*' => "\\*"
-      case '+' => "\\+"
-      case '?' => "\\?"
-      case '.' => "\\."
-      case ',' => "\\,"
-      case '^' => "\\^"
-      case '$' => "\\$"
-      case '|' => "\\|"
-      case '#' => "\\#"
-      case _ => c.toString
+      case '{'  => "\\{"
+      case '}'  => "\\}"
+      case '('  => "\\("
+      case ')'  => "\\)"
+      case '*'  => "\\*"
+      case '+'  => "\\+"
+      case '?'  => "\\?"
+      case '.'  => "\\."
+      case ','  => "\\,"
+      case '^'  => "\\^"
+      case '$'  => "\\$"
+      case '|'  => "\\|"
+      case '#'  => "\\#"
+      case _    => c.toString
     }
   }
 }

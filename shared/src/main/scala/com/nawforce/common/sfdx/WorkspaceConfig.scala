@@ -30,30 +30,16 @@ package com.nawforce.common.sfdx
 import com.nawforce.common.diagnostics.IssueLogger
 import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.workspace.{Layer, NamespaceLayer, PackageLayer}
+import com.nawforce.common.workspace.{NamespaceLayer, PackageLayer}
 
 trait WorkspaceConfig {
-  def layers(logger: IssueLogger): Seq[Layer]
-
-  val ignorePath: Option[PathLike] = None
-
-  lazy val forceIgnore: Option[ForceIgnore] = {
-    if (ignorePath.nonEmpty && ignorePath.get.isFile) {
-      ForceIgnore(ignorePath.get) match {
-        case Left(_)            => None
-        case Right(forceIgnore) => Some(forceIgnore)
-      }
-    } else {
-      None
-    }
-  }
-
+  def layers(logger: IssueLogger): Seq[NamespaceLayer]
   /** Determine if a path is a file that could be included in index. */
+  /* TODO: Remove?
   def isVisibleFile(path: PathLike): Boolean = {
-    true
-    // TODO:
-    //forceIgnore.forall(_.includeFile(path)) && isVisiblePath(path.parent)
+    forceIgnore.forall(_.includeFile(path)) && isVisiblePath(path.parent)
   }
+   */
 
   // Check a directory path would be included in index
   /*
@@ -72,7 +58,7 @@ trait WorkspaceConfig {
 
 class MDAPIWorkspaceConfig(namespace: Option[Name], paths: Seq[PathLike]) extends WorkspaceConfig {
 
-  override def layers(logger: IssueLogger): Seq[Layer] =
+  override def layers(logger: IssueLogger): Seq[NamespaceLayer] =
     Seq(NamespaceLayer(namespace, paths.map(path => PackageLayer(path, Seq())).toList))
 
   override def toString: String =
@@ -81,9 +67,7 @@ class MDAPIWorkspaceConfig(namespace: Option[Name], paths: Seq[PathLike]) extend
 
 class SFDXWorkspaceConfig(val rootPath: PathLike, project: SFDXProject) extends WorkspaceConfig {
 
-  override def layers(logger: IssueLogger): Seq[Layer] = project.layers(logger)
-
-  override val ignorePath: Option[PathLike] = Some(rootPath.join(".forceignore"))
+  override def layers(logger: IssueLogger): Seq[NamespaceLayer] = project.layers(logger)
 
   override def toString: String = s"SFDXWorkspace(${project.projectPath})"
 }

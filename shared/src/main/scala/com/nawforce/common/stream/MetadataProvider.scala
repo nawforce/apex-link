@@ -38,14 +38,14 @@ case class MetadataDocumentWithData(docType: MetadataDocument, source: SourceDat
 trait MetadataProvider {
 
   /** Retrieves files of a specific type, if file is not readable an issue is logged. */
-  def retrieve(metadataExt: Name): Set[MetadataDocumentWithData]
+  def retrieve(metadataExt: Name): Iterable[MetadataDocumentWithData]
 }
 
 /** MetadataProvider that uses a DocumentIndex as a source */
 class DocumentIndexMetadataProvider(workspace: DocumentIndex) extends MetadataProvider {
 
   /** Retrieve from the provided DocumentIndex with error handling */
-  override def retrieve(metadataExt: Name): Set[MetadataDocumentWithData] = {
+  override def retrieve(metadataExt: Name): Iterable[MetadataDocumentWithData] = {
     workspace
       .getByExtension(metadataExt)
       .flatMap(documentType => {
@@ -66,7 +66,7 @@ class OverrideMetadataProvider(overrides: Seq[MetadataDocumentWithData], base: M
   private lazy val overrideByExt: Map[Name, Seq[MetadataDocumentWithData]] =
     overrides.groupBy(_.docType.extension)
 
-  override def retrieve(metadataExt: Name): Set[MetadataDocumentWithData] = {
+  override def retrieve(metadataExt: Name): Iterable[MetadataDocumentWithData] = {
     val metadata = base.retrieve(metadataExt)
     val overrides = overrideByExt.getOrElse(metadataExt, Seq())
     val overridesByPath = overrides.groupBy(_.docType.path)

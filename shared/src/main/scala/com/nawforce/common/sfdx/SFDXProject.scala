@@ -30,7 +30,7 @@ package com.nawforce.common.sfdx
 import com.nawforce.common.diagnostics.{IssueLogger, Location}
 import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.workspace.{ExternalLayer, Layer, NamespaceLayer, PackageLayer}
+import com.nawforce.common.workspace.{ExternalLayer, NamespaceLayer, PackageLayer}
 import ujson.Value
 
 class SFDXProjectError(val jsonPath: String, message: String) extends Throwable(message)
@@ -76,7 +76,7 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
         throw new SFDXProjectError("$.plugins.dependencies", "'dependencies' should be an array")
     }
 
-  def layers(logger: IssueLogger): Seq[Layer] = {
+  def layers(logger: IssueLogger): Seq[NamespaceLayer] = {
     if (packageDirectories.nonEmpty) {
       // Fold package directory entries into layers, validating as we go
       val localPackages = NamespaceLayer(
