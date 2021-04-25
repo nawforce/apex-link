@@ -27,7 +27,6 @@
  */
 package com.nawforce.runtime.parsers
 
-import com.nawforce.common.api.PathLocation
 import com.nawforce.common.diagnostics.{Location, PathLocation}
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.SourceBlob

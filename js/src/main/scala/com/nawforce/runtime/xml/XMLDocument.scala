@@ -27,7 +27,6 @@
  */
 package com.nawforce.runtime.xml
 
-import com.nawforce.common.api._
 import com.nawforce.common.diagnostics.{Diagnostic, DiagnosticCategory, ERROR_CATEGORY, Issue, Location}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.xml.{XMLDocumentLike, XMLElementLike, XMLName}

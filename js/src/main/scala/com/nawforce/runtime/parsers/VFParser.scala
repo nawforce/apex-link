@@ -61,6 +61,8 @@ object VFParser {
   @js.native
   @JSImport("vf-parser", "ElementContext")
   class ElementContext extends ParserRuleContext {
+    def Name(): js.Array[TerminalNode] = js.native
+    def Name(i: Int): TerminalNode = js.native
     def attribute(): js.Array[AttributeContext] = js.native
     def attribute(i: Int): AttributeContext = js.native
     def content(): ContentContext = js.native

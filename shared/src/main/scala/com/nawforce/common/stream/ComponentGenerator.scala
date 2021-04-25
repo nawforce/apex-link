@@ -54,7 +54,7 @@ object ComponentGenerator extends Generator {
                            metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
 
     val path = metadata.docType.path
-    val parser = PageParser(path, metadata.source)
+    val parser: PageParser = PageParser(path, metadata.source)
     val attributes = parser.parsePage() match {
       case Left(issues)     => issues.foreach(logger.log); Array[Name]()
       case Right(component) => extractAttributes(parser, logger, component)
@@ -70,7 +70,7 @@ object ComponentGenerator extends Generator {
   private def extractAttributes(parser: PageParser,
                                 logger: IssueLogger,
                                 component: VFParser.VfUnitContext): Array[Name] = {
-    val root = component.element()
+    val root: VFParser.ElementContext = component.element()
     if (!PageParser.getText(root.Name(0)).equalsIgnoreCase("apex:component")) {
       val location = parser.getPathAndLocation(component)
       logger.logError(location._1, location._2, "Root element must be 'apex:component'")

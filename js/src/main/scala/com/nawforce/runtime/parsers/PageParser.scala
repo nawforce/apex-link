@@ -29,7 +29,7 @@ package com.nawforce.runtime.parsers
 
 import com.nawforce.common.diagnostics.{Issue, Location}
 import com.nawforce.common.path.PathLike
-import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
+import com.nawforce.runtime.parsers.PageParser.ParserRuleContext
 import com.nawforce.runtime.parsers.antlr.{CharStreams, CommonTokenStream, ParseTree}
 
 import scala.scalajs.js
@@ -77,8 +77,8 @@ object PageParser {
   type ParserRuleContext = com.nawforce.runtime.parsers.antlr.ParserRuleContext
   type TerminalNode = com.nawforce.runtime.parsers.antlr.TerminalNode
 
-  def apply(path: PathLike, code: SourceData): CodeParser = {
-    new CodeParser(Source(path, code, 0, 0, None))
+  def apply(path: PathLike, code: SourceData): PageParser = {
+    new PageParser(Source(path, code, 0, 0, None))
   }
 
   def clearCaches(): Unit = {
