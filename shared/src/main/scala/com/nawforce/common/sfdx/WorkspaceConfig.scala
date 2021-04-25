@@ -27,14 +27,14 @@
  */
 package com.nawforce.common.sfdx
 
-import com.nawforce.common.api.Name
-import com.nawforce.common.documents.ForceIgnore
+import com.nawforce.common.diagnostics.IssueLogger
+import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.workspace.{Layer, NamespaceLayer, PackageLayer}
 
 trait WorkspaceConfig {
-  val rootPaths: Seq[PathLike]
-  val namespace: Option[Name]
-  val paths: Seq[PathLike]
+  def layers(logger: IssueLogger): Seq[Layer]
+
   val ignorePath: Option[PathLike] = None
 
   lazy val forceIgnore: Option[ForceIgnore] = {
@@ -50,10 +50,13 @@ trait WorkspaceConfig {
 
   /** Determine if a path is a file that could be included in index. */
   def isVisibleFile(path: PathLike): Boolean = {
-    forceIgnore.forall(_.includeFile(path)) && isVisiblePath(path.parent)
+    true
+    // TODO:
+    //forceIgnore.forall(_.includeFile(path)) && isVisiblePath(path.parent)
   }
 
   // Check a directory path would be included in index
+  /*
   @scala.annotation.tailrec
   private def isVisiblePath(path: PathLike): Boolean = {
     if (paths.contains(path)) return true
@@ -64,29 +67,23 @@ trait WorkspaceConfig {
       isVisiblePath(parent)
     else
       false
-  }
+  }*/
 }
 
-class MDAPIWorkspaceConfig(_namespace: Option[Name], val paths: Seq[PathLike]) extends WorkspaceConfig {
-  override val namespace: Option[Name] = _namespace
+class MDAPIWorkspaceConfig(namespace: Option[Name], paths: Seq[PathLike]) extends WorkspaceConfig {
 
-  override lazy val rootPaths: Seq[PathLike] = paths
+  override def layers(logger: IssueLogger): Seq[Layer] =
+    Seq(NamespaceLayer(namespace, paths.map(path => PackageLayer(path, Seq())).toList))
 
-  override def toString: String = {
+  override def toString: String =
     s"MDAPIWorkspace(namespace=$namespace, paths=${paths.map(_.toString).mkString(", ")})"
-  }
 }
 
 class SFDXWorkspaceConfig(val rootPath: PathLike, project: SFDXProject) extends WorkspaceConfig {
-  override val namespace: Option[Name] = project.namespace
 
-  override lazy val rootPaths: Seq[PathLike] = Seq(rootPath)
-
-  override lazy val paths: Seq[PathLike] = project.packageDirectories.map(_.path)
+  override def layers(logger: IssueLogger): Seq[Layer] = project.layers(logger)
 
   override val ignorePath: Option[PathLike] = Some(rootPath.join(".forceignore"))
 
-  override def toString: String = {
-    s"SFDXWorkspace(namespace=${namespace.getOrElse("")}, paths=${paths.map(_.toString).mkString(", ")})"
-  }
+  override def toString: String = s"SFDXWorkspace(${project.projectPath})"
 }

@@ -30,17 +30,27 @@ package com.nawforce.common.sfdx
 import com.nawforce.common.path.PathLike
 import ujson.Value
 
-class PackageDirectory(projectPath: PathLike, config: Value.Value) {
-  val path: PathLike = {
-    try {
-      config("path") match {
-        case ujson.Str(value) => projectPath.join(value)
-        case _                => throw new SFDXProjectError("'path' should be a string")
-      }
-    } catch {
-      case _: NoSuchElementException =>
-        throw new SFDXProjectError("'path' is required for all 'packageDirectories' elements")
-    }
-  }
+case class PackageDirectory(path: PathLike,
+                            name: Option[String],
+                            version: Option[VersionNumber],
+                            dependencies: Seq[Dependent2GP])
 
+object PackageDirectory {
+  def apply(projectPath: PathLike, jsonPath: String, config: Value.Value): PackageDirectory = {
+    PackageDirectory(projectPath.join(config.stringValue(jsonPath, "path")),
+                     config.optStringValue(jsonPath, "package"),
+                     config.optVersionNumber(jsonPath, "versionNumber"),
+                     try {
+                       config("dependencies") match {
+                         case ujson.Arr(value) =>
+                           value.toSeq.zipWithIndex.map(d =>
+                             new Dependent2GP(s"$jsonPath.dependencies[${d._2}]", d._1))
+                         case _ =>
+                           throw new SFDXProjectError(s"$jsonPath.dependencies",
+                                                      "'dependencies' should be an array")
+                       }
+                     } catch {
+                       case _: NoSuchElementException => Seq()
+                     })
+  }
 }

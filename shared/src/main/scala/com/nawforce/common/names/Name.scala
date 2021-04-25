@@ -25,43 +25,35 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.nawforce.common.sfdx
+package com.nawforce.common.names
 
-import com.nawforce.common.api.Name
-import com.nawforce.common.names._
-import com.nawforce.common.path.PathLike
-import ujson.Value
+import upickle.default.{macroRW, ReadWriter => RW}
 
-class DependentPackage(projectPath: PathLike, config: Value.Value) {
-  val namespace: Name =
-    try {
-      val ns = config("namespace") match {
-        case ujson.Str(value) => Name(value)
-        case _                => throw new SFDXProjectError("'namespace' should be a string")
-      }
-      if (ns.value.isEmpty)
-        throw new SFDXProjectError("'namespace' can not be empty")
-      else {
-        ns.isLegalIdentifier match {
-          case None        => ns
-          case Some(error) => throw new SFDXProjectError(s"namespace '$ns' is not valid, $error")
-        }
-      }
-    } catch {
-      case _: NoSuchElementException =>
-        throw new SFDXProjectError("'namespace' is required for each entry in 'dependencies'")
-    }
+/** Case insensitive string for symbol names.
+  *
+  * The value of the Name is stored as is but equality and hashing are performed against a normalised lower case
+  * value.
+  */
+@upickle.implicits.key("Name")
+case class Name(value: String) {
 
-  val path: Option[PathLike] = {
-    try {
-      config("path") match {
-        case ujson.Str(value) =>
-          Some(projectPath.join(value))
-        case _ =>
-          throw new SFDXProjectError("'path' should be a string")
-      }
-    } catch {
-      case _: NoSuchElementException => None
+  override val hashCode: Int = value.toLowerCase.hashCode
+
+  def canEqual(that: Any): Boolean = that.isInstanceOf[Name]
+
+  override def equals(that: Any): Boolean = {
+    that match {
+      case otherName: Name =>
+        otherName.canEqual(this) && otherName.value.equalsIgnoreCase(value)
+      case _ => false
     }
   }
+
+  override def toString: String = value
+}
+
+object Name {
+  implicit val rw: RW[Name] = macroRW
+
+  val emptyNames: Array[Name] = Array()
 }

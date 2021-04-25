@@ -27,8 +27,7 @@
  */
 package com.nawforce.common.documents
 
-import com.nawforce.common.api.{Diagnostic, ERROR_CATEGORY, Location}
-import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.xml.{XMLException, XMLFactory, XMLName}
 import com.nawforce.runtime.FileSystemHelper

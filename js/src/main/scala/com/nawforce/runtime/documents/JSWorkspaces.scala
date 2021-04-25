@@ -27,10 +27,7 @@
  */
 package com.nawforce.runtime.documents
 
-import com.nawforce.common.documents.Workspace
-import com.nawforce.common.names.DotName
-import com.nawforce.common.path.PathFactory
-import com.nawforce.common.sfdx.{MDAPIWorkspaceConfig, SFDXProject, SFDXWorkspaceConfig}
+import com.nawforce.common.workspace.Workspace
 
 import scala.collection.mutable
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
@@ -41,10 +38,12 @@ class JSWorkspaceException(val message: String) extends Exception(message)
 @JSExportTopLevel("Workspace")
 class JSWorkspace(val workspace: Workspace) {
 
+  // TODO
+  /*
   @JSExport
   def findType(name: String): String = {
     workspace.getByType(DotName(name).asTypeName()).map(_.path.toString).orNull
-  }
+  }*/
 }
 
 @JSExportTopLevel("Workspaces")
@@ -53,24 +52,22 @@ object JSWorkspaces {
 
   @JSExport
   def get(wsPath: String): JSWorkspace = {
-    workspaces.getOrElseUpdate(
-      wsPath, {
-        val path = PathFactory(wsPath)
-        if (!path.exists || !path.isDirectory)
-          throw new JSWorkspaceException(s"No directory at $path")
 
-        val config =
-          if (path.join("sfdx-project.json").exists) {
-            SFDXProject(path) match {
-              case Left(err) =>
-                throw new JSWorkspaceException(err)
-              case Right(project) =>
-                new SFDXWorkspaceConfig(path, project)
-            }
-          } else {
-            new MDAPIWorkspaceConfig(None, Seq(path))
-          }
-        new JSWorkspace(new Workspace(config))
+    val ws = workspaces.get(wsPath)
+    if (ws.nonEmpty)
+      return ws.get
+
+    val issuesAndWorkspace = Workspace(wsPath)
+    if (issuesAndWorkspace.issues.nonEmpty) {
+      throw new JSWorkspaceException(issuesAndWorkspace.issues.head.asString)
+    }
+
+    issuesAndWorkspace.value
+      .map(workspace => {
+        val jsWorkspace = new JSWorkspace(workspace)
+        workspaces.put(wsPath, new JSWorkspace(workspace))
+        jsWorkspace
       })
+      .orNull
   }
 }

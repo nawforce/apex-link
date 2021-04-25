@@ -27,8 +27,7 @@
  */
 package com.nawforce.runtime.parsers
 
-import com.nawforce.common.api.{Diagnostic, Location, SYNTAX_CATEGORY}
-import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.diagnostics.{Diagnostic, Issue, Location, SYNTAX_CATEGORY}
 import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer}
 
 import scala.collection.mutable

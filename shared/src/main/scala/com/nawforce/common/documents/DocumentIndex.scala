@@ -27,11 +27,12 @@
  */
 package com.nawforce.common.documents
 
-import com.nawforce.common.api._
-import com.nawforce.common.diagnostics.{CatchingLogger, Issue}
-import com.nawforce.common.names.TypeNames
+import com.nawforce.common.diagnostics
+import com.nawforce.common.diagnostics.{CatchingLogger, Diagnostic, ERROR_CATEGORY, Issue, Location, LoggerOps}
+import com.nawforce.common.names.{Name, TypeName, TypeNames}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.sfdx.WorkspaceConfig
+import com.nawforce.common.sfdx.ForceIgnore
+import com.nawforce.common.workspace.MetadataLayer
 
 import scala.collection.mutable
 
@@ -45,7 +46,7 @@ import scala.collection.mutable
   * During an upsert/deletion of new types the index will also need to be updated so that it maintains an accurate
   * view of the metadata files being used.
   */
-class Workspace(config: WorkspaceConfig) {
+class DocumentIndex(namespace: Option[Name], layer: MetadataLayer) {
 
   /** Issues detected in workspace, typically duplicate types */
   private val logger = new CatchingLogger()
@@ -95,7 +96,7 @@ class Workspace(config: WorkspaceConfig) {
     }
 
     // Label replacement OK
-    val typeName = metadata.typeName(config.namespace)
+    val typeName = metadata.typeName(namespace)
     if (typeName == TypeNames.Label)
       return true
 
@@ -134,7 +135,7 @@ class Workspace(config: WorkspaceConfig) {
     documents
       .get(metadataDocumentType.extension)
       .foreach(docs => {
-        val typeName = metadataDocumentType.typeName(config.namespace)
+        val typeName = metadataDocumentType.typeName(namespace)
         if (!metadataDocumentType.duplicatesAllowed) {
           docs.remove(typeName)
           typeNames.remove(typeName)
@@ -148,6 +149,8 @@ class Workspace(config: WorkspaceConfig) {
   }
 
   private def index(): Unit = {
+    // TODO
+    /*
     config.paths.reverse
       .filter(_.isDirectory)
       .foreach(p => {
@@ -157,10 +160,11 @@ class Workspace(config: WorkspaceConfig) {
       })
     createGhostSObjectFiles(Name("field"), config.forceIgnore)
     createGhostSObjectFiles(Name("fieldSet"), config.forceIgnore)
+     */
   }
 
   private def indexPath(path: PathLike, forceIgnore: Option[ForceIgnore]): Unit = {
-    if (Workspace.isExcluded(path))
+    if (DocumentIndex.isExcluded(path))
       return
 
     if (path.isDirectory) {
@@ -191,12 +195,12 @@ class Workspace(config: WorkspaceConfig) {
       addDocument(documentType)
     } else {
       // Duplicate detect based on type that will be generated
-      val typeName = documentType.typeName(config.namespace)
+      val typeName = documentType.typeName(namespace)
       if (typeNames.contains(typeName)) {
         val duplicate = documents(documentType.extension).get(typeName)
         logger.log(
           Issue(documentType.path.toString,
-                Diagnostic(
+                diagnostics.Diagnostic(
                   ERROR_CATEGORY,
                   Location(0),
                   s"File creates duplicate type '$typeName' as '${duplicate.get.head.path}', ignoring")))
@@ -211,7 +215,7 @@ class Workspace(config: WorkspaceConfig) {
     val extMap = documents.getOrElseUpdate(docType.extension, {
       mutable.HashMap[TypeName, List[MetadataDocument]]()
     })
-    val typeName = docType.typeName(config.namespace)
+    val typeName = docType.typeName(namespace)
     extMap.put(typeName, docType :: extMap.getOrElse(typeName, Nil))
   }
 
@@ -225,7 +229,7 @@ class Workspace(config: WorkspaceConfig) {
           val objectExt = MetadataDocument.objectExt
           val docType = SObjectDocument(metaFile, Name(objectDir.basename))
           if (!documents.contains(objectExt) || !documents(objectExt).contains(
-                docType.typeName(config.namespace))) {
+                docType.typeName(namespace))) {
             addDocument(docType)
           }
         }
@@ -234,7 +238,7 @@ class Workspace(config: WorkspaceConfig) {
   }
 }
 
-object Workspace {
+object DocumentIndex {
 
   /** Exclude some paths that we would waste time searching */
   def isExcluded(path: PathLike): Boolean = {

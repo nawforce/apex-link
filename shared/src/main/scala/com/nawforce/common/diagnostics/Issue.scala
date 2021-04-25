@@ -28,10 +28,11 @@
 
 package com.nawforce.common.diagnostics
 
-import com.nawforce.common.api.Diagnostic
 import upickle.default.{macroRW, ReadWriter => RW}
 
-sealed case class Issue(path: String, diagnostic: Diagnostic)
+sealed case class Issue(path: String, diagnostic: Diagnostic) {
+  def asString: String = s"$path ${diagnostic.asString}"
+}
 
 object Issue {
   implicit val rw: RW[Issue] = macroRW
@@ -40,3 +41,5 @@ object Issue {
     .by[Issue, Int](_.diagnostic.location.startLine)
     .orElseBy(_.diagnostic.location.startPosition)
 }
+
+sealed case class IssuesAnd[T](issues: Seq[Issue], value: T)

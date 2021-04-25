@@ -27,6 +27,7 @@
  */
 package com.nawforce.common.documents
 
+import com.nawforce.common.sfdx.IgnoreRule
 import org.scalatest.funsuite.AnyFunSuite
 
 class IgnoreRuleTest extends AnyFunSuite {

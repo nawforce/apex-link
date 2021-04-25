@@ -27,7 +27,7 @@
  */
 package com.nawforce.common
 
-import com.nawforce.common.api.{Name, TypeName}
+import com.nawforce.common.names.TypeName
 
 /** Name handling support.
   *

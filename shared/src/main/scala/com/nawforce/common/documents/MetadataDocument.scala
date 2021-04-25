@@ -27,8 +27,7 @@
  */
 package com.nawforce.common.documents
 
-import com.nawforce.common.api.{Name, TypeName}
-import com.nawforce.common.names.{TypeNames, _}
+import com.nawforce.common.names.{TypeName, TypeNames, _}
 import com.nawforce.common.path.PathLike
 
 import scala.collection.immutable.ArraySeq.ofRef

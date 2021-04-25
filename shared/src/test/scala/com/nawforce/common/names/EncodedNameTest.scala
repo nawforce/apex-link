@@ -27,7 +27,6 @@
  */
 package com.nawforce.common.names
 
-import com.nawforce.common.api.{Name, TypeName}
 import org.scalatest.funsuite.AnyFunSuite
 
 class EncodedNameTest extends AnyFunSuite {

@@ -27,9 +27,9 @@
  */
 package com.nawforce.common.stream
 
-import com.nawforce.common.api.Name
 import com.nawforce.common.diagnostics.IssueLogger
-import com.nawforce.common.documents.Workspace
+import com.nawforce.common.documents.DocumentIndex
+import com.nawforce.common.names.Name
 
 import scala.collection.immutable.Queue
 
@@ -44,7 +44,7 @@ class PackageStream(val namespace: Option[Name], val events: Seq[PackageEvent]) 
 }
 
 object PackageStream {
-  def apply(logger: IssueLogger, namespace: Option[Name], workspace: Workspace): PackageStream = {
+  def apply(logger: IssueLogger, namespace: Option[Name], workspace: DocumentIndex): PackageStream = {
     val provider = new DocumentIndexMetadataProvider(workspace)
     var queue = Queue[PackageEvent]()
     queue = LabelGenerator.queue(logger, provider, queue)

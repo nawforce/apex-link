@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
+ Copyright (c) 2021 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -25,35 +25,11 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.nawforce.common.api
+package com.nawforce.common.sfdx
 
-import upickle.default.{macroRW, ReadWriter => RW}
+import ujson.Value
 
-/** Case insensitive string for symbol names.
-  *
-  * The value of the Name is stored as is but equality and hashing are performed against a normalised lower case
-  * value.
-  */
-@upickle.implicits.key("Name")
-case class Name(value: String) {
-
-  override val hashCode: Int = value.toLowerCase.hashCode
-
-  def canEqual(that: Any): Boolean = that.isInstanceOf[Name]
-
-  override def equals(that: Any): Boolean = {
-    that match {
-      case otherName: Name =>
-        otherName.canEqual(this) && otherName.value.equalsIgnoreCase(value)
-      case _ => false
-    }
-  }
-
-  override def toString: String = value
-}
-
-object Name {
-  implicit val rw: RW[Name] = macroRW
-
-  val emptyNames: Array[Name] = Array()
+class Dependent2GP(jsonPath: String, config: Value.Value) {
+  val name: String = config.stringValue(jsonPath, "package")
+  val version: Option[VersionNumber] = config.optVersionNumber(jsonPath, "versionNumber")
 }

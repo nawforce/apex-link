@@ -27,7 +27,6 @@
  */
 package com.nawforce.common.diagnostics
 
-import com.nawforce.common.api._
 import com.nawforce.runtime.json.JSON
 import upickle.default.write
 

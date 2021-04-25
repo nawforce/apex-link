@@ -27,8 +27,8 @@
  */
 package com.nawforce.runtime.parsers
 
-import com.nawforce.common.api.{Diagnostic, Location, SYNTAX_CATEGORY}
-import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.api.SYNTAX_CATEGORY
+import com.nawforce.common.diagnostics.{Diagnostic, Issue, Location, SYNTAX_CATEGORY}
 
 import scala.collection.mutable
 import scala.scalajs.js

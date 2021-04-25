@@ -28,7 +28,6 @@
 
 package com.nawforce.common.diagnostics
 
-import com.nawforce.common.api.{Diagnostic, ERROR_CATEGORY, Location, WARNING_CATEGORY}
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext

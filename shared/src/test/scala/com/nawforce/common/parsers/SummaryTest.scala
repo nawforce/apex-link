@@ -27,8 +27,9 @@
  */
 package com.nawforce.common.parsers
 
-import com.nawforce.common.api.{Location, Name}
+import com.nawforce.common.diagnostics.Location
 import com.nawforce.common.modifiers.{PRIVATE_MODIFIER, PUBLIC_MODIFIER, STATIC_MODIFIER}
+import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathFactory
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
 import org.scalatest.funsuite.AnyFunSuite

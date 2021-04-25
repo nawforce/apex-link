@@ -27,7 +27,6 @@
  */
 package com.nawforce.common.names
 
-import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.memory.InternCache
 
 object TypeNames extends InternCache[TypeName] {

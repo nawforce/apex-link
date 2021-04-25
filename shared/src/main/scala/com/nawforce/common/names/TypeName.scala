@@ -25,9 +25,8 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.nawforce.common.api
+package com.nawforce.common.names
 
-import com.nawforce.common.names._
 import upickle.default.{macroRW, ReadWriter => RW}
 
 import scala.collection.immutable.ArraySeq.ofRef

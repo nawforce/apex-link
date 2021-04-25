@@ -27,8 +27,8 @@
  */
 package com.nawforce.common.modifiers
 
-import com.nawforce.common.api.{Diagnostic, ERROR_CATEGORY, Location}
-import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.diagnostics
+import com.nawforce.common.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
 import com.nawforce.common.parsers.ApexNode
 import com.nawforce.common.path.PathFactory
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
@@ -80,7 +80,7 @@ class ClassModifierTest extends AnyFunSuite {
     assert(
       issues == Seq[Issue](
         Issue(PathFactory("Dummy.cls").toString,
-              Diagnostic(ERROR_CATEGORY,
+              diagnostics.Diagnostic(ERROR_CATEGORY,
                          Location(1, 14, 1, 19),
                          "Private modifier is not allowed on outer classes"))))
   }
@@ -107,7 +107,7 @@ class ClassModifierTest extends AnyFunSuite {
     assert(
       issues == Seq[Issue](
         Issue(PathFactory("Dummy.cls").toString,
-              Diagnostic(ERROR_CATEGORY,
+              diagnostics.Diagnostic(ERROR_CATEGORY,
                          Location(1, 30, 1, 35),
                          "Abstract classes are virtual classes"))))
   }
@@ -160,7 +160,7 @@ class ClassModifierTest extends AnyFunSuite {
     assert(
       issues == Seq[Issue](
         Issue(PathFactory("Dummy.cls").toString,
-          Diagnostic(ERROR_CATEGORY,
+          diagnostics.Diagnostic(ERROR_CATEGORY,
             Location(1, 34, 1, 37),
             "isTest can only be used on outer classes"))))
 
@@ -180,7 +180,7 @@ class ClassModifierTest extends AnyFunSuite {
     assert(
       issues == Seq[Issue](
         Issue(PathFactory("Dummy.cls").toString,
-          Diagnostic(ERROR_CATEGORY,
+          diagnostics.Diagnostic(ERROR_CATEGORY,
             Location(1, 43, 1, 46),
             "Abstract classes are virtual classes"))))
   }

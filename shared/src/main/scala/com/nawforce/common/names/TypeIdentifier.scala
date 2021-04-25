@@ -25,42 +25,27 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.nawforce.common.api
+package com.nawforce.common.names
 
 import upickle.default.{macroRW, ReadWriter => RW}
 
-@upickle.implicits.key("DiagnosticCategory")
-sealed class DiagnosticCategory(val value: String)
+/** Identifier for a specific type within an Org.
+  *
+  * The provided namespace is used to locate a package which qualifies the meaning of the type name. This is useful
+  * when the type name may not contain a namespace or it may be visible across package such as with global classes.
+  */
+case class TypeIdentifier(namespace: Option[Name], typeName: TypeName) {
 
-case object SYNTAX_CATEGORY extends DiagnosticCategory("Syntax")
-case object ERROR_CATEGORY extends DiagnosticCategory("Error")
-case object WARNING_CATEGORY extends DiagnosticCategory("Warning")
-case object MISSING_CATEGORY extends DiagnosticCategory("Missing")
-case object UNUSED_CATEGORY extends DiagnosticCategory("Unused")
-case class UNKNOWN_CATEGORY(_value: String) extends DiagnosticCategory(_value)
-
-object DiagnosticCategory {
-  def apply(value: String): DiagnosticCategory = {
-    value match {
-      case ERROR_CATEGORY.value   => ERROR_CATEGORY
-      case WARNING_CATEGORY.value => WARNING_CATEGORY
-      case MISSING_CATEGORY.value => MISSING_CATEGORY
-      case UNUSED_CATEGORY.value  => UNUSED_CATEGORY
-      case _                      => UNKNOWN_CATEGORY(value)
-    }
+  override def toString: String = {
+    typeName.toString + namespace.map(n => s" (${n.toString})").getOrElse("")
   }
-
-  implicit val rw: RW[DiagnosticCategory] = macroRW
 }
 
-/** A diagnostic message, category tells us what type of diagnostic this is while location and messages provide details */
-@upickle.implicits.key("Diagnostic")
-case class Diagnostic(category: DiagnosticCategory, location: Location, message: String)
+object TypeIdentifier {
+  implicit val rw: RW[TypeIdentifier] = macroRW
 
-object Diagnostic {
-  implicit val rw: RW[Diagnostic] = macroRW
-
-  def apply(category: String, location: Location, message: String) = {
-    new Diagnostic(DiagnosticCategory(category), location, message)
+  /** Helper for construction from Java, namespace may be null to indicate unmanaged package reference */
+  def fromJava(namespace: Name, typeName: TypeName): TypeIdentifier = {
+    new TypeIdentifier(Option(namespace), typeName)
   }
 }

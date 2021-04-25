@@ -28,6 +28,7 @@
 package com.nawforce.common.documents
 
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.sfdx.ForceIgnore
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.funsuite.AnyFunSuite
 

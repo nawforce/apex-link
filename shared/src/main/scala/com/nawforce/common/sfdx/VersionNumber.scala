@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2020 Kevin Jones
+ Copyright (c) 2021 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -25,27 +25,30 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.nawforce.common.api
+package com.nawforce.common.sfdx
 
-import upickle.default.{macroRW, ReadWriter => RW}
+sealed trait BuildNumber
+case object NextBuild extends BuildNumber
+case object LatestBuild extends BuildNumber
+case class Build(build: Int) extends BuildNumber
 
-/** Identifier for a specific type within an Org.
-  *
-  * The provided namespace is used to locate a package which qualifies the meaning of the type name. This is useful
-  * when the type name may not contain a namespace or it may be visible across package such as with global classes.
-  */
-case class TypeIdentifier(namespace: Option[Name], typeName: TypeName) {
+case class VersionNumber(major: Int, minor: Int, patch: Int, build: BuildNumber) {
+  def isCompatible(other: VersionNumber): Boolean = {
+    if (major != other.major || minor != other.minor || patch != other.patch)
+      return false;
+
+    (build, other.build) match {
+      case (Build(x), Build(y)) => x == y
+      case (LatestBuild, _)     => true
+      case _                    => false
+    }
+  }
 
   override def toString: String = {
-    typeName.toString + namespace.map(n => s" (${n.toString})").getOrElse("")
-  }
-}
-
-object TypeIdentifier {
-  implicit val rw: RW[TypeIdentifier] = macroRW
-
-  /** Helper for construction from Java, namespace may be null to indicate unmanaged package reference */
-  def fromJava(namespace: Name, typeName: TypeName): TypeIdentifier = {
-    new TypeIdentifier(Option(namespace), typeName)
+    s"$major.$minor.$patch." + (build match {
+      case Build(n) => s"$n"
+      case NextBuild => "NEXT"
+      case LatestBuild => "LATEST"
+    })
   }
 }

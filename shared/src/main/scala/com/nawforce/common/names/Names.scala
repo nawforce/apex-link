@@ -27,7 +27,6 @@
  */
 package com.nawforce.common.names
 
-import com.nawforce.common.api.Name
 import com.nawforce.common.memory.CleanableCache
 
 import scala.collection.mutable

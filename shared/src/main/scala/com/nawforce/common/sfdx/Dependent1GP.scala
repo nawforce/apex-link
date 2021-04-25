@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2020 Kevin Jones
+ Copyright (c) 2019 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -25,36 +25,21 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.nawforce.common.sfdx
 
-package com.nawforce.common.stream
+import com.nawforce.common.names.{Name, _}
+import com.nawforce.common.path.PathLike
+import ujson.Value
 
-import com.nawforce.common.diagnostics.{IssueLogger, Location, PathLocation}
-import com.nawforce.common.documents._
-import com.nawforce.common.names.Name
-
-import scala.collection.immutable.Queue
-
-case class FlowEvent(sourceInfo: SourceInfo, location: PathLocation, name: Name)
-    extends PackageEvent
-
-object FlowGenerator extends Generator {
-
-  def queue(logger: IssueLogger,
-            provider: MetadataProvider,
-            queue: Queue[PackageEvent]): Queue[PackageEvent] = {
-    super.queue(MetadataDocument.flowExt, logger, provider, queue)
+class Dependent1GP(projectPath: PathLike, jsonPath: String, config: Value.Value) {
+  val namespace: Name = config.optIdentifier(jsonPath, "namespace") match {
+    case None =>
+      throw new SFDXProjectError(s"$jsonPath.namespace",
+                                 "'namespace' is required for each entry in 'dependencies'")
+    case Some(ns) if ns.isEmpty =>
+      throw new SFDXProjectError(s"$jsonPath.namespace", "'namespace' can not be empty")
+    case Some(ns) => ns
   }
 
-  override def getMetadata(logger: IssueLogger,
-                           metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
-    val docType = metadata.docType
-    docType match {
-      case _: FlowDocument =>
-        Seq(
-          FlowEvent(SourceInfo(docType.path, metadata.source.asString),
-                    PathLocation(docType.path.toString, Location.empty),
-                    docType.name))
-      case _ => Seq.empty
-    }
-  }
+  val path: Option[PathLike] = config.optStringValue(jsonPath, "path").map(p => projectPath.join(p))
 }

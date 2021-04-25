@@ -27,9 +27,9 @@
  */
 package com.nawforce.common.parsers
 
-import com.nawforce.common.api.{Diagnostic, ERROR_CATEGORY, Location, Name}
-import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
 import com.nawforce.common.modifiers.{GLOBAL_MODIFIER, ModifierResults, WEBSERVICE_MODIFIER}
+import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser

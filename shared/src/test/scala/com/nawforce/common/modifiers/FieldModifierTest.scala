@@ -27,8 +27,8 @@
  */
 package com.nawforce.common.modifiers
 
-import com.nawforce.common.api.{Diagnostic, ERROR_CATEGORY, Location}
-import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.diagnostics
+import com.nawforce.common.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
 import com.nawforce.common.parsers.ApexNode
 import com.nawforce.common.path.PathFactory
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
@@ -176,7 +176,7 @@ class FieldModifierTest extends AnyFunSuite {
     assert(
       issues == Seq[Issue](
         Issue(PathFactory("Dummy.cls").toString,
-          Diagnostic(ERROR_CATEGORY,
+          diagnostics.Diagnostic(ERROR_CATEGORY,
             Location(1, 20, 1, 30),
             "Annotation '@TestSetup' is not supported on fields"))))
   }
@@ -186,7 +186,7 @@ class FieldModifierTest extends AnyFunSuite {
     assert(
       issues == Seq[Issue](
         Issue(PathFactory("Dummy.cls").toString,
-              Diagnostic(ERROR_CATEGORY,
+              diagnostics.Diagnostic(ERROR_CATEGORY,
                          Location(1, 47, 1, 50),
                          "Modifier 'protected' is used more than once"))))
   }
@@ -269,7 +269,7 @@ class FieldModifierTest extends AnyFunSuite {
     assert(
       issues == Seq[Issue](
         Issue(PathFactory("Dummy.cls").toString,
-          Diagnostic(ERROR_CATEGORY,
+          diagnostics.Diagnostic(ERROR_CATEGORY,
             Location(1, 38, 1, 44),
             "Modifier 'static' is not supported on inner class fields"))))
 
@@ -325,7 +325,7 @@ class FieldModifierTest extends AnyFunSuite {
     assert(
       issues == Seq[Issue](
         Issue(PathFactory("Dummy.cls").toString,
-          Diagnostic(ERROR_CATEGORY,
+          diagnostics.Diagnostic(ERROR_CATEGORY,
             Location(1, 38, 1, 46),
             "Modifier 'override' is not supported on inner class fields"))))
   }
@@ -335,7 +335,7 @@ class FieldModifierTest extends AnyFunSuite {
     assert(
       issues == Seq[Issue](
         Issue(PathFactory("Dummy.cls").toString,
-          Diagnostic(ERROR_CATEGORY,
+          diagnostics.Diagnostic(ERROR_CATEGORY,
             Location(1, 38, 1, 48),
             "Annotation '@TestSetup' is not supported on inner class fields"))))
   }
@@ -345,7 +345,7 @@ class FieldModifierTest extends AnyFunSuite {
     assert(
       issues == Seq[Issue](
         Issue(PathFactory("Dummy.cls").toString,
-          Diagnostic(ERROR_CATEGORY,
+          diagnostics.Diagnostic(ERROR_CATEGORY,
             Location(1, 65, 1, 68),
             "Modifier 'protected' is used more than once"))))
   }

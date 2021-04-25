@@ -28,9 +28,9 @@
 
 package com.nawforce.common.stream
 
-import com.nawforce.common.api.{Location, Name, PathLocation}
-import com.nawforce.common.diagnostics.IssueLogger
+import com.nawforce.common.diagnostics.{IssueLogger, Location, PathLocation}
 import com.nawforce.common.documents._
+import com.nawforce.common.names.Name
 
 import scala.collection.immutable.Queue
 
