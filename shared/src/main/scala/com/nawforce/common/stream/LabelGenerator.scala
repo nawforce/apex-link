@@ -44,7 +44,7 @@ object LabelGenerator extends Generator {
   def queue(logger: IssueLogger,
             provider: MetadataProvider,
             queue: Queue[PackageEvent]): Queue[PackageEvent] = {
-    super.queue(MetadataDocument.labelsExt, logger, provider, queue)
+    super.queue(labelNature, logger, provider, queue)
   }
 
   protected override def getMetadata(logger: IssueLogger,

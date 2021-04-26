@@ -28,8 +28,7 @@
 
 package com.nawforce.common.stream
 
-import com.nawforce.common.documents.{DocumentIndex, MetadataDocument}
-import com.nawforce.common.names.Name
+import com.nawforce.common.documents.{DocumentIndex, MetadataDocument, MetadataNature}
 import com.nawforce.runtime.parsers.SourceData
 
 case class MetadataDocumentWithData(docType: MetadataDocument, source: SourceData)
@@ -38,16 +37,16 @@ case class MetadataDocumentWithData(docType: MetadataDocument, source: SourceDat
 trait MetadataProvider {
 
   /** Retrieves files of a specific type, if file is not readable an issue is logged. */
-  def retrieve(metadataExt: Name): Iterable[MetadataDocumentWithData]
+  def retrieve(nature: MetadataNature): Iterable[MetadataDocumentWithData]
 }
 
 /** MetadataProvider that uses a DocumentIndex as a source */
 class DocumentIndexMetadataProvider(workspace: DocumentIndex) extends MetadataProvider {
 
   /** Retrieve from the provided DocumentIndex with error handling */
-  override def retrieve(metadataExt: Name): Iterable[MetadataDocumentWithData] = {
+  override def retrieve(nature: MetadataNature): Iterable[MetadataDocumentWithData] = {
     workspace
-      .getByExtension(metadataExt)
+      .get(nature)
       .flatMap(documentType => {
         documentType.path.readSourceData() match {
           case Left(_) =>
@@ -63,12 +62,12 @@ class DocumentIndexMetadataProvider(workspace: DocumentIndex) extends MetadataPr
 class OverrideMetadataProvider(overrides: Seq[MetadataDocumentWithData], base: MetadataProvider)
     extends MetadataProvider {
 
-  private lazy val overrideByExt: Map[Name, Seq[MetadataDocumentWithData]] =
-    overrides.groupBy(_.docType.extension)
+  private lazy val overrideByExt: Map[MetadataNature, Seq[MetadataDocumentWithData]] =
+    overrides.groupBy(_.docType.nature)
 
-  override def retrieve(metadataExt: Name): Iterable[MetadataDocumentWithData] = {
-    val metadata = base.retrieve(metadataExt)
-    val overrides = overrideByExt.getOrElse(metadataExt, Seq())
+  override def retrieve(nature: MetadataNature): Iterable[MetadataDocumentWithData] = {
+    val metadata = base.retrieve(nature)
+    val overrides = overrideByExt.getOrElse(nature, Seq())
     val overridesByPath = overrides.groupBy(_.docType.path)
 
     metadata.filterNot(md => overridesByPath.contains(md.docType.path)) ++ overrides

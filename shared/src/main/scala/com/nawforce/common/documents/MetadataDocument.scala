@@ -32,16 +32,27 @@ import com.nawforce.common.path.PathLike
 
 import scala.collection.immutable.ArraySeq.ofRef
 
+/** The type of some metadata, such as Trigger metadata. Partial type metadata signals that multiple documents
+ * may contribute to the same type. */
+sealed abstract class MetadataNature(val partialType: Boolean = false)
+
+case object labelNature extends MetadataNature(partialType = true)
+case object classNature extends MetadataNature
+case object triggerNature extends MetadataNature
+case object componentNature extends MetadataNature
+case object pageNature extends MetadataNature
+case object flowNature extends MetadataNature
+case object objectNature extends MetadataNature
+case object fieldNature extends MetadataNature
+case object fieldSetNature extends MetadataNature
+
 /** A piece of Metadata described in a file */
 abstract class MetadataDocument(val path: PathLike, val name: Name) {
   /* MDAPI extension for this metadata, may not match actual extension for SFDX */
-  val extension: Name
+  val nature: MetadataNature
 
   /** Set true to avoid indexing bad metadata such as empty files */
   val ignorable: Boolean = false
-
-  /** Set true if typeName() may not be unique for different Metadata */
-  val duplicatesAllowed: Boolean = false
 
   /** Generate a typename for this metadata, if this is not unique you may need to set duplicatesAllowed. */
   def typeName(namespace: Option[Name]): TypeName
@@ -52,8 +63,7 @@ abstract class UpdatableMetadata(_path: PathLike, _name: Name)
 
 final case class LabelsDocument(_path: PathLike, _name: Name)
     extends UpdatableMetadata(_path, _name) {
-  override val extension: Name = MetadataDocument.labelsExt
-  override val duplicatesAllowed: Boolean = true
+  override val nature: MetadataNature = labelNature
   override def typeName(namespace: Option[Name]): TypeName = TypeNames.Label
 }
 
@@ -61,7 +71,7 @@ abstract class ApexDocument(_path: PathLike, _name: Name) extends UpdatableMetad
 
 final case class ApexClassDocument(_path: PathLike, _name: Name)
     extends ApexDocument(_path, _name) {
-  override val extension: Name = MetadataDocument.clsExt
+  override val nature: MetadataNature = classNature
   override def typeName(namespace: Option[Name]): TypeName = {
     TypeName(name).withNamespace(namespace)
   }
@@ -69,7 +79,7 @@ final case class ApexClassDocument(_path: PathLike, _name: Name)
 
 final case class ApexTriggerDocument(_path: PathLike, _name: Name)
     extends ApexDocument(_path, _name) {
-  override val extension: Name = MetadataDocument.triggerExt
+  override val nature: MetadataNature = triggerNature
   override def typeName(namespace: Option[Name]): TypeName = {
     val qname: String = namespace
       .map(ns => s"__sfdc_trigger/${ns.value}/${name.value}")
@@ -80,7 +90,7 @@ final case class ApexTriggerDocument(_path: PathLike, _name: Name)
 
 final case class ComponentDocument(_path: PathLike, _name: Name)
     extends UpdatableMetadata(_path, _name) {
-  override val extension: Name = MetadataDocument.componentExt
+  override val nature: MetadataNature = componentNature
   override def typeName(namespace: Option[Name]): TypeName = {
     namespace
       .map(ns => TypeName(name, Nil, Some(TypeName(ns, Nil, Some(TypeNames.Component)))))
@@ -88,12 +98,13 @@ final case class ComponentDocument(_path: PathLike, _name: Name)
   }
 }
 
-abstract class SObjectLike(_path: PathLike, _name: Name) extends MetadataDocument(_path, _name)
+abstract class SObjectLike(_path: PathLike, _name: Name) extends MetadataDocument(_path, _name) {
+  override val nature: MetadataNature = objectNature
+}
 
 final case class SObjectDocument(_path: PathLike, _name: Name) extends SObjectLike(_path, _name) {
 
   private val isCustom = name.value.endsWith("__c")
-  override val extension: Name = MetadataDocument.objectExt
   override val ignorable: Boolean = path.size == 0
   override def typeName(namespace: Option[Name]): TypeName = {
     val prefix =
@@ -105,9 +116,32 @@ final case class SObjectDocument(_path: PathLike, _name: Name) extends SObjectLi
   }
 }
 
+final case class CustomMetadataDocument(_path: PathLike, _name: Name)
+    extends SObjectLike(_path, _name) {
+  override def typeName(namespace: Option[Name]): TypeName = {
+    val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
+    TypeName(Name(prefix + name + "__mdt"), Nil, Some(TypeNames.Schema))
+  }
+}
+
+final case class BigObjectDocument(_path: PathLike, _name: Name) extends SObjectLike(_path, _name) {
+  override def typeName(namespace: Option[Name]): TypeName = {
+    val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
+    TypeName(Name(prefix + name + "__b"), Nil, Some(TypeNames.Schema))
+  }
+}
+
+final case class PlatformEventDocument(_path: PathLike, _name: Name)
+    extends SObjectLike(_path, _name) {
+  override def typeName(namespace: Option[Name]): TypeName = {
+    val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
+    TypeName(Name(prefix + name + "__e"), Nil, Some(TypeNames.Schema))
+  }
+}
+
 final case class SObjectFieldDocument(_path: PathLike, _name: Name)
     extends MetadataDocument(_path, _name) {
-  override val extension: Name = MetadataDocument.fieldExt
+  override val nature: MetadataNature = fieldNature
   override def typeName(namespace: Option[Name]): TypeName = {
     val sobjectName = path.parent.parent.basename
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
@@ -119,7 +153,7 @@ final case class SObjectFieldDocument(_path: PathLike, _name: Name)
 
 final case class SObjectFieldSetDocument(_path: PathLike, _name: Name)
     extends MetadataDocument(_path, _name) {
-  override val extension: Name = MetadataDocument.fieldSetExt
+  override val nature: MetadataNature = fieldSetNature
   override def typeName(namespace: Option[Name]): TypeName = {
     val sobjectName = path.parent.parent.basename
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
@@ -129,36 +163,9 @@ final case class SObjectFieldSetDocument(_path: PathLike, _name: Name)
   }
 }
 
-final case class CustomMetadataDocument(_path: PathLike, _name: Name)
-    extends SObjectLike(_path, _name) {
-  override val extension: Name = MetadataDocument.objectExt
-  override def typeName(namespace: Option[Name]): TypeName = {
-    val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix + name + "__mdt"), Nil, Some(TypeNames.Schema))
-  }
-}
-
-final case class BigObjectDocument(_path: PathLike, _name: Name)
-  extends SObjectLike(_path, _name) {
-  override val extension: Name = MetadataDocument.objectExt
-  override def typeName(namespace: Option[Name]): TypeName = {
-    val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix + name + "__b"), Nil, Some(TypeNames.Schema))
-  }
-}
-
-final case class PlatformEventDocument(_path: PathLike, _name: Name)
-    extends SObjectLike(_path, _name) {
-  override val extension: Name = MetadataDocument.objectExt
-  override def typeName(namespace: Option[Name]): TypeName = {
-    val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix + name + "__e"), Nil, Some(TypeNames.Schema))
-  }
-}
-
 final case class PageDocument(_path: PathLike, _name: Name)
     extends UpdatableMetadata(_path, _name) {
-  override val extension: Name = MetadataDocument.pageExt
+  override val nature: MetadataNature = pageNature
   override def typeName(namespace: Option[Name]): TypeName = {
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
     TypeName(Name(prefix + name), Nil, Some(TypeNames.Page))
@@ -167,7 +174,7 @@ final case class PageDocument(_path: PathLike, _name: Name)
 
 final case class FlowDocument(_path: PathLike, _name: Name)
     extends UpdatableMetadata(_path, _name) {
-  override lazy val extension: Name = MetadataDocument.flowExt
+  override lazy val nature: MetadataNature = flowNature
   override def typeName(namespace: Option[Name]): TypeName = {
     namespace
       .map(ns => TypeName(name, Nil, Some(TypeName(ns, Nil, Some(TypeNames.Interview)))))
@@ -176,16 +183,6 @@ final case class FlowDocument(_path: PathLike, _name: Name)
 }
 
 object MetadataDocument {
-  lazy val labelsExt: Name = Name("labels")
-  lazy val clsExt: Name = Name("cls")
-  lazy val triggerExt: Name = Name("trigger")
-  lazy val componentExt: Name = Name("component")
-  lazy val pageExt: Name = Name("page")
-  lazy val flowExt: Name = Name("flow")
-  lazy val objectExt: Name = Name("object")
-  lazy val fieldExt: Name = Name("field")
-  lazy val fieldSetExt: Name = Name("fieldSet")
-
   def apply(path: PathLike): Option[MetadataDocument] = {
     splitFilename(path) match {
       case Seq(name, Name("cls")) =>

@@ -37,12 +37,12 @@ import scala.collection.immutable.Queue
 /** Package stream generator, assists queuing package stream events. */
 trait Generator {
 
-  protected def queue(metadataType: Name,
+  protected def queue(nature: MetadataNature,
                       logger: IssueLogger,
                       provider: MetadataProvider,
                       queue: Queue[PackageEvent]): Queue[PackageEvent] = {
     provider
-      .retrieve(metadataType)
+      .retrieve(nature)
       .foldRight(queue)((d, q) => {
         queueFromDocument(logger, q, d)
       })

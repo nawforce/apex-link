@@ -34,26 +34,6 @@ import com.nawforce.common.workspace.{NamespaceLayer, PackageLayer}
 
 trait WorkspaceConfig {
   def layers(logger: IssueLogger): Seq[NamespaceLayer]
-  /** Determine if a path is a file that could be included in index. */
-  /* TODO: Remove?
-  def isVisibleFile(path: PathLike): Boolean = {
-    forceIgnore.forall(_.includeFile(path)) && isVisiblePath(path.parent)
-  }
-   */
-
-  // Check a directory path would be included in index
-  /*
-  @scala.annotation.tailrec
-  private def isVisiblePath(path: PathLike): Boolean = {
-    if (paths.contains(path)) return true
-    if (!forceIgnore.forall(_.includeDirectory(path))) return false
-
-    val parent = path.parent
-    if (parent != path)
-      isVisiblePath(parent)
-    else
-      false
-  }*/
 }
 
 class MDAPIWorkspaceConfig(namespace: Option[Name], paths: Seq[PathLike]) extends WorkspaceConfig {

@@ -43,7 +43,7 @@ object PageGenerator extends Generator {
   def queue(logger: IssueLogger,
             provider: MetadataProvider,
             queue: Queue[PackageEvent]): Queue[PackageEvent] = {
-    super.queue(MetadataDocument.pageExt, logger, provider, queue)
+    super.queue(pageNature, logger, provider, queue)
   }
 
   override def getMetadata(logger: IssueLogger,
