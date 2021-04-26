@@ -42,7 +42,7 @@ object FlowGenerator extends Generator {
   def queue(logger: IssueLogger,
             provider: MetadataProvider,
             queue: Queue[PackageEvent]): Queue[PackageEvent] = {
-    super.queue(flowNature, logger, provider, queue)
+    super.queue(FlowNature, logger, provider, queue)
   }
 
   override def getMetadata(logger: IssueLogger,

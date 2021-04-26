@@ -30,12 +30,10 @@ package com.nawforce.common.workspace
 import com.nawforce.common.diagnostics.{CatchingLogger, IssueLogger, IssuesAnd, Location}
 import com.nawforce.common.documents.DocumentIndex
 import com.nawforce.common.path.PathFactory
-import com.nawforce.common.sfdx.{
-  MDAPIWorkspaceConfig,
-  SFDXProject,
-  SFDXWorkspaceConfig,
-  WorkspaceConfig
-}
+import com.nawforce.common.sfdx.{MDAPIWorkspaceConfig, SFDXProject, SFDXWorkspaceConfig, WorkspaceConfig}
+import com.nawforce.common.stream.{ComponentGenerator, DocumentIndexMetadataProvider, FlowGenerator, LabelGenerator, PackageEvent, PackageStream, PageGenerator}
+
+import scala.collection.immutable.Queue
 
 /** Metadata workspace, maintains information on available metadata within a project/package.
   *
@@ -50,9 +48,25 @@ import com.nawforce.common.sfdx.{
 case class Workspace(layers: Seq[NamespaceLayer]) {
 
   // Document indexes for each layer of actual metadata
-  val indexes: Map[MetadataLayer, IssuesAnd[DocumentIndex]] =
+  private val indexes: Map[MetadataLayer, IssuesAnd[DocumentIndex]] =
     layers.foldLeft(Map[MetadataLayer, IssuesAnd[DocumentIndex]]())((acc, layer) => acc ++ layer.index)
 
+  def events: Iterable[PackageEvent] = {
+    orderedIndexes.flatMap(index => {
+      val logger = new CatchingLogger
+      val provider = new DocumentIndexMetadataProvider(index.value)
+      var queue = Queue[PackageEvent]()
+      queue = LabelGenerator.queue(logger, provider, queue)
+      queue = PageGenerator.queue(logger, provider, queue)
+      queue = FlowGenerator.queue(logger, provider, queue)
+      queue = ComponentGenerator.queue(logger, provider, queue)
+      queue
+    })
+  }
+
+  private def orderedIndexes: Iterable[IssuesAnd[DocumentIndex]] = {
+    layers.flatMap(layer => layer.layers).flatMap(indexes.get)
+  }
 }
 
 object Workspace {

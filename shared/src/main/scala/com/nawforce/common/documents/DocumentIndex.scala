@@ -117,11 +117,11 @@ private class MetadataCollection(val namespace: Option[Name]) extends DocumentSt
     }
 
     // If we find a field or fieldSet without a SObject metadata, fake it exists to make later processing easier
-    if (document.nature == fieldNature || document.nature == fieldSetNature) {
+    if (document.nature == FieldNature || document.nature == FieldSetNature) {
       val objectDir = document.path.parent.parent
       val metaFile = objectDir.join(objectDir.basename + ".object-meta.xml")
       val docType = SObjectDocument(metaFile, Name(objectDir.basename))
-      if (get(objectNature, docType.typeName(namespace)).isEmpty)
+      if (get(SObjectNature, docType.typeName(namespace)).isEmpty)
         super.add(logger, docType)
     }
 

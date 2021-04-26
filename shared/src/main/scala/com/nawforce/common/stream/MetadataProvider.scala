@@ -41,11 +41,11 @@ trait MetadataProvider {
 }
 
 /** MetadataProvider that uses a DocumentIndex as a source */
-class DocumentIndexMetadataProvider(workspace: DocumentIndex) extends MetadataProvider {
+class DocumentIndexMetadataProvider(index: DocumentIndex) extends MetadataProvider {
 
   /** Retrieve from the provided DocumentIndex with error handling */
   override def retrieve(nature: MetadataNature): Iterable[MetadataDocumentWithData] = {
-    workspace
+    index
       .get(nature)
       .flatMap(documentType => {
         documentType.path.readSourceData() match {
