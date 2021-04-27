@@ -27,9 +27,12 @@
  */
 package com.nawforce.runtime.documents
 
+import com.nawforce.common.names.DotName
 import com.nawforce.common.workspace.Workspace
 
 import scala.collection.mutable
+import scala.scalajs.js
+import scala.scalajs.js.JSConverters._
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
 @JSExportTopLevel("WorkspaceException")
@@ -38,12 +41,10 @@ class JSWorkspaceException(val message: String) extends Exception(message)
 @JSExportTopLevel("Workspace")
 class JSWorkspace(val workspace: Workspace) {
 
-  // TODO
-  /*
   @JSExport
-  def findType(name: String): String = {
-    workspace.getByType(DotName(name).asTypeName()).map(_.path.toString).orNull
-  }*/
+  def findType(name: String): js.Array[String] = {
+    workspace.get(DotName(name).asTypeName()).map(_.path.toString).toJSArray
+  }
 }
 
 @JSExportTopLevel("Workspaces")

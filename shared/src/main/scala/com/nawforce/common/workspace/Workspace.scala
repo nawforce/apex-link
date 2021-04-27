@@ -28,7 +28,8 @@
 package com.nawforce.common.workspace
 
 import com.nawforce.common.diagnostics.{CatchingLogger, IssueLogger, IssuesAnd, Location}
-import com.nawforce.common.documents.DocumentIndex
+import com.nawforce.common.documents.{DocumentIndex, MetadataDocument}
+import com.nawforce.common.names.TypeName
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.sfdx.{
   MDAPIWorkspaceConfig,
@@ -55,12 +56,19 @@ case class Workspace(layers: Seq[NamespaceLayer]) {
     layers.foldLeft(Map[MetadataLayer, IssuesAnd[DocumentIndex]]())((acc, layer) =>
       acc ++ layer.index)
 
+  def get(typeName: TypeName): Set[MetadataDocument] = {
+    deployOrderedIndexes.toSeq.reverse
+      .map(index => index.value.get(typeName))
+      .headOption
+      .getOrElse(Set.empty)
+  }
+
   def events: Iterable[PackageEvent] = {
-    orderedIndexes.flatMap(index =>
+    deployOrderedIndexes.flatMap(index =>
       PackageStream.eventStream(index.value) ++ IssuesEvent(index.issues))
   }
 
-  private def orderedIndexes: Iterable[IssuesAnd[DocumentIndex]] = {
+  private def deployOrderedIndexes: Iterable[IssuesAnd[DocumentIndex]] = {
     layers.flatMap(layer => layer.layers).flatMap(indexes.get)
   }
 }

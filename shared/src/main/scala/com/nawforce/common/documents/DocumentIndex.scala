@@ -51,12 +51,16 @@ class DocumentIndex(val namespace: Option[Name],
   /** Number of documents. */
   val size: Int = collection.size
 
-  /** Get metadata documents of some nature. */
+  /** Get documents of some nature. */
   def get(nature: MetadataNature): Iterable[MetadataDocument] = collection.get(nature)
 
   /** Get all documents of some nature that contribute to a type  */
   def get(nature: MetadataNature, typeName: TypeName): Set[MetadataDocument] =
     collection.get(nature, typeName)
+
+  /** Get all documents that contribute to a type */
+  def get(typeName: TypeName): Set[MetadataDocument] =
+    collection.get(typeName)
 
   /** Add a new document, for non-partial documents this will replace any existing document in the store that provides
     * the same type. Duplicate detection is left to the caller. For partial types, the document will always be added
@@ -201,6 +205,11 @@ private class DocumentStore(namespace: Option[Name]) {
         case None             => Set.empty
       }
     }
+  }
+
+  def get(typeName: TypeName): Set[MetadataDocument] = {
+    (partialTypeDocuments.values.flatMap(_.get(typeName)).flatten ++
+      fullTypeDocuments.values.flatMap(_.get(typeName))).toSet
   }
 
   def add(logger: IssueLogger, document: MetadataDocument): Unit = {
