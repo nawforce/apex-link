@@ -28,6 +28,7 @@
 
 package com.nawforce.common.diagnostics
 
+import com.nawforce.common.path.PathLike
 import upickle.default.{macroRW, ReadWriter => RW}
 
 sealed case class Issue(path: String, diagnostic: Diagnostic) {
@@ -40,6 +41,10 @@ object Issue {
   implicit val ordering: Ordering[Issue] = Ordering
     .by[Issue, Int](_.diagnostic.location.startLine)
     .orElseBy(_.diagnostic.location.startPosition)
+
+  def apply(path: PathLike, category: DiagnosticCategory, location: Location, message: String): Issue = {
+    new Issue(path.toString, Diagnostic(category, location, message))
+  }
 }
 
 sealed case class IssuesAnd[T](issues: Seq[Issue], value: T)

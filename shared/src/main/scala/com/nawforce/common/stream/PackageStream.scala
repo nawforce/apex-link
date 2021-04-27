@@ -27,15 +27,26 @@
  */
 package com.nawforce.common.stream
 
-import com.nawforce.common.diagnostics.IssueLogger
-import com.nawforce.common.documents.DocumentIndex
+import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.documents._
 import com.nawforce.common.names.Name
-
-import scala.collection.immutable.Queue
 
 trait PackageEvent
 
+case class IssuesEvent(issues: Iterable[Issue]) extends PackageEvent
+
+object IssuesEvent {
+  def apply(issues: Issue*): Iterable[IssuesEvent] = {
+    Iterable(new IssuesEvent(issues))
+  }
+
+  def apply(issues: Iterable[Issue]): Iterable[IssuesEvent] = {
+    Iterable(new IssuesEvent(issues))
+  }
+}
+
 class PackageStream(val namespace: Option[Name], val events: Seq[PackageEvent]) {
+  def issues: Seq[IssuesEvent] = events.collect { case e: IssuesEvent            => e }
   def labelsFiles: Seq[LabelFileEvent] = events.collect { case e: LabelFileEvent => e }
   def labels: Seq[LabelEvent] = events.collect { case e: LabelEvent              => e }
   def pages: Seq[PageEvent] = events.collect { case e: PageEvent                 => e }
@@ -44,13 +55,14 @@ class PackageStream(val namespace: Option[Name], val events: Seq[PackageEvent]) 
 }
 
 object PackageStream {
-  def apply(logger: IssueLogger, namespace: Option[Name], workspace: DocumentIndex): PackageStream = {
-    val provider = new DocumentIndexMetadataProvider(workspace)
-    var queue = Queue[PackageEvent]()
-    queue = LabelGenerator.queue(logger, provider, queue)
-    queue = PageGenerator.queue(logger, provider, queue)
-    queue = FlowGenerator.queue(logger, provider, queue)
-    queue = ComponentGenerator.queue(logger, provider, queue)
-    new PackageStream(namespace, queue)
+  def apply(namespace: Option[Name], index: DocumentIndex): PackageStream = {
+    new PackageStream(namespace, eventStream(index).toSeq)
+  }
+
+  def eventStream(index: DocumentIndex): Iterable[PackageEvent] = {
+    LabelGenerator.iterable(LabelNature, index) ++
+      PageGenerator.iterable(PageNature, index) ++
+      FlowGenerator.iterable(FlowNature, index) ++
+      ComponentGenerator.iterable(ComponentNature, index)
   }
 }

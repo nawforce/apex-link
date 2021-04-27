@@ -28,58 +28,44 @@
 
 package com.nawforce.common.stream
 
-import com.nawforce.common.diagnostics.{IssueLogger, Location, PathLocation}
+import com.nawforce.common.diagnostics.{ERROR_CATEGORY, Issue, Location, PathLocation}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.Name
 import com.nawforce.common.xml.XMLException
 import com.nawforce.runtime.xml.XMLDocument
-
-import scala.collection.immutable.Queue
 
 case class LabelFileEvent(sourceInfo: SourceInfo) extends PackageEvent
 case class LabelEvent(location: PathLocation, name: Name, isProtected: Boolean) extends PackageEvent
 
 object LabelGenerator extends Generator {
 
-  def queue(logger: IssueLogger,
-            provider: MetadataProvider,
-            queue: Queue[PackageEvent]): Queue[PackageEvent] = {
-    super.queue(LabelNature, logger, provider, queue)
-  }
-
-  protected override def getMetadata(logger: IssueLogger,
-                                     metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
-
-    val path = metadata.docType.path
-    val source = metadata.source.asString
-    val parseResult = XMLDocument(path, source)
-    if (parseResult.isLeft) {
-      logger.log(parseResult.swap.getOrElse(throw new NoSuchElementException))
-      return Seq.empty
-    }
-    val rootElement = parseResult.getOrElse(throw new NoSuchElementException).rootElement
-
-    try {
-      rootElement.assertIs("CustomLabels")
-    } catch {
-      case e: XMLException =>
-        logger.logError(path, e.where, e.msg)
-        return Seq.empty
-    }
-
-    val labels = rootElement
-      .getChildren("labels")
-      .flatMap(c => {
-        try {
-          val fullName: String = c.getSingleChildAsString("fullName")
-          val protect: Boolean = c.getSingleChildAsBoolean("protected")
-          Some(LabelEvent(PathLocation(path.toString, Location(c.line)), Name(fullName), protect))
-        } catch {
-          case e: XMLException =>
-            logger.logError(path, e.where, e.msg)
-            None
+  protected def toEvents(document: MetadataDocument): Iterable[PackageEvent] = {
+    val source = document.source
+    source.value
+      .map(source => {
+        XMLDocument(document.path, source) match {
+          case Left(issue) => IssuesEvent(issue)
+          case Right(document) =>
+            val rootElement = document.rootElement
+            try {
+              rootElement.assertIs("CustomLabels")
+              val labels = rootElement
+                .getChildren("labels")
+                .flatMap(c => {
+                  val fullName: String = c.getSingleChildAsString("fullName")
+                  val protect: Boolean = c.getSingleChildAsBoolean("protected")
+                  Some(
+                    LabelEvent(PathLocation(document.path.toString, Location(c.line)),
+                               Name(fullName),
+                               protect))
+                })
+              labels ++ Iterable(LabelFileEvent(SourceInfo(document.path, source)))
+            } catch {
+              case e: XMLException =>
+                IssuesEvent(Issue(document.path, ERROR_CATEGORY, e.where, e.msg))
+            }
         }
       })
-    labels :+ LabelFileEvent(SourceInfo(path, source))
+      .getOrElse(Iterable.empty) ++ IssuesEvent(source.issues)
   }
 }

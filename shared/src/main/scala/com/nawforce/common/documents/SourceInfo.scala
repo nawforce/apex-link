@@ -28,14 +28,13 @@
 package com.nawforce.common.documents
 
 import com.nawforce.common.path.PathLike
+import com.nawforce.runtime.parsers.SourceData
 
-import scala.util.hashing.MurmurHash3
-
-/** Source information carrier */
+/** Source information carrier. */
 case class SourceInfo(path: PathLike, hash: Int)
 
 object SourceInfo {
-  def apply(path: PathLike, data: String): SourceInfo = {
-    new SourceInfo(path, MurmurHash3.stringHash(data))
+  def apply(path: PathLike, data: SourceData): SourceInfo = {
+    new SourceInfo(path, data.hash)
   }
 }

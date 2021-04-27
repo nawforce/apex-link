@@ -27,13 +27,15 @@
  */
 package com.nawforce.common.documents
 
+import com.nawforce.common.diagnostics._
 import com.nawforce.common.names.{TypeName, TypeNames, _}
 import com.nawforce.common.path.PathLike
+import com.nawforce.runtime.parsers.SourceData
 
 import scala.collection.immutable.ArraySeq.ofRef
 
 /** The type of some metadata, such as Trigger metadata. Partial type metadata signals that multiple documents
- * may contribute to the same type. */
+  * may contribute to the same type. */
 sealed abstract class MetadataNature(val partialType: Boolean = false)
 
 case object LabelNature extends MetadataNature(partialType = true)
@@ -56,6 +58,15 @@ abstract class MetadataDocument(val path: PathLike, val name: Name) {
 
   /** Generate a typename for this metadata, if this is not unique you may need to set duplicatesAllowed. */
   def typeName(namespace: Option[Name]): TypeName
+
+  /** Obtain source data for this document */
+  def source: IssuesAnd[Option[SourceData]] = {
+    path.readSourceData() match {
+      case Left(err) =>
+        IssuesAnd(List(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location.empty, err))), None)
+      case Right(data) => IssuesAnd(Some(data))
+    }
+  }
 }
 
 abstract class UpdatableMetadata(_path: PathLike, _name: Name)

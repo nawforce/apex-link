@@ -33,7 +33,7 @@ import com.nawforce.runtime.xml.XMLDocument
 
 object XMLFactory {
   def parse(path: PathLike): Either[Issue, XMLDocumentLike] = {
-    path.read() match {
+    path.readSourceData() match {
       case Left(err)   => Left(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location(0), err)))
       case Right(data) => XMLDocument(path, data)
     }

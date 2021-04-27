@@ -28,11 +28,9 @@
 
 package com.nawforce.common.stream
 
-import com.nawforce.common.diagnostics.{IssueLogger, Location, PathLocation}
+import com.nawforce.common.diagnostics.{Location, PathLocation}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.Name
-
-import scala.collection.immutable.Queue
 
 case class PageEvent(sourceInfo: SourceInfo, location: PathLocation, name: Name)
     extends PackageEvent
@@ -40,22 +38,16 @@ case class PageEvent(sourceInfo: SourceInfo, location: PathLocation, name: Name)
 /** Convert page documents into PackageEvents */
 object PageGenerator extends Generator {
 
-  def queue(logger: IssueLogger,
-            provider: MetadataProvider,
-            queue: Queue[PackageEvent]): Queue[PackageEvent] = {
-    super.queue(PageNature, logger, provider, queue)
+  protected def toEvents(document: MetadataDocument): Iterable[PackageEvent] = {
+    val source = document.source
+    source.value
+      .map(source => {
+        Iterable(
+          PageEvent(SourceInfo(document.path, source),
+            PathLocation(document.path.toString, Location.empty),
+            document.name))
+      })
+      .getOrElse(Iterable.empty) ++ IssuesEvent(source.issues)
   }
 
-  override def getMetadata(logger: IssueLogger,
-                           metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
-    val docType = metadata.docType
-    docType match {
-      case _: PageDocument =>
-        Seq(
-          PageEvent(SourceInfo(docType.path, metadata.source.asString),
-                    PathLocation(docType.path.toString, Location.empty),
-                    docType.name))
-      case _ => Seq.empty
-    }
-  }
 }

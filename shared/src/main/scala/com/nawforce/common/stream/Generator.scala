@@ -37,36 +37,9 @@ import scala.collection.immutable.Queue
 /** Package stream generator, assists queuing package stream events. */
 trait Generator {
 
-  protected def queue(nature: MetadataNature,
-                      logger: IssueLogger,
-                      provider: MetadataProvider,
-                      queue: Queue[PackageEvent]): Queue[PackageEvent] = {
-    provider
-      .retrieve(nature)
-      .foldRight(queue)((d, q) => {
-        queueFromDocument(logger, q, d)
-      })
+  def iterable(nature: MetadataNature, index: DocumentIndex): Iterable[PackageEvent] = {
+    index.get(nature).flatMap(toEvents)
   }
 
-  private def queueFromDocument(logger: IssueLogger,
-                                queue: Queue[PackageEvent],
-                                metadata: MetadataDocumentWithData): Queue[PackageEvent] = {
-    queue ++ getMetadata(logger, metadata)
-  }
-
-  protected def getMetadata(logger: IssueLogger,
-                            metadata: MetadataDocumentWithData): Seq[PackageEvent]
-}
-
-object Generator {
-  def queue(dt: UpdatableMetadata,
-            logger: IssueLogger,
-            provider: MetadataProvider): Queue[PackageEvent] = {
-    dt match {
-      case _: LabelsDocument    => LabelGenerator.queue(logger, provider, Queue[PackageEvent]())
-      case _: PageDocument      => PageGenerator.queue(logger, provider, Queue[PackageEvent]())
-      case _: ComponentDocument => ComponentGenerator.queue(logger, provider, Queue[PackageEvent]())
-      case _: FlowDocument      => FlowGenerator.queue(logger, provider, Queue[PackageEvent]())
-    }
-  }
+  protected def toEvents(document: MetadataDocument): Iterable[PackageEvent]
 }

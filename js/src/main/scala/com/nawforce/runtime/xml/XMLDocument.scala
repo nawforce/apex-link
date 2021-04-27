@@ -30,6 +30,7 @@ package com.nawforce.runtime.xml
 import com.nawforce.common.diagnostics.{Diagnostic, DiagnosticCategory, ERROR_CATEGORY, Issue, Location}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.xml.{XMLDocumentLike, XMLElementLike, XMLName}
+import com.nawforce.runtime.parsers.SourceData
 
 import scala.collection.mutable.ArrayBuffer
 import scala.scalajs.js
@@ -75,10 +76,10 @@ object XMLDocument {
   val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
   var errors: List[Issue] = Nil
 
-  def apply(path: PathLike, data: String): Either[Issue, XMLDocument] = {
+  def apply(path: PathLike, sourceData: SourceData): Either[Issue, XMLDocument] = {
     errors = Nil
     val parser = new DOMParser(getOptions(path))
-    val doc = parser.parseFromString(data, "text/xml")
+    val doc = parser.parseFromString(sourceData.asString, "text/xml")
     if (errors.nonEmpty) {
       Left(errors.last)
     } else {

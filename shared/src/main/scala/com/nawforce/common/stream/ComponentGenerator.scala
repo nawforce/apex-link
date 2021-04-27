@@ -28,12 +28,10 @@
 
 package com.nawforce.common.stream
 
-import com.nawforce.common.diagnostics.{IssueLogger, Location, PathLocation}
+import com.nawforce.common.diagnostics.{CatchingLogger, IssueLogger, Location, PathLocation}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.Name
 import com.nawforce.runtime.parsers.{PageParser, VFParser}
-
-import scala.collection.immutable.Queue
 
 case class ComponentEvent(sourceInfo: SourceInfo,
                           location: PathLocation,
@@ -44,27 +42,24 @@ case class ComponentEvent(sourceInfo: SourceInfo,
 /** Convert component documents into PackageEvents */
 object ComponentGenerator extends Generator {
 
-  def queue(logger: IssueLogger,
-            provider: MetadataProvider,
-            queue: Queue[PackageEvent]): Queue[PackageEvent] = {
-    super.queue(ComponentNature, logger, provider, queue)
-  }
+  override def toEvents(document: MetadataDocument): Iterable[PackageEvent] = {
+    val source = document.source
+    source.value
+      .map(source => {
+        val logger = new CatchingLogger
+        val parser: PageParser = PageParser(document.path, source)
+        val attributes = parser.parsePage() match {
+          case Left(issues)     => issues.foreach(logger.log); Array[Name]()
+          case Right(component) => extractAttributes(parser, logger, component)
+        }
 
-  override def getMetadata(logger: IssueLogger,
-                           metadata: MetadataDocumentWithData): Seq[PackageEvent] = {
-
-    val path = metadata.docType.path
-    val parser: PageParser = PageParser(path, metadata.source)
-    val attributes = parser.parsePage() match {
-      case Left(issues)     => issues.foreach(logger.log); Array[Name]()
-      case Right(component) => extractAttributes(parser, logger, component)
-    }
-
-    Seq(
-      ComponentEvent(SourceInfo(metadata.docType.path, metadata.source.asString),
-                     PathLocation(metadata.docType.path.toString, Location.empty),
-                     metadata.docType.name,
-                     attributes))
+        Iterable(
+          ComponentEvent(SourceInfo(document.path, source),
+                         PathLocation(document.path.toString, Location.empty),
+                         document.name,
+                         attributes)) ++ IssuesEvent(logger.issues)
+      })
+      .getOrElse(Iterable.empty) ++ IssuesEvent(source.issues)
   }
 
   private def extractAttributes(parser: PageParser,
