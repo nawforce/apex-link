@@ -81,8 +81,10 @@ case class Path private (path: String) extends PathLike {
 
   override def readBytes(): Either[String, Array[Byte]] = {
     try {
-      // TODO Simplify
-      val data = Fs.readFileSync(path).values().toIterator.toJSArray
+      // Scala thinks we must store Buffer values as Short values as they are typed 'unsigned' and there is
+      // no unsigned byte in the JVM, workaround is to map them. We could leave them as Buffers but that
+      // will causes issues downstream and Strings need more memory.
+      val data = Fs.readFileSync(path).values().toIterator
       Right(data.map(_.toByte).toArray)
     } catch {
       case ex: js.JavaScriptException => Left(ex.getMessage())

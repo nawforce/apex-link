@@ -194,7 +194,7 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
     val modifierContext = classBodyModifierContext(parentContext(parentContext(ctx)))
     val fieldType = CodeParser.getText(ctx.typeRef())
     val variableDeclarators = CodeParser.toScala(ctx.variableDeclarators().variableDeclarator())
-    val modifiers = ApexModifiers.fieldModifiers(parser,
+    val modifiers = FieldModifiers.fieldModifiers(parser,
                                                  modifierContext.modifiers,
                                                  ownerNatureStack.size == 1,
                                                  variableDeclarators.head.id())
@@ -229,7 +229,7 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
                                    visitChildren: VisitChildren): ArraySeq[ApexNode] = {
     val modifierContext = classBodyModifierContext(parentContext(parentContext(ctx)))
     val modifiers =
-      ApexModifiers.fieldModifiers(parser,
+      FieldModifiers.fieldModifiers(parser,
                                    modifierContext.modifiers,
                                    ownerNatureStack.size == 1,
                                    ctx.id())

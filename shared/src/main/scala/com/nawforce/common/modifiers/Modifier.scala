@@ -129,7 +129,6 @@ object ModifierOps {
 
 // TODO: Validate arguments of the annotations
 // TODO: Cross modifier/annotation checking
-// TODO: Protected not supported on class, interface & enum
 
 object ApexModifiers {
   val visibilityModifiers =
@@ -137,54 +136,35 @@ object ApexModifiers {
   private val sharingModifiers =
     Seq(WITH_SHARING_MODIFIER, WITHOUT_SHARING_MODIFIER, INHERITED_SHARING_MODIFIER)
 
-  private val legalTypeAnnotations: Set[Modifier] =
+  private val TypeAnnotations: Set[Modifier] =
     Set(DEPRECATED_ANNOTATION,
         TEST_VISIBLE_ANNOTATION,
         SUPPRESS_WARNINGS_ANNOTATION,
         NAMESPACE_ACCESSIBLE_ANNOTATION)
 
-  private val legalTypeModifiers: Set[Modifier] =
+  private val TypeModifiers: Set[Modifier] =
     Set(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PRIVATE_MODIFIER)
 
-  private val legalTypeModifiersAndAnnotations: Set[Modifier] =
-    legalTypeAnnotations ++ legalTypeModifiers
+  private val TypeModifiersAndAnnotations: Set[Modifier] =
+    TypeAnnotations ++ TypeModifiers
 
-  private val legalClassAnnotations: Set[Modifier] =
-    legalTypeAnnotations ++ Set(ISTEST_ANNOTATION, REST_RESOURCE_ANNOTATION)
+  private val ClassAnnotations: Set[Modifier] =
+    TypeAnnotations ++ Set(ISTEST_ANNOTATION, REST_RESOURCE_ANNOTATION)
 
-  private val legalClassModifiers: Set[Modifier] =
-    legalTypeModifiers ++ Set(ABSTRACT_MODIFIER, VIRTUAL_MODIFIER) ++ sharingModifiers.toSet
+  private val ClassModifiers: Set[Modifier] =
+    TypeModifiers ++ Set(ABSTRACT_MODIFIER, VIRTUAL_MODIFIER) ++ sharingModifiers.toSet
 
-  private val legalClassModifiersAndAnnotations: Set[Modifier] =
-    legalClassAnnotations ++ legalClassModifiers
+  private val ClassModifiersAndAnnotations: Set[Modifier] =
+    ClassAnnotations ++ ClassModifiers
 
-  private val legalInterfaceModifiers: Set[Modifier] =
+  private val InterfaceModifiers: Set[Modifier] =
     Set(GLOBAL_MODIFIER, PUBLIC_MODIFIER, PRIVATE_MODIFIER, VIRTUAL_MODIFIER)
 
-  private val legalInterfaceModifiersAndAnnotations: Set[Modifier] =
-    legalTypeAnnotations ++ legalInterfaceModifiers
-
-  private val legalFieldModifiers: Set[Modifier] =
-    visibilityModifiers.toSet ++ Set(FINAL_MODIFIER,
-                                     STATIC_MODIFIER,
-                                     TRANSIENT_MODIFIER,
-                                     WEBSERVICE_MODIFIER)
-
-  private val legalFieldAnnotations: Set[Modifier] =
-    Set(AURA_ENABLED_ANNOTATION,
-        DEPRECATED_ANNOTATION,
-        INVOCABLE_VARIABLE_ANNOTATION,
-        TEST_VISIBLE_ANNOTATION,
-        SUPPRESS_WARNINGS_ANNOTATION)
-
-  private val legalFieldModifiersAndAnnotations
-    : Set[Modifier] = legalFieldAnnotations ++ legalFieldModifiers
-
-  private val legalInnerFieldModifiersAndAnnotations
-    : Set[Modifier] = legalFieldModifiersAndAnnotations - STATIC_MODIFIER
+  private val InterfaceModifiersAndAnnotations: Set[Modifier] =
+    TypeAnnotations ++ InterfaceModifiers
 
   private val legalConstructorModifiersAndAnnotations
-    : Set[Modifier] = visibilityModifiers.toSet ++ legalTypeAnnotations
+    : Set[Modifier] = visibilityModifiers.toSet ++ TypeAnnotations
 
   private val legalParameterModifiersAndAnnotations: Set[Modifier] = Set(FINAL_MODIFIER)
 
@@ -195,7 +175,12 @@ object ApexModifiers {
     Set(FINAL_MODIFIER, TRANSIENT_MODIFIER)
 
   private val legalTriggerLocalVarsModifiersAndAnnotations: Set[Modifier] =
-    Set(PUBLIC_MODIFIER, PRIVATE_MODIFIER, STATIC_MODIFIER, FINAL_MODIFIER, TRANSIENT_MODIFIER, TEST_VISIBLE_ANNOTATION)
+    Set(PUBLIC_MODIFIER,
+        PRIVATE_MODIFIER,
+        STATIC_MODIFIER,
+        FINAL_MODIFIER,
+        TRANSIENT_MODIFIER,
+        TEST_VISIBLE_ANNOTATION)
 
   /* Convert parser contexts to Modifiers */
   def asModifiers(modifierContexts: Seq[ModifierContext],
@@ -283,14 +268,11 @@ object ApexModifiers {
                      idContext: IdContext): ModifierResults = {
 
     val logger = new CodeParserLogger(parser)
-    val mods = deduplicate(asModifiers(modifierContexts,
-                                       legalClassModifiersAndAnnotations,
-                                       "classes",
-                                       logger,
-                                       idContext),
-                           "classes",
-                           logger,
-                           idContext)
+    val mods = deduplicate(
+      asModifiers(modifierContexts, ClassModifiersAndAnnotations, "classes", logger, idContext),
+      "classes",
+      logger,
+      idContext)
 
     val results =
       if (logger.isEmpty) {
@@ -324,7 +306,7 @@ object ApexModifiers {
 
     val logger = new CodeParserLogger(parser)
     val mods = deduplicateVisibility(asModifiers(modifierContexts,
-                                                 legalInterfaceModifiersAndAnnotations,
+                                                 InterfaceModifiersAndAnnotations,
                                                  "interfaces",
                                                  logger,
                                                  idContext),
@@ -358,7 +340,7 @@ object ApexModifiers {
 
     val logger = new CodeParserLogger(parser)
     val mods = deduplicateVisibility(
-      asModifiers(modifierContexts, legalTypeModifiersAndAnnotations, "enums", logger, idContext),
+      asModifiers(modifierContexts, TypeModifiersAndAnnotations, "enums", logger, idContext),
       "enums",
       logger,
       idContext)
@@ -374,39 +356,6 @@ object ApexModifiers {
         } else {
           mods
         }
-      } else {
-        mods
-      }
-    }
-    ModifierResults(results.toArray, logger.issues).intern
-  }
-
-  def fieldModifiers(parser: CodeParser,
-                     modifierContexts: Seq[ModifierContext],
-                     outer: Boolean,
-                     idContext: IdContext): ModifierResults = {
-
-    val logger = new CodeParserLogger(parser)
-    val mods = deduplicateVisibility(
-      asModifiers(modifierContexts,
-                  if (outer) legalFieldModifiersAndAnnotations
-                  else legalInnerFieldModifiersAndAnnotations,
-                  if (outer) "fields" else "inner class fields",
-                  logger,
-                  idContext),
-      "fields",
-      logger,
-      idContext)
-
-    val results = {
-      if (mods.intersect(visibilityModifiers).isEmpty && mods.contains(WEBSERVICE_MODIFIER)) {
-        GLOBAL_MODIFIER +: mods
-      } else if (!mods.intersect(visibilityModifiers).contains(GLOBAL_MODIFIER) && mods.contains(
-                   WEBSERVICE_MODIFIER)) {
-        logger.logError(idContext, s"webservice fields must be global")
-        GLOBAL_MODIFIER +: mods.diff(visibilityModifiers)
-      } else if (mods.intersect(visibilityModifiers).isEmpty) {
-        PRIVATE_MODIFIER +: mods
       } else {
         mods
       }

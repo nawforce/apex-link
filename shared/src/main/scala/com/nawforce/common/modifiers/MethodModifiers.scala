@@ -45,7 +45,7 @@ case object ENUM_METHOD_NATURE extends MethodOwnerNature("enum")
 
 object MethodModifiers {
 
-  private val legalMethodModifiers: Set[Modifier] = visibilityModifiers.toSet ++ Set(
+  private val MethodModifiers: Set[Modifier] = visibilityModifiers.toSet ++ Set(
     ABSTRACT_MODIFIER,
     OVERRIDE_MODIFIER,
     STATIC_MODIFIER,
@@ -53,27 +53,24 @@ object MethodModifiers {
     WEBSERVICE_MODIFIER,
     VIRTUAL_MODIFIER)
 
-  private val legalMethodAnnotations: Set[Modifier] = Set(AURA_ENABLED_ANNOTATION,
-                                                          DEPRECATED_ANNOTATION,
-                                                          FUTURE_ANNOTATION,
-                                                          INVOCABLE_METHOD_ANNOTATION,
-                                                          ISTEST_ANNOTATION,
-                                                          TEST_VISIBLE_ANNOTATION,
-                                                          NAMESPACE_ACCESSIBLE_ANNOTATION,
-                                                          READ_ONLY_ANNOTATION,
-                                                          SUPPRESS_WARNINGS_ANNOTATION,
-                                                          READ_ONLY_ANNOTATION,
-                                                          SUPPRESS_WARNINGS_ANNOTATION,
-                                                          TEST_SETUP_ANNOTATION,
-                                                          HTTP_DELETE_ANNOTATION,
-                                                          HTTP_GET_ANNOTATION,
-                                                          HTTP_PATCH_ANNOTATION,
-                                                          HTTP_POST_ANNOTATION,
-                                                          HTTP_PUT_ANNOTATION,
-                                                          REMOTE_ACTION_ANNOTATION)
+  private val MethodAnnotations: Set[Modifier] = Set(AURA_ENABLED_ANNOTATION,
+                                                     DEPRECATED_ANNOTATION,
+                                                     FUTURE_ANNOTATION,
+                                                     INVOCABLE_METHOD_ANNOTATION,
+                                                     ISTEST_ANNOTATION,
+                                                     TEST_VISIBLE_ANNOTATION,
+                                                     NAMESPACE_ACCESSIBLE_ANNOTATION,
+                                                     READ_ONLY_ANNOTATION,
+                                                     SUPPRESS_WARNINGS_ANNOTATION,
+                                                     TEST_SETUP_ANNOTATION,
+                                                     HTTP_DELETE_ANNOTATION,
+                                                     HTTP_GET_ANNOTATION,
+                                                     HTTP_PATCH_ANNOTATION,
+                                                     HTTP_POST_ANNOTATION,
+                                                     HTTP_PUT_ANNOTATION,
+                                                     REMOTE_ACTION_ANNOTATION)
 
-  private val legalMethodModifiersAndAnnotations
-    : Set[Modifier] = legalMethodAnnotations ++ legalMethodModifiers
+  private val MethodModifiersAndAnnotations: Set[Modifier] = MethodAnnotations ++ MethodModifiers
 
   def classMethodModifiers(parser: CodeParser,
                            modifierContexts: Seq[ModifierContext],
@@ -83,7 +80,7 @@ object MethodModifiers {
 
     val logger = new CodeParserLogger(parser)
     val mods = ApexModifiers.deduplicateVisibility(
-      asModifiers(modifierContexts, legalMethodModifiersAndAnnotations, "methods", logger, context),
+      asModifiers(modifierContexts, MethodModifiersAndAnnotations, "methods", logger, context),
       "methods",
       logger,
       context)
@@ -115,7 +112,13 @@ object MethodModifiers {
                                modifierContexts: Seq[ModifierContext],
                                context: ParserRuleContext,
                                isOuter: Boolean): ModifierResults = {
-    // TODO: Replace with more specific handling
-    classMethodModifiers(parser, modifierContexts, context, INTERFACE_METHOD_NATURE, isOuter)
+    val logger = new CodeParserLogger(parser)
+    val mods = ApexModifiers.deduplicateVisibility(
+      asModifiers(modifierContexts, Set.empty, "interface methods", logger, context),
+      "methods",
+      logger,
+      context)
+
+    ModifierResults(mods.toArray, logger.issues).intern
   }
 }

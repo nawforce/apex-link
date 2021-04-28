@@ -85,6 +85,16 @@ class ClassModifierTest extends AnyFunSuite {
                          "Private modifier is not allowed on outer classes"))))
   }
 
+  test("Protected modifier") {
+    val issues = illegalClassAccess(Array(PROTECTED_MODIFIER)).toSeq
+    assert(
+      issues == Seq[Issue](
+        Issue(PathFactory("Dummy.cls").toString,
+          diagnostics.Diagnostic(ERROR_CATEGORY,
+            Location(1, 0, 1, 9),
+            "Modifier 'protected' is not supported on classes"))))
+  }
+
   test("Private modifier (isTest)") {
     assert(legalClassAccess(Array(ISTEST_ANNOTATION, PRIVATE_MODIFIER)))
   }
