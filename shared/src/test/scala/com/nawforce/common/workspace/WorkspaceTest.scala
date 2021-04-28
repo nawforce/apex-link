@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
+ Copyright (c) 2021 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -25,51 +25,23 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.nawforce.runtime.documents
+package com.nawforce.common.workspace
 
-import com.nawforce.common.names.DotName
-import com.nawforce.common.path.PathFactory
-import com.nawforce.common.workspace.Workspace
+import com.nawforce.common.path.PathLike
+import com.nawforce.runtime.FileSystemHelper
+import org.scalatest.funsuite.AnyFunSuite
 
-import scala.collection.mutable
-import scala.scalajs.js
-import scala.scalajs.js.JSConverters._
-import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
+class WorkspaceTest extends AnyFunSuite {
 
-@JSExportTopLevel("WorkspaceException")
-class JSWorkspaceException(val message: String) extends Exception(message)
-
-@JSExportTopLevel("Workspace")
-class JSWorkspace(val workspace: Workspace) {
-
-  @JSExport
-  def findType(name: String): js.Array[String] = {
-    workspace.get(DotName(name).asTypeName()).map(_.path.toString).toJSArray
-  }
-}
-
-@JSExportTopLevel("Workspaces")
-object JSWorkspaces {
-  private val workspaces = new mutable.HashMap[String, JSWorkspace]()
-
-  @JSExport
-  def get(wsPath: String): JSWorkspace = {
-
-    val ws = workspaces.get(wsPath)
-    if (ws.nonEmpty)
-      return ws.get
-
-    val issuesAndWorkspace = Workspace(PathFactory(wsPath))
-    if (issuesAndWorkspace.issues.nonEmpty) {
-      throw new JSWorkspaceException(issuesAndWorkspace.issues.head.asString)
+  test("empty dir has no events") {
+    FileSystemHelper.run(Map[String, String]()) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      assert(issuesAndWS.value.get.events.isEmpty)
     }
-
-    issuesAndWorkspace.value
-      .map(workspace => {
-        val jsWorkspace = new JSWorkspace(workspace)
-        workspaces.put(wsPath, new JSWorkspace(workspace))
-        jsWorkspace
-      })
-      .orNull
   }
+
+
+
 }

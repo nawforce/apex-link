@@ -52,7 +52,7 @@ class DocumentIndex(val namespace: Option[Name],
   val size: Int = collection.size
 
   /** Get documents of some nature. */
-  def get(nature: MetadataNature): Iterable[MetadataDocument] = collection.get(nature)
+  def get(nature: MetadataNature): Iterator[MetadataDocument] = collection.get(nature)
 
   /** Get all documents of some nature that contribute to a type  */
   def get(nature: MetadataNature, typeName: TypeName): Set[MetadataDocument] =
@@ -179,16 +179,16 @@ private class DocumentStore(namespace: Option[Name]) {
     partialTypeDocuments.values.map(_.values.size).sum + fullTypeDocuments.values.size
   }
 
-  def get(nature: MetadataNature): Iterable[MetadataDocument] = {
+  def get(nature: MetadataNature): Iterator[MetadataDocument] = {
     if (nature.partialType) {
       partialTypeDocuments.get(nature) match {
-        case Some(byTypeName) => byTypeName.values.flatten
-        case None             => Iterable.empty
+        case Some(byTypeName) => byTypeName.valuesIterator.flatten
+        case None             => Iterator.empty
       }
     } else {
       fullTypeDocuments.get(nature) match {
-        case Some(byTypeName) => byTypeName.values
-        case None             => Iterable.empty
+        case Some(byTypeName) => byTypeName.valuesIterator
+        case None             => Iterator.empty
       }
     }
   }

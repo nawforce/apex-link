@@ -42,7 +42,7 @@ case class ComponentEvent(sourceInfo: SourceInfo,
 /** Convert component documents into PackageEvents */
 object ComponentGenerator extends Generator {
 
-  override def toEvents(document: MetadataDocument): Iterable[PackageEvent] = {
+  override def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
     val source = document.source
     source.value
       .map(source => {
@@ -53,13 +53,13 @@ object ComponentGenerator extends Generator {
           case Right(component) => extractAttributes(parser, logger, component)
         }
 
-        Iterable(
+        Iterator(
           ComponentEvent(SourceInfo(document.path, source),
                          PathLocation(document.path.toString, Location.empty),
                          document.name,
-                         attributes)) ++ IssuesEvent(logger.issues)
+                         attributes)) ++ IssuesEvent.iterator(logger.issues)
       })
-      .getOrElse(Iterable.empty) ++ IssuesEvent(source.issues)
+      .getOrElse(Iterator.empty) ++ IssuesEvent.iterator(source.issues)
   }
 
   private def extractAttributes(parser: PageParser,

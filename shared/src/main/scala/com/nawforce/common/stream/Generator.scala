@@ -37,9 +37,9 @@ import scala.collection.immutable.Queue
 /** Package stream generator, assists queuing package stream events. */
 trait Generator {
 
-  def iterable(nature: MetadataNature, index: DocumentIndex): Iterable[PackageEvent] = {
+  def iterator(nature: MetadataNature, index: DocumentIndex): Iterator[PackageEvent] = {
     index.get(nature).flatMap(toEvents)
   }
 
-  protected def toEvents(document: MetadataDocument): Iterable[PackageEvent]
+  protected def toEvents(document: MetadataDocument): Iterator[PackageEvent]
 }

@@ -30,7 +30,7 @@ package com.nawforce.common.workspace
 import com.nawforce.common.diagnostics.{CatchingLogger, IssueLogger, IssuesAnd, Location}
 import com.nawforce.common.documents.{DocumentIndex, MetadataDocument}
 import com.nawforce.common.names.TypeName
-import com.nawforce.common.path.PathFactory
+import com.nawforce.common.path.PathLike
 import com.nawforce.common.sfdx.{
   MDAPIWorkspaceConfig,
   SFDXProject,
@@ -63,25 +63,24 @@ case class Workspace(layers: Seq[NamespaceLayer]) {
       .getOrElse(Set.empty)
   }
 
-  def events: Iterable[PackageEvent] = {
+  def events: Iterator[PackageEvent] = {
     deployOrderedIndexes.flatMap(index =>
-      PackageStream.eventStream(index.value) ++ IssuesEvent(index.issues))
+      PackageStream.eventStream(index.value) ++ IssuesEvent.iterator(index.issues))
   }
 
-  private def deployOrderedIndexes: Iterable[IssuesAnd[DocumentIndex]] = {
-    layers.flatMap(layer => layer.layers).flatMap(indexes.get)
+  private def deployOrderedIndexes: Iterator[IssuesAnd[DocumentIndex]] = {
+    layers.iterator.flatMap(layer => layer.layers).flatMap(indexes.get)
   }
 }
 
 object Workspace {
-  def apply(wsPath: String): IssuesAnd[Option[Workspace]] = {
+  def apply(path: PathLike): IssuesAnd[Option[Workspace]] = {
     val logger = new CatchingLogger
-    val workspace = Workspace(wsPath, logger)
+    val workspace = Workspace(path, logger)
     IssuesAnd(logger.issues, workspace)
   }
 
-  def apply(wsPath: String, logger: IssueLogger): Option[Workspace] = {
-    val path = PathFactory(wsPath)
+  def apply(path: PathLike, logger: IssueLogger): Option[Workspace] = {
     if (!path.exists || !path.isDirectory) {
       logger.logError(path, Location.empty, "No directory at $path")
       None

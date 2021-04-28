@@ -37,15 +37,15 @@ case class FlowEvent(sourceInfo: SourceInfo, location: PathLocation, name: Name)
 
 object FlowGenerator extends Generator {
 
-  protected def toEvents(document: MetadataDocument): Iterable[PackageEvent] = {
+  protected def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
     val source = document.source
     source.value
       .map(source => {
-        Iterable(
+        Iterator(
           FlowEvent(SourceInfo(document.path, source),
                     PathLocation(document.path.toString, Location.empty),
                     document.name))
       })
-      .getOrElse(Iterable.empty) ++ IssuesEvent(source.issues)
+      .getOrElse(Iterator.empty) ++ IssuesEvent.iterator(source.issues)
   }
 }

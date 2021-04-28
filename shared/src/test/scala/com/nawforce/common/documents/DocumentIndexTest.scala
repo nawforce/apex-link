@@ -34,7 +34,7 @@ import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class WorkspaceTest extends AnyFunSuite with BeforeAndAfter {
+class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
 
   private var logger: CatchingLogger = _
 

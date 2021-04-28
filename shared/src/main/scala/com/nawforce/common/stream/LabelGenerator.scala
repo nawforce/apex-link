@@ -39,18 +39,18 @@ case class LabelEvent(location: PathLocation, name: Name, isProtected: Boolean) 
 
 object LabelGenerator extends Generator {
 
-  protected def toEvents(document: MetadataDocument): Iterable[PackageEvent] = {
+  protected def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
     val source = document.source
     source.value
       .map(source => {
         XMLDocument(document.path, source) match {
-          case Left(issue) => IssuesEvent(issue)
+          case Left(issue) => Iterator(IssuesEvent(issue))
           case Right(document) =>
             val rootElement = document.rootElement
             try {
               rootElement.assertIs("CustomLabels")
               val labels = rootElement
-                .getChildren("labels")
+                .getChildren("labels").iterator
                 .flatMap(c => {
                   val fullName: String = c.getSingleChildAsString("fullName")
                   val protect: Boolean = c.getSingleChildAsBoolean("protected")
@@ -59,13 +59,13 @@ object LabelGenerator extends Generator {
                                Name(fullName),
                                protect))
                 })
-              labels ++ Iterable(LabelFileEvent(SourceInfo(document.path, source)))
+              labels ++ Iterator(LabelFileEvent(SourceInfo(document.path, source)))
             } catch {
               case e: XMLException =>
-                IssuesEvent(Issue(document.path, ERROR_CATEGORY, e.where, e.msg))
+                Iterator(IssuesEvent(Issue(document.path, ERROR_CATEGORY, e.where, e.msg)))
             }
         }
       })
-      .getOrElse(Iterable.empty) ++ IssuesEvent(source.issues)
+      .getOrElse(Iterator.empty) ++ IssuesEvent.iterator(source.issues)
   }
 }
