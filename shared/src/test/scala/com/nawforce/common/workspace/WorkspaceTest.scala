@@ -27,13 +27,19 @@
  */
 package com.nawforce.common.workspace
 
+import com.nawforce.common.diagnostics._
+import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.stream._
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class WorkspaceTest extends AnyFunSuite {
+import scala.collection.immutable.ArraySeq
 
-  test("empty dir has no events") {
+class WorkspaceTest extends AnyFunSuite with Matchers {
+
+  test("Empty dir has no events") {
     FileSystemHelper.run(Map[String, String]()) { root: PathLike =>
       val issuesAndWS = Workspace(root)
       assert(issuesAndWS.issues.isEmpty)
@@ -42,6 +48,140 @@ class WorkspaceTest extends AnyFunSuite {
     }
   }
 
+  test("Label file event") {
+    FileSystemHelper.run(
+      Map[String, String](
+        "pkg/CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
+      )) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(LabelFileEvent("/pkg/CustomLabels.labels")) =>
+      }
+    }
+  }
 
+  test("Label parse error") {
+    FileSystemHelper.run(Map[String, String]("pkg/CustomLabels.labels" -> "<CustomLabels")) {
+      root: PathLike =>
+        val issuesAndWS = Workspace(root)
+        assert(issuesAndWS.issues.isEmpty)
+        assert(issuesAndWS.value.nonEmpty)
+        issuesAndWS.value.get.events.toList should matchPattern {
+          case List(
+              IssuesEvent(
+                ArraySeq(
+                  Issue(
+                    "/pkg/CustomLabels.labels",
+                    Diagnostic(
+                      ERROR_CATEGORY,
+                      Location(1, _, 1, _),
+                      _))))) =>
+        }
+    }
+  }
+
+  test("Label events") {
+    FileSystemHelper.run(
+      Map[String, String]("pkg/CustomLabels.labels" ->
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+          |    <labels><fullName>TestLabel1</fullName><protected>false</protected></labels>
+          |    <labels><fullName>TestLabel2</fullName><protected>true</protected></labels>
+          |</CustomLabels>
+          |""".stripMargin)) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(LabelEvent(PathLocation("/pkg/CustomLabels.labels", Location(3, 0, 3, 0)),
+                             Name("TestLabel1"),
+                             false),
+                  LabelEvent(PathLocation("/pkg/CustomLabels.labels", Location(4, 0, 4, 0)),
+                             Name("TestLabel2"),
+                             true),
+                  LabelFileEvent("/pkg/CustomLabels.labels")) =>
+      }
+    }
+  }
+
+  test("Page event") {
+    FileSystemHelper.run(Map[String, String]("pkg/MyPage.page" -> "")) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(PageEvent("/pkg/MyPage.page")) =>
+      }
+    }
+  }
+
+  test("Flow event") {
+    FileSystemHelper.run(Map[String, String]("pkg/MyFlow.flow" -> "")) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(FlowEvent("/pkg/MyFlow.flow")) =>
+      }
+    }
+  }
+
+  test("Component event") {
+    FileSystemHelper.run(
+      Map[String, String]("pkg/MyComponent.component" ->
+        """<apex:component>
+            |  <apex:attribute name="test" type="String"/>
+            |</apex:component>
+            |""".stripMargin)) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(ComponentEvent("/pkg/MyComponent.component", Array(Name("test")))) =>
+      }
+    }
+  }
+
+  test("Component parse error") {
+    FileSystemHelper.run(
+      Map[String, String]("pkg/MyComponent.component" ->
+        """<apex:component
+          |""".stripMargin)) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(
+            IssuesEvent(
+              ArraySeq(
+                Issue("/pkg/MyComponent.component",
+                      Diagnostic(SYNTAX_CATEGORY,
+                                 Location(2, 0, 2, 0),
+                                 "no viable alternative at input '<apex:component'"))))) =>
+      }
+    }
+  }
+
+  test("Component structure error") {
+    FileSystemHelper.run(
+      Map[String, String]("pkg/MyComponent.component" ->
+        """<apex:foo/>
+          |""".stripMargin)) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(
+            IssuesEvent(
+              ArraySeq(
+                Issue("/pkg/MyComponent.component",
+                      Diagnostic(ERROR_CATEGORY,
+                                 Location(1, 0, 2, 5),
+                                 "Root element must be 'apex:component'"))))) =>
+      }
+    }
+  }
 
 }

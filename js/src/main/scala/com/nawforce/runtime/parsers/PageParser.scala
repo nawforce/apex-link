@@ -32,13 +32,14 @@ import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.parsers.PageParser.ParserRuleContext
 import com.nawforce.runtime.parsers.antlr.{CharStreams, CommonTokenStream, ParseTree}
 
+import scala.collection.compat.immutable.ArraySeq
 import scala.scalajs.js
 
 class PageParser(val source: Source) {
   // We would like to extend this but it angers the JavaScript gods
   private val is = source.asString
 
-  def parsePage(): Either[Array[Issue], VFParser.VfUnitContext] = {
+  def parsePage(): Either[ArraySeq[Issue], VFParser.VfUnitContext] = {
     parse(parser => parser.vfUnit())
   }
 
@@ -52,7 +53,7 @@ class PageParser(val source: Source) {
     source.extractSource(context)
   }
 
-  def parse[T](parse: VFParser => T): Either[Array[Issue], T] = {
+  def parse[T](parse: VFParser => T): Either[ArraySeq[Issue], T] = {
     val listener = new CollectingErrorListener(source.path.toString)
 
     val lexer = new VFLexer(CharStreams.fromString(is))
@@ -67,7 +68,7 @@ class PageParser(val source: Source) {
 
     val result = parse(parser)
     if (listener.issues.nonEmpty)
-      Left(listener.issues.toArray)
+      Left(listener.issues.to(ArraySeq))
     else
       Right(result)
   }

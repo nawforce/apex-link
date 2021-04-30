@@ -28,26 +28,15 @@
 
 package com.nawforce.common.stream
 
-import com.nawforce.common.diagnostics.{Location, PathLocation}
 import com.nawforce.common.documents._
-import com.nawforce.common.names.Name
 
-case class PageEvent(sourceInfo: SourceInfo, location: PathLocation, name: Name)
-    extends PackageEvent
+case class PageEvent(path: String) extends PackageEvent
 
 /** Convert page documents into PackageEvents */
 object PageGenerator extends Generator {
 
   protected def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
-    val source = document.source
-    source.value
-      .map(source => {
-        Iterator(
-          PageEvent(SourceInfo(document.path, source),
-            PathLocation(document.path.toString, Location.empty),
-            document.name))
-      })
-      .getOrElse(Iterator.empty) ++ IssuesEvent.iterator(source.issues)
+    Iterator(PageEvent(document.path.toString))
   }
 
 }

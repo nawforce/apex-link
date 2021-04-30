@@ -28,16 +28,12 @@
 
 package com.nawforce.common.stream
 
-import com.nawforce.common.diagnostics.{CatchingLogger, IssueLogger, Location, PathLocation}
+import com.nawforce.common.diagnostics.{CatchingLogger, IssueLogger}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.Name
 import com.nawforce.runtime.parsers.{PageParser, VFParser}
 
-case class ComponentEvent(sourceInfo: SourceInfo,
-                          location: PathLocation,
-                          name: Name,
-                          attributes: Array[Name])
-    extends PackageEvent
+case class ComponentEvent(path: String, attributes: Array[Name]) extends PackageEvent
 
 /** Convert component documents into PackageEvents */
 object ComponentGenerator extends Generator {
@@ -46,18 +42,20 @@ object ComponentGenerator extends Generator {
     val source = document.source
     source.value
       .map(source => {
-        val logger = new CatchingLogger
-        val parser: PageParser = PageParser(document.path, source)
-        val attributes = parser.parsePage() match {
-          case Left(issues)     => issues.foreach(logger.log); Array[Name]()
-          case Right(component) => extractAttributes(parser, logger, component)
-        }
 
-        Iterator(
-          ComponentEvent(SourceInfo(document.path, source),
-                         PathLocation(document.path.toString, Location.empty),
-                         document.name,
-                         attributes)) ++ IssuesEvent.iterator(logger.issues)
+        val parser: PageParser = PageParser(document.path, source)
+        parser.parsePage() match {
+          case Left(issues) =>
+            IssuesEvent.iterator(issues)
+          case Right(component) =>
+            val logger = new CatchingLogger
+            val attributes = extractAttributes(parser, logger, component)
+            (if (logger.issues.isEmpty)
+               Iterator(ComponentEvent(document.path.toString, attributes))
+             else
+               Iterator()) ++ IssuesEvent.iterator(logger.issues)
+
+        }
       })
       .getOrElse(Iterator.empty) ++ IssuesEvent.iterator(source.issues)
   }
@@ -69,6 +67,7 @@ object ComponentGenerator extends Generator {
     if (!PageParser.getText(root.Name(0)).equalsIgnoreCase("apex:component")) {
       val location = parser.getPathAndLocation(component)
       logger.logError(location._1, location._2, "Root element must be 'apex:component'")
+      return Array()
     }
 
     Option(root.content())

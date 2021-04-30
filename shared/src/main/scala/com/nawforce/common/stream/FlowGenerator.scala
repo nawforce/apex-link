@@ -28,24 +28,12 @@
 
 package com.nawforce.common.stream
 
-import com.nawforce.common.diagnostics.{Location, PathLocation}
 import com.nawforce.common.documents._
-import com.nawforce.common.names.Name
 
-case class FlowEvent(sourceInfo: SourceInfo, location: PathLocation, name: Name)
-    extends PackageEvent
+case class FlowEvent(path: String) extends PackageEvent
 
 object FlowGenerator extends Generator {
-
   protected def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
-    val source = document.source
-    source.value
-      .map(source => {
-        Iterator(
-          FlowEvent(SourceInfo(document.path, source),
-                    PathLocation(document.path.toString, Location.empty),
-                    document.name))
-      })
-      .getOrElse(Iterator.empty) ++ IssuesEvent.iterator(source.issues)
+    Iterator(FlowEvent(document.path.toString))
   }
 }

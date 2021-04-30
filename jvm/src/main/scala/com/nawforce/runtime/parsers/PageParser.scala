@@ -35,13 +35,14 @@ import com.nawforce.runtime.parsers.PageParser.ParserRuleContext
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.tree.ParseTree
 
+import scala.collection.compat.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
 /** VF Page parser helper */
 class PageParser(val source: Source) {
   private val is = source.asStream
 
-  def parsePage(): Either[Array[Issue], VFParser.VfUnitContext] = {
+  def parsePage(): Either[ArraySeq[Issue], VFParser.VfUnitContext] = {
     parse(parser => parser.vfUnit())
   }
 
@@ -55,7 +56,7 @@ class PageParser(val source: Source) {
     source.extractSource(context)
   }
 
-  def parse[T](parse: VFParser => T): Either[Array[Issue], T] = {
+  def parse[T](parse: VFParser => T): Either[ArraySeq[Issue], T] = {
     val listener = new CollectingErrorListener(source.path.toString)
 
     val lexer = new VFLexer(is)
@@ -70,7 +71,7 @@ class PageParser(val source: Source) {
 
     val result = parse(parser)
     if (listener.issues.nonEmpty)
-      Left(listener.issues.toArray)
+      Left(listener.issues.to(ArraySeq))
     else
       Right(result)
   }
