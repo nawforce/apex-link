@@ -70,14 +70,8 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         assert(issuesAndWS.value.nonEmpty)
         issuesAndWS.value.get.events.toList should matchPattern {
           case List(
-              IssuesEvent(
-                ArraySeq(
-                  Issue(
-                    "/pkg/CustomLabels.labels",
-                    Diagnostic(
-                      ERROR_CATEGORY,
-                      Location(1, _, 1, _),
-                      _))))) =>
+              IssuesEvent(ArraySeq(Issue("/pkg/CustomLabels.labels",
+                                         Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _))))) =>
         }
     }
   }
@@ -184,4 +178,140 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
     }
   }
 
+  test("Custom Object event") {
+    FileSystemHelper.run(
+      Map[String, String]("pkg/MyObject.object" ->
+        "<CustomObject xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(SObjectEvent("/pkg/MyObject.object")) =>
+      }
+    }
+  }
+
+  test("Custom Object event parse error") {
+    FileSystemHelper.run(
+      Map[String, String]("pkg/MyObject.object" ->
+        "<CustomObject xmlns=\"http://soap.sforce.com/2006/04/metadata\"")) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(SObjectEvent("/pkg/MyObject.object"),
+                  IssuesEvent(
+                    ArraySeq(Issue("/pkg/MyObject.object",
+                                   Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _))))) =>
+      }
+    }
+  }
+
+  test("Custom Object with fields") {
+    FileSystemHelper.run(
+      Map[String, String]("pkg/MyObject.object" ->
+        """<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+      |  <fields><fullName>Name__c</fullName><type>Text</type></fields>
+      |</CustomObject>
+      |""".stripMargin)) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(SObjectEvent("/pkg/MyObject.object"),
+                  CustomFieldEvent(Name("Name__c"), Name("Text"), None)) =>
+      }
+    }
+  }
+
+  test("Custom Object with fieldsset") {
+    FileSystemHelper.run(
+      Map[String, String]("pkg/MyObject.object" ->
+        """<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+          |  <fieldSets><fullName>Name</fullName></fieldSets>
+          |</CustomObject>
+          |""".stripMargin)) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(SObjectEvent("/pkg/MyObject.object"), FieldsetEvent(Name("Name"))) =>
+      }
+    }
+  }
+
+  test("Custom Object with sharing reason") {
+    FileSystemHelper.run(
+      Map[String, String]("pkg/MyObject.object" ->
+        """<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+          |  <sharingReasons><fullName>Name</fullName></sharingReasons>
+          |</CustomObject>
+          |""".stripMargin)) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(SObjectEvent("/pkg/MyObject.object"), SharingReasonEvent(Name("Name"))) =>
+      }
+    }
+  }
+
+  test("Custom Object with fields (sfdx)") {
+    FileSystemHelper.run(
+      Map[String, String](
+        "pkg/MyObject/MyObject.object" -> "<CustomObject xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
+        "pkg/MyObject/fields/Name__c.field-meta.xml" ->
+          s"""<?xml version="1.0" encoding="UTF-8"?>
+          |<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+          |    <fullName>Name__c</fullName>
+          |    <type>Text</type>
+          |</CustomField>
+          |""".stripMargin)) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(SObjectEvent("/pkg/MyObject/MyObject.object"),
+                  CustomFieldEvent(Name("Name__c"), Name("Text"), None)) =>
+      }
+    }
+  }
+
+  test("Custom Object with fieldSet (sfdx)") {
+    FileSystemHelper.run(
+      Map[String, String](
+        "pkg/MyObject/MyObject.object" -> "<CustomObject xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
+        "pkg/MyObject/fieldSets/Name.fieldSet-meta.xml" ->
+          s"""<?xml version="1.0" encoding="UTF-8"?>
+             |<FieldSet xmlns="http://soap.sforce.com/2006/04/metadata">
+             |    <fullName>Name</fullName>
+             |</FieldSet>
+             |""".stripMargin)) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(SObjectEvent("/pkg/MyObject/MyObject.object"), FieldsetEvent(Name("Name"))) =>
+      }
+    }
+  }
+
+  test("Custom Object with sharingReason (sfdx)") {
+    FileSystemHelper.run(
+      Map[String, String](
+        "pkg/MyObject/MyObject.object" -> "<CustomObject xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
+        "pkg/MyObject/sharingReasons/Name.sharingReason-meta.xml" ->
+          s"""<?xml version="1.0" encoding="UTF-8"?>
+             |<SharingReason xmlns="http://soap.sforce.com/2006/04/metadata">
+             |    <fullName>Name</fullName>
+             |</SharingReason>
+             |""".stripMargin)) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(SObjectEvent("/pkg/MyObject/MyObject.object"), SharingReasonEvent(Name("Name"))) =>
+      }
+    }
+  }
 }

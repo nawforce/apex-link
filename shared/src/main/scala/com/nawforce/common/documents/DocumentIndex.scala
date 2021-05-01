@@ -283,22 +283,33 @@ object DocumentIndex {
 
     if (path.isDirectory) {
       if (forceIgnore.forall(_.includeDirectory(path))) {
+
         path.directoryList() match {
           case Left(err) => LoggerOps.error(err)
           case Right(parts) =>
-            parts.foreach(part => indexPath(logger, path.join(part), forceIgnore, collection))
+            // Enforce top-down handling
+            val split = parts.map(path.join).groupBy(_.isDirectory)
+            split.getOrElse(false, Seq.empty).foreach(part => addPath(logger, part, forceIgnore, collection))
+            split.getOrElse(true, Seq.empty).foreach(part => indexPath(logger, part, forceIgnore, collection))
         }
       } else {
         LoggerOps.debug(LoggerOps.Trace, s"Ignoring directory $path")
       }
     } else {
-      // Not testing if this is a regular file to improve scan performance, will fail later on read
-      if (forceIgnore.forall(_.includeFile(path))) {
-        val dt = MetadataDocument(path)
-        dt.foreach(dt => collection.add(logger, dt))
-      } else {
-        LoggerOps.debug(LoggerOps.Trace, s"Ignoring file $path")
-      }
+      addPath(logger, path, forceIgnore, collection)
+    }
+  }
+
+  private def addPath(logger: IssueLogger,
+                      path: PathLike,
+                      forceIgnore: Option[ForceIgnore],
+                      collection: MetadataCollection): Unit = {
+    // Not testing if this is a regular file to improve scan performance, will fail later on read
+    if (forceIgnore.forall(_.includeFile(path))) {
+      val dt = MetadataDocument(path)
+      dt.foreach(dt => collection.add(logger, dt))
+    } else {
+      LoggerOps.debug(LoggerOps.Trace, s"Ignoring file $path")
     }
   }
 

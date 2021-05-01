@@ -68,6 +68,7 @@ object PackageStream {
     LabelGenerator.iterator(LabelNature, index) ++
       PageGenerator.iterator(PageNature, index) ++
       FlowGenerator.iterator(FlowNature, index) ++
-      ComponentGenerator.iterator(ComponentNature, index)
+      ComponentGenerator.iterator(ComponentNature, index) ++
+      SObjectGenerator.iterator(SObjectNature, index)
   }
 }
