@@ -357,5 +357,25 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
     }
   }
 
+  test("Apex event") {
+    FileSystemHelper.run(Map[String, String]("pkg/MyClass.cls" -> "")) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(ApexEvent("/pkg/MyClass.cls")) =>
+      }
+    }
+  }
 
+  test("Trigger event") {
+    FileSystemHelper.run(Map[String, String]("pkg/MyTrigger.trigger" -> "")) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(TriggerEvent("/pkg/MyTrigger.trigger")) =>
+      }
+    }
+  }
 }
