@@ -30,10 +30,14 @@ package com.nawforce.common.stream
 
 import com.nawforce.common.documents._
 
-case class FlowEvent(path: String) extends PackageEvent
+case class FlowEvent(sourceInfo: SourceInfo) extends PackageEvent
 
 object FlowGenerator extends Generator {
   protected def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
-    Iterator(FlowEvent(document.path.toString))
+    val source = document.source
+    source.value
+      .map(source => {
+        Iterator(FlowEvent(SourceInfo(document.path.toString, source)))
+      }).getOrElse(Iterator.empty) ++ IssuesEvent.iterator(source.issues)
   }
 }

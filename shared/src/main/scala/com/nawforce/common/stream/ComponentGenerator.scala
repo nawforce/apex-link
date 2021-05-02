@@ -33,7 +33,7 @@ import com.nawforce.common.documents._
 import com.nawforce.common.names.Name
 import com.nawforce.runtime.parsers.{PageParser, VFParser}
 
-case class ComponentEvent(path: String, attributes: Array[Name]) extends PackageEvent
+case class ComponentEvent(sourceInfo: SourceInfo, attributes: Array[Name]) extends PackageEvent
 
 /** Convert component documents into PackageEvents */
 object ComponentGenerator extends Generator {
@@ -51,7 +51,7 @@ object ComponentGenerator extends Generator {
             val logger = new CatchingLogger
             val attributes = extractAttributes(parser, logger, component)
             (if (logger.issues.isEmpty)
-               Iterator(ComponentEvent(document.path.toString, attributes))
+               Iterator(ComponentEvent(SourceInfo(document.path.toString, source), attributes))
              else
                Iterator()) ++ IssuesEvent.iterator(logger.issues)
 

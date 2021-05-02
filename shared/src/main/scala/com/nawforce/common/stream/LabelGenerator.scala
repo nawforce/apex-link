@@ -34,7 +34,7 @@ import com.nawforce.common.names.Name
 import com.nawforce.common.xml.XMLException
 import com.nawforce.runtime.xml.XMLDocument
 
-case class LabelFileEvent(path: String) extends PackageEvent
+case class LabelFileEvent(sourceInfo: SourceInfo) extends PackageEvent
 case class LabelEvent(location: PathLocation, name: Name, isProtected: Boolean) extends PackageEvent
 
 object LabelGenerator extends Generator {
@@ -59,7 +59,7 @@ object LabelGenerator extends Generator {
                                Name(fullName),
                                protect))
                 })
-              labels ++ Iterator(LabelFileEvent(document.path.toString))
+              labels ++ Iterator(LabelFileEvent(SourceInfo(document.path.toString, source)))
             } catch {
               case e: XMLException =>
                 Iterator(IssuesEvent(Issue(document.path, ERROR_CATEGORY, e.where, e.msg)))

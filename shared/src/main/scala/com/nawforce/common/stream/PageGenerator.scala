@@ -30,13 +30,16 @@ package com.nawforce.common.stream
 
 import com.nawforce.common.documents._
 
-case class PageEvent(path: String) extends PackageEvent
+case class PageEvent(sourceInfo: SourceInfo) extends PackageEvent
 
 /** Convert page documents into PackageEvents */
 object PageGenerator extends Generator {
 
   protected def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
-    Iterator(PageEvent(document.path.toString))
+    val source = document.source
+    source.value
+      .map(source => {
+        Iterator(PageEvent(SourceInfo(document.path.toString, source)))
+      }).getOrElse(Iterator.empty) ++ IssuesEvent.iterator(source.issues)
   }
-
 }

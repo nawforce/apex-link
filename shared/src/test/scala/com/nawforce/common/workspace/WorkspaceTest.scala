@@ -28,6 +28,7 @@
 package com.nawforce.common.workspace
 
 import com.nawforce.common.diagnostics._
+import com.nawforce.common.documents.SourceInfo
 import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.stream._
@@ -57,7 +58,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(LabelFileEvent("/pkg/CustomLabels.labels")) =>
+        case List(LabelFileEvent(SourceInfo("/pkg/CustomLabels.labels",_))) =>
       }
     }
   }
@@ -95,7 +96,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
                   LabelEvent(PathLocation("/pkg/CustomLabels.labels", Location(4, 0, 4, 0)),
                              Name("TestLabel2"),
                              true),
-                  LabelFileEvent("/pkg/CustomLabels.labels")) =>
+                  LabelFileEvent(SourceInfo("/pkg/CustomLabels.labels", _))) =>
       }
     }
   }
@@ -106,7 +107,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(PageEvent("/pkg/MyPage.page")) =>
+        case List(PageEvent(SourceInfo("/pkg/MyPage.page", _))) =>
       }
     }
   }
@@ -117,7 +118,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(FlowEvent("/pkg/MyFlow.flow")) =>
+        case List(FlowEvent(SourceInfo("/pkg/MyFlow.flow", _))) =>
       }
     }
   }
@@ -133,7 +134,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(ComponentEvent("/pkg/MyComponent.component", Array(Name("test")))) =>
+        case List(ComponentEvent(SourceInfo("/pkg/MyComponent.component", _), Array(Name("test")))) =>
       }
     }
   }

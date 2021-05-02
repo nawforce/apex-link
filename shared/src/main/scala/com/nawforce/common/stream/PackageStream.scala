@@ -69,6 +69,8 @@ object PackageStream {
       PageGenerator.iterator(PageNature, index) ++
       FlowGenerator.iterator(FlowNature, index) ++
       ComponentGenerator.iterator(ComponentNature, index) ++
-      SObjectGenerator.iterator(SObjectNature, index)
+      SObjectGenerator.iterator(SObjectNature, index) ++
+      ApexGenerator.iterator(ClassNature, index) ++
+      TriggerGenerator.iterator(TriggerNature, index)
   }
 }
