@@ -27,13 +27,12 @@
  */
 package com.nawforce.common.types.other
 
-import com.nawforce.common.api.{Name, PathLocation, TypeName}
 import com.nawforce.common.cst.VerifyContext
-import com.nawforce.common.documents.SourceInfo
-import com.nawforce.common.names.TypeNames
+import com.nawforce.common.documents.{MetadataDocument, SourceInfo}
+import com.nawforce.common.names.{Name, TypeName, TypeNames}
 import com.nawforce.common.org.PackageImpl
-import com.nawforce.common.stream.PackageStream
 import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.common.stream.{FlowEvent, PackageStream}
 import com.nawforce.common.types.core._
 import com.nawforce.common.types.platform.PlatformTypes
 
@@ -41,8 +40,8 @@ import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
 /** A individual custom interview being represented as interview derived type. */
-final case class Interview(pkg: PackageImpl, location: Option[PathLocation], interviewName: Name)
-    extends InnerBasicTypeDeclaration(location.map(l => PathFactory(l.path)).toArray,
+final case class Interview(pkg: PackageImpl, path: Option[PathLike], interviewName: Name)
+    extends InnerBasicTypeDeclaration(path.toArray,
                                       pkg,
                                       TypeName(interviewName, Nil, Some(TypeNames.Interview))) {
 
@@ -55,6 +54,14 @@ final case class Interview(pkg: PackageImpl, location: Option[PathLocation], int
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Array[MethodDeclaration] = {
     PlatformTypes.interviewType.findMethod(name, params, staticContext, verifyContext)
+  }
+}
+
+object Interview {
+  def apply(pkg: PackageImpl, event: FlowEvent): Interview = {
+    val path = PathFactory(event.sourceInfo.path)
+    val document = MetadataDocument(path)
+    new Interview(pkg, Some(path), document.get.name)
   }
 }
 
@@ -100,14 +107,13 @@ final class InterviewDeclaration(sources: Seq[SourceInfo],
 
     def merge(stream: PackageStream): NamespaceDeclaration = {
       new NamespaceDeclaration(
-        nestedInterviews ++ stream.flows.map(fe => Interview(pkg, Some(fe.location), fe.name)))
+        nestedInterviews ++ stream.flows.map(fe => Interview(pkg, fe)))
     }
   }
 
   /** Create new from merging those in the provided stream */
   def merge(stream: PackageStream): InterviewDeclaration = {
-    val newInterviews = interviews ++ stream.flows.map(fe =>
-      Interview(pkg, Some(fe.location), fe.name))
+    val newInterviews = interviews ++ stream.flows.map(fe => Interview(pkg, fe))
     val sourceInfo = stream.flows.map(_.sourceInfo).distinct
     val interviewDeclaration =
       new InterviewDeclaration(sourceInfo, pkg, newInterviews, nestedInterviews)

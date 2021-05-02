@@ -34,7 +34,7 @@ import com.nawforce.common.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIE
 import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.stream.PackageStream
-import com.nawforce.common.path.PathLike
+import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.core._
 
 import scala.collection.mutable
@@ -63,7 +63,7 @@ final class LabelDeclaration(sources: Array[SourceInfo],
                              override val pkg: PackageImpl,
                              labels: Array[Label],
                              nestedLabels: Array[NestedLabels])
-    extends BasicTypeDeclaration(sources.map(_.path), pkg, TypeNames.Label)
+    extends BasicTypeDeclaration(sources.map(s => PathFactory(s.path)), pkg, TypeNames.Label)
     with DependentType
     with OtherTypeDeclaration {
 

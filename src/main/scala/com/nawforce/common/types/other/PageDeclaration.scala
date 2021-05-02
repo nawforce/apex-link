@@ -27,26 +27,37 @@
  */
 package com.nawforce.common.types.other
 
-import com.nawforce.common.diagnostics.PathLocation
-import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.documents._
 import com.nawforce.common.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
-import com.nawforce.common.names.{TypeNames, _}
+import com.nawforce.common.names.{Name, TypeName, TypeNames, _}
 import com.nawforce.common.org.PackageImpl
-import com.nawforce.common.stream.PackageStream
-import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.core.{BasicTypeDeclaration, DependentType, FieldDeclaration, TypeId}
+import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.common.stream.{PackageStream, PageEvent}
+import com.nawforce.common.types.core.{
+  BasicTypeDeclaration,
+  DependentType,
+  FieldDeclaration,
+  TypeId
+}
 
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
 /** A individual Page being represented as a static field. */
-case class Page(pkg: PackageImpl, location: PathLocation, name: Name) extends FieldDeclaration {
+case class Page(pkg: PackageImpl, path: PathLike, name: Name) extends FieldDeclaration {
   override lazy val modifiers: Array[Modifier] = Array(STATIC_MODIFIER, GLOBAL_MODIFIER)
   override lazy val typeName: TypeName = TypeNames.PageReference
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER
   override lazy val writeAccess: Modifier = PRIVATE_MODIFIER
   override val idTarget: Option[TypeName] = None
+}
+
+object Page {
+  def apply(pkg: PackageImpl, event: PageEvent): Page = {
+    val path = PathFactory(event.sourceInfo.path)
+    val document = MetadataDocument(path)
+    new Page(pkg, path, document.get.name)
+  }
 }
 
 /** Page 'namespace' implementation. Provides access to pages in the package as well as pages that are accessible in
@@ -55,9 +66,7 @@ case class Page(pkg: PackageImpl, location: PathLocation, name: Name) extends Fi
 final case class PageDeclaration(sources: Array[SourceInfo],
                                  override val pkg: PackageImpl,
                                  pages: Array[Page])
-    extends BasicTypeDeclaration(pages.map(p => PathFactory(p.location.path)).distinct,
-                                 pkg,
-                                 TypeNames.Page)
+    extends BasicTypeDeclaration(pages.map(p => p.path).distinct, pkg, TypeNames.Page)
     with DependentType
     with OtherTypeDeclaration {
 
@@ -71,7 +80,7 @@ final case class PageDeclaration(sources: Array[SourceInfo],
 
   /** Create new pages from merging those in the provided stream */
   def merge(stream: PackageStream): PageDeclaration = {
-    val newPages = pages ++ stream.pages.map(pe => Page(pkg, pe.location, pe.name))
+    val newPages = pages ++ stream.pages.map(pe => Page(pkg, pe))
     val sourceInfo = stream.pages.map(_.sourceInfo).distinct.toArray
     new PageDeclaration(sourceInfo, pkg, newPages)
   }
@@ -93,7 +102,7 @@ object PageDeclaration {
         if (page.name.contains("__"))
           page
         else
-          Page(pkg, page.location, Name(s"${ns}__${page.name}"))
+          Page(pkg, page.path, Name(s"${ns}__${page.name}"))
       })
     })
   }

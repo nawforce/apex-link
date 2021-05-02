@@ -27,12 +27,11 @@
  */
 package com.nawforce.common.types.other
 
-import com.nawforce.common.api.{Name, PathLocation, TypeName}
-import com.nawforce.common.documents.SourceInfo
-import com.nawforce.common.names.{Names, TypeNames}
+import com.nawforce.common.documents.{MetadataDocument, SourceInfo}
+import com.nawforce.common.names.{Name, Names, TypeName, TypeNames}
 import com.nawforce.common.org.PackageImpl
-import com.nawforce.common.stream.PackageStream
 import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.common.stream.{ComponentEvent, PackageStream}
 import com.nawforce.common.types.core._
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.synthetic.CustomFieldDeclaration
@@ -42,11 +41,11 @@ import scala.util.hashing.MurmurHash3
 
 /** An individual component being represented as a nested type. */
 final case class Component(pkg: PackageImpl,
-                           location: Option[PathLocation],
+                           location: Option[PathLike],
                            componentName: Name,
                            attributes: Option[Array[Name]])
     extends InnerBasicTypeDeclaration(
-      location.map(l => PathFactory(l.path)).toArray,
+      location.toArray,
       pkg,
       TypeName(componentName, Nil, Some(TypeName(Names.Component)))) {
 
@@ -66,6 +65,12 @@ final case class Component(pkg: PackageImpl,
 }
 
 object Component {
+  def apply(pkg: PackageImpl, event: ComponentEvent): Component = {
+    val path = PathFactory(event.sourceInfo.path)
+    val document = MetadataDocument(path)
+    new Component(pkg, Some(path), document.get.name, Some(event.attributes))
+  }
+
   val emptyComponents: Array[Component] = Array()
 }
 
@@ -107,15 +112,14 @@ final case class ComponentDeclaration(sources: Seq[SourceInfo],
     def merge(stream: PackageStream): NamespaceDeclaration = {
       new NamespaceDeclaration(name,
                                nestedComponents ++
-                                 stream.components.map(ce =>
-                                   Component(pkg, Some(ce.location), ce.name, Some(ce.attributes))))
+                                 stream.components.map(ce => Component(pkg, ce)))
     }
   }
 
   /** Create new components from merging those in the provided stream */
   def merge(stream: PackageStream): ComponentDeclaration = {
     val components = ComponentDeclaration.standardTypes ++
-      stream.components.map(ce => Component(pkg, Some(ce.location), ce.name, Some(ce.attributes)))
+      stream.components.map(ce => Component(pkg, ce))
     val sourceInfo = stream.components.map(_.sourceInfo).distinct
     val componentDeclaration =
       new ComponentDeclaration(sourceInfo, pkg, components, nestedComponents)
