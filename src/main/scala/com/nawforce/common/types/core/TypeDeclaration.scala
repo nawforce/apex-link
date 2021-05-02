@@ -30,6 +30,7 @@ package com.nawforce.common.types.core
 import com.nawforce.common.api._
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.IssueOps
+import com.nawforce.common.diagnostics.Location
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.modifiers._
 import com.nawforce.common.names.TypeNames._

@@ -28,10 +28,11 @@
 package com.nawforce.common.types.apex
 
 import com.nawforce.common.api._
+import com.nawforce.common.names.{Name, Names, TypeName, TypeNames}
 import com.nawforce.common.cst._
+import com.nawforce.common.diagnostics.PathLocation
 import com.nawforce.common.memory.SkinnySet
 import com.nawforce.common.modifiers.{Modifier, ModifierOps}
-import com.nawforce.common.names.{Names, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.{BlockDeclaration, _}

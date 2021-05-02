@@ -27,9 +27,9 @@
  */
 package com.nawforce.common.types.schema
 
-import com.nawforce.common.api.{Location, Name, PathLocation, TypeName}
+import com.nawforce.common.diagnostics.{Location, PathLocation}
 import com.nawforce.common.documents._
-import com.nawforce.common.names.{EncodedName, TypeNames}
+import com.nawforce.common.names.{EncodedName, Name, TypeName, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.synthetic.CustomFieldDeclaration

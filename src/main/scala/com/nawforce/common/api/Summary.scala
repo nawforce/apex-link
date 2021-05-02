@@ -28,6 +28,8 @@
 package com.nawforce.common.api
 
 import upickle.default.{macroRW, ReadWriter => RW}
+import com.nawforce.common.diagnostics.{Diagnostic, Location}
+import com.nawforce.common.names.{TypeIdentifier, TypeName}
 
 /**
   * Summary types are used both by the disk cache and to provide a quick & cheap way to examine what is available

@@ -27,6 +27,8 @@
  */
 package com.nawforce.common.api
 
+import com.nawforce.common.diagnostics.{Logger, LoggerOps}
+
 /** Collection of Ops functions for changing global behaviours */
 object ServerOps {
   private var lazyBlocks: Boolean = true

@@ -27,19 +27,13 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{Name, PathLocation, TypeName}
-import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.diagnostics.{Issue, PathLocation}
 import com.nawforce.common.finding.RelativeTypeName
 import com.nawforce.common.memory.SkinnySet
 import com.nawforce.common.modifiers.{MethodModifiers, _}
-import com.nawforce.common.names.TypeNames
+import com.nawforce.common.names.{Name, TypeName, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
-import com.nawforce.common.types.apex.{
-  ApexBlockLike,
-  ApexConstructorLike,
-  ApexFieldLike,
-  ApexMethodLike
-}
+import com.nawforce.common.types.apex.{ApexBlockLike, ApexConstructorLike, ApexFieldLike, ApexMethodLike}
 import com.nawforce.common.types.core._
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
@@ -111,7 +105,7 @@ object ClassBodyDeclaration {
               x =>
                 ApexFieldDeclaration.construct(
                   outerTypeId,
-                  ApexModifiers.fieldModifiers(
+                  FieldModifiers.fieldModifiers(
                     parser,
                     modifiers,
                     isOuter,
@@ -162,7 +156,7 @@ object ClassBodyDeclaration {
                   ApexPropertyDeclaration.construct(
                     parser,
                     outerTypeId,
-                    ApexModifiers.fieldModifiers(parser, modifiers, isOuter, x.id()),
+                    FieldModifiers.fieldModifiers(parser, modifiers, isOuter, x.id()),
                     x))))
         .orElse(
           CodeParser

@@ -27,10 +27,9 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api._
-import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, PathLocation}
 import com.nawforce.common.modifiers.{ISTEST_ANNOTATION, PRIVATE_MODIFIER}
-import com.nawforce.common.names.Names
+import com.nawforce.common.names.{Names, _}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexMethodLike}
 import com.nawforce.common.types.core.{CLASS_NATURE, INTERFACE_NATURE, MethodDeclaration, TypeDeclaration}

@@ -28,7 +28,7 @@
 
 package com.nawforce.common.types.platform
 
-import com.nawforce.common.api.{Name, TypeName}
+import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.finding.{MissingType, TypeError, TypeResolver}
 import com.nawforce.common.modifiers.Modifier

@@ -27,6 +27,9 @@
  */
 package com.nawforce.common.api
 
+import com.nawforce.common.names.TypeName
+import com.nawforce.common.diagnostics.Diagnostic
+
 /** Detailed view of an ApexClass.
   *
   * This is currently WIP and will be expanded later.

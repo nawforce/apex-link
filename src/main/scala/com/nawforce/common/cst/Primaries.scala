@@ -27,8 +27,8 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.finding.TypeResolver
+import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.names.{EncodedName, Names, TypeNames}
 import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexFieldLike}
 import com.nawforce.common.types.core.{FieldDeclaration, TypeDeclaration}

@@ -29,8 +29,7 @@ package com.nawforce.common.cmds.benchmarks
 
 import java.nio.file.{Files, Paths}
 
-import com.nawforce.common.api.{Name, ServerOps}
-import com.nawforce.common.documents.Workspace
+import com.nawforce.common.api.ServerOps
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.sfdx.WorkspaceConfig
 import com.nawforce.runtime.parsers.PageParser

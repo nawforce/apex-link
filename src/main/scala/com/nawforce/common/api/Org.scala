@@ -28,6 +28,7 @@
 package com.nawforce.common.api
 
 import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.diagnostics.PathLocation
 import com.nawforce.common.org.OrgImpl
 
 /** A virtual Org used to present the analysis functionality in a familiar way.

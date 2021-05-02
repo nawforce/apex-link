@@ -28,6 +28,7 @@
 package com.nawforce.common.types.apex
 
 import com.nawforce.common.api._
+import com.nawforce.common.diagnostics.PathLocation
 import com.nawforce.common.cst._
 import com.nawforce.common.documents._
 import com.nawforce.common.memory.Monitor

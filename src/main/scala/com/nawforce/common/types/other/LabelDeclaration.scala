@@ -27,8 +27,8 @@
  */
 package com.nawforce.common.types.other
 
-import com.nawforce.common.api._
-import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.names._
+import com.nawforce.common.diagnostics.{Diagnostic, Issue, PathLocation, UNUSED_CATEGORY}
 import com.nawforce.common.documents._
 import com.nawforce.common.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.names.TypeNames

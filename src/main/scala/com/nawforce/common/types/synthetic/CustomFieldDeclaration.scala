@@ -27,7 +27,8 @@
  */
 package com.nawforce.common.types.synthetic
 
-import com.nawforce.common.api.{Location, Name, PathLocation, TypeName}
+import com.nawforce.common.diagnostics.{Location, PathLocation}
+import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.modifiers._
 import com.nawforce.common.names.{EncodedName, _}
 import com.nawforce.common.org.PackageImpl

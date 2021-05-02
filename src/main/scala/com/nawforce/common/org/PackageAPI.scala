@@ -27,10 +27,11 @@
  */
 package com.nawforce.common.org
 
-import com.nawforce.common.api.{Package, ServerOps, TypeIdentifier, TypeName, TypeSummary, ViewInfo}
+import com.nawforce.common.api.{ServerOps, TypeSummary, ViewInfo}
 import com.nawforce.common.diagnostics.LocalLogger
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
+import com.nawforce.common.names.{TypeIdentifier, TypeName}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.stream._
 import com.nawforce.common.types.apex._

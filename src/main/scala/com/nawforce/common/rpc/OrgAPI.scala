@@ -27,7 +27,7 @@
  */
 package com.nawforce.common.rpc
 
-import com.nawforce.common.api.{Diagnostic, DiagnosticCategory, Location, PathLocation}
+import com.nawforce.common.diagnostics.{Diagnostic, DiagnosticCategory, Location, PathLocation}
 import com.nawforce.common.diagnostics.Issue
 import io.github.shogowada.scala.jsonrpc.api
 import io.github.shogowada.scala.jsonrpc.serializers.JSONRPCPickler.{macroRW, ReadWriter => RW}

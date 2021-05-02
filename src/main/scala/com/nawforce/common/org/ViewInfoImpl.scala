@@ -27,7 +27,9 @@
  */
 package com.nawforce.common.org
 
-import com.nawforce.common.api.{Diagnostic, TypeName, ViewInfo}
+import com.nawforce.common.api.ViewInfo
+import com.nawforce.common.diagnostics.Diagnostic
+import com.nawforce.common.names.TypeName
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.DependentType
 

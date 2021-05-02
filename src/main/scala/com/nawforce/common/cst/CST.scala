@@ -27,7 +27,6 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.diagnostics.IssueOps
 import com.nawforce.common.names._
 import com.nawforce.common.org.OrgImpl

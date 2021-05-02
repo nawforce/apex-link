@@ -31,31 +31,14 @@ import java.io.File
 import java.util
 import java.util.jar.JarFile
 
-import com.nawforce.common.api.{
-  Diagnostic,
-  ERROR_CATEGORY,
-  FileIssueOptions,
-  IssueOptions,
-  LoggerOps,
-  Name,
-  Org,
-  Package,
-  PathLocation,
-  ServerOps,
-  TypeIdentifier
-}
+import com.nawforce.common.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps}
 import com.nawforce.common.cst.UnusedLog
-import com.nawforce.common.diagnostics.{Issue, IssueLog}
+import com.nawforce.common.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, IssueLog, LoggerOps, PathLocation}
 import com.nawforce.common.documents._
 import com.nawforce.common.memory.IdentityBox
 import com.nawforce.common.names.{DotName, Names, _}
 import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.sfdx.{
-  MDAPIWorkspaceConfig,
-  SFDXProject,
-  SFDXWorkspaceConfig,
-  WorkspaceConfig
-}
+import com.nawforce.common.sfdx.{MDAPIWorkspaceConfig, SFDXProject, SFDXWorkspaceConfig, WorkspaceConfig}
 
 import scala.collection.immutable.ArraySeq.ofRef
 import scala.collection.mutable.ArrayBuffer

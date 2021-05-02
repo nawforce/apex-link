@@ -27,7 +27,8 @@
  */
 package com.nawforce.common.types.other
 
-import com.nawforce.common.api.{Name, PathLocation, TypeName}
+import com.nawforce.common.diagnostics.PathLocation
+import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.documents._
 import com.nawforce.common.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.common.names.{TypeNames, _}

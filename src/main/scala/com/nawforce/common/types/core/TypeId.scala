@@ -28,7 +28,7 @@
 
 package com.nawforce.common.types.core
 
-import com.nawforce.common.api.{TypeIdentifier, TypeName}
+import com.nawforce.common.names.{TypeIdentifier, TypeName}
 import com.nawforce.common.org.PackageImpl
 
 case class TypeId(pkg: PackageImpl, typeName: TypeName) {

@@ -29,9 +29,10 @@ package com.nawforce.common.cst
 
 import java.lang.ref.WeakReference
 
-import com.nawforce.common.api.{Name, ServerOps, TypeName}
+import com.nawforce.common.api.ServerOps
 import com.nawforce.common.cst.stmts.SwitchStatement
 import com.nawforce.common.modifiers.{ApexModifiers, ModifierResults}
+import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.{CodeParser, Source}

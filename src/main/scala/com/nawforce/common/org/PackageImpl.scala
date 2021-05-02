@@ -28,9 +28,8 @@
 
 package com.nawforce.common.org
 
-import com.nawforce.common.api.{Name, PathLocation, TypeName}
 import com.nawforce.common.cst.UnusedLog
-import com.nawforce.common.diagnostics.IssueLog
+import com.nawforce.common.diagnostics.{IssueLog, PathLocation}
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeResolver.TypeResponse
@@ -42,6 +41,7 @@ import com.nawforce.common.types.core.{TypeDeclaration, TypeId}
 import com.nawforce.common.types.other.{InterviewDeclaration, _}
 import com.nawforce.common.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.common.types.schema.SchemaManager
+import com.nawforce.common.workspace.Workspace
 
 import scala.collection.mutable
 

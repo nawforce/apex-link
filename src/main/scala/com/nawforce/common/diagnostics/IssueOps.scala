@@ -27,7 +27,7 @@
  */
 package com.nawforce.common.diagnostics
 
-import com.nawforce.common.api._
+import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.runtime.parsers.{ApexParser, CodeParser}
 
 object IssueOps {

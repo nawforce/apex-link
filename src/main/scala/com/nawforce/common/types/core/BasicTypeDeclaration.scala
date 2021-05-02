@@ -28,8 +28,8 @@
 
 package com.nawforce.common.types.core
 
-import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.modifiers.{Modifier, ModifierOps}
+import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.path.PathLike
 

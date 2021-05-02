@@ -31,7 +31,7 @@ package com.nawforce.common.types.platform
 import java.nio.file.{FileSystemNotFoundException, FileSystems, Files, Paths}
 import java.util
 
-import com.nawforce.common.api.{Name, TypeName}
+import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
 import com.nawforce.common.modifiers.{Modifier, PUBLIC_MODIFIER}

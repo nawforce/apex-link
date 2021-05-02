@@ -27,19 +27,14 @@
  */
 package com.nawforce.common.types.schema
 
-import com.nawforce.common.api.{Name, PathLocation, TypeName}
 import com.nawforce.common.cst.VerifyContext
+import com.nawforce.common.diagnostics.PathLocation
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.names.TypeNames._
-import com.nawforce.common.names.{EncodedName, Names, TypeNames}
+import com.nawforce.common.names.{EncodedName, Name, Names, TypeName, TypeNames}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types.core.{
-  BasicTypeDeclaration,
-  FieldDeclaration,
-  MethodDeclaration,
-  TypeDeclaration
-}
+import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
 import com.nawforce.common.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.common.types.schema
 import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration}

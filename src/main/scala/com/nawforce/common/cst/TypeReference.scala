@@ -27,7 +27,6 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.names.TypeNames._
 import com.nawforce.common.names.{EncodedName, Names, TypeNames, _}
 import com.nawforce.runtime.parsers.ApexParser.{TypeArgumentsContext, TypeListContext, TypeNameContext, TypeRefContext}
