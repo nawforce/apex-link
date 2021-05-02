@@ -34,6 +34,8 @@ import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.xml.{XMLElementLike, XMLException, XMLFactory}
 
+import scala.collection.mutable
+
 case class SObjectEvent(path: String) extends PackageEvent
 
 case class CustomFieldEvent(name: Name, rawType: Name, idTarget: Option[Name]) extends PackageEvent
@@ -41,8 +43,37 @@ case class FieldsetEvent(name: Name) extends PackageEvent
 case class SharingReasonEvent(name: Name) extends PackageEvent
 
 /** Convert SObject documents/folders into PackageEvents. We must call this even if there is not object-meta.xml file
- * present to collect the SFDX fields, fieldSets and sharingRules. */
+  * present to collect the SFDX fields, fieldSets and sharingRules. */
 object SObjectGenerator extends Generator {
+
+  override def iterator(nature: MetadataNature, index: DocumentIndex): Iterator[PackageEvent] = {
+
+    // SObjects need ordering so lookup target is output before the object using lookup
+    val eventsByName =
+      index.get(nature).map(document => (document.name, toEvents(document).toArray)).to(mutable.Map)
+    val emitted = new mutable.HashSet[Name]()
+    val output = new mutable.ArrayBuffer[Array[PackageEvent]]()
+
+    var found = true
+    while (found && eventsByName.nonEmpty) {
+      found = false
+      eventsByName.foreach(kv => {
+        val depends = kv._2
+          .collect { case CustomFieldEvent(_, _, Some(name)) => name }
+          .filter(eventsByName.contains)
+        if (depends.forall(d => emitted.contains(d))) {
+          eventsByName.remove(kv._1)
+          emitted.add(kv._1)
+          output.append(kv._2)
+          found = true
+        }
+      })
+    }
+
+    // If ordering failed, apply any left to end, this will fail on deploy
+    eventsByName.foreach(kv => output.append(kv._2))
+    output.flatten.iterator
+  }
 
   protected def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
     // The object-meta.xml file is annoyingly optional

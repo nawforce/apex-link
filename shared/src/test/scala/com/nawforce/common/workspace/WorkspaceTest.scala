@@ -314,4 +314,48 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       }
     }
   }
+
+  test("Master/Detail natural ordered") {
+    FileSystemHelper.run(
+      Map[String, String]("pkg/MyMaster.object" ->
+        """<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+          |</CustomObject>
+          |""".stripMargin,
+        "pkg/sub/MyDetail.object" ->
+          """<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+            |  <fields><fullName>Lookup__c</fullName><type>MasterDetail</type><referenceTo>MyMaster</referenceTo></fields>
+            |</CustomObject>
+            |""".stripMargin)) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(SObjectEvent("/pkg/MyMaster.object"),SObjectEvent("/pkg/sub/MyDetail.object"),
+        CustomFieldEvent(Name("Lookup__c"), Name("MasterDetail"), Some(Name("MyMaster")))) =>
+      }
+    }
+  }
+
+  test("Master/Detail reverse ordered") {
+    FileSystemHelper.run(
+      Map[String, String]("pkg/sub/MyMaster.object" ->
+        """<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+          |</CustomObject>
+          |""".stripMargin,
+        "pkg/MyDetail.object" ->
+          """<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+            |  <fields><fullName>Lookup__c</fullName><type>MasterDetail</type><referenceTo>MyMaster</referenceTo></fields>
+            |</CustomObject>
+            |""".stripMargin)) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(SObjectEvent("/pkg/sub/MyMaster.object"),SObjectEvent("/pkg/MyDetail.object"),
+        CustomFieldEvent(Name("Lookup__c"), Name("MasterDetail"), Some(Name("MyMaster")))) =>
+      }
+    }
+  }
+
+
 }
