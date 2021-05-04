@@ -28,10 +28,10 @@
 package com.nawforce.common.sfdx
 
 import com.nawforce.common.diagnostics
-import com.nawforce.common.diagnostics.{CatchingLogger, Diagnostic, ERROR_CATEGORY, Issue, Location}
+import com.nawforce.common.diagnostics._
 import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.workspace.{ExternalLayer, NamespaceLayer, PackageLayer}
+import com.nawforce.common.workspace.{ModuleLayer, NamespaceLayer}
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
@@ -66,7 +66,7 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
 
         val dir = root.join("foo")
         project.get.layers(logger) should matchPattern {
-          case List(NamespaceLayer(None, List(PackageLayer(path, List())))) if path == dir =>
+          case List(NamespaceLayer(None, List(ModuleLayer(path, List())))) if path == dir =>
         }
 
         assert(logger.issues.isEmpty)
@@ -83,7 +83,7 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
 
         val dir = root.join("foo")
         project.get.layers(logger) should matchPattern {
-          case List(NamespaceLayer(None, List(PackageLayer(path, List())))) if path == dir =>
+          case List(NamespaceLayer(None, List(ModuleLayer(path, List())))) if path == dir =>
         }
 
         assert(
@@ -105,7 +105,7 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
 
         val dir = root.join("foo")
         project.get.layers(logger) should matchPattern {
-          case List(NamespaceLayer(None, List(PackageLayer(path, List())))) if path == dir =>
+          case List(NamespaceLayer(None, List(ModuleLayer(path, List())))) if path == dir =>
         }
 
         assert(logger.issues.isEmpty)
@@ -130,7 +130,7 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
       val dir2 = root.join("bar")
       project.get.layers(logger) should matchPattern {
         case List(
-            NamespaceLayer(None, List(PackageLayer(path1, List()), PackageLayer(path2, List()))))
+            NamespaceLayer(None, List(ModuleLayer(path1, List()), ModuleLayer(path2, List()))))
             if path1 == dir1 && path2 == dir2 =>
       }
 
@@ -161,8 +161,8 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
       project.get.layers(logger) should matchPattern {
         case List(
             NamespaceLayer(None,
-                           List(PackageLayer(path1, List()),
-                                PackageLayer(path2, List(PackageLayer(path3, List()))),
+                           List(ModuleLayer(path1, List()),
+                                ModuleLayer(path2, List(ModuleLayer(path3, List()))),
                            ))) if path1 == dir1 && path2 == dir2 && path3 == dir1 =>
       }
 
@@ -193,8 +193,8 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
       project.get.layers(logger) should matchPattern {
         case List(
             NamespaceLayer(None,
-                           List(PackageLayer(path1, List()),
-                                PackageLayer(path2, List(PackageLayer(path3, List()))),
+                           List(ModuleLayer(path1, List()),
+                                ModuleLayer(path2, List(ModuleLayer(path3, List()))),
                            ))) if path1 == dir1 && path2 == dir2 && path3 == dir1 =>
       }
 
@@ -231,8 +231,8 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
       project.get.layers(logger) should matchPattern {
         case List(
             NamespaceLayer(None,
-                           List(PackageLayer(path1, List()),
-                                PackageLayer(path2, List(PackageLayer(path3, List()))),
+                           List(ModuleLayer(path1, List()),
+                                ModuleLayer(path2, List(ModuleLayer(path3, List()))),
                            ))) if path1 == dir1 && path2 == dir2 && path3 == dir1 =>
       }
 
@@ -261,14 +261,14 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
       val dir1 = root.join("foo")
       project.get.layers(logger) should matchPattern {
         case List(NamespaceLayer(Some(Name("ext")), List()),
-                  NamespaceLayer(None, List(PackageLayer(path1, List())))) if path1 == dir1 =>
+                  NamespaceLayer(None, List(ModuleLayer(path1, List())))) if path1 == dir1 =>
       }
 
       assert(logger.issues.isEmpty)
     }
   }
 
-  test("Single packageDirectory with external package") {
+  test("Single packageDirectory with external MDAPI package") {
     FileSystemHelper.run(
       Map("sfdx-project.json" ->
         """{
@@ -289,14 +289,56 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
       val dir1 = root.join("foo")
       val dir2 = root.join("bar")
       project.get.layers(logger) should matchPattern {
-        case List(NamespaceLayer(Some(Name("ext")), List(ExternalLayer(path2))),
-                  NamespaceLayer(None, List(PackageLayer(path1, List()))))
+        case List(NamespaceLayer(Some(Name("ext")), List(ModuleLayer(path2, Seq()))),
+                  NamespaceLayer(None, List(ModuleLayer(path1, List()))))
             if path1 == dir1 && path2 == dir2 =>
       }
 
       assert(logger.issues.isEmpty)
     }
   }
+
+  test("Single packageDirectory with external SFDX package") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" ->
+        """{
+          |  "packageDirectories": [
+          |    { "package": "first", "versionNumber": "1.2.3.4", "path": "foo"}
+          |  ],
+          |  "plugins": {
+          |    "dependencies": [
+          |       {"path": "pkg"}
+          |    ]
+          |  }
+          |}
+          |""".stripMargin,
+        "pkg/sfdx-project.json" ->
+          """{
+            |  "namespace": "pkg",
+            |  "packageDirectories": [
+            |    { "path": "bar"}
+            |  ]
+            |}
+            |""".stripMargin,
+
+
+      )) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+      assert(project.nonEmpty)
+
+      val dir1 = root.join("foo")
+      val dir2 = root.join("pkg").join("bar")
+      project.get.layers(logger) should matchPattern {
+        case List(NamespaceLayer(Some(Name("pkg")), List(ModuleLayer(path2, Seq()))),
+        NamespaceLayer(None, List(ModuleLayer(path1, List()))))
+          if path1 == dir1 && path2 == dir2 =>
+      }
+
+      assert(logger.issues.isEmpty)
+    }
+  }
+
 
   test("Single packageDirectory with dual external package") {
     FileSystemHelper.run(
@@ -321,9 +363,9 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
       val dir2 = root.join("bar")
       val dir3 = root.join("baz")
       project.get.layers(logger) should matchPattern {
-        case List(NamespaceLayer(Some(Name("ext1")), List(ExternalLayer(path2))),
-                  NamespaceLayer(Some(Name("ext2")), List(ExternalLayer(path3))),
-                  NamespaceLayer(None, List(PackageLayer(path1, List()))))
+        case List(NamespaceLayer(Some(Name("ext1")), List(ModuleLayer(path2, Seq()))),
+                  NamespaceLayer(Some(Name("ext2")), List(ModuleLayer(path3, Seq()))),
+                  NamespaceLayer(None, List(ModuleLayer(path1, List()))))
             if path1 == dir1 && path2 == dir2 && path3 == dir3 =>
       }
 

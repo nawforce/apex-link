@@ -33,7 +33,7 @@ import ujson.Value
 case class PackageDirectory(path: PathLike,
                             name: Option[String],
                             version: Option[VersionNumber],
-                            dependencies: Seq[Dependent2GP])
+                            dependencies: Seq[ModuleDependent])
 
 object PackageDirectory {
   def apply(projectPath: PathLike, jsonPath: String, config: Value.Value): PackageDirectory = {
@@ -44,7 +44,7 @@ object PackageDirectory {
                        config("dependencies") match {
                          case ujson.Arr(value) =>
                            value.toSeq.zipWithIndex.map(d =>
-                             new Dependent2GP(s"$jsonPath.dependencies[${d._2}]", d._1))
+                             new ModuleDependent(s"$jsonPath.dependencies[${d._2}]", d._1))
                          case _ =>
                            throw new SFDXProjectError(s"$jsonPath.dependencies",
                                                       "'dependencies' should be an array")

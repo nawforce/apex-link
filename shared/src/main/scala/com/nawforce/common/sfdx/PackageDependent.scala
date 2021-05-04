@@ -31,15 +31,15 @@ import com.nawforce.common.names.{Name, _}
 import com.nawforce.common.path.PathLike
 import ujson.Value
 
-class Dependent1GP(projectPath: PathLike, jsonPath: String, config: Value.Value) {
-  val namespace: Name = config.optIdentifier(jsonPath, "namespace") match {
-    case None =>
-      throw new SFDXProjectError(s"$jsonPath.namespace",
-                                 "'namespace' is required for each entry in 'dependencies'")
-    case Some(ns) if ns.isEmpty =>
-      throw new SFDXProjectError(s"$jsonPath.namespace", "'namespace' can not be empty")
-    case Some(ns) => ns
-  }
+case class PackageDependent(projectPath: PathLike, jsonPath: String, config: Value.Value) {
+  val namespace: Option[Name] =
+    config.optIdentifier(jsonPath, "namespace") match {
+      case Some(ns) if ns.isEmpty =>
+        throw new SFDXProjectError(s"$jsonPath.namespace", "'namespace' can not be empty")
+      case Some(ns) => Some(ns)
+      case None     => None
+    }
 
-  val path: Option[PathLike] = config.optStringValue(jsonPath, "path").map(p => projectPath.join(p))
+  val path: Option[PathLike] =
+    config.optStringValue(jsonPath, "path").map(p => projectPath.join(p))
 }

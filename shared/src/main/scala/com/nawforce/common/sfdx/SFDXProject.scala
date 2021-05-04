@@ -27,15 +27,15 @@
  */
 package com.nawforce.common.sfdx
 
-import com.nawforce.common.diagnostics.{IssueLogger, Location}
+import com.nawforce.common.diagnostics._
 import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.workspace.{ExternalLayer, NamespaceLayer, PackageLayer}
+import com.nawforce.common.workspace.{ModuleLayer, NamespaceLayer}
 import ujson.Value
 
 class SFDXProjectError(val jsonPath: String, message: String) extends Throwable(message)
 
-case class VersionedPackageLayer(version: Option[VersionNumber], packageLayer: PackageLayer)
+case class VersionedPackageLayer(version: Option[VersionNumber], packageLayer: ModuleLayer)
 
 class SFDXProject(val projectPath: PathLike, config: Value.Value) {
   private val projectFile = projectPath.join("sfdx-project.json")
@@ -67,11 +67,11 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
       case _: NoSuchElementException => Map()
     }
 
-  val dependencies: Seq[Dependent1GP] =
+  val dependencies: Seq[PackageDependent] =
     plugins.getOrElse("dependencies", ujson.Arr()) match {
       case ujson.Arr(value) =>
         value.toSeq.zipWithIndex.map(dp =>
-          new Dependent1GP(projectPath, s"$$.plugins.dependencies[${dp._2}]", dp._1))
+          PackageDependent(projectPath, s"$$.plugins.dependencies[${dp._2}]", dp._1))
       case _ =>
         throw new SFDXProjectError("$.plugins.dependencies", "'dependencies' should be an array")
     }
@@ -82,18 +82,14 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
       val localPackages = NamespaceLayer(
         namespace,
         packageDirectories
-          .foldLeft((Map[String, VersionedPackageLayer](), List[PackageLayer]()))(
+          .foldLeft((Map[String, VersionedPackageLayer](), List[ModuleLayer]()))(
             foldPackageDirectory(logger))
           ._2
           .reverse)
 
       // Fold in external 1GP dependencies if needed
       if (dependencies.nonEmpty) {
-        dependencies.map(
-          dependent =>
-            NamespaceLayer(Some(dependent.namespace),
-                           if (dependent.path.nonEmpty) ExternalLayer(dependent.path.get) :: Nil
-                           else Nil)) ++ Seq(localPackages)
+        dependencies.flatMap(dependent => packageDependentLayers(logger, dependent)) :+ localPackages
       } else {
         Seq(localPackages)
       }
@@ -102,15 +98,39 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
     }
   }
 
+  private def packageDependentLayers(logger: IssueLogger,
+                                     dependent: PackageDependent): Seq[NamespaceLayer] = {
+    (dependent.namespace.nonEmpty, dependent.path.nonEmpty) match {
+      case (false, false) =>
+        logger.log(
+          Issue(projectFile.toString,
+                Diagnostic(ERROR_CATEGORY,
+                           Location.empty,
+                           s"${dependent.jsonPath} must include either a namespace, a path or both")))
+        Seq.empty
+      case (true, false) =>
+        Seq(NamespaceLayer(dependent.namespace, Nil))
+      case (true, true) =>
+        Seq(NamespaceLayer(dependent.namespace, Seq(ModuleLayer(dependent.path.get, Seq.empty))))
+      case (false, true) =>
+        SFDXProject(dependent.path.get, logger)
+          .map(project => {
+            project.layers(logger)
+          })
+          .getOrElse(Seq.empty)
+    }
+  }
+
   private def foldPackageDirectory(logger: IssueLogger)(
-    layers: (Map[String, VersionedPackageLayer], List[PackageLayer]),
-    packageDirectory: PackageDirectory)
-    : (Map[String, VersionedPackageLayer], List[PackageLayer]) = {
+    layers: (Map[String, VersionedPackageLayer], List[ModuleLayer]),
+    packageDirectory: PackageDirectory): (Map[String, VersionedPackageLayer], List[ModuleLayer]) = {
 
     // Check dependencies are well formed
     val dependencies = packageDirectory.dependencies.flatMap(dependency =>
       validateDependency(layers._1, dependency, logger))
-    val newLayer = VersionedPackageLayer(packageDirectory.version, PackageLayer(packageDirectory.path, dependencies.map(_.packageLayer)))
+    val newLayer = VersionedPackageLayer(
+      packageDirectory.version,
+      ModuleLayer(packageDirectory.path, dependencies.map(_.packageLayer)))
 
     // For 2GP, named packages need a version as well
     if (packageDirectory.name.nonEmpty) {
@@ -125,7 +145,7 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
   }
 
   private def validateDependency(current: Map[String, VersionedPackageLayer],
-                                 dependency: Dependent2GP,
+                                 dependency: ModuleDependent,
                                  logger: IssueLogger): Option[VersionedPackageLayer] = {
     val existing = current.get(dependency.name)
     if (existing.isEmpty)
@@ -138,10 +158,9 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
                       Location.empty,
                       s"Dependency '${dependency.name}' must provide a version number")
     else if (!dependency.version.get.isCompatible(existing.get.version.get))
-      logger.logError(
-        projectFile,
-        Location.empty,
-        s"Dependency version '${dependency.version.get}' for '${dependency.name}' is not compatible with '${existing.get.version.get}'")
+      logger.logError(projectFile,
+                      Location.empty,
+                      s"Dependency version '${dependency.version.get}' for '${dependency.name}' is not compatible with '${existing.get.version.get}'")
 
     existing
   }

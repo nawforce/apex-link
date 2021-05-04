@@ -29,7 +29,7 @@ package com.nawforce.common.sfdx
 
 import ujson.Value
 
-class Dependent2GP(jsonPath: String, config: Value.Value) {
+case class ModuleDependent(jsonPath: String, config: Value.Value) {
   val name: String = config.stringValue(jsonPath, "package")
   val version: Option[VersionNumber] = config.optVersionNumber(jsonPath, "versionNumber")
 }

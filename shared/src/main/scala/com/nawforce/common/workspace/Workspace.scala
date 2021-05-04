@@ -52,9 +52,9 @@ import com.nawforce.common.stream.{IssuesEvent, PackageEvent, PackageStream}
 case class Workspace(layers: Seq[NamespaceLayer]) {
 
   // Document indexes for each layer of actual metadata
-  private val indexes: Map[MetadataLayer, IssuesAnd[DocumentIndex]] =
-    layers.foldLeft(Map[MetadataLayer, IssuesAnd[DocumentIndex]]())((acc, layer) =>
-      acc ++ layer.index)
+  val indexes: Map[ModuleLayer, IssuesAnd[DocumentIndex]] =
+    layers.foldLeft(Map[ModuleLayer, IssuesAnd[DocumentIndex]]())((acc, layer) =>
+      acc ++ layer.indexes)
 
   def get(typeName: TypeName): Set[MetadataDocument] = {
     deployOrderedIndexes.toSeq.reverse
@@ -68,7 +68,7 @@ case class Workspace(layers: Seq[NamespaceLayer]) {
       PackageStream.eventStream(index.value) ++ IssuesEvent.iterator(index.issues))
   }
 
-  private def deployOrderedIndexes: Iterator[IssuesAnd[DocumentIndex]] = {
+  def deployOrderedIndexes: Iterator[IssuesAnd[DocumentIndex]] = {
     layers.iterator.flatMap(layer => layer.layers).flatMap(indexes.get)
   }
 }

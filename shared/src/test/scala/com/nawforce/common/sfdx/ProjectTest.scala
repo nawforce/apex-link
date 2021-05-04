@@ -418,20 +418,24 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Dependencies missing namespace") {
     FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{\"plugins\": {\"dependencies\": [{}]}, \"packageDirectories\": []}")) {
+      "sfdx-project.json" -> "{\"plugins\": {\"dependencies\": [{}]}, \"packageDirectories\": [{\"path\": \"foo\"}]}")) {
       root: PathLike =>
         val project = SFDXProject(root, logger)
-        assert(project.isEmpty)
+        assert(project.nonEmpty)
+        assert(logger.issues.isEmpty)
+
+        // Namespace & path are checked during layer construction
+        project.get.layers(logger)
         assert(
           logger.issues == List(Issue(root.join("sfdx-project.json").toString,
                                       diagnostics.Diagnostic(
                                         ERROR_CATEGORY,
                                         Location.empty,
-                                        "$.plugins.dependencies[0].namespace - 'namespace' is required for each entry in 'dependencies'"))))
+                                        "$.plugins.dependencies[0] must include either a namespace, a path or both"))))
     }
   }
 
-  test("Dependencies namespace without uri") {
+  test("Dependencies namespace without path") {
     FileSystemHelper.run(Map(
       "sfdx-project.json" -> "{\"plugins\": {\"dependencies\": [{\"namespace\": \"foo\"}] }, \"packageDirectories\": []}")) {
       root: PathLike =>
@@ -439,7 +443,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         assert(logger.issues.isEmpty)
         assert(project.get.dependencies.nonEmpty)
         assert(project.get.dependencies.size == 1)
-        assert(project.get.dependencies.exists(_.namespace == Name("foo")))
+        assert(project.get.dependencies.exists(_.namespace.contains(Name("foo"))))
     }
   }
 
@@ -451,7 +455,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         assert(logger.issues.isEmpty)
         assert(project.get.dependencies.nonEmpty)
         assert(project.get.dependencies.size == 1)
-        assert(project.get.dependencies.exists(_.namespace == Name("foo")))
+        assert(project.get.dependencies.exists(_.namespace.contains(Name("foo"))))
         assert(project.get.dependencies.exists(_.path.contains(root.join("bar"))))
     }
   }
